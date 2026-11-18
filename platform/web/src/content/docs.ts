@@ -2569,7 +2569,7 @@ With a connected platform, its checkout charges its own shipping: here you choos
 Under **Gifts**, choose what customers can say about a gift at checkout, all of it optional for them:
 
 - **A card message**, up to the **Longest message (characters)** you set, from 20 to 500.
-- **Beginnings to tap**: up to 6, one a line, like "Happy birthday!".
+- **Beginnings to tap**: up to 6, one a line, like "Happy birthday!". Your app's other languages each have their own field ("Beginnings in AR", "Beginnings in TR"): customers using the app in that language see those, and the ones above when it's left empty.
 - **The recipient's name and phone**: in the standard checkout, the customer turns on **Send it to someone else**.
 - **“Send anonymously”**: the card doesn't show the sender's name.
 

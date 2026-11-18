@@ -11,6 +11,7 @@ import { DEFAULT_HOSTED_SETTINGS } from "@/lib/data/types";
 import { appMailFormValues, appMailServer, appMailTarget, parseAppMailForm, sendThroughServer, type AppMailFormValues } from "@/lib/email/app-mail";
 import { appUrl, encryptionKey, isProduction, waabekApiUrl } from "@/lib/env";
 import { ensureAuthKey, rotateAuthKey, yallappSignsIn } from "@/lib/hosted/app-auth";
+import { derivedCountryCode } from "@/lib/hosted/country-code";
 import { resendWebhook } from "@/lib/hosted/api-webhooks";
 import { issueTestToken } from "@/lib/hosted/test-token";
 import type { FormState } from "@/lib/forms";
@@ -18,7 +19,7 @@ import { appOtpSender, appWhatsappSender, parseAppWhatsappForm } from "@/lib/hos
 import { OtpSendError } from "@/lib/hosted/otp-sender";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { parseHostedSettingsForm } from "@/lib/hosted/settings-form";
-import { emailSignInNote, emailSignInPossible, normalizeEmail, parseEmailSignInChoice, parseSignInMethodsChoice, PASSWORD_WAYS, passwordChannels, passwordSignInPossible, SIGN_IN_METHODS } from "@/lib/hosted/sign-in-methods";
+import { conflictingCodes, emailSignInNote, emailSignInPossible, normalizeEmail, parseEmailSignInChoice, parseSignInMethodsChoice, PASSWORD_WAYS, passwordChannels, passwordSignInPossible, SIGN_IN_CLASH, SIGN_IN_METHODS } from "@/lib/hosted/sign-in-methods";
 import type { PasswordSignInSettings, PasswordWay, SignInMethod } from "@/lib/data/types";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
@@ -138,8 +139,10 @@ export async function saveAppSignInAction(_: FormState, formData: FormData): Pro
   for (const name of FIELDS) values[name] = String(formData.get(name) ?? "").trim();
   const parsed = parseHostedSettingsForm(values);
   if (!parsed.ok) return { errors: parsed.errors, values };
+  // 160.8 A code other than the one the app would have by itself is the owner's choice; the same one keeps following the shop.
+  const countryCodeChosen = parsed.value.defaultCountryCode !== derivedCountryCode(app, context.client.country).code;
   const store = await getStore();
-  const next = withSettings(app, parsed.value);
+  const next = withSettings(app, { ...parsed.value, countryCodeChosen });
   await store.updateApp(app.id, { hostedSettings: next }, new Date());
   await recordStaffChange(context, "Saved the app sign-in rules", auditable(app.hostedSettings), auditable(next));
   revalidatePath("/dashboard/app-sign-in");
@@ -193,7 +196,8 @@ export async function saveSignInMethodsAction(_: FormState, formData: FormData):
 /**
  * 118 Yallapp Studio apps: any of a code by phone, a code by email, and a
  * password with the email address, the phone number or a username (whose
- * accounts are verified and reset by email or by phone).
+ * accounts are verified and reset by email or by phone). 160 A channel is
+ * a code's or a password's, never both.
  */
 export async function saveStudioSignInAction(_: FormState, formData: FormData): Promise<FormState> {
   const { context, app } = await signInContext(true);
@@ -207,6 +211,9 @@ export async function saveStudioSignInAction(_: FormState, formData: FormData): 
     recovery,
   };
   if (!codes.length && !by.length) return { errors: { ways: "Choose at least one way to sign in." }, values };
+  // 160 A channel signs in with a code every time or with a password, never both: with a password, its code is only for sign-up and a forgotten password.
+  const clash = conflictingCodes(codes, by, recovery)[0];
+  if (clash) return { errors: { ways: SIGN_IN_CLASH[clash] }, values };
   const email = emailSignInPossible(app);
   const usesEmail = codes.includes("email") || by.includes("email") || (by.includes("username") && recovery === "email");
   if (usesEmail && !email) return { errors: { ways: emailSignInNote(app) ?? "This app signs in by phone." }, values };

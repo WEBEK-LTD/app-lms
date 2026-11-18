@@ -38,6 +38,8 @@ export default async function DesignerLayout({ children }: { children: React.Rea
   const contact = await getVisitorContact();
   const me = context.member ?? context.user;
   const notes = (await store.listMarketTemplates({ designerId: designer.id, statuses: ["changes_requested"] })).length;
+  // 106.11 The team asked for a fix in the checks before the first payout.
+  const detailsFix = (await store.getDesignerPayoutDetails(designer.id))?.status === "changes_requested";
   const chip = designerChip(designer);
   const groups: DashboardNavGroup[] = [
     {
@@ -49,6 +51,15 @@ export default async function DesignerLayout({ children }: { children: React.Rea
           ...(notes ? { badge: { count: notes, label: t("studioMarket.waitingNotes", { count: notes }) } } : {}),
         },
         { href: "/designer/publish", label: t("studioMarket.navPublish"), icon: "add_circle" },
+        // 106.11 The balance, the sales with their split, the payouts and their receipts, the checks.
+        {
+          href: "/designer/money",
+          label: t("marketMoney.nav"),
+          icon: "payments",
+          ...(detailsFix ? { badge: { count: 1, label: t("marketMoney.navFix") } } : {}),
+        },
+        // 106.12 Price drops, flash sales and coupon codes.
+        { href: "/designer/discounts", label: t("marketDiscounts.nav"), icon: "sell" },
       ],
     },
     {

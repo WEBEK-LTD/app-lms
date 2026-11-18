@@ -674,9 +674,47 @@
     },
     "studio": {
      "body": {
-      "id": "sig-28",
+      "id": "sig-29",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "sig-28",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account"
     },
@@ -697,7 +735,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-29",
+      "id": "sig-30",
       "type": "column",
       "children": []
      },
@@ -739,7 +777,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-30",
+      "id": "sig-31",
       "type": "column",
       "children": []
      },
@@ -781,7 +819,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-31",
+      "id": "sig-32",
       "type": "column",
       "children": []
      },
@@ -823,7 +861,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-32",
+      "id": "sig-33",
       "type": "column",
       "children": []
      },
@@ -865,7 +903,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-33",
+      "id": "sig-34",
       "type": "column",
       "children": []
      },
@@ -907,7 +945,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-34",
+      "id": "sig-35",
       "type": "column",
       "children": []
      },
@@ -941,7 +979,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-35",
+      "id": "sig-36",
       "type": "column",
       "children": []
      },
@@ -956,7 +994,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-36",
+      "id": "sig-37",
       "type": "column",
       "children": []
      },
@@ -971,7 +1009,7 @@
     "title": "A course",
     "studio": {
      "body": {
-      "id": "sig-37",
+      "id": "sig-38",
       "type": "column",
       "children": []
      },
@@ -986,7 +1024,7 @@
     "title": "A bundle",
     "studio": {
      "body": {
-      "id": "sig-38",
+      "id": "sig-39",
       "type": "column",
       "children": []
      },
@@ -1001,7 +1039,7 @@
     "title": "A lesson",
     "studio": {
      "body": {
-      "id": "sig-39",
+      "id": "sig-40",
       "type": "column",
       "children": []
      },
@@ -1016,7 +1054,7 @@
     "title": "A quiz",
     "studio": {
      "body": {
-      "id": "sig-40",
+      "id": "sig-41",
       "type": "column",
       "children": []
      },
@@ -1031,7 +1069,7 @@
     "title": "An assignment",
     "studio": {
      "body": {
-      "id": "sig-41",
+      "id": "sig-42",
       "type": "column",
       "children": []
      },
@@ -1046,7 +1084,7 @@
     "title": "A live session",
     "studio": {
      "body": {
-      "id": "sig-42",
+      "id": "sig-43",
       "type": "column",
       "children": []
      },
@@ -1061,7 +1099,7 @@
     "title": "A question",
     "studio": {
      "body": {
-      "id": "sig-43",
+      "id": "sig-44",
       "type": "column",
       "children": []
      },
@@ -1084,7 +1122,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-44",
+      "id": "sig-45",
       "type": "column",
       "children": []
      },
@@ -1118,7 +1156,7 @@
     "title": "A learning path",
     "studio": {
      "body": {
-      "id": "sig-45",
+      "id": "sig-46",
       "type": "column",
       "children": []
      },
@@ -1141,7 +1179,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-46",
+      "id": "sig-47",
       "type": "column",
       "children": []
      },
@@ -1183,7 +1221,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-47",
+      "id": "sig-48",
       "type": "column",
       "children": []
      },
@@ -1225,7 +1263,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-48",
+      "id": "sig-49",
       "type": "column",
       "children": []
      },
@@ -1267,7 +1305,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-49",
+      "id": "sig-50",
       "type": "column",
       "children": []
      },
@@ -1309,7 +1347,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-50",
+      "id": "sig-51",
       "type": "column",
       "children": []
      },
@@ -1351,7 +1389,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-51",
+      "id": "sig-52",
       "type": "column",
       "children": []
      },
@@ -1393,7 +1431,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-52",
+      "id": "sig-53",
       "type": "column",
       "children": []
      },
@@ -1435,7 +1473,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-53",
+      "id": "sig-54",
       "type": "column",
       "children": []
      },

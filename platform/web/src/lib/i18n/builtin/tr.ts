@@ -585,6 +585,7 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "There is no account with this email address.": "Bu e-posta adresiyle bir hesap yok.",
   "There is no account with this number.": "Bu numarayla bir hesap yok.",
   "You already have an account. Sign in with your password, or reset it if you forgot it.": "Zaten bir hesabınız var. Şifrenizle giriş yapın veya unuttuysanız sıfırlayın.",
+  "You already have an account. Set your password with “Forgot password”, then sign in with it.": "Zaten bir hesabınız var. Şifrenizi “Şifremi unuttum” ile belirleyin, sonra onunla giriş yapın.",
   "Please choose a username of 3 to 30 letters, digits, dots or underscores, starting with a letter.": "Lütfen harfle başlayan, 3 ile 30 arasında harf, rakam, nokta veya alt çizgiden oluşan bir kullanıcı adı seçin.",
   "This username is taken. Please choose another one.": "Bu kullanıcı adı alınmış. Lütfen başka bir tane seçin.",
   "Your password needs at least 8 characters.": "Şifreniz en az 8 karakter olmalı.",

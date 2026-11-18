@@ -159,7 +159,9 @@ export function placeOf(value: unknown): { country: string | null; city: string 
  * free over the threshold.
  */
 export type ShippingRule = "city" | "flat" | "distance" | "other_city" | "weight" | "minimum" | "free";
-type ShippingLine = { label: string; cents: number; rule: ShippingRule };
+/** 168 What a line is, for its words in the customer's language (`breakdownJson`); `label` stays the owner's English. */
+type LineWords = { kind: "base" | "km"; km?: number } | { kind: "kg"; grams: number; includedKg: number } | { kind: "minimum" | "free" | "delivery" };
+type ShippingLine = { label: string; cents: number; rule: ShippingRule; words?: LineWords };
 
 export type ShippingQuote =
   | { ok: true; cents: number; zone: string | null; km: number | null; rule: ShippingRule; breakdown: ShippingLine[] }
@@ -205,7 +207,7 @@ export function quoteShipping(
   if (!input.physical) return { ok: true, cents: 0, zone: city, km: null, rule: "flat", breakdown: [] };
   const free = r.freeOverCents !== null && input.subtotalCents >= r.freeOverCents;
   const done = (cents: number, rule: ShippingRule, zone: string | null, km: number | null, breakdown: ShippingLine[]): ShippingQuote =>
-    free ? { ok: true, cents: 0, zone, km, rule: "free", breakdown: [{ label: "Free delivery", cents: 0, rule: "free" }] } : { ok: true, cents, zone, km, rule, breakdown };
+    free ? { ok: true, cents: 0, zone, km, rule: "free", breakdown: [{ label: "Free delivery", cents: 0, rule: "free", words: { kind: "free" } }] } : { ok: true, cents, zone, km, rule, breakdown };
   // A city's own price wins over the computed fee.
   const own = place.city ? r.cityPrices.find((p) => (!place.country || !p.country || p.country === place.country) && sameCity(p.city, place.city!)) : undefined;
   if (own) return done(own.cents, "city", own.city, null, [{ label: own.city, cents: own.cents, rule: "city" }]);
@@ -216,7 +218,7 @@ export function quoteShipping(
   let zone: string | null = city;
   switch (r.mode) {
     case "flat":
-      if (r.flatCents > 0) lines.push({ label: "Delivery", cents: r.flatCents, rule: "flat" });
+      if (r.flatCents > 0) lines.push({ label: "Delivery", cents: r.flatCents, rule: "flat", words: { kind: "delivery" } });
       break;
     case "city":
       if (!place.city) return { ok: false, code: "invalid_request", field: "city", message: "Choose the city it goes to." };
@@ -228,8 +230,8 @@ export function quoteShipping(
       if (place.lat === null || place.lng === null) return { ok: false, code: "invalid_request", field: "location", message: "Drop a pin where it goes on the map." };
       km = distanceKm(d.origin, { lat: place.lat, lng: place.lng });
       if (d.maxKm !== null && km > d.maxKm) return { ok: false, code: "outside_delivery_area", field: "location", message: `The shop delivers up to ${d.maxKm} km away. This place is ${km} km away.` };
-      if (d.baseCents > 0) lines.push({ label: "Base fee", cents: d.baseCents, rule: "distance" });
-      lines.push({ label: `${km} km`, cents: Math.round(d.perKmCents * km), rule: "distance" });
+      if (d.baseCents > 0) lines.push({ label: "Base fee", cents: d.baseCents, rule: "distance", words: { kind: "base" } });
+      lines.push({ label: `${km} km`, cents: Math.round(d.perKmCents * km), rule: "distance", words: { kind: "km", km } });
       zone = city ? `${city} · ${km} km` : `${km} km`;
       break;
     }
@@ -238,11 +240,11 @@ export function quoteShipping(
   if (r.weight && r.weight.perKgCents > 0) {
     const grams = Math.max(0, input.weightGrams ?? 0);
     const over = Math.max(0, grams - Math.round(r.weight.includedKg * 1000));
-    lines.push({ label: r.weight.includedKg > 0 ? `${kgLabel(grams)} (${r.weight.includedKg} kg included)` : kgLabel(grams), cents: Math.round((r.weight.perKgCents * over) / 1000), rule: "weight" });
+    lines.push({ label: r.weight.includedKg > 0 ? `${kgLabel(grams)} (${r.weight.includedKg} kg included)` : kgLabel(grams), cents: Math.round((r.weight.perKgCents * over) / 1000), rule: "weight", words: { kind: "kg", grams, includedKg: r.weight.includedKg } });
     if (r.mode === "flat" && r.flatCents === 0) rule = "weight";
   }
   const raw = lines.reduce((sum, l) => sum + l.cents, 0);
-  if (r.minCents !== null && raw < r.minCents) lines.push({ label: "Minimum fee", cents: r.minCents - raw, rule: "minimum" });
+  if (r.minCents !== null && raw < r.minCents) lines.push({ label: "Minimum fee", cents: r.minCents - raw, rule: "minimum", words: { kind: "minimum" } });
   return done(Math.max(raw, r.minCents ?? 0), rule, zone, km, lines);
 }
 
@@ -263,9 +265,31 @@ export function shippingConfigJson(r: ShippingRules, currency: string, lang: str
   };
 }
 
-/** The quote's `shipping_breakdown`: each part with the rule that priced it. */
-export function breakdownJson(lines: { label: string; cents: number; rule?: string }[], currency: string) {
-  return lines.map((l) => ({ label: l.label, rule: l.rule ?? null, amount: centsToDecimal(l.cents), formatted: money(l.cents, currency) }));
+/** 168 A breakdown line's words for the customer: Yallapp's in Arabic and Turkish, else its English label (a city's name stays as the owner wrote it). */
+const LINE_WORDS: Record<"ar" | "tr", Record<"base" | "minimum" | "free" | "delivery" | "km" | "kg" | "included", string>> = {
+  ar: { base: "الرسوم الأساسية", minimum: "الحد الأدنى للرسوم", free: "توصيل مجاني", delivery: "التوصيل", km: "{n} كم", kg: "{n} كغ", included: "{label} (يشمل {n} كغ)" },
+  tr: { base: "Sabit ücret", minimum: "Asgari ücret", free: "Ücretsiz teslimat", delivery: "Teslimat", km: "{n} km", kg: "{n} kg", included: "{label} ({n} kg dahil)" },
+};
+
+/** A line's words as kept on an order (lib/data/types.ts `OrderDelivery.shipping`). */
+export type StoredLineWords = { kind: string; km?: number; grams?: number; includedKg?: number };
+
+export function shippingLineLabel(line: { label: string; words?: StoredLineWords }, lang: string | null | undefined): string {
+  const w = line.words;
+  const words = lang === "ar" || lang === "tr" ? LINE_WORDS[lang] : null;
+  if (!w || !words) return line.label;
+  if (w.kind === "km" && typeof w.km === "number") return words.km.replace("{n}", String(w.km));
+  if (w.kind === "kg" && typeof w.grams === "number") {
+    const kg = words.kg.replace("{n}", String(Math.round(w.grams / 100) / 10));
+    return (w.includedKg ?? 0) > 0 ? words.included.replace("{label}", kg).replace("{n}", String(w.includedKg)) : kg;
+  }
+  return w.kind === "base" || w.kind === "minimum" || w.kind === "free" || w.kind === "delivery" ? words[w.kind] : line.label;
+}
+
+/** The quote's `shipping_breakdown`: each part with the rule that priced it, 168 in the customer's language. */
+export function breakdownJson(lines: { label: string; cents: number; rule?: string; words?: StoredLineWords }[], currency: string, lang?: string | null) {
+  // 161 With its currency: the hosted API adds each in the customer's (`display`).
+  return lines.map((l) => ({ label: shippingLineLabel(l, lang), rule: l.rule ?? null, currency, amount: centsToDecimal(l.cents), formatted: money(l.cents, currency) }));
 }
 
 type Parsed<T> = { ok: true; value: T } | { ok: false; errors: Record<string, string> };

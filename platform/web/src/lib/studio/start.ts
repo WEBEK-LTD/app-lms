@@ -4,7 +4,7 @@ import { demoDesign } from "../demo/look";
 import { demoTabBar } from "../demo/screens";
 import { designLayout } from "../pages/layout";
 import type { LayoutContent } from "../pages/types";
-import { demoPageTabs, demoScreenPages, demoTabPages } from "./demo-pages";
+import { demoPageTabs, demoScreenPages, demoTabPages, isSignOut } from "./demo-pages";
 import { signatureDesign } from "./demo-designs";
 import { signatureProject } from "./demo-designs/signature";
 import type { SectionContext, TemplateInfo } from "./sections";
@@ -39,7 +39,8 @@ export function startLayout(app: App, template: TemplateInfo, ready: LayoutConte
   if (!template.demo && !project) return { ...layout, pages };
   const taken = new Set(pages.map((p) => p.slug));
   // 123 A template whose screens draw their own large titles has nothing over its tabs' screens.
-  const ownTabPages = demoTabPages(layout.tabs, ctx).map((p) => (project?.bare_tab_pages ? { ...p, studio: { body: { ...p.studio.body, children: [] }, screen: p.studio.screen } } : p));
+  // 167 The account keeps its Sign out element.
+  const ownTabPages = demoTabPages(layout.tabs, ctx).map((p) => (project?.bare_tab_pages ? { ...p, studio: { body: { ...p.studio.body, children: (p.studio.body.children ?? []).filter(isSignOut) }, screen: p.studio.screen } } : p));
   const tabPages = [...ownTabPages, ...demoScreenPages(app, layout.tabs, ctx, taken)]
     .filter((p) => !taken.has(p.slug))
     .map((p) => ({ ...p, show_title: false, updated_at: now.toISOString(), blocks: [] }))

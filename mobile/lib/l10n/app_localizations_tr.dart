@@ -425,6 +425,11 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String updateRequiredMessageApp(String name) {
+    return '$name uygulamasının yeni sürümü çıktı. Kullanmaya devam etmek için uygulamayı güncelleyin.';
+  }
+
+  @override
   String get updateNow => 'Şimdi güncelle';
 
   @override
@@ -785,6 +790,54 @@ class AppLocalizationsTr extends AppLocalizations {
       'Yeni dersler, duyurular ve sorularınızın yanıtları burada görünecek.';
 
   @override
+  String get noNotificationsMessageStore =>
+      'Siparişlerinizle ilgili güncellemeler, kampanyalar ve mağazadan haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageFlowers =>
+      'Siparişlerinizle ve teslimatlarıyla ilgili güncellemeler, kampanyalar ve mağazadan haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageFood =>
+      'Siparişlerinizle ilgili güncellemeler, kampanyalar ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageBookings =>
+      'Rezervasyon onayları, hatırlatmalar ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageListings =>
+      'Sorularınızın yanıtları, yeni ilanlar ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageNews =>
+      'Son dakika haberleri ve yeni yazılar burada görünecek.';
+
+  @override
+  String get noNotificationsMessageEvents =>
+      'Bilet güncellemeleri, etkinlik hatırlatmaları ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageDonations =>
+      'Kampanya güncellemeleri ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageDelivery =>
+      'Gönderilerinizle ilgili güncellemeler ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageRides =>
+      'Yolculuklarınızla ilgili güncellemeler, kampanyalar ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageTravel =>
+      'Rezervasyonlarınız ve seyahatlerinizle ilgili güncellemeler, kampanyalar ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageSchool =>
+      'Duyurular, ödevler, notlar ve okuldan mesajlar burada görünecek.';
+
+  @override
   String get notifications => 'Bildirimler';
 
   @override
@@ -882,6 +935,10 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get deleteAccountMessage =>
       'Hesabınız, ilerlemeniz ve kayıtlarınız silinecek, tüm cihazlarda oturum kapatılacak. Bu işlem geri alınamaz.';
+
+  @override
+  String get deleteAccountMessageApp =>
+      'Hesabınız ve bilgileri silinecek, tüm cihazlarda oturum kapatılacak. Bu işlem geri alınamaz.';
 
   @override
   String get deleteAccount => 'Hesabı sil';
@@ -1005,6 +1062,14 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get noAccountForNumber =>
       'Bu numarayla kayıtlı bir hesap yok. Lütfen akademiyle iletişime geçin.';
+
+  @override
+  String get noAccountForNumberApp =>
+      'Bu numarayla kayıtlı bir hesap yok. Lütfen bizimle iletişime geçin.';
+
+  @override
+  String get noAccountForNumberSchool =>
+      'Bu numarayla kayıtlı bir hesap yok. Lütfen okulla iletişime geçin.';
 
   @override
   String get newCodeSent => 'Size yeni bir kod gönderdik.';
@@ -3604,6 +3669,10 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get fileInAppOnlyMessage =>
       'Kurs dosyaları yalnızca uygulamanın içinde açılır; uygulama PDF, resim ve metin dosyalarını gösterir. Bu dosyayı eğitmeninizden PDF olarak isteyin.';
+
+  @override
+  String get fileInAppOnlyMessageApp =>
+      'Bu dosya yalnızca uygulamanın içinde açılır; uygulama PDF, resim ve metin dosyalarını gösterir. Dosyayı PDF olarak isteyin.';
 
   @override
   String pageOf(int page, int total) {
@@ -11879,6 +11948,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get deliveryPinChoose => 'Teslimat yerini haritada işaretleyin';
 
   @override
+  String get deliveryPinNoMapTitle => 'Bu mağazanın henüz haritası yok';
+
+  @override
+  String get deliveryPinNoMapMessage =>
+      'Teslimat yeri, telefonunuzun şu anki konumu olacak. Yalnızca siparişin gideceği yerdeyseniz kullanın ya da mağazadan adresinize teslim etmesini isteyin.';
+
+  @override
+  String get deliveryPinUseHere => 'Bulunduğum yeri kullan';
+
+  @override
   String get deliveryPinSet => 'Haritada işaretlendi';
 
   @override
@@ -12023,6 +12102,177 @@ class AppLocalizationsTr extends AppLocalizations {
   String orderPaidIn(String total) {
     return 'Ödenen $total';
   }
+
+  @override
+  String get orderDeliveryTitle => 'Teslimat';
+
+  @override
+  String orderDeliverySlot(String slot) {
+    return '$slot, mağaza saatiyle';
+  }
+
+  @override
+  String get orderRecipientTitle => 'Alıcı';
+
+  @override
+  String get orderAddressTitle => 'Adres';
+
+  @override
+  String get orderGiftTitle => 'Hediye kartı';
+
+  @override
+  String orderGiftFrom(String name) {
+    return 'Gönderen: $name';
+  }
+
+  @override
+  String get orderGiftAnonymous => 'İsimsiz gönderildi';
+
+  @override
+  String get orderSummaryTitle => 'Ödeme özeti';
+
+  @override
+  String orderCouponLine(String code) {
+    return 'Kupon $code';
+  }
+
+  @override
+  String get orderDiscountLine => 'İndirim';
+
+  @override
+  String orderPointsLine(int points) {
+    return 'Puan ($points)';
+  }
+
+  @override
+  String orderShippingTo(String zone) {
+    return 'Teslimat: $zone';
+  }
+
+  @override
+  String get orderSlotFee => 'Teslimat saati ücreti';
+
+  @override
+  String orderTaxIncluded(String tax) {
+    return '$tax dahil';
+  }
+
+  @override
+  String get bouquetTitle => 'Buketini oluştur';
+
+  @override
+  String get bouquetStepFlowers => 'Çiçekler';
+
+  @override
+  String get bouquetStepWrap => 'Ambalaj';
+
+  @override
+  String get bouquetStepCard => 'Kart';
+
+  @override
+  String get bouquetStepSummary => 'Buketiniz';
+
+  @override
+  String bouquetStepOf(int step, int count) {
+    return 'Adım $step/$count';
+  }
+
+  @override
+  String get bouquetFlowersLine => 'Çiçekleri dal dal seçin.';
+
+  @override
+  String get bouquetWrapLine => 'Nasıl ambalajlanacağını seçin.';
+
+  @override
+  String get bouquetCardLine => 'Kartı seçin ve mesajınızı yazın.';
+
+  @override
+  String get bouquetMessageOnlyLine => 'Kartın sözlerini yazın.';
+
+  @override
+  String bouquetStems(int count) {
+    return '$count dal';
+  }
+
+  @override
+  String bouquetStemsRange(int min, int max) {
+    return '$min ile $max dal arası';
+  }
+
+  @override
+  String bouquetNeedStems(int min) {
+    return 'En az $min dal seçin.';
+  }
+
+  @override
+  String bouquetMaxStems(int max) {
+    return 'Bir bukette en çok $max dal olur.';
+  }
+
+  @override
+  String get bouquetNoWrap => 'Ambalajsız';
+
+  @override
+  String get bouquetNoWrapLine => 'Dallar elle bağlanır.';
+
+  @override
+  String get bouquetChooseWrap => 'Devam etmek için bir ambalaj seçin.';
+
+  @override
+  String get bouquetNoCard => 'Kartsız';
+
+  @override
+  String get bouquetChooseCard => 'Devam etmek için bir kart seçin.';
+
+  @override
+  String get bouquetWriteMessage => 'Devam etmek için mesajınızı yazın.';
+
+  @override
+  String get bouquetSkipCard => 'Kartı atla';
+
+  @override
+  String get bouquetTotal => 'Buket toplamı';
+
+  @override
+  String get bouquetTotalNote => 'Toplamı mağaza sepetinizde onaylar.';
+
+  @override
+  String get bouquetSendFlowers => 'Çiçek gönder';
+
+  @override
+  String bouquetChange(String part) {
+    return '$part değiştir';
+  }
+
+  @override
+  String get bouquetUnavailable => 'Buketini oluştur şu anda kullanılamıyor.';
+
+  @override
+  String get bouquetShopInstead => 'Mağazaya git';
+
+  @override
+  String get bouquetInCart => 'Buketiniz sepette.';
+
+  @override
+  String get bouquetHeader => 'Buketiniz';
+
+  @override
+  String bouquetWrapPart(String name) {
+    return 'Ambalaj: $name';
+  }
+
+  @override
+  String bouquetCardPart(String name) {
+    return 'Kart: $name';
+  }
+
+  @override
+  String bouquetMessage(String message) {
+    return '“$message”';
+  }
+
+  @override
+  String get bouquetRemove => 'Buketi kaldır';
 
   @override
   String get paySheetWaitingTitle => 'Ödemeyi açılan pencerede tamamlayın';

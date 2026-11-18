@@ -30,6 +30,7 @@ import {
 } from "@/lib/pages/types";
 import { RangeField } from "./controls";
 import { Glyph } from "./shared";
+import { TextInApp } from "./text-in-app";
 
 /**
  * 129.11–129.20 The inspector's part for the premium elements: every option
@@ -48,6 +49,9 @@ interface Props {
   onChange: Change;
   lang: LanguageCode;
   defaultLang: LanguageCode;
+  /** 156 The app's languages and its name, for what each language shows of an entry's words. */
+  languages?: readonly LanguageCode[];
+  appName?: string;
   pickable: Pickable;
   /** The inspector's tap editor, for an entry's button or link. */
   actionFor: (id: string, action: Action | null, onChange: (action: Action | null) => void) => ReactNode;
@@ -150,7 +154,7 @@ function newEntry(type: StudioNode["type"]): StudioEntry {
   }
 }
 
-function EntriesEditor({ node, onChange, lang, defaultLang, actionFor }: Props) {
+function EntriesEditor({ node, onChange, lang, defaultLang, languages, appName, actionFor }: Props) {
   const t = useDashT();
   const spec = ENTRY_FIELDS[node.type];
   const [open, setOpen] = useState(0);
@@ -194,7 +198,11 @@ function EntriesEditor({ node, onChange, lang, defaultLang, actionFor }: Props) 
           {open === i ? (
             <>
               {spec.texts.map((f) => (
-                <TextIn key={f.field} label={t(`studio.${f.key}` as DashKey)} value={textOf(e, f.field)} hint={other ? (e[f.field] ?? "") : undefined} rows={f.rows} max={f.field === "text" ? 600 : f.field === "label" ? 40 : f.field === "prefix" || f.field === "suffix" ? 8 : 120} onChange={(v) => setText(i, f.field, v)} />
+                <div key={f.field} className="flex flex-col gap-1">
+                  <TextIn label={t(`studio.${f.key}` as DashKey)} value={textOf(e, f.field)} hint={other ? (e[f.field] ?? "") : undefined} rows={f.rows} max={f.field === "text" ? 600 : f.field === "label" ? 40 : f.field === "prefix" || f.field === "suffix" ? 8 : 120} onChange={(v) => setText(i, f.field, v)} />
+                  {/* 156 What the app shows of these words in its other languages. */}
+                  <TextInApp value={e} field={f.field} lang={lang} defaultLang={defaultLang} languages={languages} appName={appName} />
+                </div>
               ))}
               {spec.value ? (
                 spec.value.max > 100 ? (

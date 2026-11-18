@@ -69,7 +69,8 @@ class _Sections extends ConsumerWidget {
         if (s.type != BookingsSectionType.unknown) s,
     ];
     return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
+      // 158 Its end clear of a tab bar over the screen.
+      padding: EdgeInsets.only(bottom: endRoom(context, 24)),
       children: [
         _Header(site: site),
         if (known.isEmpty)

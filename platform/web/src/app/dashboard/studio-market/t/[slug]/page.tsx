@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { PageThumb } from "@/components/studio-market/phone";
-import { DesignerAvatar } from "@/components/studio-market/parts";
+import { DesignerAvatar, WasPrice } from "@/components/studio-market/parts";
+import { Countdown } from "@/components/studio-market/countdown";
 import { ApplyForm, DemoButton, PageChips, PlanPicker, TemplateDemo, TemplateStage, type DemoPage, type MineApp, type PlanChoice } from "@/components/studio-market/template-view";
 import { Notice, formatDate } from "@/components/ui";
 import { countryName } from "@/lib/account/country";
@@ -17,11 +18,12 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { formatList } from "@/i18n";
-import { designerChip, coverView } from "@/lib/studio-market/catalog";
+import { automaticDiscounts, designerChip, coverView } from "@/lib/studio-market/catalog";
+import { bestAutomatic, marketPrice } from "@/lib/studio-market/discounts";
 import { templateFits, templateKinds } from "@/lib/studio-market/kinds";
 import { versionDesign } from "@/lib/studio-market/snapshot";
 import { templateText } from "@/lib/studio-market/templates";
-import { formatUsd, ltr, offeredPlans, perMonthCents, priceTag } from "@/lib/studio-market/plans";
+import { formatUsd, ltr, offeredPlans, perMonthCents } from "@/lib/studio-market/plans";
 import { sampleEntries } from "@/lib/studio/sample-entries";
 
 export async function generateMetadata({ params }: PageProps<"/dashboard/studio-market/t/[slug]">): Promise<Metadata> {
@@ -65,8 +67,13 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
   const apps = fitting.filter((a) => a.id !== onApp?.id);
   const counts = await store.countTemplateLicences();
   // 106.2 Paid plans: each one's billed price and per month; a licence bought to apply later is applied here.
-  const paid = offeredPlans(template);
-  const tag = priceTag(template);
+  // 106.12 At the automatic discounts' prices (a price drop or a flash sale), the plan's own struck through.
+  const discounts = (await automaticDiscounts(store, [template.id], now)).get(template.id) ?? [];
+  const paid = offeredPlans(template).map((p) => {
+    const deal = bestAutomatic(p, discounts, now);
+    return { ...p, list: p.cents, cents: deal?.cents ?? p.cents, flashEndsAt: deal?.discount.kind === "flash" ? (deal.discount.endsAt?.toISOString() ?? null) : null };
+  });
+  const { tag, wasCents } = marketPrice(template, discounts, now);
   const bought = licences.find((l) => l.status === "active" && !l.appId) ?? null;
   const monthly = paid.flatMap((p) => {
     const cents = perMonthCents(p);
@@ -75,8 +82,17 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
   const bestPlan = monthly.length > 1 ? monthly.reduce((a, b) => (b.cents < a.cents ? b : a)).period : null;
   const planRows: PlanChoice[] = paid.map((p) => {
     const month = perMonthCents(p);
-    return { period: p.period, name: t(`studioMarket.plan_${p.period}`), price: ltr(formatUsd(p.cents), lang), sub: month === null ? t("studioMarket.lifeHint") : t("studioMarket.perMonth", { price: ltr(formatUsd(month), lang) }), best: p.period === bestPlan };
+    return {
+      period: p.period,
+      name: t(`studioMarket.plan_${p.period}`),
+      price: ltr(formatUsd(p.cents), lang),
+      sub: month === null ? t("studioMarket.lifeHint") : t("studioMarket.perMonth", { price: ltr(formatUsd(month), lang) }),
+      best: p.period === bestPlan,
+      was: p.cents < p.list ? ltr(formatUsd(p.list), lang) : null,
+    };
   });
+  const tagText = tag.kind === "free" ? t("studioMarket.free") : tag.kind === "from" ? t("studioMarket.perMonth", { price: ltr(formatUsd(tag.cents), lang) }) : t("studioMarket.oncePrice", { price: ltr(formatUsd(tag.cents), lang) });
+  const wasText = wasCents ? (tag.kind === "from" ? t("studioMarket.perMonth", { price: ltr(formatUsd(wasCents), lang) }) : ltr(formatUsd(wasCents), lang)) : null;
   const designerTemplates = (await store.listMarketTemplates({ designerId: designer.id, statuses: ["published"] })).filter((x) => x.currentVersionId);
   const chip = designerChip(designer);
 
@@ -258,9 +274,19 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
     <aside id="apply" aria-label={t("studioMarket.planLabel")} className="mk-panel flex scroll-mt-6 flex-col gap-[22px] rounded-[28px] px-5 py-6 md:p-[30px]">
       <div className="flex flex-col gap-1">
         <span className="mk-small">{t(paid.length ? "studioMarket.fromWord" : "studioMarket.fromLabel")}</span>
-        <b data-price-tag className="text-[40px] leading-none tracking-[-0.04em]">
-          {tag.kind === "free" ? t("studioMarket.free") : tag.kind === "from" ? t("studioMarket.perMonth", { price: ltr(formatUsd(tag.cents), lang) }) : t("studioMarket.oncePrice", { price: ltr(formatUsd(tag.cents), lang) })}
-        </b>
+        <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <b data-price-tag className="text-[40px] leading-none tracking-[-0.04em]">
+            {tagText}
+          </b>
+          {wasText ? <WasPrice text={wasText} className="text-[17px]" /> : null}
+        </span>
+        {paid.some((p) => p.flashEndsAt) ? (
+          <span className="mk-sale-time flex flex-wrap items-center gap-x-2 text-[13px] font-bold">
+            <Icon name="bolt" size={17} filled />
+            {t("marketDiscounts.flashPill")}
+            <Countdown endsAt={paid.flatMap((p) => (p.flashEndsAt ? [p.flashEndsAt] : [])).sort()[0]!} />
+          </span>
+        ) : null}
       </div>
       {paid.length ? null : (
         <div className="flex flex-col gap-2.5">
@@ -376,6 +402,7 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
           <div className="mk-buybar sticky bottom-0 z-30 flex items-center gap-3 px-5 py-3.5 lg:hidden">
             <span className="flex min-w-0 flex-1 flex-col">
               <b className="text-lg leading-tight">{tag.kind === "free" ? t("studioMarket.free") : tag.kind === "from" ? t("studioMarket.fromPrice", { price: ltr(formatUsd(tag.cents), lang) }) : t("studioMarket.oncePrice", { price: ltr(formatUsd(tag.cents), lang) })}</b>
+              {wasText ? <WasPrice text={wasText} className="text-xs" /> : null}
               <span className="mk-muted truncate text-xs">{t("studioMarket.knowReview")}</span>
             </span>
             <a href="#apply" className="mk-btn mk-btn-ember h-[50px] px-5 text-[15px]">

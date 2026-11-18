@@ -10,6 +10,7 @@ import '../../../core/widgets/common.dart';
 import '../../store/screens/points_screen.dart' show myPointsProvider;
 import '../auth/country_codes.dart';
 import 'academy_look.dart';
+import 'sign_out.dart';
 
 /// 118.3 One entry of a Studio app's account menu, as the owner named it.
 class AccountLookEntry {
@@ -320,7 +321,8 @@ class _Cover extends StatelessWidget {
     final cardTop = top + 112;
     return Scaffold(
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        // 167 Its end past a tab bar floating over it, so Sign out shows.
+        padding: EdgeInsets.only(bottom: accountListEnd(context, 24)),
         children: [
           Stack(
             clipBehavior: Clip.none,
@@ -570,7 +572,8 @@ class _Tiles extends StatelessWidget {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+          // 167 Its end past a tab bar floating over it, so Sign out shows.
+          padding: EdgeInsets.fromLTRB(20, 24, 20, accountListEnd(context, 24)),
           children: [
             Row(
               children: [
@@ -814,7 +817,8 @@ class _Night extends StatelessWidget {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+          // 167 Its end past a tab bar floating over it, so Sign out shows.
+          padding: EdgeInsets.fromLTRB(20, 24, 20, accountListEnd(context, 24)),
           children: [
             Row(
               children: [

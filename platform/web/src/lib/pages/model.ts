@@ -1,6 +1,7 @@
 import { blockActions, mapBlockActions } from "./block-actions";
 import { newBlockId } from "./defaults";
 import type { ScreenOption } from "./sources";
+import { withTypedTranslation } from "./template-translations";
 import {
   ENTRY_LISTS,
   TRANSLATABLE,
@@ -33,9 +34,15 @@ export function textIn(value: WithTexts, field: string, lang: LanguageCode, def:
   return value.translations?.[lang]?.[field] ?? "";
 }
 
-/** Sets a text in `lang`: the default text, or its translation (removed when empty). */
-export function withText<T extends WithTexts>(value: T, field: string, text: string, lang: LanguageCode, def: LanguageCode): T {
+/**
+ * Sets a text in `lang`: the default text, or its translation (removed when
+ * empty). 156 `own`: written by the owner in an editor, marked as theirs so
+ * it stays even when it is one of the template's words
+ * (lib/pages/template-translations.ts).
+ */
+export function withText<T extends WithTexts>(value: T, field: string, text: string, lang: LanguageCode, def: LanguageCode, own = false): T {
   if (lang === def) return { ...value, [field]: text };
+  if (own) return withTypedTranslation(withText(value, field, text, lang, def), lang, field);
   const translations: Translations = { ...value.translations };
   const texts = { ...translations[lang] };
   if (text) texts[field] = text;

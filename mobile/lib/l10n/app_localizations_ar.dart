@@ -440,6 +440,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String updateRequiredMessageApp(String name) {
+    return 'يتوفر إصدار جديد من $name. حدّث التطبيق لمواصلة استخدامه.';
+  }
+
+  @override
   String get updateNow => 'حدّث الآن';
 
   @override
@@ -812,6 +817,54 @@ class AppLocalizationsAr extends AppLocalizations {
       'ستظهر هنا الدروس الجديدة والإعلانات والإجابات عن أسئلتك.';
 
   @override
+  String get noNotificationsMessageStore =>
+      'ستظهر هنا تحديثات طلباتك والعروض وأخبار المتجر.';
+
+  @override
+  String get noNotificationsMessageFlowers =>
+      'ستظهر هنا تحديثات طلباتك وتوصيلها، والعروض وأخبار المتجر.';
+
+  @override
+  String get noNotificationsMessageFood =>
+      'ستظهر هنا تحديثات طلباتك والعروض والأخبار.';
+
+  @override
+  String get noNotificationsMessageBookings =>
+      'ستظهر هنا تأكيدات الحجز والتذكيرات والأخبار.';
+
+  @override
+  String get noNotificationsMessageListings =>
+      'ستظهر هنا الردود على استفساراتك والعقارات الجديدة والأخبار.';
+
+  @override
+  String get noNotificationsMessageNews =>
+      'ستظهر هنا الأخبار العاجلة والمقالات الجديدة.';
+
+  @override
+  String get noNotificationsMessageEvents =>
+      'ستظهر هنا تحديثات التذاكر وتذكيرات الفعاليات والأخبار.';
+
+  @override
+  String get noNotificationsMessageDonations =>
+      'ستظهر هنا تحديثات الحملات والأخبار.';
+
+  @override
+  String get noNotificationsMessageDelivery =>
+      'ستظهر هنا تحديثات شحناتك والأخبار.';
+
+  @override
+  String get noNotificationsMessageRides =>
+      'ستظهر هنا تحديثات رحلاتك والعروض والأخبار.';
+
+  @override
+  String get noNotificationsMessageTravel =>
+      'ستظهر هنا تحديثات حجوزاتك ورحلاتك والعروض والأخبار.';
+
+  @override
+  String get noNotificationsMessageSchool =>
+      'ستظهر هنا الإعلانات والواجبات والدرجات ورسائل المدرسة.';
+
+  @override
   String get notifications => 'الإشعارات';
 
   @override
@@ -908,6 +961,10 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get deleteAccountMessage =>
       'سيُحذف حسابك وتقدّمك وتسجيلاتك، وسيتم تسجيل الخروج من كل الأجهزة. لا يمكن التراجع عن ذلك.';
+
+  @override
+  String get deleteAccountMessageApp =>
+      'سيُحذف حسابك وبياناته، وسيتم تسجيل الخروج من كل الأجهزة. لا يمكن التراجع عن ذلك.';
 
   @override
   String get deleteAccount => 'حذف الحساب';
@@ -1038,6 +1095,14 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get noAccountForNumber =>
       'لا يوجد حساب بهذا الرقم. يُرجى التواصل مع الأكاديمية.';
+
+  @override
+  String get noAccountForNumberApp =>
+      'لا يوجد حساب بهذا الرقم. يُرجى التواصل معنا.';
+
+  @override
+  String get noAccountForNumberSchool =>
+      'لا يوجد حساب بهذا الرقم. يُرجى التواصل مع المدرسة.';
 
   @override
   String get newCodeSent => 'أرسلنا إليك رمزًا جديدًا.';
@@ -3744,6 +3809,10 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get fileInAppOnlyMessage =>
       'تُفتح ملفات الدورة داخل التطبيق فقط، وهو يعرض ملفات PDF والصور والنصوص. اطلب هذا الملف من المدرّس بصيغة PDF.';
+
+  @override
+  String get fileInAppOnlyMessageApp =>
+      'يُفتح هذا الملف داخل التطبيق فقط، وهو يعرض ملفات PDF والصور والنصوص. اطلبه بصيغة PDF.';
 
   @override
   String pageOf(int page, int total) {
@@ -12358,6 +12427,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deliveryPinChoose => 'حدّد مكان التوصيل على الخريطة';
 
   @override
+  String get deliveryPinNoMapTitle => 'لا توجد خريطة لهذا المتجر بعد';
+
+  @override
+  String get deliveryPinNoMapMessage =>
+      'سيكون مكان التوصيل هو مكان هاتفك الآن. استخدمه فقط إذا كنت في المكان الذي سيُرسل إليه الطلب، أو اطلب من المتجر التوصيل إلى عنوانك.';
+
+  @override
+  String get deliveryPinUseHere => 'استخدم مكاني الحالي';
+
+  @override
   String get deliveryPinSet => 'تم تحديد المكان على الخريطة';
 
   @override
@@ -12501,6 +12580,187 @@ class AppLocalizationsAr extends AppLocalizations {
   String orderPaidIn(String total) {
     return 'تم دفع $total';
   }
+
+  @override
+  String get orderDeliveryTitle => 'التوصيل';
+
+  @override
+  String orderDeliverySlot(String slot) {
+    return '$slot بتوقيت المتجر';
+  }
+
+  @override
+  String get orderRecipientTitle => 'المستلم';
+
+  @override
+  String get orderAddressTitle => 'العنوان';
+
+  @override
+  String get orderGiftTitle => 'بطاقة الإهداء';
+
+  @override
+  String orderGiftFrom(String name) {
+    return 'من $name';
+  }
+
+  @override
+  String get orderGiftAnonymous => 'أُرسلت دون ذكر الاسم';
+
+  @override
+  String get orderSummaryTitle => 'ملخص الدفع';
+
+  @override
+  String orderCouponLine(String code) {
+    return 'القسيمة $code';
+  }
+
+  @override
+  String get orderDiscountLine => 'الخصم';
+
+  @override
+  String orderPointsLine(int points) {
+    return 'النقاط ($points)';
+  }
+
+  @override
+  String orderShippingTo(String zone) {
+    return 'التوصيل إلى $zone';
+  }
+
+  @override
+  String get orderSlotFee => 'رسوم وقت التوصيل';
+
+  @override
+  String orderTaxIncluded(String tax) {
+    return 'يشمل $tax';
+  }
+
+  @override
+  String get bouquetTitle => 'صمّم باقتك';
+
+  @override
+  String get bouquetStepFlowers => 'الزهور';
+
+  @override
+  String get bouquetStepWrap => 'التغليف';
+
+  @override
+  String get bouquetStepCard => 'البطاقة';
+
+  @override
+  String get bouquetStepSummary => 'باقتك';
+
+  @override
+  String bouquetStepOf(int step, int count) {
+    return 'الخطوة $step من $count';
+  }
+
+  @override
+  String get bouquetFlowersLine => 'اختر الزهور ساقًا ساقًا.';
+
+  @override
+  String get bouquetWrapLine => 'اختر طريقة التغليف.';
+
+  @override
+  String get bouquetCardLine => 'اختر البطاقة واكتب رسالتك.';
+
+  @override
+  String get bouquetMessageOnlyLine => 'اكتب كلمات البطاقة.';
+
+  @override
+  String bouquetStems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ساق',
+      many: '$count ساقًا',
+      few: '$count سيقان',
+      two: 'ساقان',
+      one: 'ساق واحدة',
+      zero: 'لا سيقان',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bouquetStemsRange(int min, int max) {
+    return 'من $min إلى $max من السيقان';
+  }
+
+  @override
+  String bouquetNeedStems(int min) {
+    return 'عدد السيقان $min على الأقل.';
+  }
+
+  @override
+  String bouquetMaxStems(int max) {
+    return 'عدد السيقان في الباقة $max على الأكثر.';
+  }
+
+  @override
+  String get bouquetNoWrap => 'بلا تغليف';
+
+  @override
+  String get bouquetNoWrapLine => 'السيقان مربوطة باليد.';
+
+  @override
+  String get bouquetChooseWrap => 'اختر تغليفًا لتتابع.';
+
+  @override
+  String get bouquetNoCard => 'بلا بطاقة';
+
+  @override
+  String get bouquetChooseCard => 'اختر بطاقة لتتابع.';
+
+  @override
+  String get bouquetWriteMessage => 'اكتب رسالتك لتتابع.';
+
+  @override
+  String get bouquetSkipCard => 'تخطَّ البطاقة';
+
+  @override
+  String get bouquetTotal => 'مجموع الباقة';
+
+  @override
+  String get bouquetTotalNote => 'يؤكد المتجر المجموع في سلتك.';
+
+  @override
+  String get bouquetSendFlowers => 'أرسل الزهور';
+
+  @override
+  String bouquetChange(String part) {
+    return 'غيّر $part';
+  }
+
+  @override
+  String get bouquetUnavailable => '«صمّم باقتك» غير متاح الآن.';
+
+  @override
+  String get bouquetShopInstead => 'اذهب إلى المتجر';
+
+  @override
+  String get bouquetInCart => 'باقتك في السلة.';
+
+  @override
+  String get bouquetHeader => 'باقتك';
+
+  @override
+  String bouquetWrapPart(String name) {
+    return 'التغليف: $name';
+  }
+
+  @override
+  String bouquetCardPart(String name) {
+    return 'البطاقة: $name';
+  }
+
+  @override
+  String bouquetMessage(String message) {
+    return '«$message»';
+  }
+
+  @override
+  String get bouquetRemove => 'احذف الباقة';
 
   @override
   String get paySheetWaitingTitle => 'أكمل الدفع في النافذة التي فُتحت';

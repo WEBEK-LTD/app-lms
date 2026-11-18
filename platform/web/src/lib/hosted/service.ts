@@ -47,7 +47,8 @@ import type { Connector } from "./connectors/types";
 import { decodeJwt, encodeJwt } from "./jwt";
 import { handlePages } from "./pages";
 import { handleFormAnswers, type FormLine } from "./pages/forms";
-import { draftLayout, lookAndLanguages } from "../pages/layout";
+import { draftLayout, lookAndLanguages, publishedLayout } from "../pages/layout";
+import { screenTextForms } from "../demo/screen-text-forms";
 import type { OtpSender } from "./otp-sender";
 import { parseAnyPhone, parsePhone, type Phone } from "./phone";
 import { hasFeature, type PlanInfo } from "../plans";
@@ -55,6 +56,7 @@ import { DEMO_LIMITS, DEMO_SIGN_IN, DEMO_USER_NAME } from "../demo/constants";
 import { recordDemoVisit } from "../live-activity/demo";
 import { hostedSignInMethods, normalizeEmail, normalizeUsername, PASSWORD_MIN_LENGTH, passwordProblem, passwordSignIn } from "./sign-in-methods";
 import { hashPassword, verifyPassword } from "../auth/password";
+import { appCountryCode } from "./country-code";
 import { personClaims, yallappSignsIn, type AppSignIn } from "./app-auth";
 import { localizedError, requestLanguage } from "../i18n/builtin";
 import { chatConfig, chatSessionKind } from "../chat/access";
@@ -129,6 +131,8 @@ export interface HostedContext {
   ip: string;
   /** 85.1 The country the request came from (lib/geo.ts), kept on the phone for campaigns' audiences. */
   country?: string | null;
+  /** 160.8 The owner's account's country (ISO alpha-2): the app's default country code after the shop's. */
+  ownerCountry?: string | null;
   /** Signs access tokens and hashes codes. */
   secret: string;
   sender: OtpSender | null;
@@ -367,7 +371,8 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
     if (!SIGN_IN_ONLY_ROUTES.has(route) && !deviceRoute) return notFound();
   }
   // 10.6 Pages
-  const page = signInOnly ? null : await handlePages(ctx, req, session?.user ?? null);
+  // 161 Its lists' prices in the customer's currency too.
+  const page = signInOnly ? null : await handlePages(ctx, req, session?.user ?? null, () => displayOf(ctx, req));
   if (page) return page;
   // 99.4 A form's answers, by email.
   const form = signInOnly ? null : await handleFormAnswers(ctx, req, session?.user ?? null);
@@ -592,6 +597,12 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     await noteAppError(ctx.store, { clientId: app.clientId, appId: app.id, source: "platform", code: "config_failed", detail: errorText(e) }, ctx.now);
     extra = {};
   }
+  // 10.6 Looks and languages (17: the draft's, in a draft preview)
+  // 43 With each language's name, direction and the owner's string pack.
+  const looks = await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null, {
+    platformUrl: ctx.platformUrl,
+    draft: Boolean(ctx.preview?.draft),
+  });
   return ok({
     site: {
       name: app.appName ?? "App",
@@ -625,9 +636,10 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       // Yallapp, when the owner left them on) and the plan has offline mode.
       downloads: extra.features?.downloads === true && ctx.plan !== undefined && hasFeature(ctx.plan, "offline_downloads"),
     },
-    auth: authConfig(app),
+    auth: authConfig(app, ctx.ownerCountry),
     // 118.3 Studio apps: the sign-in screen's look and the account menu.
-    ...screensConfig(app),
+    // 156 Without the template's words in other languages for a text the owner changed in the main one.
+    ...screensConfig(app, { language: looks.languages.default, words: screenTextForms() }),
     // Paid courses never show "Enroll now" on iOS, nor without card payments in the plan (13.1).
     purchases: {
       ...(extra.purchases ?? { enroll_button: false, free_enrollment: false }),
@@ -657,7 +669,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     switches: appSwitches(app),
     // 149 Prices in the customer's currency: on or off for this app, and in which (empty: any).
     ...(DISPLAY_CONNECTORS.has(app.connector?.kind ?? "") ? { customer_currency: customerCurrencyConfigJson(customerCurrencyRule(app.catalogSettings)) } : {}),
-    ...(extra.store ? { store: extra.store } : {}),
+    // 161 Its fees and thresholds also in the customer's currency (`display`), as the shop's answers are.
+    ...(extra.store ? { store: DISPLAY_CONNECTORS.has(app.connector?.kind ?? "") ? addDisplayPrices(extra.store, await displayOf(ctx, req)) : extra.store } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
     ...(extra.listings ? { listings: extra.listings } : {}),
     // 28 Events & tickets
@@ -687,12 +700,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(teachersOn(app, ctx.plan) ? { instructors: { applications: courseSetup(app).teachersApply === true, timezone: await appZone(ctx.store, app), staff_app: staffAppPlaceOf(app) } } : {}),
     // 105.4 Schools
     ...(schoolOn(app, ctx.plan) ? { school: await schoolConfigOf(ctx) } : {}),
-    // 10.6 Looks and languages (17: the draft's, in a draft preview)
-    // 43 With each language's name, direction and the owner's string pack.
-    ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null, {
-      platformUrl: ctx.platformUrl,
-      draft: Boolean(ctx.preview?.draft),
-    })),
+    // 10.6 Looks and languages, read above.
+    ...looks,
   });
 }
 
@@ -706,12 +715,13 @@ async function schoolConfigOf(ctx: HostedContext) {
 }
 
 /** `Config.auth`: the owner's sign-in choices. */
-function authConfig(app: App) {
+function authConfig(app: App, ownerCountry: string | null | undefined) {
   const settings = hostedSettings(app);
   return {
     signup_allowed: settings.signupAllowed,
     signup_fields: signupFields(settings),
-    default_country_code: settings.defaultCountryCode,
+    // 160.8 The owner's choice, else the shop's country, the owner's, then the platform's.
+    default_country_code: appCountryCode(app, ownerCountry).code,
     // 18 Phone, email (a code by email) or both, as the owner chose.
     methods: hostedSignInMethods(app),
     ...(hostedSignInMethods(app).includes("email") ? { email_sign_in: "code" } : {}),
@@ -735,7 +745,7 @@ function passwordConfig(app: App) {
  * address of these endpoints and the owner's choices). The app takes only
  * `auth` from it; everything else comes from the client's own /config.
  */
-function signInConfig(ctx: HostedContext, req: HostedRequest): HostedResult {
+async function signInConfig(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
   const platform = req.query.get("platform");
   if (platform !== "android" && platform !== "ios") return badRequest("Unknown platform.");
   if (!req.query.get("app_version")) return badRequest("The app version is missing.");
@@ -752,9 +762,9 @@ function signInConfig(ctx: HostedContext, req: HostedRequest): HostedResult {
     },
     branding: { logo_url: app.logoAssetId ? ctx.assetUrl(app.logoAssetId) : null, primary_color: app.primaryColor },
     features: { lms: null, lms_version: "", pro: false, certificates: false, quizzes: false, wishlist: false, reviews: false, qna: false, push: false },
-    auth: { ...authConfig(app), provider: "yallapp", base_url: ctx.yallappSignIn!.baseUrl },
+    auth: { ...authConfig(app, ctx.ownerCountry), provider: "yallapp", base_url: ctx.yallappSignIn!.baseUrl },
     // 118.3 A Studio app on its own API: the app takes these with the sign-in rules.
-    ...screensConfig(app),
+    ...screensConfig(app, { language: (await publishedLayout(ctx.store, app.id))?.languages.default ?? null, words: screenTextForms() }),
     purchases: { enroll_button: false, free_enrollment: false },
     content: { block_screen_capture: false, watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
     app: { update_required: false, maintenance: false, maintenance_message: null },
@@ -1026,7 +1036,11 @@ async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Pr
     return ok({ reset_token: resetToken, expires_in_seconds: SIGNUP_TTL_SECONDS });
   }
   // 118 Where a code doesn't sign in (passwords only), an account signs in with its password; the store review number still does.
+  // 160 A password is mandatory there: an account made with a code before has none yet, and sets it with "Forgot password".
   if (user && passwords && !challenge.review && !passwords.codes.includes(channel)) {
+    if (!(await ctx.store.getHostedUserPassword(ctx.app.id, user.id))) {
+      return error(409, "use_password", "You already have an account. Set your password with “Forgot password”, then sign in with it.");
+    }
     return error(409, "use_password", "You already have an account. Sign in with your password, or reset it if you forgot it.");
   }
   if (user) return session(ctx, user, record(body.device));
@@ -1118,6 +1132,8 @@ async function register(ctx: HostedContext, body: Record<string, unknown>): Prom
  * 118 What a sign-up after a code asks besides the owner's fields: a password
  * where the channel doesn't sign in with a code, and a username where people
  * sign in with one (on the channel username accounts are verified on).
+ * 160 The password is mandatory on a password's channel: `passwordSignIn`
+ * keeps no code there, so every account made there sets one.
  */
 function passwordFields(app: App, channel: "phone" | "email"): ("username" | "password")[] {
   const passwords = passwordSignIn(app);

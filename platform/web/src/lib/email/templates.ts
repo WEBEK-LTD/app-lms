@@ -92,7 +92,11 @@ export type EmailTemplateKey =
   // 106.2 A buyer's paid template: the receipt, the reminders before its plan ends, the end
   | "market_template_receipt"
   | "market_template_reminder"
-  | "market_template_ended";
+  | "market_template_ended"
+  // 106.11 A designer's money: the team's answer to their payout checks, and each payout's receipt
+  | "market_payout_details_approved"
+  | "market_payout_details_changes"
+  | "market_payout_sent";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -389,6 +393,55 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     ],
     subject: "{{template_name}}: your plan ended",
     body: "Hello {{name}},\n\n{{intro_line}}\n\n{{after_line}}\n\nYou can buy it again any time:\n{{renew_url}}" + SIGNATURE,
+  },
+  {
+    key: "market_payout_details_approved",
+    name: "Studio Market payout details approved",
+    description: "106.11 To a designer when the team approves their ID and bank details, before their first payout.",
+    placeholders: [NAME, { name: "money_url", description: "The designer's earnings", sample: "https://yallapp.com.tr/designer/money" }],
+    subject: "Your payout details are approved",
+    body:
+      "Hello {{name}},\n\nOur team checked your ID and bank details for Studio Market: they're approved.\n\n" +
+      "Your payouts go out every month by SWIFT once your balance reaches $250; below that, it carries over to the next month. Your earnings:\n{{money_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "market_payout_details_changes",
+    name: "Studio Market payout details: a fix asked for",
+    description: "106.11 To a designer when the team asks them to fix their ID or bank details, with the team's note.",
+    placeholders: [
+      NAME,
+      { name: "notes", description: "What to fix, from the team", sample: "The name on the bank account doesn't match the name on your ID." },
+      { name: "details_url", description: "Where the designer changes their details", sample: "https://yallapp.com.tr/designer/money/details" },
+    ],
+    subject: "Your payout details: something to fix",
+    body:
+      "Hello {{name}},\n\nOur team looked at your ID and bank details for Studio Market payouts. Please fix this:\n\n{{notes}}\n\n" +
+      "Change them here; your payouts wait until they're approved:\n{{details_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "market_payout_sent",
+    name: "Studio Market payout receipt",
+    description: "106.11 To a designer when the team marks their monthly payout sent by SWIFT: the receipt, its PDF attached.",
+    placeholders: [
+      NAME,
+      { name: "amount", description: "The payout, in US dollars", sample: "$300.00" },
+      { name: "month", description: "The month it is for", sample: "December 2026" },
+      { name: "sent_on", description: "The day the bank sent it", sample: "3 Dec 2026" },
+      { name: "bank_name", description: "The designer's bank", sample: "Ziraat Bankası" },
+      { name: "account_hint", description: "The account, masked", sample: "TR33 •••• 1326" },
+      { name: "bank_reference", description: "The bank's reference for the transfer", sample: "SWIFT-20261203-0042" },
+      { name: "payout_id", description: "The payout's reference", sample: "5b0c6d1e-…" },
+      { name: "money_url", description: "The designer's earnings", sample: "https://yallapp.com.tr/designer/money" },
+    ],
+    subject: "Your Studio Market payout: {{amount}}",
+    body:
+      "Hello {{name}},\n\nWe sent your Studio Market payout for {{month}} by SWIFT on {{sent_on}}.\n\n" +
+      "Amount: {{amount}}\nTo: {{bank_name}}, {{account_hint}}\nBank reference: {{bank_reference}}\nPayout: {{payout_id}}\n\n" +
+      "It's exactly 75% of your sales: Yallapp's 25% covers taxes, the payment gateway's fees and the banks' fees, the intermediary banks' too. " +
+      "It can take a few working days to reach your account. The receipt is attached, and in your designer area:\n{{money_url}}" +
+      SIGNATURE,
   },
   {
     key: "setup_request",

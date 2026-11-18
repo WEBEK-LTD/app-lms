@@ -117,13 +117,16 @@ Platform (`platform/web`):
 - `src/app/pay/[token]/app/route.ts:13`: the entry that sets the cookie and
   goes on to the page.
 - `src/app/pay/[token]/status/route.ts:14`: the status the app reads.
-- `src/app/pay/[token]/order-received/page.tsx:36` (what the done page
-  returns, and whether it goes by itself) and `:118` (the button).
-- `src/app/pay/[token]/page.tsx:48`: the failed, pending and closed pages'
+- `src/app/pay/[token]/order-received/page.tsx:41` (what the done page
+  returns, and whether it goes by itself) and `:128` (the button).
+- `src/app/pay/[token]/page.tsx:51`: the failed, pending and closed pages'
   button.
 - `src/app/pay/[token]/back-to-app.tsx:15`: going back by itself after 600 ms.
-- `src/lib/builds/app-release.ts:26`: `CLIENT_APP_RELEASE = 7`, with its
-  comment line.
+- `src/lib/catalog/pay-words.ts`: `backToApp`, in English, Arabic and
+  Turkish, after main's 168 put the payment pages in the customer's
+  language.
+- `CLIENT_APP_RELEASE`: left at main's 9. App release 10 (the integration
+  branch) bumps it and rebuilds the preview once.
 
 App (`mobile`):
 
@@ -147,7 +150,7 @@ App (`mobile`):
 - `lib/core/web/web_page_screen.dart:79` (the choice), `:129` (done, reported
   as the order received page) and `:188` (the sheet in place of the web
   view).
-- `lib/core/routing/app_router.dart:444`: a cold start from the link opens
+- `lib/core/routing/app_router.dart:502`: a cold start from the link opens
   Orders.
 - `tool/src/build_config_tool.dart:779` `returnSchemeOf`, written to
   `android/app/yallapp.properties` and `ios/Flutter/YallappBuild.xcconfig`.
@@ -245,6 +248,41 @@ Platform (`platform/web`):
   this environment. It ran with a throwaway config (not committed) giving
   Playwright the pre-installed Chromium (`launchOptions.executablePath`); the
   specs and the repo's config are unchanged.
+
+## After merging main (app release 9, #461)
+
+`origin/main` (a9350e6) was merged into this branch with a merge commit, no
+rebase. Conflicts were resolved keeping both sides:
+
+- The payment pages: main's languages (168) plus this branch's return
+  links. "Back to the app" is now in the customer's language.
+- The ARB files and app strings: main's plus the 14 `paySheet…` strings,
+  regenerated.
+- The Playwright admins.
+- The docs. Phase 170 sits between 169 and 171.
+- `CLIENT_APP_RELEASE` and the preview bundle are main's, as asked: the
+  integration branch does both once for release 10. Until then,
+  `build_preview.sh --check` reports the preview out of date on this
+  branch.
+
+Run again after the merge:
+
+- `next typegen` + `tsc --noEmit`: exit 0. eslint on the changed files:
+  exit 0.
+- vitest, the related files: 6 files, 94 passed.
+- vitest `phase168-gift-checkout` (main's, covering `pay-words.ts`): 11
+  passed.
+- Flutter:
+  - `apply_config` with no changes left;
+  - `dart format`: 0 changed;
+  - `flutter analyze`: no issues.
+- `flutter test` on `phase170_pay_sheet_test`, `build_config_tool_test`,
+  `phase124_web_signed_in_test`, `phase48_test`, `phase46_test` and
+  `donations_test`: 93 passed.
+- The whole `flutter test`: still running when the merge was committed; its result is in the next commit.
+
+The e2e specs weren't run again after the merge (they need a new
+production build). The results above them are from before the merge.
 
 ## What only a real phone can confirm
 

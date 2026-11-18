@@ -12,8 +12,8 @@ import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 
-/** 103R What each Studio plan choice is called on the website, by plan feature. */
-function choiceLabels(lang: Lang): Record<string, { label: string; icon: IconName }> {
+/** 103R What each Studio plan choice is called on the website, by plan feature (154 also the pricing page's compact cards). */
+export function choiceLabels(lang: Lang): Record<string, { label: string; icon: IconName }> {
   const m = messagesFor(lang).studio;
   return {
     ios: { label: m.choiceIos, icon: "smartphone" },
@@ -32,7 +32,7 @@ function choiceLabels(lang: Lang): Record<string, { label: string; icon: IconNam
 }
 
 /** "12 Studio pages per project", or unlimited. */
-function pagesText(lang: Lang, plan: PlanInfo): string {
+export function pagesText(lang: Lang, plan: PlanInfo): string {
   const m = messagesFor(lang).studio;
   const pages = plan.limits.studioPages ?? null;
   return pages === null ? m.unlimitedPages : formatMessage(lang, m.pages, { count: pages });

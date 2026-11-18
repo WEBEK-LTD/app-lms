@@ -245,7 +245,7 @@ describe("131 where the shop delivers and what shipping costs", () => {
     const r = base({ flatCents: 0, weight: { perKgCents: 1000, includedKg: 2 } });
     const q = quoteShipping(r, { subtotalCents: 1000, physical: true, place: null, weightGrams: 3500 });
     expect(q).toMatchObject({ ok: true, cents: 1500, rule: "weight" });
-    if (q.ok) expect(q.breakdown).toEqual([{ label: "3.5 kg (2 kg included)", cents: 1500, rule: "weight" }]);
+    if (q.ok) expect(q.breakdown).toEqual([{ label: "3.5 kg (2 kg included)", cents: 1500, rule: "weight", words: { kind: "kg", grams: 3500, includedKg: 2 } }]);
     expect(quoteShipping(r, { subtotalCents: 1000, physical: true, place: null, weightGrams: 1500 })).toMatchObject({ cents: 0 });
   });
 

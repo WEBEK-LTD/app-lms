@@ -3,6 +3,7 @@ import { giftMessagesStatus, giftOccasionsOf } from "../selling/gift-messages";
 import { storeCheckoutStatus } from "../selling/in-app-pay";
 import { sectionTitlesJson } from "../selling/addons";
 import { appLanguagesOf } from "../selling/store";
+import { screenTextForms } from "../demo/screen-text-forms";
 import { appSwitches, type AppSwitches } from "../app/switches";
 import { licenseStoreBilling } from "../store-billing/config";
 import { httpsSiteAddress, moveToWordpress } from "../app/wordpress-ready";
@@ -277,6 +278,8 @@ interface AppFacts {
   storeProducts?: StoreProduct[];
   /** 131 A store's card messages. */
   giftMessages?: ReturnType<typeof giftMessagesStatus> | null;
+  /** 156 The app's main language, for its Studio › Screens texts. */
+  mainLanguage?: string;
 }
 
 function statusBody(
@@ -306,7 +309,8 @@ function statusBody(
     chat: state === "active" && facts.app && chatAvailable(facts.app, plan) ? { base_url: chatBaseUrl(appUrl(), facts.app.id), groups: chatGroupsOn(facts.app) } : null,
     switches: appSwitches(facts.app ?? {}),
     store_billing: state === "active" && facts.app ? licenseStoreBilling(facts.app, plan, facts.storeProducts ?? [], appUrl()) : null,
-    screens: facts.app ? (screensConfig(facts.app).screens ?? null) : null,
+    // 156 Without the template's words in other languages for a text the owner changed in the main one.
+    screens: facts.app ? (screensConfig(facts.app, { language: facts.mainLanguage ?? null, words: screenTextForms() }).screens ?? null) : null,
     gift_messages: facts.giftMessages ?? null,
     store_titles: facts.app?.appType === "store" ? sectionTitlesJson(facts.app.catalogSettings?.titles) : null,
     store_checkout: state === "active" && facts.app ? storeCheckoutStatus(facts.app) : null,
@@ -347,6 +351,7 @@ async function appFactsOf(store: DataStore, license: License): Promise<AppFacts>
     app,
     storeProducts: app.storeBilling?.enabled ? await store.listStoreProducts(app.id) : [],
     giftMessages: app.appType === "store" ? giftMessagesStatus(await giftOccasionsOf(store, app, new Date()), (await appLanguagesOf(store, app)).default) : null,
+    mainLanguage: (await appLanguagesOf(store, app)).default,
   };
 }
 

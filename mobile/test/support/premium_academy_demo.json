@@ -325,14 +325,14 @@
      "background": "#FAF7F1",
      "dark_background": "#0A0B10",
      "body": {
-      "id": "demo-60",
+      "id": "demo-61",
       "type": "column",
       "padding": {
        "bottom": 24
       },
       "children": [
        {
-        "id": "demo-61",
+        "id": "demo-62",
         "type": "stack",
         "name": "The course they're taking",
         "visibility": "signed_in",
@@ -344,7 +344,7 @@
         "background": "#1D2B4F",
         "children": [
          {
-          "id": "demo-62",
+          "id": "demo-63",
           "type": "learning",
           "learning": {
            "section": "continue",
@@ -359,7 +359,7 @@
           "color": "#FFFFFF"
          },
          {
-          "id": "demo-63",
+          "id": "demo-64",
           "type": "column",
           "gap": 14,
           "padding": {
@@ -370,7 +370,7 @@
           },
           "children": [
            {
-            "id": "demo-64",
+            "id": "demo-65",
             "type": "segments",
             "segments": {
              "source": "course",
@@ -380,7 +380,7 @@
             "color": "#E6C26E"
            },
            {
-            "id": "demo-65",
+            "id": "demo-66",
             "type": "greeting",
             "color": "#FFFFFF",
             "font": {
@@ -393,7 +393,7 @@
         ]
        },
        {
-        "id": "demo-66",
+        "id": "demo-67",
         "type": "photo_hero",
         "name": "Learn from the best, at your own pace",
         "visibility": "signed_out",
@@ -422,7 +422,7 @@
         },
         "children": [
          {
-          "id": "demo-67",
+          "id": "demo-68",
           "type": "text",
           "text": "Learn from the best, at your own pace",
           "color": "#FFFFFF",
@@ -442,7 +442,7 @@
           }
          },
          {
-          "id": "demo-68",
+          "id": "demo-69",
           "type": "button",
           "text": "Browse courses",
           "width": "hug",
@@ -481,7 +481,7 @@
         ]
        },
        {
-        "id": "demo-69",
+        "id": "demo-70",
         "type": "row",
         "name": "Streak and live class",
         "visibility": "signed_in",
@@ -495,7 +495,7 @@
         },
         "children": [
          {
-          "id": "demo-70",
+          "id": "demo-71",
           "type": "learning",
           "learning": {
            "section": "streak",
@@ -512,7 +512,7 @@
           "border_width": 1
          },
          {
-          "id": "demo-71",
+          "id": "demo-72",
           "type": "learning",
           "learning": {
            "section": "live",
@@ -531,7 +531,7 @@
         ]
        },
        {
-        "id": "demo-72",
+        "id": "demo-73",
         "type": "row",
         "name": "Picked for you",
         "cross": "end",
@@ -543,7 +543,7 @@
         },
         "children": [
          {
-          "id": "demo-73",
+          "id": "demo-74",
           "type": "text",
           "text": "Picked for you",
           "width": "fill",
@@ -564,7 +564,7 @@
           }
          },
          {
-          "id": "demo-74",
+          "id": "demo-75",
           "type": "text",
           "text": "See all",
           "color": "#7A5C14",
@@ -589,7 +589,7 @@
         ]
        },
        {
-        "id": "demo-75",
+        "id": "demo-76",
         "type": "items",
         "name": "Picked for you",
         "source": "courses",
@@ -609,7 +609,7 @@
          "ids": []
         },
         "card": {
-         "id": "demo-76",
+         "id": "demo-77",
          "type": "stack",
          "width": 236,
          "height": 150,
@@ -617,7 +617,7 @@
          "background": "#1D2B4F",
          "children": [
           {
-           "id": "demo-77",
+           "id": "demo-78",
            "type": "image",
            "bind": "image",
            "width": "fill",
@@ -632,7 +632,7 @@
            }
           },
           {
-           "id": "demo-78",
+           "id": "demo-79",
            "type": "column",
            "height": 150,
            "align": "between",
@@ -644,7 +644,7 @@
            },
            "children": [
             {
-             "id": "demo-79",
+             "id": "demo-80",
              "type": "text",
              "bind": "badge",
              "self_align": "start",
@@ -665,11 +665,11 @@
              "color": "#2A1D05"
             },
             {
-             "id": "demo-80",
+             "id": "demo-81",
              "type": "column",
              "children": [
               {
-               "id": "demo-81",
+               "id": "demo-82",
                "type": "text",
                "bind": "title",
                "max_lines": 2,
@@ -681,7 +681,7 @@
                }
               },
               {
-               "id": "demo-82",
+               "id": "demo-83",
                "type": "row",
                "gap": 4,
                "cross": "center",
@@ -690,7 +690,7 @@
                },
                "children": [
                 {
-                 "id": "demo-83",
+                 "id": "demo-84",
                  "type": "text",
                  "bind": "subtitle",
                  "max_lines": 1,
@@ -701,7 +701,7 @@
                  }
                 },
                 {
-                 "id": "demo-84",
+                 "id": "demo-85",
                  "type": "text",
                  "bind": "rating",
                  "text": "·",
@@ -721,7 +721,7 @@
         }
        },
        {
-        "id": "demo-85",
+        "id": "demo-86",
         "type": "row",
         "gap": 10,
         "cross": "start",
@@ -746,7 +746,7 @@
         "visibility": "signed_out",
         "children": [
          {
-          "id": "demo-86",
+          "id": "demo-87",
           "type": "icon",
           "icon": "info",
           "icon_size": 18,
@@ -754,7 +754,7 @@
           "dark_color": "#A8AEC4"
          },
          {
-          "id": "demo-87",
+          "id": "demo-88",
           "type": "text",
           "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
           "width": "fill",
@@ -838,9 +838,47 @@
     },
     "studio": {
      "body": {
-      "id": "demo-34",
+      "id": "demo-35",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "demo-34",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account"
     },
@@ -861,7 +899,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-35",
+      "id": "demo-36",
       "type": "column",
       "children": []
      },
@@ -903,7 +941,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-36",
+      "id": "demo-37",
       "type": "column",
       "children": []
      },
@@ -945,7 +983,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-37",
+      "id": "demo-38",
       "type": "column",
       "children": []
      },
@@ -987,7 +1025,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-38",
+      "id": "demo-39",
       "type": "column",
       "children": []
      },
@@ -1029,7 +1067,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-39",
+      "id": "demo-40",
       "type": "column",
       "children": []
      },
@@ -1071,7 +1109,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-40",
+      "id": "demo-41",
       "type": "column",
       "children": []
      },
@@ -1105,7 +1143,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-41",
+      "id": "demo-42",
       "type": "column",
       "children": []
      },
@@ -1120,7 +1158,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-42",
+      "id": "demo-43",
       "type": "column",
       "children": []
      },
@@ -1135,7 +1173,7 @@
     "title": "A course",
     "studio": {
      "body": {
-      "id": "demo-43",
+      "id": "demo-44",
       "type": "column",
       "children": []
      },
@@ -1150,7 +1188,7 @@
     "title": "A bundle",
     "studio": {
      "body": {
-      "id": "demo-44",
+      "id": "demo-45",
       "type": "column",
       "children": []
      },
@@ -1165,7 +1203,7 @@
     "title": "A lesson",
     "studio": {
      "body": {
-      "id": "demo-45",
+      "id": "demo-46",
       "type": "column",
       "children": []
      },
@@ -1180,7 +1218,7 @@
     "title": "A quiz",
     "studio": {
      "body": {
-      "id": "demo-46",
+      "id": "demo-47",
       "type": "column",
       "children": []
      },
@@ -1195,7 +1233,7 @@
     "title": "An assignment",
     "studio": {
      "body": {
-      "id": "demo-47",
+      "id": "demo-48",
       "type": "column",
       "children": []
      },
@@ -1210,7 +1248,7 @@
     "title": "A live session",
     "studio": {
      "body": {
-      "id": "demo-48",
+      "id": "demo-49",
       "type": "column",
       "children": []
      },
@@ -1225,7 +1263,7 @@
     "title": "A question",
     "studio": {
      "body": {
-      "id": "demo-49",
+      "id": "demo-50",
       "type": "column",
       "children": []
      },
@@ -1248,7 +1286,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-50",
+      "id": "demo-51",
       "type": "column",
       "children": []
      },
@@ -1282,7 +1320,7 @@
     "title": "A learning path",
     "studio": {
      "body": {
-      "id": "demo-51",
+      "id": "demo-52",
       "type": "column",
       "children": []
      },
@@ -1305,7 +1343,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-52",
+      "id": "demo-53",
       "type": "column",
       "children": []
      },
@@ -1347,7 +1385,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-53",
+      "id": "demo-54",
       "type": "column",
       "children": []
      },
@@ -1389,7 +1427,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-54",
+      "id": "demo-55",
       "type": "column",
       "children": []
      },
@@ -1431,7 +1469,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-55",
+      "id": "demo-56",
       "type": "column",
       "children": []
      },
@@ -1473,7 +1511,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-56",
+      "id": "demo-57",
       "type": "column",
       "children": []
      },
@@ -1515,7 +1553,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-57",
+      "id": "demo-58",
       "type": "column",
       "children": []
      },
@@ -1557,7 +1595,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-58",
+      "id": "demo-59",
       "type": "column",
       "children": []
      },
@@ -1599,7 +1637,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-59",
+      "id": "demo-60",
       "type": "column",
       "children": []
      },

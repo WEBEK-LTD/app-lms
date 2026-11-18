@@ -11,7 +11,7 @@ import { btn } from "@/components/ui";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { initialFormState } from "@/lib/forms";
 import type { CoverView } from "@/lib/studio-market/catalog";
-import { Board } from "./parts";
+import { Board, WasPrice } from "./parts";
 import { MarketPhones, TemplatePhone } from "./phone";
 
 /**
@@ -366,6 +366,8 @@ export interface PlanChoice {
   /** "$8/mo", or the lifetime line. */
   sub: string;
   best: boolean;
+  /** 106.12 The plan's own price, struck through, when a price drop or a flash sale lowers it ("$24"); else null. */
+  was: string | null;
 }
 
 /**
@@ -386,11 +388,15 @@ export function PlanPicker({ slug, plans, initial }: { slug: string; plans: Plan
           <button key={p.period} type="button" role="radio" aria-checked={plan === p.period} data-plan={p.period} onClick={() => setPlan(p.period)} aria-current={plan === p.period ? "true" : undefined} className="mk-plan cursor-pointer text-start">
             {p.best ? <span className="mk-pill mk-pill-ink absolute -top-3 end-3 h-[22px] text-[11px]">{t("studioMarket.bestValue")}</span> : null}
             <span className="text-[13px] font-bold opacity-75">{p.name}</span>
-            <b className="text-[20px] tracking-[-0.02em]">{p.price}</b>
+            <span className="flex flex-wrap items-baseline gap-x-1.5">
+              <b className="text-[20px] tracking-[-0.02em]">{p.price}</b>
+              {p.was ? <WasPrice text={p.was} className="text-xs" /> : null}
+            </span>
             <span className="text-xs opacity-75">{p.sub}</span>
           </button>
         ))}
       </div>
+
       <Link href={`/dashboard/studio-market/checkout/${slug}?plan=${chosen.period}`} className="mk-btn mk-btn-ember mk-btn-lg w-full">
         <Icon name="format_paint" size={22} />
         {t("studioMarket.applyPaid", { price: chosen.price })}

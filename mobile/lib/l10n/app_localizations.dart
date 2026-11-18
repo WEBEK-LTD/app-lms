@@ -772,6 +772,12 @@ abstract class AppLocalizations {
   /// **'A new version of {name} is available. Update the app to keep learning.'**
   String updateRequiredMessage(String name);
 
+  /// No description provided for @updateRequiredMessageApp.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version of {name} is available. Update the app to keep using it.'**
+  String updateRequiredMessageApp(String name);
+
   /// No description provided for @updateNow.
   ///
   /// In en, this message translates to:
@@ -1222,6 +1228,78 @@ abstract class AppLocalizations {
   /// **'New lessons, announcements and answers to your questions will show up here.'**
   String get noNotificationsMessage;
 
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on your orders, offers and news from the shop will show up here.'**
+  String get noNotificationsMessageStore;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on your orders and their delivery, offers and news from the shop will show up here.'**
+  String get noNotificationsMessageFlowers;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on your orders, offers and news will show up here.'**
+  String get noNotificationsMessageFood;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Booking confirmations, reminders and news will show up here.'**
+  String get noNotificationsMessageBookings;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Replies to your enquiries, new listings and news will show up here.'**
+  String get noNotificationsMessageListings;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Breaking news and new articles will show up here.'**
+  String get noNotificationsMessageNews;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket updates, event reminders and news will show up here.'**
+  String get noNotificationsMessageEvents;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Campaign updates and news will show up here.'**
+  String get noNotificationsMessageDonations;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on your shipments and news will show up here.'**
+  String get noNotificationsMessageDelivery;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on your rides, offers and news will show up here.'**
+  String get noNotificationsMessageRides;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on your bookings and trips, offers and news will show up here.'**
+  String get noNotificationsMessageTravel;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Announcements, homework, grades and messages from the school will show up here.'**
+  String get noNotificationsMessageSchool;
+
   /// No description provided for @notifications.
   ///
   /// In en, this message translates to:
@@ -1407,6 +1485,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your account, progress and enrollments will be deleted and every device signed out. This can’t be undone.'**
   String get deleteAccountMessage;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Your account and its details will be deleted and every device signed out. This can’t be undone.'**
+  String get deleteAccountMessageApp;
 
   /// No description provided for @deleteAccount.
   ///
@@ -1611,6 +1695,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There\'s no account with this number. Please contact the academy.'**
   String get noAccountForNumber;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s no account with this number. Please contact us.'**
+  String get noAccountForNumberApp;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s no account with this number. Please contact the school.'**
+  String get noAccountForNumberSchool;
 
   /// No description provided for @newCodeSent.
   ///
@@ -5889,6 +5985,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Course files open only inside the app, which shows PDFs, pictures and text. Ask your teacher for this one as a PDF.'**
   String get fileInAppOnlyMessage;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'This file opens only inside the app, which shows PDFs, pictures and text. Ask for it as a PDF.'**
+  String get fileInAppOnlyMessageApp;
 
   /// No description provided for @pageOf.
   ///
@@ -19160,6 +19262,24 @@ abstract class AppLocalizations {
   /// **'Pin the delivery place on the map'**
   String get deliveryPinChoose;
 
+  /// 168 Title of the notice when the shop prices delivery by distance but the platform has no map to pin on.
+  ///
+  /// In en, this message translates to:
+  /// **'This shop has no map yet'**
+  String get deliveryPinNoMapTitle;
+
+  /// 168 Why the phone's own location is used when there is no map: a gift's recipient is usually elsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'The delivery place will be where your phone is now. Use it only if you\'re at the place the order goes, or ask the shop to deliver to your address.'**
+  String get deliveryPinNoMapMessage;
+
+  /// 168 Uses the phone's location as the delivery place when there is no map.
+  ///
+  /// In en, this message translates to:
+  /// **'Use where I am'**
+  String get deliveryPinUseHere;
+
   /// 131 The place the order goes is pinned on the map.
   ///
   /// In en, this message translates to:
@@ -19399,6 +19519,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paid {total}'**
   String orderPaidIn(String total);
+
+  /// 173 The order screen: the heading over the delivery day, time, recipient and address.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get orderDeliveryTitle;
+
+  /// 173 The order screen: the delivery time chosen, in the shop's time zone, like 10:00–13:00.
+  ///
+  /// In en, this message translates to:
+  /// **'{slot}, the shop\'s time'**
+  String orderDeliverySlot(String slot);
+
+  /// 173 The order screen: who receives the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient'**
+  String get orderRecipientTitle;
+
+  /// 173 The order screen: where the order is delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get orderAddressTitle;
+
+  /// 173 The order screen: the heading over the card's message and who sends it.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift card'**
+  String get orderGiftTitle;
+
+  /// 173 The order screen: who signs the gift card.
+  ///
+  /// In en, this message translates to:
+  /// **'From {name}'**
+  String orderGiftFrom(String name);
+
+  /// 173 The order screen: the card doesn't show the sender's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent anonymously'**
+  String get orderGiftAnonymous;
+
+  /// 173 The order screen: the heading over the subtotal, discounts, fees and total.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment summary'**
+  String get orderSummaryTitle;
+
+  /// 173 The order screen: the coupon's line in the totals, with its code.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon {code}'**
+  String orderCouponLine(String code);
+
+  /// 173 The order screen: a discount without a coupon code.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get orderDiscountLine;
+
+  /// 173 The order screen: the loyalty points used, a line in the totals.
+  ///
+  /// In en, this message translates to:
+  /// **'Points ({points})'**
+  String orderPointsLine(int points);
+
+  /// 173 The order screen: the delivery fee and where it was priced for, like Marrakech.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery to {zone}'**
+  String orderShippingTo(String zone);
+
+  /// 173 The order screen: the chosen delivery time's fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery time fee'**
+  String get orderSlotFee;
+
+  /// 173 The order screen: a tax inside the prices, like VAT 20%.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes {tax}'**
+  String orderTaxIncluded(String tax);
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Build your bouquet'**
+  String get bouquetTitle;
+
+  /// 162 Build your bouquet: the name of a step, in the bar at the top.
+  ///
+  /// In en, this message translates to:
+  /// **'Flowers'**
+  String get bouquetStepFlowers;
+
+  /// 162 Build your bouquet: the name of a step, in the bar at the top.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrap'**
+  String get bouquetStepWrap;
+
+  /// 162 Build your bouquet: the name of a step, in the bar at the top.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get bouquetStepCard;
+
+  /// 162 Build your bouquet: the name of a step, in the bar at the top.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bouquet'**
+  String get bouquetStepSummary;
+
+  /// 162 Build your bouquet: the name of a step, in the bar at the top.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {count}'**
+  String bouquetStepOf(int step, int count);
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the flowers by the stem.'**
+  String get bouquetFlowersLine;
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how it is wrapped.'**
+  String get bouquetWrapLine;
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the card and write your message.'**
+  String get bouquetCardLine;
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the words for the card.'**
+  String get bouquetMessageOnlyLine;
+
+  /// 162 Build your bouquet: how many stems a bouquet may have, under the flowers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 stem} other{{count} stems}}'**
+  String bouquetStems(int count);
+
+  /// 162 Build your bouquet: how many stems a bouquet may have, under the flowers.
+  ///
+  /// In en, this message translates to:
+  /// **'From {min} to {max} stems'**
+  String bouquetStemsRange(int min, int max);
+
+  /// 162 Build your bouquet: how many stems a bouquet may have, under the flowers.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least {min} stems.'**
+  String bouquetNeedStems(int min);
+
+  /// 162 Build your bouquet: how many stems a bouquet may have, under the flowers.
+  ///
+  /// In en, this message translates to:
+  /// **'A bouquet has at most {max} stems.'**
+  String bouquetMaxStems(int max);
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'No wrap'**
+  String get bouquetNoWrap;
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'The stems tied by hand.'**
+  String get bouquetNoWrapLine;
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a wrap to go on.'**
+  String get bouquetChooseWrap;
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'No card'**
+  String get bouquetNoCard;
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a card to go on.'**
+  String get bouquetChooseCard;
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your message to go on.'**
+  String get bouquetWriteMessage;
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip the card'**
+  String get bouquetSkipCard;
+
+  /// 162 Build your bouquet: the summary before it goes in the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Bouquet total'**
+  String get bouquetTotal;
+
+  /// 162 Build your bouquet: the summary before it goes in the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop confirms the total in your cart.'**
+  String get bouquetTotalNote;
+
+  /// 162 Build your bouquet: the summary before it goes in the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Send flowers'**
+  String get bouquetSendFlowers;
+
+  /// 162 Build your bouquet: the summary before it goes in the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Change {part}'**
+  String bouquetChange(String part);
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Build your bouquet isn\'t available right now.'**
+  String get bouquetUnavailable;
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to the shop'**
+  String get bouquetShopInstead;
+
+  /// 162 A bouquet the customer built, shown as one in the cart and in the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bouquet is in the cart.'**
+  String get bouquetInCart;
+
+  /// 162 A bouquet the customer built, shown as one in the cart and in the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bouquet'**
+  String get bouquetHeader;
+
+  /// 162 A bouquet the customer built, shown as one in the cart and in the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrap: {name}'**
+  String bouquetWrapPart(String name);
+
+  /// 162 A bouquet the customer built, shown as one in the cart and in the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Card: {name}'**
+  String bouquetCardPart(String name);
+
+  /// 162 A bouquet the customer built, shown as one in the cart and in the order.
+  ///
+  /// In en, this message translates to:
+  /// **'“{message}”'**
+  String bouquetMessage(String message);
+
+  /// 162 A bouquet the customer built, shown as one in the cart and in the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the bouquet'**
+  String get bouquetRemove;
 
   /// 170 Under the phone's browser sheet with the payment page (where Apple Pay and Google Pay show), while the customer pays there.
   ///

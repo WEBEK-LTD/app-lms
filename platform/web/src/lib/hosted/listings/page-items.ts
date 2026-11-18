@@ -2,6 +2,7 @@ import { assetUrl as publicAssetUrl } from "../../assets";
 import { getStore } from "../../data";
 import type { DataStore } from "../../data/store";
 import type { Listing } from "../../data/types";
+import { centsToDecimal } from "../../catalog/money";
 import { formatListingPrice } from "../../listings/json";
 import { EMPTY_QUERY, LISTING_SORTS, searchListings, type ListingSort } from "../../listings/search";
 import { areaSymbol, listingSettingsFor } from "../../listings/types";
@@ -15,6 +16,8 @@ export interface ListingItem {
   subtitle: string | null;
   image_url: string | null;
   price_label: string | null;
+  /** 161 The price as an amount and a currency (`ItemPrice`); the hosted API adds it in the customer's. */
+  price?: { amount: string; currency: string; formatted: string };
   badge: string | null;
   favorited: boolean;
   action: { type: "item"; item: { source: "listings"; id: string } };
@@ -82,6 +85,7 @@ function listingItem(l: Listing, ctx: { assetUrl: (assetId: string) => string; f
     subtitle: subtitle(l, ctx.unit),
     image_url: l.imageAssetIds[0] ? ctx.assetUrl(l.imageAssetIds[0]) : null,
     price_label: priceLabel,
+    price: { amount: centsToDecimal(l.priceCents, l.currency), currency: l.currency, formatted: price },
     badge: l.purpose === "rent" ? w.forRent : l.negotiable ? w.negotiable : w.forSale,
     favorited: ctx.favorites.has(l.id),
     action: { type: "item", item: { source: "listings", id } },

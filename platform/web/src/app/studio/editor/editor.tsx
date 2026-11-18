@@ -16,6 +16,8 @@ import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { MarketCanvas } from "@/lib/studio/market-canvas";
 import type { ScreenOption } from "@/lib/pages/sources";
 import { uniqueSlug } from "@/lib/pages/model";
+import { editedTranslations } from "@/lib/pages/template-translations";
+import { appLanguageName } from "@/lib/i18n/language-names";
 import { moreLabel } from "@/lib/pages/tab-bar";
 import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type LayoutTab, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
@@ -34,6 +36,7 @@ import { formatList } from "@/i18n/format";
 import { localePath } from "@/i18n/paths";
 import { applyTextStyle, textStylesOf, textStyleUse } from "@/lib/studio/text-styles";
 import { forTablet, tabletPatch } from "@/lib/studio/tablet";
+import { automaticSize, backToAutomatic, byHand, sizedByHand } from "@/lib/studio/auto-size";
 import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
 import { applyWholeDesign, demoProjectLook, designName, designPageCount, designsFor, isNewDesign, makeDesign } from "@/lib/studio/designs";
 import type { OwnDesignView } from "@/lib/studio/own-designs";
@@ -46,6 +49,7 @@ import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
 import { Inspector, type InspectorTab } from "./inspector";
 import { LeftPanel, NewTag, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
 import { HistoryPanel } from "./history-panel";
+import { ByHandDialog } from "./by-hand-dialog";
 import { describeStep } from "@/lib/studio/history-labels";
 import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
 import { seedSamplesAction } from "@/app/actions/samples";
@@ -172,6 +176,8 @@ export function StudioEditor(props: StudioEditorProps) {
   // 132.61 "On my phone": the preview's QR code under its button.
   const [phoneOpen, setPhoneOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  // 159 An element of automatic size about to change by hand: Studio asks first; `change` is the inspector's, made once the owner says so.
+  const [askHand, setAskHand] = useState<{ id: string; change: Partial<StudioNode> | null } | null>(null);
   const [ownFonts, setOwnFonts] = useState(props.ownFonts);
   const [designsOpen, setDesignsOpen] = useState(false);
   const [ownDesigns, setOwnDesigns] = useState(props.ownDesigns);
@@ -180,6 +186,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const [now, setNow] = useState(() => Date.now());
 
   const dragging = useRef<DragPayload | null>(null);
+  // 156 The app's name, as templates wrote it into words, for telling their translations from the owner's.
+  const appNameRef = useRef(props.app.name);
   const dirty = useRef(false);
   const edits = useRef(0);
   const lastChange = useRef<{ at: number; key: string }>({ at: 0, key: "" });
@@ -305,8 +313,10 @@ export function StudioEditor(props: StudioEditorProps) {
     const join = key !== "" && key === lastChange.current.key && now - lastChange.current.at <= JOIN_MS;
     lastChange.current = { at: now, key };
     setHistory((h) => {
-      const value = next(h.present);
-      if (value === h.present) return h;
+      const made = next(h.present);
+      if (made === h.present) return h;
+      // 156 A translation the owner wrote is marked as theirs; the template's translations of a text they changed go.
+      const value = editedTranslations(h.present, made, { appName: appNameRef.current });
       return join ? { ...h, present: value } : pushHistory(h, value);
     });
     edits.current += 1;
@@ -606,7 +616,15 @@ export function StudioEditor(props: StudioEditorProps) {
       return;
     }
     const id = selected.id;
-    changePage((p) => updateNode(p, id, stylePatch(style)));
+    changePage((p) => {
+      const patch = stylePatch(style);
+      // 159 A size it didn't have before is a size by hand: "Back to automatic" puts its own back.
+      const node = findNode(p.body, id);
+      const drawn = automaticSize(p.body, id);
+      const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+      const sized = node && !sizedByHand(node) && (!same(patch.width, drawn.width) || !same(patch.height, drawn.height));
+      return updateNode(p, id, sized ? { ...patch, manual_size: byHand(drawn).manual_size } : patch);
+    });
     setNotice(t("studio.stylePasted"));
   }
 
@@ -1158,7 +1176,30 @@ export function StudioEditor(props: StudioEditorProps) {
     tagOf,
     // 108.1 One drag of a corner is one undo step.
     onResize: (id, size, drag) => changePage((p) => updateNode(p, id, device === "tablet" ? tabletPatch(findNode(p.body, id) ?? { id, type: "column" }, size) : size), `resize:${id}:${device}:${drag}`),
+    // 159 A corner of an element of automatic size asks first; a double click puts it back to automatic.
+    onAskByHand: (id) => setAskHand({ id, change: null }),
+    onAutoSize: (id) => toAutomatic(id),
   };
+
+  /** 159 The owner said to change its size by hand: from its automatic size (kept for later), with the change asked for. */
+  function goByHand(ask: { id: string; change: Partial<StudioNode> | null }) {
+    setAskHand(null);
+    changePage((p) => {
+      let next = updateNode(p, ask.id, byHand(automaticSize(p.body, ask.id)));
+      if (ask.change) next = updateNode(next, ask.id, device === "tablet" ? tabletPatch(findNode(next.body, ask.id) ?? { id: ask.id, type: "column" }, ask.change) : ask.change);
+      return next;
+    }, `byhand:${ask.id}:${Date.now()}`);
+  }
+
+  const cancelByHand = useCallback(() => setAskHand(null), []);
+
+  /** 159 Back to its automatic size: its template's, else the layout's own. */
+  function toAutomatic(id: string) {
+    const node = studio ? findNode(studio.body, id) : null;
+    if (!node || !sizedByHand(node)) return;
+    changePage((p) => updateNode(p, id, backToAutomatic(findNode(p.body, id) ?? node)), `auto:${id}:${Date.now()}`);
+    setNotice(t("studio.sizeAutoDone"));
+  }
 
   const savedText = (() => {
     if (status === "saving") return t("studio.saving");
@@ -1296,6 +1337,7 @@ export function StudioEditor(props: StudioEditorProps) {
               type="button"
               lang={code}
               aria-pressed={editLang === code}
+              title={code === def ? t("studio.mainLanguage", { lang: appLanguageName(code, dashLang) }) : undefined}
               onClick={() => setLang(code)}
               className="h-8 rounded-lg border-0 px-2.5 text-[13px]"
               style={{ background: editLang === code ? C.barText : "transparent", color: editLang === code ? C.bar : C.barMuted, fontWeight: editLang === code ? 700 : 400 }}
@@ -1304,6 +1346,12 @@ export function StudioEditor(props: StudioEditorProps) {
             </button>
           ))}
         </div>
+        {/* 156 Which language is the main one: an edit in another is a translation of its texts. */}
+        {languages.length > 1 ? (
+          <span className="text-[12px] leading-tight" style={{ color: C.barMuted, maxWidth: 190 }} data-main-language={def}>
+            {editLang === def ? t("studio.mainLanguage", { lang: appLanguageName(def, dashLang) }) : t("studio.translationOf", { lang: appLanguageName(editLang, dashLang), main: appLanguageName(def, dashLang) })}
+          </span>
+        ) : null}
 
         <div style={{ flex: "1 1 20px" }} />
 
@@ -1624,6 +1672,8 @@ export function StudioEditor(props: StudioEditorProps) {
             tab={inspectorTab}
             onTab={setInspectorTab}
             onChange={(patch) => selected && changePage((p) => updateNode(p, selected.id, device === "tablet" ? tabletPatch(findNode(p.body, selected.id) ?? selected, patch) : patch), `${selected.id}:${device}:${Object.keys(patch).join(",")}`)}
+            onAskByHand={(patch) => selected && setAskHand({ id: selected.id, change: patch })}
+            onBackToAuto={() => selected && toAutomatic(selected.id)}
             onHeader={(header) => {
               changePage((p) => ({ ...p, header }), header ? "header" : "");
               if (!header) setSelectedId(null);
@@ -1654,6 +1704,8 @@ export function StudioEditor(props: StudioEditorProps) {
             palette={palette}
             lang={editLang}
             defaultLang={def}
+            languages={layout.languages.available}
+            appName={props.app.name}
             pages={layout.pages.map((p) => ({ slug: p.slug, title: pageTitle(p) }))}
             sources={props.sources}
             categorySources={props.categorySources}
@@ -1693,6 +1745,7 @@ export function StudioEditor(props: StudioEditorProps) {
           languages={layout.languages}
         />
       ) : null}
+      {askHand ? <ByHandDialog onConfirm={() => goByHand(askHand)} onCancel={cancelByHand} /> : null}
     </div>
   );
 }

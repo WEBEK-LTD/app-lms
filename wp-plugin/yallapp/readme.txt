@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.50
+Stable tag: 0.4.51
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,10 @@ Symbols Rounded by Google (the material-design-icons project),
 under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
+
+= 0.4.51 =
+* Studio pages: an element you sized by hand in Studio keeps your size in the app (a cover's top bar otherwise spans the cover), and the name you gave an element in Studio is what a screen reader says for a round button without words.
+* Orders in the app show what the total is made of: the subtotal, the coupon with its code, the shipping, the delivery time's fee, any other fee and the taxes, from the WooCommerce order, so the lines add up to the total. Older apps keep showing the items and the total.
 
 = 0.4.50 =
 * Delivery days in your shop's time: the app counts today, tomorrow and your same-day cut-off in your store's time zone, wherever the customer's phone is, so a customer abroad sending flowers home is offered the days your shop really delivers.

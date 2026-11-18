@@ -164,6 +164,105 @@ html {
   }
 }
 /*
+ * 154 The header over a night hero (components/site-chrome.tsx `night`, the
+ * pricing page): the night itself behind it, its words, lists and buttons
+ * in their dark-mode colours, and the reversed logo, in both themes.
+ */
+.site-head-night {
+  color-scheme: dark;
+  --color-white: #161530;
+  --color-ivory: #0e0d24;
+  --color-midnight: #f4efe6;
+  --color-accent: #ff9a6e;
+  --color-accent-hover: #ffbb9c;
+  --color-ink-2: #ebe6f2;
+  --color-ink-3: #ddd8e8;
+  --color-ink-4: #bdb8cc;
+  --color-muted: #a9a4bb;
+  --color-faint: #827d96;
+  --color-line: #2c2a49;
+  --color-line-soft: #24223f;
+  --color-line-strong: #3d3a5c;
+  --color-line-button: #3d3a5c;
+  --color-sand: #1c1b38;
+  --color-peach: #2e2645;
+  --color-peach-soft: #1d1b3b;
+  --color-cream: #1f1c2e;
+  --color-step: #2a2843;
+  background-color: #0e0d24;
+  border-bottom-color: rgb(255 255 255 / 0.07);
+}
+/* The pricing page's 1200 px column (site/pricing.css `.pr-wrap`). */
+.site-head-night > div {
+  max-width: 1248px;
+}
+.site-head-night .theme-light-only {
+  display: none;
+}
+.site-head-night .theme-dark-only {
+  display: block;
+}
+/* 154 The closing band in the night, centred under an ember glow (components/marketing.tsx `ContactBand` `look="glow"`). */
+.contact-glow {
+  position: relative;
+  overflow: hidden;
+  background: #0e0d24;
+  color: #fff;
+  padding-block: 64px 56px;
+}
+.contact-glow::before {
+  content: "";
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  left: 50%;
+  top: -420px;
+  translate: -50% 0;
+  background: radial-gradient(closest-side, rgba(255, 90, 31, 0.28), rgba(255, 90, 31, 0));
+  pointer-events: none;
+}
+.contact-glow h2 {
+  font-size: 34px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+:lang(ar) .contact-glow h2 {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+.contact-glow-wa,
+.contact-glow-wa:hover {
+  background: #ff5a1f;
+  color: #0e0d24;
+}
+.contact-glow-wa:hover {
+  background: #ff7a45;
+}
+.contact-glow-account,
+.contact-glow-account:hover {
+  color: #fff;
+  box-shadow: inset 0 0 0 1px #4a4760;
+}
+.contact-glow-account:hover {
+  box-shadow: inset 0 0 0 1px #f4efe6;
+}
+main:has(> .contact-glow:last-child) + footer {
+  border-top: 1px solid #24223f;
+}
+@media (max-width: 640px) {
+  .contact-glow {
+    padding-block: 52px 48px;
+  }
+  .contact-glow h2,
+  :lang(ar) .contact-glow h2 {
+    font-size: 26px;
+  }
+}
+/*
  * 132.4 A Studio frame (app/studio/chrome.tsx StudioScreen, and the
  * editor's own): its board, menu and search, by day and by night. 132.70
  * Every Studio screen is one (home, a new project, the account's and a

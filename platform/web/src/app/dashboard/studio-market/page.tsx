@@ -9,7 +9,7 @@ import { contextCan, requireClient } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
 import { getStore } from "@/lib/data";
 import { dashboardText } from "@/lib/dashboard-lang";
-import { coverView, filterCards, marketCatalog, readMarketQuery, type CoverView, type MarketQuery, type TemplateCard } from "@/lib/studio-market/catalog";
+import { coverView, filterCards, flashStrip, marketCatalog, readMarketQuery, type CoverView, type MarketQuery, type TemplateCard } from "@/lib/studio-market/catalog";
 import { versionDesign } from "@/lib/studio-market/snapshot";
 import { sampleEntries } from "@/lib/studio/sample-entries";
 
@@ -26,9 +26,11 @@ const DAY = 24 * 60 * 60 * 1000;
  * "Night showroom" in dark (glowing phones under a beam of light). The two
  * heroes are both rendered and the theme shows one (globals.css
  * `.mk-only-a`, `.mk-only-b`); every other section is one markup styled for
- * each. Searched by words, app kind, price and order; the collections by app
- * kind, the week's new ones, a designer, the most applied; selling your own
- * designs. Free templates for now.
+ * each. Searched by words, app kind, price and order; 106.12 the flash strip
+ * (the templates on a flash sale now, each with its countdown, the soonest
+ * to end first); the collections by app kind, the week's new ones, a
+ * designer, the most applied; selling your own designs. Cards show their
+ * prices after the automatic discounts, the old ones struck through.
  */
 export default async function StudioMarketPage({ searchParams }: PageProps<"/dashboard/studio-market">) {
   const context = await requireClient("settings");
@@ -132,7 +134,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
               </b>
               <span dir="auto">{featured.designer.name}</span>
               <span>{[featured.kinds[0] ? k(featured.kinds[0].name) : null, t("studioMarket.screens", { count: featuredScreens })].filter(Boolean).join(" · ")}</span>
-              <PriceTagView price={featured.price} />
+              <PriceTagView price={featured.price} wasCents={featured.wasCents} />
             </div>
             {page(1) ? (
               <div className="mk-drift absolute start-0 bottom-[58px] -rotate-[4deg]">
@@ -337,8 +339,25 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
     const topDesigner = top ? await store.getTemplateDesigner(top.id) : null;
     const shownAbove = new Set([...collections.flatMap(([id]) => catalog.cards.filter((c) => c.kinds.some((x) => x.id === id)).slice(0, 4).map((c) => c.id)), ...newest.slice(0, 4).map((c) => c.id)]);
     const rest = filterCards(catalog.cards, query).filter((c) => !shownAbove.has(c.id));
+    // 106.12 The flash strip: on a flash sale now, the soonest to end first.
+    const flash = flashStrip(catalog.cards, now).slice(0, 8);
     body = (
       <>
+        {flash.length ? (
+          <section aria-labelledby="h-flash" data-flash-strip className="mk-flash mk-sec mt-10 py-12 md:mt-14 md:py-16">
+            <div className="mk-in">
+              <div className="mb-[22px] flex max-w-[680px] flex-col gap-3 md:mb-[34px]">
+                <span className="mk-eyebrow">{t("marketDiscounts.flashEyebrow")}</span>
+                <h2 id="h-flash" className="mk-h2 flex items-center gap-3">
+                  <Icon name="bolt" size={36} filled className="flex-none text-[var(--mk-accent)]" />
+                  {t("marketDiscounts.flashTitle")}
+                </h2>
+                <p className="mk-lead m-0 md:text-[17px]">{t("marketDiscounts.flashHint")}</p>
+              </div>
+              {grid(flash, { pool: "rgba(255,90,31,.5)" })}
+            </div>
+          </section>
+        ) : null}
         {collections.map(([id, kind], i) =>
           sec(
             id,
@@ -441,7 +460,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
                           {card.designer.name}
                         </span>
                       </span>
-                      <PriceTagView price={card.price} />
+                      <PriceTagView price={card.price} wasCents={card.wasCents} />
                     </li>
                   ))}
                 </ol>

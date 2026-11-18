@@ -35,10 +35,22 @@ import { emailTemplate, renderTemplate } from "../email/templates";
 import { checkTicketHold, holdForPayment, noticeRefundDue, providerPageExpiry } from "../events/holds";
 import { noteAppError } from "../watch/app-errors";
 
+/**
+ * 168 Whether the payment page may leave the city empty: the order already
+ * says where it goes (a gift's recipient with an address, or a pin on the
+ * map), and the app never asked for a city (a shop priced by distance).
+ */
+export function cityOptionalFor(order: Pick<CatalogOrder, "delivery">): boolean {
+  const d = order.delivery;
+  if (!d || d.place?.city) return false;
+  return Boolean((d.place && d.place.lat !== null && d.place.lng !== null) || d.recipient?.address);
+}
+
 /** What the payment page asks for, checked; or the errors per field. */
 export function readCustomer(
   app: App,
   input: Record<string, unknown>,
+  opts: { cityOptional?: boolean } = {},
 ): { ok: true; customer: CatalogCustomer } | { ok: false; errors: Record<string, string> } {
   const text = (name: string, max: number) => (typeof input[name] === "string" ? (input[name] as string).trim().slice(0, max) : "");
   const errors: Record<string, string> = {};
@@ -49,7 +61,8 @@ export function readCustomer(
   const email = text("email", 191);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Enter a valid email address.";
   const city = text("city", 60);
-  if (city.length < 2) errors.city = "Enter your city.";
+  // 168 An order already going to a place (the gift's recipient, a pin on the map) needs no city typed again.
+  if (city.length < 2 && !(opts.cityOptional && city === "")) errors.city = "Enter your city.";
   const address = text("address", 300);
   if (address.length < 8) errors.address = "Enter your full address.";
   if (Object.keys(errors).length > 0) return { ok: false, errors };

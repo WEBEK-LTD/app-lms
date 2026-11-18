@@ -266,6 +266,7 @@
           "type": "row",
           "gap": 8,
           "scroll": true,
+          "stories_source": "dashboard",
           "padding": {
            "top": 0,
            "end": 16,
@@ -300,7 +301,8 @@
               "icon": "favorite",
               "icon_size": 17,
               "color": "#FFFFFF",
-              "dark_color": "#0A120E"
+              "dark_color": "#0A120E",
+              "story_part": "icon"
              },
              {
               "id": "sig-7",
@@ -312,6 +314,7 @@
               },
               "color": "#FFFFFF",
               "dark_color": "#0A120E",
+              "story_part": "ring",
               "translations": {
                "ar": {
                 "text": "حب"
@@ -353,7 +356,8 @@
               "icon": "cake",
               "icon_size": 17,
               "color": "#B5603F",
-              "dark_color": "#F2B79E"
+              "dark_color": "#F2B79E",
+              "story_part": "icon"
              },
              {
               "id": "sig-10",
@@ -365,6 +369,7 @@
               },
               "color": "#15241D",
               "dark_color": "#EDF3EE",
+              "story_part": "ring",
               "translations": {
                "ar": {
                 "text": "عيد ميلاد"
@@ -406,7 +411,8 @@
               "icon": "spa",
               "icon_size": 17,
               "color": "#B5603F",
-              "dark_color": "#F2B79E"
+              "dark_color": "#F2B79E",
+              "story_part": "icon"
              },
              {
               "id": "sig-13",
@@ -418,6 +424,7 @@
               },
               "color": "#15241D",
               "dark_color": "#EDF3EE",
+              "story_part": "ring",
               "translations": {
                "ar": {
                 "text": "مواساة"
@@ -459,7 +466,8 @@
               "icon": "child_care",
               "icon_size": 17,
               "color": "#B5603F",
-              "dark_color": "#F2B79E"
+              "dark_color": "#F2B79E",
+              "story_part": "icon"
              },
              {
               "id": "sig-16",
@@ -471,6 +479,7 @@
               },
               "color": "#15241D",
               "dark_color": "#EDF3EE",
+              "story_part": "ring",
               "translations": {
                "ar": {
                 "text": "مولود جديد"
@@ -512,7 +521,8 @@
               "icon": "celebration",
               "icon_size": 17,
               "color": "#B5603F",
-              "dark_color": "#F2B79E"
+              "dark_color": "#F2B79E",
+              "story_part": "icon"
              },
              {
               "id": "sig-19",
@@ -524,6 +534,7 @@
               },
               "color": "#15241D",
               "dark_color": "#EDF3EE",
+              "story_part": "ring",
               "translations": {
                "ar": {
                 "text": "تهنئة"
@@ -1901,7 +1912,8 @@
         "color": "#FFFFFF",
         "action": {
          "type": "screen",
-         "screen": "search"
+         "screen": "search",
+         "flow": "bouquet"
         },
         "children": [
          {
@@ -2216,7 +2228,8 @@
           },
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "flow": "bouquet"
           },
           "margin": {
            "top": 8,
@@ -2452,11 +2465,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-176",
+      "id": "sig-177",
       "type": "column",
       "children": [
        {
-        "id": "sig-177",
+        "id": "sig-178",
         "type": "photo_hero",
         "name": "Find the right flowers",
         "image_url": "http://localhost:3000/flower-photos/atelier.jpg",
@@ -2487,7 +2500,7 @@
         "ken_burns": true,
         "children": [
          {
-          "id": "sig-178",
+          "id": "sig-179",
           "type": "text",
           "text": "Find the right flowers",
           "color": "#FFFFFF",
@@ -2510,7 +2523,7 @@
           }
          },
          {
-          "id": "sig-179",
+          "id": "sig-180",
           "type": "text",
           "text": "By occasion, by colour, by collection.",
           "color": "#FFFFFF",
@@ -2539,9 +2552,10 @@
         ]
        },
        {
-        "id": "sig-180",
+        "id": "sig-181",
         "type": "stories",
         "name": "Every occasion",
+        "stories_source": "dashboard",
         "interval_ms": 5000,
         "stories": {
          "size": 58
@@ -2650,7 +2664,7 @@
         }
        },
        {
-        "id": "sig-181",
+        "id": "sig-182",
         "type": "row",
         "name": "The signature bouquet",
         "gap": 8,
@@ -2663,7 +2677,7 @@
         },
         "children": [
          {
-          "id": "sig-182",
+          "id": "sig-183",
           "type": "button",
           "name": "Our bouquet",
           "text": "Our bouquet",
@@ -2711,7 +2725,7 @@
           }
          },
          {
-          "id": "sig-183",
+          "id": "sig-184",
           "type": "button",
           "name": "Your picks",
           "text": "Your picks",
@@ -2806,13 +2820,13 @@
     },
     "studio": {
      "body": {
-      "id": "sig-184",
+      "id": "sig-185",
       "type": "column",
       "children": [
        {
-        "id": "sig-185",
+        "id": "sig-186",
         "type": "row",
-        "name": "Pick the delivery day and write the card at checkout.",
+        "name": "Pick the delivery day and write the card below, then pay.",
         "gap": 12,
         "cross": "center",
         "radius": 22,
@@ -2835,7 +2849,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "sig-186",
+          "id": "sig-187",
           "type": "icon",
           "icon": "redeem",
           "icon_size": 22,
@@ -2852,9 +2866,9 @@
           }
          },
          {
-          "id": "sig-187",
+          "id": "sig-188",
           "type": "text",
-          "text": "Pick the delivery day and write the card at checkout.",
+          "text": "Pick the delivery day and write the card below, then pay.",
           "font": {
            "size": 13.5,
            "weight": 600,
@@ -2866,17 +2880,17 @@
           "max_lines": 3,
           "translations": {
            "ar": {
-            "text": "اختر يوم التوصيل واكتب البطاقة عند إتمام الطلب."
+            "text": "اختر يوم التوصيل واكتب البطاقة في الأسفل، ثم ادفع."
            },
            "tr": {
-            "text": "Teslimat gününü seçin ve kartı ödemede yazın."
+            "text": "Teslimat gününü seçin ve kartı aşağıya yazın, sonra ödeyin."
            }
           }
          }
         ]
        },
        {
-        "id": "sig-188",
+        "id": "sig-189",
         "type": "coupon",
         "name": "A code for your first bouquet",
         "code": "LEQAA10",
@@ -2936,11 +2950,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-189",
+      "id": "sig-190",
       "type": "column",
       "children": [
        {
-        "id": "sig-190",
+        "id": "sig-191",
         "type": "row",
         "name": "How your flowers travel",
         "cross": "end",
@@ -2953,13 +2967,13 @@
         },
         "children": [
          {
-          "id": "sig-191",
+          "id": "sig-192",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-192",
+            "id": "sig-193",
             "type": "text",
             "text": "How your flowers travel",
             "font": {
@@ -2986,7 +3000,7 @@
         ]
        },
        {
-        "id": "sig-193",
+        "id": "sig-194",
         "type": "timeline",
         "name": "How your flowers travel",
         "timeline": {
@@ -3116,9 +3130,47 @@
     },
     "studio": {
      "body": {
-      "id": "sig-194",
+      "id": "sig-196",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "sig-195",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account",
      "background": "#F3F1EA",
@@ -3154,118 +3206,108 @@
       "children": [
        {
         "id": "sig-128",
-        "type": "gallery",
+        "type": "items",
         "name": "The signature bouquet",
-        "gallery": {
-         "layout": "filmstrip",
-         "radius": 28,
-         "captions": false
-        },
-        "height": 380,
-        "images": [
-         {
-          "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
-          "caption": null
-         },
-         {
-          "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
-          "caption": null
-         },
-         {
-          "image_url": "http://localhost:3000/flower-photos/baby-breath.jpg",
-          "caption": null
-         },
-         {
-          "image_url": "http://localhost:3000/flower-photos/atelier.jpg",
-          "caption": null
-         }
-        ],
+        "source": "products",
+        "layout": "list",
         "padding": {
          "top": 8,
          "end": 16,
-         "bottom": 0,
+         "bottom": 4,
          "start": 16
+        },
+        "query": {
+         "limit": 1,
+         "category_id": null,
+         "featured": false,
+         "sort": "popular",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-129",
+         "type": "column",
+         "gap": 6,
+         "children": [
+          {
+           "id": "sig-130",
+           "type": "image",
+           "bind": "image",
+           "width": "fill",
+           "height": 380,
+           "radius": 28,
+           "fit": "cover"
+          },
+          {
+           "id": "sig-131",
+           "type": "text",
+           "text": "The signature bouquet",
+           "font": {
+            "size": 11,
+            "weight": 700,
+            "letter_spacing": 2,
+            "uppercase": true
+           },
+           "color": "#B5603F",
+           "dark_color": "#F2B79E",
+           "margin": {
+            "top": 12,
+            "end": 2,
+            "bottom": 0,
+            "start": 2
+           },
+           "translations": {
+            "ar": {
+             "text": "الباقة المميّزة"
+            },
+            "tr": {
+             "text": "İmza buket"
+            }
+           }
+          },
+          {
+           "id": "sig-132",
+           "type": "text",
+           "bind": "title",
+           "max_lines": 2,
+           "color": "#15241D",
+           "dark_color": "#EDF3EE",
+           "font": {
+            "family": "Outfit",
+            "size": 34,
+            "weight": 500,
+            "line_height": 1.04,
+            "letter_spacing": -0.68
+           },
+           "margin": {
+            "top": 0,
+            "end": 2,
+            "bottom": 0,
+            "start": 2
+           }
+          },
+          {
+           "id": "sig-133",
+           "type": "text",
+           "bind": "price",
+           "max_lines": 1,
+           "color": "#B5603F",
+           "dark_color": "#F2B79E",
+           "font": {
+            "size": 16,
+            "weight": 700
+           },
+           "margin": {
+            "top": 0,
+            "end": 2,
+            "bottom": 0,
+            "start": 2
+           }
+          }
+         ]
         }
        },
        {
-        "id": "sig-129",
-        "type": "column",
-        "gap": 6,
-        "padding": {
-         "top": 18,
-         "end": 18,
-         "bottom": 4,
-         "start": 18
-        },
-        "children": [
-         {
-          "id": "sig-130",
-          "type": "text",
-          "text": "The signature bouquet",
-          "font": {
-           "size": 11,
-           "weight": 700,
-           "letter_spacing": 2,
-           "uppercase": true
-          },
-          "color": "#B5603F",
-          "dark_color": "#F2B79E",
-          "translations": {
-           "ar": {
-            "text": "الباقة المميّزة"
-           },
-           "tr": {
-            "text": "İmza buket"
-           }
-          }
-         },
-         {
-          "id": "sig-131",
-          "type": "text",
-          "text": "Blush Garden",
-          "font": {
-           "family": "Outfit",
-           "size": 34,
-           "weight": 500,
-           "line_height": 1.04,
-           "letter_spacing": -0.68
-          },
-          "color": "#15241D",
-          "dark_color": "#EDF3EE",
-          "max_lines": 2,
-          "translations": {
-           "ar": {
-            "text": "حديقة الورد"
-           },
-           "tr": {
-            "text": "Pembe Bahçe"
-           }
-          }
-         },
-         {
-          "id": "sig-132",
-          "type": "text",
-          "text": "Blush roses, lisianthus and eucalyptus, made on the day it is delivered.",
-          "font": {
-           "size": 14,
-           "line_height": 1.45
-          },
-          "color": "#5F6F66",
-          "dark_color": "#A9BCB1",
-          "max_lines": 3,
-          "translations": {
-           "ar": {
-            "text": "ورد وردي وليزيانثوس وأوكالبتوس، تُصنع في يوم توصيلها."
-           },
-           "tr": {
-            "text": "Pembe güller, lisianthus ve okaliptüs; teslim edildiği gün hazırlanır."
-           }
-          }
-         }
-        ]
-       },
-       {
-        "id": "sig-133",
+        "id": "sig-134",
         "type": "row",
         "name": "Choose a size",
         "cross": "end",
@@ -3278,13 +3320,13 @@
         },
         "children": [
          {
-          "id": "sig-134",
+          "id": "sig-135",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-135",
+            "id": "sig-136",
             "type": "text",
             "text": "Choose a size",
             "font": {
@@ -3311,7 +3353,7 @@
         ]
        },
        {
-        "id": "sig-136",
+        "id": "sig-137",
         "type": "row",
         "name": "Choose a size",
         "gap": 10,
@@ -3323,7 +3365,7 @@
         },
         "children": [
          {
-          "id": "sig-137",
+          "id": "sig-138",
           "type": "column",
           "name": "Classic",
           "width": "fill",
@@ -3347,7 +3389,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-138",
+            "id": "sig-139",
             "type": "icon",
             "icon": "local_florist",
             "icon_size": 20,
@@ -3355,7 +3397,7 @@
             "dark_color": "#F2B79E"
            },
            {
-            "id": "sig-139",
+            "id": "sig-140",
             "type": "text",
             "text": "Classic",
             "font": {
@@ -3374,7 +3416,7 @@
             }
            },
            {
-            "id": "sig-140",
+            "id": "sig-141",
             "type": "text",
             "text": "12 stems",
             "font": {
@@ -3395,7 +3437,7 @@
           ]
          },
          {
-          "id": "sig-141",
+          "id": "sig-142",
           "type": "column",
           "name": "Deluxe",
           "width": "fill",
@@ -3416,7 +3458,7 @@
           "dark_background": "#B9D9C6",
           "children": [
            {
-            "id": "sig-142",
+            "id": "sig-143",
             "type": "icon",
             "icon": "local_florist",
             "icon_size": 26,
@@ -3424,7 +3466,7 @@
             "dark_color": "#0A120E"
            },
            {
-            "id": "sig-143",
+            "id": "sig-144",
             "type": "text",
             "text": "Deluxe",
             "font": {
@@ -3443,7 +3485,7 @@
             }
            },
            {
-            "id": "sig-144",
+            "id": "sig-145",
             "type": "text",
             "text": "24 stems",
             "font": {
@@ -3464,7 +3506,7 @@
           ]
          },
          {
-          "id": "sig-145",
+          "id": "sig-146",
           "type": "column",
           "name": "Grand",
           "width": "fill",
@@ -3488,7 +3530,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-146",
+            "id": "sig-147",
             "type": "icon",
             "icon": "local_florist",
             "icon_size": 20,
@@ -3496,7 +3538,7 @@
             "dark_color": "#F2B79E"
            },
            {
-            "id": "sig-147",
+            "id": "sig-148",
             "type": "text",
             "text": "Grand",
             "font": {
@@ -3515,7 +3557,7 @@
             }
            },
            {
-            "id": "sig-148",
+            "id": "sig-149",
             "type": "text",
             "text": "36 stems",
             "font": {
@@ -3538,7 +3580,7 @@
         ]
        },
        {
-        "id": "sig-149",
+        "id": "sig-150",
         "type": "row",
         "name": "Send today",
         "cross": "end",
@@ -3551,13 +3593,13 @@
         },
         "children": [
          {
-          "id": "sig-150",
+          "id": "sig-151",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-151",
+            "id": "sig-152",
             "type": "text",
             "text": "Send today",
             "font": {
@@ -3584,7 +3626,7 @@
         ]
        },
        {
-        "id": "sig-152",
+        "id": "sig-153",
         "type": "text",
         "text": "Today or tomorrow, in the time slot you choose.",
         "font": {
@@ -3610,14 +3652,14 @@
         }
        },
        {
-        "id": "sig-153",
+        "id": "sig-154",
         "type": "row",
         "name": "Delivery days · today, tomorrow, a date",
         "gap": 6,
         "width": "fill",
         "children": [
          {
-          "id": "sig-154",
+          "id": "sig-155",
           "type": "row",
           "name": "Today",
           "width": "fill",
@@ -3640,7 +3682,7 @@
           "dark_background": "#B9D9C6",
           "children": [
            {
-            "id": "sig-155",
+            "id": "sig-156",
             "type": "icon",
             "icon": "bolt",
             "icon_size": 15,
@@ -3648,7 +3690,7 @@
             "dark_color": "#0A120E"
            },
            {
-            "id": "sig-156",
+            "id": "sig-157",
             "type": "text",
             "text": "Today",
             "max_lines": 1,
@@ -3670,7 +3712,7 @@
           ]
          },
          {
-          "id": "sig-157",
+          "id": "sig-158",
           "type": "row",
           "name": "Tomorrow",
           "width": "fill",
@@ -3694,7 +3736,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-158",
+            "id": "sig-159",
             "type": "text",
             "text": "Tomorrow",
             "max_lines": 1,
@@ -3716,7 +3758,7 @@
           ]
          },
          {
-          "id": "sig-159",
+          "id": "sig-160",
           "type": "row",
           "name": "Pick a date",
           "width": "fill",
@@ -3740,7 +3782,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-160",
+            "id": "sig-161",
             "type": "text",
             "text": "Pick a date",
             "max_lines": 1,
@@ -3770,7 +3812,7 @@
         }
        },
        {
-        "id": "sig-161",
+        "id": "sig-162",
         "type": "row",
         "name": "Your card",
         "cross": "end",
@@ -3783,13 +3825,13 @@
         },
         "children": [
          {
-          "id": "sig-162",
+          "id": "sig-163",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-163",
+            "id": "sig-164",
             "type": "text",
             "text": "Your card",
             "font": {
@@ -3901,7 +3943,7 @@
         ]
        },
        {
-        "id": "sig-164",
+        "id": "sig-165",
         "type": "button",
         "name": "Choose this bouquet",
         "text": "Choose this bouquet",
@@ -3990,7 +4032,7 @@
      "background": "#F3F1EA",
      "dark_background": "#0A120E",
      "body": {
-      "id": "sig-165",
+      "id": "sig-166",
       "type": "column",
       "padding": {
        "top": 0,
@@ -4000,7 +4042,7 @@
       },
       "children": [
        {
-        "id": "sig-166",
+        "id": "sig-167",
         "type": "items",
         "name": "Lately viewed",
         "source": "products",
@@ -4031,7 +4073,7 @@
         }
        },
        {
-        "id": "sig-167",
+        "id": "sig-168",
         "type": "row",
         "name": "Picked for you",
         "cross": "end",
@@ -4044,13 +4086,13 @@
         },
         "children": [
          {
-          "id": "sig-168",
+          "id": "sig-169",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-169",
+            "id": "sig-170",
             "type": "text",
             "text": "Picked for you",
             "font": {
@@ -4075,7 +4117,7 @@
           ]
          },
          {
-          "id": "sig-170",
+          "id": "sig-171",
           "type": "text",
           "text": "Shop all",
           "font": {
@@ -4106,7 +4148,7 @@
         ]
        },
        {
-        "id": "sig-171",
+        "id": "sig-172",
         "type": "items",
         "name": "Picked for you",
         "source": "products",
@@ -4127,12 +4169,12 @@
          "ids": []
         },
         "card": {
-         "id": "sig-172",
+         "id": "sig-173",
          "type": "column",
          "gap": 6,
          "children": [
           {
-           "id": "sig-173",
+           "id": "sig-174",
            "type": "image",
            "bind": "image",
            "width": "fill",
@@ -4141,7 +4183,7 @@
            "fit": "cover"
           },
           {
-           "id": "sig-174",
+           "id": "sig-175",
            "type": "text",
            "bind": "title",
            "max_lines": 1,
@@ -4156,7 +4198,7 @@
            }
           },
           {
-           "id": "sig-175",
+           "id": "sig-176",
            "type": "text",
            "bind": "price",
            "max_lines": 1,
@@ -4210,7 +4252,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-195",
+      "id": "sig-197",
       "type": "column",
       "children": []
      },
@@ -4252,7 +4294,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-196",
+      "id": "sig-198",
       "type": "column",
       "children": []
      },
@@ -4294,7 +4336,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-197",
+      "id": "sig-199",
       "type": "column",
       "children": []
      },
@@ -4336,7 +4378,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-198",
+      "id": "sig-200",
       "type": "column",
       "children": []
      },
@@ -4370,7 +4412,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-199",
+      "id": "sig-201",
       "type": "column",
       "children": []
      },
@@ -4387,7 +4429,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-200",
+      "id": "sig-202",
       "type": "column",
       "children": []
      },

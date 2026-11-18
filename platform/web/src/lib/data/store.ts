@@ -16,8 +16,15 @@ import type {
   TemplateOrder,
   TemplateOrderPatch,
   TemplateOrderStatus,
+  DesignerLedgerEntry,
+  DesignerPayout,
+  DesignerPayoutDetails,
+  DesignerPayoutStatus,
+  PayoutDetailsStatus,
 } from "./types";
-import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
+// 106.12 Studio Market discounts
+import type { MarketDiscount, MarketDiscountKind } from "./types";
+import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type {
   Activation,
   App,
@@ -815,6 +822,7 @@ export interface DataStore {
   listCatalogCategories(appId: string): Promise<CatalogCategory[]>;
   /** 110.2 `sample`: a category made with the sample products. */
   createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory>;
+  /** 157 Also makes a demo's (`sample`) category the owner's. */
   renameCatalogCategory(appId: string, id: number, name: string): Promise<void>;
   /** 132.12 The categories in this order (their `position`); ids of other apps or missing ones are skipped, the rest keep their place after these. */
   reorderCatalogCategories(appId: string, ids: number[]): Promise<void>;
@@ -872,6 +880,22 @@ export interface DataStore {
   createGiftOccasion(input: Omit<GiftOccasion, "id">): Promise<GiftOccasion>;
   updateGiftOccasion(appId: string, id: number, patch: Partial<Omit<GiftOccasion, "id" | "appId" | "createdAt">>): Promise<void>;
   deleteGiftOccasion(appId: string, id: number): Promise<void>;
+  /** 165 The app's stories (Dashboard › Stories), in their order. */
+  listAppStories(appId: string): Promise<AppStory[]>;
+  getAppStory(appId: string, id: number): Promise<AppStory | null>;
+  /**
+   * Null when a story with the same `importKey` is already the app's (a copy from Studio made once).
+   * One without an `importKey` is the owner's: the app's `storiesSavedAt` is set (as by the three below).
+   */
+  createAppStory(input: Omit<AppStory, "id">): Promise<AppStory | null>;
+  /** False when the app has no such story. Sets the app's `storiesSavedAt`. */
+  updateAppStory(appId: string, id: number, patch: Partial<Omit<AppStory, "id" | "appId" | "createdAt" | "importKey">>): Promise<boolean>;
+  /** Sets the app's `storiesSavedAt` when it removed one. */
+  deleteAppStory(appId: string, id: number): Promise<boolean>;
+  /** Puts the app's stories in this order (ids not given keep their order after them). Sets the app's `storiesSavedAt`. */
+  reorderAppStories(appId: string, ids: number[], now: Date): Promise<void>;
+  /** Notes that the app's Studio stories were copied (`apps.stories_seeded_at`); false when it already was. */
+  markStoriesSeeded(appId: string, now: Date): Promise<boolean>;
   createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder>;
   getCatalogOrder(appId: string, id: number): Promise<CatalogOrder | null>;
   getCatalogOrderByToken(tokenHash: string): Promise<CatalogOrder | null>;
@@ -2580,4 +2604,62 @@ export interface DataStore {
   listTemplateApplications(filter: { licenceId?: string; appId?: string; open?: boolean }): Promise<TemplateApplication[]>;
   /** Ends it, or moves it to another version, only while it is open. False otherwise. */
   updateTemplateApplication(id: string, patch: TemplateApplicationPatch): Promise<boolean>;
+
+  // 106.12 Studio Market discounts: price drops, flash sales and coupon codes
+  /** Null when the template has a coupon with this code already. */
+  createMarketDiscount(discount: MarketDiscount): Promise<MarketDiscount | null>;
+  getMarketDiscount(id: string): Promise<MarketDiscount | null>;
+  /** Oldest first; by templates or designer, kinds, and only those not ended at `notEndedAt` (no end, or an end after it). */
+  listMarketDiscounts(filter: { templateIds?: readonly string[]; designerId?: string; kinds?: readonly MarketDiscountKind[]; notEndedAt?: Date }): Promise<MarketDiscount[]>;
+  /** The template's coupon with this code (upper case), or null. */
+  findMarketCoupon(templateId: string, code: string): Promise<MarketDiscount | null>;
+  /** Ends it now, only while it hasn't ended (no end, or an end after now); a start after now moves to now. False otherwise. */
+  endMarketDiscount(id: string, now: Date): Promise<boolean>;
+  deleteMarketDiscount(id: string): Promise<boolean>;
+  /** How many paid orders each discount has (a coupon's uses): by discount id. */
+  countMarketDiscountUses(ids: readonly string[]): Promise<Record<string, number>>;
+  /**
+   * Records a pending order that uses a coupon with a usage limit, only
+   * while one of its uses is left: fewer than `limit` of its orders paid,
+   * or pending since `holdSince` (their payment page may still be paid),
+   * other buyers' (a buyer trying again isn't held up by their own page).
+   * Two buyers at once: one gets the last use. `used_up`: its paid orders
+   * reached the limit; `held`: its last uses are in payments still open;
+   * `gone`: the coupon was deleted meanwhile.
+   */
+  createTemplateOrderWithCoupon(order: TemplateOrder, limit: number, holdSince: Date): Promise<"ok" | "used_up" | "held" | "gone">;
+
+  // 106.11 The designer's money: the ledger of sales, the checks before the first payout, the payouts.
+  /** Records a paid sale once: false when its order has an entry already. */
+  recordDesignerSale(entry: DesignerLedgerEntry): Promise<boolean>;
+  /** Newest first; a designer's, or every designer's. */
+  listDesignerLedger(filter: { designerId?: string }): Promise<DesignerLedgerEntry[]>;
+  /** What each designer earned (their 75%s added up) and how many sales, those paid before `before` only when given: by designer id. */
+  designerEarnings(before?: Date): Promise<Record<string, { cents: number; sales: number }>>;
+  getDesignerPayoutDetails(designerId: string): Promise<DesignerPayoutDetails | null>;
+  /** Adds or replaces the designer's checks (sent to the team again). */
+  saveDesignerPayoutDetails(details: DesignerPayoutDetails): Promise<void>;
+  /**
+   * The team's answer, only while the checks are still the ones it looked at
+   * (sent at `submittedAt`, waiting): a designer's change meanwhile wins. False otherwise.
+   */
+  reviewDesignerPayoutDetails(designerId: string, submittedAt: Date, patch: Pick<DesignerPayoutDetails, "status" | "reviewNote" | "reviewedAt" | "reviewedBy">): Promise<boolean>;
+  /** Oldest sent first; by status. */
+  listDesignerPayoutDetails(statuses?: readonly PayoutDetailsStatus[]): Promise<DesignerPayoutDetails[]>;
+  /**
+   * Prepares a payout, kept by the database: only while the designer has no
+   * other payout (not cancelled) for its month (`exists`), and only while
+   * their balance before the run's cut-off (the sales paid before `before`,
+   * less every payout not cancelled) is still `expectedCents` (`changed`:
+   * another payout or a sale came in between).
+   */
+  createDesignerPayout(payout: DesignerPayout, check: { before: Date; expectedCents: number }): Promise<"created" | "exists" | "changed">;
+  getDesignerPayout(id: string): Promise<DesignerPayout | null>;
+  /** Newest prepared first; by designer, month or status. */
+  listDesignerPayouts(filter: { designerId?: string; period?: string; statuses?: readonly DesignerPayoutStatus[] }): Promise<DesignerPayout[]>;
+  /** Sent only while it is being prepared (two team members at once: one wins). False otherwise. */
+  markDesignerPayoutSent(id: string, patch: Pick<DesignerPayout, "bankReference" | "sentOn" | "sentAt" | "sentBy">): Promise<boolean>;
+  /** Cancelled only while it isn't sent: its month is free again. False otherwise. */
+  cancelDesignerPayout(id: string, patch: Pick<DesignerPayout, "cancelledAt" | "cancelledBy" | "cancelNote">): Promise<boolean>;
+  markDesignerPayoutEmailed(id: string, at: Date): Promise<void>;
 }

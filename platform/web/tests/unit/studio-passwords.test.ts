@@ -203,21 +203,24 @@ describe("118 password sign-in on the hosted API", () => {
     expect((await call("POST", "/auth/password", { username: "layla.h", password: "Desert-wind-77", device: DEVICE })).status).toBe(200);
   });
 
-  it("lets a code sign in where the owner kept codes, and asks a phone account for a password only where it needs one", async () => {
-    app = { ...app, hostedSettings: { ...app.hostedSettings!, passwordSignIn: { by: ["phone"], codes: ["phone"], recovery: "phone" }, signInMethods: ["phone"] } };
+  it("lets a code sign in where the owner kept codes, on a channel no password uses, and asks for a password wherever one does", async () => {
+    // 160 A channel is a code's or a password's: before, a code on the password's own channel signed in and skipped the password.
+    app = { ...app, hostedSettings: { ...app.hostedSettings!, passwordSignIn: { by: ["phone"], codes: ["email"], recovery: "phone" }, signInMethods: ["phone", "email"] } };
     await store.updateApp(app.id, { hostedSettings: app.hostedSettings }, NOW);
-    const verified = await phoneCode("5321234567");
-    // A code still signs in by phone here: the password is optional to set later, so it isn't asked.
+    // The email address: a code every time, no password asked.
+    const verified = await emailCode("omar@example.com");
     expect(verified.body).toMatchObject({ signup_required: true, fields: ["name"] });
     const created = await call("POST", "/auth/register", { signup_token: (verified.body as { signup_token: string }).signup_token, name: "Omar", device: DEVICE });
     expect(created.status).toBe(201);
-    expect((await phoneCode("5321234567")).status).toBe(200);
-    // No password yet: "Forgot password" sets one.
-    const reset = await phoneCode("5321234567", "reset");
-    const token = (reset.body as { reset_token: string }).reset_token;
-    expect((await call("POST", "/auth/password/reset", { reset_token: token, password: STRONG, device: DEVICE })).status).toBe(200);
+    expect((await emailCode("omar@example.com")).status).toBe(200);
+    // The phone number: a password, mandatory at sign-up; then the password, not a code.
+    const phone = await phoneCode("5321234567");
+    expect(phone.body).toMatchObject({ signup_required: true, fields: ["name", "password"] });
+    expect((await call("POST", "/auth/register", { signup_token: (phone.body as { signup_token: string }).signup_token, name: "Sara", device: DEVICE })).body).toMatchObject({ code: "weak_password" });
+    expect((await call("POST", "/auth/register", { signup_token: (phone.body as { signup_token: string }).signup_token, name: "Sara", password: STRONG, device: DEVICE })).status).toBe(201);
+    expect((await phoneCode("5321234567")).body).toMatchObject({ code: "use_password" });
     expect((await call("POST", "/auth/password", { country_code: "+90", phone: "532 123 45 67", password: STRONG, device: DEVICE })).status).toBe(200);
-    // Email isn't one of this app's ways.
+    // Email isn't one of this app's password ways.
     expect((await call("POST", "/auth/password", { email: "x@example.com", password: STRONG, device: DEVICE })).body).toMatchObject({ code: "method_not_allowed" });
   });
 

@@ -1672,9 +1672,47 @@
     },
     "studio": {
      "body": {
-      "id": "sig-71",
+      "id": "sig-72",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "sig-71",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account"
     },
@@ -1695,7 +1733,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-72",
+      "id": "sig-73",
       "type": "column",
       "children": []
      },
@@ -1737,7 +1775,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-73",
+      "id": "sig-74",
       "type": "column",
       "children": []
      },
@@ -1779,7 +1817,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-74",
+      "id": "sig-75",
       "type": "column",
       "children": []
      },
@@ -1821,7 +1859,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-75",
+      "id": "sig-76",
       "type": "column",
       "children": []
      },
@@ -1863,7 +1901,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-76",
+      "id": "sig-77",
       "type": "column",
       "children": []
      },
@@ -1905,7 +1943,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-77",
+      "id": "sig-78",
       "type": "column",
       "children": []
      },
@@ -1947,7 +1985,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-78",
+      "id": "sig-79",
       "type": "column",
       "children": []
      },
@@ -1981,7 +2019,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-79",
+      "id": "sig-80",
       "type": "column",
       "children": []
      },
@@ -1996,7 +2034,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-80",
+      "id": "sig-81",
       "type": "column",
       "children": []
      },
@@ -2011,7 +2049,7 @@
     "title": "A course",
     "studio": {
      "body": {
-      "id": "sig-81",
+      "id": "sig-82",
       "type": "column",
       "children": []
      },
@@ -2026,7 +2064,7 @@
     "title": "A bundle",
     "studio": {
      "body": {
-      "id": "sig-82",
+      "id": "sig-83",
       "type": "column",
       "children": []
      },
@@ -2041,7 +2079,7 @@
     "title": "A lesson",
     "studio": {
      "body": {
-      "id": "sig-83",
+      "id": "sig-84",
       "type": "column",
       "children": []
      },
@@ -2056,7 +2094,7 @@
     "title": "A quiz",
     "studio": {
      "body": {
-      "id": "sig-84",
+      "id": "sig-85",
       "type": "column",
       "children": []
      },
@@ -2071,7 +2109,7 @@
     "title": "An assignment",
     "studio": {
      "body": {
-      "id": "sig-85",
+      "id": "sig-86",
       "type": "column",
       "children": []
      },
@@ -2086,7 +2124,7 @@
     "title": "A live session",
     "studio": {
      "body": {
-      "id": "sig-86",
+      "id": "sig-87",
       "type": "column",
       "children": []
      },
@@ -2101,7 +2139,7 @@
     "title": "A question",
     "studio": {
      "body": {
-      "id": "sig-87",
+      "id": "sig-88",
       "type": "column",
       "children": []
      },
@@ -2124,7 +2162,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-88",
+      "id": "sig-89",
       "type": "column",
       "children": []
      },
@@ -2158,7 +2196,7 @@
     "title": "A learning path",
     "studio": {
      "body": {
-      "id": "sig-89",
+      "id": "sig-90",
       "type": "column",
       "children": []
      },
@@ -2181,7 +2219,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-90",
+      "id": "sig-91",
       "type": "column",
       "children": []
      },
@@ -2223,7 +2261,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-91",
+      "id": "sig-92",
       "type": "column",
       "children": []
      },
@@ -2265,7 +2303,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-92",
+      "id": "sig-93",
       "type": "column",
       "children": []
      },
@@ -2299,7 +2337,7 @@
     "title": "A teacher's page",
     "studio": {
      "body": {
-      "id": "sig-93",
+      "id": "sig-94",
       "type": "column",
       "children": []
      },
@@ -2322,7 +2360,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-94",
+      "id": "sig-95",
       "type": "column",
       "children": []
      },
@@ -2364,7 +2402,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-95",
+      "id": "sig-96",
       "type": "column",
       "children": []
      },
@@ -2406,7 +2444,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-96",
+      "id": "sig-97",
       "type": "column",
       "children": []
      },
@@ -2448,7 +2486,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-97",
+      "id": "sig-98",
       "type": "column",
       "children": []
      },
@@ -2490,7 +2528,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-98",
+      "id": "sig-99",
       "type": "column",
       "children": []
      },
@@ -2532,7 +2570,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-99",
+      "id": "sig-100",
       "type": "column",
       "children": []
      },

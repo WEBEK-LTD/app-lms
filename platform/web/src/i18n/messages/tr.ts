@@ -200,6 +200,10 @@ export const tr: Messages = {
     lifetimeNote: "Tek bir ödeme, Yallapp hizmeti sürdürdüğü sürece bu paketi yenileme gerektirmeden etkin tutar. Ödediğiniz gün paketin içerdiklerini kapsar. Eklentiler, uygulama mağazalarının kendi ücretleri ve paketin dışındaki işler ayrıca ödenir.",
     lifetimeChoose: "{plan} paketini ömür boyu alın",
     lifetimeCompare: "Tüm paketleri karşılaştırın",
+    /** 154 The pricing page's compact cards: what's folded under the first highlights, a plan on request, and the period picker's hint. */
+    seeEverything: "Tümünü görün",
+    onRequestNote: "Fiyatı sizinle WhatsApp'ta belirleriz",
+    saveUpTo: "En fazla %{percent} tasarruf",
   },
   pricing: {
     eachApp: "Her uygulamanın kendi paketi vardır. Bir paket hakkında sorunuz mu var? <link>WhatsApp'tan bize yazın</link>.",
@@ -281,6 +285,14 @@ export const tr: Messages = {
     studioWhoText:
       "Kendine özgü bir tasarım isteyen işletmeler ve yalnızca Studio'nun hizmet verdikleri: teslimat şirketleri, yemek teslimatı, yolcu taşıma ve taksiler, çok öğretmenli akademiler, okullar ve üniversiteler.",
     compareAllText: "Uygulama paketlerinin tüm özellikleri ve limitleri, yan yana.",
+    /** 154 The pricing page in its Day and night look: Studio's tag, the kinds of apps (folded after the first), and the questions. */
+    studioTag: "Serbest tasarım",
+    kindsMore: "+{count} daha",
+    kindsFewer: "Daha az göster",
+    faqLifetime: "Ömür boyu neleri kapsar?",
+    faqChange: "Paketimi sonradan değiştirebilir miyim?",
+    faqFees: "Uygulama mağazalarının ücretlerini kim öder, para iadesi alabilir miyim?",
+    faqUsers: "Kimler uygulama kullanıcısı sayılır?",
   },
   solutions: {
     contentFrom: "İçerik kaynakları:",

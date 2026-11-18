@@ -20,7 +20,7 @@ export const PRIVACY: LegalDefault = {
   key: "privacy",
   path: "/privacy",
   title: "Privacy policy",
-  updated: "16 November 2026",
+  updated: "18 November 2026",
   body: `## 1. Who we are
 
 Yallapp is based in Cairo, Egypt, and is the data controller for the personal data described here. We work with businesses in many countries, so we follow the data protection laws that apply to the data we handle: Egypt's Personal Data Protection Law (Law No. 151 of 2020), and, where they apply, the EU General Data Protection Regulation (GDPR) and the Turkish Personal Data Protection Law No. 6698 (KVKK). Contact: [{{contact_email}}](mailto:{{contact_email}}).
@@ -33,6 +33,7 @@ Yallapp is based in Cairo, Egypt, and is the data controller for the personal da
 - **Billing records:** your plan, dates and payment notes.
 - **Messages** you send us, and **technical logs** such as IP address, browser and sign-in times.
 - **How you found us:** when you sign up, the source, medium and campaign of the link you came from, the name of the website that sent you (not the page), and whether you looked at our demo apps. We use it only to learn which pages and campaigns bring us clients, and nothing is stored in your browser for it.
+- **Studio Market designers' details:** if you sell templates on Studio Market, before the first payout of your earnings we ask you for your name as it is on your ID, your country, your ID's type and number and a copy of it, the name of the bank account's holder, the IBAN or account number, the SWIFT/BIC code, the bank's name and country, and your address. We use these details only to verify your identity and to pay out your earnings. The ID number and the account number are stored encrypted, and only our dedicated payments team can see them.
 
 ## 3. Data about your app's users
 
@@ -67,7 +68,7 @@ Besides the emails about your account, we sometimes email news, tips and offers 
 
 ## 6. Who we share it with
 
-We share data only with providers that help us run Yallapp: hosting (webek.org) for the website, the database, apps without a website and build files, WhatsApp messaging (waabek.com) for sign-in codes, the build service that compiles your apps, and Apple or Google when we publish for you or check your app's in-app purchases. We may also share data with professional advisers or authorities when the law requires it. We never sell personal data.
+We share data only with providers that help us run Yallapp: hosting (webek.org) for the website, the database, apps without a website and build files, WhatsApp messaging (waabek.com) for sign-in codes, the build service that compiles your apps, and Apple or Google when we publish for you or check your app's in-app purchases. We may also share data with professional advisers or authorities when the law requires it. We send the transfer details to our bank only to pay out designers' earnings. We never sell personal data.
 
 ## 7. International transfers
 
@@ -75,7 +76,7 @@ We are based in Egypt and work with clients in many countries. Some of our provi
 
 ## 8. How long we keep it
 
-We keep account data while your account is active and for up to 12 months after it closes. Billing records are kept for as long as accounting and tax laws require. Signing keys are kept until you ask us to delete them after your account ends. Technical logs are kept for up to 12 months. Single usage events from your app (each app open, screen or search) are kept for 90 days. The daily totals made from them are kept for as long as your app's plan includes: by default 3 months on Starter, 1 year on Growth, 2 years on Pro and 3 years on Business, and never after your app is deleted. Chat messages and files are kept for a year after they're sent, or for as long as you keep their conversation. Records of Yallapp's news and offer emails (sent, opened, clicked) are kept for 12 months.
+We keep account data while your account is active and for up to 12 months after it closes. Billing records are kept for as long as accounting and tax laws require. We keep the record of designers' earnings and payouts for as long as accounting and tax laws require, and we delete the copy of the ID and the verification details when the account is closed. Signing keys are kept until you ask us to delete them after your account ends. Technical logs are kept for up to 12 months. Single usage events from your app (each app open, screen or search) are kept for 90 days. The daily totals made from them are kept for as long as your app's plan includes: by default 3 months on Starter, 1 year on Growth, 2 years on Pro and 3 years on Business, and never after your app is deleted. Chat messages and files are kept for a year after they're sent, or for as long as you keep their conversation. Records of Yallapp's news and offer emails (sent, opened, clicked) are kept for 12 months.
 
 ## 9. Security
 

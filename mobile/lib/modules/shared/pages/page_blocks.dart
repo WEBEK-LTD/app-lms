@@ -28,6 +28,7 @@ import '../../lms/widgets/course_cards.dart';
 import 'content_blocks.dart';
 import 'form_block.dart';
 import 'page_actions.dart';
+import '../../../core/format/text_case.dart';
 
 /// Spacing and type for pages in each template.
 class PageStyle {
@@ -720,7 +721,8 @@ class _ItemText extends StatelessWidget {
     final subtitle = item.subtitle?.trim();
     // 131 A product on sale: its sale price and the price before it.
     final sale = item.sale?.liveAt(DateTime.now()) == true ? item.sale : null;
-    final price = sale != null ? null : item.priceLabel?.trim();
+    // 161 In the customer's currency when the server sent it.
+    final price = sale != null ? null : item.shownLabel?.trim();
     final badge = showBadge ? item.badge?.trim() : null;
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -797,7 +799,9 @@ class _ItemText extends StatelessWidget {
 String _itemLabel(PageItem item) => [
   item.title,
   item.subtitle,
-  item.priceLabel,
+  // 161 The customer's price, then the shop's.
+  item.shownLabel,
+  if (item.shownLabel != item.priceLabel) item.priceLabel,
   item.badge,
 ].whereType<String>().where((t) => t.trim().isNotEmpty).join(', ');
 
@@ -1189,7 +1193,7 @@ class _CategoryPicture extends StatelessWidget {
       color: p.placeholderFor(index),
       child: Center(
         child: Text(
-          category.name.characters.take(1).toString().toUpperCase(),
+          category.name.characters.take(1).toString().toUpperCaseIn(context),
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w800,

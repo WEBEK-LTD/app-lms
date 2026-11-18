@@ -1879,6 +1879,15 @@ Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
       (iPhone 6.9", iPad 13") in every listing language, framed only when
       the owner ticked it, and both stores take them.
 
+## Phase 173: An order's delivery, card and amounts
+
+- [ ] Release plugin **0.4.51** in Admin › Plugin releases (`Order.amounts`
+      from the WooCommerce order). Older plugins leave it out and the app
+      shows the items and the total, as before.
+- [ ] On a phone, in Leqaa's and Kech Flora's apps: open an order with a
+      card and a coupon (like #1057) and one without; the delivery, the card
+      and the totals show and add up, in English and Arabic.
+
 ## Phase 145: The app audit
 
 - [ ] Release plugin **0.4.50** in Admin › Plugin releases (delivery days in
@@ -1889,6 +1898,59 @@ Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
       showing "Courses" over the Bouquets tab.
 - [ ] On a phone with a release 4 build: publish a change in Studio, switch
       away from the app and back, and see it without restarting the app.
+
+## Phase 106.11: The designer's money (Studio Market payouts)
+
+- [ ] Migration `0142_studio_market_money` runs with the others at deploy
+      (after `0141_auto_screenshots`). Sales paid before it are put in the
+      designers' ledger by the next daily job (and when Admin › Studio
+      Market › Payouts or a designer's Earnings is opened): check that a
+      designer's "Earned in all" is 75% of their paid sales in Admin ›
+      Studio Market › Sales.
+- [ ] Admin › Team: Studio Market payouts (`market.payouts`) is the owners'
+      and admins'. Support still reviews templates but sees designers' ID
+      numbers and accounts masked and can't open their IDs.
+- [ ] The privacy page and the designer terms have the owner's approved
+      wording (privacy sections 2, 6 and 8 in English, Arabic and Turkish;
+      the designer terms' last line on joining). If Admin › Website content
+      has an edited privacy page saved, its text replaces the new default:
+      add the three sentences there too.
+- [ ] Match the bank file to Yallapp's bank: download it once (Payouts ›
+      Download the bank file) and check its columns against the bank's bulk
+      SWIFT import, or keep it for typing each transfer by hand.
+- [ ] The 1st of the first month with a designer due: Admin › Watching shows
+      "Studio Market payouts of 1 … are ready to prepare" (and the team got
+      it by email); it closes by itself once they're prepared. Check that a
+      sale paid on the 1st after midnight Istanbul time is under "Toward"
+      the next 1st, not in the run.
+- [ ] The first real payout, checked by hand before and after:
+      - In Payout checks, open the designer's ID and compare it with the
+        name, the country and the account's holder; check the IBAN's country
+        and the SWIFT/BIC against the bank; approve.
+      - From the 1st, in Payouts, the designer shows under "Due on 1 …" with
+        USD 250 or more; Prepare the bank file and compare the CSV row's
+        amount with their Earnings ("Next payout", then Pending) and with
+        Sales (75% of their sales paid before the 1st, midnight Istanbul
+        time, less what was paid before).
+      - Send the transfer from Yallapp's bank in US dollars for exactly that
+        amount, Yallapp paying every fee (SWIFT "OUR": the designer gets the
+        whole 75%).
+      - Mark as sent with the bank's reference and the day it went out; the
+        designer gets the receipt email in their language with its PDF, and
+        their Earnings shows it under Paid out.
+      - Ask the designer to confirm the amount arrived in full.
+- [ ] A prepared payout the bank didn't send: Cancel it with why (its amount
+      goes back to the balance). A transfer returned after it was marked
+      sent has no button yet: record it with the developers.
+
+## Phase 172: A saved legal page that lacks the default's new text
+
+- [ ] After deploy, open Admin › Website content: a "Default updated"
+      badge on Privacy policy (or Terms, Refund policy) means the team's
+      saved version lacks the default's new text in that language. Open it,
+      Review the changes, Add the new text, check it, Save and publish, and
+      check /privacy (/ar/privacy, /tr/privacy) shows the three sentences.
+      No badge: nothing saved, or the saved version already has them.
 
 ## Phase 153: The card inside the payment page (iyzico, Kashier)
 
@@ -1953,7 +2015,7 @@ check.
       the card fields work as before.
 - [ ] **The apps:** from Phase 170 the apps open the payment page in the
       phone's browser sheet, where Apple Pay and Google Pay show: see Phase
-      170 below. Apps still on an older build (release 6 or before) open it
+      170 below. Apps still on an older build (release 9 or before) open it
       in their web view, where the card form works and the wallets don't.
 - [ ] **A restricted key (rk_…):** give it Write access to **Payment method
       domains** in Stripe, or add yallapp.com.tr yourself under Settings ›
@@ -1965,11 +2027,79 @@ check.
       `/.well-known/` on host.webek.org (deploy/apache-proxy.conf keeps that
       folder off Netlify).
 
+## Phase 159: Sizes automatic, by hand only when asked
+
+No migration, no setting. The hosted API serves a cover's top bar across the
+cover as soon as the platform is deployed; the next `CLIENT_APP_RELEASE` (bumped
+once with the other urgent app fixes) gives every active app a build with the
+same rule (4 an hour).
+
+- [ ] **Kech Flora on a phone:** after the deploy, open the app (or switch
+      away and back): the bag of the bar over the stories at the right edge,
+      the search at the left, "KechFlora" in the middle, on an iPhone and on
+      an Android phone, in English and in Arabic (the search on the right).
+      Nothing to change or publish in Studio.
+- [ ] **Studio:** on Kech Flora's home, select the bar (the wordmark, then
+      Select what holds it): Size and place says Automatic size and Width
+      Fill. Change the width: Studio asks first; Cancel changes nothing.
+      Change by hand, then Back to automatic: Fill again. Drag a corner of
+      another element up to the edge of the phone: its width becomes Fill.
+- [ ] **Screen readers (the next app release's build):** with TalkBack or VoiceOver on,
+      the round search and bag over the stories say "Search" and "Cart"
+      (in Arabic بحث and السلة), not just "button".
+- [ ] **WordPress apps:** release plugin **0.4.51** in Admin › Plugin releases:
+      it sends `manual_size` and `name`; until then a WordPress app draws a cover's top bar across the
+      cover even when it was sized by hand in Studio.
+
+## Phase 160: Sign-in as the owner's four ways say
+
+Nothing to deploy beyond the code and the apps' next build (`CLIENT_APP_RELEASE` 9):
+no migration, no setting. A choice saved before with a code and a password
+on the same channel now signs in with the password there.
+
+- [ ] **The bell, signed out (Kech Flora or Leqaa):** tap the bell on the
+      Bouquets page, sign in with the email and password: sign-in closes
+      and Notifications opens; back goes to Bouquets. Do it again with
+      "Forgot password": the code by email (or on WhatsApp for the phone
+      number), the new password, then Notifications, never before.
+- [ ] **Each way alone, on App sign-in:** "Phone number and a code" and
+      "Email address and a code": a code every time, no password field and
+      no "Forgot password". "Email address and password" and "Phone number
+      and password": a new account gets one code, then must set a password;
+      signing in again asks for the password only.
+- [ ] **Together:** turning on "Email address and a code" turns off "Email
+      address and password" (and the same for the phone); "Phone number
+      and a code" with "Email address and password": the app shows Email
+      (the password) and Phone (a code).
+
+## Phase 165: Dashboard › Stories
+
+Deploy runs migration 0144 (`app_stories`, `apps.stories_seeded_at` and
+`apps.stories_saved_at`: until the owner saves in Dashboard › Stories, the
+story elements follow the Studio design; after main's 0143) as any
+other. Nothing to copy by hand: each app's Studio stories are copied into
+the dashboard by the code, once, the first time they're needed.
+
+- [ ] **Leqaa and Kech Flora:** open **Stories** in each project. The note
+      says the stories were copied from Studio; the five occasions are
+      there with their photos, words and buttons. Open the app on a phone:
+      the home looks exactly as before.
+- [ ] **A change reaches the app without a build:** add a story with a
+      photo, its words in English and Arabic and a button opening one of
+      the shop's categories; move it first; switch another off. Close the
+      app and open it again: the new story is first in
+      the hero and the rings, the switched-off one is gone, the words are
+      in the phone's language. Its button opens the shop (on the category
+      in an app built with release 9).
+- [ ] **Release 9:** once the apps are rebuilt with release 9, a story's
+      full-screen view shows its small label, title, line and button words,
+      and a video story plays its video.
+
 ## Phase 170: Paying in the app in the phone's browser sheet
 
 Nothing to set: no migration, no setting. The platform goes first (its
 `/pay/<token>/app` and `/pay/<token>/status`); then each app gets it with its
-next build (`CLIENT_APP_RELEASE` 7, a few apps an hour, through the stores as
+next build (app release 10, `CLIENT_APP_RELEASE` 10, a few apps an hour, through the stores as
 any update). Try it on a test shop whose app was built after the platform
 was deployed, with Stripe in test mode and its domain ready (Phase 155).
 
@@ -2011,4 +2141,3 @@ was deployed, with Stripe in test mode and its domain ready (Phase 155).
       Chrome itself (not from the app): no "Back to the app" anywhere.
 - [ ] **An older build:** on a phone still on the app's previous version the
       payment page opens in the app's own page as before.
-

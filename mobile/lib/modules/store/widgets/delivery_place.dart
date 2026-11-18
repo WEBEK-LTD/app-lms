@@ -182,13 +182,23 @@ class DeliveryPlaceFields extends ConsumerWidget {
 }
 
 /// Opens the map for the place an order goes; the place pinned, or null.
-/// Without the map's tiles, the phone's own position is the only way.
+/// Without the map's tiles, the phone's own position is the only way: 168
+/// said first, since a gift's recipient is seldom where the phone is, and
+/// taken only once the customer agrees.
 Future<({double lat, double lng})?> pickDeliveryPin(
   BuildContext context, {
   required StoreShippingRules shipping,
   ({double lat, double lng})? start,
 }) async {
   if (shipping.mapTilesUrl == null) {
+    final l10n = context.l10n;
+    final here = await confirmAction(
+      context,
+      title: l10n.deliveryPinNoMapTitle,
+      message: l10n.deliveryPinNoMapMessage,
+      confirmLabel: l10n.deliveryPinUseHere,
+    );
+    if (!here || !context.mounted) return null;
     return _myPosition(context, ProviderScope.containerOf(context));
   }
   return Navigator.of(context).push<({double lat, double lng})>(

@@ -180,6 +180,8 @@ class Woo_Orders {
 			'total'        => Money::plain( wc_price( (float) $order->get_total(), array( 'currency' => $order->get_currency() ) ) ),
 			'created_at'   => $created ? gmdate( 'Y-m-d\TH:i:s\Z', $created->getTimestamp() ) : gmdate( 'Y-m-d\TH:i:s\Z' ),
 			'items'        => $lines,
+			// 173 What the total is made of: the coupons, the shipping, the delivery time's fee, other fees, taxes.
+			'amounts'      => Order_Amounts::of_order( $order ),
 		);
 		if ( $follow ) {
 			$shape['fulfilment_status'] = self::fulfilment_status( $status );

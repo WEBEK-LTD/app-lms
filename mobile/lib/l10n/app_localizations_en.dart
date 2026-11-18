@@ -424,6 +424,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String updateRequiredMessageApp(String name) {
+    return 'A new version of $name is available. Update the app to keep using it.';
+  }
+
+  @override
   String get updateNow => 'Update now';
 
   @override
@@ -785,6 +790,54 @@ class AppLocalizationsEn extends AppLocalizations {
       'New lessons, announcements and answers to your questions will show up here.';
 
   @override
+  String get noNotificationsMessageStore =>
+      'Updates on your orders, offers and news from the shop will show up here.';
+
+  @override
+  String get noNotificationsMessageFlowers =>
+      'Updates on your orders and their delivery, offers and news from the shop will show up here.';
+
+  @override
+  String get noNotificationsMessageFood =>
+      'Updates on your orders, offers and news will show up here.';
+
+  @override
+  String get noNotificationsMessageBookings =>
+      'Booking confirmations, reminders and news will show up here.';
+
+  @override
+  String get noNotificationsMessageListings =>
+      'Replies to your enquiries, new listings and news will show up here.';
+
+  @override
+  String get noNotificationsMessageNews =>
+      'Breaking news and new articles will show up here.';
+
+  @override
+  String get noNotificationsMessageEvents =>
+      'Ticket updates, event reminders and news will show up here.';
+
+  @override
+  String get noNotificationsMessageDonations =>
+      'Campaign updates and news will show up here.';
+
+  @override
+  String get noNotificationsMessageDelivery =>
+      'Updates on your shipments and news will show up here.';
+
+  @override
+  String get noNotificationsMessageRides =>
+      'Updates on your rides, offers and news will show up here.';
+
+  @override
+  String get noNotificationsMessageTravel =>
+      'Updates on your bookings and trips, offers and news will show up here.';
+
+  @override
+  String get noNotificationsMessageSchool =>
+      'Announcements, homework, grades and messages from the school will show up here.';
+
+  @override
   String get notifications => 'Notifications';
 
   @override
@@ -882,6 +935,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteAccountMessage =>
       'Your account, progress and enrollments will be deleted and every device signed out. This can’t be undone.';
+
+  @override
+  String get deleteAccountMessageApp =>
+      'Your account and its details will be deleted and every device signed out. This can’t be undone.';
 
   @override
   String get deleteAccount => 'Delete account';
@@ -1005,6 +1062,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noAccountForNumber =>
       'There\'s no account with this number. Please contact the academy.';
+
+  @override
+  String get noAccountForNumberApp =>
+      'There\'s no account with this number. Please contact us.';
+
+  @override
+  String get noAccountForNumberSchool =>
+      'There\'s no account with this number. Please contact the school.';
 
   @override
   String get newCodeSent => 'We sent you a new code.';
@@ -3599,6 +3664,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get fileInAppOnlyMessage =>
       'Course files open only inside the app, which shows PDFs, pictures and text. Ask your teacher for this one as a PDF.';
+
+  @override
+  String get fileInAppOnlyMessageApp =>
+      'This file opens only inside the app, which shows PDFs, pictures and text. Ask for it as a PDF.';
 
   @override
   String pageOf(int page, int total) {
@@ -11966,6 +12035,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deliveryPinChoose => 'Pin the delivery place on the map';
 
   @override
+  String get deliveryPinNoMapTitle => 'This shop has no map yet';
+
+  @override
+  String get deliveryPinNoMapMessage =>
+      'The delivery place will be where your phone is now. Use it only if you\'re at the place the order goes, or ask the shop to deliver to your address.';
+
+  @override
+  String get deliveryPinUseHere => 'Use where I am';
+
+  @override
   String get deliveryPinSet => 'Pinned on the map';
 
   @override
@@ -12110,6 +12189,184 @@ class AppLocalizationsEn extends AppLocalizations {
   String orderPaidIn(String total) {
     return 'Paid $total';
   }
+
+  @override
+  String get orderDeliveryTitle => 'Delivery';
+
+  @override
+  String orderDeliverySlot(String slot) {
+    return '$slot, the shop\'s time';
+  }
+
+  @override
+  String get orderRecipientTitle => 'Recipient';
+
+  @override
+  String get orderAddressTitle => 'Address';
+
+  @override
+  String get orderGiftTitle => 'Gift card';
+
+  @override
+  String orderGiftFrom(String name) {
+    return 'From $name';
+  }
+
+  @override
+  String get orderGiftAnonymous => 'Sent anonymously';
+
+  @override
+  String get orderSummaryTitle => 'Payment summary';
+
+  @override
+  String orderCouponLine(String code) {
+    return 'Coupon $code';
+  }
+
+  @override
+  String get orderDiscountLine => 'Discount';
+
+  @override
+  String orderPointsLine(int points) {
+    return 'Points ($points)';
+  }
+
+  @override
+  String orderShippingTo(String zone) {
+    return 'Delivery to $zone';
+  }
+
+  @override
+  String get orderSlotFee => 'Delivery time fee';
+
+  @override
+  String orderTaxIncluded(String tax) {
+    return 'Includes $tax';
+  }
+
+  @override
+  String get bouquetTitle => 'Build your bouquet';
+
+  @override
+  String get bouquetStepFlowers => 'Flowers';
+
+  @override
+  String get bouquetStepWrap => 'Wrap';
+
+  @override
+  String get bouquetStepCard => 'Card';
+
+  @override
+  String get bouquetStepSummary => 'Your bouquet';
+
+  @override
+  String bouquetStepOf(int step, int count) {
+    return 'Step $step of $count';
+  }
+
+  @override
+  String get bouquetFlowersLine => 'Choose the flowers by the stem.';
+
+  @override
+  String get bouquetWrapLine => 'Choose how it is wrapped.';
+
+  @override
+  String get bouquetCardLine => 'Choose the card and write your message.';
+
+  @override
+  String get bouquetMessageOnlyLine => 'Write the words for the card.';
+
+  @override
+  String bouquetStems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stems',
+      one: '1 stem',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bouquetStemsRange(int min, int max) {
+    return 'From $min to $max stems';
+  }
+
+  @override
+  String bouquetNeedStems(int min) {
+    return 'Choose at least $min stems.';
+  }
+
+  @override
+  String bouquetMaxStems(int max) {
+    return 'A bouquet has at most $max stems.';
+  }
+
+  @override
+  String get bouquetNoWrap => 'No wrap';
+
+  @override
+  String get bouquetNoWrapLine => 'The stems tied by hand.';
+
+  @override
+  String get bouquetChooseWrap => 'Choose a wrap to go on.';
+
+  @override
+  String get bouquetNoCard => 'No card';
+
+  @override
+  String get bouquetChooseCard => 'Choose a card to go on.';
+
+  @override
+  String get bouquetWriteMessage => 'Write your message to go on.';
+
+  @override
+  String get bouquetSkipCard => 'Skip the card';
+
+  @override
+  String get bouquetTotal => 'Bouquet total';
+
+  @override
+  String get bouquetTotalNote => 'The shop confirms the total in your cart.';
+
+  @override
+  String get bouquetSendFlowers => 'Send flowers';
+
+  @override
+  String bouquetChange(String part) {
+    return 'Change $part';
+  }
+
+  @override
+  String get bouquetUnavailable =>
+      'Build your bouquet isn\'t available right now.';
+
+  @override
+  String get bouquetShopInstead => 'Go to the shop';
+
+  @override
+  String get bouquetInCart => 'Your bouquet is in the cart.';
+
+  @override
+  String get bouquetHeader => 'Your bouquet';
+
+  @override
+  String bouquetWrapPart(String name) {
+    return 'Wrap: $name';
+  }
+
+  @override
+  String bouquetCardPart(String name) {
+    return 'Card: $name';
+  }
+
+  @override
+  String bouquetMessage(String message) {
+    return '“$message”';
+  }
+
+  @override
+  String get bouquetRemove => 'Remove the bouquet';
 
   @override
   String get paySheetWaitingTitle => 'Finish paying in the window that opened';

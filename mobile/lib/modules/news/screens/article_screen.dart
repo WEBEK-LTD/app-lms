@@ -15,6 +15,7 @@ import '../../../core/widgets/common.dart';
 import '../../lms/lesson/content/html_content.dart';
 import '../data/news_providers.dart';
 import '../widgets/article_widgets.dart';
+import '../../../core/format/text_case.dart';
 
 /// An article: its picture, section, title, author and date, and its body
 /// rendered like a lesson (native HTML with embeds, or the article's page
@@ -90,7 +91,7 @@ class _ArticleBody extends ConsumerWidget {
                     onTap: () =>
                         context.go(Paths.articlesFiltered(category: c.id)),
                     child: Text(
-                      c.name.toUpperCase(),
+                      c.name.toUpperCaseIn(context),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,

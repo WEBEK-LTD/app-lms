@@ -287,6 +287,14 @@
       }
     }
   },
+  "updateRequiredMessageApp": "A new version of {name} is available. Update the app to keep using it.",
+  "@updateRequiredMessageApp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "updateNow": "Update now",
   "updateRecommendedTitle": "A new version is ready",
   "updateRecommendedMessage": "A newer version of {name} is on the store. Update now, or carry on and update later.",
@@ -479,6 +487,54 @@
   },
   "noNotificationsTitle": "No notifications yet",
   "noNotificationsMessage": "New lessons, announcements and answers to your questions will show up here.",
+  "noNotificationsMessageStore": "Updates on your orders, offers and news from the shop will show up here.",
+  "@noNotificationsMessageStore": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageFlowers": "Updates on your orders and their delivery, offers and news from the shop will show up here.",
+  "@noNotificationsMessageFlowers": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageFood": "Updates on your orders, offers and news will show up here.",
+  "@noNotificationsMessageFood": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageBookings": "Booking confirmations, reminders and news will show up here.",
+  "@noNotificationsMessageBookings": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageListings": "Replies to your enquiries, new listings and news will show up here.",
+  "@noNotificationsMessageListings": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageNews": "Breaking news and new articles will show up here.",
+  "@noNotificationsMessageNews": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageEvents": "Ticket updates, event reminders and news will show up here.",
+  "@noNotificationsMessageEvents": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageDonations": "Campaign updates and news will show up here.",
+  "@noNotificationsMessageDonations": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageDelivery": "Updates on your shipments and news will show up here.",
+  "@noNotificationsMessageDelivery": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageRides": "Updates on your rides, offers and news will show up here.",
+  "@noNotificationsMessageRides": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageTravel": "Updates on your bookings and trips, offers and news will show up here.",
+  "@noNotificationsMessageTravel": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageSchool": "Announcements, homework, grades and messages from the school will show up here.",
+  "@noNotificationsMessageSchool": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
   "notifications": "Notifications",
   "unread": "Unread",
   "noOrdersTitle": "No orders yet",
@@ -557,6 +613,10 @@
   "termsAndConditions": "Terms & Conditions",
   "deleteAccountTitle": "Delete your account?",
   "deleteAccountMessage": "Your account, progress and enrollments will be deleted and every device signed out. This can’t be undone.",
+  "deleteAccountMessageApp": "Your account and its details will be deleted and every device signed out. This can’t be undone.",
+  "@deleteAccountMessageApp": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
   "deleteAccount": "Delete account",
   "accountDeleted": "Your account was deleted.",
   "display": "Display",
@@ -660,6 +720,14 @@
   },
   "codeExpired": "This code has expired. Request a new one.",
   "noAccountForNumber": "There's no account with this number. Please contact the academy.",
+  "noAccountForNumberApp": "There's no account with this number. Please contact us.",
+  "@noAccountForNumberApp": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noAccountForNumberSchool": "There's no account with this number. Please contact the school.",
+  "@noAccountForNumberSchool": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
   "newCodeSent": "We sent you a new code.",
   "enterCode": "Enter verification code",
   "codeSentTo": "We sent a code to {number}",
@@ -2650,6 +2718,10 @@
   "fileOpenFailed": "This file couldn't be opened.",
   "fileInAppOnly": "This file can't be shown here",
   "fileInAppOnlyMessage": "Course files open only inside the app, which shows PDFs, pictures and text. Ask your teacher for this one as a PDF.",
+  "fileInAppOnlyMessageApp": "This file opens only inside the app, which shows PDFs, pictures and text. Ask for it as a PDF.",
+  "@fileInAppOnlyMessageApp": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
   "pageOf": "Page {page} of {total}",
   "@pageOf": {
     "placeholders": {
@@ -13033,6 +13105,18 @@
   "@deliveryPinChoose": {
     "description": "131 Opens the map to pin where the order goes, for shipping priced by distance."
   },
+  "deliveryPinNoMapTitle": "This shop has no map yet",
+  "@deliveryPinNoMapTitle": {
+    "description": "168 Title of the notice when the shop prices delivery by distance but the platform has no map to pin on."
+  },
+  "deliveryPinNoMapMessage": "The delivery place will be where your phone is now. Use it only if you're at the place the order goes, or ask the shop to deliver to your address.",
+  "@deliveryPinNoMapMessage": {
+    "description": "168 Why the phone's own location is used when there is no map: a gift's recipient is usually elsewhere."
+  },
+  "deliveryPinUseHere": "Use where I am",
+  "@deliveryPinUseHere": {
+    "description": "168 Uses the phone's location as the delivery place when there is no map."
+  },
   "deliveryPinSet": "Pinned on the map",
   "@deliveryPinSet": {
     "description": "131 The place the order goes is pinned on the map."
@@ -13257,6 +13341,275 @@
         "type": "String"
       }
     }
+  },
+  "orderDeliveryTitle": "Delivery",
+  "@orderDeliveryTitle": {
+    "description": "173 The order screen: the heading over the delivery day, time, recipient and address."
+  },
+  "orderDeliverySlot": "{slot}, the shop's time",
+  "@orderDeliverySlot": {
+    "description": "173 The order screen: the delivery time chosen, in the shop's time zone, like 10:00–13:00.",
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "orderRecipientTitle": "Recipient",
+  "@orderRecipientTitle": {
+    "description": "173 The order screen: who receives the order."
+  },
+  "orderAddressTitle": "Address",
+  "@orderAddressTitle": {
+    "description": "173 The order screen: where the order is delivered."
+  },
+  "orderGiftTitle": "Gift card",
+  "@orderGiftTitle": {
+    "description": "173 The order screen: the heading over the card's message and who sends it."
+  },
+  "orderGiftFrom": "From {name}",
+  "@orderGiftFrom": {
+    "description": "173 The order screen: who signs the gift card.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "orderGiftAnonymous": "Sent anonymously",
+  "@orderGiftAnonymous": {
+    "description": "173 The order screen: the card doesn't show the sender's name."
+  },
+  "orderSummaryTitle": "Payment summary",
+  "@orderSummaryTitle": {
+    "description": "173 The order screen: the heading over the subtotal, discounts, fees and total."
+  },
+  "orderCouponLine": "Coupon {code}",
+  "@orderCouponLine": {
+    "description": "173 The order screen: the coupon's line in the totals, with its code.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "orderDiscountLine": "Discount",
+  "@orderDiscountLine": {
+    "description": "173 The order screen: a discount without a coupon code."
+  },
+  "orderPointsLine": "Points ({points})",
+  "@orderPointsLine": {
+    "description": "173 The order screen: the loyalty points used, a line in the totals.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "orderShippingTo": "Delivery to {zone}",
+  "@orderShippingTo": {
+    "description": "173 The order screen: the delivery fee and where it was priced for, like Marrakech.",
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "orderSlotFee": "Delivery time fee",
+  "@orderSlotFee": {
+    "description": "173 The order screen: the chosen delivery time's fee."
+  },
+  "orderTaxIncluded": "Includes {tax}",
+  "@orderTaxIncluded": {
+    "description": "173 The order screen: a tax inside the prices, like VAT 20%.",
+    "placeholders": {
+      "tax": {
+        "type": "String"
+      }
+    }
+  },
+  "bouquetTitle": "Build your bouquet",
+  "@bouquetTitle": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetStepFlowers": "Flowers",
+  "@bouquetStepFlowers": {
+    "description": "162 Build your bouquet: the name of a step, in the bar at the top."
+  },
+  "bouquetStepWrap": "Wrap",
+  "@bouquetStepWrap": {
+    "description": "162 Build your bouquet: the name of a step, in the bar at the top."
+  },
+  "bouquetStepCard": "Card",
+  "@bouquetStepCard": {
+    "description": "162 Build your bouquet: the name of a step, in the bar at the top."
+  },
+  "bouquetStepSummary": "Your bouquet",
+  "@bouquetStepSummary": {
+    "description": "162 Build your bouquet: the name of a step, in the bar at the top."
+  },
+  "bouquetStepOf": "Step {step} of {count}",
+  "@bouquetStepOf": {
+    "description": "162 Build your bouquet: the name of a step, in the bar at the top.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bouquetFlowersLine": "Choose the flowers by the stem.",
+  "@bouquetFlowersLine": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetWrapLine": "Choose how it is wrapped.",
+  "@bouquetWrapLine": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetCardLine": "Choose the card and write your message.",
+  "@bouquetCardLine": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetMessageOnlyLine": "Write the words for the card.",
+  "@bouquetMessageOnlyLine": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetStems": "{count, plural, =1{1 stem} other{{count} stems}}",
+  "@bouquetStems": {
+    "description": "162 Build your bouquet: how many stems a bouquet may have, under the flowers.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bouquetStemsRange": "From {min} to {max} stems",
+  "@bouquetStemsRange": {
+    "description": "162 Build your bouquet: how many stems a bouquet may have, under the flowers.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "bouquetNeedStems": "Choose at least {min} stems.",
+  "@bouquetNeedStems": {
+    "description": "162 Build your bouquet: how many stems a bouquet may have, under the flowers.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "bouquetMaxStems": "A bouquet has at most {max} stems.",
+  "@bouquetMaxStems": {
+    "description": "162 Build your bouquet: how many stems a bouquet may have, under the flowers.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "bouquetNoWrap": "No wrap",
+  "@bouquetNoWrap": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetNoWrapLine": "The stems tied by hand.",
+  "@bouquetNoWrapLine": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetChooseWrap": "Choose a wrap to go on.",
+  "@bouquetChooseWrap": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetNoCard": "No card",
+  "@bouquetNoCard": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetChooseCard": "Choose a card to go on.",
+  "@bouquetChooseCard": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetWriteMessage": "Write your message to go on.",
+  "@bouquetWriteMessage": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetSkipCard": "Skip the card",
+  "@bouquetSkipCard": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetTotal": "Bouquet total",
+  "@bouquetTotal": {
+    "description": "162 Build your bouquet: the summary before it goes in the cart."
+  },
+  "bouquetTotalNote": "The shop confirms the total in your cart.",
+  "@bouquetTotalNote": {
+    "description": "162 Build your bouquet: the summary before it goes in the cart."
+  },
+  "bouquetSendFlowers": "Send flowers",
+  "@bouquetSendFlowers": {
+    "description": "162 Build your bouquet: the summary before it goes in the cart."
+  },
+  "bouquetChange": "Change {part}",
+  "@bouquetChange": {
+    "description": "162 Build your bouquet: the summary before it goes in the cart.",
+    "placeholders": {
+      "part": {
+        "type": "String"
+      }
+    }
+  },
+  "bouquetUnavailable": "Build your bouquet isn't available right now.",
+  "@bouquetUnavailable": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetShopInstead": "Go to the shop",
+  "@bouquetShopInstead": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetInCart": "Your bouquet is in the cart.",
+  "@bouquetInCart": {
+    "description": "162 A bouquet the customer built, shown as one in the cart and in the order."
+  },
+  "bouquetHeader": "Your bouquet",
+  "@bouquetHeader": {
+    "description": "162 A bouquet the customer built, shown as one in the cart and in the order."
+  },
+  "bouquetWrapPart": "Wrap: {name}",
+  "@bouquetWrapPart": {
+    "description": "162 A bouquet the customer built, shown as one in the cart and in the order.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bouquetCardPart": "Card: {name}",
+  "@bouquetCardPart": {
+    "description": "162 A bouquet the customer built, shown as one in the cart and in the order.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bouquetMessage": "“{message}”",
+  "@bouquetMessage": {
+    "description": "162 A bouquet the customer built, shown as one in the cart and in the order.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "bouquetRemove": "Remove the bouquet",
+  "@bouquetRemove": {
+    "description": "162 A bouquet the customer built, shown as one in the cart and in the order."
   },
   "paySheetWaitingTitle": "Finish paying in the window that opened",
   "@paySheetWaitingTitle": {

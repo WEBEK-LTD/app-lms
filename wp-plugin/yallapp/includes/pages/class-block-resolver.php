@@ -1290,6 +1290,14 @@ class Block_Resolver {
 				$node[ $field ] = $size;
 			}
 		}
+		// 159 Its size changed by hand in Studio, with the automatic sizes it replaced: the app keeps the owner's
+		// size then (a cover's top bar without it spans the cover).
+		if ( is_array( $raw['manual_size'] ?? null ) ) {
+			$node['manual_size'] = array(
+				'width'  => self::studio_size( $raw['manual_size']['width'] ?? null ),
+				'height' => self::studio_size( $raw['manual_size']['height'] ?? null ),
+			);
+		}
 		$numbers = array(
 			'min_height'   => array( 0, 4000 ),
 			'aspect_ratio' => array( 0.1, 10 ),
@@ -1413,6 +1421,10 @@ class Block_Resolver {
 		// 107.3 A question's or a tab's name.
 		if ( isset( $raw['title'] ) && is_scalar( $raw['title'] ) && '' !== trim( (string) $raw['title'] ) ) {
 			$node['title'] = mb_substr( sanitize_text_field( (string) $raw['title'] ), 0, 120 );
+		}
+		// 159 The owner's name for it in Studio: what a screen reader says for a round button without words.
+		if ( isset( $raw['name'] ) && is_scalar( $raw['name'] ) && '' !== trim( (string) $raw['name'] ) ) {
+			$node['name'] = mb_substr( sanitize_text_field( (string) $raw['name'] ), 0, 80 );
 		}
 		if ( isset( $raw['icon'] ) && is_string( $raw['icon'] ) && preg_match( '/^[a-z0-9_]{1,64}$/', $raw['icon'] ) ) {
 			$node['icon'] = $raw['icon'];
