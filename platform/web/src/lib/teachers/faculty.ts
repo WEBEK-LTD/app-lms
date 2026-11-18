@@ -47,6 +47,8 @@ function roleOf(text: unknown): { role: Role; lang: Lang } | null {
 
 /** One teacher as the faculty shows them. */
 export interface FacultyMember {
+  /** 179.6 Their ID, for the entry's taps to open their page (`Action.teacher_id`). */
+  id: number;
   name: string;
   subjects: string[];
   /** Their newest published course, for look B's slides. */
@@ -76,7 +78,7 @@ export function facultyOf(teachers: readonly Teacher[], courses: readonly Course
     .map((t) => {
       const own = courses.filter((c) => c.teacherId === t.id && isPublished(c)).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
       const course = own[0] ? { title: own[0].title, line: firstLine(own[0].description) } : null;
-      return { name: t.name, subjects: t.subjects, course, headline: firstLine(t.bio) };
+      return { id: t.id, name: t.name, subjects: t.subjects, course, headline: firstLine(t.bio) };
     });
 }
 
@@ -109,6 +111,11 @@ export function hasTemplateFaculty(body: StudioNode): boolean {
   return (body.children ?? []).some(hasTemplateFaculty);
 }
 
+/** 179.6 A tap that opens the Teachers list opens the teacher's page instead (apps that don't know `teacher_id` open the list). */
+function toTeacher<A extends { type?: string; screen?: string | null } | null | undefined>(action: A, member: FacultyMember): A {
+  return action && action.type === "screen" && action.screen === "teachers" ? ({ ...action, teacher_id: member.id } as A) : action;
+}
+
 /** `node` with `text` in place of its words, without the template's translations of them. */
 function said(node: StudioNode, text: string): StudioNode {
   const { translations: _t, ...rest } = node;
@@ -139,7 +146,8 @@ function asMember(node: StudioNode, member: FacultyMember, lang: Lang): StudioNo
   void _w;
   // The live teacher's avatar ring goes with it (an avatar: a round row holding only the initials).
   const avatar = node.type === "row" && node.border_color === "#E5484D" && (node.children ?? []).length === 1 && roleOf(node.children![0]!.text)?.role === "initials";
-  const base = avatar ? plain : node;
+  const own = avatar ? plain : node;
+  const base = own.action ? { ...own, action: toTeacher(own.action, member) } : own;
   if (!node.children) return base;
   return { ...base, children: node.children.map((c) => asMember(c, member, lang)).filter((c): c is StudioNode => c !== null) };
 }
@@ -164,7 +172,7 @@ export function withFaculty(body: StudioNode, faculty: readonly FacultyMember[])
         if (!member) continue;
         const { translations: _t, ...rest } = slide as StudioStory & { translations?: unknown };
         void _t;
-        slides.push({ ...rest, heading: member.name, label: initialsOf(member.name).replace(/\s/g, "").slice(0, 3), ring: "plain", ring_color: "#B8893A" });
+        slides.push({ ...rest, heading: member.name, label: initialsOf(member.name).replace(/\s/g, "").slice(0, 3), ring: "plain", ring_color: "#B8893A", action: toTeacher(rest.action, member) });
       }
       return slides.length ? { ...node, slides } : null;
     }

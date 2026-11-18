@@ -217,7 +217,11 @@ word SIGNATURE on Studio's canvas; its icon is in the site's icon font now.
 A row of buttons only (Rawaq B's slides, the classic academy and
 university heroes) puts its last buttons on a second line when they don't
 fit at a large text, instead of running past the screen; as designed when
-they fit (next app build).
+they fit (next app build). A faculty entry opens its teacher's page (the
+contract's new `Action.teacher_id`; older apps open the Teachers list), a
+card's price beside its title is never wider than the card's label, and
+Studio's canvas draws the ticker and the faculty with the school's news and
+the academy's teachers.
 Not yet tried on a phone (ROADMAP 179.9); the WordPress dev site was not
 run (179.10).
 

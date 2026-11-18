@@ -1,7 +1,11 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { StudioView } from "@/components/studio/view";
+import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { kindById } from "@/lib/app/kinds";
 import { registerClient } from "@/lib/auth/accounts";
 import { MemoryStore } from "@/lib/data/memory";
@@ -18,6 +22,7 @@ import { appWords } from "@/lib/studio/app-words";
 import { makeStudioProject } from "@/lib/studio/new-project";
 import { TEMPLATES } from "@/lib/studio/sections";
 import { allNodes } from "@/lib/studio/tree";
+import { expectContract } from "./contract";
 
 /**
  * 179 The education templates tested by hand (docs/qa/2026-11-18-education).
@@ -58,6 +63,7 @@ function contextOf(app: App): HostedContext {
 async function served(app: App, slug: string, lang: string): Promise<StudioPage> {
   const res = await handleHosted(contextOf(app), { method: "GET", path: ["pages", slug], query: new URLSearchParams({ platform: "android" }), body: undefined, token: null, headers: new Headers({ "accept-language": lang }) });
   expect(res.status).toBe(200);
+  expectContract("GET", "/pages/{slug}", res);
   return (res.body as { studio: StudioPage }).studio;
 }
 
@@ -147,6 +153,22 @@ describe("179.2 Rawaq's faculty is the academy's own teachers", () => {
           expect(texts, lang).toContain("Layla Haddad");
           expect(texts, lang).toContain("YD");
           expect(texts, lang).toContain("Physics · Maths");
+          // 179.6 Each entry's taps open its teacher's page (older apps: the Teachers list).
+          const ids = new Map((await store.listTeachers(app.id)).map((t) => [t.name, t.id]));
+          const taps: { teacher_id?: number | null; screen?: string | null }[] = [];
+          const opens = (node: StudioNode, who: number) => {
+            for (const n of allNodes({ body: node })) {
+              if (n.action?.screen !== "teachers") continue;
+              taps.push(n.action);
+              expect(n.action.teacher_id, `${lang} ${n.type}`).toBe(who);
+            }
+          };
+          for (const x of allNodes(home)) {
+            if ((x.type === "row" || x.type === "photo_hero") && (x.name === "Yusuf Demir" || x.name === "Layla Haddad")) opens(x, ids.get(x.name)!);
+            if (x.type === "photo_hero" && x.name === "Physics in Everyday Life") opens(x, ids.get("Layla Haddad")!);
+            for (const slide of x.type === "stories" ? (x.slides ?? []) : []) expect(slide.action?.teacher_id, lang).toBe(ids.get(slide.heading ?? ""));
+          }
+          expect(taps.length, lang).toBeGreaterThan(0);
           if (look === "a") {
             // Two rows, featured first, one hairline between them; nobody "teaching live".
             const rows = allNodes(home).filter((x) => x.type === "row" && (x.name === "Yusuf Demir" || x.name === "Layla Haddad"));
@@ -221,5 +243,44 @@ describe("179.4 Studio's canvas draws every icon of the education templates", ()
     const icons = iconsIn([layout.pages.map((p) => p.studio), layout.tabs, app.hostedSettings?.studioScreens]);
     const subset = new Set<string>(ICON_NAMES);
     expect([...icons].filter((i) => !subset.has(i)), template).toEqual([]);
+  });
+});
+
+describe("179.7 Studio's canvas draws the ticker and the faculty as the app shows them", () => {
+  const WORDS = { price: "Price", addPicture: "Add a picture", addVideo: "Add a video", send: "Send", search: "Search", days: "Days", hours: "Hours", minutes: "Minutes", seconds: "Seconds", copy: "Copy" };
+  const deps = () => ({ store, key: Buffer.alloc(32, 1), assetUrl: (id: string) => `https://yallapp.test/a/${id}`, platformUrl: "https://yallapp.test" });
+  const draw = async (app: App) => {
+    const pickable = await pickableContent(app, deps(), NOW);
+    const home = (await loadLayout(store, app, NOW)).draft.pages.find((p) => p.slug === "home")!.studio!;
+    return { pickable, html: renderToStaticMarkup(createElement(StudioView, { page: home, lang: "en", defaultLang: "en", dark: false, look: { name: "Cedar", logoUrl: null, brand: "#1F4E79", font: "Cairo", tabs: [], activeTab: null }, pickable, words: WORDS })) };
+  };
+
+  it("Nakhla: the school's news in the ticker; with none, the template's, to edit", async () => {
+    const app = await project("school", "school_signature_a", "en", "school");
+    for (const a of await store.listSchoolAnnouncements(app.id)) await store.deleteSchoolAnnouncement(app.id, a.id);
+    const none = await draw(app);
+    expect(none.pickable.schoolNews).toEqual([]);
+    expect(none.html).toContain("Parents&#x27; evening for Grade 5");
+    await store.createSchoolAnnouncement({ appId: app.id, audience: "school", classId: null, studentId: null, title: "Book fair in the library", body: "", teacherId: null, createdAt: NOW });
+    const own = await draw(app);
+    expect(own.pickable.schoolNews).toEqual(["Book fair in the library"]);
+    expect(own.html).toContain("Book fair in the library");
+    expect(own.html).not.toContain("Grade 5");
+  });
+
+  it("Rawaq: the academy's teachers in the faculty; with none, the template's, to edit", async () => {
+    for (const look of ["a", "b"] as const) {
+      const app = await project("instructors", `instructors_signature_${look}`, "en");
+      for (const t of await store.listTeachers(app.id)) await store.deleteTeacher(app.id, t.id);
+      // The faculty's own words (its subjects lines; the sample courses' cards name their teachers too).
+      expect((await draw(app)).html, look).toContain(look === "a" ? "English · Speaking" : "Arabic · Beginners");
+      const made = await store.createTeacher({ appId: app.id, name: "Layla Haddad", phone: null, email: `layla-${look}@cedar.test`, userId: null, photoAssetId: null, bio: "", subjects: ["Physics"], status: "active", shareBp: 7000, featured: true }, NOW);
+      expect(made.ok).toBe(true);
+      const { pickable, html } = await draw(app);
+      expect(pickable.faculty!.map((f) => f.name), look).toEqual(["Layla Haddad"]);
+      expect(html, look).toContain("Layla Haddad");
+      expect(html, look).toContain("Physics");
+      expect(html, look).not.toMatch(/English · Speaking|UX design · Prototyping|Arabic · Beginners|Excel · Small business/);
+    }
   });
 });

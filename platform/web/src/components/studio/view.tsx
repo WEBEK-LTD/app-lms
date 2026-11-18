@@ -9,6 +9,8 @@ import { autoSized, sizedByHand } from "@/lib/studio/auto-size";
 import { forTablet } from "@/lib/studio/tablet";
 import { mapTree } from "@/lib/studio/tree";
 import { withShopCategoriesIn } from "@/lib/studio/shop-categories";
+import { withNewsTicker } from "@/lib/school/news-ticker";
+import { withFaculty } from "@/lib/teachers/faculty";
 import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
 import { splitTabs } from "@/lib/pages/tab-bar";
@@ -207,13 +209,24 @@ export function textGivingWay(kids: readonly StudioNode[]): string | null {
   return texts.length === 1 ? texts[0]!.id : null;
 }
 
+/** 179.7 The view's page with the school's news in the template's ticker and the academy's teachers in its faculty; the same props without them. */
+function withSchoolData(props: ViewProps, news: readonly string[] | undefined, faculty: Parameters<typeof withFaculty>[1] | undefined): ViewProps {
+  let body = props.page.body;
+  if (news?.length) body = withNewsTicker(body, news);
+  if (faculty?.length) body = withFaculty(body, faculty);
+  return body === props.page.body ? props : { ...props, page: { ...props.page, body } };
+}
+
 export function StudioView(givenProps: ViewProps) {
   // 165 The story elements from Dashboard › Stories show its stories, as the app does now.
   const storied = withDashboardStories(givenProps.page, givenProps.pickable?.stories, givenProps.lang, givenProps.defaultLang, new Date());
   const viewProps = storied === givenProps.page ? givenProps : { ...givenProps, page: storied };
   // 157 A template's lists of the shop's categories as the app shows them.
   const shop = viewProps.pickable.shopCategories;
-  const listed = shop ? { ...viewProps, page: { ...viewProps.page, body: withShopCategoriesIn(viewProps.page.body, shop) } } : viewProps;
+  const shopped = shop ? { ...viewProps, page: { ...viewProps.page, body: withShopCategoriesIn(viewProps.page.body, shop) } } : viewProps;
+  // 179.7 Nakhla's ticker with the school's news and Rawaq's faculty with the academy's teachers, as the app shows them;
+  // with none yet, as the template made them, so they stay there to edit (the app hides them).
+  const listed = withSchoolData(shopped, viewProps.pickable.schoolNews, viewProps.pickable.faculty);
   // 159 At their automatic sizes, as the app draws them (a cover's top bar across the cover), unless sized by hand.
   const body = autoSized(listed.tablet ? (mapTree(listed.page.body, forTablet) ?? listed.page.body) : listed.page.body);
   const props = body === listed.page.body ? listed : { ...listed, page: { ...listed.page, body } };

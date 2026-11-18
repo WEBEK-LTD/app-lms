@@ -557,6 +557,12 @@ export interface Action {
    * Dashboard › Stories; older apps open the shop.
    */
   category_id?: string | null;
+  /**
+   * 179.6 With `screen` `teachers`: opens this teacher's page (one of the
+   * academy's, by its ID). Sent by hosted `GET /pages` on Rawaq's faculty
+   * (lib/teachers/faculty.ts); apps that don't know it open the Teachers list.
+   */
+  teacher_id?: number | null;
   course_id?: number | null;
   item?: { source: ItemSource; id: string } | null;
   url?: string | null;

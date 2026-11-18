@@ -90,7 +90,24 @@ On one line it is laid out exactly as the row was. When the buttons don't fit, t
 - Flutter: the 4 failing cases fail on the guard branch alone and pass on mine. Every education template's case passes: 90 tests for school, school_brand, school_news, school_today, school_signature_a/b, demo_school, teachers, teachers_brand, teachers_offers, teachers_photo, instructors_signature_a/b, demo_instructors, university, academy_premium and premium_academy_signature_a/b, plus 2 for courses.
 - Vitest: 9 failures fail the same way on the guard branch alone. They are all outside education: prices on food, delivery and marketplace, and one tap on `brand`. The tenth failure is the guard's own fixtures check. It fails because the education pages now serve the school's news and the academy's teachers: `demo_school`, `demo_instructors`, `instructors_signature_a/b` and `school_signature_a` need writing again with `mobile/tool/template_guard_fixtures.sh` on the guard's branch. I didn't edit the guard's files.
 
-**Still open (179.11).** Rawaq B's "Popular this month" card label: a price beside a title that fills runs 7 points past at text 1.3 with a long price such as "E£1,010.00".
+### 5b. The second round, from the coordinator (179.6, 179.7, 179.11)
+
+**179.11: a card's price beside a filling title.** Rawaq B's "Popular this month" photo cards are 159 points wide. Their frosted label holds the course's title, which fills the row, and the price beside it. At text 1.3 with "E£1,010.00", the label ran 7 points past the card.
+
+- *Cause.* A Flutter `Row` lays out the price at its own width before the title gets what is left. 163.3's "giving way" applies only to rows where nothing fills.
+- *Fix.* `studioCappedText` and `_RowCap` in `studio_page.dart`. In a row with a filling child, a text beside it is held to the row's width less its gaps, and a `FittedBox` scales it down only when it would run past. Whenever it fits, it is laid out exactly as before.
+- *Checks.* `phase179_education_page_end_test.dart` fails with the 7-point overflow without the fix and passes with it. `phase163_samsung_layout_test.dart`: 438 passed. The guard's whole Flutter suite was run with and without my changes. On its branch alone 44 cases fail; with mine 40 fail. The 4 that now pass are `instructors_signature_b`, `teachers` (twice) and `university`. The other 40 report the same problems word for word: food, marketplace, rides, taxi, travel, delivery and shop looks, all outside education.
+
+**179.6: a faculty tap opens that teacher.** The contract's `Action` gains `teacher_id` (in both copies of `openapi.yaml`, `types.ts`, and `validate.ts`, which keeps it on a `teachers` screen action).
+
+- Hosted `GET /pages` sets it on every tap in a faculty entry: look A's rows, look B's slides with their "Meet the teacher" button, and the rings.
+- The app opens `/teachers/{id}` (`actionLocation`). Apps that don't know the field open the Teachers list, as before.
+- *Checks.* The vitest suite checks each entry's taps and the served page against the contract; 4 tests fail without the IDs. The Flutter test taps a row with the ID and gets the teacher's page, and taps one without it and gets the list. It fails without the app change.
+
+**179.7: Studio's canvas draws them as the app does.** `Pickable.schoolNews` and `Pickable.faculty` come from the same helpers the server uses, and `StudioView` applies them.
+
+- While the school has no news, or the academy no teachers, the canvas keeps the template's version so the owner can still select and edit it. The inspector's note says the app hides it.
+- *Checks.* The vitest suite fails without the canvas change.
 
 ### 6. Studio's editor page didn't build (found and fixed on this branch)
 
@@ -100,8 +117,6 @@ My first version of the inspector note imported the teachers' service into a cli
 
 - **Sign-in default country.** The school's and the academy's sign-in open on +90, although this owner signed up with an Egyptian number. That is 160.8's rule: the owner's choice, otherwise the platform's default, which is +90. Nothing was changed for education.
 - **Nakhla look B's sign-in without its photo** (`school-b-app-en-light-sign-in.png`). Not a bug. Look B's system screens are its "large" look (`chrome.system: "large"`, `nakhla-signature.ts:484`), which draws the sign-in on the look's own surface. Look A's "photo" look draws it over the school's building. Rawaq A's "brand" look is the same: its green, with no photo.
-- **Rawaq's faculty taps.** A tap on an entry opens the Teachers list, not that teacher: `Action` can't name a teacher (179.6).
-- **Studio's canvas** still draws the template's ticker and faculty, with the inspector saying what the app shows (179.7).
 - **Course prices** follow 135.5: the shop's price, then "≈" the customer's currency (`Price.label`). The hosted lists convert as 161 does. 161.9 is still open for the course screens beyond their cards.
 - **Notifications.** Every school, course and teacher push type the platform sends is handled by the app's router (each `type` checked by name in `mobile/lib`). Opening each one on a phone is part of 179.9.
 - **The staff's tabs** under a floating bar (the Classroom, the teacher's desk) are 158.7's and still open.
