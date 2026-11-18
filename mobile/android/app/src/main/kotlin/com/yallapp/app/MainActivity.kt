@@ -7,7 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.WindowManager
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.lang.ref.WeakReference
@@ -16,8 +16,12 @@ import java.lang.ref.WeakReference
  * The class lives in a fixed package so the client's applicationId and
  * namespace (set by tool/apply_config.dart) can change freely; the manifest
  * refers to it by its full name.
+ *
+ * 188 A FlutterFragmentActivity: Stripe's PaymentSheet (flutter_stripe) is
+ * shown with the AndroidX fragment manager, and needs an AppCompat theme
+ * (res/values/styles.xml).
  */
-class MainActivity : FlutterActivity() {
+class MainActivity : FlutterFragmentActivity() {
     /** 170 Return links from the payment page in the Custom Tab (PayReturnActivity). */
     private var payReturn: MethodChannel? = null
 

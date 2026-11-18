@@ -30,7 +30,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../app_environment.dart';
 import '../config/build_config_data.dart';
-import '../providers.dart';
 
 /// The app's own address scheme: `yallapp-` and the platform's app ID
 /// without dashes (lib/payments/app-return.ts makes the same). Null without
@@ -239,7 +238,11 @@ final payReturnsProvider = Provider<Stream<Uri>>((ref) {
 });
 
 /// Whether the screen should open [url] in the sheet (read once).
+///
+/// 188 Dormant: the payment page stays in the app's web view and a Stripe
+/// payment is taken by Stripe's native PaymentSheet (stripe_pay_sheet.dart),
+/// on the owner's word. The browser sheet's code stays, for a build that
+/// overrides this with [opensInPaySheet].
 final opensInPaySheetProvider = Provider<bool Function(Uri url)>((ref) {
-  final env = ref.watch(appEnvironmentProvider);
-  return (url) => opensInPaySheet(url, env);
+  return (url) => false;
 });

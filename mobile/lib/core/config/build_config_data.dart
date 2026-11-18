@@ -126,6 +126,7 @@ class BuildConfigData {
     this.siteLinkBaseUrl,
     this.crashReportUrl,
     this.sitePaths = const [],
+    this.applePayMerchantId,
   });
 
   final AppType appType;
@@ -202,6 +203,12 @@ class BuildConfigData {
   /// site what it is (`GET /links/resolve`).
   final List<String> sitePaths;
 
+  /// 188 The owner's Apple Pay merchant ID (build config
+  /// `payments.apple_pay_merchant_id`), which the iOS build signs into the
+  /// app's entitlements: Apple Pay shows in Stripe's PaymentSheet only with
+  /// it. Null: card (and Google Pay on Android) only.
+  final String? applePayMerchantId;
+
   BuildConfigData copyWith({
     String? appName,
     String? siteUrl,
@@ -218,6 +225,7 @@ class BuildConfigData {
     String? siteLinkBaseUrl,
     String? crashReportUrl,
     List<String>? sitePaths,
+    String? applePayMerchantId,
   }) => BuildConfigData(
     appType: appType ?? this.appType,
     vertical: vertical,
@@ -249,5 +257,6 @@ class BuildConfigData {
     siteLinkBaseUrl: siteLinkBaseUrl ?? this.siteLinkBaseUrl,
     crashReportUrl: crashReportUrl ?? this.crashReportUrl,
     sitePaths: sitePaths ?? this.sitePaths,
+    applePayMerchantId: applePayMerchantId ?? this.applePayMerchantId,
   );
 }

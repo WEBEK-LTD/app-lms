@@ -8,6 +8,20 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 188 (Stripe's PaymentSheet in the apps): the payment page stays
+inside the app's web view, and a Stripe payment there is taken by Stripe's
+native bottom sheet in the app, with the card, Google Pay on Android and
+Apple Pay on iPhone (with the owner's Apple Pay merchant ID, Payments ›
+Stripe). The platform makes one PaymentIntent per order on the owner's own
+Stripe account (`POST /pay/<token>/sheet`), never alongside a Checkout
+Session that could be paid too, and settles it only once read back from
+Stripe (the status the app reads, and the webhook's
+`payment_intent.succeeded`). A browser, the app preview and the apps already
+on phones keep Stripe's form in the page. 170's browser sheet is dormant.
+It reaches the apps with app release 11 (`CLIENT_APP_RELEASE` 11, the
+preview rebuilt); not yet built for Android or iOS here, nor tried on real
+phones (ROADMAP 188.6 to 188.9).
+
 Roadmap 175 (the dashboard QA fixes of 18 November, a flower shop in MAD):
 Cancel order on a paid order asks first, and the owner chooses every time
 between "Cancel and refund {amount}" (through the order's payment gateway,
