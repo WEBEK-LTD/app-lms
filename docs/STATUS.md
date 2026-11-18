@@ -8,6 +8,24 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 170 (paying in the app in the phone's browser sheet, closing
+155.6): inside the apps, Yallapp's payment page opens in the phone's browser
+sheet over the app (SFSafariViewController on iPhone, Chrome Custom Tabs on
+Android) instead of the app's web view, for every gateway, so Apple Pay and
+Google Pay show and the card forms and gateways' pages work as in any
+browser. The app opens `/pay/<token>/app`, which marks the payment as the
+app's (a cookie kept to that payment's pages, no secret); its done, failed,
+pending and closed pages then give "Back to the app" on the app's own
+address (`yallapp-<app id>://app/pay-return`, registered by each build),
+by itself once paid. The app never trusts the link: it reads
+`/pay/<token>/status` on the link, on coming back and every few seconds
+while the sheet is open, then closes the sheet and opens the order as
+before, or says the payment isn't confirmed yet, wasn't made, or the order
+is closed; never "failed" for a paid order. A shop's own website checkout,
+donations' pages, the preview and older builds keep the web view;
+`CLIENT_APP_RELEASE` 7 brings it to each app with its next build. Not yet
+tried on real phones (ROADMAP 170.8, LAUNCH-CHECKLIST Phase 170).
+
 Roadmap 155 (Apple Pay and Google Pay in Stripe's form): the payment page
 (`/pay/…`) lets the page and Stripe's frames use the Payment Request API
 (`payment=(self "https://js.stripe.com" "https://checkout.stripe.com")`, as
@@ -17,8 +35,8 @@ own key (Payment Method Domains), when its Stripe keys are saved or tested
 and once before Stripe's form if it isn't yet; the answer is kept on the
 shop's payment settings, and a failure never stops a card payment (noted
 for the team). Payments says "Apple Pay and Google Pay: ready" or why not
-yet. The wallets are expected in Safari and Chrome, not inside the apps'
-web views (ROADMAP 155.6). Not yet tried with a real Stripe account on real
+yet. Inside the apps they show from Roadmap 170 (the browser sheet).
+Not yet tried with a real Stripe account on real
 devices (ROADMAP 155.7).
 
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels

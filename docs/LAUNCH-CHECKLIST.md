@@ -1951,12 +1951,10 @@ check.
 - [ ] **Other browsers:** Stripe's form offers only what the browser and
       the device support, so some (Firefox, for one) show neither wallet;
       the card fields work as before.
-- [ ] **The apps:** check out in the iPhone app and in the Android app.
-      Stripe's card form works as before; Apple Pay and Google Pay are
-      **not expected** there (ROADMAP 155.6: Apple doesn't allow Apple Pay in
-      a web view that adds scripts, as the app's does, and Android's web
-      view keeps Google Pay off unless the app turns it on and each app is
-      approved by Google). Tell us if either does show.
+- [ ] **The apps:** from Phase 170 the apps open the payment page in the
+      phone's browser sheet, where Apple Pay and Google Pay show: see Phase
+      170 below. Apps still on an older build (release 6 or before) open it
+      in their web view, where the card form works and the wallets don't.
 - [ ] **A restricted key (rk_…):** give it Write access to **Payment method
       domains** in Stripe, or add yallapp.com.tr yourself under Settings ›
       Payment method domains, then Test connection again.
@@ -1966,3 +1964,51 @@ check.
       domain association file, tell us: that file would be served from
       `/.well-known/` on host.webek.org (deploy/apache-proxy.conf keeps that
       folder off Netlify).
+
+## Phase 170: Paying in the app in the phone's browser sheet
+
+Nothing to set: no migration, no setting. The platform goes first (its
+`/pay/<token>/app` and `/pay/<token>/status`); then each app gets it with its
+next build (`CLIENT_APP_RELEASE` 7, a few apps an hour, through the stores as
+any update). Try it on a test shop whose app was built after the platform
+was deployed, with Stripe in test mode and its domain ready (Phase 155).
+
+- [ ] **iPhone, Apple Pay:** on an iPhone with a card in Apple Wallet, check
+      out in the app. The payment page opens in a sheet over the app (Safari's
+      view, with the address bar and Done), not the app's own page. Stripe's
+      form shows **Apple Pay**; pay with it. The order page asks "Open in
+      <app name>?": tap Open. The sheet closes by itself and the app shows the
+      order paid (its order screen or Orders). Note how long it took.
+- [ ] **iPhone, Done without paying:** check out again and tap **Done** in the
+      sheet without paying: the app says "Not paid yet" (nothing charged)
+      and "Open the payment page" opens the same payment again.
+- [ ] **iPhone, paid but not sent back:** pay, then on the order page tap
+      **Done** instead of "Open": within a few seconds the app finds it paid
+      and shows the order. Never "failed".
+- [ ] **Android, Google Pay:** on an Android phone with Chrome and a card in
+      Google Pay, check out in the app. The page opens in a Chrome tab over
+      the app (Custom Tab, the app's colour bar); Stripe's form shows
+      **Google Pay**; pay with it. The order page goes back to the app by
+      itself (or tap "Back to the app"); the tab is gone and the app shows the
+      order paid. Press Back afterwards: it doesn't return to the tab.
+- [ ] **Android, closing the tab:** check out and close the tab with ✕ or
+      Back without paying: the app says "Not paid yet".
+- [ ] **A failed card:** pay with Stripe's declined test card
+      (4000 0000 0000 0002): the page says the payment didn't go through,
+      with "Back to the app"; trying again with a good card works in the same
+      sheet.
+- [ ] **The other gateways in the sheet:** one payment each with iyzico's and
+      Kashier's test cards (their forms inside the page), a Fawaterk test
+      payment and a PayPal sandbox payment (their own pages), in both apps:
+      each comes back to the app paid.
+- [ ] **A bank transfer:** with the shop's bank transfer on, place an order in
+      the app: the sheet shows the bank details (it doesn't leave by itself),
+      "Back to the app" opens the order as placed.
+- [ ] **The app closed meanwhile:** start paying, swipe the app away from the
+      recent apps, finish paying and tap "Back to the app": the app starts
+      on Orders, with the order paid.
+- [ ] **Another phone or a browser:** open the same checkout link in Safari or
+      Chrome itself (not from the app): no "Back to the app" anywhere.
+- [ ] **An older build:** on a phone still on the app's previous version the
+      payment page opens in the app's own page as before.
+
