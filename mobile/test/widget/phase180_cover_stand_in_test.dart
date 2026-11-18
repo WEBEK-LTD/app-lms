@@ -1,0 +1,116 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:yallapp/core/config/build_config.dart';
+
+import '../support/fake_api.dart';
+import '../support/fixtures.dart';
+import '../support/test_app.dart';
+import '../support/travel_fixtures.dart';
+
+/// 180.18 Safra's cover: the question for a new customer, the next trip's
+/// ticket for a signed-in one; signed in without a trip, the question (the
+/// cover was empty).
+void main() {
+  FakeApi safra({required bool trip}) {
+    final api = travelFake()
+      ..navigation = navigationJson(
+        tabs: [
+          navTabJson('home', 'Home', 'home', {
+            'type': 'page',
+            'page_slug': 'home',
+          }),
+          navTabJson('account', 'Account', 'person', {
+            'type': 'screen',
+            'screen': 'account',
+          }),
+        ],
+      )
+      ..pages = {
+        'home': {
+          ...appPageJson(blocks: []),
+          'studio': {
+            'body': {
+              'id': 'root',
+              'type': 'column',
+              'children': [
+                {
+                  'id': 'cover',
+                  'type': 'photo_hero',
+                  'height': 420,
+                  'children': [
+                    {'id': 'brand', 'type': 'text', 'text': 'SAFRA'},
+                    {
+                      'id': 'question',
+                      'type': 'text',
+                      'text': 'Where does the next story begin?',
+                      'visibility': 'signed_out',
+                    },
+                    {
+                      'id': 'ticket',
+                      'type': 'tracking',
+                      'tracking': {'kind': 'trip', 'style': 'ticket'},
+                      'visibility': 'signed_in',
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      };
+    if (!trip) {
+      final served = api.travelHandler!;
+      api.travelHandler = (method, path, query, body) =>
+          '$method $path' == 'GET /me/travel/bookings'
+          ? {'items': <Object>[], 'total': 0, 'page': 1, 'per_page': 30}
+          : served(method, path, query, body);
+    }
+    return api;
+  }
+
+  Future<void> open(WidgetTester tester, FakeApi api, bool signedIn) async {
+    tester.view
+      ..physicalSize = const Size(390, 844) * 2
+      ..devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    await TestApp(
+      appType: AppType.travel,
+      api: api,
+      signedIn: signedIn,
+      guest: !signedIn,
+    ).pump(tester);
+    await TestApp.settle(tester, 20);
+  }
+
+  const question = 'Where does the next story begin?';
+
+  testWidgets('signed out: the question', (tester) async {
+    await open(tester, safra(trip: false), false);
+    expect(find.text(question), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('signed in without a trip: the question, not an empty cover', (
+    tester,
+  ) async {
+    await open(tester, safra(trip: false), true);
+    expect(find.text(question), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('signed in with a trip: its ticket, not the question', (
+    tester,
+  ) async {
+    // The bare cover here has none of the template's room for the ticket.
+    final previous = FlutterError.onError;
+    FlutterError.onError = (d) {
+      if (!d.exceptionAsString().contains('A RenderFlex overflowed')) {
+        previous?.call(d);
+      }
+    };
+    addTearDown(() => FlutterError.onError = previous);
+    await open(tester, safra(trip: true), true);
+    expect(find.text(question), findsNothing);
+    expect(find.byKey(const ValueKey('studio-node-ticket')), findsWidgets);
+  });
+}
