@@ -10,6 +10,7 @@ import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/format/text_case.dart';
 
 /// 130.52 What the course screens' looks are made of (`Config.screens.
 /// courses`): the look's colours by day and by night, the rating as five
@@ -560,7 +561,7 @@ class CourseSectionTitle extends StatelessWidget {
       header: true,
       child: Text(
         index && number != null
-            ? '${number.toString().padLeft(2, '0')}  ${title.toUpperCase()}'
+            ? '${number.toString().padLeft(2, '0')}  ${title.toUpperCaseIn(context)}'
             : title,
         style: index
             ? TextStyle(

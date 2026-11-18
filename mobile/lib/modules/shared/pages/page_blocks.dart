@@ -28,6 +28,7 @@ import '../../lms/widgets/course_cards.dart';
 import 'content_blocks.dart';
 import 'form_block.dart';
 import 'page_actions.dart';
+import '../../../core/format/text_case.dart';
 
 /// Spacing and type for pages in each template.
 class PageStyle {
@@ -1189,7 +1190,7 @@ class _CategoryPicture extends StatelessWidget {
       color: p.placeholderFor(index),
       child: Center(
         child: Text(
-          category.name.characters.take(1).toString().toUpperCase(),
+          category.name.characters.take(1).toString().toUpperCaseIn(context),
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w800,

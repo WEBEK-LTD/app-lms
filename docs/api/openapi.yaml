@@ -15068,6 +15068,14 @@ components:
               maxItems: 6
               description: "131 Beginnings the owner wrote, which the customer taps to start the card; the card messages by occasion are `GET /store/gift-messages`."
               items: { type: string, maxLength: 80 }
+            starters_by_language:
+              type: [object, 'null']
+              description: "169 The same beginnings in the app's other languages (language code → lines), as the owner wrote them. The app shows the customer's language's, else `starters` (the main language's). Null or missing: only `starters`."
+              additionalProperties:
+                type: array
+                maxItems: 6
+                items: { type: string, maxLength: 80 }
+              example: { ar: ['عيد ميلاد سعيد!', 'مع كلِّ حبّي'], tr: ['Doğum günün kutlu olsun!', 'Tüm sevgimle'] }
             recipient: { type: boolean, description: "131 The customer can give the recipient's name and phone (someone else than the buyer). Missing: false." }
             anonymous: { type: boolean, description: "131 The customer can send it anonymously. Missing: false." }
         shipping: { $ref: '#/components/schemas/StoreShipping' }

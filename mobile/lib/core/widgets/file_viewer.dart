@@ -13,6 +13,7 @@ import '../theme/app_icons.dart';
 import '../theme/palette.dart';
 import 'buttons.dart';
 import 'common.dart';
+import '../l10n/vertical_wording.dart';
 
 /// 53 What the app's own viewer can show.
 enum ViewerKind { pdf, image, text, other }
@@ -179,7 +180,7 @@ class _FileViewerScreenState extends ConsumerState<FileViewerScreen> {
             ViewerKind.other => MessageView(
               icon: AppIcons.attachment,
               title: context.l10n.fileInAppOnly,
-              message: context.l10n.fileInAppOnlyMessage,
+              message: context.words.fileInAppOnlyMessage,
             ),
           };
         },

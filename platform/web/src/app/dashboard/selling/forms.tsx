@@ -184,7 +184,17 @@ export function AreasForm({
   );
 }
 
-export function GiftsForm({ values: saved }: { values: Record<string, string> }) {
+export function GiftsForm({
+  values: saved,
+  languages = [],
+  examples = {},
+}: {
+  values: Record<string, string>;
+  /** 169 The app's other languages, for the beginnings in each. */
+  languages?: { code: string; name: string }[];
+  /** 169 Yallapp's beginnings as each field's example (code → lines; `main` for the first field). */
+  examples?: Record<string, string>;
+}) {
   const t = useDashT();
   const [state, action] = useActionState(saveGiftsAction, initialFormState);
   const v = { ...saved, ...state.values };
@@ -198,10 +208,21 @@ export function GiftsForm({ values: saved }: { values: Record<string, string> })
         <label htmlFor="f-starters" className="text-sm font-semibold">
           {t("selling.starters")}
         </label>
-        <textarea id="f-starters" name="starters" rows={3} defaultValue={v.starters} className="input" />
+        <textarea id="f-starters" name="starters" rows={3} defaultValue={v.starters} placeholder={examples.main} className="input" />
         <span className="text-xs text-muted">{t("selling.startersHint")}</span>
         {e.starters ? <p className="m-0 text-sm text-danger">{e.starters}</p> : null}
       </div>
+      {/* 169 The beginnings in the app's other languages; empty: the ones above. */}
+      {languages.map((l) => (
+        <div key={l.code} className="flex flex-col gap-1.5">
+          <label htmlFor={`f-starters-${l.code}`} className="text-sm font-semibold">
+            {t("selling.startersIn", { language: l.name })}
+          </label>
+          <textarea id={`f-starters-${l.code}`} name={`starters_${l.code}`} rows={3} defaultValue={v[`starters_${l.code}`]} placeholder={examples[l.code]} dir={l.code === "ar" ? "rtl" : "auto"} lang={l.code} className="input" />
+          <span className="text-xs text-muted">{t("selling.startersInHint")}</span>
+          {e[`starters_${l.code}`] ? <p className="m-0 text-sm text-danger">{e[`starters_${l.code}`]}</p> : null}
+        </div>
+      ))}
       <Check name="recipient" label={t("selling.recipient")} defaultChecked={v.recipient === "on"} />
       <Check name="anonymous" label={t("selling.anonymous")} defaultChecked={v.anonymous === "on"} />
       <div className="flex justify-end">

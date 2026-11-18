@@ -128,7 +128,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       body = MessageView(
         icon: AppIcons.notifications,
         title: context.l10n.noNotificationsTitle,
-        message: context.l10n.noNotificationsMessage,
+        // 169 In the app's kind's words (a flower shop's orders, not lessons).
+        message: context.words.noNotificationsMessage,
         // 110 Every empty list leads somewhere.
         actionLabel: context.l10n.goHome,
         onAction: () => context.go(Paths.home),

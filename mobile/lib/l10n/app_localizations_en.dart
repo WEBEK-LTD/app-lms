@@ -424,6 +424,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String updateRequiredMessageApp(String name) {
+    return 'A new version of $name is available. Update the app to keep using it.';
+  }
+
+  @override
   String get updateNow => 'Update now';
 
   @override
@@ -785,6 +790,54 @@ class AppLocalizationsEn extends AppLocalizations {
       'New lessons, announcements and answers to your questions will show up here.';
 
   @override
+  String get noNotificationsMessageStore =>
+      'Updates on your orders, offers and news from the shop will show up here.';
+
+  @override
+  String get noNotificationsMessageFlowers =>
+      'Updates on your orders and their delivery, offers and news from the shop will show up here.';
+
+  @override
+  String get noNotificationsMessageFood =>
+      'Updates on your orders, offers and news will show up here.';
+
+  @override
+  String get noNotificationsMessageBookings =>
+      'Booking confirmations, reminders and news will show up here.';
+
+  @override
+  String get noNotificationsMessageListings =>
+      'Replies to your enquiries, new listings and news will show up here.';
+
+  @override
+  String get noNotificationsMessageNews =>
+      'Breaking news and new articles will show up here.';
+
+  @override
+  String get noNotificationsMessageEvents =>
+      'Ticket updates, event reminders and news will show up here.';
+
+  @override
+  String get noNotificationsMessageDonations =>
+      'Campaign updates and news will show up here.';
+
+  @override
+  String get noNotificationsMessageDelivery =>
+      'Updates on your shipments and news will show up here.';
+
+  @override
+  String get noNotificationsMessageRides =>
+      'Updates on your rides, offers and news will show up here.';
+
+  @override
+  String get noNotificationsMessageTravel =>
+      'Updates on your bookings and trips, offers and news will show up here.';
+
+  @override
+  String get noNotificationsMessageSchool =>
+      'Announcements, homework, grades and messages from the school will show up here.';
+
+  @override
   String get notifications => 'Notifications';
 
   @override
@@ -882,6 +935,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteAccountMessage =>
       'Your account, progress and enrollments will be deleted and every device signed out. This can’t be undone.';
+
+  @override
+  String get deleteAccountMessageApp =>
+      'Your account and its details will be deleted and every device signed out. This can’t be undone.';
 
   @override
   String get deleteAccount => 'Delete account';
@@ -1005,6 +1062,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noAccountForNumber =>
       'There\'s no account with this number. Please contact the academy.';
+
+  @override
+  String get noAccountForNumberApp =>
+      'There\'s no account with this number. Please contact us.';
+
+  @override
+  String get noAccountForNumberSchool =>
+      'There\'s no account with this number. Please contact the school.';
 
   @override
   String get newCodeSent => 'We sent you a new code.';
@@ -3599,6 +3664,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get fileInAppOnlyMessage =>
       'Course files open only inside the app, which shows PDFs, pictures and text. Ask your teacher for this one as a PDF.';
+
+  @override
+  String get fileInAppOnlyMessageApp =>
+      'This file opens only inside the app, which shows PDFs, pictures and text. Ask for it as a PDF.';
 
   @override
   String pageOf(int page, int total) {

@@ -16,6 +16,7 @@ import '../widgets/travel_pickers.dart';
 import '../widgets/travel_ui.dart';
 import '../widgets/travel_words.dart';
 import 'hotel_screens.dart';
+import '../../../core/format/text_case.dart';
 
 /// 126 The travel app's first tab: Explore as approved for both (stays,
 /// flights or both in one search, and destinations with the whole trip's
@@ -272,9 +273,10 @@ String _initials(String name) {
       .where((p) => p.isNotEmpty)
       .toList();
   if (parts.isEmpty) return '';
-  return (parts.first.characters.first +
-          (parts.length > 1 ? parts.last.characters.first : ''))
-      .toUpperCase();
+  return upperIn(
+    parts.first.characters.first +
+        (parts.length > 1 ? parts.last.characters.first : ''),
+  );
 }
 
 class _DestinationCard extends ConsumerWidget {

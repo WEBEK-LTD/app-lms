@@ -9,6 +9,7 @@ import '../l10n/l10n.dart';
 import '../theme/app_icons.dart';
 import '../theme/palette.dart';
 import 'common.dart' show AppNetworkImage;
+import '../../core/format/text_case.dart';
 
 /// 130.20–130.29 Premium chrome, for every Studio app: the premium headers
 /// (a large title that collapses on scroll, a frosted glass bar, a photo
@@ -617,7 +618,7 @@ class ChromeHeaderBar extends StatelessWidget {
                           children: [
                             if (style == ChromeHeaderStyle.photo && hasLine)
                               Text(
-                                subtitle!.toUpperCase(),
+                                subtitle!.toUpperCaseIn(context),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -1173,7 +1174,7 @@ class ChromeGroupTitle extends StatelessWidget {
     child: Semantics(
       header: true,
       child: Text(
-        title.toUpperCase(),
+        title.toUpperCaseIn(context),
         style: TextStyle(
           fontSize: 12.5,
           fontWeight: FontWeight.w700,

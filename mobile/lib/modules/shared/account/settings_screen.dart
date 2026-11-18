@@ -28,6 +28,7 @@ import 'currency_picker.dart';
 import '../../../core/widgets/premium_chrome.dart';
 import 'premium/premium_choice_sheet.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/vertical_wording.dart';
 
 /// Appearance, video defaults, notifications and security (design:
 /// Settings). Notification choices are sent with `PUT /me/push-token`.
@@ -92,7 +93,7 @@ class SettingsScreen extends ConsumerWidget {
     final ok = await confirmAction(
       context,
       title: context.l10n.deleteAccountTitle,
-      message: context.l10n.deleteAccountMessage,
+      message: context.words.deleteAccountMessage,
       confirmLabel: context.l10n.deleteAccount,
       destructive: true,
     );

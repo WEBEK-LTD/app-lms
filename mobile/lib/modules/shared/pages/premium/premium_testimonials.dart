@@ -7,6 +7,7 @@ import '../../../../core/l10n/l10n.dart';
 import '../../../../core/providers.dart';
 import '../../../../core/widgets/common.dart';
 import 'premium_shared.dart';
+import '../../../../core/format/text_case.dart';
 
 /// 129.11 A course's or a product's approved reviews of 4 stars and up
 /// with words, newest first, as quote cards; none on any failure (the
@@ -185,7 +186,7 @@ class _QuoteCard extends StatelessWidget {
                                             .trim()
                                             .characters
                                             .first
-                                            .toUpperCase(),
+                                            .toUpperCaseIn(context),
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w800,

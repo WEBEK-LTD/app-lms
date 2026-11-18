@@ -685,6 +685,10 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
 
     if (widget.between != null) parts.add(widget.between!(step++));
 
+    // 169 The beginnings in the customer's language, else the main one's.
+    final starters = widget.rules.startersIn(
+      Localizations.localeOf(context).languageCode,
+    );
     final occasions = widget.rules.enabled || gift
         ? ref.watch(giftMessagesProvider).value ?? const <GiftOccasion>[]
         : const <GiftOccasion>[];
@@ -693,7 +697,7 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
         !gift &&
         !widget.rules.recipient &&
         !widget.rules.anonymous &&
-        widget.rules.starters.isEmpty &&
+        starters.isEmpty &&
         occasions.isEmpty;
     if (widget.rules.enabled && plain) {
       parts.add(
@@ -734,7 +738,7 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
           title:
               widget.cardTitle ??
               (gift ? l10n.giftCardTitle : l10n.giftMessage),
-          subtitle: occasions.isNotEmpty || widget.rules.starters.isNotEmpty
+          subtitle: occasions.isNotEmpty || starters.isNotEmpty
               ? l10n.giftCardHint
               : null,
           look: look,
@@ -796,12 +800,12 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
                 ],
                 const SizedBox(height: 6),
               ],
-              if (widget.rules.starters.isNotEmpty) ...[
+              if (starters.isNotEmpty) ...[
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    for (final s in widget.rules.starters)
+                    for (final s in starters)
                       ActionChip(label: Text(s), onPressed: () => fill(s)),
                   ],
                 ),

@@ -15,6 +15,7 @@ import '../images/app_image.dart';
 import '../images/decode_probe.dart';
 // 130.21 130.22 The premium looks of the system screens and states.
 import 'premium_chrome.dart';
+import '../../core/format/text_case.dart';
 
 /// A network image with a soft tinted placeholder while loading or missing.
 /// The picture fades in once it arrives.
@@ -302,7 +303,7 @@ class InitialsAvatar extends StatelessWidget {
     if (words.isEmpty) return '?';
     final first = nameInitial(words.first);
     final last = words.length > 1 ? nameInitial(words.last) : '';
-    return (first + last).toUpperCase();
+    return upperIn(first + last);
   }
 
   @override

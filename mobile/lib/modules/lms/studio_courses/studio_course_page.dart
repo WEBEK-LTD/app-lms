@@ -18,6 +18,7 @@ import '../lesson/content/html_content.dart';
 import '../navigation.dart';
 import '../teachers/follow_button.dart';
 import 'course_look_kit.dart';
+import '../../../core/format/text_case.dart';
 
 /// 130.52 A course's page in the course screens' look (`Config.screens.
 /// courses.page`): its hero (`cinema` the cover full bleed under a scrim
@@ -183,8 +184,10 @@ class _Cinema extends StatelessWidget {
                         course.badge != null)
                       CourseTag(
                         course.badge == CourseBadge.fresh
-                            ? context.l10n.courseBadgeNew.toUpperCase()
-                            : context.l10n.courseBadgeBestseller.toUpperCase(),
+                            ? context.l10n.courseBadgeNew.toUpperCaseIn(context)
+                            : context.l10n.courseBadgeBestseller.toUpperCaseIn(
+                                context,
+                              ),
                         background: colors.live,
                         color: white,
                       ),
@@ -482,7 +485,7 @@ class _Split extends StatelessWidget {
               children: [
                 if (hero.subject != null) ...[
                   Text(
-                    hero.subject!.toUpperCase(),
+                    hero.subject!.toUpperCaseIn(context),
                     style: TextStyle(
                       fontSize: 12,
                       letterSpacing: 2,

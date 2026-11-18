@@ -6,6 +6,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart' show AppNetworkImage;
+import '../../../core/format/text_case.dart';
 
 /// 131.25 The premium gift checkout's frame (`Config.screens.checkout.look`
 /// `gift`), Leqaa's first and any store's: the five steps (who it is from,
@@ -371,7 +372,7 @@ class _CardPreview extends StatelessWidget {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                l10n.giftCard.toUpperCase(),
+                                l10n.giftCard.toUpperCaseIn(context),
                                 style: TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w800,

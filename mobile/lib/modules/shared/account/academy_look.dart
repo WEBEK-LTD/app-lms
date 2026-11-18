@@ -15,6 +15,7 @@ import '../../../core/widgets/common.dart';
 import '../../lms/data/lms_providers.dart';
 import '../../lms/learning/learning_providers.dart';
 import 'account_looks.dart';
+import '../../../core/format/text_case.dart';
 
 /// 123 The premium academy's account page (`account_menu` `header:
 /// academy`), as approved: the student's card in gold on dark with their
@@ -108,7 +109,7 @@ class AcademyAccountLook extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        appName.toUpperCase(),
+                        appName.toUpperCaseIn(context),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(

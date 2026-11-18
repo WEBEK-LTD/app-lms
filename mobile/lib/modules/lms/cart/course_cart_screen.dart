@@ -20,6 +20,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/lms_providers.dart';
 import 'course_cart.dart';
+import '../../../core/format/text_case.dart';
 
 /// 123 The academy's cart: the courses the student chose with their
 /// pictures and prices, a coupon of the site's, the card they saved with
@@ -764,7 +765,7 @@ class _CardFace extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        holder.toUpperCase(),
+                        holder.toUpperCaseIn(context),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontSize: 11, color: mute),

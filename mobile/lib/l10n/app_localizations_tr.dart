@@ -425,6 +425,11 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String updateRequiredMessageApp(String name) {
+    return '$name uygulamasının yeni sürümü çıktı. Kullanmaya devam etmek için uygulamayı güncelleyin.';
+  }
+
+  @override
   String get updateNow => 'Şimdi güncelle';
 
   @override
@@ -785,6 +790,54 @@ class AppLocalizationsTr extends AppLocalizations {
       'Yeni dersler, duyurular ve sorularınızın yanıtları burada görünecek.';
 
   @override
+  String get noNotificationsMessageStore =>
+      'Siparişlerinizle ilgili güncellemeler, kampanyalar ve mağazadan haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageFlowers =>
+      'Siparişlerinizle ve teslimatlarıyla ilgili güncellemeler, kampanyalar ve mağazadan haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageFood =>
+      'Siparişlerinizle ilgili güncellemeler, kampanyalar ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageBookings =>
+      'Rezervasyon onayları, hatırlatmalar ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageListings =>
+      'Sorularınızın yanıtları, yeni ilanlar ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageNews =>
+      'Son dakika haberleri ve yeni yazılar burada görünecek.';
+
+  @override
+  String get noNotificationsMessageEvents =>
+      'Bilet güncellemeleri, etkinlik hatırlatmaları ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageDonations =>
+      'Kampanya güncellemeleri ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageDelivery =>
+      'Gönderilerinizle ilgili güncellemeler ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageRides =>
+      'Yolculuklarınızla ilgili güncellemeler, kampanyalar ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageTravel =>
+      'Rezervasyonlarınız ve seyahatlerinizle ilgili güncellemeler, kampanyalar ve haberler burada görünecek.';
+
+  @override
+  String get noNotificationsMessageSchool =>
+      'Duyurular, ödevler, notlar ve okuldan mesajlar burada görünecek.';
+
+  @override
   String get notifications => 'Bildirimler';
 
   @override
@@ -882,6 +935,10 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get deleteAccountMessage =>
       'Hesabınız, ilerlemeniz ve kayıtlarınız silinecek, tüm cihazlarda oturum kapatılacak. Bu işlem geri alınamaz.';
+
+  @override
+  String get deleteAccountMessageApp =>
+      'Hesabınız ve bilgileri silinecek, tüm cihazlarda oturum kapatılacak. Bu işlem geri alınamaz.';
 
   @override
   String get deleteAccount => 'Hesabı sil';
@@ -1005,6 +1062,14 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get noAccountForNumber =>
       'Bu numarayla kayıtlı bir hesap yok. Lütfen akademiyle iletişime geçin.';
+
+  @override
+  String get noAccountForNumberApp =>
+      'Bu numarayla kayıtlı bir hesap yok. Lütfen bizimle iletişime geçin.';
+
+  @override
+  String get noAccountForNumberSchool =>
+      'Bu numarayla kayıtlı bir hesap yok. Lütfen okulla iletişime geçin.';
 
   @override
   String get newCodeSent => 'Size yeni bir kod gönderdik.';
@@ -3604,6 +3669,10 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get fileInAppOnlyMessage =>
       'Kurs dosyaları yalnızca uygulamanın içinde açılır; uygulama PDF, resim ve metin dosyalarını gösterir. Bu dosyayı eğitmeninizden PDF olarak isteyin.';
+
+  @override
+  String get fileInAppOnlyMessageApp =>
+      'Bu dosya yalnızca uygulamanın içinde açılır; uygulama PDF, resim ve metin dosyalarını gösterir. Dosyayı PDF olarak isteyin.';
 
   @override
   String pageOf(int page, int total) {

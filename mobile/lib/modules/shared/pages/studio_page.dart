@@ -58,6 +58,7 @@ import 'studio_stories.dart';
 // 130.20 The premium headers (premium chrome).
 import '../../../core/widgets/premium_chrome.dart';
 import 'premium/studio_premium_header.dart';
+import '../../../core/format/text_case.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -1349,10 +1350,11 @@ class StudioNodeView extends ConsumerWidget {
 
   /// The text shown: the entry's for an element bound to it in a card; in
   /// capitals when it or what holds it asks (107.2).
-  String? _text() {
+  String? _text(BuildContext context) {
     final text = _ownText();
+    // 169 In the language's own capitals (Turkish İ).
     return text != null && (scope.uppercase || node.font?.uppercase == true)
-        ? text.toUpperCase()
+        ? text.toUpperCaseIn(context)
         : text;
   }
 
@@ -1411,12 +1413,12 @@ class StudioNodeView extends ConsumerWidget {
         return _StudioCountdown(
           node: node,
           endsAt: ends,
-          endedText: _text(),
+          endedText: _text(context),
           align: align,
         );
       case StudioNodeType.bullets:
         final lines = [
-          for (final line in (_text() ?? '').split('\n'))
+          for (final line in (_text(context) ?? '').split('\n'))
             if (line.trim().isNotEmpty) line.trim(),
         ];
         if (lines.isEmpty) return const SizedBox.shrink();
@@ -1454,7 +1456,7 @@ class StudioNodeView extends ConsumerWidget {
             when node.bind == StudioBind.rating) {
           return _StudioRating(mark: node.text, rating: rating);
         }
-        final text = _text();
+        final text = _text(context);
         if (text == null || text.isEmpty) return const SizedBox.shrink();
         // 128 A rating's ★ (a restaurant's badge) as the star icon.
         return StarText(
@@ -1464,7 +1466,7 @@ class StudioNodeView extends ConsumerWidget {
           overflow: node.maxLines == null ? null : TextOverflow.ellipsis,
         );
       case StudioNodeType.button:
-        final label = _text() ?? '';
+        final label = _text(context) ?? '';
         final icon = node.icon == null
             ? null
             : AppIcon(
@@ -1659,7 +1661,7 @@ class StudioNodeView extends ConsumerWidget {
         return StudioSchoolPart(
           section: node.school!,
           color: color,
-          text: _text(),
+          text: _text(context),
           dark: scope.dark,
         );
       case StudioNodeType.market:
@@ -1699,7 +1701,7 @@ class StudioNodeView extends ConsumerWidget {
         );
       // 131 The flash sale: was and now, the countdown and the stock bar.
       case StudioNodeType.flashSale:
-        return StudioFlashSale(node: node, title: _text(), color: color);
+        return StudioFlashSale(node: node, title: _text(context), color: color);
       case StudioNodeType.categories:
         return PageBlockView(
           block: _categoriesBlock(node),
@@ -2981,7 +2983,7 @@ class _StudioAccordionState extends State<_StudioAccordion> {
                         children: [
                           Expanded(
                             child: Text(
-                              _titleIn(child, widget.scope, i),
+                              _titleIn(context, child, widget.scope, i),
                               style: const TextStyle(
                                 fontWeight: FontWeight.w700,
                               ),
@@ -3071,7 +3073,7 @@ class _StudioTabsState extends State<_StudioTabs> {
                           vertical: 7,
                         ),
                         child: Text(
-                          _titleIn(child, widget.scope, i),
+                          _titleIn(context, child, widget.scope, i),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: i == shown
@@ -3103,10 +3105,15 @@ class _StudioTabsState extends State<_StudioTabs> {
 }
 
 /// A child's question or tab name; its place when it has none.
-String _titleIn(StudioNode child, StudioScope scope, int i) {
+String _titleIn(
+  BuildContext context,
+  StudioNode child,
+  StudioScope scope,
+  int i,
+) {
   final title = child.title?.trim() ?? '';
   final shown = title.isEmpty ? '${i + 1}' : title;
-  return scope.uppercase ? shown.toUpperCase() : shown;
+  return scope.uppercase ? shown.toUpperCaseIn(context) : shown;
 }
 
 /// 107.3 Days, hours, minutes and seconds left; the owner's text once the

@@ -10,6 +10,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/format/text_case.dart';
 
 /// "20:30", a time on the organiser's clock.
 String clockTime(DateTime t) =>
@@ -128,7 +129,7 @@ class DateBadge extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            shortMonth(day).toUpperCase(),
+            shortMonth(day).toUpperCaseIn(context),
             maxLines: 1,
             style: TextStyle(
               fontSize: 11,
