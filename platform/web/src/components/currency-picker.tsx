@@ -31,6 +31,7 @@ export function CurrencyPicker({
   hint,
   disabled,
   gateway,
+  searchLabel,
   className = "",
 }: {
   name?: string;
@@ -45,6 +46,8 @@ export function CurrencyPicker({
   disabled?: boolean;
   /** The app's card gateway and the currencies it takes; null: none set up. */
   gateway?: { provider: string; currencies: readonly string[] } | null;
+  /** 149 The search box's name, when the page has another picker. */
+  searchLabel?: string;
   className?: string;
 }) {
   const t = useOptionalDashT();
@@ -112,7 +115,7 @@ export function CurrencyPicker({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={text("money.searchPlaceholder")}
-          aria-label={text("money.search")}
+          aria-label={searchLabel ?? text("money.search")}
           aria-controls={id}
           disabled={disabled || !inBrowser}
           autoComplete="off"

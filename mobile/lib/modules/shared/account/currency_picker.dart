@@ -21,11 +21,7 @@ final currencyListProvider = FutureProvider<CurrencyList>(
 
 /// 135.5 The shop's own currency, from `/config` (a shop, a menu, events or
 /// bookings); null for an app that doesn't sell.
-String? shopCurrencyOf(AppConfig config) =>
-    config.store?.currency ??
-    config.food?.currency ??
-    config.events?.currency ??
-    config.bookings?.currency;
+String? shopCurrencyOf(AppConfig config) => config.shopCurrency;
 
 /// 135.5 The currency choices in the picker's order: the shop's first, then
 /// the phone's region's, then all the others as the server lists them (the
@@ -90,6 +86,8 @@ class _CurrencyPickerSheetState extends ConsumerState<CurrencyPickerSheet> {
       ref.watch(deviceLocalesProvider).firstOrNull?.countryCode,
     );
     final shop = shopCurrencyOf(ref.watch(appConfigProvider));
+    // 149 Only the app's currencies (the server lists only those too).
+    final rule = ref.watch(appConfigProvider).customerCurrency;
     final list = ref.watch(currencyListProvider);
     void choose(String? code) {
       changeCurrency(ref, code);
@@ -141,7 +139,10 @@ class _CurrencyPickerSheetState extends ConsumerState<CurrencyPickerSheet> {
             error: (_, _) => Center(child: Text(l10n.currencyNoMatch)),
             data: (data) {
               final groups = currencyGroups(
-                data.items,
+                [
+                  for (final c in data.items)
+                    if (rule.allows(c.code, shop: shop)) c,
+                ],
                 shop: shop,
                 region: region,
                 query: _query,
@@ -153,7 +154,10 @@ class _CurrencyPickerSheetState extends ConsumerState<CurrencyPickerSheet> {
               return ListView(
                 key: const Key('currency-list'),
                 children: [
-                  if (picked != null && region != null && _query.isEmpty)
+                  if (picked != null &&
+                      region != null &&
+                      rule.allows(region, shop: shop) &&
+                      _query.isEmpty)
                     ListTile(
                       key: const Key('currency-use-region'),
                       leading: const AppIcon(AppIcons.web),

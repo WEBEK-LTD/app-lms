@@ -92,6 +92,10 @@ describe("124.6 the canvas lays a page out as the app", () => {
     // A row without a width of its own spans too; one with a width, or a column, keeps its placement across.
     const plain = draw({ body: { id: "body", type: "column", children: [{ ...hero, children: [hero.children![0]!, { ...top, width: undefined }] }] } });
     expect(styleOf(plain, "top")["justify-self"]).toBe("stretch");
+    // 150.2 A row that hugs spans too, as the app's Row does (Kech Flora's top row was set to hug).
+    const hug = draw({ body: { id: "body", type: "column", children: [{ ...hero, children: [hero.children![0]!, { ...top, width: "hug" }] }] } });
+    expect(styleOf(hug, "top")["justify-self"]).toBe("stretch");
+    expect(styleOf(hug, "top")["align-self"]).toBe("flex-start");
     const sized = draw({ body: { id: "body", type: "column", children: [{ ...hero, children: [hero.children![0]!, { ...top, width: 200 }] }] } });
     expect(styleOf(sized, "top")["justify-self"]).toBe("flex-start");
     const column = draw({ body: { id: "body", type: "column", children: [{ ...hero, children: [hero.children![0]!, { ...top, type: "column" }] }] } });

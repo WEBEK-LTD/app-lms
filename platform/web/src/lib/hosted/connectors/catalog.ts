@@ -8,7 +8,7 @@ import { centsToDecimal, formatCents } from "../../catalog/money";
 import { checkOptions, optionGroupsJson, optionGroupsOf, type ChosenOption } from "../../catalog/options";
 import { awaitingManualPayment } from "../../catalog/manual";
 import { catalogSettings, isOwnPayment, ORDER_STATUS_LABELS, orderNumber, PAY_LINK_MINUTES, paymentsSetUp, shippingFor } from "../../catalog/settings";
-import { Shown } from "../../money/display";
+import { customerCurrencyAllowed, customerCurrencyRule, Shown } from "../../money/display";
 import { providerTakes } from "../../payments/provider";
 import { shipmentJson } from "../../catalog/shipping";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
@@ -176,7 +176,9 @@ export class CatalogConnector implements Connector {
     const route = `${request.method} /${request.path.join("/")}`;
     // 131 The flash sales on now price the products below.
     this.now = request.now;
-    this.shown = Shown.for(this.settings.currency, request.display);
+    // 149 Never in a currency the owner left out of the app's, nor with the switch off (the hosted API sends none then too).
+    const display = request.display && customerCurrencyAllowed(customerCurrencyRule(this.settings), request.display.currency) ? request.display : null;
+    this.shown = Shown.for(this.settings.currency, display);
     if (request.path[0] === "store") this.flash = await this.deps.store.listFlashSales(this.deps.app.id);
     const extra = await handleStoreExtras(
       {

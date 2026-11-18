@@ -1,5 +1,6 @@
 import { formatCents, centsToDecimal } from "../catalog/money";
-import { currencyCodeOf } from "./currencies";
+import type { CatalogSettings } from "../data/types";
+import { currencyCodeOf, isCurrencyCode } from "./currencies";
 import { convertCents, rateBetween, type Rates } from "./rates";
 
 /**
@@ -16,6 +17,33 @@ import { convertCents, rateBetween, type Rates } from "./rates";
 /** What the request asked for: a valid ISO code, or null. */
 export function requestedCurrency(query: URLSearchParams | null | undefined, headers: Headers | null | undefined): string | null {
   return currencyCodeOf(query?.get("currency")) ?? currencyCodeOf(headers?.get("x-currency"));
+}
+
+/**
+ * 149 The app's rule for customers' currencies (the owner's, per app):
+ * whether prices show in the customer's currency at all, and in which
+ * (empty: any with a rate). The shop's own is always allowed.
+ */
+export interface CustomerCurrencyRule {
+  enabled: boolean;
+  currencies: string[];
+}
+
+/** 149 The rule saved with the app's catalog settings; missing (every app before 149, an app without a shop): on, any currency. */
+export function customerCurrencyRule(settings: Pick<CatalogSettings, "showInCustomerCurrency" | "customerCurrencies"> | null | undefined): CustomerCurrencyRule {
+  const currencies = [...new Set((settings?.customerCurrencies ?? []).filter(isCurrencyCode))];
+  return { enabled: settings?.showInCustomerCurrency !== false, currencies };
+}
+
+/** 149 Whether prices may show (and be charged) in `code`: the switch on, and any currency or one of the list; the shop's own always. */
+export function customerCurrencyAllowed(rule: CustomerCurrencyRule, code: string, shop?: string | null): boolean {
+  if (shop && code === shop) return true;
+  return rule.enabled && (rule.currencies.length === 0 || rule.currencies.includes(code));
+}
+
+/** 149 `Config.customer_currency`: the rule, for the app (older apps rely on the server's answers alone). */
+export function customerCurrencyConfigJson(rule: CustomerCurrencyRule) {
+  return { enabled: rule.enabled, currencies: rule.enabled ? rule.currencies : [] };
 }
 
 /** The customer's currency for a request, with the rates in use. */
