@@ -53,6 +53,9 @@ export type ClientEmailKey = Extract<
   | "market_template_receipt"
   | "market_template_reminder"
   | "market_template_ended"
+  | "market_payout_details_approved"
+  | "market_payout_details_changes"
+  | "market_payout_sent"
 >;
 
 const AR: Record<ClientEmailKey, TemplateText> = {
@@ -308,6 +311,29 @@ const AR: Record<ClientEmailKey, TemplateText> = {
     subject: "{{template_name}}: انتهت خطتك",
     body: "مرحبًا {{name}}،\n\n{{intro_line}}\n\n{{after_line}}\n\nيمكنك شراؤه مرة أخرى في أي وقت:\n{{renew_url}}" + SIGNATURE_AR,
   },
+  market_payout_details_approved: {
+    subject: "تمت الموافقة على بيانات الدفع",
+    body:
+      "مرحبًا {{name}}،\n\nراجع فريقنا هويتك وبياناتك البنكية لماركت Studio: تمت الموافقة عليها.\n\n" +
+      "تُرسل مدفوعاتك كل شهر بتحويل SWIFT متى بلغ رصيدك 250 دولارًا؛ وما دون ذلك يُرحَّل إلى الشهر التالي. أرباحك:\n{{money_url}}" +
+      SIGNATURE_AR,
+  },
+  market_payout_details_changes: {
+    subject: "بيانات الدفع: شيء يحتاج إلى تصحيح",
+    body:
+      "مرحبًا {{name}}،\n\nراجع فريقنا هويتك وبياناتك البنكية لمدفوعات ماركت Studio. يُرجى تصحيح ما يلي:\n\n{{notes}}\n\n" +
+      "عدّلها من هنا؛ وتنتظر مدفوعاتك حتى تتم الموافقة عليها:\n{{details_url}}" +
+      SIGNATURE_AR,
+  },
+  market_payout_sent: {
+    subject: "دفعتك من ماركت Studio: {{amount}}",
+    body:
+      "مرحبًا {{name}}،\n\nأرسلنا دفعتك من ماركت Studio عن {{month}} بتحويل SWIFT في {{sent_on}}.\n\n" +
+      "المبلغ: {{amount}}\nإلى: {{bank_name}}، {{account_hint}}\nمرجع البنك: {{bank_reference}}\nالدفعة: {{payout_id}}\n\n" +
+      "هذا 75% بالضبط من مبيعاتك: تغطي حصة Yallapp البالغة 25% الضرائب ورسوم بوابة الدفع ورسوم البنوك، ومنها البنوك الوسيطة. " +
+      "قد يستغرق وصولها إلى حسابك بضعة أيام عمل. الإيصال مرفق، وتجده أيضًا في منطقة المصمم:\n{{money_url}}" +
+      SIGNATURE_AR,
+  },
 };
 
 const TR: Record<ClientEmailKey, TemplateText> = {
@@ -562,6 +588,29 @@ const TR: Record<ClientEmailKey, TemplateText> = {
   market_template_ended: {
     subject: "{{template_name}}: planınız bitti",
     body: "Merhaba {{name}},\n\n{{intro_line}}\n\n{{after_line}}\n\nİstediğiniz zaman yeniden satın alabilirsiniz:\n{{renew_url}}" + SIGNATURE_TR,
+  },
+  market_payout_details_approved: {
+    subject: "Ödeme bilgileriniz onaylandı",
+    body:
+      "Merhaba {{name}},\n\nEkibimiz Studio Market için kimlik ve banka bilgilerinizi kontrol etti: onaylandılar.\n\n" +
+      "Ödemeleriniz, bakiyeniz 250 $’a ulaştığında her ay SWIFT ile gönderilir; altında kalan bakiye sonraki aya devreder. Kazançlarınız:\n{{money_url}}" +
+      SIGNATURE_TR,
+  },
+  market_payout_details_changes: {
+    subject: "Ödeme bilgileriniz: düzeltilecek bir şey var",
+    body:
+      "Merhaba {{name}},\n\nEkibimiz Studio Market ödemeleri için kimlik ve banka bilgilerinize baktı. Lütfen şunu düzeltin:\n\n{{notes}}\n\n" +
+      "Buradan değiştirin; ödemeleriniz bilgiler onaylanana kadar bekler:\n{{details_url}}" +
+      SIGNATURE_TR,
+  },
+  market_payout_sent: {
+    subject: "Studio Market ödemeniz: {{amount}}",
+    body:
+      "Merhaba {{name}},\n\n{{month}} dönemine ait Studio Market ödemenizi {{sent_on}} tarihinde SWIFT ile gönderdik.\n\n" +
+      "Tutar: {{amount}}\nAlıcı: {{bank_name}}, {{account_hint}}\nBanka referansı: {{bank_reference}}\nÖdeme: {{payout_id}}\n\n" +
+      "Bu, satışlarınızın tam %75’idir: Yallapp’in %25’lik payı vergileri, ödeme altyapısının ücretlerini ve aracı bankalarınki dahil banka ücretlerini karşılar. " +
+      "Hesabınıza ulaşması birkaç iş günü sürebilir. Makbuz ektedir; tasarımcı alanınızda da bulunur:\n{{money_url}}" +
+      SIGNATURE_TR,
   },
 };
 

@@ -34,10 +34,11 @@ function footerLegalLine(lang: Lang): string {
  * 32 Header of the public website: Product and Resources lists, the other pages, Sign in and Get started; `current` marks where the visitor is.
  * 55 In the page's language (`lang`), with the language switcher.
  */
-export function SiteHeader({ current, white = true, lang = DEFAULT_LANG }: { current?: SitePage; white?: boolean; lang?: Lang }) {
+export function SiteHeader({ current, white = true, night = false, lang = DEFAULT_LANG }: { current?: SitePage; white?: boolean; night?: boolean; lang?: Lang }) {
   const m = messagesFor(lang).nav;
   return (
-    <header data-site-theme="" className={`relative z-30 border-b ${white ? "border-line bg-white" : "border-line-soft"}`}>
+    // 154 `night`: the header in the dark of a night hero below it (the pricing page), its words and buttons as in dark mode (globals.css `.site-head-night`).
+    <header data-site-theme="" className={`relative z-30 border-b ${white ? "border-line bg-white" : "border-line-soft"} ${night ? "site-head-night" : ""}`}>
       <div className="mx-auto flex max-w-[1160px] items-center gap-4 px-4 py-3.5 sm:px-6 lg:gap-6">
         <LogoLink href={localePath(lang, "/")} adaptive alt={m.logoHome} />
         <SiteNav current={current} lang={lang} nav={siteNavFor(lang, m)} labels={m} languages={languageLabels(lang)} />

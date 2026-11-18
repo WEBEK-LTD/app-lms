@@ -30,6 +30,7 @@ import { MAIL_HISTORY_MONTHS } from "@/lib/mailing/types";
 import { pruneDemoVisits } from "@/lib/live-activity/demo";
 import { refreshRates } from "@/lib/money/rates";
 import { runStudioMarketDaily } from "@/lib/studio-market/daily";
+import { payoutNow } from "@/lib/studio-market/payout-clock";
 import { getBlobStore } from "@/lib/blobs";
 import { appPlan } from "@/lib/entitlements";
 
@@ -160,6 +161,9 @@ async function runDaily(store: DataStore, now: Date) {
     baseUrl: appUrl(),
     mail: (key, to, values, options) => sendTemplate(key, to, values, options),
     planOf: async (clientId, appId) => appPlan(store, await store.getLicenseForApp(clientId, appId), now),
+    // 106.11 On the 1st, the team is told the month's payouts are ready to prepare.
+    alertMail: teamMail,
+    payoutNow: payoutNow(),
   }).catch((e: unknown) => {
     console.error(`[daily] studio market: ${e instanceof Error ? e.message : String(e)}`);
     return null;

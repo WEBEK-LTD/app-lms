@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type { BlobStore } from "../blobs";
 import type { DataStore } from "../data/store";
-import type { App, MarketTemplateVersion, OwnFont } from "../data/types";
+import { isPrivateAsset, type App, type MarketTemplateVersion, type OwnFont } from "../data/types";
 import { figmaImageType } from "../figma/images";
 import { freeFont, isBundledFont } from "../fonts/catalog";
 import { addOwnFont } from "../fonts/own";
@@ -66,7 +66,7 @@ async function readPicture(deps: PictureDeps, url: string): Promise<{ data: Buff
   let owner: string | null = null;
   if (where.kind === "asset") {
     const asset = await deps.store.getAsset(where.id);
-    if (!asset || asset.kind === "driver_document" || asset.kind === "salary_receipt") return null;
+    if (!asset || isPrivateAsset(asset.kind)) return null;
     owner = asset.clientId;
     data = (await deps.blobs.get(asset.blobKey))?.data ?? null;
   } else if (deps.readMedia) {
