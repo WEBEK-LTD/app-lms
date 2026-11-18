@@ -36,9 +36,13 @@ export interface StripeKeys {
 }
 
 export class StripeError extends PaymentError {
-  constructor(message: string, options: { unreachable?: boolean } = {}) {
+  /** 148 Stripe refused the amount as under the least it charges (its `amount_too_small`, or our own check). */
+  readonly tooSmall: boolean;
+
+  constructor(message: string, options: { unreachable?: boolean; tooSmall?: boolean } = {}) {
     super(message, options);
     this.name = "StripeError";
+    this.tooSmall = options.tooSmall ?? false;
   }
 }
 
@@ -236,7 +240,7 @@ export async function createStripeSession(keys: StripeKeys, request: StripeSessi
   const unitAmount = stripeAmount(request.amountCents, request.currency);
   if (unitAmount === null) throw new StripeError(`Stripe doesn't take this amount in ${request.currency.toUpperCase()}.`);
   const least = stripeMinimumCents(request.currency);
-  if (least !== null && request.amountCents < least) throw new StripeError(`Stripe takes payments of at least ${(least / 100).toFixed(currencyDigits(request.currency))} ${request.currency.toUpperCase()}.`);
+  if (least !== null && request.amountCents < least) throw new StripeError(`Stripe takes payments of at least ${(least / 100).toFixed(currencyDigits(request.currency))} ${request.currency.toUpperCase()}.`, { tooSmall: true });
   const { status, json } = await call(
     keys,
     "POST",
@@ -262,7 +266,11 @@ export async function createStripeSession(keys: StripeKeys, request: StripeSessi
   const id = text(json?.id);
   const url = text(json?.url);
   const clientSecret = text(json?.client_secret);
-  if (status >= 400 || !id || (request.embedded ? !clientSecret : !url)) throw new StripeError(errorOf(json, "Stripe couldn't start the payment."));
+  if (status >= 400 || !id || (request.embedded ? !clientSecret : !url)) {
+    // 148 Under the least Stripe charges once converted to the account's currency (MAD 1.00 is about USD 0.10, under 0.50).
+    const tooSmall = text(record(json?.error)?.code) === "amount_too_small";
+    throw new StripeError(errorOf(json, "Stripe couldn't start the payment."), { tooSmall });
+  }
   return { sessionId: id, url: request.embedded ? null : url, clientSecret: request.embedded ? clientSecret : null, expiresAt };
 }
 

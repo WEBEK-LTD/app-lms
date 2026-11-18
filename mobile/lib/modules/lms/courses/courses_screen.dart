@@ -33,13 +33,11 @@ class CoursesScreen extends ConsumerStatefulWidget {
     this.initialCategory,
     this.initialSearch,
     this.initialOrder,
-    this.focusSearch = false,
   });
 
   final int? initialCategory;
   final String? initialSearch;
   final CourseOrder? initialOrder;
-  final bool focusSearch;
 
   @override
   ConsumerState<CoursesScreen> createState() => _CoursesScreenState();
@@ -61,12 +59,8 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
       category: widget.initialCategory,
       orderBy: widget.initialOrder ?? CourseOrder.newest,
     );
+    // 147 The keyboard comes up only when the student taps the search.
     _scroll.addListener(_onScroll);
-    if (widget.focusSearch) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _searchFocus.requestFocus();
-      });
-    }
   }
 
   @override
@@ -82,7 +76,6 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
         );
       });
     }
-    if (widget.focusSearch && !old.focusSearch) _searchFocus.requestFocus();
   }
 
   @override

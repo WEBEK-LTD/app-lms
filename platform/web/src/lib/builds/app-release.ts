@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 4;
+export const CLIENT_APP_RELEASE = 5;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -40,6 +40,8 @@ export const CLIENT_APP_RELEASE = 4;
  *    tab's screen is the tab's (a shop's bouquets, not "Courses"); Studio's
  *    bag, buttons and lists as set; controls that did nothing do what they
  *    show; delivery days in the shop's time; and pictures faster.
+ * 5  147 A search opens with its keyboard closed (Leqaa's and Kech Flora's
+ *    Bouquets tab brought it up by itself): it comes up only on a tap.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */

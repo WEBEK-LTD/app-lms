@@ -90,7 +90,6 @@ List<TabScreen> _screens() => [
       // A new category or search from a link starts a fresh list.
       key: ValueKey('events-${state.uri.query}'),
       initialCategory: state.uri.queryParameters['category'],
-      focusSearch: state.uri.queryParameters['focus'] == '1',
     ),
   ),
   TabScreen(

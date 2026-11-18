@@ -14,14 +14,9 @@ import '../widgets/article_widgets.dart';
 
 /// The Latest tab: every article, newest first, by section and search.
 class ArticlesScreen extends ConsumerStatefulWidget {
-  const ArticlesScreen({
-    super.key,
-    this.initialCategory,
-    this.focusSearch = false,
-  });
+  const ArticlesScreen({super.key, this.initialCategory});
 
   final String? initialCategory;
-  final bool focusSearch;
 
   @override
   ConsumerState<ArticlesScreen> createState() => _ArticlesScreenState();
@@ -132,7 +127,6 @@ class _ArticlesScreenState extends ConsumerState<ArticlesScreen> {
               child: ArticleSearchField(
                 controller: _search,
                 onChanged: _searchChanged,
-                autofocus: widget.focusSearch,
               ),
             ),
             if (categories.isNotEmpty)

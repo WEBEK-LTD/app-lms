@@ -93,10 +93,7 @@ final realEstateModule = AppModule(
 List<TabScreen> _screens() => [
   TabScreen(
     Paths.search,
-    (state) => ListingsSearchScreen(
-      key: const ValueKey('listings-search'),
-      focusSearch: state.uri.queryParameters['focus'] == '1',
-    ),
+    (state) => const ListingsSearchScreen(key: ValueKey('listings-search')),
   ),
   TabScreen(Paths.favorites, (state) => const FavoritesScreen()),
   TabScreen(

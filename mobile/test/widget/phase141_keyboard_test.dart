@@ -232,9 +232,14 @@ void main() {
         signedIn: true,
       );
       await app.pump(tester);
+      // 147 The search as a tab opens it (Leqaa's and Kech Flora's
+      // Bouquets): its keyboard stays closed until the field is tapped.
       app.container.read(appRouterProvider).go('${Paths.shop}?focus=1');
       await TestApp.settle(tester, 20);
-      // Search, opened to type: the keyboard is up.
+      expect(textFieldFocused(), isFalse);
+      expect(tester.testTextInput.isVisible, isFalse);
+      await tester.tap(find.byType(TextField).first);
+      await TestApp.settle(tester, 20);
       expect(textFieldFocused(), isTrue);
       expect(tester.testTextInput.isVisible, isTrue);
       return app;
