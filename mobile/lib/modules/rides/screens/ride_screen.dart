@@ -771,8 +771,8 @@ extension on _RideScreenState {
     if (_adjusting) return _adjustLayout(taxi);
     final notifications = headerIconOpens(ref, HeaderIcon.notifications);
     // 178 Under a Studio page's header (Masar's "Ride"), the header is the
-    // screen's top: no second menu and app chip under it (the back to
-    // "Where to?" and the bell stay).
+    // screen's top, with its back: no second back, menu or app chip under
+    // it (the destination is changed with its pencil); the bell stays.
     final underHeader = StudioScreenScope.hidesTitleOf(context);
     return Scaffold(
       body: Stack(
@@ -812,10 +812,10 @@ extension on _RideScreenState {
               child: SizedBox(
                 height: 48,
                 child: NavigationToolbar(
-                  leading: to != null
-                      ? AppBackButton(onPressed: _clearDropoff)
-                      : underHeader
+                  leading: underHeader
                       ? null
+                      : to != null
+                      ? AppBackButton(onPressed: _clearDropoff)
                       : const SideMenuButton(),
                   middle: underHeader ? null : const TaxiAppChip(),
                   trailing: notifications
