@@ -61,7 +61,7 @@ async function mailsTo(email: string): Promise<SentMail[]> {
 async function page(browser: Browser): Promise<Page> {
   const p = await (await browser.newContext({ extraHTTPHeaders })).newPage();
   const browserNote = /was preloaded using link preload|WebGL|GL Driver Message/;
-  const ours = () => /\/(?:dashboard\/studio-market|designer|admin\/market)(?:[/?#]|$)/.test(new URL(p.url()).pathname + "/");
+  const ours = () => /\/(?:studio\/market|designer|admin\/market)(?:[/?#]|$)/.test(new URL(p.url()).pathname + "/");
   p.on("console", (m) => {
     if (ours() && (m.type() === "error" || m.type() === "warning") && !m.location().url.includes("/api/v1/fonts/") && !browserNote.test(m.text())) problems.push(`${m.type()} on ${p.url()}: ${m.text()}`);
   });
@@ -192,16 +192,16 @@ test("a designer's template sells its lifetime plan at $400 through Kashier", as
   // An owner buys it for good, to apply later: EGP 20,000 at the team's rate.
   own = await page(browser);
   await signUp(own, buyer, "+90 532 000 0242");
-  await own.goto(`/dashboard/studio-market?q=${suffix}`);
+  await own.goto(`/studio/market?q=${suffix}`);
   const slug = await own.locator("[data-template-card]").filter({ hasText: title }).getAttribute("data-template-card");
-  await own.goto(`/dashboard/studio-market/checkout/${slug}?plan=life`);
+  await own.goto(`/studio/market/checkout/${slug}?plan=life`);
   await own.locator('label[data-app="later"]').click();
   await expect(own.locator("[data-total]")).toHaveText("$400");
   await own.getByRole("checkbox", { name: /I understand this is digital content/ }).check();
   await own.getByRole("button", { name: "Pay $400" }).click();
   await expect(own.getByText("Total 20000.00 EGP")).toBeVisible();
   await own.getByRole("button", { name: "Pay with test card" }).click();
-  await expect(own).toHaveURL(/\/dashboard\/studio-market\/mine\?done=/);
+  await expect(own).toHaveURL(/\/studio\/market\/mine\?done=/);
   await expect(own.getByText("Payment received. Apply it to one of your apps when you're ready.")).toBeVisible();
 });
 

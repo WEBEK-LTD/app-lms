@@ -105,7 +105,7 @@ export default async function JoinPage({ searchParams }: PageProps<"/designer/jo
       <DocumentLang lang={lang} />
       <div lang={lang} dir={dir} data-site-theme="" className="mk mk-bare mk-page min-h-screen">
         <header className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-4 px-4 py-[22px] sm:px-8">
-          <Link href={designer ? "/designer/templates" : "/dashboard/studio-market"} className="flex rounded-md">
+          <Link href={designer ? "/designer/templates" : "/studio/market"} className="flex rounded-md">
             <Logo height={28} adaptive alt={t("nav.logoAlt")} />
           </Link>
           <span aria-hidden="true" className="hidden h-6 w-px bg-line-strong sm:block" />

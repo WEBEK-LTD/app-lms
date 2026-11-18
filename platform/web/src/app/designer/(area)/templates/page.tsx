@@ -112,7 +112,7 @@ export default async function DesignerTemplatesPage({ searchParams }: PageProps<
             <span className="sr-only">{t("marketDiscounts.discountsOf", { title: r.title })}</span>
           </Link>
         ) : null}
-        <Link href={`/dashboard/studio-market/t/${r.template.slug}`} className={`${btn.ghost} h-[30px] rounded-lg px-2`}>
+        <Link href={`/studio/market/t/${r.template.slug}`} className={`${btn.ghost} h-[30px] rounded-lg px-2`}>
           <Icon name="open_in_new" size={16} />
           <span className="sr-only">{t("studioMarket.openPage")}</span>
         </Link>

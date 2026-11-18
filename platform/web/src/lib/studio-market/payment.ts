@@ -27,7 +27,7 @@ import { templateText } from "./templates";
  * with, and delivered once; then the buyer's receipt.
  */
 
-const MINE = "/dashboard/studio-market/mine";
+const MINE = "/studio/market/mine";
 
 export function deliverDeps(store: DataStore, now: Date): DeliverDeps {
   return {

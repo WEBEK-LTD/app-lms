@@ -6,7 +6,7 @@ import { formatUsd, ltr, offeredPlans, perMonthCents, type PriceTag } from "./pl
 
 /**
  * 106.13 What a template's page says about its price, the same in the
- * dashboard (/dashboard/studio-market/t/<slug>) and on the website
+ * dashboard (/studio/market/t/<slug>) and on the website
  * (/templates/<slug>): each plan's price now (106.12: the best running price
  * drop or flash sale, the plan's own struck through), the plan with the
  * lowest price per month, the price tag's words and what to know before

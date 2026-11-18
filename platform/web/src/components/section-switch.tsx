@@ -1,19 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Icon } from "./icon";
 import type { IconName } from "./icon-names";
 
 /**
  * 103R.3 The dark bar's switch between the regular apps and Yallapp
- * Studio; 106 and Studio Market, marked new until it is open. The open one
- * follows the address (the layout stays while pages change under it).
+ * Studio. 191 Studio Market is Studio's (Studio's bar and menu have it), not
+ * the regular apps' dashboard's.
  */
-export function SectionSwitch({ label, words }: { label: string; words: { regular: string; studio: string; market: string; newTag: string } }) {
-  const pathname = usePathname();
-  const market = /^\/dashboard\/studio-market(?:\/|$)/.test(pathname);
-  const item = (href: string, icon: IconName, text: string, current: boolean, extra?: React.ReactNode) => (
+export function SectionSwitch({ label, words }: { label: string; words: { regular: string; studio: string } }) {
+  const item = (href: string, icon: IconName, text: string, current: boolean) => (
     <Link
       href={href}
       aria-current={current ? "page" : undefined}
@@ -21,20 +18,12 @@ export function SectionSwitch({ label, words }: { label: string; words: { regula
     >
       <Icon name={icon} size={18} />
       {text}
-      {extra}
     </Link>
   );
   return (
     <nav aria-label={label} className="flex items-center gap-1 overflow-x-auto rounded-[10px] bg-night-2 p-1">
-      {item("/dashboard", "apps", words.regular, !market)}
+      {item("/dashboard", "apps", words.regular, true)}
       {item("/studio", "draw", words.studio, false)}
-      {item(
-        "/dashboard/studio-market",
-        "storefront",
-        words.market,
-        market,
-        market ? null : <span className="rounded-full bg-ember px-1.5 text-[10px] leading-4 font-extrabold text-[#0e0d24]">{words.newTag}</span>,
-      )}
     </nav>
   );
 }

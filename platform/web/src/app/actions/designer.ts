@@ -163,7 +163,7 @@ export async function publishTemplateUpdateAction(_: FormState, formData: FormDa
   const sent = await publishUpdate({ store: await getStore(), blobs: getBlobStore(), now: new Date(), ...pictureCopying() }, template, project, actorOf(context).email);
   if (!sent.ok) return { message: sent.message, ...(sent.errors ? { errors: { details: sent.errors.join("\n") } } : {}) };
   revalidatePath("/designer", "layout");
-  revalidatePath("/dashboard/studio-market", "layout");
+  revalidatePath("/studio/market", "layout");
   return { ok: true, message: TEMPLATE_MESSAGES.updated };
 }
 

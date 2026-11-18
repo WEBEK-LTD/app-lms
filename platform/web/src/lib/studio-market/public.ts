@@ -92,14 +92,14 @@ export type MarketNextTo = "checkout" | "preview" | "template";
 
 const SLUG = "[a-z0-9-]{1,120}";
 const PERIODS = MARKET_PERIODS.join("|");
-const NEXT_PAGE = new RegExp(`^/dashboard/studio-market/(?:checkout/${SLUG}\\?plan=(?:${PERIODS})|t/${SLUG}(?:\\?demo=mine)?)$`);
+const NEXT_PAGE = new RegExp(`^/studio/market/(?:checkout/${SLUG}\\?plan=(?:${PERIODS})|t/${SLUG}(?:\\?demo=mine)?)$`);
 
 /** The dashboard address for a template: its checkout with the plan, its demo on the buyer's app, or its page (a free one is applied there). */
 export function marketNextPath(to: MarketNextTo, slug: string, plan?: string | null): string | null {
   if (!new RegExp(`^${SLUG}$`).test(slug)) return null;
-  if (to === "checkout") return MARKET_PERIODS.includes(plan as MarketPlanPeriod) ? `/dashboard/studio-market/checkout/${slug}?plan=${plan}` : null;
-  if (to === "preview") return `/dashboard/studio-market/t/${slug}?demo=mine`;
-  return `/dashboard/studio-market/t/${slug}`;
+  if (to === "checkout") return MARKET_PERIODS.includes(plan as MarketPlanPeriod) ? `/studio/market/checkout/${slug}?plan=${plan}` : null;
+  if (to === "preview") return `/studio/market/t/${slug}?demo=mine`;
+  return `/studio/market/t/${slug}`;
 }
 
 /** The cookie's address when it is one of ours, else null. */

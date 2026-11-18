@@ -292,7 +292,7 @@ export function ApplyForm({ slug, apps, label }: { slug: string; apps: { id: str
         <div role="status" className="flex flex-col gap-2 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
           {known(state.message ?? "")}
           <span className="flex flex-wrap gap-2">
-            <Link href="/dashboard/studio-market/mine" className={`${btn.secondary} h-9 px-3 text-sm`}>
+            <Link href="/studio/market/mine" className={`${btn.secondary} h-9 px-3 text-sm`}>
               {t("studioMarket.navMine")}
             </Link>
           </span>
@@ -433,7 +433,7 @@ export function PlanPicker({ slug, plans, initial, links }: { slug: string; plan
         </>
       ) : (
         <>
-          <Link href={`/dashboard/studio-market/checkout/${slug}?plan=${chosen.period}`} className="mk-btn mk-btn-ember mk-btn-lg w-full">
+          <Link href={`/studio/market/checkout/${slug}?plan=${chosen.period}`} className="mk-btn mk-btn-ember mk-btn-lg w-full">
             {pay}
           </Link>
           {mine.length ? (

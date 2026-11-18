@@ -36,7 +36,7 @@ type Tab = "all" | "active" | "ended" | "not_applied";
  * go back to the design the app had before, take a newer version. Free
  * templates for now; plans that end come with checkout.
  */
-export default async function MyTemplatesPage({ searchParams }: PageProps<"/dashboard/studio-market/mine">) {
+export default async function MyTemplatesPage({ searchParams }: PageProps<"/studio/market/mine">) {
   const context = await requireClient("billing");
   const { t, k, lang } = await dashboardText();
   const store = await getStore();
@@ -60,7 +60,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
       title={t("studioMarket.mineTitle")}
       lead={t("studioMarket.mineIntro")}
       actions={
-        <Link href="/dashboard/studio-market" className="mk-btn mk-btn-ink mk-btn-sm">
+        <Link href="/studio/market" className="mk-btn mk-btn-ink mk-btn-sm">
           <Icon name="storefront" size={20} />
           {t("studioMarket.browse")}
         </Link>
@@ -77,7 +77,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
           icon="dashboard_customize"
           title={t("studioMarket.mineEmpty")}
           action={
-            <Link href="/dashboard/studio-market" className={`${btn.primary} h-11`}>
+            <Link href="/studio/market" className={`${btn.primary} h-11`}>
               {t("studioMarket.browse")}
             </Link>
           }
@@ -130,7 +130,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
   // 106.2 Renew (a plan for a time), or buy it again once it ended: a new one-time payment at checkout.
   const renewLink = (r: LicenceRow, again: boolean) =>
     r.renewable ? (
-      <Link href={`/dashboard/studio-market/checkout/${r.template.slug}?renew=${r.licence.id}`} className={`${again ? btn.main : btn.secondary} h-9 px-3.5 text-sm`}>
+      <Link href={`/studio/market/checkout/${r.template.slug}?renew=${r.licence.id}`} className={`${again ? btn.main : btn.secondary} h-9 px-3.5 text-sm`}>
         <Icon name={again ? "shopping_cart" : "event"} size={18} />
         {t(again ? "studioMarket.buyAgain" : "studioMarket.renew")}
       </Link>
@@ -149,7 +149,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
               </SubmitButton>
             </form>
           ) : null}
-          <Link href={`/dashboard/studio-market/mine?move=${r.licence.id}#switch`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+          <Link href={`/studio/market/mine?move=${r.licence.id}#switch`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
             <Icon name="compare" size={18} />
             {t("studioMarket.switchApp")}
           </Link>
@@ -175,7 +175,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
       return (
         <div className="flex flex-wrap items-center justify-end gap-2">
           {renewLink(r, true) ?? (
-            <Link href={`/dashboard/studio-market/t/${r.template.slug}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+            <Link href={`/studio/market/t/${r.template.slug}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
               <Icon name="shopping_cart" size={18} />
               {t("studioMarket.getAgain")}
             </Link>
@@ -196,7 +196,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
     const apps = fitting(r);
     if (!apps.length) {
       return (
-        <Link href={`/dashboard/studio-market/t/${r.template.slug}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+        <Link href={`/studio/market/t/${r.template.slug}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
           {t("studioMarket.view")}
         </Link>
       );
@@ -248,7 +248,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
         {thumb(r)}
         <div className="flex min-w-0 flex-col gap-0.5">
           <span className="flex items-center gap-2">
-            <Link href={`/dashboard/studio-market/t/${r.template.slug}`} dir="auto" className="text-[15px] font-bold text-midnight no-underline hover:text-midnight">
+            <Link href={`/studio/market/t/${r.template.slug}`} dir="auto" className="text-[15px] font-bold text-midnight no-underline hover:text-midnight">
               {r.card.title}
             </Link>
             {now.getTime() - r.licence.createdAt.getTime() < 3 * 24 * 60 * 60 * 1000 ? <span className="rounded-xl bg-peach px-2 py-0.5 text-xs font-bold text-midnight">{t("studioMarket.newBadge")}</span> : null}
@@ -308,7 +308,7 @@ export default async function MyTemplatesPage({ searchParams }: PageProps<"/dash
             {tabs.map(([key, label, count]) => (
               <Link
                 key={key}
-                href={key === "all" ? "/dashboard/studio-market/mine" : `/dashboard/studio-market/mine?tab=${key}`}
+                href={key === "all" ? "/studio/market/mine" : `/studio/market/mine?tab=${key}`}
                 aria-current={tab === key ? "page" : undefined}
                 className={`-mb-px inline-flex items-center gap-2 border-b-2 px-3.5 pt-2.5 pb-3 text-[15px] whitespace-nowrap no-underline ${tab === key ? "border-ember font-bold text-midnight hover:text-midnight" : "border-transparent font-semibold text-muted hover:text-midnight"}`}
               >
