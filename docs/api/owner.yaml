@@ -690,6 +690,17 @@ paths:
               required: [status]
               properties:
                 status: { type: string, enum: [processing, completed, cancelled, preparing, ready, out_for_delivery] }
+                refund:
+                  type: boolean
+                  description: |
+                    175 With `cancelled`, the owner's choice for a paid order
+                    (`cancel_refund` not null): true refunds all that's left
+                    through the order's payment gateway (when it can't, the
+                    order's `refund_due` is `needed` for the owner); false
+                    cancels without a refund. Ask the owner every time. Left
+                    out (older apps): refunded only after a failed or
+                    returned stage (132). Either way the units go back in
+                    stock and the customer is told (a guest by email).
       responses:
         '200':
           description: The order as it is now
@@ -4906,6 +4917,17 @@ components:
           type: array
           items: { $ref: '#/components/schemas/OrderStage' }
           description: 132 Every change of its delivery stage, newest first. Missing on older servers.
+        cancel_refund:
+          type: [object, 'null']
+          description: |
+            175 What `POST …/status` `cancelled` can refund now: all that's
+            left of the order's payment. Not null: ask the owner to cancel
+            and refund it, or to cancel without a refund, and send their
+            choice as `refund`. Null when nothing paid is left (unpaid, all
+            refunded, already owed). Missing on older servers.
+          required: [amount]
+          properties:
+            amount: { $ref: '#/components/schemas/Money' }
         refund_due:
           type: [object, 'null']
           description: |

@@ -291,9 +291,13 @@ class HttpOwnerApi implements OwnerApi {
   Future<Order> changeOrderStatus(
     String appId,
     int orderId,
-    String status,
-  ) async => Order.fromJson(
-    await _post('${_app(appId)}/orders/$orderId/status', {'status': status}),
+    String status, {
+    bool? refund,
+  }) async => Order.fromJson(
+    await _post('${_app(appId)}/orders/$orderId/status', {
+      'status': status,
+      'refund': ?refund,
+    }),
   );
 
   @override

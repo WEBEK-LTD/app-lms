@@ -1874,6 +1874,8 @@ export interface CatalogCategory {
   /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
   sample?: boolean;
   createdAt: Date;
+  /** 175 Its name in the app's other languages ("ar", "tr"); null or missing: `name` in every language. */
+  names?: LangText | null;
 }
 
 export interface CatalogProduct {

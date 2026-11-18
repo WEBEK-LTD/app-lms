@@ -42,6 +42,12 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   bool refundsByApi = true;
   bool pushAvailable = true;
 
+  /// 175 The refund choice sent with the last status change (tests).
+  bool? lastCancelRefund;
+
+  /// 175 The shop's today in its own time zone (tests); null: the phone's.
+  String? shopToday;
+
   /// Thrown by the next call, then cleared.
   ApiException? failNext;
 
@@ -1524,8 +1530,24 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     _app(appId, (f) => f.orders);
     final all = (_orders[appId] ?? const [])
         .where((o) => statuses.isEmpty || statuses.contains(o.status))
+        .map(_withCancel)
         .toList();
     return _page(all, page, perPage);
+  }
+
+  /// 175 As the server: what cancelling it now can refund (paid, in
+  /// progress, something left, nothing owed yet).
+  Order _withCancel(Order o) {
+    final refunded = o.refunds.fold(0, (n, r) => n + r.amount.amountCents);
+    final left = o.total.amountCents - refunded;
+    final offer =
+        o.status == 'processing' &&
+        o.paidAt != null &&
+        left > 0 &&
+        o.refundDue == null;
+    return offer
+        ? o.copyWith(cancelRefund: money(left, o.total.currency))
+        : o.copyWith(clearCancelRefund: true);
   }
 
   Paged<T> _page<T>(List<T> all, int page, int perPage) {
@@ -1544,7 +1566,7 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     final left = o.total.amountCents - refunded;
     // As the server: a cancelled order's payment can still go back.
     final refundable = left > 0 && o.status != 'pending' && o.paidAt != null;
-    return o.copyWith(
+    return _withCancel(o).copyWith(
       refunded: refunded > 0 ? money(refunded, o.total.currency) : null,
       refund: RefundOptions(
         refundable: refundable,
@@ -1617,9 +1639,11 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   Future<Order> changeOrderStatus(
     String appId,
     int orderId,
-    String status,
-  ) async {
+    String status, {
+    bool? refund,
+  }) async {
     await _call('changeOrderStatus:$status');
+    lastCancelRefund = refund;
     _app(appId, (f) => f.orders);
     final o = _find(appId, orderId);
     if (!o.nextStatuses.contains(status)) {
@@ -1662,10 +1686,12 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
             ),
       nextStatuses: next,
     );
-    // 132 Cancelled after a failed or returned delivery: it needs a refund.
+    // 175 Cancelled with the owner's "refund": refunded (or needed); 132
+    // without a choice (older apps), after a failed or returned delivery.
     final owed =
         finalStatus == 'cancelled' &&
-        const ['failed', 'returned'].contains(o.stage?.stage);
+        o.paidAt != null &&
+        (refund ?? const ['failed', 'returned'].contains(o.stage?.stage));
     final saved = owed
         ? updated.copyWith(refundDue: _refundDue(o), nextStages: const [])
         : updated;
@@ -1782,7 +1808,7 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   @override
   Future<DeliveryDay> stageSlots(String appId, {String? date}) async {
     await _call('stageSlots');
-    final day = date ?? _FakeStudio._isoDay(DateTime.now());
+    final day = date ?? shopToday ?? _FakeStudio._isoDay(DateTime.now());
     return DeliveryDay(
       date: day,
       dateLabel: day,

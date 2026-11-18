@@ -183,13 +183,13 @@ export async function InAppPayments({ app }: { app: App }) {
             status: p.status,
             title: t("inAppPay.payment", { number: orderNumber(order) }),
             when: formatDateTime(order.paidAt ?? order.createdAt, lang),
-            amount: formatCents(order.totalCents, order.currency),
+            amount: formatCents(order.totalCents, order.currency, lang),
             provider: order.paymentProvider ? PROVIDER_NAME[order.paymentProvider] : null,
             statusLabel: statusLabel(p),
             problem: p.status === "needs_attention" && p.problem ? t("inAppPay.storeSaid", { message: p.problem.message }) : null,
             refund:
               order.paymentProvider && refundsByApi(order.paymentProvider)
-                ? t("inAppPay.refundAll", { amount: formatCents(order.totalCents - (order.refundedCents ?? 0), order.currency), provider: PROVIDER_NAME[order.paymentProvider] })
+                ? t("inAppPay.refundAll", { amount: formatCents(order.totalCents - (order.refundedCents ?? 0), order.currency, lang), provider: PROVIDER_NAME[order.paymentProvider] })
                 : null,
           },
         ]

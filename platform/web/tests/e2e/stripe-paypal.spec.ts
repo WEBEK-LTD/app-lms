@@ -4,6 +4,13 @@ import { E2E } from "../../playwright.config";
 import { startFakePaypal, startFakeStripe, type FakeServer } from "./fake-stripe-paypal-servers";
 import { solidPng } from "./png";
 
+/** 175 A shop that has prices already chooses what a new currency does to them: here, keep the numbers. */
+async function keepPrices(p: Page) {
+  const keep = p.getByLabel("Keep the numbers as they are");
+  if (await keep.isVisible()) await keep.check();
+}
+
+
 /**
  * 96.1 A shop takes payments with its own Stripe account, then its own PayPal
  * account: the keys are checked and kept, the customer pays on their pages
@@ -114,6 +121,7 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   // 132.10 Products has its own pages: the shop's settings, payments and the products.
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
   await page.getByLabel("Currency", { exact: true }).selectOption("USD");
+  await keepPrices(page);
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 

@@ -42,7 +42,8 @@ void main() {
     await go(tester, app, '/orders');
     await tapOn(tester, find.widgetWithText(OutlinedButton, 'Decline'));
     expect(find.text('Cancel order #1042?'), findsOneWidget);
-    await tapOn(tester, find.widgetWithText(TextButton, 'Cancel'));
+    // 175 A paid order: the owner's two choices, or keep it.
+    await tapOn(tester, find.widgetWithText(TextButton, 'Keep the order'));
     expect(app.api.calls, isNot(contains('changeOrderStatus:cancelled')));
   });
 

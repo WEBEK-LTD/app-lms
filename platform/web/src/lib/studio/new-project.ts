@@ -1,6 +1,7 @@
 import "server-only";
 import { ENGINES, type KindInfo } from "../app/kinds";
 import { ownContentSetup } from "../app/own-content";
+import { DEMO_TEMPLATE_MONEY, startingCatalogSettings } from "../app/country-defaults";
 import { newApp } from "../app/setup";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
@@ -73,7 +74,8 @@ export async function makeStudioProject(store: DataStore, input: NewStudioProjec
   };
   const app: App =
     input.source === "catalog"
-      ? { ...base, backend: "hosted", ...ownContentSetup(ENGINES[kind.engine].ownContent.kind, base), websiteDoneAt: now }
+      ? // 175 In the owner's country's currency and time zone, else the demo's when it starts from one.
+        { ...base, backend: "hosted", ...ownContentSetup(ENGINES[kind.engine].ownContent.kind, base, startingCatalogSettings(await store.getClientById(input.clientId), input.fromDemo ? DEMO_TEMPLATE_MONEY : null)), websiteDoneAt: now }
       : base;
   // 136 Yallapp sets up its notifications when its Firebase is set up here and has room.
   if (await pushSetupForNewApp(store, app)) app.pushSetup = "yallapp";

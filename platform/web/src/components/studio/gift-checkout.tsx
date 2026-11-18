@@ -1,7 +1,13 @@
+"use client";
+
 import type { CSSProperties, ReactNode } from "react";
 import type { CheckoutLook } from "@/lib/studio/checkout-look";
-import { CHECKOUT_SAMPLE_AMOUNTS as AMOUNTS, checkoutWords } from "@/lib/studio/checkout-words";
+import { formatCents } from "@/lib/catalog/money";
+import { convertPrice } from "@/lib/catalog/price-convert";
+import { CHECKOUT_SAMPLE_AMOUNTS as AMOUNTS, CHECKOUT_SAMPLE_CENTS as CENTS, checkoutWords } from "@/lib/studio/checkout-words";
+import type { ShopSample } from "@/lib/studio/shop-sample-types";
 import { alpha, mix } from "./app-screens";
+import { useShopSample } from "./shop-sample";
 
 /**
  * 131.25 The gift checkout (`Config.screens.checkout` `gift`) on Studio's
@@ -31,9 +37,54 @@ export interface GiftCheckoutProps {
   top: number;
 }
 
+/**
+ * 175 The sample order as the shop's own (lib/studio/shop-sample.ts): its
+ * currency (the pounds at the day's rate), tomorrow from today, its country
+ * and city; without a shop, the sample's own (E£, 15 Nov, Cairo).
+ */
+function shopView(shop: ShopSample | null, lang: string, w: ReturnType<typeof checkoutWords>) {
+  if (!shop) {
+    const pounds = (amount: string) => (lang === "ar" ? `${amount} ج.م` : lang === "tr" ? `${amount.replace(",", ".")} E£` : `E£ ${amount}`);
+    return {
+      amount: (key: "bouquet" | "card" | "chocolates" | "subtotal" | "base" | "distance" | "slot" | "fee" | "total") => pounds(AMOUNTS[key]),
+      slotExtra: (i: number) => AMOUNTS.slotExtra[i] ?? null,
+      freeOver: w.freeOver,
+      pay: w.pay,
+      country: w.sample.country,
+      city: w.sample.city,
+      tomorrow: w.sample.tomorrowDate,
+    };
+  }
+  const key = lang === "ar" || lang === "tr" ? lang : "en";
+  const at = (cents: number) => (shop.rate === null ? cents : convertPrice(cents, shop.rate, shop.currency));
+  const bouquet = at(CENTS.bouquet);
+  const card = at(CENTS.card);
+  const chocolates = at(CENTS.chocolates);
+  const base = at(CENTS.base);
+  const distance = at(CENTS.distance);
+  const subtotal = bouquet + card + chocolates;
+  const fee = base + distance;
+  const cents = { bouquet, card, chocolates, subtotal, base, distance, slot: 0, fee, total: subtotal + fee };
+  const fmt = (c: number) => formatCents(c, shop.currency);
+  const day = new Intl.DateTimeFormat(`${key === "en" ? "en-GB" : key}-u-nu-latn`, { day: "numeric", month: key === "en" ? "short" : "long", timeZone: "UTC" }).format(new Date(`${shop.tomorrow}T12:00:00Z`));
+  return {
+    amount: (k: keyof typeof cents) => fmt(cents[k]),
+    slotExtra: (i: number) => {
+      const extra = CENTS.slotExtra[i];
+      return extra ? `+${fmt(at(extra))}` : null;
+    },
+    freeOver: w.freeOverAmount.replace("{amount}", fmt(at(CENTS.freeOver))),
+    pay: w.payAmount.replace("{amount}", fmt(subtotal + fee)),
+    country: shop.country?.[key] ?? w.sample.country,
+    city: shop.city?.[key] ?? w.sample.city,
+    tomorrow: `${w.tomorrow}${key === "ar" ? "، " : ", "}${day}`,
+  };
+}
+
 export function GiftCheckout(props: GiftCheckoutProps) {
   const { dark } = props;
   const w = checkoutWords(props.lang);
+  const shop = shopView(useShopSample(), props.lang, w);
   const rtl = props.lang === "ar";
   const tone = (dark ? (props.look.dark_accent ?? props.look.accent) : props.look.accent) ?? props.brand;
   const page = dark ? mix(tone, "#0A0709", 0.88) : mix(tone, "#FFFFFF", 0.95);
@@ -70,7 +121,6 @@ export function GiftCheckout(props: GiftCheckoutProps) {
       {extra ? <span style={{ fontSize: 11.5, opacity: 0.75 }}>{extra}</span> : null}
     </span>
   );
-  const money = (amount: string) => (rtl ? `${amount} ج.م` : props.lang === "tr" ? `${amount.replace(",", ".")} E£` : `E£ ${amount}`);
   const row = (label: string, value: string, strong = false, small = false) => (
     <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: small ? 12.5 : 14, color: small ? muted : ink, fontWeight: strong ? 800 : 500 }}>
       <span style={{ flex: 1 }}>{label}</span>
@@ -166,8 +216,8 @@ export function GiftCheckout(props: GiftCheckoutProps) {
             {w.onlyPlaces}
           </span>
           <div data-gift-places="" style={{ display: "flex", gap: 8 }}>
-            {picker("public", w.country, w.sample.country)}
-            {picker("location_city", w.city, w.sample.city)}
+            {picker("public", w.country, shop.country)}
+            {picker("location_city", w.city, shop.city)}
           </div>
           {field("home_pin", w.address, w.sample.address)}
           {map}
@@ -177,7 +227,7 @@ export function GiftCheckout(props: GiftCheckoutProps) {
           {head(2, true)}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {chip(w.today, false, "bolt", true)}
-            {chip(w.sample.tomorrowDate, true, "wb_sunny")}
+            {chip(shop.tomorrow, true, "wb_sunny")}
             {chip(w.pickDate, false, "calendar_month")}
           </div>
           <span style={{ fontSize: 12, color: muted, display: "flex", alignItems: "center", gap: 6 }}>
@@ -189,7 +239,7 @@ export function GiftCheckout(props: GiftCheckoutProps) {
             {AMOUNTS.slots.map((slot, i) => (
               <span key={slot} dir="ltr" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, height: 42, borderRadius: 14, fontSize: 13, fontWeight: 700, background: i === 1 ? tone : "transparent", color: i === 1 ? onTone : ink, border: `1px solid ${i === 1 ? tone : line}` }}>
                 {slot}
-                {AMOUNTS.slotExtra[i] ? <span style={{ fontSize: 11, opacity: 0.7 }}>{AMOUNTS.slotExtra[i]}</span> : null}
+                {shop.slotExtra(i) ? <span style={{ fontSize: 11, opacity: 0.7 }}>{shop.slotExtra(i)}</span> : null}
               </span>
             ))}
           </div>
@@ -232,16 +282,16 @@ export function GiftCheckout(props: GiftCheckoutProps) {
               <b style={{ fontSize: 16, color: ink }}>{w.sample.bouquet}</b>
               <span style={{ fontSize: 12.5, color: muted }}>{w.sample.size}</span>
             </span>
-            <b style={{ fontSize: 14, color: ink }}>{money(AMOUNTS.bouquet)}</b>
+            <b style={{ fontSize: 14, color: ink }}>{shop.amount("bouquet")}</b>
           </div>
           <span style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>{w.addOns}</span>
-          {row(w.sample.card, money(AMOUNTS.card))}
-          {row(w.sample.chocolates, money(AMOUNTS.chocolates))}
+          {row(w.sample.card, shop.amount("card"))}
+          {row(w.sample.chocolates, shop.amount("chocolates"))}
           <div data-gift-arrives="" style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 16, background: soft }}>
             <Icon name="event_available" size={20} color={tone} />
             <span style={{ flex: 1, fontSize: 12.5, color: muted }}>{w.arrives}</span>
             <b style={{ fontSize: 13.5, color: ink }}>
-              {w.sample.tomorrowDate} · <span dir="ltr">{AMOUNTS.slots[1]}</span>
+              {shop.tomorrow} · <span dir="ltr">{AMOUNTS.slots[1]}</span>
             </b>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -251,21 +301,21 @@ export function GiftCheckout(props: GiftCheckoutProps) {
             </span>
             <span style={{ display: "flex", alignItems: "center", height: 46, padding: "0 16px", borderRadius: 14, background: soft, color: tone, fontWeight: 800, fontSize: 13.5 }}>{w.apply}</span>
           </div>
-          {row(w.subtotal, money(AMOUNTS.subtotal))}
+          {row(w.subtotal, shop.amount("subtotal"))}
           <div data-gift-fee="" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {row(w.deliveryFee, money(AMOUNTS.fee))}
+            {row(w.deliveryFee, shop.amount("fee"))}
             <div style={{ display: "flex", flexDirection: "column", gap: 3, paddingInlineStart: 12, borderInlineStart: `2px solid ${soft}` }}>
-              {row(w.base, money(AMOUNTS.base), false, true)}
-              {row(w.distance, money(AMOUNTS.distance), false, true)}
-              {row(w.slotFee, money(AMOUNTS.slot), false, true)}
-              <span style={{ fontSize: 12, color: tone, fontWeight: 700 }}>{w.freeOver}</span>
+              {row(w.base, shop.amount("base"), false, true)}
+              {row(w.distance, shop.amount("distance"), false, true)}
+              {row(w.slotFee, shop.amount("slot"), false, true)}
+              <span style={{ fontSize: 12, color: tone, fontWeight: 700 }}>{shop.freeOver}</span>
             </div>
           </div>
           <span style={{ height: 1, background: line }} />
-          {row(w.total, money(AMOUNTS.total), true)}
+          {row(w.total, shop.amount("total"), true)}
           <span style={{ height: 54, borderRadius: 27, background: `linear-gradient(135deg, ${tone}, ${mix(tone, "#000000", 0.2)})`, color: onTone, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 800, fontSize: 16, boxShadow: `0 14px 28px ${alpha(tone, 0.35)}` }}>
             <Icon name="lock" size={18} color={onTone} />
-            {w.pay}
+            {shop.pay}
           </span>
         </div>
       </div>

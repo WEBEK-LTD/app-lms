@@ -47,8 +47,11 @@ export interface CheckoutWords {
   distance: string;
   slotFee: string;
   freeOver: string;
+  /** 175 With the shop's own amount. */
+  freeOverAmount: string;
   total: string;
   pay: string;
+  payAmount: string;
   sample: {
     sender: string;
     recipient: string;
@@ -108,8 +111,10 @@ const en: CheckoutWords = {
   distance: "Distance · 7 km",
   slotFee: "Time slot",
   freeOver: "Free over E£ 2,500",
+  freeOverAmount: "Free over {amount}",
   total: "Total",
   pay: "Pay E£ 2,575",
+  payAmount: "Pay {amount}",
   sample: {
     sender: "Omar Hassan",
     recipient: "Salma Adel",
@@ -169,8 +174,10 @@ const ar: CheckoutWords = {
   distance: "المسافة · 7 كم",
   slotFee: "الموعد",
   freeOver: "مجانًا للطلبات فوق 2,500 ج.م",
+  freeOverAmount: "مجانًا للطلبات فوق {amount}",
   total: "الإجمالي",
   pay: "ادفع 2,575 ج.م",
+  payAmount: "ادفع {amount}",
   sample: {
     sender: "عمر حسن",
     recipient: "سلمى عادل",
@@ -230,8 +237,10 @@ const tr: CheckoutWords = {
   distance: "Mesafe · 7 km",
   slotFee: "Saat aralığı",
   freeOver: "2.500 E£ üzeri ücretsiz",
+  freeOverAmount: "{amount} üzeri ücretsiz",
   total: "Toplam",
   pay: "2.575 E£ öde",
+  payAmount: "{amount} öde",
   sample: {
     sender: "Omar Hassan",
     recipient: "Salma Adel",
@@ -257,3 +266,6 @@ export function checkoutWords(lang: string): CheckoutWords {
 
 /** SAMPLE The sample order's amounts (E£), as drawn: the bouquet, two add-ons, the fee's parts. */
 export const CHECKOUT_SAMPLE_AMOUNTS = { bouquet: "2,100", card: "60", chocolates: "320", subtotal: "2,480", base: "60", distance: "35", slot: "0", fee: "95", total: "2,575", slots: ["10:00–13:00", "13:00–16:00", "16:00–19:00", "19:00–22:00"], slotExtra: [null, null, "+50", "+80"] } as const;
+
+/** 175 The sample order's amounts in cents of E£, to draw it in the shop's own currency (at the day's rate). */
+export const CHECKOUT_SAMPLE_CENTS = { bouquet: 2100_00, card: 60_00, chocolates: 320_00, base: 60_00, distance: 35_00, slot: 0, freeOver: 2500_00, slotExtra: [null, null, 50_00, 80_00] } as const;
