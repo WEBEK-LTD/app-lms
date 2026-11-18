@@ -1,7 +1,8 @@
 import { courierWho } from "../delivery/service";
-import { currencyDigits, currencyOptions } from "../money/currencies";
-import { addDisplayPrices, DISPLAY_CONNECTORS, requestedCurrency, type DisplayCurrency } from "../money/display";
+import { currencyCodeOf, currencyDigits, currencyOptions } from "../money/currencies";
+import { addDisplayPrices, customerCurrencyAllowed, customerCurrencyConfigJson, customerCurrencyRule, DISPLAY_CONNECTORS, requestedCurrency, type DisplayCurrency } from "../money/display";
 import { currentRates } from "../money/rates";
+import { catalogSettings } from "../catalog/settings";
 import { appZone } from "../analytics/zone";
 import { courseSetup } from "../courses/setup";
 import { encryptionKey } from "../env";
@@ -274,10 +275,30 @@ export async function handleHosted(ctx: HostedContext, req: HostedRequest): Prom
   return { ...result, body: localizedError(result.body, requestLanguage(req.headers?.get("accept-language"))) };
 }
 
-/** 135.5 The customer's currency the app asked for, with the saved rates (never fetched here); null: none asked. */
+/**
+ * 135.5 The customer's currency the app asked for, with the saved rates
+ * (never fetched here); null: none asked. 149 Also null when the owner
+ * turned prices in the customer's currency off for the app, or the one
+ * asked for isn't among the app's: the answer is then exactly as for an
+ * app that asked for none (no `display`, nothing charged in it), whatever
+ * the app's version.
+ */
 async function displayOf(ctx: HostedContext, req: HostedRequest): Promise<DisplayCurrency | null> {
   const currency = requestedCurrency(req.query, req.headers);
-  return currency ? { currency, rates: await currentRates(ctx.store) } : null;
+  if (!currency || !customerCurrencyAllowed(customerCurrencyRule(ctx.app.catalogSettings), currency)) return null;
+  return { currency, rates: await currentRates(ctx.store) };
+}
+
+/** 149 The shop's own currency (a shop or menu, food, events, bookings), for `/currencies`; null when the app sells nothing of Yallapp's. */
+async function shopCurrencyOf(ctx: HostedContext): Promise<string | null> {
+  if (ctx.app.connector?.kind === "catalog") return catalogSettings(ctx.app).currency;
+  if (!ctx.connector) return null;
+  try {
+    const extra = (await ctx.connector.config()) as Record<string, { currency?: unknown } | undefined>;
+    return currencyCodeOf(extra.store?.currency ?? extra.food?.currency ?? extra.events?.currency ?? extra.bookings?.currency);
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -289,9 +310,18 @@ async function displayOf(ctx: HostedContext, req: HostedRequest): Promise<Displa
 async function currenciesList(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
   const rates = await currentRates(ctx.store);
   const lang = requestLanguage(req.headers?.get("accept-language")) ?? "en";
-  const items = currencyOptions(lang)
-    .filter((o) => rates.perDollar[o.code])
-    .map((o) => ({ code: o.code, name: o.name, symbol: o.symbol, digits: currencyDigits(o.code), usual: o.usual }));
+  // 149 The app's own list (the shop's first), or the shop's alone with the switch off.
+  const rule = customerCurrencyRule(ctx.app.catalogSettings);
+  const limited = !rule.enabled || rule.currencies.length > 0;
+  const shop = limited ? await shopCurrencyOf(ctx) : null;
+  const options = currencyOptions(lang).filter((o) => (o.code === shop || rates.perDollar[o.code]) && (!limited || customerCurrencyAllowed(rule, o.code, shop)));
+  const items = [...options.filter((o) => o.code === shop), ...options.filter((o) => o.code !== shop)].map((o) => ({
+    code: o.code,
+    name: o.name,
+    symbol: o.symbol,
+    digits: currencyDigits(o.code),
+    usual: o.usual,
+  }));
   return ok({ rate_date: rates.date, items });
 }
 
@@ -625,6 +655,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(await storeBillingField(ctx, platform)),
     // 83.3 The team's switches for the app's modules and new features.
     switches: appSwitches(app),
+    // 149 Prices in the customer's currency: on or off for this app, and in which (empty: any).
+    ...(DISPLAY_CONNECTORS.has(app.connector?.kind ?? "") ? { customer_currency: customerCurrencyConfigJson(customerCurrencyRule(app.catalogSettings)) } : {}),
     ...(extra.store ? { store: extra.store } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
     ...(extra.listings ? { listings: extra.listings } : {}),

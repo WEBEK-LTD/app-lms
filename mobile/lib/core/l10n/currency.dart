@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../api/models/models.dart';
+import '../gate/app_gate.dart';
 import '../storage/local_settings.dart';
 import 'language.dart';
 
@@ -7,14 +9,37 @@ import 'language.dart';
 /// rate (the server converts; the shop's prices stay). The customer's pick
 /// in Settings, else the currency of the phone's region (never where the
 /// phone is: no location is read); null when the region has none we know.
-/// Sent as `X-Currency` on every request.
+/// Sent as `X-Currency` on every request. 149 Null too when the owner
+/// turned prices in the customer's currency off for the app, or left this
+/// one out of the app's currencies: the shop's prices only.
 final appCurrencyProvider = Provider<String?>((ref) {
   final saved = ref.watch(localSettingsProvider.select((s) => s.currency));
-  if (saved != null && saved.isNotEmpty) return saved;
-  return regionCurrency(
-    ref.watch(deviceLocalesProvider).firstOrNull?.countryCode,
-  );
+  final code = saved != null && saved.isNotEmpty
+      ? saved
+      : regionCurrency(
+          ref.watch(deviceLocalesProvider).firstOrNull?.countryCode,
+        );
+  if (code == null) return null;
+  final rule = ref.watch(customerCurrencyRuleProvider);
+  return rule.rule.allows(code, shop: rule.shop) ? code : null;
 });
+
+/// 149 The owner's rule for customers' currencies in this app, with the
+/// shop's own currency (always allowed); before the config is in, or from
+/// an older server: on, any currency.
+final customerCurrencyRuleProvider =
+    Provider<({CustomerCurrencyRule rule, String? shop})>(
+      (ref) => ref.watch(
+        appGateProvider.select(
+          (gate) => gate is GateReady
+              ? (
+                  rule: gate.config.customerCurrency,
+                  shop: gate.config.shopCurrency,
+                )
+              : (rule: CustomerCurrencyRule.any, shop: null),
+        ),
+      ),
+    );
 
 /// 135.5 The currency of a region (ISO 3166 alpha-2, "EG", "KW"); null for
 /// none or one we don't know.
