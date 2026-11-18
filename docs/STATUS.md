@@ -25,6 +25,15 @@ records each transfer the team sends from Yallapp's bank with Mark as sent
 Migration `0142_studio_market_money`; the first real payout is to be
 checked by hand (LAUNCH-CHECKLIST, Phase 106.11).
 
+Roadmap 153 (the card inside the payment page for iyzico and Kashier): as
+with Stripe (144), Yallapp's payment page shows the gateway's own card form
+under the customer's details: iyzico's Checkout Form (the script iyzico
+answers with the payment) and Kashier's payment session in a frame, the same
+payment our server starts, read back, confirmed and refunded as before; when
+the form can't load, the gateway's own page, the same payment. Fawaterk and
+PayPal keep their own pages (ROADMAP 153.7, 153.8). Not yet tried with real
+iyzico and Kashier test accounts (ROADMAP 153.9).
+
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its
 "from" price; one billing period for both, lifetime among its choices;
