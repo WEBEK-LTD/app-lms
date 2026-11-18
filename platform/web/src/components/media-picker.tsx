@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { listMediaAction, shareMediaAction, type PickableMedia } from "@/app/actions/media";
 import type { MediaKind } from "@/lib/data/types";
@@ -34,20 +35,27 @@ export function MediaPicker({ kind, onPick, label, share = false, library = fals
   const [pictures, setPictures] = useState<LibraryPicture[]>([]);
   // 97.3 The pictures of the draft's Figma look.
   const [figma, setFigma] = useState<{ name: string; url: string }[]>([]);
+  // 174 The shop's own product photos.
+  const [products, setProducts] = useState<{ name: string; url: string }[]>([]);
   const [available, setAvailable] = useState(true);
   const [pending, start] = useTransition();
   const words = KIND_WORDS[kind];
 
-  const open = () => {
-    dialog.current?.showModal();
+  const load = () =>
     start(async () => {
       const result = await listMediaAction({ kind, library });
       setItems(result.items);
       setPictures(result.library);
       setFigma(result.figma);
+      setProducts(result.products);
       setAvailable(result.available);
     });
+  const open = () => {
+    dialog.current?.showModal();
+    load();
   };
+  // 174 Uploading from the picker: Media in a new tab (Studio's, in Studio), then the new files here.
+  const mediaHref = usePathname()?.startsWith("/studio") ? "/studio/project/media" : "/dashboard/media";
   const pick = (item: PickableMedia) => {
     start(async () => {
       if (share && !item.public) await shareMediaAction({ id: item.id });
@@ -117,6 +125,44 @@ export function MediaPicker({ kind, onPick, label, share = false, library = fals
               ))}
             </ul>
           )}
+          {library && available ? (
+            <div className="flex flex-wrap items-center gap-2" data-picker-upload="">
+              <a href={mediaHref} target="_blank" rel="noopener" className={`${btn.secondary} h-9 px-3 text-sm no-underline`}>
+                <Icon name="upload" size={18} />
+                {t("studio.pickerUpload")}
+                <span className="sr-only">{t("common.opensInNewTab")}</span>
+              </a>
+              <button type="button" onClick={load} disabled={pending} className={`${btn.ghost} h-9 px-3 text-sm`}>
+                <Icon name="refresh" size={18} />
+                {t("studio.pickerRefresh")}
+              </button>
+            </div>
+          ) : null}
+          {products.length ? (
+            <section aria-labelledby="h-product-pictures" className="flex flex-col gap-2 border-t border-line-soft pt-3">
+              <h3 id="h-product-pictures" className="m-0 text-[15px] font-bold">
+                {t("studio.pickerProducts")}
+              </h3>
+              <ul className="m-0 grid max-h-[40vh] list-none grid-cols-3 gap-2 overflow-y-auto p-0">
+                {products.map((picture) => (
+                  <li key={picture.url}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onPick(picture.url);
+                        dialog.current?.close();
+                      }}
+                      className="block w-full cursor-pointer overflow-hidden rounded-lg border border-line p-0 hover:border-midnight"
+                      aria-label={t("media.use", { name: picture.name })}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- the shop's own product photo, on Yallapp */}
+                      <img src={picture.url} alt="" className="block aspect-video w-full object-cover" loading="lazy" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
           {figma.length ? (
             <section aria-labelledby="h-figma-pictures" className="flex flex-col gap-2 border-t border-line-soft pt-3">
               <h3 id="h-figma-pictures" className="m-0 text-[15px] font-bold">

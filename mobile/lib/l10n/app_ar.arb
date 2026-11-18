@@ -3281,5 +3281,19 @@
   "bouquetWrapPart": "التغليف: {name}",
   "bouquetCardPart": "البطاقة: {name}",
   "bouquetMessage": "«{message}»",
-  "bouquetRemove": "احذف الباقة"
+  "bouquetRemove": "احذف الباقة",
+  "paySheetWaitingTitle": "أكمل الدفع في النافذة التي فُتحت",
+  "paySheetWaitingBody": "ادفع هناك بالبطاقة أو Apple Pay أو Google Pay. ستعود إلى هنا بعد إتمام الدفع.",
+  "paySheetChecking": "جارٍ التحقق من الدفع…",
+  "paySheetPendingTitle": "لم يتأكد الدفع بعد",
+  "paySheetPendingBody": "إذا كنت قد دفعت، فسيتأكد الدفع خلال دقائق وسيظهر طلبك في طلباتك. تحقّق مرة أخرى قبل أن تدفع ثانيةً.",
+  "paySheetNotPaidTitle": "لم يتم الدفع بعد",
+  "paySheetNotPaidBody": "لم يُخصم أي مبلغ لهذا الطلب. يمكنك الدفع الآن، أو الإغلاق والعودة لاحقًا.",
+  "paySheetFailedBody": "لم تتم عملية الدفع. يمكنك المحاولة مرة أخرى.",
+  "paySheetClosedTitle": "هذا الطلب مغلق",
+  "paySheetClosedBody": "لا يوجد ما تدفعه هنا. ارجع وأكمل الطلب من جديد إن كنت ما زلت تريده.",
+  "paySheetCheckFailedTitle": "تعذّر التحقق من الدفع",
+  "paySheetCheckFailedBody": "تحقّق من اتصالك وحاول مرة أخرى. إذا كنت قد دفعت، فطلبك محفوظ.",
+  "paySheetCheckAgain": "تحقّق من الدفع",
+  "paySheetOpenAgain": "افتح صفحة الدفع"
 }

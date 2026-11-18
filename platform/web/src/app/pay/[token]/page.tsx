@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { customerCurrencyAllowed, customerCurrencyRule } from "@/lib/money/display";
 import { deliveryDayLabel } from "@/lib/selling/delivery";
 import { taxLabel } from "@/lib/catalog/tax";
@@ -20,6 +21,8 @@ import { Icon } from "@/components/icon";
 import { RatesAttribution } from "@/components/rates-attribution";
 import { PayForm } from "./form";
 import { PayShell, textOn } from "./shell";
+import { BackToApp } from "./back-to-app";
+import { appReturnLink, fromAppSheet } from "@/lib/payments/app-return";
 import { holdEnded } from "@/lib/events/holds";
 import { fill, payLangOf, payWords } from "@/lib/catalog/pay-words";
 
@@ -43,10 +46,15 @@ export default async function PayPage({
   // 168 The customer's language: the app's when they checked out.
   const lang = payLangOf(order);
   const w = payWords(lang);
+  // 170 The app opened this payment in the phone's browser sheet: its pages lead back to the app.
+  const sheet = Boolean(order && app && fromAppSheet(await cookies()));
+  const backToApp = (result: "failed" | "pending" | "closed") =>
+    sheet && order && app ? <BackToApp label={w.backToApp} href={appReturnLink(app.id, order.id, result)} auto={false} quiet={result !== "closed"} color={app.primaryColor} textColor={textOn(app.primaryColor)} /> : null;
   const note = (title: string, text: string) => (
     <PayShell app={app} lang={lang}>
       <h1 className="m-0 text-[24px] font-extrabold">{title}</h1>
       <p className="m-0 text-[16px] leading-relaxed text-ink-4">{text}</p>
+      {backToApp("closed")}
     </PayShell>
   );
   if (!order || !app) return note(w.linkInvalidTitle, w.linkInvalidText);
@@ -90,11 +98,13 @@ export default async function PayPage({
           {w.payFailed}
         </p>
       ) : null}
+      {payment === "failed" ? backToApp("failed") : null}
       {payment === "pending" ? (
         <p role="status" className="m-0 rounded-xl bg-peach-soft px-4 py-3 text-[15px] font-semibold">
           {w.payPending}
         </p>
       ) : null}
+      {payment === "pending" ? backToApp("pending") : null}
       <section aria-labelledby="h-order" className="flex flex-col gap-2 rounded-xl border border-line p-4">
         <h2 id="h-order" className="m-0 text-[15px] font-bold">
           {fill(w.order, { number: orderNumber(order) })}

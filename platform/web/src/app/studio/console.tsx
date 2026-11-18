@@ -87,6 +87,13 @@ export async function StudioConsole({ context, text, children, notice }: { conte
         },
       ];
   const more = nav ? studioJumpTargets(nav).map(({ href, label, icon }) => ({ href, label, icon })) : [];
+  // 174 The shop's pages behind Products' tabs (lib dashboard/catalog/tabs.tsx), named in the crumbs.
+  const subpages = [
+    { href: "/studio/project/catalog/categories", label: t("shop.categories") },
+    { href: "/studio/project/catalog/coupons", label: t("shop.coupons") },
+    { href: "/studio/project/catalog/delivery", label: t("shop.pickupDelivery") },
+    { href: "/studio/project/catalog/settings", label: t("manage.settings") },
+  ];
   // 60 The person signed in: a team member shows as themselves.
   const me = context.member ?? context.user;
   const role = context.member ? t(`team.roles.${context.access.role}` as DashKey) : null;
@@ -160,7 +167,7 @@ export async function StudioConsole({ context, text, children, notice }: { conte
           <header className="sc-bar">
             {/* Phones: the project on the frame, above the canvas. */}
             {switcher ? <div className="sc-mswitch">{switcher}</div> : null}
-            <ConsoleCrumbs label={t("studioPage.breadcrumb")} groups={groups} more={more} root={{ href: project ? "/studio/project" : "/studio", label: name }} />
+            <ConsoleCrumbs label={t("studioPage.breadcrumb")} groups={groups} more={more} root={{ href: project ? "/studio/project" : "/studio", label: name }} subpages={subpages} />
             {project ? (
               <>
                 <Link href="/studio/project/preview" className="sc-gb" title={t("studio.previewOnPhone")}>

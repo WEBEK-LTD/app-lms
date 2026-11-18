@@ -356,10 +356,13 @@ export function ProjectNav({
  * 132.150 The console bar's way back: the project, the group of the page
  * open and the page (the project's link is the way back to its overview).
  */
-export function ConsoleCrumbs({ label, groups, more, root }: { label: string; groups: ProjectNavGroup[]; more: PaletteItem[]; root: { href: string; label: string } }) {
+export function ConsoleCrumbs({ label, groups, more, root, subpages = [] }: { label: string; groups: ProjectNavGroup[]; more: PaletteItem[]; root: { href: string; label: string }; subpages?: { href: string; label: string }[] }) {
   const path = usePathname();
   const step = useSearchParams().get("step");
-  const here = currentOf(groups, path, step) ?? currentOf([{ id: "more", items: more }], path, step);
+  const found = currentOf(groups, path, step) ?? currentOf([{ id: "more", items: more }], path, step);
+  // 174 A page reached by its section's tabs (the shop's Settings under Products) is named, not its section's first page.
+  const sub = found ? subpages.find((s) => s.href.length > found.item.href.length && isCurrent(s.href, path, step)) : undefined;
+  const here = found && sub ? { ...found, item: { ...found.item, href: sub.href, label: sub.label } } : found;
   const atRoot = here?.item.href === root.href;
   const chevron = <span aria-hidden="true" className="material-symbols-rounded icon-flip">chevron_right</span>;
   return (

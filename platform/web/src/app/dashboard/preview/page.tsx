@@ -18,7 +18,7 @@ import { effectivePlans } from "@/lib/entitlements";
 import { appUrl, signingSecret } from "@/lib/env";
 import { hostedSettings } from "@/lib/hosted/service";
 import { yallappSignsIn } from "@/lib/hosted/sign-in-methods";
-import { draftLayout, lookAndLanguages } from "@/lib/pages/layout";
+import { draftLayout, layoutPlaceholders, loadLayout, lookAndLanguages } from "@/lib/pages/layout";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
@@ -89,6 +89,14 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
   // 132.71 A longer-lived link of the same kind (signed, read-only, ending on its own), to send to teammates.
   const shareUrl = `${appUrl()}${previewAppPath(createPreviewToken({ appId: app.id, draft }, previewKey(signingSecret()), now, SHARE_DAYS * 86_400))}`;
   const missing = missingSteps(app, planId, plans);
+  // 174.5 A Studio project's texts still the template's [placeholders] (in the draft, what Publish sends): the app leaves them out until written.
+  const studioDraft = studio ? (await loadLayout(store, app, now)).draft : null;
+  const toWrite = studioDraft
+    ? layoutPlaceholders(studioDraft, app).map((spot) => {
+        const title = studioDraft.pages.find((p) => p.slug === spot.slug)?.title?.trim() || spot.slug;
+        return { ...spot, page: spot.id ? title : t("studio.placeholderHeader", { page: title }), href: `/studio/editor?page=${encodeURIComponent(spot.slug)}${spot.id ? `&select=${encodeURIComponent(spot.id)}` : ""}` };
+      })
+    : [];
   const pluginConnected = await wordpressPluginConnected(store, app);
   const source = previewContentSource(app, pluginConnected);
   const waiting = previewWaitingFor(app, pluginConnected);
@@ -186,7 +194,7 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
         <PreviewPanel src={path} appName={name} languages={languageOptions} defaultLanguage={startLanguage} apps={apps} />
 
         <div className="flex min-w-0 flex-col gap-4">
-          {missing.length ? (
+          {missing.length || toWrite.length ? (
             <Section id="missing" titleId="h-missing" title={t("preview.missing")} description={t("preview.missingText")} flush>
               <ItemList>
                 {missing.map((m) => (
@@ -199,6 +207,21 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
                       </span>
                     }
                     title={k(m.label)}
+                  />
+                ))}
+                {/* 174.5 Each text still a template [placeholder], with a jump to it in the editor. */}
+                {toWrite.map((spot) => (
+                  <ItemRow
+                    key={`${spot.slug}:${spot.id ?? "header"}`}
+                    href={spot.href}
+                    data-placeholder-spot={spot.id ?? "header"}
+                    media={
+                      <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-sand text-faint">
+                        <Icon name="edit_note" size={20} />
+                      </span>
+                    }
+                    title={<bdi>{spot.words.join(" · ")}</bdi>}
+                    extra={t("studio.placeholderOn", { page: spot.page })}
                   />
                 ))}
               </ItemList>
