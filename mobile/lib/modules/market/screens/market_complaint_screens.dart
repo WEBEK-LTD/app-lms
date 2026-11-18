@@ -135,10 +135,16 @@ bool _sameDay(DateTime a, DateTime b) {
   return x.year == y.year && x.month == y.month && x.day == y.day;
 }
 
+/// "18 December" with the day in Latin digits, as the app writes numbers.
+String _dayMonth(AppLocalizations l10n, DateTime at, {bool short = false}) {
+  final d = at.toLocal();
+  return '${d.day} ${DateFormat(short ? 'MMM' : 'MMMM', l10n.localeName).format(d)}';
+}
+
 /// "Today 20:41", else "18 Nov, 20:41".
 String _when(AppLocalizations l10n, DateTime at) => _sameDay(at, DateTime.now())
     ? l10n.mcTodayAt(_time(at))
-    : '${DateFormat('d MMM', l10n.localeName).format(at.toLocal())}, ${_time(at)}';
+    : '${_dayMonth(l10n, at, short: true)}, ${_time(at)}';
 
 /// "White cheese, sliced and Bananas", for the items a complaint is about.
 String _itemsText(AppLocalizations l10n, List<String> names) {
@@ -1323,10 +1329,7 @@ class _ChatViewState extends ConsumerState<_ChatView> {
                   child: Text(
                     _sameDay(c.createdAt, DateTime.now())
                         ? l10n.mcToday
-                        : DateFormat(
-                            'd MMMM',
-                            l10n.localeName,
-                          ).format(c.createdAt.toLocal()),
+                        : _dayMonth(l10n, c.createdAt),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -1868,10 +1871,7 @@ class _DecisionView extends ConsumerWidget {
                         l10n.mcValidUntil,
                         d.couponEndsAt == null
                             ? '—'
-                            : DateFormat(
-                                'd MMMM',
-                                l10n.localeName,
-                              ).format(d.couponEndsAt!.toLocal()),
+                            : _dayMonth(l10n, d.couponEndsAt!),
                       ),
                       (l10n.mcUse, l10n.mcOnce),
                     ],
@@ -2178,7 +2178,7 @@ class _CodeBox extends StatelessWidget {
                   Text(
                     ltrRun(code),
                     style: const TextStyle(
-                      fontFamily: 'monospace',
+                      fontFamily: 'JetBrains Mono',
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 2,

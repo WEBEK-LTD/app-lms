@@ -124,10 +124,10 @@ export default async function ComplaintPage({ params, searchParams }: { params: 
                 {sinceText}
               </span>
             ) : null}
-            {window ? (
+            {window && (!window.open || window.until) ? (
               <span className="inline-flex items-center gap-1">
                 <Icon name="timer" size={18} />
-                {window.open ? (window.until ? t("complaints.canOpenUntil", { date: untilText(window.until, now, lang, zone) }) : null) : t("complaints.windowClosed")}
+                {window.open && window.until ? t("complaints.canOpenUntil", { date: untilText(window.until, now, lang, zone) }) : t("complaints.windowClosed")}
               </span>
             ) : null}
           </div>
@@ -183,7 +183,9 @@ export default async function ComplaintPage({ params, searchParams }: { params: 
                 <OrderStatusBadge status={order.status} t={t} />
               </div>
               <div className="px-5 pt-3 pb-3">
-                <p className="m-0 text-[17px] font-bold">{t("complaints.orderTitle", { reference: marketOrderReference(order), place: order.vendorName })}</p>
+                <p className="m-0 text-[17px] font-bold">
+                  <bdi dir="ltr">{marketOrderReference(order)}</bdi> · <bdi>{order.vendorName}</bdi>
+                </p>
                 <p className="m-0 text-[14px] text-ink-3">
                   {t("complaints.orderWho", { name: firstName(order.customerName), placed: time(order.createdAt, lang, zone) })}
                   {arrivedAt ? ` · ${t("complaints.orderArrived", { time: time(arrivedAt, lang, zone) })}` : ""}

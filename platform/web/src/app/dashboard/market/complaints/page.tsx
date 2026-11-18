@@ -16,6 +16,9 @@ import { queueTimers, READY_REPLIES, threadMessages } from "@/lib/market/complai
 import { formatMinor } from "@/lib/market/currency";
 import { complaintReference, firstName, marketOrderReference } from "@/lib/market/json";
 import { QUEUES, type Queue } from "@/lib/market/support";
+
+/** A reference kept left to right inside a sentence of either direction. */
+const ltr = (text: string) => `\u2066${text}\u2069`;
 import { isFood } from "../../shipments/parts";
 import { ComplaintStatusBadge, NotMarket } from "../parts";
 import { loadQueue } from "./data";
@@ -185,7 +188,7 @@ export default async function ComplaintsPage({ searchParams }: { searchParams: P
                 <thead>
                   <tr className="text-start text-[11.5px] font-semibold text-muted">
                     {(["colComplaint", "colPlace", "colReason", "colStatus", "colAssigned", "colOpened", "colLastReply"] as const).map((k) => (
-                      <th key={k} scope="col" className="border-b border-line-soft px-2.5 py-2.5 text-start font-semibold whitespace-nowrap">
+                      <th key={k} scope="col" className="border-b border-line-soft px-2 py-2.5 text-start font-semibold">
                         {t(`complaints.${k}`)}
                       </th>
                     ))}
@@ -198,7 +201,7 @@ export default async function ComplaintsPage({ searchParams }: { searchParams: P
                     const what = complaintItems(c, order);
                     const sel = chosen?.id === c.id;
                     const name = assigneeName(team, c.assignee);
-                    const cell = `border-b border-line-soft px-2.5 py-2.5 align-middle whitespace-nowrap ${sel ? "bg-peach-soft" : ""}`;
+                    const cell = `border-b border-line-soft px-2 py-2.5 align-middle ${sel ? "bg-peach-soft" : ""}`;
                     return (
                       <tr key={c.id} className="group">
                         <td className={`${cell} ${sel ? "shadow-[inset_3px_0_0_var(--color-ember)] rtl:shadow-[inset_-3px_0_0_var(--color-ember)]" : ""}`}>
@@ -206,7 +209,7 @@ export default async function ComplaintsPage({ searchParams }: { searchParams: P
                             <bdi dir="ltr">{complaintReference(c)}</bdi>
                           </Link>
                           <span className="text-[12px] text-muted">
-                            {t("complaints.whoOrder", { name: order ? firstName(order.customerName) : "—", reference: marketOrderReference({ id: c.orderId }) })}
+                            {t("complaints.whoOrder", { name: order ? firstName(order.customerName) : "—", reference: ltr(marketOrderReference({ id: c.orderId })) })}
                           </span>
                         </td>
                         <td className={cell}>
@@ -233,8 +236,8 @@ export default async function ComplaintsPage({ searchParams }: { searchParams: P
                             <TakeIt id={c.id} hidden={{ ...back }} t={t} />
                           )}
                         </td>
-                        <td className={`${cell} tabular-nums text-ink-4`}>{clock(timers.openMinutes, t)}</td>
-                        <td className={`${cell} tabular-nums`}>
+                        <td className={`${cell} tabular-nums whitespace-nowrap text-ink-4`}>{clock(timers.openMinutes, t)}</td>
+                        <td className={`${cell} tabular-nums whitespace-nowrap`}>
                           <ReplyWait minutes={timers.waitingMinutes} waitingOn={timers.waitingOn} colours={colours} t={t} />
                         </td>
                       </tr>
@@ -279,7 +282,7 @@ export default async function ComplaintsPage({ searchParams }: { searchParams: P
                     {t("complaints.colComplaint")} <bdi dir="ltr">{complaintReference(chosen)}</bdi>
                   </h2>
                   <span className="text-[13px] text-muted">
-                    {t("complaints.panelWho", { name: chosenOrder ? firstName(chosenOrder.customerName) : "—", reference: marketOrderReference({ id: chosen.orderId }), place: chosenOrder?.vendorName ?? "—" })}
+                    {t("complaints.panelWho", { name: chosenOrder ? firstName(chosenOrder.customerName) : "—", reference: ltr(marketOrderReference({ id: chosen.orderId })), place: chosenOrder?.vendorName ?? "—" })}
                   </span>
                 </div>
                 <ComplaintStatusBadge status={chosen.status} t={t} />

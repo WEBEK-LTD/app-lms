@@ -435,19 +435,18 @@ void main() {
             ),
             findsOneWidget,
           );
-          if (way == 'card')
-            expect(
-              find.textContaining(
-                ar ? '5 إلى 10 أيام عمل' : '5 to 10 working days',
-              ),
-              findsOneWidget,
-            );
-          if (way == 'coupon')
-            expect(find.textContaining('SORRY-4821'), findsOneWidget);
-          if (way == 'wallet')
-            expect(find.textContaining('203.25'), findsOneWidget);
-          if (way == 'card')
-            expect(find.textContaining('236.00'), findsOneWidget);
+          final also = switch (way) {
+            'card' => [
+              ar ? '5 إلى 10 أيام عمل' : '5 to 10 working days',
+              '236.00',
+            ],
+            'coupon' => ['SORRY-4821'],
+            'wallet' => ['203.25'],
+            _ => <String>[],
+          };
+          for (final t in also) {
+            expect(find.textContaining(t), findsOneWidget, reason: t);
+          }
           await shot(tester, '06c-decision-$way');
           // Reply: the conversation, open without reopening the decision.
           await tester.tap(
