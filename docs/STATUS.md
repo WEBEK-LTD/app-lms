@@ -22,7 +22,10 @@ store currency asks to convert every price at the day's rate or keep the
 numbers, and the Team page logs the change. A new shop starts in its
 owner's country's currency and delivery time zone (+212: MAD,
 Africa/Casablanca); Studio's gift checkout sample is drawn in the shop's
-currency, country and city, dated from today. No migration. Yallapp Business is not released from this
+currency, country and city, dated from today. The products list shows the
+price the app serves; the shop's pages and Yallapp Business write amounts
+in the viewer's language (د.م. in Arabic, Latin digits), and amounts typed
+with Arabic-Indic digits are read. No migration. Yallapp Business is not released from this
 branch.
 
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the

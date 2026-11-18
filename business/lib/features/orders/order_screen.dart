@@ -8,6 +8,7 @@ import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/contact.dart';
+import '../../core/widgets/digits.dart';
 import '../../core/widgets/l10n.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/widgets/states.dart';
@@ -709,7 +710,8 @@ class _RefundSheetState extends ConsumerState<RefundSheet> {
             ref.read(appIdProvider),
             widget.order.id,
             RefundRequest(
-              amount: _amount.text.trim().replaceAll(',', '.'),
+              // 175 Typed on an Arabic keyboard too.
+              amount: typedAmount(_amount.text),
               reason: _reason,
               note: _note.text.trim(),
               method: _method,

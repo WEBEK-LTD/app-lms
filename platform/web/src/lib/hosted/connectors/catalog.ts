@@ -1,7 +1,7 @@
 import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf, orderTimesJson } from "../../catalog/fulfilment";
 import { LOYALTY_HISTORY, loyaltyConfigJson, loyaltyOf, orderPointsJson, pointsAccountJson, usablePoints } from "../../catalog/loyalty";
 import { taxCents, taxLabel, taxOf } from "../../catalog/tax";
-import { attributesJson, sellableVariants, variantLabel, variantMax, variantPrices, variantsOf, variationAttributes } from "../../catalog/variants";
+import { attributesJson, sellableVariants, servedPrice, variantLabel, variantMax, variantPrices, variantsOf, variationAttributes } from "../../catalog/variants";
 import { canReturn, parseReturnInput, requestReturn, returnDays, returnJson } from "../../catalog/returns";
 import { couponDiscount, normalizeCouponCode } from "../../catalog/coupons";
 import { centsToDecimal, formatCents } from "../../catalog/money";
@@ -241,37 +241,19 @@ export class CatalogConnector implements Connector {
   // Mapping
 
   private price(p: CatalogProduct) {
-    // 91.5 A product with variations: from its cheapest to its dearest one on sale now.
-    const variants = variantsOf(p);
-    if (variants) {
-      const items = sellableVariants(p);
-      const prices = (items.length ? items : variants.items).map((v) => variantPrices(p, v));
-      const low = Math.min(...prices.map((x) => x.now));
-      const high = Math.max(...prices.map((x) => x.now));
-      const onSale = prices.some((x) => x.now < x.regular);
-      const single = low === high && prices.length > 0 ? prices.find((x) => x.now === low)! : null;
-      return {
-        amount: centsToDecimal(low, this.settings.currency),
-        regular_amount: single && onSale ? centsToDecimal(single.regular, this.settings.currency) : null,
-        regular_formatted: single && onSale ? this.money(single.regular) : null,
-        currency: this.settings.currency,
-        formatted: low === high ? this.money(low) : `${this.money(low)} – ${this.money(high)}`,
-        on_sale: onSale,
-        range: low !== high,
-        // 135.5 A range's dearest end, for the price in the customer's currency.
-        ...(low !== high ? { max_amount: centsToDecimal(high, this.settings.currency) } : {}),
-      };
-    }
-    const onSale = p.salePriceCents !== null && p.salePriceCents < p.priceCents;
-    const now = priceOf(p);
+    // 91.5 A product with variations: from its cheapest to its dearest one on sale now (175 the products list shows the same).
+    const { low, high, regular, onSale } = servedPrice(p);
+    const range = low !== high;
     return {
-      amount: centsToDecimal(now, this.settings.currency),
-      regular_amount: onSale ? centsToDecimal(p.priceCents, this.settings.currency) : null,
-      regular_formatted: onSale ? this.money(p.priceCents) : null,
+      amount: centsToDecimal(low, this.settings.currency),
+      regular_amount: regular !== null ? centsToDecimal(regular, this.settings.currency) : null,
+      regular_formatted: regular !== null ? this.money(regular) : null,
       currency: this.settings.currency,
-      formatted: this.money(now),
+      formatted: range ? `${this.money(low)} – ${this.money(high)}` : this.money(low),
       on_sale: onSale,
-      range: false,
+      range,
+      // 135.5 A range's dearest end, for the price in the customer's currency.
+      ...(range ? { max_amount: centsToDecimal(high, this.settings.currency) } : {}),
     };
   }
 

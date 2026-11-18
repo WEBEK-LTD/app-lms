@@ -1,4 +1,5 @@
 import { morningBriefJson } from "./prime-jobs";
+import { moneyLang } from "./money-lang";
 import { deliverToJson, orderAmountsJson, orderCustomerJson, orderExtras, orderLinesJson, ownerDeliveryJson, type OrderExtras } from "./order-details";
 import { inAppFigures } from "../analytics/sales";
 import { storeBillingSource } from "../store-billing/access";
@@ -96,7 +97,7 @@ export function appScope(ctx: OwnerContext, appId: string | undefined, area?: ke
  * written with its currency's digits (KWD 1.250, ¥1,250).
  */
 export function money(cents: number, currency: string) {
-  return { amount_cents: cents, currency, formatted: formatCents(cents, currency as CatalogCurrency) };
+  return { amount_cents: cents, currency, formatted: formatCents(cents, currency as CatalogCurrency, moneyLang()) };
 }
 
 /**
@@ -106,7 +107,7 @@ export function money(cents: number, currency: string) {
  */
 export function minorMoney(minor: number, currency: string) {
   const known = (BILLING_CURRENCIES as readonly string[]).includes(currency);
-  return { amount_cents: minor, currency, formatted: known ? formatCents(minor, currency as CatalogCurrency) : formatMinor(minor, currency) };
+  return { amount_cents: minor, currency, formatted: known ? formatCents(minor, currency as CatalogCurrency, moneyLang()) : formatMinor(minor, currency) };
 }
 
 function addTo(totals: Map<string, number>, currency: string, cents: number) {

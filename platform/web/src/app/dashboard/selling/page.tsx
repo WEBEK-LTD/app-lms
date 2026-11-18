@@ -70,7 +70,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   const platform = source.kind === "platform" ? source.name : null;
   const settings = catalogSettings(app);
   const currency = settings.currency;
-  const money = (cents: number) => formatCents(cents, currency);
+  const money = (cents: number) => formatCents(cents, currency, lang);
   const now = new Date();
   const zone = shopZone(app);
   const gifts = giftsOf(app);
