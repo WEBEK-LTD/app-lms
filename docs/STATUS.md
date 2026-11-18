@@ -198,6 +198,27 @@ older servers leave it out and the app shows the lines and the total as
 before. Needs the next app build (no `CLIENT_APP_RELEASE` change here) and
 plugin 0.4.51 released; not yet tried on a phone (ROADMAP 173.6).
 
+Roadmap 156 (what the owner publishes in Studio is what the app shows, in
+every language): a template's translations of its own words stop applying
+once the owner changes the text, so the app shows the owner's text in
+every language (Kech Flora's review in English no longer shows the
+template's Arabic placeholders on an Arabic phone); a template's
+[placeholder] gives way to the owner's words in another language;
+translations the owner wrote stay. Applied when serving (hosted
+`GET /pages`, the plugin's layout, `Config.screens` for Studio › Screens'
+texts, with a new version so apps and plugins fetch it again) and when
+saving; Studio says what each language shows and which is the main one.
+No template [placeholder] reaches a customer either: the same-day cut-off
+fills Leqaa's "Order before [your cut-off time]", and an element or a
+review whose words are still a placeholder waits for the owner's (Studio
+says so under the field); a project started from a demo no longer shows
+the demo's facts (Leqaa's "anywhere in Cairo" in a shop in Morocco).
+The path itself (Publish, the published layout, `GET /pages`, its ETag,
+the app's reload) was checked end to end and carries every edit. Admin ›
+Demo apps asks before Refresh, which puts back a demo's own design over
+any Studio edit. No migration, no app build. Not yet seen on a phone
+(ROADMAP 156.10).
+
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
 payout of the 1st covers the sales paid up to the end of the month before,
 cut off at midnight Istanbul time; a sale paid on the 1st or later waits for
@@ -967,9 +988,6 @@ sale show, with their prices from Admin › Plans.
 
 ## To verify against real services before release
 
-- 157 On a phone, Kech Flora's and Leqaa's home and Bouquets: the shop's own
-  categories in the rings, the collections and the ticker, each opening its
-  products, in English and Arabic (ROADMAP 157.8).
 - 138 The App Store Connect calls of the App Review submission
   (`lib/publishing/app-review-submit.ts`): `builds` by version and
   processing state, `usesNonExemptEncryption`, making and renaming an
@@ -1034,25 +1052,6 @@ test environment:
 
 ## Known gaps
 
-- 157 A Leqaa page served by the WordPress plugin (a WooCommerce store) keeps
-  the template's occasions and collections; its categories are
-  WooCommerce's. The hero's five occasion slides are the template's words
-  (headlines, not a list of categories) and still open the whole shop. On
-  Studio's canvas, an entry past the template's own (a sixth ring) can't be
-  selected; its look is the last entry's.
-
-- 162 Build your bouquet works on the hosted API (Yallapp's own products
-  and connected platforms); WordPress's plugin doesn't serve it, so a
-  WooCommerce app's Start opens the shop. On a connected platform the
-  bouquet's lines reach the platform's own checkout as lines, without the
-  grouping or the card's message on its order. A bouquet's flowers are
-  products without sizes to choose (a product with variations isn't
-  offered by the stem).
-
-- 165 A story's video plays in the story viewer only in apps from release
-  7; older apps show its first picture. A story element from the
-  dashboard is left out of the page while no story is shown (on, between
-  its dates); the space a Leqaa hero's stack keeps for it stays.
 - 138 An account's limit can be passed by one or two apps when several
   new apps are given accounts in the same instant (each app still gets
   exactly one account, written once). Assignment reads the settings

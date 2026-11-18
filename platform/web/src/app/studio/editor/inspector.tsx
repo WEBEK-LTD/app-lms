@@ -51,8 +51,9 @@ import {
   type TabBarStyle,
   type TabBarDesign,
   TAB_BAR_DESIGNS,
- type WebPageLook,
+  type WebPageLook,
 } from "@/lib/pages/types";
+import { TextInApp } from "./text-in-app";
 import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
 import { followStyle } from "@/lib/studio/text-styles";
@@ -121,6 +122,9 @@ interface Props {
   palette: string[];
   lang: LanguageCode;
   defaultLang: LanguageCode;
+  /** 156 The app's languages, and its name (as templates wrote it), for what each language shows of a text. */
+  languages?: readonly LanguageCode[];
+  appName?: string;
   pages: { slug: string; title: string }[];
   sources: ItemSource[];
   categorySources: ItemSource[];
@@ -733,6 +737,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           </span>
         </label>
       ) : null}
+      {titled || listTitled ? <TextInApp value={node} field="title" lang={props.lang} defaultLang={props.defaultLang} languages={props.languages} appName={props.appName} /> : null}
       {node.type === "countdown" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.endsAt")}
@@ -745,6 +750,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
           <textarea value={textOf(node, props.lang, props.defaultLang)} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} rows={node.type === "text" ? 3 : 1} maxLength={2000} placeholder={node.type === "text" ? undefined : node.text ?? ""} className="rounded-lg px-2.5 py-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} data-studio-text="" />
         </label>
       ) : null}
+      {/* 156 What the app's other languages show of these words (outside the label: the field keeps its name). */}
+      {textual && node.type !== "bullets" && node.type !== "countdown" ? <TextInApp value={node} field="text" lang={props.lang} defaultLang={props.defaultLang} languages={props.languages} appName={props.appName} /> : null}
       {/* 130.11 A greeting's own words ({name} the person's first name) and its words without a name. */}
       {node.type === "greeting" ? (
         <div className="flex flex-col gap-2" data-greeting-words="">
@@ -884,6 +891,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
         onChange={onChange}
         lang={props.lang}
         defaultLang={props.defaultLang}
+        languages={props.languages}
+        appName={props.appName}
         pickable={props.pickable}
         actionFor={(id, action, change) => <TapAction id={id} action={action} onChange={change} pages={props.pages} sources={props.sources} screens={props.screens} pickable={props.pickable} />}
       />

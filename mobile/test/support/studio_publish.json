@@ -1,0 +1,6523 @@
+{
+ "ids": {
+  "word": "demo-47",
+  "heading": "demo-108",
+  "quotes": "demo-109"
+ },
+ "config": {
+  "site": {
+   "name": "Leqaa",
+   "url": "https://yallapp.test",
+   "terms_url": null,
+   "privacy_url": null,
+   "support_whatsapp": null,
+   "support_email": null
+  },
+  "branding": {
+   "logo_url": null,
+   "primary_color": "#8E2445"
+  },
+  "features": {
+   "lms": null,
+   "lms_version": "",
+   "pro": false,
+   "certificates": false,
+   "quizzes": false,
+   "wishlist": false,
+   "reviews": false,
+   "qna": false,
+   "push": false,
+   "orders": true,
+   "offline": true,
+   "downloads": false
+  },
+  "auth": {
+   "signup_allowed": true,
+   "signup_fields": [
+    "name"
+   ],
+   "default_country_code": "+90",
+   "methods": [
+    "phone"
+   ],
+   "preview_sign_in": true
+  },
+  "purchases": {
+   "enroll_button": false,
+   "free_enrollment": false
+  },
+  "content": {
+   "block_screen_capture": false,
+   "watermark": "off",
+   "embed_fullscreen_button": true,
+   "embed_height": "auto"
+  },
+  "app": {
+   "update_required": false,
+   "maintenance": false,
+   "maintenance_message": null,
+   "review_prompt": true,
+   "crash_reports": true,
+   "screen_protection": "off",
+   "hide_video_branding": false
+  },
+  "links": {
+   "share_base_url": "https://yallapp.test/a/00000000-0000-4000-8000-000000000156"
+  },
+  "vertical": null,
+  "switches": {
+   "chat": true,
+   "side_menu": true,
+   "block_looks": true,
+   "own_icons": true
+  },
+  "customer_currency": {
+   "enabled": true,
+   "currencies": []
+  },
+  "store": {
+   "currency": "TRY",
+   "guest_checkout": true,
+   "checkout_opens_in": "in_app",
+   "reviews": false,
+   "checkout_mode": "standard",
+   "delivery_date": {
+    "enabled": false,
+    "required": false,
+    "min_days": 0,
+    "max_days": 0,
+    "closed_weekdays": []
+   },
+   "gift_message": {
+    "enabled": false,
+    "max_length": 500,
+    "starters": [],
+    "recipient": false,
+    "anonymous": false
+   },
+   "titles": {
+    "addons": null,
+    "gift_card": null,
+    "delivery": null
+   },
+   "returns": null,
+   "loyalty": null
+  },
+  "appearance": {
+   "template": "classic",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "secondary_color": "#C89B6D",
+   "font": "Bricolage Grotesque",
+   "font_family": "Fraunces",
+   "corners": "round",
+   "cards": "outlined",
+   "dark_background": "#140A0F",
+   "dark_surface": "#21121A",
+   "font_files": [
+    {
+     "url": "https://yallapp.test/api/v1/fonts/ofl/fraunces/Fraunces%5BSOFT%2CWONK%2Copsz%2Cwght%5D.ttf",
+     "weight": null
+    }
+   ]
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en",
+    "ar",
+    "tr"
+   ],
+   "list": [
+    {
+     "code": "en",
+     "name": "English",
+     "native_name": "English",
+     "direction": "ltr",
+     "strings": null
+    },
+    {
+     "code": "ar",
+     "name": "Arabic",
+     "native_name": "العربية",
+     "direction": "rtl",
+     "strings": null
+    },
+    {
+     "code": "tr",
+     "name": "Turkish",
+     "native_name": "Türkçe",
+     "direction": "ltr",
+     "strings": null
+    }
+   ]
+  }
+ },
+ "first": {
+  "en": {
+   "etag": "\"2026-11-18T10:00:00Z.1~f7c0f6549~e6b8af2861c4~t1c5bb1e8\"",
+   "navigation": {
+    "version": "2026-11-18T10:00:00Z.1~f7c0f6549~e6b8af2861c4~t1c5bb1e8",
+    "tabs": [
+     {
+      "id": "home",
+      "label": "Home",
+      "icon": "home",
+      "target": {
+       "type": "page",
+       "page_slug": "home"
+      }
+     },
+     {
+      "id": "shop",
+      "label": "Bouquets",
+      "icon": "local_florist",
+      "target": {
+       "type": "screen",
+       "screen": "search"
+      }
+     },
+     {
+      "id": "cart",
+      "label": "Send",
+      "icon": "redeem",
+      "target": {
+       "type": "screen",
+       "screen": "cart"
+      }
+     },
+     {
+      "id": "orders",
+      "label": "Orders",
+      "icon": "local_shipping",
+      "target": {
+       "type": "screen",
+       "screen": "orders"
+      }
+     },
+     {
+      "id": "account",
+      "label": "Account",
+      "icon": "person",
+      "target": {
+       "type": "screen",
+       "screen": "account"
+      }
+     }
+    ],
+    "more": [],
+    "tab_bar": {
+     "design": "petal",
+     "background": "#FFFFFF",
+     "dark_background": "#24131B",
+     "active": "#8E2445",
+     "inactive": "#7B5E67",
+     "dark_active": "#F3A9C0",
+     "dark_inactive": "#C9AEB6",
+     "radius": 30,
+     "margin": 12,
+     "labels": "active",
+     "center": "cart"
+    },
+    "menu": [],
+    "pages": [
+     {
+      "slug": "home",
+      "title": "Home",
+      "updated_at": "2026-11-18T10:00:00.000Z"
+     },
+     {
+      "slug": "shop",
+      "title": "Bouquets",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "search"
+     },
+     {
+      "slug": "cart",
+      "title": "Send",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "cart"
+     },
+     {
+      "slug": "orders",
+      "title": "Orders",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "orders"
+     },
+     {
+      "slug": "account",
+      "title": "Account",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "account"
+     },
+     {
+      "slug": "bouquet",
+      "title": "Our bouquet",
+      "updated_at": "2026-11-18T10:00:00.000Z"
+     },
+     {
+      "slug": "wishlist",
+      "title": "Your picks",
+      "updated_at": "2026-11-18T10:00:00.000Z"
+     },
+     {
+      "slug": "settings",
+      "title": "Settings",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "settings"
+     },
+     {
+      "slug": "notifications",
+      "title": "Notifications",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "notifications"
+     },
+     {
+      "slug": "edit-profile",
+      "title": "Edit profile",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "edit_profile"
+     },
+     {
+      "slug": "devices",
+      "title": "Devices",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "devices"
+     },
+     {
+      "slug": "change-password",
+      "title": "Change password",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "change_password"
+     },
+     {
+      "slug": "chat-conversation",
+      "title": "A conversation",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "chat_conversation"
+     }
+    ]
+   },
+   "pages": {
+    "home": {
+     "slug": "home",
+     "title": "Home",
+     "updated_at": "2026-11-18T10:00:00.000Z",
+     "show_title": false,
+     "blocks": [],
+     "studio": {
+      "body": {
+       "id": "demo-1",
+       "type": "column",
+       "padding": {
+        "bottom": 96
+       },
+       "children": [
+        {
+         "id": "demo-2",
+         "type": "stack",
+         "name": "Say it with roses.",
+         "height": 520,
+         "cross": "start",
+         "children": [
+          {
+           "id": "demo-3",
+           "type": "slider",
+           "name": "Every occasion",
+           "height": 520,
+           "autoplay": true,
+           "interval_ms": 5500,
+           "indicator": "progress",
+           "indicator_look": {
+            "at": "top",
+            "inset": 80,
+            "color": "#FFFFFF",
+            "count": "padded"
+           },
+           "ken_burns": true,
+           "children": [
+            {
+             "id": "demo-4",
+             "type": "photo_hero",
+             "name": "Say it with roses.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-5",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-6",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-7",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "favorite",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-8",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "For love"
+                }
+               ]
+              },
+              {
+               "id": "demo-9",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "Say it with roses.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-10",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "Bouquets with a card in your own words.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-11",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "Send flowers",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            },
+            {
+             "id": "demo-12",
+             "type": "photo_hero",
+             "name": "Another year, in bloom.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-13",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-14",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-15",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "cake",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-16",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "For a birthday"
+                }
+               ]
+              },
+              {
+               "id": "demo-17",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "Another year, in bloom.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-18",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "Bouquets with a card in your own words.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-19",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "Send flowers",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            },
+            {
+             "id": "demo-20",
+             "type": "photo_hero",
+             "name": "Gentle words, in white.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/white-lilies.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-21",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-22",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-23",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "spa",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-24",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "With sympathy"
+                }
+               ]
+              },
+              {
+               "id": "demo-25",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "Gentle words, in white.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-26",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "Bouquets with a card in your own words.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-27",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "Send flowers",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            },
+            {
+             "id": "demo-28",
+             "type": "photo_hero",
+             "name": "Hello, little one.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/sunshine.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-29",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-30",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-31",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "child_care",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-32",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "For a new baby"
+                }
+               ]
+              },
+              {
+               "id": "demo-33",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "Hello, little one.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-34",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "Bouquets with a card in your own words.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-35",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "Send flowers",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            },
+            {
+             "id": "demo-36",
+             "type": "photo_hero",
+             "name": "Well done, in full bloom.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-37",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-38",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-39",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "celebration",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-40",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "To congratulate"
+                }
+               ]
+              },
+              {
+               "id": "demo-41",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "Well done, in full bloom.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-42",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "Bouquets with a card in your own words.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-43",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "Send flowers",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "demo-44",
+           "type": "row",
+           "name": "Leqaa",
+           "width": "fill",
+           "height": 68,
+           "padding": {
+            "top": 26,
+            "end": 16,
+            "start": 16
+           },
+           "gap": 10,
+           "cross": "center",
+           "self_align": "start",
+           "children": [
+            {
+             "id": "demo-45",
+             "type": "row",
+             "width": 42,
+             "height": 42,
+             "align": "center",
+             "cross": "center",
+             "self_align": "center",
+             "border_color": "#FFFFFF",
+             "radius": 21,
+             "border_width": 1,
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "surface": {
+              "glass": 16,
+              "tint": 0.18
+             },
+             "children": [
+              {
+               "id": "demo-46",
+               "type": "icon",
+               "color": "#FFFFFF",
+               "icon": "search",
+               "icon_size": 21
+              }
+             ]
+            },
+            {
+             "id": "demo-47",
+             "type": "text",
+             "width": "fill",
+             "color": "#00A86B",
+             "font": {
+              "family": "Fraunces",
+              "weight": 600,
+              "size": 26,
+              "line_height": 1,
+              "letter_spacing": 0.5
+             },
+             "text_align": "center",
+             "text": "Leqaa",
+             "max_lines": 1
+            },
+            {
+             "id": "demo-48",
+             "type": "row",
+             "width": 42,
+             "height": 42,
+             "align": "center",
+             "cross": "center",
+             "self_align": "center",
+             "border_color": "#FFFFFF",
+             "radius": 21,
+             "border_width": 1,
+             "action": {
+              "type": "screen",
+              "screen": "cart"
+             },
+             "surface": {
+              "glass": 16,
+              "tint": 0.18
+             },
+             "children": [
+              {
+               "id": "demo-49",
+               "type": "icon",
+               "color": "#FFFFFF",
+               "icon": "shopping_bag",
+               "icon_size": 21
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "id": "demo-51",
+         "type": "column",
+         "name": "Every occasion",
+         "width": "fill",
+         "padding": {
+          "top": 14,
+          "end": 6,
+          "bottom": 8,
+          "start": 6
+         },
+         "margin": {
+          "top": 14,
+          "end": 14,
+          "start": 14
+         },
+         "background": "#FFFFFF",
+         "dark_background": "#21121A",
+         "border_color": "#FFFFFF",
+         "dark_border_color": "#3A2530",
+         "radius": 28,
+         "border_width": 1,
+         "surface": {
+          "glass": 22,
+          "tint": 0.88,
+          "soft": 3
+         },
+         "children": [
+          {
+           "id": "demo-52",
+           "type": "stories",
+           "name": "Every occasion",
+           "color": "#2A121C",
+           "dark_color": "#F8EAEE",
+           "slides": [
+            {
+             "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+             "heading": "Love",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "highlight",
+             "ring_color": "#C89B6D"
+            },
+            {
+             "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
+             "heading": "Birthday",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "highlight",
+             "ring_color": "#C89B6D"
+            },
+            {
+             "image_url": "http://localhost:3000/flower-photos/white-lilies.jpg",
+             "heading": "Sympathy",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "plain"
+            },
+            {
+             "image_url": "http://localhost:3000/flower-photos/sunshine.jpg",
+             "heading": "New baby",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "plain"
+            },
+            {
+             "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
+             "heading": "Congratulations",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "plain"
+            }
+           ],
+           "interval_ms": 5000,
+           "stories": {
+            "size": 62
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-53",
+         "type": "column",
+         "name": "Send today · the shop's cut-off",
+         "padding": {
+          "top": 16,
+          "end": 16,
+          "bottom": 16,
+          "start": 16
+         },
+         "margin": {
+          "top": 18,
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "gap": 12,
+         "background": "#FCECE6",
+         "dark_background": "#2A1720",
+         "border_color": "#F0DDD9",
+         "dark_border_color": "#3A2530",
+         "radius": 26,
+         "border_width": 1,
+         "action": {
+          "type": "screen",
+          "screen": "search"
+         },
+         "children": [
+          {
+           "id": "demo-54",
+           "type": "row",
+           "gap": 12,
+           "cross": "center",
+           "children": [
+            {
+             "id": "demo-55",
+             "type": "icon",
+             "padding": {
+              "top": 11,
+              "end": 11,
+              "bottom": 11,
+              "start": 11
+             },
+             "color": "#FFFFFF",
+             "gradient": {
+              "from": "#C89B6D",
+              "to": "#A8325A",
+              "angle": 135
+             },
+             "radius": 99,
+             "icon": "local_shipping"
+            },
+            {
+             "id": "demo-56",
+             "type": "column",
+             "width": "fill",
+             "gap": 3,
+             "children": [
+              {
+               "id": "demo-57",
+               "type": "text",
+               "color": "#2A121C",
+               "dark_color": "#F8EAEE",
+               "font": {
+                "family": "Fraunces",
+                "weight": 600,
+                "size": 24,
+                "line_height": 1,
+                "letter_spacing": -0.5
+               },
+               "text": "Send today"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "demo-59",
+           "type": "row",
+           "name": "Delivery days · today, tomorrow, a date",
+           "width": "fill",
+           "gap": 6,
+           "children": [
+            {
+             "id": "demo-60",
+             "type": "row",
+             "name": "Today",
+             "width": "fill",
+             "height": 36,
+             "padding": {
+              "end": 6,
+              "start": 6
+             },
+             "gap": 5,
+             "align": "center",
+             "cross": "center",
+             "background": "#8E2445",
+             "dark_background": "#F3A9C0",
+             "radius": 18,
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-61",
+               "type": "icon",
+               "color": "#FFFFFF",
+               "dark_color": "#2A121C",
+               "icon": "bolt",
+               "icon_size": 15
+              },
+              {
+               "id": "demo-62",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#2A121C",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "Today",
+               "max_lines": 1
+              }
+             ]
+            },
+            {
+             "id": "demo-63",
+             "type": "row",
+             "name": "Tomorrow",
+             "width": "fill",
+             "height": 36,
+             "padding": {
+              "end": 6,
+              "start": 6
+             },
+             "gap": 5,
+             "align": "center",
+             "cross": "center",
+             "border_color": "#F0DDD9",
+             "dark_border_color": "#3A2530",
+             "radius": 18,
+             "border_width": 1,
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-64",
+               "type": "text",
+               "color": "#2A121C",
+               "dark_color": "#F8EAEE",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "Tomorrow",
+               "max_lines": 1
+              }
+             ]
+            },
+            {
+             "id": "demo-65",
+             "type": "row",
+             "name": "Pick a date",
+             "width": "fill",
+             "height": 36,
+             "padding": {
+              "end": 6,
+              "start": 6
+             },
+             "gap": 5,
+             "align": "center",
+             "cross": "center",
+             "border_color": "#F0DDD9",
+             "dark_border_color": "#3A2530",
+             "radius": 18,
+             "border_width": 1,
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-66",
+               "type": "text",
+               "color": "#2A121C",
+               "dark_color": "#F8EAEE",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "Pick a date",
+               "max_lines": 1
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "id": "demo-68",
+         "type": "row",
+         "name": "Collections",
+         "padding": {
+          "top": 28,
+          "end": 18,
+          "bottom": 12,
+          "start": 18
+         },
+         "gap": 12,
+         "cross": "end",
+         "children": [
+          {
+           "id": "demo-69",
+           "type": "column",
+           "width": "fill",
+           "gap": 4,
+           "children": [
+            {
+             "id": "demo-70",
+             "type": "text",
+             "color": "#A8325A",
+             "dark_color": "#F3A9C0",
+             "font": {
+              "weight": 700,
+              "size": 11,
+              "letter_spacing": 2,
+              "uppercase": true
+             },
+             "text": "Every occasion"
+            },
+            {
+             "id": "demo-71",
+             "type": "text",
+             "color": "#2A121C",
+             "dark_color": "#F8EAEE",
+             "font": {
+              "family": "Fraunces",
+              "weight": 600,
+              "size": 27,
+              "line_height": 1,
+              "letter_spacing": -0.5
+             },
+             "text": "Collections",
+             "max_lines": 2
+            }
+           ]
+          },
+          {
+           "id": "demo-72",
+           "type": "text",
+           "padding": {
+            "bottom": 4
+           },
+           "color": "#A8325A",
+           "dark_color": "#F3A9C0",
+           "font": {
+            "weight": 700,
+            "size": 13
+           },
+           "text": "Shop all",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-73",
+         "type": "bento",
+         "name": "Collections",
+         "margin": {
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "gap": 10,
+         "radius": 26,
+         "bento": {
+          "caption": "glass",
+          "row": 122
+         },
+         "entries": [
+          {
+           "title": "Signature bouquets",
+           "subtitle": "Loved most",
+           "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+           "icon": "local_florist",
+           "size": "large",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          },
+          {
+           "title": "Roses",
+           "image_url": "http://localhost:3000/flower-photos/red-rose.jpg",
+           "icon": "local_florist",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          },
+          {
+           "title": "In season",
+           "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
+           "icon": "local_florist",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          },
+          {
+           "title": "Plants",
+           "image_url": "http://localhost:3000/flower-photos/orchid.jpg",
+           "icon": "local_florist",
+           "size": "wide",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          },
+          {
+           "title": "Gift sets",
+           "image_url": "http://localhost:3000/flower-photos/garden-jug.jpg",
+           "icon": "local_florist",
+           "size": "wide",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-74",
+         "type": "row",
+         "name": "Loved most",
+         "padding": {
+          "top": 26,
+          "end": 18,
+          "bottom": 12,
+          "start": 18
+         },
+         "gap": 12,
+         "cross": "end",
+         "children": [
+          {
+           "id": "demo-75",
+           "type": "column",
+           "width": "fill",
+           "gap": 4,
+           "children": [
+            {
+             "id": "demo-76",
+             "type": "text",
+             "color": "#2A121C",
+             "dark_color": "#F8EAEE",
+             "font": {
+              "family": "Fraunces",
+              "weight": 600,
+              "size": 27,
+              "line_height": 1,
+              "letter_spacing": -0.5
+             },
+             "text": "Loved most",
+             "max_lines": 2
+            }
+           ]
+          },
+          {
+           "id": "demo-77",
+           "type": "text",
+           "padding": {
+            "bottom": 4
+           },
+           "color": "#A8325A",
+           "dark_color": "#F3A9C0",
+           "font": {
+            "weight": 700,
+            "size": 13
+           },
+           "text": "Shop all",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-87",
+         "type": "photo_hero",
+         "name": "Build your bouquet",
+         "height": 300,
+         "padding": {
+          "top": 22,
+          "end": 22,
+          "bottom": 22,
+          "start": 22
+         },
+         "margin": {
+          "top": 22,
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "align": "center",
+         "background": "#2A0C17",
+         "radius": 30,
+         "scrim": {
+          "color": "#2A0C17",
+          "from": 0.92,
+          "to": 0.15,
+          "middle": 0.5,
+          "at": 55,
+          "angle": 90
+         },
+         "image_url": "http://localhost:3000/flower-photos/stems.jpg",
+         "ken_burns": true,
+         "action": {
+          "type": "screen",
+          "screen": "search"
+         },
+         "children": [
+          {
+           "id": "demo-88",
+           "type": "text",
+           "color": "#FFD9C2",
+           "font": {
+            "weight": 700,
+            "size": 11,
+            "letter_spacing": 2.2,
+            "uppercase": true
+           },
+           "text": "Make it yours"
+          },
+          {
+           "id": "demo-89",
+           "type": "text",
+           "width": 230,
+           "margin": {
+            "top": 8
+           },
+           "color": "#FFFFFF",
+           "font": {
+            "family": "Fraunces",
+            "weight": 500,
+            "size": 36,
+            "line_height": 1,
+            "letter_spacing": -0.7
+           },
+           "text": "Build your bouquet",
+           "max_lines": 2
+          },
+          {
+           "id": "demo-90",
+           "type": "text",
+           "width": 230,
+           "margin": {
+            "top": 8
+           },
+           "color": "#FFFFFF",
+           "opacity": 0.9,
+           "font": {
+            "size": 13.5,
+            "line_height": 1.4
+           },
+           "text": "Choose the flowers, the wrap and the card.",
+           "max_lines": 3
+          },
+          {
+           "id": "demo-91",
+           "type": "row",
+           "name": "Build your bouquet",
+           "margin": {
+            "top": 14
+           },
+           "gap": 6,
+           "scroll": true,
+           "children": [
+            {
+             "id": "demo-92",
+             "type": "row",
+             "height": 32,
+             "padding": {
+              "end": 12,
+              "start": 5
+             },
+             "gap": 6,
+             "cross": "center",
+             "border_color": "#F6D3DD",
+             "dark_border_color": "#F6D3DD",
+             "radius": 16,
+             "border_width": 1,
+             "surface": {
+              "glass": 12,
+              "tint": 0.2
+             },
+             "children": [
+              {
+               "id": "demo-93",
+               "type": "row",
+               "width": 22,
+               "height": 22,
+               "align": "center",
+               "cross": "center",
+               "background": "#FFFFFF",
+               "dark_background": "#FFFFFF",
+               "radius": 11,
+               "children": [
+                {
+                 "id": "demo-94",
+                 "type": "text",
+                 "color": "#2A0C17",
+                 "dark_color": "#2A0C17",
+                 "font": {
+                  "family": "DM Sans",
+                  "weight": 800,
+                  "size": 12,
+                  "line_height": 1
+                 },
+                 "text": "1"
+                }
+               ]
+              },
+              {
+               "id": "demo-95",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#FFFFFF",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "Flowers"
+              }
+             ]
+            },
+            {
+             "id": "demo-96",
+             "type": "row",
+             "height": 32,
+             "padding": {
+              "end": 12,
+              "start": 5
+             },
+             "gap": 6,
+             "cross": "center",
+             "border_color": "#F6D3DD",
+             "dark_border_color": "#F6D3DD",
+             "radius": 16,
+             "border_width": 1,
+             "surface": {
+              "glass": 12,
+              "tint": 0.2
+             },
+             "children": [
+              {
+               "id": "demo-97",
+               "type": "row",
+               "width": 22,
+               "height": 22,
+               "align": "center",
+               "cross": "center",
+               "background": "#FFFFFF",
+               "dark_background": "#FFFFFF",
+               "radius": 11,
+               "children": [
+                {
+                 "id": "demo-98",
+                 "type": "text",
+                 "color": "#2A0C17",
+                 "dark_color": "#2A0C17",
+                 "font": {
+                  "family": "DM Sans",
+                  "weight": 800,
+                  "size": 12,
+                  "line_height": 1
+                 },
+                 "text": "2"
+                }
+               ]
+              },
+              {
+               "id": "demo-99",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#FFFFFF",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "Wrap"
+              }
+             ]
+            },
+            {
+             "id": "demo-100",
+             "type": "row",
+             "height": 32,
+             "padding": {
+              "end": 12,
+              "start": 5
+             },
+             "gap": 6,
+             "cross": "center",
+             "border_color": "#F6D3DD",
+             "dark_border_color": "#F6D3DD",
+             "radius": 16,
+             "border_width": 1,
+             "surface": {
+              "glass": 12,
+              "tint": 0.2
+             },
+             "children": [
+              {
+               "id": "demo-101",
+               "type": "row",
+               "width": 22,
+               "height": 22,
+               "align": "center",
+               "cross": "center",
+               "background": "#FFFFFF",
+               "dark_background": "#FFFFFF",
+               "radius": 11,
+               "children": [
+                {
+                 "id": "demo-102",
+                 "type": "text",
+                 "color": "#2A0C17",
+                 "dark_color": "#2A0C17",
+                 "font": {
+                  "family": "DM Sans",
+                  "weight": 800,
+                  "size": 12,
+                  "line_height": 1
+                 },
+                 "text": "3"
+                }
+               ]
+              },
+              {
+               "id": "demo-103",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#FFFFFF",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "Card"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "demo-104",
+           "type": "button",
+           "name": "Start",
+           "width": "hug",
+           "height": 44,
+           "padding": {
+            "end": 20,
+            "start": 20
+           },
+           "margin": {
+            "top": 16
+           },
+           "self_align": "start",
+           "background": "#FFFFFF",
+           "color": "#2A0C17",
+           "dark_background": "#FFFFFF",
+           "dark_color": "#2A0C17",
+           "radius": 22,
+           "shadow": "medium",
+           "font": {
+            "weight": 700,
+            "size": 15
+           },
+           "text": "Start",
+           "icon": "arrow_forward",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-105",
+         "type": "marquee",
+         "name": "Every occasion",
+         "padding": {
+          "top": 14,
+          "bottom": 14
+         },
+         "margin": {
+          "top": 22
+         },
+         "background": "#F6E6E1",
+         "color": "#2A121C",
+         "dark_background": "#1C0F15",
+         "dark_color": "#F8EAEE",
+         "font": {
+          "family": "Fraunces",
+          "weight": 500,
+          "size": 26,
+          "italic": true
+         },
+         "text": "Love\nBirthday\nSympathy\nNew baby\nCongratulations\nThank you",
+         "icon": "local_florist",
+         "marquee": {
+          "speed": 34
+         }
+        },
+        {
+         "id": "demo-106",
+         "type": "row",
+         "name": "Kind words",
+         "padding": {
+          "top": 22,
+          "end": 18,
+          "bottom": 12,
+          "start": 18
+         },
+         "gap": 12,
+         "cross": "end",
+         "children": [
+          {
+           "id": "demo-107",
+           "type": "column",
+           "width": "fill",
+           "gap": 4,
+           "children": [
+            {
+             "id": "demo-108",
+             "type": "text",
+             "color": "#2A121C",
+             "dark_color": "#F8EAEE",
+             "font": {
+              "family": "Fraunces",
+              "weight": 600,
+              "size": 27,
+              "line_height": 1,
+              "letter_spacing": -0.5
+             },
+             "text": "What our customers say",
+             "max_lines": 2
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "id": "demo-109",
+         "type": "testimonials",
+         "name": "Kind words",
+         "padding": {
+          "end": 18,
+          "start": 18
+         },
+         "gap": 12,
+         "background": "#FFFFFF",
+         "color": "#2A121C",
+         "dark_background": "#21121A",
+         "dark_color": "#F8EAEE",
+         "border_color": "#F0DDD9",
+         "dark_border_color": "#3A2530",
+         "radius": 26,
+         "border_width": 1,
+         "entries": [
+          {
+           "title": "Jakeer",
+           "text": "The fact that every question was answered to."
+          }
+         ]
+        },
+        {
+         "id": "demo-110",
+         "type": "row",
+         "name": "Floral rule",
+         "padding": {
+          "end": 40,
+          "start": 40
+         },
+         "margin": {
+          "top": 22
+         },
+         "gap": 10,
+         "cross": "center",
+         "children": [
+          {
+           "id": "demo-111",
+           "type": "row",
+           "width": "fill",
+           "height": 1,
+           "background": "#F0DDD9",
+           "dark_background": "#3A2530",
+           "children": []
+          },
+          {
+           "id": "demo-112",
+           "type": "icon",
+           "color": "#A8325A",
+           "dark_color": "#F3A9C0",
+           "icon": "local_florist",
+           "icon_size": 16
+          },
+          {
+           "id": "demo-113",
+           "type": "row",
+           "width": "fill",
+           "height": 1,
+           "background": "#F0DDD9",
+           "dark_background": "#3A2530",
+           "children": []
+          }
+         ]
+        },
+        {
+         "id": "demo-114",
+         "type": "row",
+         "padding": {
+          "top": 12,
+          "end": 14,
+          "bottom": 12,
+          "start": 14
+         },
+         "margin": {
+          "top": 18,
+          "end": 16,
+          "bottom": 8,
+          "start": 16
+         },
+         "gap": 10,
+         "cross": "start",
+         "background": "#FFFFFF",
+         "dark_background": "#21121A",
+         "border_color": "#F0DDD9",
+         "dark_border_color": "#3A2530",
+         "radius": 16,
+         "border_width": 1,
+         "visibility": "signed_out",
+         "children": [
+          {
+           "id": "demo-115",
+           "type": "icon",
+           "color": "#7B5E67",
+           "dark_color": "#C9AEB6",
+           "icon": "info",
+           "icon_size": 18
+          },
+          {
+           "id": "demo-116",
+           "type": "text",
+           "width": "fill",
+           "color": "#7B5E67",
+           "dark_color": "#C9AEB6",
+           "font": {
+            "size": 13,
+            "line_height": 1.5
+           },
+           "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day."
+          }
+         ]
+        }
+       ]
+      },
+      "background": "#FBF3F0",
+      "dark_background": "#140A0F"
+     }
+    },
+    "shop": {
+     "slug": "shop",
+     "title": "Bouquets",
+     "updated_at": "2026-11-18T10:00:00.000Z",
+     "show_title": false,
+     "blocks": [],
+     "studio": {
+      "body": {
+       "id": "demo-170",
+       "type": "column",
+       "children": [
+        {
+         "id": "demo-171",
+         "type": "photo_hero",
+         "name": "Find the right flowers",
+         "height": 190,
+         "padding": {
+          "top": 18,
+          "end": 20,
+          "bottom": 18,
+          "start": 20
+         },
+         "margin": {
+          "top": 8,
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "align": "center",
+         "background": "#2A0C17",
+         "radius": 28,
+         "scrim": {
+          "color": "#2A0C17",
+          "from": 0.85,
+          "to": 0.1,
+          "middle": 0.35,
+          "at": 60,
+          "angle": 90
+         },
+         "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+         "ken_burns": true,
+         "children": [
+          {
+           "id": "demo-172",
+           "type": "text",
+           "width": 220,
+           "color": "#FFFFFF",
+           "font": {
+            "family": "Fraunces",
+            "weight": 500,
+            "size": 28,
+            "line_height": 1,
+            "letter_spacing": -0.6
+           },
+           "text": "Find the right flowers",
+           "max_lines": 2
+          },
+          {
+           "id": "demo-173",
+           "type": "text",
+           "width": 220,
+           "margin": {
+            "top": 6
+           },
+           "color": "#FFFFFF",
+           "opacity": 0.9,
+           "font": {
+            "size": 13,
+            "line_height": 1.4
+           },
+           "text": "By occasion, by colour, by collection.",
+           "max_lines": 2
+          }
+         ]
+        },
+        {
+         "id": "demo-174",
+         "type": "stories",
+         "name": "Every occasion",
+         "padding": {
+          "top": 10,
+          "end": 12,
+          "bottom": 2,
+          "start": 12
+         },
+         "color": "#2A121C",
+         "dark_color": "#F8EAEE",
+         "slides": [
+          {
+           "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+           "heading": "Love",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "highlight",
+           "ring_color": "#C89B6D"
+          },
+          {
+           "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
+           "heading": "Birthday",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "highlight",
+           "ring_color": "#C89B6D"
+          },
+          {
+           "image_url": "http://localhost:3000/flower-photos/white-lilies.jpg",
+           "heading": "Sympathy",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "plain"
+          },
+          {
+           "image_url": "http://localhost:3000/flower-photos/sunshine.jpg",
+           "heading": "New baby",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "plain"
+          },
+          {
+           "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
+           "heading": "Congratulations",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "plain"
+          }
+         ],
+         "interval_ms": 5000,
+         "stories": {
+          "size": 58
+         }
+        },
+        {
+         "id": "demo-175",
+         "type": "row",
+         "name": "The signature bouquet",
+         "padding": {
+          "top": 4,
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "gap": 8,
+         "scroll": true,
+         "children": [
+          {
+           "id": "demo-176",
+           "type": "button",
+           "name": "Our bouquet",
+           "width": "hug",
+           "height": 42,
+           "padding": {
+            "end": 16,
+            "start": 16
+           },
+           "self_align": "start",
+           "background": "#8E2445",
+           "color": "#FFFFFF",
+           "dark_background": "#F3A9C0",
+           "dark_color": "#2A121C",
+           "radius": 21,
+           "font": {
+            "weight": 700,
+            "size": 15
+           },
+           "text": "Our bouquet",
+           "icon": "local_florist",
+           "icon_position": "start",
+           "action": {
+            "type": "page",
+            "page_slug": "bouquet"
+           }
+          },
+          {
+           "id": "demo-177",
+           "type": "button",
+           "name": "Your picks",
+           "width": "hug",
+           "height": 42,
+           "padding": {
+            "end": 16,
+            "start": 16
+           },
+           "self_align": "start",
+           "background": "#FFFFFF",
+           "color": "#2A121C",
+           "dark_background": "#21121A",
+           "dark_color": "#F8EAEE",
+           "border_color": "#F0DDD9",
+           "dark_border_color": "#3A2530",
+           "radius": 21,
+           "border_width": 1,
+           "font": {
+            "weight": 700,
+            "size": 15
+           },
+           "text": "Your picks",
+           "icon": "favorite",
+           "icon_position": "start",
+           "action": {
+            "type": "page",
+            "page_slug": "wishlist"
+           }
+          }
+         ]
+        }
+       ]
+      },
+      "header": {
+       "type": "title",
+       "title": "Bouquets",
+       "buttons": [
+        "notifications"
+       ],
+       "background": "#FBF3F0",
+       "color": "#2A121C",
+       "dark_background": "#140A0F",
+       "dark_color": "#F8EAEE",
+       "style": "petal"
+      },
+      "background": "#FBF3F0",
+      "dark_background": "#140A0F",
+      "screen": "search"
+     }
+    }
+   }
+  },
+  "ar": {
+   "etag": "\"2026-11-18T10:00:00Z.1~f7c0f6549~e6b8af2861c4~t1c5bb1e8.ar\"",
+   "navigation": {
+    "version": "2026-11-18T10:00:00Z.1~f7c0f6549~e6b8af2861c4~t1c5bb1e8.ar",
+    "tabs": [
+     {
+      "id": "home",
+      "label": "الرئيسية",
+      "icon": "home",
+      "target": {
+       "type": "page",
+       "page_slug": "home"
+      }
+     },
+     {
+      "id": "shop",
+      "label": "الباقات",
+      "icon": "local_florist",
+      "target": {
+       "type": "screen",
+       "screen": "search"
+      }
+     },
+     {
+      "id": "cart",
+      "label": "إرسال",
+      "icon": "redeem",
+      "target": {
+       "type": "screen",
+       "screen": "cart"
+      }
+     },
+     {
+      "id": "orders",
+      "label": "الطلبات",
+      "icon": "local_shipping",
+      "target": {
+       "type": "screen",
+       "screen": "orders"
+      }
+     },
+     {
+      "id": "account",
+      "label": "حسابي",
+      "icon": "person",
+      "target": {
+       "type": "screen",
+       "screen": "account"
+      }
+     }
+    ],
+    "more": [],
+    "tab_bar": {
+     "design": "petal",
+     "background": "#FFFFFF",
+     "dark_background": "#24131B",
+     "active": "#8E2445",
+     "inactive": "#7B5E67",
+     "dark_active": "#F3A9C0",
+     "dark_inactive": "#C9AEB6",
+     "radius": 30,
+     "margin": 12,
+     "labels": "active",
+     "center": "cart"
+    },
+    "menu": [],
+    "pages": [
+     {
+      "slug": "home",
+      "title": "الرئيسية",
+      "updated_at": "2026-11-18T10:00:00.000Z"
+     },
+     {
+      "slug": "shop",
+      "title": "الباقات",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "search"
+     },
+     {
+      "slug": "cart",
+      "title": "إرسال",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "cart"
+     },
+     {
+      "slug": "orders",
+      "title": "الطلبات",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "orders"
+     },
+     {
+      "slug": "account",
+      "title": "حسابي",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "account"
+     },
+     {
+      "slug": "bouquet",
+      "title": "باقتنا",
+      "updated_at": "2026-11-18T10:00:00.000Z"
+     },
+     {
+      "slug": "wishlist",
+      "title": "اختياراتك",
+      "updated_at": "2026-11-18T10:00:00.000Z"
+     },
+     {
+      "slug": "settings",
+      "title": "الإعدادات",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "settings"
+     },
+     {
+      "slug": "notifications",
+      "title": "الإشعارات",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "notifications"
+     },
+     {
+      "slug": "edit-profile",
+      "title": "تعديل الملف الشخصي",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "edit_profile"
+     },
+     {
+      "slug": "devices",
+      "title": "الأجهزة",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "devices"
+     },
+     {
+      "slug": "change-password",
+      "title": "Change password",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "change_password"
+     },
+     {
+      "slug": "chat-conversation",
+      "title": "A conversation",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "chat_conversation"
+     }
+    ]
+   },
+   "pages": {
+    "home": {
+     "slug": "home",
+     "title": "الرئيسية",
+     "updated_at": "2026-11-18T10:00:00.000Z",
+     "show_title": false,
+     "blocks": [],
+     "studio": {
+      "body": {
+       "id": "demo-1",
+       "type": "column",
+       "padding": {
+        "bottom": 96
+       },
+       "children": [
+        {
+         "id": "demo-2",
+         "type": "stack",
+         "name": "Say it with roses.",
+         "height": 520,
+         "cross": "start",
+         "children": [
+          {
+           "id": "demo-3",
+           "type": "slider",
+           "name": "Every occasion",
+           "height": 520,
+           "autoplay": true,
+           "interval_ms": 5500,
+           "indicator": "progress",
+           "indicator_look": {
+            "at": "top",
+            "inset": 80,
+            "color": "#FFFFFF",
+            "count": "padded"
+           },
+           "ken_burns": true,
+           "children": [
+            {
+             "id": "demo-4",
+             "type": "photo_hero",
+             "name": "Say it with roses.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-5",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-6",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-7",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "favorite",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-8",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "للحب"
+                }
+               ]
+              },
+              {
+               "id": "demo-9",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "قلها بالورد.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-10",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "باقات مع بطاقة بكلماتك أنت.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-11",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "أرسل الزهور",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            },
+            {
+             "id": "demo-12",
+             "type": "photo_hero",
+             "name": "Another year, in bloom.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-13",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-14",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-15",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "cake",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-16",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "لعيد ميلاد"
+                }
+               ]
+              },
+              {
+               "id": "demo-17",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "عامٌ جديد يزهر.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-18",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "باقات مع بطاقة بكلماتك أنت.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-19",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "أرسل الزهور",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            },
+            {
+             "id": "demo-20",
+             "type": "photo_hero",
+             "name": "Gentle words, in white.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/white-lilies.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-21",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-22",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-23",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "spa",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-24",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "مع خالص المواساة"
+                }
+               ]
+              },
+              {
+               "id": "demo-25",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "كلماتٌ رقيقة بالأبيض.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-26",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "باقات مع بطاقة بكلماتك أنت.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-27",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "أرسل الزهور",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            },
+            {
+             "id": "demo-28",
+             "type": "photo_hero",
+             "name": "Hello, little one.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/sunshine.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-29",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-30",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-31",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "child_care",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-32",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "لمولود جديد"
+                }
+               ]
+              },
+              {
+               "id": "demo-33",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "أهلًا بالصغير.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-34",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "باقات مع بطاقة بكلماتك أنت.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-35",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "أرسل الزهور",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            },
+            {
+             "id": "demo-36",
+             "type": "photo_hero",
+             "name": "Well done, in full bloom.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-37",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-38",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-39",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "celebration",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-40",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "للتهنئة"
+                }
+               ]
+              },
+              {
+               "id": "demo-41",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "تهانينا والزهور في أوجها.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-42",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "باقات مع بطاقة بكلماتك أنت.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-43",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "أرسل الزهور",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "demo-44",
+           "type": "row",
+           "name": "Leqaa",
+           "width": "fill",
+           "height": 68,
+           "padding": {
+            "top": 26,
+            "end": 16,
+            "start": 16
+           },
+           "gap": 10,
+           "cross": "center",
+           "self_align": "start",
+           "children": [
+            {
+             "id": "demo-45",
+             "type": "row",
+             "width": 42,
+             "height": 42,
+             "align": "center",
+             "cross": "center",
+             "self_align": "center",
+             "border_color": "#FFFFFF",
+             "radius": 21,
+             "border_width": 1,
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "surface": {
+              "glass": 16,
+              "tint": 0.18
+             },
+             "children": [
+              {
+               "id": "demo-46",
+               "type": "icon",
+               "color": "#FFFFFF",
+               "icon": "search",
+               "icon_size": 21
+              }
+             ]
+            },
+            {
+             "id": "demo-47",
+             "type": "text",
+             "width": "fill",
+             "color": "#00A86B",
+             "font": {
+              "family": "Fraunces",
+              "weight": 600,
+              "size": 26,
+              "line_height": 1,
+              "letter_spacing": 0.5
+             },
+             "text_align": "center",
+             "text": "Leqaa",
+             "max_lines": 1
+            },
+            {
+             "id": "demo-48",
+             "type": "row",
+             "width": 42,
+             "height": 42,
+             "align": "center",
+             "cross": "center",
+             "self_align": "center",
+             "border_color": "#FFFFFF",
+             "radius": 21,
+             "border_width": 1,
+             "action": {
+              "type": "screen",
+              "screen": "cart"
+             },
+             "surface": {
+              "glass": 16,
+              "tint": 0.18
+             },
+             "children": [
+              {
+               "id": "demo-49",
+               "type": "icon",
+               "color": "#FFFFFF",
+               "icon": "shopping_bag",
+               "icon_size": 21
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "id": "demo-51",
+         "type": "column",
+         "name": "Every occasion",
+         "width": "fill",
+         "padding": {
+          "top": 14,
+          "end": 6,
+          "bottom": 8,
+          "start": 6
+         },
+         "margin": {
+          "top": 14,
+          "end": 14,
+          "start": 14
+         },
+         "background": "#FFFFFF",
+         "dark_background": "#21121A",
+         "border_color": "#FFFFFF",
+         "dark_border_color": "#3A2530",
+         "radius": 28,
+         "border_width": 1,
+         "surface": {
+          "glass": 22,
+          "tint": 0.88,
+          "soft": 3
+         },
+         "children": [
+          {
+           "id": "demo-52",
+           "type": "stories",
+           "name": "Every occasion",
+           "color": "#2A121C",
+           "dark_color": "#F8EAEE",
+           "slides": [
+            {
+             "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+             "heading": "حب",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "highlight",
+             "ring_color": "#C89B6D"
+            },
+            {
+             "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
+             "heading": "عيد ميلاد",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "highlight",
+             "ring_color": "#C89B6D"
+            },
+            {
+             "image_url": "http://localhost:3000/flower-photos/white-lilies.jpg",
+             "heading": "مواساة",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "plain"
+            },
+            {
+             "image_url": "http://localhost:3000/flower-photos/sunshine.jpg",
+             "heading": "مولود جديد",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "plain"
+            },
+            {
+             "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
+             "heading": "تهنئة",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "plain"
+            }
+           ],
+           "interval_ms": 5000,
+           "stories": {
+            "size": 62
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-53",
+         "type": "column",
+         "name": "Send today · the shop's cut-off",
+         "padding": {
+          "top": 16,
+          "end": 16,
+          "bottom": 16,
+          "start": 16
+         },
+         "margin": {
+          "top": 18,
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "gap": 12,
+         "background": "#FCECE6",
+         "dark_background": "#2A1720",
+         "border_color": "#F0DDD9",
+         "dark_border_color": "#3A2530",
+         "radius": 26,
+         "border_width": 1,
+         "action": {
+          "type": "screen",
+          "screen": "search"
+         },
+         "children": [
+          {
+           "id": "demo-54",
+           "type": "row",
+           "gap": 12,
+           "cross": "center",
+           "children": [
+            {
+             "id": "demo-55",
+             "type": "icon",
+             "padding": {
+              "top": 11,
+              "end": 11,
+              "bottom": 11,
+              "start": 11
+             },
+             "color": "#FFFFFF",
+             "gradient": {
+              "from": "#C89B6D",
+              "to": "#A8325A",
+              "angle": 135
+             },
+             "radius": 99,
+             "icon": "local_shipping"
+            },
+            {
+             "id": "demo-56",
+             "type": "column",
+             "width": "fill",
+             "gap": 3,
+             "children": [
+              {
+               "id": "demo-57",
+               "type": "text",
+               "color": "#2A121C",
+               "dark_color": "#F8EAEE",
+               "font": {
+                "family": "Fraunces",
+                "weight": 600,
+                "size": 24,
+                "line_height": 1,
+                "letter_spacing": -0.5
+               },
+               "text": "أرسل اليوم"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "demo-59",
+           "type": "row",
+           "name": "Delivery days · today, tomorrow, a date",
+           "width": "fill",
+           "gap": 6,
+           "children": [
+            {
+             "id": "demo-60",
+             "type": "row",
+             "name": "Today",
+             "width": "fill",
+             "height": 36,
+             "padding": {
+              "end": 6,
+              "start": 6
+             },
+             "gap": 5,
+             "align": "center",
+             "cross": "center",
+             "background": "#8E2445",
+             "dark_background": "#F3A9C0",
+             "radius": 18,
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-61",
+               "type": "icon",
+               "color": "#FFFFFF",
+               "dark_color": "#2A121C",
+               "icon": "bolt",
+               "icon_size": 15
+              },
+              {
+               "id": "demo-62",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#2A121C",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "اليوم",
+               "max_lines": 1
+              }
+             ]
+            },
+            {
+             "id": "demo-63",
+             "type": "row",
+             "name": "Tomorrow",
+             "width": "fill",
+             "height": 36,
+             "padding": {
+              "end": 6,
+              "start": 6
+             },
+             "gap": 5,
+             "align": "center",
+             "cross": "center",
+             "border_color": "#F0DDD9",
+             "dark_border_color": "#3A2530",
+             "radius": 18,
+             "border_width": 1,
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-64",
+               "type": "text",
+               "color": "#2A121C",
+               "dark_color": "#F8EAEE",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "غدًا",
+               "max_lines": 1
+              }
+             ]
+            },
+            {
+             "id": "demo-65",
+             "type": "row",
+             "name": "Pick a date",
+             "width": "fill",
+             "height": 36,
+             "padding": {
+              "end": 6,
+              "start": 6
+             },
+             "gap": 5,
+             "align": "center",
+             "cross": "center",
+             "border_color": "#F0DDD9",
+             "dark_border_color": "#3A2530",
+             "radius": 18,
+             "border_width": 1,
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-66",
+               "type": "text",
+               "color": "#2A121C",
+               "dark_color": "#F8EAEE",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "اختر تاريخًا",
+               "max_lines": 1
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "id": "demo-68",
+         "type": "row",
+         "name": "Collections",
+         "padding": {
+          "top": 28,
+          "end": 18,
+          "bottom": 12,
+          "start": 18
+         },
+         "gap": 12,
+         "cross": "end",
+         "children": [
+          {
+           "id": "demo-69",
+           "type": "column",
+           "width": "fill",
+           "gap": 4,
+           "children": [
+            {
+             "id": "demo-70",
+             "type": "text",
+             "color": "#A8325A",
+             "dark_color": "#F3A9C0",
+             "font": {
+              "weight": 700,
+              "size": 11,
+              "letter_spacing": 2,
+              "uppercase": true
+             },
+             "text": "لكل مناسبة"
+            },
+            {
+             "id": "demo-71",
+             "type": "text",
+             "color": "#2A121C",
+             "dark_color": "#F8EAEE",
+             "font": {
+              "family": "Fraunces",
+              "weight": 600,
+              "size": 27,
+              "line_height": 1,
+              "letter_spacing": -0.5
+             },
+             "text": "المجموعات",
+             "max_lines": 2
+            }
+           ]
+          },
+          {
+           "id": "demo-72",
+           "type": "text",
+           "padding": {
+            "bottom": 4
+           },
+           "color": "#A8325A",
+           "dark_color": "#F3A9C0",
+           "font": {
+            "weight": 700,
+            "size": 13
+           },
+           "text": "تسوّق الكل",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-73",
+         "type": "bento",
+         "name": "Collections",
+         "margin": {
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "gap": 10,
+         "radius": 26,
+         "bento": {
+          "caption": "glass",
+          "row": 122
+         },
+         "entries": [
+          {
+           "title": "الباقات المميّزة",
+           "subtitle": "الأكثر حبًّا",
+           "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+           "icon": "local_florist",
+           "size": "large",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          },
+          {
+           "title": "الورود",
+           "image_url": "http://localhost:3000/flower-photos/red-rose.jpg",
+           "icon": "local_florist",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          },
+          {
+           "title": "زهور الموسم",
+           "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
+           "icon": "local_florist",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          },
+          {
+           "title": "النباتات",
+           "image_url": "http://localhost:3000/flower-photos/orchid.jpg",
+           "icon": "local_florist",
+           "size": "wide",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          },
+          {
+           "title": "مجموعات الهدايا",
+           "image_url": "http://localhost:3000/flower-photos/garden-jug.jpg",
+           "icon": "local_florist",
+           "size": "wide",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-74",
+         "type": "row",
+         "name": "Loved most",
+         "padding": {
+          "top": 26,
+          "end": 18,
+          "bottom": 12,
+          "start": 18
+         },
+         "gap": 12,
+         "cross": "end",
+         "children": [
+          {
+           "id": "demo-75",
+           "type": "column",
+           "width": "fill",
+           "gap": 4,
+           "children": [
+            {
+             "id": "demo-76",
+             "type": "text",
+             "color": "#2A121C",
+             "dark_color": "#F8EAEE",
+             "font": {
+              "family": "Fraunces",
+              "weight": 600,
+              "size": 27,
+              "line_height": 1,
+              "letter_spacing": -0.5
+             },
+             "text": "الأكثر حبًّا",
+             "max_lines": 2
+            }
+           ]
+          },
+          {
+           "id": "demo-77",
+           "type": "text",
+           "padding": {
+            "bottom": 4
+           },
+           "color": "#A8325A",
+           "dark_color": "#F3A9C0",
+           "font": {
+            "weight": 700,
+            "size": 13
+           },
+           "text": "تسوّق الكل",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-87",
+         "type": "photo_hero",
+         "name": "Build your bouquet",
+         "height": 300,
+         "padding": {
+          "top": 22,
+          "end": 22,
+          "bottom": 22,
+          "start": 22
+         },
+         "margin": {
+          "top": 22,
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "align": "center",
+         "background": "#2A0C17",
+         "radius": 30,
+         "scrim": {
+          "color": "#2A0C17",
+          "from": 0.92,
+          "to": 0.15,
+          "middle": 0.5,
+          "at": 55,
+          "angle": 90
+         },
+         "image_url": "http://localhost:3000/flower-photos/stems.jpg",
+         "ken_burns": true,
+         "action": {
+          "type": "screen",
+          "screen": "search"
+         },
+         "children": [
+          {
+           "id": "demo-88",
+           "type": "text",
+           "color": "#FFD9C2",
+           "font": {
+            "weight": 700,
+            "size": 11,
+            "letter_spacing": 2.2,
+            "uppercase": true
+           },
+           "text": "اصنعها بذوقك"
+          },
+          {
+           "id": "demo-89",
+           "type": "text",
+           "width": 230,
+           "margin": {
+            "top": 8
+           },
+           "color": "#FFFFFF",
+           "font": {
+            "family": "Fraunces",
+            "weight": 500,
+            "size": 36,
+            "line_height": 1,
+            "letter_spacing": -0.7
+           },
+           "text": "صمّم باقتك",
+           "max_lines": 2
+          },
+          {
+           "id": "demo-90",
+           "type": "text",
+           "width": 230,
+           "margin": {
+            "top": 8
+           },
+           "color": "#FFFFFF",
+           "opacity": 0.9,
+           "font": {
+            "size": 13.5,
+            "line_height": 1.4
+           },
+           "text": "اختر الزهور والتغليف والبطاقة.",
+           "max_lines": 3
+          },
+          {
+           "id": "demo-91",
+           "type": "row",
+           "name": "Build your bouquet",
+           "margin": {
+            "top": 14
+           },
+           "gap": 6,
+           "scroll": true,
+           "children": [
+            {
+             "id": "demo-92",
+             "type": "row",
+             "height": 32,
+             "padding": {
+              "end": 12,
+              "start": 5
+             },
+             "gap": 6,
+             "cross": "center",
+             "border_color": "#F6D3DD",
+             "dark_border_color": "#F6D3DD",
+             "radius": 16,
+             "border_width": 1,
+             "surface": {
+              "glass": 12,
+              "tint": 0.2
+             },
+             "children": [
+              {
+               "id": "demo-93",
+               "type": "row",
+               "width": 22,
+               "height": 22,
+               "align": "center",
+               "cross": "center",
+               "background": "#FFFFFF",
+               "dark_background": "#FFFFFF",
+               "radius": 11,
+               "children": [
+                {
+                 "id": "demo-94",
+                 "type": "text",
+                 "color": "#2A0C17",
+                 "dark_color": "#2A0C17",
+                 "font": {
+                  "family": "DM Sans",
+                  "weight": 800,
+                  "size": 12,
+                  "line_height": 1
+                 },
+                 "text": "1"
+                }
+               ]
+              },
+              {
+               "id": "demo-95",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#FFFFFF",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "الزهور"
+              }
+             ]
+            },
+            {
+             "id": "demo-96",
+             "type": "row",
+             "height": 32,
+             "padding": {
+              "end": 12,
+              "start": 5
+             },
+             "gap": 6,
+             "cross": "center",
+             "border_color": "#F6D3DD",
+             "dark_border_color": "#F6D3DD",
+             "radius": 16,
+             "border_width": 1,
+             "surface": {
+              "glass": 12,
+              "tint": 0.2
+             },
+             "children": [
+              {
+               "id": "demo-97",
+               "type": "row",
+               "width": 22,
+               "height": 22,
+               "align": "center",
+               "cross": "center",
+               "background": "#FFFFFF",
+               "dark_background": "#FFFFFF",
+               "radius": 11,
+               "children": [
+                {
+                 "id": "demo-98",
+                 "type": "text",
+                 "color": "#2A0C17",
+                 "dark_color": "#2A0C17",
+                 "font": {
+                  "family": "DM Sans",
+                  "weight": 800,
+                  "size": 12,
+                  "line_height": 1
+                 },
+                 "text": "2"
+                }
+               ]
+              },
+              {
+               "id": "demo-99",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#FFFFFF",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "التغليف"
+              }
+             ]
+            },
+            {
+             "id": "demo-100",
+             "type": "row",
+             "height": 32,
+             "padding": {
+              "end": 12,
+              "start": 5
+             },
+             "gap": 6,
+             "cross": "center",
+             "border_color": "#F6D3DD",
+             "dark_border_color": "#F6D3DD",
+             "radius": 16,
+             "border_width": 1,
+             "surface": {
+              "glass": 12,
+              "tint": 0.2
+             },
+             "children": [
+              {
+               "id": "demo-101",
+               "type": "row",
+               "width": 22,
+               "height": 22,
+               "align": "center",
+               "cross": "center",
+               "background": "#FFFFFF",
+               "dark_background": "#FFFFFF",
+               "radius": 11,
+               "children": [
+                {
+                 "id": "demo-102",
+                 "type": "text",
+                 "color": "#2A0C17",
+                 "dark_color": "#2A0C17",
+                 "font": {
+                  "family": "DM Sans",
+                  "weight": 800,
+                  "size": 12,
+                  "line_height": 1
+                 },
+                 "text": "3"
+                }
+               ]
+              },
+              {
+               "id": "demo-103",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#FFFFFF",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "البطاقة"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "demo-104",
+           "type": "button",
+           "name": "Start",
+           "width": "hug",
+           "height": 44,
+           "padding": {
+            "end": 20,
+            "start": 20
+           },
+           "margin": {
+            "top": 16
+           },
+           "self_align": "start",
+           "background": "#FFFFFF",
+           "color": "#2A0C17",
+           "dark_background": "#FFFFFF",
+           "dark_color": "#2A0C17",
+           "radius": 22,
+           "shadow": "medium",
+           "font": {
+            "weight": 700,
+            "size": 15
+           },
+           "text": "ابدأ",
+           "icon": "arrow_forward",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-105",
+         "type": "marquee",
+         "name": "Every occasion",
+         "padding": {
+          "top": 14,
+          "bottom": 14
+         },
+         "margin": {
+          "top": 22
+         },
+         "background": "#F6E6E1",
+         "color": "#2A121C",
+         "dark_background": "#1C0F15",
+         "dark_color": "#F8EAEE",
+         "font": {
+          "family": "Fraunces",
+          "weight": 500,
+          "size": 26,
+          "italic": true
+         },
+         "text": "حب\nعيد ميلاد\nمواساة\nمولود جديد\nتهنئة\nشكرًا",
+         "icon": "local_florist",
+         "marquee": {
+          "speed": 34
+         }
+        },
+        {
+         "id": "demo-106",
+         "type": "row",
+         "name": "Kind words",
+         "padding": {
+          "top": 22,
+          "end": 18,
+          "bottom": 12,
+          "start": 18
+         },
+         "gap": 12,
+         "cross": "end",
+         "children": [
+          {
+           "id": "demo-107",
+           "type": "column",
+           "width": "fill",
+           "gap": 4,
+           "children": [
+            {
+             "id": "demo-108",
+             "type": "text",
+             "color": "#2A121C",
+             "dark_color": "#F8EAEE",
+             "font": {
+              "family": "Fraunces",
+              "weight": 600,
+              "size": 27,
+              "line_height": 1,
+              "letter_spacing": -0.5
+             },
+             "text": "What our customers say",
+             "max_lines": 2
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "id": "demo-109",
+         "type": "testimonials",
+         "name": "Kind words",
+         "padding": {
+          "end": 18,
+          "start": 18
+         },
+         "gap": 12,
+         "background": "#FFFFFF",
+         "color": "#2A121C",
+         "dark_background": "#21121A",
+         "dark_color": "#F8EAEE",
+         "border_color": "#F0DDD9",
+         "dark_border_color": "#3A2530",
+         "radius": 26,
+         "border_width": 1,
+         "entries": [
+          {
+           "title": "Jakeer",
+           "text": "The fact that every question was answered to."
+          }
+         ]
+        },
+        {
+         "id": "demo-110",
+         "type": "row",
+         "name": "Floral rule",
+         "padding": {
+          "end": 40,
+          "start": 40
+         },
+         "margin": {
+          "top": 22
+         },
+         "gap": 10,
+         "cross": "center",
+         "children": [
+          {
+           "id": "demo-111",
+           "type": "row",
+           "width": "fill",
+           "height": 1,
+           "background": "#F0DDD9",
+           "dark_background": "#3A2530",
+           "children": []
+          },
+          {
+           "id": "demo-112",
+           "type": "icon",
+           "color": "#A8325A",
+           "dark_color": "#F3A9C0",
+           "icon": "local_florist",
+           "icon_size": 16
+          },
+          {
+           "id": "demo-113",
+           "type": "row",
+           "width": "fill",
+           "height": 1,
+           "background": "#F0DDD9",
+           "dark_background": "#3A2530",
+           "children": []
+          }
+         ]
+        },
+        {
+         "id": "demo-114",
+         "type": "row",
+         "padding": {
+          "top": 12,
+          "end": 14,
+          "bottom": 12,
+          "start": 14
+         },
+         "margin": {
+          "top": 18,
+          "end": 16,
+          "bottom": 8,
+          "start": 16
+         },
+         "gap": 10,
+         "cross": "start",
+         "background": "#FFFFFF",
+         "dark_background": "#21121A",
+         "border_color": "#F0DDD9",
+         "dark_border_color": "#3A2530",
+         "radius": 16,
+         "border_width": 1,
+         "visibility": "signed_out",
+         "children": [
+          {
+           "id": "demo-115",
+           "type": "icon",
+           "color": "#7B5E67",
+           "dark_color": "#C9AEB6",
+           "icon": "info",
+           "icon_size": 18
+          },
+          {
+           "id": "demo-116",
+           "type": "text",
+           "width": "fill",
+           "color": "#7B5E67",
+           "dark_color": "#C9AEB6",
+           "font": {
+            "size": 13,
+            "line_height": 1.5
+           },
+           "text": "هذا تطبيق تجريبي. سجّل الدخول بالرقم ⁦+1 202 555 0123⁩ والرمز 246810. يُحذف كل ما تضيفه بعد يوم."
+          }
+         ]
+        }
+       ]
+      },
+      "background": "#FBF3F0",
+      "dark_background": "#140A0F"
+     }
+    },
+    "shop": {
+     "slug": "shop",
+     "title": "الباقات",
+     "updated_at": "2026-11-18T10:00:00.000Z",
+     "show_title": false,
+     "blocks": [],
+     "studio": {
+      "body": {
+       "id": "demo-170",
+       "type": "column",
+       "children": [
+        {
+         "id": "demo-171",
+         "type": "photo_hero",
+         "name": "Find the right flowers",
+         "height": 190,
+         "padding": {
+          "top": 18,
+          "end": 20,
+          "bottom": 18,
+          "start": 20
+         },
+         "margin": {
+          "top": 8,
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "align": "center",
+         "background": "#2A0C17",
+         "radius": 28,
+         "scrim": {
+          "color": "#2A0C17",
+          "from": 0.85,
+          "to": 0.1,
+          "middle": 0.35,
+          "at": 60,
+          "angle": 90
+         },
+         "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+         "ken_burns": true,
+         "children": [
+          {
+           "id": "demo-172",
+           "type": "text",
+           "width": 220,
+           "color": "#FFFFFF",
+           "font": {
+            "family": "Fraunces",
+            "weight": 500,
+            "size": 28,
+            "line_height": 1,
+            "letter_spacing": -0.6
+           },
+           "text": "اعثر على الزهور المناسبة",
+           "max_lines": 2
+          },
+          {
+           "id": "demo-173",
+           "type": "text",
+           "width": 220,
+           "margin": {
+            "top": 6
+           },
+           "color": "#FFFFFF",
+           "opacity": 0.9,
+           "font": {
+            "size": 13,
+            "line_height": 1.4
+           },
+           "text": "حسب المناسبة واللون والمجموعة.",
+           "max_lines": 2
+          }
+         ]
+        },
+        {
+         "id": "demo-174",
+         "type": "stories",
+         "name": "Every occasion",
+         "padding": {
+          "top": 10,
+          "end": 12,
+          "bottom": 2,
+          "start": 12
+         },
+         "color": "#2A121C",
+         "dark_color": "#F8EAEE",
+         "slides": [
+          {
+           "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+           "heading": "حب",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "highlight",
+           "ring_color": "#C89B6D"
+          },
+          {
+           "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
+           "heading": "عيد ميلاد",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "highlight",
+           "ring_color": "#C89B6D"
+          },
+          {
+           "image_url": "http://localhost:3000/flower-photos/white-lilies.jpg",
+           "heading": "مواساة",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "plain"
+          },
+          {
+           "image_url": "http://localhost:3000/flower-photos/sunshine.jpg",
+           "heading": "مولود جديد",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "plain"
+          },
+          {
+           "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
+           "heading": "تهنئة",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "plain"
+          }
+         ],
+         "interval_ms": 5000,
+         "stories": {
+          "size": 58
+         }
+        },
+        {
+         "id": "demo-175",
+         "type": "row",
+         "name": "The signature bouquet",
+         "padding": {
+          "top": 4,
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "gap": 8,
+         "scroll": true,
+         "children": [
+          {
+           "id": "demo-176",
+           "type": "button",
+           "name": "Our bouquet",
+           "width": "hug",
+           "height": 42,
+           "padding": {
+            "end": 16,
+            "start": 16
+           },
+           "self_align": "start",
+           "background": "#8E2445",
+           "color": "#FFFFFF",
+           "dark_background": "#F3A9C0",
+           "dark_color": "#2A121C",
+           "radius": 21,
+           "font": {
+            "weight": 700,
+            "size": 15
+           },
+           "text": "باقتنا",
+           "icon": "local_florist",
+           "icon_position": "start",
+           "action": {
+            "type": "page",
+            "page_slug": "bouquet"
+           }
+          },
+          {
+           "id": "demo-177",
+           "type": "button",
+           "name": "Your picks",
+           "width": "hug",
+           "height": 42,
+           "padding": {
+            "end": 16,
+            "start": 16
+           },
+           "self_align": "start",
+           "background": "#FFFFFF",
+           "color": "#2A121C",
+           "dark_background": "#21121A",
+           "dark_color": "#F8EAEE",
+           "border_color": "#F0DDD9",
+           "dark_border_color": "#3A2530",
+           "radius": 21,
+           "border_width": 1,
+           "font": {
+            "weight": 700,
+            "size": 15
+           },
+           "text": "اختياراتك",
+           "icon": "favorite",
+           "icon_position": "start",
+           "action": {
+            "type": "page",
+            "page_slug": "wishlist"
+           }
+          }
+         ]
+        }
+       ]
+      },
+      "header": {
+       "type": "title",
+       "title": "الباقات",
+       "buttons": [
+        "notifications"
+       ],
+       "background": "#FBF3F0",
+       "color": "#2A121C",
+       "dark_background": "#140A0F",
+       "dark_color": "#F8EAEE",
+       "style": "petal"
+      },
+      "background": "#FBF3F0",
+      "dark_background": "#140A0F",
+      "screen": "search"
+     }
+    }
+   }
+  }
+ },
+ "second": {
+  "en": {
+   "etag": "\"2026-11-18T10:05:00Z.2~fe8b9c1e0~c750d5a495eb~t1c5bb1e8\"",
+   "navigation": {
+    "version": "2026-11-18T10:05:00Z.2~fe8b9c1e0~c750d5a495eb~t1c5bb1e8",
+    "tabs": [
+     {
+      "id": "home",
+      "label": "Home",
+      "icon": "home",
+      "target": {
+       "type": "page",
+       "page_slug": "home"
+      }
+     },
+     {
+      "id": "shop",
+      "label": "Bouquets",
+      "icon": "local_florist",
+      "target": {
+       "type": "screen",
+       "screen": "search"
+      }
+     },
+     {
+      "id": "cart",
+      "label": "Send",
+      "icon": "redeem",
+      "target": {
+       "type": "screen",
+       "screen": "cart"
+      }
+     },
+     {
+      "id": "orders",
+      "label": "Orders",
+      "icon": "local_shipping",
+      "target": {
+       "type": "screen",
+       "screen": "orders"
+      }
+     },
+     {
+      "id": "account",
+      "label": "Account",
+      "icon": "person",
+      "target": {
+       "type": "screen",
+       "screen": "account"
+      }
+     }
+    ],
+    "more": [],
+    "tab_bar": {
+     "design": "petal",
+     "background": "#FFFFFF",
+     "dark_background": "#24131B",
+     "active": "#8E2445",
+     "inactive": "#7B5E67",
+     "dark_active": "#F3A9C0",
+     "dark_inactive": "#C9AEB6",
+     "radius": 30,
+     "margin": 12,
+     "labels": "active",
+     "center": "cart"
+    },
+    "menu": [],
+    "pages": [
+     {
+      "slug": "home",
+      "title": "Home",
+      "updated_at": "2026-11-18T10:05:00.000Z"
+     },
+     {
+      "slug": "shop",
+      "title": "Bouquets",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "search"
+     },
+     {
+      "slug": "cart",
+      "title": "Send",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "cart"
+     },
+     {
+      "slug": "orders",
+      "title": "Orders",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "orders"
+     },
+     {
+      "slug": "account",
+      "title": "Account",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "account"
+     },
+     {
+      "slug": "bouquet",
+      "title": "Our bouquet",
+      "updated_at": "2026-11-18T10:00:00.000Z"
+     },
+     {
+      "slug": "wishlist",
+      "title": "Your picks",
+      "updated_at": "2026-11-18T10:00:00.000Z"
+     },
+     {
+      "slug": "settings",
+      "title": "Settings",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "settings"
+     },
+     {
+      "slug": "notifications",
+      "title": "Notifications",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "notifications"
+     },
+     {
+      "slug": "edit-profile",
+      "title": "Edit profile",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "edit_profile"
+     },
+     {
+      "slug": "devices",
+      "title": "Devices",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "devices"
+     },
+     {
+      "slug": "change-password",
+      "title": "Change password",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "change_password"
+     },
+     {
+      "slug": "chat-conversation",
+      "title": "A conversation",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "chat_conversation"
+     }
+    ]
+   },
+   "pages": {
+    "home": {
+     "slug": "home",
+     "title": "Home",
+     "updated_at": "2026-11-18T10:05:00.000Z",
+     "show_title": false,
+     "blocks": [],
+     "studio": {
+      "body": {
+       "id": "demo-1",
+       "type": "column",
+       "padding": {
+        "bottom": 96
+       },
+       "children": [
+        {
+         "id": "demo-2",
+         "type": "stack",
+         "name": "Say it with roses.",
+         "height": 520,
+         "cross": "start",
+         "children": [
+          {
+           "id": "demo-3",
+           "type": "slider",
+           "name": "Every occasion",
+           "height": 520,
+           "autoplay": true,
+           "interval_ms": 5500,
+           "indicator": "progress",
+           "indicator_look": {
+            "at": "top",
+            "inset": 80,
+            "color": "#FFFFFF",
+            "count": "padded"
+           },
+           "ken_burns": true,
+           "children": [
+            {
+             "id": "demo-4",
+             "type": "photo_hero",
+             "name": "Say it with roses.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-5",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-6",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-7",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "favorite",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-8",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "For love"
+                }
+               ]
+              },
+              {
+               "id": "demo-9",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "Say it with roses.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-10",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "Bouquets with a card in your own words.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-11",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "Send flowers",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            },
+            {
+             "id": "demo-12",
+             "type": "photo_hero",
+             "name": "Another year, in bloom.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-13",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-14",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-15",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "cake",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-16",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "For a birthday"
+                }
+               ]
+              },
+              {
+               "id": "demo-17",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "Another year, in bloom.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-18",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "Bouquets with a card in your own words.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-19",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "Send flowers",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            },
+            {
+             "id": "demo-20",
+             "type": "photo_hero",
+             "name": "Gentle words, in white.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/white-lilies.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-21",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-22",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-23",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "spa",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-24",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "With sympathy"
+                }
+               ]
+              },
+              {
+               "id": "demo-25",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "Gentle words, in white.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-26",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "Bouquets with a card in your own words.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-27",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "Send flowers",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            },
+            {
+             "id": "demo-28",
+             "type": "photo_hero",
+             "name": "Hello, little one.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/sunshine.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-29",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-30",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-31",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "child_care",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-32",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "For a new baby"
+                }
+               ]
+              },
+              {
+               "id": "demo-33",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "Hello, little one.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-34",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "Bouquets with a card in your own words.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-35",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "Send flowers",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            },
+            {
+             "id": "demo-36",
+             "type": "photo_hero",
+             "name": "Well done, in full bloom.",
+             "height": 520,
+             "padding": {
+              "end": 22,
+              "bottom": 34,
+              "start": 22
+             },
+             "align": "end",
+             "background": "#2A0C17",
+             "scrim": {
+              "color": "#2A0C17",
+              "from": 0.55,
+              "to": 0.9,
+              "middle": 0.12,
+              "at": 38
+             },
+             "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-37",
+               "type": "row",
+               "height": 22,
+               "gap": 8,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "demo-38",
+                 "type": "row",
+                 "width": 22,
+                 "height": 1,
+                 "self_align": "center",
+                 "background": "#FFD9C2",
+                 "dark_background": "#FFD9C2",
+                 "children": []
+                },
+                {
+                 "id": "demo-39",
+                 "type": "icon",
+                 "color": "#FFD9C2",
+                 "icon": "celebration",
+                 "icon_size": 15
+                },
+                {
+                 "id": "demo-40",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 700,
+                  "size": 11,
+                  "letter_spacing": 1.8,
+                  "uppercase": true
+                 },
+                 "text": "To congratulate"
+                }
+               ]
+              },
+              {
+               "id": "demo-41",
+               "type": "text",
+               "margin": {
+                "top": 14
+               },
+               "color": "#FFFFFF",
+               "font": {
+                "family": "Fraunces",
+                "weight": 500,
+                "size": 50,
+                "line_height": 1,
+                "letter_spacing": -1
+               },
+               "text": "Well done, in full bloom.",
+               "max_lines": 3
+              },
+              {
+               "id": "demo-42",
+               "type": "text",
+               "margin": {
+                "top": 10
+               },
+               "color": "#FFFFFF",
+               "opacity": 0.9,
+               "font": {
+                "size": 15,
+                "line_height": 1.4
+               },
+               "text": "Bouquets with a card in your own words.",
+               "max_lines": 2
+              },
+              {
+               "id": "demo-43",
+               "type": "button",
+               "name": "Send flowers",
+               "width": "hug",
+               "height": 48,
+               "padding": {
+                "end": 20,
+                "start": 20
+               },
+               "margin": {
+                "top": 16
+               },
+               "self_align": "start",
+               "background": "#FFFFFF",
+               "color": "#2A0C17",
+               "dark_background": "#FFFFFF",
+               "dark_color": "#2A0C17",
+               "radius": 24,
+               "shadow": "medium",
+               "font": {
+                "weight": 700,
+                "size": 15
+               },
+               "text": "Send flowers",
+               "icon": "arrow_forward",
+               "action": {
+                "type": "screen",
+                "screen": "search"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "demo-44",
+           "type": "row",
+           "name": "Leqaa",
+           "width": "fill",
+           "height": 68,
+           "padding": {
+            "top": 26,
+            "end": 16,
+            "start": 16
+           },
+           "gap": 10,
+           "cross": "center",
+           "self_align": "start",
+           "children": [
+            {
+             "id": "demo-45",
+             "type": "row",
+             "width": 42,
+             "height": 42,
+             "align": "center",
+             "cross": "center",
+             "self_align": "center",
+             "border_color": "#FFFFFF",
+             "radius": 21,
+             "border_width": 1,
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "surface": {
+              "glass": 16,
+              "tint": 0.18
+             },
+             "children": [
+              {
+               "id": "demo-46",
+               "type": "icon",
+               "color": "#FFFFFF",
+               "icon": "search",
+               "icon_size": 21
+              }
+             ]
+            },
+            {
+             "id": "demo-47",
+             "type": "text",
+             "width": "fill",
+             "color": "#00A86B",
+             "font": {
+              "family": "Fraunces",
+              "weight": 600,
+              "size": 26,
+              "line_height": 1,
+              "letter_spacing": 0.5
+             },
+             "text_align": "center",
+             "text": "Leqaa",
+             "max_lines": 1
+            },
+            {
+             "id": "demo-48",
+             "type": "row",
+             "width": 42,
+             "height": 42,
+             "align": "center",
+             "cross": "center",
+             "self_align": "center",
+             "border_color": "#FFFFFF",
+             "radius": 21,
+             "border_width": 1,
+             "action": {
+              "type": "screen",
+              "screen": "cart"
+             },
+             "surface": {
+              "glass": 16,
+              "tint": 0.18
+             },
+             "children": [
+              {
+               "id": "demo-49",
+               "type": "icon",
+               "color": "#FFFFFF",
+               "icon": "shopping_bag",
+               "icon_size": 21
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "id": "demo-51",
+         "type": "column",
+         "name": "Every occasion",
+         "width": "fill",
+         "padding": {
+          "top": 14,
+          "end": 6,
+          "bottom": 8,
+          "start": 6
+         },
+         "margin": {
+          "top": 14,
+          "end": 14,
+          "start": 14
+         },
+         "background": "#FFFFFF",
+         "dark_background": "#21121A",
+         "border_color": "#FFFFFF",
+         "dark_border_color": "#3A2530",
+         "radius": 28,
+         "border_width": 1,
+         "surface": {
+          "glass": 22,
+          "tint": 0.88,
+          "soft": 3
+         },
+         "children": [
+          {
+           "id": "demo-52",
+           "type": "stories",
+           "name": "Every occasion",
+           "color": "#2A121C",
+           "dark_color": "#F8EAEE",
+           "slides": [
+            {
+             "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+             "heading": "Love",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "highlight",
+             "ring_color": "#C89B6D"
+            },
+            {
+             "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
+             "heading": "Birthday",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "highlight",
+             "ring_color": "#C89B6D"
+            },
+            {
+             "image_url": "http://localhost:3000/flower-photos/white-lilies.jpg",
+             "heading": "Sympathy",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "plain"
+            },
+            {
+             "image_url": "http://localhost:3000/flower-photos/sunshine.jpg",
+             "heading": "New baby",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "plain"
+            },
+            {
+             "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
+             "heading": "Congratulations",
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "ring": "plain"
+            }
+           ],
+           "interval_ms": 5000,
+           "stories": {
+            "size": 62
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-53",
+         "type": "column",
+         "name": "Send today · the shop's cut-off",
+         "padding": {
+          "top": 16,
+          "end": 16,
+          "bottom": 16,
+          "start": 16
+         },
+         "margin": {
+          "top": 18,
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "gap": 12,
+         "background": "#FCECE6",
+         "dark_background": "#2A1720",
+         "border_color": "#F0DDD9",
+         "dark_border_color": "#3A2530",
+         "radius": 26,
+         "border_width": 1,
+         "action": {
+          "type": "screen",
+          "screen": "search"
+         },
+         "children": [
+          {
+           "id": "demo-54",
+           "type": "row",
+           "gap": 12,
+           "cross": "center",
+           "children": [
+            {
+             "id": "demo-55",
+             "type": "icon",
+             "padding": {
+              "top": 11,
+              "end": 11,
+              "bottom": 11,
+              "start": 11
+             },
+             "color": "#FFFFFF",
+             "gradient": {
+              "from": "#C89B6D",
+              "to": "#A8325A",
+              "angle": 135
+             },
+             "radius": 99,
+             "icon": "local_shipping"
+            },
+            {
+             "id": "demo-56",
+             "type": "column",
+             "width": "fill",
+             "gap": 3,
+             "children": [
+              {
+               "id": "demo-57",
+               "type": "text",
+               "color": "#2A121C",
+               "dark_color": "#F8EAEE",
+               "font": {
+                "family": "Fraunces",
+                "weight": 600,
+                "size": 24,
+                "line_height": 1,
+                "letter_spacing": -0.5
+               },
+               "text": "Send today"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "demo-59",
+           "type": "row",
+           "name": "Delivery days · today, tomorrow, a date",
+           "width": "fill",
+           "gap": 6,
+           "children": [
+            {
+             "id": "demo-60",
+             "type": "row",
+             "name": "Today",
+             "width": "fill",
+             "height": 36,
+             "padding": {
+              "end": 6,
+              "start": 6
+             },
+             "gap": 5,
+             "align": "center",
+             "cross": "center",
+             "background": "#8E2445",
+             "dark_background": "#F3A9C0",
+             "radius": 18,
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-61",
+               "type": "icon",
+               "color": "#FFFFFF",
+               "dark_color": "#2A121C",
+               "icon": "bolt",
+               "icon_size": 15
+              },
+              {
+               "id": "demo-62",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#2A121C",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "Today",
+               "max_lines": 1
+              }
+             ]
+            },
+            {
+             "id": "demo-63",
+             "type": "row",
+             "name": "Tomorrow",
+             "width": "fill",
+             "height": 36,
+             "padding": {
+              "end": 6,
+              "start": 6
+             },
+             "gap": 5,
+             "align": "center",
+             "cross": "center",
+             "border_color": "#F0DDD9",
+             "dark_border_color": "#3A2530",
+             "radius": 18,
+             "border_width": 1,
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-64",
+               "type": "text",
+               "color": "#2A121C",
+               "dark_color": "#F8EAEE",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "Tomorrow",
+               "max_lines": 1
+              }
+             ]
+            },
+            {
+             "id": "demo-65",
+             "type": "row",
+             "name": "Pick a date",
+             "width": "fill",
+             "height": 36,
+             "padding": {
+              "end": 6,
+              "start": 6
+             },
+             "gap": 5,
+             "align": "center",
+             "cross": "center",
+             "border_color": "#F0DDD9",
+             "dark_border_color": "#3A2530",
+             "radius": 18,
+             "border_width": 1,
+             "action": {
+              "type": "screen",
+              "screen": "search"
+             },
+             "children": [
+              {
+               "id": "demo-66",
+               "type": "text",
+               "color": "#2A121C",
+               "dark_color": "#F8EAEE",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "Pick a date",
+               "max_lines": 1
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "id": "demo-68",
+         "type": "row",
+         "name": "Collections",
+         "padding": {
+          "top": 28,
+          "end": 18,
+          "bottom": 12,
+          "start": 18
+         },
+         "gap": 12,
+         "cross": "end",
+         "children": [
+          {
+           "id": "demo-69",
+           "type": "column",
+           "width": "fill",
+           "gap": 4,
+           "children": [
+            {
+             "id": "demo-70",
+             "type": "text",
+             "color": "#A8325A",
+             "dark_color": "#F3A9C0",
+             "font": {
+              "weight": 700,
+              "size": 11,
+              "letter_spacing": 2,
+              "uppercase": true
+             },
+             "text": "Every occasion"
+            },
+            {
+             "id": "demo-71",
+             "type": "text",
+             "color": "#2A121C",
+             "dark_color": "#F8EAEE",
+             "font": {
+              "family": "Fraunces",
+              "weight": 600,
+              "size": 27,
+              "line_height": 1,
+              "letter_spacing": -0.5
+             },
+             "text": "Collections",
+             "max_lines": 2
+            }
+           ]
+          },
+          {
+           "id": "demo-72",
+           "type": "text",
+           "padding": {
+            "bottom": 4
+           },
+           "color": "#A8325A",
+           "dark_color": "#F3A9C0",
+           "font": {
+            "weight": 700,
+            "size": 13
+           },
+           "text": "Shop all",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-73",
+         "type": "bento",
+         "name": "Collections",
+         "margin": {
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "gap": 10,
+         "radius": 26,
+         "bento": {
+          "caption": "glass",
+          "row": 122
+         },
+         "entries": [
+          {
+           "title": "Signature bouquets",
+           "subtitle": "Loved most",
+           "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+           "icon": "local_florist",
+           "size": "large",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          },
+          {
+           "title": "Roses",
+           "image_url": "http://localhost:3000/flower-photos/red-rose.jpg",
+           "icon": "local_florist",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          },
+          {
+           "title": "In season",
+           "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
+           "icon": "local_florist",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          },
+          {
+           "title": "Plants",
+           "image_url": "http://localhost:3000/flower-photos/orchid.jpg",
+           "icon": "local_florist",
+           "size": "wide",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          },
+          {
+           "title": "Gift sets",
+           "image_url": "http://localhost:3000/flower-photos/garden-jug.jpg",
+           "icon": "local_florist",
+           "size": "wide",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-74",
+         "type": "row",
+         "name": "Loved most",
+         "padding": {
+          "top": 26,
+          "end": 18,
+          "bottom": 12,
+          "start": 18
+         },
+         "gap": 12,
+         "cross": "end",
+         "children": [
+          {
+           "id": "demo-75",
+           "type": "column",
+           "width": "fill",
+           "gap": 4,
+           "children": [
+            {
+             "id": "demo-76",
+             "type": "text",
+             "color": "#2A121C",
+             "dark_color": "#F8EAEE",
+             "font": {
+              "family": "Fraunces",
+              "weight": 600,
+              "size": 27,
+              "line_height": 1,
+              "letter_spacing": -0.5
+             },
+             "text": "Loved most",
+             "max_lines": 2
+            }
+           ]
+          },
+          {
+           "id": "demo-77",
+           "type": "text",
+           "padding": {
+            "bottom": 4
+           },
+           "color": "#A8325A",
+           "dark_color": "#F3A9C0",
+           "font": {
+            "weight": 700,
+            "size": 13
+           },
+           "text": "Shop all",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-87",
+         "type": "photo_hero",
+         "name": "Build your bouquet",
+         "height": 300,
+         "padding": {
+          "top": 22,
+          "end": 22,
+          "bottom": 22,
+          "start": 22
+         },
+         "margin": {
+          "top": 22,
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "align": "center",
+         "background": "#2A0C17",
+         "radius": 30,
+         "scrim": {
+          "color": "#2A0C17",
+          "from": 0.92,
+          "to": 0.15,
+          "middle": 0.5,
+          "at": 55,
+          "angle": 90
+         },
+         "image_url": "http://localhost:3000/flower-photos/stems.jpg",
+         "ken_burns": true,
+         "action": {
+          "type": "screen",
+          "screen": "search"
+         },
+         "children": [
+          {
+           "id": "demo-88",
+           "type": "text",
+           "color": "#FFD9C2",
+           "font": {
+            "weight": 700,
+            "size": 11,
+            "letter_spacing": 2.2,
+            "uppercase": true
+           },
+           "text": "Make it yours"
+          },
+          {
+           "id": "demo-89",
+           "type": "text",
+           "width": 230,
+           "margin": {
+            "top": 8
+           },
+           "color": "#FFFFFF",
+           "font": {
+            "family": "Fraunces",
+            "weight": 500,
+            "size": 36,
+            "line_height": 1,
+            "letter_spacing": -0.7
+           },
+           "text": "Build your bouquet",
+           "max_lines": 2
+          },
+          {
+           "id": "demo-90",
+           "type": "text",
+           "width": 230,
+           "margin": {
+            "top": 8
+           },
+           "color": "#FFFFFF",
+           "opacity": 0.9,
+           "font": {
+            "size": 13.5,
+            "line_height": 1.4
+           },
+           "text": "Choose the flowers, the wrap and the card.",
+           "max_lines": 3
+          },
+          {
+           "id": "demo-91",
+           "type": "row",
+           "name": "Build your bouquet",
+           "margin": {
+            "top": 14
+           },
+           "gap": 6,
+           "scroll": true,
+           "children": [
+            {
+             "id": "demo-92",
+             "type": "row",
+             "height": 32,
+             "padding": {
+              "end": 12,
+              "start": 5
+             },
+             "gap": 6,
+             "cross": "center",
+             "border_color": "#F6D3DD",
+             "dark_border_color": "#F6D3DD",
+             "radius": 16,
+             "border_width": 1,
+             "surface": {
+              "glass": 12,
+              "tint": 0.2
+             },
+             "children": [
+              {
+               "id": "demo-93",
+               "type": "row",
+               "width": 22,
+               "height": 22,
+               "align": "center",
+               "cross": "center",
+               "background": "#FFFFFF",
+               "dark_background": "#FFFFFF",
+               "radius": 11,
+               "children": [
+                {
+                 "id": "demo-94",
+                 "type": "text",
+                 "color": "#2A0C17",
+                 "dark_color": "#2A0C17",
+                 "font": {
+                  "family": "DM Sans",
+                  "weight": 800,
+                  "size": 12,
+                  "line_height": 1
+                 },
+                 "text": "1"
+                }
+               ]
+              },
+              {
+               "id": "demo-95",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#FFFFFF",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "Flowers"
+              }
+             ]
+            },
+            {
+             "id": "demo-96",
+             "type": "row",
+             "height": 32,
+             "padding": {
+              "end": 12,
+              "start": 5
+             },
+             "gap": 6,
+             "cross": "center",
+             "border_color": "#F6D3DD",
+             "dark_border_color": "#F6D3DD",
+             "radius": 16,
+             "border_width": 1,
+             "surface": {
+              "glass": 12,
+              "tint": 0.2
+             },
+             "children": [
+              {
+               "id": "demo-97",
+               "type": "row",
+               "width": 22,
+               "height": 22,
+               "align": "center",
+               "cross": "center",
+               "background": "#FFFFFF",
+               "dark_background": "#FFFFFF",
+               "radius": 11,
+               "children": [
+                {
+                 "id": "demo-98",
+                 "type": "text",
+                 "color": "#2A0C17",
+                 "dark_color": "#2A0C17",
+                 "font": {
+                  "family": "DM Sans",
+                  "weight": 800,
+                  "size": 12,
+                  "line_height": 1
+                 },
+                 "text": "2"
+                }
+               ]
+              },
+              {
+               "id": "demo-99",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#FFFFFF",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "Wrap"
+              }
+             ]
+            },
+            {
+             "id": "demo-100",
+             "type": "row",
+             "height": 32,
+             "padding": {
+              "end": 12,
+              "start": 5
+             },
+             "gap": 6,
+             "cross": "center",
+             "border_color": "#F6D3DD",
+             "dark_border_color": "#F6D3DD",
+             "radius": 16,
+             "border_width": 1,
+             "surface": {
+              "glass": 12,
+              "tint": 0.2
+             },
+             "children": [
+              {
+               "id": "demo-101",
+               "type": "row",
+               "width": 22,
+               "height": 22,
+               "align": "center",
+               "cross": "center",
+               "background": "#FFFFFF",
+               "dark_background": "#FFFFFF",
+               "radius": 11,
+               "children": [
+                {
+                 "id": "demo-102",
+                 "type": "text",
+                 "color": "#2A0C17",
+                 "dark_color": "#2A0C17",
+                 "font": {
+                  "family": "DM Sans",
+                  "weight": 800,
+                  "size": 12,
+                  "line_height": 1
+                 },
+                 "text": "3"
+                }
+               ]
+              },
+              {
+               "id": "demo-103",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#FFFFFF",
+               "font": {
+                "weight": 700,
+                "size": 12.5
+               },
+               "text": "Card"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "demo-104",
+           "type": "button",
+           "name": "Start",
+           "width": "hug",
+           "height": 44,
+           "padding": {
+            "end": 20,
+            "start": 20
+           },
+           "margin": {
+            "top": 16
+           },
+           "self_align": "start",
+           "background": "#FFFFFF",
+           "color": "#2A0C17",
+           "dark_background": "#FFFFFF",
+           "dark_color": "#2A0C17",
+           "radius": 22,
+           "shadow": "medium",
+           "font": {
+            "weight": 700,
+            "size": 15
+           },
+           "text": "Start",
+           "icon": "arrow_forward",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           }
+          }
+         ]
+        },
+        {
+         "id": "demo-105",
+         "type": "marquee",
+         "name": "Every occasion",
+         "padding": {
+          "top": 14,
+          "bottom": 14
+         },
+         "margin": {
+          "top": 22
+         },
+         "background": "#F6E6E1",
+         "color": "#2A121C",
+         "dark_background": "#1C0F15",
+         "dark_color": "#F8EAEE",
+         "font": {
+          "family": "Fraunces",
+          "weight": 500,
+          "size": 26,
+          "italic": true
+         },
+         "text": "Love\nBirthday\nSympathy\nNew baby\nCongratulations\nThank you",
+         "icon": "local_florist",
+         "marquee": {
+          "speed": 34
+         }
+        },
+        {
+         "id": "demo-106",
+         "type": "row",
+         "name": "Kind words",
+         "padding": {
+          "top": 22,
+          "end": 18,
+          "bottom": 12,
+          "start": 18
+         },
+         "gap": 12,
+         "cross": "end",
+         "children": [
+          {
+           "id": "demo-107",
+           "type": "column",
+           "width": "fill",
+           "gap": 4,
+           "children": [
+            {
+             "id": "demo-108",
+             "type": "text",
+             "color": "#2A121C",
+             "dark_color": "#F8EAEE",
+             "font": {
+              "family": "Fraunces",
+              "weight": 600,
+              "size": 27,
+              "line_height": 1,
+              "letter_spacing": -0.5
+             },
+             "text": "Our customers' words",
+             "max_lines": 2
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "id": "demo-109",
+         "type": "testimonials",
+         "name": "Kind words",
+         "padding": {
+          "end": 18,
+          "start": 18
+         },
+         "gap": 12,
+         "background": "#FFFFFF",
+         "color": "#2A121C",
+         "dark_background": "#21121A",
+         "dark_color": "#F8EAEE",
+         "border_color": "#F0DDD9",
+         "dark_border_color": "#3A2530",
+         "radius": 26,
+         "border_width": 1,
+         "entries": [
+          {
+           "title": "Jakeer",
+           "text": "The fact that every question was answered to."
+          }
+         ]
+        },
+        {
+         "id": "demo-110",
+         "type": "row",
+         "name": "Floral rule",
+         "padding": {
+          "end": 40,
+          "start": 40
+         },
+         "margin": {
+          "top": 22
+         },
+         "gap": 10,
+         "cross": "center",
+         "children": [
+          {
+           "id": "demo-111",
+           "type": "row",
+           "width": "fill",
+           "height": 1,
+           "background": "#F0DDD9",
+           "dark_background": "#3A2530",
+           "children": []
+          },
+          {
+           "id": "demo-112",
+           "type": "icon",
+           "color": "#A8325A",
+           "dark_color": "#F3A9C0",
+           "icon": "local_florist",
+           "icon_size": 16
+          },
+          {
+           "id": "demo-113",
+           "type": "row",
+           "width": "fill",
+           "height": 1,
+           "background": "#F0DDD9",
+           "dark_background": "#3A2530",
+           "children": []
+          }
+         ]
+        },
+        {
+         "id": "demo-114",
+         "type": "row",
+         "padding": {
+          "top": 12,
+          "end": 14,
+          "bottom": 12,
+          "start": 14
+         },
+         "margin": {
+          "top": 18,
+          "end": 16,
+          "bottom": 8,
+          "start": 16
+         },
+         "gap": 10,
+         "cross": "start",
+         "background": "#FFFFFF",
+         "dark_background": "#21121A",
+         "border_color": "#F0DDD9",
+         "dark_border_color": "#3A2530",
+         "radius": 16,
+         "border_width": 1,
+         "visibility": "signed_out",
+         "children": [
+          {
+           "id": "demo-115",
+           "type": "icon",
+           "color": "#7B5E67",
+           "dark_color": "#C9AEB6",
+           "icon": "info",
+           "icon_size": 18
+          },
+          {
+           "id": "demo-116",
+           "type": "text",
+           "width": "fill",
+           "color": "#7B5E67",
+           "dark_color": "#C9AEB6",
+           "font": {
+            "size": 13,
+            "line_height": 1.5
+           },
+           "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day."
+          }
+         ]
+        }
+       ]
+      },
+      "background": "#FBF3F0",
+      "dark_background": "#140A0F"
+     }
+    },
+    "shop": {
+     "slug": "shop",
+     "title": "Bouquets",
+     "updated_at": "2026-11-18T10:00:00.000Z",
+     "show_title": false,
+     "blocks": [],
+     "studio": {
+      "body": {
+       "id": "demo-170",
+       "type": "column",
+       "children": [
+        {
+         "id": "demo-171",
+         "type": "photo_hero",
+         "name": "Find the right flowers",
+         "height": 190,
+         "padding": {
+          "top": 18,
+          "end": 20,
+          "bottom": 18,
+          "start": 20
+         },
+         "margin": {
+          "top": 8,
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "align": "center",
+         "background": "#2A0C17",
+         "radius": 28,
+         "scrim": {
+          "color": "#2A0C17",
+          "from": 0.85,
+          "to": 0.1,
+          "middle": 0.35,
+          "at": 60,
+          "angle": 90
+         },
+         "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+         "ken_burns": true,
+         "children": [
+          {
+           "id": "demo-172",
+           "type": "text",
+           "width": 220,
+           "color": "#FFFFFF",
+           "font": {
+            "family": "Fraunces",
+            "weight": 500,
+            "size": 28,
+            "line_height": 1,
+            "letter_spacing": -0.6
+           },
+           "text": "Find the right flowers",
+           "max_lines": 2
+          },
+          {
+           "id": "demo-173",
+           "type": "text",
+           "width": 220,
+           "margin": {
+            "top": 6
+           },
+           "color": "#FFFFFF",
+           "opacity": 0.9,
+           "font": {
+            "size": 13,
+            "line_height": 1.4
+           },
+           "text": "By occasion, by colour, by collection.",
+           "max_lines": 2
+          }
+         ]
+        },
+        {
+         "id": "demo-174",
+         "type": "stories",
+         "name": "Every occasion",
+         "padding": {
+          "top": 10,
+          "end": 12,
+          "bottom": 2,
+          "start": 12
+         },
+         "color": "#2A121C",
+         "dark_color": "#F8EAEE",
+         "slides": [
+          {
+           "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
+           "heading": "Love",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "highlight",
+           "ring_color": "#C89B6D"
+          },
+          {
+           "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
+           "heading": "Birthday",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "highlight",
+           "ring_color": "#C89B6D"
+          },
+          {
+           "image_url": "http://localhost:3000/flower-photos/white-lilies.jpg",
+           "heading": "Sympathy",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "plain"
+          },
+          {
+           "image_url": "http://localhost:3000/flower-photos/sunshine.jpg",
+           "heading": "New baby",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "plain"
+          },
+          {
+           "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
+           "heading": "Congratulations",
+           "action": {
+            "type": "screen",
+            "screen": "search"
+           },
+           "ring": "plain"
+          }
+         ],
+         "interval_ms": 5000,
+         "stories": {
+          "size": 58
+         }
+        },
+        {
+         "id": "demo-175",
+         "type": "row",
+         "name": "The signature bouquet",
+         "padding": {
+          "top": 4,
+          "end": 16,
+          "bottom": 4,
+          "start": 16
+         },
+         "gap": 8,
+         "scroll": true,
+         "children": [
+          {
+           "id": "demo-176",
+           "type": "button",
+           "name": "Our bouquet",
+           "width": "hug",
+           "height": 42,
+           "padding": {
+            "end": 16,
+            "start": 16
+           },
+           "self_align": "start",
+           "background": "#8E2445",
+           "color": "#FFFFFF",
+           "dark_background": "#F3A9C0",
+           "dark_color": "#2A121C",
+           "radius": 21,
+           "font": {
+            "weight": 700,
+            "size": 15
+           },
+           "text": "Our bouquet",
+           "icon": "local_florist",
+           "icon_position": "start",
+           "action": {
+            "type": "page",
+            "page_slug": "bouquet"
+           }
+          },
+          {
+           "id": "demo-177",
+           "type": "button",
+           "name": "Your picks",
+           "width": "hug",
+           "height": 42,
+           "padding": {
+            "end": 16,
+            "start": 16
+           },
+           "self_align": "start",
+           "background": "#FFFFFF",
+           "color": "#2A121C",
+           "dark_background": "#21121A",
+           "dark_color": "#F8EAEE",
+           "border_color": "#F0DDD9",
+           "dark_border_color": "#3A2530",
+           "radius": 21,
+           "border_width": 1,
+           "font": {
+            "weight": 700,
+            "size": 15
+           },
+           "text": "Your picks",
+           "icon": "favorite",
+           "icon_position": "start",
+           "action": {
+            "type": "page",
+            "page_slug": "wishlist"
+           }
+          }
+         ]
+        }
+       ]
+      },
+      "header": {
+       "type": "title",
+       "title": "Bouquets",
+       "buttons": [
+        "notifications"
+       ],
+       "background": "#FBF3F0",
+       "color": "#2A121C",
+       "dark_background": "#140A0F",
+       "dark_color": "#F8EAEE",
+       "style": "petal"
+      },
+      "background": "#FBF3F0",
+      "dark_background": "#140A0F",
+      "screen": "search"
+     }
+    }
+   }
+  }
+ }
+}

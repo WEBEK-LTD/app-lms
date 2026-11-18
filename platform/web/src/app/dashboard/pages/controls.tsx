@@ -218,7 +218,7 @@ export function LangText<T extends { translations?: Translations } & object>({
             : t("pages.emptyDefault", { default: name(lang.default) })
           : hint
       }
-      onChange={(text) => onChange(withText(value, field, text, lang.edit, lang.default))}
+      onChange={(text) => onChange(withText(value, field, text, lang.edit, lang.default, true))}
     />
   );
 }

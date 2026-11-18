@@ -18,13 +18,14 @@ import { ownDesignView } from "@/lib/studio/own-designs";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { marketCanvasOf } from "@/lib/studio/market-canvas-data";
 import { sampleEntries } from "@/lib/studio/sample-entries";
-import { designLayout, hasUnpublishedChanges, layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
+import { designLayout, hasUnpublishedChanges, layoutHistory, loadLayout, withoutStaleDraftTranslations, withoutStrings } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
 import { categorySourcesFor, itemSourcesFor, pageScreenOptionsFor, screenOptionsFor } from "@/lib/pages/sources";
 import { hasFeature } from "@/lib/plans";
 import { isStudioProject } from "@/lib/studio/section";
 import { studioDemoOf } from "@/lib/studio/demo-templates";
 import { screensConfig, studioScreensOn } from "@/lib/studio/screens";
+import { screenTextForms } from "@/lib/demo/screen-text-forms";
 import { demoDesign } from "@/lib/demo/look";
 import { getDashT } from "@/i18n/dashboard";
 import { LANGS, type Lang } from "@/i18n/config";
@@ -65,7 +66,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
     <>
     <StudioEditor
       initial={{
-        draft: withoutStrings(record.draft),
+        // 156 Without the template's translations of texts the owner changed: each language as the app shows it.
+        draft: withoutStaleDraftTranslations(withoutStrings(record.draft), app),
         savedAt: record.draftUpdatedAt.toISOString(),
         published: record.published && record.publishedAt ? { version: record.published.version, at: record.publishedAt.toISOString() } : null,
         // App audit: whether the draft has changes the app doesn't show yet (they need Publish).
@@ -102,7 +104,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       // 115.14 What a marketplace's sections show on the canvas, read as the app reads it.
       market={await marketCanvasOf(app, { store, assetUrl, platformUrl: appUrl() }, now)}
       // 124.8 The screens drawn on the canvas in the looks the app gets, and where those are chosen.
-      studioScreens={screensConfig(app).screens ?? null}
+      // 156 Each language's texts as the app shows them.
+      studioScreens={screensConfig(app, { language: record.draft.languages.default, words: screenTextForms() }).screens ?? null}
       screensHref={studioScreensOn(app) ? "/studio/project/screens" : null}
       // 128 The canvas's sample cards in the language being edited.
       canvasWords={Object.fromEntries(record.draft.languages.available.filter((l): l is Lang => (LANGS as readonly string[]).includes(l)).map((l) => [l, canvasWords(getDashT(l))]))}
