@@ -12494,9 +12494,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketAtMostAfterWeighing => 'Cash: at most';
 
   @override
-  String get marketWeighFinal => 'The final price comes after weighing.';
-
-  @override
   String get marketWeighCard =>
       'You pay the estimate now. If it weighs less, we refund the difference.';
 
@@ -12580,15 +12577,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get marketItemsEstimated => 'Items, estimated';
-
-  @override
   String get marketEstimatedTotal => 'Estimated total';
-
-  @override
-  String marketAtMostAfter(String amount) {
-    return 'At most $amount after weighing';
-  }
 
   @override
   String get marketPickedCount => 'picked';
@@ -12679,11 +12668,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get marketCashFinal =>
       'You pay the final price in cash when it arrives.';
-
-  @override
-  String marketBringingIt(String name) {
-    return '$name is bringing it';
-  }
 
   @override
   String get marketScanTitle => 'Scan a barcode';

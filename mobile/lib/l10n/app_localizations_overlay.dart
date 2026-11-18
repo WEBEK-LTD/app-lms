@@ -13233,10 +13233,6 @@ class OverlayLocalizations extends AppLocalizations {
       base.marketAtMostAfterWeighing;
 
   @override
-  String get marketWeighFinal =>
-      overlay.text('marketWeighFinal') ?? base.marketWeighFinal;
-
-  @override
   String get marketWeighCard =>
       overlay.text('marketWeighCard') ?? base.marketWeighCard;
 
@@ -13329,17 +13325,8 @@ class OverlayLocalizations extends AppLocalizations {
       base.marketEachPrice(price);
 
   @override
-  String get marketItemsEstimated =>
-      overlay.text('marketItemsEstimated') ?? base.marketItemsEstimated;
-
-  @override
   String get marketEstimatedTotal =>
       overlay.text('marketEstimatedTotal') ?? base.marketEstimatedTotal;
-
-  @override
-  String marketAtMostAfter(String amount) =>
-      overlay.format('marketAtMostAfter', {'amount': amount}) ??
-      base.marketAtMostAfter(amount);
 
   @override
   String get marketPickedCount =>
@@ -13443,11 +13430,6 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get marketCashFinal =>
       overlay.text('marketCashFinal') ?? base.marketCashFinal;
-
-  @override
-  String marketBringingIt(String name) =>
-      overlay.format('marketBringingIt', {'name': name}) ??
-      base.marketBringingIt(name);
 
   @override
   String get marketScanTitle =>

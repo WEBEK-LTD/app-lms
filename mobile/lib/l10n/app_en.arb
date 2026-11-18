@@ -13781,10 +13781,6 @@
   "@marketAtMostAfterWeighing": {
     "description": "115.40 The most a weighed item can come to, paying cash."
   },
-  "marketWeighFinal": "The final price comes after weighing.",
-  "@marketWeighFinal": {
-    "description": "115.40 The note on weighed items."
-  },
   "marketWeighCard": "You pay the estimate now. If it weighs less, we refund the difference.",
   "@marketWeighCard": {
     "description": "115.40 Card orders of weighed items."
@@ -13923,22 +13919,9 @@
       }
     }
   },
-  "marketItemsEstimated": "Items, estimated",
-  "@marketItemsEstimated": {
-    "description": "115.40 The items' total before weighing."
-  },
   "marketEstimatedTotal": "Estimated total",
   "@marketEstimatedTotal": {
     "description": "115.40 The cart's total before weighing."
-  },
-  "marketAtMostAfter": "At most {amount} after weighing",
-  "@marketAtMostAfter": {
-    "description": "115.40 The most a cash order can come to.",
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
   },
   "marketPickedCount": "picked",
   "@marketPickedCount": {
@@ -14082,15 +14065,6 @@
   "marketCashFinal": "You pay the final price in cash when it arrives.",
   "@marketCashFinal": {
     "description": "115.40 A cash order once weighed."
-  },
-  "marketBringingIt": "{name} is bringing it",
-  "@marketBringingIt": {
-    "description": "115.40 The courier's card.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
   },
   "marketScanTitle": "Scan a barcode",
   "@marketScanTitle": {

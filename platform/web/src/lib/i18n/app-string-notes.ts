@@ -5344,6 +5344,442 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "شاشة الطلب: ضريبة جوه الأسعار، زي ضريبة القيمة المضافة 20%.",
     tr: "Sipariş ekranı: fiyatlara dahil bir vergi, örneğin %20 KDV.",
   },
+  // 115.40 The supermarket in the customer app.
+  "115.40 The search box on a shop's page; it searches this shop only.": {
+    en: "The search box on a shop's page; it searches this shop only.",
+    ar: "خانة البحث في صفحة المتجر؛ تبحث في هذا المتجر وحده.",
+    tr: "Mağaza sayfasındaki arama kutusu; yalnızca bu mağazada arar.",
+  },
+  "115.40 The barcode button beside a shop's search.": {
+    en: "The barcode button beside a shop's search.",
+    ar: "زر الباركود بجانب بحث المتجر.",
+    tr: "Mağaza aramasının yanındaki barkod düğmesi.",
+  },
+  "115.40 A shop's departments, as arches on its page.": {
+    en: "A shop's departments, as arches on its page.",
+    ar: "أقسام المتجر، على شكل أقواس في صفحته.",
+    tr: "Mağazanın reyonları, sayfasında kemerler olarak.",
+  },
+  "115.40 Opens every department.": {
+    en: "Opens every department.",
+    ar: "يفتح كل الأقسام.",
+    tr: "Tüm reyonları açar.",
+  },
+  "115.40 Items from the customer's earlier orders at this shop.": {
+    en: "Items from the customer's earlier orders at this shop.",
+    ar: "أصناف من طلبات العميل السابقة من هذا المتجر.",
+    tr: "Müşterinin bu mağazadan önceki siparişlerindeki ürünler.",
+  },
+  "115.40 Where \"Buy again\" comes from.": {
+    en: "Where \"Buy again\" comes from.",
+    ar: "مصدر قائمة «اشترِ مجددًا».",
+    tr: "«Yeniden al» listesinin nereden geldiği.",
+  },
+  "115.40 The cart bar's running total, before weighing.": {
+    en: "The cart bar's running total, before weighing.",
+    ar: "مجموع شريط السلة قبل الوزن.",
+    tr: "Sepet çubuğundaki tartım öncesi toplam.",
+  },
+  "115.40 The cart bar's button.": {
+    en: "The cart bar's button.",
+    ar: "زر شريط السلة.",
+    tr: "Sepet çubuğunun düğmesi.",
+  },
+  "115.40 The small label over a shop's offer.": {
+    en: "The small label over a shop's offer.",
+    ar: "العنوان الصغير فوق عرض المتجر.",
+    tr: "Mağaza fırsatının üstündeki küçük etiket.",
+  },
+  "115.40 The label over the first offer.": {
+    en: "The label over the first offer.",
+    ar: "العنوان فوق العرض الأول.",
+    tr: "İlk fırsatın üstündeki etiket.",
+  },
+  "115.40 How many products a department or search has.": {
+    en: "How many products a department or search has.",
+    ar: "عدد المنتجات في القسم أو في نتائج البحث.",
+    tr: "Bir reyondaki veya aramadaki ürün sayısı.",
+  },
+  "115.40 How many aisles a department has.": {
+    en: "How many aisles a department has.",
+    ar: "عدد الممرات في القسم.",
+    tr: "Bir reyondaki koridor sayısı.",
+  },
+  "115.40 Every aisle of a department.": {
+    en: "Every aisle of a department.",
+    ar: "كل ممرات القسم.",
+    tr: "Bir reyonun tüm koridorları.",
+  },
+  "115.40 Puts the popular products first.": {
+    en: "Puts the popular products first.",
+    ar: "يعرض المنتجات الأكثر طلبًا أولًا.",
+    tr: "Popüler ürünleri öne alır.",
+  },
+  "115.40 Only products with a discount.": {
+    en: "Only products with a discount.",
+    ar: "المنتجات المخفّضة فقط.",
+    tr: "Yalnızca indirimli ürünler.",
+  },
+  "115.40 A product sold by weight; also the filter.": {
+    en: "A product sold by weight; also the filter.",
+    ar: "منتج يُباع بالوزن؛ وهو أيضًا عامل التصفية.",
+    tr: "Tartılarak satılan ürün; aynı zamanda filtre.",
+  },
+  "115.40 Only products in stock.": {
+    en: "Only products in stock.",
+    ar: "المنتجات المتوفرة فقط.",
+    tr: "Yalnızca stoktaki ürünler.",
+  },
+  "115.40 How much of a long list is loaded.": {
+    en: "How much of a long list is loaded.",
+    ar: "كم ظهر من قائمة طويلة.",
+    tr: "Uzun bir listenin ne kadarının yüklendiği.",
+  },
+  "115.40 While the next page loads.": {
+    en: "While the next page loads.",
+    ar: "أثناء تحميل الصفحة التالية.",
+    tr: "Sonraki sayfa yüklenirken.",
+  },
+  "115.40 An aisle or a search with no products.": {
+    en: "An aisle or a search with no products.",
+    ar: "ممر أو بحث بلا منتجات.",
+    tr: "Ürünü olmayan bir koridor veya arama.",
+  },
+  "115.40 The free-delivery meter.": {
+    en: "The free-delivery meter.",
+    ar: "مؤشر التوصيل المجاني.",
+    tr: "Ücretsiz teslimat göstergesi.",
+  },
+  "115.40 The free-delivery meter, once reached.": {
+    en: "The free-delivery meter, once reached.",
+    ar: "مؤشر التوصيل المجاني عند بلوغه.",
+    tr: "Ücretsiz teslimat göstergesi, ulaşıldığında.",
+  },
+  "115.40 A shop's search results.": {
+    en: "A shop's search results.",
+    ar: "نتائج البحث في المتجر.",
+    tr: "Mağaza arama sonuçları.",
+  },
+  "115.40 A product page's badge.": {
+    en: "A product page's badge.",
+    ar: "شارة صفحة المنتج.",
+    tr: "Ürün sayfasının rozeti.",
+  },
+  "115.40 The price per 100 grams.": {
+    en: "The price per 100 grams.",
+    ar: "السعر لكل 100 جرام.",
+    tr: "100 gram başına fiyat.",
+  },
+  "115.40 Under the weight stepper.": {
+    en: "Under the weight stepper.",
+    ar: "تحت أداة اختيار الوزن.",
+    tr: "Ağırlık seçicinin altında.",
+  },
+  "115.40 A weighed item's price before weighing.": {
+    en: "A weighed item's price before weighing.",
+    ar: "سعر الصنف الموزون قبل الوزن.",
+    tr: "Tartılan ürünün tartımdan önceki fiyatı.",
+  },
+  "115.40 The most a weighed item can come to, paying cash.": {
+    en: "The most a weighed item can come to, paying cash.",
+    ar: "أقصى ما قد يبلغه الصنف الموزون عند الدفع نقدًا.",
+    tr: "Nakit ödemede tartılan ürünün en fazla tutarı.",
+  },
+  "115.40 Card orders of weighed items.": {
+    en: "Card orders of weighed items.",
+    ar: "طلبات الأصناف الموزونة المدفوعة بالبطاقة.",
+    tr: "Tartılan ürünlerin kartla ödenen siparişleri.",
+  },
+  "115.40 Cash orders of weighed items: the estimate plus the tolerance.": {
+    en: "Cash orders of weighed items: the estimate plus the tolerance.",
+    ar: "طلبات الأصناف الموزونة نقدًا: السعر التقديري وهامش الوزن.",
+    tr: "Tartılan ürünlerin nakit siparişleri: tahmin artı tolerans.",
+  },
+  "115.40 Before the card note.": {
+    en: "Before the card note.",
+    ar: "قبل ملاحظة البطاقة.",
+    tr: "Kart notundan önce.",
+  },
+  "115.40 A note for the picker.": {
+    en: "A note for the picker.",
+    ar: "ملاحظة لمن يجهّز الطلب.",
+    tr: "Siparişi hazırlayana not.",
+  },
+  "115.40 Opens a note for the picker.": {
+    en: "Opens a note for the picker.",
+    ar: "يفتح ملاحظة لمن يجهّز الطلب.",
+    tr: "Hazırlayan için bir not açar.",
+  },
+  "115.40 The picker's note field.": {
+    en: "The picker's note field.",
+    ar: "خانة ملاحظة من يجهّز الطلب.",
+    tr: "Hazırlayan notu alanı.",
+  },
+  "115.40 Adds a weighed item.": {
+    en: "Adds a weighed item.",
+    ar: "يضيف صنفًا موزونًا.",
+    tr: "Tartılan bir ürün ekler.",
+  },
+  "115.40 Adds items sold by the unit.": {
+    en: "Adds items sold by the unit.",
+    ar: "يضيف أصنافًا تُباع بالقطعة.",
+    tr: "Adetle satılan ürünler ekler.",
+  },
+  "115.40 Changes an item already in the cart.": {
+    en: "Changes an item already in the cart.",
+    ar: "يغيّر صنفًا موجودًا في السلة.",
+    tr: "Sepetteki bir ürünü değiştirir.",
+  },
+  "115.40 A weight in grams.": {
+    en: "A weight in grams.",
+    ar: "وزن بالجرام.",
+    tr: "Gram cinsinden ağırlık.",
+  },
+  "115.40 A weight in kilos.": {
+    en: "A weight in kilos.",
+    ar: "وزن بالكيلو.",
+    tr: "Kilo cinsinden ağırlık.",
+  },
+  "115.40 A volume in litres.": {
+    en: "A volume in litres.",
+    ar: "حجم باللتر.",
+    tr: "Litre cinsinden hacim.",
+  },
+  "115.40 The cart's choice for the whole order.": {
+    en: "The cart's choice for the whole order.",
+    ar: "اختيار السلة للطلب كله.",
+    tr: "Tüm sipariş için sepet seçimi.",
+  },
+  "115.40 Under \"If something is missing\".": {
+    en: "Under \"If something is missing\".",
+    ar: "تحت «إذا نفد صنف».",
+    tr: "«Bir ürün yoksa» altında.",
+  },
+  "115.40 Bring a similar item (the picker asks first).": {
+    en: "Bring a similar item (the picker asks first).",
+    ar: "إحضار صنف مشابه (بعد سؤال العميل).",
+    tr: "Benzer bir ürün getir (önce müşteriye sorulur).",
+  },
+  "115.40 Bring the item the customer chose.": {
+    en: "Bring the item the customer chose.",
+    ar: "إحضار الصنف الذي اختاره العميل.",
+    tr: "Müşterinin seçtiği ürünü getir.",
+  },
+  "115.40 Leave the item out.": {
+    en: "Leave the item out.",
+    ar: "استبعاد الصنف.",
+    tr: "Ürünü çıkar.",
+  },
+  "115.40 The item the customer chose to bring instead.": {
+    en: "The item the customer chose to bring instead.",
+    ar: "الصنف الذي اختاره العميل بديلًا.",
+    tr: "Müşterinin yerine seçtiği ürün.",
+  },
+  "115.40 The picker of the customer's own substitute.": {
+    en: "The picker of the customer's own substitute.",
+    ar: "اختيار العميل لبديله بنفسه.",
+    tr: "Müşterinin kendi yedek ürününü seçmesi.",
+  },
+  "115.40 A unit item's price in the cart.": {
+    en: "A unit item's price in the cart.",
+    ar: "سعر الصنف بالقطعة في السلة.",
+    tr: "Sepette adetle satılan ürünün fiyatı.",
+  },
+  "115.40 The cart's total before weighing.": {
+    en: "The cart's total before weighing.",
+    ar: "إجمالي السلة قبل الوزن.",
+    tr: "Sepetin tartım öncesi toplamı.",
+  },
+  "115.40 Under \"3/5\" in the order's ring.": {
+    en: "Under \"3/5\" in the order's ring.",
+    ar: "تحت «3/5» في دائرة تقدّم الطلب.",
+    tr: "Siparişin halkasındaki «3/5» altında.",
+  },
+  "115.40 The order's header while it is picked.": {
+    en: "The order's header while it is picked.",
+    ar: "عنوان الطلب أثناء تجهيزه.",
+    tr: "Sipariş hazırlanırken başlığı.",
+  },
+  "115.40 Over a proposed substitute.": {
+    en: "Over a proposed substitute.",
+    ar: "فوق البديل المقترح.",
+    tr: "Önerilen yedek ürünün üstünde.",
+  },
+  "115.40 A proposed substitute.": {
+    en: "A proposed substitute.",
+    ar: "بديل مقترح.",
+    tr: "Önerilen yedek ürün.",
+  },
+  "115.40 On the missing item's picture.": {
+    en: "On the missing item's picture.",
+    ar: "على صورة الصنف الناقص.",
+    tr: "Eksik ürünün fotoğrafında.",
+  },
+  "115.40 On the proposed item's picture.": {
+    en: "On the proposed item's picture.",
+    ar: "على صورة الصنف المقترح.",
+    tr: "Önerilen ürünün fotoğrafında.",
+  },
+  "115.40 Takes the proposed item.": {
+    en: "Takes the proposed item.",
+    ar: "يقبل الصنف المقترح.",
+    tr: "Önerilen ürünü kabul eder.",
+  },
+  "115.40 What happens after 5 minutes, the order's choice being a similar item.": {
+    en: "What happens after 5 minutes, the order's choice being a similar item.",
+    ar: "ما يحدث بعد 5 دقائق إذا كان اختيار الطلب صنفًا مشابهًا.",
+    tr: "Siparişin seçimi benzer ürünse 5 dakika sonra ne olur.",
+  },
+  "115.40 What happens after 5 minutes, the order's choice being to leave it out.": {
+    en: "What happens after 5 minutes, the order's choice being to leave it out.",
+    ar: "ما يحدث بعد 5 دقائق إذا كان اختيار الطلب الاستبعاد.",
+    tr: "Siparişin seçimi çıkarmaksa 5 dakika sonra ne olur.",
+  },
+  "115.40 A weighed line once picked.": {
+    en: "A weighed line once picked.",
+    ar: "بند موزون بعد تجهيزه.",
+    tr: "Hazırlandıktan sonra tartılan satır.",
+  },
+  "115.40 A substitute the customer chose.": {
+    en: "A substitute the customer chose.",
+    ar: "بديل اختاره العميل.",
+    tr: "Müşterinin seçtiği yedek ürün.",
+  },
+  "115.40 A substitute the customer accepted.": {
+    en: "A substitute the customer accepted.",
+    ar: "بديل قبله العميل.",
+    tr: "Müşterinin kabul ettiği yedek ürün.",
+  },
+  "115.40 A line left out.": {
+    en: "A line left out.",
+    ar: "بند مستبعد.",
+    tr: "Çıkarılan satır.",
+  },
+  "115.40 A line not picked yet.": {
+    en: "A line not picked yet.",
+    ar: "بند لم يُجهَّز بعد.",
+    tr: "Henüz hazırlanmamış satır.",
+  },
+  "115.40 The final price against the estimate.": {
+    en: "The final price against the estimate.",
+    ar: "السعر النهائي مقابل التقديري.",
+    tr: "Son fiyatın tahminle karşılaştırması.",
+  },
+  "115.40 The final price is within the tolerance.": {
+    en: "The final price is within the tolerance.",
+    ar: "السعر النهائي ضمن هامش الوزن.",
+    tr: "Son fiyat tolerans içinde.",
+  },
+  "115.40 The estimate, struck through.": {
+    en: "The estimate, struck through.",
+    ar: "السعر التقديري مشطوبًا.",
+    tr: "Üstü çizili tahmini fiyat.",
+  },
+  "115.40 The weighed total.": {
+    en: "The weighed total.",
+    ar: "الإجمالي بعد الوزن.",
+    tr: "Tartım sonrası toplam.",
+  },
+  "115.40 Under the final price's bar.": {
+    en: "Under the final price's bar.",
+    ar: "تحت شريط السعر النهائي.",
+    tr: "Son fiyat çubuğunun altında.",
+  },
+  "115.40 The amount asked, after the weighed one.": {
+    en: "The amount asked, after the weighed one.",
+    ar: "الكمية المطلوبة بعد الكمية الموزونة.",
+    tr: "Tartılan miktardan sonra istenen miktar.",
+  },
+  "115.40 A line of the final price.": {
+    en: "A line of the final price.",
+    ar: "سطر من تفاصيل السعر النهائي.",
+    tr: "Son fiyatın bir satırı.",
+  },
+  "115.40 A cash order once weighed.": {
+    en: "A cash order once weighed.",
+    ar: "طلب نقدي بعد الوزن.",
+    tr: "Tartıldıktan sonra nakit sipariş.",
+  },
+  "115.40 The scanner's title.": {
+    en: "The scanner's title.",
+    ar: "عنوان شاشة المسح.",
+    tr: "Tarayıcının başlığı.",
+  },
+  "115.40 Under the scanner.": {
+    en: "Under the scanner.",
+    ar: "تحت أداة المسح.",
+    tr: "Tarayıcının altında.",
+  },
+  "115.40 Why the scanner asks for the camera.": {
+    en: "Why the scanner asks for the camera.",
+    ar: "لماذا تطلب أداة المسح الكاميرا.",
+    tr: "Tarayıcının neden kamera istediği.",
+  },
+  "115.40 Types a barcode instead of scanning it.": {
+    en: "Types a barcode instead of scanning it.",
+    ar: "كتابة الباركود بدل مسحه.",
+    tr: "Barkodu taramak yerine yazmak.",
+  },
+  "115.40 The typed barcode's field.": {
+    en: "The typed barcode's field.",
+    ar: "خانة كتابة الباركود.",
+    tr: "Yazılan barkod alanı.",
+  },
+  "115.40 Looks the typed barcode up.": {
+    en: "Looks the typed barcode up.",
+    ar: "يبحث عن الباركود المكتوب.",
+    tr: "Yazılan barkodu arar.",
+  },
+  "115.40 A barcode the shop doesn't sell.": {
+    en: "A barcode the shop doesn't sell.",
+    ar: "باركود لا يبيعه المتجر.",
+    tr: "Mağazanın satmadığı bir barkod.",
+  },
+  "115.40 The scanner without the camera.": {
+    en: "The scanner without the camera.",
+    ar: "أداة المسح بدون الكاميرا.",
+    tr: "Kamerasız tarayıcı.",
+  },
+  "115.40 Answering a proposal too late.": {
+    en: "Answering a proposal too late.",
+    ar: "الرد على اقتراح بعد فوات الوقت.",
+    tr: "Bir öneriyi geç yanıtlamak.",
+  },
+  "115.40 How many are loaded, when the list isn't counted.": {
+    en: "How many are loaded, when the list isn't counted.",
+    ar: "كم ظهر، حين لا يُعرف عدد القائمة.",
+    tr: "Liste sayılmadığında kaç tane yüklendiği.",
+  },
+  "115.40 A proposed or swapped item at the line's price.": {
+    en: "A proposed or swapped item at the line's price.",
+    ar: "صنف مقترح أو بديل بسعر البند نفسه.",
+    tr: "Satırın fiyatına önerilen veya değiştirilen ürün.",
+  },
+  "115.40 What comes back on a weighed line that came to less (card or wallet).": {
+    en: "What comes back on a weighed line that came to less (card or wallet).",
+    ar: "ما يعود من بند موزون جاء أقل (بطاقة أو محفظة).",
+    tr: "Daha az gelen tartılı satırdan geri dönen (kart veya cüzdan).",
+  },
+  "115.40 A card or wallet order once weighed: never more than the estimate paid.": {
+    en: "A card or wallet order once weighed: never more than the estimate paid.",
+    ar: "طلب بالبطاقة أو المحفظة بعد الوزن: لا يزيد عن التقديري المدفوع.",
+    tr: "Tartıldıktan sonra kart veya cüzdan siparişi: ödenen tahminden fazla değil.",
+  },
+  "115.40 The estimate a card or wallet order paid.": {
+    en: "The estimate a card or wallet order paid.",
+    ar: "السعر التقديري الذي دُفع بالبطاقة أو المحفظة.",
+    tr: "Kart veya cüzdan siparişinin ödediği tahmin.",
+  },
+  "115.40 The lower weighed price's difference, back to the card.": {
+    en: "The lower weighed price's difference, back to the card.",
+    ar: "فرق السعر الموزون الأقل، عائدًا إلى البطاقة.",
+    tr: "Daha düşük tartım fiyatının farkı, karta iade.",
+  },
+  "115.40 The lower weighed price's difference, back to the wallet.": {
+    en: "The lower weighed price's difference, back to the wallet.",
+    ar: "فرق السعر الموزون الأقل، عائدًا إلى المحفظة.",
+    tr: "Daha düşük tartım fiyatının farkı, cüzdana iade.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

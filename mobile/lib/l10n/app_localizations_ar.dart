@@ -12894,9 +12894,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get marketAtMostAfterWeighing => 'نقدًا: بحد أقصى';
 
   @override
-  String get marketWeighFinal => 'يُحدَّد السعر النهائي بعد الوزن.';
-
-  @override
   String get marketWeighCard =>
       'تدفع السعر التقديري الآن. وإذا جاء الوزن أقل، نردّ إليك الفرق.';
 
@@ -12979,15 +12976,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get marketItemsEstimated => 'الأصناف، تقديريًا';
-
-  @override
   String get marketEstimatedTotal => 'الإجمالي التقديري';
-
-  @override
-  String marketAtMostAfter(String amount) {
-    return 'بحد أقصى $amount بعد الوزن';
-  }
 
   @override
   String get marketPickedCount => 'جاهزة';
@@ -13077,11 +13066,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get marketCashFinal => 'تدفع السعر النهائي نقدًا عند الاستلام.';
-
-  @override
-  String marketBringingIt(String name) {
-    return '$name في الطريق إليك';
-  }
 
   @override
   String get marketScanTitle => 'امسح الباركود';

@@ -12400,9 +12400,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get marketAtMostAfterWeighing => 'Nakit: en fazla';
 
   @override
-  String get marketWeighFinal => 'Son fiyat tartımdan sonra belli olur.';
-
-  @override
   String get marketWeighCard =>
       'Tahmini tutarı şimdi ödersiniz. Daha hafif gelirse farkı iade ederiz.';
 
@@ -12486,15 +12483,7 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get marketItemsEstimated => 'Ürünler, tahmini';
-
-  @override
   String get marketEstimatedTotal => 'Tahmini toplam';
-
-  @override
-  String marketAtMostAfter(String amount) {
-    return 'Tartımdan sonra en fazla $amount';
-  }
 
   @override
   String get marketPickedCount => 'hazır';
@@ -12584,11 +12573,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get marketCashFinal => 'Son fiyatı teslimatta nakit ödersiniz.';
-
-  @override
-  String marketBringingIt(String name) {
-    return '$name getiriyor';
-  }
 
   @override
   String get marketScanTitle => 'Barkod tara';

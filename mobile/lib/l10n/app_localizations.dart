@@ -19970,12 +19970,6 @@ abstract class AppLocalizations {
   /// **'Cash: at most'**
   String get marketAtMostAfterWeighing;
 
-  /// 115.40 The note on weighed items.
-  ///
-  /// In en, this message translates to:
-  /// **'The final price comes after weighing.'**
-  String get marketWeighFinal;
-
   /// 115.40 Card orders of weighed items.
   ///
   /// In en, this message translates to:
@@ -20102,23 +20096,11 @@ abstract class AppLocalizations {
   /// **'{price} each'**
   String marketEachPrice(String price);
 
-  /// 115.40 The items' total before weighing.
-  ///
-  /// In en, this message translates to:
-  /// **'Items, estimated'**
-  String get marketItemsEstimated;
-
   /// 115.40 The cart's total before weighing.
   ///
   /// In en, this message translates to:
   /// **'Estimated total'**
   String get marketEstimatedTotal;
-
-  /// 115.40 The most a cash order can come to.
-  ///
-  /// In en, this message translates to:
-  /// **'At most {amount} after weighing'**
-  String marketAtMostAfter(String amount);
 
   /// 115.40 Under "3/5" in the order's ring.
   ///
@@ -20257,12 +20239,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You pay the final price in cash when it arrives.'**
   String get marketCashFinal;
-
-  /// 115.40 The courier's card.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} is bringing it'**
-  String marketBringingIt(String name);
 
   /// 115.40 The scanner's title.
   ///
