@@ -49,7 +49,7 @@ What each run checks:
 | 6 | `mobile/lib/modules/shared/pages/studio_flash_sale.dart:98`–`100` (title `Text` in a `Row(min)` in a `Wrap`) | The title couldn't wrap: "Fresh picks at sale prices" / "اختيارات طازجة بأسعار مخفّضة" ran 18 px past the banner at 1.3 and 91 px at 1.5. | The title and "Ends in" are `Flexible` (`studio_flash_sale.dart:100`, `:119`). | Both looks' home: 1.15 and up. |
 | 7 | `mobile/lib/core/widgets/premium_chrome.dart:981` (`_offset.value = ...` in `_onScroll`) | `NestedScrollView` sends a scroll notification during layout when its content size changes while scrolled. The folding header then rebuilt during the frame ("Build scheduled during frame"). | Deferred to after the frame when told during layout (`premium_chrome.dart:987`). | Seen on look B Orders, English, 360 pt at 1.5, once the page was dragged. |
 
-`CLIENT_APP_RELEASE` is 7. Each design is as designed at font scale 1.0
+`CLIENT_APP_RELEASE` is 8 (main's 152 took 7). Each design is as designed at font scale 1.0
 for Latin text: the English title's line is still 27 × 1.04 and the cover
 still 300 pt (tests 163.4). Arabic text set tighter than 1.5 is now taller,
 on purpose.
@@ -112,5 +112,22 @@ its number shows.
 | **Whole suite, once** | `flutter test` | **2,554 passed, 776 skipped (the screenshot and gallery tests, off by default), 0 failed** (10 min 14 s) |
 
 Not run: the platform's vitest suite (no `node_modules` here). The only
-platform change is `CLIENT_APP_RELEASE` 6 → 7, and its tests read the
+platform change is `CLIENT_APP_RELEASE` (7 → 8 after merging main), and its tests read the
 constant.
+
+## After merging main (#451 152, #455)
+
+`CLIENT_APP_RELEASE` 8 (152 took 7); both STATUS entries kept; the preview
+rebuilt from the merged sources (`tool/build_preview.sh --check`: up to
+date). On the merged tree:
+
+| Run | Result |
+|---|---|
+| `dart format --output=none --set-exit-if-changed` (lib, tool, my tests) | 473 files, 0 changed |
+| `flutter analyze` | No issues found |
+| `flutter test test/widget/phase163_samsung_layout_test.dart` | 408 passed (the whole file, including the two tests fixed before) |
+| `flutter test test/widget/phase128_10_review_fixes_test.dart` | 15 passed |
+| `flutter test test/widget/phase152_bouquet_links_test.dart` (main's) | 10 passed |
+| Template guard, Leqaa cases (`--plain-name flowers_signature`) | 20 passed |
+
+The whole suite was run once, before the merge (above); not again after it.
