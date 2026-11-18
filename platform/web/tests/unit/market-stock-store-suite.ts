@@ -392,6 +392,9 @@ export function marketStockStoreSuite(store: () => DataStore, options: { big?: n
       const counted = await time(() => s.listMarketProducts({ appId: app.id, vendorId: vendor.id, page: 1, perPage: 20 }));
       expect(counted.value.total).toBe(Math.min(big, 10_000));
       for (const [what, t] of Object.entries({ first, deep, search, arabic, code, across, counted })) expect(t.ms, `${what} took ${Math.round(t.ms)} ms`).toBeLessThan(400);
+      // Its 50,000 rows go with its place, so other suites on the same database stay quick.
+      await s.deleteRestaurant(app.id, vendor.id);
+      expect((await s.listMarketProducts({ appId: app.id, vendorId: vendor.id, page: 1, perPage: 1 })).total).toBe(0);
     }, 600_000);
   }
 }
