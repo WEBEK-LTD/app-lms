@@ -66,6 +66,7 @@ test.afterAll(async () => {
 const phone = () => own.getByRole("main", { name: "The page in the phone" });
 const inspector = () => own.getByRole("complementary", { name: "Design" });
 const ask = () => own.getByRole("alertdialog", { name: "Change this element's size by hand?" });
+const corners = () => phone().locator("[data-studio-handles-for]");
 const mode = () => inspector().locator("[data-studio-size-mode]");
 const widthSelect = () => inspector().getByRole("combobox", { name: "Width" });
 
@@ -73,8 +74,9 @@ const widthSelect = () => inspector().getByRole("combobox", { name: "Width" });
 async function selectBar(): Promise<Locator> {
   await phone().getByText(client.name, { exact: true }).first().click();
   await own.getByRole("toolbar", { name: "Copy, paste and move" }).getByRole("button", { name: "Select what holds it" }).click();
-  const bar = phone().locator("[data-studio-node]").filter({ has: own.locator("[data-studio-resize]") }).last();
-  await expect(bar.locator("[data-studio-resize]")).toHaveCount(4);
+  // 174.2 The selection's corners are drawn on a layer over the phone (`[data-studio-handles-for]`), not inside it.
+  const bar = phone().locator("[data-studio-selected]");
+  await expect(corners().locator("[data-studio-resize]")).toHaveCount(4);
   return bar;
 }
 
@@ -146,7 +148,7 @@ test("159 Change by hand makes the size the owner's; Back to automatic puts it b
 test("159 a corner asks first; dragged up to the cover's edge it is Fill; a double click is back to automatic", async () => {
   const bar = await selectBar();
   // The part of the corner inside the bar: across the cover, its outer part lies past the phone's edge.
-  const corner = bar.locator('[data-studio-resize="bottom-right"]');
+  const corner = corners().locator('[data-studio-resize="bottom-right"]');
   const at = (await corner.boundingBox())!;
   const x = at.x + 2;
   const y = at.y + 2;
@@ -180,7 +182,7 @@ test("159 a corner asks first; dragged up to the cover's edge it is Fill; a doub
   const narrower = Number(await inspector().getByRole("spinbutton", { name: "Width", exact: true }).inputValue());
   expect(narrower).toBeLessThan((await widths(bar)).cover - 60);
   // Back out to the cover's edge: Fill, as on every phone (it stayed a number before 159).
-  const back = (await bar.locator('[data-studio-resize="bottom-right"]').boundingBox())!;
+  const back = (await corners().locator('[data-studio-resize="bottom-right"]').boundingBox())!;
   await own.mouse.move(back.x + 2, back.y + 2);
   await own.mouse.down();
   for (let i = 1; i <= 6; i += 1) await own.mouse.move(back.x + 2 + 20 * i, back.y + 2);
@@ -188,7 +190,7 @@ test("159 a corner asks first; dragged up to the cover's edge it is Fill; a doub
   await expect(widthSelect()).toHaveValue("fill");
   // A double click on a corner: back to automatic.
   // On the part of the corner inside the phone (the locator's own click would scroll the phone's screen sideways).
-  const last = (await bar.locator('[data-studio-resize="bottom-right"]').boundingBox())!;
+  const last = (await corners().locator('[data-studio-resize="bottom-right"]').boundingBox())!;
   await own.mouse.dblclick(last.x + 2, last.y + 2);
   await expect(mode()).toHaveAttribute("data-studio-size-mode", "auto");
   await expect(own.getByRole("status").filter({ hasText: "Back to its automatic size." })).toBeVisible();
