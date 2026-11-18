@@ -2,7 +2,7 @@ import type { DataStore } from "../data/store";
 import type { App, RestaurantStaff } from "../data/types";
 import { assetUrl } from "../assets";
 import { paymentsSetUp } from "../catalog/settings";
-import { appUrl } from "../env";
+import { appUrl, encryptionKey } from "../env";
 import { MarketConnector } from "../hosted/connectors/market";
 import type { ConnectorResult } from "../hosted/connectors/types";
 
@@ -13,7 +13,17 @@ import type { ConnectorResult } from "../hosted/connectors/types";
  */
 
 function connector(store: DataStore, app: App) {
-  return new MarketConnector({ store, app, assetUrl, platformUrl: appUrl(), cardPayments: paymentsSetUp(app) });
+  // 115.29 With the key: readying a weighed order refunds the card through the app's own gateway.
+  return new MarketConnector({ store, app, assetUrl, platformUrl: appUrl(), cardPayments: paymentsSetUp(app), key: keyOrNone() });
+}
+
+/** The encryption key where it's set (a server); none (tests): weighed orders' refunds then go to the wallet. */
+function keyOrNone(): Buffer | undefined {
+  try {
+    return encryptionKey();
+  } catch {
+    return undefined;
+  }
 }
 
 async function vendorCall(store: DataStore, app: App, staff: RestaurantStaff, method: string, path: string[], body: unknown, query: Record<string, string> = {}): Promise<ConnectorResult> {
