@@ -227,12 +227,19 @@ size, which Flutter web follows.
 
 ### Open (not fixed)
 
-- **M10, a delivery address without the phone's location.**
-  - The marketplace's "Deliver to" (home and checkout) only uses the
-    phone's position: there's no map pin and no typed address.
-  - A customer who refuses location can only pick up.
-  - This needs a design: the store's `pickDeliveryPin` uses the platform's
-    map, which is empty here, as in F1 of the gift QA.
+- **M10, a delivery address without the phone's location: fixed (177.10),
+  as the coordinator decided.** The checkout's "Choose your address" and
+  the home's "Deliver to" open a choice: the map's pin (the store's pin
+  screen, with the map's address search, where a typed street is found) or
+  the phone's position. The pinned place is named by the map, kept on the
+  phone for the next order, and quoted with its position; the server
+  measures the marketplace's and the vendor's areas from it. A typed
+  address with no place on the map can't be priced (every vendor has an
+  area), so it isn't accepted alone. Without the platform's map (Admin ›
+  Maps empty) the pin is the phone's position, as for the store (168.6).
+  The test also found, at 1.3, the basket's "If it's out" chooser 97
+  points past its row and the floating bar's tabs a point too tall: fixed
+  (177.16).
 - **M11, the template's tiles and "See all" open the search.**
   - Zad's department tiles and both "See all" open the generic search
     (`zad-signature.ts` `search`).
@@ -260,6 +267,24 @@ size, which Flutter web follows.
 - **M16, Business's marketplace order.** Its lines (sale prices) and
   `amounts.items` (before the discounts) don't add up either. This is the
   Owner API's shape; it was left for Business.
+
+## The template guard (wip-template-guard, Phase 166)
+
+Its tests were checked out into a scratch worktree of this branch, its
+fixtures written from this branch's templates, and run; its files were not
+changed or committed here.
+
+- Prices (`template-guard.test.ts`): Zad's third poster wrote "delivery
+  over EGP 250"; it reads "delivery on bigger baskets" now (177.15). The
+  marketplace templates pass; the 7 left are food, delivery (176) and
+  `brand`'s button.
+- Layout (`template_guard_test.dart`): 26 failing pages left of main's 44.
+  All 18 of the marketplace's and store's are fixed (`demo_marketplace`,
+  `market`, `market_grocery`, `market_offers`, `marketplace_signature_a`
+  and `_b`, `shop_deals`, `shop_looks`), and none is new. The causes:
+  "Order again" in a fixed 128-point row; a slider of words at a fixed
+  height in Arabic at 1.3; pictures placed past their tile's edge that
+  took taps (now decoration, the look unchanged).
 
 ## Checked live after the fixes
 

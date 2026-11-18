@@ -322,10 +322,14 @@ On the platform: a business's own app no longer shows a template's coupon
 code it doesn't have (Zad's FRESH15 and ZAD20); the marketplace's price
 lines, notes and refusals are in Arabic and Turkish; a marketplace's
 sign-in opens on its country's code; Dashboard › Vendors names vendors.
+A marketplace customer chooses the delivery address on the map (a pin,
+or a street found by the map's search) instead of only the phone's
+position; the marketplace's and the store's templates pass the template
+guard's prices and layout (Zad's third poster without a price in its
+words, "Order again" and sliders of words growing with the text size).
 The app's part reaches the stores with the next `CLIENT_APP_RELEASE`
-(integration branch). Open: a delivery address without the phone's
-location, the template's tiles opening the search, "Cash on delivery" with
-pick-up (ROADMAP 177.10–177.12).
+(integration branch). Open: the template's tiles opening the search,
+"Cash on delivery" with pick-up (ROADMAP 177.11, 177.12).
 
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
