@@ -65,7 +65,8 @@ class StudioCoverView extends ConsumerWidget {
     // of being cut at its foot. As designed when it fits. A cover with an
     // element filling its height, or one hanging over its foot, keeps its
     // height (they need it to be known).
-    final grows = hang == null && !front.any((k) => k.height?.fill == true);
+    final fills = front.any((k) => k.height?.fill == true);
+    final grows = hang == null && !fills;
     final over = StudioNode(
       id: '${node.id}-over',
       type: StudioNodeType.column,
@@ -73,8 +74,10 @@ class StudioCoverView extends ConsumerWidget {
       gap: node.gap,
       align: node.align,
       cross: node.cross,
-      height: grows ? null : StudioSize.fixed(room),
-      minHeight: grows ? room : null,
+      // 176.10 Under a card hanging over its foot too: its height at the
+      // least, drawn smaller when it can't be taller (StudioFitsHeld).
+      height: fills ? StudioSize.fixed(room) : null,
+      minHeight: fills ? null : room,
     );
     Widget layer(Widget child) => grows ? Positioned.fill(child: child) : child;
     Widget cover = Stack(
@@ -136,8 +139,8 @@ class StudioCoverView extends ConsumerWidget {
               bottom: pad.bottom,
               start: pad.start,
             ),
-            child: grows
-                ? _FitsHeld(
+            child: !fills
+                ? StudioFitsHeld(
                     align: node.align,
                     child: StudioNodeView(
                       node: over,
@@ -357,23 +360,26 @@ class _MapPainter extends CustomPainter {
 /// cover gives it a height it can't pass (a slide in a slider of a set
 /// height, Sofra's hero in Arabic at a text size of 1.3): drawn smaller to
 /// fit, never larger, at the cover's own alignment; anywhere else as it is.
-class _FitsHeld extends SingleChildRenderObjectWidget {
-  const _FitsHeld({required this.align, required super.child});
+class StudioFitsHeld extends SingleChildRenderObjectWidget {
+  const StudioFitsHeld({super.key, required this.align, required super.child});
 
   final StudioAlign align;
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      _RenderFitsHeld(align);
+      RenderStudioFitsHeld(align);
 
   @override
-  void updateRenderObject(BuildContext context, _RenderFitsHeld renderObject) {
+  void updateRenderObject(
+    BuildContext context,
+    RenderStudioFitsHeld renderObject,
+  ) {
     renderObject.align = align;
   }
 }
 
-class _RenderFitsHeld extends RenderProxyBox {
-  _RenderFitsHeld(this._align);
+class RenderStudioFitsHeld extends RenderProxyBox {
+  RenderStudioFitsHeld(this._align);
 
   StudioAlign _align;
   set align(StudioAlign value) {
