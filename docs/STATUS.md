@@ -213,10 +213,14 @@ frosted card without a ride, no second menu and chip under the ride
 screen's Studio header, My rides and the driver's lists end above a
 floating bar, the glass bar fits at 1.3, Lamha's cream headers show their
 buttons, and "No free taxis near you" with none free. Yallapp Business
-colours an accepted ride (the driver on the way) in the board's blue. No migration; the
+colours an accepted ride (the driver on the way) in the board's blue.
+The home's ride card and living map read the ride again every 15 seconds
+while it is on its way, and the riders' app with the review number leaves
+out the sample rides the drivers' app makes for it (it couldn't ask for a
+ride while the drivers' app was online). No migration; the
 app's part needs the next app build (no `CLIENT_APP_RELEASE` change here);
 the whole trip with a real driver's phone, real tiles and pushes is still
-to try (ROADMAP 178.10).
+to try (ROADMAP 178.12).
 
 Roadmap 156 (what the owner publishes in Studio is what the app shows, in
 every language): a template's translations of its own words stop applying

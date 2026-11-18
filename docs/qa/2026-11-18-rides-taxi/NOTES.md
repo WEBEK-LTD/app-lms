@@ -102,20 +102,46 @@ On the Rides board (and a ride's page) a ride whose driver is on the way had the
 
 **Fix.** `accepted` in the blue.
 
+### B11. The home's ride card and living map never followed the ride (fixed, 178.10)
+
+The home's "On the way" card (and the living map's live route) read the person's ride once: "Finding your driver" stayed after the driver had accepted and arrived, and a ride that ended stayed shown, until the app was opened again (`activeRideProvider`, read once; the ride's own page reads every 5 seconds). Found walking the trip below.
+
+**Fix.** `ActiveRideFollower` around the ride's card and a map whose route follows the ride: while one is on its way it is read again every 15 seconds, one timer for all of them on screen, stopped when they leave it.
+
+### B12. The review number's riders' app was blocked by the drivers' app's sample rides (fixed, 178.11)
+
+With the review number online in the drivers' app (how the store reviewers try it), the platform makes it a sample ride from the review account (105.2.6). The riders' app, signed in with the same number, then listed "App Review (sample)" rides at E£0.00, and "Request" said "You already have a ride on the way" for a ride the rider never asked for. Shot: `driver-review-sample-offer.png`. This is also what the "Your driver is coming" seen earlier on Masar's home was: the sample ride, not the rider's.
+
+**Fix.** `GET /me/rides` and the "ride on the way" check leave out the sample rides (`RideQuery.notRiderName`, no migration); the drivers' app still gets them. With it, the review rider's own ride goes to the review driver, which is how the trip below was walked.
+
+## The whole trip, after the fixes
+
+With the fixes in a local build of the app preview (not committed) and of the platform, Masar in lira with its own Minivan:
+
+1. The home: the car classes from ₺35 / ₺50 / ₺80 and the Minivan's (`after-masar-home-lira.png`), the map in Arabic by night (`after-masar-ar-dark-map-words.png`).
+2. "Where to?": the Ride page with one header (`after-masar-ride-one-header.png`), the quote in lira (`after-masar-quote-lira.png`).
+3. Requested, "Looking for a driver"; the Drivers' app preview is the driver's screen (`after-drivers-app-preview.png`), online it gets the ride at ₺46.10 (`after-driver-offer-real.png`), accepts (`after-driver-accepted-real.png`), at the pickup, starts it, ends it ("Collect ₺46.10 in cash", `after-driver-completed.png`).
+4. The rider's My rides has only their own ride, completed, ₺46.10 (`after-masar-my-rides.png`); its page asks "How was your driver?" (`after-masar-ride-done.png`), five stars sent, "Thanks for rating." (`after-masar-rated.png`).
+
+On the way: signing in to the drivers' app with the review number on another device signed the riders' app out (one device per account, App sign-in's rules), so its home showed nothing until it signed in again: as configured, not a bug. Without a geocoder the pickup's address is "My location" for the driver too (`after-driver-offer-real.png`); with Admin › Maps it is the street.
+
 ## Seen, not fixed
 
-- **"Your driver is coming" for a ride with no driver.** Once, Masar's home card said "Your driver is coming · Economy" while the ride's page, a moment later, showed "No driver found" with no accepted stage (the review driver was offered the ride and never answered). The card reads `GET /me/rides?active=true`; I could not reproduce it with the driver's side or find a status that would say it. Needs the driver's phone (178.9).
 - **The template's stock photo for the driver.** Masar's "On the way" card falls back to the template's photo (`/stories/rides/rides-driver.jpg`) for a driver without a photo: a stranger's face stands for the real driver. Left: an approved design's picture; a choice for the owner.
 - **Lamha's airport card** promises "One set price, day or night · To and from Cairo International": the rides settings have no airport price, and the airport is Cairo's. They are the template's words, editable in Studio; a company elsewhere should change them. Not changed (approved design, customer-visible wording).
-- **The review driver's car** shows "Sample car · REVIEW" in English on the Turkish and Arabic dashboards (the sample's own words).
+- **The review driver's sample ride** is offered at E£0.00 (its fares are zero), and **its car** shows "Sample car · REVIEW" in English on the Turkish and Arabic dashboards (the sample's own words).
 - **The maps' street drawings** stay the template's Cairo (the Nile, its districts' places): a picture, not data.
 - **"Place search isn't set up"**: without Admin › Maps, the app asks `GET /maps/address` and gets 403 at each look up (only in the console); the screen offers "My location" and "Paste a maps link".
 
 ## Not tested here
 
-- The whole trip with a driver: no second phone signs in as a driver in the preview until B2's fix ships in a build (the committed preview is release 9), so the offer, accept, arrived, start with the code, end, the card payment and the rating were not walked through by hand. The driver's screens and the ride's steps have their own widget tests (105.2, 112.3).
+- The card payment of a ride (a web page the preview doesn't open) and the start with the rider's code (Masar's settings had no code): the trip above was paid in cash.
+- The trip with two different accounts: in the preview only the review number signs in, so the rider and the driver were the same account (as the store reviewers are).
 - Real map tiles, place search, routes and live positions (no tile server or keys here).
-- Push notifications (the preview has none).
+- Push notifications and where they open (the preview has none).
+- Lamha after the fixes: its home and Ride page were checked by hand before them, and its fixes (B1, B5, B7, B8) by the vitest and Flutter tests; the trip was walked on Masar, whose ride screens Lamha shares.
+- Sign-in's other ways (email and a code, passwords, Forgot password): the preview signs in only with the review number; 160's tests cover them.
+- Text 1.3 by hand: in the Flutter tests only (`phase178_rides_taxi_test.dart`, My rides and the glass bar).
 - Yallapp Courier (Admin › Yallapp Courier): for delivery companies' couriers; ride and taxi drivers work in the company's own drivers' app (112.3), so it has no screens for these kinds.
 - Yallapp Business's Rides board and a ride (125) were read in code and run in its tests, not by hand against a running Owner API (B10 above).
 - Studio's editor by hand on every element (text, picture, button, list, ring, tile, size, corners, links) for these looks: the class cards are now the company's, and the rest goes through 156's publish path, which its own tests cover.
