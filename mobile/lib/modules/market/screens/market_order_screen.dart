@@ -150,6 +150,20 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                                 style: TextStyle(color: p.textBody),
                               ),
                             ),
+                            // 177 Its price before the sale, struck: "Items" is
+                            // the lines before their discounts, so the lines add up to it.
+                            if (line.beforeDiscount case final before?
+                                when before.amount != line.total.amount) ...[
+                              Text(
+                                before.formatted,
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  color: p.textTertiary,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                            ],
                             Text(
                               line.total.formatted,
                               style: TextStyle(
