@@ -30,6 +30,7 @@ import '../widgets/order_sheet.dart';
 import '../../../core/services/review_prompt.dart';
 import '../../../core/services/share_links.dart';
 import '../../../core/format/bidi.dart';
+import '../../../core/format/text_case.dart';
 
 /// An event: its pictures, day and time, place (with the map) or online
 /// note, description and tickets. Free tickets are taken here; paid ones go
@@ -311,7 +312,7 @@ class _EventBodyState extends ConsumerState<_EventBody> {
               children: [
                 if (event.category != null)
                   Text(
-                    event.category!.name.toUpperCase(),
+                    event.category!.name.toUpperCaseIn(context),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,

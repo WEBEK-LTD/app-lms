@@ -1420,6 +1420,12 @@ export interface GiftSettings {
   maxLength: number;
   /** Beginnings the customer can tap ("Happy birthday!"), at most 6 of 80 characters. */
   starters: string[];
+  /**
+   * 169 The beginnings in the app's other languages (code → lines, the same
+   * limits); a language missing or empty: `starters`, which stay the main
+   * language's. Missing on settings saved before 169.
+   */
+  starterTexts?: Record<string, string[]>;
   /** The recipient's name and phone (someone else than the buyer). */
   recipient: boolean;
   /** "Send anonymously": the card goes without the buyer's name. */

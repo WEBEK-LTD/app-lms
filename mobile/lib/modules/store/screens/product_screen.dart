@@ -29,6 +29,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/services/share_links.dart';
 import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/config/build_config_data.dart';
+import '../../../core/format/text_case.dart';
 
 /// A product: images, price, options, quantity and Add to cart.
 class ProductScreen extends ConsumerWidget {
@@ -622,7 +623,9 @@ class _ProductViewState extends ConsumerState<_ProductView> {
     if (missing.isEmpty || !missing.every(fitsLanguage(context))) {
       return context.l10n.optionsLower;
     }
-    return missing.map((n) => n.toLowerCase()).join(context.l10n.listAnd);
+    return missing
+        .map((n) => n.toLowerCaseIn(context))
+        .join(context.l10n.listAnd);
   }
 }
 

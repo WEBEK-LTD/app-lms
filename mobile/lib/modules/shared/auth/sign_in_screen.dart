@@ -30,6 +30,7 @@ import 'password_screens.dart';
 import '../../../core/widgets/premium_chrome.dart';
 import 'premium_auth_frame.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/format/text_case.dart';
 
 /// Sign in with a mobile number (design: Main), or by email when the app
 /// offers it (18: `Config.auth.methods`): a code by email, or the account's
@@ -1502,7 +1503,7 @@ class SignInLogo extends StatelessWidget {
         .split(RegExp(r'\s+'))
         .where((w) => w.isNotEmpty)
         .take(2)
-        .map((w) => w.characters.first.toUpperCase())
+        .map((w) => w.characters.first.toUpperCaseIn(context))
         .join();
     return Container(
       width: 52,
@@ -1647,13 +1648,13 @@ class _CountrySheetState extends State<_CountrySheet> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final q = _query.trim().toLowerCase();
+    final q = _query.trim().toLowerCaseIn(context);
     final typed = normalizeDialCode(q);
     final items = countryCodes
         .where(
           (c) =>
               q.isEmpty ||
-              c.name(context.l10n).toLowerCase().contains(q) ||
+              c.name(context.l10n).toLowerCaseIn(context).contains(q) ||
               c.dialCode.contains(q.replaceAll('+', '')),
         )
         .toList();

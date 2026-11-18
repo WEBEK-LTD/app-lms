@@ -314,6 +314,7 @@ class GiftMessageRules {
     required this.enabled,
     required this.maxLength,
     this.starters = const [],
+    this.startersByLanguage = const {},
     this.recipient = false,
     this.anonymous = false,
   });
@@ -322,6 +323,7 @@ class GiftMessageRules {
     enabled: reqBool(json, 'enabled'),
     maxLength: intOr(json, 'max_length', 200),
     starters: stringList(json, 'starters'),
+    startersByLanguage: _startersByLanguage(json['starters_by_language']),
     recipient: boolOr(json, 'recipient', false),
     anonymous: boolOr(json, 'anonymous', false),
   );
@@ -329,8 +331,31 @@ class GiftMessageRules {
   final bool enabled;
   final int maxLength;
 
-  /// 131 Beginnings the owner wrote, which fill the card when tapped.
+  /// 131 Beginnings the owner wrote, which fill the card when tapped: the
+  /// app's main language's.
   final List<String> starters;
+
+  /// 169 The same beginnings in the app's other languages (code → lines).
+  final Map<String, List<String>> startersByLanguage;
+
+  /// 169 The beginnings for a customer using the app in [languageCode]:
+  /// that language's when the owner wrote some, else [starters].
+  List<String> startersIn(String languageCode) {
+    final own = startersByLanguage[languageCode];
+    return own != null && own.isNotEmpty ? own : starters;
+  }
+
+  static Map<String, List<String>> _startersByLanguage(Object? value) {
+    if (value is! Map) return const {};
+    return {
+      for (final e in value.entries)
+        if (e.value is List)
+          '${e.key}': [
+            for (final line in e.value as List)
+              if (line is String && line.trim().isNotEmpty) line.trim(),
+          ],
+    }..removeWhere((_, lines) => lines.isEmpty);
+  }
 
   /// 131 The recipient's name and phone can be given.
   final bool recipient;

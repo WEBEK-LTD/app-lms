@@ -9,6 +9,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/api/models/page_models.dart';
 import '../data/market_models.dart';
+import '../../../core/format/text_case.dart';
 
 /// 115 What the marketplace's screens share: money, tints, a vendor's
 /// mark, its facts (time, fee, smallest order) and the section heads.
@@ -82,7 +83,7 @@ class MarketVendorMark extends StatelessWidget {
       child: vendor.logoUrl.isNotEmpty
           ? AppNetworkImage(url: vendor.logoUrl, width: size, height: size)
           : Text(
-              initials.toUpperCase(),
+              initials.toUpperCaseIn(context),
               style: TextStyle(
                 color: Colors.white,
                 fontSize: size * 0.34,

@@ -210,6 +210,19 @@ now takes about a minute, so slower runners crossed that point. The checks
 call the cron jobs they test themselves, and the job shows the PHP log when
 it fails. Test only: the plugin stays 0.4.50.
 
+Roadmap 169 (the flower apps in Arabic and Turkish): a shop's, a flower
+shop's and every other kind's shared screens say their own words, not an
+academy's (the notifications' empty state, updating the app, deleting the
+account, "contact the academy", course files), in English, Arabic and
+Turkish. Capitals follow the language (Turkish "AŞK İÇİN", not "AŞK
+IÇIN") through one helper, in Studio's capitals, kickers, labels and
+initials. The card's "Beginnings to tap" have a field per app language in
+Delivery & offers › Gifts, sent by language in `StoreConfig` and shown in
+the customer's; saved ones stay the main language's. Every screen of both
+looks was walked in Arabic (day and night) and Turkish: a gift's delivery
+in the cart's summary is "Delivery fee", not "Shipping". Not yet in a rebuilt
+app (ROADMAP 169.6); the plugin's stay one field (169.5).
+
 Roadmap 152 (Our bouquet's chips and button open the product the owner
 links): in Leqaa's looks and the apps made from them (Kech Flora), the
 bouquet's size chips and "Choose this bouquet" open the shop until the

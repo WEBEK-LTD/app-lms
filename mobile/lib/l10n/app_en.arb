@@ -287,6 +287,14 @@
       }
     }
   },
+  "updateRequiredMessageApp": "A new version of {name} is available. Update the app to keep using it.",
+  "@updateRequiredMessageApp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "updateNow": "Update now",
   "updateRecommendedTitle": "A new version is ready",
   "updateRecommendedMessage": "A newer version of {name} is on the store. Update now, or carry on and update later.",
@@ -479,6 +487,54 @@
   },
   "noNotificationsTitle": "No notifications yet",
   "noNotificationsMessage": "New lessons, announcements and answers to your questions will show up here.",
+  "noNotificationsMessageStore": "Updates on your orders, offers and news from the shop will show up here.",
+  "@noNotificationsMessageStore": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageFlowers": "Updates on your orders and their delivery, offers and news from the shop will show up here.",
+  "@noNotificationsMessageFlowers": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageFood": "Updates on your orders, offers and news will show up here.",
+  "@noNotificationsMessageFood": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageBookings": "Booking confirmations, reminders and news will show up here.",
+  "@noNotificationsMessageBookings": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageListings": "Replies to your enquiries, new listings and news will show up here.",
+  "@noNotificationsMessageListings": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageNews": "Breaking news and new articles will show up here.",
+  "@noNotificationsMessageNews": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageEvents": "Ticket updates, event reminders and news will show up here.",
+  "@noNotificationsMessageEvents": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageDonations": "Campaign updates and news will show up here.",
+  "@noNotificationsMessageDonations": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageDelivery": "Updates on your shipments and news will show up here.",
+  "@noNotificationsMessageDelivery": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageRides": "Updates on your rides, offers and news will show up here.",
+  "@noNotificationsMessageRides": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageTravel": "Updates on your bookings and trips, offers and news will show up here.",
+  "@noNotificationsMessageTravel": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noNotificationsMessageSchool": "Announcements, homework, grades and messages from the school will show up here.",
+  "@noNotificationsMessageSchool": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
   "notifications": "Notifications",
   "unread": "Unread",
   "noOrdersTitle": "No orders yet",
@@ -557,6 +613,10 @@
   "termsAndConditions": "Terms & Conditions",
   "deleteAccountTitle": "Delete your account?",
   "deleteAccountMessage": "Your account, progress and enrollments will be deleted and every device signed out. This can’t be undone.",
+  "deleteAccountMessageApp": "Your account and its details will be deleted and every device signed out. This can’t be undone.",
+  "@deleteAccountMessageApp": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
   "deleteAccount": "Delete account",
   "accountDeleted": "Your account was deleted.",
   "display": "Display",
@@ -660,6 +720,14 @@
   },
   "codeExpired": "This code has expired. Request a new one.",
   "noAccountForNumber": "There's no account with this number. Please contact the academy.",
+  "noAccountForNumberApp": "There's no account with this number. Please contact us.",
+  "@noAccountForNumberApp": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
+  "noAccountForNumberSchool": "There's no account with this number. Please contact the school.",
+  "@noAccountForNumberSchool": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
   "newCodeSent": "We sent you a new code.",
   "enterCode": "Enter verification code",
   "codeSentTo": "We sent a code to {number}",
@@ -2650,6 +2718,10 @@
   "fileOpenFailed": "This file couldn't be opened.",
   "fileInAppOnly": "This file can't be shown here",
   "fileInAppOnlyMessage": "Course files open only inside the app, which shows PDFs, pictures and text. Ask your teacher for this one as a PDF.",
+  "fileInAppOnlyMessageApp": "This file opens only inside the app, which shows PDFs, pictures and text. Ask for it as a PDF.",
+  "@fileInAppOnlyMessageApp": {
+    "description": "169 The same for an app of another kind than an academy (its kind's words)."
+  },
   "pageOf": "Page {page} of {total}",
   "@pageOf": {
     "placeholders": {

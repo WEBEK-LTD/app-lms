@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
@@ -40,7 +41,8 @@ Future<void> confirmDeleteAccount(BuildContext context, WidgetRef ref) async {
   final ok = await confirmAction(
     context,
     title: context.l10n.deleteAccountTitle,
-    message: context.l10n.deleteAccountMessage,
+    // 169 In the words of the app's kind (a shop's orders, not lessons).
+    message: context.words.deleteAccountMessage,
     confirmLabel: context.l10n.deleteAccount,
     destructive: true,
   );

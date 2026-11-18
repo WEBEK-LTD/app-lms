@@ -429,6 +429,11 @@ class OverlayLocalizations extends AppLocalizations {
       base.updateRequiredMessage(name);
 
   @override
+  String updateRequiredMessageApp(String name) =>
+      overlay.format('updateRequiredMessageApp', {'name': name}) ??
+      base.updateRequiredMessageApp(name);
+
+  @override
   String get updateNow => overlay.text('updateNow') ?? base.updateNow;
 
   @override
@@ -713,6 +718,66 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('noNotificationsMessage') ?? base.noNotificationsMessage;
 
   @override
+  String get noNotificationsMessageStore =>
+      overlay.text('noNotificationsMessageStore') ??
+      base.noNotificationsMessageStore;
+
+  @override
+  String get noNotificationsMessageFlowers =>
+      overlay.text('noNotificationsMessageFlowers') ??
+      base.noNotificationsMessageFlowers;
+
+  @override
+  String get noNotificationsMessageFood =>
+      overlay.text('noNotificationsMessageFood') ??
+      base.noNotificationsMessageFood;
+
+  @override
+  String get noNotificationsMessageBookings =>
+      overlay.text('noNotificationsMessageBookings') ??
+      base.noNotificationsMessageBookings;
+
+  @override
+  String get noNotificationsMessageListings =>
+      overlay.text('noNotificationsMessageListings') ??
+      base.noNotificationsMessageListings;
+
+  @override
+  String get noNotificationsMessageNews =>
+      overlay.text('noNotificationsMessageNews') ??
+      base.noNotificationsMessageNews;
+
+  @override
+  String get noNotificationsMessageEvents =>
+      overlay.text('noNotificationsMessageEvents') ??
+      base.noNotificationsMessageEvents;
+
+  @override
+  String get noNotificationsMessageDonations =>
+      overlay.text('noNotificationsMessageDonations') ??
+      base.noNotificationsMessageDonations;
+
+  @override
+  String get noNotificationsMessageDelivery =>
+      overlay.text('noNotificationsMessageDelivery') ??
+      base.noNotificationsMessageDelivery;
+
+  @override
+  String get noNotificationsMessageRides =>
+      overlay.text('noNotificationsMessageRides') ??
+      base.noNotificationsMessageRides;
+
+  @override
+  String get noNotificationsMessageTravel =>
+      overlay.text('noNotificationsMessageTravel') ??
+      base.noNotificationsMessageTravel;
+
+  @override
+  String get noNotificationsMessageSchool =>
+      overlay.text('noNotificationsMessageSchool') ??
+      base.noNotificationsMessageSchool;
+
+  @override
   String get notifications =>
       overlay.text('notifications') ?? base.notifications;
 
@@ -819,6 +884,10 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get deleteAccountMessage =>
       overlay.text('deleteAccountMessage') ?? base.deleteAccountMessage;
+
+  @override
+  String get deleteAccountMessageApp =>
+      overlay.text('deleteAccountMessageApp') ?? base.deleteAccountMessageApp;
 
   @override
   String get deleteAccount =>
@@ -947,6 +1016,14 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get noAccountForNumber =>
       overlay.text('noAccountForNumber') ?? base.noAccountForNumber;
+
+  @override
+  String get noAccountForNumberApp =>
+      overlay.text('noAccountForNumberApp') ?? base.noAccountForNumberApp;
+
+  @override
+  String get noAccountForNumberSchool =>
+      overlay.text('noAccountForNumberSchool') ?? base.noAccountForNumberSchool;
 
   @override
   String get newCodeSent => overlay.text('newCodeSent') ?? base.newCodeSent;
@@ -3728,6 +3805,10 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get fileInAppOnlyMessage =>
       overlay.text('fileInAppOnlyMessage') ?? base.fileInAppOnlyMessage;
+
+  @override
+  String get fileInAppOnlyMessageApp =>
+      overlay.text('fileInAppOnlyMessageApp') ?? base.fileInAppOnlyMessageApp;
 
   @override
   String pageOf(int page, int total) =>

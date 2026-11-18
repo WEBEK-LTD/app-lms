@@ -6,6 +6,7 @@ import '../../../core/api/models/models.dart';
 import '../../../core/l10n/l10n.dart';
 import '../data/travel_providers.dart';
 import 'travel_ui.dart';
+import '../../../core/format/text_case.dart';
 
 /// 126 The search's pickers: a city or an airport from the company's places,
 /// the guests and rooms (or travellers), the dates.
@@ -83,7 +84,11 @@ class _PlaceSheetState extends ConsumerState<_PlaceSheet> {
     final t = travelTokens(context, ref);
     final shown = widget.items
         .where(
-          (i) => _q.isEmpty || i.title.toLowerCase().contains(_q.toLowerCase()),
+          (i) =>
+              _q.isEmpty ||
+              i.title
+                  .toLowerCaseIn(context)
+                  .contains(_q.toLowerCaseIn(context)),
         )
         .toList();
     return SafeArea(

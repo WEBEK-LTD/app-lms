@@ -23,7 +23,8 @@ import { platformDefinition } from "@/lib/hosted/connectors/platforms";
 import { DEFAULT_DELIVERY, DELIVERY_LIMITS, deliveryOf, slotLabel } from "@/lib/selling/delivery";
 import { saleOn, unitsLeft } from "@/lib/selling/flash-sales";
 import { giftOccasionsOf } from "@/lib/selling/gift-messages";
-import { checkoutModeOf, giftsOf } from "@/lib/selling/gifts";
+import { checkoutModeOf, giftFormValues, giftsOf } from "@/lib/selling/gifts";
+import { giftBeginningsIn } from "@/lib/selling/gift-starters";
 import { countryChoices, countryNameIn } from "@/lib/selling/countries";
 import { sameCity, STARTER_CITIES } from "@/lib/selling/shipping";
 import { appLanguagesOf, platformCarriesDetails } from "@/lib/selling/store";
@@ -579,7 +580,9 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
           {hosted ? (
             <KitSection titleId="h-gifts" title={t("selling.giftsTitle")} description={t("selling.giftsIntro")}>
               <GiftsForm
-                values={{ message: gifts.message ? "on" : "", maxLength: String(gifts.maxLength), starters: gifts.starters.join("\n"), recipient: gifts.recipient ? "on" : "", anonymous: gifts.anonymous ? "on" : "" }}
+                values={giftFormValues(gifts, otherLangs.map((l) => l.code))}
+                languages={otherLangs}
+                examples={Object.fromEntries([["main", giftBeginningsIn(languages.default).join("\n")], ...otherLangs.map((l) => [l.code, giftBeginningsIn(l.code).join("\n")])])}
               />
             </KitSection>
           ) : null}

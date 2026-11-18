@@ -440,6 +440,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String updateRequiredMessageApp(String name) {
+    return 'يتوفر إصدار جديد من $name. حدّث التطبيق لمواصلة استخدامه.';
+  }
+
+  @override
   String get updateNow => 'حدّث الآن';
 
   @override
@@ -812,6 +817,54 @@ class AppLocalizationsAr extends AppLocalizations {
       'ستظهر هنا الدروس الجديدة والإعلانات والإجابات عن أسئلتك.';
 
   @override
+  String get noNotificationsMessageStore =>
+      'ستظهر هنا تحديثات طلباتك والعروض وأخبار المتجر.';
+
+  @override
+  String get noNotificationsMessageFlowers =>
+      'ستظهر هنا تحديثات طلباتك وتوصيلها، والعروض وأخبار المتجر.';
+
+  @override
+  String get noNotificationsMessageFood =>
+      'ستظهر هنا تحديثات طلباتك والعروض والأخبار.';
+
+  @override
+  String get noNotificationsMessageBookings =>
+      'ستظهر هنا تأكيدات الحجز والتذكيرات والأخبار.';
+
+  @override
+  String get noNotificationsMessageListings =>
+      'ستظهر هنا الردود على استفساراتك والعقارات الجديدة والأخبار.';
+
+  @override
+  String get noNotificationsMessageNews =>
+      'ستظهر هنا الأخبار العاجلة والمقالات الجديدة.';
+
+  @override
+  String get noNotificationsMessageEvents =>
+      'ستظهر هنا تحديثات التذاكر وتذكيرات الفعاليات والأخبار.';
+
+  @override
+  String get noNotificationsMessageDonations =>
+      'ستظهر هنا تحديثات الحملات والأخبار.';
+
+  @override
+  String get noNotificationsMessageDelivery =>
+      'ستظهر هنا تحديثات شحناتك والأخبار.';
+
+  @override
+  String get noNotificationsMessageRides =>
+      'ستظهر هنا تحديثات رحلاتك والعروض والأخبار.';
+
+  @override
+  String get noNotificationsMessageTravel =>
+      'ستظهر هنا تحديثات حجوزاتك ورحلاتك والعروض والأخبار.';
+
+  @override
+  String get noNotificationsMessageSchool =>
+      'ستظهر هنا الإعلانات والواجبات والدرجات ورسائل المدرسة.';
+
+  @override
   String get notifications => 'الإشعارات';
 
   @override
@@ -908,6 +961,10 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get deleteAccountMessage =>
       'سيُحذف حسابك وتقدّمك وتسجيلاتك، وسيتم تسجيل الخروج من كل الأجهزة. لا يمكن التراجع عن ذلك.';
+
+  @override
+  String get deleteAccountMessageApp =>
+      'سيُحذف حسابك وبياناته، وسيتم تسجيل الخروج من كل الأجهزة. لا يمكن التراجع عن ذلك.';
 
   @override
   String get deleteAccount => 'حذف الحساب';
@@ -1038,6 +1095,14 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get noAccountForNumber =>
       'لا يوجد حساب بهذا الرقم. يُرجى التواصل مع الأكاديمية.';
+
+  @override
+  String get noAccountForNumberApp =>
+      'لا يوجد حساب بهذا الرقم. يُرجى التواصل معنا.';
+
+  @override
+  String get noAccountForNumberSchool =>
+      'لا يوجد حساب بهذا الرقم. يُرجى التواصل مع المدرسة.';
 
   @override
   String get newCodeSent => 'أرسلنا إليك رمزًا جديدًا.';
@@ -3744,6 +3809,10 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get fileInAppOnlyMessage =>
       'تُفتح ملفات الدورة داخل التطبيق فقط، وهو يعرض ملفات PDF والصور والنصوص. اطلب هذا الملف من المدرّس بصيغة PDF.';
+
+  @override
+  String get fileInAppOnlyMessageApp =>
+      'يُفتح هذا الملف داخل التطبيق فقط، وهو يعرض ملفات PDF والصور والنصوص. اطلبه بصيغة PDF.';
 
   @override
   String pageOf(int page, int total) {

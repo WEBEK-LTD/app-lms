@@ -9,6 +9,7 @@ import '../../../../core/theme/palette.dart';
 import '../../../../core/widgets/common.dart';
 import '../content_blocks.dart' show SocialView;
 import 'premium_shared.dart';
+import '../../../../core/format/text_case.dart';
 
 /// Material Symbols has no brand marks: a plain icon for each network, as
 /// the social block draws them, its name for screen readers.
@@ -125,7 +126,7 @@ class PremiumProfileCard extends ConsumerWidget {
                                               .trim()
                                               .characters
                                               .first
-                                              .toUpperCase(),
+                                              .toUpperCaseIn(context),
                                           style: const TextStyle(
                                             fontSize: 32,
                                             fontWeight: FontWeight.w800,

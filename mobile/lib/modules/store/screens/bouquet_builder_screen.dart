@@ -399,7 +399,13 @@ class _BuilderState extends ConsumerState<_Builder> {
             child: CardMessageEditor(
               message: _message,
               maxLength: d.rules.maxMessage,
-              starters: store?.giftMessage.starters ?? const [],
+              // 169 The beginnings in the customer's language, else the
+              // main one's.
+              starters:
+                  store?.giftMessage.startersIn(
+                    Localizations.localeOf(context).languageCode,
+                  ) ??
+                  const [],
               look: look,
               label: l10n.giftCardTitle,
               onChanged: () => setState(() => d.message = _message.text),

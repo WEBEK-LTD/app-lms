@@ -1,5 +1,6 @@
 import type { CatalogCurrency, CatalogSettings, CatalogVariants } from "../data/types";
 import type { FlowerPhoto } from "./flower-photos";
+import { giftBeginningsIn } from "../selling/gift-starters";
 
 /**
  * 131.20 Leqaa's shop (the flower shop's demo, lib/studio/demo-designs/
@@ -45,7 +46,8 @@ export const FLOWER_COMMERCE: Pick<CatalogSettings, "delivery" | "gifts" | "area
       { id: "s4", start: "19:00", end: "22:00", capacity: null, feeCents: 80_00 },
     ],
   },
-  gifts: { checkout: "gift", message: true, maxLength: 300, starters: [], recipient: true, anonymous: true },
+  // 169 Yallapp's beginnings to tap, in English (the demo's main language), Arabic and Turkish.
+  gifts: { checkout: "gift", message: true, maxLength: 300, starters: giftBeginningsIn("en"), starterTexts: { ar: giftBeginningsIn("ar"), tr: giftBeginningsIn("tr") }, recipient: true, anonymous: true },
   areas: [{ country: "EG", cities: ["Cairo", "Giza", "New Cairo"] }],
   shippingMode: "distance",
   // From the shop in Zamalek.

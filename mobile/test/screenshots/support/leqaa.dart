@@ -354,7 +354,17 @@ Map<String, dynamic> _storeExtras(String lang) => {
   'gift_message': {
     'enabled': true,
     'max_length': 300,
-    'starters': <String>[],
+    // 169 Yallapp's beginnings (platform/web/src/lib/selling/gift-starters.ts
+    // `GIFT_BEGINNINGS`), in each of the shop's languages.
+    'starters': ['Happy birthday!', 'With all my love', 'Eid Mubarak!'],
+    'starters_by_language': {
+      'ar': ['عيد ميلاد سعيد!', 'مع كلِّ حبّي', 'عيد مبارك!'],
+      'tr': [
+        'Doğum günün kutlu olsun!',
+        'Tüm sevgimle',
+        'Bayramın mübarek olsun!',
+      ],
+    },
     'recipient': true,
     'anonymous': true,
   },

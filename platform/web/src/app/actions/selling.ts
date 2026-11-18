@@ -84,10 +84,18 @@ export async function saveAreasAction(_: FormState, formData: FormData): Promise
 export async function saveGiftsAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireStoreApp();
   const v = values(formData);
-  const parsed = parseGiftForm({ ...v, checkout: giftsOf(context.app).checkout ?? "standard" });
+  // 169 The beginnings in each of the app's other languages too.
+  const languages = await appLanguagesOf(await getStore(), context.app);
+  const others = languages.available.filter((code) => code !== languages.default);
+  const parsed = parseGiftForm({ ...v, checkout: giftsOf(context.app).checkout ?? "standard" }, others);
   if (!parsed.ok) return { errors: parsed.errors, values: v };
   const current = giftsOf(context.app);
-  await saveSettings(context.app, { gifts: { ...parsed.value, checkout: current.checkout, messagesSeeded: current.messagesSeeded } });
+  // A language the app no longer offers keeps its beginnings, in case it comes back.
+  const kept = Object.fromEntries(Object.entries(current.starterTexts ?? {}).filter(([code]) => !others.includes(code) && code !== languages.default));
+  const starterTexts = { ...kept, ...(parsed.value.starterTexts ?? {}) };
+  const { starterTexts: _typed, ...rest } = parsed.value;
+  void _typed;
+  await saveSettings(context.app, { gifts: { ...rest, ...(Object.keys(starterTexts).length ? { starterTexts } : {}), checkout: current.checkout, messagesSeeded: current.messagesSeeded } });
   await recordStaffChange(context, "Changed the gift options");
   refresh();
   return { ok: true, message: "Saved.", values: v };

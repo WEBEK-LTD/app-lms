@@ -8,6 +8,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/format/bidi.dart';
+import '../../../core/format/text_case.dart';
 
 /// "Free" or the business's formatted price; 135.5 with the customer's
 /// currency, "₺300.00 · ≈ \$9.30".
@@ -241,7 +242,7 @@ class AppointmentCard extends StatelessWidget {
 
   static String _monthOf(Appointment a) {
     final day = parseIsoDate(a.localDate);
-    return day == null ? '' : shortMonth(day).toUpperCase();
+    return day == null ? '' : upperIn(shortMonth(day));
   }
 
   static String _dayOf(Appointment a) {

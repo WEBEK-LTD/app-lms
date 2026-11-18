@@ -684,6 +684,10 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
 
     if (widget.between != null) parts.add(widget.between!(step++));
 
+    // 169 The beginnings in the customer's language, else the main one's.
+    final starters = widget.rules.startersIn(
+      Localizations.localeOf(context).languageCode,
+    );
     final occasions = widget.rules.enabled || gift
         ? ref.watch(giftMessagesProvider).value ?? const <GiftOccasion>[]
         : const <GiftOccasion>[];
@@ -692,7 +696,7 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
         !gift &&
         !widget.rules.recipient &&
         !widget.rules.anonymous &&
-        widget.rules.starters.isEmpty &&
+        starters.isEmpty &&
         occasions.isEmpty;
     if (widget.rules.enabled && plain) {
       parts.add(
@@ -722,7 +726,7 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
           title:
               widget.cardTitle ??
               (gift ? l10n.giftCardTitle : l10n.giftMessage),
-          subtitle: occasions.isNotEmpty || widget.rules.starters.isNotEmpty
+          subtitle: occasions.isNotEmpty || starters.isNotEmpty
               ? l10n.giftCardHint
               : null,
           look: look,
@@ -734,7 +738,7 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
               CardMessageEditor(
                 message: widget.message,
                 maxLength: widget.rules.maxLength,
-                starters: widget.rules.starters,
+                starters: starters,
                 onChanged: widget.onChanged,
                 look: look,
                 label:

@@ -772,6 +772,12 @@ abstract class AppLocalizations {
   /// **'A new version of {name} is available. Update the app to keep learning.'**
   String updateRequiredMessage(String name);
 
+  /// No description provided for @updateRequiredMessageApp.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version of {name} is available. Update the app to keep using it.'**
+  String updateRequiredMessageApp(String name);
+
   /// No description provided for @updateNow.
   ///
   /// In en, this message translates to:
@@ -1222,6 +1228,78 @@ abstract class AppLocalizations {
   /// **'New lessons, announcements and answers to your questions will show up here.'**
   String get noNotificationsMessage;
 
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on your orders, offers and news from the shop will show up here.'**
+  String get noNotificationsMessageStore;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on your orders and their delivery, offers and news from the shop will show up here.'**
+  String get noNotificationsMessageFlowers;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on your orders, offers and news will show up here.'**
+  String get noNotificationsMessageFood;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Booking confirmations, reminders and news will show up here.'**
+  String get noNotificationsMessageBookings;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Replies to your enquiries, new listings and news will show up here.'**
+  String get noNotificationsMessageListings;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Breaking news and new articles will show up here.'**
+  String get noNotificationsMessageNews;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket updates, event reminders and news will show up here.'**
+  String get noNotificationsMessageEvents;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Campaign updates and news will show up here.'**
+  String get noNotificationsMessageDonations;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on your shipments and news will show up here.'**
+  String get noNotificationsMessageDelivery;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on your rides, offers and news will show up here.'**
+  String get noNotificationsMessageRides;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Updates on your bookings and trips, offers and news will show up here.'**
+  String get noNotificationsMessageTravel;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Announcements, homework, grades and messages from the school will show up here.'**
+  String get noNotificationsMessageSchool;
+
   /// No description provided for @notifications.
   ///
   /// In en, this message translates to:
@@ -1407,6 +1485,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your account, progress and enrollments will be deleted and every device signed out. This can’t be undone.'**
   String get deleteAccountMessage;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'Your account and its details will be deleted and every device signed out. This can’t be undone.'**
+  String get deleteAccountMessageApp;
 
   /// No description provided for @deleteAccount.
   ///
@@ -1611,6 +1695,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There\'s no account with this number. Please contact the academy.'**
   String get noAccountForNumber;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s no account with this number. Please contact us.'**
+  String get noAccountForNumberApp;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s no account with this number. Please contact the school.'**
+  String get noAccountForNumberSchool;
 
   /// No description provided for @newCodeSent.
   ///
@@ -5889,6 +5985,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Course files open only inside the app, which shows PDFs, pictures and text. Ask your teacher for this one as a PDF.'**
   String get fileInAppOnlyMessage;
+
+  /// 169 The same for an app of another kind than an academy (its kind's words).
+  ///
+  /// In en, this message translates to:
+  /// **'This file opens only inside the app, which shows PDFs, pictures and text. Ask for it as a PDF.'**
+  String get fileInAppOnlyMessageApp;
 
   /// No description provided for @pageOf.
   ///

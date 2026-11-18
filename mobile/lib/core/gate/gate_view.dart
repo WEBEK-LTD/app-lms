@@ -19,6 +19,7 @@ import '../widgets/common.dart';
 import 'app_gate.dart';
 import 'owner_contact.dart';
 import '../l10n/l10n.dart';
+import '../l10n/vertical_wording.dart';
 
 /// Shows the app only when `/config` says it may run; otherwise a
 /// full-screen state (start-up, maintenance, update required, a paused app,
@@ -59,7 +60,7 @@ class GateView extends ConsumerWidget {
       GateUpdateRequired(storeUrl: final link) => _StateScreen(
         icon: AppIcons.update,
         title: l10n.updateRequiredTitle,
-        message: l10n.updateRequiredMessage(name),
+        message: context.words.updateRequiredMessage(name),
         actionLabel: l10n.updateNow,
         onAction: () => openExternal(link ?? storeUrl(env)),
       ),
@@ -200,7 +201,7 @@ class _PausedScreenState extends ConsumerState<_PausedScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          l10n.deleteAccountMessage,
+          context.words.deleteAccountMessage,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 14, color: p.textSecondary),
         ),
