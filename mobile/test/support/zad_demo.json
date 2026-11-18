@@ -677,7 +677,7 @@
          {
           "id": "demo-28",
           "type": "row",
-          "name": "delivery over EGP 250",
+          "name": "delivery on bigger baskets",
           "height": 220,
           "radius": 28,
           "gap": 10,
@@ -760,7 +760,7 @@
              {
               "id": "demo-32",
               "type": "text",
-              "text": "delivery over EGP 250",
+              "text": "delivery on bigger baskets",
               "color": "#FFFFFF",
               "max_lines": 2,
               "font": {
@@ -776,10 +776,10 @@
               },
               "translations": {
                "ar": {
-                "text": "توصيل فوق 250 ج.م"
+                "text": "توصيل للسلال الكبيرة"
                },
                "tr": {
-                "text": "teslimat 250 EGP üzeri"
+                "text": "büyük sepetlerde teslimat"
                }
               }
              }
@@ -2202,7 +2202,7 @@
          {
           "id": "demo-118",
           "type": "row",
-          "name": "delivery over EGP 250",
+          "name": "delivery on bigger baskets",
           "height": 220,
           "radius": 28,
           "gap": 10,
@@ -2285,7 +2285,7 @@
              {
               "id": "demo-122",
               "type": "text",
-              "text": "delivery over EGP 250",
+              "text": "delivery on bigger baskets",
               "color": "#FFFFFF",
               "max_lines": 2,
               "font": {
@@ -2301,10 +2301,10 @@
               },
               "translations": {
                "ar": {
-                "text": "توصيل فوق 250 ج.م"
+                "text": "توصيل للسلال الكبيرة"
                },
                "tr": {
-                "text": "teslimat 250 EGP üzeri"
+                "text": "büyük sepetlerde teslimat"
                }
               }
              }
