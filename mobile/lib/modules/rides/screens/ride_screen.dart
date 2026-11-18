@@ -15,6 +15,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 import '../../delivery/data/delivery_providers.dart'
     show LocateProblem, locatorProvider;
 import '../../delivery/data/locate.dart';
@@ -769,6 +770,10 @@ extension on _RideScreenState {
     ];
     if (_adjusting) return _adjustLayout(taxi);
     final notifications = headerIconOpens(ref, HeaderIcon.notifications);
+    // 178 Under a Studio page's header (Masar's "Ride"), the header is the
+    // screen's top: no second menu and app chip under it (the back to
+    // "Where to?" and the bell stay).
+    final underHeader = StudioScreenScope.hidesTitleOf(context);
     return Scaffold(
       body: Stack(
         children: [
@@ -809,8 +814,10 @@ extension on _RideScreenState {
                 child: NavigationToolbar(
                   leading: to != null
                       ? AppBackButton(onPressed: _clearDropoff)
+                      : underHeader
+                      ? null
                       : const SideMenuButton(),
-                  middle: const TaxiAppChip(),
+                  middle: underHeader ? null : const TaxiAppChip(),
                   trailing: notifications
                       ? SquareIconButton(
                           key: const ValueKey('taxi-notifications'),
@@ -838,7 +845,9 @@ extension on _RideScreenState {
               child: ListView(
                 key: const ValueKey('ride-form'),
                 controller: controller,
-                padding: const EdgeInsets.fromLTRB(20, 26, 20, 24),
+                // 178 Its end clear of a tab bar over the screen while
+                // there is no Request button under it.
+                padding: EdgeInsets.fromLTRB(20, 26, 20, endRoom(context, 24)),
                 children: sheet,
               ),
             ),
