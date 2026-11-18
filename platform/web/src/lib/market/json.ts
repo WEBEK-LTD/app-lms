@@ -246,6 +246,22 @@ export function orderLineJson(l: MarketOrderLine, currency: string) {
     outcome: l.outcome,
     picked_quantity: l.pickedQuantity,
     substitute: l.substitute ? { product_id: l.substitute.productId, name: l.substitute.name, quantity: l.substitute.quantity, total: money(l.substitute.total, currency) } : null,
+    // 115.40 The picker's proposed item, while it's asked and after it's answered.
+    proposal: l.proposal
+      ? {
+          product_id: l.proposal.productId,
+          name: l.proposal.name,
+          image_url: l.proposal.imageUrl,
+          quantity: l.proposal.quantity,
+          total: money(l.proposal.total, currency),
+          // Against the line as ordered, so it stays the same once picked.
+          difference: money(l.proposal.total - Math.round(l.unitPrice * l.quantity + 1e-9), currency),
+          proposed_at: l.proposal.proposedAt,
+          expires_at: l.proposal.expiresAt,
+          answer: l.proposal.answer,
+          answered_by: l.proposal.answeredBy,
+        }
+      : null,
   };
 }
 
@@ -274,6 +290,7 @@ export function customerOrderJson(
     fulfilment: o.fulfilment,
     scheduled_for: o.scheduledFor ? o.scheduledFor.toISOString() : null,
     lines: o.lines.map((l) => orderLineJson(l, c)),
+    if_missing: o.ifMissing ?? null,
     price: priceLinesJson(o.money, c, input.taxLabel),
     total: money(o.money.total, c),
     // 115.24 Why it was cancelled or turned down, in words for the customer ("Payment not completed").
@@ -288,7 +305,8 @@ export function customerOrderJson(
     tracking: input.tracking
       ? {
           mode: input.tracking.mode,
-          courier: input.tracking.courier ? { name: input.tracking.courier.name, photo_url: input.tracking.courier.photoUrl, vehicle: input.tracking.courier.vehicle } : null,
+          // 115.40 `call`: a masked line to the app's courier; null until the app has a call relay.
+          courier: input.tracking.courier ? { name: input.tracking.courier.name, photo_url: input.tracking.courier.photoUrl, vehicle: input.tracking.courier.vehicle, call: null } : null,
           position: input.tracking.position,
           updated_at: input.tracking.updatedAt ? input.tracking.updatedAt.toISOString() : null,
           route: [],

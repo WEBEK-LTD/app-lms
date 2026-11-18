@@ -17,7 +17,10 @@ import '../../food/widgets/dish_sheet.dart';
 import '../data/market_models.dart';
 import '../data/market_place.dart';
 import '../data/market_providers.dart';
+import '../data/market_store.dart';
 import '../widgets/market_look.dart';
+import '../widgets/market_store_widgets.dart';
+import 'market_scanner_screen.dart';
 
 /// 115 A restaurant's or a shop's page: its picture, facts and offer, then
 /// the menu by section (a restaurant) or the aisles with items by weight (a
@@ -144,6 +147,16 @@ class _VendorPageViewState extends ConsumerState<_VendorPageView> {
             slivers: [
               _Cover(vendor: _vendor),
               SliverToBoxAdapter(child: _Info(page: widget.page)),
+              // 115.40 A supermarket's home: its own search with the barcode
+              // button, its offers, its departments and "Buy again".
+              if (_shop)
+                SliverToBoxAdapter(
+                  child: _StoreHome(
+                    page: widget.page,
+                    quantity: quantity,
+                    onAdd: _add,
+                  ),
+                ),
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _ShelfTabs(
@@ -158,14 +171,29 @@ class _VendorPageViewState extends ConsumerState<_VendorPageView> {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
-                    child: Text(
-                      shelf.name,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.3,
-                        color: p.text,
-                      ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            shelf.name,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.3,
+                              color: p.text,
+                            ),
+                          ),
+                        ),
+                        // 115.40 The whole department, page after page.
+                        if (_shop)
+                          TextButton(
+                            key: ValueKey('market-shelf-all-${shelf.id}'),
+                            onPressed: () => context.push(
+                              Paths.marketDepartment(_vendor.id, shelf.id),
+                            ),
+                            child: Text(context.l10n.marketSeeAll),
+                          ),
+                      ],
                     ),
                   ),
                 ),
@@ -184,6 +212,11 @@ class _VendorPageViewState extends ConsumerState<_VendorPageView> {
                             quantity: quantity(item),
                             onAdd: () => _add(item),
                             onRemove: () => _remove(item),
+                            // 115.40 A product's own page.
+                            onOpen: () => context.push(
+                              Paths.marketProduct(_vendor.id, item.id),
+                              extra: item,
+                            ),
                           ),
                       ],
                     ),
@@ -208,15 +241,26 @@ class _VendorPageViewState extends ConsumerState<_VendorPageView> {
               start: 16,
               end: 16,
               bottom: MediaQuery.paddingOf(context).bottom + 12,
-              child: _BasketBar(
-                count: basket.count,
-                total: marketAmount(
-                  basket.estimate,
-                  widget.page.currency,
-                  widget.page.decimals,
-                ),
-                onTap: () => context.push(Paths.marketCheckout),
-              ),
+              child: _shop
+                  // 115.40 A store's cart bar: the estimate before weighing.
+                  ? MarketCartBar(
+                      count: basket.count,
+                      estimate: marketAmount(
+                        basket.estimate,
+                        widget.page.currency,
+                        widget.page.decimals,
+                      ),
+                      onTap: () => context.push(Paths.marketCheckout),
+                    )
+                  : _BasketBar(
+                      count: basket.count,
+                      total: marketAmount(
+                        basket.estimate,
+                        widget.page.currency,
+                        widget.page.decimals,
+                      ),
+                      onTap: () => context.push(Paths.marketCheckout),
+                    ),
             ),
         ],
       ),
@@ -313,12 +357,15 @@ class _Info extends StatelessWidget {
         children: [
           AppIcon(icon, size: 16, color: color ?? p.primary),
           const SizedBox(width: 5),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w700,
-              color: color ?? p.text,
+          // 115.40 Bigger words wrap inside the chip, never past the screen.
+          Flexible(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: color ?? p.text,
+              ),
             ),
           ),
         ],
@@ -854,12 +901,14 @@ class _ProductTile extends StatelessWidget {
     required this.quantity,
     required this.onAdd,
     required this.onRemove,
+    this.onOpen,
   });
 
   final MarketItem item;
   final double quantity;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
+  final VoidCallback? onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -893,7 +942,7 @@ class _ProductTile extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: GestureDetector(
-                      onTap: () => showMarketPhotos(context, item),
+                      onTap: onOpen ?? () => showMarketPhotos(context, item),
                       child: AppNetworkImage(
                         url: item.imageUrl,
                         seed: item.id.hashCode,
@@ -1196,3 +1245,404 @@ class _PhotoSheetState extends State<_PhotoSheet> {
     );
   }
 }
+
+/// 115.40 A supermarket's home (design 01), under its card: the search of
+/// this store with its barcode button, its offers, its departments as
+/// arches, and "Buy again" from the customer's earlier orders here.
+class _StoreHome extends ConsumerWidget {
+  const _StoreHome({
+    required this.page,
+    required this.quantity,
+    required this.onAdd,
+  });
+
+  final MarketVendorPage page;
+  final double Function(MarketItem item) quantity;
+  final Future<void> Function(MarketItem item) onAdd;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final vendor = page.vendor;
+    final again = ref.watch(marketBuyAgainProvider(vendor.id)).value;
+    final departments = page.shelves;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          child: MarketStoreSearch(
+            storeName: vendor.name,
+            onSearch: (q) =>
+                context.push(Paths.marketStoreSearch(vendor.id, q)),
+            onScan: () => scanAndOpen(context, ref, page),
+          ),
+        ),
+        if (page.offers.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          SizedBox(
+            height: MediaQuery.textScalerOf(context).scale(76) + 64,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: page.offers.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
+              itemBuilder: (context, i) =>
+                  _StoreOffer(offer: page.offers[i], first: i == 0),
+            ),
+          ),
+        ],
+        if (departments.isNotEmpty) ...[
+          const SizedBox(height: 18),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 8, 6),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.marketDepartments,
+                    style: TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                      color: context.palette.text,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  key: const ValueKey('market-departments-all'),
+                  onPressed: () => _allDepartments(context, page),
+                  child: Text(
+                    l10n.marketSeeAllCount(departments.length),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: MediaQuery.textScalerOf(context).scale(24) + 120,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: departments.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
+              itemBuilder: (context, i) {
+                final d = departments[i];
+                return GestureDetector(
+                  key: ValueKey('market-department-${d.id}'),
+                  onTap: () =>
+                      context.push(Paths.marketDepartment(vendor.id, d.id)),
+                  child: SizedBox(
+                    width: 76,
+                    child: Column(
+                      children: [
+                        MarketArch(
+                          url:
+                              d.imageUrl ??
+                              d.items
+                                  .where((x) => x.imageUrl != null)
+                                  .firstOrNull
+                                  ?.imageUrl,
+                          seed: d.id.hashCode,
+                          width: 76,
+                          height: 84,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          d.name,
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: context.palette.text,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+        if (again != null && again.items.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          MarketSectionHead(
+            title: l10n.marketBuyAgain,
+            subtitle: l10n.marketFromYourOrders(again.orders),
+          ),
+          SizedBox(
+            height: MediaQuery.textScalerOf(context).scale(44) + 48,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: again.items.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
+              itemBuilder: (context, i) => _BuyAgainCard(
+                item: again.items[i],
+                quantity: quantity(again.items[i]),
+                onAdd: () => onAdd(again.items[i]),
+              ),
+            ),
+          ),
+        ],
+        const SizedBox(height: 6),
+      ],
+    );
+  }
+}
+
+/// One of the store's offers: the first as the deep green poster.
+class _StoreOffer extends StatelessWidget {
+  const _StoreOffer({required this.offer, required this.first});
+
+  final MarketOffer offer;
+  final bool first;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final deep = marketDeeper(p.primary, 0.3);
+    final ink = first ? Colors.white : p.text;
+    final label = first ? p.accent : marketDeeper(p.accent, 0.35);
+    return Container(
+      width: 250,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: first ? deep : marketTint(p, p.accent, 0.16),
+        borderRadius: BorderRadius.circular(28),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 6, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    (first ? l10n.marketThisWeek : l10n.marketOfferLabel)
+                        .toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.4,
+                      color: label,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Expanded(
+                    child: Text(
+                      percentText(offer.title),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 19,
+                        height: 1.1,
+                        fontWeight: FontWeight.w800,
+                        color: first ? p.accent : label,
+                      ),
+                    ),
+                  ),
+                  if (offer.text.isNotEmpty)
+                    Text(
+                      offer.text,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: ink,
+                      ),
+                    ),
+                  if (offer.code case final code?) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: p.accent, width: 1.4),
+                      ),
+                      child: Text(
+                        ltrRun(code),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1,
+                          color: first ? Colors.white : label,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          if (offer.imageUrl.isNotEmpty)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(end: 12, top: 12),
+              child: MarketArch(
+                url: offer.imageUrl,
+                seed: offer.id.hashCode,
+                width: 82,
+                height: 104,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// An item from an earlier order, with its + (or its amount once added).
+class _BuyAgainCard extends StatelessWidget {
+  const _BuyAgainCard({
+    required this.item,
+    required this.quantity,
+    required this.onAdd,
+  });
+
+  final MarketItem item;
+  final double quantity;
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    return Container(
+      width: 214,
+      padding: const EdgeInsetsDirectional.fromSTEB(6, 6, 10, 6),
+      decoration: BoxDecoration(
+        color: p.surface,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: AppNetworkImage(
+              url: item.imageUrl,
+              seed: item.id.hashCode,
+              width: 56,
+              height: 56,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: p.text,
+                  ),
+                ),
+                Text(
+                  ltrRun(item.price),
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w800,
+                    color: p.text,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Semantics(
+            button: true,
+            label: l10n.marketAdd,
+            child: GestureDetector(
+              key: ValueKey('market-again-${item.id}'),
+              onTap: onAdd,
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: quantity > 0
+                      ? p.primary
+                      : marketTint(p, p.primary, 0.14),
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: quantity > 0
+                    ? Text(
+                        marketAmountText(l10n, item.unit, quantity),
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
+                          color: p.onPrimary,
+                        ),
+                      )
+                    : AppIcon(Symbols.add_rounded, size: 22, color: p.primary),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 115.40 Every department of the store, to open one.
+Future<void> _allDepartments(BuildContext context, MarketVendorPage page) =>
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheet) => SafeArea(
+        child: GridView.count(
+          shrinkWrap: true,
+          crossAxisCount: 3,
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 0.72,
+          children: [
+            for (final d in page.shelves)
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(sheet);
+                  context.push(Paths.marketDepartment(page.vendor.id, d.id));
+                },
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: MarketArch(
+                        url: d.imageUrl,
+                        seed: d.id.hashCode,
+                        width: 96,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      d.name,
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: sheet.palette.text,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );

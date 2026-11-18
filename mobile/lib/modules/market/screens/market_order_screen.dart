@@ -18,6 +18,7 @@ import '../../delivery/data/delivery_providers.dart'
     show deliveryConfigProvider;
 import '../../delivery/widgets/delivery_map.dart';
 import '../../store/screens/cart_screen.dart' show isOrderReceived;
+import '../widgets/market_order_parts.dart';
 import 'market_orders_screen.dart';
 
 /// 115 One of the customer's orders: where it is, what's in it and its
@@ -120,8 +121,26 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
             children: [
               _Status(order: o),
               const SizedBox(height: 12),
+              // 115.40 The picker's proposed items, to answer in time.
+              for (final line in o.lines)
+                if (line.proposal case final proposal?
+                    when proposal.waiting(marketClock()) &&
+                        line.outcome == null) ...[
+                  MarketProposalCard(
+                    order: o,
+                    line: line,
+                    onAnswered: (_) =>
+                        ref.invalidate(marketOrderProvider(orderId)),
+                  ),
+                  const SizedBox(height: 12),
+                ],
               if (!o.finished) ...[
                 _Tracking(order: o),
+                const SizedBox(height: 12),
+              ],
+              // 115.40 The weighed final price against the estimate.
+              if (MarketWeighedCard.shows(o)) ...[
+                MarketWeighedCard(order: o),
                 const SizedBox(height: 12),
               ],
               _Stages(order: o),
@@ -139,42 +158,54 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    for (final line in o.lines)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '${_qty(line)} × ${line.name}',
-                                    style: TextStyle(color: p.textBody),
-                                  ),
-                                  // 115.23 What was chosen with a dish.
-                                  if (line.choices.isNotEmpty)
+                    // 115.40 A shop's lines as picked.
+                    if (o.vendor.kind != api.VendorKind.restaurant)
+                      for (final line in o.lines)
+                        MarketPickedRow(
+                          line: line,
+                          picking:
+                              o.status == api.MarketOrderStatus.picking ||
+                              o.status == api.MarketOrderStatus.accepted,
+                        )
+                    else
+                      for (final line in o.lines)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     Text(
-                                      line.choices.join(' · '),
-                                      key: ValueKey('order-choices-${line.id}'),
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: p.textSecondary,
-                                      ),
+                                      '${_qty(line)} × ${line.name}',
+                                      style: TextStyle(color: p.textBody),
                                     ),
-                                ],
+                                    // 115.23 What was chosen with a dish.
+                                    if (line.choices.isNotEmpty)
+                                      Text(
+                                        line.choices.join(' · '),
+                                        key: ValueKey(
+                                          'order-choices-${line.id}',
+                                        ),
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: p.textSecondary,
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Text(
-                              line.total.formatted,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: p.text,
+                              Text(
+                                line.total.formatted,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: p.text,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
                     Divider(color: p.divider),
                     for (final line in o.price)
                       Padding(
@@ -296,6 +327,72 @@ class _Status extends StatelessWidget {
     final p = context.palette;
     final l10n = context.l10n;
     final code = order.pickupCode;
+    // 115.40 A shop's order while it's picked: how many lines are done.
+    final picking =
+        order.vendor.kind != api.VendorKind.restaurant &&
+        (order.status == api.MarketOrderStatus.picking ||
+            order.status == api.MarketOrderStatus.accepted);
+    if (picking) {
+      return Container(
+        key: const ValueKey('market-picking'),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.lerp(p.primary, Colors.black, 0.25)!,
+              Color.lerp(p.primary, Colors.black, 0.05)!,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(26),
+        ),
+        child: Row(
+          children: [
+            MarketPickedRing(order: order),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    marketStatusText(l10n, order.status).toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.3,
+                      color: p.accent,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.marketBeingPickedTitle,
+                    style: TextStyle(
+                      fontSize: 20,
+                      height: 1.2,
+                      fontWeight: FontWeight.w800,
+                      color: p.onPrimary,
+                    ),
+                  ),
+                  if (order.eta != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      (order.fulfilment == api.MarketFulfilment.pickup
+                          ? l10n.marketReadyAt
+                          : l10n.marketArrivesAt)(
+                        TimeOfDay.fromDateTime(order.eta!.toLocal())
+                            .format(context),
+                      ),
+                      style: TextStyle(
+                        color: p.onPrimary.withValues(alpha: 0.85),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -398,23 +495,10 @@ class _Tracking extends ConsumerWidget {
               height: 220,
             ),
           ),
+          // 115.40 The courier by first name, with a masked call.
           if (t.courierName != null) ...[
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(Symbols.two_wheeler, color: p.primary),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    l10n.marketTrackingCourier(t.courierName!),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: p.text,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            MarketCourierCard(tracking: t),
           ],
           if (t.updatedAt != null) ...[
             const SizedBox(height: 4),

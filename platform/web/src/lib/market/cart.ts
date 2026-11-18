@@ -35,6 +35,8 @@ export interface CartLine {
 export interface Cart {
   vendorId: number;
   lines: CartLine[];
+  /** 115.40 The order's "if something is missing": the lines that don't say take it; null when not sent. */
+  ifMissing?: "similar" | "chosen" | "remove" | null;
   fulfilment: "delivery" | "pickup";
   dropoff: ShipmentPlace | null;
   scheduledFor: Date | null;
@@ -61,6 +63,8 @@ export function readCart(value: unknown, currency: string): Read<Cart> {
   if (!isInt(b.vendor_id)) return bad("vendor_id", "Choose a place to order from.");
   if (!Array.isArray(b.lines) || b.lines.length === 0) return bad("lines", "Your cart is empty.");
   if (b.lines.length > MAX_LINES) return bad("lines", `A cart holds up to ${MAX_LINES} items.`);
+  const orderIfMissing = b.if_missing === undefined || b.if_missing === null ? null : b.if_missing;
+  if (orderIfMissing !== null && orderIfMissing !== "similar" && orderIfMissing !== "chosen" && orderIfMissing !== "remove") return bad("if_missing", "Choose what to do if something is out.");
   const lines: CartLine[] = [];
   for (const [i, raw] of b.lines.entries()) {
     const l = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
@@ -69,7 +73,9 @@ export function readCart(value: unknown, currency: string): Read<Cart> {
     const choices = l.choices === undefined || l.choices === null ? [] : l.choices;
     if (!Array.isArray(choices) || !choices.every(isInt) || choices.length > 50) return bad(`lines[${i}].choices`, "One of the choices isn't valid.");
     const note = typeof l.note === "string" ? l.note.trim().slice(0, 200) || null : null;
-    const ifMissing = l.if_missing === undefined || l.if_missing === null ? "remove" : l.if_missing;
+    // A line without its own choice takes the order's; "my choice" needs the line's own item, so it falls back to similar.
+    const fallback = orderIfMissing === "chosen" ? "similar" : (orderIfMissing ?? "remove");
+    const ifMissing = l.if_missing === undefined || l.if_missing === null ? fallback : l.if_missing;
     if (ifMissing !== "similar" && ifMissing !== "chosen" && ifMissing !== "remove") return bad(`lines[${i}].if_missing`, "Choose what to do if it's out.");
     const substitute = l.substitute_product_id === undefined || l.substitute_product_id === null ? null : l.substitute_product_id;
     if (substitute !== null && !isInt(substitute)) return bad(`lines[${i}].substitute_product_id`, "Choose the item to bring instead.");
@@ -96,7 +102,7 @@ export function readCart(value: unknown, currency: string): Read<Cart> {
     if (minor === null || minor < 0) return bad("tip", "Enter the tip as an amount.");
     tip = minor;
   }
-  return { ok: true, value: { vendorId: b.vendor_id, lines, fulfilment: b.fulfilment, dropoff, scheduledFor, couponCode, useWallet: b.use_wallet === true, tip } };
+  return { ok: true, value: { vendorId: b.vendor_id, lines, ifMissing: orderIfMissing, fulfilment: b.fulfilment, dropoff, scheduledFor, couponCode, useWallet: b.use_wallet === true, tip } };
 }
 
 const PAYMENTS = ["cash", "card", "apple_pay", "google_pay", "wallet"] as const;

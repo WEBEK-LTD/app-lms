@@ -19801,6 +19801,540 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove the bouquet'**
   String get bouquetRemove;
+
+  /// 115.40 The search box on a shop's page; it searches this shop only.
+  ///
+  /// In en, this message translates to:
+  /// **'Search {name}'**
+  String marketSearchStore(String name);
+
+  /// 115.40 The barcode button beside a shop's search.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a barcode'**
+  String get marketScanBarcode;
+
+  /// 115.40 A shop's departments, as arches on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Departments'**
+  String get marketDepartments;
+
+  /// 115.40 Opens every department.
+  ///
+  /// In en, this message translates to:
+  /// **'All {count}'**
+  String marketSeeAllCount(int count);
+
+  /// 115.40 Items from the customer's earlier orders at this shop.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy again'**
+  String get marketBuyAgain;
+
+  /// 115.40 Where "Buy again" comes from.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{From your last order} other{From your {count} orders}}'**
+  String marketFromYourOrders(int count);
+
+  /// 115.40 The cart bar's running total, before weighing.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated {amount}'**
+  String marketEstimatedAmount(String amount);
+
+  /// 115.40 The cart bar's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout'**
+  String get marketGoCheckout;
+
+  /// 115.40 The small label over a shop's offer.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer'**
+  String get marketOfferLabel;
+
+  /// 115.40 The label over the first offer.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get marketThisWeek;
+
+  /// 115.40 How many products a department or search has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No products} =1{1 product} other{{count} products}}'**
+  String marketProductCount(int count);
+
+  /// 115.40 How many aisles a department has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 aisle} other{{count} aisles}}'**
+  String marketAisleCount(int count);
+
+  /// 115.40 Every aisle of a department.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get marketAll;
+
+  /// 115.40 Puts the popular products first.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular'**
+  String get marketSortPopular;
+
+  /// 115.40 Only products with a discount.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers'**
+  String get marketFilterOffers;
+
+  /// 115.40 A product sold by weight; also the filter.
+  ///
+  /// In en, this message translates to:
+  /// **'By weight'**
+  String get marketByWeight;
+
+  /// 115.40 Only products in stock.
+  ///
+  /// In en, this message translates to:
+  /// **'In stock'**
+  String get marketFilterInStock;
+
+  /// 115.40 How much of a long list is loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'{shown} of {total} shown'**
+  String marketShownOf(int shown, int total);
+
+  /// 115.40 While the next page loads.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading more…'**
+  String get marketLoadingMore;
+
+  /// 115.40 An aisle or a search with no products.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get marketNothingHere;
+
+  /// 115.40 The free-delivery meter.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {amount} for free delivery'**
+  String marketFreeDeliveryLeft(String amount);
+
+  /// 115.40 The free-delivery meter, once reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Free delivery on this order'**
+  String get marketFreeDeliveryReached;
+
+  /// 115.40 A shop's search results.
+  ///
+  /// In en, this message translates to:
+  /// **'Results for “{query}”'**
+  String marketResultsFor(String query);
+
+  /// 115.40 A product page's badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold by weight'**
+  String get marketSoldByWeight;
+
+  /// 115.40 The price per 100 grams.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} / 100 g'**
+  String marketPer100g(String amount);
+
+  /// 115.40 Under the weight stepper.
+  ///
+  /// In en, this message translates to:
+  /// **'in steps of {amount}'**
+  String marketInSteps(String amount);
+
+  /// 115.40 A weighed item's price before weighing.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated price'**
+  String get marketEstimatedPrice;
+
+  /// 115.40 The most a weighed item can come to, paying cash.
+  ///
+  /// In en, this message translates to:
+  /// **'At most, after weighing'**
+  String get marketAtMostAfterWeighing;
+
+  /// 115.40 The note on weighed items.
+  ///
+  /// In en, this message translates to:
+  /// **'The final price comes after weighing.'**
+  String get marketWeighFinal;
+
+  /// 115.40 Card orders of weighed items.
+  ///
+  /// In en, this message translates to:
+  /// **'You pay the estimate now; if it weighs less, we refund the difference.'**
+  String get marketWeighCard;
+
+  /// 115.40 Cash orders of weighed items: the estimate plus the tolerance.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash: you pay what the scale reads, at most {amount}.'**
+  String marketWeighCash(String amount);
+
+  /// 115.40 Before the card note.
+  ///
+  /// In en, this message translates to:
+  /// **'By card'**
+  String get marketByCard;
+
+  /// 115.40 A note for the picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Sliced'**
+  String get marketPickerSliced;
+
+  /// 115.40 A note for the picker.
+  ///
+  /// In en, this message translates to:
+  /// **'One piece'**
+  String get marketPickerOnePiece;
+
+  /// 115.40 Opens a note for the picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get marketPickerNote;
+
+  /// 115.40 The picker's note field.
+  ///
+  /// In en, this message translates to:
+  /// **'A note for the picker'**
+  String get marketPickerNoteHint;
+
+  /// 115.40 Adds a weighed item.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {amount} · about {price}'**
+  String marketAddWeighed(String amount, String price);
+
+  /// 115.40 Adds items sold by the unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {count} · {price}'**
+  String marketAddUnits(String count, String price);
+
+  /// 115.40 Changes an item already in the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Update cart · {price}'**
+  String marketUpdateCart(String price);
+
+  /// 115.40 A weight in grams.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} g'**
+  String marketAmountG(String amount);
+
+  /// 115.40 A weight in kilos.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} kg'**
+  String marketAmountKg(String amount);
+
+  /// 115.40 A volume in litres.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} L'**
+  String marketAmountL(String amount);
+
+  /// 115.40 The cart's choice for the whole order.
+  ///
+  /// In en, this message translates to:
+  /// **'If something is missing'**
+  String get marketIfMissingTitle;
+
+  /// 115.40 Under "If something is missing".
+  ///
+  /// In en, this message translates to:
+  /// **'For the whole order. Change any item below.'**
+  String get marketIfMissingSub;
+
+  /// 115.40 Bring a similar item (the picker asks first).
+  ///
+  /// In en, this message translates to:
+  /// **'Similar item'**
+  String get marketMissingSimilar;
+
+  /// 115.40 Bring the item the customer chose.
+  ///
+  /// In en, this message translates to:
+  /// **'My choice'**
+  String get marketMissingChosen;
+
+  /// 115.40 Leave the item out.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave it out'**
+  String get marketMissingRemove;
+
+  /// 115.40 The item the customer chose to bring instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Instead: {name}'**
+  String marketInstead(String name);
+
+  /// 115.40 The picker of the customer's own substitute.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what to bring instead'**
+  String get marketChooseInstead;
+
+  /// 115.40 A unit item's price in the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} each'**
+  String marketEachPrice(String price);
+
+  /// 115.40 The items' total before weighing.
+  ///
+  /// In en, this message translates to:
+  /// **'Items, estimated'**
+  String get marketItemsEstimated;
+
+  /// 115.40 The cart's total before weighing.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated total'**
+  String get marketEstimatedTotal;
+
+  /// 115.40 The most a cash order can come to.
+  ///
+  /// In en, this message translates to:
+  /// **'At most {amount} after weighing'**
+  String marketAtMostAfter(String amount);
+
+  /// 115.40 Under "3/5" in the order's ring.
+  ///
+  /// In en, this message translates to:
+  /// **'picked'**
+  String get marketPickedCount;
+
+  /// 115.40 The order's header while it is picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order is being picked'**
+  String get marketBeingPickedTitle;
+
+  /// 115.40 Over a proposed substitute.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer, please'**
+  String get marketYourAnswer;
+
+  /// 115.40 A proposed substitute.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is out. Take this instead?'**
+  String marketOutTakeInstead(String name);
+
+  /// 115.40 On the missing item's picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Out'**
+  String get marketOutLabel;
+
+  /// 115.40 On the proposed item's picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Similar'**
+  String get marketSimilarLabel;
+
+  /// 115.40 Takes the proposed item.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get marketAccept;
+
+  /// 115.40 What happens after 5 minutes, the order's choice being a similar item.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer in time? We follow your choice: a similar item.'**
+  String get marketNoAnswerSimilar;
+
+  /// 115.40 What happens after 5 minutes, the order's choice being to leave it out.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer in time? We follow your choice: leave it out.'**
+  String get marketNoAnswerRemove;
+
+  /// 115.40 A weighed line once picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Weighed {amount} · {price}'**
+  String marketWeighedAt(String amount, String price);
+
+  /// 115.40 A substitute the customer chose.
+  ///
+  /// In en, this message translates to:
+  /// **'Your choice, for {name}'**
+  String marketChoiceFor(String name);
+
+  /// 115.40 A substitute the customer accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'You accepted it, for {name}'**
+  String marketAcceptedFor(String name);
+
+  /// 115.40 A line left out.
+  ///
+  /// In en, this message translates to:
+  /// **'Left out'**
+  String get marketLeftOut;
+
+  /// 115.40 A line not picked yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to be picked'**
+  String get marketWaitingPick;
+
+  /// 115.40 The final price against the estimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Weighed and final'**
+  String get marketWeighedFinal;
+
+  /// 115.40 The final price is within the tolerance.
+  ///
+  /// In en, this message translates to:
+  /// **'Within {percent}%'**
+  String marketWithinPercent(String percent);
+
+  /// 115.40 The estimate, struck through.
+  ///
+  /// In en, this message translates to:
+  /// **'You were told'**
+  String get marketYouWereTold;
+
+  /// 115.40 The weighed total.
+  ///
+  /// In en, this message translates to:
+  /// **'Final price'**
+  String get marketFinalPrice;
+
+  /// 115.40 Under the final price's bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Weighed items came to {amount} of the limit of {limit}'**
+  String marketWeighedOfLimit(String amount, String limit);
+
+  /// 115.40 The amount asked, after the weighed one.
+  ///
+  /// In en, this message translates to:
+  /// **'not {amount}'**
+  String marketNotAmount(String amount);
+
+  /// 115.40 A line of the final price.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, you accepted'**
+  String marketSubAccepted(String name);
+
+  /// 115.40 A line of the final price.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, your choice'**
+  String marketSubChosen(String name);
+
+  /// 115.40 A card order weighed lower.
+  ///
+  /// In en, this message translates to:
+  /// **'You paid the estimate by card; the difference of {amount} comes back to your card.'**
+  String marketCardRefunded(String amount);
+
+  /// 115.40 A cash order once weighed.
+  ///
+  /// In en, this message translates to:
+  /// **'You pay the final price in cash when it arrives.'**
+  String get marketCashFinal;
+
+  /// 115.40 The courier's card.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is bringing it'**
+  String marketBringingIt(String name);
+
+  /// 115.40 A masked call: neither side sees the other's number.
+  ///
+  /// In en, this message translates to:
+  /// **'Call the courier'**
+  String get marketCallCourier;
+
+  /// 115.40 The scanner's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a barcode'**
+  String get marketScanTitle;
+
+  /// 115.40 Under the scanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the barcode. It looks in {vendor} only.'**
+  String marketScanHint(String vendor);
+
+  /// 115.40 Why the scanner asks for the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera reads barcodes to find products in this shop. Nothing is recorded.'**
+  String get marketScanWhy;
+
+  /// 115.40 Types a barcode instead of scanning it.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the code'**
+  String get marketTypeBarcode;
+
+  /// 115.40 The typed barcode's field.
+  ///
+  /// In en, this message translates to:
+  /// **'The numbers under the barcode'**
+  String get marketBarcodeHint;
+
+  /// 115.40 Looks the typed barcode up.
+  ///
+  /// In en, this message translates to:
+  /// **'Find'**
+  String get marketFind;
+
+  /// 115.40 A barcode the shop doesn't sell.
+  ///
+  /// In en, this message translates to:
+  /// **'{vendor} has nothing with this barcode.'**
+  String marketBarcodeNotFound(String vendor);
+
+  /// 115.40 The scanner without the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera is off for this app. Type the code instead.'**
+  String get marketCameraOff;
+
+  /// 115.40 Answering a proposal too late.
+  ///
+  /// In en, this message translates to:
+  /// **'The time to answer has passed, so your order\'s choice was used.'**
+  String get marketProposalClosed;
+
+  /// 115.40 How many are loaded, when the list isn't counted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} shown'**
+  String marketShownCount(int count);
 }
 
 class _AppLocalizationsDelegate

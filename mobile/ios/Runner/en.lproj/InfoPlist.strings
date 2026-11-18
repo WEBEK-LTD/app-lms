@@ -1,0 +1,2 @@
+/* 115.40 Why the app asks for the camera, in the app's three languages. */
+"NSCameraUsageDescription" = "The camera takes the pictures and videos you send in the chat, reads a product's barcode to find it in a shop, and shows you to the pages you open in the app that ask for it, such as a video call or an identity check, and takes the photos you upload to them.";

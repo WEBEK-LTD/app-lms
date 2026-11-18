@@ -23,6 +23,28 @@ and the order, and shows them in the basket, the checkout and the order.
 No migration and no contract change. Still to check on a real phone: the
 pushes arriving (customer app, vendor app, the Vendor tab) and each tap
 opening its screen, and the dish sheet on a small screen.
+Roadmap 115.40–115.47 (the supermarket in the customer app, the audit's
+Stage 3; on `wip-market-app`, not released yet): Zad Market's home has
+its own search with a barcode button, its offers, its departments as
+arches and "Buy again"; a department pages its products by the server's
+cursor with aisle chips and filters; a product sold by weight has a
+stepper in its own steps between its least and most, the estimate, the
+most a cash order comes to and the card's "You pay the estimate now; if
+it weighs less, we refund the difference"; the basket's checkout sets "If
+something is missing" once for the order and per item (a similar item, my
+choice, leave it out); the order being picked asks for a similar item
+live, with 5 minutes to accept it or leave it out before the order's
+choice applies, then shows the weighed final price against the estimate
+line by line, and the courier by first name with a masked call when the
+app has a call relay (none yet: `courier.call` is null). Contract:
+`if_missing` on the cart and the order, `MarketOrderLine.proposal`, the
+vendor's proposal and the customer's answer routes,
+`MarketTracking.courier.call`; lib/market/substitutes.ts; migration 0145
+(drizzle-kit, `market_orders.if_missing`). The app reads Stage 1's catalog
+fields (`sold_by`, `sku`, `barcode`, `stock`, `estimated_total`,
+`weighed_total`, `estimated`, `next_cursor`) when the server sends them.
+`mobile_scanner` 7.5.0 is new. `CLIENT_APP_RELEASE` is unchanged (the
+integration branch sets it).
 
 Roadmap 157 (the template's categories are the shop's): Leqaa's occasion
 rings, chips and ticker and its collections' bento, arches and cards were
@@ -1117,6 +1139,14 @@ test environment:
   weight doesn't change it. A restaurant's menu is still edited by the
   app's owner only (Stage 6).
 
+- 115.47 No call relay: `MarketTracking.courier.call` is always null, so
+  the app shows no call button for the app's courier yet.
+- 115.40 Picking still caps a substitute's price at the line's own
+  (`pickMarketOrder`, lib/market/flow.ts), also when the customer accepted
+  a dearer similar item at its own price; the final price then shows less
+  than the proposal said. To lift in Stage 1's or Stage 4's flow work.
+- 115.46 The barcode camera (`mobile_scanner`) is tested only typed by
+  hand; the camera itself needs a real phone.
 - 138 An account's limit can be passed by one or two apps when several
   new apps are given accounts in the same instant (each app still gets
   exactly one account, written once). Assignment reads the settings

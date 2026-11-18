@@ -67,6 +67,7 @@ import { cancelClub as endClub, joinClub as joinClubPaid, payFromWallet, redeemC
 import { paymentChoices } from "../../market/payments";
 import { marketConfigJson, marketCurrency, marketSettingsOf, marketTimezone, paymentSettingsOf } from "../../market/settings";
 import { photosRequired } from "../../market/photos";
+import { answerSubstitute, checkPicks, proposeSubstitute, settleProposals } from "../../market/substitutes";
 import { delayJson, mayEditPlace, parseClosedDates, parseDelay, parseHoursList, parsePrepMinutes, placeChangePatch, type PlaceChange } from "../../market/vendor-controls";
 import { utcToLocal } from "../../bookings/time";
 import { monthBounds, vendorStatement, type PanelContext } from "../../market/panel-pages";
@@ -179,6 +180,8 @@ export class MarketConnector {
           if (m === "POST" && p.length === 4 && p[3] === "pay") return this.pay(request, oid);
           if (m === "POST" && p.length === 4 && p[3] === "rating") return this.rate(request, oid);
           if (m === "POST" && p.length === 4 && p[3] === "complaints") return this.complain(request, oid);
+          // 115.40 The customer's answer to the picker's proposed item.
+          if (m === "POST" && p.length === 6 && p[3] === "lines" && p[5] === "proposal" && id(4) !== null) return this.answerProposal(request, oid, id(4)!);
         }
       }
       if (p[1] === "complaints") {
@@ -211,6 +214,8 @@ export class MarketConnector {
         if (m === "POST" && p.length === 4 && p[3] === "accept") return this.withVendor(request, ["owner", "manager", "orders"], (s) => this.accept(s, oid, request));
         if (m === "POST" && p.length === 4 && p[3] === "reject") return this.withVendor(request, ["owner", "manager", "orders"], (s) => this.reject(s, oid, request));
         if (m === "PATCH" && p.length === 4 && p[3] === "lines") return this.withVendor(request, null, (s) => this.pick(s, oid, request));
+        // 115.40 The picker proposes a similar item for a missing line.
+        if (m === "POST" && p.length === 6 && p[3] === "lines" && p[5] === "proposal" && id(4) !== null) return this.withVendor(request, null, (s) => this.propose(s, oid, id(4)!, request));
         if (m === "POST" && p.length === 4 && p[3] === "ready") return this.withVendor(request, null, (s) => this.ready(s, oid, request.now));
         if (m === "POST" && p.length === 4 && p[3] === "handover") return this.withVendor(request, ["owner", "manager", "orders"], (s) => this.handover(s, oid, request));
       }
@@ -491,6 +496,7 @@ export class MarketConnector {
       deliveryBy,
       scheduledFor: input.scheduledFor,
       lines: pr.lines,
+      ifMissing: input.ifMissing ?? null,
       money,
       currency,
       paymentMethod: input.payment,
@@ -585,7 +591,7 @@ export class MarketConnector {
     const settings = await this.settings();
     const currency = marketCurrency(settings);
     const job = order.shipmentId !== null ? await this.deps.store.getShipment(this.deps.app.id, order.shipmentId) : null;
-    const o = await syncWithJob(this.deps.store, order, job, now, this.flow(now));
+    const o = await settleProposals(this.deps.store, await syncWithJob(this.deps.store, order, job, now, this.flow(now)), now);
     const vendor = o.vendorId !== null ? await this.deps.store.getRestaurant(this.deps.app.id, o.vendorId) : null;
     const summary = vendor
       ? vendorSummaryJson(vendor, this.near(vendor, settings, null, now, null, null), currency, this.deps.assetUrl)
@@ -641,6 +647,17 @@ export class MarketConnector {
     if (!request.user) return signIn();
     const o = await this.ownOrder(request, id);
     return o ? { status: 200, body: await this.customerJson(o, request.now) } : orderNotFound();
+  }
+
+  /** 115.40 The customer accepts the proposed item, or leaves the line out. */
+  private async answerProposal(request: ConnectorRequest, id: number, lineId: number): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    const o = await this.ownOrder(request, id);
+    if (!o) return orderNotFound();
+    const answer = (request.body as { answer?: unknown } | null)?.answer;
+    if (answer !== "accept" && answer !== "decline") return error(400, "invalid_request", "Accept the item or leave it out.");
+    const done = await answerSubstitute(this.deps.store, o, lineId, answer, request.now);
+    return done.ok ? { status: 200, body: await this.customerJson(done.order, request.now) } : error(done.status, done.code, done.error);
   }
 
   private async cancel(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
@@ -929,7 +946,7 @@ export class MarketConnector {
 
   private async vendorJsonOf(o: MarketOrder, now: Date) {
     const job = o.shipmentId !== null ? await this.deps.store.getShipment(this.deps.app.id, o.shipmentId) : null;
-    const synced = await syncWithJob(this.deps.store, o, job, now, this.flow(now));
+    const synced = await settleProposals(this.deps.store, await syncWithJob(this.deps.store, o, job, now, this.flow(now)), now);
     const collect = synced.paymentMethod === "cash" && synced.paymentStatus === "unpaid" && collectedByOf(synced) === "vendor" ? synced.money.payNow : null;
     return vendorOrderJson(synced, { courierName: job?.courierName ?? null, collect });
   }
@@ -1068,9 +1085,25 @@ export class MarketConnector {
     const settings = marketSettingsOf(await this.settings());
     const rate = s.vendor.taxRateBp !== null && s.vendor.taxRateBp !== undefined ? s.vendor.taxRateBp / 100 : settings.tax.ratePercent;
     const tax = rate > 0 ? { ratePercent: rate, included: settings.tax.included, onDelivery: settings.tax.onDelivery, label: settings.tax.label } : null;
-    const moved = await pickMarketOrder(this.deps.store, o, picked, settings.weightTolerancePercent, tax, request.now, this.flow(request.now));
+    // 115.40 The picks follow the customer's answers to proposed items.
+    const current = await settleProposals(this.deps.store, o, request.now);
+    const checked = checkPicks(current, picked, request.now);
+    if (!checked.ok) return error(409, "proposal_open", checked.error);
+    const moved = await pickMarketOrder(this.deps.store, current, checked.picked, settings.weightTolerancePercent, tax, request.now, this.flow(request.now));
     if (!moved.ok) return moved.reason === "invalid" ? error(400, "invalid_request", moved.error ?? "One of the lines isn't valid.") : refused();
     return { status: 200, body: await this.vendorJsonOf(moved.order, request.now) };
+  }
+
+  /** 115.40 A similar item for a missing line, for the customer to answer within five minutes. */
+  private async propose(s: Staffed, id: number, lineId: number, request: ConnectorRequest): Promise<ConnectorResult> {
+    const o = await this.vendorsOrder(s, id);
+    if (!o) return orderNotFound();
+    if (o.vendorKind === "restaurant") return error(409, "not_picked", "Restaurants' orders aren't picked.");
+    const b = (request.body && typeof request.body === "object" ? request.body : {}) as Record<string, unknown>;
+    if (typeof b.product_id !== "number" || !Number.isInteger(b.product_id) || b.product_id <= 0) return error(400, "invalid_request", "Choose the item to propose.");
+    const quantity = typeof b.quantity === "number" ? b.quantity : (o.lines.find((l) => l.id === lineId)?.quantity ?? 1);
+    const done = await proposeSubstitute(this.deps.store, o, lineId, { productId: b.product_id, quantity }, this.deps.assetUrl, request.now);
+    return done.ok ? { status: 200, body: await this.vendorJsonOf(done.order, request.now) } : error(done.status, done.code, done.error);
   }
 
   private async ready(s: Staffed, id: number, now: Date): Promise<ConnectorResult> {

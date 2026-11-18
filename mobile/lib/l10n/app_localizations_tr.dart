@@ -12273,4 +12273,367 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bouquetRemove => 'Buketi kaldır';
+
+  @override
+  String marketSearchStore(String name) {
+    return '$name içinde ara';
+  }
+
+  @override
+  String get marketScanBarcode => 'Barkod tara';
+
+  @override
+  String get marketDepartments => 'Reyonlar';
+
+  @override
+  String marketSeeAllCount(int count) {
+    return 'Tümü ($count)';
+  }
+
+  @override
+  String get marketBuyAgain => 'Yeniden al';
+
+  @override
+  String marketFromYourOrders(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count siparişinden',
+      one: 'Son siparişinden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketEstimatedAmount(String amount) {
+    return 'Tahmini $amount';
+  }
+
+  @override
+  String get marketGoCheckout => 'Ödeme';
+
+  @override
+  String get marketOfferLabel => 'Fırsat';
+
+  @override
+  String get marketThisWeek => 'Bu hafta';
+
+  @override
+  String marketProductCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ürün',
+      one: '1 ürün',
+      zero: 'Ürün yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketAisleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count koridor',
+      one: '1 koridor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get marketAll => 'Tümü';
+
+  @override
+  String get marketSortPopular => 'Popüler';
+
+  @override
+  String get marketFilterOffers => 'Fırsatlar';
+
+  @override
+  String get marketByWeight => 'Tartılı';
+
+  @override
+  String get marketFilterInStock => 'Stokta';
+
+  @override
+  String marketShownOf(int shown, int total) {
+    return '$total üründen $shown gösteriliyor';
+  }
+
+  @override
+  String get marketLoadingMore => 'Daha fazlası yükleniyor…';
+
+  @override
+  String get marketNothingHere => 'Burada henüz bir şey yok';
+
+  @override
+  String marketFreeDeliveryLeft(String amount) {
+    return 'Ücretsiz teslimat için $amount daha ekleyin';
+  }
+
+  @override
+  String get marketFreeDeliveryReached => 'Bu siparişte teslimat ücretsiz';
+
+  @override
+  String marketResultsFor(String query) {
+    return '“$query” için sonuçlar';
+  }
+
+  @override
+  String get marketSoldByWeight => 'Tartılarak satılır';
+
+  @override
+  String marketPer100g(String amount) {
+    return '$amount / 100 g';
+  }
+
+  @override
+  String marketInSteps(String amount) {
+    return '$amount adımlarla';
+  }
+
+  @override
+  String get marketEstimatedPrice => 'Tahmini fiyat';
+
+  @override
+  String get marketAtMostAfterWeighing => 'Tartımdan sonra en fazla';
+
+  @override
+  String get marketWeighFinal => 'Son fiyat tartımdan sonra belli olur.';
+
+  @override
+  String get marketWeighCard =>
+      'Tahmini tutarı şimdi ödersiniz; daha hafif gelirse farkı iade ederiz.';
+
+  @override
+  String marketWeighCash(String amount) {
+    return 'Nakit: terazinin gösterdiğini ödersiniz, en fazla $amount.';
+  }
+
+  @override
+  String get marketByCard => 'Kartla';
+
+  @override
+  String get marketPickerSliced => 'Dilimlenmiş';
+
+  @override
+  String get marketPickerOnePiece => 'Tek parça';
+
+  @override
+  String get marketPickerNote => 'Not';
+
+  @override
+  String get marketPickerNoteHint => 'Hazırlayan için not';
+
+  @override
+  String marketAddWeighed(String amount, String price) {
+    return '$amount ekle · yaklaşık $price';
+  }
+
+  @override
+  String marketAddUnits(String count, String price) {
+    return '$count ekle · $price';
+  }
+
+  @override
+  String marketUpdateCart(String price) {
+    return 'Sepeti güncelle · $price';
+  }
+
+  @override
+  String marketAmountG(String amount) {
+    return '$amount g';
+  }
+
+  @override
+  String marketAmountKg(String amount) {
+    return '$amount kg';
+  }
+
+  @override
+  String marketAmountL(String amount) {
+    return '$amount L';
+  }
+
+  @override
+  String get marketIfMissingTitle => 'Bir ürün yoksa';
+
+  @override
+  String get marketIfMissingSub =>
+      'Tüm sipariş için. Aşağıda her ürün için değiştirebilirsiniz.';
+
+  @override
+  String get marketMissingSimilar => 'Benzer ürün';
+
+  @override
+  String get marketMissingChosen => 'Ben seçerim';
+
+  @override
+  String get marketMissingRemove => 'Çıkarın';
+
+  @override
+  String marketInstead(String name) {
+    return 'Yerine: $name';
+  }
+
+  @override
+  String get marketChooseInstead => 'Yerine getirilecek ürünü seçin';
+
+  @override
+  String marketEachPrice(String price) {
+    return 'Tanesi $price';
+  }
+
+  @override
+  String get marketItemsEstimated => 'Ürünler, tahmini';
+
+  @override
+  String get marketEstimatedTotal => 'Tahmini toplam';
+
+  @override
+  String marketAtMostAfter(String amount) {
+    return 'Tartımdan sonra en fazla $amount';
+  }
+
+  @override
+  String get marketPickedCount => 'hazır';
+
+  @override
+  String get marketBeingPickedTitle => 'Siparişiniz hazırlanıyor';
+
+  @override
+  String get marketYourAnswer => 'Yanıtınızı bekliyoruz';
+
+  @override
+  String marketOutTakeInstead(String name) {
+    return '$name kalmadı. Bunun yerine bunu alalım mı?';
+  }
+
+  @override
+  String get marketOutLabel => 'Tükendi';
+
+  @override
+  String get marketSimilarLabel => 'Benzer';
+
+  @override
+  String get marketAccept => 'Kabul et';
+
+  @override
+  String get marketNoAnswerSimilar =>
+      'Zamanında yanıt yok mu? Seçiminize uyarız: benzer ürün.';
+
+  @override
+  String get marketNoAnswerRemove =>
+      'Zamanında yanıt yok mu? Seçiminize uyarız: çıkarırız.';
+
+  @override
+  String marketWeighedAt(String amount, String price) {
+    return 'Tartılan $amount · $price';
+  }
+
+  @override
+  String marketChoiceFor(String name) {
+    return '$name yerine seçiminiz';
+  }
+
+  @override
+  String marketAcceptedFor(String name) {
+    return '$name yerine kabul ettiniz';
+  }
+
+  @override
+  String get marketLeftOut => 'Çıkarıldı';
+
+  @override
+  String get marketWaitingPick => 'Hazırlanmayı bekliyor';
+
+  @override
+  String get marketWeighedFinal => 'Tartıldı, son fiyat';
+
+  @override
+  String marketWithinPercent(String percent) {
+    return '%$percent içinde';
+  }
+
+  @override
+  String get marketYouWereTold => 'Size söylenen';
+
+  @override
+  String get marketFinalPrice => 'Son fiyat';
+
+  @override
+  String marketWeighedOfLimit(String amount, String limit) {
+    return 'Tartılan ürünler $limit sınırının $amount kadarını tuttu';
+  }
+
+  @override
+  String marketNotAmount(String amount) {
+    return '$amount değil';
+  }
+
+  @override
+  String marketSubAccepted(String name) {
+    return '$name, kabul ettiniz';
+  }
+
+  @override
+  String marketSubChosen(String name) {
+    return '$name, seçiminiz';
+  }
+
+  @override
+  String marketCardRefunded(String amount) {
+    return 'Tahmini tutarı kartla ödediniz; $amount fark kartınıza iade edilir.';
+  }
+
+  @override
+  String get marketCashFinal => 'Son fiyatı teslimatta nakit ödersiniz.';
+
+  @override
+  String marketBringingIt(String name) {
+    return '$name getiriyor';
+  }
+
+  @override
+  String get marketCallCourier => 'Kuryeyi ara';
+
+  @override
+  String get marketScanTitle => 'Barkod tara';
+
+  @override
+  String marketScanHint(String vendor) {
+    return 'Kamerayı barkoda doğrultun. Yalnızca $vendor içinde aranır.';
+  }
+
+  @override
+  String get marketScanWhy =>
+      'Kamera bu mağazadaki ürünleri bulmak için barkodları okur. Hiçbir şey kaydedilmez.';
+
+  @override
+  String get marketTypeBarcode => 'Kodu yazın';
+
+  @override
+  String get marketBarcodeHint => 'Barkodun altındaki rakamlar';
+
+  @override
+  String get marketFind => 'Bul';
+
+  @override
+  String marketBarcodeNotFound(String vendor) {
+    return '$vendor mağazasında bu barkodla ürün yok.';
+  }
+
+  @override
+  String get marketCameraOff =>
+      'Bu uygulama için kamera kapalı. Bunun yerine kodu yazın.';
+
+  @override
+  String get marketProposalClosed =>
+      'Yanıt süresi doldu, siparişinizin seçimi uygulandı.';
+
+  @override
+  String marketShownCount(int count) {
+    return '$count gösteriliyor';
+  }
 }
