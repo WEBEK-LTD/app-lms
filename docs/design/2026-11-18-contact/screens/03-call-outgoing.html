@@ -1,0 +1,48 @@
+<!doctype html>
+<html data-variants="calling,connected,failed">
+<head>
+<meta charset="utf-8">
+<title>03 · An in-app call over the internet</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/kit.css">
+<link rel="stylesheet" href="../kit/contact.css">
+<script src="../kit/kit.js"></script>
+<script src="../kit/contact.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const v = V || "calling";
+const sub = {
+  calling: t("Calling over the internet…", "جارٍ الاتصال عبر الإنترنت…"),
+  connected: `<span class="timer">02:14</span>`,
+  failed: t("Couldn't connect", "تعذّر الاتصال"),
+}[v];
+const ctrls = v === "failed"
+  ? `<div class="cbtn">${"<b>" + icon("close") + "</b>"}${t("Close", "إغلاق")}</div>
+     <div class="cbtn chat"><b>${icon("chat", "f")}</b>${t("Chat", "مراسلة")}</div>
+     <div class="cbtn ok"><b>${icon("refresh")}</b>${t("Try again", "إعادة المحاولة")}</div>`
+  : `<div class="cbtn${v === "connected" ? " on" : ""}"><b>${icon("volume_up", "f")}</b>${t("Speaker", "مكبّر الصوت")}</div>
+     <div class="cbtn"><b>${icon("mic_off")}</b>${t("Mute", "كتم")}</div>
+     <div class="cbtn"><b>${icon("chat")}</b>${t("Chat", "مراسلة")}</div>
+     <div class="cbtn end"><b>${icon("call_end", "f")}</b>${t("End", "إنهاء")}</div>`;
+mount(`
+<div class="phone">
+  <div class="call">
+    ${statusBar(true)}
+    <div class="who">
+      <div class="big${v === "calling" ? "" : " still"}">${t("K", "ك")}</div>
+      <h2>${t("Karim", "كريم")}</h2>
+      <div class="sub">${sub}</div>
+      <div class="tag">${icon("two_wheeler", "f")}${`${t("Your courier · Order", "مندوب التوصيل · الطلب")} ${n("#4821")}`}</div>
+    </div>
+    ${v === "failed"
+      ? `<div class="fail">${t("The call couldn't get through, maybe because of a weak connection on one side. You can write to Karim now, or try again.", "لم يتم الاتصال، ربما بسبب ضعف الإنترنت لدى أحد الطرفين. يمكنك مراسلة كريم الآن، أو المحاولة مرة أخرى.")}</div>`
+      : `<div class="note">${icon("lock", "f")}${t("A call through Zad over the internet. No phone numbers are shared.", "اتصال عبر تطبيق زاد بالإنترنت. لا تتم مشاركة أي أرقام هواتف.")}</div>`}
+    <div class="ctrls">${ctrls}</div>
+    ${homeInd(true)}
+  </div>
+</div>`);
+</script>
+</body>
+</html>

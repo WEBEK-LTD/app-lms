@@ -1,0 +1,60 @@
+<!doctype html>
+<html data-app="courier">
+<head>
+<meta charset="utf-8">
+<title>07 · Yallapp Courier: the chat with the customer</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/kit.css">
+<link rel="stylesheet" href="../kit/contact.css">
+<link rel="stylesheet" href="../kit/courier.css">
+<script src="../kit/kit.js"></script>
+<script src="../kit/contact.js"></script>
+<style>
+  .cust { width: 42px; height: 42px; border-radius: 21px; background: var(--tint); color: var(--tint-ink); display: grid; place-items: center; font: 800 17px/1 var(--display); flex: none; }
+  .co { width: 26px !important; height: 28px !important; font-size: 12px !important; border-radius: 13px 13px 6px 6px !important; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const tick = icon("done_all");
+mount(`
+<div class="phone">
+  ${statusBar()}
+  <div class="scroll thread" style="--below:140px">
+    <div class="ctop">
+      <div class="round flat" style="width:38px;height:38px">${icon("arrow_back", "flip")}</div>
+      <span class="cust">${t("M", "م")}</span>
+      <div class="grow"><div style="font-weight:800;font-size:15px">${t("Mona", "منى")}</div><div class="small muted row" style="gap:5px"><span class="ychead" style="padding:0;display:inline-flex"><span class="co">${t("Z", "ز")}</span></span>${t("Zad · Order", "زاد · الطلب")} ${n("#4821")}</div></div>
+      <div class="round flat" style="width:42px;height:42px">${icon("wifi_calling_3", "f", "color:var(--accent)")}</div>
+      <div class="round flat" style="width:42px;height:42px">${icon("call", "f", "color:var(--accent)")}</div>
+    </div>
+    <div class="chat">
+      <div class="event">${icon("lock", "f")}${t("You and Mona only. Zad's team can read this chat; the store never sees it.", "أنت ومنى فقط. يمكن لفريق زاد قراءة هذه المحادثة، ولا يراها المتجر.")}</div>
+      <div class="msg me">${t("Hello Mona, I've collected your order from Zad Market. I'll be there in about 10 minutes.", "مرحبًا منى، استلمت طلبك من زاد ماركت. سأصل خلال 10 دقائق تقريبًا.")}<time>20:28 ${tick}</time></div>
+      <div class="msg them"><span class="quickmsg">${icon("door_front", "f", "color:var(--accent)")}${t("Leave it at the door", "اتركه عند الباب")}</span><time>20:29</time></div>
+      <div class="msg them">
+        <div class="loc">${map(220, 96, { pin: [200, 170] })}<div class="cap">${icon("location_on", "f", "font-size:16px")}${t("Mona's location", "موقع منى")}<span class="grow"></span>${icon("navigation", "f", "font-size:16px;color:var(--accent)")}</div></div>
+        ${t("The entrance is on the side street, next to the pharmacy.", "المدخل من الشارع الجانبي، بجانب الصيدلية.")}<time>20:30</time>
+      </div>
+      <div class="msg me">${t("Got it, thank you.", "حسنًا، شكرًا لك.")}<time>20:31 ${tick}</time></div>
+      <div class="msg me"><span class="quickmsg">${icon("near_me", "f")}${t("I'm 5 minutes away", "سأصل خلال 5 دقائق")}</span><time>20:36 ${tick}</time></div>
+      <div class="msg them">${t("Perfect, I'm home.", "ممتاز، أنا في البيت.")}<time>20:36</time></div>
+    </div>
+  </div>
+  <div class="quick">
+    <span>${icon("door_front")}${t("I'm at the door", "أنا عند الباب")}</span>
+    <span>${icon("apartment")}${t("I'm downstairs", "أنا أسفل المبنى")}</span>
+    <span>${icon("call")}${t("Call me", "اتصل بي")}</span>
+    <span>${icon("near_me")}${t("5 minutes away", "خلال 5 دقائق")}</span>
+  </div>
+  <div class="composer">
+    <div class="round flat" style="width:46px;height:46px">${icon("my_location")}</div>
+    <div class="field">${t("Write to Mona…", "اكتب إلى منى…")}</div>
+    <div class="send">${icon("send", "f flip")}</div>
+  </div>
+  ${homeInd()}
+</div>`);
+</script>
+</body>
+</html>

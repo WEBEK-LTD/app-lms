@@ -1,0 +1,78 @@
+<!doctype html>
+<html data-variants="android,iphone">
+<head>
+<meta charset="utf-8">
+<title>04 · An incoming in-app call, with the app closed</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/kit.css">
+<link rel="stylesheet" href="../kit/contact.css">
+<script src="../kit/kit.js"></script>
+<script src="../kit/contact.js"></script>
+<style>
+  /* The iPhone: CallKit draws this screen itself; the app gives only the name, the subtitle line and its icon. */
+  .ios { position: absolute; inset: 0; background: linear-gradient(180deg, #3B4A44 0%, #1D2622 100%); color: #fff; text-align: center; }
+  .ios .top { margin-top: 110px; }
+  .ios .label { font-size: 15px; opacity: .75; }
+  .ios h2 { font: 400 36px/1.2 -apple-system, "Plus Jakarta Sans", "Readex Pro", sans-serif; margin-top: 4px; }
+  .ios .btns { position: absolute; bottom: 120px; left: 0; right: 0; display: flex; justify-content: space-around; padding: 0 40px; }
+  .ios .btns div { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; }
+  .ios .btns b { width: 76px; height: 76px; border-radius: 38px; display: grid; place-items: center; }
+  .ios .btns b .i { font-size: 34px; }
+  .ios .row2 { position: absolute; bottom: 240px; left: 0; right: 0; display: flex; justify-content: space-around; padding: 0 70px; font-size: 13px; }
+  .ios .row2 div { display: flex; flex-direction: column; align-items: center; gap: 6px; opacity: .9; }
+  .ios .row2 .i { font-size: 26px; }
+  .callout { position: absolute; left: 16px; right: 16px; top: 300px; border-radius: 18px; background: rgba(0,0,0,.45); border: 1px dashed rgba(255,255,255,.45); padding: 10px 12px; font-size: 12px; line-height: 1.45; text-align: start; }
+  /* Android: the full-screen call notification over the lock screen */
+  .incoming .who { margin-top: 150px; }
+  .lock { position: absolute; top: 64px; left: 0; right: 0; text-align: center; color: #fff; opacity: .85; font: 600 13px/1 var(--font); display: flex; gap: 6px; justify-content: center; align-items: center; }
+  .lock .i { font-size: 16px; }
+  .app { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; opacity: .9; }
+  .app span.z { width: 22px; height: 22px; border-radius: 7px; background: #F2A93B; color: #134A36; display: grid; place-items: center; font: 800 12px/1 "Lexend", "Readex Pro", sans-serif; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const v = V || "android";
+const android = `
+<div class="phone">
+  <div class="call incoming">
+    ${statusBar(true)}
+    <div class="lock">${icon("lock", "f")}${t("Locked", "مقفل")}</div>
+    <div class="who">
+      <div class="app"><span class="z">${t("Z", "ز")}</span>${t("Zad · App call", "زاد · اتصال بالتطبيق")}</div>
+      <div class="big" style="margin-top:30px">${t("K", "ك")}</div>
+      <h2>${t("Karim", "كريم")}</h2>
+      <div class="sub">${t("Your courier is calling", "مندوب التوصيل يتصل بك")}</div>
+      <div class="tag">${icon("receipt_long", "f")}${`${t("Order", "الطلب")} ${n("#4821")} · ${t("Zad Market", "زاد ماركت")}`}</div>
+    </div>
+    <div class="ctrls pair">
+      <div class="cbtn end"><b>${icon("call_end", "f")}</b>${t("Decline", "رفض")}</div>
+      <div class="cbtn ok"><b>${icon("call", "f")}</b>${t("Answer", "رد")}</div>
+    </div>
+    <div class="note" style="bottom:190px">${icon("chat")}${t("Can't talk? Decline, and Karim can write to you instead.", "لا يمكنك التحدث؟ ارفض، ويمكن لكريم مراسلتك بدلًا من ذلك.")}</div>
+    ${homeInd(true)}
+  </div>
+</div>`;
+// CallKit's own screen: its words follow the phone's language; only the caller's name and the app's label come from the app.
+const iphone = `
+<div class="phone">
+  <div class="ios">
+    ${statusBar(true)}
+    <div class="top">
+      <div class="label">${t("Zad Audio…", "صوت زاد…")}</div>
+      <h2>${t("Karim · Courier", "كريم · المندوب")}</h2>
+    </div>
+    <div class="callout">${icon("info", "", "font-size:16px")} ${t("The iPhone's own call screen (CallKit). Zad gives it the caller's first name and role, never a number, and the app's icon; it rings with the app closed and the phone locked, and appears in Recents as a Zad call.", "شاشة الاتصال الخاصة بالآيفون (CallKit). يعطيها زاد الاسم الأول للمتصل ودوره، ولا يعطيها أي رقم، ومعه أيقونة التطبيق؛ ترنّ والتطبيق مغلق والهاتف مقفل، وتظهر في سجل المكالمات كاتصال من زاد.")}</div>
+    <div class="row2"><div>${icon("alarm")}${t("Remind Me", "ذكّرني")}</div><div>${icon("chat_bubble")}${t("Message", "رسالة")}</div></div>
+    <div class="btns">
+      <div><b style="background:#E5483B">${icon("call_end", "f")}</b>${t("Decline", "رفض")}</div>
+      <div><b style="background:#2FBF71">${icon("call", "f")}</b>${t("Accept", "قبول")}</div>
+    </div>
+    ${homeInd(true)}
+  </div>
+</div>`;
+mount(v === "iphone" ? iphone : android);
+</script>
+</body>
+</html>

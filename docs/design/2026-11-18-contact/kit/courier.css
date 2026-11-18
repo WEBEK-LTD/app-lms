@@ -1,0 +1,25 @@
+/*
+ * Yallapp Courier (104.8): Yallapp's own look, the courier build's branding
+ * (mobile/build/yallapp-courier.json: primary #0E0D24 midnight, splash #F4EFE6 ivory,
+ * Bricolage Grotesque; Readex Pro for Arabic), with the company's name and logo at the top.
+ * Applied with <html data-app="courier">, over kit.css and contact.css.
+ */
+@font-face { font-family: "Bricolage"; src: url("../../../../platform/web/public/preview-app/assets/assets/fonts/bricolagegrotesque/BricolageGrotesque-Variable.ttf") format("truetype"); font-weight: 200 800; }
+:root[data-app="courier"] {
+  --page: #F4EFE6; --surface: #FFFFFF; --surface-2: #FAF7F1; --ink: #0E0D24; --muted: #5E5B70; --faint: #8C889A;
+  --line: #E4DDD0; --line-2: #EDE7DC; --accent: #C2410C; --fill: #0E0D24; --on-fill: #F4EFE6;
+  --amber: #FF5A1F; --amber-ink: #C2410C; --amber-soft: #FFEDE4; --tint: #FFEDE4; --tint-ink: #9A3412;
+  --poster: #0E0D24; --field: #ECE6DA;
+  --font: "Bricolage", "Readex Pro", system-ui, sans-serif; --display: "Bricolage", "Readex Pro", system-ui, sans-serif;
+}
+:root[data-app="courier"][data-theme="dark"] {
+  --page: #0E0D24; --surface: #161530; --surface-2: #1C1B38; --ink: #F4EFE6; --muted: #A9A4BB; --faint: #827D96;
+  --line: #2C2A49; --line-2: #24223F; --accent: #FF9A6E; --fill: #F4EFE6; --on-fill: #0E0D24;
+  --amber: #FF5A1F; --amber-ink: #FF9A6E; --amber-soft: #2E2645; --tint: #2E2645; --tint-ink: #FFC2A6;
+  --poster: #050414; --field: #1C1B38;
+}
+:root[data-app="courier"][lang="ar"] { --font: "Readex Pro", "Bricolage", system-ui, sans-serif; --display: "Readex Pro", "Bricolage", system-ui, sans-serif; }
+.ychead { display: flex; align-items: center; gap: 10px; padding: 6px 16px 10px; }
+.ychead .co { width: 38px; height: 42px; border-radius: 19px 19px 9px 9px; background: #134A36; color: #F2A93B; display: grid; place-items: center; font: 800 16px/1 "Lexend", "Readex Pro", sans-serif; flex: none; }
+.duty { display: inline-flex; align-items: center; gap: 6px; height: 30px; border-radius: 15px; padding: 0 11px; background: var(--surface); border: 1px solid var(--line); font-size: 12px; font-weight: 700; }
+.duty::before { content: ""; width: 8px; height: 8px; border-radius: 4px; background: #2FBF71; box-shadow: 0 0 0 3px rgba(47,191,113,.22); }

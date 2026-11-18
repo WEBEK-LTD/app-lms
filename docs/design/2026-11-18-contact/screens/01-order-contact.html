@@ -1,0 +1,83 @@
+<!doctype html>
+<html data-variants="all,chat,after">
+<head>
+<meta charset="utf-8">
+<title>01 · The order's contact buttons</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/kit.css">
+<link rel="stylesheet" href="../kit/contact.css">
+<script src="../kit/kit.js"></script>
+<script src="../kit/contact.js"></script>
+<style>
+  .mapbox { position: absolute; inset: 0 0 auto 0; height: 330px; overflow: hidden; }
+  .mbar { position: absolute; top: 52px; left: 16px; right: 16px; display: flex; gap: 10px; z-index: 5; }
+  .eta { position: absolute; top: 112px; inset-inline-start: 16px; z-index: 5; background: var(--surface); border-radius: 18px; padding: 8px 14px; box-shadow: var(--shadow-strong); }
+  .eta b { font: 800 30px/1 "Lexend", sans-serif; letter-spacing: -1px; color: var(--accent); }
+  .sheet { position: absolute; top: 292px; left: 0; right: 0; bottom: 0; background: var(--page); border-radius: 30px 30px 0 0; padding: 10px 16px 0; box-shadow: 0 -10px 30px rgba(0,0,0,.12); }
+  .courier { padding: 12px; border-radius: 24px; background: var(--surface); box-shadow: var(--shadow); }
+  .av { width: 50px; height: 50px; border-radius: 25px; background: var(--amber); color: #241700; display: grid; place-items: center; font: 800 19px/1 "Lexend", "Readex Pro", sans-serif; position: relative; flex: none; }
+  .av .i { position: absolute; bottom: -4px; inset-inline-end: -4px; width: 24px; height: 24px; border-radius: 12px; background: var(--fill); color: var(--on-fill); font-size: 14px; display: grid; place-items: center; border: 2px solid var(--surface); }
+  .plate { font: 700 11px/1 var(--mono); border: 1.5px solid var(--line); border-radius: 6px; padding: 3px 6px; }
+  .why { display: flex; gap: 6px; align-items: center; font-size: 11.5px; color: var(--muted); margin-top: 10px; font-weight: 600; }
+  .why .i { font-size: 15px; }
+  .stages { margin-top: 12px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); padding: 12px 14px; }
+  .st { display: flex; gap: 10px; align-items: center; padding: 6px 0; font-size: 13px; }
+  .st .d { width: 22px; height: 22px; border-radius: 11px; display: grid; place-items: center; background: var(--tint); color: var(--tint-ink); flex: none; }
+  .st .d .i { font-size: 15px; }
+  .st.now .d { background: var(--fill); color: var(--on-fill); }
+  .st time { margin-inline-start: auto; font: 600 12px/1 var(--display); color: var(--muted); }
+  .done { position: absolute; top: 112px; inset-inline-start: 16px; z-index: 5; background: var(--surface); border-radius: 18px; padding: 10px 14px; box-shadow: var(--shadow-strong); display: flex; gap: 8px; align-items: center; font-weight: 800; }
+  .done .i { color: var(--ok); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const v = V || "all";
+const after = v === "after";
+const ways = v === "all"
+  ? `<div class="contact" style="--ways:3">
+       <div class="way main">${icon("chat", "f")}${t("Chat", "مراسلة")}<span class="badge">1</span></div>
+       <div class="way">${icon("wifi_calling_3", "f")}${t("App call", "اتصال بالتطبيق")}<small>${t("Over the internet", "عبر الإنترنت")}</small></div>
+       <div class="way">${icon("call", "f")}${t("Phone call", "اتصال هاتفي")}<small>${t("Number hidden", "الرقم مخفي")}</small></div>
+     </div>`
+  : `<div class="contact" style="--ways:1">
+       <div class="way main" style="flex-direction:row;gap:8px;height:54px;font-size:15px">${icon("chat", "f")}${after ? t("Chat with Karim", "مراسلة كريم") : t("Chat with Karim", "مراسلة كريم")}${after ? "" : `<span class="badge" style="position:static">1</span>`}</div>
+     </div>`;
+const why = after
+  ? `<div class="why">${icon("schedule")}${t("You can write to Karim until 22:41, two hours after delivery.", "يمكنك مراسلة كريم حتى 22:41، أي ساعتين بعد التسليم.")}</div>`
+  : `<div class="why">${icon("lock", "f")}${t("Karim never sees your number, and you never see his.", "لا يرى كريم رقمك، ولا ترى رقمه.")}</div>`;
+mount(`
+<div class="phone">
+  ${statusBar()}
+  <div class="mapbox">${after ? map(390, 330, { pin: [320, 200] }) : map(390, 330)}</div>
+  <div class="mbar"><div class="round">${icon("arrow_back", "flip")}</div><div class="grow"></div><div class="round">${icon("support_agent")}</div></div>
+  ${after
+    ? `<div class="done">${icon("check_circle", "f")}${t("Delivered at 20:41", "سُلِّم الساعة 20:41")}</div>`
+    : `<div class="eta"><div class="small muted" style="font-weight:700">${t("On the way", "في الطريق")}</div><div class="row" style="gap:5px;align-items:baseline"><b>9</b><span style="font-weight:800">${t("min", "دقائق")}</span></div></div>`}
+  <div class="sheet">
+    <div class="grab"></div>
+    <div class="courier">
+      <div class="row" style="gap:12px">
+        <div class="av">${t("K", "ك")}<span class="i f">two_wheeler</span></div>
+        <div class="grow">
+          <div style="font-weight:800;font-size:15px">${after ? t("Karim brought your order", "أوصل كريم طلبك") : t("Karim is bringing it", "كريم في طريقه إليك")}</div>
+          <div class="row small muted" style="gap:6px;margin-top:3px">${icon("star", "f", "font-size:14px;color:var(--amber)")}<b class="num" style="color:var(--ink)">4.9</b>· ${t("Motorbike", "دراجة نارية")} <span class="plate">ق ر ط 4821</span></div>
+        </div>
+      </div>
+      ${ways}
+      ${why}
+    </div>
+    <div class="stages">
+      <div class="row" style="margin-bottom:4px"><span class="grow" style="font-weight:800">${t("Zad Market", "زاد ماركت")} · ${t("Order", "الطلب")} ${n("#4821")}</span><span class="small muted">${t("Samir picked it", "جهّزه سمير")}</span></div>
+      <div class="st"><span class="d">${icon("check")}</span>${t("Picked and weighed", "تم التجهيز والوزن")}<time>20:18</time></div>
+      <div class="st"><span class="d">${icon("check")}</span>${t("Karim collected it", "استلمه كريم")}<time>20:27</time></div>
+      <div class="st${after ? "" : " now"}"><span class="d">${icon(after ? "check" : "two_wheeler", "f")}</span>${t("On the way to you", "في الطريق إليك")}<time>20:28</time></div>
+      ${after ? `<div class="st now"><span class="d">${icon("home", "f")}</span>${t("Delivered", "تم التسليم")}<time>20:41</time></div>` : ""}
+    </div>
+  </div>
+  ${homeInd()}
+</div>`);
+</script>
+</body>
+</html>

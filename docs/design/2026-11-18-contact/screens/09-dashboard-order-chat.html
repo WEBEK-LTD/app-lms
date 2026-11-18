@@ -1,0 +1,92 @@
+<!doctype html>
+<html data-size="dashboard">
+<head>
+<meta charset="utf-8">
+<title>09 · Dashboard: support reads an order's chat</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/dash.css">
+<script src="../kit/kit.js"></script>
+<script src="../kit/contact.js"></script>
+<script src="../kit/dash-side.js"></script>
+<style>
+  .cols { display: grid; grid-template-columns: 340px 1fr 330px; gap: 14px; margin-top: 16px; align-items: start; }
+  .sec { padding: 14px 16px; }
+  .sec h3 { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  [lang="ar"] .sec h3 { letter-spacing: 0; font-size: 13.5px; }
+  .kv { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; }
+  .kv b { font-weight: 600; }
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); padding: 0 12px; }
+  .tabs span { padding: 12px 10px; font-size: 13.5px; font-weight: 600; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  .tabs span.on { color: var(--midnight); box-shadow: inset 0 -2px 0 var(--ember); }
+  .tabs .i { font-size: 18px; }
+  .ro { margin: 12px 16px 0; padding: 9px 12px; border-radius: 10px; background: var(--sand); border: 1px solid var(--line-soft); font-size: 12.5px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+  .ro .i { font-size: 17px; }
+  .thread { padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .m { max-width: 74%; font-size: 13.5px; line-height: 1.45; }
+  .m .b { padding: 9px 12px; border-radius: 14px; }
+  .m .w { font-size: 11.5px; color: var(--muted); margin-bottom: 3px; display: flex; gap: 6px; align-items: center; }
+  .m .w .i { font-size: 14px; }
+  .m.c { align-self: flex-start; }
+  .m.c .b { background: var(--sand); border: 1px solid var(--line-soft); }
+  .m.k { align-self: flex-end; }
+  .m.k .w { justify-content: flex-end; }
+  .m.k .b { background: var(--zad-bg); color: var(--midnight); }
+  .ev { align-self: center; font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  .ev .i { font-size: 16px; }
+  .log { display: flex; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line-soft); font-size: 13px; }
+  .log:first-of-type { border-top: 0; }
+  .log .ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--step); flex: none; }
+  .log .ic .i { font-size: 17px; }
+  .log .ic.ok { background: var(--success-bg); color: var(--success); }
+  .log .ic.no { background: var(--danger-bg); color: var(--danger); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const tick = icon("done_all", "", "color:var(--zad)");
+mount(`
+<div class="shell">
+  ${side("orders")}
+  <main class="main">
+    <div class="crumbs">${icon("arrow_back", "flip", "font-size:17px")}${t("Marketplace orders", "طلبات السوق")}</div>
+    <div class="row" style="margin-top:6px"><h1 class="grow">${t("Order", "الطلب")} ${n("#4821")}</h1><span class="chip c-ok">${icon("check_circle", "f")}${t("Delivered 20:41", "اتسلّم 20:41")}</span><span class="btn">${icon("support_agent")}${t("Open a complaint for the customer", "افتح شكوى للعميل")}</span></div>
+    <div class="cols">
+      <div class="card sec">
+        <h3>${t("The order", "الطلب")}</h3>
+        <div style="font-weight:700;font-size:15px">${t("Zad Market", "زاد ماركت")}</div>
+        <div class="kv"><span class="muted">${t("Customer", "العميل")}</span><b>${t("Mona", "منى")}</b></div>
+        <div class="kv"><span class="muted">${t("Courier", "المندوب")}</span><b>${t("Karim", "كريم")} · ${t("Yallapp Courier", "Yallapp Courier")}</b></div>
+        <div class="kv"><span class="muted">${t("Picker", "المجهّز")}</span><b>${t("Samir", "سمير")}</b></div>
+        <div class="kv"><span class="muted">${t("Placed", "اتطلب")}</span><b class="num">19:58</b></div>
+        <div class="kv"><span class="muted">${t("Courier assigned", "المندوب اتحدّد")}</span><b class="num">20:21</b></div>
+        <div class="kv"><span class="muted">${t("Total", "الإجمالي")}</span><b>${money(415.55)}</b></div>
+        <div class="kv"><span class="muted">${t("Paid with", "الدفع")}</span><b>${t("Cash", "كاش")}</b></div>
+      </div>
+      <div class="card">
+        <div class="tabs"><span>${icon("receipt_long")}${t("Items", "الأصناف")}</span><span>${icon("timeline")}${t("Timeline", "المراحل")}</span><span class="on">${icon("forum", "f")}${t("Customer and courier", "العميل والمندوب")}</span></div>
+        <div class="ro">${icon("visibility")}${t("Read only, for support. The store never sees this chat. Open until 22:41, two hours after delivery.", "للقراءة بس، لفريق الدعم. المحل عمره ما بيشوف المحادثة دي. مفتوحة لحد 22:41، يعني ساعتين بعد التسليم.")}</div>
+        <div class="thread">
+          <div class="m k"><div class="w">${icon("two_wheeler", "f")}${t("Karim · 20:28", "كريم · 20:28")}</div><div class="b">${t("Hello Mona, I've collected your order from Zad Market. I'll be there in about 10 minutes.", "مرحبًا منى، استلمت طلبك من زاد ماركت. سأصل خلال 10 دقائق تقريبًا.")}</div></div>
+          <div class="m c"><div class="w">${t("Mona · 20:29 · quick reply", "منى · 20:29 · رد سريع")} ${tick}</div><div class="b">${t("Leave it at the door", "اتركه عند الباب")}</div></div>
+          <div class="m c"><div class="w">${t("Mona · 20:30", "منى · 20:30")} ${tick}</div><div class="b"><div class="row" style="gap:6px;font-weight:600">${icon("location_on", "f", "font-size:17px;color:var(--zad)")}${t("Shared her location", "شاركت موقعها")}</div>${t("The entrance is on the side street, next to the pharmacy.", "المدخل من الشارع الجانبي، بجانب الصيدلية.")}</div></div>
+          <div class="ev">${icon("wifi_calling_3")}${t("App call from Karim · 20:33 · 1 min 12 s", "مكالمة تطبيق من كريم · 20:33 · دقيقة و12 ثانية")}</div>
+          <div class="m k"><div class="w">${t("Karim · 20:36 · quick reply", "كريم · 20:36 · رد سريع")}</div><div class="b">${t("I'm 5 minutes away", "سأصل خلال 5 دقائق")}</div></div>
+          <div class="ev">${icon("call")}${t("Phone call from Mona · 20:38 · couldn't connect: Karim didn't answer", "مكالمة تليفون من منى · 20:38 · موصلتش: كريم مردّش")}</div>
+          <div class="m k"><div class="w">${t("Karim · 20:41 · quick reply", "كريم · 20:41 · رد سريع")}</div><div class="b">${t("I've left it at the door", "تركته عند الباب")}</div></div>
+          <div class="ev">${icon("check_circle", "f", "color:var(--success)")}${t("Delivered · 20:41", "اتسلّم · 20:41")}</div>
+          <div class="m c"><div class="w">${t("Mona · 20:44", "منى · 20:44")} ${tick}</div><div class="b">${t("Thank you Karim!", "شكرًا يا كريم!")}</div></div>
+        </div>
+      </div>
+      <div class="card sec">
+        <h3>${t("Calls on this order", "مكالمات الطلب ده")}</h3>
+        <div class="log"><span class="ic ok">${icon("wifi_calling_3", "f")}</span><div class="grow"><b style="font-weight:600">${t("App call · Karim → Mona", "مكالمة تطبيق · كريم ← منى")}</b><div class="small muted">${t("20:33 · 1 min 12 s · relayed by Twilio", "20:33 · دقيقة و12 ثانية · عن طريق Twilio")}</div></div></div>
+        <div class="log"><span class="ic no">${icon("call", "f")}</span><div class="grow"><b style="font-weight:600">${t("Phone call · Mona → Karim", "مكالمة تليفون · منى ← كريم")}</b><div class="small muted">${t("20:38 · no answer · from +1 415 555 0142", "20:38 · مفيش رد · من ‎+1 415 555 0142‎")}</div></div></div>
+        <div class="small muted" style="margin-top:10px;border-top:1px solid var(--line-soft);padding-top:10px">${t("Calls aren't recorded. Phone numbers stay hidden here too.", "المكالمات مش بتتسجّل. وأرقام التليفونات مخفية هنا كمان.")}</div>
+      </div>
+    </div>
+  </main>
+</div>`);
+</script>
+</body>
+</html>

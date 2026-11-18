@@ -1,0 +1,154 @@
+<!doctype html>
+<html data-size="dashboard" data-variants="setup,saved,error">
+<head>
+<meta charset="utf-8">
+<title>08 · Dashboard: Settings › Calls</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/dash.css">
+<script src="../kit/kit.js"></script>
+<script src="../kit/contact.js"></script>
+<script src="../kit/dash-side.js"></script>
+<style>
+  .cols { display: grid; grid-template-columns: 1fr 470px; gap: 16px; margin-top: 18px; align-items: start; }
+  .way { padding: 16px 18px; display: flex; gap: 14px; }
+  .way + .way { margin-top: 12px; }
+  .wic { width: 42px; height: 42px; border-radius: 12px; background: var(--peach); color: var(--accent); display: grid; place-items: center; flex: none; }
+  .wic .i { font-size: 22px; }
+  .way h3 { font-size: 16px; font-weight: 700; }
+  .way p { color: var(--muted); font-size: 13.5px; margin-top: 3px; max-width: 560px; }
+  .toggle { width: 42px; height: 24px; border-radius: 12px; background: var(--line-strong); position: relative; flex: none; margin-top: 4px; }
+  .toggle::after { content: ""; position: absolute; top: 3px; inset-inline-start: 3px; width: 18px; height: 18px; border-radius: 9px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+  .toggle.on { background: var(--success); }
+  .toggle.on::after { inset-inline-start: 21px; }
+  .toggle.off-locked { opacity: .5; }
+  .sub { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line-soft); }
+  .opt { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); margin-top: 6px; font-size: 13px; }
+  .opt .r { width: 16px; height: 16px; border-radius: 8px; border: 2px solid var(--line-strong); flex: none; margin-top: 2px; }
+  .opt.on { border-color: var(--midnight); background: var(--sand); box-shadow: 0 0 0 1px var(--midnight) inset; }
+  .opt.on .r { border: 5px solid var(--midnight); }
+  .opt b { font-weight: 600; }
+  .lbl { font-size: 13px; font-weight: 600; margin: 14px 0 6px; display: flex; justify-content: space-between; align-items: baseline; }
+  .lbl span { font-weight: 500; color: var(--muted); font-size: 12px; }
+  .input { border: 1px solid var(--line-strong); border-radius: 10px; height: 42px; display: flex; align-items: center; gap: 8px; padding: 0 12px; font-size: 14px; background: var(--white); direction: ltr; }
+  [dir="rtl"] .input { text-align: left; }
+  .input.ph { color: var(--faint); }
+  .input .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13px; letter-spacing: .3px; }
+  .input .saved { margin-inline-start: auto; }
+  .input.bad { border-color: var(--danger); box-shadow: 0 0 0 3px var(--danger-bg); }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+  .tw { padding: 18px; }
+  .tw h2 { font-size: 18px; font-weight: 700; }
+  .res { margin-top: 14px; border-radius: 12px; padding: 12px 14px; font-size: 13px; display: flex; gap: 10px; }
+  .res.ok { background: var(--success-bg); color: var(--success); }
+  .res.no { background: var(--danger-bg); color: var(--danger); }
+  .res ul { list-style: none; margin-top: 4px; color: var(--ink-2); }
+  .res li { display: flex; gap: 6px; align-items: center; padding: 2px 0; }
+  .res li .i { font-size: 16px; }
+  .lock { margin-top: 14px; display: flex; gap: 8px; font-size: 12px; color: var(--muted); }
+  .lock .i { font-size: 16px; }
+  .stat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  .stat div { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--white); }
+  .stat b { display: block; font-size: 22px; font-weight: 700; }
+  .stat span { font-size: 12px; color: var(--muted); }
+  .warn { margin-top: 10px; border-radius: 10px; padding: 9px 12px; background: var(--warn-bg); color: var(--warn); font-size: 12.5px; display: flex; gap: 8px; align-items: center; }
+  .warn .i { font-size: 17px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const v = V || "setup";
+const setup = v === "setup", saved = v === "saved", error = v === "error";
+const field = (label, hint, body, extra = "") => `<div class="lbl">${label}${hint ? `<span>${hint}</span>` : ""}</div>${body}${extra}`;
+const savedPill = `<span class="chip c-ok saved">${icon("lock", "f")}${t("Saved", "متسجّل")}</span><span class="btn" style="height:28px;padding:0 10px;font-size:12px">${t("Replace", "غيّره")}</span>`;
+const twilio = `
+  <div class="card tw">
+    <div class="row"><h2 class="grow">${t("Your Twilio account", "حساب Twilio بتاعك")}</h2>${saved ? `<span class="chip c-ok">${icon("check_circle", "f")}${t("Connected", "متوصّل")}</span>` : error ? `<span class="chip c-no">${icon("error", "f")}${t("Not working", "مش شغّال")}</span>` : `<span class="chip c-cust">${t("Not set up", "لسه متظبطش")}</span>`}</div>
+    <div class="small muted" style="margin-top:4px">${t("Phone calls use your own Twilio account and number, and Twilio bills you directly. Yallapp never charges for calls and never sees your Twilio bill.", "المكالمات الهاتفية بتستخدم حساب Twilio ورقمك إنت، وTwilio بيحاسبك على طول. Yallapp عمرها ما بتاخد فلوس على المكالمات ولا بتشوف فاتورة Twilio بتاعتك.")}</div>
+    ${field(t("Account SID", "Account SID"), t("Starts with AC", "بيبدأ بـ AC"),
+      setup ? `<div class="input ph"><span class="mono">ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span></div>`
+            : `<div class="input"><span class="mono">AC••••••••••••••••••••••••••••3f2a</span></div>`)}
+    ${field(t("API key SID", "API key SID"), t("Starts with SK", "بيبدأ بـ SK"),
+      setup ? `<div class="input ph"><span class="mono">SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span></div>`
+            : `<div class="input"><span class="mono">SK••••••••••••••••••••••••••••81c0</span></div>`)}
+    ${field(t("API key secret", "API key secret"), "",
+      setup ? `<div class="input ph">${t("Paste the secret Twilio showed you once", "الصق الـ secret اللي Twilio وراهولك مرة واحدة")}</div>`
+            : `<div class="input"><span class="mono" style="color:var(--faint)">••••••••••••••••</span>${savedPill}</div>`,
+      `<div class="hint">${t("Or use your account's auth token instead of an API key.", "أو استخدم الـ auth token بتاع حسابك بدل الـ API key.")} <a style="color:var(--accent);font-weight:600">${t("Use the auth token", "استخدم الـ auth token")}</a></div>`)}
+    ${field(t("Your Twilio phone number", "رقم Twilio بتاعك"), t("Both phones see this number", "التليفونين هيشوفوا الرقم ده"),
+      setup ? `<div class="input ph">+1 415 555 0100</div>`
+            : `<div class="input${error ? " bad" : ""}">${icon("call", "", "font-size:18px;color:var(--muted)")}${OWNER_NUMBER}</div>`,
+      error ? `<div class="hint t-bad">${t("This number isn't in this Twilio account.", "الرقم ده مش موجود في حساب Twilio ده.")}</div>` : "")}
+    <div class="row" style="margin-top:16px">
+      <span class="btn">${icon("network_check")}${t("Test the connection", "جرّب الاتصال")}</span>
+      <span class="grow"></span>
+      <span class="btn dark">${t("Save", "احفظ")}</span>
+    </div>
+    ${saved ? `<div class="res ok">${icon("check_circle", "f")}<div><b>${t("Everything works", "كله تمام")}</b>
+        <ul>
+          <li>${icon("check")}${t("The account is active", "الحساب شغّال")}</li>
+          <li>${icon("check")}${t("+1 415 555 0142 is yours and can make calls", "الرقم ‎+1 415 555 0142‎ بتاعك وبيعمل مكالمات")}</li>
+          <li>${icon("check")}${t("Balance: USD 23.40", "الرصيد: 23.40 دولار")}</li>
+          <li>${icon("check")}${t("Network Traversal is on, for app calls", "Network Traversal شغّال، لمكالمات التطبيق")}</li>
+        </ul><div class="small" style="margin-top:4px;color:var(--muted)">${t("Tested today at 14:02", "اتجرّب النهارده الساعة 14:02")}</div></div></div>` : ""}
+    ${error ? `<div class="res no">${icon("error", "f")}<div><b>${t("Phone calls can't be placed", "مش هينفع نعمل مكالمات")}</b>
+        <ul>
+          <li>${icon("check")}${t("The account and the key are right", "الحساب والمفتاح مظبوطين")}</li>
+          <li>${icon("close")}${t("+1 415 555 0142 isn't one of this account's numbers. Check it in Twilio › Phone Numbers › Active numbers.", "الرقم ‎+1 415 555 0142‎ مش من أرقام الحساب ده. راجعه في Twilio › Phone Numbers › Active numbers.")}</li>
+          <li>${icon("close")}${t("The balance is USD 0.12: top it up in Twilio › Billing.", "الرصيد 0.12 دولار: اشحنه من Twilio › Billing.")}</li>
+        </ul></div></div>` : ""}
+    <div class="lock">${icon("encrypted", "f")}<span>${t("Kept encrypted. Saved secrets are never shown again, not even to Yallapp's team: type a new one to replace it.", "بنحفظها متشفّرة. الـ secrets اللي اتحفظت مش بتظهر تاني، ولا حتى لفريق Yallapp: اكتب واحد جديد لو عايز تغيّره.")}</span></div>
+  </div>`;
+mount(`
+<div class="shell">
+  ${side("calls")}
+  <main class="main">
+    <div class="crumbs">${t("Settings", "الإعدادات")} ${icon("chevron_right", "flip", "font-size:17px")} ${t("Calls", "المكالمات")}</div>
+    <h1 style="margin-top:6px">${t("Calls", "المكالمات")}</h1>
+    <div class="intro">${t("Choose how a customer and their order's courier reach each other. Neither ever sees the other's number, and the store is never part of it.", "اختار العميل ومندوب الطلب يوصلوا لبعض إزاي. محدّش فيهم بيشوف رقم التاني، والمحل عمره ما بيدخل في الموضوع.")}</div>
+    <div class="cols">
+      <div>
+        <div class="card way">
+          <span class="wic">${icon("chat", "f")}</span>
+          <div class="grow">
+            <h3>${t("Chat in the app", "المراسلة في التطبيق")}</h3>
+            <p>${t("Per order, from when a courier is assigned until 2 hours after delivery: text, quick replies and the customer's location, with pushes and \"read\" on both sides. Your support team reads it from the order.", "لكل طلب، من وقت ما المندوب يتحدّد لحد ساعتين بعد التسليم: كلام وردود سريعة وموقع العميل، بإشعارات و\"اتقرت\" عند الاتنين. فريق الدعم بتاعك يقدر يقراها من صفحة الطلب.")}</p>
+          </div>
+          <span class="toggle on"></span>
+        </div>
+        <div class="card way">
+          <span class="wic">${icon("wifi_calling_3", "f")}</span>
+          <div class="grow">
+            <h3>${t("App calls over the internet", "مكالمات التطبيق بالإنترنت")}</h3>
+            <p>${t("Like a WhatsApp call: it rings even when the app is closed (CallKit on iPhone, a full-screen call on Android). No numbers on either side. If a call can't connect, the app says so and offers chat.", "زي مكالمة واتساب: بترنّ حتى لو التطبيق مقفول (CallKit على الآيفون، ومكالمة بملء الشاشة على أندرويد). مفيش أرقام عند أي حد. ولو المكالمة موصلتش، التطبيق بيقول كده ويعرض المراسلة.")}</p>
+            <div class="sub">
+              <div style="font-size:13px;font-weight:600">${t("Connecting calls on strict networks", "توصيل المكالمات على الشبكات المقفولة")}</div>
+              <div class="opt${setup ? "" : " on"}"><span class="r"></span><div><b>${t("Relay through my Twilio account (Network Traversal)", "عن طريق حساب Twilio بتاعي (Network Traversal)")}</b><div class="small muted">${t("Recommended. Calls that can't connect directly go through Twilio's relay; Twilio bills you per GB.", "مُستحسن. المكالمات اللي مش بتوصل على طول بتعدّي على Twilio، وTwilio بيحاسبك بالجيجا.")}</div></div></div>
+              <div class="opt${setup ? " on" : ""}"><span class="r"></span><div><b>${t("Direct only", "مباشر بس")}</b><div class="small muted">${t("Free, but some mobile networks and offices won't connect: the app then offers chat.", "ببلاش، بس شوية شبكات موبايل ومكاتب مش هتوصّل: ساعتها التطبيق بيعرض المراسلة.")}</div></div></div>
+            </div>
+          </div>
+          <span class="toggle${setup ? "" : " on"}"></span>
+        </div>
+        <div class="card way">
+          <span class="wic">${icon("call", "f")}</span>
+          <div class="grow">
+            <h3>${t("Phone calls with hidden numbers", "مكالمات تليفون بأرقام مخفية")}</h3>
+            <p>${t("A normal call that needs no internet. The app asks your Twilio number to call the customer or courier, then connects the other side; both phones see your Twilio number. It works only while the order is on its way.", "مكالمة عادية من غير إنترنت. التطبيق بيطلب من رقم Twilio بتاعك يكلّم العميل أو المندوب، وبعدين يوصّله بالطرف التاني؛ والتليفونين بيشوفوا رقم Twilio بتاعك. بتشتغل بس والطلب في الطريق.")}</p>
+            ${setup ? `<div class="warn">${icon("info")}${t("Add your Twilio account and test it to switch phone calls on.", "ضيف حساب Twilio بتاعك وجرّبه عشان تشغّل المكالمات الهاتفية.")}</div>` : ""}
+            ${error ? `<div class="warn" style="background:var(--danger-bg);color:var(--danger)">${icon("pause_circle", "f")}${t("Paused since 13:40: the last call failed. Customers and couriers see chat instead until the test passes.", "واقفة من الساعة 13:40: آخر مكالمة فشلت. العملاء والمناديب بيشوفوا المراسلة بدالها لحد ما الاختبار ينجح.")}</div>` : ""}
+          </div>
+          <span class="toggle${saved ? " on" : " off-locked"}"></span>
+        </div>
+        ${saved ? `<div class="stat">
+          <div><b class="num">412</b><span>${t("Chats, last 30 days", "محادثة، آخر 30 يوم")}</span></div>
+          <div><b class="num">138</b><span>${t("App calls · 96% connected", "مكالمة تطبيق · 96% وصلت")}</span></div>
+          <div><b class="num">57</b><span>${t("Phone calls · 3 h 12 min on Twilio", "مكالمة تليفون · 3 س 12 د على Twilio")}</span></div>
+        </div>` : ""}
+      </div>
+      ${twilio}
+    </div>
+  </main>
+</div>`);
+</script>
+</body>
+</html>
