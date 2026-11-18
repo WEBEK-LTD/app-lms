@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +17,7 @@ import '../../../core/widgets/common.dart';
 import '../../lms/data/lms_providers.dart';
 import '../../lms/learning/learning_providers.dart';
 import 'account_looks.dart';
+import 'sign_out.dart';
 
 /// 123 The premium academy's account page (`account_menu` `header:
 /// academy`), as approved: the student's card in gold on dark with their
@@ -71,7 +74,8 @@ class AcademyAccountLook extends ConsumerWidget {
         18,
         MediaQuery.paddingOf(context).top + 8,
         18,
-        110,
+        // 167 Past a tab bar floating over it too, so Sign out shows.
+        math.max(110, accountListEnd(context, 24)),
       ),
       children: [
         // The student's card; a tap edits their details.

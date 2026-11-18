@@ -3382,9 +3382,47 @@
     },
     "studio": {
      "body": {
-      "id": "demo-188",
+      "id": "demo-189",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "demo-188",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account",
      "background": "#FBF3F0",
@@ -4476,7 +4514,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-189",
+      "id": "demo-190",
       "type": "column",
       "children": []
      },
@@ -4518,7 +4556,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-190",
+      "id": "demo-191",
       "type": "column",
       "children": []
      },
@@ -4560,7 +4598,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-191",
+      "id": "demo-192",
       "type": "column",
       "children": []
      },
@@ -4602,7 +4640,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-192",
+      "id": "demo-193",
       "type": "column",
       "children": []
      },
@@ -4636,7 +4674,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-193",
+      "id": "demo-194",
       "type": "column",
       "children": []
      },
@@ -4653,7 +4691,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-194",
+      "id": "demo-195",
       "type": "column",
       "children": []
      },

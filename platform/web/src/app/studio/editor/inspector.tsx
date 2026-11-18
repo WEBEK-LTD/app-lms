@@ -447,12 +447,14 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
   const entrySources = sources.filter((s) => s !== "courses" && s !== "posts");
   const value = !action ? "none" : action.type === "screen" ? `screen:${action.screen ?? ""}` : action.type === "page" ? `page:${action.page_slug ?? ""}` : action.type;
   const opens = (target: string) => t("studio.opens", { target });
-  const icon = !action ? "touch_app" : action.type === "screen" ? "apps" : action.type === "page" ? "description" : action.type === "url" ? "link" : action.type === "course" ? "school" : "category";
+  const icon = !action ? "touch_app" : action.type === "screen" ? "apps" : action.type === "page" ? "description" : action.type === "url" ? "link" : action.type === "course" ? "school" : action.type === "sign_out" ? "logout" : "category";
   const choose = (v: string) => {
     if (v === "none") onChange(null);
     else if (v.startsWith("screen:")) onChange({ type: "screen", screen: v.slice(7) as Action["screen"] });
     else if (v.startsWith("page:")) onChange({ type: "page", page_slug: v.slice(5) });
     else if (v === "url") onChange({ type: "url", url: "", open_in: "in_app" });
+    // 167 Sign out.
+    else if (v === "sign_out") onChange({ type: "sign_out" });
     else if (v === "course") onChange({ type: "course", course_id: Number(pickable.items.courses?.[0]?.id ?? 0) || null });
     else onChange({ type: "item", item: { source: entrySources[0] ?? "products", id: "" } });
   };
@@ -489,6 +491,8 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
           <option value="url">{opens(t("studio.tapLink"))}</option>
           {entrySources.length || action?.type === "item" ? <option value="item">{opens(t("studio.tapItem"))}</option> : null}
           {sources.includes("courses") || action?.type === "course" ? <option value="course">{opens(t("studio.tapCourse"))}</option> : null}
+          {/* 167 Studio's Sign out element. */}
+          <option value="sign_out">{t("studio.tapSignOut")}</option>
         </select>
         <Chevron />
       </label>

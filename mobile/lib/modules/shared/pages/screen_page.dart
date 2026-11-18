@@ -78,6 +78,26 @@ BuiltInScreen? screenOfPage(WidgetRef ref, String slug) => builtInScreenFrom(
       ?.screen,
 );
 
+/// 167 Whether the page [slug] stands for the Account: the Account tab
+/// (its id `account`, as Studio makes it) opens it, or it is at `account`,
+/// and it isn't drawn around the app's own account screen. Such a page ends
+/// with Sign out (`StudioPageView.accountEnd`).
+bool pageStandsForAccount(WidgetRef ref, String slug) {
+  final navigation = ref.watch(navigationProvider);
+  final screen = navigation?.pages
+      .where((p) => p.slug == slug)
+      .firstOrNull
+      ?.screen;
+  if (screen != null) return false;
+  if (slug == 'account') return true;
+  return [...?navigation?.tabs, ...?navigation?.more].any(
+    (t) =>
+        t.id == 'account' &&
+        t.target.type == PageActionType.page &&
+        t.target.pageSlug == slug,
+  );
+}
+
 /// 120 One of the app's screens with the Studio page the owner drew around
 /// it, as a tab or opened on top of the tabs ([pushed]); the screen as it
 /// is ([alone], else [child]) without one, and while the page loads or

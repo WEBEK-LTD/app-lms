@@ -58,6 +58,7 @@ import 'studio_stories.dart';
 // 130.20 The premium headers (premium chrome).
 import '../../../core/widgets/premium_chrome.dart';
 import 'premium/studio_premium_header.dart';
+import '../account/sign_out.dart' show AccountPageEnd;
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -72,11 +73,17 @@ class StudioPageView extends ConsumerWidget {
     required this.pageSlug,
     this.pushed = false,
     this.screen,
+    this.accountEnd = false,
   });
 
   final StudioPage page;
   final String pageSlug;
   final bool pushed;
+
+  /// 167 The page stands for the Account (its tab) without the app's
+  /// account screen in it: without a Sign out element of its own, the app
+  /// adds Sign out and Delete account at its end, in its colours.
+  final bool accountEnd;
 
   /// 120 The app's own screen the page is drawn around (`StudioPage.screen`):
   /// the header stays over it and the elements scroll away with it.
@@ -137,6 +144,8 @@ class StudioPageView extends ConsumerWidget {
             for (final n in body.children)
               if (!pinned(n)) n,
           ]);
+    // 167 The Account as a Studio page of its own: Sign out at its end.
+    final end = accountEnd && !studioHasSignOut(page.body);
     // ——— 130.20 A premium header: it folds as the page scrolls under it. ———
     if (header != null && header.style != null) {
       final glass = header.style == StudioHeaderStyle.glass;
@@ -149,7 +158,10 @@ class StudioPageView extends ConsumerWidget {
           top: under ? StudioPremiumHeader.openHeightOf(header, top) : 0,
           bottom: 16 + (TabBarOverBody.of(context) ? bottomInset : 0),
         ),
-        children: [StudioNodeView(node: scrolling, scope: scope, parent: null)],
+        children: [
+          StudioNodeView(node: scrolling, scope: scope, parent: null),
+          if (end) AccountPageEnd(background: background),
+        ],
       );
       return ColoredBox(
         color: background,
@@ -210,6 +222,7 @@ class StudioPageView extends ConsumerWidget {
         if (header != null && !overlay)
           StudioHeaderView(header: header, top: top, scope: scope),
         StudioNodeView(node: scrolling, scope: scope, parent: null),
+        if (end) AccountPageEnd(background: background),
       ],
     );
     final view = ColoredBox(
@@ -280,8 +293,17 @@ class StudioPageView extends ConsumerWidget {
   /// scroll away over the screen, which fills the rest. Under a header the
   /// screen's own title isn't shown.
   Widget _aroundScreen(BuildContext context, Widget hosted) {
+    // 167 Over the account, a Sign out element is the account's own, which
+    // it draws last, in its look: never a second one over it.
+    final whole = page.bodyFor(MediaQuery.sizeOf(context).shortestSide);
+    final body = page.screen == 'account' && studioHasSignOut(whole)
+        ? _withChildren(whole, [
+            for (final n in whole.children)
+              if (n.action?.type != PageActionType.signOut) n,
+          ])
+        : whole;
     // Nothing over it yet: the screen as it is (the account's own top).
-    if (page.header == null && page.body.children.isEmpty) return hosted;
+    if (page.header == null && body.children.isEmpty) return hosted;
     final p = context.palette;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final top = MediaQuery.paddingOf(context).top;
@@ -292,7 +314,7 @@ class StudioPageView extends ConsumerWidget {
         p.background;
     final scope = StudioScope(pageSlug: pageSlug, dark: dark);
     final header = page.header;
-    final body = page.bodyFor(MediaQuery.sizeOf(context).shortestSide);
+
     final pinnedTop = [
       for (final n in body.children)
         if (n.pin == StudioPin.top) n,
@@ -402,6 +424,11 @@ class StudioPageView extends ConsumerWidget {
     ],
   );
 }
+
+/// 167 Whether [node] or anything in it is a Sign out element.
+bool studioHasSignOut(StudioNode node) =>
+    node.action?.type == PageActionType.signOut ||
+    node.children.any(studioHasSignOut);
 
 StudioNode _withChildren(StudioNode node, List<StudioNode> children) =>
     StudioNode(
@@ -1066,6 +1093,11 @@ class StudioNodeView extends ConsumerWidget {
       )) {
         return false;
       }
+    }
+    // 167 A Sign out element is for a signed-in person only.
+    if (node.action?.type == PageActionType.signOut &&
+        ref.watch(authControllerProvider) is! SignedIn) {
+      return false;
     }
     if (node.visibility != StudioVisibility.everyone) {
       final signedIn = ref.watch(authControllerProvider) is SignedIn;

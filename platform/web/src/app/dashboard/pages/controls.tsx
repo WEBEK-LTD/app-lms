@@ -349,6 +349,8 @@ export function ActionEditor({
     { value: "screen", label: t("pages.opensScreen") },
     ...(kind === "course" || sources.includes("courses") ? [{ value: "course" as const, label: t("pages.opensCourse") }] : []),
     { value: "url", label: t("pages.opensUrl") },
+    // 167 Sign out, asked first.
+    { value: "sign_out", label: t("pages.signsOut") },
     ...(kind === "item" || sources.some((s) => s !== "courses" && s !== "posts") ? [{ value: "item" as const, label: t("pages.opensEntry") }] : []),
   ];
   const change = (next: ActionKind) => {
@@ -357,6 +359,7 @@ export function ActionEditor({
     else if (next === "screen") onChange({ type: "screen", screen: firstScreen(screens) });
     else if (next === "course") onChange({ type: "course", course_id: Number(courses?.[0]?.id ?? 0) || null });
     else if (next === "url") onChange({ type: "url", url: "", open_in: "in_app" });
+    else if (next === "sign_out") onChange({ type: "sign_out" });
     else onChange({ type: "item", item: { source: sources.find((s) => s !== "courses" && s !== "posts") ?? sources[0] ?? "products", id: "" } });
   };
   return (

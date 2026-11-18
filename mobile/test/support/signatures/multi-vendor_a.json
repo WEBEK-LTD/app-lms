@@ -1361,9 +1361,47 @@
     },
     "studio": {
      "body": {
-      "id": "sig-68",
+      "id": "sig-69",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "sig-68",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account",
      "background": "#F5F2EA",
@@ -1501,7 +1539,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-69",
+      "id": "sig-70",
       "type": "column",
       "children": []
      },
@@ -1543,7 +1581,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-70",
+      "id": "sig-71",
       "type": "column",
       "children": []
      },
@@ -1585,7 +1623,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-71",
+      "id": "sig-72",
       "type": "column",
       "children": []
      },
@@ -1627,11 +1665,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-72",
+      "id": "sig-73",
       "type": "column",
       "children": [
        {
-        "id": "sig-89",
+        "id": "sig-90",
         "type": "slider",
         "name": "Offer of the week",
         "radius": 28,
@@ -1653,7 +1691,7 @@
         },
         "children": [
          {
-          "id": "sig-90",
+          "id": "sig-91",
           "type": "row",
           "name": "off fruit & vegetables",
           "height": 220,
@@ -1676,7 +1714,7 @@
           },
           "children": [
            {
-            "id": "sig-91",
+            "id": "sig-92",
             "type": "column",
             "width": "fill",
             "align": "end",
@@ -1688,7 +1726,7 @@
             },
             "children": [
              {
-              "id": "sig-92",
+              "id": "sig-93",
               "type": "text",
               "text": "Zad Market offer",
               "color": "#FFD27A",
@@ -1708,7 +1746,7 @@
               }
              },
              {
-              "id": "sig-93",
+              "id": "sig-94",
               "type": "text",
               "text": "15%",
               "color": "#F2A93B",
@@ -1736,7 +1774,7 @@
               }
              },
              {
-              "id": "sig-94",
+              "id": "sig-95",
               "type": "text",
               "text": "off fruit & vegetables",
               "color": "#FFFFFF",
@@ -1762,7 +1800,7 @@
               }
              },
              {
-              "id": "sig-95",
+              "id": "sig-96",
               "type": "row",
               "gap": 6,
               "cross": "center",
@@ -1784,7 +1822,7 @@
               },
               "children": [
                {
-                "id": "sig-96",
+                "id": "sig-97",
                 "type": "text",
                 "text": "FRESH15",
                 "color": "#FFFFFF",
@@ -1803,7 +1841,7 @@
                 }
                },
                {
-                "id": "sig-97",
+                "id": "sig-98",
                 "type": "text",
                 "text": "over EGP 100",
                 "color": "#D7E6DE",
@@ -1826,13 +1864,13 @@
             ]
            },
            {
-            "id": "sig-98",
+            "id": "sig-99",
             "type": "stack",
             "width": 124,
             "height": 192,
             "children": [
              {
-              "id": "sig-99",
+              "id": "sig-100",
               "type": "image",
               "image_url": "http://localhost:3000/demo-photos/fruit.jpg",
               "fit": "cover",
@@ -1847,7 +1885,7 @@
               "ken_burns": true
              },
              {
-              "id": "sig-100",
+              "id": "sig-101",
               "type": "row",
               "width": 44,
               "height": 44,
@@ -1866,7 +1904,7 @@
               },
               "children": [
                {
-                "id": "sig-101",
+                "id": "sig-102",
                 "type": "icon",
                 "icon": "arrow_forward",
                 "icon_size": 22,
@@ -1879,7 +1917,7 @@
           ]
          },
          {
-          "id": "sig-102",
+          "id": "sig-103",
           "type": "row",
           "name": "off your basket",
           "height": 220,
@@ -1902,7 +1940,7 @@
           },
           "children": [
            {
-            "id": "sig-103",
+            "id": "sig-104",
             "type": "column",
             "width": "fill",
             "align": "end",
@@ -1914,7 +1952,7 @@
             },
             "children": [
              {
-              "id": "sig-104",
+              "id": "sig-105",
               "type": "text",
               "text": "Zad's own code",
               "color": "#FFD27A",
@@ -1934,7 +1972,7 @@
               }
              },
              {
-              "id": "sig-105",
+              "id": "sig-106",
               "type": "text",
               "text": "20%",
               "color": "#F2A93B",
@@ -1962,7 +2000,7 @@
               }
              },
              {
-              "id": "sig-106",
+              "id": "sig-107",
               "type": "text",
               "text": "off your basket",
               "color": "#FFFFFF",
@@ -1988,7 +2026,7 @@
               }
              },
              {
-              "id": "sig-107",
+              "id": "sig-108",
               "type": "row",
               "gap": 6,
               "cross": "center",
@@ -2010,7 +2048,7 @@
               },
               "children": [
                {
-                "id": "sig-108",
+                "id": "sig-109",
                 "type": "text",
                 "text": "ZAD20",
                 "color": "#FFFFFF",
@@ -2029,7 +2067,7 @@
                 }
                },
                {
-                "id": "sig-109",
+                "id": "sig-110",
                 "type": "text",
                 "text": "over EGP 200",
                 "color": "#D7E6DE",
@@ -2052,13 +2090,13 @@
             ]
            },
            {
-            "id": "sig-110",
+            "id": "sig-111",
             "type": "stack",
             "width": 124,
             "height": 192,
             "children": [
              {
-              "id": "sig-111",
+              "id": "sig-112",
               "type": "image",
               "image_url": "http://localhost:3000/demo-photos/bakery.jpg",
               "fit": "cover",
@@ -2073,7 +2111,7 @@
               "ken_burns": true
              },
              {
-              "id": "sig-112",
+              "id": "sig-113",
               "type": "row",
               "width": 44,
               "height": 44,
@@ -2092,7 +2130,7 @@
               },
               "children": [
                {
-                "id": "sig-113",
+                "id": "sig-114",
                 "type": "icon",
                 "icon": "arrow_forward",
                 "icon_size": 22,
@@ -2105,7 +2143,7 @@
           ]
          },
          {
-          "id": "sig-114",
+          "id": "sig-115",
           "type": "row",
           "name": "delivery over EGP 250",
           "height": 220,
@@ -2128,7 +2166,7 @@
           },
           "children": [
            {
-            "id": "sig-115",
+            "id": "sig-116",
             "type": "column",
             "width": "fill",
             "align": "end",
@@ -2140,7 +2178,7 @@
             },
             "children": [
              {
-              "id": "sig-116",
+              "id": "sig-117",
               "type": "text",
               "text": "Nile Pizza Co.",
               "color": "#FFD27A",
@@ -2160,7 +2198,7 @@
               }
              },
              {
-              "id": "sig-117",
+              "id": "sig-118",
               "type": "text",
               "text": "Free",
               "color": "#F2A93B",
@@ -2188,7 +2226,7 @@
               }
              },
              {
-              "id": "sig-118",
+              "id": "sig-119",
               "type": "text",
               "text": "delivery over EGP 250",
               "color": "#FFFFFF",
@@ -2216,13 +2254,13 @@
             ]
            },
            {
-            "id": "sig-119",
+            "id": "sig-120",
             "type": "stack",
             "width": 124,
             "height": 192,
             "children": [
              {
-              "id": "sig-120",
+              "id": "sig-121",
               "type": "image",
               "image_url": "http://localhost:3000/demo-photos/cover-pizza.jpg",
               "fit": "cover",
@@ -2237,7 +2275,7 @@
               "ken_burns": true
              },
              {
-              "id": "sig-121",
+              "id": "sig-122",
               "type": "row",
               "width": 44,
               "height": 44,
@@ -2256,7 +2294,7 @@
               },
               "children": [
                {
-                "id": "sig-122",
+                "id": "sig-123",
                 "type": "icon",
                 "icon": "arrow_forward",
                 "icon_size": 22,
@@ -2310,7 +2348,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-73",
+      "id": "sig-74",
       "type": "column",
       "children": []
      },
@@ -2352,7 +2390,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-74",
+      "id": "sig-75",
       "type": "column",
       "children": []
      },
@@ -2394,7 +2432,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-75",
+      "id": "sig-76",
       "type": "column",
       "children": []
      },
@@ -2428,7 +2466,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-76",
+      "id": "sig-77",
       "type": "column",
       "children": []
      },
@@ -2445,7 +2483,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-77",
+      "id": "sig-78",
       "type": "column",
       "children": []
      },
@@ -2462,7 +2500,7 @@
     "title": "A restaurant's menu",
     "studio": {
      "body": {
-      "id": "sig-78",
+      "id": "sig-79",
       "type": "column",
       "children": []
      },
@@ -2479,7 +2517,7 @@
     "title": "An order",
     "studio": {
      "body": {
-      "id": "sig-79",
+      "id": "sig-80",
       "type": "column",
       "children": []
      },
@@ -2504,7 +2542,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-80",
+      "id": "sig-81",
       "type": "column",
       "children": []
      },
@@ -2538,7 +2576,7 @@
     "title": "A place's page",
     "studio": {
      "body": {
-      "id": "sig-81",
+      "id": "sig-82",
       "type": "column",
       "children": []
      },
@@ -2555,7 +2593,7 @@
     "title": "A list of places",
     "studio": {
      "body": {
-      "id": "sig-82",
+      "id": "sig-83",
       "type": "column",
       "children": []
      },
@@ -2580,7 +2618,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-83",
+      "id": "sig-84",
       "type": "column",
       "children": []
      },
@@ -2622,7 +2660,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-84",
+      "id": "sig-85",
       "type": "column",
       "children": []
      },
@@ -2656,7 +2694,7 @@
     "title": "An order",
     "studio": {
      "body": {
-      "id": "sig-85",
+      "id": "sig-86",
       "type": "column",
       "children": []
      },
@@ -2681,7 +2719,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-86",
+      "id": "sig-87",
       "type": "column",
       "children": []
      },
@@ -2723,7 +2761,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-87",
+      "id": "sig-88",
       "type": "column",
       "children": []
      },
@@ -2757,7 +2795,7 @@
     "title": "A complaint",
     "studio": {
      "body": {
-      "id": "sig-88",
+      "id": "sig-89",
       "type": "column",
       "children": []
      },

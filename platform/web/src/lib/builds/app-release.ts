@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 6;
+export const CLIENT_APP_RELEASE = 7;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -46,6 +46,10 @@ export const CLIENT_APP_RELEASE = 6;
  *    the owner's switch off the app hides Settings › Currency and sends no
  *    `X-Currency`; with the owner's list, the picker shows only those and
  *    a region's currency outside it isn't sent.
+ * 7  167 Sign out is always there for a signed-in person (Leqaa's and Kech
+ *    Flora's Account had it under the petal bar): every Account look ends
+ *    above a bar that floats over it, a Studio page on the Account tab ends
+ *    with Sign out and Delete account, and Studio's Sign out element.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */

@@ -27,6 +27,15 @@ the form can't load, the gateway's own page, the same payment. Fawaterk and
 PayPal keep their own pages (ROADMAP 153.7, 153.8). Not yet tried with real
 iyzico and Kashier test accounts (ROADMAP 153.9).
 
+Roadmap 167 (Sign out always there, whatever draws the Account): Leqaa's
+and Kech Flora's Account had Sign out under the floating petal bar, where
+it couldn't be reached. Every Account look now ends above a bar that floats
+over it, Sign out asks first and signs out, a Studio page on the Account tab
+without the account screen ends with Sign out and Delete account, and
+Studio has a Sign out element, which every template's account page has.
+Delete account stays in Settings, which every look lists. `CLIENT_APP_RELEASE`
+7 rebuilds the apps; to check on a phone (ROADMAP 167.8).
+
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its
 "from" price; one billing period for both, lifetime among its choices;

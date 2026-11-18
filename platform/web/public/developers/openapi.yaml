@@ -17415,7 +17415,7 @@ components:
       description: What happens on tap. The app ignores actions it does not know.
       required: [type]
       properties:
-        type: { type: string, enum: [page, screen, course, item, url, more], description: "109 `more`, only on the More tab (`Navigation.tabs`): opens the list of `Navigation.more`." }
+        type: { type: string, enum: [page, screen, course, item, url, more, sign_out], description: "109 `more`, only on the More tab (`Navigation.tabs`): opens the list of `Navigation.more`. 167 `sign_out`: Studio's Sign out element; the app asks first, then signs the person out, and shows it to a signed-in person only." }
         page_slug: { type: [string, 'null'], description: For `page`. }
         screen:
           type: [string, 'null']
