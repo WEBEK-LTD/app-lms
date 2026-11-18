@@ -1968,8 +1968,9 @@ payment each.
 ## Phase 159: Sizes automatic, by hand only when asked
 
 No migration, no setting. The hosted API serves a cover's top bar across the
-cover as soon as the platform is deployed; `CLIENT_APP_RELEASE` 8 gives every
-active app one build with the same rule (4 an hour).
+cover as soon as the platform is deployed; the next `CLIENT_APP_RELEASE` (bumped
+once with the other urgent app fixes) gives every active app a build with the
+same rule (4 an hour).
 
 - [ ] **Kech Flora on a phone:** after the deploy, open the app (or switch
       away and back): the bag of the bar over the stories at the right edge,
@@ -1981,7 +1982,10 @@ active app one build with the same rule (4 an hour).
       Fill. Change the width: Studio asks first; Cancel changes nothing.
       Change by hand, then Back to automatic: Fill again. Drag a corner of
       another element up to the edge of the phone: its width becomes Fill.
-- [ ] **WordPress apps:** the plugin sends `manual_size` from its next
+- [ ] **Screen readers (the next app release's build):** with TalkBack or VoiceOver on,
+      the round search and bag over the stories say "Search" and "Cart"
+      (in Arabic بحث and السلة), not just "button".
+- [ ] **WordPress apps:** the plugin sends `manual_size` and `name` from its next
       release; until then a WordPress app draws a cover's top bar across the
       cover even when it was sized by hand in Studio.
 

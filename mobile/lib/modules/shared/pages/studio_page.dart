@@ -53,6 +53,7 @@ import 'studio_marquee.dart';
 import 'studio_media_covers.dart';
 import 'studio_motion.dart';
 import 'studio_scrim.dart';
+import 'studio_tap_label.dart';
 import 'studio_segments.dart';
 import 'studio_stories.dart';
 // 130.20 The premium headers (premium chrome).
@@ -1427,7 +1428,11 @@ class StudioNodeView extends ConsumerWidget {
       child = _Pressable(
         press: press,
         radius: radius,
-        label: node.type == StudioNodeType.button ? null : node.text,
+        // 159 Without words of its own (a round search or bag), the owner's
+        // name for it or what it opens, in the app's language.
+        label:
+            (node.type == StudioNodeType.button ? null : node.text) ??
+            studioTapLabel(context, ref, node, action),
         onTap: () => runPageAction(context, ref, action),
         child: child,
       );
@@ -3014,6 +3019,9 @@ class _PressableState extends State<_Pressable> {
         ? 0.95
         : 0.9;
     return Semantics(
+      // 159 Its own node, so its words (or its label) aren't merged into the
+      // page around it: a screen reader says "Search, button", not "button".
+      container: true,
       button: true,
       label: widget.label,
       child: AnimatedScale(

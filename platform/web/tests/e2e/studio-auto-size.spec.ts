@@ -187,7 +187,9 @@ test("159 a corner asks first; dragged up to the cover's edge it is Fill; a doub
   await own.mouse.up();
   await expect(widthSelect()).toHaveValue("fill");
   // A double click on a corner: back to automatic.
-  await bar.locator('[data-studio-resize="bottom-left"]').dblclick({ position: { x: 11, y: 2 } });
+  // On the part of the corner inside the phone (the locator's own click would scroll the phone's screen sideways).
+  const last = (await bar.locator('[data-studio-resize="bottom-right"]').boundingBox())!;
+  await own.mouse.dblclick(last.x + 2, last.y + 2);
   await expect(mode()).toHaveAttribute("data-studio-size-mode", "auto");
   await expect(own.getByRole("status").filter({ hasText: "Back to its automatic size." })).toBeVisible();
   w = await widths(bar);

@@ -1422,6 +1422,10 @@ class Block_Resolver {
 		if ( isset( $raw['title'] ) && is_scalar( $raw['title'] ) && '' !== trim( (string) $raw['title'] ) ) {
 			$node['title'] = mb_substr( sanitize_text_field( (string) $raw['title'] ), 0, 120 );
 		}
+		// 159 The owner's name for it in Studio: what a screen reader says for a round button without words.
+		if ( isset( $raw['name'] ) && is_scalar( $raw['name'] ) && '' !== trim( (string) $raw['name'] ) ) {
+			$node['name'] = mb_substr( sanitize_text_field( (string) $raw['name'] ), 0, 80 );
+		}
 		if ( isset( $raw['icon'] ) && is_string( $raw['icon'] ) && preg_match( '/^[a-z0-9_]{1,64}$/', $raw['icon'] ) ) {
 			$node['icon'] = $raw['icon'];
 		}
