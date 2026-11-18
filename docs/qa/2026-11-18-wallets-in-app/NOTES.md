@@ -279,7 +279,7 @@ Run again after the merge:
 - `flutter test` on `phase170_pay_sheet_test`, `build_config_tool_test`,
   `phase124_web_signed_in_test`, `phase48_test`, `phase46_test` and
   `donations_test`: 93 passed.
-- The whole `flutter test`: still running when the merge was committed; its result is in the next commit.
+- The whole `flutter test` on the merged tree: **2,910 passed, 871 skipped, 0 failed** (exit 0).
 
 The e2e specs weren't run again after the merge (they need a new
 production build). The results above them are from before the merge.
