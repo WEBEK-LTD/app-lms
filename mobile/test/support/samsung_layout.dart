@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -96,7 +95,7 @@ const samsungCommon = PhoneSettings(
 );
 
 /// The pages of Leqaa's signature template (test/support/signatures/
-/// flowers_<look>.json, as the platform makes the project).
+/// flowers_`look`.json, as the platform makes the project).
 List<String> leqaaPageSlugs(String look) {
   final project = jsonDecode(
     File('test/support/signatures/flowers_$look.json').readAsStringSync(),
@@ -445,6 +444,16 @@ Future<void> checkLayout(
     if (said(p).isEmpty) continue;
     final ink = (p.text.style?.color);
     if (ink == null) continue;
+    // The tab bar floats over the page: what scrolls under it isn't its.
+    if (find
+        .descendant(
+          of: find.byType(AppNavBar),
+          matching: find.byElementPredicate((e) => e == t),
+        )
+        .evaluate()
+        .isNotEmpty) {
+      continue;
+    }
     final box = _rect(p);
     for (final (id, node, card) in cards) {
       // Its own card, or one it is drawn on.
@@ -454,8 +463,14 @@ Future<void> checkLayout(
       if (box.overlaps(card)) continue;
       // Just over the card (its letters reaching down into it) or just
       // under it (up into it).
-      final below = card.top >= box.bottom - 0.5 && card.top - box.bottom < 12;
-      final above = box.top >= card.bottom - 0.5 && box.top - card.bottom < 12;
+      // Within reach of its letters: the deepest of the app's faces
+      // (Readex Pro) reach about a third of their size past their line.
+      final reach =
+          0.35 * (p.text.style?.fontSize ?? 14) * p.textScaler.scale(1);
+      final below =
+          card.top >= box.bottom - 0.5 && card.top - box.bottom < reach;
+      final above =
+          box.top >= card.bottom - 0.5 && box.top - card.bottom < reach;
       if (!below && !above) continue;
       final left = math.max(box.left, card.left + 14);
       final right = math.min(box.right, card.right - 14);
@@ -499,8 +514,9 @@ Future<void> checkLayout(
     if (find
         .descendant(of: bars, matching: find.byElementPredicate((e) => e == t))
         .evaluate()
-        .isNotEmpty)
+        .isNotEmpty) {
       continue;
+    }
     final r = _rect(p);
     if (r.top >= screen.bottom + 400) continue;
     if (r.bottom > floor + slack && r.top < screen.bottom) {
@@ -509,61 +525,6 @@ Future<void> checkLayout(
       );
     }
   }
-}
-
-/// Where [p]'s letters reach: its box, grown by what its font's own ascent
-/// and descent need beyond a tighter line height.
-Rect _ink(RenderParagraph p, Rect box) {
-  TextSpan natural(InlineSpan span) => switch (span) {
-    TextSpan(:final text, :final children, :final style) => TextSpan(
-      text: text,
-      style: style == null
-          ? null
-          : TextStyle(
-              inherit: style.inherit,
-              fontFamily: style.fontFamily,
-              fontFamilyFallback: style.fontFamilyFallback,
-              fontSize: style.fontSize,
-              fontWeight: style.fontWeight,
-              fontStyle: style.fontStyle,
-              letterSpacing: style.letterSpacing,
-              wordSpacing: style.wordSpacing,
-              locale: style.locale,
-              fontFeatures: style.fontFeatures,
-              fontVariations: style.fontVariations,
-            ),
-      children: children?.map(natural).toList(),
-    ),
-    _ => const TextSpan(),
-  };
-  if (p.text is! TextSpan) return box;
-  final painter = TextPainter(
-    text: p.text,
-    textDirection: p.textDirection,
-    textScaler: p.textScaler,
-    maxLines: p.maxLines,
-    strutStyle: p.strutStyle,
-    textHeightBehavior: p.textHeightBehavior,
-  )..layout(maxWidth: p.size.width);
-  final loose = TextPainter(
-    text: natural(p.text as TextSpan),
-    textDirection: p.textDirection,
-    textScaler: p.textScaler,
-    maxLines: p.maxLines,
-  )..layout(maxWidth: p.size.width);
-  final lines = painter.computeLineMetrics();
-  final free = loose.computeLineMetrics();
-  painter.dispose();
-  loose.dispose();
-  if (lines.isEmpty || free.isEmpty) return box;
-  final top = box.top + lines.first.baseline - free.first.ascent;
-  final bottom = box.top + lines.last.baseline + free.last.descent;
-  return Rect.fromLTRB(
-    box.left,
-    top < box.top ? top : box.top,
-    box.right,
-    bottom > box.bottom ? bottom : box.bottom,
-  );
 }
 
 /// The colour of the card of [node] (its background, else white).
