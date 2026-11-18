@@ -16,6 +16,9 @@ abstract final class Paths {
   static const shop = '/shop';
   static const cart = '/cart';
 
+  /// 162 Build your bouquet (a store whose shop has it set up).
+  static const bouquet = '/bouquet';
+
   // Bookings apps.
   static const services = '/services';
   static const appointments = '/appointments';

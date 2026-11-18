@@ -5224,6 +5224,36 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "في أوردر اتدفع بعملة العميل: المبلغ اللي اتدفع.",
     tr: "Müşterinin para biriminde ödenen siparişte: ödenen tutar.",
   },
+  "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.": {
+    en: "Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.",
+    ar: "«صمّم باقتك»: الشاشة اللي الزبون بيختار فيها الورد والتغليف والكارت.",
+    tr: "Buketini oluştur: müşterinin çiçekleri, ambalajı ve kartı seçtiği ekran.",
+  },
+  "162 Build your bouquet: the name of a step, in the bar at the top.": {
+    en: "Build your bouquet: the name of a step, in the bar at the top.",
+    ar: "«صمّم باقتك»: اسم خطوة، في الشريط اللي فوق.",
+    tr: "Buketini oluştur: üstteki çubukta bir adımın adı.",
+  },
+  "162 Build your bouquet: how many stems a bouquet may have, under the flowers.": {
+    en: "Build your bouquet: how many stems a bouquet may have, under the flowers.",
+    ar: "«صمّم باقتك»: عدد العيدان اللي ينفع تبقى في الباقة، تحت الورد.",
+    tr: "Buketini oluştur: bir bukette kaç dal olabileceği, çiçeklerin altında.",
+  },
+  "162 Build your bouquet: a choice in the wrap or card step.": {
+    en: "Build your bouquet: a choice in the wrap or card step.",
+    ar: "«صمّم باقتك»: اختيار في خطوة التغليف أو الكارت.",
+    tr: "Buketini oluştur: ambalaj ya da kart adımında bir seçenek.",
+  },
+  "162 Build your bouquet: the summary before it goes in the cart.": {
+    en: "Build your bouquet: the summary before it goes in the cart.",
+    ar: "«صمّم باقتك»: الملخص قبل ما تدخل السلة.",
+    tr: "Buketini oluştur: sepete girmeden önceki özet.",
+  },
+  "162 A bouquet the customer built, shown as one in the cart and in the order.": {
+    en: "A bouquet the customer built, shown as one in the cart and in the order.",
+    ar: "باقة الزبون صمّمها، بتظهر كباقة واحدة في السلة وفي الطلب.",
+    tr: "Müşterinin oluşturduğu buket, sepette ve siparişte tek parça olarak görünür.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

@@ -13257,5 +13257,188 @@
         "type": "String"
       }
     }
+  },
+  "bouquetTitle": "Build your bouquet",
+  "@bouquetTitle": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetStepFlowers": "Flowers",
+  "@bouquetStepFlowers": {
+    "description": "162 Build your bouquet: the name of a step, in the bar at the top."
+  },
+  "bouquetStepWrap": "Wrap",
+  "@bouquetStepWrap": {
+    "description": "162 Build your bouquet: the name of a step, in the bar at the top."
+  },
+  "bouquetStepCard": "Card",
+  "@bouquetStepCard": {
+    "description": "162 Build your bouquet: the name of a step, in the bar at the top."
+  },
+  "bouquetStepSummary": "Your bouquet",
+  "@bouquetStepSummary": {
+    "description": "162 Build your bouquet: the name of a step, in the bar at the top."
+  },
+  "bouquetStepOf": "Step {step} of {count}",
+  "@bouquetStepOf": {
+    "description": "162 Build your bouquet: the name of a step, in the bar at the top.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bouquetFlowersLine": "Choose the flowers by the stem.",
+  "@bouquetFlowersLine": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetWrapLine": "Choose how it is wrapped.",
+  "@bouquetWrapLine": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetCardLine": "Choose the card and write your message.",
+  "@bouquetCardLine": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetMessageOnlyLine": "Write the words for the card.",
+  "@bouquetMessageOnlyLine": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetStems": "{count, plural, =1{1 stem} other{{count} stems}}",
+  "@bouquetStems": {
+    "description": "162 Build your bouquet: how many stems a bouquet may have, under the flowers.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bouquetStemsRange": "From {min} to {max} stems",
+  "@bouquetStemsRange": {
+    "description": "162 Build your bouquet: how many stems a bouquet may have, under the flowers.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "bouquetNeedStems": "Choose at least {min} stems.",
+  "@bouquetNeedStems": {
+    "description": "162 Build your bouquet: how many stems a bouquet may have, under the flowers.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "bouquetMaxStems": "A bouquet has at most {max} stems.",
+  "@bouquetMaxStems": {
+    "description": "162 Build your bouquet: how many stems a bouquet may have, under the flowers.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "bouquetNoWrap": "No wrap",
+  "@bouquetNoWrap": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetNoWrapLine": "The stems tied by hand.",
+  "@bouquetNoWrapLine": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetChooseWrap": "Choose a wrap to go on.",
+  "@bouquetChooseWrap": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetNoCard": "No card",
+  "@bouquetNoCard": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetChooseCard": "Choose a card to go on.",
+  "@bouquetChooseCard": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetWriteMessage": "Write your message to go on.",
+  "@bouquetWriteMessage": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetSkipCard": "Skip the card",
+  "@bouquetSkipCard": {
+    "description": "162 Build your bouquet: a choice in the wrap or card step."
+  },
+  "bouquetTotal": "Bouquet total",
+  "@bouquetTotal": {
+    "description": "162 Build your bouquet: the summary before it goes in the cart."
+  },
+  "bouquetTotalNote": "The shop confirms the total in your cart.",
+  "@bouquetTotalNote": {
+    "description": "162 Build your bouquet: the summary before it goes in the cart."
+  },
+  "bouquetSendFlowers": "Send flowers",
+  "@bouquetSendFlowers": {
+    "description": "162 Build your bouquet: the summary before it goes in the cart."
+  },
+  "bouquetChange": "Change {part}",
+  "@bouquetChange": {
+    "description": "162 Build your bouquet: the summary before it goes in the cart.",
+    "placeholders": {
+      "part": {
+        "type": "String"
+      }
+    }
+  },
+  "bouquetUnavailable": "Build your bouquet isn't available right now.",
+  "@bouquetUnavailable": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetShopInstead": "Go to the shop",
+  "@bouquetShopInstead": {
+    "description": "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card."
+  },
+  "bouquetInCart": "Your bouquet is in the cart.",
+  "@bouquetInCart": {
+    "description": "162 A bouquet the customer built, shown as one in the cart and in the order."
+  },
+  "bouquetHeader": "Your bouquet",
+  "@bouquetHeader": {
+    "description": "162 A bouquet the customer built, shown as one in the cart and in the order."
+  },
+  "bouquetWrapPart": "Wrap: {name}",
+  "@bouquetWrapPart": {
+    "description": "162 A bouquet the customer built, shown as one in the cart and in the order.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bouquetCardPart": "Card: {name}",
+  "@bouquetCardPart": {
+    "description": "162 A bouquet the customer built, shown as one in the cart and in the order.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bouquetMessage": "“{message}”",
+  "@bouquetMessage": {
+    "description": "162 A bouquet the customer built, shown as one in the cart and in the order.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "bouquetRemove": "Remove the bouquet",
+  "@bouquetRemove": {
+    "description": "162 A bouquet the customer built, shown as one in the cart and in the order."
   }
 }

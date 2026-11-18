@@ -523,7 +523,16 @@ export interface Action {
   open_in?: "in_app" | "browser";
   /** 122 A web page opened in the app (`url`, `in_app`): as a tab, the page alone, its site's header and footer hidden. */
   web?: WebPageLook;
+  /**
+   * 162 A store's screen action (the shop, `search`) that opens Build your
+   * bouquet when the store has it set up (`StoreConfig.bouquet`); else, and
+   * in an older app, its screen.
+   */
+  flow?: (typeof ACTION_FLOWS)[number];
 }
+
+/** 162 What a screen action may open first, when the app can: Build your bouquet. */
+export const ACTION_FLOWS = ["bouquet"] as const;
 
 /**
  * 122 How the app shows a web page in it (`Action.web`): with no address bar

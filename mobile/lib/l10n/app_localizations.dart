@@ -19399,6 +19399,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paid {total}'**
   String orderPaidIn(String total);
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Build your bouquet'**
+  String get bouquetTitle;
+
+  /// 162 Build your bouquet: the name of a step, in the bar at the top.
+  ///
+  /// In en, this message translates to:
+  /// **'Flowers'**
+  String get bouquetStepFlowers;
+
+  /// 162 Build your bouquet: the name of a step, in the bar at the top.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrap'**
+  String get bouquetStepWrap;
+
+  /// 162 Build your bouquet: the name of a step, in the bar at the top.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get bouquetStepCard;
+
+  /// 162 Build your bouquet: the name of a step, in the bar at the top.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bouquet'**
+  String get bouquetStepSummary;
+
+  /// 162 Build your bouquet: the name of a step, in the bar at the top.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {count}'**
+  String bouquetStepOf(int step, int count);
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the flowers by the stem.'**
+  String get bouquetFlowersLine;
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how it is wrapped.'**
+  String get bouquetWrapLine;
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the card and write your message.'**
+  String get bouquetCardLine;
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the words for the card.'**
+  String get bouquetMessageOnlyLine;
+
+  /// 162 Build your bouquet: how many stems a bouquet may have, under the flowers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 stem} other{{count} stems}}'**
+  String bouquetStems(int count);
+
+  /// 162 Build your bouquet: how many stems a bouquet may have, under the flowers.
+  ///
+  /// In en, this message translates to:
+  /// **'From {min} to {max} stems'**
+  String bouquetStemsRange(int min, int max);
+
+  /// 162 Build your bouquet: how many stems a bouquet may have, under the flowers.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least {min} stems.'**
+  String bouquetNeedStems(int min);
+
+  /// 162 Build your bouquet: how many stems a bouquet may have, under the flowers.
+  ///
+  /// In en, this message translates to:
+  /// **'A bouquet has at most {max} stems.'**
+  String bouquetMaxStems(int max);
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'No wrap'**
+  String get bouquetNoWrap;
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'The stems tied by hand.'**
+  String get bouquetNoWrapLine;
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a wrap to go on.'**
+  String get bouquetChooseWrap;
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'No card'**
+  String get bouquetNoCard;
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a card to go on.'**
+  String get bouquetChooseCard;
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your message to go on.'**
+  String get bouquetWriteMessage;
+
+  /// 162 Build your bouquet: a choice in the wrap or card step.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip the card'**
+  String get bouquetSkipCard;
+
+  /// 162 Build your bouquet: the summary before it goes in the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Bouquet total'**
+  String get bouquetTotal;
+
+  /// 162 Build your bouquet: the summary before it goes in the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop confirms the total in your cart.'**
+  String get bouquetTotalNote;
+
+  /// 162 Build your bouquet: the summary before it goes in the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Send flowers'**
+  String get bouquetSendFlowers;
+
+  /// 162 Build your bouquet: the summary before it goes in the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Change {part}'**
+  String bouquetChange(String part);
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Build your bouquet isn\'t available right now.'**
+  String get bouquetUnavailable;
+
+  /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to the shop'**
+  String get bouquetShopInstead;
+
+  /// 162 A bouquet the customer built, shown as one in the cart and in the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bouquet is in the cart.'**
+  String get bouquetInCart;
+
+  /// 162 A bouquet the customer built, shown as one in the cart and in the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bouquet'**
+  String get bouquetHeader;
+
+  /// 162 A bouquet the customer built, shown as one in the cart and in the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrap: {name}'**
+  String bouquetWrapPart(String name);
+
+  /// 162 A bouquet the customer built, shown as one in the cart and in the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Card: {name}'**
+  String bouquetCardPart(String name);
+
+  /// 162 A bouquet the customer built, shown as one in the cart and in the order.
+  ///
+  /// In en, this message translates to:
+  /// **'“{message}”'**
+  String bouquetMessage(String message);
+
+  /// 162 A bouquet the customer built, shown as one in the cart and in the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the bouquet'**
+  String get bouquetRemove;
 }
 
 class _AppLocalizationsDelegate

@@ -538,8 +538,6 @@ class GiftDetailsPanel extends ConsumerStatefulWidget {
 }
 
 class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
-  String? _occasion;
-
   Widget _field(
     TextEditingController c,
     String label, {
@@ -717,17 +715,6 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
         ),
       );
     } else if (widget.rules.enabled || gift) {
-      final open = occasions.where((o) => o.id == _occasion).firstOrNull;
-      void fill(String text) {
-        final max = widget.rules.maxLength;
-        final value = text.length > max ? text.substring(0, max) : text;
-        widget.message.value = TextEditingValue(
-          text: value,
-          selection: TextSelection.collapsed(offset: value.length),
-        );
-        widget.onChanged();
-      }
-
       parts.add(
         CheckoutSection(
           key: const ValueKey('gift-card'),
@@ -743,84 +730,15 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (occasions.isNotEmpty) ...[
-                Text(
-                  l10n.giftOccasion,
-                  style: TextStyle(fontSize: 13, color: p.textSecondary),
-                ),
-                const SizedBox(height: 6),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (final o in occasions) ...[
-                        CheckoutChip(
-                          key: ValueKey('gift-occasion-${o.id}'),
-                          label: o.name,
-                          icon: symbolByName(o.icon),
-                          selected: _occasion == o.id,
-                          onTap: () => setState(
-                            () => _occasion = _occasion == o.id ? null : o.id,
-                          ),
-                          look: look,
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                    ],
-                  ),
-                ),
-                if (open != null) ...[
-                  const SizedBox(height: 10),
-                  for (final t in open.templates)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Material(
-                        color: p.surfaceMuted,
-                        borderRadius: BorderRadius.circular(look?.radius ?? 14),
-                        child: InkWell(
-                          key: ValueKey('gift-template-${open.id}-${t.id}'),
-                          borderRadius: BorderRadius.circular(
-                            look?.radius ?? 14,
-                          ),
-                          onTap: () => fill(t.text),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Text(
-                              t.text,
-                              style: TextStyle(fontSize: 14, color: p.text),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-                const SizedBox(height: 6),
-              ],
-              if (widget.rules.starters.isNotEmpty) ...[
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final s in widget.rules.starters)
-                      ActionChip(label: Text(s), onPressed: () => fill(s)),
-                  ],
-                ),
-                const SizedBox(height: 10),
-              ],
-              TextField(
-                key: const ValueKey('gift-message'),
-                controller: widget.message,
+              CardMessageEditor(
+                message: widget.message,
                 maxLength: widget.rules.maxLength,
-                minLines: 3,
-                maxLines: 6,
-                textCapitalization: TextCapitalization.sentences,
-                onChanged: (_) => widget.onChanged(),
-                decoration: InputDecoration(
-                  labelText:
-                      widget.cardTitle ??
-                      (gift ? l10n.giftCardTitle : l10n.giftMessage),
-                  hintText: l10n.giftMessageHint,
-                ),
+                starters: widget.rules.starters,
+                onChanged: widget.onChanged,
+                look: look,
+                label:
+                    widget.cardTitle ??
+                    (gift ? l10n.giftCardTitle : l10n.giftMessage),
               ),
               if (widget.rules.anonymous)
                 SwitchListTile.adaptive(
@@ -847,6 +765,140 @@ class _GiftDetailsPanelState extends ConsumerState<GiftDetailsPanel> {
           if (i > 0) const SizedBox(height: 12),
           part,
         ],
+      ],
+    );
+  }
+}
+
+/// 131 The card's words: the shop's occasions as chips, an occasion's ready
+/// messages as cards that fill the words when tapped, the owner's
+/// beginnings, and the words to change or write. The gift details' card and
+/// 162 Build your bouquet's card step.
+class CardMessageEditor extends ConsumerStatefulWidget {
+  const CardMessageEditor({
+    super.key,
+    required this.message,
+    required this.maxLength,
+    required this.onChanged,
+    this.starters = const [],
+    this.look,
+    this.label,
+  });
+
+  final TextEditingController message;
+  final int maxLength;
+  final VoidCallback onChanged;
+
+  /// The owner's beginnings (`gift_message.starters`).
+  final List<String> starters;
+  final CheckoutLook? look;
+
+  /// The field's label; null: the app's words.
+  final String? label;
+
+  @override
+  ConsumerState<CardMessageEditor> createState() => _CardMessageEditorState();
+}
+
+class _CardMessageEditorState extends ConsumerState<CardMessageEditor> {
+  String? _occasion;
+
+  void _fill(String text) {
+    final max = widget.maxLength;
+    final value = text.length > max ? text.substring(0, max) : text;
+    widget.message.value = TextEditingValue(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+    );
+    widget.onChanged();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final p = context.palette;
+    final look = widget.look;
+    final occasions =
+        ref.watch(giftMessagesProvider).value ?? const <GiftOccasion>[];
+    final open = occasions.where((o) => o.id == _occasion).firstOrNull;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (occasions.isNotEmpty) ...[
+          Text(
+            l10n.giftOccasion,
+            style: TextStyle(fontSize: 13, color: p.textSecondary),
+          ),
+          const SizedBox(height: 6),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final o in occasions) ...[
+                  CheckoutChip(
+                    key: ValueKey('gift-occasion-${o.id}'),
+                    label: o.name,
+                    icon: symbolByName(o.icon),
+                    selected: _occasion == o.id,
+                    onTap: () => setState(
+                      () => _occasion = _occasion == o.id ? null : o.id,
+                    ),
+                    look: look,
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ],
+            ),
+          ),
+          if (open != null) ...[
+            const SizedBox(height: 10),
+            for (final t in open.templates)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Material(
+                  color: p.surfaceMuted,
+                  borderRadius: BorderRadius.circular(look?.radius ?? 14),
+                  child: InkWell(
+                    key: ValueKey('gift-template-${open.id}-${t.id}'),
+                    borderRadius: BorderRadius.circular(look?.radius ?? 14),
+                    onTap: () => _fill(t.text),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(
+                        t.text,
+                        style: TextStyle(fontSize: 14, color: p.text),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+          const SizedBox(height: 6),
+        ],
+        if (widget.starters.isNotEmpty) ...[
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final s in widget.starters)
+                ActionChip(label: Text(s), onPressed: () => _fill(s)),
+            ],
+          ),
+          const SizedBox(height: 10),
+        ],
+        TextField(
+          key: const ValueKey('gift-message'),
+          controller: widget.message,
+          maxLength: widget.maxLength,
+          minLines: 3,
+          maxLines: 6,
+          textCapitalization: TextCapitalization.sentences,
+          onChanged: (_) => widget.onChanged(),
+          decoration: InputDecoration(
+            labelText: widget.label ?? l10n.giftMessage,
+            hintText: l10n.giftMessageHint,
+          ),
+        ),
       ],
     );
   }

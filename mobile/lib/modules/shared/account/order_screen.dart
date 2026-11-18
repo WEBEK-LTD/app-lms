@@ -169,48 +169,20 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
             const SizedBox(height: 24),
             SectionHeader(title: l10n.orderYourOrder),
             const SizedBox(height: 8),
-            for (final line in order.items)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            line.quantity > 1
-                                ? l10n.lineQuantity(line.name, line.quantity)
-                                : line.name,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: p.text,
-                            ),
-                          ),
-                          if (line.options.isNotEmpty)
-                            Text(
-                              line.options.join(', '),
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: p.textSecondary,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    // 110 What the line comes to.
-                    if (line.total case final total?) ...[
-                      const SizedBox(width: 12),
-                      Text(
-                        total,
-                        style: TextStyle(fontSize: 15, color: p.text),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+            // 162 A bouquet the customer built shows as one: its stems, then
+            // its flowers, its wrap and its card, and the card's words.
+            for (final g in bouquetGroups(
+              order.items,
+              (OrderLine l) => l.bouquet,
+            )) ...[
+              if (g.isBouquet)
+                _OrderBouquet(
+                  lines: [for (final i in g.indexes) order.items[i]],
+                  row: (line, label) => _orderLine(context, line, label: label),
+                )
+              else
+                _orderLine(context, order.items[g.indexes.first]),
+            ],
             if (f?.deliveryFee != null)
               _AmountRow(label: l10n.deliveryFee, value: f!.deliveryFee!),
             _AmountRow(
@@ -999,4 +971,117 @@ String fulfilmentSummary(BuildContext context, OrderFulfilment f) {
         : l10n.orderDeliveryAt(whenLabel(at));
   }
   return at == null ? l10n.orderPickupAsap : l10n.orderPickupAt(whenLabel(at));
+}
+
+/// One line of the order: its name (or [label]), its options and its total.
+Widget _orderLine(BuildContext context, OrderLine line, {String? label}) {
+  final p = context.palette;
+  final l10n = context.l10n;
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label ??
+                    (line.quantity > 1
+                        ? l10n.lineQuantity(line.name, line.quantity)
+                        : line.name),
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: p.text,
+                ),
+              ),
+              if (line.options.isNotEmpty)
+                Text(
+                  line.options.join(', '),
+                  style: TextStyle(fontSize: 13, color: p.textSecondary),
+                ),
+            ],
+          ),
+        ),
+        // 110 What the line comes to.
+        if (line.total case final total?) ...[
+          const SizedBox(width: 12),
+          Text(total, style: TextStyle(fontSize: 15, color: p.text)),
+        ],
+      ],
+    ),
+  );
+}
+
+/// 162 A bouquet the customer built: its stems, then its lines (a wrap's
+/// and a card's named so), then the card's words.
+class _OrderBouquet extends StatelessWidget {
+  const _OrderBouquet({required this.lines, required this.row});
+
+  final List<OrderLine> lines;
+  final Widget Function(OrderLine line, String? label) row;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final stems = lines
+        .where((l) => l.bouquet?.part == BouquetPartKind.flower)
+        .fold(0, (sum, l) => sum + l.quantity);
+    final message = lines
+        .map((l) => l.bouquet?.message)
+        .whereType<String>()
+        .firstOrNull;
+    return Padding(
+      key: const ValueKey('order-bouquet'),
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              AppIcon(AppIcons.florist, size: 18, color: p.primary),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  '${l10n.bouquetHeader} · ${l10n.bouquetStems(stems)}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: p.text,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsetsDirectional.only(start: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final l in lines)
+                  row(l, switch (l.bouquet?.part) {
+                    BouquetPartKind.wrap => l10n.bouquetWrapPart(l.name),
+                    BouquetPartKind.card => l10n.bouquetCardPart(l.name),
+                    _ => null,
+                  }),
+                if (message != null)
+                  Text(
+                    l10n.bouquetMessage(message),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                      color: p.textSecondary,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

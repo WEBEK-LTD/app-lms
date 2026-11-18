@@ -1013,6 +1013,7 @@ class OrderLine {
     this.variant,
     this.addonOf,
     this.flashSale,
+    this.bouquet,
   });
 
   factory OrderLine.fromJson(Json json) {
@@ -1027,8 +1028,12 @@ class OrderLine {
       variant: optStr(json, 'variant'),
       addonOf: optInt(json, 'addon_of'),
       flashSale: sale == null ? null : LineSale.fromJson(sale),
+      bouquet: LineBouquet.tryParse(optObject(json, 'bouquet')),
     );
   }
+
+  /// 162 A line of a bouquet the customer built in the app; null otherwise.
+  final LineBouquet? bouquet;
 
   final String name;
   final int quantity;
@@ -1043,6 +1048,29 @@ class OrderLine {
   /// 131 A gift add-on: the product of the line it goes with.
   final int? addonOf;
   final LineSale? flashSale;
+}
+
+/// 162 Which bouquet a line is part of, which part (`flower`, `wrap`,
+/// `card`) and, on one of its lines, the card's message.
+class LineBouquet {
+  const LineBouquet({required this.id, required this.part, this.message});
+
+  static LineBouquet? tryParse(Json? json) {
+    if (json == null) return null;
+    final id = optStr(json, 'id');
+    final part = optStr(json, 'part');
+    if (id == null || id.isEmpty || part == null) return null;
+    final message = optStr(json, 'message');
+    return LineBouquet(
+      id: id,
+      part: part,
+      message: message == null || message.trim().isEmpty ? null : message,
+    );
+  }
+
+  final String id;
+  final String part;
+  final String? message;
 }
 
 class Customer {

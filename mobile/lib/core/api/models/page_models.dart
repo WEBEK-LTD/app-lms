@@ -450,6 +450,9 @@ enum BuiltInScreen {
 
 enum OpenIn { inApp, browser }
 
+/// 162 `Action.flow`: Build your bouquet over a store's shop.
+enum ActionFlow { bouquet }
+
 /// What happens on tap (the contract's `Action`).
 class PageAction {
   const PageAction({
@@ -461,6 +464,7 @@ class PageAction {
     this.url,
     this.openIn = OpenIn.inApp,
     this.web,
+    this.flow,
   });
 
   /// Null for a missing action or one whose type this app doesn't know.
@@ -478,8 +482,13 @@ class PageAction {
       url: optString(json, 'url'),
       openIn: enumFromSnake(OpenIn.values, json['open_in'], OpenIn.inApp),
       web: WebPageLook.tryParse(json['web']),
+      flow: enumOrNull(ActionFlow.values, json['flow']),
     );
   }
+
+  /// 162 What a store's shop action opens first when the shop has it set
+  /// up: Build your bouquet; null: its screen.
+  final ActionFlow? flow;
 
   final PageActionType type;
   final String? pageSlug;

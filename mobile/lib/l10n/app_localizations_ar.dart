@@ -12501,4 +12501,131 @@ class AppLocalizationsAr extends AppLocalizations {
   String orderPaidIn(String total) {
     return 'تم دفع $total';
   }
+
+  @override
+  String get bouquetTitle => 'صمّم باقتك';
+
+  @override
+  String get bouquetStepFlowers => 'الزهور';
+
+  @override
+  String get bouquetStepWrap => 'التغليف';
+
+  @override
+  String get bouquetStepCard => 'البطاقة';
+
+  @override
+  String get bouquetStepSummary => 'باقتك';
+
+  @override
+  String bouquetStepOf(int step, int count) {
+    return 'الخطوة $step من $count';
+  }
+
+  @override
+  String get bouquetFlowersLine => 'اختر الزهور ساقًا ساقًا.';
+
+  @override
+  String get bouquetWrapLine => 'اختر طريقة التغليف.';
+
+  @override
+  String get bouquetCardLine => 'اختر البطاقة واكتب رسالتك.';
+
+  @override
+  String get bouquetMessageOnlyLine => 'اكتب كلمات البطاقة.';
+
+  @override
+  String bouquetStems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ساق',
+      many: '$count ساقًا',
+      few: '$count سيقان',
+      two: 'ساقان',
+      one: 'ساق واحدة',
+      zero: 'لا سيقان',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bouquetStemsRange(int min, int max) {
+    return 'من $min إلى $max من السيقان';
+  }
+
+  @override
+  String bouquetNeedStems(int min) {
+    return 'عدد السيقان $min على الأقل.';
+  }
+
+  @override
+  String bouquetMaxStems(int max) {
+    return 'عدد السيقان في الباقة $max على الأكثر.';
+  }
+
+  @override
+  String get bouquetNoWrap => 'بلا تغليف';
+
+  @override
+  String get bouquetNoWrapLine => 'السيقان مربوطة باليد.';
+
+  @override
+  String get bouquetChooseWrap => 'اختر تغليفًا لتتابع.';
+
+  @override
+  String get bouquetNoCard => 'بلا بطاقة';
+
+  @override
+  String get bouquetChooseCard => 'اختر بطاقة لتتابع.';
+
+  @override
+  String get bouquetWriteMessage => 'اكتب رسالتك لتتابع.';
+
+  @override
+  String get bouquetSkipCard => 'تخطَّ البطاقة';
+
+  @override
+  String get bouquetTotal => 'مجموع الباقة';
+
+  @override
+  String get bouquetTotalNote => 'يؤكد المتجر المجموع في سلتك.';
+
+  @override
+  String get bouquetSendFlowers => 'أرسل الزهور';
+
+  @override
+  String bouquetChange(String part) {
+    return 'غيّر $part';
+  }
+
+  @override
+  String get bouquetUnavailable => '«صمّم باقتك» غير متاح الآن.';
+
+  @override
+  String get bouquetShopInstead => 'اذهب إلى المتجر';
+
+  @override
+  String get bouquetInCart => 'باقتك في السلة.';
+
+  @override
+  String get bouquetHeader => 'باقتك';
+
+  @override
+  String bouquetWrapPart(String name) {
+    return 'التغليف: $name';
+  }
+
+  @override
+  String bouquetCardPart(String name) {
+    return 'البطاقة: $name';
+  }
+
+  @override
+  String bouquetMessage(String message) {
+    return '«$message»';
+  }
+
+  @override
+  String get bouquetRemove => 'احذف الباقة';
 }

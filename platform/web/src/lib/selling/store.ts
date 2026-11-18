@@ -15,6 +15,7 @@ import { giftMessagesJson, giftOccasionsOf } from "./gift-messages";
 import { checkGift, checkoutModeOf, deliveryAttributes, deliveryNote, giftConfigJson, giftsOf, hasDeliveryDetails, type CheckoutMode } from "./gifts";
 import { ADDON_LIMITS, ADDON_NEEDS_ITEM, checkAddonLines, hasAddons, offeredWith, sectionTitlesJson } from "./addons";
 import { countryNames } from "./countries";
+import { BOUQUET_LIMITS, bouquetConfigJson, bouquetJson, bouquetOf, bouquetOffers, bouquetPartJson } from "./bouquet";
 import { breakdownJson, needsPlace, placeOf, quoteShipping, shippingRulesOf, type ShippingQuote } from "./shipping";
 
 /**
@@ -51,6 +52,8 @@ export function storeExtrasConfig(app: App, currency: string, opts: { fees: bool
     gift_message: giftConfigJson(giftsOf(app), mode),
     // 131 The owner's titles of the add-ons, the card and the delivery picker, per language.
     titles: sectionTitlesJson(catalogSettings(app).titles),
+    // 162 Build your bouquet; null: off (the template's Start opens the shop).
+    bouquet: bouquetConfigJson(bouquetOf(app)),
     ...(needsPlace(rules)
       ? {
           shipping: {
@@ -99,15 +102,23 @@ export function publicCouponJson(c: CatalogCoupon, currency: string) {
 
 export { couponDiscount };
 
-/** Loads a source's products by id, as the app gets them (summaries). */
-export type ProductsLoader = (ids: number[], categoryId: number | null) => Promise<{ id: number; price?: unknown; categories?: { id: number }[] }[]>;
+/** Loads a source's products by id, as the app gets them (summaries); `limit`, how many of a category's (24 unless said). */
+export type ProductsLoader = (ids: number[], categoryId: number | null, limit?: number) => Promise<{ id: number; price?: unknown; categories?: { id: number }[] }[]>;
 
 /**
  * The routes these add: `GET /store/delivery-slots`, `GET /store/gift-messages`,
  * `GET /store/coupons` and `GET /store/flash-sales`; null for any other.
  */
 export async function handleStoreExtras(
-  deps: StoreExtrasDeps & { currency: string; fees: boolean; counts: (date: string) => Promise<SlotCounts>; products: ProductsLoader; sales?: StoreFlashSale[] },
+  deps: StoreExtrasDeps & {
+    currency: string;
+    fees: boolean;
+    counts: (date: string) => Promise<SlotCounts>;
+    products: ProductsLoader;
+    sales?: StoreFlashSale[];
+    /** 162 Products by id, the gift add-ons too (a bouquet's wraps and cards). */
+    extras?: (ids: number[]) => Promise<{ id: number; price?: unknown; categories?: { id: number }[] }[]>;
+  },
   request: ConnectorRequest,
 ): Promise<ConnectorResult | null> {
   if (request.method !== "GET" || request.path[0] !== "store" || request.path.length !== 2) return null;
@@ -137,6 +148,29 @@ export async function handleStoreExtras(
         items.push(flashSaleJson(sale, products.slice(0, 24).map((p) => withSale(p as Parameters<typeof withSale>[0], sales, request.now)), request.now, request.lang));
       }
       return { status: 200, body: { items } };
+    }
+    case "bouquet": {
+      // 162 Build your bouquet: the flowers of the owner's category, the wraps and the cards, each with its sale.
+      const s = bouquetOf(app);
+      if (!s) return error(404, "not_found", "This shop doesn't build bouquets in the app.");
+      const sales = deps.sales ?? (await store.listFlashSales(app.id));
+      const byIds = deps.extras ?? ((ids: number[]) => deps.products(ids, null));
+      const [flowers, wraps, cards] = await Promise.all([
+        deps.products([], s.flowersCategoryId, BOUQUET_LIMITS.flowers),
+        s.wraps.from === "category" ? deps.products([], s.wraps.categoryId, BOUQUET_LIMITS.wraps) : byIds(s.wraps.productIds),
+        s.cardProductIds.length ? byIds(s.cardProductIds) : Promise.resolve([]),
+      ]);
+      const sale = (p: { id: number }) => withSale(p as Parameters<typeof withSale>[0], sales, request.now);
+      // The owner's order for the add-ons they ticked.
+      const inOrder = <T extends { id: number }>(list: T[], ids: number[]) => (ids.length ? ids.map((id) => list.find((p) => p.id === id)).filter((p): p is T => Boolean(p)) : list);
+      return {
+        status: 200,
+        body: bouquetJson(s, {
+          flowers: flowers.map(sale),
+          wraps: inOrder(wraps, s.wraps.from === "addons" ? s.wraps.productIds : []).map(sale),
+          cards: inOrder(cards, s.cardProductIds).map(sale),
+        }),
+      };
     }
   }
   return null;
@@ -328,9 +362,11 @@ export function withStoreExtras(inner: Connector, deps: StoreExtrasDeps): Connec
     for (const l of lines) {
       if (rule.offerWith === "categories" && !set.has(l.product_id) && !cats.has(l.product_id) && cats.size < 5) cats.set(l.product_id, await categoriesOf(request, l.product_id));
     }
+    const bouquet = bouquetOf(app);
     const checked = checkAddonLines(
       lines.map((l) => ({ productId: l.product_id, addonOf: l.addon_of ?? null, addon: set.has(l.product_id) })),
-      (_i, mainId) => offeredWith(rule, { id: mainId, categoryIds: cats.get(mainId) ?? [] }),
+      // 162 A bouquet's wrap and card the owner chose go with its flowers.
+      (i, mainId) => bouquetOffers(bouquet, lines[i]!, { id: lines[i]!.product_id, categoryIds: [] }) || offeredWith(rule, { id: mainId, categoryIds: cats.get(mainId) ?? [] }),
     );
     return { ...checked, lines };
   };
@@ -356,12 +392,14 @@ export function withStoreExtras(inner: Connector, deps: StoreExtrasDeps): Connec
           fees: false,
           counts,
           sales: await flashSales(),
-          products: async (ids, categoryId) => {
-            const r = await call(request, ["store", "products"], ids.length ? { ids: ids.join(",") } : { category: String(categoryId ?? ""), per_page: "24" });
+          products: async (ids, categoryId, limit) => {
+            const r = await call(request, ["store", "products"], ids.length ? { ids: ids.join(",") } : { category: String(categoryId ?? ""), per_page: String(Math.min(limit ?? 24, 50)) });
             // 131 A flash sale's list never shows a gift add-on.
             const addons = await addonSet(request);
             return itemsOf(r).filter((p) => !addons.has(p.id));
           },
+          // 162 A bouquet's wraps and cards, which may be the platform's add-ons.
+          extras: async (ids) => itemsOf(await call(request, ["store", "products"], { ids: ids.slice(0, 50).join(",") }).catch(() => null)),
         },
         request,
       );
@@ -392,16 +430,20 @@ export function withStoreExtras(inner: Connector, deps: StoreExtrasDeps): Connec
     if (addons.needsItem) return error(400, "addon_needs_item", ADDON_NEEDS_ITEM);
     const result = await inner.handle(request);
     const set = await addonSet(request);
-    if (!set.size || result?.status !== 200 || !Array.isArray((result.body as { lines?: unknown })?.lines)) return result;
+    const grouped = addons.lines.some((l) => l.bouquet);
+    if ((!set.size && !grouped) || result?.status !== 200 || !Array.isArray((result.body as { lines?: unknown })?.lines)) return result;
     const body = result.body as { lines: Record<string, unknown>[] };
     return {
       ...result,
       body: {
         ...body,
         lines: body.lines.map((l, i) => {
-          if (!set.has(Number(l.product_id))) return l;
+          // 162 The bouquet each line is part of, as sent (the platform's own cart knows none).
+          const sent = addons.lines[i];
+          const b = sent?.bouquet && Number(sent.product_id) === Number(l.product_id) ? { bouquet: bouquetPartJson(sent.bouquet) } : {};
+          if (!set.has(Number(l.product_id))) return { ...l, ...b };
           const problem = addons.problems.get(i);
-          return { ...l, addon: true, addon_of: addons.lines[i]?.addon_of ?? null, ...(problem ? { available: false, problem } : {}) };
+          return { ...l, ...b, addon: true, addon_of: sent?.addon_of ?? null, ...(problem ? { available: false, problem } : {}) };
         }),
       },
     };

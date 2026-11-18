@@ -12,6 +12,7 @@ import '../../core/theme/app_icons.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
 import 'data/cart_controller.dart';
+import 'screens/bouquet_builder_screen.dart';
 import 'screens/cart_screen.dart';
 import 'screens/menu_screen.dart';
 import 'screens/points_screen.dart';
@@ -139,6 +140,12 @@ class _MenuOrShop extends ConsumerWidget {
 }
 
 List<RouteBase> _pushedRoutes() => [
+  // 162 Build your bouquet.
+  GoRoute(
+    path: Paths.bouquet,
+    pageBuilder: (context, state) =>
+        appPage(state, const BouquetBuilderScreen()),
+  ),
   GoRoute(
     path: '/product/:id',
     pageBuilder: (context, state) {

@@ -35,6 +35,11 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
       }
       openLocation(context, Paths.page(slug));
     case PageActionType.screen:
+      // 162 Build your bouquet, when the shop has it set up; else its shop.
+      if (opensBouquet(ref, action)) {
+        context.push(Paths.bouquet);
+        return;
+      }
       final screen = action.screen;
       if (screen == null) return;
       final gate = ref.read(appGateProvider);
@@ -79,6 +84,17 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
           .firstOrNull;
       if (more != null) showMoreTabs(context, ref, more.more);
   }
+}
+
+/// 162 Whether [action] opens Build your bouquet: a store's action with
+/// `flow: bouquet` in an app whose shop has it set up (`StoreConfig.bouquet`).
+bool opensBouquet(WidgetRef ref, PageAction action) {
+  if (action.flow != ActionFlow.bouquet) return false;
+  if (ref.read(appEnvironmentProvider).build.appType != AppType.store) {
+    return false;
+  }
+  final gate = ref.read(appGateProvider);
+  return gate is GateReady && gate.config.store?.bouquet != null;
 }
 
 /// 30 Whether this app type can follow [action]: an Academy app's course in a

@@ -12,6 +12,7 @@ import { catalogSettings } from "../../catalog/settings";
 import { listedSales, unitsLeft } from "../../selling/flash-sales";
 import { giftMessagesJson, giftOccasionsOf } from "../../selling/gift-messages";
 import { appLanguagesOf, couponShown, publicCouponJson } from "../../selling/store";
+import { bouquetOf } from "../../selling/bouquet";
 
 /** An entry as the app's list card shows it: its picture, its line under the title, its price and its badge (`Item`). */
 export interface PickableEntry {
@@ -33,6 +34,8 @@ export interface PickableCommerce {
   coupons: { code: string; percentOff: number | null; amountOff: string | null; minOrder: string | null; endsAt: string | null }[];
   /** `GET /store/gift-messages` in each of the app's languages: the gift checkout's occasions and messages. */
   giftMessages: Record<string, ReturnType<typeof giftMessagesJson>>;
+  /** 162 Whether Build your bouquet is set up (Store › Delivery & offers): a Start that opens it says so in the inspector. */
+  bouquet?: boolean;
 }
 
 /** Entries and categories the page editor offers to pick from. */
@@ -108,6 +111,7 @@ export async function pickableCommerce(store: DataStore, app: App, now: Date): P
         return { code: j.code, percentOff: j.percent_off, amountOff: j.amount_off_formatted, minOrder: j.min_order_formatted, endsAt: j.ends_at };
       }),
     giftMessages: Object.fromEntries(languages.available.map((lang) => [lang, giftMessagesJson(occasions, lang, languages.default)])),
+    bouquet: bouquetOf(app) !== null,
   };
 }
 

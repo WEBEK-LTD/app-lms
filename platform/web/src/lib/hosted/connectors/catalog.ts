@@ -25,6 +25,8 @@ import { orderDeliveryJson } from "../../selling/gifts";
 import { needsPlace, shippingRulesOf } from "../../selling/shipping";
 import { checkStoreCheckout, handleStoreExtras, quoteDeliveryJson, storeExtrasConfig, storeMap, storeMapRoute } from "../../selling/store";
 import { ADDON_NEEDS_ITEM, checkAddonLines, offeredWith, ownAddonsFor } from "../../selling/addons";
+// 162 Build your bouquet: its lines together, checked against the shop's settings.
+import { bouquetOf, bouquetOffers, bouquetPartJson, checkBouquetLines, onceEach } from "../../selling/bouquet";
 import { appStageJson } from "../../catalog/stage-json";
 
 /**
@@ -486,8 +488,11 @@ export class CatalogConnector implements Connector {
 
   // Cart and checkout
 
-  private async priced(lines: CartLineInput[], now: Date = this.now) {
+  private async priced(input: CartLineInput[], now: Date = this.now) {
     const byId = new Map((await this.active()).map((p) => [p.id, p]));
+    // 162 A bouquet's card message once.
+    const lines = onceEach(input);
+    const bouquet = bouquetOf(this.deps.app);
     let subtotal = 0;
     let count = 0;
     const out = lines.map((line) => {
@@ -509,6 +514,7 @@ export class CatalogConnector implements Connector {
             problem: product && variants && line.variation_id === null ? "Choose the options first." : "This product is no longer available.",
             max_quantity: null,
             digital: false,
+            ...(line.bouquet ? { bouquet: bouquetPartJson(line.bouquet) } : {}),
           },
           product: null,
           variant: undefined,
@@ -554,6 +560,8 @@ export class CatalogConnector implements Connector {
           ...(chosen.length > 0 ? { options: chosen.map((o) => ({ id: o.id, name: o.name, group: o.group })) } : {}),
           // 131 A gift add-on, and the product of the line it goes with.
           ...(product.addon ? { addon: true, addon_of: line.addon_of ?? null } : {}),
+          // 162 The bouquet it is part of, as sent.
+          ...(line.bouquet ? { bouquet: bouquetPartJson(line.bouquet) } : {}),
         },
         product,
         variant,
@@ -568,10 +576,18 @@ export class CatalogConnector implements Connector {
       out.map((o, i) => ({ productId: lines[i]!.product_id, addonOf: lines[i]!.addon_of ?? null, addon: Boolean(o.product?.addon) })),
       (i, mainId) => {
         const main = byId.get(mainId);
-        return main ? offeredWith(out[i]!.product?.addonFor, main) : false;
+        const product = out[i]!.product;
+        // 162 A bouquet's wrap and card go with its flowers: the owner chose them for it.
+        if (main && product && bouquetOffers(bouquet, lines[i]!, product)) return true;
+        return main ? offeredWith(product?.addonFor, main) : false;
       },
     );
-    for (const [i, problem] of addons.problems) {
+    // 162 Each bouquet as the shop builds them: its flowers, at most one wrap and one card, its stems.
+    const bouquets = checkBouquetLines(
+      lines.map((l, i) => ({ productId: l.product_id, quantity: out[i]!.line.quantity, bouquet: l.bouquet ?? null, categoryIds: out[i]!.product?.categoryIds ?? [] })),
+      bouquet,
+    );
+    for (const [i, problem] of [...addons.problems, ...bouquets]) {
       const line = out[i]!.line as { available: boolean; problem: string | null };
       line.available = false;
       line.problem = problem;
@@ -736,6 +752,8 @@ export class CatalogConnector implements Connector {
       ...(weightGrams > 0 ? { weightGrams } : {}),
       // 131 A gift add-on: the line it goes with.
       ...(product!.addon && "addon_of" in line && line.addon_of ? { addonOf: line.addon_of } : {}),
+      // 162 Part of a bouquet the customer built.
+      ...("bouquet" in line && line.bouquet ? { bouquet: line.bouquet } : {}),
     }));
     // 26 A restaurant's order: pickup or delivery at a time its kitchen takes it; the delivery fee is its shipping.
     let fulfilment: CatalogOrder["fulfilment"] = null;
@@ -862,6 +880,8 @@ export class CatalogConnector implements Connector {
         ...(l.options?.length ? { options: l.options.map((o) => o.name) } : {}),
         // 131 A gift add-on: the product it went with.
         ...(l.addonOf ? { addon_of: l.addonOf } : {}),
+        // 162 Part of a bouquet the customer built.
+        ...(l.bouquet ? { bouquet: bouquetPartJson(l.bouquet) } : {}),
         // 110 What the line comes to.
         total: formatCents(l.unitCents * l.quantity, order.currency),
       })),

@@ -102,6 +102,8 @@ const OUTFIT = "Outfit";
 const P = (name: string) => `/flower-photos/${name}.jpg`;
 
 const shop: Action = screen("search");
+/** 162 Build your bouquet when the shop has it set up (Store › Delivery & offers); the shop until then, and in an older app. */
+export const BUILD_BOUQUET: Action = { type: "screen", screen: "search", flow: "bouquet" };
 const toCart: Action = screen("cart");
 const pageOf = (slug: string): Action => ({ type: "page", page_slug: slug });
 
@@ -574,7 +576,6 @@ function collectionsBento(ctx: SectionContext, margin: StudioSides = sides(0, 16
   };
 }
 
-/** "Build your bouquet": the loose stems under a rose shade, its three steps as chips, Start. */
 /** The builder's three steps as chips on a dark card: each its number on a white disc, its word in white. */
 function buildSteps(ctx: SectionContext, border: string, ink: string, margin: StudioSides): StudioNode {
   const id = idOf(ctx);
@@ -600,6 +601,12 @@ function buildSteps(ctx: SectionContext, border: string, ink: string, margin: St
   return { id: id(), type: "row", name: ctx.w("lqBuildTitle"), gap: 6, scroll: true, margin, children: [step("1", "lqStepFlowers"), step("2", "lqStepWrap"), step("3", "lqStepCard")] };
 }
 
+/**
+ * "Build your bouquet": the loose stems under a rose shade, its three steps
+ * as chips, Start. 162 Start (and the card) opens the app's Build your
+ * bouquet (the flowers, the wrap, the card) once the shop has set it up,
+ * the shop until then.
+ */
 function builderA(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16)): StudioNode {
   const id = idOf(ctx);
   const white = "#FFFFFF";
@@ -616,13 +623,13 @@ function builderA(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16
     padding: sides(22, 22, 22, 22),
     margin,
     ken_burns: true,
-    action: shop,
+    action: BUILD_BOUQUET,
     children: [
       { id: id(), type: "text", text: ctx.w("lqBuildKicker"), color: "#FFD9C2", font: { size: 11, weight: 700, letter_spacing: 2.2, uppercase: true } },
       { id: id(), type: "text", text: ctx.w("lqBuildTitle"), color: white, width: 230, max_lines: 2, font: display(FRAUNCES, 36, { weight: 500 }), margin: sides(8, 0, 0, 0) },
       { id: id(), type: "text", text: ctx.w("lqBuildLine"), color: white, opacity: 0.88, width: 230, max_lines: 3, font: { size: 13.5, line_height: 1.4 }, margin: sides(8, 0, 0, 0) },
       buildSteps(ctx, "#F6D3DD", ROSE_SHADE, sides(14, 0, 0, 0)),
-      heroButton(ctx, "lqBuildStart", shop, { background: white, color: ROSE_SHADE }, sides(16, 0, 0, 0), "arrow_forward", 44),
+      heroButton(ctx, "lqBuildStart", BUILD_BOUQUET, { background: white, color: ROSE_SHADE }, sides(16, 0, 0, 0), "arrow_forward", 44),
     ],
   };
 }
@@ -1215,14 +1222,14 @@ function builderB(ctx: SectionContext, margin: StudioSides = sides(22, 16, 4, 16
     dark_background: FOREST_NIGHT,
     surface: { soft: 3, pattern: "dots", pattern_strength: 0.07 },
     color: "#FFFFFF",
-    action: shop,
+    action: BUILD_BOUQUET,
     children: [
       { id: id(), type: "text", text: ctx.w("lqBuildKicker"), color: LEQAA_PEACH, font: { size: 11, weight: 700, letter_spacing: 2.2, uppercase: true } },
       { id: id(), type: "text", text: ctx.w("lqBuildTitle"), color: "#FFFFFF", max_lines: 2, font: display(OUTFIT, 38, { weight: 400 }) },
       { id: id(), type: "text", text: ctx.w("lqBuildLine"), color: "#FFFFFF", opacity: 0.85, max_lines: 2, font: { size: 13.5, line_height: 1.4 } },
       // A's chips in B's colours: white words and discs, clear on the forest.
       buildSteps(ctx, "#BFD8C9", FOREST, sides(6, 0, 0, 0)),
-      heroButton(ctx, "lqBuildStart", shop, { background: LEQAA_PEACH, color: FOREST }, sides(8, 0, 0, 0), "arrow_forward", 46),
+      heroButton(ctx, "lqBuildStart", BUILD_BOUQUET, { background: LEQAA_PEACH, color: FOREST }, sides(8, 0, 0, 0), "arrow_forward", 46),
     ],
   };
 }

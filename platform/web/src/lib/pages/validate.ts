@@ -439,6 +439,8 @@ function parseAction(ctx: Context, where: string, value: unknown, required: bool
       if (!oneOf(SCREENS, v.screen)) c.fail(where, "choose a screen.");
       // 31 Only screens the app's module opens: anything else would do nothing when tapped.
       else if (!appOpensScreen(ctx.app, v.screen)) c.fail(where, `this app has no "${screenName(v.screen)}" screen. Choose another screen.`);
+      // 162 Build your bouquet, a store's only, over its shop.
+      if (v.flow === "bouquet" && v.screen === "search" && ctx.app.appType === "store") return { type: "screen", screen: "search", flow: "bouquet" };
       return { type: "screen", screen: v.screen as Action["screen"] };
     case "course": {
       if (!ctx.sources.includes("courses")) c.fail(where, "this app has no courses. Choose what happens on tap.");

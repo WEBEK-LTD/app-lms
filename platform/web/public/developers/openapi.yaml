@@ -4263,6 +4263,35 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /store/bouquet:
+    get:
+      tags: [Store]
+      operationId: getBouquetBuilder
+      summary: Build your bouquet
+      description: |
+        Roadmap 162. What the app's Build your bouquet chooses from, when the
+        store has it set up (`StoreConfig.bouquet`): the flowers (the
+        products of the category the owner set, chosen by the stem with
+        quantities), the wraps (gift add-ons the owner chose, or a category's
+        products) and the cards (gift add-ons the owner chose; none: the card
+        is its message alone), each a `ProductSummary` with its photo and
+        price, and the rules. The app puts the bouquet in the cart as lines
+        that share one `bouquet` (`CartInput.lines[].bouquet`); the server
+        prices them as any line. Yallapp's own products and connected
+        platforms; 404 when the store hasn't set it up.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
+      responses:
+        '200':
+          description: The builder's flowers, wraps and cards
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BouquetBuilder' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
   /store/addons:
     get:
       tags: [Store]
@@ -14785,6 +14814,7 @@ components:
                 description: The options chosen for this line (a dish's size or extras), as their names. Missing or empty for none.
                 items: { type: string }
               addon_of: { type: [integer, 'null'], description: "131 A gift add-on: the product it went with. Missing: not an add-on." }
+              bouquet: { $ref: '#/components/schemas/BouquetPart' }
               total:
                 type: [string, 'null']
                 description: "Roadmap 110. What the line comes to (its price with its options, times its quantity), formatted. Null or missing on older servers."
@@ -14985,6 +15015,50 @@ components:
               type: array
               items: { $ref: '#/components/schemas/QuestionAnswer' }
 
+    BouquetRules:
+      type: object
+      description: 162 Build your bouquet's rules (`StoreConfig.bouquet`).
+      required: [flowers_category_id, wraps_from, wrap_optional, card_optional, cards, min_stems, max_stems, max_message]
+      properties:
+        flowers_category_id: { type: integer, description: The category whose products are the flowers. }
+        wraps_from: { type: string, enum: [addons, category], description: "The wraps are gift add-ons the owner chose, or a category's products." }
+        wrap_optional: { type: boolean, description: 'The customer may choose "No wrap".' }
+        card_optional: { type: boolean, description: The customer may leave out the card (and its message). }
+        cards: { type: boolean, description: "The shop has cards to choose from; false: the card is its message alone." }
+        min_stems: { type: integer, minimum: 1, maximum: 99, description: Stems in one bouquet at least. }
+        max_stems: { type: integer, minimum: 1, maximum: 99, description: Stems in one bouquet at most. }
+        max_message: { type: integer, example: 500, description: The card message's most characters. }
+
+    BouquetBuilder:
+      description: 162 `GET /store/bouquet`. The rules and what to choose from, in the owner's order.
+      allOf:
+        - { $ref: '#/components/schemas/BouquetRules' }
+        - type: object
+          required: [flowers, wraps, cards]
+          properties:
+            flowers: { type: array, maxItems: 60, items: { $ref: '#/components/schemas/ProductSummary' } }
+            wraps: { type: array, maxItems: 24, items: { $ref: '#/components/schemas/ProductSummary' } }
+            cards: { type: array, maxItems: 12, items: { $ref: '#/components/schemas/ProductSummary' } }
+
+    BouquetPart:
+      type: [object, 'null']
+      description: |
+        162 A line of a bouquet the customer built: every line of one
+        bouquet has the same `id`, its `part` (a flower, the wrap or the
+        card) and, on one of them (the card's when it has one), the card's
+        `message`. The cart, the order, the dashboard and Yallapp Business
+        show the bouquet as one. A wrap or card that is a gift add-on also
+        has `addon_of` (a flower's product) and goes with the bouquet
+        whatever its own "Offer with" says. Yallapp's own products check
+        each bouquet against the shop's rules (its flowers from the flowers'
+        category, at most one wrap and one card, its stems); a line that
+        breaks one is `available: false` with its `problem`.
+      required: [id, part]
+      properties:
+        id: { type: string, pattern: '^[A-Za-z0-9_-]{1,40}$', example: b-1731940000-4f2a }
+        part: { type: string, enum: [flower, wrap, card] }
+        message: { type: string, maxLength: 500, example: 'Happy birthday, Mama.' }
+
     StoreConfig:
       type: object
       description: Present when WooCommerce is active. Settings for Store apps.
@@ -15030,6 +15104,16 @@ components:
             addons: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 }, example: { en: Make it extra special, ar: أضف لمسة أخرى } }
             gift_card: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
             delivery: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
+        bouquet:
+          description: |
+            162 Build your bouquet, when the store has it set up: an action
+            with `flow: bouquet` (Leqaa's Start) opens it, and the app reads
+            what to choose from at `GET /store/bouquet`. Null or missing
+            (not set up, older servers, WordPress): the action's screen, the
+            shop.
+          oneOf:
+            - { $ref: '#/components/schemas/BouquetRules' }
+            - { type: 'null' }
         delivery_date:
           type: object
           description: |
@@ -15731,6 +15815,7 @@ components:
               addon_of:
                 type: [integer, 'null']
                 description: "131 A gift add-on's line: the `product_id` of the line it goes with (removing that line removes it). A cart of add-ons only fails with `addon_needs_item` (400); an add-on whose line is missing or that doesn't go with it is `available: false` with its `problem`."
+              bouquet: { $ref: '#/components/schemas/BouquetPart' }
         coupon:
           type: [string, 'null']
           maxLength: 50
@@ -15767,6 +15852,7 @@ components:
               digital: { type: boolean }
               addon: { type: boolean, description: "131 A gift add-on's line. Missing: false." }
               addon_of: { type: [integer, 'null'], description: "131 The product of the line this add-on goes with, as sent." }
+              bouquet: { $ref: '#/components/schemas/BouquetPart' }
               options:
                 type: array
                 description: The chosen options, as priced (their prices are in `unit_price`).
@@ -17425,6 +17511,13 @@ components:
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
         open_in: { type: string, enum: [in_app, browser], default: in_app }
+        flow:
+          type: string
+          enum: [bouquet]
+          description: |
+            162 A store's `screen` action (`search`, the shop) that opens Build
+            your bouquet when the store has it set up (`StoreConfig.bouquet`);
+            otherwise, and in apps that don't know it, its `screen`.
         web:
           type: [object, 'null']
           description: |

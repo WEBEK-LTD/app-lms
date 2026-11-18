@@ -1,3 +1,4 @@
+import 'bouquet_models.dart';
 import 'commerce_models.dart';
 import 'catalog_models.dart';
 import 'json.dart';
@@ -243,6 +244,7 @@ class OrderLine {
     this.imageUrl,
     this.options = const [],
     this.total,
+    this.bouquet,
   });
 
   factory OrderLine.fromJson(Json json) => OrderLine(
@@ -253,7 +255,11 @@ class OrderLine {
     imageUrl: optString(json, 'image_url'),
     options: stringList(json, 'options'),
     total: optString(json, 'total'),
+    bouquet: BouquetPart.tryParse(json['bouquet']),
   );
+
+  /// 162 Part of a bouquet the customer built: shown as one bouquet.
+  final BouquetPart? bouquet;
 
   final String name;
   final int? courseId;

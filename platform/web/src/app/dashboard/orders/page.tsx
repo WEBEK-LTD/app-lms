@@ -1,6 +1,7 @@
 import { rateText } from "@/lib/money/rates";
 import type { Metadata } from "next";
 import { deliveryDayLabel, deliveryOf, shopToday, slotLabel } from "@/lib/selling/delivery";
+import { orderGroups } from "@/lib/selling/bouquet";
 import { followsStages, nextStages } from "@/lib/catalog/order-stages";
 import { stageRefundStatus } from "@/lib/catalog/stage-refunds";
 import { taxLabel } from "@/lib/catalog/tax";
@@ -127,7 +128,9 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
               const title = t("orders.orderTitle", { number: orderNumber(order), total: formatCents(order.totalCents, order.currency) });
               const paidLine = `${t("orders.paidOn", { date: formatDateTime(order.paidAt, lang) })}${order.refundedCents && order.status !== "refunded" ? ` · ${k(refundedLine(order.refundedCents, order.totalCents, order.currency) ?? "")}` : ""}`;
               const status = order.shipment && order.status === "processing" ? k("Shipped") : k(ORDER_STATUS_LABELS[order.status]);
-              const count = order.lines.filter((l) => !l.addonOf).reduce((sum, l) => sum + l.quantity, 0);
+              // 162 A bouquet the customer built counts once.
+              const groups = orderGroups(order.lines);
+              const count = groups.reduce((sum, g) => sum + (g.kind === "bouquet" ? 1 : g.line.addonOf ? 0 : g.line.quantity), 0);
               return {
                 id: order.id,
                 text: [String(orderNumber(order)), order.customer?.name, order.customer?.email, order.customer?.phone, order.customer?.city, ...order.lines.map((l) => l.name)].filter(Boolean).join(" "),
@@ -163,13 +166,36 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                       triggerClassName="group -mx-2 flex min-w-0 flex-[1_1_300px] cursor-pointer flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border-0 bg-transparent px-2 py-2 text-start text-(--sp-ink) transition-colors hover:bg-(--sp-soft) sm:flex-nowrap"
                     >
                       <ul aria-label={t("orders.orderAria", { number: orderNumber(order) })} className="m-0 flex list-none flex-col gap-1.5 p-0 text-[15px]">
-                        {order.lines.map((l, i) => (
-                          <li key={i} className={l.addonOf ? "ps-4 text-(--sp-muted)" : "font-semibold"} data-order-addon={l.addonOf ? "" : undefined}>
-                            {/* 131 A gift add-on, under the item it went with. */}
-                            {l.addonOf ? `+ ${t("shop.addonBadge")}: ` : null}
-                            {l.name} × {l.quantity}
-                          </li>
-                        ))}
+                        {groups.map((g) =>
+                          g.kind === "line" ? (
+                            <li key={g.index} className={g.line.addonOf ? "ps-4 text-(--sp-muted)" : "font-semibold"} data-order-addon={g.line.addonOf ? "" : undefined}>
+                              {/* 131 A gift add-on, under the item it went with. */}
+                              {g.line.addonOf ? `+ ${t("shop.addonBadge")}: ` : null}
+                              {g.line.name} × {g.line.quantity}
+                            </li>
+                          ) : (
+                            // 162 A bouquet the customer built, as one: its flowers, its wrap, its card and the card's words.
+                            <li key={`b-${g.id}`} className="flex flex-col gap-1 rounded-xl bg-(--sp-soft) px-3 py-2" data-order-bouquet={g.id}>
+                              <span className="flex items-center gap-1.5 font-semibold">
+                                <Icon name="local_florist" size={18} />
+                                {t("orders.bouquet", { stems: g.stems })}
+                              </span>
+                              <ul className="m-0 flex list-none flex-col gap-0.5 p-0 ps-6 text-[14px]">
+                                {g.lines.map(({ line: l, index }) => (
+                                  <li key={index} data-bouquet-part={l.bouquet!.part}>
+                                    {l.bouquet!.part === "wrap" ? `${t("orders.bouquetWrap")}: ` : l.bouquet!.part === "card" ? `${t("orders.bouquetCard")}: ` : null}
+                                    {l.name} × {l.quantity}
+                                  </li>
+                                ))}
+                              </ul>
+                              {g.message ? (
+                                <span className="ps-6 text-[14px] whitespace-pre-line text-(--sp-muted)" dir="auto" data-bouquet-message="">
+                                  {t("orders.bouquetMessage", { message: g.message })}
+                                </span>
+                              ) : null}
+                            </li>
+                          ),
+                        )}
                         {order.discountCents ? <li className="text-sm text-(--sp-muted)">{t("orders.coupon", { code: order.couponCode ?? "", amount: formatCents(order.discountCents, order.currency) })}</li> : null}
                         {/* 91.4 The loyalty points used on it, and those it earned. */}
                         {order.points?.discountCents ? (

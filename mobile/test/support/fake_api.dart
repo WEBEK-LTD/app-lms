@@ -1170,6 +1170,22 @@ class FakeApi implements YallappApi {
     ],
   );
 
+  /// 162 `GET /store/bouquet`; null: the shop hasn't set it up (404).
+  Map<String, dynamic>? bouquet;
+
+  @override
+  Future<BouquetBuilderData> getBouquet() => _answer('getBouquet', () {
+    final b = bouquet;
+    if (b == null) {
+      throw const ApiException(
+        statusCode: 404,
+        code: 'not_found',
+        message: "This shop doesn't build bouquets in the app.",
+      );
+    }
+    return BouquetBuilderData.fromJson(b);
+  });
+
   /// 26 How the last restaurant checkout wanted the order.
   ({
     FulfilmentType? fulfilment,

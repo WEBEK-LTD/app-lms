@@ -1,4 +1,5 @@
 import 'addon_models.dart';
+import 'bouquet_models.dart';
 import 'commerce_models.dart';
 import 'config_models.dart';
 import 'json.dart';
@@ -21,6 +22,7 @@ class StoreConfig {
     this.shipping,
     this.titles = const SectionTitles(),
     this.payInApp = false,
+    this.bouquet,
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -45,7 +47,12 @@ class StoreConfig {
     shipping: StoreShippingRules.tryParse(json['shipping']),
     titles: SectionTitles.fromStore(json['titles']),
     payInApp: json['checkout_payment'] == 'in_app',
+    bouquet: BouquetRules.tryParse(json['bouquet']),
   );
+
+  /// 162 Build your bouquet, when the shop has it set up; null: an action
+  /// with `flow: bouquet` opens the shop, as before.
+  final BouquetRules? bouquet;
 
   /// 134 The checkout ends inside the app: the customer pays on Yallapp's
   /// payment page with the owner's gateway (`checkout_payment: in_app`);
@@ -681,12 +688,16 @@ class CartLineInput {
     this.attributes = const {},
     this.options = const [],
     this.addonOf,
+    this.bouquet,
   });
 
   final int productId;
   final int? variationId;
   final int quantity;
   final Map<String, String> attributes;
+
+  /// 162 Part of a bouquet the customer built.
+  final BouquetPart? bouquet;
 
   /// 26 The IDs of the chosen options.
   final List<String> options;
@@ -701,6 +712,7 @@ class CartLineInput {
     if (attributes.isNotEmpty) 'attributes': attributes,
     if (options.isNotEmpty) 'options': options,
     if (addonOf != null) 'addon_of': addonOf,
+    if (bouquet != null) 'bouquet': bouquet!.toJson(),
   };
 }
 
@@ -848,6 +860,7 @@ class CartQuoteLine {
     this.options = const [],
     this.addon = false,
     this.addonOf,
+    this.bouquet,
   });
 
   factory CartQuoteLine.fromJson(Json json) => CartQuoteLine(
@@ -865,11 +878,15 @@ class CartQuoteLine {
     options: listOf(json, 'options', CartLineOption.fromJson),
     addon: boolOr(json, 'addon', false),
     addonOf: optInt(json, 'addon_of'),
+    bouquet: BouquetPart.tryParse(json['bouquet']),
   );
 
   /// 131 A gift add-on's line, and the product of the line it goes with.
   final bool addon;
   final int? addonOf;
+
+  /// 162 The bouquet it is part of, as sent.
+  final BouquetPart? bouquet;
 
   final int productId;
   final int? variationId;

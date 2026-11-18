@@ -12023,4 +12023,121 @@ class AppLocalizationsTr extends AppLocalizations {
   String orderPaidIn(String total) {
     return 'Ödenen $total';
   }
+
+  @override
+  String get bouquetTitle => 'Buketini oluştur';
+
+  @override
+  String get bouquetStepFlowers => 'Çiçekler';
+
+  @override
+  String get bouquetStepWrap => 'Ambalaj';
+
+  @override
+  String get bouquetStepCard => 'Kart';
+
+  @override
+  String get bouquetStepSummary => 'Buketiniz';
+
+  @override
+  String bouquetStepOf(int step, int count) {
+    return 'Adım $step/$count';
+  }
+
+  @override
+  String get bouquetFlowersLine => 'Çiçekleri dal dal seçin.';
+
+  @override
+  String get bouquetWrapLine => 'Nasıl ambalajlanacağını seçin.';
+
+  @override
+  String get bouquetCardLine => 'Kartı seçin ve mesajınızı yazın.';
+
+  @override
+  String get bouquetMessageOnlyLine => 'Kartın sözlerini yazın.';
+
+  @override
+  String bouquetStems(int count) {
+    return '$count dal';
+  }
+
+  @override
+  String bouquetStemsRange(int min, int max) {
+    return '$min ile $max dal arası';
+  }
+
+  @override
+  String bouquetNeedStems(int min) {
+    return 'En az $min dal seçin.';
+  }
+
+  @override
+  String bouquetMaxStems(int max) {
+    return 'Bir bukette en çok $max dal olur.';
+  }
+
+  @override
+  String get bouquetNoWrap => 'Ambalajsız';
+
+  @override
+  String get bouquetNoWrapLine => 'Dallar elle bağlanır.';
+
+  @override
+  String get bouquetChooseWrap => 'Devam etmek için bir ambalaj seçin.';
+
+  @override
+  String get bouquetNoCard => 'Kartsız';
+
+  @override
+  String get bouquetChooseCard => 'Devam etmek için bir kart seçin.';
+
+  @override
+  String get bouquetWriteMessage => 'Devam etmek için mesajınızı yazın.';
+
+  @override
+  String get bouquetSkipCard => 'Kartı atla';
+
+  @override
+  String get bouquetTotal => 'Buket toplamı';
+
+  @override
+  String get bouquetTotalNote => 'Toplamı mağaza sepetinizde onaylar.';
+
+  @override
+  String get bouquetSendFlowers => 'Çiçek gönder';
+
+  @override
+  String bouquetChange(String part) {
+    return '$part değiştir';
+  }
+
+  @override
+  String get bouquetUnavailable => 'Buketini oluştur şu anda kullanılamıyor.';
+
+  @override
+  String get bouquetShopInstead => 'Mağazaya git';
+
+  @override
+  String get bouquetInCart => 'Buketiniz sepette.';
+
+  @override
+  String get bouquetHeader => 'Buketiniz';
+
+  @override
+  String bouquetWrapPart(String name) {
+    return 'Ambalaj: $name';
+  }
+
+  @override
+  String bouquetCardPart(String name) {
+    return 'Kart: $name';
+  }
+
+  @override
+  String bouquetMessage(String message) {
+    return '“$message”';
+  }
+
+  @override
+  String get bouquetRemove => 'Buketi kaldır';
 }

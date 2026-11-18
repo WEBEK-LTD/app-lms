@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { saveAddonsAction, saveAreasAction, saveCheckoutModeAction, saveDeliveryAction, saveFlashSaleAction, saveGiftsAction, saveOccasionAction, addOccasionAction, saveTemplateAction, saveTitlesAction } from "@/app/actions/selling";
-import { Field, FormMessage, SubmitButton } from "@/components/form";
+import { saveAddonsAction, saveAreasAction, saveBouquetAction, saveCheckoutModeAction, saveDeliveryAction, saveFlashSaleAction, saveGiftsAction, saveOccasionAction, addOccasionAction, saveTemplateAction, saveTitlesAction } from "@/app/actions/selling";
+import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { FormActions } from "@/components/page-kit";
 import { TimeZonePicker } from "@/components/time-zone-picker";
 import { useDashT } from "@/components/dashboard-i18n";
@@ -418,6 +418,121 @@ export function TitlesForm({ values: saved, languages }: { values: Record<string
       <div className="flex justify-end">
         <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
           {t("selling.saveTitles")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 162 A choice Build your bouquet offers: a category, or a gift add-on with its picture and price. */
+export type BouquetChoice = { id: number; name: string; image?: string | null; price?: string };
+
+/**
+ * 162 Build your bouquet: on or off; the flowers' category; the wraps (gift
+ * add-ons ticked, or a category); the cards (add-ons ticked); whether the
+ * wrap and the card may be left out; the least and most stems. A connected
+ * platform's categories and products by their numbers there.
+ */
+export function BouquetForm({ values: saved, categories, addons, platform }: { values: Record<string, string>; categories: BouquetChoice[] | null; addons: BouquetChoice[] | null; platform: string | null }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveBouquetAction, initialFormState);
+  const v = { ...saved, ...state.values };
+  const e = state.errors ?? {};
+  const [on, setOn] = useState(v.bouquet === "on");
+  const [from, setFrom] = useState(v.wrapsFrom === "category" ? "category" : "addons");
+  const ticked = (name: string, id: number) => (v[name] ?? "").split(/[\s,]+/).includes(String(id));
+  const category = (name: string, label: string, error?: string) =>
+    categories ? (
+      <label className="flex flex-col gap-1.5 text-sm font-semibold">
+        {label}
+        <select name={name} defaultValue={v[name] ?? ""} className="input input-sm font-normal" aria-invalid={error ? true : undefined} data-bouquet-select={name}>
+          <option value="">{t("selling.bouquetChoose")}</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+        <FieldError id={`f-${name}-error`} error={error} />
+      </label>
+    ) : (
+      <Field label={label} name={name} dir="ltr" inputMode="numeric" defaultValue={v[name]} error={error} small />
+    );
+  const addonList = (name: string, label: string, hint: string | null, error?: string) =>
+    addons ? (
+      <fieldset className="m-0 flex flex-col gap-2 border-0 p-0" data-bouquet-addons={name}>
+        <legend className="mb-1 text-sm font-semibold">{label}</legend>
+        {hint ? <span className="text-[13px] text-muted">{hint}</span> : null}
+        {addons.length ? (
+          <div className="grid gap-2 sm:grid-cols-2">
+            {addons.map((a) => (
+              <label key={a.id} className="flex cursor-pointer items-center gap-3 rounded-xl border border-line-soft p-2.5">
+                <input type="checkbox" name={name} value={a.id} defaultChecked={ticked(name, a.id)} className="h-4 w-4 accent-midnight" />
+                {a.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={a.image} alt="" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
+                ) : (
+                  <span aria-hidden="true" className="material-symbols-rounded flex h-9 w-9 items-center justify-center rounded-lg bg-(--sp-soft) text-[20px]">
+                    redeem
+                  </span>
+                )}
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate text-[14px] font-semibold" dir="auto">
+                    {a.name}
+                  </span>
+                  {a.price ? <span className="text-[12.5px] text-muted tabular-nums">{a.price}</span> : null}
+                </span>
+              </label>
+            ))}
+          </div>
+        ) : (
+          <p className="m-0 text-[13px] text-muted">{t("selling.bouquetNoAddons")}</p>
+        )}
+        <FieldError id={`f-${name}-error`} error={error} />
+      </fieldset>
+    ) : null;
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" data-bouquet-form="">
+      <FormMessage message={state.message} ok={state.ok} />
+      <label className="flex cursor-pointer items-start gap-3">
+        <input type="checkbox" name="bouquet" value="on" checked={on} onChange={(ev) => setOn(ev.target.checked)} className="mt-1 h-4 w-4 accent-midnight" />
+        <span className="flex flex-col gap-0.5">
+          <span className="text-[15px] font-semibold">{t("selling.bouquetOn")}</span>
+          <span className="text-[13px] text-muted">{t("selling.bouquetOnHint")}</span>
+        </span>
+      </label>
+      <div className={`flex flex-col gap-4 ${on ? "" : "hidden"}`}>
+        <div className="flex flex-col gap-1">
+          {category("flowersCategoryId", platform ? t("selling.bouquetFlowersPlatform", { platform }) : t("selling.bouquetFlowers"), e.flowersCategoryId)}
+          <span className="text-[13px] text-muted">{t("selling.bouquetFlowersHint")}</span>
+        </div>
+        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend className="mb-1.5 text-sm font-semibold">{t("selling.bouquetWraps")}</legend>
+          {(["addons", "category"] as const).map((k) => (
+            <label key={k} className="flex cursor-pointer items-center gap-2 text-sm">
+              <input type="radio" name="wrapsFrom" value={k} checked={from === k} onChange={() => setFrom(k)} className="h-4 w-4 accent-midnight" />
+              {t(k === "addons" ? "selling.bouquetWrapsAddons" : "selling.bouquetWrapsCategory")}
+            </label>
+          ))}
+        </fieldset>
+        {from === "addons"
+          ? (addonList("wrapIds", t("selling.bouquetWraps"), null, e.wrapIds) ?? (
+              <Field label={t("selling.bouquetWrapsPlatform", { platform: platform ?? "" })} name="wrapIdsText" dir="ltr" defaultValue={v.wrapIdsText ?? v.wrapIds} error={e.wrapIds} small />
+            ))
+          : category("wrapsCategoryId", platform ? t("selling.bouquetWrapsCategoryPlatform", { platform }) : t("selling.bouquetWrapsCategoryField"), e.wrapsCategoryId)}
+        {addonList("cardIds", t("selling.bouquetCards"), t("selling.bouquetCardsHint")) ?? (
+          <Field label={t("selling.bouquetCardsPlatform", { platform: platform ?? "" })} name="cardIdsText" dir="ltr" defaultValue={v.cardIdsText ?? v.cardIds} hint={t("selling.bouquetCardsHint")} small />
+        )}
+        <Check name="wrapOptional" label={t("selling.bouquetWrapOptional")} hint={t("selling.bouquetWrapOptionalHint")} defaultChecked={v.wrapOptional === "on"} />
+        <Check name="cardOptional" label={t("selling.bouquetCardOptional")} hint={t("selling.bouquetCardOptionalHint")} defaultChecked={v.cardOptional === "on"} />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label={t("selling.bouquetMinStems")} name="minStems" type="number" inputMode="numeric" min={1} max={99} dir="ltr" defaultValue={v.minStems} hint={t("selling.bouquetStemsHint")} error={e.minStems} small />
+          <Field label={t("selling.bouquetMaxStems")} name="maxStems" type="number" inputMode="numeric" min={1} max={99} dir="ltr" defaultValue={v.maxStems} error={e.maxStems} small />
+        </div>
+      </div>
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("selling.saveBouquet")}
         </SubmitButton>
       </div>
     </form>
