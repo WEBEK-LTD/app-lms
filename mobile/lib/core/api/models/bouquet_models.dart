@@ -23,7 +23,7 @@ class BouquetRules {
       wrapsFromCategory: json['wraps_from'] == 'category',
       wrapOptional: boolOr(json, 'wrap_optional', false),
       cardOptional: boolOr(json, 'card_optional', false),
-      cards: boolOr(json, 'cards', false),
+      cards: boolOr(json, 'has_cards', false),
       minStems: min,
       maxStems: intOr(json, 'max_stems', 99).clamp(min, 99),
       maxMessage: intOr(json, 'max_message', 500).clamp(1, 500),

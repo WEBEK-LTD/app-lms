@@ -1912,7 +1912,8 @@
         "color": "#FFFFFF",
         "action": {
          "type": "screen",
-         "screen": "search"
+         "screen": "search",
+         "flow": "bouquet"
         },
         "children": [
          {
@@ -2227,7 +2228,8 @@
           },
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "flow": "bouquet"
           },
           "margin": {
            "top": 8,

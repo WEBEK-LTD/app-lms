@@ -15043,13 +15043,13 @@ components:
     BouquetRules:
       type: object
       description: 162 Build your bouquet's rules (`StoreConfig.bouquet`).
-      required: [flowers_category_id, wraps_from, wrap_optional, card_optional, cards, min_stems, max_stems, max_message]
+      required: [flowers_category_id, wraps_from, wrap_optional, card_optional, has_cards, min_stems, max_stems, max_message]
       properties:
         flowers_category_id: { type: integer, description: The category whose products are the flowers. }
         wraps_from: { type: string, enum: [addons, category], description: "The wraps are gift add-ons the owner chose, or a category's products." }
         wrap_optional: { type: boolean, description: 'The customer may choose "No wrap".' }
         card_optional: { type: boolean, description: The customer may leave out the card (and its message). }
-        cards: { type: boolean, description: "The shop has cards to choose from; false: the card is its message alone." }
+        has_cards: { type: boolean, description: "The shop has cards to choose from; false: the card is its message alone." }
         min_stems: { type: integer, minimum: 1, maximum: 99, description: Stems in one bouquet at least. }
         max_stems: { type: integer, minimum: 1, maximum: 99, description: Stems in one bouquet at most. }
         max_message: { type: integer, example: 500, description: The card message's most characters. }
