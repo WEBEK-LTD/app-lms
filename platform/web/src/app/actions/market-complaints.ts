@@ -6,7 +6,9 @@ import { recordStaffChange } from "@/lib/admin/audit";
 import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
+import { notifyDeps } from "@/lib/delivery/flow";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
+import { tellComplaint } from "@/lib/market/notify";
 import { agentFirstName, supportReply, takeComplaint } from "@/lib/market/complaints";
 import { complaintReference } from "@/lib/market/json";
 import { marketSettingsOf } from "@/lib/market/settings";
@@ -57,7 +59,10 @@ export async function replyFromQueueAction(formData: FormData): Promise<void> {
   const me = person(context);
   const patch = supportReply(c, text(formData, "text"), me.email, new Date(), agentFirstName(me.name, me.email));
   if (patch) {
-    await (await getStore()).updateMarketComplaint(context.app.id, c.id, { ...patch, assignee: c.assignee ?? me.email });
+    const store = await getStore();
+    await store.updateMarketComplaint(context.app.id, c.id, { ...patch, assignee: c.assignee ?? me.email });
+    // 115.22 The customer is told (`complaint_update`).
+    await tellComplaint(notifyDeps({ store, app: context.app, now: new Date() }), { ...c, ...patch }, "reply");
     await recordStaffChange(context, `Answered complaint ${complaintReference(c)}`);
   }
   backTo(formData, c.id);

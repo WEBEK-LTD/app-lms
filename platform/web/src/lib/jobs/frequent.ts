@@ -15,7 +15,7 @@ import { appUrl } from "../env";
 import { runAutoNotifications, type AutoRunReport } from "../hosted/auto-notifications";
 import { runCampaigns, type CampaignRunReport } from "../hosted/campaigns";
 import { runScheduledNotifications, type ScheduledRunReport } from "../hosted/scheduled-notifications";
-import type { sendPush } from "../hosted/push";
+import type { sendPush, ServiceAccount } from "../hosted/push";
 import { refreshEndedSites, type EndedRefreshResult, type RefreshDeps } from "../license/refresh";
 import { pushStartedAnnouncements, type OwnerPushDeps } from "../owner/push";
 import { runPrimeChecks, type PrimeRunReport } from "../owner/prime-jobs";
@@ -26,6 +26,7 @@ import { appPlan } from "../entitlements";
 import { runRideTicks } from "../rides/tick";
 import { runLibraryReminders } from "../school/library";
 import { runSchoolReminders } from "../school/reminders";
+import { runMarketFrequent } from "../market/daily";
 import { runMailCampaigns, type MailRunDeps, type MailRunReport } from "../mailing/campaigns";
 import { runFirebaseRegistrations, type FirebaseDeps, type FirebaseRunReport } from "../firebase/register";
 import { keepPoolStocked, type ProjectDeps, type ProjectRunReport } from "../firebase/projects";
@@ -38,8 +39,9 @@ import { raiseAlert, type TeamMail } from "../watch/alerts";
  * announcements that started, and 85.2 the notification campaigns due. 105.2 It moves rides on with time. 113.8 It reminds schools' families of tomorrow's exams, 113.4 and parents of the permission slips due tomorrow. 88.3 It reads the App Store's review state of the iPhone versions in review. 138 It sends iPhone builds on TestFlight to App Review once Apple has processed them, and gives a few apps a run their build for a new release of Yallapp's own app. 100.2 It makes or changes the in-app products waiting for the stores, 100.3 and keeps purchases' access in step. 68 It also asks the WordPress site of every
  * plan that just ended to check its license now (once per end), so the app
  * pauses there within minutes. 136 It registers apps in Yallapp's Firebase
- * and makes the pool's next project when it runs low. Safe to run twice at once: each notification,
- * announcement and ended plan is taken by one run.
+ * and makes the pool's next project when it runs low. 115.21 It releases marketplace orders for later
+ * to their vendors when their preparation should start. Safe to run twice at once: each notification,
+ * announcement, ended plan and order for later is taken by one run.
  */
 export interface FrequentReport {
   notifications: ScheduledRunReport;
@@ -72,6 +74,8 @@ export interface FrequentReport {
   rides: { looked: number; moved: number };
   /** 113.11 Library loans looked at, and reminders sent (due soon, overdue). */
   library: { looked: number; told: number };
+  /** 115.21 Marketplaces looked at, and orders for later released to their vendors. */
+  market: { apps: number; released: number };
   /** 113.8 Tomorrow's exams whose reminder went to their students and families; 113.4 slips due tomorrow whose reminder went to the parents. */
   school: { exams: number; slips: number };
   /** 114 Email campaigns started on time, and a few seconds of their emails (the minute job sends the rest). */
@@ -87,6 +91,8 @@ export async function runFrequentJobs(deps: {
   key: Buffer;
   now: Date;
   send?: typeof sendPush;
+  /** 115.21 Tests: the push account the marketplace's pushes use (each app's own otherwise). */
+  marketAccount?: ServiceAccount | null;
   ownerPush: OwnerPushDeps;
   /** 68 How the sites are reached (tests: a fake fetch, or LICENSE_REFRESH_TEST_URL). */
   refresh?: Pick<RefreshDeps, "fetcher" | "resolve" | "testSiteUrl">;
@@ -232,6 +238,13 @@ export async function runFrequentJobs(deps: {
   } catch (error) {
     console.error("[frequent] rides", error instanceof Error ? error.message : String(error));
   }
+  // 115.21 Marketplaces: orders for later reach their vendor when their preparation should start.
+  let market = { apps: 0, released: 0 };
+  try {
+    market = await runMarketFrequent(deps.store, deps.now, { send: deps.send, ...(deps.marketAccount !== undefined ? { account: deps.marketAccount } : {}) });
+  } catch (error) {
+    console.error("[frequent] marketplace", error instanceof Error ? error.message : String(error));
+  }
   // 113.11 The library's reminders: a book due soon, a book overdue.
   let library = { looked: 0, told: 0 };
   try {
@@ -302,5 +315,5 @@ export async function runFrequentJobs(deps: {
       );
     }
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, screenshots, reviews, appReview, appRelease, pipeline, orders, storeProducts, storePurchases, rides, library, school, mail, prime, ...(firebase ? { firebase } : {}) };
+  return { notifications, announcements, ended, campaigns, automatic, builds, screenshots, reviews, appReview, appRelease, pipeline, orders, storeProducts, storePurchases, rides, market, library, school, mail, prime, ...(firebase ? { firebase } : {}) };
 }

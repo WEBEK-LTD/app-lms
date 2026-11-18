@@ -30,9 +30,10 @@ build; `CLIENT_APP_RELEASE` unchanged). Contract: `MarketOrder.complaint_until`
 and `Complaint.window_ends_at`, `can_open_another`, `support_agent`,
 `messages[].kind` and `agent`, `decision.coupon_ends_at` and `agent`;
 409 `complaint_limit`. No migration (the new fields live in the
-complaint's JSON columns and the marketplace settings). Still to come: the
-`complaint_update` push to the customer (with the marketplace's
-notifications), and a look on real phones.
+complaint's JSON columns and the marketplace settings). The customer is
+pushed `complaint_update` on support's reply (the queue's side panel too)
+and decision, with 115.22's notifications. Still to come: a look on real
+phones.
 
 Roadmap 170 (paying in the app in the phone's browser sheet, closing
 155.6): inside the apps, Yallapp's payment page opens in the phone's browser
@@ -69,6 +70,22 @@ marks the demo's coupon and a sample flash sale as samples, in the shop's
 currency; a review's Stars show 5; and the report's minor Studio bugs are
 fixed (ROADMAP 174.8). No migration. Not yet seen on a phone (ROADMAP
 174.9).
+
+Roadmap 115.21–115.23 (the marketplace audit's three bugs,
+docs/plans/2026-11-18-marketplace-audit.md): orders for later reach their
+vendor from the frequent job at their time less the vendor's preparation
+(with a delay in force), released and announced once even when two runs
+overlap, on memory and MariaDB; the four marketplace notifications are
+sent through the inbox and push path in the person's language, opening
+the right screen (`market_order_update` on each stage, `vendor_order` to
+the vendor's staff on a new or released order, `complaint_update` on
+support's reply or decision, `club_renewal` 3 days before a kept club plan
+ends and on its last day, nothing charged); the customer app opens a
+dish's choices before it goes in the basket and sends them with the quote
+and the order, and shows them in the basket, the checkout and the order.
+No migration and no contract change. Still to check on a real phone: the
+pushes arriving (customer app, vendor app, the Vendor tab) and each tap
+opening its screen, and the dish sheet on a small screen.
 
 Roadmap 157 (the template's categories are the shop's): Leqaa's occasion
 rings, chips and ticker and its collections' bento, arches and cards were

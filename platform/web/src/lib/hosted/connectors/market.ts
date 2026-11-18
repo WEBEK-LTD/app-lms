@@ -27,6 +27,7 @@ import {
   VENDOR_NEW,
   VENDOR_REJECTIONS,
   acceptMarketOrder,
+  announceMarketOrder,
   cancelMarketOrder,
   collectedByOf,
   deliveredByVendor,
@@ -505,10 +506,13 @@ export class MarketConnector {
     if (money.wallet > 0) {
       const taken = await payFromWallet(store, { appId: app.id, userId: request.user.id, orderId: created.id, amount: money.wallet }, request.now);
       if (taken < money.wallet) {
-        await cancelMarketOrder(this.flow(request.now), created, "owner");
+        // Undone while it was being placed: nobody is told.
+        await cancelMarketOrder({ ...this.flow(request.now), quiet: true }, created, "owner");
         return error(409, "price_changed", "Your wallet changed. Check the price again.");
       }
     }
+    // 115.22 Placed (or booked for later): the customer hears it, and the vendor's staff of a new order. Paid online, once it's paid.
+    if (status !== "awaiting_payment") await announceMarketOrder(this.flow(request.now), created);
     const payUrl = status === "awaiting_payment" ? (await this.payLink(created, request.now)).url : null;
     return { status: 201, body: { order: await this.customerJson(created, request.now), pay_url: payUrl } };
   }
@@ -554,7 +558,7 @@ export class MarketConnector {
     const settings = await this.settings();
     const currency = marketCurrency(settings);
     const job = order.shipmentId !== null ? await this.deps.store.getShipment(this.deps.app.id, order.shipmentId) : null;
-    const o = await syncWithJob(this.deps.store, order, job, now);
+    const o = await syncWithJob(this.deps.store, order, job, now, this.flow(now));
     const vendor = o.vendorId !== null ? await this.deps.store.getRestaurant(this.deps.app.id, o.vendorId) : null;
     const summary = vendor
       ? vendorSummaryJson(vendor, this.near(vendor, settings, null, now, null, null), currency, this.deps.assetUrl)
@@ -913,7 +917,7 @@ export class MarketConnector {
 
   private async vendorJsonOf(o: MarketOrder, now: Date) {
     const job = o.shipmentId !== null ? await this.deps.store.getShipment(this.deps.app.id, o.shipmentId) : null;
-    const synced = await syncWithJob(this.deps.store, o, job, now);
+    const synced = await syncWithJob(this.deps.store, o, job, now, this.flow(now));
     const collect = synced.paymentMethod === "cash" && synced.paymentStatus === "unpaid" && collectedByOf(synced) === "vendor" ? synced.money.payNow : null;
     return vendorOrderJson(synced, { courierName: job?.courierName ?? null, collect });
   }
@@ -1052,7 +1056,7 @@ export class MarketConnector {
     const settings = marketSettingsOf(await this.settings());
     const rate = s.vendor.taxRateBp !== null && s.vendor.taxRateBp !== undefined ? s.vendor.taxRateBp / 100 : settings.tax.ratePercent;
     const tax = rate > 0 ? { ratePercent: rate, included: settings.tax.included, onDelivery: settings.tax.onDelivery, label: settings.tax.label } : null;
-    const moved = await pickMarketOrder(this.deps.store, o, picked, settings.weightTolerancePercent, tax, request.now);
+    const moved = await pickMarketOrder(this.deps.store, o, picked, settings.weightTolerancePercent, tax, request.now, this.flow(request.now));
     if (!moved.ok) return moved.reason === "invalid" ? error(400, "invalid_request", moved.error ?? "One of the lines isn't valid.") : refused();
     return { status: 200, body: await this.vendorJsonOf(moved.order, request.now) };
   }

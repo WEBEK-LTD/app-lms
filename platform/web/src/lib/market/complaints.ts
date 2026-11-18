@@ -277,6 +277,8 @@ export interface DecisionRequest {
 }
 
 export interface DecisionDeps {
+  /** 115.22 Tells the customer of the decision (`complaint_update`); never fails it. */
+  tell?: (complaint: MarketComplaint) => Promise<unknown>;
   /** Gives money back on the order's payment (115.11's gateways); its error is shown to support. */
   refundToPayment?: (order: MarketOrder, amount: number, complaintId: number) => Promise<{ ok: true } | { ok: false; error: string }>;
   /** Makes a one-use coupon worth the amount at the order's place (115.10), for COMPLAINT_COUPON_DAYS, and returns its code and last day. */
@@ -383,7 +385,9 @@ export async function decideComplaint(store: DataStore, deps: DecisionDeps, comp
     const refundedAll = (amount ?? 0) >= left;
     await store.updateMarketOrder(order.appId, order.id, { paymentStatus: refundedAll ? "refunded" : "partly_refunded", updatedAt: now });
   }
-  return { ok: true, complaint: { ...complaint, ...patch } as MarketComplaint };
+  const decided = { ...complaint, ...patch } as MarketComplaint;
+  await deps.tell?.(decided).catch(() => undefined);
+  return { ok: true, complaint: decided };
 }
 
 function defaultDecisionText(d: ComplaintDecision): string {
