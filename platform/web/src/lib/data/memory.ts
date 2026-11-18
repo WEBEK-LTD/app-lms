@@ -9020,6 +9020,8 @@ export class MemoryStore implements DataStore {
     this.marketTemplates.delete(id);
     for (const [key, v] of this.marketVersions) if (v.templateId === id) this.marketVersions.delete(key);
     this.marketReviews = this.marketReviews.filter((r) => r.templateId !== id);
+    // 106.12 Its discounts go with it, as the database's foreign key does.
+    for (const [key, d] of this.marketDiscounts) if (d.templateId === id) this.marketDiscounts.delete(key);
     return true;
   }
 
