@@ -198,6 +198,25 @@ older servers leave it out and the app shows the lines and the total as
 before. Needs the next app build (no `CLIENT_APP_RELEASE` change here) and
 plugin 0.4.51 released; not yet tried on a phone (ROADMAP 173.6).
 
+Roadmap 180 (travel, bookings, events, real estate, news and charity, tested
+as a customer): Safra and the classic bookings, events, real estate, news and
+charity apps, started from Studio and from their demos. Fixed: a room reserved
+from a stays search no longer brings in a flight looked at earlier, and the
+trip's Change goes back to the same trip; Track on the flights found reflects
+the alert the person has, and off deletes it; the hotels and flights found end
+above Android's buttons; the real estate office's reply and a moved
+appointment's pushes open their screens (they opened Home), the reply's title
+in the app's language; the hosted bookings API writes its home titles and an
+appointment's state in the app's language, and the app shows the states, a
+home's property type and every flight amenity in its own words; a membership's
+price with the customer's currency; Arabic digits and "1.500.000" in the price
+filter and the donation amount; the flights' arrows right to left. Open:
+Studio's canvas drawing signed-in and signed-out elements together (Safra's
+hero), and travel, events, donations and listings prices in the customer's
+currency (ROADMAP 180.11–180.13). Needs the next app build (no
+`CLIENT_APP_RELEASE` change here); the hosted API part (bookings words, the
+reply's title) works for apps already in the stores once deployed.
+
 Roadmap 156 (what the owner publishes in Studio is what the app shows, in
 every language): a template's translations of its own words stop applying
 once the owner changes the text, so the app shows the owner's text in
