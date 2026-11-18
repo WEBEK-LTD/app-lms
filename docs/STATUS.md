@@ -8,11 +8,13 @@ Last updated: 18 November 2026.
 
 ## Current release
 
-Roadmap 195 (the documentation's pages read their articles in one
-query): the documentation's menu and search read each of the 73 articles
-on its own, one or two queries each at once, past the 50 the site's one
-database connection lets wait ("Queue limit reached", the page and the
-session read with it failing). Now one query for them all.
+Roadmap 195 (no page fails with "Queue limit reached"): Admin › Builds
+looked up each of its up to 200 builds' client, user and app at once, and
+the documentation's menu and search each of its 73 articles, past the 50
+queries the site's one database connection let wait, failing the page
+and the session read with it. The build queue now looks each up once, ten
+at a time, the documentation reads its articles in one query, and up to
+1000 queries may wait.
 
 Roadmap 193 (Add to cart under every product, on Leqaa's looks): on a
 store with the gift checkout (Leqaa's looks, Kech Flora), every product's
