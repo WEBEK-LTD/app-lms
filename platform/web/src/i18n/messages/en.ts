@@ -209,6 +209,10 @@ export const en = {
     lifetimeNote: "One payment keeps this plan active for as long as Yallapp runs the service, with nothing to renew. It covers what the plan includes on the day you pay. Add-ons, the app stores' own fees and work outside the plan are paid separately.",
     lifetimeChoose: "Get {plan} for life",
     lifetimeCompare: "Compare every plan",
+    /** 154 The pricing page's compact cards: what's folded under the first highlights, a plan on request, and the period picker's hint. */
+    seeEverything: "See everything",
+    onRequestNote: "We agree the price with you on WhatsApp",
+    saveUpTo: "Save up to {percent}%",
   },
   pricing: {
     eachApp: "Each app has its own plan. Questions about a plan? <link>Message us on WhatsApp</link>.",
@@ -290,6 +294,14 @@ export const en = {
     studioWhoText:
       "Businesses that want a design of their own, and the ones only Studio serves: delivery companies, food delivery, rides and taxis, academies with many teachers, schools and universities.",
     compareAllText: "Every feature and limit of the app's plans, side by side.",
+    /** 154 The pricing page in its Day and night look: Studio's tag, the kinds of apps (folded after the first), and the questions. */
+    studioTag: "Free design",
+    kindsMore: "+{count} more",
+    kindsFewer: "Show fewer",
+    faqLifetime: "What does lifetime cover?",
+    faqChange: "Can I change my plan later?",
+    faqFees: "Who pays the app stores' fees, and can I get a refund?",
+    faqUsers: "Who counts as an app user?",
   },
   solutions: {
     contentFrom: "Content from:",
