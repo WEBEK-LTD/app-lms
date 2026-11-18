@@ -178,7 +178,7 @@ export function StoriesEditor(props: Props) {
               const labelId = `story-${s.id}-name`;
               return (
                 <div data-story={name} className={`flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-3 sm:px-4 ${sortable.dragging ? "bg-sand" : ""}`}>
-                  <SortControls sortable={sortable} name={name} words={{ drag: t("stories.drag"), up: t("stories.up"), down: t("stories.down") }} />
+                  <SortControls sortable={sortable} name={name} words={{ drag: t("manage.drag"), up: t("manage.moveUp"), down: t("manage.moveDown") }} />
                   <Thumb story={s} />
                   <div className="flex min-w-0 flex-[1_1_200px] flex-col">
                     <span id={labelId} className="truncate font-semibold">

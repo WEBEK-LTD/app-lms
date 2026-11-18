@@ -4,7 +4,8 @@ import { E2E } from "../../playwright.config";
 /**
  * 165 Dashboard › Stories: a flower shop made from the Rose hour template
  * finds its five occasions copied there, nothing in the app changing; the
- * owner adds a story whose button opens one of the shop's categories,
+ * owner adds a story whose button opens one of the shop's categories (the
+ * template's Roses),
  * moves it up, removes another; the app's page JSON shows them in
  * English, Arabic and Turkish; and Studio draws the dashboard's stories,
  * its inspector saying where they come from.
@@ -18,6 +19,8 @@ const extraHTTPHeaders = { "x-forwarded-for": "198.51.100.165" };
 let own: Page;
 let api = "";
 let previewToken = "";
+/** The id of the template's "Roses" category, which the new story's button opens. */
+let roses = "";
 
 const rows = () => own.locator("[data-story]");
 const order = () => rows().evaluateAll((els) => els.map((el) => el.getAttribute("data-story")));
@@ -69,12 +72,6 @@ test.beforeAll(async ({ browser }) => {
     await expect(list.filter({ hasText: name })).toHaveCount(1);
   }
 
-  // A category of the shop for a story's button.
-  await own.goto("/studio/project/catalog/categories");
-  await own.getByLabel("New category").fill("Peonies");
-  await own.getByRole("button", { name: "Add", exact: true }).click();
-  await expect(own.locator('[data-category="Peonies"]')).toBeVisible();
-
   // The app's address and the draft preview's token, to read what the app is served.
   await own.goto("/studio/project/setup?step=website");
   api = (await own.locator("code").filter({ hasText: "/api/app/" }).first().textContent())!.trim();
@@ -114,7 +111,9 @@ test("the template's stories are copied once; the owner adds one opening a categ
   await form.getByLabel("Button text · English (main)").fill("See peonies");
   await form.getByLabel("Button text · Arabic").fill("شوف الفاوانيا");
   await form.getByLabel("When the customer taps").selectOption("category");
-  await form.getByLabel("Category", { exact: true }).selectOption({ label: "Peonies" });
+  await form.getByLabel("Category", { exact: true }).selectOption({ label: "Roses" });
+  roses = await form.getByLabel("Category", { exact: true }).inputValue();
+  expect(roses).toMatch(/^\d+$/);
   // The live preview shows it as it's typed.
   const preview = own.locator("[data-story-preview]");
   await expect(preview).toContainText("Peonies are here");
@@ -168,8 +167,6 @@ async function home(request: APIRequestContext, lang: string): Promise<Node> {
 }
 
 test("the app's page JSON shows the stories in English, Arabic and Turkish, the button opening the category", async ({ request }) => {
-  await own.goto("/studio/project/catalog/categories");
-  const peonies = await own.locator('[data-category="Peonies"] input[name="id"]').first().inputValue();
   for (const [lang, title, ring, button] of [
     ["en", "Peonies are here", "Peonies", "See peonies"],
     ["ar", "وصلت الفاوانيا", "فاوانيا", "شوف الفاوانيا"],
@@ -182,10 +179,10 @@ test("the app's page JSON shows the stories in English, Arabic and Turkish, the 
     const first = all(slider.children![0]!);
     expect(first.find((n) => n.story_part === "title")?.text).toBe(title);
     expect(first.find((n) => n.story_part === "kicker")?.text).toBe("Just in");
-    expect(first.find((n) => n.story_part === "button")).toMatchObject({ text: button, action: { type: "screen", screen: "courses", category_id: peonies } });
+    expect(first.find((n) => n.story_part === "button")).toMatchObject({ text: button, action: { type: "screen", screen: "courses", category_id: roses } });
     const rings = all(body).find((n) => n.type === "stories")!.slides!;
     expect(rings).toHaveLength(5);
-    expect(rings[0]).toMatchObject({ heading: ring, title, button_label: button, action: { type: "screen", screen: "courses", category_id: peonies } });
+    expect(rings[0]).toMatchObject({ heading: ring, title, button_label: button, action: { type: "screen", screen: "courses", category_id: roses } });
   }
 });
 

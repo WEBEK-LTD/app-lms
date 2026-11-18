@@ -34,12 +34,15 @@ export default async function StoriesPage() {
   const store = await getStore();
   const now = new Date();
   const copied = await ensureStoriesSeeded(store, app, now);
-  const [stories, languages, record, pickable] = await Promise.all([
+  const [stories, languages, record, pickable, own] = await Promise.all([
     store.listAppStories(app.id),
     appLanguagesOf(store, app),
     loadLayout(store, app, now),
     pickableContent(app, { store, key: encryptionKey(), assetUrl, platformUrl: appUrl() }, now),
+    // A shop managed here: every one of its categories, those without products yet too (the app's list leaves them out).
+    app.connector?.kind === "catalog" ? store.listCatalogCategories(app.id) : Promise.resolve([]),
   ]);
+  const categories = new Map([...own.map((c) => [String(c.id), c.name] as const), ...(pickable.categories.products ?? []).map((c) => [c.id, c.name] as const)]);
   const main = languages.default;
   const langs = storyLanguages([main, ...languages.available.filter((l) => l !== main)]).map((code) => ({ code, name: appLanguageName(code, lang) }));
   const fromStudio = copied > 0 || stories.some((s) => s.importKey !== null);
@@ -57,7 +60,7 @@ export default async function StoriesPage() {
         brand={app.primaryColor}
         pages={record.draft.pages.map((p) => ({ slug: p.slug, title: p.title || p.slug }))}
         screens={screenOptionsFor(app)}
-        categories={(pickable.categories.products ?? []).map((c) => ({ id: c.id, name: c.name }))}
+        categories={[...categories].map(([id, name]) => ({ id, name }))}
         products={(pickable.items.products ?? []).map((p) => ({ id: p.id, title: p.title }))}
         hasShop={app.appType === "store"}
       />
