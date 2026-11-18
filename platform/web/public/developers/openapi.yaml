@@ -6548,6 +6548,41 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
 
+  /me/market-orders/{order_id}/lines/{line_id}/proposal:
+    post:
+      tags: [Market]
+      operationId: answerMarketSubstitute
+      summary: Accept the picker's proposed item, or leave the line out
+      description: |
+        115.40 While a line's `proposal` waits (`answer` null, before
+        `expires_at`, five minutes after it was proposed). Past that time
+        the order's choice (`MarketOrder.if_missing`) answered it: a similar
+        item is taken, anything else leaves the line out; answering then is
+        `proposal_closed` (409), as is answering twice.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+        - $ref: '#/components/parameters/MarketLineId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answer]
+              properties:
+                answer: { type: string, enum: [accept, decline] }
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarketOrder' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
   /me/market-orders/{order_id}/rating:
     post:
       tags: [Market]
@@ -7102,6 +7137,45 @@ paths:
                       outcome: { type: string, enum: [picked, substituted, missing] }
                       quantity: { type: [number, 'null'], exclusiveMinimum: 0, description: 'For `picked`: units, or the weighed amount in the product''s unit (kg, g, l).' }
                       substitute_product_id: { type: [integer, 'null'], description: 'For `substituted`. Left out, the item the customer chose (`if_missing: chosen`).' }
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorOrder' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /vendor/orders/{order_id}/lines/{line_id}/proposal:
+    post:
+      tags: [Vendor]
+      operationId: proposeVendorSubstitute
+      summary: Propose a similar item for a missing line
+      description: |
+        115.40 Only for a line not yet picked whose `if_missing` is
+        `similar` ("my choice" lines bring the customer's item, "leave it
+        out" lines are left out: `not_asked`, 409). The customer has five
+        minutes to answer (`MarketOrderLine.proposal`); until then the line
+        can be left out but not swapped (`proposal_open`, 409, from
+        `PATCH lines`). After an accepted proposal, `substituted` brings the
+        proposed item; after a declined one the line is `missing`, and
+        another item can be proposed.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+        - $ref: '#/components/parameters/MarketLineId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_id]
+              properties:
+                product_id: { type: integer, description: 'Another of the vendor''s products, in stock.' }
+                quantity: { type: number, exclusiveMinimum: 0, description: 'Left out, the line''s quantity.' }
       responses:
         '200':
           description: The order
@@ -12401,6 +12475,12 @@ components:
       name: order_id
       in: path
       required: true
+      schema: { type: integer }
+    MarketLineId:
+      name: line_id
+      in: path
+      required: true
+      description: A line of the order (`MarketOrderLine.id`).
       schema: { type: integer }
     ComplaintId:
       name: complaint_id
@@ -19826,6 +19906,7 @@ components:
               note: { type: [string, 'null'], maxLength: 200 }
               if_missing: { type: string, enum: [similar, chosen, remove], default: remove, description: 'Groceries and shops: what to do when it is out when picked.' }
               substitute_product_id: { type: [integer, 'null'], description: 'For `if_missing: chosen`.' }
+        if_missing: { type: [string, 'null'], enum: [similar, chosen, remove, null], description: '115.40 Groceries and shops: what to do when something is out, for the whole order. A line without its own `if_missing` takes it (`chosen` needs the line''s own item, so those lines take `similar`). Left out, lines without their own are `remove`.' }
         fulfilment: { type: string, enum: [delivery, pickup] }
         dropoff: { oneOf: [{ $ref: '#/components/schemas/PlaceInput' }, { type: 'null' }], description: 'Needed for delivery.' }
         scheduled_for: { type: [string, 'null'], format: date-time, description: 'An order for later, within the vendor''s hours and `MarketConfig.scheduling.days_ahead`.' }
@@ -19901,6 +19982,21 @@ components:
             name: { type: string }
             quantity: { type: number }
             total: { $ref: '#/components/schemas/Money' }
+        proposal:
+          type: [object, 'null']
+          description: '115.40 A similar item the picker proposed for this line while it is out, for the customer to accept or leave out within five minutes (`POST /me/market-orders/{order_id}/lines/{line_id}/proposal`). Unanswered by `expires_at`, the order''s `if_missing` answers it (`answered_by: timeout`). Missing on older servers.'
+          required: [product_id, name, image_url, quantity, total, difference, proposed_at, expires_at, answer, answered_by]
+          properties:
+            product_id: { type: integer }
+            name: { type: string }
+            image_url: { type: [string, 'null'], format: uri }
+            quantity: { type: number }
+            total: { $ref: '#/components/schemas/Money', description: 'The proposed item at its own price.' }
+            difference: { $ref: '#/components/schemas/Money', description: 'Its total less the line''s, negative when it costs less.' }
+            proposed_at: { type: string, format: date-time }
+            expires_at: { type: string, format: date-time }
+            answer: { type: [string, 'null'], enum: [accepted, declined, null], description: 'Null while it waits.' }
+            answered_by: { type: [string, 'null'], enum: [customer, timeout, null] }
 
     MarketOrderInput:
       allOf:
@@ -19930,6 +20026,7 @@ components:
         lines:
           type: array
           items: { $ref: '#/components/schemas/MarketOrderLine' }
+        if_missing: { type: [string, 'null'], enum: [similar, chosen, remove, null], description: '115.40 The order''s own "if something is missing", as sent with the cart; it answers a proposal left unanswered. Null for orders placed without one; missing on older servers.' }
         price:
           type: array
           items: { $ref: '#/components/schemas/MarketPriceLine' }
@@ -19982,11 +20079,18 @@ components:
         courier:
           type: [object, 'null']
           required: [name, photo_url, vehicle]
-          description: No phone; the customer reaches support.
+          description: "The courier's own phone is never sent: the customer reaches support, or the courier through `call` (a masked line) when the app has one."
           properties:
             name: { type: string, description: 'First name.' }
             photo_url: { type: [string, 'null'], format: uri }
             vehicle: { type: [string, 'null'], example: Motorbike }
+            call:
+              type: [object, 'null']
+              description: '115.40 A masked line to the app''s courier while the order is on its way: the app''s relay number and the code that connects it to this order''s courier; the courier''s own number is never sent. Null when the app has no call relay, and for a vendor''s own drivers. Missing on older servers.'
+              required: [number, code]
+              properties:
+                number: { type: string, description: 'E.164.' }
+                code: { type: [string, 'null'], description: 'Dialled after the number, when the relay asks for one.' }
         position:
           type: [object, 'null']
           required: [lat, lng]

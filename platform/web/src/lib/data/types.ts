@@ -5099,6 +5099,23 @@ export interface MarketOrderLine {
   outcome: "picked" | "substituted" | "missing" | null;
   pickedQuantity: number | null;
   substitute: { productId: number; name: string; quantity: number; total: number } | null;
+  /** 115.40 A similar item the picker proposed, for the customer to accept or leave out (lib/market/substitutes.ts); missing on older orders. */
+  proposal?: SubstituteProposal | null;
+}
+
+/** 115.40 The picker's proposal for a missing line: answered by the customer, or by the order's choice once `expiresAt` passes. */
+export interface SubstituteProposal {
+  productId: number;
+  name: string;
+  imageUrl: string | null;
+  quantity: number;
+  /** Minor units: the proposed item at its own price. */
+  total: number;
+  proposedAt: string;
+  expiresAt: string;
+  answer: "accepted" | "declined" | null;
+  answeredBy: "customer" | "timeout" | null;
+  answeredAt: string | null;
 }
 
 export interface MarketOrderStage {
@@ -5123,6 +5140,8 @@ export interface MarketOrder {
   deliveryBy: "app" | "vendor" | null;
   scheduledFor: Date | null;
   lines: MarketOrderLine[];
+  /** 115.40 What to do when an item is out, for the whole order (each line keeps its own); null on older orders. */
+  ifMissing?: "similar" | "chosen" | "remove" | null;
   /** The priced order (`OrderMoney`), in minor units of `currency`. */
   money: OrderMoney;
   currency: string;

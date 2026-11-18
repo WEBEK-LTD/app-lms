@@ -1963,6 +1963,8 @@ export const marketOrders = mysqlTable(
     deliveryBy: varchar("delivery_by", { length: 8 }).$type<"app" | "vendor">(),
     scheduledFor: time("scheduled_for"),
     lines: jsonText<MarketOrderLine[]>("lines").notNull(),
+    // 115.40 The order's own "if something is missing" (each line keeps its own in `lines`).
+    ifMissing: varchar("if_missing", { length: 8 }).$type<"similar" | "chosen" | "remove">(),
     money: jsonText<OrderMoney>("money").notNull(),
     // The total, apart, for sums and sorting.
     total: bigint("total", { mode: "number" }).notNull(),
