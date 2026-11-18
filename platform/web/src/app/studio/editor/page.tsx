@@ -7,6 +7,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { appUrl, encryptionKey, signingSecret } from "@/lib/env";
+import { studioStoriesFor } from "@/lib/stories/studio";
 import { QrCode } from "@/components/qr-code";
 import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
 import { draftPreviewSupported } from "@/lib/preview/config";
@@ -89,7 +90,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       screens={screenOptionsFor(app)}
       pageScreens={pageScreenOptionsFor(app)}
       // Studio's canvas: the samples a list shows while the project has none (never offered to pick).
-      pickable={{ ...(await pickableContent(app, { store, key: encryptionKey(), assetUrl, platformUrl: appUrl() }, now)), samples: sampleEntries(now) }}
+      // 165 And Dashboard › Stories for the story elements from it (an app made from the flower shop's template has its own copied there the first time).
+      pickable={{ ...(await pickableContent(app, { store, key: encryptionKey(), assetUrl, platformUrl: appUrl() }, now)), samples: sampleEntries(now), ...(await studioStoriesFor(store, app, now)) }}
       myTemplates={(await store.listStudioTemplates(app.clientId)).map(({ id, name, page }) => ({ id, name, page }))}
       // 17 The real app with the saved draft on the hosted API, else with what's published.
       previewHref={app.backend === "hosted" ? "/studio/project/preview?pages=draft" : "/studio/project/preview"}

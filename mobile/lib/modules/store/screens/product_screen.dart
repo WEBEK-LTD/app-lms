@@ -29,6 +29,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/services/share_links.dart';
 import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/config/build_config_data.dart';
+import '../../../core/format/text_case.dart';
 
 /// A product: images, price, options, quantity and Add to cart.
 class ProductScreen extends ConsumerWidget {
@@ -180,6 +181,15 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             optionNames: [for (final o in choice.options) o.name],
             imageUrl: _variation?.imageUrl ?? _product.summary.imageUrl,
             price: formatMoney(unit, price.currency),
+            // 161 And in the customer's currency, converted as the server does.
+            shownPrice: switch (price.display) {
+              final d? => customerPrice(
+                formatMoney(unit, price.currency),
+                formatMoney(convertCents(unit, d.rate, d.currency), d.currency),
+              ),
+              null => null,
+            },
+            shownCurrency: price.display?.currency,
             maxQuantity: _maxQuantity,
           ),
         );
@@ -198,7 +208,10 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             quantity: 1,
             name: a.name,
             imageUrl: a.imageUrl,
-            price: a.sale?.nowFormatted ?? a.price.formatted,
+            price: a.sale?.shopNowFormatted ?? a.price.formatted,
+            // 161 And in the customer's currency.
+            shownPrice: a.sale?.nowFormatted ?? a.price.shown,
+            shownCurrency: a.price.display?.currency,
           ),
           _product.id,
           true,
@@ -253,6 +266,10 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             },
             imageUrl: variation?.imageUrl ?? _product.summary.imageUrl,
             price: (variation?.price ?? _product.summary.price).formatted,
+            // 161 And in the customer's currency.
+            shownPrice: (variation?.price ?? _product.summary.price).shown,
+            shownCurrency:
+                (variation?.price ?? _product.summary.price).display?.currency,
             maxQuantity: _maxQuantity,
           ),
         );
@@ -530,7 +547,12 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                   SectionHeader(title: context.l10n.youMayAlsoLike),
                   const SizedBox(height: 10),
                   SizedBox(
-                    height: 160 + productCardTextHeight(context),
+                    height:
+                        160 +
+                        productCardTextHeight(
+                          context,
+                          twoPrices: customerPricesShown(ref),
+                        ),
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: product.related.length,
@@ -601,7 +623,9 @@ class _ProductViewState extends ConsumerState<_ProductView> {
     if (missing.isEmpty || !missing.every(fitsLanguage(context))) {
       return context.l10n.optionsLower;
     }
-    return missing.map((n) => n.toLowerCase()).join(context.l10n.listAnd);
+    return missing
+        .map((n) => n.toLowerCaseIn(context))
+        .join(context.l10n.listAnd);
   }
 }
 

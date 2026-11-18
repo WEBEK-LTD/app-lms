@@ -196,9 +196,18 @@ export function formatDate(date: Date | null | undefined, lang: Lang = "en"): st
   return formatIn(lang, date, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 }
 
-/** "19 Oct 2026, 14:05 UTC". */
-export function formatDateTime(date: Date | null | undefined, lang: Lang = "en"): string {
+/** "19 Oct 2026, 14:05 UTC"; 168 with `timeZone` (a shop's), its own date and time, "19 Oct 2026, 15:05 GMT+1". */
+export function formatDateTime(date: Date | null | undefined, lang: Lang = "en", timeZone?: string): string {
   if (!date) return NOT_YET[lang];
-  const time = formatIn(lang, date, { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" });
-  return `${formatDate(date, lang)}${lang === "ar" ? "، " : ", "}${time} UTC`;
+  const zone = timeZone || "UTC";
+  let time: string;
+  let day: string;
+  try {
+    time = formatIn(lang, date, { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: zone });
+    day = formatIn(lang, date, { day: "numeric", month: "short", year: "numeric", timeZone: zone });
+  } catch {
+    return formatDateTime(date, lang);
+  }
+  const name = zone === "UTC" ? "UTC" : (new Intl.DateTimeFormat("en", { timeZone: zone, timeZoneName: "shortOffset" }).formatToParts(date).find((p) => p.type === "timeZoneName")?.value ?? zone);
+  return `${day}${lang === "ar" ? "، " : ", "}${time} ${name}`;
 }

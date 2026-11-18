@@ -360,8 +360,9 @@ describe("a restaurant on the hosted API", () => {
         min: 1,
         max: 1,
         options: [
-          { id: "small", name: "Small", price_delta: "0.00", price_delta_formatted: null },
-          { id: "large", name: "Large", price_delta: "20.00", price_delta_formatted: "+₺20.00" },
+          // 161 With their currency, for the same in the customer's.
+          { id: "small", name: "Small", price_delta: "0.00", price_delta_formatted: null, currency: "TRY" },
+          { id: "large", name: "Large", price_delta: "20.00", price_delta_formatted: "+₺20.00", currency: "TRY" },
         ],
       },
       expect.objectContaining({ id: "extras", min: 0, max: 2 }),

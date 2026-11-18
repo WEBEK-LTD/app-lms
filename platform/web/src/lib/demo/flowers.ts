@@ -1,5 +1,6 @@
 import type { CatalogCurrency, CatalogSettings, CatalogVariants } from "../data/types";
 import type { FlowerPhoto } from "./flower-photos";
+import { giftBeginningsIn } from "../selling/gift-starters";
 
 /**
  * 131.20 Leqaa's shop (the flower shop's demo, lib/studio/demo-designs/
@@ -45,7 +46,8 @@ export const FLOWER_COMMERCE: Pick<CatalogSettings, "delivery" | "gifts" | "area
       { id: "s4", start: "19:00", end: "22:00", capacity: null, feeCents: 80_00 },
     ],
   },
-  gifts: { checkout: "gift", message: true, maxLength: 300, starters: [], recipient: true, anonymous: true },
+  // 169 Yallapp's beginnings to tap, in English (the demo's main language), Arabic and Turkish.
+  gifts: { checkout: "gift", message: true, maxLength: 300, starters: giftBeginningsIn("en"), starterTexts: { ar: giftBeginningsIn("ar"), tr: giftBeginningsIn("tr") }, recipient: true, anonymous: true },
   areas: [{ country: "EG", cities: ["Cairo", "Giza", "New Cairo"] }],
   shippingMode: "distance",
   // From the shop in Zamalek.
@@ -58,8 +60,8 @@ export const FLOWER_FLASH_SALE = { title: "Blush hour", titles: { ar: "ساعة 
 /** The demo's code shown in the app: 10% off a first bouquet from E£ 1,000 (the looks' coupon element). */
 export const FLOWER_COUPON = { code: "LEQAA10", percent: 10, minOrderCents: 1000_00 } as const;
 
-/** The collections, in the shop's order. */
-export const FLOWER_COLLECTIONS = ["Signature bouquets", "Roses", "In season", "Plants", "Gift sets", "Add-ons"] as const;
+/** The collections, in the shop's order; 162 the loose stems and the wraps Build your bouquet chooses from. */
+export const FLOWER_COLLECTIONS = ["Signature bouquets", "Roses", "In season", "Plants", "Gift sets", "Loose stems", "Wraps", "Add-ons"] as const;
 /** The occasions a bouquet suits, the shop's categories too. */
 export const FLOWER_OCCASIONS = ["Love", "Birthday", "Sympathy", "New baby", "Congratulations"] as const;
 export const FLOWER_CATEGORIES: readonly string[] = [...FLOWER_COLLECTIONS, ...FLOWER_OCCASIONS];
@@ -79,7 +81,16 @@ export interface FlowerProduct {
   sizes?: { deluxe: number; grand: number };
   /** 131 A gift add-on (a vase, chocolates, a card): offered as "Add a little more" with every bouquet, never listed on its own. */
   addon?: boolean;
+  /** 162 An add-on offered only with this collection's products (a wrap with the loose stems); missing: with every product. */
+  addonWith?: (typeof FLOWER_COLLECTIONS)[number];
 }
+
+/**
+ * 162 Build your bouquet on the demo: the loose stems are the flowers
+ * (from 3 to 36 a bouquet), the two papers its wraps (one of them always),
+ * the greeting card its card (which may be left out), by SKU and name.
+ */
+export const FLOWER_BOUQUET = { flowers: "Loose stems", wraps: ["LQ-401", "LQ-402"], cards: ["LQ-203"], wrapOptional: false, cardOptional: true, minStems: 3, maxStems: 36 } as const;
 
 /** A bouquet's three sizes, by how many stems it has. */
 export const FLOWER_SIZES = ["Classic · 12 stems", "Deluxe · 24 stems", "Grand · 36 stems"] as const;
@@ -222,6 +233,89 @@ export const FLOWER_PRODUCTS: readonly FlowerProduct[] = [
     photo: "garden-jug",
     featured: true,
     description: "Pink and white blooms in an enamel jug with a hand-written tag, ready to give: no vase needed.",
+  },
+  // 162 The loose stems Build your bouquet chooses from, one stem each.
+  {
+    sku: "LQ-301",
+    name: "Red Rose",
+    collection: "Loose stems",
+    occasions: ["Love"],
+    priceCents: 45_00,
+    salePriceCents: null,
+    photo: "red-rose",
+    featured: false,
+    description: "One long-stemmed deep red rose, priced by the stem.",
+  },
+  {
+    sku: "LQ-302",
+    name: "Blush Ranunculus",
+    collection: "Loose stems",
+    occasions: ["Love", "Congratulations"],
+    priceCents: 55_00,
+    salePriceCents: null,
+    photo: "ranunculus",
+    featured: false,
+    description: "A soft pink ranunculus that opens into a cloud of petals, priced by the stem.",
+  },
+  {
+    sku: "LQ-303",
+    name: "White Lily",
+    collection: "Loose stems",
+    occasions: ["Sympathy"],
+    priceCents: 60_00,
+    salePriceCents: null,
+    photo: "white-lilies",
+    featured: false,
+    description: "A white lily with its buds still to open, priced by the stem.",
+  },
+  {
+    sku: "LQ-304",
+    name: "Sunflower",
+    collection: "Loose stems",
+    occasions: ["Birthday", "Congratulations"],
+    priceCents: 40_00,
+    salePriceCents: null,
+    photo: "sunflowers",
+    featured: false,
+    description: "A bright sunflower, priced by the stem.",
+  },
+  {
+    sku: "LQ-305",
+    name: "Baby's Breath",
+    collection: "Loose stems",
+    occasions: ["New baby"],
+    priceCents: 25_00,
+    salePriceCents: null,
+    photo: "baby-breath",
+    featured: false,
+    description: "A spray of baby's breath to fill the bouquet, priced by the stem.",
+  },
+  // 162 The wraps: add-ons offered only with the loose stems.
+  {
+    sku: "LQ-401",
+    name: "Kraft Paper Wrap",
+    collection: "Wraps",
+    occasions: [],
+    priceCents: 60_00,
+    salePriceCents: null,
+    photo: "stems",
+    featured: false,
+    addon: true,
+    addonWith: "Loose stems",
+    description: "Natural kraft paper tied with twine.",
+  },
+  {
+    sku: "LQ-402",
+    name: "Blush Paper Wrap",
+    collection: "Wraps",
+    occasions: [],
+    priceCents: 90_00,
+    salePriceCents: null,
+    photo: "tulips",
+    featured: false,
+    addon: true,
+    addonWith: "Loose stems",
+    description: "Our blush paper in soft layers, with a silk ribbon.",
   },
   {
     sku: "LQ-201",

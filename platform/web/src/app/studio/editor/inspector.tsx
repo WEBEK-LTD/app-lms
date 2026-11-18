@@ -3,6 +3,7 @@
 import { HeaderStyleControls, SystemLookControl } from "./premium-chrome-controls";
 import type { SystemLook } from "@/lib/studio/premium-chrome";
 
+import Link from "next/link";
 import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { FontPicker } from "@/components/font-picker";
@@ -38,6 +39,7 @@ import {
   TAB_LABELS,
   type Action,
   type ItemSource,
+  type ItemsQuery,
   type LanguageCode,
   type LayoutTab,
   type StudioHeader,
@@ -59,6 +61,9 @@ import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
 import { followStyle } from "@/lib/studio/text-styles";
 import { SCRIM_DEFAULT } from "@/lib/studio/scrim";
+import { automaticSize, sizedByHand } from "@/lib/studio/auto-size";
+import { forTablet } from "@/lib/studio/tablet";
+import { mapTree } from "@/lib/studio/tree";
 import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
 import { CoverControls, TrackingControls } from "./cover-controls";
@@ -69,6 +74,8 @@ import { BannerControls, BeforeAfterControls, GalleryControls, IndicatorLookCont
 // 129.11–129.20 The premium elements' options and lists, and a layout's premium card style.
 import { PremiumControls, SurfaceControls } from "./premium-controls";
 import { CommerceControls } from "./commerce-controls";
+import { CategoryListNote } from "./category-list-note";
+import { fromDashboard, isStoryElement, StoriesSourceControls } from "./stories-source-controls";
 import { Glyph } from "./shared";
 
 /**
@@ -92,6 +99,10 @@ interface Props {
   tab: InspectorTab;
   onTab: (tab: InspectorTab) => void;
   onChange: (patch: Partial<StudioNode>) => void;
+  /** 159 A change of the width or height of an element of automatic size: the editor asks first, then makes it. */
+  onAskByHand: (patch: Partial<StudioNode>) => void;
+  /** 159 The selected element back to its automatic size. */
+  onBackToAuto: () => void;
   onHeader: (header: StudioHeader | null) => void;
   onPage: (patch: Partial<StudioPage>) => void;
   onCopy: () => void;
@@ -167,6 +178,7 @@ export function Inspector(props: Props) {
         ) : null}
       </div>
       {node && !props.headerSelected ? <Tools {...props} node={node} /> : null}
+      {node && !props.headerSelected ? <CategoryListNote node={node} body={props.page.body} pickable={props.pickable} /> : null}
       {props.tabsSelected ? (
         <TabsPanel {...props} />
       ) : props.headerSelected ? (
@@ -381,6 +393,26 @@ function SizeControl({ label, value, onChange }: { label: string; value: StudioS
   );
 }
 
+/** 159 Whether the element's size is automatic or set by hand, and the way back to automatic. */
+function SizeMode({ byHand, onBackToAuto }: { byHand: boolean; onBackToAuto: () => void }) {
+  const t = useDashT();
+  return (
+    <div role="note" className="flex flex-col gap-1.5 rounded-lg p-2.5 text-xs" style={{ background: byHand ? "var(--sf-soft)" : "var(--sf-select-fill)", color: "var(--sf-ink)" }} data-studio-size-mode={byHand ? "hand" : "auto"}>
+      <span className="flex items-center gap-1.5 font-bold">
+        <Glyph name={byHand ? "pan_tool" : "auto_awesome"} size={16} />
+        {t(byHand ? "studio.sizeByHand" : "studio.sizeAuto")}
+      </span>
+      <span style={{ color: "var(--sf-muted)" }}>{t(byHand ? "studio.sizeByHandHint" : "studio.sizeAutoHint")}</span>
+      {byHand ? (
+        <button type="button" onClick={onBackToAuto} className="flex h-8 items-center justify-center gap-1.5 rounded-md text-[13px] font-semibold" style={{ border: "1px solid var(--sf-line)", background: "var(--sf-surface)", color: "var(--sf-ink)" }}>
+          <Glyph name="auto_awesome" size={16} />
+          {t("studio.backToAuto")}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 function Check({ label, checked, onChange }: { label: string; checked: boolean; onChange: (on: boolean) => void }) {
   return (
     <label className="flex items-center gap-1">
@@ -461,15 +493,24 @@ export function TapAction({ id, action, onChange, pages, sources, screens, picka
   // 152 A store's entries are its products.
   const onlyProducts = entrySources.length === 1 && entrySources[0] === "products";
   const product = action?.type === "item" && action.item?.source === "products";
-  const value = !action ? "none" : action.type === "screen" ? `screen:${action.screen ?? ""}` : action.type === "page" ? `page:${action.page_slug ?? ""}` : action.type;
+  // 157 The shop opened at one of its categories (a tile's, a ring's, a chip's).
+  const categories = sources.includes("products") ? (pickable.categories.products ?? []) : [];
+  const atCategory = action?.type === "screen" && action.screen === "search" && action.category_id !== undefined && action.category_id !== null;
+  // 162 Build your bouquet (a store's): its shop until the store sets it up.
+  const value = !action ? "none" : action.type === "screen" && action.flow === "bouquet" ? "flow:bouquet" : atCategory ? "category" : action.type === "screen" ? `screen:${action.screen ?? ""}` : action.type === "page" ? `page:${action.page_slug ?? ""}` : action.type;
+  const bouquet = pickable.commerce !== undefined && screens.some((s) => s.value === "search");
   const opens = (target: string) => t("studio.opens", { target });
-  const icon = !action ? "touch_app" : action.type === "screen" ? "apps" : action.type === "page" ? "description" : action.type === "url" ? "link" : action.type === "course" ? "school" : product ? "shopping_bag" : "category";
+  const icon = !action ? "touch_app" : value === "flow:bouquet" ? "local_florist" : action.type === "screen" ? "apps" : action.type === "page" ? "description" : action.type === "url" ? "link" : action.type === "course" ? "school" : action.type === "sign_out" ? "logout" : product ? "shopping_bag" : "category";
   const choose = (v: string) => {
     if (v === "none") onChange(null);
+    else if (v === "flow:bouquet") onChange({ type: "screen", screen: "search", flow: "bouquet" });
     else if (v.startsWith("screen:")) onChange({ type: "screen", screen: v.slice(7) as Action["screen"] });
     else if (v.startsWith("page:")) onChange({ type: "page", page_slug: v.slice(5) });
     else if (v === "url") onChange({ type: "url", url: "", open_in: "in_app" });
+    // 167 Sign out.
+    else if (v === "sign_out") onChange({ type: "sign_out" });
     else if (v === "course") onChange({ type: "course", course_id: Number(pickable.items.courses?.[0]?.id ?? 0) || null });
+    else if (v === "category") onChange({ type: "screen", screen: "search", category_id: categories[0]?.id ?? "" });
     else onChange({ type: "item", item: { source: entrySources[0] ?? "products", id: "" } });
   };
   const field = "h-[34px] w-full rounded-lg bg-white px-2.5 text-[13px]";
@@ -494,6 +535,7 @@ export function TapAction({ id, action, onChange, pages, sources, screens, picka
                   {opens(known(s.label))}
                 </option>
               ))}
+            {bouquet || value === "flow:bouquet" ? <option value="flow:bouquet">{opens(t("studio.tapBouquet"))}</option> : null}
           </optgroup>
           {pages.length ? (
             <optgroup label={t("studio.tapPage")}>
@@ -505,11 +547,23 @@ export function TapAction({ id, action, onChange, pages, sources, screens, picka
             </optgroup>
           ) : null}
           <option value="url">{opens(t("studio.tapLink"))}</option>
+          {sources.includes("products") ? <option value="category">{opens(t("studio.tapCategory"))}</option> : null}
           {entrySources.length || action?.type === "item" ? <option value="item">{opens(t(onlyProducts || product ? "studio.tapProduct" : "studio.tapItem"))}</option> : null}
           {sources.includes("courses") || action?.type === "course" ? <option value="course">{opens(t("studio.tapCourse"))}</option> : null}
+          {/* 167 Studio's Sign out element. */}
+          <option value="sign_out">{t("studio.tapSignOut")}</option>
         </select>
         <Chevron />
       </label>
+      {/* 162 Until the store sets Build your bouquet up, it opens the shop: where to set it up. */}
+      {value === "flow:bouquet" && !pickable.commerce?.bouquet ? (
+        <p role="status" className="m-0 text-xs leading-relaxed" style={{ color: "var(--sf-muted)" }} data-bouquet-hint="">
+          {t("studio.bouquetNotSet")}{" "}
+          <Link href="/studio/project/selling?tab=bouquet" className="font-semibold underline">
+            {t("studio.bouquetSetUp")}
+          </Link>
+        </p>
+      ) : null}
       {action?.type === "url" ? (
         <>
           <input dir="ltr" type="url" aria-label={t("studio.tapLink")} placeholder="https://" value={action.url ?? ""} onChange={(e) => onChange({ ...action, url: e.target.value })} className={field} style={line} />
@@ -543,6 +597,21 @@ export function TapAction({ id, action, onChange, pages, sources, screens, picka
             <input dir="ltr" aria-label={t("studio.entryId")} placeholder={t("studio.entryId")} value={action.item.id} onChange={(e) => onChange({ type: "item", item: { ...action.item!, id: e.target.value.trim() } })} className={`${field} ${entrySources.length > 1 ? "" : "col-span-2"}`} style={line} />
           )}
         </div>
+      ) : null}
+      {atCategory ? (
+        categories.length ? (
+          <select aria-label={t("studio.tapCategory")} value={action.category_id ?? ""} onChange={(e) => onChange({ type: "screen", screen: "search", category_id: e.target.value })} className={field} style={line}>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
+            {t("studio.noCategoriesYet")}
+          </span>
+        )
       ) : null}
       {product ? (
         <p data-product-link-hint className="m-0 flex items-start gap-1.5 text-xs" style={{ color: "var(--sf-muted)" }}>
@@ -646,6 +715,10 @@ function DesignTab(props: Props & { node: StudioNode }) {
   const titled = holder?.type === "accordion" || holder?.type === "tabs";
   // 112.4 A list of what was seen lately has its own title, hidden with it.
   const listTitled = (node.type === "items" && (node.recent || !!node.title)) || node.type === "market";
+  // 159 Its size is automatic (as the canvas draws it) until the owner says to change it by hand.
+  const byHand = sizedByHand(node);
+  const sized = byHand ? { width: node.width, height: node.height } : automaticSize(props.tablet ? (mapTree(props.page.body, forTablet) ?? props.page.body) : props.page.body, node.id);
+  const resize = (patch: Partial<StudioNode>) => (byHand ? onChange(patch) : props.onAskByHand(patch));
   return (
     <>
       {props.tablet ? (
@@ -805,7 +878,10 @@ function DesignTab(props: Props & { node: StudioNode }) {
       ) : null}
       {node.type === "tracking" ? <TrackingControls node={node} onChange={onChange} /> : null}
       {/* 129 Premium motion & media. */}
-      {node.type === "stories" ? <StoriesControls {...premiumProps(props, node)} /> : null}
+      {/* 165 Where a story element's stories come from: Dashboard › Stories, or as designed here. */}
+      {isStoryElement(node, props.page.body) ? <StoriesSourceControls node={node} body={props.page.body} pickable={props.pickable} onChange={onChange} /> : null}
+      {/* 165 The rings' own stories while they follow this design: from Dashboard › Stories only once saved there. */}
+      {node.type === "stories" && (!fromDashboard(node, props.page.body) || !props.pickable.storiesSaved) ? <StoriesControls {...premiumProps(props, node)} /> : null}
       {node.type === "marquee" ? <MarqueeControls {...premiumProps(props, node)} /> : null}
       {node.type === "video_hero" || node.type === "parallax_banner" ? <BannerControls {...premiumProps(props, node)} /> : null}
       {node.type === "gallery" ? <GalleryControls {...premiumProps(props, node)} /> : null}
@@ -856,9 +932,10 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {textual || node.type === "image" || node.type === "icon" || node.type === "video" || node.type === "map" || node.type === "form" || node.type === "slider" || node.type === "ratings" || node.type === "coupon" || holder?.type === "stack" ? <Rule /> : null}
 
       <Heading>{t("studio.sizePlace")}</Heading>
+      <SizeMode byHand={byHand} onBackToAuto={props.onBackToAuto} />
       <div className="grid grid-cols-2 gap-2">
-        <SizeControl label={t("studio.width")} value={node.width} onChange={(width) => onChange({ width })} />
-        <SizeControl label={t("studio.height")} value={node.height} onChange={(height) => onChange({ height })} />
+        <SizeControl label={t("studio.width")} value={sized.width} onChange={(width) => resize({ width })} />
+        <SizeControl label={t("studio.height")} value={sized.height} onChange={(height) => resize({ height })} />
         <SidesField label={t("studio.paddingInside")} value={node.padding} onChange={(padding) => onChange({ padding })} />
         <SidesField label={t("studio.marginOutside")} value={node.margin} onChange={(margin) => onChange({ margin })} />
         {layout ? (
@@ -1218,6 +1295,8 @@ function premiumProps(props: Props, node: StudioNode): PremiumControlsProps {
     lang: props.lang,
     defaultLang: props.defaultLang,
     link: (id, action, onChange) => <TapAction id={id} action={action} onChange={onChange} pages={props.pages} sources={props.sources} screens={props.screens} pickable={props.pickable} />,
+    // 161 A shop's stories open the shop without a link.
+    shop: props.sources.includes("products"),
   };
 }
 
@@ -1343,6 +1422,16 @@ function SlidesControl({ node, onChange }: { node: StudioNode; onChange: (patch:
   );
 }
 
+/** 164 What a list of products shows, read from its query. */
+const LIST_SHOWS = ["featured", "category", "collection", "best", "newest"] as const;
+type ListShows = (typeof LIST_SHOWS)[number];
+function listShows(q: Pick<ItemsQuery, "featured" | "category_id" | "ids" | "sort">): ListShows {
+  if (q.ids.length) return "collection";
+  if (q.featured) return "featured";
+  if (q.category_id) return "category";
+  return q.sort === "popular" ? "best" : "newest";
+}
+
 function DataTab(props: Props & { node: StudioNode }) {
   const t = useDashT();
   const { node, onChange } = props;
@@ -1350,6 +1439,20 @@ function DataTab(props: Props & { node: StudioNode }) {
     const q = node.query ?? { limit: 4, category_id: null, featured: false, sort: "newest" as const, ids: [] };
     const cats = (node.source ? props.pickable.categories[node.source] : undefined) ?? [];
     const sortKey: Record<string, string> = { newest: "sortNewest", popular: "sortPopular", price_asc: "sortPriceLow", price_desc: "sortPriceHigh", title: "sortTitle" };
+    // 164 What a list of products shows: featured products, a category, a collection picked by hand, the best sellers or the newest.
+    const products = node.source === "products" && !node.recent;
+    const shows = listShows(q);
+    const picks = props.pickable.items.products ?? [];
+    const showAs = (v: ListShows) =>
+      onChange({
+        query: {
+          ...q,
+          featured: v === "featured",
+          category_id: v === "category" ? (q.category_id ?? cats[0]?.id ?? null) : null,
+          ids: v === "collection" ? (q.ids.length ? q.ids : picks.slice(0, Math.min(q.limit, 4)).map((e) => e.id)) : [],
+          sort: v === "best" ? "popular" : v === "newest" ? "newest" : q.sort,
+        },
+      });
     return (
       <>
         <label className="flex flex-col gap-1 font-bold">
@@ -1365,7 +1468,27 @@ function DataTab(props: Props & { node: StudioNode }) {
         <Segments label={t("studio.dataLayout")} value={node.layout ?? "grid"} onChange={(layout) => onChange({ layout })} options={[{ value: "grid", label: t("studio.layoutGrid") }, { value: "list", label: t("studio.layoutList") }, { value: "carousel", label: t("studio.layoutCarousel") }]} />
         {/* 131 How the cards show a product's sale. */}
         <CommerceControls node={node} onChange={onChange} pickable={props.pickable} />
+        {products ? (
+          <label className="flex flex-col gap-1 font-bold">
+            {t("studio.listShows")}
+            <select value={shows} onChange={(e) => showAs(e.target.value as ListShows)} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
+              {LIST_SHOWS.map((v) => (
+                <option key={v} value={v} disabled={(v === "category" && !cats.length) || (v === "collection" && !picks.length)}>
+                  {t(v === "collection" && q.limit === 1 ? "studio.listShows_product" : (`studio.listShows_${v}` as DashKey))}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        {products && shows === "collection" ? (
+          <div className="flex flex-col gap-1">
+            {picks.map((e) => (
+              <Check key={e.id} label={e.title} checked={q.ids.includes(e.id)} onChange={(on) => onChange({ query: { ...q, ids: on ? (q.limit === 1 ? [e.id] : [...q.ids, e.id].slice(0, 30)) : q.ids.filter((i) => i !== e.id) } })} />
+            ))}
+          </div>
+        ) : null}
         <RangeField label={t("studio.howMany")} value={q.limit} min={1} max={30} unit={t("studio.unitItems")} onChange={(limit) => onChange({ query: { ...q, limit } })} />
+        {products && (shows === "best" || shows === "newest" || shows === "collection") ? null : (
         <label className="flex items-center justify-between gap-2">
           {t("studio.sort")}
           <select value={q.sort} onChange={(e) => onChange({ query: { ...q, sort: e.target.value as typeof q.sort } })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--sf-line)" }}>
@@ -1376,7 +1499,8 @@ function DataTab(props: Props & { node: StudioNode }) {
             ))}
           </select>
         </label>
-        {cats.length ? (
+        )}
+        {cats.length && (!products || shows === "category") ? (
           <label className="flex items-center justify-between gap-2">
             {t("studio.category")}
             <select value={q.category_id ?? ""} onChange={(e) => onChange({ query: { ...q, category_id: e.target.value || null } })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--sf-line)" }}>
@@ -1389,7 +1513,7 @@ function DataTab(props: Props & { node: StudioNode }) {
             </select>
           </label>
         ) : null}
-        <Check label={t("studio.onlyFeatured")} checked={q.featured} onChange={(featured) => onChange({ query: { ...q, featured } })} />
+        {products ? null : <Check label={t("studio.onlyFeatured")} checked={q.featured} onChange={(featured) => onChange({ query: { ...q, featured } })} />}
         {node.source === "products" ? (
           <>
             <Check label={t("studio.onlyOnSale")} checked={q.on_sale === true} onChange={(on) => onChange({ query: { ...q, on_sale: on || undefined } })} />
@@ -1398,7 +1522,11 @@ function DataTab(props: Props & { node: StudioNode }) {
               <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
                 {t("studio.recentHint")}
               </span>
-            ) : null}
+            ) : (
+              <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
+                {t(q.on_sale ? "studio.listShowsSaleHint" : "studio.listShowsHint")}
+              </span>
+            )}
           </>
         ) : null}
         <Rule />

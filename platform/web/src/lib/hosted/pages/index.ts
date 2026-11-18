@@ -1,18 +1,27 @@
 import { allNodes, mapTreeAsync } from "../../studio/tree";
+import { showsShopCategories, withShopCategoriesIn, type ShopCategories } from "../../studio/shop-categories";
+import { autoSized } from "../../studio/auto-size";
 import { ENGINES, isAppType } from "../../app/kinds";
 import type { App, HostedUser } from "../../data/types";
 import { isSamplePlace } from "../../pages/designs/build";
 import { servedLayout } from "../../pages/layout";
 import { etagValues } from "../../pages/plugin";
-import { itemSourcesFor, sameScreenAs } from "../../pages/sources";
+import { appOpensScreen, itemSourcesFor, sameScreenAs } from "../../pages/sources";
 import { moreTab, splitTabs } from "../../pages/tab-bar";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
 import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, type Action, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type Translations, type StudioPage } from "../../pages/types";
+import { centsToDecimal, formatCents } from "../../catalog/money";
+import { addDisplayPrices, DISPLAY_CONNECTORS, Shown, type DisplayCurrency } from "../../money/display";
 import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
 import { itemResolver, type Item } from "./items";
+import { sha256Hex } from "../../crypto/tokens";
+import { readShopCategories } from "./shop-categories";
+import { listHeadings, productFallbacks, withListHeadings, withSampleProduct } from "./lists";
 import "./sources";
+import { dashboardStoriesSaved, ensureStoriesSeeded, servedStories } from "../../stories";
+import { dashboardStoryElements, withServedStories, type ServedStory, type StoryElementKind } from "../../stories/elements";
 
 /**
  * GET /pages and GET /pages/{slug} on the hosted API (roadmap 10.6): the
@@ -31,9 +40,16 @@ interface PageContext {
   platform: "android" | "ios";
   lang: LanguageCode;
   layout: Layout;
+  /** 161 The customer's currency the app asked for (and the owner allows), with the day's rates; null: the shop's prices only. */
+  display: DisplayCurrency | null;
 }
 
-export async function handlePages(ctx: HostedContext, req: HostedRequest, user: HostedUser | null): Promise<HostedResult | null> {
+/**
+ * `display`: 161 the customer's currency the app asked for, when the owner
+ * allows it (lib/hosted/service.ts `displayOf`), read only for a page: its
+ * lists' prices come in it too, as the shop's own answers do.
+ */
+export async function handlePages(ctx: HostedContext, req: HostedRequest, user: HostedUser | null, display?: () => Promise<DisplayCurrency | null>): Promise<HostedResult | null> {
   if (req.method !== "GET" || req.path[0] !== "pages" || req.path.length > 2) return null;
   const platform = req.query.get("platform");
   if (platform !== "android" && platform !== "ios") return { status: 400, body: { code: "invalid_request", message: "Unknown platform." } };
@@ -42,10 +58,10 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
   // 17 A draft preview gets the Pages & look draft.
   const layout = await servedLayout(ctx.store, ctx.app, ctx.plan ?? null, { draft: Boolean(ctx.preview?.draft), now: ctx.now });
   const lang = pickLanguage(req.headers?.get("accept-language"), layout.languages);
-  if (slug === undefined) return navigation(layout, lang, req, ctx.app);
+  if (slug === undefined) return navigation(layout, lang, req, ctx.app, await categoriesMark({ ctx, user, platform, lang, layout, display: null }));
   const page = layout.pages.find((p) => p.slug === slug);
   if (!page) return { status: 404, body: { code: "not_found", message: "This page doesn't exist." }, headers: VARY };
-  const pc: PageContext = { ctx, user, platform, lang, layout };
+  const pc: PageContext = { ctx, user, platform, lang, layout, display: display ? await display() : null };
   const blocks: unknown[] = [];
   for (const block of page.blocks) {
     const resolved = await resolveBlock(pc, block);
@@ -77,11 +93,30 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
  * categories element like the categories block, without their queries, and
  * left out when their source can't be served.
  */
-async function servedStudio(pc: PageContext, studio: StudioPage): Promise<StudioPage> {
+async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPage> {
   const def = pc.layout.languages.default;
+  // 164 The template's sample bouquet in an app made before: one of the shop's products.
+  const studio: StudioPage = { ...page, body: withSampleProduct(page.body) };
   // 152 The products the elements open that the shop no longer has.
   const gone = await goneProducts(pc, studio);
-  const body = await mapTreeAsync(studio.body, async (node) => {
+  // 157 A template's lists of the shop's categories follow them, read from the layout's own words before any translation.
+  const listed = await withCategoryLists(pc, studio.body);
+  // 165 The story elements whose stories come from Dashboard › Stories (copied there from the design the first time), once
+  // the owner has saved them there; until then they follow the Studio design, the owner's edits there included.
+  const fromDashboard = dashboardStoryElements(studio.body);
+  const saved = fromDashboard.length > 0 && (await dashboardStoriesSaved(pc.ctx.store, pc.ctx.app));
+  // Copied there the first time all the same, so Dashboard › Stories starts from what the app shows.
+  if (fromDashboard.length > 0 && !saved) await ensureStoriesSeeded(pc.ctx.store, pc.ctx.app, pc.ctx.now);
+  const storyElements = new Map<string, StoryElementKind>(saved ? fromDashboard.map((e) => [e.node.id, e.kind]) : []);
+  let stories: ServedStory[] | null = null;
+  const dashboardStories = async () => {
+    if (stories) return stories;
+    await ensureStoriesSeeded(pc.ctx.store, pc.ctx.app, pc.ctx.now);
+    // 152 A story's button linked to a product, as every tap: no product chosen (or one the shop no longer has), the shop.
+    stories = servedStories(await pc.ctx.store.listAppStories(pc.ctx.app.id), pc.lang, def, pc.ctx.now).map((s) => ({ ...s, action: linkedProduct(pc, s.action, gone) }));
+    return stories;
+  };
+  const body = await mapTreeAsync(listed, async (node) => {
     // 107.2 A hidden element stays in the editor only.
     if (node.hidden) return null;
     const { query, translations: _t, ...texts } = translated(node, pc.lang, def);
@@ -95,10 +130,20 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
       const entries = shown[list] as { translations?: Translations }[] | undefined;
       if (entries) (shown as Record<string, unknown>)[list] = entries.map((entry) => (({ translations: _e, ...rest }) => (void _e, rest))(translated(entry, pc.lang, def) as { translations?: Translations }));
     }
+    // 165 Dashboard › Stories in the language asked for; left out while none is shown.
+    const storyKind = storyElements.get(node.id);
+    if (storyKind) return withServedStories(shown as StudioNode, storyKind, await dashboardStories());
+    // 161 A shop's stories: each one's Open opens its link, else the shop (never nothing, which left the customer on Home).
+    if (node.type === "stories" && Array.isArray(shown.slides) && pc.ctx.app.appType === "store") return { ...shown, slides: shown.slides.map((slide) => storyWithLink(pc, slide, gone)) } as StudioNode;
+    // 161 A plan's prices in the customer's currency too.
+    if (node.type === "pricing" && shown.entries) return { ...shown, entries: shown.entries.map((entry) => pricedEntry(entry, node.pricing?.currency ?? "TRY", pc.display)) } as StudioNode;
     // 112.4 What this person opened lately is kept on the phone: sent without entries.
     if (node.type === "items" && node.recent) return node.source === "products" && servable(pc.ctx.app, pc.ctx.connector, "products") ? ({ ...shown, items: [] } as StudioNode) : null;
     if (node.type === "items") {
-      const list = (await resolveBlock(pc, { id: node.id, type: "items", visibility: "everyone", title: null, source: node.source, layout: node.layout, query })) as { items?: unknown[] } | null;
+      const listed = (q: ItemsQuery | undefined) => resolveBlock(pc, { id: node.id, type: "items", visibility: "everyone", title: null, source: node.source, layout: node.layout, query: q }) as Promise<{ items?: unknown[] } | null>;
+      let list = await listed(query);
+      // 164 Nothing featured, in its category or of the products picked: the shop's best sellers, else its newest.
+      if (!list?.items && node.source === "products" && query) for (const next of productFallbacks(query)) if ((list = await listed(next))?.items) break;
       return list?.items ? ({ ...shown, items: list.items } as StudioNode) : null;
     }
     if (node.type === "categories") {
@@ -110,8 +155,46 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
     if (node.type === "coupon" && node.coupon?.bind === "public") return servedCoupon(pc, shown as StudioNode);
     return shown as StudioNode;
   });
+  // 157 and 165: the dashboard's stories still as the template made them follow the shop's categories too.
+  const served = body && stories ? await withCategoryLists(pc, body) : body;
   const header = studio.header ? (({ translations: _h, ...rest }) => (void _h, rest))(translated(studio.header, pc.lang, def)) : studio.header;
-  return { ...studio, ...(header !== undefined ? { header } : {}), body: body ?? studio.body };
+  // 159 At their automatic sizes, as Studio's canvas draws them, so apps already on phones draw them so too (a cover's
+  // top bar across the cover, its bag at the edge, whatever width a corner drag gave it before the owner was asked).
+  // 164 A list's title goes with it, and is marked so the app hides it with a list it hides (what was seen lately).
+  return { ...studio, ...(header !== undefined ? { header } : {}), body: autoSized(withListHeadings(served ?? studio.body, listHeadings(studio.body))) };
+}
+
+/**
+ * 157 A Studio page's body with the template's lists of the shop's
+ * categories (Leqaa's occasion rings, chips and ticker, its collections'
+ * bento, arches and cards) as the shop's categories make them, and each
+ * element named like a category opening it (lib/studio/shop-categories.ts);
+ * the shop's categories are read only for a page with one of those.
+ */
+async function withCategoryLists(pc: PageContext, body: StudioNode): Promise<StudioNode> {
+  if (!showsShopCategories(body)) return body;
+  return withShopCategoriesIn(body, await shopCategoriesOf(pc));
+}
+
+/**
+ * 157 What the published pages' lists of the shop's categories show, as a
+ * short mark for the pages' version (`Navigation.version`): an app back on
+ * screen asks for its pages again when the owner changed the shop's
+ * categories, as after a publish (145.1). Null when no page has such a list.
+ */
+async function categoriesMark(pc: PageContext): Promise<string | null> {
+  const lists = pc.layout.pages.some((page) => page.studio && showsShopCategories(page.studio.body));
+  if (!lists) return null;
+  // The pages' list never fails for it.
+  const shop = await shopCategoriesOf(pc).catch(() => null);
+  return shop ? sha256Hex(JSON.stringify(shop)).slice(0, 10) : null;
+}
+
+/** 157 The shop's categories for those lists (./shop-categories.ts); null without a shop. */
+async function shopCategoriesOf(pc: PageContext): Promise<ShopCategories | null> {
+  const { app, store, connector } = pc.ctx;
+  if (!connector || !servable(app, connector, "products")) return null;
+  return readShopCategories(app, store, connector, { platform: pc.platform, now: pc.ctx.now, lang: pc.lang, user: pc.user });
 }
 
 /** 152 A product's ID in the app API: a positive whole number. */
@@ -136,7 +219,8 @@ function productLink(action: Action | null | undefined): string | undefined {
 async function goneProducts(pc: PageContext, studio: StudioPage): Promise<Set<string>> {
   const connector = pc.ctx.connector;
   if (!connector || !itemSourcesFor(pc.ctx.app).includes("products")) return new Set();
-  const ids = [...new Set(allNodes(studio).map((n) => (n.hidden ? undefined : productLink(n.action))))].filter((id): id is string => id !== undefined && PRODUCT_ID.test(id)).slice(0, LINKED_PRODUCTS_CHECKED);
+  // 161 And the stories' own links.
+  const ids = [...new Set(allNodes(studio).flatMap((n) => (n.hidden ? [] : [productLink(n.action), ...(n.type === "stories" ? (n.slides ?? []).map((slide) => productLink(slide.action)) : [])])))].filter((id): id is string => id !== undefined && PRODUCT_ID.test(id)).slice(0, LINKED_PRODUCTS_CHECKED);
   const answers = await Promise.all(
     ids.map(async (id) => {
       try {
@@ -157,13 +241,49 @@ function linkedProduct(pc: PageContext, action: Action, gone: ReadonlySet<string
   return PRODUCT_ID.test(id) && !gone.has(id) ? action : SHOP;
 }
 
+/**
+ * 161 A shop's story as the app gets it: a story with a photo (its viewer
+ * has Open) whose link opens nothing in the app (none, a page not
+ * published, a screen the app doesn't have) opens the shop, so apps already
+ * in the stores follow it too. Its link otherwise, as the owner set it in
+ * Studio (or the dashboard); a tile without a photo keeps opening its
+ * stories.
+ */
+function storyWithLink<T extends { image_url?: string | null; action?: Action | null }>(pc: PageContext, slide: T, gone: ReadonlySet<string>): T {
+  if (!slide.image_url) return slide;
+  // 152 A story linked to one of the shop's products: the product, else the shop.
+  const action = slide.action ? linkedProduct(pc, slide.action, gone) : slide.action;
+  if (action !== slide.action) return { ...slide, action };
+  const opens =
+    action &&
+    (action.type === "page"
+      ? pc.layout.pages.some((p) => p.slug === action.page_slug)
+      : action.type === "screen"
+        ? Boolean(action.screen) && appOpensScreen(pc.ctx.app, action.screen!)
+        : true);
+  if (opens) return slide;
+  return appOpensScreen(pc.ctx.app, "search") ? { ...slide, action: SHOP } : slide;
+}
+
+/**
+ * 161 A pricing element's plan with its prices (cents of the element's
+ * currency) also in the customer's currency (`display`: `price` and
+ * `price_yearly` formatted, the rate and its day); as it is without one.
+ */
+export function pricedEntry<T extends { price?: number | null; price_yearly?: number | null }>(entry: T, currency: string, display: DisplayCurrency | null): T {
+  const shown = Shown.for(currency, display);
+  if (!shown || (typeof entry.price !== "number" && typeof entry.price_yearly !== "number")) return entry;
+  const text = (cents: number | null | undefined) => (typeof cents === "number" ? shown.formatted(cents) : null);
+  return { ...entry, display: { currency: shown.currency, price: text(entry.price), price_yearly: text(entry.price_yearly), rate: shown.rate, rate_date: shown.rateDate } };
+}
+
 /** 131 A store route of the app's connector (`GET /store/flash-sales`, `/store/products`, `/store/coupons`), or null. */
 async function storeRead(pc: PageContext, path: string[], query: Record<string, string>): Promise<Record<string, unknown> | null> {
   const connector = pc.ctx.connector;
   if (!connector) return null;
   try {
-    const result = await connector.handle({ method: "GET", path, query: new URLSearchParams({ platform: pc.platform, ...query }), body: null, user: pc.user, now: pc.ctx.now, lang: pc.lang });
-    return result?.status === 200 && result.body && typeof result.body === "object" ? (result.body as Record<string, unknown>) : null;
+    const result = await connector.handle({ method: "GET", path, query: new URLSearchParams({ platform: pc.platform, ...query }), body: null, user: pc.user, now: pc.ctx.now, lang: pc.lang, display: pc.display });
+    return result?.status === 200 && result.body && typeof result.body === "object" ? withDisplay(pc, result.body as Record<string, unknown>) : null;
   } catch (e) {
     if (e instanceof ConnectorError) return null;
     throw e;
@@ -182,7 +302,7 @@ async function servedFlashSale(pc: PageContext, node: StudioNode): Promise<Studi
   const live = sales.filter((s) => s.live === true);
   const sale = (node.flash_sale?.sale_id ? live.find((s) => s.id === node.flash_sale?.sale_id) : null) ?? live[0];
   if (sale) {
-    const items = ((sale.products as Record<string, unknown>[]) ?? []).map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null).slice(0, limit);
+    const items = shownItems(((sale.products as Record<string, unknown>[]) ?? []).map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null).slice(0, limit), pc.display, false);
     if (!items.length) return null;
     return {
       ...node,
@@ -203,7 +323,7 @@ async function servedFlashSale(pc: PageContext, node: StudioNode): Promise<Studi
   const onSale = (((await storeRead(pc, ["store", "products"], { on_sale: "true", per_page: String(limit) }))?.items as Record<string, unknown>[] | undefined) ?? []).filter((p) => p.sale);
   if (!onSale.length) return null;
   const ends = onSale.map((p) => (p.sale as { ends_at?: string | null }).ends_at).filter((e): e is string => typeof e === "string").sort()[0] ?? null;
-  const items = onSale.map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null);
+  const items = shownItems(onSale.map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null), pc.display, false);
   return { ...node, flash: { id: null, title: null, starts_at: null, ends_at: ends, percent_off: null, remaining: null, total: null }, items } as StudioNode;
 }
 
@@ -248,11 +368,12 @@ export function pageScreens(layout: Pick<Layout, "pages" | "tabs">, app: Pick<Ap
   return out;
 }
 
-function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest, app: Pick<App, "appType">): HostedResult {
+function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest, app: Pick<App, "appType">, mark: string | null = null): HostedResult {
   const def = layout.languages.default;
   // Each language is its own version, so an app that switches language gets
   // the new texts instead of a 304 (the plugin does the same).
-  const version = lang === def ? layout.version : `${layout.version}.${lang}`;
+  // 157 And the shop's categories a template's lists show, so an open app asks for its pages again when they change.
+  const version = `${lang === def ? layout.version : `${layout.version}.${lang}`}${mark ? `.c${mark}` : ""}`;
   const etag = `"${version}"`;
   if (etagValues(req.headers?.get("if-none-match") ?? null).includes(version)) {
     return { status: 304, headers: { ...VARY, etag } };
@@ -369,22 +490,76 @@ async function get(pc: PageContext, path: string[], params: Record<string, strin
   if (!ctx.connector) return null;
   const query = new URLSearchParams({ platform: pc.platform });
   for (const [key, value] of Object.entries(params)) if (value !== null && value !== undefined && value !== "") query.set(key, String(value));
-  const result = await ctx.connector.handle({ method: "GET", path, query, body: undefined, user: pc.user, now: ctx.now });
+  const result = await ctx.connector.handle({ method: "GET", path, query, body: undefined, user: pc.user, now: ctx.now, display: pc.display });
   if (!result || result.status !== 200 || !result.body || typeof result.body !== "object") return null;
-  return result.body as Record<string, unknown>;
+  return withDisplay(pc, result.body as Record<string, unknown>);
+}
+
+/**
+ * 161 A connector's answer with its prices also in the customer's currency
+ * (`display`), as the hosted API adds them to the app's own requests
+ * (lib/hosted/service.ts): only Yallapp's own prices, never a connected
+ * platform's.
+ */
+function withDisplay(pc: PageContext, body: Record<string, unknown>): Record<string, unknown> {
+  return DISPLAY_CONNECTORS.has(pc.ctx.app.connector?.kind ?? "") ? addDisplayPrices(body, pc.display) : body;
+}
+
+/**
+ * 161 A card's price as amounts and a currency (`ItemPrice`), beside its
+ * words (`price_label`, kept for older apps): what the app converts, with
+ * the same price in the customer's currency (`display`) when the source is
+ * Yallapp's own; a range's dearest end (`max_amount`). Nothing for a source
+ * price without an amount and a currency (a connected platform's free
+ * course).
+ */
+export function itemPrice(price: unknown): { price?: Record<string, unknown> } {
+  const p = (price ?? {}) as Record<string, unknown>;
+  if (typeof p.amount !== "string" || typeof p.currency !== "string" || typeof p.formatted !== "string") return {};
+  const keep = ["amount", "currency", "formatted", "range", "max_amount", "regular_amount", "regular_formatted", "on_sale", "display"];
+  return { price: Object.fromEntries(keep.filter((k) => p[k] !== undefined && p[k] !== null).map((k) => [k, p[k]])) };
+}
+
+/** 161 A free card's price: 0 in its currency, when the source says which; nothing otherwise. */
+function freePrice(price: unknown): { price?: Record<string, unknown> } {
+  const currency = (price as { currency?: unknown } | null | undefined)?.currency;
+  return typeof currency === "string" && /^[A-Z]{3}$/.test(currency) ? { price: { amount: centsToDecimal(0, currency), currency, formatted: formatCents(0, currency) } } : {};
+}
+
+/**
+ * 161 A list's cards with their prices also in the customer's currency:
+ * the platform's own lists (listings, events, hotels, bundles) converted
+ * here; each card's converted words (`price.display.label`: "From \$3.00",
+ * "\$1,200.00 / month") from its own.
+ */
+function shownItems(items: Item[], display: DisplayCurrency | null, own: boolean): Item[] {
+  return items.map((item) => {
+    if (!item.price) return item;
+    const price = own ? addDisplayPrices({ ...item.price }, display) : item.price;
+    const shown = price.display as Record<string, unknown> | undefined;
+    const label = item.price_label;
+    if (shown && typeof shown.formatted === "string" && typeof price.formatted === "string" && label && label.includes(price.formatted)) {
+      return { ...item, price: { ...price, display: { ...shown, label: label.replace(price.formatted, shown.formatted) } } };
+    }
+    return { ...item, price };
+  });
 }
 
 const list = (body: Record<string, unknown> | null): Record<string, unknown>[] =>
   Array.isArray(body?.items) ? (body.items as Record<string, unknown>[]).filter((i) => i && typeof i === "object") : [];
 
 async function listItems(pc: PageContext, source: ItemSource, query: ItemsQuery): Promise<Item[] | null> {
-  if (source === "courses") return listCourses(pc, query);
-  if (source === "products") return listProducts(pc, query);
-  if (source === "services") return listServices(pc, query);
+  // 161 The connector's own lists come converted when they are Yallapp's (`withDisplay`); a free card's 0 too.
+  const own = DISPLAY_CONNECTORS.has(pc.ctx.app.connector?.kind ?? "");
+  if (source === "courses") return shownItems(await listCourses(pc, query), pc.display, own);
+  if (source === "products") return shownItems(await listProducts(pc, query), pc.display, own);
+  if (source === "services") return shownItems(await listServices(pc, query), pc.display, own);
   if (source === "articles") return listArticles(pc, query);
   const resolver = itemResolver(source);
   if (!resolver) return null;
-  return resolver({ appId: pc.ctx.app.id, userId: pc.user ? String(pc.user.id) : null, lang: pc.lang, store: pc.ctx.store, now: pc.ctx.now }, query);
+  const items = await resolver({ appId: pc.ctx.app.id, userId: pc.user ? String(pc.user.id) : null, lang: pc.lang, store: pc.ctx.store, now: pc.ctx.now }, query);
+  // 161 The platform's own lists: converted here.
+  return shownItems(items, pc.display, true);
 }
 
 const str = (value: unknown): string | null => (typeof value === "string" && value ? value : null);
@@ -405,6 +580,8 @@ export function courseItem(course: Record<string, unknown>, lang: LanguageCode):
     // Display text only: there's never a purchase action in a list.
     // 38 In the app's language, like every word on a card.
     price_label: price.is_free ? itemWords(lang).free : str(price.formatted),
+    // 161 As amounts and a currency, also in the customer's (a free one: 0, its words "Free").
+    ...(price.is_free ? freePrice(price) : itemPrice(price)),
     badge: null,
     // 128.8 Its rating, for a card's `rating` element.
     rating: typeof course.rating === "number" && course.rating > 0 ? Math.round(course.rating * 10) / 10 : null,
@@ -444,6 +621,8 @@ function productItem(product: Record<string, unknown>, lang: LanguageCode): Item
     subtitle: null,
     image_url: str(product.image_url),
     price_label: str(price.formatted),
+    // 161 As amounts and a currency, also in the customer's (its `sale` too: `sale.display`).
+    ...itemPrice(price),
     badge: product.stock_status === "out_of_stock" ? itemWords(lang).outOfStock : price.on_sale ? itemWords(lang).sale : null,
     // 131 Its sale, for the cards' sale badge, the `sale` and `was_price` elements and the flash sale.
     ...(product.sale && typeof product.sale === "object" ? { sale: product.sale as Record<string, unknown> } : {}),
@@ -483,6 +662,8 @@ function serviceItem(service: Record<string, unknown>, lang: LanguageCode): Item
     subtitle: Number.isInteger(minutes) && minutes > 0 ? durationLabel(minutes, lang) : null,
     image_url: str(service.image_url),
     price_label: price.free ? itemWords(lang).free : str(price.formatted),
+    // 161 As amounts and a currency, also in the customer's (a free one too: 0, its words "Free").
+    ...itemPrice(price),
     badge: null,
     action: { type: "item", item: { source: "services", id: String(id) } },
   };

@@ -97,49 +97,54 @@ final webFilePickerProvider = Provider<WebFilePicker>(
 /// 124.14 How a page of the app answers its file fields (an identity check's
 /// "Upload a document" or "Take a photo"): the camera, the photos or the
 /// files, chosen in a sheet when there is more than one way.
-WebFileHandler pageFileChooser(BuildContext context, WidgetRef ref) =>
-    (ask) async {
-      final sources = webFileSources(ask);
-      WebFileSource? source = sources.length == 1 ? sources.single : null;
-      if (source == null) {
-        if (!context.mounted) return const [];
-        final l10n = context.l10n;
-        source = await showModalBottomSheet<WebFileSource>(
-          context: context,
-          useRootNavigator: true,
-          builder: (sheet) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final s in sources)
-                  ListTile(
-                    key: ValueKey('web-file-${s.name}'),
-                    leading: Icon(switch (s) {
-                      WebFileSource.camera => Symbols.photo_camera_rounded,
-                      WebFileSource.video => Symbols.videocam_rounded,
-                      WebFileSource.gallery => Symbols.photo_library_rounded,
-                      WebFileSource.file => Symbols.description_rounded,
-                    }),
-                    title: Text(switch (s) {
-                      WebFileSource.camera => l10n.chatTakePhoto,
-                      WebFileSource.video => l10n.chatRecordVideo,
-                      WebFileSource.gallery => l10n.chatGallery,
-                      WebFileSource.file => l10n.chatChooseFile,
-                    }),
-                    onTap: () => Navigator.of(sheet).pop(s),
-                  ),
-              ],
-            ),
+WebFileHandler pageFileChooser(
+  BuildContext context,
+  WidgetRef ref,
+) => (ask) async {
+  final sources = webFileSources(ask);
+  WebFileSource? source = sources.length == 1 ? sources.single : null;
+  if (source == null) {
+    if (!context.mounted) return const [];
+    final l10n = context.l10n;
+    source = await showModalBottomSheet<WebFileSource>(
+      context: context,
+      useRootNavigator: true,
+      builder: (sheet) => SafeArea(
+        child: SingleChildScrollView(
+          // 158 Every choice in reach on a short phone or with a large font.
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final s in sources)
+                ListTile(
+                  key: ValueKey('web-file-${s.name}'),
+                  leading: Icon(switch (s) {
+                    WebFileSource.camera => Symbols.photo_camera_rounded,
+                    WebFileSource.video => Symbols.videocam_rounded,
+                    WebFileSource.gallery => Symbols.photo_library_rounded,
+                    WebFileSource.file => Symbols.description_rounded,
+                  }),
+                  title: Text(switch (s) {
+                    WebFileSource.camera => l10n.chatTakePhoto,
+                    WebFileSource.video => l10n.chatRecordVideo,
+                    WebFileSource.gallery => l10n.chatGallery,
+                    WebFileSource.file => l10n.chatChooseFile,
+                  }),
+                  onTap: () => Navigator.of(sheet).pop(s),
+                ),
+            ],
           ),
-        );
-      }
-      if (source == null) return const [];
-      try {
-        final paths = await ref
-            .read(webFilePickerProvider)
-            .pick(source, multiple: ask.multiple);
-        return [for (final p in paths) Uri.file(p).toString()];
-      } catch (_) {
-        return const [];
-      }
-    };
+        ),
+      ),
+    );
+  }
+  if (source == null) return const [];
+  try {
+    final paths = await ref
+        .read(webFilePickerProvider)
+        .pick(source, multiple: ask.multiple);
+    return [for (final p in paths) Uri.file(p).toString()];
+  } catch (_) {
+    return const [];
+  }
+};

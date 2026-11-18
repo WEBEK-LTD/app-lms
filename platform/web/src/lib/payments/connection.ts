@@ -9,6 +9,8 @@ import { PROVIDER_NAME, providerTakes, takenCurrencies, type PaymentAccount, typ
 import { centsToDecimal } from "../catalog/money";
 import { listStripeWebhookEndpoints, probeStripeCheckout, readStripeAccount, scrubStripeText, StripeError, stripeMinimumCents, stripeTestPayment, type StripeProbe } from "./stripe";
 import { STRIPE_WEBHOOK_EVENTS, stripeKeysProblem, validStripeWebhookSecret } from "./stripe-keys";
+import { checkWalletDomain } from "./wallets";
+import type { StripeWallets } from "../data/types";
 
 /**
  * 132.34 "Test connection" on the owner's payments page: each gateway's
@@ -20,7 +22,9 @@ import { STRIPE_WEBHOOK_EVENTS, stripeKeysProblem, validStripeWebhookSecret } fr
  *   which a restricted key needs), the webhook endpoint for this app
  *   (GET /v1/webhook_endpoints) and the signing secret's shape; with test
  *   keys only, and only when asked, a 0.50 USD PaymentIntent cancelled at
- *   once.
+ *   once. 155 Given the payment page's domain, it's registered for Apple Pay
+ *   and Google Pay in the account (lib/payments/wallets.ts), the one thing
+ *   the test may add to it: once, and only what Stripe asks for its form.
  * - PayPal: an OAuth token (POST /v1/oauth2/token) from sandbox or live.
  * - Kashier: the merchant (GET /merchant) with the secret key.
  * - Fawaterk: its payment methods (GET /api/v2/getPaymentmethods).
@@ -78,6 +82,15 @@ export const CHECK_CODES = [
   "testPaymentFailed",
   "testPaymentSkipped",
   "stripeError",
+  // 155 The payment page's domain for Apple Pay and Google Pay.
+  "walletsReady",
+  "walletsApplePending",
+  "walletsGooglePending",
+  "walletsInactive",
+  "walletsForbidden",
+  "walletsRefused",
+  "walletsUnreachable",
+  "walletsSaid",
 ] as const;
 
 export type CheckCode = (typeof CHECK_CODES)[number];
@@ -97,6 +110,8 @@ export interface ConnectionReport {
   checks: ConnectionCheck[];
   /** When it was tested (ISO). */
   at: string;
+  /** 155 Stripe: the payment page's domain for Apple Pay and Google Pay, as Stripe answered (kept when the keys tested are the saved ones; never shown as such). */
+  wallets?: StripeWallets;
 }
 
 /** What the test action hands back to the form. */
@@ -117,6 +132,8 @@ export interface ConnectionInput {
   receipt: PaymentWebhookReceipt | null;
   /** Stripe, test keys: also make a 0.50 USD test payment and cancel it. */
   testPayment: boolean;
+  /** 155 Stripe: the payment page's domain, registered for Apple Pay and Google Pay with the keys tested; missing: not asked. */
+  walletDomain?: string | null;
   now: Date;
 }
 
@@ -164,8 +181,20 @@ function receiptChecks(provider: PaymentProviderId, receipt: PaymentWebhookRecei
 /** Runs the test. Never throws for a gateway's answer: an unreachable gateway is a check of its own. */
 export async function testConnection(test: ConnectionInput, options: ProviderOptions = {}): Promise<ConnectionReport> {
   const account = accountOf(test.input);
-  const checks = account.provider === "stripe" ? await testStripe(test, account, options) : await testOther(test, account, options);
-  return { provider: account.provider, mode: account.keys.sandbox ? "test" : "live", ok: !checks.some((c) => c.tone === "fail"), checks, at: test.now.toISOString() };
+  const found: { wallets?: StripeWallets } = {};
+  const checks = account.provider === "stripe" ? await testStripe(test, account, options, found) : await testOther(test, account, options);
+  return { provider: account.provider, mode: account.keys.sandbox ? "test" : "live", ok: !checks.some((c) => c.tone === "fail"), checks, at: test.now.toISOString(), ...found };
+}
+
+/** 155 What a domain's registration for Apple Pay and Google Pay says, as checks (none fails the test: cards work without them). */
+export function walletChecks(wallets: StripeWallets): ConnectionCheck[] {
+  const domain = { domain: wallets.domain };
+  const said = wallets.details ? [check("info", "walletsSaid", { details: wallets.details })] : [];
+  if (wallets.status === "ready") return [check("ok", "walletsReady", domain)];
+  if (wallets.status === "partial") return [check("warn", wallets.applePay ? "walletsGooglePending" : "walletsApplePending", domain), ...said];
+  const code: CheckCode =
+    wallets.reason === "forbidden" ? "walletsForbidden" : wallets.reason === "unreachable" ? "walletsUnreachable" : wallets.reason === "inactive" ? "walletsInactive" : "walletsRefused";
+  return [check("warn", code, domain), ...said];
 }
 
 async function testOther(test: ConnectionInput, account: Exclude<PaymentAccount, { provider: "stripe" }>, options: ProviderOptions): Promise<ConnectionCheck[]> {
@@ -189,7 +218,7 @@ async function testOther(test: ConnectionInput, account: Exclude<PaymentAccount,
   return out;
 }
 
-async function testStripe(test: ConnectionInput, account: Extract<PaymentAccount, { provider: "stripe" }>, options: ProviderOptions): Promise<ConnectionCheck[]> {
+async function testStripe(test: ConnectionInput, account: Extract<PaymentAccount, { provider: "stripe" }>, options: ProviderOptions, found: { wallets?: StripeWallets }): Promise<ConnectionCheck[]> {
   const input = test.input.provider === "stripe" ? test.input : null;
   const stripe = { fetcher: options.fetcher, baseUrl: options.urls?.stripe };
   const out: ConnectionCheck[] = [];
@@ -244,6 +273,13 @@ async function testStripe(test: ConnectionInput, account: Extract<PaymentAccount
     }
   } else out.push(check("info", "endpointUnknown"));
   out.push(...receiptChecks("stripe", test.receipt, account.keys.sandbox));
+
+  // 155 Apple Pay and Google Pay: the payment page's domain registered in this account (once; checked again when it isn't ready).
+  if (test.walletDomain) {
+    const wallets = await checkWalletDomain(account.keys, test.walletDomain, { ...stripe, now: test.now });
+    found.wallets = wallets;
+    out.push(...walletChecks(wallets));
+  }
 
   // The optional test payment: test keys only, made and cancelled at once.
   if (test.testPayment) {

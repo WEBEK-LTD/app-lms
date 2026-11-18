@@ -74,28 +74,31 @@ class _RestaurantDeskScreenState extends ConsumerState<RestaurantDeskScreen> {
       showDragHandle: true,
       backgroundColor: context.palette.surface,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-              child: Text(
-                l10n.deskPauseFor,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
-                  color: context.palette.text,
+        child: SingleChildScrollView(
+          // 158 Every choice in reach on a short phone or with a large font.
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: Text(
+                  l10n.deskPauseFor,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: context.palette.text,
+                  ),
                 ),
               ),
-            ),
-            for (final m in const [15, 30, 60])
-              ListTile(
-                key: ValueKey('pause-$m'),
-                title: Text(l10n.restaurantMinutes(m)),
-                onTap: () => Navigator.of(context).pop(m),
-              ),
-          ],
+              for (final m in const [15, 30, 60])
+                ListTile(
+                  key: ValueKey('pause-$m'),
+                  title: Text(l10n.restaurantMinutes(m)),
+                  onTap: () => Navigator.of(context).pop(m),
+                ),
+            ],
+          ),
         ),
       ),
     );

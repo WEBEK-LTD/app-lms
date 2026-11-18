@@ -47,7 +47,8 @@ class CampaignsScreen extends ConsumerWidget {
           child: columns == 1
               ? ListView.separated(
                   key: const ValueKey('campaigns-list'),
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                  // 158 Its end clear of a tab bar over the screen.
+                  padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
                   itemCount: state.items.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 14),
                   itemBuilder: (context, i) =>
@@ -55,7 +56,8 @@ class CampaignsScreen extends ConsumerWidget {
                 )
               : GridView.builder(
                   key: const ValueKey('campaigns-list'),
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                  // 158 Its end clear of a tab bar over the screen.
+                  padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: columns,
                     crossAxisSpacing: 14,

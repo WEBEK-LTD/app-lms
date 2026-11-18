@@ -1,5 +1,6 @@
 import { lineOptionIds } from "../../catalog/options";
-import type { HostedUser } from "../../data/types";
+import type { BouquetPart, HostedUser } from "../../data/types";
+import { bouquetPartOf } from "../../selling/bouquet";
 import { normalizeEmail } from "../sign-in-methods";
 import type { ConnectorResult } from "./types";
 
@@ -20,6 +21,8 @@ export interface CartLineInput {
   options?: string[];
   /** 131 A gift add-on: the product of the line it goes with. */
   addon_of?: number;
+  /** 162 Part of a bouquet the customer built (its flowers, wrap and card together). */
+  bouquet?: BouquetPart;
 }
 
 /**
@@ -60,7 +63,10 @@ export function cartLines(body: unknown): CartLineInput[] | null {
     // 131 The line a gift add-on goes with (an older app sends none).
     const addonOf = Number(line?.addon_of);
     const linked = Number.isSafeInteger(addonOf) && addonOf > 0 ? { addon_of: addonOf } : {};
-    out.push({ product_id: productId, variation_id: variationId, quantity, ...(options.length > 0 ? { options } : {}), ...linked });
+    // 162 The bouquet it is part of (an older app sends none).
+    const bouquet = bouquetPartOf(line?.bouquet);
+    if (bouquet === null) return null;
+    out.push({ product_id: productId, variation_id: variationId, quantity, ...(options.length > 0 ? { options } : {}), ...linked, ...(bouquet ? { bouquet } : {}) });
   }
   return out;
 }

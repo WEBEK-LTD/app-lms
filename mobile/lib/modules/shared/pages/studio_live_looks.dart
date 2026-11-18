@@ -14,6 +14,7 @@ import '../../taxi/data/taxi_providers.dart' show distanceKm, driveMinutes;
 import 'content_blocks.dart' show pageClockProvider;
 import 'studio_live_status.dart'
     show liveFoodOrderProvider, liveMarketOrderProvider;
+import '../../../core/format/text_case.dart';
 
 /// 130 The live cards' premium looks (`StudioLiveStatus.style` and
 /// `StudioTracking.style`: hero, ring, pill, steps), drawn from the
@@ -365,7 +366,7 @@ class StudioLiveLookCard extends StatelessWidget {
         ],
         Flexible(
           child: Text(
-            words.toUpperCase(),
+            words.toUpperCaseIn(context),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(

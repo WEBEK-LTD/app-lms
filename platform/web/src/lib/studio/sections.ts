@@ -220,6 +220,8 @@ export type SectionWord =
   | "tipSchool"
   | "tipCourses"
   | "tipMyCourses"
+  // 167 The account page's Sign out element.
+  | "signOut"
   // 128 The photo-first templates (Sofra Eats's and Zad's homes) and Zad's tabs.
   | "fpDeliverTo"
   | "fpArea"

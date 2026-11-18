@@ -8,6 +8,7 @@ import '../l10n/l10n.dart';
 import '../theme/palette.dart';
 import '../widgets/common.dart';
 import 'launch_colors.dart';
+import '../../core/format/text_case.dart';
 
 /// 124.15 The launch screen: what the app shows while it opens, in the look
 /// its owner chose in Yallapp Studio (Signature until there is one). Every
@@ -126,8 +127,7 @@ class _Launch {
       _arabic.hasMatch(text) ? 0 : value;
 
   /// In capitals, as the language writes them (Turkish dotted İ).
-  String upper(String text) =>
-      (language == 'tr' ? text.replaceAll('i', 'İ') : text).toUpperCase();
+  String upper(String text) => upperIn(text, language);
 
   /// The initials' size: a little smaller for two letters.
   double letters(double size) =>

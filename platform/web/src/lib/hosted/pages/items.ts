@@ -9,6 +9,13 @@ export interface Item {
   subtitle?: string | null;
   image_url?: string | null;
   price_label?: string | null;
+  /**
+   * 161 The price as amounts and a currency (`ItemPrice`: `amount`,
+   * `currency`, `formatted`, a range's `max_amount`), with the same in the
+   * customer's currency (`display`, and its words as `display.label`);
+   * missing without one. `price_label` stays, for older apps.
+   */
+  price?: Record<string, unknown>;
   badge?: string | null;
   /** 128.8 A course's average rating, 0 to 5; null without reviews. */
   rating?: number | null;

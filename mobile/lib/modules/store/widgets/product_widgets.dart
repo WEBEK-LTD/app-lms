@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/models.dart';
+import '../../../core/gate/app_gate.dart';
+import '../../../core/l10n/currency.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
@@ -11,8 +14,8 @@ import '../../../core/l10n/l10n.dart';
 
 /// The price as the shop shows it, with the regular price struck through
 /// when on sale. 135.5 With the customer's currency: the price in it first
-/// ("≈ \$12.40"), approximate, and the shop's own under it (on a card, only
-/// the converted one fits; it is read out with the shop's).
+/// ("≈ \$12.40"), approximate, and the shop's own under it, what is
+/// charged (161 on a card too, smaller; it is read out with the shop's).
 class ProductPriceLabel extends StatelessWidget {
   const ProductPriceLabel(this.price, {super.key, this.size = 15});
 
@@ -55,16 +58,22 @@ class ProductPriceLabel extends StatelessWidget {
           ),
       ],
     );
-    if (shown == null || compact) return row;
+    if (shown == null) return row;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         row,
-        const SizedBox(height: 2),
+        SizedBox(height: compact ? 1 : 2),
         Text(
           price.formatted,
-          style: TextStyle(fontSize: size - 4, color: p.textSecondary),
+          key: const ValueKey('product-shop-price'),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: compact ? size - 3 : size - 4,
+            color: p.textSecondary,
+          ),
         ),
       ],
     );
@@ -119,9 +128,24 @@ String _a11y(ProductSummary product) => [
 ].join(', ');
 
 /// The height of a [ProductCard]'s text below its square image, for rows
-/// and grids that need a fixed size.
-double productCardTextHeight(BuildContext context) =>
-    MediaQuery.textScalerOf(context).scale(136);
+/// and grids that need a fixed size. 161 [twoPrices]: with the shop's
+/// price under the customer's ([customerPricesShown]).
+double productCardTextHeight(BuildContext context, {bool twoPrices = false}) =>
+    MediaQuery.textScalerOf(context).scale(twoPrices ? 152 : 136);
+
+/// 161 Whether the cards show the price in the customer's currency with the
+/// shop's under it: a currency of their own allowed by the owner, not the
+/// shop's.
+bool customerPricesShown(WidgetRef ref) {
+  final currency = ref.watch(appCurrencyProvider);
+  if (currency == null) return false;
+  final gate = ref.watch(appGateProvider);
+  return gate is! GateReady || gate.config.store?.currency != currency;
+}
+
+/// 161 [child] taking the rest of a card of a fixed height when [fill].
+Widget _fillOr(bool fill, Widget child) =>
+    fill ? Expanded(child: child) : child;
 
 /// A product in the shop grid and the home rows.
 class ProductCard extends StatelessWidget {
@@ -131,11 +155,16 @@ class ProductCard extends StatelessWidget {
     required this.onTap,
     this.width,
     this.plain = false,
+    this.fill = false,
   });
 
   final ProductSummary product;
   final VoidCallback onTap;
   final double? width;
+
+  /// 161 In a grid's cell of a fixed height: the name at the top and the
+  /// price at the foot, no empty band under it.
+  final bool fill;
 
   /// Minimal template: a rounded picture and text, without a card.
   final bool plain;
@@ -182,60 +211,65 @@ class ProductCard extends StatelessWidget {
               ],
             ),
           ),
-          Padding(
-            padding: plain
-                ? const EdgeInsets.fromLTRB(2, 10, 2, 8)
-                : const EdgeInsets.fromLTRB(10, 10, 10, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    height: 1.35,
-                    color: p.text,
+          _fillOr(
+            fill,
+            Padding(
+              padding: plain
+                  ? const EdgeInsets.fromLTRB(2, 10, 2, 8)
+                  : const EdgeInsets.fromLTRB(10, 10, 10, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      height: 1.35,
+                      color: p.text,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                ProductPriceLabel(product.price, size: 14),
-                // 131 A flash sale (one with an end): its countdown, live.
-                if (product.sale case final sale?
-                    when sale.endsAt != null &&
-                        sale.liveAt(DateTime.now())) ...[
-                  const SizedBox(height: 3),
-                  SaleCountdown(endsAt: sale.endsAt!, compact: true),
-                ],
-                if (product.rating != null && product.ratingCount > 0) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      AppIcon(
-                        AppIcons.star,
-                        size: 14,
-                        color: p.star,
-                        filled: true,
-                      ),
-                      const SizedBox(width: 3),
-                      Flexible(
-                        child: Text(
-                          '${product.rating!.toStringAsFixed(1)} '
-                          '(${product.ratingCount})',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: p.textSecondary,
+                  const SizedBox(height: 6),
+                  // 161 The price at the card's foot in a grid's cell.
+                  if (fill) const Spacer(),
+                  ProductPriceLabel(product.price, size: 14),
+                  // 131 A flash sale (one with an end): its countdown, live.
+                  if (product.sale case final sale?
+                      when sale.endsAt != null &&
+                          sale.liveAt(DateTime.now())) ...[
+                    const SizedBox(height: 3),
+                    SaleCountdown(endsAt: sale.endsAt!, compact: true),
+                  ],
+                  if (product.rating != null && product.ratingCount > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        AppIcon(
+                          AppIcons.star,
+                          size: 14,
+                          color: p.star,
+                          filled: true,
+                        ),
+                        const SizedBox(width: 3),
+                        Flexible(
+                          child: Text(
+                            '${product.rating!.toStringAsFixed(1)} '
+                            '(${product.ratingCount})',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: p.textSecondary,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ],

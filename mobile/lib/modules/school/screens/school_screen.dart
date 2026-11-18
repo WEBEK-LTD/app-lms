@@ -73,7 +73,8 @@ class _ForParents extends StatelessWidget {
     final l10n = context.l10n;
     return ListView(
       key: const ValueKey('school-for-parents'),
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+      // 158 Its end clear of a tab bar over the screen.
+      padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
       children: [
         MessageView(
           icon: AppIcons.family,
@@ -124,7 +125,8 @@ class _Overview extends ConsumerWidget {
       },
       child: ListView(
         key: const ValueKey('school-overview'),
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+        // 158 Its end clear of a tab bar over the screen.
+        padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
         children: [
           AppCard(
             key: const ValueKey('school-student'),

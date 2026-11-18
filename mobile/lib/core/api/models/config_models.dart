@@ -598,18 +598,38 @@ class PasswordSignIn {
         if (stringList(value, 'by').contains(way.name)) way,
     ];
     if (by.isEmpty) return null;
+    final recovery = optString(value, 'recovery') == 'phone'
+        ? SignInMethod.phone
+        : SignInMethod.email;
+    final owned = ownedChannels(by, recovery);
     return PasswordSignIn(
       by: by,
+      // 160 A password is mandatory on its channel: a code never signs in
+      // there, as the server says too (lib/hosted/sign-in-methods.ts).
       codes: [
         for (final method in SignInMethod.values)
-          if (stringList(value, 'codes').contains(method.name)) method,
+          if (stringList(value, 'codes').contains(method.name) &&
+              !owned.contains(method))
+            method,
       ],
-      recovery: optString(value, 'recovery') == 'phone'
-          ? SignInMethod.phone
-          : SignInMethod.email,
+      recovery: recovery,
       minLength: value['min_length'] is int ? value['min_length'] as int : 8,
     );
   }
+
+  /// 160 The channels a password owns: the email and the phone number typed
+  /// with it, and the one username accounts are checked on. There a code
+  /// only checks a new account (which then sets its password) and resets a
+  /// forgotten password.
+  static List<SignInMethod> ownedChannels(
+    List<PasswordWay> by,
+    SignInMethod recovery,
+  ) => [
+    for (final method in SignInMethod.values)
+      if (by.contains(PasswordWay.values.byName(method.name)) ||
+          (by.contains(PasswordWay.username) && recovery == method))
+        method,
+  ];
 
   final List<PasswordWay> by;
   final List<SignInMethod> codes;
@@ -617,11 +637,25 @@ class PasswordSignIn {
   final int minLength;
 
   /// Where "Forgot password" can send a code: the email or phone of an account.
-  List<SignInMethod> get resetChannels => [
-    for (final method in SignInMethod.values)
-      if (by.contains(PasswordWay.values.byName(method.name)) ||
-          (by.contains(PasswordWay.username) && recovery == method))
-        method,
+  List<SignInMethod> get resetChannels => ownedChannels(by, recovery);
+
+  /// 160 The channel "Forgot password" sends its code to for [way]: the
+  /// email or phone typed with the password, a username's own channel.
+  SignInMethod resetChannelFor(PasswordWay way) => switch (way) {
+    PasswordWay.email => SignInMethod.email,
+    PasswordWay.phone => SignInMethod.phone,
+    PasswordWay.username => recovery,
+  };
+
+  /// 160 The ways the sign-in screen offers, each once and in this order:
+  /// the email address, the phone number and the username, each with what
+  /// it signs in with (a password, or a code where no password is).
+  List<PasswordWay> get signInWays => [
+    for (final way in PasswordWay.values)
+      if (by.contains(way) ||
+          (way != PasswordWay.username &&
+              codes.contains(SignInMethod.values.byName(way.name))))
+        way,
   ];
 }
 

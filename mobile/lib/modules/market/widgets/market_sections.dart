@@ -23,6 +23,7 @@ import 'market_compact.dart';
 // 130 The places as a deck of photo cards.
 import 'market_deck.dart';
 import 'market_look.dart';
+import '../../../core/format/text_case.dart';
 
 /// 115 A Studio `market` element: one marketplace section, drawn from the
 /// marketplace's data. The owner places, words and colours it in the
@@ -911,7 +912,7 @@ class _Club extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     MarketPill(
-                      text: l10n.marketClub.toUpperCase(),
+                      text: l10n.marketClub.toUpperCaseIn(context),
                       background: p.accent,
                       color: Colors.white,
                       icon: Symbols.workspace_premium_rounded,

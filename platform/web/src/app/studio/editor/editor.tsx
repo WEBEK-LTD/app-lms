@@ -36,6 +36,7 @@ import { formatList } from "@/i18n/format";
 import { localePath } from "@/i18n/paths";
 import { applyTextStyle, textStylesOf, textStyleUse } from "@/lib/studio/text-styles";
 import { forTablet, tabletPatch } from "@/lib/studio/tablet";
+import { automaticSize, backToAutomatic, byHand, sizedByHand } from "@/lib/studio/auto-size";
 import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
 import { applyWholeDesign, demoProjectLook, designName, designPageCount, designsFor, isNewDesign, makeDesign } from "@/lib/studio/designs";
 import type { OwnDesignView } from "@/lib/studio/own-designs";
@@ -48,6 +49,7 @@ import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
 import { Inspector, type InspectorTab } from "./inspector";
 import { LeftPanel, NewTag, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
 import { HistoryPanel } from "./history-panel";
+import { ByHandDialog } from "./by-hand-dialog";
 import { describeStep } from "@/lib/studio/history-labels";
 import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
 import { seedSamplesAction } from "@/app/actions/samples";
@@ -192,6 +194,8 @@ export function StudioEditor(props: StudioEditorProps) {
   // 132.61 "On my phone": the preview's QR code under its button.
   const [phoneOpen, setPhoneOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  // 159 An element of automatic size about to change by hand: Studio asks first; `change` is the inspector's, made once the owner says so.
+  const [askHand, setAskHand] = useState<{ id: string; change: Partial<StudioNode> | null } | null>(null);
   const [ownFonts, setOwnFonts] = useState(props.ownFonts);
   const [designsOpen, setDesignsOpen] = useState(false);
   const [ownDesigns, setOwnDesigns] = useState(props.ownDesigns);
@@ -640,7 +644,15 @@ export function StudioEditor(props: StudioEditorProps) {
       return;
     }
     const id = selected.id;
-    changePage((p) => updateNode(p, id, stylePatch(style)));
+    changePage((p) => {
+      const patch = stylePatch(style);
+      // 159 A size it didn't have before is a size by hand: "Back to automatic" puts its own back.
+      const node = findNode(p.body, id);
+      const drawn = automaticSize(p.body, id);
+      const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+      const sized = node && !sizedByHand(node) && (!same(patch.width, drawn.width) || !same(patch.height, drawn.height));
+      return updateNode(p, id, sized ? { ...patch, manual_size: byHand(drawn).manual_size } : patch);
+    });
     setNotice(t("studio.stylePasted"));
   }
 
@@ -1194,7 +1206,30 @@ export function StudioEditor(props: StudioEditorProps) {
     tagOf,
     // 108.1 One drag of a corner is one undo step.
     onResize: (id, size, drag) => changePage((p) => updateNode(p, id, device === "tablet" ? tabletPatch(findNode(p.body, id) ?? { id, type: "column" }, size) : size), `resize:${id}:${device}:${drag}`),
+    // 159 A corner of an element of automatic size asks first; a double click puts it back to automatic.
+    onAskByHand: (id) => setAskHand({ id, change: null }),
+    onAutoSize: (id) => toAutomatic(id),
   };
+
+  /** 159 The owner said to change its size by hand: from its automatic size (kept for later), with the change asked for. */
+  function goByHand(ask: { id: string; change: Partial<StudioNode> | null }) {
+    setAskHand(null);
+    changePage((p) => {
+      let next = updateNode(p, ask.id, byHand(automaticSize(p.body, ask.id)));
+      if (ask.change) next = updateNode(next, ask.id, device === "tablet" ? tabletPatch(findNode(next.body, ask.id) ?? { id: ask.id, type: "column" }, ask.change) : ask.change);
+      return next;
+    }, `byhand:${ask.id}:${Date.now()}`);
+  }
+
+  const cancelByHand = useCallback(() => setAskHand(null), []);
+
+  /** 159 Back to its automatic size: its template's, else the layout's own. */
+  function toAutomatic(id: string) {
+    const node = studio ? findNode(studio.body, id) : null;
+    if (!node || !sizedByHand(node)) return;
+    changePage((p) => updateNode(p, id, backToAutomatic(findNode(p.body, id) ?? node)), `auto:${id}:${Date.now()}`);
+    setNotice(t("studio.sizeAutoDone"));
+  }
 
   const savedText = (() => {
     if (status === "saving") return t("studio.saving");
@@ -1680,6 +1715,8 @@ export function StudioEditor(props: StudioEditorProps) {
             tab={inspectorTab}
             onTab={setInspectorTab}
             onChange={(patch) => selected && changePage((p) => updateNode(p, selected.id, device === "tablet" ? tabletPatch(findNode(p.body, selected.id) ?? selected, patch) : patch), `${selected.id}:${device}:${Object.keys(patch).join(",")}`)}
+            onAskByHand={(patch) => selected && setAskHand({ id: selected.id, change: patch })}
+            onBackToAuto={() => selected && toAutomatic(selected.id)}
             onHeader={(header) => {
               changePage((p) => ({ ...p, header }), header ? "header" : "");
               if (!header) setSelectedId(null);
@@ -1751,6 +1788,7 @@ export function StudioEditor(props: StudioEditorProps) {
           languages={layout.languages}
         />
       ) : null}
+      {askHand ? <ByHandDialog onConfirm={() => goByHand(askHand)} onCancel={cancelByHand} /> : null}
     </div>
   );
 }

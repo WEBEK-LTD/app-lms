@@ -12,6 +12,8 @@ export 'class_models.dart';
 export 'community_models.dart';
 // 131
 export 'addon_models.dart';
+// 162
+export 'bouquet_models.dart';
 export 'commerce_models.dart';
 export 'config_models.dart';
 export 'course_cart_models.dart';

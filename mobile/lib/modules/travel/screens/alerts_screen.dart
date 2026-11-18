@@ -47,7 +47,8 @@ class PriceAlertsScreen extends ConsumerWidget {
         child: RefreshIndicator(
           onRefresh: () => ref.refresh(travelAlertsProvider.future),
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+            // 158 Its end clear of a tab bar over the screen.
+            padding: EdgeInsets.fromLTRB(16, 12, 16, endRoom(context, 24)),
             children: [
               Row(
                 children: [

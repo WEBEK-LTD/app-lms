@@ -1,4 +1,5 @@
 import 'addon_models.dart';
+import 'bouquet_models.dart';
 import 'commerce_models.dart';
 import 'config_models.dart';
 import 'json.dart';
@@ -21,6 +22,7 @@ class StoreConfig {
     this.shipping,
     this.titles = const SectionTitles(),
     this.payInApp = false,
+    this.bouquet,
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -45,7 +47,12 @@ class StoreConfig {
     shipping: StoreShippingRules.tryParse(json['shipping']),
     titles: SectionTitles.fromStore(json['titles']),
     payInApp: json['checkout_payment'] == 'in_app',
+    bouquet: BouquetRules.tryParse(json['bouquet']),
   );
+
+  /// 162 Build your bouquet, when the shop has it set up; null: an action
+  /// with `flow: bouquet` opens the shop, as before.
+  final BouquetRules? bouquet;
 
   /// 134 The checkout ends inside the app: the customer pays on Yallapp's
   /// payment page with the owner's gateway (`checkout_payment: in_app`);
@@ -90,8 +97,13 @@ class LoyaltyRules {
   });
 
   factory LoyaltyRules.fromJson(Json json) => LoyaltyRules(
-    spendPerPoint: reqString(json, 'spend_per_point_formatted'),
-    pointValue: reqString(json, 'point_value_formatted'),
+    // 161 In the customer's currency when the server sent it.
+    spendPerPoint:
+        customerText(json, 'spend_per_point_formatted') ??
+        reqString(json, 'spend_per_point_formatted'),
+    pointValue:
+        customerText(json, 'point_value_formatted') ??
+        reqString(json, 'point_value_formatted'),
     minPoints: reqInt(json, 'min_points'),
   );
 
@@ -116,9 +128,10 @@ class CartPoints {
   factory CartPoints.fromJson(Json json) => CartPoints(
     balance: reqInt(json, 'balance'),
     usable: reqInt(json, 'usable'),
-    usableValue: optString(json, 'usable_value'),
+    // 161 In the customer's currency when the server sent it.
+    usableValue: customerText(json, 'usable_value'),
     applied: reqBool(json, 'applied'),
-    discount: optString(json, 'discount'),
+    discount: customerText(json, 'discount'),
   );
 
   final int balance;
@@ -144,7 +157,8 @@ class PointsAccount {
 
   factory PointsAccount.fromJson(Json json) => PointsAccount(
     balance: reqInt(json, 'balance'),
-    value: reqString(json, 'value'),
+    // 161 In the customer's currency when the server sent it.
+    value: customerText(json, 'value') ?? reqString(json, 'value'),
     entries: reqListOf(json, 'entries', PointsEntry.fromJson),
   );
 
@@ -300,6 +314,7 @@ class GiftMessageRules {
     required this.enabled,
     required this.maxLength,
     this.starters = const [],
+    this.startersByLanguage = const {},
     this.recipient = false,
     this.anonymous = false,
   });
@@ -308,6 +323,7 @@ class GiftMessageRules {
     enabled: reqBool(json, 'enabled'),
     maxLength: intOr(json, 'max_length', 200),
     starters: stringList(json, 'starters'),
+    startersByLanguage: _startersByLanguage(json['starters_by_language']),
     recipient: boolOr(json, 'recipient', false),
     anonymous: boolOr(json, 'anonymous', false),
   );
@@ -315,8 +331,31 @@ class GiftMessageRules {
   final bool enabled;
   final int maxLength;
 
-  /// 131 Beginnings the owner wrote, which fill the card when tapped.
+  /// 131 Beginnings the owner wrote, which fill the card when tapped: the
+  /// app's main language's.
   final List<String> starters;
+
+  /// 169 The same beginnings in the app's other languages (code → lines).
+  final Map<String, List<String>> startersByLanguage;
+
+  /// 169 The beginnings for a customer using the app in [languageCode]:
+  /// that language's when the owner wrote some, else [starters].
+  List<String> startersIn(String languageCode) {
+    final own = startersByLanguage[languageCode];
+    return own != null && own.isNotEmpty ? own : starters;
+  }
+
+  static Map<String, List<String>> _startersByLanguage(Object? value) {
+    if (value is! Map) return const {};
+    return {
+      for (final e in value.entries)
+        if (e.value is List)
+          '${e.key}': [
+            for (final line in e.value as List)
+              if (line is String && line.trim().isNotEmpty) line.trim(),
+          ],
+    }..removeWhere((_, lines) => lines.isEmpty);
+  }
 
   /// 131 The recipient's name and phone can be given.
   final bool recipient;
@@ -382,6 +421,14 @@ class ProductPrice {
 
   /// 135.5 The price in the customer's currency; null when none.
   final DisplayMoney? display;
+
+  /// 161 The price as the customer sees it: "≈ \$12.40" in their currency,
+  /// else the shop's [formatted].
+  String get shown => customerPrice(formatted, display?.formatted);
+
+  /// 161 The regular price (struck through while on sale) in the
+  /// customer's currency when there is one, else the shop's.
+  String? get shownRegular => display?.regularFormatted ?? regularFormatted;
 }
 
 enum ProductType { simple, variable, grouped, external, other }
@@ -681,12 +728,16 @@ class CartLineInput {
     this.attributes = const {},
     this.options = const [],
     this.addonOf,
+    this.bouquet,
   });
 
   final int productId;
   final int? variationId;
   final int quantity;
   final Map<String, String> attributes;
+
+  /// 162 Part of a bouquet the customer built.
+  final BouquetPart? bouquet;
 
   /// 26 The IDs of the chosen options.
   final List<String> options;
@@ -701,6 +752,7 @@ class CartLineInput {
     if (attributes.isNotEmpty) 'attributes': attributes,
     if (options.isNotEmpty) 'options': options,
     if (addonOf != null) 'addon_of': addonOf,
+    if (bouquet != null) 'bouquet': bouquet!.toJson(),
   };
 }
 
@@ -751,7 +803,11 @@ class CartQuote {
         if (line is Map &&
             line['label'] is String &&
             line['formatted'] is String)
-          (label: line['label'] as String, amount: line['formatted'] as String),
+          (
+            label: line['label'] as String,
+            // 161 In the customer's currency when the server sent it.
+            amount: customerText(asJson(line), 'formatted')!,
+          ),
     ],
     deliveryProblem: json['delivery_problem'] is Map
         ? optString(asJson(json['delivery_problem']), 'message')
@@ -761,7 +817,19 @@ class CartQuote {
   );
 
   /// 135.5 The subtotal and total in the customer's currency; null when none.
+  /// 161 And the discount, shipping, taxes and the slot's fee.
   final DisplayMoney? display;
+
+  /// 161 The sums as the customer sees them: in their currency when the
+  /// server sent it ("≈ \$13.40"), else the shop's. The shop's own texts
+  /// ([subtotal], [total]...) stay for what is charged ([charge]).
+  String get shownSubtotal => customerPrice(subtotal, display?.subtotal);
+  String? get shownTotal => customerPriceOr(total, display?.total);
+  String? get shownDiscount => customerPriceOr(discount, display?['discount']);
+  String? get shownShipping => customerPriceOr(shipping, display?['shipping']);
+  String? get shownTax => customerPriceOr(tax, display?['tax']);
+  String? get shownTaxIncluded =>
+      customerPriceOr(taxIncluded, display?['tax_included']);
 
   /// 135.7 What the card is charged, and in which currency.
   final CartCharge? charge;
@@ -848,6 +916,7 @@ class CartQuoteLine {
     this.options = const [],
     this.addon = false,
     this.addonOf,
+    this.bouquet,
   });
 
   factory CartQuoteLine.fromJson(Json json) => CartQuoteLine(
@@ -856,8 +925,11 @@ class CartQuoteLine {
     quantity: reqInt(json, 'quantity'),
     name: reqString(json, 'name'),
     imageUrl: optString(json, 'image_url'),
-    unitPrice: reqString(json, 'unit_price'),
-    lineTotal: reqString(json, 'line_total'),
+    // 161 In the customer's currency when the server sent it.
+    unitPrice:
+        customerText(json, 'unit_price') ?? reqString(json, 'unit_price'),
+    lineTotal:
+        customerText(json, 'line_total') ?? reqString(json, 'line_total'),
     available: reqBool(json, 'available'),
     problem: optString(json, 'problem'),
     maxQuantity: optInt(json, 'max_quantity'),
@@ -865,11 +937,15 @@ class CartQuoteLine {
     options: listOf(json, 'options', CartLineOption.fromJson),
     addon: boolOr(json, 'addon', false),
     addonOf: optInt(json, 'addon_of'),
+    bouquet: BouquetPart.tryParse(json['bouquet']),
   );
 
   /// 131 A gift add-on's line, and the product of the line it goes with.
   final bool addon;
   final int? addonOf;
+
+  /// 162 The bouquet it is part of, as sent.
+  final BouquetPart? bouquet;
 
   final int productId;
   final int? variationId;

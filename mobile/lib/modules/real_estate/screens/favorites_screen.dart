@@ -92,6 +92,8 @@ class _FavoritesList extends ConsumerWidget {
       );
     } else {
       body = ListingGrid(
+        // 158 Its end clear of a tab bar over the screen.
+        padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
         listings: items,
         loadingMore: state.hasMore && error == null,
         onNearEnd: controller.loadMore,

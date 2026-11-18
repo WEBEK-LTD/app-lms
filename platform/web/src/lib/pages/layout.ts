@@ -17,6 +17,7 @@ import { designFitsApp, findDesign } from "./designs/catalog";
 import { scheduleAutoScreenshots } from "../app/auto-screenshots";
 import { PAGE_TEXT_FORMS } from "../i18n/builtin";
 import { placeholdersIn, withoutPlaceholders, withoutStaleTranslations, type PlaceholderSpot, type StoreFacts } from "./template-translations";
+import { withSampleProduct } from "../hosted/pages/lists";
 
 /**
  * The draft and the published copy of an app's layout (roadmap 10.4). The
@@ -355,8 +356,11 @@ export function hasUnpublishedChanges(record: AppLayoutRecord): boolean {
  */
 export function withFreshTranslations<T extends Layout>(layout: T, app: Pick<App, "appName"> & Partial<Pick<App, "catalogSettings" | "demo">>): T {
   const words = { appName: app.appName, more: PAGE_TEXT_FORMS };
+  // 164 First, the template's sample bouquet in an app made before as one of the shop's products: its words are the
+  // demo's own, which the pass below leaves out of a business's app, and the bouquet is known by them.
+  const sampled = withSampleProducts(layout);
   // 156 And no template [placeholder] for customers: the store's facts fill theirs, the rest waits for the owner's words.
-  const fresh = withoutPlaceholders(withoutStaleTranslations(layout, { ...words, dropMarks: true }), storeFactsOf(app), words);
+  const fresh = withoutPlaceholders(withoutStaleTranslations(sampled, { ...words, dropMarks: true }), storeFactsOf(app), words);
   if (fresh === layout) return layout;
   return { ...fresh, version: `${layout.version}~f${sha256Hex(JSON.stringify(fresh)).slice(0, 8)}` };
 }
@@ -370,6 +374,20 @@ export function storeFactsOf(app: Partial<Pick<App, "catalogSettings" | "demo">>
 /** 174.5 Every template [placeholder] still on the layout's Studio pages, as the app would leave it out. */
 export function layoutPlaceholders(layout: Pick<LayoutContent, "pages">, app: Pick<App, "appName"> & Partial<Pick<App, "catalogSettings" | "demo">>): PlaceholderSpot[] {
   return placeholdersIn(layout, storeFactsOf(app), { appName: app.appName, more: PAGE_TEXT_FORMS });
+}
+
+/** 164 Each Studio page with the template's sample bouquet served as one of the shop's products (lib/hosted/pages/lists.ts). */
+function withSampleProducts<T extends Layout>(layout: T): T {
+  let changed = false;
+  const pages = layout.pages.map((page) => {
+    if (!page.studio) return page;
+    const body = withSampleProduct(page.studio.body);
+    // It rebuilds the tree: a page without the sample stays the same object (and the layout its version).
+    if (JSON.stringify(body) === JSON.stringify(page.studio.body)) return page;
+    changed = true;
+    return { ...page, studio: { ...page.studio, body } };
+  });
+  return changed ? { ...layout, pages } : layout;
 }
 
 /** 156 A draft without the template's translations of the texts the owner changed; the owner's own translations and marks stay. */

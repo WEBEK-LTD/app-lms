@@ -18,6 +18,7 @@ import '../learning/learning_providers.dart';
 import '../navigation.dart';
 import 'learning_ring.dart';
 import '../../shared/pages/content_blocks.dart' show pageClockProvider;
+import '../../../core/format/text_case.dart';
 
 /// 123 The student's own cards on an academy's Studio page (`learning`):
 /// the course they are taking, their streak, their next live class. Each is
@@ -856,7 +857,7 @@ class PhotoLiveCard extends StatelessWidget {
         ? l10n.learningLiveNowShort
         : DateUtils.isSameDay(starts, now)
         ? l10n.learningLiveAt(time)
-        : l10n.learningLiveOn(dayLabel(starts), time).toUpperCase();
+        : l10n.learningLiveOn(dayLabel(starts), time).toUpperCaseIn(context);
     return Semantics(
       button: true,
       label: live.title,

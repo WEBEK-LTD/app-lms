@@ -1,4 +1,4 @@
-import type { App, MarketTemplate, MarketTemplateCover, MarketTemplateVersion, TemplateApplication, TemplateDesigner, TemplateLicence } from "../data/types";
+import type { App, MarketDiscount, MarketTemplate, MarketTemplateCover, MarketTemplateVersion, TemplateApplication, TemplateDesigner, TemplateLicence } from "../data/types";
 import type { DataStore } from "../data/store";
 import type { LanguageCode, LayoutTab, StudioPage, TabBarStyle } from "../pages/types";
 import type { StudioLook } from "@/components/studio/view";
@@ -6,7 +6,8 @@ import { kindById } from "../app/kinds";
 import { designerInitials, designerTint } from "./designers";
 import { getsUpdates, mayMove, nextMoveAt } from "./apply";
 import { templateText } from "./templates";
-import { offeredPlans, priceTag, type PriceTag } from "./plans";
+import { offeredPlans, type PriceTag } from "./plans";
+import { marketPrice } from "./discounts";
 
 /**
  * 106 What the market's pages show: the templates' cards (their cover page
@@ -60,8 +61,12 @@ export interface TemplateCard {
   kinds: { id: string; name: string; icon: string }[];
   /** Free (no plan to buy), as its price tag says. */
   free: boolean;
-  /** 106.2 "Free", "From $X/mo" (the lowest per month) or "$X once" (lifetime only). */
+  /** 106.2 "Free", "From $X/mo" (the lowest per month) or "$X once" (lifetime only); 106.12 at the automatic discounts' prices. */
   price: PriceTag;
+  /** 106.12 The price before the discounts, struck through (per month, or once); null when nothing lowers it. */
+  wasCents: number | null;
+  /** 106.12 When the flash sale that gives one of its plans its price now ends (ISO), for the countdown and the flash strip; null without one. */
+  flashEndsAt: string | null;
   designer: DesignerChip;
   cover: CoverView | null;
   /** Apps that took it, and in the last 30 days. */
@@ -80,9 +85,18 @@ function kindsOf(template: Pick<MarketTemplate, "kinds">): TemplateCard["kinds"]
   });
 }
 
-export function templateCard(template: MarketTemplate, designer: TemplateDesigner, version: MarketTemplateVersion | null, lang: string, counts: { all: number; recent: number }, now: Date): TemplateCard {
+/** A template's card; `discounts`: its automatic discounts (106.12), for the prices now. */
+export function templateCard(
+  template: MarketTemplate,
+  designer: TemplateDesigner,
+  version: MarketTemplateVersion | null,
+  lang: string,
+  counts: { all: number; recent: number },
+  now: Date,
+  discounts: readonly MarketDiscount[] = [],
+): TemplateCard {
   const text = templateText(template, lang);
-  const price = priceTag(template);
+  const { tag: price, wasCents, flashEndsAt } = marketPrice(template, discounts, now);
   return {
     id: template.id,
     slug: template.slug,
@@ -91,6 +105,8 @@ export function templateCard(template: MarketTemplate, designer: TemplateDesigne
     kinds: kindsOf(template),
     free: price.kind === "free",
     price,
+    wasCents,
+    flashEndsAt: flashEndsAt?.toISOString() ?? null,
     designer: designerChip(designer),
     cover: version ? coverView(version.cover, version.languages, lang, text.title) : null,
     applies: counts.all,
@@ -116,17 +132,19 @@ export interface MarketCatalog {
 /** Every published template's card, with its designer, its cover and how many apps took it. */
 export async function marketCatalog(store: DataStore, lang: string, now: Date): Promise<MarketCatalog> {
   const templates = (await store.listMarketTemplates({ statuses: ["published"] })).filter((t) => t.currentVersionId);
-  const [designers, versions, all, recent] = await Promise.all([
+  const [designers, versions, all, recent, discounts] = await Promise.all([
     store.listTemplateDesigners([...new Set(templates.map((t) => t.designerId))]),
     store.listMarketTemplateVersions(templates.map((t) => t.currentVersionId!)),
     store.countTemplateLicences(),
     store.countTemplateLicences(new Date(now.getTime() - 30 * DAY)),
+    // 106.12 The price drops and flash sales not ended yet.
+    automaticDiscounts(store, templates.map((t) => t.id), now),
   ]);
   const designerOf = new Map(designers.filter((d) => d.status === "active").map((d) => [d.id, d]));
   const versionOf = new Map(versions.map((v) => [v.id, v]));
   const cards = templates.flatMap((t) => {
     const designer = designerOf.get(t.designerId);
-    return designer ? [templateCard(t, designer, versionOf.get(t.currentVersionId!) ?? null, lang, { all: all[t.id] ?? 0, recent: recent[t.id] ?? 0 }, now)] : [];
+    return designer ? [templateCard(t, designer, versionOf.get(t.currentVersionId!) ?? null, lang, { all: all[t.id] ?? 0, recent: recent[t.id] ?? 0 }, now, discounts.get(t.id) ?? [])] : [];
   });
   const byDesigner = new Map<string, TemplateCard[]>();
   for (const card of cards) byDesigner.set(card.designer.id, [...(byDesigner.get(card.designer.id) ?? []), card]);
@@ -139,6 +157,21 @@ export async function marketCatalog(store: DataStore, lang: string, now: Date): 
     }))
     .sort((a, b) => b.applies - a.applies || b.templates - a.templates || a.name.localeCompare(b.name));
   return { cards, designers: designerCards };
+}
+
+/** 106.12 The templates' price drops and flash sales not ended at `now`, by template. */
+export async function automaticDiscounts(store: DataStore, templateIds: readonly string[], now: Date): Promise<Map<string, MarketDiscount[]>> {
+  const out = new Map<string, MarketDiscount[]>();
+  if (!templateIds.length) return out;
+  for (const d of await store.listMarketDiscounts({ templateIds, kinds: ["drop", "flash"], notEndedAt: now })) out.set(d.templateId, [...(out.get(d.templateId) ?? []), d]);
+  return out;
+}
+
+/** 106.12 The market's flash strip: the templates on a flash sale now (one gives a plan its price), the soonest to end first. */
+export function flashStrip(cards: readonly TemplateCard[], now: Date): TemplateCard[] {
+  return cards
+    .filter((c) => c.flashEndsAt && Date.parse(c.flashEndsAt) > now.getTime())
+    .sort((a, b) => Date.parse(a.flashEndsAt!) - Date.parse(b.flashEndsAt!) || a.title.localeCompare(b.title));
 }
 
 export type MarketSort = "popular" | "newest" | "name";

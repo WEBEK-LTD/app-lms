@@ -5,6 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/modules/store/data/cart_controller.dart';
+import 'package:yallapp/core/theme/app_icons.dart';
+import 'package:yallapp/core/theme/app_theme.dart';
+import 'package:yallapp/l10n/app_localizations.dart';
 import 'package:yallapp/modules/store/widgets/gift_checkout_look.dart';
 
 import '../support/fake_api.dart';
@@ -102,9 +105,10 @@ void main() {
     FakeApi api, {
     bool dark = false,
     String language = 'en',
+    Size size = const Size(1080, 4800),
   }) async {
     tester.view
-      ..physicalSize = const Size(1080, 4800)
+      ..physicalSize = size
       ..devicePixelRatio = 3;
     addTearDown(tester.view.reset);
     final app = TestApp(
@@ -263,6 +267,56 @@ void main() {
       );
     },
   );
+
+  // 168 At 360×800 the fixed top and bottom left the form about 400 points:
+  // the steps take one thin line, the step now named beside them.
+  testWidgets('168 at 360×800 the steps take one thin line', (tester) async {
+    await openCart(tester, api(), size: const Size(1080, 2400));
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const ValueKey('gift-stepper')), findsNothing);
+    final compact = find.byKey(const ValueKey('gift-stepper-compact'));
+    expect(compact, findsOneWidget);
+    expect(tester.getSize(find.byType(GiftStepBar)).height, lessThan(36));
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('gift-stepper-now'))).data,
+      'From',
+    );
+    // The five steps are still named for screen readers.
+    for (final step in ['From', 'For', 'When', 'Message', 'Pay']) {
+      expect(find.bySemanticsLabel(step), findsWidgets, reason: step);
+    }
+    // A tall phone keeps the full bar (the premium look's tests above).
+  });
+
+  // 168 A step done below the part in view is ticked all the same.
+  testWidgets('168 a step done after the one in view is ticked', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAppTheme(
+          primary: const Color(0xFF8E2445),
+          brightness: Brightness.light,
+          template: AppTemplate.classic,
+          fontFamily: 'Bricolage Grotesque',
+        ),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const Scaffold(
+          body: GiftStepBar(step: 1, done: [true, false, true, false, false]),
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    final ticks = find.descendant(
+      of: find.byType(GiftStepBar),
+      matching: find.byType(AppIcon),
+    );
+    // From and When ticked (When below the part in view); For, in view,
+    // ringed and not ticked; Message and Pay not.
+    expect(ticks, findsNWidgets(2));
+  });
 
   testWidgets('without the look, the checkout as before: no steps bar', (
     tester,

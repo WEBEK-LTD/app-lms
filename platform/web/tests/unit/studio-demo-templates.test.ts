@@ -243,7 +243,10 @@ describe("Studio templates = Studio demos", () => {
       if (page!.studio!.screen === "account") {
         // The account screen keeps its own top, set with the sign-in screen.
         expect(page!.studio!.header ?? null).toBeNull();
-        expect(page!.studio!.body.children).toEqual([]);
+        // 167 And nothing over it but its Sign out element, for a signed-in person.
+        expect(page!.studio!.body.children).toEqual([expect.objectContaining({ type: "button", action: { type: "sign_out" }, visibility: "signed_in" })]);
+        expect(page!.studio!.body.children![0]!.translations?.ar?.text).toBe("تسجيل الخروج");
+        expect(page!.studio!.body.children![0]!.translations?.tr?.text).toBe("Çıkış yap");
       } else if (!(was.type === "page" && page!.studio!.screen)) {
         expect(page!.studio!.header).toMatchObject({ type: "title", title: page!.title });
         expect(page!.studio!.header!.translations?.ar?.title).toBeTruthy();

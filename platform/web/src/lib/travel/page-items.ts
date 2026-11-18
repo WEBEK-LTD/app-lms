@@ -1,5 +1,5 @@
 import { assetUrl as publicAssetUrl } from "../assets";
-import { formatCents } from "../catalog/money";
+import { centsToDecimal, formatCents } from "../catalog/money";
 import type { DataStore } from "../data/store";
 import type { Item } from "../hosted/pages/items";
 import type { ItemsQuery } from "../pages/types";
@@ -33,6 +33,8 @@ export async function hotelPageItems(appId: string, query: ItemsQuery, deps: { s
       subtitle: [h.area, h.city].filter(Boolean).join(", "),
       image_url: h.photos[0] ? assetUrl(h.photos[0]) : null,
       price_label: nightly === null ? null : formatCents(nightly, settings.currency),
+      // 161 As an amount and a currency: the hosted API adds it in the customer's.
+      ...(nightly === null ? {} : { price: { amount: centsToDecimal(nightly, settings.currency), currency: settings.currency, formatted: formatCents(nightly, settings.currency) } }),
       badge: h.badge,
       action: { type: "item", item: { source: "hotels", id } },
     };

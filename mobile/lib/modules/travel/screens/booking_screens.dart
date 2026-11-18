@@ -28,6 +28,7 @@ import '../widgets/travel_pickers.dart';
 import '../widgets/travel_ui.dart';
 import '../widgets/travel_words.dart';
 import 'flight_screens.dart' show carrierTile;
+import '../../../core/format/text_case.dart';
 
 /// 126 Booking and after: a stay and a flight as one trip, the checkout,
 /// the trips, a trip in one place, the boarding passes, changing or
@@ -925,7 +926,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           child: Text(
                             user.name.isEmpty
                                 ? ''
-                                : user.name.characters.first.toUpperCase(),
+                                : user.name.characters.first.toUpperCaseIn(
+                                    context,
+                                  ),
                             style: t.ui(
                               14,
                               weight: FontWeight.w800,
@@ -1399,7 +1402,7 @@ class TripView extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      when.toUpperCase(),
+                      when.toUpperCaseIn(context),
                       style: t.ui(11.5, weight: FontWeight.w800, color: t.gold),
                     ),
                     const SizedBox(height: 6),
