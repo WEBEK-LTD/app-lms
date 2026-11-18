@@ -48,6 +48,11 @@ export const ADMIN_PERMISSIONS = [
   "bot.edit",
   /** 106 Studio Market: review templates sent for their first publish (approve and publish them, or send them back with notes). */
   "market.review",
+  /**
+   * 106.11 Studio Market's payouts: see designers' ID numbers and bank accounts in full and their ID documents,
+   * approve their checks or ask for a fix, prepare the month's bank file and download it, mark payouts sent or cancel them.
+   */
+  "market.payouts",
   /** 132 Give Prime to a client's apps as a gift (never charged, the plan and invoices unchanged), and take it back. */
   "prime.gift",
   /** 132.112 Move a client's app, or 132.115 its plan, to another account or app, with the owner's approval code. */
@@ -70,7 +75,7 @@ export const ROLE_LABELS: Record<AdminRole, string> = { owner: "Owner", admin: "
 
 export const ROLE_DESCRIPTIONS: Record<AdminRole, string> = {
   owner: "Everything, and manages the team.",
-  admin: "Everything except the team, including moving and copying clients' apps.",
+  admin: "Everything except the team, including moving and copying clients' apps and Studio Market's payouts to designers.",
   support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients, works on add-on services, sends their emails, teaches the app-builder bot and reviews Studio Market templates. No prices, plans, payments, settings, releases, demo apps or email campaigns.",
   viewer: "Sees everything, changes nothing.",
 };

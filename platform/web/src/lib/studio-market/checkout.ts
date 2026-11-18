@@ -9,6 +9,7 @@ import type { PlanInfo } from "../plans";
 import { isStudioProject } from "../studio/section";
 import { APPLY_MESSAGES, applyTemplate } from "./apply";
 import { templateFits } from "./kinds";
+import { recordSale } from "./money";
 import { offeredPlans, periodEnd, splitSale } from "./plans";
 import { templateText } from "./templates";
 
@@ -32,6 +33,10 @@ import { templateText } from "./templates";
  * Stage 4's codes come in here: `TemplateCheckoutInput` gets the code, and
  * the gross price is lowered before the split (the designer's 75% is of
  * what was paid).
+ *
+ * 106.11 A paid order is never taken back (no refunds, the owner's
+ * decision: nothing here or in the admin reverses one), so each one is a
+ * sale in the designer's ledger for good (lib/studio-market/money.ts).
  */
 
 /** English texts the dashboard translates (studioMarket.known). */
@@ -257,6 +262,8 @@ export async function completeTemplateOrder(
  */
 export async function deliverTemplateOrder(deps: DeliverDeps, order: TemplateOrder): Promise<OrderOutcome> {
   const { store, now } = deps;
+  // 106.11 The sale in the designer's ledger first, from the order's own split (once, however often this runs).
+  await recordSale(store, order, now);
   const template = await store.getMarketTemplate(order.templateId);
   if (!template) return { kind: "failed" };
   let licence: TemplateLicence | null;

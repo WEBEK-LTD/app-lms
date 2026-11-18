@@ -8,6 +8,7 @@ import type { PlanInfo } from "../plans";
 import type { Lang } from "@/i18n/config";
 import { takeOffAtEnd } from "./apply";
 import { marketMailLines } from "./mail";
+import { syncLedger } from "./money";
 import { templateText } from "./templates";
 
 /**
@@ -25,6 +26,9 @@ import { templateText } from "./templates";
  *   owner is emailed. Free and lifetime licences have no end date.
  *
  * Safe to run again: what was done for an end date isn't done twice.
+ *
+ * 106.11 Every paid sale is in the designers' ledger (a delivery cut short
+ * is written here).
  */
 
 export const REMINDER_DAYS = 14;
@@ -48,11 +52,18 @@ export interface MarketDailyReport {
   restored: number;
   /** Ends whose app couldn't go back to its previous design (the design stayed; the team sees it in the audit log). */
   restoreFailed: number;
+  /** 106.11 Paid sales put in the designers' ledger now (a delivery cut short wrote none). */
+  ledger: number;
 }
 
 export async function runStudioMarketDaily(deps: MarketDailyDeps): Promise<MarketDailyReport> {
   const { store, now } = deps;
-  const report: MarketDailyReport = { reminded: 0, lastDay: 0, ended: 0, restored: 0, restoreFailed: 0 };
+  const report: MarketDailyReport = { reminded: 0, lastDay: 0, ended: 0, restored: 0, restoreFailed: 0, ledger: 0 };
+  try {
+    report.ledger = await syncLedger(store, now);
+  } catch (e) {
+    console.error(`[daily] studio market ledger: ${e instanceof Error ? e.message : String(e)}`);
+  }
   for (const licence of await store.listTemplateLicencesEndingBy(new Date(now.getTime() + REMINDER_DAYS * DAY))) {
     const endsAt = licence.endsAt!;
     try {

@@ -16,6 +16,11 @@ import type {
   TemplateOrder,
   TemplateOrderPatch,
   TemplateOrderStatus,
+  DesignerLedgerEntry,
+  DesignerPayout,
+  DesignerPayoutDetails,
+  DesignerPayoutStatus,
+  PayoutDetailsStatus,
 } from "./types";
 import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type {
@@ -2580,4 +2585,37 @@ export interface DataStore {
   listTemplateApplications(filter: { licenceId?: string; appId?: string; open?: boolean }): Promise<TemplateApplication[]>;
   /** Ends it, or moves it to another version, only while it is open. False otherwise. */
   updateTemplateApplication(id: string, patch: TemplateApplicationPatch): Promise<boolean>;
+
+  // 106.11 The designer's money: the ledger of sales, the checks before the first payout, the payouts.
+  /** Records a paid sale once: false when its order has an entry already. */
+  recordDesignerSale(entry: DesignerLedgerEntry): Promise<boolean>;
+  /** Newest first; a designer's, or every designer's. */
+  listDesignerLedger(filter: { designerId?: string }): Promise<DesignerLedgerEntry[]>;
+  /** What each designer earned (their 75%s added up) and how many sales: by designer id. */
+  designerEarnings(): Promise<Record<string, { cents: number; sales: number }>>;
+  getDesignerPayoutDetails(designerId: string): Promise<DesignerPayoutDetails | null>;
+  /** Adds or replaces the designer's checks (sent to the team again). */
+  saveDesignerPayoutDetails(details: DesignerPayoutDetails): Promise<void>;
+  /**
+   * The team's answer, only while the checks are still the ones it looked at
+   * (sent at `submittedAt`, waiting): a designer's change meanwhile wins. False otherwise.
+   */
+  reviewDesignerPayoutDetails(designerId: string, submittedAt: Date, patch: Pick<DesignerPayoutDetails, "status" | "reviewNote" | "reviewedAt" | "reviewedBy">): Promise<boolean>;
+  /** Oldest sent first; by status. */
+  listDesignerPayoutDetails(statuses?: readonly PayoutDetailsStatus[]): Promise<DesignerPayoutDetails[]>;
+  /**
+   * Prepares a payout, kept by the database: only while the designer has no
+   * other payout (not cancelled) for its month (`exists`), and only while
+   * their balance (sales less payouts not cancelled) is still `expectedCents`
+   * (`changed`: another payout or a sale came in between).
+   */
+  createDesignerPayout(payout: DesignerPayout, expectedCents: number): Promise<"created" | "exists" | "changed">;
+  getDesignerPayout(id: string): Promise<DesignerPayout | null>;
+  /** Newest prepared first; by designer, month or status. */
+  listDesignerPayouts(filter: { designerId?: string; period?: string; statuses?: readonly DesignerPayoutStatus[] }): Promise<DesignerPayout[]>;
+  /** Sent only while it is being prepared (two team members at once: one wins). False otherwise. */
+  markDesignerPayoutSent(id: string, patch: Pick<DesignerPayout, "bankReference" | "sentOn" | "sentAt" | "sentBy">): Promise<boolean>;
+  /** Cancelled only while it isn't sent: its month is free again. False otherwise. */
+  cancelDesignerPayout(id: string, patch: Pick<DesignerPayout, "cancelledAt" | "cancelledBy" | "cancelNote">): Promise<boolean>;
+  markDesignerPayoutEmailed(id: string, at: Date): Promise<void>;
 }

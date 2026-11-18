@@ -16,6 +16,11 @@ import type {
   TemplateOrder,
   TemplateOrderPatch,
   TemplateOrderStatus,
+  DesignerLedgerEntry,
+  DesignerPayout,
+  DesignerPayoutDetails,
+  DesignerPayoutStatus,
+  PayoutDetailsStatus,
 } from "./types";
 import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
@@ -9211,6 +9216,104 @@ export class MemoryStore implements DataStore {
     if (!found || found.endedAt) return false;
     this.templateApplications.set(id, { ...found, ...clone(patch) });
     return true;
+  }
+
+  // ——— 106.11 The designer's money ———
+
+  private designerLedger = new Map<string, DesignerLedgerEntry>();
+  private payoutDetails = new Map<string, DesignerPayoutDetails>();
+  private designerPayouts = new Map<string, DesignerPayout>();
+
+  async recordDesignerSale(entry: DesignerLedgerEntry): Promise<boolean> {
+    if (this.designerLedger.has(entry.id)) return false;
+    this.designerLedger.set(entry.id, clone(entry));
+    return true;
+  }
+
+  async listDesignerLedger(filter: { designerId?: string }): Promise<DesignerLedgerEntry[]> {
+    return [...this.designerLedger.values()]
+      .filter((e) => !filter.designerId || e.designerId === filter.designerId)
+      .sort((a, b) => b.earnedAt.getTime() - a.earnedAt.getTime() || (a.id < b.id ? 1 : -1))
+      .map(clone);
+  }
+
+  async designerEarnings(): Promise<Record<string, { cents: number; sales: number }>> {
+    const out: Record<string, { cents: number; sales: number }> = {};
+    for (const e of this.designerLedger.values()) {
+      const sum = (out[e.designerId] ??= { cents: 0, sales: 0 });
+      sum.cents += e.designerCents;
+      sum.sales += 1;
+    }
+    return out;
+  }
+
+  async getDesignerPayoutDetails(designerId: string): Promise<DesignerPayoutDetails | null> {
+    const found = this.payoutDetails.get(designerId);
+    return found ? clone(found) : null;
+  }
+
+  async saveDesignerPayoutDetails(details: DesignerPayoutDetails): Promise<void> {
+    this.payoutDetails.set(details.designerId, clone(details));
+  }
+
+  async reviewDesignerPayoutDetails(designerId: string, submittedAt: Date, patch: Pick<DesignerPayoutDetails, "status" | "reviewNote" | "reviewedAt" | "reviewedBy">): Promise<boolean> {
+    const found = this.payoutDetails.get(designerId);
+    if (!found || found.status !== "submitted" || found.submittedAt.getTime() !== submittedAt.getTime()) return false;
+    this.payoutDetails.set(designerId, { ...found, ...clone(patch), updatedAt: patch.reviewedAt ?? found.updatedAt });
+    return true;
+  }
+
+  async listDesignerPayoutDetails(statuses?: readonly PayoutDetailsStatus[]): Promise<DesignerPayoutDetails[]> {
+    return [...this.payoutDetails.values()]
+      .filter((d) => !statuses || statuses.includes(d.status))
+      .sort((a, b) => a.submittedAt.getTime() - b.submittedAt.getTime() || (a.designerId < b.designerId ? -1 : 1))
+      .map(clone);
+  }
+
+  /** The designer's balance: their sales less their payouts not cancelled. */
+  private designerBalance(designerId: string): number {
+    let cents = 0;
+    for (const e of this.designerLedger.values()) if (e.designerId === designerId) cents += e.designerCents;
+    for (const p of this.designerPayouts.values()) if (p.designerId === designerId && p.status !== "cancelled") cents -= p.amountCents;
+    return cents;
+  }
+
+  async createDesignerPayout(payout: DesignerPayout, expectedCents: number): Promise<"created" | "exists" | "changed"> {
+    if ([...this.designerPayouts.values()].some((p) => p.id === payout.id || (p.designerId === payout.designerId && p.period === payout.period && p.status !== "cancelled"))) return "exists";
+    if (this.designerBalance(payout.designerId) !== expectedCents) return "changed";
+    this.designerPayouts.set(payout.id, clone(payout));
+    return "created";
+  }
+
+  async getDesignerPayout(id: string): Promise<DesignerPayout | null> {
+    const found = this.designerPayouts.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async listDesignerPayouts(filter: { designerId?: string; period?: string; statuses?: readonly DesignerPayoutStatus[] }): Promise<DesignerPayout[]> {
+    return [...this.designerPayouts.values()]
+      .filter((p) => (!filter.designerId || p.designerId === filter.designerId) && (!filter.period || p.period === filter.period) && (!filter.statuses || filter.statuses.includes(p.status)))
+      .sort((a, b) => b.preparedAt.getTime() - a.preparedAt.getTime() || (a.id < b.id ? 1 : -1))
+      .map(clone);
+  }
+
+  async markDesignerPayoutSent(id: string, patch: Pick<DesignerPayout, "bankReference" | "sentOn" | "sentAt" | "sentBy">): Promise<boolean> {
+    const found = this.designerPayouts.get(id);
+    if (!found || found.status !== "processing") return false;
+    this.designerPayouts.set(id, { ...found, ...clone(patch), status: "sent" });
+    return true;
+  }
+
+  async cancelDesignerPayout(id: string, patch: Pick<DesignerPayout, "cancelledAt" | "cancelledBy" | "cancelNote">): Promise<boolean> {
+    const found = this.designerPayouts.get(id);
+    if (!found || found.status !== "processing") return false;
+    this.designerPayouts.set(id, { ...found, ...clone(patch), status: "cancelled" });
+    return true;
+  }
+
+  async markDesignerPayoutEmailed(id: string, at: Date): Promise<void> {
+    const found = this.designerPayouts.get(id);
+    if (found) this.designerPayouts.set(id, { ...found, emailedAt: new Date(at) });
   }
 }
 
