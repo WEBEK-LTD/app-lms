@@ -27,6 +27,7 @@ import '../../../core/widgets/common.dart';
 import '../../../core/widgets/star_text.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
 import '../../lms/home/learning_cards.dart';
+import '../../rides/data/rides_providers.dart' show ActiveRideFollower;
 import '../../school/widgets/studio_school.dart';
 import '../../market/widgets/market_sections.dart';
 import '../account/order_journey.dart' show isJourneyHeading, orderJourneyShows;
@@ -1234,6 +1235,11 @@ class StudioNodeView extends ConsumerWidget {
         return false;
       }
     }
+    // 178 A row or column holding only what shows the person's own (their
+    // ride, the taxis near them, their order) while there is none of it:
+    // nothing, not an empty card (Masar's frosted "On the way" over the
+    // map, signed in without a ride).
+    if (_emptyOfLive(node, ref)) return false;
     return switch (node.type) {
       // 112.4 What this person opened lately, once there is something.
       StudioNodeType.items when node.recent =>
@@ -1281,6 +1287,38 @@ class StudioNodeView extends ConsumerWidget {
       StudioNodeType.search => PageBlockView.shows(_searchBlock(node, ''), ref),
       _ => true,
     };
+  }
+
+  /// 178 What shows the person's own, or a list of the source's, and so
+  /// nothing while there is none.
+  static const _live = {
+    StudioNodeType.tracking,
+    StudioNodeType.liveStatus,
+    StudioNodeType.learning,
+    StudioNodeType.school,
+    StudioNodeType.segments,
+    StudioNodeType.items,
+    StudioNodeType.categories,
+    StudioNodeType.coupon,
+  };
+
+  /// 178 A row or column whose every child is live ([_live], or a row or
+  /// column of them) and shows nothing now.
+  static bool _emptyOfLive(StudioNode node, WidgetRef ref) {
+    if (node.type != StudioNodeType.row && node.type != StudioNodeType.column) {
+      return false;
+    }
+    final children = node.children;
+    if (children.isEmpty) return false;
+    for (final child in children) {
+      final live =
+          _live.contains(child.type) ||
+          ((child.type == StudioNodeType.row ||
+                  child.type == StudioNodeType.column) &&
+              child.children.isNotEmpty);
+      if (!live || shows(child, ref)) return false;
+    }
+    return true;
   }
 
   @override
@@ -1487,7 +1525,15 @@ class StudioNodeView extends ConsumerWidget {
         child: child,
       );
     }
-    if (w != null || h != null) {
+    if (h != null && studioGrowsToFit(node)) {
+      // 178 A card of words at a fixed height (Masar's car classes, Lamha's)
+      // as designed, taller only when a larger text size needs it: before,
+      // its words ran past its foot at 1.3.
+      child = _AtLeastHeight(
+        height: h,
+        child: w == null ? child : SizedBox(width: w, child: child),
+      );
+    } else if (w != null || h != null) {
       child = SizedBox(width: w, height: h, child: child);
     } else if (node.aspectRatio case final ratio? when ratio > 0 && !slider) {
       child = AspectRatio(aspectRatio: ratio, child: child);
@@ -1825,7 +1871,10 @@ class StudioNodeView extends ConsumerWidget {
       case StudioNodeType.photoHero || StudioNodeType.mapHeader:
         return const SizedBox.shrink();
       case StudioNodeType.tracking:
-        return StudioTrackingView(node: node);
+        // 178 The person's ride follows its stages while it is on screen.
+        return node.tracking?.kind == StudioTrackingKind.ride
+            ? ActiveRideFollower(child: StudioTrackingView(node: node))
+            : StudioTrackingView(node: node);
       case StudioNodeType.greeting:
         return StudioGreetingView(node: node);
       case StudioNodeType.school:
@@ -2117,6 +2166,16 @@ class StudioNodeView extends ConsumerWidget {
         // Stretching to the tallest needs the row's height first.
         final laid = stretch && node.height?.fixed == null
             ? IntrinsicHeight(child: row)
+            : givesWay == null && studioScalesToFit(node)
+            // 178 A row of words at its own width (a fare's "from ₺" and
+            // its number) smaller when a larger text size would run it past
+            // its card, as designed whenever it fits.
+            ? FittedBox(
+                key: ValueKey('studio-fit-${node.id}'),
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: row,
+              )
             : row;
         // 128.10 In a row of unbounded width (one inside another row) the
         // text has no room to give way in: the row at its own width there.
@@ -3642,4 +3701,102 @@ class _StudioInk extends InheritedWidget {
 
   @override
   bool updateShouldNotify(_StudioInk old) => old.color != color;
+}
+
+/// 178 What a card of words is made of: rows, columns, texts and icons
+/// only, whose sizes Flutter can ask for before laying them out.
+bool _wordsOnly(StudioNode node) =>
+    const {
+      StudioNodeType.row,
+      StudioNodeType.column,
+      StudioNodeType.text,
+      StudioNodeType.icon,
+    }.contains(node.type) &&
+    node.children.every(_wordsOnly);
+
+/// 178 A row or column of a fixed height that is a card of words
+/// ([_wordsOnly]): taller than designed only when its words need it.
+bool studioGrowsToFit(StudioNode node) =>
+    (node.type == StudioNodeType.row || node.type == StudioNodeType.column) &&
+    node.children.isNotEmpty &&
+    node.children.every(_wordsOnly);
+
+/// 178 A row of texts and icons at its own width (nothing in it fills it
+/// and it has no width of its own), from its start: drawn smaller rather
+/// than past what holds it when it doesn't fit.
+bool studioScalesToFit(StudioNode node) =>
+    node.type == StudioNodeType.row &&
+    node.width == null &&
+    (node.align == StudioAlign.start) &&
+    node.children.length >= 2 &&
+    node.children.every(
+      (k) =>
+          (k.type == StudioNodeType.text || k.type == StudioNodeType.icon) &&
+          k.width == null,
+    );
+
+/// 178 [height], or more when what it holds needs more (its smallest
+/// height at its width): as designed whenever it fits.
+class _AtLeastHeight extends SingleChildRenderObjectWidget {
+  const _AtLeastHeight({required this.height, required Widget super.child});
+
+  final double height;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderAtLeastHeight(height);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderAtLeastHeight renderObject,
+  ) => renderObject.height = height;
+}
+
+class _RenderAtLeastHeight extends RenderProxyBox {
+  _RenderAtLeastHeight(this._height);
+
+  double _height;
+  set height(double value) {
+    if (value == _height) return;
+    _height = value;
+    markNeedsLayout();
+  }
+
+  double _heightAt(BoxConstraints constraints) {
+    final child = this.child;
+    final width = constraints.hasBoundedWidth
+        ? constraints.maxWidth
+        : (child?.getMaxIntrinsicWidth(double.infinity) ?? 0);
+    final needed = child?.getMinIntrinsicHeight(width) ?? 0;
+    return constraints.constrainHeight(math.max(_height, needed));
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) =>
+      math.max(_height, super.computeMinIntrinsicHeight(width));
+
+  @override
+  double computeMaxIntrinsicHeight(double width) =>
+      math.max(_height, super.computeMaxIntrinsicHeight(width));
+
+  @override
+  Size computeDryLayout(covariant BoxConstraints constraints) {
+    final h = _heightAt(constraints);
+    final child = this.child;
+    if (child == null) return constraints.constrain(Size(0, h));
+    return child.getDryLayout(constraints.tighten(height: h));
+  }
+
+  @override
+  void performLayout() {
+    final h = _heightAt(constraints);
+    final child = this.child;
+    if (child == null) {
+      size = constraints.constrain(Size(0, h));
+      return;
+    }
+    child.layout(constraints.tighten(height: h), parentUsesSize: true);
+    size = child.size;
+  }
 }

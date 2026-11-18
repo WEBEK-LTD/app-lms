@@ -68,7 +68,6 @@ class StudioPremiumHeader extends ConsumerWidget {
     final build = ref.watch(appEnvironmentProvider).build;
     final config = ref.watch(appConfigProvider);
     final style = chromeStyleOfHeader(header.style!);
-    final onColour = ChromeHeaderBar.onColourFor(style, header.imageUrl);
     final title = header.title ?? build.appName;
     final logo =
         header.logoUrl ??
@@ -81,6 +80,12 @@ class StudioPremiumHeader extends ConsumerWidget {
     final foreground = parseHexColor(
       dark ? (header.darkColor ?? header.color) : header.color,
     );
+    // 178 The buttons in white on the brand's colour, but in the page's ink
+    // on a light colour the owner gave it (Lamha's cream "Ride" and "My
+    // rides": a white back and bell on cream, unseen).
+    final onColour = style == ChromeHeaderStyle.brand && background != null
+        ? background.computeLuminance() < 0.4
+        : ChromeHeaderBar.onColourFor(style, header.imageUrl);
     final auth = ref.watch(authControllerProvider);
     final unread =
         header.buttons.contains(StudioHeaderButton.notifications) &&

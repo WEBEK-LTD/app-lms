@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 import { GUIDE_REDIRECTS } from "./src/content/docs";
 import { countryVaryHeaders, PRICED_PAGES } from "./src/lib/geo-vary";
-import { PAGE_CSP, PAY_PERMISSIONS_POLICY, PERMISSIONS_POLICY } from "./src/lib/csp";
+import { PAGE_CSP, PAY_PERMISSIONS_POLICY, PERMISSIONS_POLICY, PREVIEW_PERMISSIONS_POLICY } from "./src/lib/csp";
 import { deployRobotsHeaders } from "./src/lib/indexing";
 
 const securityHeaders = [
@@ -44,8 +44,10 @@ const nextConfig: NextConfig = {
       // 155 No camera, microphone, location or payments anywhere, but the payment page lets Stripe's
       // frames use the Payment Request API, so Apple Pay and Google Pay can show in its card form
       // (lib/csp.ts). Kept apart so no page gets both.
-      { source: "/:path((?!preview-app/|pay/).*)", headers: [{ key: "Permissions-Policy", value: PERMISSIONS_POLICY }] },
+      { source: "/:path((?!preview-app/|pay/|dashboard/preview$|studio/project/preview$).*)", headers: [{ key: "Permissions-Policy", value: PERMISSIONS_POLICY }] },
       { source: "/pay/:path+", headers: [{ key: "Permissions-Policy", value: PAY_PERMISSIONS_POLICY }] },
+      // 178 The Preview page lets its frame of the app preview ask for the location (lib/csp.ts).
+      { source: "/:path(dashboard/preview|studio/project/preview)", headers: [{ key: "Permissions-Policy", value: PREVIEW_PERMISSIONS_POLICY }] },
       // 69 Pages: no <base> or plugin content from elsewhere and never framed, a policy browsers
       // enforce on top of React's escaping. API routes and the media links set their own
       // (files and SVGs are sandboxed: src/app/api/v1/assets), so they're left out here. 69.12 The
@@ -56,7 +58,8 @@ const nextConfig: NextConfig = {
         source: "/preview-app/:path*",
         headers: [
           ...securityHeaders,
-          { key: "Permissions-Policy", value: PERMISSIONS_POLICY },
+          // 178 Its location for itself: "My location" and the map in a ride or taxi app.
+          { key: "Permissions-Policy", value: PREVIEW_PERMISSIONS_POLICY },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
           { key: "X-Robots-Tag", value: "noindex, nofollow" },

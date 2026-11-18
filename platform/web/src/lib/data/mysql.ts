@@ -6428,6 +6428,7 @@ export class MysqlStore implements DataStore {
       eq(t.appId, query.appId),
       query.userId !== undefined ? eq(t.userId, query.userId) : undefined,
       query.notUserId !== undefined ? or(isNull(t.userId), ne(t.userId, query.notUserId)) : undefined,
+      query.notRiderName !== undefined ? ne(t.riderName, query.notRiderName) : undefined,
       query.driverId !== undefined ? eq(t.driverId, query.driverId) : undefined,
       query.offeredTo !== undefined ? eq(t.offeredTo, query.offeredTo) : undefined,
       query.statuses ? inArray(t.status, query.statuses) : undefined,

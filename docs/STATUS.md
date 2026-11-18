@@ -264,6 +264,34 @@ the demo's banner line and welcome sentence (Defne Café's hours and
 neighbourhoods). No migration, no app build. Not yet on a phone: text size
 1.3, a parcel, a café's card order, Yallapp Business (ROADMAP 176.7).
 
+Roadmap 178 (the rides and taxi templates, tested by hand): Masar Rides
+and Lamha Taxi made both ways and walked through in the app preview. Their
+homes' car classes (Economy, Comfort and Van "from E£35"; Taxi, Comfort,
+XL) were the template's words, whatever vehicle types, fares and currency
+the company set: hosted `GET /pages` and Studio's canvas now make them the
+company's offered vehicle types, at their smallest fares in Ride settings'
+currency, and the pages' version follows them. A drawn map's template
+words (Home, Office, Airport, the districts, Pickup) are served in the
+language asked for. The app preview may use the location (geolocation=
+(self) on /preview-app and the Preview page only). In the app: the
+drivers' app preview reads its role (it showed the riders' home), no empty
+frosted card without a ride, no second menu and chip under the ride
+screen's Studio header, My rides and the driver's lists end above a
+floating bar, the glass bar fits at 1.3, Lamha's cream headers show their
+buttons, and "No free taxis near you" with none free. Yallapp Business
+colours an accepted ride (the driver on the way) in the board's blue.
+The home's ride card and living map read the ride again every 15 seconds
+while it is on its way, and the riders' app with the review number leaves
+out the sample rides the drivers' app makes for it (it couldn't ask for a
+ride while the drivers' app was online). A ride nobody took in time is no
+longer sent among the rides on their way (the home said "Your driver is
+coming" over the ride's "No driver found"), and the template guard's layout
+passes on every rides and taxi look: the map's words stay inside it and the
+car classes' cards fit at text 1.3, as designed where they fit. No migration; the
+app's part needs the next app build (no `CLIENT_APP_RELEASE` change here);
+the whole trip with a real driver's phone, real tiles and pushes is still
+to try (ROADMAP 178.12).
+
 Roadmap 179 (the education templates, tested by hand): Nakhla School's
 look A home ran the template's words in its News pill, which customers'
 apps leave out, so every school showed "News" with nothing after it; it now

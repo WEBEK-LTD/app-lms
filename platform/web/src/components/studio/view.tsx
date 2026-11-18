@@ -12,6 +12,8 @@ import { mapTree } from "@/lib/studio/tree";
 import { withShopCategoriesIn } from "@/lib/studio/shop-categories";
 import { withNewsTicker } from "@/lib/school/news-ticker";
 import { withFaculty } from "@/lib/teachers/faculty";
+import { withRideClassesIn } from "@/lib/studio/ride-classes";
+import { withMapWordsIn } from "@/lib/studio/map-words";
 import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
 import { splitTabs } from "@/lib/pages/tab-bar";
@@ -234,7 +236,14 @@ export function StudioView(givenProps: ViewProps) {
   const shopped = shop ? { ...viewProps, page: { ...viewProps.page, body: withShopCategoriesIn(viewProps.page.body, shop) } } : viewProps;
   // 179.7 Nakhla's ticker with the school's news and Rawaq's faculty with the academy's teachers, as the app shows them;
   // with none yet, as the template made them, so they stay there to edit (the app hides them).
-  const listed = withSchoolData(shopped, viewProps.pickable.schoolNews, viewProps.pickable.faculty);
+  const schooled = withSchoolData(shopped, viewProps.pickable.schoolNews, viewProps.pickable.faculty);
+  // 178 A template's car classes as the company's vehicle types, as the app shows them.
+  const rides = schooled.pickable.rideClasses;
+  const classed = rides ? { ...schooled, page: { ...schooled.page, body: withRideClassesIn(schooled.page.body, rides, schooled.lang) } } : schooled;
+  // 178 A drawn map's template words in the language shown, as the app gets them.
+  const drawsMap = (n: StudioNode): boolean => !!n.map_drawing || (n.children ?? []).some(drawsMap);
+  const mapped = drawsMap(classed.page.body) ? mapTree(classed.page.body, (n) => withMapWordsIn(n, classed.lang)) : null;
+  const listed = mapped && mapped !== classed.page.body ? { ...classed, page: { ...classed.page, body: mapped } } : classed;
   // 159 At their automatic sizes, as the app draws them (a cover's top bar across the cover), unless sized by hand.
   const body = autoSized(listed.tablet ? (mapTree(listed.page.body, forTablet) ?? listed.page.body) : listed.page.body);
   const props = body === listed.page.body ? listed : { ...listed, page: { ...listed.page, body } };

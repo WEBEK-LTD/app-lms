@@ -779,7 +779,8 @@ class _RideList extends ConsumerWidget {
         },
         child: ListView.separated(
           controller: controller,
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+          // 178 Its end clear of a tab bar over the screen.
+          padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
           itemCount: state.items.length,
           separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, i) => DriverRideTile(
@@ -814,7 +815,8 @@ class _EarningsState extends ConsumerState<_Earnings> {
     return ListView(
       key: const ValueKey('driver-earnings'),
       controller: widget.controller,
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+      // 178 Its end clear of a tab bar over the screen.
+      padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
       children: [
         SegmentedTabs(
           labels: [l10n.earningsToday, l10n.earningsWeek, l10n.earningsMonth],

@@ -1081,8 +1081,9 @@ class AppNavBar extends StatelessWidget {
               );
           }
           // 177 At a larger text size the name made the tab a point too
-          // tall for the bar (Zad's floating bar at 1.3): both shrink to the
-          // tab's room instead, as drawn at 1.0.
+          // tall for the bar (Zad's floating bar at 1.3; 178 Masar's frosted
+          // glass at 1.3, one point short): both shrink to the tab's room
+          // instead, never more, and are drawn as designed when they fit.
           content = FittedBox(
             fit: BoxFit.scaleDown,
             child: Column(
