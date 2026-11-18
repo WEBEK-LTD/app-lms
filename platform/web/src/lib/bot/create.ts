@@ -1,6 +1,7 @@
 import "server-only";
 import { ENGINES } from "../app/kinds";
 import { ownContentSetup } from "../app/own-content";
+import { startingCatalogSettings } from "../app/country-defaults";
 import { newApp } from "../app/setup";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
@@ -100,7 +101,7 @@ async function makeRegular(store: DataStore, maker: BotMaker, answers: BotAnswer
   const fresh = newApp(maker.clientId, answers.website, now, kind.engine, kind.vertical);
   const named: App = { ...fresh, appName: answers.name, logoAssetId: answers.logoAssetId, ...(answers.colour ? { primaryColor: answers.colour } : {}) };
   // No website: the content is kept in Yallapp (as "I don't have a website" on the Website step).
-  const base: App = answers.website ? named : { ...named, siteUrl: null, backend: "hosted", ...ownContentSetup(ENGINES[kind.engine].ownContent.kind, named), websiteDoneAt: now };
+  const base: App = answers.website ? named : { ...named, siteUrl: null, backend: "hosted", ...ownContentSetup(ENGINES[kind.engine].ownContent.kind, named, startingCatalogSettings(await store.getClientById(maker.clientId))), websiteDoneAt: now };
   const app: App = { ...base, ...featureSettings(base, answers.features, plan) };
   // 136 Yallapp sets up its notifications when its Firebase is set up here and has room.
   if (await pushSetupForNewApp(store, app)) app.pushSetup = "yallapp";

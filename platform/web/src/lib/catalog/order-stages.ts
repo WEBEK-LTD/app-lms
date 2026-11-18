@@ -1,7 +1,7 @@
 import type { App, CatalogOrder, DeliverySlot, DeliveryStage, FailedNextStep, FailedReason, OrderStageEntry, PostponeReason } from "../data/types";
 import { DELIVERY_STAGES, FAILED_NEXT_STEPS, FAILED_REASONS, POSTPONE_REASONS } from "../data/types";
 import { notifyOrderStage } from "../hosted/auto-notifications";
-import { deliveryOf, nextDays, shopToday, slotLabel, slotStarted } from "../selling/delivery";
+import { deliveryOf, nextDays, shopToday, slotClosed, slotLabel, slotStarted } from "../selling/delivery";
 import { awaitingManualPayment } from "./manual";
 import { changeOrderStatus, type OrderMoveDeps } from "./order-status";
 import { refundAfterFailedDelivery, type StageRefundDeps } from "./stage-refunds";
@@ -126,7 +126,7 @@ export interface StageActor {
 }
 
 /** The day and slot a postponed or retried delivery moves to: a day from today, one of the shop's slots that hasn't started. */
-function newDay(app: App, order: CatalogOrder, input: StageInput, now: Date): { ok: true; slot: DeliverySlot | null } | { ok: false; errors: Record<string, string> } {
+function newDay(app: App, order: CatalogOrder, input: StageInput, now: Date, counts: Record<string, number> = {}): { ok: true; slot: DeliverySlot | null } | { ok: false; errors: Record<string, string> } {
   // The shop's delivery days when they're on; a gift's always (the gift checkout's); else its slots to choose from, none needed.
   const own = deliveryOf(app) ?? (order.delivery?.sender || order.delivery?.recipient ? deliveryOf(app, true) : null);
   const settings = own ?? deliveryOf(app, true)!;
@@ -138,6 +138,10 @@ function newDay(app: App, order: CatalogOrder, input: StageInput, now: Date): { 
   const slot = settings.slots.find((x) => x.id === input.slotId);
   if (!slot) return { ok: false, errors: { slot_id: "Choose one of the shop's delivery times." } };
   if (slotStarted(settings, slot, input.date!, now)) return { ok: false, errors: { slot_id: "That delivery time has started. Please choose a later one." } };
+  // 175 A time the shop closed that day, or one already full (this order's own place aside), as the app's slots say.
+  if (slotClosed(settings, slot, input.date!)) return { ok: false, errors: { slot_id: "The shop doesn't deliver at that time that day. Please choose another." } };
+  const mine = order.deliveryDate === input.date && order.delivery?.slot?.id === slot.id ? 1 : 0;
+  if (slot.capacity !== null && (counts[slot.id] ?? 0) - mine >= slot.capacity) return { ok: false, errors: { slot_id: "That delivery time is full that day. Please choose another." } };
   return { ok: true, slot };
 }
 
@@ -162,7 +166,9 @@ export async function setOrderStage(
   }
   let slot: DeliverySlot | null = null;
   if (input.date) {
-    const day = newDay(app, order, input, now);
+    // 175 The orders each slot of that day has (unpaid ones for the payment link's half hour), for the full ones.
+    const counts = await store.countCatalogDeliveries(app.id, input.date, new Date(now.getTime() - 30 * 60_000));
+    const day = newDay(app, order, input, now, counts);
     if (!day.ok) return { ok: false, status: 400, code: "invalid_request", message: "The request isn't valid.", errors: day.errors };
     slot = day.slot;
   }
@@ -196,7 +202,7 @@ export async function setOrderStage(
   }
   if (input.stage === "shipped" || input.stage === "postponed" || input.stage === "failed") {
     try {
-      await notifyOrderStage({ store, key: deps.key, now, send: deps.send }, app, fresh, entry);
+      await notifyOrderStage({ store, key: deps.key, now, send: deps.send, guestMail: deps.guestMail }, app, fresh, entry);
     } catch (e) {
       console.error(`[orders] the stage notice failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 400));
     }

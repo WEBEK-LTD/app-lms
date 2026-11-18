@@ -8,7 +8,7 @@ import { formatCents } from "@/lib/catalog/money";
 import { fulfilmentOf } from "@/lib/catalog/fulfilment";
 import { catalogSettings, paymentsSetUp } from "@/lib/catalog/settings";
 import { getStore } from "@/lib/data";
-import { priceOf } from "@/lib/hosted/connectors/catalog";
+import { servedPrice } from "@/lib/catalog/variants";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import { SampleEntries } from "@/components/samples";
@@ -33,7 +33,7 @@ type Query = { saved?: string; samples?: string; samplesRemoved?: string; q?: st
  */
 export default async function CatalogPage({ searchParams }: { searchParams: Promise<Query> }) {
   const { app } = await requireClient("catalog");
-  const { t, num } = await dashboardText();
+  const { t, num, lang } = await dashboardText();
   const kind = app?.vertical === "restaurant" ? "restaurant" : "shop";
   const pageTitle = t("shop.page", { kind });
   if (!app || app.connector?.kind !== "catalog") {
@@ -48,7 +48,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const store = await getStore();
   const [products, categories] = await Promise.all([store.listCatalogProducts(app.id), store.listCatalogCategories(app.id)]);
   const settings = catalogSettings(app);
-  const money = (cents: number) => formatCents(cents, settings.currency);
+  const money = (cents: number) => formatCents(cents, settings.currency, lang);
   const fulfilment = fulfilmentOf(app);
   const restaurant = kind === "restaurant";
   const demo = startedFromDemo(app);
@@ -63,17 +63,17 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
     </Link>
   );
   const rows: ProductRowData[] = products.map((p) => {
-    const now = priceOf(p);
-    const onSale = p.salePriceCents !== null && p.salePriceCents < p.priceCents;
+    // 175 What the app serves: a product with sizes from its cheapest to its dearest one on sale now.
+    const { low, high, regular } = servedPrice(p);
     return {
       id: p.id,
       name: p.name,
       sku: p.sku,
       image: p.imageAssetIds[0] ? assetUrl(p.imageAssetIds[0]) : null,
-      price: money(now),
-      was: onSale ? money(p.priceCents) : null,
-      salePercent: onSale && p.priceCents > 0 ? Math.round((1 - now / p.priceCents) * 100) : null,
-      cents: now,
+      price: low === high ? money(low) : `${money(low)} – ${money(high)}`,
+      was: regular !== null ? money(regular) : null,
+      salePercent: regular !== null && regular > 0 ? Math.round((1 - low / regular) * 100) : null,
+      cents: low,
       stock: p.stock,
       active: p.active,
       featured: p.featured,

@@ -106,6 +106,15 @@ test("a shop that takes bank transfers", async ({ page }) => {
   await other.getByRole("button", { name: "Save payment methods" }).click();
   await expect(other.getByText("Payment methods saved.")).toBeVisible();
   await page.getByRole("link", { name: "Products", exact: true }).click();
+  // 175 A UK owner's shop starts in pounds: this one sells in liras.
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
+  await expect(page.getByLabel("Currency", { exact: true })).toHaveValue("GBP");
+  await page.getByLabel("Currency", { exact: true }).selectOption("TRY");
+  const keep = page.getByLabel("Keep the numbers as they are");
+  if (await keep.isVisible()) await keep.check();
+  await page.getByRole("button", { name: "Save settings" }).click();
+  await expect(page.getByText("Shop settings saved.")).toBeVisible();
+  await page.getByRole("link", { name: "Products", exact: true }).click();
   await page.getByRole("link", { name: "Add product" }).click();
   await page.getByLabel("Name", { exact: true }).fill("Atlas of Harbours");
   await page.getByLabel("Price (TRY)", { exact: true }).fill("450");

@@ -275,7 +275,8 @@ describe("132 delivery stages", () => {
     const done = await call("POST", "/apps/{app_id}/orders/{order_id}/refund-done", route);
     expect(done.status).toBe(200);
     expect(done.body.refund_due).toMatchObject({ status: "recorded", done_by: "Leyla Kaya" });
-    expect(done.body.status).toBe("refunded");
+    // 175 A cancelled order stays cancelled once refunded.
+    expect(done.body.status).toBe("cancelled");
     expect((await inbox()).map((n) => n.body)).toContain("We refunded E£1,800.00. It may take a few days to reach you.");
     expect((await call("POST", "/apps/{app_id}/orders/{order_id}/refund-done", route)).status).toBe(409);
   });
@@ -331,7 +332,8 @@ describe("132 delivery stages", () => {
     const bad = parseStageInput({ stage: "shipped", tracking_url: "track me", courier_phone: "call Ali" });
     expect(bad.ok ? {} : bad.errors).toEqual({ tracking_url: "Enter the tracking link starting with https://.", courier_phone: "Enter the courier's phone number." });
     const v = { number: "2051", status: "postponed", reason: "weather", date: TOMORROW, slot: "10:00–13:00", next: "", tracking: "" };
-    expect(AUTO_TEXT.order_update.ar(v).body).toBe("تم تأجيل توصيل طلبك إلى الثلاثاء، ١٣ أكتوبر، 10:00–13:00 بسبب الطقس.");
+    // 175 One digit system: the day's digits as the time's.
+    expect(AUTO_TEXT.order_update.ar(v).body).toBe("تم تأجيل توصيل طلبك إلى الثلاثاء، 13 أكتوبر، 10:00–13:00 بسبب الطقس.");
     expect(AUTO_TEXT.order_update.tr(v).body).toBe("Teslimatınız 13 Eki Sal, 10:00–13:00 tarihine ertelendi (hava koşulları nedeniyle).");
     expect(AUTO_TEXT.order_update.en({ ...v, status: "delivered" }).body).toBe("Your order was delivered. Thank you!");
   });

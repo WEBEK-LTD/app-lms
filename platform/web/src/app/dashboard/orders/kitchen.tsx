@@ -112,9 +112,9 @@ export async function KitchenView({ app, kitchen, page }: { app: App; kitchen: F
   ]);
   const queue = [...active.items].reverse();
   const pages = Math.max(1, Math.ceil(past.total / PER_PAGE));
-  const money = (order: CatalogOrder, cents: number) => formatCents(cents, order.currency);
   const text = await dashboardText();
   const { t, k, lang } = text;
+  const money = (order: CatalogOrder, cents: number) => formatCents(cents, order.currency, lang);
 
   return (
     <div className="flex flex-col gap-6">

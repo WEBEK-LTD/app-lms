@@ -234,7 +234,7 @@ export const COPIERS: { tables: string[]; copy: Copier }[] = [
       const { store, now } = ctx;
       const to = ctx.to.id;
       for (const c of [...(await store.listCatalogCategories(ctx.from.id))].sort((a, b) => a.position - b.position)) {
-        const made = await store.createCatalogCategory({ appId: to, name: c.name, now, ...(c.sample ? { sample: true } : {}) });
+        const made = await store.createCatalogCategory({ appId: to, name: c.name, now, ...(c.sample ? { sample: true } : {}), names: c.names ?? null });
         mapOf(ctx, "catalog_categories").set(c.id, made.id);
         count(ctx, "catalog_categories");
       }

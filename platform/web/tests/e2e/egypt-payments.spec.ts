@@ -3,6 +3,13 @@ import { E2E } from "../../playwright.config";
 import { startFakeFawaterk, startFakeKashier, type FakeGateway } from "./fake-gateways";
 import { solidPng } from "./png";
 
+/** 175 A shop that has prices already chooses what a new currency does to them: here, keep the numbers. */
+async function keepPrices(p: Page) {
+  const keep = p.getByLabel("Keep the numbers as they are");
+  if (await keep.isVisible()) await keep.check();
+}
+
+
 /**
  * Roadmap 37: Kashier and Fawaterk next to iyzico. The team adds Yallapp's
  * Kashier and Fawaterk accounts and picks the provider; a new client pays
@@ -183,6 +190,7 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
 
   // Prices in Egyptian pounds.
   await page.getByLabel("Currency", { exact: true }).selectOption("EGP");
+  await keepPrices(page);
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 

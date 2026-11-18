@@ -11,7 +11,7 @@ import { CouponForm } from "./forms";
 /** 91.1 The shop's coupons, added, turned off and on, deleted; 112.5 also an academy's, for its paid courses. */
 export async function CouponsPanel({ coupons, currency, intro }: { coupons: CatalogCoupon[]; currency: CatalogCurrency; intro?: string }) {
   const { t, lang } = await dashboardText();
-  const money = (cents: number) => formatCents(cents, currency);
+  const money = (cents: number) => formatCents(cents, currency, lang);
   const has = coupons.length > 0;
   return (
     <>

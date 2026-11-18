@@ -306,7 +306,8 @@ export function parseDeliveryForm(v: Record<string, string>, current: DeliverySc
 
 /** A delivery day as people read it: "Fri 15 Nov" in the language. */
 export function deliveryDayLabel(date: string, lang: string): string {
-  return new Intl.DateTimeFormat(lang === "ar" ? "ar-EG" : lang === "tr" ? "tr-TR" : "en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(
+  // 175 Arabic with the dashboard's Latin digits, as its times ("الخميس، 19 نوفمبر · 10:00–13:00").
+  return new Intl.DateTimeFormat(lang === "ar" ? "ar-EG-u-nu-latn" : lang === "tr" ? "tr-TR" : "en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(
     new Date(`${date}T12:00:00Z`),
   );
 }

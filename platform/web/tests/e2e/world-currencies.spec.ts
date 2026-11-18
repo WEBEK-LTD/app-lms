@@ -4,6 +4,13 @@ import { E2E } from "../../playwright.config";
 import { startFakeStripe, type FakeServer } from "./fake-stripe-paypal-servers";
 import { solidPng } from "./png";
 
+/** 175 A shop that has prices already chooses what a new currency does to them: here, keep the numbers. */
+async function keepPrices(p: Page) {
+  const keep = p.getByLabel("Keep the numbers as they are");
+  if (await keep.isVisible()) await keep.check();
+}
+
+
 /**
  * 135 Every currency. The team reads the day's rates in Admin › Settings ›
  * Currencies (from a fake source). A Studio store picks the Kuwaiti dinar,
@@ -112,6 +119,7 @@ test("135.1–135.3 a Studio store sells in Kuwaiti dinars, then in yen, with th
   await expect(currency.locator("option")).toHaveCount(2);
   await currency.selectOption("KWD");
   await expect(own.getByText("KWD is written with three decimals (1.250); prices go to the hundredth, like 1.250 or 1.260.")).toBeVisible();
+  await keepPrices(own);
   await own.getByRole("button", { name: "Save settings" }).click();
   await expect(own.getByText("Shop settings saved.")).toBeVisible();
   // After the form's own reset (an error, then a save), the currency chosen stays.
@@ -158,6 +166,7 @@ test("135.1–135.3 a Studio store sells in Kuwaiti dinars, then in yen, with th
   await own.getByRole("searchbox", { name: "Search currencies" }).fill("JPY");
   await own.getByLabel("Currency", { exact: true }).selectOption("JPY");
   await expect(own.getByText("JPY has no decimals: prices are whole amounts, like 1250.")).toBeVisible();
+  await keepPrices(own);
   await own.getByRole("button", { name: "Save settings" }).click();
   await expect(own.getByText("Shop settings saved.")).toBeVisible();
   await own.goto("/studio/project/catalog/new");
@@ -201,6 +210,7 @@ test("135.5–135.7 a customer in another currency: shown in it, charged in poun
   // The shop in Egyptian pounds, with its own Stripe.
   await own.goto("/studio/project/catalog/settings");
   await own.getByLabel("Currency", { exact: true }).selectOption("EGP");
+  await keepPrices(own);
   await own.getByRole("button", { name: "Save settings" }).click();
   await expect(own.getByText("Shop settings saved.")).toBeVisible();
   // 132.120 The one Payments page; 132.122 each gateway is a card.

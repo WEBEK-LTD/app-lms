@@ -8,6 +8,33 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 175 (the dashboard QA fixes of 18 November, a flower shop in MAD):
+Cancel order on a paid order asks first, and the owner chooses every time
+between "Cancel and refund {amount}" (through the order's payment gateway,
+else Needs a refund) and "Cancel without refund", in the dashboard and in
+Yallapp Business; the units go back in stock, the customer is told (a guest
+by email), and the order leaves the paid orders and Analytics' revenue. The
+Owner API takes the choice as `refund` (an older Business without it keeps
+132's rule). A guest customer is now emailed at every stage the order
+drawer promises (shipped, postponed, couldn't be delivered, delivered) and
+when the order is cancelled, in the language they checked out in. A new
+store currency asks to convert every price at the day's rate or keep the
+numbers, and the Team page logs the change. A new shop starts in its
+owner's country's currency and delivery time zone (+212: MAD,
+Africa/Casablanca); Studio's gift checkout sample is drawn in the shop's
+currency, country and city, dated from today. The products list shows the
+price the app serves; the shop's pages and Yallapp Business write amounts
+in the viewer's language (د.م. in Arabic, Latin digits), and amounts typed
+with Arabic-Indic digits are read. Categories refuse a duplicate name and
+have optional Arabic and Turkish names, served in the app's language;
+Products › Settings is in Studio's breadcrumb. Migration
+`0145_catalog_category_names` (after main's 0143 and 0144). Yallapp Business
+places add-ons under their own size, says when a signed card has no name,
+offers Postpone and Retry days from the shop's today, and the server
+refuses a full or closed time. Nothing is released from this branch, and
+`mobile/` is unchanged. Yallapp Business is not released from this
+branch.
+
 Roadmap 187 (no paid plan, no app and no publishing request): an app
 without a paid plan running now (never paid, or its plan ended) can't
 download its files (APK, AAB, IPA, store files; the Android upload key stays
