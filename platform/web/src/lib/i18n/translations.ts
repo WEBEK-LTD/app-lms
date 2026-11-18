@@ -140,7 +140,7 @@ export function applyTranslations(layout: LayoutContent, lang: string, changes: 
     const [kind, a, b, c, d, e] = parts;
     // Yallapp's own translation isn't stored as the owner's, so its updates still reach the app.
     const set = <T extends object & { translations?: Translations }>(value: T, field: string): T =>
-      withText(value, field, text && text === builtInText(textIn(value, field, def, def), lang) ? "" : text, lang, def);
+      withText(value, field, text && text === builtInText(textIn(value, field, def, def), lang) ? "" : text, lang, def, true);
     if (kind === "tab" && b) {
       out.tabs = out.tabs.map((t) => (t.id === a ? set(t, b) : t));
     } else if (kind === "menu" && b && out.menu) {

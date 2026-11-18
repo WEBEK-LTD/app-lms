@@ -8,6 +8,26 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 156 (what the owner publishes in Studio is what the app shows, in
+every language): a template's translations of its own words stop applying
+once the owner changes the text, so the app shows the owner's text in
+every language (Kech Flora's review in English no longer shows the
+template's Arabic placeholders on an Arabic phone); a template's
+[placeholder] gives way to the owner's words in another language;
+translations the owner wrote stay. Applied when serving (hosted
+`GET /pages`, the plugin's layout, `Config.screens` for Studio › Screens'
+texts, with a new version so apps and plugins fetch it again) and when
+saving; Studio says what each language shows and which is the main one.
+No template [placeholder] reaches a customer either: the same-day cut-off
+fills Leqaa's "Order before [your cut-off time]", and an element or a
+review whose words are still a placeholder waits for the owner's (Studio
+says so under the field).
+The path itself (Publish, the published layout, `GET /pages`, its ETag,
+the app's reload) was checked end to end and carries every edit. Admin ›
+Demo apps asks before Refresh, which puts back a demo's own design over
+any Studio edit. No migration, no app build. Not yet seen on a phone
+(ROADMAP 156.10).
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build

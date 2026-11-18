@@ -108,3 +108,13 @@ export function localizedError<T>(body: T, lang: string | null): T {
 export function isYallappText(text: string): boolean {
   return DICTIONARY_LANGUAGES.every((lang) => builtInText(text, lang) !== null);
 }
+
+/**
+ * 156 Yallapp's page texts as words in its languages (the English, with its
+ * Arabic and Turkish), to tell its translations from the owner's
+ * (lib/pages/template-translations.ts). Texts with placeholders other than
+ * the app's name are left out.
+ */
+export const PAGE_TEXT_FORMS: readonly { en: string; ar?: string; tr?: string }[] = Object.keys({ ...PAGE_TEXTS_AR, ...PAGE_TEXTS_TR })
+  .filter((en) => [...en.matchAll(PLACEHOLDER)].every((m) => m[1] === "app"))
+  .map((en) => ({ en, ...(PAGE_TEXTS_AR[en] !== undefined ? { ar: PAGE_TEXTS_AR[en] } : {}), ...(PAGE_TEXTS_TR[en] !== undefined ? { tr: PAGE_TEXTS_TR[en] } : {}) }));

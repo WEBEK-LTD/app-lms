@@ -10,6 +10,7 @@ import { ICON_NAME } from "./icons";
 import { innerScreen, innerScreensFor } from "./inner-screens";
 import { appOpensScreen, blockTypesFor, categorySourcesFor, itemSourcesFor, screenName, sortFor } from "./sources";
 import {
+  OWN_TRANSLATIONS,
   ACTION_TYPES,
   APP_FONTS,
   APP_TEMPLATES,
@@ -502,6 +503,16 @@ function parseTranslations(ctx: Context, where: string, value: unknown, fields: 
       if (clean) kept[field] = clean;
     }
     if (Object.keys(kept).length) out[lang] = kept;
+  }
+  // 156 The fields the owner wrote by hand in each language (lib/pages/template-translations.ts), for the translations kept.
+  const marks = record(v[OWN_TRANSLATIONS]);
+  if (marks) {
+    const own: Record<string, string> = {};
+    for (const [lang, fields] of Object.entries(marks)) {
+      const kept = typeof fields === "string" ? [...new Set(fields.split(/\s+/))].filter((f) => out[lang]?.[f] !== undefined) : [];
+      if (kept.length) own[lang] = kept.join(" ");
+    }
+    if (Object.keys(own).length) out[OWN_TRANSLATIONS] = own;
   }
   return Object.keys(out).length ? out : undefined;
 }

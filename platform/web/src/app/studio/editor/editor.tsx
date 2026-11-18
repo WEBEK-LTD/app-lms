@@ -16,6 +16,8 @@ import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { MarketCanvas } from "@/lib/studio/market-canvas";
 import type { ScreenOption } from "@/lib/pages/sources";
 import { uniqueSlug } from "@/lib/pages/model";
+import { editedTranslations } from "@/lib/pages/template-translations";
+import { appLanguageName } from "@/lib/i18n/language-names";
 import { moreLabel } from "@/lib/pages/tab-bar";
 import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type LayoutTab, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
@@ -180,6 +182,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const [now, setNow] = useState(() => Date.now());
 
   const dragging = useRef<DragPayload | null>(null);
+  // 156 The app's name, as templates wrote it into words, for telling their translations from the owner's.
+  const appNameRef = useRef(props.app.name);
   const dirty = useRef(false);
   const edits = useRef(0);
   const lastChange = useRef<{ at: number; key: string }>({ at: 0, key: "" });
@@ -305,8 +309,10 @@ export function StudioEditor(props: StudioEditorProps) {
     const join = key !== "" && key === lastChange.current.key && now - lastChange.current.at <= JOIN_MS;
     lastChange.current = { at: now, key };
     setHistory((h) => {
-      const value = next(h.present);
-      if (value === h.present) return h;
+      const made = next(h.present);
+      if (made === h.present) return h;
+      // 156 A translation the owner wrote is marked as theirs; the template's translations of a text they changed go.
+      const value = editedTranslations(h.present, made, { appName: appNameRef.current });
       return join ? { ...h, present: value } : pushHistory(h, value);
     });
     edits.current += 1;
@@ -1296,6 +1302,7 @@ export function StudioEditor(props: StudioEditorProps) {
               type="button"
               lang={code}
               aria-pressed={editLang === code}
+              title={code === def ? t("studio.mainLanguage", { lang: appLanguageName(code, dashLang) }) : undefined}
               onClick={() => setLang(code)}
               className="h-8 rounded-lg border-0 px-2.5 text-[13px]"
               style={{ background: editLang === code ? C.barText : "transparent", color: editLang === code ? C.bar : C.barMuted, fontWeight: editLang === code ? 700 : 400 }}
@@ -1304,6 +1311,12 @@ export function StudioEditor(props: StudioEditorProps) {
             </button>
           ))}
         </div>
+        {/* 156 Which language is the main one: an edit in another is a translation of its texts. */}
+        {languages.length > 1 ? (
+          <span className="text-[12px] leading-tight" style={{ color: C.barMuted, maxWidth: 190 }} data-main-language={def}>
+            {editLang === def ? t("studio.mainLanguage", { lang: appLanguageName(def, dashLang) }) : t("studio.translationOf", { lang: appLanguageName(editLang, dashLang), main: appLanguageName(def, dashLang) })}
+          </span>
+        ) : null}
 
         <div style={{ flex: "1 1 20px" }} />
 
@@ -1654,6 +1667,8 @@ export function StudioEditor(props: StudioEditorProps) {
             palette={palette}
             lang={editLang}
             defaultLang={def}
+            languages={layout.languages.available}
+            appName={props.app.name}
             pages={layout.pages.map((p) => ({ slug: p.slug, title: pageTitle(p) }))}
             sources={props.sources}
             categorySources={props.categorySources}

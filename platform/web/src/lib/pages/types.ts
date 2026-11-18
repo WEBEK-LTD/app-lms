@@ -509,6 +509,13 @@ export interface AppLanguage {
 /** Texts in other languages: language code, then field name. */
 export type Translations = Record<LanguageCode, Record<string, string>>;
 
+/**
+ * 156 The key in `Translations` that names, per language, the fields the
+ * owner wrote by hand ("text title"): kept even when they are one of the
+ * template's words (lib/pages/template-translations.ts). Never a language.
+ */
+export const OWN_TRANSLATIONS = "_own";
+
 /** 43 The owner's interface strings: language code, then the app's string key (mobile/lib/l10n). */
 export type InterfaceStrings = Record<LanguageCode, Record<string, string>>;
 
