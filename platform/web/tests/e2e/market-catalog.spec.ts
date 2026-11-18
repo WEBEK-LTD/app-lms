@@ -154,6 +154,7 @@ test("the company signs customers in by email, prices delivery and adds a grocer
 });
 
 test("the place's manager adds a product sold by weight, a customer orders it, and the stock goes down", async ({ browser, request }) => {
+  test.setTimeout(150_000);
   const panel = await browser.newPage({ extraHTTPHeaders: { "x-forwarded-for": "198.51.100.125" } });
   await panel.goto(`/partner/${appId}?lang=en`);
   await panel.getByLabel("Email").fill(managerEmail);
@@ -192,7 +193,13 @@ test("the place's manager adds a product sold by weight, a customer orders it, a
   const registered = await request.post(`${api}/auth/register`, { data: { signup_token: verified.signup_token, name: "Mona Adel", device } });
   expect(registered.status()).toBe(201);
   const headers = { authorization: `Bearer ${((await registered.json()) as { access_token: string }).access_token}` };
-  const products = (await (await request.get(`${api}/market/vendors/${placeId}/products?cursor=`, { headers })).json()) as { items: { id: number; name: string; sold_by: { kind: string; step: number; min: number; max: number } }[]; next_cursor: string | null };
+  // The plan's change reaches the app's API once the platform settings' cache (30 seconds) renews.
+  let listed = await request.get(`${api}/market/vendors/${placeId}/products?cursor=`, { headers });
+  await expect(async () => {
+    listed = await request.get(`${api}/market/vendors/${placeId}/products?cursor=`, { headers });
+    expect(listed.status(), await listed.text()).toBe(200);
+  }).toPass({ timeout: 45_000, intervals: [2_000] });
+  const products = (await listed.json()) as { items: { id: number; name: string; sold_by: { kind: string; step: number; min: number; max: number } }[]; next_cursor: string | null };
   const cheese = products.items.find((p) => p.name === "Roumi cheese")!;
   expect(cheese.sold_by).toMatchObject({ kind: "weight", step: 0.25, min: 0.5, max: 2 });
   const cart = { vendor_id: placeId, lines: [{ product_id: cheese.id, quantity: 1 }], fulfilment: "delivery", dropoff: HOME };
