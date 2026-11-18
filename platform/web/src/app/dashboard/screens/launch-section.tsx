@@ -26,6 +26,7 @@ import {
   type LaunchStyle,
 } from "@/lib/studio/screens";
 import { LaunchPreview, type LaunchBrand } from "./launch-preview";
+import { ScreenTextState } from "./screen-text-state";
 
 /** 124.15 A new launch screen: the Signature look, everything its own. */
 export function newLaunch(look: LaunchStyle = "signature"): LaunchLook {
@@ -259,10 +260,12 @@ export function LaunchSection({ launch, onChange, brand, languages, previewLang 
                 <label className="flex flex-col gap-1 text-sm">
                   <span className="font-semibold">{t("studio.launchTitleIn", { language: l.name })}</span>
                   <input className="h-11 rounded-[10px] border border-line-strong px-3" maxLength={LAUNCH_LIMITS.title} placeholder={brand.appName} value={launch.title[l.code] ?? ""} onChange={(e) => set({ title: { ...launch.title, [l.code]: e.target.value } })} />
+                  <ScreenTextState texts={launch.title} lang={l.code} />
                 </label>
                 <label className="flex flex-col gap-1 text-sm">
                   <span className="font-semibold">{t("studio.launchLineIn", { language: l.name })}</span>
                   <input className="h-11 rounded-[10px] border border-line-strong px-3" maxLength={LAUNCH_LIMITS.subtitle} value={launch.subtitle[l.code] ?? ""} onChange={(e) => set({ subtitle: { ...launch.subtitle, [l.code]: e.target.value } })} />
+                  <ScreenTextState texts={launch.subtitle} lang={l.code} />
                 </label>
               </div>
             ))}

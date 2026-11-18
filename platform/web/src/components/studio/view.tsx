@@ -79,6 +79,10 @@ export interface StudioEditing {
   onAskByHand?: (id: string) => void;
   /** 159 A double click on a corner: the element back to its automatic size. */
   onAutoSize?: (id: string) => void;
+  /** 181 A part of the selected element picked on its own (a story's ring): which. */
+  part?: { id: string; index: number } | null;
+  /** 181 A part of an element clicked on the canvas (a story's ring): the element is selected with it. */
+  onSelectPart?: (id: string, index: number) => void;
 }
 
 interface ViewProps {
@@ -871,7 +875,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         return <GreetingText lang={lang} sample={p.greeting?.hello} own={textIn(n, lang, defaultLang) || null} />;
       // 129 Premium motion & media.
       case "stories":
-        return <StoriesRow node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} />;
+        // 181 Each ring picked on its own in the editor (a locked element's are left alone).
+        return <StoriesRow node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} pick={editing?.onSelectPart && !locked ? (i) => editing.onSelectPart!(n.id, i) : undefined} picked={editing?.part?.id === n.id ? editing.part.index : null} />;
       case "marquee":
         return <Marquee node={n} text={text} rtl={lang === "ar"} accent={look.accent} dark={dark} />;
       case "before_after":

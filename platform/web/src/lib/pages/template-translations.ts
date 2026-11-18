@@ -439,13 +439,7 @@ export function withoutStaleScreenTexts<T>(screens: T, main: string | null | und
     if (isTextsByLanguage(value, isLanguage)) {
       const text = value[main]?.trim();
       if (!text) return value;
-      const kept = Object.fromEntries(
-        Object.entries(value).filter(([lang, t]) => {
-          if (lang === main) return true;
-          const words = templateWordsOf(t, lang, options);
-          return !words.length || words.some((w) => isFormOf(text, w));
-        }),
-      );
+      const kept = Object.fromEntries(Object.entries(value).filter(([lang]) => lang === main || screenTextState(value, lang, main, options) !== "stale"));
       return Object.keys(kept).length === Object.keys(value).length ? value : kept;
     }
     let changed = false;
@@ -458,6 +452,54 @@ export function withoutStaleScreenTexts<T>(screens: T, main: string | null | und
     return changed ? out : value;
   };
   return walk(screens) as T;
+}
+
+/**
+ * 181 What one language of a Studio › Screens text shows in the app, by the
+ * rule above (`withoutStaleScreenTexts`): `own` (the owner's words),
+ * `template` (Yallapp's translation, and the main language's text is still
+ * that word), `stale` (Yallapp's word for a text the owner changed in the
+ * main language: left out, the app shows the owner's text) or `none` (none
+ * given: the app shows the owner's text). The main language is the owner's.
+ */
+export function screenTextState(texts: Readonly<Record<string, string>>, lang: string, main: string, options: TemplateWords = {}): TranslationState {
+  const own = texts[lang]?.trim();
+  if (!own) return "none";
+  if (lang === main) return "own";
+  const words = templateWordsOf(own, lang, options);
+  if (!words.length) return "own";
+  const text = texts[main]?.trim();
+  // With no text in the main language there is nothing it could be a translation of: the app shows it as it is.
+  if (!text) return "template";
+  return words.some((w) => isFormOf(text, w)) ? "template" : "stale";
+}
+
+/**
+ * 181 Of Yallapp's words for Studio › Screens (`forms`), those the screens
+ * use now (each of a text's languages, in any of them, `{app}` filled with
+ * the app's name): what Studio › Screens needs to tell the template's words
+ * from the owner's, without all of them.
+ */
+export function screenWordsIn(screens: unknown, forms: readonly WordForms[], appName?: string | null): WordForms[] {
+  const used = new Set<string>();
+  const walk = (value: unknown): void => {
+    if (Array.isArray(value)) return value.forEach(walk);
+    if (typeof value === "string") {
+      if (value.trim()) used.add(value.trim());
+      return;
+    }
+    if (isRecord(value)) for (const child of Object.values(value)) walk(child);
+  };
+  walk(screens);
+  const name = appName?.trim() ?? "";
+  return forms.filter((word) =>
+    TEMPLATE_LANGS.some((lang) => {
+      const form = word[lang]?.trim();
+      if (!form) return false;
+      if (!form.includes(APP)) return used.has(form);
+      return [name, ...DEMO_NAMES].some((n) => n && used.has(form.replaceAll(APP, n)));
+    }),
+  );
 }
 
 // ——— 156 The template's [placeholders] never reach a customer ———
