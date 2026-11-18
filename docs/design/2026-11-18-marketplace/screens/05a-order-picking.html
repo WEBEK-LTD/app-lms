@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>05a · The order being picked</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/kit.css">
+<script src="../kit/kit.js"></script>
+<style>
+  .hero { margin: 2px 16px 0; border-radius: 26px; background: var(--poster); color: #fff; padding: 16px; position: relative; overflow: hidden; }
+  .hero::before { content: ""; position: absolute; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(242,169,59,.28), transparent 65%); top: -90px; inset-inline-end: -70px; }
+  .ring { width: 74px; height: 74px; border-radius: 50%; background: conic-gradient(var(--amber) 0 60%, rgba(255,255,255,.14) 60% 100%); display: grid; place-items: center; flex: none; }
+  .ring div { width: 60px; height: 60px; border-radius: 50%; background: var(--poster); display: grid; place-items: center; text-align: center; }
+  .ring b { font: 800 20px/1 "Lexend", sans-serif; }
+  .ring small { font-size: 9.5px; opacity: .75; display: block; margin-top: 1px; }
+  .stages { display: flex; gap: 4px; margin-top: 14px; }
+  .stages i { flex: 1; height: 5px; border-radius: 3px; background: rgba(255,255,255,.18); }
+  .stages i.done { background: #fff; }
+  .stages i.now { background: linear-gradient(90deg, var(--amber) 55%, rgba(255,255,255,.18) 55%); }
+  [dir="rtl"] .stages i.now { background: linear-gradient(270deg, var(--amber) 55%, rgba(255,255,255,.18) 55%); }
+  .labels { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10.5px; opacity: .8; }
+  .labels .on { color: #FFD27A; font-weight: 800; opacity: 1; }
+  .swap { margin: 12px 16px 0; border-radius: 24px; background: var(--surface); box-shadow: var(--shadow-strong); padding: 14px; border: 2px solid var(--amber); position: relative; }
+  .live { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; color: var(--amber-ink); text-transform: uppercase; letter-spacing: 1px; }
+  [lang="ar"] .live { letter-spacing: 0; font-size: 12px; }
+  .live::before { content: ""; width: 8px; height: 8px; border-radius: 4px; background: var(--amber); box-shadow: 0 0 0 4px var(--amber-soft); }
+  .pair { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+  .pi { flex: 1; border-radius: 18px; padding: 8px; background: var(--surface-2); border: 1px solid var(--line-2); min-width: 0; }
+  .pi .ph { height: 74px; border-radius: 13px; position: relative; }
+  .pi.gone .ph { filter: grayscale(1); opacity: .45; }
+  .pi .tag { position: absolute; top: 6px; inset-inline-start: 6px; font-size: 10px; font-weight: 800; height: 20px; border-radius: 6px; padding: 0 6px; display: flex; align-items: center; }
+  .pi .nm { font-weight: 700; font-size: 12.5px; margin-top: 7px; line-height: 1.2; }
+  .pi .pr { font: 700 12.5px/1 var(--display); margin-top: 4px; }
+  .arrow { width: 32px; height: 32px; border-radius: 16px; background: var(--amber); color: #241700; display: grid; place-items: center; flex: none; }
+  .acts { display: flex; gap: 8px; margin-top: 12px; }
+  .acts .btn { flex: 1; height: 46px; font-size: 14px; }
+  .timer { font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 9px; }
+  .list { margin: 12px 16px 0; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); padding: 4px 12px; }
+  .li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line-2); }
+  .li:last-child { border-bottom: 0; }
+  .li .ph { width: 40px; height: 40px; border-radius: 12px; flex: none; }
+  .li .nm { font-weight: 700; font-size: 13px; }
+  .li .sub { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+  .li .st { width: 26px; height: 26px; border-radius: 13px; display: grid; place-items: center; flex: none; }
+  .li .st .i { font-size: 17px; }
+  .st.ok { background: var(--ok-soft); color: var(--ok); }
+  .st.wait { background: var(--field); color: var(--faint); }
+  .up { color: var(--amber-ink); font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+mount(`
+<div class="phone">
+  ${statusBar()}
+  <div class="scroll">
+    <div class="appbar">
+      <div class="round flat">${icon("arrow_back", "flip")}</div>
+      <div class="grow"><h1 style="font:700 18px/1.1 var(--display)">${t("Order", "الطلب")} ${n("#4821")}</h1><div class="small muted" style="margin-top:2px">${t("Zad Market · placed 19:08", "زاد ماركت · أُرسل 19:08")}</div></div>
+      <div class="round flat">${icon("support_agent")}</div>
+    </div>
+
+    <div class="hero">
+      <div class="row" style="gap:14px;position:relative">
+        <div class="ring"><div><span><b>3/5</b><small>${t("picked", "جُهّز")}</small></span></div></div>
+        <div class="grow">
+          <div class="kicker" style="color:#FFD27A">${t("Being picked", "قيد التجهيز")}</div>
+          <div style="font:700 19px/1.2 var(--display);margin-top:5px">${t("Samir is picking your order", "سمير يجهّز طلبك الآن")}</div>
+          <div class="small" style="opacity:.8;margin-top:4px">${t("At your door", "يصل إليك")} <b style="opacity:1">${n("19:40–19:55")}</b></div>
+        </div>
+      </div>
+      <div class="stages"><i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i></div>
+      <div class="labels"><span>${t("Placed", "أُرسل")}</span><span>${t("Accepted", "قُبل")}</span><span class="on">${t("Picking", "التجهيز")}</span><span>${t("On the way", "في الطريق")}</span><span>${t("Here", "وصل")}</span></div>
+    </div>
+
+    <div class="swap">
+      <div class="row"><span class="live">${t("Your answer, please", "ننتظر ردك")}</span><span class="grow"></span><span class="pill amber" style="height:24px;font-size:11.5px">${icon("timer", "f")}<span class="num">4:32</span></span></div>
+      <div style="font-weight:800;font-size:15px;margin-top:8px">${t("Egyptian rice, 1 kg is out. Take this instead?", "نفد الأرز المصري 1 كغ. هل تقبل هذا بدلًا منه؟")}</div>
+      <div class="pair">
+        <div class="pi gone"><div class="ph" style="${bg("egyptian-rice.jpg")}"><span class="tag" style="background:var(--danger-soft);color:var(--danger)">${t("Out", "نفد")}</span></div><div class="nm">${t("Egyptian rice, 1 kg", "أرز مصري، 1 كغ")}</div><div class="pr muted">×2 · ${money(38)}</div></div>
+        <div class="arrow">${icon("arrow_forward", "flip")}</div>
+        <div class="pi"><div class="ph" style="${bg("egyptian-rice.jpg")}"><span class="tag" style="background:var(--tint);color:var(--tint-ink)">${t("Similar", "مشابه")}</span></div><div class="nm">${t("Short-grain rice, 1 kg", "أرز قصير الحبة، 1 كغ")}</div><div class="pr">×2 · ${money(42)} <span class="up small">+${money(8, { whole: true })}</span></div></div>
+      </div>
+      <div class="acts">
+        <div class="btn ghost">${icon("close")}${t("Leave it out", "استبعده")}</div>
+        <div class="btn">${icon("check")}${t("Accept", "أقبل")}</div>
+      </div>
+      <div class="timer">${t("No answer in time? We follow your choice: a similar item.", "إن لم ترد في الوقت، نتبع اختيارك: صنف مشابه.")}</div>
+    </div>
+
+    <div class="list">
+      <div class="li"><div class="ph" style="${bg("white-cheese.jpg")}"></div><div class="grow"><div class="nm">${t("White cheese, sliced", "جبنة بيضاء، شرائح")}</div><div class="sub">${t("Weighed", "الوزن الفعلي")} ${grams(780)} · ${money(124.8)}</div></div><div class="st ok">${icon("check")}</div></div>
+      <div class="li"><div class="ph" style="${bg("bananas.jpg")}"></div><div class="grow"><div class="nm">${t("Bananas", "موز")}</div><div class="sub">${t("Weighed", "الوزن الفعلي")} ${grams(1050)} · ${money(36.75)}</div></div><div class="st ok">${icon("check")}</div></div>
+      <div class="li"><div class="ph" style="${bg("eggs.jpg")}"></div><div class="grow"><div class="nm">${t("Eggs, 15 ×2", "بيض 15 ×2")}</div><div class="sub">${t("Your choice, for Eggs, 30", "اختيارك بدلًا من بيض 30")}</div></div><div class="st ok">${icon("check")}</div></div>
+    </div>
+  </div>
+  ${homeInd()}
+</div>`);
+</script>
+</body>
+</html>

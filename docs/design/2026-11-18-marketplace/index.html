@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zad marketplace screens</title>
+<style>
+  @font-face { font-family: "Bricolage"; src: url("../../../platform/web/src/app/fonts/bricolage-grotesque/bricolage-grotesque-latin.woff2") format("woff2"); font-weight: 200 800; }
+  :root { --page: #F4EFE6; --ink: #0E0D24; --muted: #5E5B70; --line: #E4DDD0; --card: #FFFFFF; --accent: #1B644C; }
+  @media (prefers-color-scheme: dark) { :root { --page: #0E0D24; --ink: #F4EFE6; --muted: #A9A4BB; --line: #2C2A49; --card: #161530; --accent: #8FDDB9; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.45 "Bricolage", system-ui, sans-serif; }
+  header { padding: 40px 32px 8px; max-width: 1800px; margin: 0 auto; }
+  h1 { font-size: 34px; margin: 0; letter-spacing: -.6px; }
+  header p { color: var(--muted); max-width: 760px; margin: 8px 0 0; }
+  nav { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+  nav a { color: var(--ink); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 13px; background: var(--card); }
+  section { max-width: 1800px; margin: 0 auto; padding: 28px 32px 8px; }
+  h2 { font-size: 22px; margin: 0 0 4px; }
+  h2 small { color: var(--muted); font-weight: 500; font-size: 14px; margin-inline-start: 8px; }
+  .note { color: var(--muted); margin: 0 0 14px; font-size: 14px; max-width: 900px; }
+  .row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin-bottom: 26px; }
+  .row.wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  figure { margin: 0; }
+  figure img { width: 100%; display: block; border-radius: 26px; border: 1px solid var(--line); background: var(--card); }
+  .wide figure img { border-radius: 12px; }
+  figcaption { font-size: 12.5px; color: var(--muted); margin-top: 6px; text-align: center; }
+  h3 { font-size: 15px; margin: 0 0 10px; }
+  @media (max-width: 900px) { .row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .row.wide { grid-template-columns: 1fr; } header, section { padding-left: 16px; padding-right: 16px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Zad marketplace screens</h1>
+  <p>Phase 115: the supermarket inside the marketplace, the vendor app and the complaints dashboard, for the owner's approval. Each screen in English and Arabic, light and dark. Drawn in Zad's "Market arches" look (130.3). Assumptions to confirm are in <a href="README.md">README.md</a>; photo credits in <a href="CREDITS.md">CREDITS.md</a>.</p>
+  <nav id="nav"></nav>
+</header>
+<main id="sheet"></main>
+<script>
+const groups = [
+  { title: "Customer app", items: [
+    ["01-supermarket-home", "1 · The supermarket's home", "Departments, search with the barcode button, offers, buy again."],
+    ["02-department", "2 · A department", "Aisles as chips, a paged grid with add, plus and minus."],
+    ["03-product-by-weight", "3 · A product sold by weight", "250 g steps, the price per kg, the estimate and its 10% ceiling."],
+    ["04-cart", "4 · The cart", "Unit and weighed items, the estimated total, \"If something is missing\" for the order and per item."],
+    ["05a-order-picking", "5a · The order being picked", "Picking progress and a substitution to accept or decline live."],
+    ["05b-order-on-the-way", "5b · On the way", "The courier, the weighed final price against the estimate."],
+    ["06a-complaint-open", "6a · Opening a complaint", "The reason, the items, photos and words."],
+    ["06b-support-chat", "6b · The support conversation", "Support talks to the customer in the app beside the ticket."],
+    ["06c-decision", "6c · The decision", "Refund to the card, to the wallet, a coupon, or declined with a reason.", ["card", "wallet", "coupon", "declined"]],
+    ["07a-wallet", "7a · The wallet", "Balance and entries."],
+    ["07b-club", "7b · The delivery club", "Plans monthly or yearly, the member's savings."],
+  ]},
+  { title: "Vendor app (the store's staff)", items: [
+    ["08-vendor-live-orders", "8 · Live orders", "The sound badge; accept with a time, or decline."],
+    ["09-vendor-picking", "9 · The picking list", "Tick, the actual weight, out of stock, a substitute, ready for courier."],
+    ["10-vendor-stock", "10 · Stock", "Search or scan, in and out of stock, quick price edit."],
+  ]},
+  { title: "Dashboard (web, 1440 wide)", wide: true, items: [
+    ["11-dashboard-complaints-queue", "11 · Complaints queue", "Assignee, status, time since opened and since the last reply, ready replies."],
+    ["12-dashboard-complaint", "12 · A complaint", "The order, the conversation, team notes, the decision panel."],
+  ]},
+];
+const modes = [["en", "light"], ["en", "dark"], ["ar", "light"], ["ar", "dark"]];
+const label = { en: "English", ar: "Arabic", light: "light", dark: "dark" };
+let html = "", nav = "";
+for (const g of groups) {
+  for (const [id, title, note, variants] of g.items) {
+    nav += `<a href="#${id}">${title}</a>`;
+    html += `<section id="${id}"><h2>${title}<small>${g.title}</small></h2><p class="note">${note}</p>`;
+    for (const v of variants || [""]) {
+      if (v) html += `<h3>${v[0].toUpperCase() + v.slice(1)}</h3>`;
+      html += `<div class="row${g.wide ? " wide" : ""}">` + modes.map(([l, th]) => {
+        const f = `png/${id}${v ? "-" + v : ""}-${l}-${th}.png`;
+        return `<figure><a href="${f}"><img loading="lazy" src="${f}" alt="${title}, ${label[l]}, ${th}"></a><figcaption>${label[l]} · ${th} · <a href="screens/${id}.html?lang=${l}&theme=${th}${v ? "&v=" + v : ""}">HTML</a></figcaption></figure>`;
+      }).join("") + `</div>`;
+    }
+    html += `</section>`;
+  }
+}
+document.getElementById("nav").innerHTML = nav;
+document.getElementById("sheet").innerHTML = html;
+</script>
+</body>
+</html>

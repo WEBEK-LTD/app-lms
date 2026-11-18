@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>04 · The cart</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/kit.css">
+<script src="../kit/kit.js"></script>
+<style>
+  .policy { margin: 4px 16px 0; padding: 12px; border-radius: 22px; background: var(--surface); box-shadow: var(--shadow); }
+  .seg { display: flex; background: var(--field); border-radius: 14px; padding: 3px; margin-top: 10px; }
+  .seg span { flex: 1; height: 36px; border-radius: 11px; display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: 700; font-size: 12.5px; color: var(--muted); }
+  .seg span .i { font-size: 17px; }
+  .seg span.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  :root[data-theme="dark"] .seg span.on { background: var(--tint); color: var(--tint-ink); }
+  .items { margin: 12px 16px 0; background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); padding: 4px 12px; }
+  .it { display: flex; gap: 11px; padding: 10px 0; border-bottom: 1px solid var(--line-2); }
+  .it:last-child { border-bottom: 0; }
+  .it .ph { width: 56px; height: 56px; border-radius: 15px; flex: none; }
+  .it .nm { font-weight: 700; font-size: 13.5px; }
+  .it .sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .it .pr { font: 700 13.5px/1 var(--display); text-align: end; white-space: nowrap; }
+  .it .pr small { display: block; font: 600 10.5px/1.2 var(--font); color: var(--muted); margin-top: 3px; }
+  .miss { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border-radius: 8px; font-size: 11.5px; font-weight: 700; margin-top: 6px; }
+  .miss .i { font-size: 15px; }
+  .miss.sim { background: var(--tint); color: var(--tint-ink); }
+  .miss.mine { background: var(--amber-soft); color: var(--amber-ink); }
+  .miss.out { background: var(--field); color: var(--muted); }
+  .weighed { display: inline-flex; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 800; color: var(--accent); }
+  .weighed .i { font-size: 14px; }
+  .mini-step { display: inline-flex; align-items: center; gap: 0; height: 30px; border-radius: 15px; border: 1px solid var(--line); margin-top: 8px; }
+  .mini-step .i { width: 30px; text-align: center; font-size: 17px; color: var(--accent); }
+  .mini-step b { font: 700 12px/1 var(--display); min-width: 40px; text-align: center; }
+  .sumcard { margin: 12px 16px 0; padding: 12px 14px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); }
+  .sl { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
+  .sl b { font: 700 13px/1.2 var(--display); }
+  .total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 8px; margin-top: 6px; border-top: 1px dashed var(--line); }
+  .total b { font: 800 21px/1 "Lexend", sans-serif; letter-spacing: -.5px; }
+  .dock { padding: 10px 16px 28px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const item = ({ img, name, sub, qty, price, note, miss, weighed }) => `
+  <div class="it">
+    <div class="ph" style="${bg(img)}"></div>
+    <div class="grow">
+      <div class="nm ellipsis">${name}</div>
+      <div class="sub ellipsis">${weighed ? `<span class="weighed">${icon("scale", "f")}${t("By weight", "بالوزن")}</span> · ` : ""}${sub}</div>
+      ${miss}
+    </div>
+    <div class="col" style="align-items:flex-end">
+      <div class="pr">${price}${note ? `<small>${note}</small>` : ""}</div>
+      <div class="mini-step">${icon("remove")}<b>${qty}</b>${icon("add")}</div>
+    </div>
+  </div>`;
+const sim = `<span class="miss sim">${icon("published_with_changes")}${t("Similar item", "صنف مشابه")}${icon("expand_more")}</span>`;
+mount(`
+<div class="phone">
+  ${statusBar()}
+  <div class="scroll">
+    <div class="appbar">
+      <div class="round flat">${icon("arrow_back", "flip")}</div>
+      <div class="grow"><h1 style="font:700 19px/1.1 var(--display)">${t("Your cart", "سلتك")}</h1><div class="small muted" style="margin-top:2px">${t("Zad Market · 5 items", "زاد ماركت · 5 أصناف")}</div></div>
+      <span class="pill line">${icon("schedule")}${t("Now, 25–40 min", "الآن، 25–40 دقيقة")}</span>
+    </div>
+
+    <div class="policy">
+      <div class="row"><span class="i f" style="color:var(--amber);font-size:22px">help</span><div class="grow"><div style="font-weight:800;font-size:14px">${t("If something is missing", "إذا نفد صنف")}</div><div class="small muted">${t("For the whole order. Change any item below.", "للطلب كله. يمكنك تغييره لأي صنف أدناه.")}</div></div></div>
+      <div class="seg">
+        <span class="on">${icon("published_with_changes")}${t("Similar item", "صنف مشابه")}</span>
+        <span>${icon("touch_app")}${t("My choice", "أختاره أنا")}</span>
+        <span>${icon("block")}${t("Leave it out", "استبعده")}</span>
+      </div>
+    </div>
+
+    <div class="items">
+      ${item({ img: "white-cheese.jpg", name: t("White cheese, sliced", "جبنة بيضاء، شرائح"), sub: money(160, { whole: true }) + "/" + t("kg", "كغ"), qty: grams(750), price: "≈ " + money(120), weighed: true, miss: sim })}
+      ${item({ img: "bananas.jpg", name: t("Bananas", "موز"), sub: money(35, { whole: true }) + "/" + t("kg", "كغ"), qty: grams(1000), price: "≈ " + money(35), weighed: true, miss: `<span class="miss out">${icon("block")}${t("Leave it out", "استبعده")}${icon("expand_more")}</span>` })}
+      ${item({ img: "eggs.jpg", name: t("Eggs, 30", "بيض، 30 بيضة"), sub: t("White, medium", "أبيض، وسط"), qty: "1", price: money(165), miss: `<span class="miss mine">${icon("touch_app")}${t("Instead: Eggs, 15", "بدلًا منه: بيض 15")}${icon("expand_more")}</span>` })}
+      ${item({ img: "egyptian-rice.jpg", name: t("Egyptian rice, 1 kg", "أرز مصري، 1 كغ"), sub: money(38) + " " + t("each", "للواحد"), qty: "2", price: money(76), miss: sim })}
+    </div>
+
+    <div class="sumcard">
+      <div class="sl"><span class="muted">${t("Items, estimated", "الأصناف، تقديريًا")}</span><b>${money(396)}</b></div>
+      <div class="sl"><span class="muted">${t("Delivery", "التوصيل")} <span class="pill tint" style="height:20px;font-size:10.5px;padding:0 7px;margin-inline-start:4px">${icon("bolt", "f")}${t("Club", "النادي")}</span></span><b><span class="strike" style="font-weight:600;margin-inline-end:5px">${money(25)}</span>${t("Free", "مجاني")}</b></div>
+      <div class="total"><div><div style="font-weight:800">${t("Estimated total", "الإجمالي التقديري")}</div><div class="small muted" style="margin-top:2px">${t("At most", "بحد أقصى")} ${money(411.5)} ${t("after weighing", "بعد الوزن")}</div></div><b>${money(396)}</b></div>
+    </div>
+  </div>
+  <div class="dock">
+    <div class="btn amber" style="justify-content:space-between"><span>${t("Go to checkout", "إتمام الطلب")}</span><span class="row" style="gap:6px"><span class="num">${money(396)}</span>${icon("arrow_forward", "flip")}</span></div>
+  </div>
+  ${homeInd()}
+</div>`);
+</script>
+</body>
+</html>

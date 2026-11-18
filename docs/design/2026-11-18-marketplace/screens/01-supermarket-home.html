@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>01 · Zad Market home</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/kit.css">
+<script src="../kit/kit.js"></script>
+<style>
+  .hero { position: absolute; inset: 0 0 auto 0; height: 206px; }
+  .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(6,22,15,.55) 0%, rgba(6,22,15,.08) 45%, rgba(6,22,15,.35) 100%); }
+  .hero-bar { position: absolute; top: 52px; left: 16px; right: 16px; display: flex; gap: 10px; z-index: 5; }
+  .store { position: absolute; top: 146px; left: 12px; right: 12px; padding: 16px 16px 14px; z-index: 6; }
+  .logo { width: 58px; height: 64px; border-radius: 29px 29px 14px 14px; background: var(--poster); color: var(--amber); display: grid; place-items: center; font: 800 22px/1 "Lexend", sans-serif; letter-spacing: -1px; flex: none; margin-top: -40px; border: 4px solid var(--surface); box-shadow: var(--shadow); }
+  .facts { display: flex; gap: 6px; margin-top: 12px; flex-wrap: nowrap; }
+  .fact { flex: 1; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line-2); padding: 8px 9px; }
+  .fact b { display: block; font: 700 14px/1.1 var(--display); }
+  .fact span { font-size: 11px; color: var(--muted); }
+  .search { position: absolute; top: 300px; left: 16px; right: 16px; display: flex; gap: 8px; }
+  .search .field { flex: 1; background: var(--surface); box-shadow: var(--shadow); }
+  .scan { width: 50px; height: 50px; border-radius: 16px; background: var(--fill); color: var(--on-fill); display: grid; place-items: center; flex: none; }
+  .body { position: absolute; top: 362px; left: 0; right: 0; }
+  .offers { display: flex; gap: 10px; padding: 0 16px; }
+  .poster { width: 236px; height: 116px; border-radius: 22px; background: var(--poster); color: #fff; position: relative; overflow: hidden; flex: none; padding: 13px 0 0 16px; }
+  [dir="rtl"] .poster { padding: 13px 16px 0 0; }
+  .poster .big { font: 800 42px/0.95 "Lexend", sans-serif; color: var(--amber); letter-spacing: -2.5px; margin-top: 5px; }
+  .poster .line { font-weight: 700; font-size: 12.5px; margin-top: 3px; width: 122px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .poster .code { position: absolute; bottom: 8px; inset-inline-start: 16px; border: 1.3px dashed var(--amber); border-radius: 8px; padding: 3px 7px; font: 700 10.5px/1 var(--mono); }
+  .poster .pic { position: absolute; top: 10px; inset-inline-end: 10px; width: 82px; height: 96px; }
+  .mini { width: 150px; height: 116px; border-radius: 22px; background: var(--amber-soft); flex: none; padding: 12px; position: relative; overflow: hidden; }
+  .mini .pic { position: absolute; inset-inline-end: -10px; bottom: -12px; width: 92px; height: 82px; border-radius: 46px 46px 0 0; }
+  .mini b { font: 800 26px/1 "Lexend", sans-serif; color: var(--amber-ink); letter-spacing: -1px; }
+  .deps { display: flex; gap: 10px; padding: 0 16px; }
+  .dep { width: 76px; flex: none; text-align: center; font-weight: 800; font-size: 12px; line-height: 1.15; }
+  .dep .ph { width: 76px; height: 84px; margin-bottom: 7px; box-shadow: var(--shadow); }
+  .again { display: flex; gap: 10px; padding: 0 16px; }
+  .prod { width: 118px; flex: none; }
+  .prod .img { height: 104px; border-radius: 18px; position: relative; }
+  .prod .add { position: absolute; bottom: -10px; inset-inline-end: 8px; }
+  .prod .name { font-weight: 700; font-size: 12.5px; margin-top: 14px; line-height: 1.2; }
+  .prod .price { font: 700 13px/1 var(--display); margin-top: 4px; }
+  .cartbar { position: absolute; left: 16px; right: 16px; bottom: 24px; height: 62px; border-radius: 31px; background: var(--poster); color: #fff; display: flex; align-items: center; padding: 0 8px 0 10px; gap: 10px; box-shadow: var(--shadow-strong); z-index: 20; }
+  [dir="rtl"] .cartbar { padding: 0 10px 0 8px; }
+  .cartbar .count { width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,.14); display: grid; place-items: center; font: 800 16px/1 "Lexend", sans-serif; }
+  .cartbar .go { height: 46px; border-radius: 23px; background: var(--amber); color: #241700; display: flex; align-items: center; gap: 6px; padding: 0 16px; font-weight: 800; }
+  .bq { width: 212px; flex: none; height: 70px; border-radius: 20px; display: flex; align-items: center; gap: 10px; padding: 7px; }
+  .bq .ph { width: 56px; height: 56px; border-radius: 15px; flex: none; }
+  .bq .name { font-weight: 700; font-size: 13px; }
+  .bq .price { font: 700 13px/1 var(--display); margin-top: 5px; }
+  .bq .tag { font: 700 11px/1 var(--display); color: var(--accent); background: var(--tint); border-radius: 6px; padding: 2px 5px; }
+  .add.sm { width: 34px; height: 34px; box-shadow: none; background: var(--tint); color: var(--tint-ink); flex: none; }
+  .fade { position: absolute; left: 0; right: 0; bottom: 0; height: 130px; background: linear-gradient(to top, var(--page) 45%, transparent); z-index: 10; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+mount(`
+<div class="phone">
+  ${statusBar(true)}
+  <div class="hero ph" style="${bg("stories/multi-vendor/zad-market-aisle.jpg")}"></div>
+  <div class="hero-bar">
+    <div class="round glass">${icon("arrow_back", "flip")}</div>
+    <div class="grow"></div>
+    <div class="round glass">${icon("ios_share")}</div>
+    <div class="round glass">${icon("favorite", "f", "color:#E0524A")}</div>
+  </div>
+
+  <div class="store card">
+    <div class="row" style="align-items:flex-start;gap:12px">
+      <div class="logo">${t("Z", "ز")}</div>
+      <div class="grow">
+        <div class="row" style="gap:6px"><span style="font:800 21px/1.1 var(--display);letter-spacing:-.4px">${t("Zad Market", "زاد ماركت")}</span>${icon("verified", "f", "font-size:18px;color:var(--accent)")}</div>
+        <div class="row small muted" style="gap:5px;margin-top:4px">${icon("star", "f", "font-size:15px;color:var(--amber)")}<b class="num" style="color:var(--ink)">4.7</b><span>(2.1k)</span><span>·</span><span>${t("Supermarket", "سوبر ماركت")}</span><span>·</span><span style="color:var(--ok);font-weight:700">${t("Open till 23:00", "مفتوح حتى 23:00")}</span></div>
+      </div>
+    </div>
+    <div class="facts">
+      <div class="fact"><b>${n("25–40")}</b><span>${t("minutes", "دقيقة")}</span></div>
+      <div class="fact"><b>${money(25, { whole: true })}</b><span>${t("delivery", "التوصيل")}</span></div>
+      <div class="fact"><b>${money(50, { whole: true })}</b><span>${t("min. order", "أقل طلب")}</span></div>
+      <div class="fact" style="background:var(--tint);border-color:transparent;color:var(--tint-ink)"><b style="display:flex;gap:3px;align-items:center">${icon("bolt", "f", "font-size:16px")}${t("Free", "مجاني")}</b><span style="color:inherit;opacity:.85">${t("with Club", "مع النادي")}</span></div>
+    </div>
+  </div>
+
+  <div class="search">
+    <div class="field">${icon("search")}<span class="ellipsis">${t("Search Zad Market", "ابحث في زاد ماركت")}</span></div>
+    <div class="scan">${icon("barcode_scanner")}</div>
+  </div>
+
+  <div class="body">
+    <div class="offers">
+      <div class="poster">
+        <div class="kicker" style="color:#FFD27A;font-size:10px">${t("This week", "عرض الأسبوع")}</div>
+        <div class="big">15%</div>
+        <div class="line">${t("off fruit & veg", "على الفاكهة والخضار")}</div>
+        <div class="code">FRESH15</div>
+        <div class="pic ph arch" style="${bg("oranges.jpg")}"></div>
+      </div>
+      <div class="mini">
+        <div class="kicker" style="color:var(--amber-ink);font-size:10px">${t("Offer", "عرض")}</div>
+        <div style="margin-top:6px"><b>${n("−15%")}</b></div>
+        <div style="font-weight:700;font-size:12px;margin-top:4px;width:80px">${t("Butter croissants", "كرواسون بالزبدة")}</div>
+        <div class="pic ph" style="${bg("croissants.jpg")}"></div>
+      </div>
+    </div>
+
+    <div class="sec-head" style="padding-top:14px"><span class="h2">${t("Departments", "الأقسام")}</span><span class="see">${t("All 6", "الستة كلها")}</span></div>
+    <div class="deps">
+      <div class="dep"><div class="ph arch" style="${bg("tomatoes.jpg")}"></div>${t("Fruit & veg", "فاكهة وخضار")}</div>
+      <div class="dep"><div class="ph arch" style="${bg("dairy.jpg")}"></div>${t("Dairy & eggs", "ألبان وبيض")}</div>
+      <div class="dep"><div class="ph arch" style="${bg("toast-bread.jpg")}"></div>${t("Bakery", "مخبوزات")}</div>
+      <div class="dep"><div class="ph arch" style="${bg("pantry.jpg")}"></div>${t("Pantry", "البقالة")}</div>
+      <div class="dep"><div class="ph arch" style="${bg("drinks.jpg")}"></div>${t("Drinks", "مشروبات")}</div>
+    </div>
+
+    <div class="sec-head" style="padding-top:12px"><span class="h2">${t("Buy again", "اشترِ مجددًا")}</span><span class="see">${t("From your 4 orders", "من طلباتك الأربعة")}</span></div>
+    <div class="again">
+      <div class="bq card"><div class="ph" style="${bg("eggs.jpg")}"></div><div class="grow"><div class="name ellipsis">${t("Eggs, 30", "بيض، 30 بيضة")}</div><div class="price">${money(165)}</div></div><div class="add sm">${icon("add")}</div></div>
+      <div class="bq card"><div class="ph" style="${bg("egyptian-rice.jpg")}"></div><div class="grow"><div class="name ellipsis">${t("Egyptian rice, 1 kg", "أرز مصري، 1 كغ")}</div><div class="price">${money(38)}</div></div><div class="add sm">${icon("add")}</div></div>
+      <div class="bq card"><div class="ph" style="${bg("bananas.jpg")}"></div><div class="grow"><div class="name ellipsis">${t("Bananas", "موز")}</div><div class="price">${money(35)}<span class="muted small">/${t("kg", "كغ")}</span></div></div><div class="add sm">${icon("add")}</div></div>
+    </div>
+  </div>
+
+  
+  <div class="cartbar">
+    <div class="count">4</div>
+    <div class="grow"><div style="font-weight:800;font-size:15px">${t("View cart", "عرض السلة")}</div><div class="small" style="opacity:.8">${t("Estimated", "تقديريًا")} <span class="num">${money(214.5)}</span></div></div>
+    <div class="go">${t("Checkout", "الدفع")}${icon("arrow_forward", "flip", "font-size:18px")}</div>
+  </div>
+  ${homeInd()}
+</div>`);
+</script>
+</body>
+</html>
