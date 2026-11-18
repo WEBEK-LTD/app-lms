@@ -106,6 +106,7 @@ void main() {
     bool dark = false,
     bool basket = true,
     List<Override> more = const [],
+    Map<String, Object> prefs = const {},
   }) async {
     final app = TestApp(
       api: api ?? zad(),
@@ -116,6 +117,7 @@ void main() {
         'settings.theme_mode': dark ? 'dark' : 'light',
         // The customer's place, so the cart is priced.
         'market_place': ZadMarket.place,
+        ...prefs,
       },
       overrides: [
         ...ZadMarket.overrides(basket: basket),
@@ -572,6 +574,27 @@ void main() {
     expect(
       find.text('Zad Market has nothing with this barcode.'),
       findsOneWidget,
+    );
+  });
+
+  testWidgets('the wallet first at checkout, as kept on the phone', (
+    tester,
+  ) async {
+    phone(tester);
+    final app = await open(tester, Paths.marketCheckout);
+    expect(app.api.marketQuotes.last.toJson()['use_wallet'], isTrue);
+  });
+
+  testWidgets('not when the customer turned it off', (tester) async {
+    phone(tester);
+    final app = await open(
+      tester,
+      Paths.marketCheckout,
+      prefs: const {'market.wallet_use_first': false},
+    );
+    expect(
+      app.api.marketQuotes.last.toJson().containsKey('use_wallet'),
+      isFalse,
     );
   });
 

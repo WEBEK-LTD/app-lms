@@ -24,6 +24,7 @@ import '../data/market_basket.dart';
 import '../data/market_models.dart';
 import '../data/market_place.dart';
 import '../data/market_providers.dart';
+import '../wallet_prefs.dart';
 import '../widgets/market_cart_parts.dart';
 import 'market_orders_screen.dart' show marketOrdersProvider;
 import '../../../core/widgets/studio_screen_scope.dart';
@@ -61,6 +62,11 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
   @override
   void initState() {
     super.initState();
+    // 115 The wallet first when the customer keeps it so (on by default),
+    // where the marketplace has a wallet.
+    _useWallet =
+        (ref.read(marketConfigProvider)?.wallet ?? false) &&
+        ref.read(walletUseFirstProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) => _requote());
   }
 
