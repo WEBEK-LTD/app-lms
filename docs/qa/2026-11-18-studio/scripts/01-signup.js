@@ -1,0 +1,22 @@
+const { open, STATE, problems, shot } = require('./lib');
+(async () => {
+  const { browser, ctx, page } = await open({ fresh: true, tag: 'signup' });
+  const email = 'leqaa-owner@qa.test';
+  await page.goto('/sign-up');
+  await page.getByLabel('Full name').fill('Salma Owner');
+  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('WhatsApp number').fill('+212 600 000 001');
+  await page.getByLabel('Your website (optional)').fill('https://leqaa.qa.test');
+  await page.getByLabel('Password', { exact: true }).fill('leqaa-owner-strong-password-1');
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: 'Create account' }).click();
+  await page.waitForURL(/\/start/);
+  console.log('after signup', page.url());
+  await page.goto('/start?for=studio');
+  await shot(page, 'start-studio');
+  const links = await page.locator('a[href^="/start/"]').evaluateAll(as => as.map(a => a.getAttribute('href') + ' | ' + a.textContent.trim().slice(0, 60)));
+  console.log(links.join('\n'));
+  await ctx.storageState({ path: STATE });
+  console.log(problems.join('\n'));
+  await browser.close();
+})();
