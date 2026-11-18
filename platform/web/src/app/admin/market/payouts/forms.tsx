@@ -50,7 +50,7 @@ export function CancelPayoutForm({ payoutId }: { payoutId: string }) {
         <input type="hidden" name="payout" value={payoutId} />
         <FormMessage message={state.message && !state.ok ? state.message : undefined} />
         <label htmlFor={`note-${payoutId}`} className="text-xs font-semibold">
-          Why it wasn't sent
+          Why it wasn’t sent
         </label>
         <input id={`note-${payoutId}`} name="note" defaultValue={state.values?.note ?? ""} maxLength={500} className="input h-9 px-2 text-sm" aria-invalid={e.note ? true : undefined} aria-describedby={e.note ? `note-${payoutId}-error` : undefined} />
         <FieldError id={`note-${payoutId}-error`} error={e.note} />
