@@ -12843,4 +12843,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get servicesSeeAll => 'عرض كل الخدمات';
+
+  @override
+  String get travelNoPaymentYet =>
+      'لا يمكن الدفع في التطبيق بعد. اختر إقامة تدفع ثمنها في الفندق، أو تواصل معنا.';
 }

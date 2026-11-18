@@ -3308,5 +3308,6 @@
   "travelSeatsCantChange": "Bu uçuşun koltukları uygulamadan değiştirilemez.",
   "servicesNoneInCategory": "Bu kategoride henüz hizmet yok",
   "servicesNoneInCategoryText": "Başka bir kategori seçin ya da tüm hizmetleri görün.",
-  "servicesSeeAll": "Tüm hizmetleri gör"
+  "servicesSeeAll": "Tüm hizmetleri gör",
+  "travelNoPaymentYet": "Bu henüz uygulamada ödenemiyor. Otelde ödediğiniz bir konaklama seçin ya da bizimle iletişime geçin."
 }

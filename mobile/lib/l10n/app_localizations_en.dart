@@ -12450,4 +12450,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get servicesSeeAll => 'See all services';
+
+  @override
+  String get travelNoPaymentYet =>
+      'This can\'t be paid in the app yet. Choose a stay you pay at the hotel, or contact us.';
 }

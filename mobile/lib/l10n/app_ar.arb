@@ -3308,5 +3308,6 @@
   "travelSeatsCantChange": "لا يمكن تغيير مقاعد هذه الرحلة من التطبيق.",
   "servicesNoneInCategory": "لا توجد خدمات في هذه الفئة بعد",
   "servicesNoneInCategoryText": "اختر فئة أخرى، أو اعرض كل الخدمات.",
-  "servicesSeeAll": "عرض كل الخدمات"
+  "servicesSeeAll": "عرض كل الخدمات",
+  "travelNoPaymentYet": "لا يمكن الدفع في التطبيق بعد. اختر إقامة تدفع ثمنها في الفندق، أو تواصل معنا."
 }

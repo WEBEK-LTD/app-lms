@@ -89,7 +89,7 @@ describe("180.13 events, homes and campaigns in the customer's currency", () => 
     expect(lowestPaid([type(0), type(25000), type(15000)], "EGP")).toEqual({ amount: "150.00", currency: "EGP", formatted: "E£150.00" });
     expect(lowestPaid([type(0)], "EGP")).toBeNull();
     const shown = addDisplayPrices({ price_label: "From E£150.00", price_from: lowestPaid([type(15000)], "EGP") }, usd);
-    expect(shown.price_from!.display).toMatchObject({ currency: "USD", amount: "3.00", formatted: "$3.00" });
+    expect((shown.price_from as unknown as { display: unknown }).display).toMatchObject({ currency: "USD", amount: "3.00", formatted: "$3.00" });
   });
 
   it("a home's price and a campaign's goal and what was raised", () => {

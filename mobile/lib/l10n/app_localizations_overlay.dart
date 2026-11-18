@@ -13218,4 +13218,8 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get servicesSeeAll =>
       overlay.text('servicesSeeAll') ?? base.servicesSeeAll;
+
+  @override
+  String get travelNoPaymentYet =>
+      overlay.text('travelNoPaymentYet') ?? base.travelNoPaymentYet;
 }

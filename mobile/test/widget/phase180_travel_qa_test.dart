@@ -235,4 +235,37 @@ void main() {
     expect(change, findsWidgets);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('180.17 nothing to pay with: said so, not a button the '
+      'server refuses', (tester) async {
+    usePhone(tester);
+    final app = travelApp();
+    await app.pump(tester);
+    final served = app.api.travelHandler!;
+    app.api.travelHandler = (method, path, query, body) =>
+        '$method $path' == 'POST /travel/quote'
+        ? {
+            ...travelJson('quote'),
+            'payment': {'now': false, 'at_hotel': false},
+          }
+        : served(method, path, query, body);
+    app.container.read(staySearchProvider.notifier).set(fixtureStay());
+    app.container.read(flightSearchProvider.notifier).set(fixtureFlights());
+    app.container.read(tripChoiceProvider.notifier).set(tripChoice());
+    await open(app, tester, TravelPaths.checkout);
+    expect(
+      find.text(
+        "This can't be paid in the app yet. Choose a stay you pay at the "
+        'hotel, or contact us.',
+      ),
+      findsOneWidget,
+    );
+    // The page is still titled "Confirm and pay"; its button is gone.
+    expect(find.byIcon(Symbols.lock_rounded), findsNothing);
+    expect(
+      find.text('Confirm and pay ${travelJson('quote')['total_formatted']}'),
+      findsNothing,
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

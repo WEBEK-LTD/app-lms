@@ -3306,4 +3306,5 @@
 {"key":"travelSeatsCantChange","en":"This flight's seats can't be changed in the app.","ar":"لا يمكن تغيير مقاعد هذه الرحلة من التطبيق.","tr":"Bu uçuşun koltukları uygulamadan değiştirilemez."},
 {"key":"servicesNoneInCategory","en":"No services in this category yet","ar":"لا توجد خدمات في هذه الفئة بعد","tr":"Bu kategoride henüz hizmet yok"},
 {"key":"servicesNoneInCategoryText","en":"Choose another category, or see every service.","ar":"اختر فئة أخرى، أو اعرض كل الخدمات.","tr":"Başka bir kategori seçin ya da tüm hizmetleri görün."},
-{"key":"servicesSeeAll","en":"See all services","ar":"عرض كل الخدمات","tr":"Tüm hizmetleri gör"}]}
+{"key":"servicesSeeAll","en":"See all services","ar":"عرض كل الخدمات","tr":"Tüm hizmetleri gör"},
+{"key":"travelNoPaymentYet","en":"This can't be paid in the app yet. Choose a stay you pay at the hotel, or contact us.","ar":"لا يمكن الدفع في التطبيق بعد. اختر إقامة تدفع ثمنها في الفندق، أو تواصل معنا.","tr":"Bu henüz uygulamada ödenemiyor. Otelde ödediğiniz bir konaklama seçin ya da bizimle iletişime geçin."}]}

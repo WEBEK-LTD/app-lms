@@ -19963,6 +19963,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See all services'**
   String get servicesSeeAll;
+
+  /// No description provided for @travelNoPaymentYet.
+  ///
+  /// In en, this message translates to:
+  /// **'This can\'t be paid in the app yet. Choose a stay you pay at the hotel, or contact us.'**
+  String get travelNoPaymentYet;
 }
 
 class _AppLocalizationsDelegate

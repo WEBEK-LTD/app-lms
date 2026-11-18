@@ -1073,6 +1073,22 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ),
       bottomNavigationBar: _quote == null
           ? null
+          // 180.17 Nothing to pay with (no card payments yet and not at the
+          // hotel): said so, not a button the server refuses.
+          : !payNow && !canAtHotel
+          ? Padding(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                12,
+                20,
+                12 + MediaQuery.paddingOf(context).bottom,
+              ),
+              child: Text(
+                l.travelNoPaymentYet,
+                textAlign: TextAlign.center,
+                style: t.ui(14, weight: FontWeight.w700, color: t.muted),
+              ),
+            )
           : Padding(
               padding: EdgeInsets.fromLTRB(
                 20,

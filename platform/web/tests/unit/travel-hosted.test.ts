@@ -172,6 +172,13 @@ describe("126 travel apps on the hosted API", () => {
     expect(plain.items[0]!.display).toBeUndefined();
   });
 
+  it("180.17 without card payments, Config.travel doesn't offer paying now, as the quote doesn't", async () => {
+    app = { ...app, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } };
+    await store.updateApp(app.id, { catalogSettings: app.catalogSettings }, NOW);
+    const config = (await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).body as { travel: { payment: { now: boolean; at_hotel: boolean } } };
+    expect(config.travel.payment).toEqual({ now: false, at_hotel: true });
+  });
+
   it("sends Config.travel: the mode, the payments, the saving, the transfer, the one hotel, the font", async () => {
     const config = (await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).body as Record<string, unknown>;
     expect(config.travel).toMatchObject({

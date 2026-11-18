@@ -12356,4 +12356,8 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get servicesSeeAll => 'Tüm hizmetleri gör';
+
+  @override
+  String get travelNoPaymentYet =>
+      'Bu henüz uygulamada ödenemiyor. Otelde ödediğiniz bir konaklama seçin ya da bizimle iletişime geçin.';
 }

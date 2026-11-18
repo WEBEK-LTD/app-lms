@@ -13637,5 +13637,6 @@
   "travelSeatsCantChange": "This flight's seats can't be changed in the app.",
   "servicesNoneInCategory": "No services in this category yet",
   "servicesNoneInCategoryText": "Choose another category, or see every service.",
-  "servicesSeeAll": "See all services"
+  "servicesSeeAll": "See all services",
+  "travelNoPaymentYet": "This can't be paid in the app yet. Choose a stay you pay at the hotel, or contact us."
 }
