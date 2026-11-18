@@ -27,7 +27,7 @@ function kech(patch: Partial<App> = {}): App {
 }
 
 const draw = (sample: ShopSample | null, lang = "en") =>
-  renderToStaticMarkup(createElement(ShopSampleProvider, { value: sample, children: createElement(GiftCheckout, { look: { mode: "gift" }, dark: false, lang, brand: "#9C2F52", photo: null, top: 0 }) }));
+  renderToStaticMarkup(createElement(ShopSampleProvider, { value: sample }, createElement(GiftCheckout, { look: { mode: "gift" }, dark: false, lang, brand: "#9C2F52", photo: null, top: 0 })));
 
 describe("175 Studio's gift checkout sample as the shop's", () => {
   it("the shop's currency, country, city and tomorrow", () => {
