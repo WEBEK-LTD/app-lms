@@ -58,6 +58,13 @@ class StudioCoverView extends ConsumerWidget {
     final background = parseHexColor(
       scope.dark ? (node.darkBackground ?? node.background) : node.background,
     );
+    final room = math.max(0.0, height - topInset - pad.top - pad.bottom);
+    // 163 Its height is the least it is: what is on it, at a larger text
+    // size on the phone (a Samsung's font at 1.3), makes it taller instead
+    // of being cut at its foot. As designed when it fits. A cover with an
+    // element filling its height, or one hanging over its foot, keeps its
+    // height (they need it to be known).
+    final grows = hang == null && !front.any((k) => k.height?.fill == true);
     final over = StudioNode(
       id: '${node.id}-over',
       type: StudioNodeType.column,
@@ -65,51 +72,61 @@ class StudioCoverView extends ConsumerWidget {
       gap: node.gap,
       align: node.align,
       cross: node.cross,
-      height: StudioSize.fixed(
-        math.max(0, height - topInset - pad.top - pad.bottom),
-      ),
+      height: grows ? null : StudioSize.fixed(room),
+      minHeight: grows ? room : null,
     );
+    Widget layer(Widget child) => grows ? Positioned.fill(child: child) : child;
     Widget cover = Stack(
-      fit: StackFit.expand,
+      fit: grows ? StackFit.passthrough : StackFit.expand,
       children: [
         if (map && (node.mapDrawing?.premium ?? false))
           // 129.21–129.24 One of the premium looks, or pins, words or a
           // route on the map: drawn on their own.
-          StudioMapLooks(
-            node: node,
-            dark: scope.dark,
-            land: parseHexColor(
-              scope.dark ? node.darkBackground : node.background,
+          layer(
+            StudioMapLooks(
+              node: node,
+              dark: scope.dark,
+              land: parseHexColor(
+                scope.dark ? node.darkBackground : node.background,
+              ),
             ),
           )
         else if (map)
           // 128.10 Its land: the element's background by day, its
           // `dark_background` by night (missing, the dark map's own).
-          _DrawnMap(
-            node: node,
-            dark: scope.dark,
-            land: parseHexColor(
-              scope.dark ? node.darkBackground : node.background,
+          layer(
+            _DrawnMap(
+              node: node,
+              dark: scope.dark,
+              land: parseHexColor(
+                scope.dark ? node.darkBackground : node.background,
+              ),
             ),
           )
         else ...[
-          ColoredBox(color: background ?? const Color(0xFF1F2A37)),
+          layer(ColoredBox(color: background ?? const Color(0xFF1F2A37))),
           if (node.imageUrl case final url?)
             // 129.1 Growing slowly in a slider's open slide (Ken Burns).
-            StudioKenBurns.wrap(
-              context,
-              studioToned(
-                node,
-                AppNetworkImage(url: url, seed: node.id.hashCode),
+            layer(
+              StudioKenBurns.wrap(
+                context,
+                studioToned(
+                  node,
+                  AppNetworkImage(url: url, seed: node.id.hashCode),
+                ),
               ),
             ),
           // The shade any picture can have (studio_scrim.dart).
           if (node.scrim case final scrim?)
-            DecoratedBox(
-              key: ValueKey('studio-scrim-${node.id}'),
-              decoration: BoxDecoration(gradient: studioScrimGradient(scrim)),
+            layer(
+              DecoratedBox(
+                key: ValueKey('studio-scrim-${node.id}'),
+                decoration: BoxDecoration(gradient: studioScrimGradient(scrim)),
+              ),
             ),
         ],
+        // 163 Its designed height and the screen's width, at the least.
+        if (grows) SizedBox(height: height, width: double.infinity),
         if (front.isNotEmpty)
           Padding(
             padding: EdgeInsetsDirectional.only(
@@ -122,11 +139,21 @@ class StudioCoverView extends ConsumerWidget {
           ),
       ],
     );
-    cover = SizedBox(
-      key: ValueKey('studio-cover-${node.id}'),
-      height: height,
-      child: ClipRRect(borderRadius: radius, child: cover),
-    );
+    cover = grows
+        ? ConstrainedBox(
+            key: ValueKey('studio-cover-${node.id}'),
+            // The width it is given, as a fixed height's cover takes it.
+            constraints: BoxConstraints(
+              minWidth: double.infinity,
+              minHeight: height,
+            ),
+            child: ClipRRect(borderRadius: radius, child: cover),
+          )
+        : SizedBox(
+            key: ValueKey('studio-cover-${node.id}'),
+            height: height,
+            child: ClipRRect(borderRadius: radius, child: cover),
+          );
     if (hang == null) return cover;
     return Stack(
       children: [

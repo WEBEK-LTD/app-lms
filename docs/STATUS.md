@@ -58,6 +58,19 @@ chosen, or whose product the shop no longer has, opens the shop: hosted
 it, and the app does the same from `CLIENT_APP_RELEASE` 7 (WooCommerce
 stores' pages too). Not yet tried on a phone (ROADMAP 152.7).
 
+Roadmap 163 (Studio pages on a Samsung's settings): Leqaa's signature
+template, every page of both looks, is drawn by the real app in tests at
+font scales 1.0 to 1.5, display zoom (360, 384, 412 points) and both
+navigation bars, Arabic and English, light and dark. Arabic text in Studio
+pages is never under a 1.5 line, so the Orders title no longer draws over
+the journey's card; a photo cover grows with its words; a row's last text
+gives way (one that shows something, so a long price with no sale
+shrinks); a testimonial's quote mark isn't cut; the flash sale's title
+wraps; the folding header no longer redraws during layout.
+`CLIENT_APP_RELEASE` is 8 (after 152's 7). Lists whose last items stay under the tab bar (Account, Bouquets, Picks) and the Orders empty
+state under the phone's bar are `wip-page-scroll`'s (ROADMAP 163.7). The
+journey's card offset in right-to-left wasn't reproduced (163.8).
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build

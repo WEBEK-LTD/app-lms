@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' show ImageFilter, lerpDouble;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '../api/models/screens_models.dart';
@@ -978,7 +979,18 @@ class _ChromeFoldingHeaderState extends State<ChromeFoldingHeader> {
 
   bool _onScroll(ScrollNotification n) {
     if (n.metrics.axis == Axis.vertical && n.depth <= 2) {
-      _offset.value = math.max(0, n.metrics.pixels);
+      final offset = math.max(0.0, n.metrics.pixels);
+      // 163 A list told while it is laid out (its content grew or shrank
+      // under a finger, a Samsung's larger text): the header redraws after
+      // this frame, not during it ("Build scheduled during frame").
+      if (SchedulerBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _offset.value = offset;
+        });
+      } else {
+        _offset.value = offset;
+      }
     }
     return false;
   }
