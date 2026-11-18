@@ -180,6 +180,15 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             optionNames: [for (final o in choice.options) o.name],
             imageUrl: _variation?.imageUrl ?? _product.summary.imageUrl,
             price: formatMoney(unit, price.currency),
+            // 161 And in the customer's currency, converted as the server does.
+            shownPrice: switch (price.display) {
+              final d? => customerPrice(
+                formatMoney(unit, price.currency),
+                formatMoney(convertCents(unit, d.rate, d.currency), d.currency),
+              ),
+              null => null,
+            },
+            shownCurrency: price.display?.currency,
             maxQuantity: _maxQuantity,
           ),
         );
@@ -198,7 +207,10 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             quantity: 1,
             name: a.name,
             imageUrl: a.imageUrl,
-            price: a.sale?.nowFormatted ?? a.price.formatted,
+            price: a.sale?.shopNowFormatted ?? a.price.formatted,
+            // 161 And in the customer's currency.
+            shownPrice: a.sale?.nowFormatted ?? a.price.shown,
+            shownCurrency: a.price.display?.currency,
           ),
           _product.id,
           true,
@@ -253,6 +265,10 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             },
             imageUrl: variation?.imageUrl ?? _product.summary.imageUrl,
             price: (variation?.price ?? _product.summary.price).formatted,
+            // 161 And in the customer's currency.
+            shownPrice: (variation?.price ?? _product.summary.price).shown,
+            shownCurrency:
+                (variation?.price ?? _product.summary.price).display?.currency,
             maxQuantity: _maxQuantity,
           ),
         );

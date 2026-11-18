@@ -370,7 +370,8 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
     if (!SIGN_IN_ONLY_ROUTES.has(route) && !deviceRoute) return notFound();
   }
   // 10.6 Pages
-  const page = signInOnly ? null : await handlePages(ctx, req, session?.user ?? null);
+  // 161 Its lists' prices in the customer's currency too.
+  const page = signInOnly ? null : await handlePages(ctx, req, session?.user ?? null, () => displayOf(ctx, req));
   if (page) return page;
   // 99.4 A form's answers, by email.
   const form = signInOnly ? null : await handleFormAnswers(ctx, req, session?.user ?? null);
@@ -660,7 +661,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     switches: appSwitches(app),
     // 149 Prices in the customer's currency: on or off for this app, and in which (empty: any).
     ...(DISPLAY_CONNECTORS.has(app.connector?.kind ?? "") ? { customer_currency: customerCurrencyConfigJson(customerCurrencyRule(app.catalogSettings)) } : {}),
-    ...(extra.store ? { store: extra.store } : {}),
+    // 161 Its fees and thresholds also in the customer's currency (`display`), as the shop's answers are.
+    ...(extra.store ? { store: DISPLAY_CONNECTORS.has(app.connector?.kind ?? "") ? addDisplayPrices(extra.store, await displayOf(ctx, req)) : extra.store } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
     ...(extra.listings ? { listings: extra.listings } : {}),
     // 28 Events & tickets

@@ -265,7 +265,8 @@ export function shippingConfigJson(r: ShippingRules, currency: string, lang: str
 
 /** The quote's `shipping_breakdown`: each part with the rule that priced it. */
 export function breakdownJson(lines: { label: string; cents: number; rule?: string }[], currency: string) {
-  return lines.map((l) => ({ label: l.label, rule: l.rule ?? null, amount: centsToDecimal(l.cents), formatted: money(l.cents, currency) }));
+  // 161 With its currency: the hosted API adds each in the customer's (`display`).
+  return lines.map((l) => ({ label: l.label, rule: l.rule ?? null, currency, amount: centsToDecimal(l.cents), formatted: money(l.cents, currency) }));
 }
 
 type Parsed<T> = { ok: true; value: T } | { ok: false; errors: Record<string, string> };

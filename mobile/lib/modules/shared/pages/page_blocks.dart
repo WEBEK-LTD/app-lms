@@ -720,7 +720,8 @@ class _ItemText extends StatelessWidget {
     final subtitle = item.subtitle?.trim();
     // 131 A product on sale: its sale price and the price before it.
     final sale = item.sale?.liveAt(DateTime.now()) == true ? item.sale : null;
-    final price = sale != null ? null : item.priceLabel?.trim();
+    // 161 In the customer's currency when the server sent it.
+    final price = sale != null ? null : item.shownLabel?.trim();
     final badge = showBadge ? item.badge?.trim() : null;
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -797,7 +798,9 @@ class _ItemText extends StatelessWidget {
 String _itemLabel(PageItem item) => [
   item.title,
   item.subtitle,
-  item.priceLabel,
+  // 161 The customer's price, then the shop's.
+  item.shownLabel,
+  if (item.shownLabel != item.priceLabel) item.priceLabel,
   item.badge,
 ].whereType<String>().where((t) => t.trim().isNotEmpty).join(', ');
 

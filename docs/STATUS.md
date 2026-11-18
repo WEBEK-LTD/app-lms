@@ -27,6 +27,20 @@ Studio's canvas draws the lists as the app does. `CLIENT_APP_RELEASE` 8:
 the app opens the category (an older app the whole shop) and asks for the
 shop's chips again when it comes back on screen.
 
+Roadmap 161 (the whole app in the customer's currency, and a story's
+Open): the hosted API sends every price of Yallapp's own with its amount,
+currency and `display` in the customer's currency, the home's Studio lists
+too (`GET /pages`, each card's `price`, its sale, the flash sale, the
+coupon, plans), and the cart's lines and sums, fees, slots, points, options
+and orders; the app shows each in the customer's currency ("≈", as the
+shop's products), the owner's switch and list respected, what is charged
+unchanged. A story's Open opens its link, or in a shop the shop, never
+nothing (which left the customer on Home); a shop's story with a link that
+opens nothing is served opening the shop, so older apps follow. Studio says
+what a story's Open opens. `CLIENT_APP_RELEASE` is 8: apps get a build.
+Prices a template wrote into its own words stay as written (ROADMAP 161.8).
+Not yet tried on Kech Flora (ROADMAP 161.10). No migration.
+
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
 payout of the 1st covers the sales paid up to the end of the month before,
 cut off at midnight Istanbul time; a sale paid on the 1st or later waits for

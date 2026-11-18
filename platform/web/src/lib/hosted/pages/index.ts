@@ -6,10 +6,11 @@ import type { App, HostedUser } from "../../data/types";
 import { isSamplePlace } from "../../pages/designs/build";
 import { servedLayout } from "../../pages/layout";
 import { etagValues } from "../../pages/plugin";
-import { itemSourcesFor, sameScreenAs } from "../../pages/sources";
+import { appOpensScreen, itemSourcesFor, sameScreenAs } from "../../pages/sources";
 import { moreTab, splitTabs } from "../../pages/tab-bar";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
 import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, type Action, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type Translations, type StudioPage } from "../../pages/types";
+import { addDisplayPrices, DISPLAY_CONNECTORS, Shown, type DisplayCurrency } from "../../money/display";
 import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
@@ -35,9 +36,16 @@ interface PageContext {
   platform: "android" | "ios";
   lang: LanguageCode;
   layout: Layout;
+  /** 161 The customer's currency the app asked for (and the owner allows), with the day's rates; null: the shop's prices only. */
+  display: DisplayCurrency | null;
 }
 
-export async function handlePages(ctx: HostedContext, req: HostedRequest, user: HostedUser | null): Promise<HostedResult | null> {
+/**
+ * `display`: 161 the customer's currency the app asked for, when the owner
+ * allows it (lib/hosted/service.ts `displayOf`), read only for a page: its
+ * lists' prices come in it too, as the shop's own answers do.
+ */
+export async function handlePages(ctx: HostedContext, req: HostedRequest, user: HostedUser | null, display?: () => Promise<DisplayCurrency | null>): Promise<HostedResult | null> {
   if (req.method !== "GET" || req.path[0] !== "pages" || req.path.length > 2) return null;
   const platform = req.query.get("platform");
   if (platform !== "android" && platform !== "ios") return { status: 400, body: { code: "invalid_request", message: "Unknown platform." } };
@@ -49,7 +57,7 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
   if (slug === undefined) return navigation(layout, lang, req, ctx.app, await categoriesMark({ ctx, user, platform, lang, layout }));
   const page = layout.pages.find((p) => p.slug === slug);
   if (!page) return { status: 404, body: { code: "not_found", message: "This page doesn't exist." }, headers: VARY };
-  const pc: PageContext = { ctx, user, platform, lang, layout };
+  const pc: PageContext = { ctx, user, platform, lang, layout, display: display ? await display() : null };
   const blocks: unknown[] = [];
   for (const block of page.blocks) {
     const resolved = await resolveBlock(pc, block);
@@ -101,6 +109,10 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
       const entries = shown[list] as { translations?: Translations }[] | undefined;
       if (entries) (shown as Record<string, unknown>)[list] = entries.map((entry) => (({ translations: _e, ...rest }) => (void _e, rest))(translated(entry, pc.lang, def) as { translations?: Translations }));
     }
+    // 161 A shop's stories: each one's Open opens its link, else the shop (never nothing, which left the customer on Home).
+    if (node.type === "stories" && Array.isArray(shown.slides) && pc.ctx.app.appType === "store") return { ...shown, slides: shown.slides.map((slide) => storyWithLink(pc, slide, gone)) } as StudioNode;
+    // 161 A plan's prices in the customer's currency too.
+    if (node.type === "pricing" && shown.entries) return { ...shown, entries: shown.entries.map((entry) => pricedEntry(entry, node.pricing?.currency ?? "TRY", pc.display)) } as StudioNode;
     // 112.4 What this person opened lately is kept on the phone: sent without entries.
     if (node.type === "items" && node.recent) return node.source === "products" && servable(pc.ctx.app, pc.ctx.connector, "products") ? ({ ...shown, items: [] } as StudioNode) : null;
     if (node.type === "items") {
@@ -177,7 +189,8 @@ function productLink(action: Action | null | undefined): string | undefined {
 async function goneProducts(pc: PageContext, studio: StudioPage): Promise<Set<string>> {
   const connector = pc.ctx.connector;
   if (!connector || !itemSourcesFor(pc.ctx.app).includes("products")) return new Set();
-  const ids = [...new Set(allNodes(studio).map((n) => (n.hidden ? undefined : productLink(n.action))))].filter((id): id is string => id !== undefined && PRODUCT_ID.test(id)).slice(0, LINKED_PRODUCTS_CHECKED);
+  // 161 And the stories' own links.
+  const ids = [...new Set(allNodes(studio).flatMap((n) => (n.hidden ? [] : [productLink(n.action), ...(n.type === "stories" ? (n.slides ?? []).map((slide) => productLink(slide.action)) : [])])))].filter((id): id is string => id !== undefined && PRODUCT_ID.test(id)).slice(0, LINKED_PRODUCTS_CHECKED);
   const answers = await Promise.all(
     ids.map(async (id) => {
       try {
@@ -198,13 +211,49 @@ function linkedProduct(pc: PageContext, action: Action, gone: ReadonlySet<string
   return PRODUCT_ID.test(id) && !gone.has(id) ? action : SHOP;
 }
 
+/**
+ * 161 A shop's story as the app gets it: a story with a photo (its viewer
+ * has Open) whose link opens nothing in the app (none, a page not
+ * published, a screen the app doesn't have) opens the shop, so apps already
+ * in the stores follow it too. Its link otherwise, as the owner set it in
+ * Studio (or the dashboard); a tile without a photo keeps opening its
+ * stories.
+ */
+function storyWithLink<T extends { image_url?: string | null; action?: Action | null }>(pc: PageContext, slide: T, gone: ReadonlySet<string>): T {
+  if (!slide.image_url) return slide;
+  // 152 A story linked to one of the shop's products: the product, else the shop.
+  const action = slide.action ? linkedProduct(pc, slide.action, gone) : slide.action;
+  if (action !== slide.action) return { ...slide, action };
+  const opens =
+    action &&
+    (action.type === "page"
+      ? pc.layout.pages.some((p) => p.slug === action.page_slug)
+      : action.type === "screen"
+        ? Boolean(action.screen) && appOpensScreen(pc.ctx.app, action.screen!)
+        : true);
+  if (opens) return slide;
+  return appOpensScreen(pc.ctx.app, "search") ? { ...slide, action: SHOP } : slide;
+}
+
+/**
+ * 161 A pricing element's plan with its prices (cents of the element's
+ * currency) also in the customer's currency (`display`: `price` and
+ * `price_yearly` formatted, the rate and its day); as it is without one.
+ */
+export function pricedEntry<T extends { price?: number | null; price_yearly?: number | null }>(entry: T, currency: string, display: DisplayCurrency | null): T {
+  const shown = Shown.for(currency, display);
+  if (!shown || (typeof entry.price !== "number" && typeof entry.price_yearly !== "number")) return entry;
+  const text = (cents: number | null | undefined) => (typeof cents === "number" ? shown.formatted(cents) : null);
+  return { ...entry, display: { currency: shown.currency, price: text(entry.price), price_yearly: text(entry.price_yearly), rate: shown.rate, rate_date: shown.rateDate } };
+}
+
 /** 131 A store route of the app's connector (`GET /store/flash-sales`, `/store/products`, `/store/coupons`), or null. */
 async function storeRead(pc: PageContext, path: string[], query: Record<string, string>): Promise<Record<string, unknown> | null> {
   const connector = pc.ctx.connector;
   if (!connector) return null;
   try {
-    const result = await connector.handle({ method: "GET", path, query: new URLSearchParams({ platform: pc.platform, ...query }), body: null, user: pc.user, now: pc.ctx.now, lang: pc.lang });
-    return result?.status === 200 && result.body && typeof result.body === "object" ? (result.body as Record<string, unknown>) : null;
+    const result = await connector.handle({ method: "GET", path, query: new URLSearchParams({ platform: pc.platform, ...query }), body: null, user: pc.user, now: pc.ctx.now, lang: pc.lang, display: pc.display });
+    return result?.status === 200 && result.body && typeof result.body === "object" ? withDisplay(pc, result.body as Record<string, unknown>) : null;
   } catch (e) {
     if (e instanceof ConnectorError) return null;
     throw e;
@@ -223,7 +272,7 @@ async function servedFlashSale(pc: PageContext, node: StudioNode): Promise<Studi
   const live = sales.filter((s) => s.live === true);
   const sale = (node.flash_sale?.sale_id ? live.find((s) => s.id === node.flash_sale?.sale_id) : null) ?? live[0];
   if (sale) {
-    const items = ((sale.products as Record<string, unknown>[]) ?? []).map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null).slice(0, limit);
+    const items = shownItems(((sale.products as Record<string, unknown>[]) ?? []).map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null).slice(0, limit), pc.display, false);
     if (!items.length) return null;
     return {
       ...node,
@@ -244,7 +293,7 @@ async function servedFlashSale(pc: PageContext, node: StudioNode): Promise<Studi
   const onSale = (((await storeRead(pc, ["store", "products"], { on_sale: "true", per_page: String(limit) }))?.items as Record<string, unknown>[] | undefined) ?? []).filter((p) => p.sale);
   if (!onSale.length) return null;
   const ends = onSale.map((p) => (p.sale as { ends_at?: string | null }).ends_at).filter((e): e is string => typeof e === "string").sort()[0] ?? null;
-  const items = onSale.map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null);
+  const items = shownItems(onSale.map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null), pc.display, false);
   return { ...node, flash: { id: null, title: null, starts_at: null, ends_at: ends, percent_off: null, remaining: null, total: null }, items } as StudioNode;
 }
 
@@ -411,22 +460,69 @@ async function get(pc: PageContext, path: string[], params: Record<string, strin
   if (!ctx.connector) return null;
   const query = new URLSearchParams({ platform: pc.platform });
   for (const [key, value] of Object.entries(params)) if (value !== null && value !== undefined && value !== "") query.set(key, String(value));
-  const result = await ctx.connector.handle({ method: "GET", path, query, body: undefined, user: pc.user, now: ctx.now });
+  const result = await ctx.connector.handle({ method: "GET", path, query, body: undefined, user: pc.user, now: ctx.now, display: pc.display });
   if (!result || result.status !== 200 || !result.body || typeof result.body !== "object") return null;
-  return result.body as Record<string, unknown>;
+  return withDisplay(pc, result.body as Record<string, unknown>);
+}
+
+/**
+ * 161 A connector's answer with its prices also in the customer's currency
+ * (`display`), as the hosted API adds them to the app's own requests
+ * (lib/hosted/service.ts): only Yallapp's own prices, never a connected
+ * platform's.
+ */
+function withDisplay(pc: PageContext, body: Record<string, unknown>): Record<string, unknown> {
+  return DISPLAY_CONNECTORS.has(pc.ctx.app.connector?.kind ?? "") ? addDisplayPrices(body, pc.display) : body;
+}
+
+/**
+ * 161 A card's price as amounts and a currency (`ItemPrice`), beside its
+ * words (`price_label`, kept for older apps): what the app converts, with
+ * the same price in the customer's currency (`display`) when the source is
+ * Yallapp's own; a range's dearest end (`max_amount`). Nothing for a source
+ * price without an amount and a currency (a connected platform's free
+ * course).
+ */
+export function itemPrice(price: unknown): { price?: Record<string, unknown> } {
+  const p = (price ?? {}) as Record<string, unknown>;
+  if (typeof p.amount !== "string" || typeof p.currency !== "string" || typeof p.formatted !== "string") return {};
+  const keep = ["amount", "currency", "formatted", "range", "max_amount", "regular_amount", "regular_formatted", "on_sale", "display"];
+  return { price: Object.fromEntries(keep.filter((k) => p[k] !== undefined && p[k] !== null).map((k) => [k, p[k]])) };
+}
+
+/**
+ * 161 A list's cards with their prices also in the customer's currency:
+ * the platform's own lists (listings, events, hotels, bundles) converted
+ * here; each card's converted words (`price.display.label`: "From \$3.00",
+ * "\$1,200.00 / month") from its own.
+ */
+function shownItems(items: Item[], display: DisplayCurrency | null, own: boolean): Item[] {
+  return items.map((item) => {
+    if (!item.price) return item;
+    const price = own ? addDisplayPrices({ ...item.price }, display) : item.price;
+    const shown = price.display as Record<string, unknown> | undefined;
+    const label = item.price_label;
+    if (shown && typeof shown.formatted === "string" && typeof price.formatted === "string" && label && label.includes(price.formatted)) {
+      return { ...item, price: { ...price, display: { ...shown, label: label.replace(price.formatted, shown.formatted) } } };
+    }
+    return { ...item, price };
+  });
 }
 
 const list = (body: Record<string, unknown> | null): Record<string, unknown>[] =>
   Array.isArray(body?.items) ? (body.items as Record<string, unknown>[]).filter((i) => i && typeof i === "object") : [];
 
 async function listItems(pc: PageContext, source: ItemSource, query: ItemsQuery): Promise<Item[] | null> {
-  if (source === "courses") return listCourses(pc, query);
-  if (source === "products") return listProducts(pc, query);
-  if (source === "services") return listServices(pc, query);
+  // 161 The connector's own lists come converted when they are Yallapp's (`withDisplay`).
+  if (source === "courses") return shownItems(await listCourses(pc, query), pc.display, false);
+  if (source === "products") return shownItems(await listProducts(pc, query), pc.display, false);
+  if (source === "services") return shownItems(await listServices(pc, query), pc.display, false);
   if (source === "articles") return listArticles(pc, query);
   const resolver = itemResolver(source);
   if (!resolver) return null;
-  return resolver({ appId: pc.ctx.app.id, userId: pc.user ? String(pc.user.id) : null, lang: pc.lang, store: pc.ctx.store, now: pc.ctx.now }, query);
+  const items = await resolver({ appId: pc.ctx.app.id, userId: pc.user ? String(pc.user.id) : null, lang: pc.lang, store: pc.ctx.store, now: pc.ctx.now }, query);
+  // 161 The platform's own lists: converted here.
+  return shownItems(items, pc.display, true);
 }
 
 const str = (value: unknown): string | null => (typeof value === "string" && value ? value : null);
@@ -447,6 +543,8 @@ export function courseItem(course: Record<string, unknown>, lang: LanguageCode):
     // Display text only: there's never a purchase action in a list.
     // 38 In the app's language, like every word on a card.
     price_label: price.is_free ? itemWords(lang).free : str(price.formatted),
+    // 161 As amounts and a currency, also in the customer's.
+    ...(price.is_free ? {} : itemPrice(price)),
     badge: null,
     // 128.8 Its rating, for a card's `rating` element.
     rating: typeof course.rating === "number" && course.rating > 0 ? Math.round(course.rating * 10) / 10 : null,
@@ -486,6 +584,8 @@ function productItem(product: Record<string, unknown>, lang: LanguageCode): Item
     subtitle: null,
     image_url: str(product.image_url),
     price_label: str(price.formatted),
+    // 161 As amounts and a currency, also in the customer's (its `sale` too: `sale.display`).
+    ...itemPrice(price),
     badge: product.stock_status === "out_of_stock" ? itemWords(lang).outOfStock : price.on_sale ? itemWords(lang).sale : null,
     // 131 Its sale, for the cards' sale badge, the `sale` and `was_price` elements and the flash sale.
     ...(product.sale && typeof product.sale === "object" ? { sale: product.sale as Record<string, unknown> } : {}),
@@ -525,6 +625,8 @@ function serviceItem(service: Record<string, unknown>, lang: LanguageCode): Item
     subtitle: Number.isInteger(minutes) && minutes > 0 ? durationLabel(minutes, lang) : null,
     image_url: str(service.image_url),
     price_label: price.free ? itemWords(lang).free : str(price.formatted),
+    // 161 As amounts and a currency, also in the customer's (a free one too: 0, its words "Free").
+    ...itemPrice(price),
     badge: null,
     action: { type: "item", item: { source: "services", id: String(id) } },
   };

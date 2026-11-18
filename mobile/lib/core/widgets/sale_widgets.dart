@@ -403,13 +403,15 @@ class _ProductFlashSaleState extends State<ProductFlashSale> {
   /// its sale; the sale's own without a chosen price.
   static ProductSale? _shown(ProductSale sale, ProductPrice? price) {
     if (price == null) return sale;
-    final was = price.regularFormatted;
+    // 161 In the customer's currency when the server sent it.
+    final was = price.shownRegular;
     if (price.range || !price.onSale || was == null) return null;
     return ProductSale(
       was: price.regularAmount ?? sale.was,
       wasFormatted: was,
       now: price.amount,
-      nowFormatted: price.formatted,
+      nowFormatted: price.shown,
+      shopNowFormatted: price.formatted,
       percentOff: sale.percentOff,
       startsAt: sale.startsAt,
       endsAt: sale.endsAt,

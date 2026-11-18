@@ -1,4 +1,5 @@
 import 'json.dart';
+import 'money_models.dart';
 
 /// 26 Restaurants and cafés: a dish's options, pickup and delivery, the
 /// kitchen's times and where an order is.
@@ -22,7 +23,16 @@ class ProductOption {
     id: reqString(json, 'id'),
     name: reqString(json, 'name'),
     priceDelta: optString(json, 'price_delta') ?? '0.00',
-    priceDeltaFormatted: optString(json, 'price_delta_formatted'),
+    // 161 In the customer's currency when the server sent it ("≈ +\$1.00").
+    priceDeltaFormatted: customerPriceOr(
+      optString(json, 'price_delta_formatted'),
+      switch (DisplayMoney.tryParse(
+        json['display'],
+      )?['price_delta_formatted']) {
+        final String shown => '+$shown',
+        null => null,
+      },
+    ),
   );
 
   final String id;
@@ -153,9 +163,10 @@ class FulfilmentConfig {
       delivery: boolOr(json, 'delivery', false),
       pickupAddress: optString(json, 'pickup_address'),
       minOrder: optString(json, 'min_order'),
-      minOrderFormatted: optString(json, 'min_order_formatted'),
+      // 161 In the customer's currency when the server sent it.
+      minOrderFormatted: customerText(json, 'min_order_formatted'),
       deliveryFee: optString(json, 'delivery_fee'),
-      deliveryFeeFormatted: optString(json, 'delivery_fee_formatted'),
+      deliveryFeeFormatted: customerText(json, 'delivery_fee_formatted'),
       deliveryAreas: stringList(json, 'delivery_areas'),
       deliveryNote: optString(json, 'delivery_note'),
       prepMinutes: intOr(json, 'prep_minutes', 0),
@@ -284,7 +295,8 @@ class OrderFulfilment {
     type: enumFrom(FulfilmentType.values, json['type'], FulfilmentType.pickup),
     scheduledFor: optDate(json, 'scheduled_for'),
     address: optObject(json, 'delivery_address', DeliveryAddress.fromJson),
-    deliveryFee: optString(json, 'delivery_fee'),
+    // 161 In the customer's currency when the server sent it.
+    deliveryFee: customerText(json, 'delivery_fee'),
   );
 
   final FulfilmentType type;

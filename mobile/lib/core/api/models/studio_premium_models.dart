@@ -1,4 +1,5 @@
 import 'json.dart';
+import 'money_models.dart';
 import 'page_models.dart';
 
 /// 129.11–129.20 What Studio's premium content, trust and commerce elements
@@ -26,6 +27,7 @@ class StudioEntry {
     this.gradient,
     this.color,
     this.action,
+    this.display,
   });
 
   static StudioEntry? tryParse(Object? value) {
@@ -48,8 +50,13 @@ class StudioEntry {
       gradient: StudioGradient.tryParse(json['gradient']),
       color: optString(json, 'color'),
       action: PageAction.tryParse(json['action']),
+      display: DisplayMoney.tryParse(json['display']),
     );
   }
+
+  /// 161 A plan's prices in the customer's currency (`price` and
+  /// `price_yearly` formatted); null when none.
+  final DisplayMoney? display;
 
   /// At most 12, as the servers keep them.
   static List<StudioEntry> listFrom(Object? value) => [

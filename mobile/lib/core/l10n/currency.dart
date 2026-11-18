@@ -82,7 +82,13 @@ const _regions =
     'ZM:ZMW ZW:ZWG';
 
 /// 135.5 Saves the customer's pick (null: back to the phone's region); the
-/// content reloads with prices in it.
+/// content reloads with prices in it. 161 The config too, in place (as
+/// after a language change): the shop's fees and thresholds in it (a
+/// delivery slot's fee, free shipping over, the points' worth) follow.
 void changeCurrency(WidgetRef ref, String? code) {
+  final before = ref.read(appCurrencyProvider);
   ref.read(localSettingsProvider.notifier).setCurrency(code);
+  if (ref.read(appCurrencyProvider) != before) {
+    ref.read(appGateProvider.notifier).load(quiet: true);
+  }
 }
