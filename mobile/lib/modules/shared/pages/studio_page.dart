@@ -1622,7 +1622,8 @@ class StudioNodeView extends ConsumerWidget {
             fit: BoxFit.scaleDown,
             alignment: switch (align) {
               TextAlign.center => Alignment.center,
-              TextAlign.end || TextAlign.right => AlignmentDirectional.centerEnd,
+              TextAlign.end ||
+              TextAlign.right => AlignmentDirectional.centerEnd,
               _ => AlignmentDirectional.centerStart,
             },
             child: StarText(text, textAlign: align, maxLines: 1),

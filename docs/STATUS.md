@@ -310,6 +310,23 @@ before 18 November 2026. The default's earlier versions come from git
 (`scripts/legal-history.mjs` writes `src/content/legal-history.ts`; run it
 after changing a legal page's default, a unit test says so).
 
+Roadmap 177 (Zad and the classic store, walked end to end): in a project
+made from Zad, the bar's Cart, Orders and Account tabs open their own
+screens with the bar (the basket had no branch of the shell, so each
+opened the next tab's screen and Account threw); the vendor page's aisle
+chips go to their aisle, and its search, share and heart work (the heart
+saves a place on the phone); a line on sale shows its old price, so an
+order's lines add up to Items; one big word on one line ("15%") shrinks at
+a larger text size instead of being cut; every Material Symbol is rounded.
+On the platform: a business's own app no longer shows a template's coupon
+code it doesn't have (Zad's FRESH15 and ZAD20); the marketplace's price
+lines, notes and refusals are in Arabic and Turkish; a marketplace's
+sign-in opens on its country's code; Dashboard › Vendors names vendors.
+The app's part reaches the stores with the next `CLIENT_APP_RELEASE`
+(integration branch). Open: a delivery address without the phone's
+location, the template's tiles opening the search, "Cash on delivery" with
+pick-up (ROADMAP 177.10–177.12).
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build
