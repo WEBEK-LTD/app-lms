@@ -353,11 +353,11 @@ export function hasUnpublishedChanges(record: AppLayoutRecord): boolean {
  * again rather than keep what they had (Leqaa's and Kech Flora's, published
  * before).
  */
-export function withFreshTranslations<T extends Layout>(layout: T, app: Pick<App, "appName"> & Partial<Pick<App, "catalogSettings">>): T {
+export function withFreshTranslations<T extends Layout>(layout: T, app: Pick<App, "appName"> & Partial<Pick<App, "catalogSettings" | "demo">>): T {
   const words = { appName: app.appName, more: PAGE_TEXT_FORMS };
   // 156 And no template [placeholder] for customers: the store's facts fill theirs, the rest waits for the owner's words.
   const delivery = app.catalogSettings?.delivery;
-  const fresh = withoutPlaceholders(withoutStaleTranslations(layout, { ...words, dropMarks: true }), { cutoff: delivery?.enabled && delivery.sameDay ? delivery.cutoff : null }, words);
+  const fresh = withoutPlaceholders(withoutStaleTranslations(layout, { ...words, dropMarks: true }), { cutoff: delivery?.enabled && delivery.sameDay ? delivery.cutoff : null, ownBusiness: app.demo !== true }, words);
   if (fresh === layout) return layout;
   return { ...fresh, version: `${layout.version}~f${sha256Hex(JSON.stringify(fresh)).slice(0, 8)}` };
 }

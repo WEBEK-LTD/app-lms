@@ -21,7 +21,8 @@ saving; Studio says what each language shows and which is the main one.
 No template [placeholder] reaches a customer either: the same-day cut-off
 fills Leqaa's "Order before [your cut-off time]", and an element or a
 review whose words are still a placeholder waits for the owner's (Studio
-says so under the field).
+says so under the field); a project started from a demo no longer shows
+the demo's facts (Leqaa's "anywhere in Cairo" in a shop in Morocco).
 The path itself (Publish, the published layout, `GET /pages`, its ETag,
 the app's reload) was checked end to end and carries every edit. Admin ›
 Demo apps asks before Refresh, which puts back a demo's own design over

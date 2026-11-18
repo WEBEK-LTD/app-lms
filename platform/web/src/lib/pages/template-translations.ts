@@ -491,6 +491,34 @@ function placeholders(options: TemplateWords): { chunks: (chunk: string) => bool
 export interface StoreFacts {
   /** The same-day cut-off ("14:00"), when the shop delivers on the day. */
   cutoff?: string | null;
+  /**
+   * A business's own app, not one of Yallapp's demos: the demos' facts a
+   * project started from a demo has (Leqaa's "Order before 4 pm and it
+   * arrives today, anywhere in Cairo.", Sofra's Zamalek, Sahm's opening
+   * hours) aren't its own, so they are the template's words again, their
+   * placeholders filled from the store or left out.
+   */
+  ownBusiness?: boolean;
+}
+
+/** The demos' facts by their words in each language, with the template's own words in that language they stand in for. */
+let demoFactWords: Map<string, string> | null = null;
+
+function demoFactTemplate(text: string, appName: string | null | undefined): string | null {
+  if (!demoFactWords) {
+    demoFactWords = new Map();
+    for (const facts of Object.values(DEMO_FACTS)) {
+      for (const [word, forms] of Object.entries(facts ?? {})) {
+        for (const lang of TEMPLATE_LANGS) {
+          const own = forms?.[lang]?.trim();
+          const template = (APP_WORDS[lang] as Record<string, string>)[word];
+          if (own && template && !demoFactWords.has(own)) demoFactWords.set(own, template);
+        }
+      }
+    }
+  }
+  const template = demoFactWords.get(text.trim());
+  return template === undefined ? null : template.replaceAll(APP, appName?.trim() ?? "");
 }
 
 /** Whether `text` still has one of the templates' placeholders in it (Studio's own canvas keeps showing it to the owner). */
@@ -515,10 +543,11 @@ function placeholderFree<T extends Record<string, unknown>>(value: T, fields: re
     if (v === undefined) delete out[key];
     else out[key] = v;
   };
+  const undemo = (text: string) => (facts.ownBusiness ? (demoFactTemplate(text, options.appName) ?? text) : text);
   for (const field of fields) {
     const text = value[field];
     if (typeof text !== "string") continue;
-    const own = filled(text, facts, options);
+    const own = filled(undemo(text), facts, options);
     if (own !== text) set(field, own);
     if (!hasPlaceholder(own, options)) continue;
     // A main text (an element's words, a review's) still to be written: the whole of it waits.
@@ -533,7 +562,7 @@ function placeholderFree<T extends Record<string, unknown>>(value: T, fields: re
       if (!isRecord(byField)) continue;
       const texts: Record<string, string> = {};
       for (const [field, text] of Object.entries(byField)) {
-        const own = typeof text === "string" && fields.includes(field) ? filled(text, facts, options) : (text as string);
+        const own = typeof text === "string" && fields.includes(field) ? filled(undemo(text), facts, options) : (text as string);
         if (own !== text) changed = true;
         // A translation still to be written: the language shows the main text.
         if (fields.includes(field) && hasPlaceholder(own, options)) changed = true;
@@ -587,8 +616,9 @@ function nodeWithout(node: Record<string, unknown>, facts: StoreFacts, options: 
 
 /**
  * 156 A layout as customers get it: no Studio page shows the templates'
- * [placeholders]. The store's facts fill theirs (the same-day cut-off from
- * the delivery settings); an element whose words are still a placeholder,
+ * [placeholders], nor, in a business's own app, a demo's facts (its city,
+ * its hours, its cut-off). The store's facts fill theirs (the same-day
+ * cut-off from the delivery settings); an element whose words are still a placeholder,
  * and a review still to be written, wait until the owner writes them; a
  * placeholder in a secondary line, a slide's words or the header's title
  * just goes; a translation still to be written shows the main text. Studio

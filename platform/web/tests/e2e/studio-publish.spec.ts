@@ -55,6 +55,16 @@ test.beforeAll(async ({ browser }) => {
   await expect(own).toHaveURL(/\/studio\/project$/);
   await own.goto("/studio/project/setup?step=website");
   api = (await own.locator("code").filter({ hasText: "/api/app/" }).first().textContent())!.trim();
+  // Arabic and Turkish in the app too (the template wrote its words in them).
+  await own.goto("/studio/project/languages");
+  const list = own.getByRole("list", { name: "Languages in the app" }).getByRole("listitem");
+  await expect(list).toHaveCount(1);
+  for (const [code, n] of [["ar", 2], ["tr", 3]] as const) {
+    await own.getByLabel("Add a language").selectOption(code);
+    await own.getByRole("button", { name: "Add", exact: true }).click();
+    await expect(list).toHaveCount(n);
+  }
+  await expect(own.getByText("Languages saved to your draft")).toBeVisible();
 });
 
 test.afterAll(async () => {

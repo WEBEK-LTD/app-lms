@@ -59,7 +59,7 @@ beforeEach(() => {
 
 /** A Studio store from Leqaa's look A, its content kept in Yallapp, as /studio/new makes it with the dashboard in `lang`. */
 async function kechFlora(lang: "en" | "ar"): Promise<App> {
-  const { client } = await registerClient(store, { name: "Kech Flora", email: `kech-${lang}@flora.test`, whatsapp: "+905446731942", siteUrl: null, password: null }, NOW);
+  const { client } = await registerClient(store, { name: "Kech Flora", email: `kech-${lang}@flora.test`, whatsapp: "+905446731942", siteUrl: "", password: null }, NOW);
   const languages = lang === "ar" ? { default: "ar", available: ["ar", "en", "tr"] } : { default: "en", available: ["en", "ar", "tr"] };
   const made = await makeStudioProject(store, { clientId: client.id, name: "Kech Flora", kind: kindById("store")!, source: "catalog", template: LEQAA_A, words: appWords(lang, "Kech Flora"), lang, languages }, NOW);
   return (await store.getAppById(made.id))!;
@@ -264,7 +264,7 @@ describe("156 an edit in Studio reaches the app, in every language", () => {
 describe("156 the app's own test of the path (mobile/test/support/studio_publish.json)", () => {
   it("is Leqaa's home and shop as hosted GET /pages serves them after the owner's edits, in English and Arabic, and after a second publish", async () => {
     const kind = demoKind(FLOWER_SHOP_DEMO);
-    const { client } = await registerClient(store, { name: "Leqaa", email: "owner@leqaa.test", whatsapp: "+905446731942", siteUrl: null, password: null }, NOW);
+    const { client } = await registerClient(store, { name: "Leqaa", email: "owner@leqaa.test", whatsapp: "+905446731942", siteUrl: "", password: null }, NOW);
     const app: App = { ...newApp(client.id, null, NOW, kind.engine, kind.vertical), id: "00000000-0000-4000-8000-000000000156", section: "studio", backend: "hosted", connector: { kind: "catalog" }, appName: "Leqaa", primaryColor: DEMO_BRANDS.flowers.primaryColor, brandingDoneAt: NOW, websiteDoneAt: NOW, design: FLOWER_SHOP_TEMPLATE };
     await store.createApp(app);
     const draft: LayoutContent = JSON.parse(JSON.stringify(await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, app, "banner-asset")));
@@ -340,8 +340,10 @@ describe("156 what Yallapp writes is left as it is", () => {
     expect(translationState(welcome, "text", "ar", { appName: "Kech Flora" })).toBe("stale");
     expect(translationState(welcome, "text", "ar", { appName: "Other" })).toBe("own");
     // The app's name alone (a wordmark) is the template's while it is the app's name; another name is the owner's.
-    expect(translationState({ text: "Kech", translations: { ar: { text: "Kech Flora" } } }, "text", "ar", { appName: "Kech Flora" })).toBe("stale");
-    expect(translationState({ text: "Kech", translations: { ar: { text: "كيش فلورا" } } }, "text", "ar", { appName: "Kech Flora" })).toBe("own");
+    const wordmark = { text: "Kech", translations: { ar: { text: "Kech Flora" } } };
+    const named = { text: "Kech", translations: { ar: { text: "كيش فلورا" } } };
+    expect(translationState(wordmark, "text", "ar", { appName: "Kech Flora" })).toBe("stale");
+    expect(translationState(named, "text", "ar", { appName: "Kech Flora" })).toBe("own");
   });
 
   it("no [placeholder] of a template reaches a customer: the cut-off from the delivery settings, the rest waits for the owner's words", async () => {
@@ -364,6 +366,27 @@ describe("156 what Yallapp writes is left as it is", () => {
     expect(await texts("tr")).toContain("14:00 öncesinde sipariş verin, bugün ulaşsın.");
     // Studio still shows the owner the placeholders, to fill in.
     expect(JSON.stringify((await loadLayout(store, shop, LATER)).draft)).toContain("[Customer name]");
+  });
+
+  it("a project started from Leqaa's demo never tells its customers the demo's facts: no Cairo, no 4 pm; its own cut-off, or no line", async () => {
+    const { client } = await registerClient(store, { name: "Kech Flora", email: "kech-demo@flora.test", whatsapp: "+212600000000", siteUrl: "", password: null }, NOW);
+    const languages = { default: "en", available: ["en", "ar", "tr"] };
+    const made = await makeStudioProject(store, { clientId: client.id, name: "Kech Flora", kind: kindById("store")!, source: "catalog", template: LEQAA_A, words: appWords("en", "Kech Flora"), lang: "en", languages, fromDemo: FLOWER_SHOP_DEMO }, NOW);
+    const app = (await store.getAppById(made.id))!;
+    const draft = await editorDraft(app);
+    // Studio shows the demo's words it started from.
+    expect(JSON.stringify(draft)).toContain("Order before 4 pm and it arrives today, anywhere in Cairo.");
+    expect((await publishLayout(store, app, draft, "owner@kech.test", NOW, PLAN_INFO.studio_1)).ok).toBe(true);
+    const demoWords = /Cairo|القاهرة|Kahire|4 pm|الرابعة|16\.00/;
+    for (const lang of ["en", "ar", "tr"]) expect(JSON.stringify((await get(app, "/pages/home", lang)).body), lang).not.toMatch(demoWords);
+    const delivery = { enabled: true, required: false, sameDay: true, cutoff: "15:30", nextDay: true, maxDays: 7, closedWeekdays: [], timezone: "Africa/Casablanca", slots: [] };
+    await store.updateApp(app.id, { catalogSettings: { ...app.catalogSettings!, delivery } }, LATER);
+    const shop = (await store.getAppById(app.id))!;
+    const texts = allNodes(((await get(shop, "/pages/home", "en")).body as { studio: StudioPage }).studio).map((n) => n.text ?? "");
+    expect(texts).toContain("Order before 15:30 and it arrives today.");
+    // Yallapp's own demo app keeps its own facts.
+    const demo = { ...shop, demo: true };
+    expect(JSON.stringify((await get(demo, "/pages/home", "en")).body)).toContain("anywhere in Cairo");
   });
 
   it("dropping and marking leave anything else as it was", () => {
