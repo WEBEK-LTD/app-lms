@@ -4036,6 +4036,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get keepOrder => 'Siparişi koru';
 
   @override
+  String get signedNoName => 'İmzalı, isim verilmedi';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

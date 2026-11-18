@@ -29,7 +29,11 @@ with Arabic-Indic digits are read. Categories refuse a duplicate name and
 have optional Arabic and Turkish names, served in the app's language;
 Products › Settings is in Studio's breadcrumb. Migration
 `0143_catalog_category_names` (another branch adds its own 0143,
-`0143_app_stories`: one of them is renumbered at merge). Yallapp Business is not released from this
+`0143_app_stories`: one of them is renumbered at merge). Yallapp Business
+places add-ons under their own size, says when a signed card has no name,
+offers Postpone and Retry days from the shop's today, and the server
+refuses a full or closed time. Nothing is released from this branch, and
+`mobile/` is unchanged. Yallapp Business is not released from this
 branch.
 
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the

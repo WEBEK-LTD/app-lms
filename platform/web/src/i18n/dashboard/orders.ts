@@ -198,6 +198,9 @@ export const en = {
     stageTimeNeeded: "Choose a delivery time.",
     stageShopTime: "Choose one of the shop's delivery times.",
     stageTimeStarted: "That delivery time has started. Please choose a later one.",
+    // 175
+    stageTimeClosed: "The shop doesn't deliver at that time that day. Please choose another.",
+    stageTimeFull: "That delivery time is full that day. Please choose another.",
     stageSavedTold: "Saved. The customer was told.",
     stageSaved: "Saved.",
     // lib/catalog/shipping.ts and the Orders page's shipping form
@@ -447,6 +450,8 @@ export const ar: Messages = {
     stageTimeNeeded: "اختار ميعاد التوصيل.",
     stageShopTime: "اختار ميعاد من مواعيد توصيل المحل.",
     stageTimeStarted: "الميعاد ده بدأ خلاص. اختار ميعاد بعده.",
+    stageTimeClosed: "المحل مش بيوصّل في الميعاد ده اليوم ده. اختار ميعاد تاني.",
+    stageTimeFull: "الميعاد ده اتملى اليوم ده. اختار ميعاد تاني.",
     stageSavedTold: "اتحفظ. العميل وصله إشعار.",
     stageSaved: "اتحفظ.",
     enterTracking: "أدخل رابط التتبّع أو رقم التتبّع أو البوليصة.",
@@ -691,6 +696,8 @@ export const tr: Messages = {
     stageTimeNeeded: "Bir teslimat saati seçin.",
     stageShopTime: "Mağazanın teslimat saatlerinden birini seçin.",
     stageTimeStarted: "O teslimat saati başladı. Lütfen daha sonraki birini seçin.",
+    stageTimeClosed: "Mağaza o gün bu saatte teslimat yapmıyor. Lütfen başka bir saat seçin.",
+    stageTimeFull: "Bu teslimat saati o gün dolu. Lütfen başka bir saat seçin.",
     stageSavedTold: "Kaydedildi. Müşteriye bildirildi.",
     stageSaved: "Kaydedildi.",
     enterTracking: "Takip bağlantısını, takip numarasını veya irsaliyeyi girin.",

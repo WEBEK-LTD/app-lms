@@ -2660,6 +2660,7 @@
   "cancelWithoutRefund": "Cancel without refund",
   "cancelWithoutRefundHint": "You keep the payment. You can still refund it later.",
   "keepOrder": "Keep the order",
+  "signedNoName": "Signed, with no name given",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {

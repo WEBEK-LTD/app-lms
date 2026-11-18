@@ -257,12 +257,15 @@ class _OrderBody extends ConsumerWidget {
                     ),
                   ),
                 const SizedBox(height: 10),
+                // 175 Signed with no sender's or customer's name: said so, never "Signed by " alone.
                 IconText(
                   d.anonymous ? AppIcons.hidden : AppIcons.giftCard,
                   d.anonymous
                       ? l10n.sentAnonymously
+                      : signerOf(d.signedBy, order.buyerName) == null
+                      ? l10n.signedNoName
                       : l10n.signedBy(
-                          isolate(d.signedBy ?? order.buyerName ?? ''),
+                          isolate(signerOf(d.signedBy, order.buyerName)!),
                         ),
                   color: d.anonymous ? c.warning : c.ink2,
                 ),
@@ -480,28 +483,47 @@ class OrderLines extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lines = order.lines;
-    final items = lines.where((l) => l.addonOf == null).toList();
-    final placed = <OrderLine>{};
+    final owners = addonOwners(lines);
     final rows = <Widget>[];
-    for (final item in items) {
-      rows.add(_LineRow(line: item));
-      placed.add(item);
-      for (final addon in lines.where(
-        (l) =>
-            l.addonOf != null &&
-            l.addonOf == item.productId &&
-            !placed.contains(l),
-      )) {
-        rows.add(_LineRow(line: addon, addon: true));
-        placed.add(addon);
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i].addonOf != null) continue;
+      rows.add(_LineRow(line: lines[i]));
+      for (var j = 0; j < lines.length; j++) {
+        if (owners[j] == i) rows.add(_LineRow(line: lines[j], addon: true));
       }
     }
     // An add-on whose item isn't on the order (older orders): still listed.
-    for (final rest in lines.where((l) => !placed.contains(l))) {
-      rows.add(_LineRow(line: rest, addon: rest.addonOf != null));
+    for (var j = 0; j < lines.length; j++) {
+      if (lines[j].addonOf != null && owners[j] == null) {
+        rows.add(_LineRow(line: lines[j], addon: true));
+      }
     }
     return Column(children: rows);
   }
+}
+
+/// 175 Which line each add-on goes under (its index; null: its item isn't
+/// on the order). The order keeps an add-on after the item it was chosen
+/// with, so with two sizes of one bouquet each add-on goes under the size
+/// before it, not always under the first one; an add-on before any of its
+/// product's lines goes under the first.
+List<int?> addonOwners(List<OrderLine> lines) {
+  return [
+    for (var j = 0; j < lines.length; j++)
+      if (lines[j].addonOf == null) null else _ownerOf(lines, j),
+  ];
+}
+
+int? _ownerOf(List<OrderLine> lines, int j) {
+  final product = lines[j].addonOf;
+  bool mine(int i) => lines[i].addonOf == null && lines[i].productId == product;
+  for (var i = j - 1; i >= 0; i--) {
+    if (mine(i)) return i;
+  }
+  for (var i = 0; i < lines.length; i++) {
+    if (mine(i)) return i;
+  }
+  return null;
 }
 
 class _LineRow extends StatelessWidget {
@@ -852,4 +874,14 @@ class _RefundSheetState extends ConsumerState<RefundSheet> {
       ),
     );
   }
+}
+
+/// 175 Who signs the card: the sender's name, else the customer's; null
+/// when neither has one (blank names don't count).
+String? signerOf(String? signedBy, String? buyer) {
+  for (final name in [signedBy, buyer]) {
+    final trimmed = name?.trim() ?? '';
+    if (trimmed.isNotEmpty) return trimmed;
+  }
+  return null;
 }

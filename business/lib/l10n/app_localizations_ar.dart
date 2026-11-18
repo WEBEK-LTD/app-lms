@@ -4015,6 +4015,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get keepOrder => 'الإبقاء على الطلب';
 
   @override
+  String get signedNoName => 'موقّعة، دون ذكر اسم';
+
+  @override
   String minutesAgo(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

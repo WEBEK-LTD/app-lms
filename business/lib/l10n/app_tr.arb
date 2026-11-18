@@ -1181,6 +1181,7 @@
   "cancelWithoutRefund": "İade etmeden iptal et",
   "cancelWithoutRefundHint": "Ödeme sizde kalır. Daha sonra yine iade edebilirsiniz.",
   "keepOrder": "Siparişi koru",
+  "signedNoName": "İmzalı, isim verilmedi",
   "minutesAgo": "{count} dk önce",
   "hoursAgo": "{count} sa önce",
   "donorsCount": "{count} bağışçı",

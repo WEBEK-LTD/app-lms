@@ -257,6 +257,29 @@ describe("175 cancelling a paid order", () => {
     expect(mails[1]!.text).toContain("Your order was cancelled.");
   });
 
+  it("175.14 postponing to a time that's full or closed that day is refused, as the app's slots say", async () => {
+    const token = await signIn();
+    const stage = (order: CatalogOrder, body: unknown) => call("POST", "/apps/{app_id}/orders/{order_id}/stage", { token, params: { app_id: shop.id, order_id: order.id }, body });
+    const card = [{ productId: 999, name: "Card", quantity: 1, unitCents: 100_00, imageAssetId: null, digital: false }];
+    const day = "2026-10-14";
+    const settings = shop.catalogSettings!;
+    await store.updateApp(
+      shop.id,
+      { catalogSettings: { ...settings, delivery: { enabled: true, required: true, sameDay: true, cutoff: "14:00", nextDay: true, maxDays: 14, closedWeekdays: [], timezone: "Europe/Istanbul", slots: [{ id: "s1", start: "10:00", end: "13:00", capacity: 1, feeCents: null }, { id: "s2", start: "13:00", end: "16:00", capacity: null, feeCents: null }], closedSlots: [{ date: day, slotId: "s2" }] } as never } },
+      NOW,
+    );
+    // One order already takes s1 on that day.
+    await paid({ lines: card, delivery: { date: day, slot: { id: "s1", start: "10:00", end: "13:00" }, feeCents: 0, sender: null, recipient: null, message: null, anonymous: false }, deliveryDate: day });
+    const order = await paid({ lines: card });
+    const full = await stage(order, { stage: "postponed", reason: "weather", date: day, slot_id: "s1" });
+    expect(full.status).toBe(400);
+    expect((full.body.errors as unknown as Record<string, string>).slot_id).toBe("That delivery time is full that day. Please choose another.");
+    const closed = await stage(order, { stage: "postponed", reason: "weather", date: day, slot_id: "s2" });
+    expect((closed.body.errors as unknown as Record<string, string>).slot_id).toBe("The shop doesn't deliver at that time that day. Please choose another.");
+    // Another day's s1 is free.
+    expect((await stage(order, { stage: "postponed", reason: "weather", date: "2026-10-15", slot_id: "s1" })).status).toBe(200);
+  });
+
   it("175.4 a guest hears of every stage the drawer promises, by email, in their language", async () => {
     const token = await signIn();
     const stage = (order: CatalogOrder, body: unknown) => call("POST", "/apps/{app_id}/orders/{order_id}/stage", { token, params: { app_id: shop.id, order_id: order.id }, body });

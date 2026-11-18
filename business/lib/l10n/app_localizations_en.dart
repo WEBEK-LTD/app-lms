@@ -4032,6 +4032,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get keepOrder => 'Keep the order';
 
   @override
+  String get signedNoName => 'Signed, with no name given';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

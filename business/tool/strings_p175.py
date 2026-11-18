@@ -9,6 +9,8 @@ S = [
 ("cancelWithoutRefund", "Cancel without refund", "إلغاء دون استرداد", "İade etmeden iptal et"),
 ("cancelWithoutRefundHint", "You keep the payment. You can still refund it later.", "يبقى المبلغ لديك، ويمكنك استرداده لاحقًا.", "Ödeme sizde kalır. Daha sonra yine iade edebilirsiniz."),
 ("keepOrder", "Keep the order", "الإبقاء على الطلب", "Siparişi koru"),
+# A signed card without a name
+("signedNoName", "Signed, with no name given", "موقّعة، دون ذكر اسم", "İmzalı, isim verilmedi"),
 ]
 
 P = []

@@ -45,6 +45,9 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   /// 175 The refund choice sent with the last status change (tests).
   bool? lastCancelRefund;
 
+  /// 175 The shop's today in its own time zone (tests); null: the phone's.
+  String? shopToday;
+
   /// Thrown by the next call, then cleared.
   ApiException? failNext;
 
@@ -1805,7 +1808,7 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   @override
   Future<DeliveryDay> stageSlots(String appId, {String? date}) async {
     await _call('stageSlots');
-    final day = date ?? _FakeStudio._isoDay(DateTime.now());
+    final day = date ?? shopToday ?? _FakeStudio._isoDay(DateTime.now());
     return DeliveryDay(
       date: day,
       dateLabel: day,

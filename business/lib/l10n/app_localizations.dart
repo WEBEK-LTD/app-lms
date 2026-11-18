@@ -7186,6 +7186,12 @@ abstract class AppLocalizations {
   /// **'Keep the order'**
   String get keepOrder;
 
+  /// No description provided for @signedNoName.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed, with no name given'**
+  String get signedNoName;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:
