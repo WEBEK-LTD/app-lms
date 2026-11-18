@@ -16725,6 +16725,7 @@ components:
         style: { type: string, enum: [chips, tiles, pictures, circles], default: chips, description: "112.4 For `categories`: chips in a row, tiles with their counts, `pictures` in a grid of `columns` with the name over them, or `circles`, round pictures with the name under them in a row that scrolls. A category without a picture shows a colour." }
         code: { type: [string, 'null'], minLength: 1, maxLength: 40, description: "112.4 For `coupon`: the code (letters, numbers, - and _), copied to the phone's clipboard when tapped." }
         recent: { type: boolean, default: false, description: "112.4 For `items` of products: the products this person opened lately on this phone, newest first, kept by the app; sent with no `items`. The app leaves it out until there is one." }
+        heads: { type: string, description: "164 Sent by the servers only: this element is the title of its sibling `items` with this ID (a section's title and its \"Shop all\"). The app hides it while that list is hidden; the servers leave it out with a list they leave out." }
         scroll: { type: boolean, default: false, description: "107.2 For `row`: its children keep their own widths and the row scrolls sideways when they don't fit (a child sized `fill` hugs its content)." }
         source: { $ref: '#/components/schemas/ItemSource' }
         layout: { type: string, enum: [list, grid, carousel], default: grid, description: "For `items`." }

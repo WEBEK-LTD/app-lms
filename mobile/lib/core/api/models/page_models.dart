@@ -2667,6 +2667,7 @@ class StudioNode {
     this.categoriesStyle = CategoriesStyle.chips,
     this.code,
     this.recent = false,
+    this.heads,
     this.scroll = false,
     this.source,
     this.layout = ItemsLayout.grid,
@@ -2820,6 +2821,7 @@ class StudioNode {
         ),
         code: optString(json, 'code'),
         recent: boolOr(json, 'recent', false),
+        heads: optString(json, 'heads'),
         scroll: boolOr(json, 'scroll', false),
         source: enumOrNull(ItemSource.values, json['source']),
         layout: enumFrom(ItemsLayout.values, json['layout'], ItemsLayout.grid),
@@ -3073,6 +3075,10 @@ class StudioNode {
   /// 112.4 For a list of products: the ones this person opened lately on
   /// this phone, filled by the app.
   final bool recent;
+
+  /// 164 The title of the sibling list with this ID: hidden with it (a
+  /// list with nothing to show leaves no title over nothing).
+  final String? heads;
 
   /// 107.2 For a row: it scrolls sideways, its children keeping their widths.
   final bool scroll;

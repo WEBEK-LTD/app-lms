@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 6;
+export const CLIENT_APP_RELEASE = 7;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -46,6 +46,9 @@ export const CLIENT_APP_RELEASE = 6;
  *    the owner's switch off the app hides Settings › Currency and sends no
  *    `X-Currency`; with the owner's list, the picker shows only those and
  *    a region's currency outside it isn't sent.
+ * 7  164 A list's title hides with its list (`heads`): no "Picked for
+ *    you" and "Shop all" over nothing, nor over what was seen lately
+ *    before anything is.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */

@@ -27,6 +27,17 @@ the form can't load, the gateway's own page, the same payment. Fawaterk and
 PayPal keep their own pages (ROADMAP 153.7, 153.8). Not yet tried with real
 iyzico and Kashier test accounts (ROADMAP 153.9).
 
+Roadmap 164 (a bound list of products is never an empty section): Leqaa's
+"Picked for you" was bound to featured products, which a real shop may not
+have, so the served page dropped the list and kept its title and "Shop all"
+over nothing. Served now with the shop's best sellers, else its newest, when
+what a list is bound to has nothing (featured, a category, picks, a
+template's sample products); a list with nothing at all goes with its title,
+in the served page and in the app (`heads`, `CLIENT_APP_RELEASE` 7). The apps
+already made from the template are right without any edit. Studio's
+inspector chooses what such a list shows: featured, a category, a
+collection, best sellers or newest.
+
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its
 "from" price; one billing period for both, lifetime among its choices;

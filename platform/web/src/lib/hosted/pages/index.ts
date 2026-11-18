@@ -12,6 +12,7 @@ import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
 import { itemResolver, type Item } from "./items";
+import { listHeadings, productFallbacks, withListHeadings } from "./lists";
 import "./sources";
 
 /**
@@ -94,7 +95,10 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
     // 112.4 What this person opened lately is kept on the phone: sent without entries.
     if (node.type === "items" && node.recent) return node.source === "products" && servable(pc.ctx.app, pc.ctx.connector, "products") ? ({ ...shown, items: [] } as StudioNode) : null;
     if (node.type === "items") {
-      const list = (await resolveBlock(pc, { id: node.id, type: "items", visibility: "everyone", title: null, source: node.source, layout: node.layout, query })) as { items?: unknown[] } | null;
+      const listed = (q: ItemsQuery | undefined) => resolveBlock(pc, { id: node.id, type: "items", visibility: "everyone", title: null, source: node.source, layout: node.layout, query: q }) as Promise<{ items?: unknown[] } | null>;
+      let list = await listed(query);
+      // 164 Nothing featured, in its category or of the products picked: the shop's best sellers, else its newest.
+      if (!list?.items && node.source === "products" && query) for (const next of productFallbacks(query)) if ((list = await listed(next))?.items) break;
       return list?.items ? ({ ...shown, items: list.items } as StudioNode) : null;
     }
     if (node.type === "categories") {
@@ -107,7 +111,8 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
     return shown as StudioNode;
   });
   const header = studio.header ? (({ translations: _h, ...rest }) => (void _h, rest))(translated(studio.header, pc.lang, def)) : studio.header;
-  return { ...studio, ...(header !== undefined ? { header } : {}), body: body ?? studio.body };
+  // 164 A list's title goes with it, and is marked so the app hides it with a list it hides (what was seen lately).
+  return { ...studio, ...(header !== undefined ? { header } : {}), body: withListHeadings(body ?? studio.body, listHeadings(studio.body)) };
 }
 
 /** 131 A store route of the app's connector (`GET /store/flash-sales`, `/store/products`, `/store/coupons`), or null. */
