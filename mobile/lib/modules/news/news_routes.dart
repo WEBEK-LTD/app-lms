@@ -92,7 +92,6 @@ List<TabScreen> _screens() => [
       // A new section or search from a link starts a fresh list.
       key: ValueKey('articles-${state.uri.query}'),
       initialCategory: state.uri.queryParameters['category'],
-      focusSearch: state.uri.queryParameters['focus'] == '1',
     ),
   ),
   TabScreen(Paths.saved, (state) => const SavedScreen()),

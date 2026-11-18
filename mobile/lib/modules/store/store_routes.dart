@@ -108,7 +108,6 @@ List<TabScreen> _screens() => [
       initialCategory: int.tryParse(q['category'] ?? ''),
       initialOnSale: q['sale'] == '1',
       initialOrder: productOrderFrom(q['sort']),
-      focusSearch: q['focus'] == '1',
     );
   }),
   TabScreen(Paths.cart, (state) => const CartScreen()),

@@ -14,6 +14,7 @@ import { appUrl, encryptionKey, paymentApiUrls, stripeJsUrl } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { ipFromHeaders } from "@/lib/http";
 import { PaymentError } from "@/lib/payments/errors";
+import { StripeError } from "@/lib/payments/stripe";
 import { callbackUrls } from "@/lib/payments/routes";
 import { settleOrderPayment } from "@/lib/payments/settle";
 import { withDemoChecked } from "@/lib/demo/apps";
@@ -128,6 +129,8 @@ export async function payAction(token: string, _: PayState, formData: FormData):
     if (!(e instanceof PaymentError)) throw e;
     // 78.4 Counted for the team.
     await noteAppError(store, { clientId: app.clientId, appId: app.id, source: "payment", code: `${account.account.provider}_start_failed`, detail: e.message }, now);
+    // 148 An order under the least the card can be charged: said so, with Stripe's own words (trying again would fail the same way).
+    if (e instanceof StripeError && e.tooSmall) return { message: `This order is under the least amount a card can be charged (${e.message}) Add to your order, or choose another way to pay.`, values };
     return { message: "The card payment couldn't start. Please try again in a moment.", values };
   }
   // 144 Stripe's card form, in this page.

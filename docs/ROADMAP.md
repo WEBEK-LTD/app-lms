@@ -3766,6 +3766,23 @@ The owner (17 November), on Leqaa and Kech Flora: the Bouquets page showed "Cour
 | [ ] | 145.11 On a phone: publish a change in Studio, switch away from the app and back, and see it; Kech Flora's Bouquets titled as in the editor | — |
 | [ ] | 145.12 Leqaa's live demo and Kech Flora still have the old "Courses" page saved: publish their layout once (or delete that page in Studio) so apps built before release 4 stop showing it; WordPress store apps get it with release 4 (the plugin still sends that page's screen) | — |
 
+## Phase 147: A search opens with its keyboard closed
+
+The owner (17 November), on Kech Flora and Leqaa: the Bouquets page brought the keyboard up by itself, from its "Search products" field ("متتفتحش غير لو الشخص ضغط بس"). The Bouquets tab is a page around the shop's search (`/shop?focus=1`), and the search focused its field when it opened, so the keyboard came up with the tab; Phase 141 only kept it from coming back. No migration.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 147.1 The shop's, the academy's, real estate's, events' and news' searches open with the keyboard closed, as a tab, a page around them or a link: it comes up only when the customer taps the field (`focusSearch` gone; `?focus=1` still names the search screen) | `phase147_no_autofocus_test.dart`, `phase141_keyboard_test.dart` |
+| [x] | 147.2 Reaches the apps in the stores with `CLIENT_APP_RELEASE` 5 | `publish-for-all.test.ts` |
+
+## Phase 148: Why a card payment under Stripe's least can't start
+
+Kech Flora's live test (17 November) of an order of MAD 1.00 (about USD 0.10) said only "The card payment couldn't start": Stripe refuses an amount under the least it charges once converted to the account's currency (USD 0.50, about MAD 5). No migration.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 148.1 Stripe's `amount_too_small`, and our own check of a currency's least, mark the error (`StripeError.tooSmall`); the payment page then says the order is under the least a card can be charged, with Stripe's words, and to add to the order or pay another way; other refusals keep the message they had, and every one is still noted for the team and in Integrations | `stripe-too-small.test.ts` |
+
 ## Phase 149: Prices in the customer's currency, per app
 
 The owner (17 November), on prices shown in the customer's currency (135.5, 135.7) in every app: "هل لي اعدادات اني اوقفو في ابلكيشن معين او اخليه يحولها بعملات معينه بس؟". Both, per app, with the shop's currency settings: a switch, on by default so every app keeps what it does, and a list of the customers' currencies allowed (empty: all). The server is the rule's source, so apps already in the stores follow it; `CLIENT_APP_RELEASE` 6 brings the app's own part. No migration: both are kept in the app's catalog settings (a JSON column).

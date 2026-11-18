@@ -140,7 +140,6 @@ List<TabScreen> _screens() => [
         'newest' => CourseOrder.newest,
         _ => null,
       },
-      focusSearch: q['focus'] == '1',
     );
   }),
   TabScreen(

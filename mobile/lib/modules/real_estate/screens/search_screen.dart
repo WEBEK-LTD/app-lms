@@ -27,9 +27,7 @@ String sortLabel(AppLocalizations l10n, ListingSort sort) => switch (sort) {
 /// The Home tab of Real estate apps: search words, purpose, filters, order
 /// and the results, loading more as the user scrolls.
 class ListingsSearchScreen extends ConsumerStatefulWidget {
-  const ListingsSearchScreen({super.key, this.focusSearch = false});
-
-  final bool focusSearch;
+  const ListingsSearchScreen({super.key});
 
   @override
   ConsumerState<ListingsSearchScreen> createState() =>
@@ -42,21 +40,7 @@ class _ListingsSearchScreenState extends ConsumerState<ListingsSearchScreen> {
   final _focus = FocusNode();
   Timer? _debounce;
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.focusSearch) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _focus.requestFocus();
-      });
-    }
-  }
-
-  @override
-  void didUpdateWidget(ListingsSearchScreen old) {
-    super.didUpdateWidget(old);
-    if (widget.focusSearch && !old.focusSearch) _focus.requestFocus();
-  }
+  // 147 The keyboard comes up only when the visitor taps the search.
 
   @override
   void dispose() {

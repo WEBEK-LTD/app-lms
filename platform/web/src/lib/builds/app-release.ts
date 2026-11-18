@@ -40,7 +40,9 @@ export const CLIENT_APP_RELEASE = 6;
  *    tab's screen is the tab's (a shop's bouquets, not "Courses"); Studio's
  *    bag, buttons and lists as set; controls that did nothing do what they
  *    show; delivery days in the shop's time; and pictures faster.
- * 6  149 Prices in the customer's currency, per app (after release 5): with
+ * 5  147 A search opens with its keyboard closed (Leqaa's and Kech Flora's
+ *    Bouquets tab brought it up by itself): it comes up only on a tap.
+ * 6  149 Prices in the customer's currency, per app: with
  *    the owner's switch off the app hides Settings › Currency and sends no
  *    `X-Currency`; with the owner's list, the picker shows only those and
  *    a region's currency outside it isn't sent.
