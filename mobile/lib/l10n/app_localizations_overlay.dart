@@ -13197,4 +13197,25 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get travelLounge => overlay.text('travelLounge') ?? base.travelLounge;
+
+  @override
+  String get travelSeatsNotLoaded =>
+      overlay.text('travelSeatsNotLoaded') ?? base.travelSeatsNotLoaded;
+
+  @override
+  String get travelSeatsCantChange =>
+      overlay.text('travelSeatsCantChange') ?? base.travelSeatsCantChange;
+
+  @override
+  String get servicesNoneInCategory =>
+      overlay.text('servicesNoneInCategory') ?? base.servicesNoneInCategory;
+
+  @override
+  String get servicesNoneInCategoryText =>
+      overlay.text('servicesNoneInCategoryText') ??
+      base.servicesNoneInCategoryText;
+
+  @override
+  String get servicesSeeAll =>
+      overlay.text('servicesSeeAll') ?? base.servicesSeeAll;
 }

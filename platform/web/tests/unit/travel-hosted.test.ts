@@ -104,7 +104,7 @@ describe("126 travel apps on the hosted API", () => {
     ...overrides,
   });
 
-  async function call(method: string, route: string, options: { query?: Record<string, string>; params?: string[]; token?: string; body?: unknown; currency?: string } = {}): Promise<HostedResult> {
+  async function call(method: string, route: string, options: { query?: Record<string, string>; params?: string[]; token?: string; body?: unknown; currency?: string; lang?: string } = {}): Promise<HostedResult> {
     let concrete = route;
     for (const param of options.params ?? []) concrete = concrete.replace(/\{[^}]+\}/, param);
     const result = await handleHosted(context(), {
@@ -113,7 +113,7 @@ describe("126 travel apps on the hosted API", () => {
       query: new URLSearchParams(options.query ?? {}),
       body: options.body,
       token: options.token ?? null,
-      ...(options.currency ? { headers: new Headers({ "x-currency": options.currency }) } : {}),
+      ...(options.currency || options.lang ? { headers: new Headers({ ...(options.currency ? { "x-currency": options.currency } : {}), ...(options.lang ? { "accept-language": options.lang } : {}) }) } : {}),
     });
     expectContract(method, route, result);
     return result;
@@ -140,6 +140,17 @@ describe("126 travel apps on the hosted API", () => {
   const stay = (patch: Record<string, unknown> = {}) => ({ hotel_id: hotelId, room_id: roomId, rate_id: "bb", check_in: "2026-11-14", check_out: "2026-11-17", guests: 2, rooms: 1, ...patch });
   const travellers = [{ first_name: "Layla", last_name: "Hassan" }];
   const contact = { name: "Layla Hassan", email: "layla@example.com", phone: "+201000000000" };
+
+  it("180.14 answers its errors in the app's language", async () => {
+    const token = await signUp("1000000180", "Layla Hassan");
+    const ar = await call("POST", "/me/travel/alerts", { token, lang: "ar", body: { kind: "flight" } });
+    expect(ar.status).toBe(400);
+    expect((ar.body as { message: string }).message).toMatch(/[\u0600-\u06FF]/);
+    const tr = await call("POST", "/me/travel/alerts", { token, lang: "tr", body: { kind: "flight" } });
+    expect((tr.body as { message: string }).message).not.toBe("Choose the route to watch.");
+    const en = await call("POST", "/me/travel/alerts", { token, body: { kind: "flight" } });
+    expect((en.body as { message: string }).message).toBe("Choose the route to watch.");
+  });
 
   it("180.12 sends every price with its amount and currency, and in the customer's currency when asked", async () => {
     await store.setPlatformSetting("exchangeRates", { rates: { USD: 1, EGP: 50 }, date: "2026-11-18", fetchedAt: NOW.toISOString(), source: "ExchangeRate-API" }, "daily job", NOW);

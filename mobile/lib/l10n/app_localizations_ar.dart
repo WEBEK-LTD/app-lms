@@ -12827,4 +12827,20 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get travelLounge => 'صالة انتظار';
+
+  @override
+  String get travelSeatsNotLoaded => 'تعذّر تحميل المقاعد.';
+
+  @override
+  String get travelSeatsCantChange =>
+      'لا يمكن تغيير مقاعد هذه الرحلة من التطبيق.';
+
+  @override
+  String get servicesNoneInCategory => 'لا توجد خدمات في هذه الفئة بعد';
+
+  @override
+  String get servicesNoneInCategoryText => 'اختر فئة أخرى، أو اعرض كل الخدمات.';
+
+  @override
+  String get servicesSeeAll => 'عرض كل الخدمات';
 }

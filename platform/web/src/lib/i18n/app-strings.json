@@ -3301,4 +3301,9 @@
 {"key":"propertyTypeBuilding","en":"Building","ar":"مبنى","tr":"Bina"},
 {"key":"travelPower","en":"Power outlet","ar":"مقبس كهرباء","tr":"Priz"},
 {"key":"travelEntertainment","en":"Entertainment","ar":"وسائل ترفيه","tr":"Eğlence sistemi"},
-{"key":"travelLounge","en":"Lounge","ar":"صالة انتظار","tr":"Bekleme salonu"}]}
+{"key":"travelLounge","en":"Lounge","ar":"صالة انتظار","tr":"Bekleme salonu"},
+{"key":"travelSeatsNotLoaded","en":"The seats didn't load.","ar":"تعذّر تحميل المقاعد.","tr":"Koltuklar yüklenemedi."},
+{"key":"travelSeatsCantChange","en":"This flight's seats can't be changed in the app.","ar":"لا يمكن تغيير مقاعد هذه الرحلة من التطبيق.","tr":"Bu uçuşun koltukları uygulamadan değiştirilemez."},
+{"key":"servicesNoneInCategory","en":"No services in this category yet","ar":"لا توجد خدمات في هذه الفئة بعد","tr":"Bu kategoride henüz hizmet yok"},
+{"key":"servicesNoneInCategoryText","en":"Choose another category, or see every service.","ar":"اختر فئة أخرى، أو اعرض كل الخدمات.","tr":"Başka bir kategori seçin ya da tüm hizmetleri görün."},
+{"key":"servicesSeeAll","en":"See all services","ar":"عرض كل الخدمات","tr":"Tüm hizmetleri gör"}]}

@@ -2579,10 +2579,33 @@ class _ManageBookingScreenState extends ConsumerState<ManageBookingScreen> {
     TravelLeg g,
   ) async {
     final l = context.l10n;
-    final map = await ref
-        .read(seatMapProvider(g.flightId).future)
-        .catchError((_) => const TravelSeatMap(flightId: 0));
-    if (!context.mounted || map.rows.isEmpty) return;
+    // 180.14 A seat map that doesn't come says so, with Try again; a flight
+    // without one says its seats can't be changed (the button did nothing).
+    final TravelSeatMap map;
+    try {
+      map = await ref.read(seatMapProvider(g.flightId).future);
+    } on Object catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.maybeOf(context)
+        ?..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              e is ApiException ? e.message : l.travelSeatsNotLoaded,
+            ),
+            action: SnackBarAction(
+              label: l.tryAgain,
+              onPressed: () {
+                ref.invalidate(seatMapProvider(g.flightId));
+                if (context.mounted) _seats(context, b, g);
+              },
+            ),
+          ),
+        );
+      return;
+    }
+    if (!context.mounted) return;
+    if (map.rows.isEmpty) return showMessage(context, l.travelSeatsCantChange);
     final picked = <String?>[...g.seats];
     final free = [
       for (final r in map.rows)

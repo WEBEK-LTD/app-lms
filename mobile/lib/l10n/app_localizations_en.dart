@@ -12433,4 +12433,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get travelLounge => 'Lounge';
+
+  @override
+  String get travelSeatsNotLoaded => 'The seats didn\'t load.';
+
+  @override
+  String get travelSeatsCantChange =>
+      'This flight\'s seats can\'t be changed in the app.';
+
+  @override
+  String get servicesNoneInCategory => 'No services in this category yet';
+
+  @override
+  String get servicesNoneInCategoryText =>
+      'Choose another category, or see every service.';
+
+  @override
+  String get servicesSeeAll => 'See all services';
 }

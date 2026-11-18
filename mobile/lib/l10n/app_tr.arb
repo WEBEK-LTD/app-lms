@@ -3303,5 +3303,10 @@
   "propertyTypeBuilding": "Bina",
   "travelPower": "Priz",
   "travelEntertainment": "Eğlence sistemi",
-  "travelLounge": "Bekleme salonu"
+  "travelLounge": "Bekleme salonu",
+  "travelSeatsNotLoaded": "Koltuklar yüklenemedi.",
+  "travelSeatsCantChange": "Bu uçuşun koltukları uygulamadan değiştirilemez.",
+  "servicesNoneInCategory": "Bu kategoride henüz hizmet yok",
+  "servicesNoneInCategoryText": "Başka bir kategori seçin ya da tüm hizmetleri görün.",
+  "servicesSeeAll": "Tüm hizmetleri gör"
 }

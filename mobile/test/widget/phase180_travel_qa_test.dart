@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yallapp/core/api/api_exception.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/modules/travel/data/travel_providers.dart';
 import 'package:yallapp/modules/travel/travel_paths.dart';
 
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:yallapp/modules/travel/widgets/travel_ui.dart';
 
 import '../support/test_app.dart';
@@ -197,6 +199,40 @@ void main() {
     ];
     expect(texts.where((t) => t.contains('←')), isNotEmpty);
     expect(texts.where((t) => t.contains('→')), isEmpty);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('180.14 Manage booking: seats that don\'t load say so, with '
+      'Try again', (tester) async {
+    usePhone(tester);
+    final app = travelApp();
+    await app.pump(tester);
+    final served = app.api.travelHandler!;
+    var fail = true;
+    app.api.travelHandler = (method, path, query, body) {
+      if (fail && RegExp(r'^/travel/flights/\d+/seats$').hasMatch(path)) {
+        throw const ApiException(
+          statusCode: 503,
+          code: 'unavailable',
+          message: "The seats didn't load.",
+        );
+      }
+      return served(method, path, query, body);
+    };
+    await open(app, tester, TravelPaths.manage(1));
+    final change = find.textContaining('SF');
+    await tester.tap(
+      find.byIcon(Symbols.airline_seat_recline_normal_rounded).first,
+    );
+    await TestApp.settle(tester, 20);
+    expect(find.text("The seats didn't load."), findsOneWidget);
+    expect(find.text('Try again'), findsOneWidget);
+    fail = false;
+    await tester.tap(find.text('Try again'));
+    await TestApp.settle(tester, 20);
+    // The seats' sheet opens.
+    expect(find.byType(BottomSheet), findsOneWidget);
+    expect(change, findsWidgets);
     expect(tester.takeException(), isNull);
   });
 }

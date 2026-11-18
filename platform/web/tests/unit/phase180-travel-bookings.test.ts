@@ -4,6 +4,7 @@ import type { App, HostedNotification, ListingInquiry } from "@/lib/data/types";
 import { notifyInquiryReply, repliedTitle } from "@/lib/listings/notify";
 import type { StudioNode } from "@/lib/pages/types";
 import { shownWhen } from "@/lib/studio/signed-in";
+import { blockTypesFor, categorySourcesFor } from "@/lib/pages/sources";
 import { addDisplayPrices, DISPLAY_CONNECTORS } from "@/lib/money/display";
 import { ratesOf } from "@/lib/money/rates";
 import { lowestPaid } from "@/lib/events/service";
@@ -96,5 +97,15 @@ describe("180.13 events, homes and campaigns in the customer's currency", () => 
     expect(home.price).toMatchObject({ display: { currency: "USD", amount: "85000.00" } });
     const campaign = addDisplayPrices({ goal: "50000.00", goal_formatted: "₺50,000.00", raised: "12000.00", raised_formatted: "₺12,000.00", currency: "TRY" }, usd);
     expect(campaign).toMatchObject({ display: { currency: "USD", goal: "1250.00", raised: "300.00", raised_formatted: "$300.00" } });
+  });
+});
+
+describe("180.14 the Categories block is offered only where it shows something", () => {
+  it("an events app: not offered (its categories are named); a shop and bookings: offered", () => {
+    const events = { appType: "events", backend: "hosted", connector: { kind: "events" } } as Parameters<typeof categorySourcesFor>[0];
+    expect(categorySourcesFor(events)).not.toContain("events");
+    expect(blockTypesFor(events)).not.toContain("categories");
+    expect(categorySourcesFor({ appType: "store", backend: "hosted", connector: { kind: "catalog" } } as Parameters<typeof categorySourcesFor>[0])).toContain("products");
+    expect(categorySourcesFor({ appType: "booking", backend: "hosted", connector: { kind: "bookings" } } as Parameters<typeof categorySourcesFor>[0])).toContain("services");
   });
 });

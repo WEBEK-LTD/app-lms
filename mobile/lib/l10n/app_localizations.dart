@@ -19933,6 +19933,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Lounge'**
   String get travelLounge;
+
+  /// No description provided for @travelSeatsNotLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'The seats didn\'t load.'**
+  String get travelSeatsNotLoaded;
+
+  /// No description provided for @travelSeatsCantChange.
+  ///
+  /// In en, this message translates to:
+  /// **'This flight\'s seats can\'t be changed in the app.'**
+  String get travelSeatsCantChange;
+
+  /// No description provided for @servicesNoneInCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'No services in this category yet'**
+  String get servicesNoneInCategory;
+
+  /// No description provided for @servicesNoneInCategoryText.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another category, or see every service.'**
+  String get servicesNoneInCategoryText;
+
+  /// No description provided for @servicesSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all services'**
+  String get servicesSeeAll;
 }
 
 class _AppLocalizationsDelegate

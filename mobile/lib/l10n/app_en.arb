@@ -13632,5 +13632,10 @@
   "propertyTypeBuilding": "Building",
   "travelPower": "Power outlet",
   "travelEntertainment": "Entertainment",
-  "travelLounge": "Lounge"
+  "travelLounge": "Lounge",
+  "travelSeatsNotLoaded": "The seats didn't load.",
+  "travelSeatsCantChange": "This flight's seats can't be changed in the app.",
+  "servicesNoneInCategory": "No services in this category yet",
+  "servicesNoneInCategoryText": "Choose another category, or see every service.",
+  "servicesSeeAll": "See all services"
 }

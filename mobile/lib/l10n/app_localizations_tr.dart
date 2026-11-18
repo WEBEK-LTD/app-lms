@@ -12339,4 +12339,21 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get travelLounge => 'Bekleme salonu';
+
+  @override
+  String get travelSeatsNotLoaded => 'Koltuklar yüklenemedi.';
+
+  @override
+  String get travelSeatsCantChange =>
+      'Bu uçuşun koltukları uygulamadan değiştirilemez.';
+
+  @override
+  String get servicesNoneInCategory => 'Bu kategoride henüz hizmet yok';
+
+  @override
+  String get servicesNoneInCategoryText =>
+      'Başka bir kategori seçin ya da tüm hizmetleri görün.';
+
+  @override
+  String get servicesSeeAll => 'Tüm hizmetleri gör';
 }
