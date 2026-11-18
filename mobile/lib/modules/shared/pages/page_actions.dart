@@ -49,6 +49,15 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
       }
     case PageActionType.item:
       final item = action.item;
+      // 152 A store's product the owner linked opens it; none chosen opens
+      // the shop, and so does one the shop no longer has (its page sends
+      // the person there).
+      if (_linksProduct(item, appType)) {
+        final id = int.tryParse(item?.id.trim() ?? '');
+        if (id == null || id < 1) return openShop(context, ref);
+        context.push(Paths.linkedProduct(id));
+        return;
+      }
       final location = item == null ? null : itemLocation(item, appType);
       if (location != null) context.push(location);
     case PageActionType.url:
@@ -81,6 +90,33 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
   }
 }
 
+/// 152 Whether [item] is one of a store's products, linked or not: a Studio
+/// element the owner may link to a product (a bouquet's sizes and its
+/// "Choose this bouquet"). One with no entry at all in a store is too.
+bool _linksProduct(ItemRef? item, AppType appType) =>
+    appType == AppType.store &&
+    (item == null || item.source == ItemSource.products);
+
+/// 152 Opens the shop, as the templates' "shop" taps do (the shop's search,
+/// or a restaurant's menu): where a product link with no product, or one
+/// the shop no longer has, goes. [instead]: in place of the screen on top
+/// (the product page that found no product).
+void openShop(BuildContext context, WidgetRef ref, {bool instead = false}) {
+  final gate = ref.read(appGateProvider);
+  final location = ref
+      .read(appModuleProvider)
+      .screenLocation(
+        BuiltInScreen.search,
+        gate is GateReady ? gate.config : null,
+      );
+  if (location == null) return;
+  if (instead) {
+    replaceLocation(context, location);
+  } else {
+    openLocation(context, location);
+  }
+}
+
 /// 30 Whether this app type can follow [action]: an Academy app's course in a
 /// Store app (a site whose plugins don't match the app's type) can't, and
 /// shows nothing rather than a card that does nothing when tapped. Pages,
@@ -89,8 +125,10 @@ bool canFollowAction(PageAction action, AppType appType) =>
     switch (action.type) {
       PageActionType.course =>
         action.courseId != null && appType == AppType.lms,
+      // 152 A store's product link always opens something: the product or the shop.
       PageActionType.item =>
-        action.item != null && itemLocation(action.item!, appType) != null,
+        _linksProduct(action.item, appType) ||
+            action.item != null && itemLocation(action.item!, appType) != null,
       // A page without its name, or a link without an address, opens nothing.
       PageActionType.page => (action.pageSlug ?? '').isNotEmpty,
       PageActionType.url => _linkOf(action.url) != null,
