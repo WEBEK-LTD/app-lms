@@ -21,6 +21,8 @@ let api = "";
 let previewToken = "";
 /** The id of the template's "Roses" category, which the new story's button opens. */
 let roses = "";
+/** The template's five stories as copied to Dashboard › Stories, in their order. */
+let designed: (string | null)[] = [];
 
 const rows = () => own.locator("[data-story]");
 const order = () => rows().evaluateAll((els) => els.map((el) => el.getAttribute("data-story")));
@@ -84,6 +86,20 @@ test.afterAll(async () => {
   await own.context().close();
 });
 
+test("the template's stories are copied once, nothing in the app changing", async () => {
+  await own.goto("/studio/project/stories");
+  await expect(own.getByRole("heading", { level: 1, name: "Stories" })).toBeVisible();
+  await expect(own.getByText(/have been copied here\. Nothing in your app changed/)).toBeVisible();
+  await expect(rows()).toHaveCount(5);
+  expect(await order()).toEqual([expect.stringMatching(/./), expect.any(String), expect.any(String), expect.any(String), expect.any(String)]);
+  designed = await order();
+
+  // Copied once: the page again shows the same five, without the note.
+  await own.reload();
+  await expect(rows()).toHaveCount(5);
+  await expect(own.getByText(/have been copied here/)).toHaveCount(0);
+});
+
 test("189 before Stories are saved: slide 2 or 3, or a picture or words on it, picked on the left or the right, is the slide the phone shows", async () => {
   await own.goto("/studio/editor");
   const phone = own.getByRole("main", { name: "The page in the phone" });
@@ -119,18 +135,9 @@ test("189 before Stories are saved: slide 2 or 3, or a picture or words on it, p
   await expect(phone.locator("[data-studio-edit-stories]")).toHaveCount(0);
 });
 
-test("the template's stories are copied once; the owner adds one opening a category, moves it up and removes another", async () => {
+test("the owner adds a story opening a category, moves it up and removes another", async () => {
   await own.goto("/studio/project/stories");
-  await expect(own.getByRole("heading", { level: 1, name: "Stories" })).toBeVisible();
-  await expect(own.getByText(/have been copied here\. Nothing in your app changed/)).toBeVisible();
   await expect(rows()).toHaveCount(5);
-  expect(await order()).toEqual([expect.stringMatching(/./), expect.any(String), expect.any(String), expect.any(String), expect.any(String)]);
-  const designed = await order();
-
-  // Copied once: the page again shows the same five, without the note.
-  await own.reload();
-  await expect(rows()).toHaveCount(5);
-  await expect(own.getByText(/have been copied here/)).toHaveCount(0);
 
   // A new story: its photo, its words in the three languages, its ring and its button opening Peonies.
   await own.getByRole("button", { name: "Add a story" }).click();
