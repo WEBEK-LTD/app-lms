@@ -577,3 +577,68 @@ class VendorComplaint {
   /// The vendor pays the decision's refund or compensation.
   final bool byVendor;
 }
+
+/// 115.77 One of the place's own offers (`VendorOffer`): its name, code
+/// (none for an automatic one), what it takes off and its state.
+enum VendorOfferStatus { active, paused, ended, ownerPaused }
+
+class VendorOffer {
+  const VendorOffer({
+    required this.id,
+    required this.title,
+    required this.kind,
+    required this.status,
+    this.code,
+    this.value,
+    this.amount,
+    this.minOrder,
+    this.endsAt,
+  });
+
+  factory VendorOffer.fromJson(Json json) => VendorOffer(
+    id: reqInt(json, 'id'),
+    title: reqString(json, 'title'),
+    code: optString(json, 'code'),
+    kind: optString(json, 'kind') ?? 'percent',
+    value: optString(json, 'value'),
+    amount: optObject(json, 'amount', MarketMoney.fromJson),
+    minOrder: optObject(json, 'min_order', MarketMoney.fromJson),
+    endsAt: optDate(json, 'ends_at'),
+    status: enumFromSnake(
+      VendorOfferStatus.values,
+      json['status'],
+      VendorOfferStatus.active,
+    ),
+  );
+
+  final int id;
+  final String title;
+  final String? code;
+
+  /// percent, amount or free_delivery.
+  final String kind;
+  final String? value;
+  final MarketMoney? amount;
+  final MarketMoney? minOrder;
+  final DateTime? endsAt;
+  final VendorOfferStatus status;
+}
+
+/// 115.77 The place's offers, and whether the app's owner lets it make them.
+class VendorOffers {
+  const VendorOffers({
+    required this.enabled,
+    required this.items,
+    this.maxPercent,
+  });
+
+  factory VendorOffers.fromJson(Json json) => VendorOffers(
+    enabled: boolOr(json, 'enabled', true),
+    maxPercent: optDouble(json, 'max_percent'),
+    items: listOf(json, 'items', VendorOffer.fromJson),
+  );
+
+  final bool enabled;
+  final double? maxPercent;
+  final List<VendorOffer> items;
+}

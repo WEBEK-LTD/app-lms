@@ -14344,5 +14344,130 @@
         "type": "String"
       }
     }
+  },
+  "vendorOffersTitle": "Your offers",
+  "@vendorOffersTitle": {
+    "description": "115.77 The Offers tab's title."
+  },
+  "vendorOffersText": "Coupons and automatic offers for your place only. You pay for the discount; it shows on your statements.",
+  "@vendorOffersText": {
+    "description": "115.77 Under the Offers title."
+  },
+  "vendorOffersOff": "The app doesn't let places make their own offers right now.",
+  "@vendorOffersOff": {
+    "description": "115.77 The app's owner doesn't let places make offers."
+  },
+  "vendorOffersMax": "The app allows up to {max}% off.",
+  "@vendorOffersMax": {
+    "description": "115.77 The largest percentage the owner allows.",
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorOfferNew": "New offer",
+  "@vendorOfferNew": {
+    "description": "115.77 The button and sheet that make an offer."
+  },
+  "vendorOfferName": "Name customers see",
+  "@vendorOfferName": {
+    "description": "115.77 The offer's name field."
+  },
+  "vendorOfferCode": "Code",
+  "@vendorOfferCode": {
+    "description": "115.77 The offer's code field."
+  },
+  "vendorOfferCodeHint": "Leave it empty for an automatic offer that applies by itself.",
+  "@vendorOfferCodeHint": {
+    "description": "115.77 Under the code field."
+  },
+  "vendorOfferKind": "What it takes off",
+  "@vendorOfferKind": {
+    "description": "115.77 What the offer takes off."
+  },
+  "vendorOfferPercent": "A percentage",
+  "@vendorOfferPercent": {
+    "description": "115.77 An offer kind."
+  },
+  "vendorOfferAmount": "An amount",
+  "@vendorOfferAmount": {
+    "description": "115.77 An offer kind."
+  },
+  "vendorOfferFree": "Free delivery",
+  "@vendorOfferFree": {
+    "description": "115.77 An offer kind."
+  },
+  "vendorOfferFreeNote": "Free delivery is for places that deliver themselves.",
+  "@vendorOfferFreeNote": {
+    "description": "115.77 Under the kinds."
+  },
+  "vendorOfferValue": "Percentage or amount",
+  "@vendorOfferValue": {
+    "description": "115.77 The percentage or amount field."
+  },
+  "vendorOfferMinOrder": "Smallest order (optional)",
+  "@vendorOfferMinOrder": {
+    "description": "115.77 The smallest order field."
+  },
+  "vendorOfferEnds": "Ends",
+  "@vendorOfferEnds": {
+    "description": "115.77 The last day field."
+  },
+  "vendorOfferCreate": "Create the offer",
+  "@vendorOfferCreate": {
+    "description": "115.77 The sheet's button."
+  },
+  "vendorOffersNone": "No offers yet.",
+  "@vendorOffersNone": {
+    "description": "115.77 No offers yet."
+  },
+  "vendorOfferAuto": "Automatic",
+  "@vendorOfferAuto": {
+    "description": "115.77 An offer without a code."
+  },
+  "vendorOfferActive": "On",
+  "@vendorOfferActive": {
+    "description": "115.77 An offer's state."
+  },
+  "vendorOfferPaused": "Paused",
+  "@vendorOfferPaused": {
+    "description": "115.77 An offer's state."
+  },
+  "vendorOfferEnded": "Ended",
+  "@vendorOfferEnded": {
+    "description": "115.77 An offer's state."
+  },
+  "vendorOfferOwnerPaused": "Paused by the app",
+  "@vendorOfferOwnerPaused": {
+    "description": "115.77 An offer's state: paused by the app's owner."
+  },
+  "vendorOfferPause": "Pause",
+  "@vendorOfferPause": {
+    "description": "115.77 An offer's button."
+  },
+  "vendorOfferResume": "Start again",
+  "@vendorOfferResume": {
+    "description": "115.77 An offer's button."
+  },
+  "vendorOfferEnd": "End",
+  "@vendorOfferEnd": {
+    "description": "115.77 An offer's button."
+  },
+  "vendorOfferSaved": "The offer is on.",
+  "@vendorOfferSaved": {
+    "description": "115.77 After an offer is made."
+  },
+  "vendorTabPicking": "Picking",
+  "@vendorTabPicking": {
+    "description": "115.77 The vendor app's tab of the orders being picked."
+  },
+  "vendorPickingEmpty": "Orders being prepared show here.",
+  "@vendorPickingEmpty": {
+    "description": "115.77 The Picking tab without orders."
+  },
+  "vendorOffersOwners": "Offers are for the place's owner and managers.",
+  "@vendorOffersOwners": {
+    "description": "115.77 The Offers tab for staff who are not the owner or a manager."
   }
 }

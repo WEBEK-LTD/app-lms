@@ -1089,6 +1089,15 @@ abstract class YallappApi {
     required double quantity,
   });
 
+  /// 115.77 The place's own offers (owners and managers).
+  Future<VendorOffers> listVendorOffers();
+
+  /// 115.77 Makes one: [body] as `POST /vendor/offers` takes it.
+  Future<VendorOffer> createVendorOffer(Map<String, Object?> body);
+
+  /// 115.77 `pause`, `resume` or `end`.
+  Future<VendorOffer> moveVendorOffer(int id, String action);
+
   /// 115.16 A month's statement (`YYYY-MM`, this month when null): owners
   /// and managers.
   Future<VendorStatement> getVendorStatement({String? month});
@@ -3782,6 +3791,27 @@ class HttpYallappApi implements YallappApi {
     _required,
     (data) => VendorOrder.fromJson(asJson(data)),
     body: {'product_id': productId, 'quantity': quantity},
+  );
+
+  @override
+  Future<VendorOffers> listVendorOffers() =>
+      _get('/vendor/offers', _required, VendorOffers.fromJson);
+
+  @override
+  Future<VendorOffer> createVendorOffer(Map<String, Object?> body) => _send(
+    'POST',
+    '/vendor/offers',
+    _required,
+    (data) => VendorOffer.fromJson(asJson(data)),
+    body: body,
+  );
+
+  @override
+  Future<VendorOffer> moveVendorOffer(int id, String action) => _send(
+    'POST',
+    '/vendor/offers/$id/$action',
+    _required,
+    (data) => VendorOffer.fromJson(asJson(data)),
   );
 
   @override

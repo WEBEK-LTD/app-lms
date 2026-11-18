@@ -374,6 +374,10 @@ const en = {
   capWallet: "Wallet order: up to {weight} · {amount}",
   capCash: "Cash order: up to {weight} · {amount}",
   overCap: "Too heavy: at most {weight}",
+  // 115.70 The vendor app's live orders, picking and stock (also its words in the app's ARBs).
+  pickTab: "Picking",
+  pickingEmpty: "Orders being prepared show here.",
+  offersOwners: "Offers are for the place's owner and managers.",
 };
 
 export type PanelWords = typeof en;
@@ -742,6 +746,9 @@ const ar: PanelWords = {
   capWallet: "طلب بالمحفظة: حتى {weight} · {amount}",
   capCash: "طلب نقدي: حتى {weight} · {amount}",
   overCap: "أثقل من المسموح: {weight} كحد أقصى",
+  pickTab: "التجهيز",
+  pickingEmpty: "تظهر هنا الطلبات قيد التحضير.",
+  offersOwners: "العروض لمالك المكان ومديريه.",
 };
 
 const tr: PanelWords = {
@@ -1108,6 +1115,9 @@ const tr: PanelWords = {
   capWallet: "Cüzdanlı sipariş: en çok {weight} · {amount}",
   capCash: "Nakit sipariş: en çok {weight} · {amount}",
   overCap: "Fazla ağır: en çok {weight}",
+  pickTab: "Toplama",
+  pickingEmpty: "Hazırlanan siparişler burada görünür.",
+  offersOwners: "Kampanyalar işletmenin sahibi ve yöneticileri içindir.",
 };
 
 export const PANEL_WORDS: Record<PanelLang, PanelWords> = { en, ar, tr };

@@ -5,6 +5,7 @@ import { paymentsSetUp } from "../../catalog/settings";
 import { payUrlFor } from "../../delivery/payment";
 import { courierWho } from "../../delivery/service";
 import { isReviewCourier, reviewUserId } from "../../delivery/review";
+import { createVendorOffer, moveVendorOffer, vendorOffersJson } from "../../market/vendor-offers-api";
 import { reviewSees, reviewStaffOf, reviewVendorFor, reviewWhoOf, sampleReviewOrder } from "../../market/review";
 import { demoCourierPosition } from "../../demo/courier";
 import { deliverySettingsOf } from "../../delivery/settings";
@@ -218,6 +219,25 @@ export class MarketConnector {
     // 115.16 The vendor app's statements and the complaints support shared with the vendor (read only).
     if (p[1] === "statements" && m === "GET" && p.length === 2) return this.withVendor(request, ["owner", "manager"], (s) => this.vendorStatementOf(s, request));
     if (p[1] === "complaints" && m === "GET" && p.length === 2) return this.withVendor(request, ["owner", "manager", "orders"], (s) => this.vendorComplaintsOf(s));
+    // 115.77 The place's own offers, as the partner panel's: its owner and managers.
+    if (p[1] === "offers") {
+      const mine = ["owner", "manager"] as VendorRole[];
+      if (m === "GET" && p.length === 2) return this.withVendor(request, mine, async (s) => ({ status: 200, body: await vendorOffersJson(await this.offerScope(s), request.now) }));
+      if (m === "POST" && p.length === 2) {
+        return this.withVendor(request, mine, async (s) => {
+          const made = await createVendorOffer(await this.offerScope(s), request.body, request.now, !s.review);
+          return made.ok ? { status: 201, body: made.body } : { status: 400, body: { code: "invalid_request", message: made.error, details: { field: made.field } } };
+        });
+      }
+      const offer = id(2);
+      const action = p[3];
+      if (m === "POST" && p.length === 4 && offer !== null && (action === "pause" || action === "resume" || action === "end")) {
+        return this.withVendor(request, mine, async (s) => {
+          const moved = await moveVendorOffer(await this.offerScope(s), offer, action, request.now, !s.review);
+          return moved.ok ? { status: 200, body: moved.body } : error(moved.status, moved.status === 404 ? "not_found" : "offer_locked", moved.error);
+        });
+      }
+    }
     if (p[1] === "products") {
       if (m === "GET" && p.length === 2) return this.withVendor(request, null, (s) => this.vendorProducts(s, request));
       const pid = id(2);
@@ -873,6 +893,10 @@ export class MarketConnector {
     if (!staffed) return notVendor();
     if (roles && !roles.includes(staffed.role)) return error(403, "not_allowed", "Your role at this place can't do this.");
     return then(staffed);
+  }
+
+  private async offerScope(s: Staffed) {
+    return { store: this.deps.store, appId: this.deps.app.id, vendor: s.vendor, currency: marketCurrency(await this.settings()) };
   }
 
   private async panelOf(s: Staffed): Promise<PanelContext> {

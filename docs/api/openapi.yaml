@@ -7263,6 +7263,82 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /vendor/offers:
+    get:
+      tags: [Vendor]
+      operationId: listVendorOffers
+      summary: The place's own offers
+      description: '115.77 The coupons and automatic offers the place made for itself (the partner panel''s Offers, 115.18), the latest first, and whether the app''s owner lets places make them, with the largest percentage. Owners and managers only.'
+      responses:
+        '200':
+          description: The offers
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [enabled, max_percent, items]
+                properties:
+                  enabled: { type: boolean, description: 'The app''s owner lets places make their own offers.' }
+                  max_percent: { type: [number, 'null'], description: 'The largest percentage the owner allows; null for no limit.' }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/VendorOffer' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Vendor]
+      operationId: createVendorOffer
+      summary: Make an offer for the place
+      description: 'Always for this place alone and paid by it: a percentage (within `max_percent`), an amount, or free delivery when the place delivers itself. Without `code` it applies by itself. Owners and managers only. For the store review account it is checked and answered, never kept.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, kind]
+              properties:
+                title: { type: string, maxLength: 80, description: 'The name customers see.' }
+                code: { type: [string, 'null'], pattern: '^[A-Za-z0-9_-]{3,24}$', description: 'Left out: an automatic offer.' }
+                kind: { type: string, enum: [percent, amount, free_delivery] }
+                value: { type: [string, 'null'], description: 'The percentage, or the amount with the currency''s decimals; none for free delivery.', example: '10' }
+                max_discount: { type: [string, 'null'], description: 'For a percentage: the most it takes off.' }
+                min_order: { type: [string, 'null'], description: 'The smallest order.' }
+                uses_limit: { type: [integer, 'null'], minimum: 1 }
+                per_user_limit: { type: [integer, 'null'], minimum: 1 }
+                first_order_only: { type: boolean }
+                starts: { type: [string, 'null'], format: date }
+                ends: { type: [string, 'null'], format: date }
+      responses:
+        '201':
+          description: The offer
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorOffer' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /vendor/offers/{offer_id}/{action}:
+    post:
+      tags: [Vendor]
+      operationId: moveVendorOffer
+      summary: Pause, start again or end one of the place's offers
+      description: 'An offer the app''s owner paused stays paused (`offer_locked`, 409), as does an ended one. Owners and managers only.'
+      parameters:
+        - { name: offer_id, in: path, required: true, schema: { type: integer } }
+        - { name: action, in: path, required: true, schema: { type: string, enum: [pause, resume, end] } }
+      responses:
+        '200':
+          description: The offer
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorOffer' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
   /travel/explore:
     get:
       tags: [Travel]
@@ -20224,6 +20300,23 @@ components:
             funder: { type: string, enum: [vendor, owner] }
             at: { type: string, format: date-time }
         created_at: { type: string, format: date-time }
+
+    VendorOffer:
+      type: object
+      description: '115.77 One of the place''s own offers, as its staff see it.'
+      required: [id, title, code, kind, value, amount, min_order, first_order_only, starts_at, ends_at, status]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        code: { type: [string, 'null'], description: 'Null for an automatic offer.' }
+        kind: { type: string, enum: [percent, amount, free_delivery] }
+        value: { type: [string, 'null'], description: 'The percentage, or the amount.' }
+        amount: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }], description: 'For `amount`: what it takes off.' }
+        min_order: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        first_order_only: { type: boolean }
+        starts_at: { type: [string, 'null'], format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        status: { type: string, enum: [active, paused, ended, owner_paused], description: '`owner_paused`: the app''s owner paused it; the place can''t start it again.' }
 
     VendorOrder:
       type: object

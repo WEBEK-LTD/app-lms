@@ -206,7 +206,7 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
               ),
               Expanded(
                 child: MessageView(
-                  icon: Symbols.storefront,
+                  icon: Symbols.storefront_rounded,
                   title: l10n.notVendorTitle,
                   message: l10n.notVendorMessage,
                 ),
@@ -277,7 +277,7 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
                       key: const ValueKey('vendor-late-end'),
                       style: _compact,
                       onPressed: _switching ? null : () => _set(endDelay: true),
-                      icon: const Icon(Symbols.hourglass_disabled),
+                      icon: const Icon(Symbols.hourglass_disabled_rounded),
                       label: Text(l10n.vendorLateEnd),
                     )
                   else if (!d.paused)
@@ -285,7 +285,7 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
                       key: const ValueKey('vendor-late'),
                       style: _compact,
                       onPressed: _switching ? null : _late,
-                      icon: const Icon(Symbols.hourglass_top),
+                      icon: const Icon(Symbols.hourglass_top_rounded),
                       label: Text(l10n.vendorLate),
                     ),
                   if (d.canEditPlace)
@@ -293,7 +293,7 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
                       key: const ValueKey('vendor-hours'),
                       style: _compact,
                       onPressed: () => context.push(Paths.vendorHours),
-                      icon: const Icon(Symbols.schedule),
+                      icon: const Icon(Symbols.schedule_rounded),
                       label: Text(l10n.vendorHoursTitle),
                     ),
                   if (d.role == VendorRole.owner ||
@@ -302,14 +302,14 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
                       key: const ValueKey('vendor-statements'),
                       style: _compact,
                       onPressed: () => context.push(Paths.vendorStatements),
-                      icon: const Icon(Symbols.receipt_long),
+                      icon: const Icon(Symbols.receipt_long_rounded),
                       label: Text(l10n.vendorStatementsTitle),
                     ),
                   TextButton.icon(
                     key: const ValueKey('vendor-complaints'),
                     style: _compact,
                     onPressed: () => context.push(Paths.vendorComplaints),
-                    icon: const Icon(Symbols.support_agent),
+                    icon: const Icon(Symbols.support_agent_rounded),
                     label: Text(l10n.vendorComplaintsTitle),
                   ),
                 ],
@@ -445,7 +445,7 @@ class _DeskHead extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  Symbols.notifications_active,
+                  Symbols.notifications_active_rounded,
                   fill: 1,
                   size: 18,
                   color: p.onAccent,
@@ -536,7 +536,7 @@ class _DeskHead extends ConsumerWidget {
               const SizedBox(width: 8),
               VendorRoundButton(
                 key: const ValueKey('vendor-sound'),
-                icon: sound ? Symbols.volume_up : Symbols.volume_off,
+                icon: sound ? Symbols.volume_up_rounded : Symbols.volume_off_rounded,
                 label: sound ? l10n.vendorSoundOn : l10n.vendorSoundOff,
                 size: 36,
                 onTap: onSound,
@@ -837,7 +837,7 @@ class _NewOrders extends ConsumerWidget {
         child: ListView(
           children: [
             MessageView(
-              icon: Symbols.receipt_long,
+              icon: Symbols.receipt_long_rounded,
               title: l10n.noRestaurantOrdersTitle,
               message: l10n.vendorNoOrdersMessage,
             ),
@@ -944,7 +944,7 @@ class _NewOrderCardState extends ConsumerState<VendorNewOrderCard> {
     final ownDriver = widget.desk?.deliveryBy == VendorDelivery.vendor;
     final tag = VendorTag(
       label: open ? l10n.vendorRinging : l10n.vendorNewTag,
-      icon: open ? Symbols.graphic_eq : null,
+      icon: open ? Symbols.graphic_eq_rounded : null,
       upper: true,
       background: open ? p.accent : p.accentSoft,
       foreground: open ? p.onAccent : p.text,
@@ -1037,23 +1037,23 @@ class _NewOrderCardState extends ConsumerState<VendorNewOrderCard> {
       runSpacing: 6,
       children: [
         if (o.pickup)
-          VendorMeta(icon: Symbols.storefront, label: l10n.vendorPickupTag)
+          VendorMeta(icon: Symbols.storefront_rounded, label: l10n.vendorPickupTag)
         else if (ownDriver)
-          VendorMeta(icon: Symbols.two_wheeler, label: l10n.vendorByOwnDriver)
+          VendorMeta(icon: Symbols.two_wheeler_rounded, label: l10n.vendorByOwnDriver)
         else
-          VendorMeta(icon: Symbols.two_wheeler, label: l10n.vendorByAppCourier),
+          VendorMeta(icon: Symbols.two_wheeler_rounded, label: l10n.vendorByAppCourier),
         VendorMeta(
           icon: o.payMethod == MarketPayMethod.cash
-              ? Symbols.payments
+              ? Symbols.payments_rounded
               : o.payMethod == MarketPayMethod.wallet
-              ? Symbols.account_balance_wallet
-              : Symbols.credit_card,
+              ? Symbols.account_balance_wallet_rounded
+              : Symbols.credit_card_rounded,
           label: payText(l10n, o.payMethod),
         ),
         if (open && weighed > 0)
-          VendorMeta(icon: Symbols.scale, label: l10n.vendorByWeight(weighed)),
+          VendorMeta(icon: Symbols.scale_rounded, label: l10n.vendorByWeight(weighed)),
         VendorMeta(
-          icon: Symbols.shopping_basket,
+          icon: Symbols.shopping_basket_rounded,
           label: l10n.vendorItemCount(o.lines.length),
         ),
       ],
@@ -1180,7 +1180,7 @@ class _NewOrderCardState extends ConsumerState<VendorNewOrderCard> {
                               backgroundColor: p.primary,
                               foregroundColor: p.onPrimary,
                             ),
-                            icon: const Icon(Symbols.check),
+                            icon: const Icon(Symbols.check_rounded),
                             label: FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Text(
@@ -1357,7 +1357,7 @@ class _OrderList extends ConsumerWidget {
         child: ListView(
           children: [
             MessageView(
-              icon: Symbols.receipt_long,
+              icon: Symbols.receipt_long_rounded,
               title: l10n.noRestaurantOrdersTitle,
               message: l10n.vendorNoOrdersMessage,
             ),
@@ -1400,7 +1400,7 @@ class VendorOrderTile extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            o.pickup ? Symbols.storefront : Symbols.two_wheeler,
+            o.pickup ? Symbols.storefront_rounded : Symbols.two_wheeler_rounded,
             color: p.primary,
           ),
           const SizedBox(width: 12),

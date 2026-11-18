@@ -13260,4 +13260,100 @@ class AppLocalizationsAr extends AppLocalizations {
   String vendorOverCap(String weight) {
     return 'أثقل من المسموح: $weight كحد أقصى';
   }
+
+  @override
+  String get vendorOffersTitle => 'عروضك';
+
+  @override
+  String get vendorOffersText =>
+      'قسائم وعروض تلقائية لمتجرك وحده. تتحمّل أنت قيمة الخصم، وتظهر في كشوف حسابك.';
+
+  @override
+  String get vendorOffersOff =>
+      'لا يسمح التطبيق حاليًا للمتاجر بإنشاء عروضها الخاصة.';
+
+  @override
+  String vendorOffersMax(String max) {
+    return 'يسمح التطبيق بخصم يصل إلى $max%.';
+  }
+
+  @override
+  String get vendorOfferNew => 'عرض جديد';
+
+  @override
+  String get vendorOfferName => 'الاسم الذي يراه العملاء';
+
+  @override
+  String get vendorOfferCode => 'الرمز';
+
+  @override
+  String get vendorOfferCodeHint =>
+      'اتركه فارغًا لعرض تلقائي يُطبَّق من تلقاء نفسه.';
+
+  @override
+  String get vendorOfferKind => 'قيمة الخصم';
+
+  @override
+  String get vendorOfferPercent => 'نسبة مئوية';
+
+  @override
+  String get vendorOfferAmount => 'مبلغ';
+
+  @override
+  String get vendorOfferFree => 'توصيل مجاني';
+
+  @override
+  String get vendorOfferFreeNote =>
+      'التوصيل المجاني متاح للمتاجر التي توصّل بنفسها.';
+
+  @override
+  String get vendorOfferValue => 'النسبة أو المبلغ';
+
+  @override
+  String get vendorOfferMinOrder => 'أقل قيمة للطلب (اختياري)';
+
+  @override
+  String get vendorOfferEnds => 'ينتهي';
+
+  @override
+  String get vendorOfferCreate => 'أنشئ العرض';
+
+  @override
+  String get vendorOffersNone => 'لا توجد عروض بعد.';
+
+  @override
+  String get vendorOfferAuto => 'تلقائي';
+
+  @override
+  String get vendorOfferActive => 'مفعّل';
+
+  @override
+  String get vendorOfferPaused => 'متوقف مؤقتًا';
+
+  @override
+  String get vendorOfferEnded => 'منتهٍ';
+
+  @override
+  String get vendorOfferOwnerPaused => 'أوقفه التطبيق';
+
+  @override
+  String get vendorOfferPause => 'إيقاف مؤقت';
+
+  @override
+  String get vendorOfferResume => 'استئناف';
+
+  @override
+  String get vendorOfferEnd => 'إنهاء';
+
+  @override
+  String get vendorOfferSaved => 'العرض مفعّل.';
+
+  @override
+  String get vendorTabPicking => 'التجهيز';
+
+  @override
+  String get vendorPickingEmpty => 'تظهر هنا الطلبات قيد التحضير.';
+
+  @override
+  String get vendorOffersOwners => 'العروض لمالك المكان ومديريه.';
 }

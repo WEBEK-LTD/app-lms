@@ -1,3 +1,4 @@
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
@@ -24,6 +25,7 @@ import '../vendor/screens/vendor_order_screen.dart';
 import '../vendor/screens/vendor_pick_screen.dart';
 import '../vendor/screens/vendor_place_screens.dart';
 import '../vendor/screens/vendor_stock_screen.dart';
+import '../vendor/screens/vendor_tabs_screens.dart';
 import 'screens/food_cart_screen.dart';
 import 'screens/food_order_screen.dart';
 import 'screens/food_orders_screen.dart';
@@ -52,6 +54,8 @@ final foodModule = AppModule(
     Paths.courier,
     Paths.vendorDesk,
     Paths.vendorStock,
+    Paths.vendorPicking,
+    Paths.vendorOffers,
     Paths.account,
   },
   screens: _screens,
@@ -134,8 +138,27 @@ final vendorStockTab = ShellTab(
   location: Paths.vendorStock,
 );
 
-/// 115 The vendor app's tabs: the orders, stock and the account.
-final vendorAppTabs = [vendorTab, vendorStockTab, _defaultTabs.last];
+/// 115.77 The vendor app's Picking and Offers tabs (the approved bar).
+final vendorPickingTab = ShellTab(
+  icon: Symbols.checklist_rounded,
+  label: (c) => c.l10n.vendorTabPicking,
+  location: Paths.vendorPicking,
+);
+final vendorOffersTab = ShellTab(
+  icon: Symbols.sell_rounded,
+  label: (c) => c.l10n.vendorFilterOffers,
+  location: Paths.vendorOffers,
+);
+
+/// 115 The vendor app's tabs. 115.77 As approved (design 08): the orders,
+/// picking, stock, offers and the account.
+final vendorAppTabs = [
+  vendorTab,
+  vendorPickingTab,
+  vendorStockTab,
+  vendorOffersTab,
+  _defaultTabs.last,
+];
 
 /// 115 A marketplace's tabs when it hasn't published its own, after its
 /// home: Search, Orders, Club and Account, as Studio starts every
@@ -180,6 +203,8 @@ List<TabScreen> _screens() => [
   TabScreen(Paths.courier, (state) => const CourierScreen()),
   TabScreen(Paths.vendorDesk, (state) => const VendorDeskScreen()),
   TabScreen(Paths.vendorStock, (state) => const VendorStockScreen()),
+  TabScreen(Paths.vendorPicking, (state) => const VendorPickingScreen()),
+  TabScreen(Paths.vendorOffers, (state) => const VendorOffersScreen()),
   // 115 A marketplace's search and club: tabs, or pages on top.
   TabScreen(
     Paths.marketSearch,

@@ -12765,4 +12765,101 @@ class AppLocalizationsTr extends AppLocalizations {
   String vendorOverCap(String weight) {
     return 'Fazla ağır: en çok $weight';
   }
+
+  @override
+  String get vendorOffersTitle => 'Kampanyalarınız';
+
+  @override
+  String get vendorOffersText =>
+      'Yalnızca yeriniz için kuponlar ve otomatik kampanyalar. İndirimi siz karşılarsınız; hesap dökümlerinizde görünür.';
+
+  @override
+  String get vendorOffersOff =>
+      'Uygulama şu anda yerlerin kendi kampanyalarını oluşturmasına izin vermiyor.';
+
+  @override
+  String vendorOffersMax(String max) {
+    return 'Uygulama en fazla %$max indirime izin veriyor.';
+  }
+
+  @override
+  String get vendorOfferNew => 'Yeni kampanya';
+
+  @override
+  String get vendorOfferName => 'Müşterilerin gördüğü ad';
+
+  @override
+  String get vendorOfferCode => 'Kod';
+
+  @override
+  String get vendorOfferCodeHint =>
+      'Kendiliğinden uygulanan otomatik bir kampanya için boş bırakın.';
+
+  @override
+  String get vendorOfferKind => 'Ne kadar indirim';
+
+  @override
+  String get vendorOfferPercent => 'Yüzde';
+
+  @override
+  String get vendorOfferAmount => 'Tutar';
+
+  @override
+  String get vendorOfferFree => 'Ücretsiz teslimat';
+
+  @override
+  String get vendorOfferFreeNote =>
+      'Ücretsiz teslimat, kendi teslimatını yapan yerler içindir.';
+
+  @override
+  String get vendorOfferValue => 'Yüzde veya tutar';
+
+  @override
+  String get vendorOfferMinOrder => 'En düşük sipariş (isteğe bağlı)';
+
+  @override
+  String get vendorOfferEnds => 'Bitiş';
+
+  @override
+  String get vendorOfferCreate => 'Kampanyayı oluştur';
+
+  @override
+  String get vendorOffersNone => 'Henüz kampanya yok.';
+
+  @override
+  String get vendorOfferAuto => 'Otomatik';
+
+  @override
+  String get vendorOfferActive => 'Açık';
+
+  @override
+  String get vendorOfferPaused => 'Duraklatıldı';
+
+  @override
+  String get vendorOfferEnded => 'Bitti';
+
+  @override
+  String get vendorOfferOwnerPaused => 'Uygulama duraklattı';
+
+  @override
+  String get vendorOfferPause => 'Duraklat';
+
+  @override
+  String get vendorOfferResume => 'Yeniden başlat';
+
+  @override
+  String get vendorOfferEnd => 'Bitir';
+
+  @override
+  String get vendorOfferSaved => 'Kampanya açık.';
+
+  @override
+  String get vendorTabPicking => 'Toplama';
+
+  @override
+  String get vendorPickingEmpty => 'Hazırlanan siparişler burada görünür.';
+
+  @override
+  String get vendorOffersOwners =>
+      'Kampanyalar işletmenin sahibi ve yöneticileri içindir.';
 }

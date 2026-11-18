@@ -219,7 +219,7 @@ class _VendorPickScreenState extends ConsumerState<VendorPickScreen> {
               child: Row(
                 children: [
                   VendorRoundButton(
-                    icon: Symbols.arrow_back,
+                    icon: Symbols.arrow_back_rounded,
                     label: MaterialLocalizations.of(context).backButtonTooltip,
                     onTap: () => context.pop(),
                   ),
@@ -310,7 +310,7 @@ class _VendorPickScreenState extends ConsumerState<VendorPickScreen> {
                   children: [
                     VendorRoundButton(
                       key: const ValueKey('vendor-pick-back'),
-                      icon: Symbols.arrow_back,
+                      icon: Symbols.arrow_back_rounded,
                       label: MaterialLocalizations.of(context)
                           .backButtonTooltip,
                       onTap: () => context.pop(),
@@ -457,7 +457,7 @@ class _VendorPickScreenState extends ConsumerState<VendorPickScreen> {
                         disabledForegroundColor: p.onAccent,
                       ),
                       icon: Icon(
-                        o.pickup ? Symbols.storefront : Symbols.two_wheeler,
+                        o.pickup ? Symbols.storefront_rounded : Symbols.two_wheeler_rounded,
                         fill: 1,
                       ),
                       label: Text(
@@ -506,7 +506,7 @@ class _AisleHeading extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(2, 14, 2, 6),
       child: Row(
         children: [
-          Icon(Symbols.shelves, size: 16, color: p.textSecondary),
+          Icon(Symbols.shelves_rounded, size: 16, color: p.textSecondary),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
@@ -570,19 +570,19 @@ class _PickCard extends StatelessWidget {
     final choice = switch (l.ifMissing) {
       MarketIfMissing.similar => (
         l10n.vendorIfOutSimilar,
-        Symbols.published_with_changes,
+        Symbols.published_with_changes_rounded,
         vendorTint(p),
         vendorTintInk(p),
       ),
       MarketIfMissing.chosen => (
         l10n.vendorIfOutChosen,
-        Symbols.person_check,
+        Symbols.person_check_rounded,
         p.accentSoft,
         p.text,
       ),
       MarketIfMissing.remove => (
         l10n.vendorIfOutRemove,
-        Symbols.remove_shopping_cart,
+        Symbols.remove_shopping_cart_rounded,
         p.surfaceMuted,
         p.textSecondary,
       ),
@@ -664,7 +664,7 @@ class _PickCard extends StatelessWidget {
               width: 44,
               height: 44,
               radius: 13,
-              placeholderIcon: Symbols.shopping_basket,
+              placeholderIcon: Symbols.shopping_basket_rounded,
             ),
           ),
         ),
@@ -719,10 +719,10 @@ class _PickCard extends StatelessWidget {
             ),
             child: Icon(
               waiting
-                  ? Symbols.hourglass_top
+                  ? Symbols.hourglass_top_rounded
                   : l.outcome == 'missing'
-                  ? Symbols.remove
-                  : Symbols.check,
+                  ? Symbols.remove_rounded
+                  : Symbols.check_rounded,
               fill: waiting ? 1 : 0,
               size: 17,
               color: waiting
@@ -753,7 +753,7 @@ class _PickCard extends StatelessWidget {
                 width: 30,
                 height: 30,
                 radius: 9,
-                placeholderIcon: Symbols.swap_horiz,
+                placeholderIcon: Symbols.swap_horiz_rounded,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -966,7 +966,7 @@ class _PickCard extends StatelessWidget {
               flex: 10,
               child: _PickButton(
                 key: ValueKey('vendor-pick-${l.id}-missing'),
-                icon: Symbols.remove_shopping_cart,
+                icon: Symbols.remove_shopping_cart_rounded,
                 label: l10n.vendorOut,
                 background: p.isDark
                     ? p.danger.withValues(alpha: 0.16)
@@ -981,7 +981,7 @@ class _PickCard extends StatelessWidget {
                 flex: 10,
                 child: _PickButton(
                   key: ValueKey('vendor-pick-${l.id}-substituted'),
-                  icon: Symbols.swap_horiz,
+                  icon: Symbols.swap_horiz_rounded,
                   label: l.ifMissing == MarketIfMissing.chosen
                       ? l10n.vendorBringTheirPick
                       : l10n.vendorSwap,
@@ -996,7 +996,7 @@ class _PickCard extends StatelessWidget {
               flex: 14,
               child: _PickButton(
                 key: ValueKey('vendor-pick-${l.id}-picked'),
-                icon: Symbols.check,
+                icon: Symbols.check_rounded,
                 label: l10n.vendorPickedButton,
                 background: p.primary,
                 foreground: p.onPrimary,
@@ -1180,7 +1180,7 @@ class _Keypad extends StatelessWidget {
           Row(
             children: [
               for (final k in ['7', '8', '9', '0']) key(k),
-              key('⌫', child: Icon(Symbols.backspace, size: 18, color: p.text)),
+              key('⌫', child: Icon(Symbols.backspace_rounded, size: 18, color: p.text)),
               key(
                 'scale',
                 onTap: onScale,
@@ -1195,7 +1195,7 @@ class _Keypad extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Symbols.scale,
+                            Symbols.scale_rounded,
                             fill: 1,
                             size: 16,
                             color: vendorTintInk(p),
@@ -1278,7 +1278,7 @@ class _SubstituteSheetState extends ConsumerState<_SubstituteSheet> {
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
                   hintText: l10n.vendorStockHint,
-                  prefixIcon: const Icon(Symbols.search),
+                  prefixIcon: const Icon(Symbols.search_rounded),
                 ),
                 onSubmitted: (v) => setState(() {
                   _query = v.trim();
@@ -1310,7 +1310,7 @@ class _SubstituteSheetState extends ConsumerState<_SubstituteSheet> {
                   ];
                   if (items.isEmpty) {
                     return MessageView(
-                      icon: Symbols.inventory_2,
+                      icon: Symbols.inventory_2_rounded,
                       title: l10n.vendorSwapNone,
                     );
                   }
@@ -1323,7 +1323,7 @@ class _SubstituteSheetState extends ConsumerState<_SubstituteSheet> {
                         width: 40,
                         height: 40,
                         radius: 11,
-                        placeholderIcon: Symbols.shopping_basket,
+                        placeholderIcon: Symbols.shopping_basket_rounded,
                       ),
                       title: Text(items[i].name),
                       subtitle: Text(items[i].price.formatted),

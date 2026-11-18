@@ -98,6 +98,10 @@ abstract final class Paths {
   // 115 The marketplace's vendor app: its orders, an order, and stock.
   static const vendorDesk = '/vendor-desk';
   static const vendorStock = '/vendor-stock';
+
+  /// 115.77 The vendor app's Picking and Offers tabs.
+  static const vendorPicking = '/vendor-picking';
+  static const vendorOffers = '/vendor-offers';
   static String vendorOrder(int id) => '/vendor-order/$id';
   static String vendorPick(int id) => '/vendor-pick/$id';
   static const vendorStatements = '/vendor-statements';

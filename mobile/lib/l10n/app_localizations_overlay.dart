@@ -13667,4 +13667,125 @@ class OverlayLocalizations extends AppLocalizations {
   String vendorOverCap(String weight) =>
       overlay.format('vendorOverCap', {'weight': weight}) ??
       base.vendorOverCap(weight);
+
+  @override
+  String get vendorOffersTitle =>
+      overlay.text('vendorOffersTitle') ?? base.vendorOffersTitle;
+
+  @override
+  String get vendorOffersText =>
+      overlay.text('vendorOffersText') ?? base.vendorOffersText;
+
+  @override
+  String get vendorOffersOff =>
+      overlay.text('vendorOffersOff') ?? base.vendorOffersOff;
+
+  @override
+  String vendorOffersMax(String max) =>
+      overlay.format('vendorOffersMax', {'max': max}) ??
+      base.vendorOffersMax(max);
+
+  @override
+  String get vendorOfferNew =>
+      overlay.text('vendorOfferNew') ?? base.vendorOfferNew;
+
+  @override
+  String get vendorOfferName =>
+      overlay.text('vendorOfferName') ?? base.vendorOfferName;
+
+  @override
+  String get vendorOfferCode =>
+      overlay.text('vendorOfferCode') ?? base.vendorOfferCode;
+
+  @override
+  String get vendorOfferCodeHint =>
+      overlay.text('vendorOfferCodeHint') ?? base.vendorOfferCodeHint;
+
+  @override
+  String get vendorOfferKind =>
+      overlay.text('vendorOfferKind') ?? base.vendorOfferKind;
+
+  @override
+  String get vendorOfferPercent =>
+      overlay.text('vendorOfferPercent') ?? base.vendorOfferPercent;
+
+  @override
+  String get vendorOfferAmount =>
+      overlay.text('vendorOfferAmount') ?? base.vendorOfferAmount;
+
+  @override
+  String get vendorOfferFree =>
+      overlay.text('vendorOfferFree') ?? base.vendorOfferFree;
+
+  @override
+  String get vendorOfferFreeNote =>
+      overlay.text('vendorOfferFreeNote') ?? base.vendorOfferFreeNote;
+
+  @override
+  String get vendorOfferValue =>
+      overlay.text('vendorOfferValue') ?? base.vendorOfferValue;
+
+  @override
+  String get vendorOfferMinOrder =>
+      overlay.text('vendorOfferMinOrder') ?? base.vendorOfferMinOrder;
+
+  @override
+  String get vendorOfferEnds =>
+      overlay.text('vendorOfferEnds') ?? base.vendorOfferEnds;
+
+  @override
+  String get vendorOfferCreate =>
+      overlay.text('vendorOfferCreate') ?? base.vendorOfferCreate;
+
+  @override
+  String get vendorOffersNone =>
+      overlay.text('vendorOffersNone') ?? base.vendorOffersNone;
+
+  @override
+  String get vendorOfferAuto =>
+      overlay.text('vendorOfferAuto') ?? base.vendorOfferAuto;
+
+  @override
+  String get vendorOfferActive =>
+      overlay.text('vendorOfferActive') ?? base.vendorOfferActive;
+
+  @override
+  String get vendorOfferPaused =>
+      overlay.text('vendorOfferPaused') ?? base.vendorOfferPaused;
+
+  @override
+  String get vendorOfferEnded =>
+      overlay.text('vendorOfferEnded') ?? base.vendorOfferEnded;
+
+  @override
+  String get vendorOfferOwnerPaused =>
+      overlay.text('vendorOfferOwnerPaused') ?? base.vendorOfferOwnerPaused;
+
+  @override
+  String get vendorOfferPause =>
+      overlay.text('vendorOfferPause') ?? base.vendorOfferPause;
+
+  @override
+  String get vendorOfferResume =>
+      overlay.text('vendorOfferResume') ?? base.vendorOfferResume;
+
+  @override
+  String get vendorOfferEnd =>
+      overlay.text('vendorOfferEnd') ?? base.vendorOfferEnd;
+
+  @override
+  String get vendorOfferSaved =>
+      overlay.text('vendorOfferSaved') ?? base.vendorOfferSaved;
+
+  @override
+  String get vendorTabPicking =>
+      overlay.text('vendorTabPicking') ?? base.vendorTabPicking;
+
+  @override
+  String get vendorPickingEmpty =>
+      overlay.text('vendorPickingEmpty') ?? base.vendorPickingEmpty;
+
+  @override
+  String get vendorOffersOwners =>
+      overlay.text('vendorOffersOwners') ?? base.vendorOffersOwners;
 }

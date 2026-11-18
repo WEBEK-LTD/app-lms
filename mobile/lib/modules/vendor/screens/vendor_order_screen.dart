@@ -178,7 +178,7 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
         PrimaryButton(
           key: const ValueKey('vendor-accept'),
           label: l10n.deskAccept,
-          icon: Symbols.check,
+          icon: Symbols.check_rounded,
           loading: _busy,
           onPressed: _accept,
         ),
@@ -193,7 +193,7 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
         PrimaryButton(
           key: const ValueKey('vendor-pick'),
           label: l10n.vendorPickItems,
-          icon: Symbols.checklist,
+          icon: Symbols.checklist_rounded,
           onPressed: _busy
               ? null
               : () => context.push(Paths.vendorPick(widget.orderId)),
@@ -213,7 +213,7 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
         PrimaryButton(
           key: const ValueKey('vendor-ready'),
           label: l10n.deskMarkReady,
-          icon: Symbols.done_all,
+          icon: Symbols.done_all_rounded,
           loading: _busy,
           onPressed: () => _run(
             (api) => api.readyVendorOrder(widget.orderId),
@@ -225,7 +225,7 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
         PrimaryButton(
           key: const ValueKey('vendor-picked-up'),
           label: l10n.vendorHandToCustomer,
-          icon: Symbols.storefront,
+          icon: Symbols.storefront_rounded,
           loading: _busy,
           onPressed: _handToCustomer,
         ),
@@ -234,7 +234,7 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
         PrimaryButton(
           key: const ValueKey('vendor-to-driver'),
           label: l10n.vendorHandToDriver,
-          icon: Symbols.two_wheeler,
+          icon: Symbols.two_wheeler_rounded,
           loading: _busy,
           onPressed: () => _run(
             (api) =>
@@ -247,7 +247,7 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
         PrimaryButton(
           key: const ValueKey('vendor-delivered'),
           label: l10n.vendorMarkDelivered,
-          icon: Symbols.where_to_vote,
+          icon: Symbols.where_to_vote_rounded,
           loading: _busy,
           onPressed: () => _run(
             (api) => api.handOverVendorOrder(
@@ -471,7 +471,7 @@ class _OrderView extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Symbols.two_wheeler, color: p.primary),
+                Icon(Symbols.two_wheeler_rounded, color: p.primary),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(

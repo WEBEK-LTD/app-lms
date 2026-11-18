@@ -2700,6 +2700,52 @@ class FakeApi implements YallappApi {
     return VendorOrder.fromJson(o);
   });
 
+  /// 115.77 The place's own offers.
+  final vendorOffers = <Map<String, dynamic>>[];
+  bool vendorOffersEnabled = true;
+
+  @override
+  Future<VendorOffers> listVendorOffers() => _answer(
+    'listVendorOffers',
+    () => VendorOffers.fromJson({
+      'enabled': vendorOffersEnabled,
+      'max_percent': 30,
+      'items': vendorOffers,
+    }),
+  );
+
+  @override
+  Future<VendorOffer> createVendorOffer(
+    Map<String, Object?> body,
+  ) => _answer('createVendorOffer', () {
+    vendorCalls.add(
+      'offer ${body['title']} ${body['kind']} ${body['value']} ${body['code']} ${body['min_order']} ${body['ends']}',
+    );
+    final o = {
+      'id': 500 + vendorOffers.length,
+      'title': body['title'],
+      'code': (body['code'] as String?)?.toUpperCase(),
+      'kind': body['kind'],
+      'value': body['value'],
+      'status': 'active',
+    };
+    vendorOffers.insert(0, o);
+    return VendorOffer.fromJson(o);
+  });
+
+  @override
+  Future<VendorOffer> moveVendorOffer(int id, String action) =>
+      _answer('moveVendorOffer', () {
+        vendorCalls.add('offer $id $action');
+        final o = vendorOffers.firstWhere((o) => o['id'] == id);
+        o['status'] = switch (action) {
+          'pause' => 'paused',
+          'end' => 'ended',
+          _ => 'active',
+        };
+        return VendorOffer.fromJson(o);
+      });
+
   /// 115.16 The statements by month (`YYYY-MM`, `''` for this month) and
   /// the complaints shared with the vendor.
   final vendorStatements = <String, Map<String, dynamic>>{};

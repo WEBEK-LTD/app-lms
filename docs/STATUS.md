@@ -8,21 +8,23 @@ Last updated: 18 November 2026.
 
 ## Current release
 
-Roadmap 115.70–115.76 (the marketplace's vendor app, on
+Roadmap 115.70–115.77 (the marketplace's vendor app, on
 `wip-market-vendor-app`, not merged): the vendor app's live orders, picking
 and stock as the owner approved them (designs 08–10). A new order rings
 until someone accepts it with a ready-in time (10 to 45 minutes) or turns
 it down with the partner panel's reasons; staff see the customer's first
 name only. Picking goes by aisle (`VendorOrder.lines[].aisle`, new), each
 line with its "If out" choice, the weight typed on a keypad and capped per
-D1 (card, Apple Pay, Google Pay and wallet orders at most the estimate,
-here and on the server; cash at most the tolerance over it, a heavier
-weight refused in the app); Out, Swap (a similar item offered to the
+D1 (card, Apple Pay, Google Pay and wallet orders at most the weight
+asked, a lighter one refunded; cash at most the tolerance over it; a
+heavier weight refused in the app and by the server); Out, Swap (a similar item offered to the
 customer for 5 minutes, or their own pick brought) and Picked are saved
 one line at a time, and Ready stays off while a line is left or a question
 waits. Stock searches by name, SKU or barcode (typed until a camera
 scanner is in), puts items in and out, adds products and changes a price
-for new orders only. The server now sends `vendor` in a place's staff's
+for new orders only. The approved bar's Picking and Offers tabs are in:
+Offers is the place's own offers, as the partner panel's, for its owner
+and managers (`/vendor/offers`, new). The server now sends `vendor` in a place's staff's
 roles (it sent `restaurant` only, so the vendor app refused even Zad
 Market's owner), and the stores' reviewers get a test manager's sign-in on
 their own orders with a sample order and notes in Publishing. The

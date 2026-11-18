@@ -314,6 +314,40 @@ describe("115.70 the vendor app's server side", () => {
     expect((await call("GET", "/vendor/me", { token: review.access_token })).status).toBe(403);
   });
 
+  it("lets a place's owner and managers make, pause, start again and end their own offers (115.77)", async () => {
+    await store.saveDeliverySettings(app.id, { ...SETTINGS, marketApp: { ...SETTINGS.marketApp!, vendorCoupons: { enabled: true, maxPercent: 30 } } as DeliverySettings["marketApp"] }, NOW);
+    const manager = await staffOf(grocery, "1114445556", "Salma");
+    const empty = (await call("GET", "/vendor/offers", { token: manager.access_token })).body;
+    expect(empty).toMatchObject({ enabled: true, max_percent: 30, items: [] });
+    // Above the owner's largest percentage: refused.
+    expect((await call("POST", "/vendor/offers", { token: manager.access_token, body: { title: "Half off", kind: "percent", value: "50" } })).status).toBe(400);
+    const made = await call("POST", "/vendor/offers", { token: manager.access_token, body: { title: "10% off fruit", code: "fruit10", kind: "percent", value: "10", min_order: "100.00" } });
+    expect(made.status, JSON.stringify(made.body)).toBe(201);
+    const offer = made.body as { id: number };
+    expect(made.body).toMatchObject({ title: "10% off fruit", code: "FRUIT10", kind: "percent", value: "10", min_order: { amount: "100.00" }, status: "active" });
+    // Paid by the place, for the place alone.
+    expect(await store.getMarketCoupon(app.id, offer.id)).toMatchObject({ paidBy: "vendor", vendorIds: [grocery], createdByVendorId: grocery });
+    expect((await call("POST", "/vendor/offers/{offer_id}/{action}", { token: manager.access_token, params: [String(offer.id), "pause"] })).body).toMatchObject({ status: "paused" });
+    expect((await call("POST", "/vendor/offers/{offer_id}/{action}", { token: manager.access_token, params: [String(offer.id), "resume"] })).body).toMatchObject({ status: "active" });
+    // The app's owner paused it: the place can't start it again.
+    await store.updateMarketCoupon(app.id, offer.id, { ownerPaused: true, active: false, updatedAt: NOW });
+    expect((await call("POST", "/vendor/offers/{offer_id}/{action}", { token: manager.access_token, params: [String(offer.id), "resume"] })).status).toBe(409);
+    await store.updateMarketCoupon(app.id, offer.id, { ownerPaused: false, updatedAt: NOW });
+    expect((await call("POST", "/vendor/offers/{offer_id}/{action}", { token: manager.access_token, params: [String(offer.id), "end"] })).body).toMatchObject({ status: "ended" });
+    // Another place's staff never see it; pickers and order takers can't open Offers.
+    const other = await staffOf(restaurant, "1117778889", "Hany");
+    expect(((await call("GET", "/vendor/offers", { token: other.access_token })).body as { items: unknown[] }).items).toEqual([]);
+    expect((await call("POST", "/vendor/offers/{offer_id}/{action}", { token: other.access_token, params: [String(offer.id), "pause"] })).status).toBe(404);
+    await store.createRestaurantStaff({ appId: app.id, restaurantId: grocery, name: "Samir", phone: "+201112223330", email: null, active: true, role: "picker" }, NOW);
+    const picker = await signUp("1112223330", "Samir");
+    expect((await call("GET", "/vendor/offers", { token: picker.access_token })).status).toBe(403);
+    // The store reviewers' offers are answered, never kept.
+    const review = await reviewer();
+    const shown = await call("POST", "/vendor/offers", { token: review.access_token, body: { title: "Review offer", kind: "amount", value: "5.00" } });
+    expect(shown.body).toMatchObject({ title: "Review offer", amount: { amount: "5.00" }, status: "active" });
+    expect(((await call("GET", "/vendor/offers", { token: review.access_token })).body as { items: { title: string }[] }).items.map((i) => i.title)).toEqual(["10% off fruit"]);
+  });
+
   it("writes the vendor app's notes for the stores' reviewers", () => {
     const notes = vendorReviewNotes(app, { name: "Green Basket", kind: "grocery" })!;
     expect(notes).toContain("Nile Market Partner is for the staff");

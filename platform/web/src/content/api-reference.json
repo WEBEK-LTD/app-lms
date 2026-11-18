@@ -1597,6 +1597,27 @@
           "summary": "Put an item in or out of stock",
           "description": "`in_stock`, and for products that count it, `stock` (out of stock at 0 by itself).",
           "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/vendor/offers",
+          "summary": "The place's own offers",
+          "description": "115.77 The coupons and automatic offers the place made for itself (the partner panel's Offers, 115.18), the latest first, and whether the app's owner lets places make them, with the largest percentage. Owners and managers only.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/vendor/offers",
+          "summary": "Make an offer for the place",
+          "description": "Always for this place alone and paid by it: a percentage (within `max_percent`), an amount, or free delivery when the place delivers itself. Without `code` it applies by itself. Owners and managers only. For the store review account it is checked and answered, never kept.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/vendor/offers/{offer_id}/{action}",
+          "summary": "Pause, start again or end one of the place's offers",
+          "description": "An offer the app's owner paused stays paused (`offer_locked`, 409), as does an ended one. Owners and managers only.",
+          "access": "signed-in"
         }
       ]
     },

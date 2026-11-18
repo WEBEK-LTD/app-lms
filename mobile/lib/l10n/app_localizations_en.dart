@@ -12860,4 +12860,101 @@ class AppLocalizationsEn extends AppLocalizations {
   String vendorOverCap(String weight) {
     return 'Too heavy: at most $weight';
   }
+
+  @override
+  String get vendorOffersTitle => 'Your offers';
+
+  @override
+  String get vendorOffersText =>
+      'Coupons and automatic offers for your place only. You pay for the discount; it shows on your statements.';
+
+  @override
+  String get vendorOffersOff =>
+      'The app doesn\'t let places make their own offers right now.';
+
+  @override
+  String vendorOffersMax(String max) {
+    return 'The app allows up to $max% off.';
+  }
+
+  @override
+  String get vendorOfferNew => 'New offer';
+
+  @override
+  String get vendorOfferName => 'Name customers see';
+
+  @override
+  String get vendorOfferCode => 'Code';
+
+  @override
+  String get vendorOfferCodeHint =>
+      'Leave it empty for an automatic offer that applies by itself.';
+
+  @override
+  String get vendorOfferKind => 'What it takes off';
+
+  @override
+  String get vendorOfferPercent => 'A percentage';
+
+  @override
+  String get vendorOfferAmount => 'An amount';
+
+  @override
+  String get vendorOfferFree => 'Free delivery';
+
+  @override
+  String get vendorOfferFreeNote =>
+      'Free delivery is for places that deliver themselves.';
+
+  @override
+  String get vendorOfferValue => 'Percentage or amount';
+
+  @override
+  String get vendorOfferMinOrder => 'Smallest order (optional)';
+
+  @override
+  String get vendorOfferEnds => 'Ends';
+
+  @override
+  String get vendorOfferCreate => 'Create the offer';
+
+  @override
+  String get vendorOffersNone => 'No offers yet.';
+
+  @override
+  String get vendorOfferAuto => 'Automatic';
+
+  @override
+  String get vendorOfferActive => 'On';
+
+  @override
+  String get vendorOfferPaused => 'Paused';
+
+  @override
+  String get vendorOfferEnded => 'Ended';
+
+  @override
+  String get vendorOfferOwnerPaused => 'Paused by the app';
+
+  @override
+  String get vendorOfferPause => 'Pause';
+
+  @override
+  String get vendorOfferResume => 'Start again';
+
+  @override
+  String get vendorOfferEnd => 'End';
+
+  @override
+  String get vendorOfferSaved => 'The offer is on.';
+
+  @override
+  String get vendorTabPicking => 'Picking';
+
+  @override
+  String get vendorPickingEmpty => 'Orders being prepared show here.';
+
+  @override
+  String get vendorOffersOwners =>
+      'Offers are for the place\'s owner and managers.';
 }

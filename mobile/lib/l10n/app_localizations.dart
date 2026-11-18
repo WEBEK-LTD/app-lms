@@ -20611,6 +20611,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Too heavy: at most {weight}'**
   String vendorOverCap(String weight);
+
+  /// 115.77 The Offers tab's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your offers'**
+  String get vendorOffersTitle;
+
+  /// 115.77 Under the Offers title.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupons and automatic offers for your place only. You pay for the discount; it shows on your statements.'**
+  String get vendorOffersText;
+
+  /// 115.77 The app's owner doesn't let places make offers.
+  ///
+  /// In en, this message translates to:
+  /// **'The app doesn\'t let places make their own offers right now.'**
+  String get vendorOffersOff;
+
+  /// 115.77 The largest percentage the owner allows.
+  ///
+  /// In en, this message translates to:
+  /// **'The app allows up to {max}% off.'**
+  String vendorOffersMax(String max);
+
+  /// 115.77 The button and sheet that make an offer.
+  ///
+  /// In en, this message translates to:
+  /// **'New offer'**
+  String get vendorOfferNew;
+
+  /// 115.77 The offer's name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Name customers see'**
+  String get vendorOfferName;
+
+  /// 115.77 The offer's code field.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get vendorOfferCode;
+
+  /// 115.77 Under the code field.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave it empty for an automatic offer that applies by itself.'**
+  String get vendorOfferCodeHint;
+
+  /// 115.77 What the offer takes off.
+  ///
+  /// In en, this message translates to:
+  /// **'What it takes off'**
+  String get vendorOfferKind;
+
+  /// 115.77 An offer kind.
+  ///
+  /// In en, this message translates to:
+  /// **'A percentage'**
+  String get vendorOfferPercent;
+
+  /// 115.77 An offer kind.
+  ///
+  /// In en, this message translates to:
+  /// **'An amount'**
+  String get vendorOfferAmount;
+
+  /// 115.77 An offer kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Free delivery'**
+  String get vendorOfferFree;
+
+  /// 115.77 Under the kinds.
+  ///
+  /// In en, this message translates to:
+  /// **'Free delivery is for places that deliver themselves.'**
+  String get vendorOfferFreeNote;
+
+  /// 115.77 The percentage or amount field.
+  ///
+  /// In en, this message translates to:
+  /// **'Percentage or amount'**
+  String get vendorOfferValue;
+
+  /// 115.77 The smallest order field.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest order (optional)'**
+  String get vendorOfferMinOrder;
+
+  /// 115.77 The last day field.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get vendorOfferEnds;
+
+  /// 115.77 The sheet's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Create the offer'**
+  String get vendorOfferCreate;
+
+  /// 115.77 No offers yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No offers yet.'**
+  String get vendorOffersNone;
+
+  /// 115.77 An offer without a code.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get vendorOfferAuto;
+
+  /// 115.77 An offer's state.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get vendorOfferActive;
+
+  /// 115.77 An offer's state.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get vendorOfferPaused;
+
+  /// 115.77 An offer's state.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get vendorOfferEnded;
+
+  /// 115.77 An offer's state: paused by the app's owner.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused by the app'**
+  String get vendorOfferOwnerPaused;
+
+  /// 115.77 An offer's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get vendorOfferPause;
+
+  /// 115.77 An offer's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Start again'**
+  String get vendorOfferResume;
+
+  /// 115.77 An offer's button.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get vendorOfferEnd;
+
+  /// 115.77 After an offer is made.
+  ///
+  /// In en, this message translates to:
+  /// **'The offer is on.'**
+  String get vendorOfferSaved;
+
+  /// 115.77 The vendor app's tab of the orders being picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Picking'**
+  String get vendorTabPicking;
+
+  /// 115.77 The Picking tab without orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders being prepared show here.'**
+  String get vendorPickingEmpty;
+
+  /// 115.77 The Offers tab for staff who are not the owner or a manager.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers are for the place\'s owner and managers.'**
+  String get vendorOffersOwners;
 }
 
 class _AppLocalizationsDelegate

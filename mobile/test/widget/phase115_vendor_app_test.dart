@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
@@ -487,6 +488,93 @@ void main() {
       await TestApp.settle(tester, 20);
       expect(api.vendorCalls, contains('create Lemons 30.00 kg FRT-LEM null'));
       expect(find.text('Lemons'), findsOneWidget);
+    });
+  });
+
+  group('115.77 the Picking and Offers tabs', () {
+    testWidgets('Picking lists the orders being prepared, and opens their '
+        'picking', (tester) async {
+      phone(tester);
+      final api = zadVendorApi();
+      api.vendorOrders['active'] = [
+        zadPickOrder(),
+        zadOrder(id: 4809, status: 'ready', customer: 'Omar', lines: const []),
+      ];
+      await open(zadVendorApp(api), tester, Paths.vendorDesk);
+      // Orders, Picking, Stock, Offers and the account, as designed.
+      for (final icon in [Symbols.checklist_rounded, Symbols.sell_rounded]) {
+        expect(find.byIcon(icon), findsWidgets);
+      }
+      await tester.tap(find.byIcon(Symbols.checklist_rounded).last);
+      await TestApp.settle(tester, 20);
+      expect(find.byKey(const ValueKey('vendor-picking-4821')), findsOneWidget);
+      // Ready ones wait in the desk's Ready list, not here.
+      expect(find.byKey(const ValueKey('vendor-picking-4809')), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('vendor-picking-4821')));
+      await TestApp.settle(tester, 20);
+      expect(find.text('Order #4821 · Mona'), findsOneWidget);
+    });
+
+    testWidgets('Offers: the place\'s own, made, paused and ended by its '
+        'managers', (tester) async {
+      phone(tester);
+      final api = zadVendorApi();
+      api.vendorOffers.add({
+        'id': 7,
+        'title': 'Free delivery over 300',
+        'code': null,
+        'kind': 'free_delivery',
+        'status': 'owner_paused',
+      });
+      await open(zadVendorApp(api), tester, Paths.vendorOffers);
+      expect(find.text('Paused by the app'), findsOneWidget);
+      // The app's pause can't be undone here.
+      expect(find.byKey(const ValueKey('vendor-offer-7-toggle')), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('vendor-offer-new')));
+      await TestApp.settle(tester, 10);
+      await tester.enterText(
+        find.byKey(const ValueKey('vendor-offer-title')),
+        '10% off fruit',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('vendor-offer-code')),
+        'fruit10',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('vendor-offer-value')),
+        '10',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('vendor-offer-min')),
+        '100',
+      );
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('vendor-offer-save')));
+      await TestApp.settle(tester, 20);
+      expect(
+        api.vendorCalls,
+        contains('offer 10% off fruit percent 10 fruit10 100 null'),
+      );
+      expect(find.text('10% off fruit'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('vendor-offer-501-toggle')));
+      await TestApp.settle(tester, 20);
+      expect(api.vendorCalls, contains('offer 501 pause'));
+      await tester.tap(find.byKey(const ValueKey('vendor-offer-501-end')));
+      await TestApp.settle(tester, 20);
+      expect(api.vendorCalls, contains('offer 501 end'));
+    });
+
+    testWidgets('Offers are for the place\'s owner and managers', (
+      tester,
+    ) async {
+      phone(tester);
+      final api = zadVendorApi(role: 'picker');
+      await open(zadVendorApp(api), tester, Paths.vendorOffers);
+      expect(
+        find.text("Offers are for the place's owner and managers."),
+        findsOneWidget,
+      );
+      expect(api.calls.where((c) => c == 'listVendorOffers'), isEmpty);
     });
   });
 

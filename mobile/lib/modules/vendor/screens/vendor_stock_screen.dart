@@ -169,7 +169,7 @@ class _VendorStockScreenState extends ConsumerState<VendorStockScreen> {
               TabHeader(title: l10n.tabVendorStock),
               Expanded(
                 child: MessageView(
-                  icon: Symbols.inventory_2,
+                  icon: Symbols.inventory_2_rounded,
                   title: l10n.notVendorTitle,
                   message: l10n.notVendorMessage,
                 ),
@@ -266,7 +266,7 @@ class _VendorStockScreenState extends ConsumerState<VendorStockScreen> {
                         if (mayAdd)
                           VendorRoundButton(
                             key: const ValueKey('vendor-stock-add'),
-                            icon: Symbols.add,
+                            icon: Symbols.add_rounded,
                             label: l10n.vendorAddProduct,
                             onTap: _add,
                           ),
@@ -290,7 +290,7 @@ class _VendorStockScreenState extends ConsumerState<VendorStockScreen> {
                                 color: vendorOnHead.withValues(alpha: 0.75),
                               ),
                               prefixIcon: Icon(
-                                Symbols.search,
+                                Symbols.search_rounded,
                                 color: vendorOnHead.withValues(alpha: 0.85),
                               ),
                               border: OutlineInputBorder(
@@ -328,7 +328,7 @@ class _VendorStockScreenState extends ConsumerState<VendorStockScreen> {
                                 width: 46,
                                 height: 46,
                                 child: Icon(
-                                  Symbols.barcode_scanner,
+                                  Symbols.barcode_scanner_rounded,
                                   color: p.onAccent,
                                 ),
                               ),
@@ -359,9 +359,9 @@ class _VendorStockScreenState extends ConsumerState<VendorStockScreen> {
                           },
                           icon: switch (v) {
                             StockView.all => null,
-                            StockView.out => Symbols.block,
-                            StockView.weight => Symbols.scale,
-                            StockView.offers => Symbols.sell,
+                            StockView.out => Symbols.block_rounded,
+                            StockView.weight => Symbols.scale_rounded,
+                            StockView.offers => Symbols.sell_rounded,
                           },
                           count: counts[v],
                           warn: v == StockView.out,
@@ -389,7 +389,7 @@ class _VendorStockScreenState extends ConsumerState<VendorStockScreen> {
                     ];
                     if (items.isEmpty) {
                       return MessageView(
-                        icon: Symbols.inventory_2,
+                        icon: Symbols.inventory_2_rounded,
                         title: l10n.vendorStockEmpty,
                       );
                     }
@@ -545,7 +545,7 @@ class _Photo extends StatelessWidget {
       width: 46,
       height: 46,
       radius: 13,
-      placeholderIcon: Symbols.inventory_2,
+      placeholderIcon: Symbols.inventory_2_rounded,
     );
     if (!out) return photo;
     return Opacity(
@@ -693,7 +693,7 @@ class _StockRow extends StatelessWidget {
                           ),
                         if (onPrice != null) ...[
                           const SizedBox(width: 4),
-                          Icon(Symbols.edit, size: 14, color: p.textSecondary),
+                          Icon(Symbols.edit_rounded, size: 14, color: p.textSecondary),
                         ],
                       ],
                     ),
@@ -978,7 +978,7 @@ class _PriceEditorState extends ConsumerState<_PriceEditor> {
               children: [
                 WidgetSpan(
                   alignment: PlaceholderAlignment.middle,
-                  child: Icon(Symbols.info, size: 15, color: p.textSecondary),
+                  child: Icon(Symbols.info_rounded, size: 15, color: p.textSecondary),
                 ),
                 TextSpan(
                   text:
@@ -1019,7 +1019,7 @@ class _ScanToast extends StatelessWidget {
               width: 32,
               height: 32,
               radius: 9,
-              placeholderIcon: Symbols.inventory_2,
+              placeholderIcon: Symbols.inventory_2_rounded,
             ),
             const SizedBox(width: 10),
             Expanded(
