@@ -4527,4 +4527,26 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String bouquetGroup(int stems) {
+    String _temp0 = intl.Intl.pluralLogic(
+      stems,
+      locale: localeName,
+      other: '$stems stems',
+      one: '1 stem',
+    );
+    return 'Bouquet · $_temp0';
+  }
+
+  @override
+  String get bouquetWrap => 'Wrap';
+
+  @override
+  String get bouquetCard => 'Card';
+
+  @override
+  String bouquetMessage(String message) {
+    return 'Card message: $message';
+  }
 }

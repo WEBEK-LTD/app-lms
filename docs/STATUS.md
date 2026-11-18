@@ -815,6 +815,19 @@ folded, Studio's plans on a night band, every kind of app each product
 makes, a few questions and a closing band in the night. Only the plans for
 sale show, with their prices from Admin › Plans.
 
+Roadmap 162 (Build your bouquet): a store's owner sets it up in Store ›
+Delivery & offers › Build your bouquet (the flowers' category, the wraps
+from gift add-ons or a category, the cards, whether the wrap and the card
+may be left out, the least and most stems). Leqaa's Build your bouquet
+sections then open it from their Start (`Action.flow: bouquet`): the
+flowers by the stem with the live total, one wrap, the card and its words
+with the occasions' ready messages, the summary, and the bouquet goes in
+the cart as one group of lines (`bouquet` on each line), priced by the
+server as any cart, kept on the order and shown as one in the cart, the
+customer's order, the dashboard and Yallapp Business. A shop that hasn't
+set it up, an older app and WordPress keep today's Start: the shop.
+Leqaa's demo has it on. `CLIENT_APP_RELEASE` is 8 (after 152's 7).
+
 ## To verify against real services before release
 
 - 157 On a phone, Kech Flora's and Leqaa's home and Bouquets: the shop's own
@@ -890,6 +903,15 @@ test environment:
   (headlines, not a list of categories) and still open the whole shop. On
   Studio's canvas, an entry past the template's own (a sixth ring) can't be
   selected; its look is the last entry's.
+
+- 162 Build your bouquet works on the hosted API (Yallapp's own products
+  and connected platforms); WordPress's plugin doesn't serve it, so a
+  WooCommerce app's Start opens the shop. On a connected platform the
+  bouquet's lines reach the platform's own checkout as lines, without the
+  grouping or the card's message on its order. A bouquet's flowers are
+  products without sizes to choose (a product with variations isn't
+  offered by the stem).
+
 - 138 An account's limit can be passed by one or two apps when several
   new apps are given accounts in the same instant (each app still gets
   exactly one account, written once). Assignment reads the settings

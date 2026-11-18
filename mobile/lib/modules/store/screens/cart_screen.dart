@@ -557,6 +557,21 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                     key: _list,
                     padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                     children: [
+                      // 162 Each bouquet the customer built, as one.
+                      for (final g in bouquetGroups(
+                        items,
+                        (CartItem i) => i.bouquet,
+                      ).where((g) => g.isBouquet)) ...[
+                        _BouquetCard(
+                          id: g.bouquetId!,
+                          items: [for (final i in g.indexes) items[i]],
+                          lines: [
+                            for (final i in g.indexes)
+                              i < lines.length ? lines[i] : null,
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                       // 131 Each item with its gift add-ons under it.
                       for (final i in cartDisplayOrder(items)) ...[
                         _LineCard(
@@ -576,7 +591,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         const SizedBox(height: 10),
                       ],
                       // 131 "Add a little more" with the first item.
-                      if (items.where((i) => !i.isAddon).firstOrNull
+                      if (items
+                              .where((i) => !i.isAddon && i.bouquet == null)
+                              .firstOrNull
                           case final main?) ...[
                         _CartAddons(
                           main: main,
@@ -1063,23 +1080,192 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 }
 
 /// 131 The cart's lines in the order shown: each item, then the gift
-/// add-ons linked to it; add-ons whose item is gone last.
+/// add-ons linked to it; add-ons whose item is gone last. 162 A bouquet's
+/// lines are shown together as the bouquet ([bouquetGroups]), not here.
 List<int> cartDisplayOrder(List<CartItem> items) {
   final out = <int>[];
   final placed = <int>{};
   for (var i = 0; i < items.length; i++) {
     final item = items[i];
-    if (item.isAddon) continue;
+    if (item.isAddon || item.bouquet != null) continue;
     out.add(i);
     if (!placed.add(item.productId)) continue;
     for (var j = 0; j < items.length; j++) {
-      if (items[j].addonOf == item.productId) out.add(j);
+      if (items[j].addonOf == item.productId && items[j].bouquet == null) {
+        out.add(j);
+      }
     }
   }
   for (var j = 0; j < items.length; j++) {
-    if (!out.contains(j)) out.add(j);
+    if (!out.contains(j) && items[j].bouquet == null) out.add(j);
   }
   return out;
+}
+
+/// 162 A bouquet the customer built, as one: its photo, its stems, each of
+/// its flowers, its wrap and its card as the shop priced them, the card's
+/// words, and one button that takes the whole bouquet out.
+class _BouquetCard extends ConsumerWidget {
+  const _BouquetCard({
+    required this.id,
+    required this.items,
+    required this.lines,
+  });
+
+  final String id;
+
+  /// Its lines, the flowers first, and the shop's view of each once priced.
+  final List<CartItem> items;
+  final List<CartQuoteLine?> lines;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final flowers = [
+      for (final i in items)
+        if (i.bouquet?.part == BouquetPartKind.flower) i,
+    ];
+    final stems = flowers.fold(0, (sum, i) => sum + i.quantity);
+    final message = items
+        .map((i) => i.bouquet?.message)
+        .whereType<String>()
+        .firstOrNull;
+    final problems = {for (final l in lines) ?l?.problem};
+    String label(CartItem item, CartQuoteLine? line) {
+      final name = line?.name ?? item.name;
+      return switch (item.bouquet?.part) {
+        BouquetPartKind.wrap => l10n.bouquetWrapPart(name),
+        BouquetPartKind.card => l10n.bouquetCardPart(name),
+        _ => l10n.lineQuantity(name, item.quantity),
+      };
+    }
+
+    return AppCard(
+      key: ValueKey('cart-bouquet-$id'),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              AppNetworkImage(
+                url: flowers.firstOrNull?.imageUrl,
+                seed: flowers.firstOrNull?.productId ?? 0,
+                width: 64,
+                height: 64,
+                radius: 32,
+                placeholderIcon: AppIcons.florist,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        AppIcon(
+                          AppIcons.florist,
+                          size: 16,
+                          color: p.primary,
+                          filled: true,
+                        ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            l10n.bouquetHeader,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: p.text,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      l10n.bouquetStems(stems),
+                      style: TextStyle(fontSize: 13, color: p.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              SquareIconButton(
+                key: ValueKey('cart-bouquet-remove-$id'),
+                icon: AppIcons.delete,
+                label: l10n.bouquetRemove,
+                size: 36,
+                iconSize: 18,
+                bordered: false,
+                onPressed: () =>
+                    ref.read(cartProvider.notifier).removeBouquet(id),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          for (final (n, item) in items.indexed)
+            Padding(
+              key: ValueKey(
+                'cart-bouquet-line-${item.bouquet?.part.name}-${item.productId}',
+              ),
+              padding: const EdgeInsetsDirectional.only(
+                start: 8,
+                top: 3,
+                bottom: 3,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      label(item, lines[n]),
+                      style: TextStyle(fontSize: 14, color: p.text),
+                    ),
+                  ),
+                  if (lines[n] case final line? when line.available) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      line.lineTotal,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: p.text,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          if (message != null)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 8, top: 6),
+              child: Text(
+                l10n.bouquetMessage(message),
+                key: ValueKey('cart-bouquet-message-$id'),
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.35,
+                  fontStyle: FontStyle.italic,
+                  color: p.textSecondary,
+                ),
+              ),
+            ),
+          for (final problem in problems)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                problem,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: p.danger,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 /// 131 "Add a little more" in the cart: the add-ons offered with [main],

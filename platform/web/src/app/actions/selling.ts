@@ -17,6 +17,7 @@ import { appLanguagesOf } from "@/lib/selling/store";
 import { shopZone, zoneOffsetMinutes } from "@/lib/selling/zone";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { langTextOfForm, parseAddonSettings } from "@/lib/selling/addons";
+import { parseBouquetForm } from "@/lib/selling/bouquet";
 
 /**
  * 131 Store › Delivery & offers (app/dashboard/selling): the checkout, the
@@ -270,6 +271,20 @@ export async function saveTitlesAction(_: FormState, formData: FormData): Promis
   await recordStaffChange(context, "Changed the store's section titles");
   // A WordPress site gets them with its license status.
   if (app.backend === "wordpress") refreshSitesSoon([app.id]);
+  refresh();
+  return { ok: true, message: "Saved.", values: v };
+}
+
+/** 162 Build your bouquet: on or off, the flowers' category, the wraps, the cards, what may be left out and the stems. */
+export async function saveBouquetAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireStoreApp();
+  const v = values(formData);
+  const list = (name: string) => formData.getAll(name).map(String);
+  // A platform's numbers are typed in one field; Yallapp's own add-ons are ticked.
+  const parsed = parseBouquetForm(v, { wrapIds: v.wrapIdsText !== undefined ? [v.wrapIdsText] : list("wrapIds"), cardIds: v.cardIdsText !== undefined ? [v.cardIdsText] : list("cardIds") });
+  if (!parsed.ok) return { errors: parsed.errors, values: v };
+  await saveSettings(context.app, { bouquet: parsed.value });
+  await recordStaffChange(context, parsed.value ? "Changed Build your bouquet" : "Turned off Build your bouquet");
   refresh();
   return { ok: true, message: "Saved.", values: v };
 }

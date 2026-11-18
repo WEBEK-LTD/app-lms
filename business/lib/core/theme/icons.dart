@@ -149,6 +149,8 @@ abstract final class AppIcons {
   static const gift = Symbols.redeem_rounded;
   static const addon = Symbols.subdirectory_arrow_right_rounded;
   static const flashSale = Symbols.bolt_rounded;
+  // 162 A bouquet the customer built in the app.
+  static const bouquet = Symbols.local_florist_rounded;
   static const shipping = Symbols.local_shipping_rounded;
   static const note = Symbols.sticky_note_2_rounded;
   static const package = Symbols.package_2_rounded;

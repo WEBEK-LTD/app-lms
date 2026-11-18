@@ -55,7 +55,11 @@ class GiftStepBar extends StatelessWidget {
     required this.step,
     this.done = const [],
     this.accent,
+    this.labels,
   });
+
+  /// 162 Other steps' words (Build your bouquet's); null: the five steps.
+  final List<String>? labels;
 
   /// The step now: the one in view, else the first not done.
   final int step;
@@ -81,7 +85,7 @@ class GiftStepBar extends StatelessWidget {
           t: t,
           step: step,
           done: done,
-          labels: giftStepLabels(context),
+          labels: labels ?? giftStepLabels(context),
         ),
       ),
     );

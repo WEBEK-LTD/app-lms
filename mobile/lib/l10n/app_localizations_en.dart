@@ -12110,4 +12110,128 @@ class AppLocalizationsEn extends AppLocalizations {
   String orderPaidIn(String total) {
     return 'Paid $total';
   }
+
+  @override
+  String get bouquetTitle => 'Build your bouquet';
+
+  @override
+  String get bouquetStepFlowers => 'Flowers';
+
+  @override
+  String get bouquetStepWrap => 'Wrap';
+
+  @override
+  String get bouquetStepCard => 'Card';
+
+  @override
+  String get bouquetStepSummary => 'Your bouquet';
+
+  @override
+  String bouquetStepOf(int step, int count) {
+    return 'Step $step of $count';
+  }
+
+  @override
+  String get bouquetFlowersLine => 'Choose the flowers by the stem.';
+
+  @override
+  String get bouquetWrapLine => 'Choose how it is wrapped.';
+
+  @override
+  String get bouquetCardLine => 'Choose the card and write your message.';
+
+  @override
+  String get bouquetMessageOnlyLine => 'Write the words for the card.';
+
+  @override
+  String bouquetStems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stems',
+      one: '1 stem',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bouquetStemsRange(int min, int max) {
+    return 'From $min to $max stems';
+  }
+
+  @override
+  String bouquetNeedStems(int min) {
+    return 'Choose at least $min stems.';
+  }
+
+  @override
+  String bouquetMaxStems(int max) {
+    return 'A bouquet has at most $max stems.';
+  }
+
+  @override
+  String get bouquetNoWrap => 'No wrap';
+
+  @override
+  String get bouquetNoWrapLine => 'The stems tied by hand.';
+
+  @override
+  String get bouquetChooseWrap => 'Choose a wrap to go on.';
+
+  @override
+  String get bouquetNoCard => 'No card';
+
+  @override
+  String get bouquetChooseCard => 'Choose a card to go on.';
+
+  @override
+  String get bouquetWriteMessage => 'Write your message to go on.';
+
+  @override
+  String get bouquetSkipCard => 'Skip the card';
+
+  @override
+  String get bouquetTotal => 'Bouquet total';
+
+  @override
+  String get bouquetTotalNote => 'The shop confirms the total in your cart.';
+
+  @override
+  String get bouquetSendFlowers => 'Send flowers';
+
+  @override
+  String bouquetChange(String part) {
+    return 'Change $part';
+  }
+
+  @override
+  String get bouquetUnavailable =>
+      'Build your bouquet isn\'t available right now.';
+
+  @override
+  String get bouquetShopInstead => 'Go to the shop';
+
+  @override
+  String get bouquetInCart => 'Your bouquet is in the cart.';
+
+  @override
+  String get bouquetHeader => 'Your bouquet';
+
+  @override
+  String bouquetWrapPart(String name) {
+    return 'Wrap: $name';
+  }
+
+  @override
+  String bouquetCardPart(String name) {
+    return 'Card: $name';
+  }
+
+  @override
+  String bouquetMessage(String message) {
+    return '“$message”';
+  }
+
+  @override
+  String get bouquetRemove => 'Remove the bouquet';
 }

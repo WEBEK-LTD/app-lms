@@ -3,6 +3,7 @@
 import { HeaderStyleControls, SystemLookControl } from "./premium-chrome-controls";
 import type { SystemLook } from "@/lib/studio/premium-chrome";
 
+import Link from "next/link";
 import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { FontPicker } from "@/components/font-picker";
@@ -482,11 +483,14 @@ export function TapAction({ id, action, onChange, pages, sources, screens, picka
   // 157 The shop opened at one of its categories (a tile's, a ring's, a chip's).
   const categories = sources.includes("products") ? (pickable.categories.products ?? []) : [];
   const atCategory = action?.type === "screen" && action.screen === "search" && action.category_id !== undefined && action.category_id !== null;
-  const value = !action ? "none" : atCategory ? "category" : action.type === "screen" ? `screen:${action.screen ?? ""}` : action.type === "page" ? `page:${action.page_slug ?? ""}` : action.type;
+  // 162 Build your bouquet (a store's): its shop until the store sets it up.
+  const value = !action ? "none" : action.type === "screen" && action.flow === "bouquet" ? "flow:bouquet" : atCategory ? "category" : action.type === "screen" ? `screen:${action.screen ?? ""}` : action.type === "page" ? `page:${action.page_slug ?? ""}` : action.type;
+  const bouquet = pickable.commerce !== undefined && screens.some((s) => s.value === "search");
   const opens = (target: string) => t("studio.opens", { target });
-  const icon = !action ? "touch_app" : action.type === "screen" ? "apps" : action.type === "page" ? "description" : action.type === "url" ? "link" : action.type === "course" ? "school" : product ? "shopping_bag" : "category";
+  const icon = !action ? "touch_app" : value === "flow:bouquet" ? "local_florist" : action.type === "screen" ? "apps" : action.type === "page" ? "description" : action.type === "url" ? "link" : action.type === "course" ? "school" : product ? "shopping_bag" : "category";
   const choose = (v: string) => {
     if (v === "none") onChange(null);
+    else if (v === "flow:bouquet") onChange({ type: "screen", screen: "search", flow: "bouquet" });
     else if (v.startsWith("screen:")) onChange({ type: "screen", screen: v.slice(7) as Action["screen"] });
     else if (v.startsWith("page:")) onChange({ type: "page", page_slug: v.slice(5) });
     else if (v === "url") onChange({ type: "url", url: "", open_in: "in_app" });
@@ -516,6 +520,7 @@ export function TapAction({ id, action, onChange, pages, sources, screens, picka
                   {opens(known(s.label))}
                 </option>
               ))}
+            {bouquet || value === "flow:bouquet" ? <option value="flow:bouquet">{opens(t("studio.tapBouquet"))}</option> : null}
           </optgroup>
           {pages.length ? (
             <optgroup label={t("studio.tapPage")}>
@@ -533,6 +538,15 @@ export function TapAction({ id, action, onChange, pages, sources, screens, picka
         </select>
         <Chevron />
       </label>
+      {/* 162 Until the store sets Build your bouquet up, it opens the shop: where to set it up. */}
+      {value === "flow:bouquet" && !pickable.commerce?.bouquet ? (
+        <p role="status" className="m-0 text-xs leading-relaxed" style={{ color: "var(--sf-muted)" }} data-bouquet-hint="">
+          {t("studio.bouquetNotSet")}{" "}
+          <Link href="/studio/project/selling?tab=bouquet" className="font-semibold underline">
+            {t("studio.bouquetSetUp")}
+          </Link>
+        </p>
+      ) : null}
       {action?.type === "url" ? (
         <>
           <input dir="ltr" type="url" aria-label={t("studio.tapLink")} placeholder="https://" value={action.url ?? ""} onChange={(e) => onChange({ ...action, url: e.target.value })} className={field} style={line} />

@@ -3042,5 +3042,23 @@
         "type": "int"
       }
     }
+  },
+  "bouquetGroup": "Bouquet · {stems, plural, =1{1 stem} other{{stems} stems}}",
+  "@bouquetGroup": {
+    "placeholders": {
+      "stems": {
+        "type": "int"
+      }
+    }
+  },
+  "bouquetWrap": "Wrap",
+  "bouquetCard": "Card",
+  "bouquetMessage": "Card message: {message}",
+  "@bouquetMessage": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
   }
 }

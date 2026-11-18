@@ -59,7 +59,7 @@ import {
   type DemoStaff,
 } from "./content";
 import type { DemoPicture, PictureSize } from "./picture-assets";
-import { FLOWER_CATEGORIES, FLOWER_COUPON, FLOWER_CURRENCY, FLOWER_FLASH_SALE, FLOWER_PRODUCTS, flowerVariants } from "./flowers";
+import { FLOWER_BOUQUET, FLOWER_CATEGORIES, FLOWER_COUPON, FLOWER_CURRENCY, FLOWER_FLASH_SALE, FLOWER_PRODUCTS, flowerVariants } from "./flowers";
 import { seedGiftOccasions } from "../selling/gift-messages";
 import { UFUQ_COURSES } from "./ufuq-courses";
 import { ACADEMY_CATEGORIES, ACADEMY_COURSES, TEACHERS_CURRENCY } from "./teachers";
@@ -188,9 +188,9 @@ export async function demoFlowerProducts(deps: EntryDeps, app: App): Promise<voi
       // A bouquet's sizes are its variations, each priced in the app's currency.
       variants: flowerVariants(seed, money),
       optionGroups: null,
-      // 131 The vase, the chocolates and the card: add-ons offered with every bouquet.
+      // 131 The vase, the chocolates and the card: add-ons offered with every bouquet; 162 a wrap with the loose stems only.
       addon: seed.addon === true,
-      addonFor: null,
+      addonFor: seed.addonWith ? { offerWith: "categories" as const, categoryIds: [categoryIds.get(seed.addonWith)!], productIds: [] } : null,
       ...marked(deps),
     };
     if (deps.sample) {
@@ -220,6 +220,24 @@ export async function demoFlowerCommerce(deps: EntryDeps, app: App): Promise<voi
     await store.createCatalogCoupon({ appId: app.id, code: FLOWER_COUPON.code, kind: "percent", value: FLOWER_COUPON.percent, minOrderCents: FLOWER_COUPON.minOrderCents, endsAt: null, maxUses: null, active: true, createdAt: now, startsAt: null, public: true });
   }
   await seedGiftOccasions(store, (await store.getAppById(app.id))!, now);
+  await demoFlowerBouquet(store, app, now);
+}
+
+/**
+ * 162 Build your bouquet on the demo, by name and SKU: the loose stems as
+ * its flowers, the two papers as its wraps and the greeting card as its
+ * card (lib/demo/flowers.ts `FLOWER_BOUQUET`); left off when the demo's
+ * products aren't there.
+ */
+export async function demoFlowerBouquet(store: DataStore, app: Pick<App, "id">, now: Date): Promise<void> {
+  const [categories, products, saved] = await Promise.all([store.listCatalogCategories(app.id), store.listCatalogProducts(app.id), store.getAppById(app.id)]);
+  if (!saved) return;
+  const flowers = categories.find((c) => c.name === FLOWER_BOUQUET.flowers);
+  const bySku = (skus: readonly string[]) => skus.map((sku) => products.find((p) => p.sku === sku)?.id).filter((id): id is number => id !== undefined);
+  const wraps = bySku(FLOWER_BOUQUET.wraps);
+  if (!flowers || !wraps.length) return;
+  const bouquet = { flowersCategoryId: flowers.id, wraps: { from: "addons" as const, productIds: wraps }, cardProductIds: bySku(FLOWER_BOUQUET.cards), wrapOptional: FLOWER_BOUQUET.wrapOptional, cardOptional: FLOWER_BOUQUET.cardOptional, minStems: FLOWER_BOUQUET.minStems, maxStems: FLOWER_BOUQUET.maxStems };
+  await store.updateApp(app.id, { catalogSettings: { ...catalogSettings(saved), bouquet } }, now);
 }
 
 /**

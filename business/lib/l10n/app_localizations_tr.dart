@@ -4451,4 +4451,20 @@ class AppLocalizationsTr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String bouquetGroup(int stems) {
+    return 'Buket · $stems dal';
+  }
+
+  @override
+  String get bouquetWrap => 'Ambalaj';
+
+  @override
+  String get bouquetCard => 'Kart';
+
+  @override
+  String bouquetMessage(String message) {
+    return 'Kart mesajı: $message';
+  }
 }

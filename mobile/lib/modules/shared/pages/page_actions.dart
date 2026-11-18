@@ -23,6 +23,11 @@ bool runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
   switch (action.type) {
     case PageActionType.page:
     case PageActionType.screen:
+      // 162 Build your bouquet, when the shop has it set up; else its shop.
+      if (opensBouquet(ref, action)) {
+        context.push(Paths.bouquet);
+        return true;
+      }
       final location = actionLocation(ref, action);
       if (location == null) return false;
       openLocation(context, location);
@@ -131,6 +136,17 @@ String? actionCategoryLocation(
     return null;
   }
   return categoryLocation(ItemSource.products, appType, id);
+}
+
+/// 162 Whether [action] opens Build your bouquet: a store's action with
+/// `flow: bouquet` in an app whose shop has it set up (`StoreConfig.bouquet`).
+bool opensBouquet(WidgetRef ref, PageAction action) {
+  if (action.flow != ActionFlow.bouquet) return false;
+  if (ref.read(appEnvironmentProvider).build.appType != AppType.store) {
+    return false;
+  }
+  final gate = ref.read(appGateProvider);
+  return gate is GateReady && gate.config.store?.bouquet != null;
 }
 
 /// 152 Whether [item] is one of a store's products, linked or not: a Studio

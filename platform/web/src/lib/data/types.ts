@@ -1339,6 +1339,8 @@ export interface CatalogSettings {
   titles?: StoreSectionTitles | null;
   /** 134 How a connected store's customers pay: the platform's own checkout (missing: as before) or inside the app (Demo). */
   checkoutPayment?: "platform" | "in_app";
+  /** 162 Build your bouquet: the flowers, the wraps and the cards the customer chooses from; null or missing: off (its Start opens the shop). */
+  bouquet?: BouquetSettings | null;
   /** 134 The last "Test connection" that passed on the saved gateway keys: when, the gateway, and a fingerprint of those keys (new keys need a new test). */
   gatewayTested?: { at: string; provider: PaymentProviderId; keys: string } | null;
 }
@@ -1852,6 +1854,33 @@ export interface StoreAddonSettings {
   offerWith: AddonRule;
 }
 
+/**
+ * 162 Build your bouquet (lib/selling/bouquet.ts): the customer chooses the
+ * flowers from one category, by the stem, then a wrap, then the card and
+ * its message; the three go in the cart as one bouquet.
+ */
+export interface BouquetSettings {
+  /** The category whose products are the flowers. */
+  flowersCategoryId: number;
+  /** The wraps: gift add-ons the owner chose (`addons`), or a category's products (`category`). */
+  wraps: { from: "addons"; productIds: number[] } | { from: "category"; categoryId: number };
+  /** The cards: gift add-ons the owner chose; empty: the card is its message alone. */
+  cardProductIds: number[];
+  /** The customer may leave out the wrap ("No wrap") or the card ("No card"). */
+  wrapOptional: boolean;
+  cardOptional: boolean;
+  /** Stems in one bouquet: at least and at most (null: 1 and 99). */
+  minStems: number | null;
+  maxStems: number | null;
+}
+
+/** 162 A line of a bouquet in the cart and on the order: the bouquet it is part of, which part, and the card's message (on one of its lines). */
+export interface BouquetPart {
+  id: string;
+  part: "flower" | "wrap" | "card";
+  message?: string;
+}
+
 /** 91.5 A product's variations: up to three attributes, and the combinations the shop sells. */
 export interface CatalogVariants {
   /** "Size: S, M, L", "Colour: Red, Blue" (1 to 3). */
@@ -1898,6 +1927,8 @@ export interface CatalogOrderLine {
   weightGrams?: number;
   /** 131 A gift add-on: the product of the line it goes with. */
   addonOf?: number;
+  /** 162 Part of a bouquet the customer built: its flowers, wrap and card together. */
+  bouquet?: BouquetPart;
 }
 
 /**

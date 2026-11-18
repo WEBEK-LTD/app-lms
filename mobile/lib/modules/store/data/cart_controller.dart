@@ -28,6 +28,7 @@ class CartItem {
     this.addonOf,
     this.shownPrice,
     this.shownCurrency,
+    this.bouquet,
   });
 
   factory CartItem.fromJson(Json json) => CartItem(
@@ -54,6 +55,7 @@ class CartItem {
     addonOf: optInt(json, 'addon_of'),
     shownPrice: optString(json, 'shown_price'),
     shownCurrency: optString(json, 'shown_currency'),
+    bouquet: BouquetPart.tryParse(json['bouquet']),
   );
 
   /// 161 The price in the customer's currency when it was added
@@ -68,6 +70,10 @@ class CartItem {
       shownPrice != null && shownCurrency != null && shownCurrency == currency
       ? shownPrice
       : price;
+
+  /// 162 Part of a bouquet the customer built (its flowers, wrap and card
+  /// go in, show and leave the cart together); null for any other line.
+  final BouquetPart? bouquet;
 
   /// 131 A gift add-on: the product of the line it goes with (removed with
   /// it); null for an ordinary line.
@@ -102,6 +108,8 @@ class CartItem {
       for (final k in keys) '$k=${attributes[k]}',
       if (chosen.isNotEmpty) 'o=${chosen.join(',')}',
       if (addonOf != null) 'a=$addonOf',
+      // 162 A bouquet's lines never merge with another's or the shop's.
+      if (bouquet != null) 'b=${bouquet!.id}',
     ].join('|');
   }
 
@@ -119,6 +127,7 @@ class CartItem {
     addonOf: addonOf,
     shownPrice: shownPrice,
     shownCurrency: shownCurrency,
+    bouquet: bouquet,
   );
 
   CartLineInput toInput() => CartLineInput(
@@ -128,6 +137,7 @@ class CartItem {
     attributes: attributes,
     options: options,
     addonOf: addonOf,
+    bouquet: bouquet,
   );
 
   Json toJson() => {
@@ -144,6 +154,7 @@ class CartItem {
     if (addonOf != null) 'addon_of': addonOf,
     if (shownPrice != null) 'shown_price': shownPrice,
     if (shownCurrency != null) 'shown_currency': shownCurrency,
+    if (bouquet != null) 'bouquet': bouquet!.toJson(),
   };
 }
 
@@ -255,6 +266,36 @@ class CartController extends Notifier<List<CartItem>> {
     return true;
   }
 
+  /// 162 Adds a bouquet's lines (its flowers, wrap and card, all with the
+  /// same `bouquet`) as one; false when the cart has no room for them all.
+  bool addBouquet(List<CartItem> lines) {
+    if (lines.isEmpty) return false;
+    if (state.length + lines.length > maxLines) return false;
+    _save([
+      ...state,
+      for (final l in lines) l.withQuantity(_cap(l.quantity, l.maxQuantity)),
+    ]);
+    try {
+      ref
+          .read(analyticsProvider)
+          .item(
+            'add_to_cart',
+            kind: 'product',
+            id: lines.first.productId,
+            title: lines.first.name,
+          );
+    } on Object {
+      // Not counted.
+    }
+    return true;
+  }
+
+  /// 162 Takes a bouquet out of the cart, all its lines.
+  void removeBouquet(String id) => _save([
+    for (final i in state)
+      if (i.bouquet?.id != id) i,
+  ]);
+
   void clear() => _save(const []);
 }
 
@@ -262,6 +303,15 @@ final cartProvider = NotifierProvider<CartController, List<CartItem>>(
   CartController.new,
 );
 
-final cartCountProvider = Provider<int>(
-  (ref) => ref.watch(cartProvider).fold(0, (sum, i) => sum + i.quantity),
-);
+/// The cart's count on its tab: 162 a bouquet counts once.
+final cartCountProvider = Provider<int>((ref) {
+  final items = ref.watch(cartProvider);
+  final bouquets = {
+    for (final i in items)
+      if (i.bouquet != null) i.bouquet!.id,
+  };
+  return bouquets.length +
+      items
+          .where((i) => i.bouquet == null)
+          .fold(0, (sum, i) => sum + i.quantity);
+});
