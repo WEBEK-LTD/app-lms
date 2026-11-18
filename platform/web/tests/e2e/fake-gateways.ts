@@ -6,7 +6,9 @@ import { createServer, type IncomingMessage, type Server } from "node:http";
  * catalog.spec.ts. Each makes its payments, shows a cut-down payment page
  * whose button pays, posts the signed webhook to our server (as the real
  * ones do, server to server), then sends the browser back. Our server reads
- * each payment back from here before marking anything paid.
+ * each payment back from here before marking anything paid. 153 Kashier's
+ * page also works in a frame on our payment page, and iyzico's form comes
+ * with a fake of its Checkout Form script (fakeIyzicoFormContent).
  */
 
 export interface FakeGateway {
@@ -19,6 +21,8 @@ export interface FakeGateway {
   started?: Record<string, unknown>[];
   /** 47 Kashier: the refunds asked for (PUT /v3/orders/{orderId}/), with their order, auth header and body. */
   refunds: { orderId: string; authorization: string | undefined; body: Record<string, unknown> }[];
+  /** 153 Kashier: the sessions paid in a frame on our payment page. */
+  paidInFrame?: string[];
   close: () => Promise<void>;
 }
 
@@ -37,6 +41,59 @@ async function listen(server: Server, port: number): Promise<void> {
 const page = (title: string, total: string, action: string) =>
   `<!doctype html><title>${title}</title><p>Total ${total}</p><form method="post" action="${action}"><button>Pay with test card</button></form>`;
 
+/**
+ * 153 Kashier's session page, which also works in a frame (developers.kashier.io,
+ * Payment sessions): there, it tells the page around it it's loaded
+ * (contentLoaded) and, once paid, where it would send the customer
+ * (paymentSuccess, then urlRedirection), as Kashier's checkout does, instead
+ * of going there itself.
+ */
+const kashierPage = (total: string, action: string) =>
+  `<!doctype html><title>Kashier</title><p>Total ${total}</p><form method="post" action="${action}"><input type="hidden" name="framed" value=""><button>Pay with test card</button></form>` +
+  `<script>if (window.parent !== window) { document.querySelector("[name=framed]").value = "1"; window.parent.postMessage({ message: "contentLoaded" }, "*"); }</script>`;
+
+const kashierPaidInFrame = (redirectUrl: string) =>
+  `<!doctype html><title>Kashier</title><p>Payment successful</p><script>` +
+  `window.parent.postMessage({ message: "paymentSuccess", params: {} }, "*");` +
+  `window.parent.postMessage({ message: "urlRedirection", params: { redirectUrl: ${JSON.stringify(redirectUrl)}, redirectMethod: "get" } }, "*");` +
+  `</script>`;
+
+/**
+ * 153 iyzico's Checkout Form script (`checkoutFormContent`) for a payment,
+ * shaped as iyzico's: it loads iyzico's form (the fake bundle below, from
+ * `base`) once per page.
+ */
+export function fakeIyzicoFormContent(base: string, token: string): string {
+  return `<script type="text/javascript">if (typeof iyziInit == 'undefined') {var iyziInit = {currency:"TRY",token:"${token}",locale:"en",baseUrl:"${base}",createTag:function(){var iyziJSTag = document.createElement('script');iyziJSTag.setAttribute('src','${base}/checkoutform/v2/bundle.js?v=1');document.head.appendChild(iyziJSTag);}};iyziInit.createTag();}</script>`;
+}
+
+/**
+ * 153 The fake of iyzico's bundle: it puts iyzico's card page (/pay, in iframe
+ * mode) in a frame inside the div `iyzipay-checkout-form`, the look named by
+ * the div's class kept on the frame.
+ */
+export const FAKE_IYZICO_BUNDLE = `(function () {
+  var box = document.getElementById("iyzipay-checkout-form");
+  if (!box || !window.iyziInit) return;
+  var frame = document.createElement("iframe");
+  frame.title = "iyzico card form";
+  frame.setAttribute("data-fake-iyzico", box.className);
+  frame.style.width = "100%";
+  frame.style.height = "320px";
+  frame.style.border = "0";
+  frame.src = window.iyziInit.baseUrl + "/pay?token=" + encodeURIComponent(window.iyziInit.token) + "&iframe=true";
+  box.appendChild(frame);
+})();`;
+
+/**
+ * iyzico's card page, cut down to its last step: it posts the token back to
+ * the shop; 153 from its frame on our payment page, to the whole page
+ * (target _top), as iyzico's form does.
+ */
+export function fakeIyzicoCardPage(callbackUrl: string, token: string, framed: boolean): string {
+  return `<!doctype html><title>iyzico</title><form method="post" action="${callbackUrl}" target="${framed ? "_top" : "_self"}"><input type="hidden" name="token" value="${token}"><button>Pay with test card</button></form>`;
+}
+
 /** Kashier: sessions, their payment read-back, the merchant check, and the hosted page. */
 export async function startFakeKashier(port: number): Promise<FakeGateway> {
   const base = `http://localhost:${port}`;
@@ -45,6 +102,7 @@ export async function startFakeKashier(port: number): Promise<FakeGateway> {
   const refunds: FakeGateway["refunds"] = [];
   const sessions = new Map<string, { body: Record<string, unknown>; apiKey: string; paid: boolean }>();
   const started: Record<string, unknown>[] = [];
+  const paidInFrame: string[] = [];
   const server = createServer(async (request, response) => {
     const body = await readBody(request);
     const url = new URL(request.url ?? "/", base);
@@ -81,7 +139,7 @@ export async function startFakeKashier(port: number): Promise<FakeGateway> {
       const id = hosted[1]!;
       const session = sessions.get(id)!;
       if (!hosted[2]) {
-        response.writeHead(200, { "content-type": "text/html" }).end(page("Kashier", `${String(session.body.amount)} ${String(session.body.currency)}`, `${base}/session/${id}/pay`));
+        response.writeHead(200, { "content-type": "text/html" }).end(kashierPage(`${String(session.body.amount)} ${String(session.body.currency)}`, `${base}/session/${id}/pay`));
         return;
       }
       session.paid = true;
@@ -106,13 +164,19 @@ export async function startFakeKashier(port: number): Promise<FakeGateway> {
       const back = new URL(String(session.body.merchantRedirect));
       back.searchParams.set("paymentStatus", "SUCCESS");
       back.searchParams.set("merchantOrderId", String(session.body.order));
+      // 153 In a frame on our payment page: the page around it is told where to go.
+      if (new URLSearchParams(body).get("framed") === "1") {
+        paidInFrame.push(id);
+        response.writeHead(200, { "content-type": "text/html" }).end(kashierPaidInFrame(back.toString()));
+        return;
+      }
       response.writeHead(303, { location: back.toString() }).end();
       return;
     }
     send({ message: "Not found" }, 404);
   });
   await listen(server, port);
-  return { server, calls, webhooks, started, refunds, close: () => new Promise((resolve) => server.close(() => resolve())) };
+  return { server, calls, webhooks, started, refunds, paidInFrame, close: () => new Promise((resolve) => server.close(() => resolve())) };
 }
 
 /** Fawaterk: invoices, their read-back, the payment methods (connection test), and the invoice page. */

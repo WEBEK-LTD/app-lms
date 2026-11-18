@@ -144,6 +144,8 @@ export interface StartedCheckout {
   expiresAt: Date | null;
   /** 144 Stripe's Embedded Checkout: the session's secret Stripe.js mounts the card form with (`url` is then where it ends). */
   stripeClientSecret?: string;
+  /** 153 iyzico's Checkout Form for our own page (its `checkoutFormContent`), the same payment as `url`. */
+  iyzicoFormContent?: string;
 }
 
 /** Starts a payment on the provider's page. Throws PaymentError when it can't start. */
@@ -226,7 +228,7 @@ export async function startCheckout(account: PaymentAccount, request: CheckoutRe
   const address = { contactName: customer.name, city: customer.city, country: "Turkey", address: customer.address ?? customer.city };
   const price = decimal(request.amountCents);
   const startedAt = Date.now();
-  const { token, paymentPageUrl, tokenExpireSeconds } = await initializeCheckoutForm(
+  const { token, paymentPageUrl, tokenExpireSeconds, formContent } = await initializeCheckoutForm(
     account.keys,
     {
       conversationId: request.iyzico.conversationId,
@@ -261,7 +263,12 @@ export async function startCheckout(account: PaymentAccount, request: CheckoutRe
     },
     { fetcher: options.fetcher, baseUrl: options.urls?.iyzico },
   );
-  return { url: paymentPageUrl, providerRef: token, expiresAt: new Date(startedAt + (tokenExpireSeconds ?? 1800) * 1000) };
+  return {
+    url: paymentPageUrl,
+    providerRef: token,
+    expiresAt: new Date(startedAt + (tokenExpireSeconds ?? 1800) * 1000),
+    ...(formContent ? { iyzicoFormContent: formContent } : {}),
+  };
 }
 
 /** What a payment should be: ours, for this amount and currency. */
