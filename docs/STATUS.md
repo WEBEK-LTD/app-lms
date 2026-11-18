@@ -8,6 +8,22 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 115.21–115.23 (the marketplace audit's three bugs,
+docs/plans/2026-11-18-marketplace-audit.md): orders for later reach their
+vendor from the frequent job at their time less the vendor's preparation
+(with a delay in force), released and announced once even when two runs
+overlap, on memory and MariaDB; the four marketplace notifications are
+sent through the inbox and push path in the person's language, opening
+the right screen (`market_order_update` on each stage, `vendor_order` to
+the vendor's staff on a new or released order, `complaint_update` on
+support's reply or decision, `club_renewal` 3 days before a kept club plan
+ends and on its last day, nothing charged); the customer app opens a
+dish's choices before it goes in the basket and sends them with the quote
+and the order, and shows them in the basket, the checkout and the order.
+No migration and no contract change. Still to check on a real phone: the
+pushes arriving (customer app, vendor app, the Vendor tab) and each tap
+opening its screen, and the dish sheet on a small screen.
+
 Roadmap 170 (paying in the app in the phone's browser sheet, closing
 155.6): inside the apps, Yallapp's payment page opens in the phone's browser
 sheet over the app (SFSafariViewController on iPhone, Chrome Custom Tabs on

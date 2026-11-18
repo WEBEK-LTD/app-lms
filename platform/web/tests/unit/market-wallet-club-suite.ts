@@ -4,9 +4,9 @@ import { newApp } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
 import type { DataStore } from "@/lib/data/store";
 import type { App, MarketClubPlan, MarketOrderInput } from "@/lib/data/types";
-import { clubPayLink, clubSavings, memberState, sendClubReminders } from "@/lib/market/club";
-import { remindClubRenewals } from "@/lib/market/club-notify";
+import { clubPayLink, clubSavings, memberState } from "@/lib/market/club";
 import { payClubMembership } from "@/lib/market/flow";
+import { remindClubRenewals } from "@/lib/market/notify";
 import { priceOrder } from "@/lib/market/money";
 import { cancelClub, clubDue, joinClub, payFromWallet } from "@/lib/market/offers";
 import { changeWallet, entryDetails } from "@/lib/market/wallet";
@@ -156,52 +156,44 @@ export function marketWalletClubSuite(store: () => DataStore, others: () => Data
     expect(member).toMatchObject({ periods: 2, paidTotal: 98_00 });
   });
 
-  it("115.62 reminds 3 days before the end and on the last day, each once, and not after ending it", async () => {
-    const s = store();
-    const { app, plan } = await setup(s);
-    const monthly = await plan();
-    await joinClub(s, monthly, 7, "club-7", NOW); // ends 12 November
-    await joinClub(s, monthly, 8, "club-8", NOW);
-    await cancelClub(s, (await s.getMarketClubMember(app.id, 8))!, days(1));
-    await joinClub(s, monthly, 9, "club-9", days(2)); // ends 14 November
-    const sent: string[] = [];
-    const run = (at: Date) => sendClubReminders(s, app.id, at, async ({ member, which }) => void sent.push(`${member.userId}:${which}`));
-    expect(await run(days(25))).toBe(0);
-    // 9 November: 3 days before the end of 7's period.
-    expect(await run(new Date("2026-11-09T10:00:00Z"))).toBe(1);
-    expect(await run(new Date("2026-11-09T18:00:00Z"))).toBe(0);
-    // Two runs at once send it once (on MySQL, from two connections).
-    const at = new Date("2026-11-11T10:00:00Z");
-    const runs = [s, ...others()].slice(0, 2).map((x) => sendClubReminders(x, app.id, at, async ({ member, which }) => void sent.push(`${member.userId}:${which}`)));
-    expect((await Promise.all(runs)).reduce((a, b) => a + b, 0)).toBe(2);
-    expect(await run(new Date("2026-11-12T09:00:00Z"))).toBe(0);
-    // 7: 3 days, then the last day; 9 first reached on 11 November, 3 days before; 8 ended it: nothing.
-    expect(sent.sort()).toEqual(["7:3d", "7:last", "9:3d"]);
-    // 9 reached first on its last day gets that one only.
-    expect(await run(new Date("2026-11-13T12:00:00Z"))).toBe(1);
-    expect(sent.filter((x) => x.startsWith("9:"))).toEqual(["9:3d", "9:last"]);
-    // A new period after paying: its own reminders.
-    await joinClub(s, monthly, 7, "club-7b", new Date("2026-11-11T12:00:00Z"));
-    expect(await run(new Date("2026-12-09T10:00:00Z"))).toBe(1);
-    expect(sent.filter((x) => x.startsWith("7:"))).toEqual(["7:3d", "7:last", "7:3d"]);
-  });
-
-  it("115.62 puts the reminder in the inbox with its payment link, once", async () => {
+  it("115.62 reminds 3 days before the end and on the last day, each once, with the payment link, and not after ending it", async () => {
     const s = store();
     const { app, plan, person } = await setup(s);
     const monthly = await plan();
-    const who = await person();
-    await joinClub(s, monthly, who, "club-7", NOW);
-    const deps = { store: s, now: new Date("2026-11-09T10:00:00Z"), platformUrl: "https://yallapp.test" };
-    expect(await remindClubRenewals(deps, app, "Africa/Cairo")).toBe(1);
-    expect(await remindClubRenewals(deps, app, "Africa/Cairo")).toBe(0);
-    const inbox = await s.listHostedNotifications({ appId: app.id, userId: who, since: NOW, page: 1, perPage: 10 });
-    expect(inbox.total).toBe(1);
-    const n = inbox.items[0]!;
-    expect(n.title).toBe("Your club membership ends in 3 days");
-    expect(n.body).toContain("12 November");
-    expect(n.data).toMatchObject({ type: "club_renewal", reminder: "3d", plan_id: String(monthly.id) });
-    expect(String(n.data?.url)).toMatch(/^https:\/\/yallapp\.test\/pay\//);
+    const [a, b, c] = [await person(), await person(), await person()];
+    await joinClub(s, monthly, a, "club-a", NOW); // ends 12 November
+    await joinClub(s, monthly, b, "club-b", NOW);
+    await cancelClub(s, (await s.getMarketClubMember(app.id, b))!, days(1));
+    await joinClub(s, monthly, c, "club-c", days(2)); // ends 14 November
+    const run = (at: Date, x: DataStore = s) => remindClubRenewals({ store: x, app, account: null, now: at }, at);
+    const inbox = async (userId: number) => (await s.listHostedNotifications({ appId: app.id, userId, since: NOW, page: 1, perPage: 20 })).items;
+    const linked = async (n: { data?: Record<string, string> | null }) => s.getCatalogOrderByToken(createHash("sha256").update(String(n.data?.url).split("/pay/")[1] ?? "").digest("hex"));
+    expect(await run(days(25))).toBe(0);
+    // 9 November: 3 days before the end of a's period.
+    expect(await run(new Date("2026-11-09T10:00:00Z"))).toBe(1);
+    expect(await run(new Date("2026-11-09T18:00:00Z"))).toBe(0);
+    // Two runs at once tell each member once (on MySQL, from two connections).
+    const at = new Date("2026-11-11T10:30:00Z");
+    const runs = [s, ...others()].slice(0, 2).map((x) => run(at, x));
+    expect((await Promise.all(runs)).reduce((x, y) => x + y, 0)).toBe(2);
+    expect(await run(new Date("2026-11-12T09:00:00Z"))).toBe(0);
+    // a: 3 days, then the last day; c reached on 11 November, 3 days before; b ended it: nothing.
+    expect((await inbox(a)).length).toBe(2);
+    expect((await inbox(b)).length).toBe(0);
+    expect((await inbox(c)).length).toBe(1);
+    // Each carries the payment link for the plan, at the owner's price.
+    for (const n of [...(await inbox(a)), ...(await inbox(c))]) {
+      expect(n.data).toMatchObject({ type: "club_renewal", plan_id: String(monthly.id) });
+      expect(await linked(n)).toMatchObject({ status: "pending", totalCents: 49_00 });
+    }
+    // Paying the link a got on its last day runs the next period from the end of this one, once.
+    const last = (await inbox(a)).find((n) => n.title.includes("today"))!;
+    const order = (await linked(last))!;
+    expect(await payClubMembership(s, app, { ...order, status: "processing", paidAt: at }, at)).toBe(true);
+    expect((await s.getMarketClubMember(app.id, a))!.paidUntil!.toISOString()).toBe("2026-12-12T10:00:00.000Z");
+    // The new period gets its own reminders.
+    expect(await run(new Date("2026-12-09T10:00:00Z"))).toBe(1);
+    expect((await inbox(a)).length).toBe(3);
   });
 
   it("115.61 reads the savings from the member's orders: delivery not paid and members' offers, this month and since joining", async () => {

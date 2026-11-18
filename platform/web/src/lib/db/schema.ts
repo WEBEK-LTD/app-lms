@@ -2142,12 +2142,10 @@ export const marketClubMembers = mysqlTable(
     paidUntil: time("paid_until"),
     paymentRef: varchar("payment_ref", { length: 120 }),
     saved: bigint("saved", { mode: "number" }).notNull(),
-    // 115.61 What they paid and how many periods; 115.62 the period end each renewal reminder was sent for.
+    // 115.61 What they paid for the club and how many periods.
     paidTotal: bigint("paid_total", { mode: "number" }).notNull().default(0),
     periods: int("periods").notNull().default(0),
     lastPaidAt: time("last_paid_at"),
-    reminded3dFor: time("reminded_3d_for"),
-    remindedLastFor: time("reminded_last_for"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },

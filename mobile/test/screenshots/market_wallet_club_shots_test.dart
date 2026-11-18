@@ -161,7 +161,10 @@ void main() {
             language: language,
             dark: dark,
             size: const Size(390, 844),
-            after: (tester, router) async => router.push(location),
+            // Not awaited: a push completes when its page closes.
+            after: (tester, router) async {
+              router.push<void>(location);
+            },
           );
           await shot.render(tester);
           final boundary = tester.renderObject<RenderRepaintBoundary>(

@@ -204,7 +204,6 @@ import type {
   MarketOrderStatus,
   WalletEntry,
   WalletSummary,
-  ClubReminder,
   MarketApplication,
   MarketApplicationForm,
   MarketApplicationFormInput,
@@ -1494,12 +1493,6 @@ export interface DataStore {
   /** Makes or replaces the customer's membership. */
   saveMarketClubMember(member: MarketClubMemberInput, now: Date): Promise<MarketClubMember>;
   listMarketClubMembers(appId: string, query: { status?: MarketClubMember["status"]; planId?: number; limit: number; offset: number }): Promise<{ items: MarketClubMember[]; total: number }>;
-  /**
-   * 115.62 Takes a renewal reminder for the membership's period ending at
-   * `periodEnd`, once: true for the first caller, false when it was already
-   * taken for that period (or the period moved).
-   */
-  claimClubReminder(appId: string, userId: number, which: ClubReminder, periodEnd: Date, now: Date): Promise<boolean>;
   /** Adds to what the club saved the customer. */
   addMarketClubSaving(appId: string, userId: number, amount: number, now: Date): Promise<void>;
   createMarketApplicationForm(input: MarketApplicationFormInput): Promise<MarketApplicationForm>;

@@ -62,7 +62,6 @@ import type {
   MarketOrderStatus,
   WalletEntry,
   WalletSummary,
-  ClubReminder,
   MarketApplication,
   MarketApplicationForm,
   MarketApplicationFormInput,
@@ -6157,19 +6156,6 @@ export class MysqlStore implements DataStore {
       this.run((db) => db.select({ n: count() }).from(t).where(where)),
     ]);
     return { items, total: Number(totals[0]?.n ?? 0) };
-  }
-
-  async claimClubReminder(appId: string, userId: number, which: ClubReminder, periodEnd: Date, now: Date): Promise<boolean> {
-    const t = schema.marketClubMembers;
-    const field = which === "3d" ? t.reminded3dFor : t.remindedLastFor;
-    // One update decides it: two daily runs at once can't both take the same reminder.
-    const [result] = await this.run((db) =>
-      db
-        .update(t)
-        .set(which === "3d" ? { reminded3dFor: periodEnd, updatedAt: now } : { remindedLastFor: periodEnd, updatedAt: now })
-        .where(and(eq(t.appId, appId), eq(t.userId, userId), eq(t.paidUntil, periodEnd), or(isNull(field), ne(field, periodEnd)))),
-    );
-    return result.affectedRows === 1;
   }
 
   async addMarketClubSaving(appId: string, userId: number, amount: number, now: Date): Promise<void> {

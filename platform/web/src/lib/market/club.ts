@@ -1,7 +1,7 @@
 import { utcToLocal } from "../bookings/time";
 import { randomToken, sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
-import type { ClubReminder, MarketClubMember, MarketClubPlan, MarketOrder } from "../data/types";
+import type { MarketClubMember, MarketClubPlan, MarketOrder } from "../data/types";
 import { payUrlFor } from "../delivery/payment";
 import { CLUB_PAY_LINE } from "./flow";
 
@@ -10,8 +10,9 @@ import { CLUB_PAY_LINE } from "./flow";
  * reminder and a payment link, at the owner's prices; nothing is charged by
  * itself). What it saved a member is read from their orders: the delivery
  * fees they didn't pay and the members' offers they used, this month and
- * since they first joined. The daily job reminds a member who renews 3 days
- * before the end of the period and on its last day, each once.
+ * since they first joined. The daily job's `club_renewal` reminder
+ * (lib/market/notify.ts, 3 days before the end and on the last day, each
+ * once) carries the payment link made here.
  */
 
 export interface ClubSavings {
@@ -31,7 +32,6 @@ export interface ClubSavings {
 }
 
 const DONE: MarketOrder["status"][] = ["delivered", "picked_up"];
-const DAY = 86_400_000;
 
 /** The month of a moment in the app's time zone, as "2026-11". */
 function monthOf(at: Date, zone: string): string {
@@ -67,50 +67,6 @@ export async function clubSavings(store: DataStore, appId: string, member: Marke
   }
   out.total = out.delivery + out.offers;
   return out;
-}
-
-/** The reminder due now for a member who renews, if any: 3 days before the end, then on the last day. */
-export function clubReminderDue(member: Pick<MarketClubMember, "status" | "renews" | "paidUntil">, now: Date): ClubReminder | null {
-  if (member.status !== "active" || !member.renews || !member.paidUntil) return null;
-  const left = member.paidUntil.getTime() - now.getTime();
-  if (left <= 0) return null;
-  if (left <= DAY) return "last";
-  if (left <= 3 * DAY) return "3d";
-  return null;
-}
-
-/** When the first reminder goes: 3 days before the end. */
-export function reminderDate(paidUntil: Date): Date {
-  return new Date(paidUntil.getTime() - 3 * DAY);
-}
-
-export interface ClubReminderSend {
-  member: MarketClubMember;
-  which: ClubReminder;
-}
-
-/**
- * The daily job's reminders: each member who renews gets the one due now,
- * once for their period (a second run, or two at once, sends nothing more).
- * A member first reached on the last day gets only the last day's. `send`
- * puts it in their inbox and on their phones with its payment link.
- */
-export async function sendClubReminders(store: DataStore, appId: string, now: Date, send: (due: ClubReminderSend) => Promise<void>): Promise<number> {
-  let sent = 0;
-  for (let offset = 0; ; offset += 500) {
-    const { items } = await store.listMarketClubMembers(appId, { status: "active", limit: 500, offset });
-    for (const member of items) {
-      const which = clubReminderDue(member, now);
-      if (!which || !member.paidUntil) continue;
-      if (!(await store.claimClubReminder(appId, member.userId, which, member.paidUntil, now))) continue;
-      // Reached late: the earlier reminder isn't sent after the last day's.
-      if (which === "last") await store.claimClubReminder(appId, member.userId, "3d", member.paidUntil, now);
-      await send({ member, which });
-      sent++;
-    }
-    if (items.length < 500) break;
-  }
-  return sent;
 }
 
 /** How a membership reads in the owner's members list. */

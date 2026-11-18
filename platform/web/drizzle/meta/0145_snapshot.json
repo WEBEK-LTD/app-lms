@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "9d991980-8192-4dbc-b44e-f4f9854c6b47",
+  "id": "270ca579-5bec-47e5-a6bb-f1efbcef9e3e",
   "prevId": "0ce6da65-49f5-41ae-8daa-e059d728aba9",
   "tables": {
     "account_deletion_requests": {
@@ -14291,20 +14291,6 @@
         },
         "last_paid_at": {
           "name": "last_paid_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "reminded_3d_for": {
-          "name": "reminded_3d_for",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "reminded_last_for": {
-          "name": "reminded_last_for",
           "type": "datetime(3)",
           "primaryKey": false,
           "notNull": false,

@@ -20,7 +20,7 @@ import '../../../core/widgets/common.dart';
 import '../../real_estate/widgets/listing_widgets.dart' show signInFor;
 import '../../store/screens/cart_screen.dart' show isOrderReceived;
 import '../data/market_providers.dart' show marketConfigProvider;
-import '../widgets/market_look.dart' show marketDeeper;
+import '../widgets/market_look.dart' show marketDeeper, marketTint;
 import '../../../core/widgets/studio_screen_scope.dart';
 
 final marketWalletProvider = FutureProvider.autoDispose<MarketWallet>(
@@ -83,7 +83,8 @@ String _money(
   final mark = _currencyMark(context, currency);
   final text = _arabic(context) ? '$number $mark' : '$mark $number';
   final signed = sign ? '${negative ? '−' : '+'}$text' : text;
-  return ltrRun(signed);
+  // In Arabic the amount flows right to left, the mark after it, as the designs write it.
+  return _arabic(context) ? signed : ltrRun(signed);
 }
 
 String _dayLabel(BuildContext context, DateTime at, DateTime now) {
@@ -812,15 +813,10 @@ class _MarketClubScreenState extends ConsumerState<MarketClubScreen> {
                   width: 30,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: p.primarySoft,
+                    color: marketTint(p, p.primary),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
-                    perk.$1,
-                    size: 18,
-                    fill: 1,
-                    color: p.onPrimarySoft,
-                  ),
+                  child: Icon(perk.$1, size: 18, fill: 1, color: p.primary),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -868,7 +864,7 @@ class _MarketClubScreenState extends ConsumerState<MarketClubScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: p.link,
+                    color: p.primary,
                   ),
                 ),
               ),
@@ -1272,12 +1268,18 @@ class _SavingsCard extends StatelessWidget {
           children: [
             Text(label, style: TextStyle(fontSize: 11, color: p.textSecondary)),
             const SizedBox(height: 2),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: p.text,
+            // One line, smaller when it must (a long amount, large text).
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                value,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: p.text,
+                ),
               ),
             ),
           ],

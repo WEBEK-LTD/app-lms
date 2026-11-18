@@ -5347,15 +5347,9 @@ export interface MarketClubMember {
   periods?: number;
   /** 115.61 When the last period was paid. */
   lastPaidAt?: Date | null;
-  /** 115.62 The period end (paidUntil) the reminder 3 days before was sent for, and the last day's. */
-  reminded3dFor?: Date | null;
-  remindedLastFor?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
-
-/** 115.62 Which renewal reminder. */
-export type ClubReminder = "3d" | "last";
 
 /** 115.63 One customer's wallet, for the owner's Wallets page. */
 export interface WalletSummary {

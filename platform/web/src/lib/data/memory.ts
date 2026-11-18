@@ -143,7 +143,6 @@ import type {
   MarketOrderStatus,
   WalletEntry,
   WalletSummary,
-  ClubReminder,
   MarketApplication,
   MarketApplicationForm,
   MarketApplicationFormInput,
@@ -4865,7 +4864,7 @@ export class MemoryStore implements DataStore {
     const key = `${member.appId}:${member.userId}`;
     const existing = this.marketClubMembers.get(key);
     // 115.61 Fields left out keep what the database keeps (MySQL leaves them as they were).
-    const kept = { paidTotal: existing?.paidTotal ?? 0, periods: existing?.periods ?? 0, lastPaidAt: existing?.lastPaidAt ?? null, reminded3dFor: existing?.reminded3dFor ?? null, remindedLastFor: existing?.remindedLastFor ?? null };
+    const kept = { paidTotal: existing?.paidTotal ?? 0, periods: existing?.periods ?? 0, lastPaidAt: existing?.lastPaidAt ?? null };
     const given = Object.fromEntries(Object.entries(clone(member)).filter(([, v]) => v !== undefined)) as MarketClubMemberInput;
     const saved: MarketClubMember = { ...kept, ...given, id: existing?.id ?? this.nextMarketClubMemberId++, createdAt: existing?.createdAt ?? now, updatedAt: now };
     this.marketClubMembers.set(key, clone(saved));
@@ -4877,16 +4876,6 @@ export class MemoryStore implements DataStore {
       .filter((m) => m.appId === appId && (query.status === undefined || m.status === query.status) && (query.planId === undefined || m.planId === query.planId))
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
     return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };
-  }
-
-  async claimClubReminder(appId: string, userId: number, which: ClubReminder, periodEnd: Date, now: Date): Promise<boolean> {
-    const member = this.marketClubMembers.get(`${appId}:${userId}`);
-    if (!member || member.paidUntil?.getTime() !== periodEnd.getTime()) return false;
-    const field = which === "3d" ? "reminded3dFor" : "remindedLastFor";
-    if (member[field]?.getTime() === periodEnd.getTime()) return false;
-    member[field] = new Date(periodEnd);
-    member.updatedAt = now;
-    return true;
   }
 
   async addMarketClubSaving(appId: string, userId: number, amount: number, now: Date): Promise<void> {

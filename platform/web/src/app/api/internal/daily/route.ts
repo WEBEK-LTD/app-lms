@@ -6,7 +6,7 @@ import { purgeAnalyticsHistory } from "@/lib/analytics/retention";
 import { appZone } from "@/lib/analytics/zone";
 import { getStore } from "@/lib/data";
 import { sendTemplate } from "@/lib/email/send";
-import { appUrl, encryptionKey, internalJobSecret } from "@/lib/env";
+import { appUrl, internalJobSecret } from "@/lib/env";
 import { errorResponse, hasBearerToken, json } from "@/lib/http";
 import { runDailyNotices } from "@/lib/notices";
 import { remindEndingAddons } from "@/lib/addons/notify";
@@ -149,15 +149,7 @@ async function runDaily(store: DataStore, now: Date) {
     return null;
   });
   // 115 Marketplaces: the club's memberships that ended or renew, the vendors' old web sign-ins, orders for later due.
-  // 115.62 The club's renewal reminders go to phones with the app's push account (the inbox without one).
-  const pushKey = (() => {
-    try {
-      return encryptionKey();
-    } catch {
-      return undefined;
-    }
-  })();
-  const marketplace = await runMarketDaily(store, now, { platformUrl: appUrl(), key: pushKey }).catch((e: unknown) => {
+  const marketplace = await runMarketDaily(store, now).catch((e: unknown) => {
     console.error(`[daily] marketplace: ${e instanceof Error ? e.message : String(e)}`);
     return null;
   });
