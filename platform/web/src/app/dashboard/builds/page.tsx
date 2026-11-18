@@ -18,6 +18,7 @@ import { requireClient } from "@/lib/auth/session";
 import {
   buildOnly,
   failureReason,
+  iphoneOnlyAgain,
   fileDescription,
   fileUnavailableReason,
   formatDuration,
@@ -36,7 +37,7 @@ import { upgradeHref } from "@/components/upgrade";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
-import { failureExplanation } from "@/lib/builds/failures";
+import { clientSeesFailureLog, failureExplanation, noMacRunner } from "@/lib/builds/failures";
 import { preflightChecks, renderCheck } from "@/lib/builds/preflight";
 import { preflightDeps } from "@/lib/builds/preflight-env";
 import { GoBackForm, RebuildForm, RetryBuildForm, RolloutButtons, StagedReleaseForm, StartBuildForm, VersionsForm } from "./start-build";
@@ -564,15 +565,28 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
               {k(current.message)}
             </KitCallout>
           ) : null}
-          {failed ? (
+          {/* 151 GitHub had no Mac for the iPhone app: on our side, said without technical words; tried again only when the owner chooses. */}
+          {failed && noMacRunner(current) ? (
+            <KitCallout tone="warn" icon="schedule" data-no-mac="">
+              {k(failureReason(current))}
+            </KitCallout>
+          ) : failed ? (
             <KitCallout tone="danger" icon="error">
               {richText(t("builds.failedNotice", { reason: k(failureReason(current)) }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
             </KitCallout>
           ) : null}
-          {/* 87.2 The cause of a store upload that didn't work on a ready build, and where to fix it. */}
+          {/* 87.2 The cause of a store upload that didn't work on a ready build, and where to fix it; 151 the iPhone app not built, with iPhone only. */}
           {current.status === "ready" && failureExplanation(current) ? (
-            <KitCallout tone="warn" icon="info">
-              {k(failureExplanation(current)!.text)}
+            <KitCallout
+              tone="warn"
+              icon={noMacRunner(current) ? "schedule" : "info"}
+              action={
+                iphoneOnlyAgain(current, { canStart: !disabledReason, iosAvailable: iosBuildAvailable(app, currentPlan) }) ? (
+                  <RetryBuildForm versionName={current.versionName} only="ios" iphoneOnly />
+                ) : undefined
+              }
+            >
+              <span {...(noMacRunner(current) ? { "data-no-mac": "" } : {})}>{k(failureExplanation(current)!.text)}</span>
             </KitCallout>
           ) : null}
           {failureExplanation(current)?.link ? (
@@ -580,8 +594,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
               {t("builds.checksFix")}
             </Link>
           ) : null}
-          {/* 87.2 What the build printed, without its secrets: the client may read it. */}
-          {current.failure?.log ? (
+          {/* 87.2 What the build printed, without its secrets: the client may read it; 151 not the iPhone app's (Xcode's words: the admin has them). */}
+          {clientSeesFailureLog(current) && current.failure?.log ? (
             <KitFold summary={t("builds.failureLog")} icon="code" data-failure-log="">
               <p className="m-0 text-xs text-(--sp-muted)">{t("builds.failureLogText")}</p>
               <pre dir="ltr" className="m-0 max-h-[360px] overflow-auto rounded-xl bg-midnight p-3 text-xs leading-relaxed whitespace-pre-wrap text-white">
@@ -678,7 +692,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
                     <BuildStages stages={build.stages} lang={lang} look="pills" />
                     {build.status === "queued" || build.status === "building" ? <p className="m-0 text-sm text-(--sp-muted)">{k(statusExplanation(build, now))}</p> : null}
                     {build.status === "failed" ? (
-                      <KitCallout tone="danger" icon="error">
+                      <KitCallout tone={noMacRunner(build) ? "warn" : "danger"} icon={noMacRunner(build) ? "schedule" : "error"}>
                         {k(failureReason(build))}
                       </KitCallout>
                     ) : null}
@@ -687,8 +701,14 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
                         {k(build.message)}
                       </KitCallout>
                     ) : null}
+                    {/* 151 Why a part of a ready build didn't work, as on the latest build. */}
+                    {build.status === "ready" && failureExplanation(build) ? (
+                      <KitCallout tone="warn" icon={noMacRunner(build) ? "schedule" : "info"}>
+                        {k(failureExplanation(build)!.text)}
+                      </KitCallout>
+                    ) : null}
                     {build.rebuildOf ? <p className="m-0 text-[13px] text-(--sp-muted)">{t("builds.rebuildOf", { number: build.rebuildOf })}</p> : null}
-                    {build.failure?.log ? (
+                    {clientSeesFailureLog(build) && build.failure?.log ? (
                       <KitFold summary={t("builds.failureLog")} icon="code">
                         <p className="m-0 text-xs text-(--sp-muted)">{t("builds.failureLogText")}</p>
                         <pre dir="ltr" className="m-0 max-h-[320px] overflow-auto rounded-xl bg-midnight p-3 text-xs leading-relaxed whitespace-pre-wrap text-white">

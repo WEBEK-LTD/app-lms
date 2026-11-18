@@ -67,6 +67,11 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
    and the message says so), and `failed` when the Android app couldn't be
    built. The platform emails the client, and the team when something
    failed (with the run's log, which clients never see).
+   151 An iOS job GitHub had no Mac for (cancelled in the queue before any
+   step ran) can't report itself: the report job reads the run's jobs
+   (`actions: read`) and sends `ios_no_mac_runner`. The client is told it's a
+   temporary problem on our side and can try again with iPhone only; the
+   team gets one alert. Nothing builds it again by itself.
 6. A run that's cancelled or crashes before reporting leaves the build
    `building`: after 6 hours without a report the platform treats it as
    stopped, closes it when the client starts a new build, and the team can

@@ -6,6 +6,8 @@ import { errorResponse, json, readJson } from "@/lib/http";
 import { authorizePipeline } from "@/lib/pipeline-auth";
 import { noteMilestones } from "@/lib/milestones/record";
 import { notePlayRelease } from "@/lib/publishing/service";
+import { teamMail } from "@/lib/watch/env";
+import { alertNoMac } from "@/lib/watch/watch";
 
 /** POST /api/v1/builds/{id}/status (docs/api/pipeline.yaml): the pipeline reports progress and artifacts. */
 export async function POST(request: Request, { params }: RouteContext<"/api/v1/builds/[id]/status">): Promise<Response> {
@@ -34,6 +36,8 @@ export async function POST(request: Request, { params }: RouteContext<"/api/v1/b
   // Finished just now: the client is emailed, and the team too when it failed.
   const finished = result.build.status !== build.status && (result.build.status === "ready" || result.build.status === "failed");
   if (finished) await notifyBuildFinished(store, result.build).catch(() => undefined);
+  // 151 GitHub had no Mac for the iOS job: the team's one alert for this build (never built again by itself).
+  if (finished) await alertNoMac(store, result.build, new Date(), teamMail).catch(() => undefined);
   // 78 The first build, the first that worked, the first upload to a store.
   if (result.build.status !== build.status) await noteMilestones(store, build.clientId);
   return json(buildSummary(result.build));

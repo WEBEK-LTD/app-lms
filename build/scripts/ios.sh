@@ -124,13 +124,22 @@ if [ "${AUTO_PUBLISH:-false}" = "true" ]; then
 		fi
 	else
 		TESTFLIGHT=failed
-		MESSAGE="Your iOS app is ready, but the upload to TestFlight didn't work. Create the app in App Store Connect with the bundle ID $BUNDLE_ID first (see the App Store guide), then start a new build."
+		# 87.2 An upload to TestFlight that didn't work, explained from its output. 151 A known cause
+		# says what to do (the dashboard, in the client's language); only an unknown one keeps the usual guess.
+		CAUSE=unknown
+		if python3 "$SCRIPTS/diagnose.py" "$LOG" upload_testflight > "$OUT/failure.json"; then
+			CAUSE=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("code") or "unknown")' "$OUT/failure.json" 2>/dev/null || echo unknown)
+		else
+			rm -f "$OUT/failure.json"
+		fi
+		if [ "$CAUSE" = "unknown" ]; then
+			MESSAGE="Your iOS app is ready, but the upload to TestFlight didn't work. Create the app in App Store Connect with the bundle ID $BUNDLE_ID first (see the App Store guide), then start a new build."
+		else
+			MESSAGE="Your iOS app is ready, but the upload to TestFlight didn't work."
+		fi
 	fi
 fi
 
 result "{\"ios\":\"done\",\"upload_testflight\":\"$TESTFLIGHT\",\"app_review\":\"$REVIEW_STAGE\"}" "$ARTIFACTS" "$MESSAGE"
-# 87.2 An upload to TestFlight that didn't work, explained from its output.
-if [ "$TESTFLIGHT" = "failed" ]; then
-	if python3 "$SCRIPTS/diagnose.py" "$LOG" upload_testflight > "$OUT/failure.json"; then add_failure "$OUT/failure.json" || true; fi
-fi
+if [ "$TESTFLIGHT" = "failed" ] && [ -s "$OUT/failure.json" ]; then add_failure "$OUT/failure.json" || true; fi
 platform status "$BUILD_ID" "{\"stages\":{\"ios\":\"done\",\"upload_testflight\":\"$TESTFLIGHT\",\"app_review\":\"$REVIEW_STAGE\"}}"
