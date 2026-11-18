@@ -84,8 +84,9 @@ class StudioPremiumHeader extends ConsumerWidget {
     // 180.19 Over a photo (or the brand's colour) the words are white unless
     // the owner's colour reads on its dark shade: Safra's navy title was
     // unreadable over the Stays, Flights and Trips photos.
-    final foreground =
-        onColour && own != null && contrastRatio(own, _shade) < 3 ? null : own;
+    final foreground = onColour && own != null && contrastRatio(own, _shade) < 3
+        ? null
+        : own;
     final auth = ref.watch(authControllerProvider);
     final unread =
         header.buttons.contains(StudioHeaderButton.notifications) &&
