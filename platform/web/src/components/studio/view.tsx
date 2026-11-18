@@ -8,6 +8,7 @@ import { RESIZE_START, resized, snapped } from "@/lib/studio/resize";
 import { autoSized, sizedByHand } from "@/lib/studio/auto-size";
 import { forTablet } from "@/lib/studio/tablet";
 import { mapTree } from "@/lib/studio/tree";
+import { shownWhen } from "@/lib/studio/signed-in";
 import { withShopCategoriesIn } from "@/lib/studio/shop-categories";
 import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
@@ -115,6 +116,8 @@ interface ViewProps {
   premiumWords?: PremiumWords;
   /** 131 The flash sale's and the coupon's words (lib/studio/app-words.ts); missing, English. */
   commerceWords?: CommerceWords;
+  /** 180.11 The page as a person signed in (true) or signed out (false) sees it; missing, every element. */
+  signedIn?: boolean;
 }
 
 /** 124.8 The app's screen under a page's elements in the canvas. */
@@ -215,7 +218,9 @@ export function StudioView(givenProps: ViewProps) {
   const shop = viewProps.pickable.shopCategories;
   const listed = shop ? { ...viewProps, page: { ...viewProps.page, body: withShopCategoriesIn(viewProps.page.body, shop) } } : viewProps;
   // 159 At their automatic sizes, as the app draws them (a cover's top bar across the cover), unless sized by hand.
-  const body = autoSized(listed.tablet ? (mapTree(listed.page.body, forTablet) ?? listed.page.body) : listed.page.body);
+  // 180.11 Only what a signed-in or a signed-out person sees, when the canvas is told which.
+  const visible = listed.signedIn === undefined ? listed.page.body : shownWhen(listed.page.body, listed.signedIn);
+  const body = autoSized(listed.tablet ? (mapTree(visible, forTablet) ?? visible) : visible);
   const props = body === listed.page.body ? listed : { ...listed, page: { ...listed.page, body } };
   const { page, dark, look } = props;
   const bg = (dark ? (page.dark_background ?? page.background) : page.background) ?? (dark ? "#14121F" : "#FBF8F2");

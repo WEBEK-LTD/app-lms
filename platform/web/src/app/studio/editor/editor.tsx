@@ -153,6 +153,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const [device, setDevice] = useState<Device>("phone");
   const [lang, setLang] = useState<LanguageCode>(layout.languages.default);
   const [dark, setDark] = useState(false);
+  // 180.11 Signed out first: what a new customer sees.
+  const [signedIn, setSignedIn] = useState(false);
   const [zoom, setZoom] = useState<number>(100);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [leftTab, setLeftTab] = useState<LeftTab>("elements");
@@ -1456,7 +1458,7 @@ export function StudioEditor(props: StudioEditorProps) {
               <div className="overflow-x-hidden overflow-y-auto rounded-[26px]" style={{ width: 288, height: "min(560px, calc(100dvh - 260px))", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {/* Drawn at the phone's 360 pixels, then zoomed to fit: it scrolls as tall as it is. */}
                 <div style={{ width: 360, zoom: 0.8, pointerEvents: "none" }}>
-                  <StudioView page={previewing.page} lang={editLang} defaultLang={layout.languages.default} dark={dark} look={look} pickable={props.pickable} market={props.market} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} premiumWords={premiumWords} commerceWords={commerceWords} />
+                  <StudioView page={previewing.page} lang={editLang} defaultLang={layout.languages.default} dark={dark} signedIn={signedIn} look={look} pickable={props.pickable} market={props.market} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} premiumWords={premiumWords} commerceWords={commerceWords} />
                 </div>
               </div>
             </div>
@@ -1572,6 +1574,12 @@ export function StudioEditor(props: StudioEditorProps) {
               }} pressed={dark} label={dark ? t("studio.dark") : t("studio.light")}>
               {t("studio.lightDark")}
             </Chip>
+            <Chip icon={signedIn ? "account_circle" : "no_accounts"} onClick={(e) => {
+                e.stopPropagation();
+                setSignedIn((v) => !v);
+              }} pressed={signedIn} label={t("studio.canvasSignedHint")}>
+              <span data-canvas-signed={signedIn ? "in" : "out"}>{t(signedIn ? "studio.canvasSignedIn" : "studio.canvasSignedOut")}</span>
+            </Chip>
             <div className="relative">
               <Chip icon="keyboard" onClick={(e) => {
                   e.stopPropagation();
@@ -1587,7 +1595,7 @@ export function StudioEditor(props: StudioEditorProps) {
             <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.bar, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
-                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} commerceWords={commerceWords} />
+                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} signedIn={signedIn} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} commerceWords={commerceWords} />
                 ) : page ? (
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} dark={dark} />
                 ) : null}
