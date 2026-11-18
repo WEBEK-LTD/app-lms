@@ -9,6 +9,8 @@ import '../theme/app_icons.dart';
 import '../theme/palette.dart';
 import '../widgets/buttons.dart';
 import 'media_permission.dart';
+import 'pay_sheet.dart';
+import 'pay_sheet_view.dart';
 import 'web_files.dart';
 import 'site_sign_in.dart';
 import 'web_view.dart';
@@ -52,6 +54,13 @@ class WebPageArgs {
 ///
 /// Pops with `true` when closed after reaching a page that matches
 /// [WebPageArgs.completesOn], and `false` otherwise.
+///
+/// 170 Yallapp's payment page (`<platform>/pay/<token>`) opens in the
+/// phone's browser sheet instead ([PaySheetFlow], where Apple Pay and Google
+/// Pay show): the screen pops with `true` once the platform says the order
+/// is through, telling [WebPageArgs.onCompleted] the order received page's
+/// address as the web view did. Every other page, the app preview and
+/// builds without their return address keep the web view.
 class WebPageScreen extends ConsumerStatefulWidget {
   const WebPageScreen({super.key, required this.args});
 
@@ -65,6 +74,10 @@ class _WebPageScreenState extends ConsumerState<WebPageScreen> {
   bool _completed = false;
   late final Uri _page = Uri.parse(widget.args.url);
   WebViewRequest? _request;
+
+  /// 170 Paying in the browser sheet (until the phone can't open it).
+  late bool _sheet =
+      !widget.args.ownerPage && ref.read(opensInPaySheetProvider)(_page);
 
   @override
   void initState() {
@@ -110,6 +123,20 @@ class _WebPageScreenState extends ConsumerState<WebPageScreen> {
   }
 
   void _close() => Navigator.of(context).pop(_completed);
+
+  /// 170 The platform says the order is through: as when the web view
+  /// reached the order received page, then the screen closes.
+  void _paidInSheet(Uri received) {
+    if (!mounted) return;
+    _completed = true;
+    widget.args.onCompleted?.call(received);
+    _close();
+  }
+
+  /// 170 No browser for the sheet: the web view, as before.
+  void _sheetUnavailable() {
+    if (mounted) setState(() => _sheet = false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +184,13 @@ class _WebPageScreenState extends ConsumerState<WebPageScreen> {
                 ),
               ),
               Expanded(
-                child: _request == null
+                child: _sheet
+                    ? PaySheetFlow(
+                        page: _page,
+                        onDone: _paidInSheet,
+                        onUnavailable: _sheetUnavailable,
+                      )
+                    : _request == null
                     ? Center(
                         child: CircularProgressIndicator(
                           key: const ValueKey('web-page-signing-in'),

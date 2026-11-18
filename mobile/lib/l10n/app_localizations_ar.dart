@@ -12761,4 +12761,52 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get bouquetRemove => 'احذف الباقة';
+
+  @override
+  String get paySheetWaitingTitle => 'أكمل الدفع في النافذة التي فُتحت';
+
+  @override
+  String get paySheetWaitingBody =>
+      'ادفع هناك بالبطاقة أو Apple Pay أو Google Pay. ستعود إلى هنا بعد إتمام الدفع.';
+
+  @override
+  String get paySheetChecking => 'جارٍ التحقق من الدفع…';
+
+  @override
+  String get paySheetPendingTitle => 'لم يتأكد الدفع بعد';
+
+  @override
+  String get paySheetPendingBody =>
+      'إذا كنت قد دفعت، فسيتأكد الدفع خلال دقائق وسيظهر طلبك في طلباتك. تحقّق مرة أخرى قبل أن تدفع ثانيةً.';
+
+  @override
+  String get paySheetNotPaidTitle => 'لم يتم الدفع بعد';
+
+  @override
+  String get paySheetNotPaidBody =>
+      'لم يُخصم أي مبلغ لهذا الطلب. يمكنك الدفع الآن، أو الإغلاق والعودة لاحقًا.';
+
+  @override
+  String get paySheetFailedBody =>
+      'لم تتم عملية الدفع. يمكنك المحاولة مرة أخرى.';
+
+  @override
+  String get paySheetClosedTitle => 'هذا الطلب مغلق';
+
+  @override
+  String get paySheetClosedBody =>
+      'لا يوجد ما تدفعه هنا. ارجع وأكمل الطلب من جديد إن كنت ما زلت تريده.';
+
+  @override
+  String get paySheetCheckFailedTitle => 'تعذّر التحقق من الدفع';
+
+  @override
+  String get paySheetCheckFailedBody =>
+      'تحقّق من اتصالك وحاول مرة أخرى. إذا كنت قد دفعت، فطلبك محفوظ.';
+
+  @override
+  String get paySheetCheckAgain => 'تحقّق من الدفع';
+
+  @override
+  String get paySheetOpenAgain => 'افتح صفحة الدفع';
 }

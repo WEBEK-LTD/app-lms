@@ -353,10 +353,6 @@ export function ProjectNav({
 }
 
 /**
- * 132.150 The console bar's way back: the project, the group of the page
- * open and the page (the project's link is the way back to its overview).
- */
-/**
  * 175 The page under a menu entry (Products › Settings): the sub-page whose
  * address is the deepest one the page is at, below the entry's own; null at
  * the entry itself.
@@ -366,10 +362,15 @@ export function subpageOf(subpages: { href: string; label: string }[], entryHref
   return below.sort((a, b) => b.href.length - a.href.length)[0] ?? null;
 }
 
+/**
+ * 132.150 The console bar's way back: the project, the group of the page
+ * open and the page (the project's link is the way back to its overview).
+ */
 export function ConsoleCrumbs({ label, groups, more, root, subpages = [] }: { label: string; groups: ProjectNavGroup[]; more: PaletteItem[]; root: { href: string; label: string }; subpages?: { href: string; label: string }[] }) {
   const path = usePathname();
   const step = useSearchParams().get("step");
   const here = currentOf(groups, path, step) ?? currentOf([{ id: "more", items: more }], path, step);
+  // 174/175 A page reached by its section's tabs (the shop's Settings under Products) is named after its section: Products › Settings.
   const atRoot = here?.item.href === root.href;
   const sub = here && !atRoot ? subpageOf(subpages, here.item.href.split("?")[0]!, path) : null;
   const chevron = <span aria-hidden="true" className="material-symbols-rounded icon-flip">chevron_right</span>;

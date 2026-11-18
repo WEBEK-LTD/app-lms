@@ -241,6 +241,14 @@ export interface StudioStories {
 // ——— end 129 premium motion & media ———
 /** 112.4 How a categories element draws them: chips, tiles, pictures in a grid, or round pictures in a row. */
 export const STUDIO_CATEGORY_STYLES = ["chips", "tiles", "pictures", "circles"] as const;
+/**
+ * 174.1 Studio's "Pill" corners: fully rounded. Every renderer (the canvas's
+ * CSS, the app's rounded rectangles) caps corners at half the element's side,
+ * so the largest corners the server accepts draw a pill on any element up to
+ * 1000 px high. Older editors stored 999, above the limit; the page checker
+ * brings any larger corners down to this value instead of refusing the save.
+ */
+export const STUDIO_PILL_RADIUS = 500;
 export const STUDIO_LIMITS = {
   maxNodes: 600,
   maxDepth: 12,
@@ -248,7 +256,7 @@ export const STUDIO_LIMITS = {
   maxSize: 4000,
   maxSide: 400,
   maxGap: 200,
-  maxRadius: 500,
+  maxRadius: STUDIO_PILL_RADIUS,
   maxBorder: 20,
   minFont: 8,
   maxFont: 120,

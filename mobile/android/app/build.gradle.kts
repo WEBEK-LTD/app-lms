@@ -37,6 +37,9 @@ android {
         // the build config's version_name and version_code.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // 170 The app's own address, which brings it back from the payment
+        // page in Chrome's Custom Tab (PayReturnActivity in the manifest).
+        manifestPlaceholders["yallappReturnScheme"] = yallapp.getProperty("returnScheme", "yallapp-dev")
     }
 
     signingConfigs {

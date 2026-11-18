@@ -1732,8 +1732,11 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   }
   const picture = c.mediaUrl(where, v.image_background_url, "the background picture's address", false);
   if (picture) node.image_background_url = picture;
-  const radius = num("radius", 0, L.maxRadius, "the corners");
-  if (radius) node.radius = radius;
+  // 174.1 Corners above the limit are a pill (an older editor stored 999): brought down to the limit, never a refused save.
+  const pill = (x: unknown) => (typeof x === "number" && Number.isFinite(x) && x > L.maxRadius ? L.maxRadius : x);
+  const radius = studioNumber(pill(v.radius), 0, L.maxRadius);
+  if (radius !== undefined && Number.isNaN(radius)) bad(`the corners must be 0 to ${L.maxRadius}.`);
+  else if (radius) node.radius = radius;
   // 107.2 Each corner on its own, turning, and a colour over the picture.
   if (v.corners !== undefined && v.corners !== null) {
     const k = record(v.corners);
@@ -1741,7 +1744,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     else {
       const corners: NonNullable<StudioNode["corners"]> = {};
       for (const corner of ["top_start", "top_end", "bottom_end", "bottom_start"] as const) {
-        const n = studioNumber(k[corner], 0, L.maxRadius);
+        const n = studioNumber(pill(k[corner]), 0, L.maxRadius);
         if (n !== undefined && Number.isNaN(n)) bad(`each corner must be 0 to ${L.maxRadius}.`);
         else if (n) corners[corner] = n;
       }

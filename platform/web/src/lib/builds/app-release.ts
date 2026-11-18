@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 9;
+export const CLIENT_APP_RELEASE = 10;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -87,6 +87,16 @@ export const CLIENT_APP_RELEASE = 9;
  *    without one; and 173 an order's screen shows its delivery day and
  *    time, the recipient and address, the card message and sender, and
  *    lines that add up to the total (subtotal, coupon, delivery, time fee).
+ * 10 170 paying in the app in the phone's browser sheet: Yallapp's payment
+ *    page opens in SFSafariViewController on iPhone and Chrome Custom Tabs
+ *    on Android, so Apple Pay and Google Pay show, and comes back to the
+ *    app on its own address (`yallapp-<app id>://app/pay-return`), the
+ *    order read from `/pay/<token>/status`; a shop's own website checkout,
+ *    donations and the preview keep the web view; 174 a column left on
+ *    Auto inside a row is drawn as on Studio's canvas, not dropping the
+ *    whole row (Leqaa's "Collections" heading and its "Shop all"); and
+ *    163.13 Build your bouquet checked at 130% and 150% text (a test; the
+ *    app's fix is 163.2's).
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */

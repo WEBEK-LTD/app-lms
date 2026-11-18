@@ -41,7 +41,7 @@ export async function FirstSteps({ app, editor }: { app: App; editor: "/dashboar
     brand: { title: t("start.first.brand"), text: t("start.first.brandText"), action: null },
     items: {
       title: t(`start.items.${items.noun}.own` as DashKey),
-      text: t("start.first.itemsText", { demo, items: t(`start.items.${items.noun}.has` as DashKey, { count: view.samples }) }),
+      text: `${t("start.first.itemsText", { demo, items: t(`start.items.${items.noun}.has` as DashKey, { count: view.samples }) })} ${t("start.first.itemsDemo", { demo })}`,
       action: (
         <Link href={inSection(LIST_PAGE[items.list])} className="flex h-11 items-center self-start rounded-[14px] bg-[var(--pk-ink)] px-4 text-sm font-bold text-[var(--pk-on-ink)] no-underline">
           {t(`start.items.${items.noun}.open` as DashKey)}

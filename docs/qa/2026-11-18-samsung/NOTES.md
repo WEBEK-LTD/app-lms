@@ -172,3 +172,17 @@ whose cards line up side by side, keep their one line.
 `flutter test` (mobile) on the ring and price-list fixes (the same code as
 46fcb14, whose merge brought in docs only): **2,594 passed, 776 skipped
 (screenshots and gallery, off by default), 0 failed** (9 min 47 s).
+
+## "Build your bouquet" (صمّم باقتك) at 130% (follow-up round)
+
+Reported: in Arabic at text scale 1.3, Leqaa's "Build your bouquet" overflows
+its 300-point cover. This is cause 2 above, already fixed by 163.2 (the
+cover's height is its least; it grows with its words and button), so no code
+changes here. Most likely the tester's build predates it. Look B's section
+(`sig-96`) is a plain column with no fixed height.
+
+| Run | Result |
+|---|---|
+| `--plain-name 163.13` (looks A and B × ar, en, tr × 130% and 150%: no overflow, nothing spilling, the button inside the section) | 12 passed |
+| The same on `studio_covers.dart` as on main before 163 (`14b2dcf`) | look A: 6 failed; look B: 6 passed |
+| The whole phase163 file, format, analyze | 450 passed; 0 changed; no issues |
