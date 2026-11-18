@@ -2949,6 +2949,36 @@ The owner's decisions:
   and change it freely in the Studio editor.
 - **Demo.** Studio's demos get one, like Nakhla School.
 
+**The owner's decisions (18 November 2026),** after the audit in
+`docs/plans/2026-11-18-marketplace-audit.md`:
+
+- **Weighed items paid online (D1).**
+  - The card, Apple Pay, Google Pay or wallet pays the estimate.
+  - A lower weighed total is refunded automatically to the payment, with the wallet as the fallback.
+  - These orders never charge more than was paid.
+  - Cash keeps the +10% tolerance (`weightTolerancePercent`).
+  - Later, for Stripe only: a hold of the estimate +10%, captured at the weighed price.
+- **Substitutes are asked live (D2).**
+  - The picker proposes a similar item from the same aisle, never dearer than the line.
+  - The customer accepts it or leaves it out in the app within 5 minutes.
+  - Otherwise the order's "If something is missing" choice applies. That choice is set once for the whole order (similar by default) and can be changed per item.
+- **The complaint window (D3).**
+  - The 48 hours start at the courier job's delivered time.
+  - A stuck order can be complained about after 6 hours.
+  - One new ticket is allowed after a decision.
+  - Refused or cancelled orders take a ticket only if money was taken.
+- **Support's thread (D4).** Keep the ticket's own thread, shown inside Support.
+- **The wallet (D5).** Credit only, with no cash-out.
+- **The club (D6).** It renews by a reminder and a payment link, at the owner's prices.
+- **The vendor app (D7).** The third app in the bundle. The in-app Vendor tab stays for small marketplaces.
+- **Cash (D8).** No limit unless the owner sets one. Weighed orders count the estimate plus the tolerance against it.
+- **Stock (D9).** `stock` null means not counted.
+- **Places' own catalog (D10).** Places edit their own catalog and menus, with the owner's Undo.
+- **Customer contact.**
+  - The customer sees the picker's and the courier's first names.
+  - A call goes through a masked number, for the app's couriers only.
+  - A store never reaches a customer.
+
 **What exists and is reused.**
 
 - **Food delivery (105.1):**
