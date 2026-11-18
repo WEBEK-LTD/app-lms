@@ -8,6 +8,22 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 183 (`brand`'s Start now opens the app's main screen): the
+template for every kind of project served its hero's "Start now" opening
+nothing. Each kind now has a main screen (`mainScreenOf`, lib/app/kinds.ts):
+a shop's and a marketplace's `search`, a restaurant's menu (`search`), a
+food company's restaurants, an academy's courses, a booking kind's
+services (a gym's classes), events, listings, articles, campaigns,
+travel's Explore, the ride, a school's School screen (there is no Today
+screen) and a delivery's Send a parcel. A project made from `brand` opens
+it; hosted `GET /pages` gives it to a Studio page's button that names
+nothing, so projects made before are fixed with no change to their pages;
+the owner's own link always wins, and a list's card's buttons are left
+alone. Studio's inspector shows "Opens: <the screen>" for such a button.
+No migration, no contract change, no `CLIENT_APP_RELEASE` change. The
+guard's `brand` tap check passes; its fixtures need regenerating on the
+guard's branch (ROADMAP 183.6).
+
 Roadmap 157 (the template's categories are the shop's): Leqaa's occasion
 rings, chips and ticker and its collections' bento, arches and cards were
 the template's own words, opening the whole shop, whatever categories the

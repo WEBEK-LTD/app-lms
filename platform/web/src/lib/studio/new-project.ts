@@ -1,5 +1,5 @@
 import "server-only";
-import { ENGINES, type KindInfo } from "../app/kinds";
+import { ENGINES, mainScreenOf, type KindInfo } from "../app/kinds";
 import { ownContentSetup } from "../app/own-content";
 import { newApp } from "../app/setup";
 import type { DataStore } from "../data/store";
@@ -90,6 +90,8 @@ export async function makeStudioProject(store: DataStore, input: NewStudioProjec
     app: name,
     w: input.words,
     lang: input.lang,
+    // 183 What a button that names no screen opens (`brand`'s "Start now"): the kind's main screen.
+    main: mainScreenOf(kind),
     // 112.4 Yallapp's pictures in the template's sliders and sections.
     picture: (file: string) => `${appUrl()}/design-pictures/${file}`,
   }, site);

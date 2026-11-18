@@ -28,6 +28,7 @@ import type { PremiumWords } from "@/components/studio/premium";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type TemplateInfo } from "@/lib/studio/sections";
 import { appWord, appWords, premiumAppWords } from "@/lib/studio/app-words";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
+import { mainScreenOfApp } from "@/lib/app/kinds";
 // 129.21–129.24 The Premium group's maps.
 import { PREMIUM_MAPS, type PremiumMapWords } from "@/lib/studio/premium-maps";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
@@ -253,11 +254,14 @@ export function StudioEditor(props: StudioEditorProps) {
     const list = templatesFor(props.kind);
     return [...list.filter((x) => x.id !== "blank"), ...PAGE_TEMPLATES, ...list.filter((x) => x.id === "blank")];
   }, [props.kind]);
+  const mainScreen = useMemo(() => mainScreenOfApp({ appType: props.kind.type, vertical: props.kind.vertical }), [props.kind]);
   const sectionContext: SectionContext = {
     brand: app.brand,
     source,
     // 130.62 The project's kind, for the landing templates' photos, words, screens and live card.
     kind: props.kind,
+    // 183 What `brand`'s "Start now" opens: the project's main screen.
+    main: mainScreen,
     w: appWords(dashLang, app.name),
     app: app.name,
     lang: dashLang,
@@ -1710,6 +1714,7 @@ export function StudioEditor(props: StudioEditorProps) {
             sources={props.sources}
             categorySources={props.categorySources}
             screens={props.screens}
+            mainScreen={mainScreen}
             pageScreens={props.pageScreens}
             pickable={props.pickable}
             fontLabels={fontLabels}
