@@ -4,9 +4,26 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 17 November 2026.
+Last updated: 18 November 2026.
 
 ## Current release
+
+Roadmap 106.11 (Studio Market, the designer's money): each paid template
+sale is written once in the designer's ledger with its split (the sale,
+Yallapp's 25%, their exact 75%, in whole cents). The designer area's
+Earnings shows the balance available, pending and paid out, each sale's
+split and the payouts with their receipts (a page and a PDF, in the
+designer's language). Before the first payout (not before publishing) the
+designer sends their ID with a photo of it and their bank for SWIFT; the ID
+number and the account are encrypted with the platform's key and shown
+masked except to the new `market.payouts` permission (owners and admins).
+Admin › Studio Market › Payout checks approves them or asks for a fix;
+Payouts lists the month's due (USD 250 or more, checks approved, monthly;
+below that the balance carries over), prepares the bank file (CSV), and
+records each transfer the team sends from Yallapp's bank with Mark as sent
+(the designer emailed a receipt). Nothing is sent by the platform.
+Migration `0142_studio_market_money`; the first real payout is to be
+checked by hand (LAUNCH-CHECKLIST, Phase 106.11).
 
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its

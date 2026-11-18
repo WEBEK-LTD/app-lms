@@ -205,7 +205,7 @@ export interface MoneyDeps {
   by: string;
 }
 
-/** The encryption context of a payout's account: bound to it, so a value can't be moved to another row. */
+/** The encryption context of a payout's account: bound to it, so a value can't be moved to another row (the rekey job knows it: lib/jobs/rekey.ts). */
 export const payoutAccountContext = (payoutId: string) => `studio_market_payouts.account:${payoutId}`;
 
 /**

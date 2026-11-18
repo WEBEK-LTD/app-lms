@@ -12,6 +12,8 @@ import { context as connectorContext } from "../hosted/connectors";
 import { SERVICE_ACCOUNT_CONTEXT } from "../hosted/notify";
 import { reviewAccountContext } from "../publishing/review-account";
 import { taxiMapsKeyContext } from "../taxi/settings";
+import { payoutAccountContext } from "../studio-market/money";
+import { payoutDetailsContext } from "../studio-market/payout-details";
 import { settingContext } from "../settings/platform";
 import type { PlatformSettingKey } from "../data/types";
 import { recordJobRun } from "../watch/runs";
@@ -44,6 +46,10 @@ export const CONTEXT_TEMPLATES: ((id: string) => string)[] = [
   taxiMapsKeyContext,
   (id) => settingContext(id as PlatformSettingKey),
   ...Object.values(signingContext),
+  // 106.11 A designer's ID number and bank account, and a payout's account.
+  (id) => payoutDetailsContext(id, "id_number"),
+  (id) => payoutDetailsContext(id, "account"),
+  payoutAccountContext,
 ];
 
 export interface RekeyState {

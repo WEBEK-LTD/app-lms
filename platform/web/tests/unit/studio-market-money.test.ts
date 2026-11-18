@@ -7,7 +7,8 @@ import { ADMIN_ROLES, can } from "@/lib/admin/permissions";
 import { kindById } from "@/lib/app/kinds";
 import { registerClient } from "@/lib/auth/accounts";
 import type { BlobStore } from "@/lib/blobs";
-import { decrypt } from "@/lib/crypto/encryption";
+import { decrypt, keyId, keyIdOf, withOldKeys } from "@/lib/crypto/encryption";
+import { runRekey } from "@/lib/jobs/rekey";
 import { MemoryStore } from "@/lib/data/memory";
 import { isPrivateAsset, type App, type MarketTemplate, type TemplateDesigner, type TemplateOrder } from "@/lib/data/types";
 import { renderEmail } from "@/lib/email/send";
@@ -498,6 +499,23 @@ describe("106.11 encrypted at rest, masked when shown", () => {
     warn.mockRestore();
     error.mockRestore();
     expect(details.status).toBe("approved");
+  });
+
+  it("moves the sealed values to a new key with the rekey job, like every other secret", async () => {
+    const { designer, template } = await paidTemplate(40_000);
+    await checks(designer);
+    await sell(template, fakeKashier());
+    const [payout] = (await preparePayouts(team(at(1)))).prepared;
+    // A new platform key, the old one kept to open what it sealed until the job moved it.
+    const next = withOldKeys(Buffer.alloc(32, 4), [KEY]);
+    const state = await runRekey(store, next, { clock: () => at(2) });
+    expect(state).toMatchObject({ done: true, failed: 0 });
+    expect(state!.moved).toBeGreaterThanOrEqual(3);
+    const details = (await store.getDesignerPayoutDetails(designer.id))!;
+    const moved = (await store.getDesignerPayout(payout!.id))!;
+    for (const value of [details.idNumberEncrypted, details.accountEncrypted, moved.accountEncrypted]) expect(keyIdOf(value)).toBe(keyId(next));
+    const fresh = Buffer.alloc(32, 4);
+    expect([detailsIdNumber(details, fresh), detailsAccount(details, fresh), payoutAccount(moved, fresh)]).toEqual([ID_NUMBER, IBAN, IBAN]);
   });
 
   it("keeps the ID document private and IBANs out of the audit log", () => {

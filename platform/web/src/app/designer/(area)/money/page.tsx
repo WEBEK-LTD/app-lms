@@ -13,7 +13,7 @@ import { encryptionKey } from "@/lib/env";
 import { designerMoney, PAYOUT_MIN_CENTS, payoutPeriod } from "@/lib/studio-market/money";
 import { detailsView } from "@/lib/studio-market/payout-details";
 import { payoutMonth } from "@/lib/studio-market/payout-receipt";
-import { formatUsd } from "@/lib/studio-market/plans";
+import { formatUsd, ltr } from "@/lib/studio-market/plans";
 import { templateText } from "@/lib/studio-market/templates";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -55,17 +55,18 @@ export default async function DesignerMoneyPage({ searchParams }: PageProps<"/de
     none: ["bg-line-soft text-muted", "badge", t("marketMoney.checksNone")],
   };
   const checksState = details?.status ?? "none";
-  const account = (p: Pick<DesignerPayout, "bankName" | "accountHint">) => ({ bank: p.bankName, account: p.accountHint });
 
+  /** An amount inside a sentence, kept left to right in Arabic ("$300", not "300$"). */
+  const amount = (cents: number) => ltr(formatUsd(cents), lang);
   /** What happens next with their money, in one line. */
   const nextLine = (d: DesignerPayoutDetails | null) => {
-    if (onWay) return t("marketMoney.stateOnWay", { amount: formatUsd(onWay.amountCents), ...account(onWay) });
+    if (onWay) return t("marketMoney.stateOnWay", { amount: amount(onWay.amountCents), bank: onWay.bankName, account: ltr(onWay.accountHint, lang) });
     if (!d) return t("marketMoney.stateNone");
     if (d.status === "submitted") return t("marketMoney.stateSubmitted");
     if (d.status === "changes_requested") return t("marketMoney.stateFix");
-    if (money.availableCents < PAYOUT_MIN_CENTS) return t("marketMoney.stateBelow", { amount: formatUsd(money.availableCents), left: formatUsd(PAYOUT_MIN_CENTS - money.availableCents) });
-    if (!thisMonth) return t("marketMoney.stateDue", { amount: formatUsd(money.availableCents), bank: d.bankName, account: detailsView(d, encryptionKey(), false).account });
-    return t("marketMoney.stateNextMonth", { amount: formatUsd(money.availableCents) });
+    if (money.availableCents < PAYOUT_MIN_CENTS) return t("marketMoney.stateBelow", { amount: amount(money.availableCents), left: amount(PAYOUT_MIN_CENTS - money.availableCents) });
+    if (!thisMonth) return t("marketMoney.stateDue", { amount: amount(money.availableCents), bank: d.bankName, account: ltr(detailsView(d, encryptionKey(), false).account, lang) });
+    return t("marketMoney.stateNextMonth", { amount: amount(money.availableCents) });
   };
 
   const th = "border-b border-[var(--mk-hair2)] bg-[var(--mk-mat)] px-4 py-3 text-start text-[13px] font-semibold whitespace-nowrap text-muted";

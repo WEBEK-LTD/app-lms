@@ -1889,3 +1889,39 @@ Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
       showing "Courses" over the Bouquets tab.
 - [ ] On a phone with a release 4 build: publish a change in Studio, switch
       away from the app and back, and see it without restarting the app.
+
+## Phase 106.11: The designer's money (Studio Market payouts)
+
+- [ ] Migration `0142_studio_market_money` runs with the others at deploy
+      (after `0141_auto_screenshots`). Sales paid before it are put in the
+      designers' ledger by the next daily job (and when Admin › Studio
+      Market › Payouts or a designer's Earnings is opened): check that a
+      designer's "Earned in all" is 75% of their paid sales in Admin ›
+      Studio Market › Sales.
+- [ ] Admin › Team: Studio Market payouts (`market.payouts`) is the owners'
+      and admins'. Support still reviews templates but sees designers' ID
+      numbers and accounts masked and can't open their IDs.
+- [ ] Update the privacy page and the designer terms: for payouts we keep a
+      designer's ID (its number and a photo or PDF of it) and their bank
+      details, encrypted, seen only by the team that pays designers.
+- [ ] Match the bank file to Yallapp's bank: download it once (Payouts ›
+      Download the bank file) and check its columns against the bank's bulk
+      SWIFT import, or keep it for typing each transfer by hand.
+- [ ] The first real payout, checked by hand before and after:
+      - In Payout checks, open the designer's ID and compare it with the
+        name, the country and the account's holder; check the IBAN's country
+        and the SWIFT/BIC against the bank; approve.
+      - In Payouts, the designer shows under "Due" with USD 250 or more;
+        Prepare the bank file and compare the CSV row's amount with their
+        Earnings (Balance available, then Pending) and with Sales (75% of
+        their sales less what was paid before).
+      - Send the transfer from Yallapp's bank in US dollars for exactly that
+        amount, Yallapp paying every fee (SWIFT "OUR": the designer gets the
+        whole 75%).
+      - Mark as sent with the bank's reference and the day it went out; the
+        designer gets the receipt email in their language with its PDF, and
+        their Earnings shows it under Paid out.
+      - Ask the designer to confirm the amount arrived in full.
+- [ ] A prepared payout the bank didn't send: Cancel it with why (its amount
+      goes back to the balance). A transfer returned after it was marked
+      sent has no button yet: record it with the developers.

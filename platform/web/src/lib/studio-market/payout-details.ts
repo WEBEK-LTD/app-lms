@@ -80,8 +80,9 @@ export function maskId(value: string): string {
   return maskAccount(value, "number");
 }
 
-/** The encryption contexts: each value bound to its designer and field. */
-const context = (designerId: string, field: "id_number" | "account") => `studio_market_payout_details.${field}:${designerId}`;
+/** The encryption contexts: each value bound to its designer and field (the rekey job knows them: lib/jobs/rekey.ts). */
+export const payoutDetailsContext = (designerId: string, field: "id_number" | "account") => `studio_market_payout_details.${field}:${designerId}`;
+const context = payoutDetailsContext;
 
 export function detailsIdNumber(details: Pick<DesignerPayoutDetails, "designerId" | "idNumberEncrypted">, key: Buffer): string {
   return decrypt(details.idNumberEncrypted, key, context(details.designerId, "id_number"));
