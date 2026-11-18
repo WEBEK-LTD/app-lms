@@ -16,6 +16,17 @@ folded, Studio's plans on a night band, every kind of app each product
 makes, a few questions and a closing band in the night. Only the plans for
 sale show, with their prices from Admin › Plans.
 
+Roadmap 152 (Our bouquet's chips and button open the product the owner
+links): in Leqaa's looks and the apps made from them (Kech Flora), the
+bouquet's size chips and "Choose this bouquet" open the shop until the
+owner links each to one of their products in Studio ("When the customer
+taps": A product, from the app's own products, with the hint that without
+one it opens the shop). A linked one opens its product; one with no product
+chosen, or whose product the shop no longer has, opens the shop: hosted
+`GET /pages` sends both as the shop, so apps already in the stores follow
+it, and the app does the same from `CLIENT_APP_RELEASE` 7 (WooCommerce
+stores' pages too). Not yet tried on a phone (ROADMAP 152.7).
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build
