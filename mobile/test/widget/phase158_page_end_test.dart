@@ -625,12 +625,6 @@ void _expectEndInReach(WidgetTester tester, String why) {
   final size = _screen(tester);
   for (final p in _positions(tester)) {
     if (p.viewportDimension < size.height * 0.4) continue;
-    if (const bool.fromEnvironment('PAGE_END_DEBUG')) {
-      debugPrint(
-        'DEBUG $why ${p.pixels} / ${p.maxScrollExtent} '
-        '(${p.viewportDimension}) ${p.context.notificationContext?.widget}',
-      );
-    }
     expect(
       p.pixels,
       greaterThanOrEqualTo(p.maxScrollExtent - 1),
@@ -662,9 +656,6 @@ void _expectEndInReach(WidgetTester tester, String why) {
   }
   expect(lowest, greaterThan(0), reason: '$why: the page shows something');
   final clear = _clearAbove(tester);
-  if (const bool.fromEnvironment('PAGE_END_DEBUG')) {
-    debugPrint('DEBUG $why lowest $lowest ("$what") clear $clear');
-  }
   expect(
     lowest,
     lessThanOrEqualTo(clear + 0.5),
