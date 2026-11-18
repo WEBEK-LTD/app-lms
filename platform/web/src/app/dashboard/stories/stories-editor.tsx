@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState, useTransition } from "react";
+import { useId, useRef, useState, useTransition } from "react";
 import { deleteStoryAction, reorderStoriesAction, saveStoryAction, setStoryEnabledAction, type StoriesResult } from "@/app/actions/stories";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { Icon } from "@/components/icon";
@@ -111,9 +111,13 @@ export function StoriesEditor(props: Props) {
   const main = props.languages[0]?.code ?? "en";
   const nameOf = (s: { texts: Record<string, AppStoryTexts> }) => s.texts[main]?.title || s.texts[main]?.ring || Object.values(s.texts).find((x) => x.title || x.ring)?.title || t("stories.untitled");
 
+  // Only the latest answer is the list now: an earlier one (a move clicked before the last) arriving after it would put an older order back.
+  const latest = useRef(0);
   const run = (work: () => Promise<StoriesResult>, done: string, after?: () => void) =>
     start(async () => {
+      const asked = ++latest.current;
       const r = await work();
+      if (asked !== latest.current) return;
       if (r.ok) {
         setStories(r.stories);
         setErrors([]);

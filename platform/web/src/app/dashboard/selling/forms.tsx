@@ -516,7 +516,8 @@ export function BouquetForm({ values: saved, categories, addons, platform }: { v
     <form action={action} noValidate className="flex flex-col gap-4" data-bouquet-form="">
       <FormMessage message={state.message} ok={state.ok} />
       <label className="flex cursor-pointer items-start gap-3">
-        <input type="checkbox" name="bouquet" value="on" checked={on} onChange={(ev) => setOn(ev.target.checked)} className="mt-1 h-4 w-4 accent-midnight" />
+        {/* Not controlled: the form's reset after a save (React's form action) puts it back to what was sent, as the other boxes. */}
+        <input type="checkbox" name="bouquet" value="on" defaultChecked={v.bouquet === "on"} onChange={(ev) => setOn(ev.target.checked)} className="mt-1 h-4 w-4 accent-midnight" />
         <span className="flex flex-col gap-0.5">
           <span className="text-[15px] font-semibold">{t("selling.bouquetOn")}</span>
           <span className="text-[13px] text-muted">{t("selling.bouquetOnHint")}</span>
@@ -531,7 +532,7 @@ export function BouquetForm({ values: saved, categories, addons, platform }: { v
           <legend className="mb-1.5 text-sm font-semibold">{t("selling.bouquetWraps")}</legend>
           {(["addons", "category"] as const).map((k) => (
             <label key={k} className="flex cursor-pointer items-center gap-2 text-sm">
-              <input type="radio" name="wrapsFrom" value={k} checked={from === k} onChange={() => setFrom(k)} className="h-4 w-4 accent-midnight" />
+              <input type="radio" name="wrapsFrom" value={k} defaultChecked={(v.wrapsFrom === "category" ? "category" : "addons") === k} onChange={() => setFrom(k)} className="h-4 w-4 accent-midnight" />
               {t(k === "addons" ? "selling.bouquetWrapsAddons" : "selling.bouquetWrapsCategory")}
             </label>
           ))}

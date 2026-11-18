@@ -395,7 +395,7 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
   };
 
   // A first order: no points yet; completed, it earns 35 (₺350 of products).
-  expect((await (await request.post(`${api}/store/cart`, { headers, data: { lines, use_points: true } })).json()).points).toEqual({ balance: 0, usable: 0, usable_value: null, applied: false, discount: null });
+  expect((await (await request.post(`${api}/store/cart`, { headers, data: { lines, use_points: true } })).json()).points).toEqual({ balance: 0, usable: 0, usable_value: null, applied: false, discount: null, currency: "TRY", usable_value_amount: null, discount_amount: null });
   await pay({}, "₺400.00");
   await page.goto("/dashboard/orders");
   await page.getByRole("listitem").filter({ hasText: "Deniz Kaya" }).getByRole("button", { name: "Mark completed" }).click();
