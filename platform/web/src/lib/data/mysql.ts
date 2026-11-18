@@ -31,6 +31,10 @@ import { APP_TABLES, type AppTableRole } from "../apps/app-tables";
 import mysql from "mysql2/promise";
 import type { DatabaseConfig } from "../env";
 import { newId } from "../crypto/tokens";
+import { likeEscape, normalizeSearch, productSearchName } from "../market/search-name";
+import { decodeProductCursor, encodeProductCursor } from "../market/product-paging";
+import { perVendorTake } from "../market/top-k";
+import { MARKET_COUNT_CAP } from "./types";
 import { membershipToUse } from "../bookings/memberships";
 import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
@@ -84,6 +88,13 @@ import type {
   MarketProduct,
   MarketProductInput,
   MarketProductQuery,
+  MarketProductPage,
+  MarketStockLine,
+  MarketStockMove,
+  MarketStockTake,
+  MarketStockWho,
+  MarketCatalogChange,
+  MarketCatalogChangeInput,
 } from "./types";
 import { dishNamesOf } from "../food/menu";
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
@@ -5694,12 +5705,33 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.vendorId, vendorId), eq(t.id, id))));
   }
 
-  async listMarketProducts(query: MarketProductQuery): Promise<{ items: MarketProduct[]; total: number }> {
+  /** 115.24 A product's columns as the store returns them (its search name stays in the database). */
+  private productColumns() {
+    const { searchName: _s, ...columns } = getTableColumns(schema.marketProducts);
+    void _s;
+    return columns;
+  }
+
+  /** 115.24 Products saved before their search name was kept get it, a few hundred at a time, before the vendor's catalog is searched. */
+  private async fillSearchNames(appId: string, vendorIds: number[]): Promise<void> {
     const t = schema.marketProducts;
-    const q = query.q?.trim() ?? "";
+    if (!vendorIds.length) return;
+    const rows = await this.run((db) =>
+      db
+        .select({ id: t.id, name: t.name, names: t.names, brand: t.brand })
+        .from(t)
+        .where(and(eq(t.appId, appId), inArray(t.vendorId, vendorIds), eq(t.searchName, "")))
+        .limit(500),
+    );
+    for (const r of rows) await this.run((db) => db.update(t).set({ searchName: productSearchName(r) || "#" }).where(eq(t.id, r.id)));
+  }
+
+  async listMarketProducts(query: MarketProductQuery): Promise<MarketProductPage> {
+    const t = schema.marketProducts;
+    const q = normalizeSearch(query.q ?? "");
     const code = query.code?.trim() ?? "";
-    const pattern = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
-    const where = and(
+    if (q) await this.fillSearchNames(query.appId, [query.vendorId]);
+    const base = and(
       eq(t.appId, query.appId),
       eq(t.vendorId, query.vendorId),
       query.departmentId === undefined ? undefined : eq(t.departmentId, query.departmentId),
@@ -5708,28 +5740,83 @@ export class MysqlStore implements DataStore {
       query.withPhoto ? isNotNull(t.imageAssetId) : undefined,
       query.withoutPhoto ? isNull(t.imageAssetId) : undefined,
       code ? or(eq(t.barcode, code), eq(t.sku, code)) : undefined,
-      q ? or(like(t.name, pattern), like(t.brand, pattern), like(t.description, pattern)) : undefined,
     );
-    const [items, totals] = await Promise.all([
-      this.run((db) =>
-        db
-          .select()
-          .from(t)
-          .where(where)
-          .orderBy(desc(t.inStock), asc(t.position), asc(t.id))
-          .limit(query.perPage)
-          .offset((query.page - 1) * query.perPage),
-      ),
-      this.run((db) => db.select({ n: count() }).from(t).where(where)),
-    ]);
-    return { items, total: Number(totals[0]?.n ?? 0) };
+    const prefix = q ? like(t.searchName, `${likeEscape(q)}%`) : undefined;
+    // From a word's start, not the name's (those came first).
+    const word = q ? and(like(t.searchName, `% ${likeEscape(q)}%`), not(like(t.searchName, `${likeEscape(q)}%`))) : undefined;
+    const columns = this.productColumns();
+    const limit = query.perPage;
+    if (query.cursor === undefined) {
+      // By number, counted up to the cap (never the whole of a big catalog).
+      const offset = (query.page - 1) * query.perPage;
+      const capped = (where: SQL | undefined) =>
+        this.run(async (db) => {
+          const [row] = await db.select({ n: sql<number>`count(*)` }).from(db.select({ one: sql`1` }).from(t).where(where).limit(MARKET_COUNT_CAP).as("capped"));
+          return Number(row?.n ?? 0);
+        });
+      if (!q) {
+        const [items, total] = await Promise.all([this.run((db) => db.select(columns).from(t).where(base).orderBy(desc(t.inStock), asc(t.position), asc(t.id)).limit(limit).offset(offset)), capped(base)]);
+        return { items, total, nextCursor: null };
+      }
+      const [first, words] = await Promise.all([capped(and(base, prefix)), capped(and(base, word))]);
+      const fromFirst = offset < first ? await this.run((db) => db.select(columns).from(t).where(and(base, prefix)).orderBy(asc(t.searchName), asc(t.id)).limit(limit).offset(offset)) : [];
+      const rest = limit - fromFirst.length;
+      const fromWords = rest > 0 ? await this.run((db) => db.select(columns).from(t).where(and(base, word)).orderBy(asc(t.id)).limit(rest).offset(Math.max(0, offset - first))) : [];
+      return { items: [...fromFirst, ...fromWords], total: Math.min(MARKET_COUNT_CAP, first + words), nextCursor: null };
+    }
+    const after = decodeProductCursor(query.cursor);
+    if (!q) {
+      const c = after?.k === "s" ? after : null;
+      // In stock first (descending), then position and id: the rows after the cursor's.
+      const past = c
+        ? or(lt(t.inStock, c.s === 1), and(eq(t.inStock, c.s === 1), or(gt(t.position, c.p), and(eq(t.position, c.p), gt(t.id, c.i)))))
+        : undefined;
+      const rows = await this.run((db) => db.select(columns).from(t).where(and(base, past)).orderBy(desc(t.inStock), asc(t.position), asc(t.id)).limit(limit + 1));
+      const items = rows.slice(0, limit);
+      const last = items[items.length - 1];
+      return { items, total: null, nextCursor: rows.length > limit && last ? encodeProductCursor({ k: "s", s: last.inStock ? 1 : 0, p: last.position, i: last.id }) : null };
+    }
+    let items: MarketProduct[] = [];
+    if (!after || after.k === "n") {
+      const past = after ? or(gt(t.searchName, after.n), and(eq(t.searchName, after.n), gt(t.id, after.i))) : undefined;
+      const rows = await this.run((db) => db.select({ ...columns, searchName: t.searchName }).from(t).where(and(base, prefix, past)).orderBy(asc(t.searchName), asc(t.id)).limit(limit + 1));
+      if (rows.length > limit) {
+        const last = rows[limit - 1]!;
+        return { items: rows.slice(0, limit).map(withoutSearchName), total: null, nextCursor: encodeProductCursor({ k: "n", n: last.searchName, i: last.id }) };
+      }
+      items = rows.map(withoutSearchName);
+    }
+    const fromId = after?.k === "w" ? after.i : 0;
+    const more = await this.run((db) => db.select(columns).from(t).where(and(base, word, gt(t.id, fromId))).orderBy(asc(t.id)).limit(limit - items.length + 1));
+    const page = [...items, ...more];
+    const out = page.slice(0, limit);
+    const last = out[out.length - 1];
+    return { items: out, total: null, nextCursor: page.length > limit && last ? encodeProductCursor({ k: "w", i: last.id }) : null };
+  }
+
+  async searchMarketProducts(input: { appId: string; vendorIds: number[]; q: string; withPhoto?: boolean; perVendor: number; limit: number }): Promise<MarketProduct[]> {
+    const t = schema.marketProducts;
+    const q = normalizeSearch(input.q);
+    if (!q || !input.vendorIds.length) return [];
+    await this.fillSearchNames(input.appId, input.vendorIds);
+    const base = and(eq(t.appId, input.appId), inArray(t.vendorId, input.vendorIds), eq(t.inStock, true), or(isNull(t.stock), gt(t.stock, 0)), input.withPhoto ? isNotNull(t.imageAssetId) : undefined);
+    const columns = this.productColumns();
+    // One query for every vendor: a few more than needed, so each vendor's few can be kept.
+    const take = Math.min(500, input.limit * 4);
+    const first = await this.run((db) => db.select(columns).from(t).where(and(base, like(t.searchName, `${likeEscape(q)}%`))).orderBy(asc(t.searchName), asc(t.id)).limit(take));
+    let rows = perVendorTake(first, input.perVendor, input.limit);
+    if (rows.length < input.limit) {
+      const words = await this.run((db) => db.select(columns).from(t).where(and(base, like(t.searchName, `% ${likeEscape(q)}%`), not(like(t.searchName, `${likeEscape(q)}%`)))).orderBy(asc(t.searchName), asc(t.id)).limit(take));
+      rows = perVendorTake([...first, ...words], input.perVendor, input.limit);
+    }
+    return rows;
   }
 
   async listMarketProductsAwaitingPhoto(limit: number, only?: { appId: string; vendorId: number }): Promise<MarketProduct[]> {
     const t = schema.marketProducts;
     return this.run((db) =>
       db
-        .select()
+        .select(this.productColumns())
         .from(t)
         .where(and(isNull(t.imageAssetId), isNull(t.photoError), isNotNull(t.imageUrl), only ? and(eq(t.appId, only.appId), eq(t.vendorId, only.vendorId)) : undefined))
         .orderBy(asc(t.id))
@@ -5739,14 +5826,14 @@ export class MysqlStore implements DataStore {
 
   async getMarketProduct(appId: string, id: number): Promise<MarketProduct | null> {
     const t = schema.marketProducts;
-    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    const [row] = await this.run((db) => db.select(this.productColumns()).from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
     return row ?? null;
   }
 
   async createMarketProduct(input: MarketProductInput, now: Date): Promise<{ ok: true; product: MarketProduct } | { ok: false; reason: "duplicate_sku" }> {
-    const values = { ...input, createdAt: now, updatedAt: now };
+    const values = { ...input, names: input.names ?? null, minQuantity: input.minQuantity ?? null, createdAt: now, updatedAt: now };
     try {
-      const [result] = await this.run((db) => db.insert(schema.marketProducts).values(values));
+      const [result] = await this.run((db) => db.insert(schema.marketProducts).values({ ...values, searchName: productSearchName(values) || "#" }));
       return { ok: true, product: { id: Number(result.insertId), ...values } };
     } catch (error) {
       if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate_sku" };
@@ -5759,8 +5846,15 @@ export class MysqlStore implements DataStore {
     const { appId: _a, vendorId: _v, ...rest } = patch as typeof patch & { appId?: string; vendorId?: number };
     void _a;
     void _v;
+    // 115.24 A new name, other names or brand: the search name again, from the row as it will be.
+    let searchName: string | undefined;
+    if (rest.name !== undefined || rest.names !== undefined || rest.brand !== undefined) {
+      const current = await this.getMarketProduct(appId, id);
+      if (!current) return { ok: false };
+      searchName = productSearchName({ ...current, ...rest }) || "#";
+    }
     try {
-      const [result] = await this.run((db) => db.update(t).set({ ...rest, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+      const [result] = await this.run((db) => db.update(t).set({ ...rest, ...(searchName !== undefined ? { searchName } : {}), updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
       if (result.affectedRows === 1) return { ok: true };
       return { ok: (await this.getMarketProduct(appId, id)) !== null };
     } catch (error) {
@@ -5776,6 +5870,7 @@ export class MysqlStore implements DataStore {
 
   async upsertMarketProducts(appId: string, vendorId: number, rows: Omit<MarketProductInput, "appId" | "vendorId">[], now: Date): Promise<{ created: number; updated: number }> {
     const t = schema.marketProducts;
+    const m = schema.marketStockMoves;
     if (rows.length === 0 || !(await this.ownsVendor(appId, vendorId))) return { created: 0, updated: 0 };
     let created = 0;
     let updated = 0;
@@ -5789,29 +5884,201 @@ export class MysqlStore implements DataStore {
           ? []
           : await this.run((db) =>
               db
-                .select({ id: t.id, sku: t.sku, barcode: t.barcode })
+                .select({ id: t.id, sku: t.sku, barcode: t.barcode, stock: t.stock })
                 .from(t)
                 .where(and(eq(t.appId, appId), eq(t.vendorId, vendorId), or(skus.length ? inArray(t.sku, skus) : undefined, barcodes.length ? inArray(t.barcode, barcodes) : undefined))),
             );
-      const bySku = new Map(found.flatMap((f) => (f.sku !== null ? [[f.sku, f.id] as const] : [])));
-      const byBarcode = new Map(found.flatMap((f) => (f.barcode !== null ? [[f.barcode, f.id] as const] : [])));
+      const bySku = new Map(found.flatMap((f) => (f.sku !== null ? [[f.sku, f] as const] : [])));
+      const byBarcode = new Map(found.flatMap((f) => (f.barcode !== null ? [[f.barcode, f] as const] : [])));
       const inserts: (typeof t.$inferInsert)[] = [];
+      const moves: (typeof m.$inferInsert)[] = [];
+      const seen = new Set<string>();
       for (const row of chunk) {
-        const id = (row.sku !== null ? bySku.get(row.sku) : undefined) ?? (row.sku === null && row.barcode !== null ? byBarcode.get(row.barcode) : undefined);
-        if (id !== undefined) {
-          await this.run((db) => db.update(t).set({ ...row, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+        const hit = (row.sku !== null ? bySku.get(row.sku) : undefined) ?? (row.sku === null && row.barcode !== null ? byBarcode.get(row.barcode) : undefined);
+        const values = { ...row, names: row.names ?? null, minQuantity: row.minQuantity ?? null, searchName: productSearchName(row) || "#" };
+        if (hit) {
+          await this.run((db) => db.update(t).set({ ...values, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, hit.id))));
+          // 115.24 Stock an import changes is in the ledger too.
+          if ((hit.stock ?? null) !== (row.stock ?? null)) moves.push({ appId, vendorId, productId: hit.id, orderId: null, lineId: null, reason: "import", delta: (row.stock ?? 0) - (hit.stock ?? 0), before: hit.stock, after: row.stock, by: "vendor", byName: null, undoOf: null, createdAt: now });
+          hit.stock = row.stock;
           updated += 1;
-        } else {
-          inserts.push({ ...row, appId, vendorId, createdAt: now, updatedAt: now });
-          if (row.sku !== null) bySku.set(row.sku, -1);
+        } else if (row.sku === null || !seen.has(row.sku)) {
+          inserts.push({ ...values, appId, vendorId, createdAt: now, updatedAt: now });
+          if (row.sku !== null) seen.add(row.sku);
         }
       }
       if (inserts.length) {
         await this.run((db) => db.insert(t).values(inserts));
         created += inserts.length;
+        // The new rows' starting stock, by their SKU or barcode (ids aren't returned for many rows).
+        const counted = inserts.filter((r) => r.stock !== null && r.stock !== undefined);
+        if (counted.length) {
+          const keys = counted.flatMap((r) => (r.sku ? [r.sku] : []));
+          const codes = counted.flatMap((r) => (!r.sku && r.barcode ? [r.barcode] : []));
+          const made = await this.run((db) =>
+            db
+              .select({ id: t.id, stock: t.stock })
+              .from(t)
+              .where(and(eq(t.appId, appId), eq(t.vendorId, vendorId), eq(t.createdAt, now), isNotNull(t.stock), or(keys.length ? inArray(t.sku, keys) : undefined, codes.length ? inArray(t.barcode, codes) : undefined))),
+          );
+          for (const r of made) moves.push({ appId, vendorId, productId: r.id, orderId: null, lineId: null, reason: "import", delta: r.stock ?? 0, before: null, after: r.stock, by: "vendor", byName: null, undoOf: null, createdAt: now });
+        }
       }
+      if (moves.length) await this.run((db) => db.insert(m).values(moves));
     }
     return { created, updated };
+  }
+
+  // 115.24 Stock and its ledger; the catalog's changes
+
+  async takeMarketStock(appId: string, orderId: number, lines: MarketStockLine[], reason: "order" | "substitute", who: MarketStockWho, now: Date, clamp = false): Promise<MarketStockTake> {
+    const t = schema.marketProducts;
+    const m = schema.marketStockMoves;
+    const wanted = lines.filter((l) => l.units > 0);
+    if (!wanted.length) return { ok: true, moves: [] };
+    // Locked in the products' order, so two orders never wait on each other.
+    const sorted = [...wanted].sort((a, b) => a.productId - b.productId || a.lineId - b.lineId);
+    const refusal = new Error("out_of_stock");
+    let refused: { productId: number; left: number } | null = null;
+    try {
+      const moves = await this.run((db) =>
+        db.transaction(async (tx) => {
+          const out: MarketStockMove[] = [];
+          for (const l of sorted) {
+            const [row] = await tx.select({ stock: t.stock, inStock: t.inStock, vendorId: t.vendorId }).from(t).where(and(eq(t.appId, appId), eq(t.id, l.productId))).for("update");
+            if (!row || row.stock === null) continue;
+            const [done] = await tx.select({ id: m.id }).from(m).where(and(eq(m.orderId, orderId), eq(m.lineId, l.lineId), eq(m.productId, l.productId), eq(m.reason, reason))).limit(1);
+            if (done) continue;
+            if (row.stock < l.units && !clamp) {
+              refused = { productId: l.productId, left: row.stock };
+              throw refusal;
+            }
+            const units = Math.min(l.units, row.stock);
+            if (units <= 0) continue;
+            const after = row.stock - units;
+            await tx.update(t).set({ stock: after, ...(after === 0 ? { inStock: false } : {}), updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, l.productId)));
+            const move = { appId, vendorId: row.vendorId, productId: l.productId, orderId, lineId: l.lineId, reason, delta: -units, before: row.stock, after, by: who.by, byName: who.byName, undoOf: null, createdAt: now };
+            const [result] = await tx.insert(m).values(move);
+            out.push({ id: Number(result.insertId), ...move });
+          }
+          return out;
+        }),
+      );
+      return { ok: true, moves };
+    } catch (error) {
+      if (error === refusal && refused) return { ok: false, ...(refused as { productId: number; left: number }) };
+      throw error;
+    }
+  }
+
+  async returnMarketStock(appId: string, orderId: number, lineIds: number[] | null, who: MarketStockWho, now: Date): Promise<MarketStockMove[]> {
+    const t = schema.marketProducts;
+    const m = schema.marketStockMoves;
+    if (lineIds !== null && !lineIds.length) return [];
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        const taken = await tx
+          .select()
+          .from(m)
+          .where(and(eq(m.appId, appId), eq(m.orderId, orderId), inArray(m.reason, ["order", "substitute"]), lineIds === null ? undefined : inArray(m.lineId, lineIds)))
+          .orderBy(asc(m.productId), asc(m.id));
+        const out: MarketStockMove[] = [];
+        for (const x of taken) {
+          const [row] = await tx.select({ stock: t.stock }).from(t).where(and(eq(t.appId, appId), eq(t.id, x.productId))).for("update");
+          if (!row || row.stock === null) continue;
+          const [done] = await tx.select({ id: m.id }).from(m).where(and(eq(m.orderId, orderId), eq(m.lineId, x.lineId!), eq(m.productId, x.productId), eq(m.reason, "return"))).limit(1);
+          if (done) continue;
+          const after = row.stock - x.delta;
+          await tx.update(t).set({ stock: after, ...(row.stock === 0 && after > 0 ? { inStock: true } : {}), updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, x.productId)));
+          const move = { appId, vendorId: x.vendorId, productId: x.productId, orderId, lineId: x.lineId, reason: "return" as const, delta: -x.delta, before: row.stock, after, by: who.by, byName: who.byName, undoOf: null, createdAt: now };
+          const [result] = await tx.insert(m).values(move);
+          out.push({ id: Number(result.insertId), ...move });
+        }
+        return out;
+      }),
+    );
+  }
+
+  async setMarketStock(appId: string, productId: number, stock: number | null, reason: "edit" | "import" | "undo", who: MarketStockWho, now: Date, undoOf: number | null = null): Promise<{ move: MarketStockMove | null } | null> {
+    const t = schema.marketProducts;
+    const m = schema.marketStockMoves;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        const [row] = await tx.select({ stock: t.stock, vendorId: t.vendorId }).from(t).where(and(eq(t.appId, appId), eq(t.id, productId))).for("update");
+        if (!row) return null;
+        const after = stock === null ? null : Math.max(0, Math.floor(stock));
+        if (row.stock === after) return { move: null };
+        await tx
+          .update(t)
+          .set({ stock: after, ...(after === 0 ? { inStock: false } : after !== null && row.stock === 0 ? { inStock: true } : {}), updatedAt: now })
+          .where(and(eq(t.appId, appId), eq(t.id, productId)));
+        const move = { appId, vendorId: row.vendorId, productId, orderId: null, lineId: null, reason, delta: (after ?? 0) - (row.stock ?? 0), before: row.stock, after, by: who.by, byName: who.byName, undoOf, createdAt: now };
+        const [result] = await tx.insert(m).values(move);
+        return { move: { id: Number(result.insertId), ...move } };
+      }),
+    );
+  }
+
+  async listMarketStockMoves(appId: string, query: { vendorId?: number; productId?: number; orderId?: number; limit: number; beforeId?: number }): Promise<MarketStockMove[]> {
+    const m = schema.marketStockMoves;
+    return this.run((db) =>
+      db
+        .select()
+        .from(m)
+        .where(
+          and(
+            eq(m.appId, appId),
+            query.vendorId === undefined ? undefined : eq(m.vendorId, query.vendorId),
+            query.productId === undefined ? undefined : eq(m.productId, query.productId),
+            query.orderId === undefined ? undefined : eq(m.orderId, query.orderId),
+            query.beforeId === undefined ? undefined : lt(m.id, query.beforeId),
+          ),
+        )
+        .orderBy(desc(m.id))
+        .limit(query.limit),
+    );
+  }
+
+  async getMarketStockMove(appId: string, id: number): Promise<MarketStockMove | null> {
+    const m = schema.marketStockMoves;
+    const [row] = await this.run((db) => db.select().from(m).where(and(eq(m.appId, appId), eq(m.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async addMarketCatalogChange(input: MarketCatalogChangeInput): Promise<MarketCatalogChange> {
+    const [result] = await this.run((db) => db.insert(schema.marketCatalogChanges).values({ ...input, undoneAt: null }));
+    return { id: Number(result.insertId), ...input, undoneAt: null };
+  }
+
+  async listMarketCatalogChanges(appId: string, query: { vendorId?: number; open?: boolean; by?: MarketCatalogChange["by"]; limit: number }): Promise<MarketCatalogChange[]> {
+    const c = schema.marketCatalogChanges;
+    return this.run((db) =>
+      db
+        .select()
+        .from(c)
+        .where(
+          and(
+            eq(c.appId, appId),
+            query.vendorId === undefined ? undefined : eq(c.vendorId, query.vendorId),
+            query.open === undefined ? undefined : query.open ? isNull(c.undoneAt) : isNotNull(c.undoneAt),
+            query.by === undefined ? undefined : eq(c.by, query.by),
+          ),
+        )
+        .orderBy(desc(c.id))
+        .limit(query.limit),
+    );
+  }
+
+  async getMarketCatalogChange(appId: string, id: number): Promise<MarketCatalogChange | null> {
+    const c = schema.marketCatalogChanges;
+    const [row] = await this.run((db) => db.select().from(c).where(and(eq(c.appId, appId), eq(c.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async markMarketCatalogChangeUndone(appId: string, id: number, now: Date): Promise<boolean> {
+    const c = schema.marketCatalogChanges;
+    const [result] = await this.run((db) => db.update(c).set({ undoneAt: now }).where(and(eq(c.appId, appId), eq(c.id, id), isNull(c.undoneAt))));
+    return result.affectedRows === 1;
   }
 
   // 115.3 The marketplace's orders, complaints and wallet
@@ -11769,4 +12036,11 @@ function vendorDefaults<T extends RestaurantInput>(input: T): T & Required<Pick<
 /** 133 An add-on row as the store returns it (the amount as a number). */
 function appAddonOf(row: typeof schema.appAddons.$inferSelect): AppAddon {
   return { ...row, amount: row.amount === null ? null : Number(row.amount) };
+}
+
+/** 115.24 A product row without its search name. */
+function withoutSearchName<T extends { searchName: string }>(row: T): Omit<T, "searchName"> {
+  const { searchName: _s, ...rest } = row;
+  void _s;
+  return rest;
 }

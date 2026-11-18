@@ -34,6 +34,10 @@ import type { LoyaltyEntry, LoyaltyReason } from "./types";
 import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
 import { firebaseAppOrder } from "../firebase/order";
+import { normalizeSearch, productSearchName, searchMatch } from "../market/search-name";
+import { decodeProductCursor, encodeProductCursor } from "../market/product-paging";
+import { perVendorTake, topK } from "../market/top-k";
+import { MARKET_COUNT_CAP } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -165,6 +169,13 @@ import type {
   MarketProduct,
   MarketProductInput,
   MarketProductQuery,
+  MarketProductPage,
+  MarketStockLine,
+  MarketStockMove,
+  MarketStockTake,
+  MarketStockWho,
+  MarketCatalogChange,
+  MarketCatalogChangeInput,
 } from "./types";
 // 11.3, 11.4, 11.6 and 11.8
 import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
@@ -4422,7 +4433,8 @@ export class MemoryStore implements DataStore {
     this.restaurants.delete(id);
     this.restaurantMenus.delete(id);
     for (const [key, staff] of this.restaurantStaff) if (staff.restaurantId === id) this.restaurantStaff.delete(key);
-    for (const map of [this.marketDepartments, this.marketAisles, this.marketProducts] as Map<number, { vendorId: number }>[]) for (const [key, row] of map) if (row.vendorId === id) map.delete(key);
+    for (const map of [this.marketDepartments, this.marketAisles, this.marketProducts, this.marketCatalogChanges] as Map<number, { vendorId: number }>[]) for (const [key, row] of map) if (row.vendorId === id) map.delete(key);
+    this.marketStockMoves = this.marketStockMoves.filter((m) => !(m.appId === appId && m.vendorId === id));
     for (const order of this.foodOrders.values()) if (order.appId === appId && order.restaurantId === id) order.restaurantId = null;
     for (const order of this.marketOrders.values()) if (order.appId === appId && order.vendorId === id) order.vendorId = null;
     for (const complaint of this.marketComplaints.values()) if (complaint.appId === appId && complaint.vendorId === id) complaint.vendorId = null;
@@ -4535,25 +4547,79 @@ export class MemoryStore implements DataStore {
     for (const product of this.marketProducts.values()) if (product.aisleId === id) product.aisleId = null;
   }
 
-  async listMarketProducts(query: MarketProductQuery): Promise<{ items: MarketProduct[]; total: number }> {
-    const q = query.q?.trim().toLowerCase() ?? "";
+  /** 115.24 A stored product's search name (lib/market/search-name.ts), kept beside it. */
+  private marketSearchNames = new Map<number, string>();
+
+  private indexProduct(p: MarketProduct): void {
+    this.marketSearchNames.set(p.id, productSearchName(p) || "#");
+  }
+
+  private productMatches(p: MarketProduct, query: MarketProductQuery, code: string): boolean {
+    return (
+      p.appId === query.appId &&
+      p.vendorId === query.vendorId &&
+      (query.departmentId === undefined || p.departmentId === query.departmentId) &&
+      (query.aisleId === undefined || p.aisleId === query.aisleId) &&
+      (query.outOfStock === undefined || p.inStock !== query.outOfStock) &&
+      (!query.withPhoto || p.imageAssetId !== null) &&
+      (!query.withoutPhoto || p.imageAssetId === null) &&
+      (!code || p.barcode === code || p.sku === code)
+    );
+  }
+
+  async listMarketProducts(query: MarketProductQuery): Promise<MarketProductPage> {
+    const q = normalizeSearch(query.q ?? "");
     const code = query.code?.trim() ?? "";
-    const all = [...this.marketProducts.values()]
-      .filter(
-        (p) =>
-          p.appId === query.appId &&
-          p.vendorId === query.vendorId &&
-          (query.departmentId === undefined || p.departmentId === query.departmentId) &&
-          (query.aisleId === undefined || p.aisleId === query.aisleId) &&
-          (query.outOfStock === undefined || p.inStock !== query.outOfStock) &&
-          (!query.withPhoto || p.imageAssetId !== null) &&
-          (!query.withoutPhoto || p.imageAssetId === null) &&
-          (!code || p.barcode === code || p.sku === code) &&
-          (!q || [p.name, p.brand ?? "", p.description ?? ""].some((text) => text.toLowerCase().includes(q))),
-      )
-      .sort((a, b) => Number(b.inStock) - Number(a.inStock) || a.position - b.position || a.id - b.id);
-    const start = (query.page - 1) * query.perPage;
-    return { items: all.slice(start, start + query.perPage).map(clone), total: all.length };
+    const byShelf = (a: MarketProduct, b: MarketProduct) => Number(b.inStock) - Number(a.inStock) || a.position - b.position || a.id - b.id;
+    const name = (p: MarketProduct) => this.marketSearchNames.get(p.id) ?? "";
+    const byName = (a: MarketProduct, b: MarketProduct) => (name(a) < name(b) ? -1 : name(a) > name(b) ? 1 : a.id - b.id);
+    const rows = [...this.marketProducts.values()].filter((p) => this.productMatches(p, query, code));
+    const prefix = q ? rows.filter((p) => searchMatch(name(p), q) === "prefix") : rows;
+    const words = q ? rows.filter((p) => searchMatch(name(p), q) === "word") : [];
+    if (query.cursor === undefined) {
+      // By number: the prefix matches by name, then the word matches; without a search, the shelf's order.
+      const all = q ? [...prefix.sort(byName), ...words.sort((a, b) => a.id - b.id)] : prefix.sort(byShelf);
+      const start = (query.page - 1) * query.perPage;
+      return { items: all.slice(start, start + query.perPage).map(clone), total: Math.min(all.length, MARKET_COUNT_CAP), nextCursor: null };
+    }
+    const after = decodeProductCursor(query.cursor);
+    const limit = query.perPage;
+    if (!q) {
+      const c = after?.k === "s" ? after : null;
+      const left = c ? prefix.filter((p) => byShelf(p, { inStock: c.s === 1, position: c.p, id: c.i } as MarketProduct) > 0) : prefix;
+      const page = topK(left, byShelf, limit + 1);
+      const items = page.slice(0, limit);
+      const last = items[items.length - 1];
+      return { items: items.map(clone), total: null, nextCursor: page.length > limit && last ? encodeProductCursor({ k: "s", s: last.inStock ? 1 : 0, p: last.position, i: last.id }) : null };
+    }
+    let items: MarketProduct[] = [];
+    if (!after || after.k === "n") {
+      const left = after ? prefix.filter((p) => name(p) > after.n || (name(p) === after.n && p.id > after.i)) : prefix;
+      items = topK(left, byName, limit + 1);
+      if (items.length > limit) {
+        const last = items[limit - 1]!;
+        return { items: items.slice(0, limit).map(clone), total: null, nextCursor: encodeProductCursor({ k: "n", n: name(last), i: last.id }) };
+      }
+    }
+    const fromId = after?.k === "w" ? after.i : 0;
+    const more = topK(words.filter((p) => p.id > fromId), (a, b) => a.id - b.id, limit - items.length + 1);
+    const page = [...items, ...more];
+    const out = page.slice(0, limit);
+    const last = out[out.length - 1];
+    return { items: out.map(clone), total: null, nextCursor: page.length > limit && last ? encodeProductCursor({ k: "w", i: last.id }) : null };
+  }
+
+  async searchMarketProducts(input: { appId: string; vendorIds: number[]; q: string; withPhoto?: boolean; perVendor: number; limit: number }): Promise<MarketProduct[]> {
+    const q = normalizeSearch(input.q);
+    if (!q || !input.vendorIds.length) return [];
+    const vendors = new Set(input.vendorIds);
+    const name = (p: MarketProduct) => this.marketSearchNames.get(p.id) ?? "";
+    const hits = [...this.marketProducts.values()]
+      .filter((p) => p.appId === input.appId && vendors.has(p.vendorId) && p.inStock && (p.stock === null || p.stock > 0) && (!input.withPhoto || p.imageAssetId !== null))
+      .map((p) => ({ p, match: searchMatch(name(p), q) }))
+      .filter((h) => h.match !== null)
+      .sort((a, b) => Number(a.match === "word") - Number(b.match === "word") || (name(a.p) < name(b.p) ? -1 : name(a.p) > name(b.p) ? 1 : a.p.id - b.p.id));
+    return perVendorTake(hits.map((h) => h.p), input.perVendor, input.limit).map(clone);
   }
 
   async listMarketProductsAwaitingPhoto(limit: number, only?: { appId: string; vendorId: number }): Promise<MarketProduct[]> {
@@ -4575,8 +4641,9 @@ export class MemoryStore implements DataStore {
 
   async createMarketProduct(input: MarketProductInput, now: Date): Promise<{ ok: true; product: MarketProduct } | { ok: false; reason: "duplicate_sku" }> {
     if (this.skuTaken(input.appId, input.vendorId, input.sku, null)) return { ok: false, reason: "duplicate_sku" };
-    const product: MarketProduct = { ...clone(input), id: this.nextMarketProductId++, createdAt: now, updatedAt: now };
+    const product: MarketProduct = { ...clone(input), names: input.names ?? null, minQuantity: input.minQuantity ?? null, id: this.nextMarketProductId++, createdAt: now, updatedAt: now };
     this.marketProducts.set(product.id, clone(product));
+    this.indexProduct(product);
     return { ok: true, product };
   }
 
@@ -4584,31 +4651,158 @@ export class MemoryStore implements DataStore {
     const product = this.marketProducts.get(id);
     if (!product || product.appId !== appId) return { ok: false };
     if (patch.sku !== undefined && this.skuTaken(appId, product.vendorId, patch.sku, id)) return { ok: false, reason: "duplicate_sku" };
-    this.marketProducts.set(id, clone({ ...product, ...patch, id, appId, vendorId: product.vendorId, updatedAt: now }));
+    const next = clone({ ...product, ...patch, id, appId, vendorId: product.vendorId, updatedAt: now });
+    this.marketProducts.set(id, next);
+    this.indexProduct(next);
     return { ok: true };
   }
 
   async deleteMarketProduct(appId: string, id: number): Promise<void> {
-    if (this.marketProducts.get(id)?.appId === appId) this.marketProducts.delete(id);
+    if (this.marketProducts.get(id)?.appId !== appId) return;
+    this.marketProducts.delete(id);
+    this.marketSearchNames.delete(id);
+    this.marketStockMoves = this.marketStockMoves.filter((m) => m.productId !== id);
   }
 
   async upsertMarketProducts(appId: string, vendorId: number, rows: Omit<MarketProductInput, "appId" | "vendorId">[], now: Date): Promise<{ created: number; updated: number }> {
     if (!this.vendorOf(appId, vendorId)) return { created: 0, updated: 0 };
     let created = 0;
     let updated = 0;
-    const mine = () => [...this.marketProducts.values()].filter((p) => p.appId === appId && p.vendorId === vendorId);
+    const mine = [...this.marketProducts.values()].filter((p) => p.appId === appId && p.vendorId === vendorId);
+    const bySku = new Map(mine.flatMap((p) => (p.sku !== null ? [[p.sku, p] as const] : [])));
+    const byBarcode = new Map(mine.flatMap((p) => (p.barcode !== null ? [[p.barcode, p] as const] : [])));
     for (const row of rows) {
-      const found = (row.sku !== null ? mine().find((p) => p.sku === row.sku) : undefined) ?? (row.barcode !== null ? mine().find((p) => p.barcode === row.barcode) : undefined);
+      const found = (row.sku !== null ? bySku.get(row.sku) : undefined) ?? (row.barcode !== null ? byBarcode.get(row.barcode) : undefined);
       if (found) {
-        this.marketProducts.set(found.id, clone({ ...found, ...row, id: found.id, appId, vendorId, createdAt: found.createdAt, updatedAt: now }));
+        const next = clone({ ...found, ...row, id: found.id, appId, vendorId, createdAt: found.createdAt, updatedAt: now });
+        this.marketProducts.set(found.id, next);
+        this.indexProduct(next);
+        // 115.24 Stock an import changes is in the ledger too.
+        if ((found.stock ?? null) !== (row.stock ?? null)) this.addStockMove({ appId, vendorId, productId: found.id, orderId: null, lineId: null, reason: "import", before: found.stock, after: row.stock, by: "vendor", byName: null, undoOf: null, createdAt: now });
+        if (row.sku !== null) bySku.set(row.sku, next);
+        if (row.barcode !== null) byBarcode.set(row.barcode, next);
         updated += 1;
       } else {
-        const product: MarketProduct = { ...clone(row), appId, vendorId, id: this.nextMarketProductId++, createdAt: now, updatedAt: now };
+        const product: MarketProduct = { ...clone(row), names: row.names ?? null, minQuantity: row.minQuantity ?? null, appId, vendorId, id: this.nextMarketProductId++, createdAt: now, updatedAt: now };
         this.marketProducts.set(product.id, product);
+        this.indexProduct(product);
+        if (product.stock !== null) this.addStockMove({ appId, vendorId, productId: product.id, orderId: null, lineId: null, reason: "import", before: null, after: product.stock, by: "vendor", byName: null, undoOf: null, createdAt: now });
+        if (row.sku !== null) bySku.set(row.sku, product);
+        if (row.barcode !== null) byBarcode.set(row.barcode, product);
         created += 1;
       }
     }
     return { created, updated };
+  }
+
+  // 115.24 Stock and its ledger; the catalog's changes
+
+  private marketStockMoves: MarketStockMove[] = [];
+  private nextMarketStockMoveId = 1;
+  private marketCatalogChanges = new Map<number, MarketCatalogChange>();
+  private nextMarketCatalogChangeId = 1;
+
+  private addStockMove(m: Omit<MarketStockMove, "id" | "delta">): MarketStockMove {
+    const move: MarketStockMove = { ...m, id: this.nextMarketStockMoveId++, delta: (m.after ?? 0) - (m.before ?? 0), createdAt: new Date(m.createdAt) };
+    this.marketStockMoves.push(move);
+    return clone(move);
+  }
+
+  private orderMoved(orderId: number, lineId: number, productId: number, reason: MarketStockMove["reason"]): boolean {
+    return this.marketStockMoves.some((m) => m.orderId === orderId && m.lineId === lineId && m.productId === productId && m.reason === reason);
+  }
+
+  async takeMarketStock(appId: string, orderId: number, lines: MarketStockLine[], reason: "order" | "substitute", who: MarketStockWho, now: Date, clamp = false): Promise<MarketStockTake> {
+    // All or none: checked first, then taken (nothing else runs in between here).
+    const wanted = new Map<number, number>();
+    for (const l of lines) if (l.units > 0 && !this.orderMoved(orderId, l.lineId, l.productId, reason)) wanted.set(l.productId, (wanted.get(l.productId) ?? 0) + l.units);
+    if (!clamp) {
+      for (const [productId, units] of wanted) {
+        const p = this.marketProducts.get(productId);
+        if (p && p.appId === appId && p.stock !== null && p.stock < units) return { ok: false, productId, left: p.stock };
+      }
+    }
+    const moves: MarketStockMove[] = [];
+    for (const l of lines) {
+      const p = this.marketProducts.get(l.productId);
+      if (!p || p.appId !== appId || p.stock === null || l.units <= 0 || this.orderMoved(orderId, l.lineId, l.productId, reason)) continue;
+      const units = Math.min(l.units, p.stock);
+      if (units <= 0) continue;
+      const before = p.stock;
+      p.stock = before - units;
+      if (p.stock === 0) p.inStock = false;
+      p.updatedAt = now;
+      moves.push(this.addStockMove({ appId, vendorId: p.vendorId, productId: p.id, orderId, lineId: l.lineId, reason, before, after: p.stock, by: who.by, byName: who.byName, undoOf: null, createdAt: now }));
+    }
+    return { ok: true, moves };
+  }
+
+  async returnMarketStock(appId: string, orderId: number, lineIds: number[] | null, who: MarketStockWho, now: Date): Promise<MarketStockMove[]> {
+    const taken = this.marketStockMoves.filter((m) => m.appId === appId && m.orderId === orderId && (m.reason === "order" || m.reason === "substitute") && (lineIds === null || (m.lineId !== null && lineIds.includes(m.lineId))));
+    const out: MarketStockMove[] = [];
+    for (const t of taken) {
+      if (this.orderMoved(orderId, t.lineId!, t.productId, "return")) continue;
+      const p = this.marketProducts.get(t.productId);
+      if (!p || p.appId !== appId || p.stock === null) continue;
+      const before = p.stock;
+      p.stock = before - t.delta;
+      if (before === 0 && p.stock > 0) p.inStock = true;
+      p.updatedAt = now;
+      out.push(this.addStockMove({ appId, vendorId: p.vendorId, productId: p.id, orderId, lineId: t.lineId, reason: "return", before, after: p.stock, by: who.by, byName: who.byName, undoOf: null, createdAt: now }));
+    }
+    return out;
+  }
+
+  async setMarketStock(appId: string, productId: number, stock: number | null, reason: "edit" | "import" | "undo", who: MarketStockWho, now: Date, undoOf: number | null = null): Promise<{ move: MarketStockMove | null } | null> {
+    const p = this.marketProducts.get(productId);
+    if (!p || p.appId !== appId) return null;
+    const before = p.stock;
+    const after = stock === null ? null : Math.max(0, Math.floor(stock));
+    if (before === after) return { move: null };
+    p.stock = after;
+    if (after === 0) p.inStock = false;
+    else if (after !== null && before === 0) p.inStock = true;
+    p.updatedAt = now;
+    return { move: this.addStockMove({ appId, vendorId: p.vendorId, productId, orderId: null, lineId: null, reason, before, after, by: who.by, byName: who.byName, undoOf, createdAt: now }) };
+  }
+
+  async listMarketStockMoves(appId: string, query: { vendorId?: number; productId?: number; orderId?: number; limit: number; beforeId?: number }): Promise<MarketStockMove[]> {
+    return this.marketStockMoves
+      .filter((m) => m.appId === appId && (query.vendorId === undefined || m.vendorId === query.vendorId) && (query.productId === undefined || m.productId === query.productId) && (query.orderId === undefined || m.orderId === query.orderId) && (query.beforeId === undefined || m.id < query.beforeId))
+      .sort((a, b) => b.id - a.id)
+      .slice(0, query.limit)
+      .map(clone);
+  }
+
+  async getMarketStockMove(appId: string, id: number): Promise<MarketStockMove | null> {
+    const m = this.marketStockMoves.find((x) => x.id === id && x.appId === appId);
+    return m ? clone(m) : null;
+  }
+
+  async addMarketCatalogChange(input: MarketCatalogChangeInput): Promise<MarketCatalogChange> {
+    const change: MarketCatalogChange = { ...clone(input), id: this.nextMarketCatalogChangeId++, undoneAt: null };
+    this.marketCatalogChanges.set(change.id, clone(change));
+    return change;
+  }
+
+  async listMarketCatalogChanges(appId: string, query: { vendorId?: number; open?: boolean; by?: MarketCatalogChange["by"]; limit: number }): Promise<MarketCatalogChange[]> {
+    return [...this.marketCatalogChanges.values()]
+      .filter((c) => c.appId === appId && (query.vendorId === undefined || c.vendorId === query.vendorId) && (query.open === undefined || (c.undoneAt === null) === query.open) && (query.by === undefined || c.by === query.by))
+      .sort((a, b) => b.id - a.id)
+      .slice(0, query.limit)
+      .map(clone);
+  }
+
+  async getMarketCatalogChange(appId: string, id: number): Promise<MarketCatalogChange | null> {
+    const c = this.marketCatalogChanges.get(id);
+    return c && c.appId === appId ? clone(c) : null;
+  }
+
+  async markMarketCatalogChangeUndone(appId: string, id: number, now: Date): Promise<boolean> {
+    const c = this.marketCatalogChanges.get(id);
+    if (!c || c.appId !== appId || c.undoneAt !== null) return false;
+    c.undoneAt = now;
+    return true;
   }
 
   // 115.3 The marketplace's orders, complaints and wallet

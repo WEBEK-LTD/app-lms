@@ -8,7 +8,7 @@ import { isReviewCourier } from "../../delivery/review";
 import { demoCourierPosition } from "../../demo/courier";
 import { deliverySettingsOf } from "../../delivery/settings";
 import type { DataStore } from "../../data/store";
-import type { App, DeliverySettings, HostedUser, MarketOrder, MarketOrderStatus, Restaurant, RestaurantMenu, RestaurantPatch, RestaurantStaff, VendorRole } from "../../data/types";
+import type { App, DeliverySettings, HostedUser, MarketOrder, MarketOrderStatus, MarketProduct, MarketProductPage, MarketStockMove, Restaurant, RestaurantMenu, RestaurantPatch, RestaurantStaff, VendorRole } from "../../data/types";
 import { EMPTY_MENU } from "../../food/menu";
 import { distanceFrom, restaurantState } from "../../food/service";
 import { platformSetting } from "../../settings/platform";
@@ -37,6 +37,9 @@ import {
   syncWithJob,
   type PickedLine,
 } from "../../market/flow";
+import { giveBackOrderStock, stockAmount, takeOrderStock } from "../../market/stock";
+import { createProduct, deleteAisle, deleteDepartment, deleteProduct, orderShelves, saveAisle, saveDepartment, sellsProducts, setProductStock, updateProduct, type CatalogErrors, type CatalogScope } from "../../market/catalog-edit";
+import { readCursorParam } from "../../market/product-paging";
 import {
   clubPlanJson,
   complaintJson,
@@ -46,6 +49,7 @@ import {
   dishJson,
   membershipJson,
   money,
+  marketOrderReference,
   orderLineJson,
   priceLinesJson,
   productJson,
@@ -215,8 +219,22 @@ export class MarketConnector {
     if (p[1] === "complaints" && m === "GET" && p.length === 2) return this.withVendor(request, ["owner", "manager", "orders"], (s) => this.vendorComplaintsOf(s));
     if (p[1] === "products") {
       if (m === "GET" && p.length === 2) return this.withVendor(request, null, (s) => this.vendorProducts(s, request));
+      // 115.24 The place's owner and managers edit the catalog; order takers put items in or out of stock.
+      if (m === "POST" && p.length === 2) return this.withVendor(request, EDITORS, (s) => this.createProduct(s, request));
       const pid = id(2);
-      if (m === "PATCH" && p.length === 3 && pid !== null) return this.withVendor(request, ["owner", "manager", "orders"], (s) => this.stock(s, pid, request));
+      if (m === "PATCH" && p.length === 3 && pid !== null) return this.withVendor(request, ["owner", "manager", "orders"], async (s) => (onlyStock(request.body) ? this.stock(s, pid, request) : s.role === "orders" ? notAllowed() : this.editProduct(s, pid, request)));
+      if (m === "DELETE" && p.length === 3 && pid !== null) return this.withVendor(request, EDITORS, (s) => this.dropProduct(s, pid, request.now));
+      if (m === "GET" && p.length === 4 && pid !== null && p[3] === "stock-moves") return this.withVendor(request, ["owner", "manager", "orders"], (s) => this.stockMoves(s, pid));
+    }
+    // 115.24 Departments and their aisles, in their order.
+    if (p[1] === "departments" || p[1] === "aisles") {
+      const kind = p[1] === "departments" ? "department" : "aisle";
+      if (m === "GET" && p.length === 2 && kind === "department") return this.withVendor(request, null, (s) => this.shelves(s));
+      if (m === "POST" && p.length === 2) return this.withVendor(request, EDITORS, (s) => this.saveShelf(s, kind, null, request));
+      if (m === "POST" && p.length === 3 && p[2] === "order") return this.withVendor(request, EDITORS, (s) => this.orderShelf(s, kind, request));
+      const sid = id(2);
+      if (m === "PATCH" && p.length === 3 && sid !== null) return this.withVendor(request, EDITORS, (s) => this.saveShelf(s, kind, sid, request));
+      if (m === "DELETE" && p.length === 3 && sid !== null) return this.withVendor(request, EDITORS, (s) => this.dropShelf(s, kind, sid, request.now));
     }
     return error(404, "not_found", "Not found.");
   }
@@ -356,8 +374,9 @@ export class MarketConnector {
       ...(needPhoto ? { withPhoto: true } : {}),
       page,
       perPage,
+      ...cursorOf(q),
     });
-    return { status: 200, body: { page, per_page: perPage, total: found.total, total_pages: Math.max(1, Math.ceil(found.total / perPage)), items: found.items.map((p) => productJson(p, currency, this.deps.assetUrl)) } };
+    return { status: 200, body: productPageJson(found, page, perPage, (p) => productJson(p, currency, this.deps.assetUrl, { lang: request.lang })) };
   }
 
   private async search(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -374,15 +393,20 @@ export class MarketConnector {
     const summary = (v: Restaurant) => vendorSummaryJson(v, this.near(v, settings, at, request.now, offers.get(v.id) ?? offers.get(null) ?? null, club), currency, this.deps.assetUrl);
     const vendors = active.filter((v) => v.name.toLowerCase().includes(lower)).slice(0, 20).map(summary);
     const items: { vendor: ReturnType<typeof summary>; product: unknown }[] = [];
-    for (const v of active) {
+    // 115.24 Groceries' and shops' products in one query for all of them (not one per vendor).
+    const shops = new Map(active.filter((v) => (v.kind ?? "restaurant") !== "restaurant").map((v) => [v.id, v]));
+    const products = shops.size ? await this.deps.store.searchMarketProducts({ appId: this.deps.app.id, vendorIds: [...shops.keys()], q: text, ...(needPhoto ? { withPhoto: true } : {}), perVendor: 3, limit: 30 }) : [];
+    // Restaurants: only those whose dishes match (the store's own search), up to 10 menus read.
+    const kitchens = active.filter((v) => (v.kind ?? "restaurant") === "restaurant");
+    const matching = kitchens.length ? new Set((await this.deps.store.listRestaurants(this.deps.app.id, { q: text })).map((v) => v.id)) : new Set<number>();
+    for (const v of kitchens.filter((k) => matching.has(k.id)).slice(0, 10)) {
       if (items.length >= 30) break;
-      if ((v.kind ?? "restaurant") === "restaurant") {
-        const menu = (await this.deps.store.getRestaurantMenu(this.deps.app.id, v.id)) ?? EMPTY_MENU;
-        for (const d of menu.sections.flatMap((s) => s.dishes).filter((d) => d.name.toLowerCase().includes(lower) && (!needPhoto || d.imageAssetId)).slice(0, 3)) items.push({ vendor: summary(v), product: dishJson(d, currency, this.deps.assetUrl) });
-      } else {
-        const found = await this.deps.store.listMarketProducts({ appId: this.deps.app.id, vendorId: v.id, q: text, ...(needPhoto ? { withPhoto: true } : {}), page: 1, perPage: 3 });
-        for (const p of found.items) items.push({ vendor: summary(v), product: productJson(p, currency, this.deps.assetUrl) });
-      }
+      const menu = (await this.deps.store.getRestaurantMenu(this.deps.app.id, v.id)) ?? EMPTY_MENU;
+      for (const d of menu.sections.flatMap((s) => s.dishes).filter((d) => d.name.toLowerCase().includes(lower) && (!needPhoto || d.imageAssetId)).slice(0, 3)) items.push({ vendor: summary(v), product: dishJson(d, currency, this.deps.assetUrl) });
+    }
+    for (const p of products) {
+      const v = shops.get(p.vendorId);
+      if (v) items.push({ vendor: summary(v), product: productJson(p, currency, this.deps.assetUrl, { lang: request.lang }) });
     }
     return { status: 200, body: { vendors, items: items.slice(0, 30) } };
   }
@@ -486,11 +510,19 @@ export class MarketConnector {
       createdAt: request.now,
       updatedAt: request.now,
     });
+    // 115.24 Its counted stock first, all or none: two customers can't both have the last one.
+    const stock = await takeOrderStock(store, created, request.now);
+    if (!stock.ok) {
+      await store.updateMarketOrder(app.id, created.id, { status: "cancelled", timeline: [...created.timeline, marketStage("cancelled", request.now, "system")], updatedAt: request.now });
+      const left = stockAmount(stock, stock.left);
+      return { status: 409, body: { code: "unavailable_item", message: left > 0 ? `Only ${left}${stock.unit === "item" ? "" : ` ${stock.unit}`} of ${stock.name} left.` : `${stock.name} is out of stock.`, details: { field: "lines", product_id: stock.productId } } };
+    }
     // The coupon's use and the wallet's part are taken now; a refused or cancelled order gives them back.
     if (pr.coupon) {
       const used = await redeemCoupon(store, pr.coupon.record, { id: created.id, userId: request.user.id }, money.coupon?.amount ?? 0, request.now);
       if (!used.ok) {
         await store.updateMarketOrder(app.id, created.id, { status: "cancelled", timeline: [...created.timeline, marketStage("cancelled", request.now, "system")], updatedAt: request.now });
+        await giveBackOrderStock(store, created, request.now);
         return error(409, "coupon_used_up", used.error);
       }
     }
@@ -1067,22 +1099,104 @@ export class MarketConnector {
       const dishes = menu.sections.flatMap((x) => x.dishes).filter((d) => (!text || d.name.toLowerCase().includes(text)) && (q.get("out_of_stock") !== "true" || !d.available));
       return { status: 200, body: { page, per_page: perPage, total: dishes.length, total_pages: Math.max(1, Math.ceil(dishes.length / perPage)), items: dishes.slice((page - 1) * perPage, page * perPage).map((d) => dishJson(d, currency, this.deps.assetUrl)) } };
     }
+    const department = Number(q.get("department"));
+    const aisle = Number(q.get("aisle"));
     const found = await this.deps.store.listMarketProducts({
       appId: this.deps.app.id,
       vendorId: s.vendor.id,
+      ...(Number.isInteger(department) && department > 0 ? { departmentId: department } : {}),
+      ...(Number.isInteger(aisle) && aisle > 0 ? { aisleId: aisle } : {}),
       ...(q.get("q") ? { q: q.get("q")!.trim().slice(0, 80) } : {}),
       ...(q.get("barcode") ? { code: q.get("barcode")!.trim().slice(0, 64) } : {}),
       ...(q.get("out_of_stock") === "true" ? { outOfStock: true } : {}),
       page,
       perPage,
+      ...cursorOf(q),
     });
-    return { status: 200, body: { page, per_page: perPage, total: found.total, total_pages: Math.max(1, Math.ceil(found.total / perPage)), items: found.items.map((p) => productJson(p, currency, this.deps.assetUrl)) } };
+    return { status: 200, body: productPageJson(found, page, perPage, (p) => productJson(p, currency, this.deps.assetUrl, { vendor: true })) };
+  }
+
+  // 115.24 Editing the catalog (lib/market/catalog-edit.ts)
+
+  private async catalogScope(s: Staffed): Promise<CatalogScope> {
+    return { store: this.deps.store, appId: this.deps.app.id, vendor: s.vendor, currency: marketCurrency(await this.settings()), who: { by: "vendor", byName: s.staff.name } };
+  }
+
+  private body(request: ConnectorRequest): Record<string, unknown> {
+    return request.body && typeof request.body === "object" && !Array.isArray(request.body) ? (request.body as Record<string, unknown>) : {};
+  }
+
+  private async createProduct(s: Staffed, request: ConnectorRequest): Promise<ConnectorResult> {
+    const scope = await this.catalogScope(s);
+    if (!sellsProducts(s.vendor)) return error(409, "not_allowed", "Restaurants have a menu, not products.");
+    const made = await createProduct(scope, this.body(request), request.now);
+    if (!made.ok) return editRefused(made.errors);
+    return { status: 201, body: productJson(made.value, scope.currency, this.deps.assetUrl, { vendor: true }) };
+  }
+
+  private async editProduct(s: Staffed, productId: number, request: ConnectorRequest): Promise<ConnectorResult> {
+    const scope = await this.catalogScope(s);
+    if (!sellsProducts(s.vendor)) return error(409, "not_allowed", "Restaurants have a menu, not products.");
+    const saved = await updateProduct(scope, productId, this.body(request), request.now);
+    if (!saved) return error(404, "not_found", "Item not found.");
+    if (!saved.ok) return editRefused(saved.errors);
+    return { status: 200, body: productJson(saved.value, scope.currency, this.deps.assetUrl, { vendor: true }) };
+  }
+
+  private async dropProduct(s: Staffed, productId: number, now: Date): Promise<ConnectorResult> {
+    const scope = await this.catalogScope(s);
+    if (!(await deleteProduct(scope, productId, now))) return error(404, "not_found", "Item not found.");
+    return { status: 204, body: null };
+  }
+
+  private async stockMoves(s: Staffed, productId: number): Promise<ConnectorResult> {
+    const p = await this.deps.store.getMarketProduct(this.deps.app.id, productId);
+    if (!p || p.vendorId !== s.vendor.id) return error(404, "not_found", "Item not found.");
+    const moves = await this.deps.store.listMarketStockMoves(this.deps.app.id, { productId, limit: 50 });
+    return { status: 200, body: { items: moves.map((m) => stockMoveJson(m, p)) } };
+  }
+
+  private async shelves(s: Staffed): Promise<ConnectorResult> {
+    const [departments, aisles] = await Promise.all([this.deps.store.listMarketDepartments(this.deps.app.id, s.vendor.id), this.deps.store.listMarketAisles(this.deps.app.id, s.vendor.id)]);
+    return { status: 200, body: { items: departments.map((d) => ({ id: d.id, name: d.name, position: d.position, aisles: aisles.filter((a) => a.departmentId === d.id).map((a) => ({ id: a.id, name: a.name, position: a.position })) })) } };
+  }
+
+  private async saveShelf(s: Staffed, kind: "department" | "aisle", id: number | null, request: ConnectorRequest): Promise<ConnectorResult> {
+    const scope = await this.catalogScope(s);
+    if (!sellsProducts(s.vendor)) return error(409, "not_allowed", "Restaurants have a menu, not departments.");
+    const b = this.body(request);
+    if (kind === "department") {
+      const saved = await saveDepartment(scope, { id, name: b.name }, request.now);
+      return saved.ok ? { status: id === null ? 201 : 200, body: { id: saved.value.id, name: saved.value.name, position: saved.value.position } } : editRefused(saved.errors);
+    }
+    let departmentId = typeof b.department_id === "number" ? b.department_id : null;
+    if (departmentId === null && id !== null) departmentId = (await this.deps.store.listMarketAisles(this.deps.app.id, s.vendor.id)).find((a) => a.id === id)?.departmentId ?? null;
+    if (departmentId === null) return editRefused({ department_id: "Choose the aisle's department." });
+    const saved = await saveAisle(scope, { id, departmentId, name: b.name }, request.now);
+    return saved.ok ? { status: id === null ? 201 : 200, body: { id: saved.value.id, department_id: saved.value.departmentId, name: saved.value.name, position: saved.value.position } } : editRefused(saved.errors);
+  }
+
+  private async orderShelf(s: Staffed, kind: "department" | "aisle", request: ConnectorRequest): Promise<ConnectorResult> {
+    const scope = await this.catalogScope(s);
+    const b = this.body(request);
+    const ids = Array.isArray(b.ids) && b.ids.every((x) => typeof x === "number" && Number.isInteger(x)) ? (b.ids as number[]) : null;
+    if (!ids) return editRefused({ ids: "Send every one of them, in their new order." });
+    const target = kind === "department" ? ({ kind } as const) : typeof b.department_id === "number" ? ({ kind, departmentId: b.department_id } as const) : null;
+    if (!target) return editRefused({ department_id: "Choose the aisles' department." });
+    if (!(await orderShelves(scope, target, ids, request.now))) return editRefused({ ids: "Send every one of them, each once, in their new order." });
+    return this.shelves(s);
+  }
+
+  private async dropShelf(s: Staffed, kind: "department" | "aisle", id: number, now: Date): Promise<ConnectorResult> {
+    const scope = await this.catalogScope(s);
+    const gone = kind === "department" ? await deleteDepartment(scope, id, now) : await deleteAisle(scope, id, now);
+    return gone ? { status: 204, body: null } : error(404, "not_found", "Not found.");
   }
 
   private async stock(s: Staffed, productId: number, request: ConnectorRequest): Promise<ConnectorResult> {
     const b = (request.body && typeof request.body === "object" ? request.body : {}) as Record<string, unknown>;
     if (b.in_stock !== undefined && typeof b.in_stock !== "boolean") return error(400, "invalid_request", "Say whether it's in stock.");
-    if (b.stock !== undefined && b.stock !== null && !(typeof b.stock === "number" && Number.isInteger(b.stock) && b.stock >= 0)) return error(400, "invalid_request", "Enter the stock as a whole number.");
+    if (b.stock !== undefined && b.stock !== null && !(typeof b.stock === "number" && Number.isFinite(b.stock) && b.stock >= 0)) return error(400, "invalid_request", "Enter the stock as a number.");
     const currency = marketCurrency(await this.settings());
     if ((s.vendor.kind ?? "restaurant") === "restaurant") {
       const menu = (await this.deps.store.getRestaurantMenu(this.deps.app.id, s.vendor.id)) ?? EMPTY_MENU;
@@ -1092,20 +1206,66 @@ export class MarketConnector {
       await this.deps.store.saveRestaurantMenu(this.deps.app.id, s.vendor.id, menu, request.now);
       return { status: 200, body: dishJson(dish, currency, this.deps.assetUrl) };
     }
-    const product = await this.deps.store.getMarketProduct(this.deps.app.id, productId);
-    if (!product || product.vendorId !== s.vendor.id) return error(404, "not_found", "Item not found.");
-    const patch: { inStock?: boolean; stock?: number | null } = {};
-    if (typeof b.in_stock === "boolean") patch.inStock = b.in_stock;
-    if (b.stock !== undefined) {
-      patch.stock = b.stock as number | null;
-      if (b.stock === 0) patch.inStock = false;
-    }
-    await this.deps.store.updateMarketProduct(this.deps.app.id, product.id, patch, request.now);
-    return { status: 200, body: productJson({ ...product, ...patch }, currency, this.deps.assetUrl) };
+    // 115.24 Through the stock-moves ledger; for items sold by weight `stock` is in their unit (kg), kept in steps.
+    const saved = await setProductStock(await this.catalogScope(s), productId, { ...(typeof b.in_stock === "boolean" ? { inStock: b.in_stock } : {}), ...(b.stock !== undefined ? { amount: b.stock as number | null } : {}) }, request.now);
+    if (!saved) return error(404, "not_found", "Item not found.");
+    return { status: 200, body: productJson(saved, currency, this.deps.assetUrl, { vendor: true }) };
   }
 }
 
 /** 115 The menu as customers see it while photos are required: dishes without their photo left out. */
 function withPhotosOnly(menu: RestaurantMenu): RestaurantMenu {
   return { ...menu, sections: menu.sections.map((sec) => ({ ...sec, dishes: sec.dishes.filter((d) => d.imageAssetId) })).filter((sec) => sec.dishes.length > 0) };
+}
+
+/** 115.24 `cursor` (keyset paging) when the app sends it, "" for the first page. */
+function cursorOf(q: URLSearchParams): { cursor?: string } {
+  const c = readCursorParam(q.get("cursor"));
+  return c === undefined ? {} : { cursor: c };
+}
+
+/** 115.24 A page of products: by number (`total` counted up to MARKET_COUNT_CAP), or by cursor (`next_cursor`, nothing counted). */
+function productPageJson(found: MarketProductPage, page: number, perPage: number, item: (p: MarketProduct) => unknown) {
+  const total = found.total;
+  return {
+    page,
+    per_page: perPage,
+    total,
+    total_pages: total === null ? null : Math.max(1, Math.ceil(total / perPage)),
+    next_cursor: found.nextCursor,
+    items: found.items.map(item),
+  };
+}
+
+/** 115.24 The place's roles that edit its catalog. */
+const EDITORS: VendorRole[] = ["owner", "manager"];
+
+/** A PATCH that only puts an item in or out of stock (order takers may). */
+function onlyStock(body: unknown): boolean {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return true;
+  return Object.keys(body).every((k) => k === "in_stock" || k === "stock");
+}
+
+function notAllowed(): ConnectorResult {
+  return error(403, "not_allowed", "Your role at this place can't do this.");
+}
+
+function editRefused(errors: CatalogErrors): ConnectorResult {
+  const [field, message] = Object.entries(errors)[0] ?? ["form", "Check the fields."];
+  return { status: 400, body: { code: "invalid_request", message: message ?? "Check the fields.", details: { field, errors } } };
+}
+
+/** 115.24 One move in a product's stock ledger, in its unit. */
+function stockMoveJson(m: MarketStockMove, p: MarketProduct) {
+  return {
+    id: m.id,
+    reason: m.reason,
+    order_id: m.orderId,
+    order_reference: m.orderId !== null ? marketOrderReference({ id: m.orderId }) : null,
+    change: stockAmount(p, m.delta),
+    before: m.before === null ? null : stockAmount(p, m.before),
+    after: m.after === null ? null : stockAmount(p, m.after),
+    by: m.by,
+    at: m.createdAt.toISOString(),
+  };
 }

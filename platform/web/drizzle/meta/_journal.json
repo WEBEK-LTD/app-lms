@@ -1009,6 +1009,13 @@
       "when": 1794987090865,
       "tag": "0144_app_stories",
       "breakpoints": true
+    },
+    {
+      "idx": 145,
+      "version": "5",
+      "when": 1795002052519,
+      "tag": "0145_market_catalog",
+      "breakpoints": true
     }
   ]
 }
