@@ -15327,7 +15327,8 @@ components:
         sale end; null when the source gives none) and the units left at this
         price (null without a limit). Null or missing when it isn't on sale.
         A Yallapp flash sale over a connected platform's product changes the
-        price the app shows; its `flash_sale_id` says which.
+        price the app shows; its `flash_sale_id` says which, and 168 `title`
+        its name. A product with sizes (a range) has its cheapest size's.
       required: [was, was_formatted, now, now_formatted, percent_off, ends_at, remaining]
       properties:
         was: { type: string, example: '500.00' }
@@ -15340,6 +15341,8 @@ components:
         remaining: { type: [integer, 'null'], minimum: 0, example: 12 }
         total: { type: [integer, 'null'], minimum: 1, description: "All the units of the sale, for the stock bar." }
         flash_sale_id: { type: [integer, 'null'] }
+        title: { type: string, description: "168 A flash sale's name as the owner wrote it; missing for the source's own sale.", example: Eid roses }
+        titles: { type: [object, 'null'], description: "168 Its name in the app's other languages, as the owner wrote them.", additionalProperties: { type: string, maxLength: 40 } }
 
     FlashSale:
       type: object

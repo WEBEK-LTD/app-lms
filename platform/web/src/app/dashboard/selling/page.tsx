@@ -20,7 +20,7 @@ import { richText } from "@/i18n/rich";
 import { localePath } from "@/i18n/paths";
 import { assetUrl } from "@/lib/assets";
 import { platformDefinition } from "@/lib/hosted/connectors/platforms";
-import { DEFAULT_DELIVERY, DELIVERY_LIMITS, slotLabel } from "@/lib/selling/delivery";
+import { DEFAULT_DELIVERY, DELIVERY_LIMITS, deliveryOf, slotLabel } from "@/lib/selling/delivery";
 import { saleOn, unitsLeft } from "@/lib/selling/flash-sales";
 import { giftOccasionsOf } from "@/lib/selling/gift-messages";
 import { checkoutModeOf, giftsOf } from "@/lib/selling/gifts";
@@ -98,7 +98,9 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   };
   const ownAddons = source.kind === "catalog" ? products.filter((p) => p.addon) : [];
   const weekdays = Array.from({ length: 7 }, (_, d) => new Intl.DateTimeFormat(lang === "ar" ? "ar-EG" : lang, { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 10, 15 + d))));
-  const delivery = settings.delivery ?? DEFAULT_DELIVERY;
+  // 168 What the customers get: the gift checkout (the owner's choice or the look's, as Leqaa's) always asks a day
+  // and a time (lib/selling/delivery.ts deliveryOf), so the page shows that, not the saved switches left off.
+  const delivery = (mode === "gift" ? deliveryOf(app, true) : null) ?? settings.delivery ?? DEFAULT_DELIVERY;
   const deliveryValues: Record<string, string> = {
     enabled: delivery.enabled ? "on" : "",
     required: delivery.required ? "on" : "",
@@ -520,7 +522,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
             {hosted ? (
               <KitSection titleId="h-checkout" title={t("selling.checkoutTitle")} description={t("selling.checkoutIntro")}>
                 {look?.mode === "gift" ? <KitCallout icon="info">{t("selling.lookGift")}</KitCallout> : null}
-                <CheckoutModeForm mode={gifts.checkout === "gift" ? "gift" : "standard"} />
+                <CheckoutModeForm mode={mode} />
               </KitSection>
             ) : null}
             {titled ? (

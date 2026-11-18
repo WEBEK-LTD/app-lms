@@ -48,6 +48,12 @@ int giftStepOf({
     ? 3
     : 4;
 
+/// 168 Whether the gift checkout's steps take their short form: a screen
+/// under 860 points high (360×800, 390×844), where the cart's fixed top and
+/// bottom left the form about 400 points.
+bool compactSteps(BuildContext context) =>
+    MediaQuery.sizeOf(context).height < 860;
+
 /// The five steps in a bar that stays at the top of the cart.
 class GiftStepBar extends StatelessWidget {
   const GiftStepBar({
@@ -60,7 +66,7 @@ class GiftStepBar extends StatelessWidget {
   /// The step now: the one in view, else the first not done.
   final int step;
 
-  /// Which steps are done; a step before [step] is ticked only when done.
+  /// Which steps are done: each done one is ticked, before or after [step].
   final List<bool> done;
 
   /// The look's colour; null, the app's main colour.
@@ -75,15 +81,28 @@ class GiftStepBar extends StatelessWidget {
         color: t.page,
         border: Border(bottom: BorderSide(color: t.line)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 6, 0, 10),
-        child: _Stepper(
-          t: t,
-          step: step,
-          done: done,
-          labels: giftStepLabels(context),
-        ),
-      ),
+      child: compactSteps(context)
+          // 168 On a short screen (360×800 and the like) the form needs the
+          // room: one thin line of small steps, the step now named beside it.
+          ? Padding(
+              padding: const EdgeInsets.fromLTRB(0, 4, 0, 6),
+              child: _Stepper(
+                t: t,
+                step: step,
+                done: done,
+                labels: giftStepLabels(context),
+                compact: true,
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.fromLTRB(0, 6, 0, 10),
+              child: _Stepper(
+                t: t,
+                step: step,
+                done: done,
+                labels: giftStepLabels(context),
+              ),
+            ),
     );
   }
 }
@@ -175,6 +194,7 @@ class _Stepper extends StatelessWidget {
     required this.step,
     required this.labels,
     this.done = const [],
+    this.compact = false,
   });
 
   final _Tones t;
@@ -182,11 +202,78 @@ class _Stepper extends StatelessWidget {
   final List<String> labels;
   final List<bool> done;
 
-  /// Ticked: before the step now, and done (all before it, when not told).
-  bool _ticked(int i) => i < step && (done.length <= i || done[i]);
+  /// 168 Small steps on one line, only the step now named, beside them.
+  final bool compact;
+
+  /// Ticked: a step done, wherever the step now is (168: the part in view
+  /// may be above it); without being told, those before the step now.
+  bool _ticked(int i) => i != step && (done.length > i ? done[i] : i < step);
 
   @override
-  Widget build(BuildContext context) => Padding(
+  Widget build(BuildContext context) =>
+      compact ? _compact(context) : _full(context);
+
+  Widget _compact(BuildContext context) => Padding(
+    key: const ValueKey('gift-stepper-compact'),
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Row(
+      children: [
+        for (final (i, label) in labels.indexed) ...[
+          if (i > 0)
+            Expanded(
+              child: Container(
+                height: 2,
+                color: _ticked(i - 1) ? t.tone : t.line,
+              ),
+            ),
+          Semantics(
+            label: label,
+            selected: i == step,
+            child: Container(
+              width: 18,
+              height: 18,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _ticked(i) ? t.tone : t.surface,
+                border: Border.all(
+                  color: _ticked(i) || i == step ? t.tone : t.line,
+                  width: 2,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: _ticked(i)
+                  ? AppIcon(AppIcons.check, size: 11, color: t.onTone)
+                  : i == step
+                  ? Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: t.tone,
+                      ),
+                    )
+                  : null,
+            ),
+          ),
+        ],
+        const SizedBox(width: 10),
+        ExcludeSemantics(
+          child: Text(
+            labels[step.clamp(0, labels.length - 1)],
+            key: const ValueKey('gift-stepper-now'),
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: t.ink,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _full(BuildContext context) => Padding(
     key: const ValueKey('gift-stepper'),
     padding: const EdgeInsets.symmetric(horizontal: 14),
     child: Row(

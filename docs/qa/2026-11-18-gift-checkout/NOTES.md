@@ -166,3 +166,36 @@ All were run in this container on 18 November 2026.
 
 - With Flutter's accessibility tree on, synthetic mouse clicks can trip the web engine's tap debouncer (`Cannot read properties of null (reading 'a')` in `main.dart.js`). Touch taps and reloads avoided it.
 - With the accessibility tree on, a SnackBar with an action ("Added to cart · View cart") stays until tapped, as Flutter keeps it for screen readers. It then covers the Checkout button. This was not checked with TalkBack on a phone.
+
+## Second round: the Leqaa tester's findings in this area (168.11–168.17)
+
+The coordinating session passed these on from the Leqaa QA tester. I didn't find them in my own walk-through. Each fix has tests.
+
+| # | Finding | Cause | Fix |
+|---|---|---|---|
+| 168.11 | A flash sale on a product with sizes was missing from lists, though discounted on its page and at checkout | `withSale` returned early for range prices (`src/lib/selling/flash-sales.ts:104`) | Both ends of the range at the sale's price; the cheapest size's `sale` |
+| 168.12 | The sale's name never showed | The element's own title won (`mobile/lib/modules/shared/pages/studio_flash_sale.dart:77`), and the template always sets one; a product's `sale` had no name | `ProductSale.title`/`titles` (in the contract too); the sale's name wins on the element and the product page |
+| 168.13 | Delivery & offers said "Standard checkout" and delivery days off for a Leqaa project, which runs the gift checkout with the day and time required | The page's checkout choice read only the owner's saved choice, and its delivery times read only the saved switches; the look's gift mode turns both on (`src/app/dashboard/selling/page.tsx`) | The page shows the effective mode and the delivery that `deliveryOf(app, true)` gives |
+| 168.14 | Step bar: When filled but not ticked while For was in view | A step was ticked only when it came before the step in view (`gift_checkout_look.dart` `_ticked`) | Every done step is ticked |
+| 168.15 | The cart note said "at checkout", but Checkout waits for the day picked in the cart | Leqaa's template words (`lqCartNote`, `src/lib/studio/app-words.ts`) | New words in three languages; the fixtures written again |
+| 168.16 | Dark mode: the flash price, plum on the night card, about 2.1:1 | The day accent used on the card whatever its colour | `flashPriceColor`: the accent where it reads at 4.5:1, else the same hue lighter |
+| 168.17 | At 360×800 the form had about 400 points | A full step bar on short screens | A one-line step bar under 860 points high |
+
+**Results:**
+
+- **Unit tests (vitest):** the full suite has 4689 passed and 171 skipped. That includes the two new flash-sale tests and the regenerated API reference.
+- **End to end:** `gift-checkout.spec.ts` passed 4 of 4. Its new checks:
+  - the sized product's flash sale and its name, in the list and in `/store/flash-sales` in Arabic
+  - the dashboard showing Gift checkout and the day and time required on a new Leqaa shop
+- **Existing end-to-end specs:** `catalog.spec.ts` and `stripe-paypal.spec.ts` passed 10 of 10.
+- **Flutter:**
+  - The three widget files passed 45 tests.
+  - The dark-price test fails on the old colour, as it should.
+  - `flutter analyze` is clean.
+  - `dart format` is clean.
+
+**Not done:**
+
+- 168.13 was not re-run with the dashboard change reverted (a rebuild each time).
+- The release bump and the preview rebuild for these app changes are left to the integration branch, as the coordinator asked. Until then `tool/build_preview.sh --check` reports the preview out of date.
+- Projects made before 168.15 keep the old cart note: stale template words (156).

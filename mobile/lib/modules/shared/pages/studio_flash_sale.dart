@@ -26,7 +26,8 @@ class StudioFlashSale extends StatefulWidget {
 
   final StudioNode node;
 
-  /// The element's own title; missing, the sale's, else "Flash sale".
+  /// The element's own title, used when the sale has no name of its own
+  /// (168: the owner's sale name wins); else "Flash sale".
   final String? title;
   final Color? color;
 
@@ -74,9 +75,15 @@ class _StudioFlashSaleState extends State<StudioFlashSale> {
               (a, b) => a == null || b.isBefore(a) ? b : a,
             );
     final banner = options.look == FlashLook.banner;
-    final title = (widget.title?.trim().isNotEmpty ?? false)
+    // 168 A sale on now is shown by the name its owner gave it (in the app's
+    // language, as the server sends it); the element's own title (a
+    // template's "Fresh picks at sale prices") only without one.
+    final saleName = flash?.title?.trim() ?? '';
+    final title = saleName.isNotEmpty
+        ? saleName
+        : (widget.title?.trim().isNotEmpty ?? false)
         ? widget.title!.trim()
-        : (flash?.title ?? context.l10n.flashSaleTitle);
+        : context.l10n.flashSaleTitle;
     final remaining = flash?.remaining;
     final total = flash?.total;
     final header = Wrap(
@@ -195,6 +202,15 @@ class _StudioFlashSaleState extends State<StudioFlashSale> {
   }
 }
 
+/// 168 A flash sale card's price colour: [accent] as it is where it reads
+/// (4.5:1 on [card]), else the same hue lighter (or darker) until it does.
+Color flashPriceColor(Color accent, Color card) =>
+    contrastRatio(accent, card) >= 4.5
+    ? accent
+    : card.computeLuminance() < 0.5
+    ? visibleOn(accent, card, ratio: 4.5)
+    : readableOn(accent, card);
+
 class _FlashCard extends ConsumerWidget {
   const _FlashCard({
     required this.item,
@@ -215,6 +231,9 @@ class _FlashCard extends ConsumerWidget {
     final p = context.palette;
     final sale = item.sale!;
     final action = openableAction(ref, item.tapAction);
+    // 168 The price in the look's colour, lighter on the night card until it
+    // reads (4.5:1): Leqaa's day plum is about 2.1:1 there.
+    final priceColor = flashPriceColor(accent, p.surface);
     final Widget content = wide
         ? Row(
             key: const ValueKey('flash-single'),
@@ -249,7 +268,7 @@ class _FlashCard extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    SalePrice(sale: sale, size: 18, color: accent),
+                    SalePrice(sale: sale, size: 18, color: priceColor),
                   ],
                 ),
               ),
@@ -294,7 +313,7 @@ class _FlashCard extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              SalePrice(sale: sale, size: 14, color: accent),
+              SalePrice(sale: sale, size: 14, color: priceColor),
             ],
           );
     return SizedBox(

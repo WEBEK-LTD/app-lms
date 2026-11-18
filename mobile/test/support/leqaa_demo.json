@@ -3078,7 +3078,7 @@
        {
         "id": "demo-179",
         "type": "row",
-        "name": "Pick the delivery day and write the card at checkout.",
+        "name": "Pick the delivery day and write the card below, then pay.",
         "gap": 12,
         "cross": "center",
         "radius": 22,
@@ -3120,7 +3120,7 @@
          {
           "id": "demo-181",
           "type": "text",
-          "text": "Pick the delivery day and write the card at checkout.",
+          "text": "Pick the delivery day and write the card below, then pay.",
           "font": {
            "size": 13.5,
            "weight": 600,
@@ -3132,10 +3132,10 @@
           "max_lines": 3,
           "translations": {
            "ar": {
-            "text": "اختر يوم التوصيل واكتب البطاقة عند إتمام الطلب."
+            "text": "اختر يوم التوصيل واكتب البطاقة في الأسفل، ثم ادفع."
            },
            "tr": {
-            "text": "Teslimat gününü seçin ve kartı ödemede yazın."
+            "text": "Teslimat gününü seçin ve kartı aşağıya yazın, sonra ödeyin."
            }
           }
          }
