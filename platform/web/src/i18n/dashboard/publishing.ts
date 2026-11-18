@@ -49,6 +49,9 @@ export const en = {
   reviewDeliveryNotes: "Notes (enter them as they are)",
   reviewCourierTitle: "For the courier app, {name}",
   reviewCourierText: "Enter the same sign-in in the courier app's store pages, with these notes. There, the review number is a test courier with a sample job waiting; your own couriers never see the review account's parcels.",
+  // 115.74 The marketplace's vendor app.
+  reviewVendorTitle: "For the vendor app, {name}",
+  reviewVendorText: "Enter the same sign-in in the vendor app's store pages, with these notes. There, the review number is a test manager of {place}, with a sample order waiting; your places' staff never see the review account's orders, and what it changes on the place isn't kept.",
   // 112.3 A ride or taxi company's second app is its drivers'.
   reviewDriverTitle: "For the drivers' app, {name}",
   reviewDriverText: "Enter the same sign-in in the drivers' app's store pages, with these notes. There, the review number is a test driver who gets a sample ride once online; your own drivers never get the review account's rides.",
@@ -374,6 +377,8 @@ export const ar: Messages = {
   reviewDeliveryNotes: "الملاحظات (حطها زي ما هي)",
   reviewCourierTitle: "لتطبيق المناديب، {name}",
   reviewCourierText: "حط نفس بيانات الدخول في صفحات تطبيق المناديب في المتاجر، مع الملاحظات دي. رقم المراجعة هناك مندوب تجريبي مستنياه مهمة نموذجية، ومناديبك عمرهم ما بيشوفوا طرود حساب المراجعة.",
+  reviewVendorTitle: "لتطبيق المحلات، {name}",
+  reviewVendorText: "حط نفس بيانات الدخول في صفحات تطبيق المحلات في المتاجر، مع الملاحظات دي. رقم المراجعة هناك مدير تجريبي في {place} ومستنياه طلب نموذجي، وموظفين محلاتك عمرهم ما بيشوفوا طلبات حساب المراجعة، واللي بيغيّره في المحل مش بيتحفظ.",
   reviewDriverTitle: "لتطبيق السواقين، {name}",
   reviewDriverText: "حط نفس بيانات الدخول في صفحات تطبيق السواقين في المتاجر، مع الملاحظات دي. رقم المراجعة هناك سواق تجريبي بيتعرض عليه مشوار نموذجي لما يبقى متصل، ومشاوير حساب المراجعة عمرها ما بتوصل لسواقينك.",
   reviewPlayTitle: "Google Play Console",
@@ -686,6 +691,8 @@ export const tr: Messages = {
   reviewDeliveryNotes: "Notlar (olduğu gibi girin)",
   reviewCourierTitle: "Kurye uygulaması için: {name}",
   reviewCourierText: "Kurye uygulamasının mağaza sayfalarına aynı girişi bu notlarla girin. Orada inceleme numarası, bekleyen örnek bir işi olan test kuryesidir; kendi kuryeleriniz inceleme hesabının gönderilerini hiç görmez.",
+  reviewVendorTitle: "Satıcı uygulaması için: {name}",
+  reviewVendorText: "Satıcı uygulamasının mağaza sayfalarına aynı girişi bu notlarla girin. Orada inceleme numarası, bekleyen örnek bir siparişi olan {place} test yöneticisidir; işletmelerinizin personeli inceleme hesabının siparişlerini hiç görmez ve işletmede yaptığı değişiklikler kaydedilmez.",
   reviewDriverTitle: "Sürücü uygulaması için: {name}",
   reviewDriverText: "Sürücü uygulamasının mağaza sayfalarına aynı girişi bu notlarla girin. Orada inceleme numarası, çevrimiçi olunca örnek bir yolculuk teklifi alan test sürücüsüdür; kendi sürücüleriniz inceleme hesabının yolculuklarını hiç almaz.",
   reviewPlayTitle: "Google Play Console",

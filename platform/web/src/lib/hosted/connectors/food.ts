@@ -71,6 +71,11 @@ export class FoodConnector implements Connector {
     this.market = new MarketConnector(deps);
   }
 
+  /** 115.73 Whether the marketplace's routes are on, as `handle` decides: its places' staff are `vendor`s. */
+  get marketplaceOn(): boolean {
+    return this.deps.food !== false && this.deps.marketplace !== false;
+  }
+
   private async settings(): Promise<DeliverySettings> {
     return deliverySettingsOf(await this.deps.store.getDeliverySettings(this.deps.app.id));
   }

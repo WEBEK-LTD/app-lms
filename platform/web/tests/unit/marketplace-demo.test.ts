@@ -201,7 +201,8 @@ describe("Zad, the multi-vendor demo", { timeout: 30_000 }, () => {
   it("makes the demo number Zad Market's owner and a courier: an order of theirs goes all the way", async () => {
     const { app, ok, token } = await zad();
     const me = await ok<{ roles: string[] }>("GET", "/me", { token });
-    expect(me.roles.sort()).toEqual(["courier", "restaurant"]);
+    // 115.73 `vendor` too, so the vendor app opens on Zad Market's orders.
+    expect(me.roles.sort()).toEqual(["courier", "restaurant", "vendor"]);
     expect((await ok<{ items: { status: string }[] }>("GET", "/vendor/orders", { token })).items.map((o) => o.status)).toContain("placed");
 
     const market = (await store.listRestaurants(app.id)).find((r) => r.name === "Zad Market")!;

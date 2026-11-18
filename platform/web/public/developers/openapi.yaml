@@ -20237,7 +20237,20 @@ components:
         scheduled_for: { type: [string, 'null'], format: date-time }
         lines:
           type: array
-          items: { $ref: '#/components/schemas/MarketOrderLine' }
+          items:
+            allOf:
+              - $ref: '#/components/schemas/MarketOrderLine'
+              - type: object
+                properties:
+                  aisle:
+                    type: [object, 'null']
+                    description: '115.76 Where a grocery''s or shop''s item is, for picking: its aisle, its department and the aisle''s rank across the place (departments in order, then their aisles). Null when the product is in no aisle. Only on one order''s own read and the answers of its moves, never in `GET /vendor/orders`; missing for restaurants.'
+                    required: [id, name, department, position]
+                    properties:
+                      id: { type: integer }
+                      name: { type: string, example: Cheese & eggs }
+                      department: { type: [string, 'null'], example: Dairy }
+                      position: { type: integer, minimum: 1 }
         subtotal: { $ref: '#/components/schemas/Money' }
         customer:
           type: object

@@ -11,6 +11,8 @@ import { getStore } from "@/lib/data";
 import { smtpConfigured } from "@/lib/mail";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { reviewSignIn } from "@/lib/publishing/review-account";
+import { reviewPlaceOf, vendorReviewNotes } from "@/lib/market/review";
+import { hasVendorApp } from "@/lib/market/vendor-app";
 import { reviewNotes } from "@/lib/delivery/review";
 import { courierHubSetting, hubReviewCompany, hubReviewNotes, hubReviewWho } from "@/lib/courier-hub/review";
 import { schoolReviewNotes } from "@/lib/school/review";
@@ -87,7 +89,12 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
       // 104.7 A delivery app's notes for the reviewers of both apps.
       const school = app?.connector?.kind === "school" ? schoolReviewNotes(app, { university: (await loadUniSettings(store, app.id)).enabled }) : null;
       // 105.4.7b A school's notes for the reviewers: one sign-in, each role.
-      const deliveryNotes = app && hasCourierJobs(app) ? reviewNotes(app, deliverySettingsOf(await store.getDeliverySettings(app.id))) : school ? { customer: school, courier: null } : null;
+      const settings = app && hasCourierJobs(app) ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
+      const notes = app && settings ? reviewNotes(app, settings) : null;
+      // 115.74 A marketplace's vendor app has notes of its own.
+      const place = app && settings && hasVendorApp(app, settings) ? await reviewPlaceOf(store, app.id) : null;
+      const vendor = app && place ? vendorReviewNotes(app, place) : null;
+      const deliveryNotes = notes ? { ...notes, vendor } : school ? { customer: school, courier: null, vendor: null } : null;
       return { request, client, user, app, events, deliveryNotes, account: accountOf(app) };
     }),
   );
@@ -286,7 +293,7 @@ type Row = {
   user: User | null;
   app: App | null;
   events: PublishingEvent[];
-  deliveryNotes: { customer: string; courier: string | null } | null;
+  deliveryNotes: { customer: string; courier: string | null; vendor: string | null } | null;
   /** 138 */
   account: PublishingAccount | null;
 };
@@ -475,7 +482,7 @@ function RequestDetail({
 }
 
 /** 102 The reviewers' sign-in, the password or code shown only when opened. 102.2 Each value with Copy, for Google Play's App access. */
-function ReviewSignIn({ app, delivery }: { app: App | null; delivery: { customer: string; courier: string | null } | null }) {
+function ReviewSignIn({ app, delivery }: { app: App | null; delivery: { customer: string; courier: string | null; vendor: string | null } | null }) {
   const signIn = app ? reviewSignIn(app, encryptionKey()) : null;
   if (!signIn) return <p className="m-0 text-sm font-semibold text-danger">Store review account: missing</p>;
   const copied = (value: string, children: ReactNode) => (
@@ -509,6 +516,12 @@ function ReviewSignIn({ app, delivery }: { app: App | null; delivery: { customer
           <>
             <dt className="text-muted">Notes (courier app)</dt>
             {copied(delivery.courier, delivery.courier)}
+          </>
+        ) : null}
+        {delivery?.vendor ? (
+          <>
+            <dt className="text-muted">Notes (vendor app)</dt>
+            {copied(delivery.vendor, delivery.vendor)}
           </>
         ) : null}
       </dl>

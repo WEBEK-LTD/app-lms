@@ -17,6 +17,8 @@ import { notifyGraded, notifyNewLesson } from "./auto-notifications";
 import { teacherOf, teachersOn } from "../teachers/service";
 import { reviewCourierFor } from "../delivery/review";
 import { reviewRestaurantFor } from "../food/review";
+import { isMarketplaceApp } from "../market/plan";
+import { reviewVendorFor } from "../market/review";
 import { isDriver } from "./connectors/rides";
 import { appSwitches } from "../app/switches";
 import { watchOrdersAfterCheckout } from "./order-watch";
@@ -1440,7 +1442,15 @@ async function meJson(ctx: HostedContext, user: HostedUser) {
   const roles = courier?.active ? ["courier"] : [];
   // 105.1 In food delivery apps, `restaurant` for an active restaurant's staff (and the store review account).
   if (kind === "restaurants" && (await worksAtRestaurant(ctx, user))) roles.push("restaurant");
+  // 115.73 In marketplaces, also `vendor` for a place's staff, so the vendor app (and the Vendor tab) opens on its screens; 115.74 the store review account too.
+  if (kind === "restaurants" && (isMarketplaceApp(ctx.app) || ctx.app.demo === true) && (ctx.connector as { marketplaceOn?: boolean } | null | undefined)?.marketplaceOn === true && (await worksAtPlace(ctx, user))) roles.push("vendor");
   return { ...userJson(user), roles };
+}
+
+async function worksAtPlace(ctx: HostedContext, user: HostedUser): Promise<boolean> {
+  const staff = await ctx.store.findRestaurantStaff(ctx.app.id, courierWho(user));
+  if (staff) return staff.active && (await ctx.store.getRestaurant(ctx.app.id, staff.restaurantId))?.active === true;
+  return (await reviewVendorFor(ctx.store, ctx.app, user)) !== null;
 }
 
 async function worksAtRestaurant(ctx: HostedContext, user: HostedUser): Promise<boolean> {

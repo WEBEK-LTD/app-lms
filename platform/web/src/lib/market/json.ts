@@ -286,7 +286,15 @@ export function firstName(name: string): string {
   return name.trim().split(/\s+/)[0]?.slice(0, 40) || "Customer";
 }
 
-export function vendorOrderJson(o: MarketOrder, input: { courierName: string | null; collect: number | null }) {
+/** 115.76 A line's aisle as the picker walks the place: its name, its department and its rank across the place's aisles. */
+export interface VendorLineAisle {
+  id: number;
+  name: string;
+  department: string | null;
+  position: number;
+}
+
+export function vendorOrderJson(o: MarketOrder, input: { courierName: string | null; collect: number | null; aisles?: Map<number, VendorLineAisle> }) {
   const c = o.currency;
   const ownDriver = o.fulfilment === "delivery" && o.deliveryBy === "vendor";
   return {
@@ -295,7 +303,7 @@ export function vendorOrderJson(o: MarketOrder, input: { courierName: string | n
     status: o.status,
     fulfilment: o.fulfilment,
     scheduled_for: o.scheduledFor ? o.scheduledFor.toISOString() : null,
-    lines: o.lines.map((l) => orderLineJson(l, c)),
+    lines: o.lines.map((l) => (input.aisles ? { ...orderLineJson(l, c), aisle: input.aisles.get(l.productId) ?? null } : orderLineJson(l, c))),
     subtotal: money(o.money.items, c),
     customer: { first_name: firstName(o.customerName) },
     notes: o.notes,

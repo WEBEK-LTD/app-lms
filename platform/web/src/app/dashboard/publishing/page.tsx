@@ -40,6 +40,8 @@ import { ReadySection } from "./ready";
 import { ReviewSection } from "./review-section";
 import { PublishingTabs } from "./tabs";
 import { courierAppNameOf, hasCourierJobs, secondAppRoleOf } from "@/lib/delivery/courier-app";
+import { reviewPlaceOf, vendorReviewNotes } from "@/lib/market/review";
+import { hasVendorApp, vendorAppNameOf } from "@/lib/market/vendor-app";
 import { reviewNotes } from "@/lib/delivery/review";
 import { schoolReviewNotes } from "@/lib/school/review";
 import { loadUniSettings, universityOn } from "@/lib/university/settings";
@@ -127,7 +129,11 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   // 105.4.7b A school's notes: the one review sign-in and where each role is.
   // 113.9 And whether it is a university.
   const schoolNotes = app.connector?.kind === "school" ? schoolReviewNotes(app, { university: universityOn(app, current, await loadUniSettings(store, app.id)) }) : null;
-  const deliveryNotes = notes && delivery ? { ...notes, courierName: courierAppNameOf(app, delivery), driver: secondAppRoleOf(app) === "driver" } : schoolNotes ? { customer: schoolNotes, courier: null, courierName: "" } : null;
+  // 115.74 A marketplace's vendor app: its own notes, the reviewers a test manager of its first supermarket or shop.
+  const reviewPlace = delivery && hasVendorApp(app, delivery) ? await reviewPlaceOf(store, app.id) : null;
+  const vendorNotes = reviewPlace ? vendorReviewNotes(app, reviewPlace) : null;
+  const vendor = vendorNotes && reviewPlace ? { notes: vendorNotes, name: vendorAppNameOf(app), place: reviewPlace.name } : null;
+  const deliveryNotes = notes && delivery ? { ...notes, courierName: courierAppNameOf(app, delivery), driver: secondAppRoleOf(app) === "driver", vendor } : schoolNotes ? { customer: schoolNotes, courier: null, courierName: "" } : null;
 
   // 41 Every store Yallapp publishes to.
   // 46 Links that open the app: the Play signing fingerprint and the Team ID live on their own page.

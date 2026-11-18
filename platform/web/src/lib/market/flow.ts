@@ -131,7 +131,7 @@ export interface PickedLine {
   substitute: { productId: number; quantity: number } | null;
 }
 
-/** A grocery's or shop's picking: each line picked (weighed), swapped or left out; the order priced again, never above the agreed tolerance. */
+/** A grocery's or shop's picking: each line picked (weighed), swapped or left out; the order priced again: online-paid lines never above the estimate, cash lines never above the agreed tolerance (D1). */
 export async function pickMarketOrder(store: DataStore, order: MarketOrder, picked: PickedLine[], tolerancePercent: number, tax: Tax | null, now: Date): Promise<MoveResult> {
   if (order.status !== "picking" && order.status !== "accepted") return { ok: false, reason: "changed" };
   const lines = order.lines.map((l) => ({ ...l }));
@@ -155,8 +155,11 @@ export async function pickMarketOrder(store: DataStore, order: MarketOrder, pick
     }
     const quantity = p.pickedQuantity ?? line.quantity;
     if (quantity <= 0) return { ok: false, reason: "invalid", error: "Enter what you picked." };
+    // 115.75 (D1) Paid online (card, Apple Pay, Google Pay, wallet): never more than the estimate the customer paid, whatever it weighs.
+    // Paid in cash: what the scale reads, never more than the tolerance over the estimate (the picker's app refuses a heavier weight).
+    const allowance = order.paymentMethod === "cash" ? tolerancePercent : 0;
     const exact = Math.round(line.unitPrice * quantity + 1e-9);
-    const cap = Math.round((line.unitPrice * line.quantity * (100 + tolerancePercent)) / 100 + 1e-9);
+    const cap = Math.round((line.unitPrice * line.quantity * (100 + allowance)) / 100 + 1e-9);
     Object.assign(line, { outcome: "picked", pickedQuantity: quantity, substitute: null, total: Math.min(exact, cap) });
   }
   // The money again from the picked lines, keeping the coupon, club, delivery and tax as they were.

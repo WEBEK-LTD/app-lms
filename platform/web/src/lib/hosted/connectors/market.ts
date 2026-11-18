@@ -4,7 +4,8 @@ import { pushOwnerSafely } from "../../owner/push-env";
 import { paymentsSetUp } from "../../catalog/settings";
 import { payUrlFor } from "../../delivery/payment";
 import { courierWho } from "../../delivery/service";
-import { isReviewCourier } from "../../delivery/review";
+import { isReviewCourier, reviewUserId } from "../../delivery/review";
+import { reviewSees, reviewStaffOf, reviewVendorFor, reviewWhoOf, sampleReviewOrder } from "../../market/review";
 import { demoCourierPosition } from "../../demo/courier";
 import { deliverySettingsOf } from "../../delivery/settings";
 import type { DataStore } from "../../data/store";
@@ -52,6 +53,7 @@ import {
   vendorJson,
   vendorComplaintJson,
   vendorOrderJson,
+  type VendorLineAisle,
   vendorStatementJson,
   vendorSummaryJson,
   walletJson,
@@ -120,6 +122,8 @@ interface Staffed {
   vendor: Restaurant;
   staff: RestaurantStaff;
   role: VendorRole;
+  /** 115.74 The store reviewers (lib/market/review.ts): their own orders only, and their changes to the place shown, never kept. */
+  review?: boolean;
 }
 
 export class MarketConnector {
@@ -831,7 +835,12 @@ export class MarketConnector {
   /** The vendor the signed-in person works for, with their role; paused staff and inactive vendors aren't. */
   private async vendorOf(user: HostedUser): Promise<Staffed | null> {
     const staff = await this.deps.store.findRestaurantStaff(this.deps.app.id, courierWho(user));
-    if (!staff?.active) return null;
+    if (!staff) {
+      // 115.74 The store review account works for the first supermarket or shop, as a manager.
+      const review = await reviewVendorFor(this.deps.store, this.deps.app, user);
+      return review ? { vendor: review, staff: reviewStaffOf(review, user, new Date()), role: "manager", review: true } : null;
+    }
+    if (!staff.active) return null;
     const vendor = await this.deps.store.getRestaurant(this.deps.app.id, staff.restaurantId);
     return vendor?.active ? { vendor, staff, role: staff.role ?? "manager" } : null;
   }
@@ -885,14 +894,33 @@ export class MarketConnector {
   /** One of this vendor's orders, never another's. */
   private async vendorsOrder(s: Staffed, id: number): Promise<MarketOrder | null> {
     const o = await this.deps.store.getMarketOrder(this.deps.app.id, id);
-    return o && o.vendorId === s.vendor.id && o.status !== "awaiting_payment" ? o : null;
+    if (!o || o.vendorId !== s.vendor.id || o.status === "awaiting_payment") return null;
+    return reviewSees(o, await reviewUserId(this.deps.store, this.deps.app), reviewWhoOf(this.deps.app, s)) ? o : null;
   }
 
-  private async vendorJsonOf(o: MarketOrder, now: Date) {
+  private async vendorJsonOf(o: MarketOrder, now: Date, list = false) {
     const job = o.shipmentId !== null ? await this.deps.store.getShipment(this.deps.app.id, o.shipmentId) : null;
     const synced = await syncWithJob(this.deps.store, o, job, now);
     const collect = synced.paymentMethod === "cash" && synced.paymentStatus === "unpaid" && collectedByOf(synced) === "vendor" ? synced.money.payNow : null;
-    return vendorOrderJson(synced, { courierName: job?.courierName ?? null, collect });
+    // 115.76 One order's own read carries each line's aisle, for picking; the lists don't.
+    const aisles = !list && synced.vendorKind !== "restaurant" && synced.vendorId !== null ? await this.aislesOf(synced.vendorId, synced.lines.map((l) => l.productId)) : undefined;
+    return vendorOrderJson(synced, { courierName: job?.courierName ?? null, collect, aisles });
+  }
+
+  /** 115.76 Each product's aisle in the place's order (departments, then their aisles). */
+  private async aislesOf(vendorId: number, productIds: number[]): Promise<Map<number, VendorLineAisle>> {
+    const appId = this.deps.app.id;
+    const [departments, aisles] = await Promise.all([this.deps.store.listMarketDepartments(appId, vendorId), this.deps.store.listMarketAisles(appId, vendorId)]);
+    const dept = new Map(departments.map((d) => [d.id, d]));
+    const ranked = [...aisles].sort((a, b) => (dept.get(a.departmentId)?.position ?? 0) - (dept.get(b.departmentId)?.position ?? 0) || a.position - b.position || a.id - b.id);
+    const byId = new Map(ranked.map((a, i) => [a.id, { id: a.id, name: a.name, department: dept.get(a.departmentId)?.name ?? null, position: i + 1 }]));
+    const out = new Map<number, VendorLineAisle>();
+    for (const id of new Set(productIds)) {
+      const p = await this.deps.store.getMarketProduct(appId, id);
+      const aisle = p && p.vendorId === vendorId && p.aisleId !== null ? byId.get(p.aisleId) : undefined;
+      if (aisle) out.set(id, aisle);
+    }
+    return out;
   }
 
   private async desk(s: Staffed, now: Date): Promise<ConnectorResult> {
@@ -901,8 +929,9 @@ export class MarketConnector {
     const state = restaurantState(s.vendor, timezone, now);
     const startOfDay = new Date(now.getTime() - 24 * 3_600_000);
     const today = await this.deps.store.listMarketOrders({ appId: this.deps.app.id, vendorId: s.vendor.id, createdSince: startOfDay, limit: 1000, offset: 0 });
-    const counted = today.items.filter((o) => !["awaiting_payment", "rejected", "cancelled"].includes(o.status));
-    const fresh = today.items.filter((o) => o.status === "placed").length;
+    const reviewId = await reviewUserId(this.deps.store, this.deps.app);
+    const counted = today.items.filter((o) => !["awaiting_payment", "rejected", "cancelled"].includes(o.status) && reviewSees(o, reviewId, reviewWhoOf(this.deps.app, s)));
+    const fresh = counted.filter((o) => o.status === "placed").length;
     const body = deskJson(
       s.vendor,
       {
@@ -962,7 +991,8 @@ export class MarketConnector {
       }
       Object.assign(patch, placeChangePatch(s.vendor, change, s.staff.name, request.now) ?? {});
     }
-    await this.deps.store.updateRestaurant(this.deps.app.id, s.vendor.id, patch, request.now);
+    // 115.74 The reviewers' changes are shown, never kept: the place is a real one.
+    if (!s.review) await this.deps.store.updateRestaurant(this.deps.app.id, s.vendor.id, patch, request.now);
     return this.desk({ ...s, vendor: { ...s.vendor, ...patch } }, request.now);
   }
 
@@ -972,9 +1002,13 @@ export class MarketConnector {
     if (!statuses[which]) return error(400, "invalid_request", "Unknown list.");
     const page = intParam(request.query, "page", 1, 10_000);
     const perPage = intParam(request.query, "per_page", 20, 50);
+    // 115.74 The reviewers see their own orders only, with a sample one waiting when they have none open; the place's staff never see theirs.
+    const reviewId = await reviewUserId(this.deps.store, this.deps.app);
+    if (s.review && which === "new") await sampleReviewOrder(this.deps.store, this.deps.app, await this.settings(), s.vendor, request.now);
     const found = await this.deps.store.listMarketOrders({
       appId: this.deps.app.id,
       vendorId: s.vendor.id,
+      ...(s.review ? { userId: reviewId ?? -1 } : {}),
       statuses: statuses[which],
       ...(which === "done" ? { createdSince: new Date(request.now.getTime() - 2 * 86_400_000) } : {}),
       order: which === "done" ? "newest" : "oldest",
@@ -982,7 +1016,12 @@ export class MarketConnector {
       offset: (page - 1) * perPage,
     });
     const items = [];
-    for (const o of found.items) items.push(await this.vendorJsonOf(o, request.now));
+    let hidden = 0;
+    for (const o of found.items) {
+      if (!reviewSees(o, reviewId, reviewWhoOf(this.deps.app, s))) hidden++;
+      else items.push(await this.vendorJsonOf(o, request.now, true));
+    }
+    found.total -= hidden;
     return { status: 200, body: { page, per_page: perPage, total: found.total, total_pages: Math.max(1, Math.ceil(found.total / perPage)), items } };
   }
 
@@ -1089,7 +1128,7 @@ export class MarketConnector {
       const dish = menu.sections.flatMap((x) => x.dishes).find((d) => d.id === productId);
       if (!dish) return error(404, "not_found", "Item not found.");
       if (typeof b.in_stock === "boolean") dish.available = b.in_stock;
-      await this.deps.store.saveRestaurantMenu(this.deps.app.id, s.vendor.id, menu, request.now);
+      if (!s.review) await this.deps.store.saveRestaurantMenu(this.deps.app.id, s.vendor.id, menu, request.now);
       return { status: 200, body: dishJson(dish, currency, this.deps.assetUrl) };
     }
     const product = await this.deps.store.getMarketProduct(this.deps.app.id, productId);
@@ -1100,7 +1139,7 @@ export class MarketConnector {
       patch.stock = b.stock as number | null;
       if (b.stock === 0) patch.inStock = false;
     }
-    await this.deps.store.updateMarketProduct(this.deps.app.id, product.id, patch, request.now);
+    if (!s.review) await this.deps.store.updateMarketProduct(this.deps.app.id, product.id, patch, request.now);
     return { status: 200, body: productJson({ ...product, ...patch }, currency, this.deps.assetUrl) };
   }
 }
