@@ -16,7 +16,7 @@ import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { MarketCanvas } from "@/lib/studio/market-canvas";
 import type { ScreenOption } from "@/lib/pages/sources";
 import { uniqueSlug } from "@/lib/pages/model";
-import { editedTranslations } from "@/lib/pages/template-translations";
+import { editedTranslations, placeholdersIn, type StoreFacts } from "@/lib/pages/template-translations";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import { moreLabel } from "@/lib/pages/tab-bar";
 import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type LayoutTab, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
@@ -106,7 +106,13 @@ export interface StudioEditorProps {
   shareUrl?: string;
   fontCount: number;
   startSlug: string | null;
+  /** 174.5 The element to select when the editor opens (a jump from What's missing). */
+  startSelect?: string | null;
+  /** 174.5 The store's facts the template's placeholders stand for, as the app fills them. */
+  placeholderFacts?: StoreFacts;
   studioOnPlan: boolean;
+  /** 174.4 The plan leaves motion out of what the app gets: the plans that have it, and where plans are chosen. */
+  motionOff?: { plans: string[]; href: string } | null;
   /** 103R.7 The project's type: its own templates and sections come first. */
   kind: ProjectKind;
   /** Templates = demos: the tabs of the kind's Studio demo, set with its whole design; null without a demo. */
@@ -146,7 +152,7 @@ export function StudioEditor(props: StudioEditorProps) {
   const textStyles = useMemo(() => textStylesOf(layout), [layout]);
   const textStyleCount = useMemo(() => textStyleUse(layout), [layout]);
   const [slug, setSlug] = useState(() => layout.pages.find((p) => p.slug === props.startSlug)?.slug ?? layout.pages.find((p) => p.studio)?.slug ?? layout.pages[0]?.slug ?? "");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(() => props.startSelect ?? null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [device, setDevice] = useState<Device>("phone");
   const [lang, setLang] = useState<LanguageCode>(layout.languages.default);
@@ -167,6 +173,18 @@ export function StudioEditor(props: StudioEditorProps) {
   const [restoring, setRestoring] = useState(false);
   const [myTemplates, setMyTemplates] = useState(props.myTemplates);
   const [pagesOpen, setPagesOpen] = useState(false);
+  // 174.5 The template's [placeholders] still on a page: the app leaves them out until the owner writes them.
+  const toWrite = useMemo(() => placeholdersIn(layout, props.placeholderFacts ?? {}, { appName: props.app.name }), [layout, props.placeholderFacts, props.app.name]);
+  const goTo = (spot: { slug: string; id: string | null }) => {
+    setSlug(spot.slug);
+    setSelectedId(spot.id);
+    setPagesOpen(false);
+    if (spot.id) requestAnimationFrame(() => document.querySelector(`[data-studio-node="${CSS.escape(spot.id!)}"]`)?.scrollIntoView({ block: "center" }));
+  };
+  // A jump from What's missing: the element in sight once drawn.
+  useEffect(() => {
+    if (props.startSelect) requestAnimationFrame(() => document.querySelector(`[data-studio-node="${CSS.escape(props.startSelect!)}"]`)?.scrollIntoView({ block: "center" }));
+  }, [props.startSelect]);
   const [newTitle, setNewTitle] = useState("");
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   // 132.74 A template seen before it replaces the page: its page, made once, is the one used.
@@ -275,6 +293,9 @@ export function StudioEditor(props: StudioEditorProps) {
     hours: t("studio.hours"),
     minutes: t("studio.minutes"),
     seconds: t("studio.seconds"),
+    sample: t("studio.canvasSample"),
+    saleSample: t("studio.canvasSaleSample"),
+    couponSample: t("studio.canvasCouponSample"),
   };
   function newFlashWord() {
     return appWord(dashLang, "newFlash", app.name);
@@ -304,7 +325,12 @@ export function StudioEditor(props: StudioEditorProps) {
   // ——— Changes, undo and the draft saving itself ———
 
   /** One change to the whole draft; `key` joins quick changes to one field into one undo step. */
+  // 174 A step that says what it was itself (a version brought back), where comparing the designs can't.
+  const stepNames = useRef(new WeakMap<LayoutContent, string>());
+  const nextStepName = useRef<string | null>(null);
   const change = useCallback((next: (current: LayoutContent) => LayoutContent, key = "") => {
+    const name = nextStepName.current;
+    nextStepName.current = null;
     const now = Date.now();
     const join = key !== "" && key === lastChange.current.key && now - lastChange.current.at <= JOIN_MS;
     lastChange.current = { at: now, key };
@@ -313,6 +339,7 @@ export function StudioEditor(props: StudioEditorProps) {
       if (made === h.present) return h;
       // 156 A translation the owner wrote is marked as theirs; the template's translations of a text they changed go.
       const value = editedTranslations(h.present, made, { appName: appNameRef.current });
+      if (name) stepNames.current.set(value, name);
       return join ? { ...h, present: value } : pushHistory(h, value);
     });
     edits.current += 1;
@@ -426,7 +453,7 @@ export function StudioEditor(props: StudioEditorProps) {
     const sent = edits.current;
     try {
       const r = await publishLayoutAction(JSON.stringify(layout));
-      if (applied(r, sent) && r.ok) setNotice(props.studioOnPlan ? t("studio.published") : t("studio.publishedOff"));
+      if (applied(r, sent) && r.ok) setNotice(!props.studioOnPlan ? t("studio.publishedOff") : toWrite.length ? `${t("studio.published")} ${t("studio.publishedToWrite", { count: toWrite.length })}` : t("studio.published"));
       if (r.ok && r.history) setPublishes(r.history);
     } catch {
       setProblem(t("pages.cantSave"));
@@ -451,7 +478,8 @@ export function StudioEditor(props: StudioEditorProps) {
         setNotice(known(r.errors[0] ?? ""));
         return;
       }
-      change(() => r.draft);
+      nextStepName.current = t("studioKit.hist_restored", { date: when });
+      change(() => r.draft, `restore:${entry.number}`);
       if (!r.draft.pages.some((p) => p.slug === slug && p.studio)) setSlug(r.draft.pages.find((p) => p.studio)?.slug ?? r.draft.pages[0]?.slug ?? "");
       setSelectedId(null);
       setNotice(t("studio.restored", { date: when }));
@@ -1124,6 +1152,8 @@ export function StudioEditor(props: StudioEditorProps) {
   // 132.73 The undo history in words: each step read from the draft before and after it.
   const stepLabel = (before: LayoutContent | null, after: LayoutContent): string => {
     if (!before) return t("studioKit.histStart");
+    const named = stepNames.current.get(after);
+    if (named) return named;
     const s2 = describeStep(before, after);
     switch (s2.kind) {
       case "added":
@@ -1399,6 +1429,14 @@ export function StudioEditor(props: StudioEditorProps) {
             <span className="max-2xl:sr-only">{t("studio.inApp")}</span>
           </span>
         ) : null}
+        {/* 174.5 Texts still the template's [placeholders]: said before Publish, a tap goes to the first. */}
+        {toWrite.length ? (
+          <button type="button" onClick={() => goTo(toWrite[0]!)} title={t("studio.toWriteHint", { count: toWrite.length })} className="flex h-[30px] items-center gap-1.5 rounded-full border-0 px-2.5 text-[13px] font-semibold" style={{ background: C.barSoft, color: "#FFD27A" }} data-studio-to-write={toWrite.length}>
+            <Glyph name="edit_note" size={16} />
+            <span className="max-2xl:sr-only">{t("studio.toWrite", { count: toWrite.length })}</span>
+            <span className="sr-only">{t("studio.toWriteHint", { count: toWrite.length })}</span>
+          </button>
+        ) : null}
         <button type="button" onClick={() => void publish()} disabled={publishing || status === "invalid"} className="flex h-[38px] items-center gap-1.5 rounded-[10px] border-0 px-[18px] text-sm font-extrabold disabled:opacity-60" style={{ background: C.accent, color: C.onAccent }}>
           <Glyph name="rocket_launch" size={18} />
           {publishing ? t("studio.publishing") : t("studio.publish")}
@@ -1550,7 +1588,7 @@ export function StudioEditor(props: StudioEditorProps) {
           </div>
 
           <div style={{ width: frame.width * (zoom / 100), height: frame.height * (zoom / 100), flex: "none" }}>
-            <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.bar, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
+            <div data-studio-phone-frame="" style={{ position: "relative", width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.bar, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
                   <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} commerceWords={commerceWords} />
@@ -1558,6 +1596,8 @@ export function StudioEditor(props: StudioEditorProps) {
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} dark={dark} />
                 ) : null}
               </div>
+              {/* 174.2 The selection's corners and size, over the screen and its frame so nothing inside clips them. */}
+              <div data-studio-handles="" aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 4 }} onClick={(e) => e.stopPropagation()} />
             </div>
           </div>
 
@@ -1590,6 +1630,8 @@ export function StudioEditor(props: StudioEditorProps) {
 
         {studio ? (
           <Inspector
+            motionOff={props.motionOff ?? null}
+            dark={dark}
             // 130.21 The system screens' look, saved with Studio › Screens and drawn on the canvas at once.
             system={
               props.screensHref

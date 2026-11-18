@@ -50,7 +50,7 @@ function SpotIn({ label, value, onChange }: { label: string; value: StudioPlace;
       <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
         {what}
       </span>
-      <input type="number" min={0} max={100} step={1} value={v} onChange={(e) => set(Math.max(0, Math.min(100, Number(e.target.value) || 0)))} className={`${INPUT} w-16`} style={FIELD} />
+      <input type="number" aria-label={`${label}: ${what}`} min={0} max={100} step={1} value={v} onChange={(e) => set(Math.max(0, Math.min(100, Number(e.target.value) || 0)))} className={`${INPUT} w-16`} style={FIELD} />
     </label>
   );
   return (

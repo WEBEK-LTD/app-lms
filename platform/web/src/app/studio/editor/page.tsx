@@ -17,10 +17,11 @@ import { ownDesignView } from "@/lib/studio/own-designs";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { marketCanvasOf } from "@/lib/studio/market-canvas-data";
 import { sampleEntries } from "@/lib/studio/sample-entries";
-import { designLayout, hasUnpublishedChanges, layoutHistory, loadLayout, withoutStaleDraftTranslations, withoutStrings } from "@/lib/pages/layout";
+import { designLayout, hasUnpublishedChanges, layoutHistory, loadLayout, storeFactsOf, withoutStaleDraftTranslations, withoutStrings } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
 import { categorySourcesFor, itemSourcesFor, pageScreenOptionsFor, screenOptionsFor } from "@/lib/pages/sources";
-import { hasFeature } from "@/lib/plans";
+import { hasFeature, planOffered, STUDIO_PLANS, type Plan, type PlanInfo } from "@/lib/plans";
+import { planFor } from "@/lib/marketing-lang";
 import { isStudioProject } from "@/lib/studio/section";
 import { studioDemoOf } from "@/lib/studio/demo-templates";
 import { screensConfig, studioScreensOn } from "@/lib/studio/screens";
@@ -38,12 +39,20 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 export const dynamic = "force-dynamic";
 
+/** 174.4 The Studio plans on offer that have "Motion in the editor", by name in the dashboard's language. */
+function motionPlans(plans: Record<Plan, PlanInfo>, lang: Lang): string[] {
+  return STUDIO_PLANS.map((id) => plans[id])
+    .filter((p): p is PlanInfo => Boolean(p) && planOffered(p) && !p.archived && hasFeature(p, "studio") && hasFeature(p, "studio_motion"))
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    .map((p) => planFor(lang, p).name);
+}
+
 /** 103R.4 Yallapp Studio's editor: the app's pages, designed element by element, in the layout's draft. */
 export default async function StudioEditorPage({ searchParams }: PageProps<"/studio/editor">) {
   const { app, license } = await requireClient("settings");
   // 103R.3 Studio's editor is for Studio projects; a regular app keeps the dashboard's page editor.
   if (!app || !isStudioProject(app)) redirect("/studio");
-  const { t, k } = await dashboardText();
+  const { t, k, lang } = await dashboardText();
   const store = await getStore();
   const now = new Date();
   const plans = await effectivePlans(store);
@@ -90,8 +99,13 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       phoneQr={<QrCode value={`${appUrl()}${previewAppPath(createPreviewToken({ appId: app.id, draft: draftPreviewSupported(app) }, previewKey(signingSecret()), now))}`} label={t("preview.qr", { app: app.appName ?? t("setup.yourApp") })} size={168} />}
       fontCount={FREE_FONT_COUNT}
       startSlug={typeof query.page === "string" ? query.page : null}
+      // 174.5 A jump from What's missing to the element still to write, and the store's facts its placeholders stand for.
+      startSelect={typeof query.select === "string" ? query.select : null}
+      placeholderFacts={storeFactsOf(app)}
       // Designing works on any plan; the app gets the design with Studio on the plan (before activation, everything).
       studioOnPlan={plan ? hasFeature(plan, "studio") : true}
+      // 174.4 The app gets the elements' motion with "Motion in the editor" on the plan (before activation, everything; Yallapp's Studio demos always).
+      motionOff={plan && !hasFeature(plan, "studio_motion") && !(app.demo && app.section === "studio") ? { plans: motionPlans(plans, lang), href: "/studio/project/license" } : null}
       kind={{ type: app.appType, vertical: app.vertical ?? null }}
       // Templates = demos: the tabs the kind's demo has, which "Like our demo" sets.
       demoTabs={demo ? designLayout(app, demoDesign(demo), record.draft, now).tabs : null}

@@ -1,7 +1,8 @@
 "use client";
 
 import { COMMERCE_WORDS_EN, CouponCanvas, FlashSaleCanvas, type CommerceWords } from "./commerce";
-import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import type { LanguageCode } from "@/lib/pages/types";
 import { resized, snapped } from "@/lib/studio/resize";
 import { forTablet } from "@/lib/studio/tablet";
@@ -144,6 +145,9 @@ const JUSTIFY: Record<string, CSSProperties["justifyContent"]> = { start: "flex-
 const ITEMS: Record<string, CSSProperties["alignItems"]> = { start: "flex-start", center: "center", end: "flex-end", stretch: "stretch" };
 
 /** The text in the language being edited (the default one's when not translated). */
+/** 174 Arabic script, whose letters join (Arabic, Persian, Urdu and their supplements). */
+const ARABIC_SCRIPT = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+
 export function textIn(node: { text?: string | null; translations?: Record<string, Record<string, unknown>> }, lang: string, def: string): string {
   if (lang !== def) {
     const t = node.translations?.[lang]?.text;
@@ -700,7 +704,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     fontWeight: node.font?.weight,
     fontSize: node.font?.size,
     lineHeight: node.font?.line_height,
-    letterSpacing: node.font?.letter_spacing,
+    // 174 Arabic letters are joined: spacing them (a Latin display style's tracking) breaks them apart on the canvas, and the app keeps them joined.
+    letterSpacing: node.font?.letter_spacing && !ARABIC_SCRIPT.test(textIn(node, lang, defaultLang)) ? node.font.letter_spacing : undefined,
     fontStyle: node.font?.italic ? "italic" : undefined,
     textDecoration: decoration || undefined,
     textTransform: node.font?.uppercase ? "uppercase" : undefined,
@@ -794,10 +799,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       {content}
       {selected && editing ? (
         <>
-          {(["top", "bottom"] as const).flatMap((v) =>
-            (["insetInlineStart", "insetInlineEnd"] as const).map((h) => <Corner key={`${v}${h}`} v={v} h={h} rtl={lang === "ar"} id={node.id} onResize={node.id === props.page.body.id || locked ? undefined : editing.onResize} />),
-          )}
-          <SizeBadge id={node.id} />
+          <SelectionHandles id={node.id} rtl={lang === "ar"} onResize={node.id === props.page.body.id || locked ? undefined : editing.onResize} />
           <Tag text={editing.tagOf(node)} />
         </>
       ) : null}
@@ -1417,15 +1419,106 @@ function EmptyLayout() {
 }
 
 /**
+ * 174.2 The selected element's corners and its size, drawn over the phone
+ * (the editor's `[data-studio-handles]` layer) rather than inside the
+ * element: a rounded element, a text cut to its lines and the phone's
+ * screen all clip what is inside them, so handles drawn 9px outside the
+ * element were cut off on buttons, chips, rounded cards and full-width rows
+ * and a drag or a double click landed on the element underneath. The layer
+ * follows the element as the page scrolls, zooms or changes. Without the
+ * layer (a view outside the editor) they are drawn inside it, as before.
+ */
+function SelectionHandles({ id, rtl, onResize }: { id: string; rtl: boolean; onResize?: StudioEditing["onResize"] }) {
+  const anchor = useRef<HTMLSpanElement>(null);
+  const [layer, setLayer] = useState<HTMLElement | null>(null);
+  const [box, setBox] = useState<HandleBox | null>(null);
+  useLayoutEffect(() => {
+    const el = anchor.current?.parentElement;
+    const host = el?.closest<HTMLElement>("[data-studio-phone-frame]")?.querySelector<HTMLElement>("[data-studio-handles]") ?? null;
+    setLayer(host);
+    if (!el || !host) return;
+    let frame = 0;
+    let last = "";
+    const measure = () => {
+      const next = handleBox(el, host);
+      const key = next ? `${next.x},${next.y},${next.w},${next.h},${next.top},${next.bottom},${next.size}` : "";
+      if (key !== last) {
+        last = key;
+        setBox(next);
+      }
+      frame = requestAnimationFrame(measure);
+    };
+    measure();
+    return () => cancelAnimationFrame(frame);
+  }, [id]);
+  const target = () => anchor.current?.parentElement ?? null;
+  const corners = (["top", "bottom"] as const).flatMap((v) => (["insetInlineStart", "insetInlineEnd"] as const).map((h) => ({ v, h })));
+  if (!layer) {
+    return (
+      <>
+        <span ref={anchor} aria-hidden="true" data-studio-anchor="" style={{ display: "none" }} />
+        {corners.map(({ v, h }) => <Corner key={`${v}${h}`} v={v} h={h} rtl={rtl} id={id} target={target} onResize={onResize} />)}
+        <SizeBadge id={id} />
+      </>
+    );
+  }
+  return (
+    <>
+      <span ref={anchor} aria-hidden="true" data-studio-anchor="" style={{ display: "none" }} />
+      {box
+        ? createPortal(
+            <span data-studio-handles-for={id} style={{ position: "absolute", left: box.x, top: box.y, width: box.w, height: box.h, pointerEvents: "none" }}>
+              {corners.map(({ v, h }) => (v === "top" ? box.top : box.bottom) ? <Corner key={`${v}${h}`} v={v} h={h} rtl={false} id={id} target={target} onResize={onResize} /> : null)}
+              {box.bottom ? <SizeBadge id={id} text={box.size} /> : null}
+            </span>,
+            layer,
+          )
+        : null}
+    </>
+  );
+}
+
+interface HandleBox {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  /** Whether the element's top and foot are on the screen (a handle scrolled out of it isn't drawn over the frame). */
+  top: boolean;
+  bottom: boolean;
+  size: string;
+}
+
+/** Where the element sits in the layer, in the phone's pixels (the frame may be zoomed). */
+function handleBox(el: HTMLElement, layer: HTMLElement): HandleBox | null {
+  const r = el.getBoundingClientRect();
+  const l = layer.getBoundingClientRect();
+  if (!l.width || !layer.offsetWidth) return null;
+  const scale = l.width / layer.offsetWidth;
+  const screen = (layer.parentElement?.querySelector(".studio-screen") as HTMLElement | null)?.getBoundingClientRect() ?? l;
+  const inside = (y: number) => y >= screen.top - 1 && y <= screen.bottom + 1;
+  return {
+    x: (r.left - l.left) / scale,
+    y: (r.top - l.top) / scale,
+    w: r.width / scale,
+    h: r.height / scale,
+    top: inside(r.top),
+    bottom: inside(r.bottom),
+    size: `${Math.round(r.width)} × ${Math.round(r.height)}`,
+  };
+}
+
+/**
  * A corner of the selected element. 108.1 Dragging it resizes the element
  * (Shift keeps its shape); a double click gives it back its own size.
  */
-function Corner({ v, h, rtl, id, onResize }: { v: "top" | "bottom"; h: "insetInlineStart" | "insetInlineEnd"; rtl: boolean; id: string; onResize?: StudioEditing["onResize"] }) {
+function Corner({ v, h, rtl, id, target, onResize }: { v: "top" | "bottom"; h: "insetInlineStart" | "insetInlineEnd"; rtl: boolean; id: string; target: () => HTMLElement | null; onResize?: StudioEditing["onResize"] }) {
   const right = (h === "insetInlineEnd") !== rtl;
-  const style: CSSProperties = { position: "absolute", [v]: -9, [h]: -9, width: 9, height: 9, background: "#FFFFFF", border: "2px solid #3D63FF", borderRadius: 2, zIndex: 6, boxSizing: "content-box" };
+  // In the layer (left to right, so `rtl` is false there) the side is the screen's; inside the element, its own start and end.
+  const style: CSSProperties = { position: "absolute", [v]: -9, [h]: -9, width: 9, height: 9, background: "#FFFFFF", border: "2px solid #3D63FF", borderRadius: 2, zIndex: 6, boxSizing: "content-box", pointerEvents: "auto" };
   if (!onResize) return <span aria-hidden="true" style={style} />;
   function down(e: PointerEvent<HTMLSpanElement>) {
-    const el = e.currentTarget.parentElement;
+    const el = target();
     if (!el || e.button !== 0 || !onResize) return;
     e.preventDefault();
     e.stopPropagation();
@@ -1498,15 +1591,19 @@ function Corner({ v, h, rtl, id, onResize }: { v: "top" | "bottom"; h: "insetInl
 }
 
 /** The selected element's size on the screen ("306 × 46"), measured once drawn. */
-function SizeBadge({ id }: { id: string }) {
+function SizeBadge({ id, text }: { id: string; text?: string }) {
   return (
     <span
       data-studio-size={id}
       dir="ltr"
       style={{ position: "absolute", bottom: -30, left: "50%", transform: "translateX(-50%)", background: "#3D63FF", color: "#FFFFFF", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, whiteSpace: "nowrap", zIndex: 6 }}
       ref={(el) => {
-        const box = el?.parentElement?.getBoundingClientRect();
-        if (el && box) el.textContent = `${Math.round(box.width)} × ${Math.round(box.height)}`;
+        if (!el) return;
+        if (text !== undefined) el.textContent = text;
+        else {
+          const box = el.parentElement?.getBoundingClientRect();
+          if (box) el.textContent = `${Math.round(box.width)} × ${Math.round(box.height)}`;
+        }
       }}
     />
   );
