@@ -93,6 +93,31 @@ export function appStoriesStoreSuite(make: () => DataStore) {
     expect((await s.getAppById(app.id))?.storiesSeededAt).toEqual(NOW);
   });
 
+  it("194 keeps each story's set (its page), and removes copies from Studio only, without saving for the owner", async () => {
+    const s = make();
+    const app = await storiesApp(s);
+    const home = (await s.createAppStory(storyOf(app.id, 0, { importKey: "home:hero:0", page: "home" })))!;
+    const shop = (await s.createAppStory(storyOf(app.id, 1, { importKey: "bouquets:rings:0", page: "bouquets" })))!;
+    const before = (await s.createAppStory(storyOf(app.id, 2, { importKey: "home:hero:1" })))!;
+    expect((await s.getAppStory(app.id, home.id))?.page).toBe("home");
+    expect((await s.getAppStory(app.id, shop.id))?.page).toBe("bouquets");
+    // A story from before 194: no set of its own (the lead page's, lib/stories/sets.ts).
+    expect((await s.getAppStory(app.id, before.id))?.page ?? null).toBeNull();
+    // Changing a story keeps its set.
+    await s.updateAppStory(app.id, shop.id, { texts: { en: { ring: "Wedding" } }, updatedAt: NOW });
+    expect((await s.getAppStory(app.id, shop.id))?.page).toBe("bouquets");
+    const fresh = await storiesApp(s);
+    const copy = (await s.createAppStory(storyOf(fresh.id, 0, { importKey: "home:hero:0", page: "home" })))!;
+    const own = (await s.createAppStory(storyOf(fresh.id, 1, { page: "home" })))!;
+    const saved = (await s.getAppById(fresh.id))?.storiesSavedAt ?? null;
+    await s.removeAppStoryCopies(fresh.id, [copy.id, own.id]);
+    expect((await s.listAppStories(fresh.id)).map((x) => x.id)).toEqual([own.id]);
+    expect((await s.getAppById(fresh.id))?.storiesSavedAt ?? null).toEqual(saved);
+    // Another app's copies are not this app's.
+    await s.removeAppStoryCopies(fresh.id, [home.id]);
+    expect(await s.getAppStory(app.id, home.id)).not.toBeNull();
+  });
+
   it("165 goes with its app", async () => {
     const s = make();
     const app = await storiesApp(s);

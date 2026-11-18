@@ -71,6 +71,7 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       files: await Promise.all(font.files.map(async (f) => ({ weight: f.weight, kind: (await store.getAsset(f.assetId))?.contentType === "font/otf" ? ("otf" as const) : ("ttf" as const), url: `/api/v1/assets/${f.assetId}` }))),
     })),
   );
+  const pickable = await pickableContent(app, { store, key: encryptionKey(), assetUrl, platformUrl: appUrl() }, now);
   return (
     <>
     <StudioEditor
@@ -91,7 +92,7 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       pageScreens={pageScreenOptionsFor(app)}
       // Studio's canvas: the samples a list shows while the project has none (never offered to pick).
       // 165 And Dashboard › Stories for the story elements from it (an app made from the flower shop's template has its own copied there the first time).
-      pickable={{ ...(await pickableContent(app, { store, key: encryptionKey(), assetUrl, platformUrl: appUrl() }, now)), samples: sampleEntries(now), ...(await studioStoriesFor(store, app, now)) }}
+      pickable={{ ...pickable, samples: sampleEntries(now), ...(await studioStoriesFor(store, app, now, pickable.shopCategories ?? null)) }}
       myTemplates={(await store.listStudioTemplates(app.clientId)).map(({ id, name, page }) => ({ id, name, page }))}
       // 17 The real app with the saved draft on the hosted API, else with what's published.
       previewHref={app.backend === "hosted" ? "/studio/project/preview?pages=draft" : "/studio/project/preview"}

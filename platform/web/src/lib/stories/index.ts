@@ -1,10 +1,11 @@
 import type { DataStore } from "../data/store";
 import type { App, AppStory, AppStoryMedia, AppStoryTexts } from "../data/types";
 import { appOpensScreen, itemSourcesFor } from "../pages/sources";
-import { ACTION_TYPES, SCREENS, type Action, type ItemSource, type StudioNode } from "../pages/types";
+import { ACTION_TYPES, SCREENS, type Action, type ItemSource } from "../pages/types";
 import { mediaAddress } from "../pages/validate";
 import type { DashKey } from "../../i18n/dashboard";
-import { designedStories, dashboardStoryElements, type DesignedStory } from "./elements";
+import type { ShopCategories } from "../studio/shop-categories";
+import { storySetPages, syncStorySets } from "./sets";
 export { SHOP_ACTION, servedStories, storyAction, storyLive } from "./serve";
 
 /**
@@ -30,6 +31,8 @@ export interface StoryInput {
   icon?: unknown;
   action?: unknown;
   categoryId?: unknown;
+  /** 194 A new story's set: the page whose story elements show it. */
+  page?: unknown;
 }
 
 export type StoryFields = Pick<AppStory, "enabled" | "startsAt" | "endsAt" | "media" | "texts" | "icon" | "action" | "categoryId">;
@@ -144,50 +147,8 @@ export function parseStory(input: StoryInput, rules: StoryRules): StoryParse {
   };
 }
 
-// ——— 165 The stories an app's Studio design already shows, copied once ———
+// ——— 165 The stories an app's Studio design already shows, copied (194: each page its own set, lib/stories/sets.ts) ———
 
-/**
- * The stories of a design's story elements that come from the dashboard,
- * merged into one list: Leqaa shows the same occasions as its hero's
- * slides, as rings and (look B) as chips, the n-th of each the same
- * occasion. The slides give the most (kicker, title, line, button), so the
- * first element with slides leads; the others add what it lacks (the
- * ring's name and icon, a photo) when they show as many.
- */
-export function designStories(pages: readonly { slug: string; studio?: { body: StudioNode } | null }[], def: string): { key: string; story: DesignedStory }[] {
-  const found: { key: string; kind: string; stories: DesignedStory[] }[] = [];
-  for (const page of pages) {
-    if (!page.studio) continue;
-    for (const { node, kind } of dashboardStoryElements(page.studio.body)) found.push({ key: `${page.slug}:${node.id}`, kind, stories: designedStories(node, kind, def) });
-  }
-  const rank = (k: string) => (k === "slides" ? 0 : k === "rings" ? 1 : 2);
-  const lead = [...found].sort((a, b) => rank(a.kind) - rank(b.kind))[0];
-  if (!lead) return [];
-  return lead.stories.map((story, i) => {
-    const merged: DesignedStory = { ...story, texts: structuredClone(story.texts) };
-    for (const other of found) {
-      if (other === lead || other.stories.length !== lead.stories.length) continue;
-      const o = other.stories[i]!;
-      merged.imageUrl ??= o.imageUrl;
-      merged.icon ??= o.icon;
-      for (const [lang, t] of Object.entries(o.texts)) {
-        if (t.ring && !merged.texts[lang]?.ring) merged.texts[lang] = { ...merged.texts[lang], ring: t.ring };
-      }
-    }
-    return { key: `${lead.key}:${i}`, story: merged };
-  });
-}
-
-/**
- * Copies the stories the app's Studio design shows into Dashboard › Stories
- * once (the first time the Stories page opens or the app asks for a page
- * with them): the published design, else the draft. Nothing visible
- * changes: the elements then show the same stories, from the dashboard.
- * Idempotent: each story is copied under its key once, and the app is
- * marked when done; a story the owner removed afterwards stays removed. A
- * design with no such element leaves the app unmarked, to look again once
- * it has one (the template applied later).
- */
 /**
  * 165 Whether the owner has saved the app's stories in Dashboard › Stories
  * (`App.storiesSavedAt`; the copy from Studio isn't theirs). Until then the
@@ -200,41 +161,26 @@ export async function dashboardStoriesSaved(store: DataStore, app: App): Promise
   return Boolean((await store.getAppById(app.id))?.storiesSavedAt);
 }
 
-export async function ensureStoriesSeeded(store: DataStore, app: App, now: Date): Promise<number> {
-  if (app.storiesSeededAt) return 0;
-  // As stored now: the app in hand may have been read before another request copied them (a story removed since stays removed).
-  if ((await store.getAppById(app.id))?.storiesSeededAt) return 0;
+/**
+ * Copies the stories the app's Studio design shows into Dashboard › Stories
+ * (the first time the Stories page opens or the app asks for a page with
+ * them): the published design, else the draft, each page's story elements
+ * their own set (194), as the app shows them (the shop's categories in a
+ * template's list of them, `shop`). Nothing visible changes: the elements
+ * then show the same stories, from the dashboard. A story the owner removed
+ * stays removed; a set still all copies follows what the page shows
+ * (lib/stories/sets.ts `syncStorySets`). A design with no such element
+ * leaves the app unmarked, to look again once it has one (the template
+ * applied later). Returns the number of stories copied.
+ */
+export async function ensureStoriesSeeded(store: DataStore, app: App, now: Date, shop: ShopCategories | null = null): Promise<number> {
   const record = await store.getAppLayout(app.id);
   const content = record?.published ?? record?.draft ?? null;
-  const designed = content ? designStories(content.pages, content.languages.default) : [];
   // A design without story elements from the dashboard (yet): looked at again next time.
-  if (!designed.length) return 0;
-  let made = 0;
-  {
-    const existing = await store.listAppStories(app.id);
-    let position = existing.length ? Math.max(...existing.map((s) => s.position)) + 1 : 0;
-    for (const { key, story } of designed) {
-      const created = await store.createAppStory({
-        appId: app.id,
-        position: position,
-        enabled: true,
-        startsAt: null,
-        endsAt: null,
-        media: story.videoUrl ? { kind: "video", imageUrl: story.imageUrl, videoUrl: story.videoUrl } : { kind: "image", imageUrl: story.imageUrl, videoUrl: null },
-        texts: story.texts,
-        icon: story.icon,
-        action: story.action,
-        categoryId: null,
-        importKey: key.slice(0, 191),
-        createdAt: now,
-        updatedAt: now,
-      });
-      if (created) {
-        made += 1;
-        position += 1;
-      }
-    }
-  }
-  await store.markStoriesSeeded(app.id, now);
+  if (!content || !storySetPages(content.pages).length) return 0;
+  const def = content.languages.default;
+  const languages = storyLanguages([def, ...content.languages.available.filter((l) => l !== def)]);
+  const made = await syncStorySets(store, app, now, { languages, shop, saved: await dashboardStoriesSaved(store, app) });
+  if (!app.storiesSeededAt) await store.markStoriesSeeded(app.id, now);
   return made;
 }

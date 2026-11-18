@@ -897,6 +897,11 @@ export interface DataStore {
   deleteAppStory(appId: string, id: number): Promise<boolean>;
   /** Puts the app's stories in this order (ids not given keep their order after them). Sets the app's `storiesSavedAt`. */
   reorderAppStories(appId: string, ids: number[], now: Date): Promise<void>;
+  /**
+   * 194 Removes copies from the Studio design (stories with an `importKey`) among `ids`, to copy what the app shows
+   * again; the owner's own stories are never removed by it, and the app's `storiesSavedAt` stays as it is.
+   */
+  removeAppStoryCopies(appId: string, ids: number[]): Promise<void>;
   /** Notes that the app's Studio stories were copied (`apps.stories_seeded_at`); false when it already was. */
   markStoriesSeeded(appId: string, now: Date): Promise<boolean>;
   createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder>;

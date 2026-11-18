@@ -1292,7 +1292,8 @@ export const appStories = mysqlTable(
     // Copied from the app's Studio design once (`<page>:<element>:<n>`); null for the owner's own.
     importKey: varchar("import_key", { length: 191 }),
     // Its photo or video, its words by language, its icon and what its button opens (JSON).
-    data: jsonText<Pick<AppStory, "media" | "texts" | "icon" | "action">>("data").notNull(),
+    // 194 And its set (`page`: the Studio page whose story elements show it), in the same JSON: no new column.
+    data: jsonText<Pick<AppStory, "media" | "texts" | "icon" | "action" | "page">>("data").notNull(),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },

@@ -1688,7 +1688,7 @@ export class MysqlStore implements DataStore {
 
   private appStoryOf(row: typeof schema.appStories.$inferSelect): AppStory {
     const { data, ...rest } = row;
-    return { ...rest, media: data.media, texts: data.texts, icon: data.icon ?? null, action: data.action ?? null };
+    return { ...rest, media: data.media, texts: data.texts, icon: data.icon ?? null, action: data.action ?? null, ...(data.page ? { page: data.page } : {}) };
   }
 
   async listAppStories(appId: string): Promise<AppStory[]> {
@@ -1704,9 +1704,9 @@ export class MysqlStore implements DataStore {
   }
 
   async createAppStory(input: Omit<AppStory, "id">): Promise<AppStory | null> {
-    const { media, texts, icon, action, ...rest } = input;
+    const { media, texts, icon, action, page, ...rest } = input;
     try {
-      const [result] = await this.run((db) => db.insert(schema.appStories).values({ ...rest, data: { media, texts, icon, action } }));
+      const [result] = await this.run((db) => db.insert(schema.appStories).values({ ...rest, data: { media, texts, icon, action, page: page ?? null } }));
       if (input.importKey === null) await this.storiesSaved(input.appId, input.updatedAt);
       return { ...input, id: Number(result.insertId) };
     } catch (error) {
@@ -1731,7 +1731,7 @@ export class MysqlStore implements DataStore {
           endsAt: next.endsAt,
           categoryId: next.categoryId,
           updatedAt: next.updatedAt,
-          data: { media: next.media, texts: next.texts, icon: next.icon, action: next.action },
+          data: { media: next.media, texts: next.texts, icon: next.icon, action: next.action, page: next.page ?? null },
         })
         .where(and(eq(t.appId, appId), eq(t.id, id))),
     );
@@ -1760,6 +1760,13 @@ export class MysqlStore implements DataStore {
       await this.run((db) => db.update(t).set({ position, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
     }
     await this.storiesSaved(appId, now);
+  }
+
+  async removeAppStoryCopies(appId: string, ids: number[]): Promise<void> {
+    const list = ids.filter((id) => Number.isSafeInteger(id) && id > 0);
+    if (!list.length) return;
+    const t = schema.appStories;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), inArray(t.id, list), isNotNull(t.importKey))));
   }
 
   async markStoriesSeeded(appId: string, now: Date): Promise<boolean> {

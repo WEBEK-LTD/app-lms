@@ -1489,6 +1489,12 @@ export interface AppStory {
   categoryId: string | null;
   /** Copied from the app's Studio design (`<page>:<element>:<n>`), so it is copied once; null: the owner's own. */
   importKey: string | null;
+  /**
+   * 194 Its set: the slug of the Studio page whose story elements show it
+   * (each page its own, Home's apart from the shop's). Missing or null: the
+   * app's first set, as before 194 (lib/stories/sets.ts).
+   */
+  page?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

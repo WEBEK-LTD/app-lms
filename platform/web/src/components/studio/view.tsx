@@ -93,6 +93,8 @@ export interface StudioEditing {
 
 interface ViewProps {
   page: StudioPage;
+  /** 194 The page's slug: its story elements show its own set of Dashboard › Stories. */
+  pageSlug?: string;
   lang: LanguageCode;
   defaultLang: LanguageCode;
   dark: boolean;
@@ -222,7 +224,7 @@ export function textGivingWay(kids: readonly StudioNode[]): string | null {
 
 export function StudioView(givenProps: ViewProps) {
   // 165 The story elements from Dashboard › Stories show its stories, as the app does now.
-  const storied = withDashboardStories(givenProps.page, givenProps.pickable?.stories, givenProps.lang, givenProps.defaultLang, new Date());
+  const storied = withDashboardStories(givenProps.page, givenProps.pickable?.stories, givenProps.lang, givenProps.defaultLang, new Date(), givenProps.pageSlug);
   const viewProps = storied === givenProps.page ? givenProps : { ...givenProps, page: storied };
   // 157 A template's lists of the shop's categories as the app shows them.
   const shop = viewProps.pickable.shopCategories;

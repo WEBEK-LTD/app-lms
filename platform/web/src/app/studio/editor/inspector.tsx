@@ -59,6 +59,7 @@ import { isRtl } from "@/lib/i18n/locales";
 import { TextInApp } from "./text-in-app";
 import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
+import { withShopCategories } from "@/lib/studio/shop-categories";
 import { followStyle } from "@/lib/studio/text-styles";
 import { SCRIM_DEFAULT } from "@/lib/studio/scrim";
 import { automaticSize, sizedByHand } from "@/lib/studio/auto-size";
@@ -905,7 +906,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {/* 165 Where a story element's stories come from: Dashboard › Stories, or as designed here. */}
       {isStoryElement(node, props.page.body) ? <StoriesSourceControls node={node} body={props.page.body} pickable={props.pickable} onChange={onChange} /> : null}
       {/* 165 The rings' own stories while they follow this design: from Dashboard › Stories only once saved there. */}
-      {node.type === "stories" && (!fromDashboard(node, props.page.body) || !props.pickable.storiesSaved) ? <StoriesControls {...premiumProps(props, node)} /> : null}
+      {/* 194 As the canvas shows them: a template's list of the shop's categories with the shop's own (a change makes them the owner's). */}
+      {node.type === "stories" && (!fromDashboard(node, props.page.body) || !props.pickable.storiesSaved) ? <StoriesControls {...premiumProps(props, props.pickable.shopCategories ? withShopCategories(node, props.pickable.shopCategories) : node)} /> : null}
       {node.type === "marquee" ? <MarqueeControls {...premiumProps(props, node)} /> : null}
       {node.type === "video_hero" || node.type === "parallax_banner" ? <BannerControls {...premiumProps(props, node)} /> : null}
       {node.type === "gallery" ? <GalleryControls {...premiumProps(props, node)} /> : null}

@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useDashT } from "@/components/dashboard-i18n";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { StoriesSource, StudioNode } from "@/lib/pages/types";
-import { storiesSourceOf, storyElementKind } from "@/lib/stories/elements";
-import { storyLive } from "@/lib/stories/serve";
+import { storiesSourceOf, storyElementKind, withServedStories, type StoryElementKind } from "@/lib/stories/elements";
+import { servedStories, storyLive } from "@/lib/stories/serve";
 import { storyOfView } from "@/lib/stories/view";
+import { templateCategoryList } from "@/lib/studio/shop-categories";
 import { eachNode } from "@/lib/studio/tree";
 
 const FIELD = { border: "1px solid var(--sf-line)" } as const;
@@ -31,6 +32,18 @@ export function fromDashboard(node: StudioNode, body: StudioNode): boolean {
 }
 
 /**
+ * 194 Whether this element shows the shop's own categories in the app (157):
+ * a template's list of them as it is, or once saved, with this page's
+ * stories in it still in the template's words.
+ */
+export function followsCategories(node: StudioNode, pickable: Pickable, kind: StoryElementKind | null = null): boolean {
+  if (!pickable.shopCategories?.own || !pickable.shopCategories.list.length) return false;
+  const stories = pickable.storiesSaved && kind ? servedStories((pickable.stories ?? []).map((s) => storyOfView(s)), "en", "en", new Date()) : [];
+  const shown = stories.length && kind ? (withServedStories(node, kind, stories) ?? node) : node;
+  return templateCategoryList(shown) !== null;
+}
+
+/**
  * 165 The inspector's part for a story element: where its stories come from
  * (Dashboard › Stories or as designed here), and with the dashboard, a note
  * with a link to it (and whether a story shows now).
@@ -51,7 +64,16 @@ export function StoriesSourceControls({ node, body, pickable, onChange }: { node
           <option value="studio">{t("stories.studioFromDesign")}</option>
         </select>
       </label>
-      {source === "dashboard" && !pickable.storiesSaved ? (
+      {source === "dashboard" && !pickable.storiesSaved && followsCategories(node, pickable) ? (
+        // 194 A template's list of the shop's categories: the app shows the shop's own, as the canvas and Stories do.
+        <p className="m-0 text-[13px] font-semibold" role="note" data-studio-stories-categories>
+          {t("stories.studioCategories")}{" "}
+          <Link href="/studio/project/stories" target="_blank" className="underline">
+            {t("stories.studioOpen")}
+          </Link>
+        </p>
+      ) : null}
+      {source === "dashboard" && !pickable.storiesSaved && !followsCategories(node, pickable) ? (
         // 165 Until the owner saves in Dashboard › Stories, the app shows these as designed here, the edits here included.
         <p className="m-0 text-[13px] font-semibold" role="note" data-studio-stories-until-saved>
           {t("stories.studioUntilSaved")}{" "}
@@ -60,7 +82,16 @@ export function StoriesSourceControls({ node, body, pickable, onChange }: { node
           </Link>
         </p>
       ) : null}
-      {source === "dashboard" && pickable.storiesSaved ? (
+      {source === "dashboard" && pickable.storiesSaved && followsCategories(node, pickable, kind) ? (
+        // 194 Shown as the shop's categories over this page's stories: told so, with the way to Stories.
+        <p className="m-0 text-[13px] font-semibold" role="note" data-studio-stories-categories>
+          {t("stories.studioCategories")}{" "}
+          <Link href="/studio/project/stories" target="_blank" className="underline">
+            {t("stories.studioOpen")}
+          </Link>
+        </p>
+      ) : null}
+      {source === "dashboard" && pickable.storiesSaved && !followsCategories(node, pickable, kind) ? (
         <>
           <p className="m-0 text-[13px] font-semibold" role="note" data-studio-stories-from-dashboard>
             {t(kind === "rings" ? "stories.studioRingsNote" : "stories.studioNote")}{" "}

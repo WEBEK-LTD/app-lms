@@ -1449,6 +1449,11 @@ export class MemoryStore implements DataStore {
     this.storiesSaved(appId, now);
   }
 
+  async removeAppStoryCopies(appId: string, ids: number[]): Promise<void> {
+    const gone = new Set(ids);
+    this.appStories = this.appStories.filter((s) => !(s.appId === appId && gone.has(s.id) && s.importKey !== null));
+  }
+
   async markStoriesSeeded(appId: string, now: Date): Promise<boolean> {
     const app = this.apps.get(appId);
     if (!app || app.storiesSeededAt) return false;

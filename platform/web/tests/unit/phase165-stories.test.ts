@@ -16,6 +16,7 @@ import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { itemSourcesFor } from "@/lib/pages/sources";
 import type { LayoutContent, StudioNode, StudioPage } from "@/lib/pages/types";
 import { parseLayoutContent } from "@/lib/pages/validate";
+import { storySetPages } from "@/lib/stories/sets";
 import { ensureStoriesSeeded, parseStory, servedStories, SHOP_ACTION, storyAction, storyLive, type StoryRules } from "@/lib/stories";
 import { dashboardStoryElements, storiesSourceOf, storyElementKind } from "@/lib/stories/elements";
 import { storyOrder } from "@/lib/stories/order";
@@ -199,8 +200,12 @@ describe("165 existing apps: their Studio stories copied into the dashboard once
       const store = new MemoryStore();
       const app = await storiesApp(store);
       await published(store, app, made(leqaaLayout(app, "a")));
-      expect(await ensureStoriesSeeded(store, app, NOW)).toBe(5);
-      const stories = await store.listAppStories(app.id);
+      // 194 Home's five, and the shop's own "Every occasion" set (its page's own, apart from Home's).
+      const pages = (await store.getAppLayout(app.id))!.published!.pages;
+      const sets = storySetPages(pages).map((p) => p.slug);
+      expect(sets[0]).toBe(pages[0]!.slug);
+      expect(await ensureStoriesSeeded(store, app, NOW)).toBe(5 * sets.length);
+      const stories = (await store.listAppStories(app.id)).filter((s) => s.page === pages[0]!.slug);
       expect(stories.map((s) => s.texts.en?.ring)).toEqual(["Love", "Birthday", "Sympathy", "New baby", "Congratulations"]);
       expect(stories[0]).toMatchObject({
         position: 0,
@@ -218,7 +223,7 @@ describe("165 existing apps: their Studio stories copied into the dashboard once
       await store.deleteAppStory(app.id, stories[4]!.id);
       expect(await ensureStoriesSeeded(store, (await store.getAppById(app.id))!, NOW)).toBe(0);
       expect(await ensureStoriesSeeded(store, { ...app, storiesSeededAt: null }, NOW)).toBe(0);
-      expect((await store.listAppStories(app.id)).length).toBe(4);
+      expect((await store.listAppStories(app.id)).filter((s) => s.page === pages[0]!.slug).length).toBe(4);
     });
   }
 
@@ -239,7 +244,8 @@ describe("165 existing apps: their Studio stories copied into the dashboard once
       const was = await home(store, app, lang);
       await published(store, app, old);
       const now = await home(store, app, lang);
-      expect((await store.listAppStories(app.id)).length).toBe(5);
+      const homeSlug = (await store.getAppLayout(app.id))!.published!.pages[0]!.slug;
+      expect((await store.listAppStories(app.id)).filter((s) => s.page === homeSlug).length).toBe(5);
       // The hero's slides: the same, to the last part.
       const plain = ({ stories_source: _s, ...n }: StudioNode) => (void _s, n);
       expect(plain(sliderOf(now))).toEqual(plain(sliderOf(was)));

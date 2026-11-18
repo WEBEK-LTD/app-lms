@@ -23,6 +23,7 @@ import { listHeadings, productFallbacks, withListHeadings, withSampleProduct } f
 import "./sources";
 import { dashboardStoriesSaved, ensureStoriesSeeded, servedStories } from "../../stories";
 import { dashboardStoryElements, withServedStories, type ServedStory, type StoryElementKind } from "../../stories/elements";
+import { leadSetSlug, storySetOf } from "../../stories/sets";
 
 /**
  * GET /pages and GET /pages/{slug} on the hosted API (roadmap 10.6): the
@@ -70,7 +71,7 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
   }
   const text = translated(page, lang, layout.languages.default);
   // 103R A Studio page: its texts in the language asked for and its lists filled.
-  const studio = page.studio ? await servedStudio(pc, page.studio) : null;
+  const studio = page.studio ? await servedStudio(pc, page.studio, page.slug) : null;
   return {
     status: 200,
     body: {
@@ -94,7 +95,7 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
  * categories element like the categories block, without their queries, and
  * left out when their source can't be served.
  */
-async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPage> {
+async function servedStudio(pc: PageContext, page: StudioPage, slug: string): Promise<StudioPage> {
   const def = pc.layout.languages.default;
   // 164 The template's sample bouquet in an app made before: one of the shop's products.
   // 183 A button that names nothing to open (`brand`'s "Start now" in a project made before): the app's main screen.
@@ -108,14 +109,15 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
   const fromDashboard = dashboardStoryElements(studio.body);
   const saved = fromDashboard.length > 0 && (await dashboardStoriesSaved(pc.ctx.store, pc.ctx.app));
   // Copied there the first time all the same, so Dashboard › Stories starts from what the app shows.
-  if (fromDashboard.length > 0 && !saved) await ensureStoriesSeeded(pc.ctx.store, pc.ctx.app, pc.ctx.now);
-  const storyElements = new Map<string, StoryElementKind>(saved ? fromDashboard.map((e) => [e.node.id, e.kind]) : []);
+  if (fromDashboard.length > 0 && !pc.ctx.app.storiesSeededAt) await ensureStoriesSeeded(pc.ctx.store, pc.ctx.app, pc.ctx.now, await shopCategoriesOf(pc).catch(() => null));
+  // 194 This page's own set (Home's apart from the shop's); a set with no story yet shows the design, as before it was saved.
+  const set = saved ? (await pc.ctx.store.listAppStories(pc.ctx.app.id)).filter((s) => storySetOf(s, leadSetSlug(pc.layout.pages)) === slug) : [];
+  const storyElements = new Map<string, StoryElementKind>(set.length ? fromDashboard.map((e) => [e.node.id, e.kind]) : []);
   let stories: ServedStory[] | null = null;
   const dashboardStories = async () => {
     if (stories) return stories;
-    await ensureStoriesSeeded(pc.ctx.store, pc.ctx.app, pc.ctx.now);
     // 152 A story's button linked to a product, as every tap: no product chosen (or one the shop no longer has), the shop.
-    stories = servedStories(await pc.ctx.store.listAppStories(pc.ctx.app.id), pc.lang, def, pc.ctx.now).map((s) => ({ ...s, action: linkedProduct(pc, s.action, gone) }));
+    stories = servedStories(set, pc.lang, def, pc.ctx.now).map((s) => ({ ...s, action: linkedProduct(pc, s.action, gone) }));
     return stories;
   };
   const body = await mapTreeAsync(listed, async (node) => {

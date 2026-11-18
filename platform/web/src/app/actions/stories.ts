@@ -9,7 +9,8 @@ import type { App } from "@/lib/data/types";
 import type { DashKey } from "@/i18n/dashboard";
 import { appLanguagesOf } from "@/lib/selling/store";
 import { parseStory, STORY_LIMITS, type StoryInput } from "@/lib/stories";
-import { storyViewOf, type StoryView } from "@/lib/stories/view";
+import { leadSetSlug, storySetPages } from "@/lib/stories/sets";
+import { storyViewsOf, type StoryView } from "@/lib/stories/view";
 
 // 165 Dashboard › Stories: adding, changing, switching, reordering and removing the app's stories.
 
@@ -26,7 +27,9 @@ async function requireStoriesApp(): Promise<ClientContext & { app: App }> {
 async function listed(appId: string): Promise<StoriesResult> {
   const store = await getStore();
   revalidatePath("/dashboard/stories");
-  return { ok: true, stories: (await store.listAppStories(appId)).map(storyViewOf) };
+  const record = await store.getAppLayout(appId);
+  // 194 Each with its set (a story from before 194 in the lead page's).
+  return { ok: true, stories: storyViewsOf(await store.listAppStories(appId), leadSetSlug((record?.published ?? record?.draft)?.pages ?? [])) };
 }
 
 /** Adds a story (`id` null, at the end) or changes one. */
@@ -44,7 +47,10 @@ export async function saveStoryAction(id: number | null, input: StoryInput): Pro
   if (id === null) {
     if (current.length >= STORY_LIMITS.stories) return { ok: false, errors: ["stories.errTooMany"] };
     const position = current.length ? Math.max(...current.map((s) => s.position)) + 1 : 0;
-    await store.createAppStory({ ...parsed.value, appId: app.id, position, importKey: null, createdAt: now, updatedAt: now });
+    // 194 In the set it was added to: one of the pages with story elements, else the lead page's.
+    const sets = storySetPages(pages).map((p) => p.slug);
+    const page = typeof input?.page === "string" && sets.includes(input.page) ? input.page : leadSetSlug(pages);
+    await store.createAppStory({ ...parsed.value, appId: app.id, position, importKey: null, page, createdAt: now, updatedAt: now });
     await recordStaffChange(context, "Added a story");
   } else {
     if (!(await store.updateAppStory(app.id, id, { ...parsed.value, updatedAt: now }))) return { ok: false, errors: ["stories.errMissing"] };

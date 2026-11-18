@@ -30,6 +30,8 @@ type Opens = "shop" | "category" | "product" | "page" | "screen" | "url";
 
 interface Props {
   initial: StoryView[];
+  /** 194 The pages with story elements, each its own set of stories (in the layout's order); none: one list. */
+  sets?: { slug: string; title: string }[];
   languages: { code: string; name: string }[];
   max: number;
   limits: Record<Part, number>;
@@ -56,6 +58,8 @@ interface Draft {
   icon: string | null;
   action: Action | null;
   categoryId: string;
+  /** 194 Its set: the page whose story elements show it. */
+  page: string | null;
 }
 
 const PARTS: { part: Part; label: DashKey; hint?: DashKey }[] = [
@@ -74,8 +78,9 @@ const toLocal = (iso: string | null) => {
 };
 const fromLocal = (local: string) => (local ? new Date(local).toISOString() : null);
 
-function draftOf(s: StoryView | null): Draft {
+function draftOf(s: StoryView | null, page: string | null = null): Draft {
   return {
+    page: s?.page ?? page,
     id: s?.id ?? null,
     enabled: s?.enabled ?? true,
     startsAt: toLocal(s?.startsAt ?? null),
@@ -138,12 +143,20 @@ export function StoriesEditor(props: Props) {
           icon: d.icon,
           action: d.action,
           categoryId: d.categoryId || null,
+          page: d.page,
         }),
       t("stories.saved"),
       () => setEditing(null),
     );
 
   const full = stories.length >= props.max;
+  // 194 One list per page with story elements (each page its own), and the stories of no such page after them; without any, one list.
+  const sets = props.sets ?? [];
+  const setSlugs = new Set(sets.map((x) => x.slug));
+  const others = stories.filter((s) => !s.page || !setSlugs.has(s.page));
+  const groups: { slug: string | null | undefined; title: string; stories: StoryView[] }[] = sets.length
+    ? [...sets.map((x) => ({ slug: x.slug, title: t("stories.setTitle", { page: x.title }), stories: stories.filter((s) => s.page === x.slug) })), ...(others.length ? [{ slug: null, title: t("stories.setOther"), stories: others }] : [])]
+    : [{ slug: undefined, title: "", stories }];
   return (
     <div className="flex flex-col gap-5" data-stories-editor>
       {props.fromStudio ? (
@@ -154,78 +167,94 @@ export function StoriesEditor(props: Props) {
           </Link>
         </Notice>
       ) : null}
-      <section aria-labelledby="h-stories" className="flex min-w-0 flex-col rounded-2xl border border-line bg-white">
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-5 pb-4 sm:px-6">
-          <h2 id="h-stories" className="m-0 text-lg font-bold">
-            {t("stories.count", { count: stories.length, max: props.max })}
-          </h2>
-          <button type="button" className={`${btn.main} h-10 px-4`} disabled={full || saving || editing?.id === null} onClick={() => setEditing(draftOf(null))}>
-            <Icon name="add" size={20} />
-            {t("stories.add")}
-          </button>
-        </div>
-        {full ? <p className="m-0 px-5 pb-3 text-sm text-muted sm:px-6">{t("stories.full", { max: props.max })}</p> : null}
-        <p role="status" aria-live="polite" className="m-0 flex min-h-[38px] items-center gap-2 border-y border-line-soft px-5 py-2 text-[13px] text-muted sm:px-6">
-          {saving ? <Icon name="progress_activity" size={16} className="animate-spin" /> : said ? <Icon name="cloud_done" size={16} className="text-success" /> : <Icon name="drag_indicator" size={16} />}
-          {saving ? t("stories.saving") : said || t("stories.dragHint")}
-        </p>
-        {stories.length ? (
-          <SortableList
-            items={stories}
-            idOf={(s) => s.id}
-            hint={t("manage.dragKeys")}
-            moved={(place, count) => t("stories.moved", { place, count })}
-            onReorder={(ids) => run(() => reorderStoriesAction(ids.map(Number)), t("stories.orderSaved"))}
-            itemClassName="border-t border-line-soft first:border-t-0"
-            render={(s, sortable) => {
-              const name = nameOf(s);
-              const labelId = `story-${s.id}-name`;
-              return (
-                <div data-story={name} className={`flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-3 sm:px-4 ${sortable.dragging ? "bg-sand" : ""}`}>
-                  <SortControls sortable={sortable} name={name} words={{ drag: t("manage.drag"), up: t("manage.moveUp"), down: t("manage.moveDown") }} />
-                  <Thumb story={s} />
-                  <div className="flex min-w-0 flex-[1_1_200px] flex-col">
-                    <span id={labelId} className="truncate font-semibold">
-                      {name}
-                    </span>
-                    <span className="text-[13px] text-muted">
-                      <When story={s} now={now} />
-                    </span>
-                  </div>
-                  <span className="flex items-center gap-2 text-sm text-muted">
-                    <span id={`${labelId}-on`} className="sr-only">
-                      {t("stories.shownLabel", { name })}
-                    </span>
-                    <KitSwitch checked={s.enabled} labelledBy={`${labelId}-on`} disabled={saving} onChange={(on) => run(() => setStoryEnabledAction(s.id, on), t("stories.saved"))} />
-                    <span aria-hidden="true">{s.enabled ? t("stories.shown") : t("stories.off")}</span>
-                  </span>
-                  <button type="button" className={`${btn.pill} h-9`} aria-label={t("stories.editLabel", { name })} onClick={() => setEditing(draftOf(s))}>
-                    <Icon name="edit" size={18} />
-                    {t("stories.edit")}
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={t("stories.removeLabel", { name })}
-                    title={t("stories.remove")}
-                    className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent text-muted hover:bg-danger-bg hover:text-danger"
-                    onClick={() => {
-                      if (window.confirm(t("stories.removeConfirm", { name }))) run(() => deleteStoryAction(s.id), t("stories.removed"), () => editing?.id === s.id && setEditing(null));
-                    }}
-                  >
-                    <Icon name="delete" size={20} />
-                  </button>
-                </div>
-              );
-            }}
-          />
-        ) : (
-          <div className="px-5 py-6 sm:px-6">
-            <EmptyState icon="auto_stories" title={t("stories.empty")}>
-              {t("stories.emptyText")}
-            </EmptyState>
-          </div>
-        )}
-      </section>
+      {groups.map((g) => {
+        const list = g.stories;
+        const hid = g.slug === undefined ? "h-stories" : `h-stories-${g.slug ?? "other"}`;
+        return (
+          <section key={hid} aria-labelledby={hid} data-story-set={g.slug ?? ""} className="flex min-w-0 flex-col rounded-2xl border border-line bg-white">
+            <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-5 pb-4 sm:px-6">
+              <div className="flex min-w-0 flex-col gap-1">
+                <h2 id={hid} className="m-0 flex items-center gap-2 text-lg font-bold">
+                  {g.slug !== undefined ? <Icon name="auto_stories" size={20} /> : null}
+                  {g.slug === undefined ? t("stories.count", { count: stories.length, max: props.max }) : g.title}
+                </h2>
+                {g.slug !== undefined ? (
+                  <p className="m-0 text-sm text-muted">
+                    {t("stories.setCount", { count: list.length })} · {t("stories.setHint")}
+                  </p>
+                ) : null}
+              </div>
+              {g.slug !== null ? (
+                <button type="button" className={`${btn.main} h-10 px-4`} disabled={full || saving || editing?.id === null} onClick={() => setEditing(draftOf(null, g.slug ?? null))}>
+                  <Icon name="add" size={20} />
+                  {g.slug === undefined ? t("stories.add") : t("stories.setAdd")}
+                </button>
+              ) : null}
+            </div>
+            {full && g.slug !== null ? <p className="m-0 px-5 pb-3 text-sm text-muted sm:px-6">{t("stories.full", { max: props.max })}</p> : null}
+            <p role="status" aria-live="polite" className="m-0 flex min-h-[38px] items-center gap-2 border-y border-line-soft px-5 py-2 text-[13px] text-muted sm:px-6">
+              {saving ? <Icon name="progress_activity" size={16} className="animate-spin" /> : said ? <Icon name="cloud_done" size={16} className="text-success" /> : <Icon name="drag_indicator" size={16} />}
+              {saving ? t("stories.saving") : said || t("stories.dragHint")}
+            </p>
+            {list.length ? (
+              <SortableList
+                items={list}
+                idOf={(s) => s.id}
+                hint={t("manage.dragKeys")}
+                moved={(place, count) => t("stories.moved", { place, count })}
+                onReorder={(ids) => run(() => reorderStoriesAction(ids.map(Number)), t("stories.orderSaved"))}
+                itemClassName="border-t border-line-soft first:border-t-0"
+                render={(s, sortable) => {
+                  const name = nameOf(s);
+                  const labelId = `story-${s.id}-name`;
+                  return (
+                    <div data-story={name} className={`flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-3 sm:px-4 ${sortable.dragging ? "bg-sand" : ""}`}>
+                      <SortControls sortable={sortable} name={name} words={{ drag: t("manage.drag"), up: t("manage.moveUp"), down: t("manage.moveDown") }} />
+                      <Thumb story={s} />
+                      <div className="flex min-w-0 flex-[1_1_200px] flex-col">
+                        <span id={labelId} className="truncate font-semibold">
+                          {name}
+                        </span>
+                        <span className="text-[13px] text-muted">
+                          <When story={s} now={now} />
+                        </span>
+                      </div>
+                      <span className="flex items-center gap-2 text-sm text-muted">
+                        <span id={`${labelId}-on`} className="sr-only">
+                          {t("stories.shownLabel", { name })}
+                        </span>
+                        <KitSwitch checked={s.enabled} labelledBy={`${labelId}-on`} disabled={saving} onChange={(on) => run(() => setStoryEnabledAction(s.id, on), t("stories.saved"))} />
+                        <span aria-hidden="true">{s.enabled ? t("stories.shown") : t("stories.off")}</span>
+                      </span>
+                      <button type="button" className={`${btn.pill} h-9`} aria-label={t("stories.editLabel", { name })} onClick={() => setEditing(draftOf(s))}>
+                        <Icon name="edit" size={18} />
+                        {t("stories.edit")}
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={t("stories.removeLabel", { name })}
+                        title={t("stories.remove")}
+                        className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent text-muted hover:bg-danger-bg hover:text-danger"
+                        onClick={() => {
+                          if (window.confirm(t("stories.removeConfirm", { name }))) run(() => deleteStoryAction(s.id), t("stories.removed"), () => editing?.id === s.id && setEditing(null));
+                        }}
+                      >
+                        <Icon name="delete" size={20} />
+                      </button>
+                    </div>
+                  );
+                }}
+              />
+            ) : (
+              <div className="px-5 py-6 sm:px-6">
+                <EmptyState icon="auto_stories" title={g.slug === undefined ? t("stories.empty") : t("stories.setEmpty")}>
+                  {g.slug === undefined ? t("stories.emptyText") : null}
+                </EmptyState>
+              </div>
+            )}
+          </section>
+        );
+      })}
       {editing ? <StoryForm key={editing.id ?? "new"} props={props} initial={editing} errors={errors} saving={saving} onCancel={() => (setEditing(null), setErrors([]))} onSave={save} /> : null}
     </div>
   );

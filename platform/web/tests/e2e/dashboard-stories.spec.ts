@@ -24,7 +24,8 @@ let roses = "";
 /** The template's five stories as copied to Dashboard › Stories, in their order. */
 let designed: (string | null)[] = [];
 
-const rows = () => own.locator("[data-story]");
+// 194 Home's own set (the shop page's stories are a set of their own, listed after it).
+const rows = () => own.locator("[data-story-set]").first().locator("[data-story]");
 const order = () => rows().evaluateAll((els) => els.map((el) => el.getAttribute("data-story")));
 
 test.beforeAll(async ({ browser }) => {
@@ -140,7 +141,7 @@ test("the owner adds a story opening a category, moves it up and removes another
   await expect(rows()).toHaveCount(5);
 
   // A new story: its photo, its words in the three languages, its ring and its button opening Peonies.
-  await own.getByRole("button", { name: "Add a story" }).click();
+  await own.locator("[data-story-set]").first().getByRole("button", { name: "Add a story here" }).click();
   const form = own.locator("[data-story-form]");
   await form.getByLabel("Photo link").fill("https://images.example.com/peonies.jpg");
   await form.getByLabel("Small label · English (main)").fill("Just in");

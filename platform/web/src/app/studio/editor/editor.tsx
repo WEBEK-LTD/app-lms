@@ -222,6 +222,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const editLang = layout.languages.available.includes(lang) ? lang : def;
   const page = layout.pages.find((p) => p.slug === slug) ?? layout.pages[0] ?? null;
   const studio = page?.studio ?? null;
+  // 194 The inspector sees this page's own set of Dashboard › Stories (each page its own), as the canvas draws it.
+  const pagePickable = useMemo(() => (props.pickable.stories ? { ...props.pickable, stories: props.pickable.stories.filter((st) => st.page === null || st.page === page?.slug) } : props.pickable), [props.pickable, page?.slug]);
   const source = props.sources[0] ?? null;
   const selected = studio && selectedId && selectedId !== "header" && selectedId !== "tabs" ? findNode(studio.body, selectedId) : null;
   const pageTitle = (p: LayoutPage) => (editLang !== def ? (p.translations?.[editLang]?.title as string | undefined) : undefined) || p.title || p.slug;
@@ -1641,7 +1643,7 @@ export function StudioEditor(props: StudioEditorProps) {
             <div data-studio-phone-frame="" style={{ position: "relative", width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.bar, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
-                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} commerceWords={commerceWords} />
+                  <StudioView page={studio} pageSlug={page?.slug} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} commerceWords={commerceWords} />
                 ) : page ? (
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} dark={dark} />
                 ) : null}
@@ -1771,7 +1773,7 @@ export function StudioEditor(props: StudioEditorProps) {
             screens={props.screens}
             mainScreen={mainScreen}
             pageScreens={props.pageScreens}
-            pickable={props.pickable}
+            pickable={pagePickable}
             fontLabels={fontLabels}
             textStyles={textStyles}
           />
