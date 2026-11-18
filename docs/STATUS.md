@@ -8,6 +8,22 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 190 (Yallapp's Studio demos in Studio Market, free): every look a
+new Studio project starts from on /start?for=studio, each Studio demo's
+Signature looks A and B (twenty), is a published, free template by
+"Yallapp" in the dashboard's market and on /templates, with its cover, its
+English, Arabic and Turkish texts and its kinds, found by Free, the kinds
+and a search. Applied, the buyer's project gets what a new project from
+that look starts with (its pages, tabs, bar, colours, fonts and screens'
+looks, the buyer's app's name where the demo writes the app's), with a free
+licence and back to the previous design as any template. They're seeded on
+read where the market is read, by fixed ids (the same code finds the same
+rows; a demo changed in code is a new version buyers get as an update), on
+Yallapp's designer profile of the demo account (no account made, no
+migration); never a designer's template, nor any money, payout or review.
+They show once Admin › Demo apps has made the demo account; suspending the
+Yallapp designer takes them off. The e2e case wasn't run here.
+
 Roadmap 188 (Stripe's PaymentSheet in the apps): the payment page stays
 inside the app's web view, and a Stripe payment there is taken by Stripe's
 native bottom sheet in the app, with the card, Google Pay on Android and

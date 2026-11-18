@@ -36,10 +36,20 @@ export interface PublicTemplate {
   version: MarketTemplateVersion;
 }
 
-/** The template at /templates/<slug>, or null (the page is then "page not found"). */
+/** 190 Yallapp's own Studio demos on the market, as this code makes them (lib/studio-market/house.ts, loaded only here). */
+async function withHouseTemplates(store: DataStore): Promise<void> {
+  const [{ houseTemplatesReady }, { getBlobStore }] = await Promise.all([import("./house"), import("../blobs")]);
+  await houseTemplatesReady(store, getBlobStore(), new Date());
+}
+
+/** The template at /templates/<slug>, or null (the page is then "page not found"). 190 One of Yallapp's own is there before the market was first read. */
 export async function publicTemplate(store: DataStore, slug: string): Promise<PublicTemplate | null> {
   if (!/^[a-z0-9-]{1,120}$/.test(slug)) return null;
-  const template = await store.getMarketTemplateBySlug(slug);
+  let template = await store.getMarketTemplateBySlug(slug);
+  if (!template) {
+    await withHouseTemplates(store);
+    template = await store.getMarketTemplateBySlug(slug);
+  }
   if (!template || !template.currentVersionId) return null;
   const [designer, version] = await Promise.all([store.getTemplateDesigner(template.designerId), store.getMarketTemplateVersion(template.currentVersionId)]);
   if (!version || !isPublicTemplate(template, designer)) return null;
@@ -48,6 +58,7 @@ export async function publicTemplate(store: DataStore, slug: string): Promise<Pu
 
 /** Every public template's address and when it last changed, for the sitemap. */
 export async function publicTemplateSlugs(store: DataStore): Promise<{ slug: string; updatedAt: Date }[]> {
+  await withHouseTemplates(store);
   const templates = (await store.listMarketTemplates({ statuses: ["published"] })).filter((t) => t.currentVersionId);
   const designers = new Map((await store.listTemplateDesigners([...new Set(templates.map((t) => t.designerId))])).map((d) => [d.id, d]));
   return templates

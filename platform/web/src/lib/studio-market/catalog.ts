@@ -8,6 +8,8 @@ import { getsUpdates, mayMove, nextMoveAt } from "./apply";
 import { templateText } from "./templates";
 import { offeredPlans, type PriceTag } from "./plans";
 import { marketPrice } from "./discounts";
+import { getBlobStore, type BlobStore } from "../blobs";
+import { houseTemplatesReady } from "./house";
 
 /**
  * 106 What the market's pages show: the templates' cards (their cover page
@@ -129,8 +131,14 @@ export interface MarketCatalog {
   designers: DesignerCard[];
 }
 
-/** Every published template's card, with its designer, its cover and how many apps took it. */
-export async function marketCatalog(store: DataStore, lang: string, now: Date): Promise<MarketCatalog> {
+/**
+ * Every published template's card, with its designer, its cover and how
+ * many apps took it. 190 Yallapp's own Studio demos among them, free, as
+ * this code makes them (lib/studio-market/house.ts; `blobs` keeps their
+ * designs).
+ */
+export async function marketCatalog(store: DataStore, lang: string, now: Date, blobs: BlobStore = getBlobStore()): Promise<MarketCatalog> {
+  await houseTemplatesReady(store, blobs, now);
   const templates = (await store.listMarketTemplates({ statuses: ["published"] })).filter((t) => t.currentVersionId);
   const [designers, versions, all, recent, discounts] = await Promise.all([
     store.listTemplateDesigners([...new Set(templates.map((t) => t.designerId))]),

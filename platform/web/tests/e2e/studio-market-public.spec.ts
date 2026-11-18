@@ -264,3 +264,47 @@ test("a template not published is page not found, and the sitemap lists the publ
   expect(demo).toContain('href="/templates"');
   expect(problems).toEqual([]);
 });
+
+test("190 Yallapp's own Studio demos: free templates by Yallapp, found by Free and the kinds, in each language and in the sitemap", async ({ browser }) => {
+  // They're listed by the demo account's designer profile: the account Admin › Demo apps makes (tests/e2e/demo-apps.spec.ts made it already in a full run).
+  await admin.goto("/admin/demos");
+  const create = admin.getByRole("button", { name: "Create the regular demo apps" });
+  if (await create.count()) {
+    admin.once("dialog", (dialog) => void dialog.accept());
+    await create.click();
+    await expect(admin.getByRole("status")).toContainText("The regular apps' demos are created and up to date.", { timeout: 60_000 });
+  }
+
+  const v = await page(browser);
+  await v.goto("/templates?price=free");
+  const sofra = v.locator('[data-template-card="sofra-eats-editorial-menu"]');
+  await expect(sofra).toBeVisible();
+  await expect(sofra).toContainText("Sofra Eats · Editorial menu");
+  await expect(sofra).toContainText("Yallapp");
+  // Free: no price on its card.
+  await expect(sofra).toContainText("Free");
+  await expect(sofra.locator("[data-price]")).toHaveCount(0);
+  // Every Studio demo's two looks.
+  expect(Number(await v.locator("[data-results]").getAttribute("data-results"))).toBeGreaterThanOrEqual(20);
+  await v.goto("/templates?price=paid");
+  await expect(v.locator('[data-template-card="sofra-eats-editorial-menu"]')).toHaveCount(0);
+  await v.goto("/templates?kind=taxi");
+  await expect(v.locator('[data-template-card="lamha-taxi-two-ink-cab"]')).toBeVisible();
+  await expect(v.locator('[data-template-card="lamha-taxi-glance-radar"]')).toBeVisible();
+  await expect(v.locator('[data-template-card="sofra-eats-editorial-menu"]')).toHaveCount(0);
+
+  // Its page: free, by Yallapp.
+  await v.goto("/templates/sofra-eats-editorial-menu");
+  await expect(v.getByRole("heading", { level: 1, name: "Sofra Eats · Editorial menu" })).toBeVisible();
+  await expect(v.locator("[data-price-tag]")).toHaveText("Free");
+  await expect(v.locator("[data-designer]")).toContainText("Yallapp");
+  await v.goto("/ar/templates/leqaa-rose-hour");
+  await expect(v.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(v.getByRole("heading", { level: 1, name: "Leqaa · ساعة الورد" })).toBeVisible();
+  await v.goto("/tr/templates/nakhla-school-morning-edition");
+  await expect(v.getByRole("heading", { level: 1, name: "Nakhla School · Sabah baskısı" })).toBeVisible();
+
+  const sitemap = await (await v.request.get("/sitemap.xml")).text();
+  for (const prefix of ["", "/ar", "/tr"]) expect(sitemap).toContain(`${prefix}/templates/sahm-express-waybill</loc>`);
+  expect(problems).toEqual([]);
+});
