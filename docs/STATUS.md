@@ -217,7 +217,11 @@ colours an accepted ride (the driver on the way) in the board's blue.
 The home's ride card and living map read the ride again every 15 seconds
 while it is on its way, and the riders' app with the review number leaves
 out the sample rides the drivers' app makes for it (it couldn't ask for a
-ride while the drivers' app was online). No migration; the
+ride while the drivers' app was online). A ride nobody took in time is no
+longer sent among the rides on their way (the home said "Your driver is
+coming" over the ride's "No driver found"), and the template guard's layout
+passes on every rides and taxi look: the map's words stay inside it and the
+car classes' cards fit at text 1.3, as designed where they fit. No migration; the
 app's part needs the next app build (no `CLIENT_APP_RELEASE` change here);
 the whole trip with a real driver's phone, real tiles and pushes is still
 to try (ROADMAP 178.12).

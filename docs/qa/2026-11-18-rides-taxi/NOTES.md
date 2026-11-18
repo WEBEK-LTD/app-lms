@@ -114,6 +114,26 @@ With the review number online in the drivers' app (how the store reviewers try i
 
 **Fix.** `GET /me/rides` and the "ride on the way" check leave out the sample rides (`RideQuery.notRiderName`, no migration); the drivers' app still gets them. With it, the review rider's own ride goes to the review driver, which is how the trip below was walked.
 
+### B13. "Your driver is coming" over "No driver found" (fixed, 178.15)
+
+Seen once early on: Masar's home card said "Your driver is coming · Economy" while the ride's page said "No driver found", with no accepted stage. B11 (the card never read the ride again) and B12 (the sample rides) made it worse, but neither is the cause.
+
+**Cause.** `GET /me/rides?active=true` picks the rides still searching from the store, then moves each one on (`advanceRide`) as it answers. A ride whose five minutes of search ran out ends as `no_driver` right there, and is still sent in the list of rides on their way. The app took it for the active ride (`activeRideProvider` left out only scheduled ones), and the card's label for any status it doesn't name is "Your driver is coming".
+
+**Fix.** The active list sends only the rides still on their way after they are moved on, and its total counts the same. The app shows a ride on the card only while it is on its way, for older servers. Tests: `rides-hosted.test.ts` (searching, then past the search's minutes: out of the list, the page says `no_driver`, a new request is the one listed) and `phase178_rides_taxi_test.dart` (an older server's `no_driver` in the active list: no card).
+
+### B14. The template guard's layout failures (fixed, 178.14)
+
+The coordinator's guard (branch `wip-template-guard`, Phase 166) found 11 failing home pages on main for demo_rides, rides_signature_a/b, demo_taxi and taxi_signature_a/b. They were run here from a scratch worktree of this branch with the guard's test files, its fixtures rewritten from this branch's platform, and none of the guard's files edited.
+
+- Map labels, pins, chips and the ETA bubble drawn past the map's edge. Masar A's "DOWNTOWN" sits at 80% of a 360-point phone (its last letters cut, as in `before-masar-home-signed-out-en.png`), and Lamha's labels in Arabic, at 1.0 already. Cause: each was placed with a `FractionalTranslation` from its point, whatever its size. Fix: `_anchored` puts it at the same point and keeps it inside the map, unchanged wherever it fits.
+- The car classes' cards at text 1.3. Masar A's fare row ("from ₺" and the number) ran 6–9 points past its card. Masar B's columns (104 points high), Lamha A's (52) and Lamha B's row (56) ran 1–17 points past their foot. Fix in the app's renderer: a row of texts and icons at its own width draws smaller (`FittedBox` scale-down), and a row or column of only texts and icons at a fixed height grows to what its words need. Both draw exactly as designed whenever they fit.
+
+The guard's numbers on this branch:
+- Flutter layout guard for the six templates: 0 failing pages (44 pass), against 11 failing before.
+- Whole Flutter guard: 31 failing pages, against 44 before. None is new; the 13 fixed are the 11 above plus demo_travel's and travel_signature_a's English homes.
+- Platform guard (`template-guard.test.ts`): every rides and taxi test passes. Its 9 failures are delivery's, food's, the marketplace's and the brand store's.
+
 ## The whole trip, after the fixes
 
 With the fixes in a local build of the app preview (not committed) and of the platform, Masar in lira with its own Minivan:
