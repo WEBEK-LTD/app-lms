@@ -138,7 +138,14 @@ class AppPageView extends ConsumerWidget {
             ),
           ),
         Padding(
-          padding: EdgeInsets.fromLTRB(style.gutter, 0, style.gutter, 24),
+          // 158 Its last block clear of a tab bar over the page, or the
+          // phone's own bar on a page over the tabs.
+          padding: EdgeInsets.fromLTRB(
+            style.gutter,
+            0,
+            style.gutter,
+            endRoom(context, 24),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

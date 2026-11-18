@@ -69,32 +69,35 @@ class _RestaurantOrderScreenState extends ConsumerState<RestaurantOrderScreen> {
       builder: (context) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                l10n.deskAcceptTitle,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
-                  color: context.palette.text,
+          child: SingleChildScrollView(
+            // 158 Every choice in reach on a short phone or with a large font.
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l10n.deskAcceptTitle,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: context.palette.text,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final m in prepChoices)
-                    OutlinedButton(
-                      key: ValueKey('prep-$m'),
-                      onPressed: () => Navigator.of(context).pop(m),
-                      child: Text(l10n.restaurantMinutes(m)),
-                    ),
-                ],
-              ),
-            ],
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final m in prepChoices)
+                      OutlinedButton(
+                        key: ValueKey('prep-$m'),
+                        onPressed: () => Navigator.of(context).pop(m),
+                        child: Text(l10n.restaurantMinutes(m)),
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

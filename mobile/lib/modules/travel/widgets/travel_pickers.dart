@@ -228,7 +228,8 @@ class _PeopleSheetState extends ConsumerState<_PeopleSheet> {
       ),
     );
     return SafeArea(
-      child: Padding(
+      // 158 Done in reach on a short phone or with a large font.
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,

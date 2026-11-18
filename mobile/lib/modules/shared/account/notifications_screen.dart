@@ -142,7 +142,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             return false;
           },
           child: ListView.separated(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            // 158 Its end clear of a bar over the screen.
+            padding: EdgeInsets.fromLTRB(20, 8, 20, endRoom(context, 20)),
             itemCount: state.items.length,
             separatorBuilder: (_, _) => const SizedBox(height: 10),
             itemBuilder: (_, i) => _NotificationTile(
@@ -315,7 +316,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
             return false;
           },
           child: ListView.separated(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            // 158 Its end clear of a bar over the screen.
+            padding: EdgeInsets.fromLTRB(20, 8, 20, endRoom(context, 20)),
             itemCount: state.items.length,
             separatorBuilder: (_, _) => const SizedBox(height: 10),
             itemBuilder: (_, i) =>

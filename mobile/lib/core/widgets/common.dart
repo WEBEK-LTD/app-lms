@@ -585,6 +585,36 @@ class SectionHeader extends StatelessWidget {
   }
 }
 
+/// 158 The space a screen's list leaves after its last row: [end], its own,
+/// and what covers the foot of the screen there, as MediaQuery's bottom
+/// padding says. A tab bar floating over the screens (the petal, the
+/// floating pill, the dock, glass off the edges: the shell's `extendBody`,
+/// its height with the phone's bar under it), or, on a screen over the
+/// tabs, the phone's home indicator or Android's navigation bar (drawn over
+/// the app edge to edge). Nothing more under a bar that doesn't float, or
+/// above a screen's own bottom bar: their Scaffolds take it off. Without
+/// it, a list's last rows stayed under the bar on a short phone and the
+/// page didn't scroll to its end.
+double endRoom(BuildContext context, [double end = 0]) =>
+    end + MediaQuery.paddingOf(context).bottom;
+
+/// 158 The spinner under a list while its next page loads: across the
+/// list's whole width and in its middle, under a grid's last row too (not
+/// in one of its columns), in either direction of writing.
+class LoadingMore extends StatelessWidget {
+  const LoadingMore({super.key, this.label});
+
+  /// Read by screen readers; "Loading" by default.
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    key: const ValueKey('loading-more'),
+    width: double.infinity,
+    child: LoadingView(label: label),
+  );
+}
+
 class LoadingView extends StatelessWidget {
   const LoadingView({super.key, this.label});
 
@@ -1064,9 +1094,18 @@ class MessageView extends StatelessWidget {
     // 130.22 The premium empty state: the icon on the brand's disc.
     final premium =
         SystemLookScope.lookOf(context, SystemScreen.states) != null;
+    final space = tight ? 16.0 : 32.0;
     return Center(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(tight ? 16 : 32),
+        // 158 In the middle of what shows above a tab bar over the screen
+        // or the phone's own bar, its button above them ("Start shopping"
+        // lay under Android's navigation bar on the Orders tab).
+        padding: EdgeInsets.fromLTRB(
+          space,
+          space,
+          space,
+          endRoom(context, space),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

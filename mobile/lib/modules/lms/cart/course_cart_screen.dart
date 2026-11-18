@@ -203,41 +203,44 @@ class _CourseCartScreenState extends ConsumerState<CourseCartScreen>
       context: context,
       showDragHandle: true,
       builder: (sheet) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-              child: Text(
-                l10n.chooseCard,
-                style: Theme.of(sheet).textTheme.titleMedium,
-              ),
-            ),
-            for (final c in _cards)
-              ListTile(
-                key: ValueKey('card-${c.id}'),
-                leading: const Icon(Symbols.credit_card_rounded),
-                title: Text(
-                  '${_brand(c.brand)} •••• ${c.last4}',
-                  textDirection: TextDirection.ltr,
+        child: SingleChildScrollView(
+          // 158 Every choice in reach on a short phone or with a large font.
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: Text(
+                  l10n.chooseCard,
+                  style: Theme.of(sheet).textTheme.titleMedium,
                 ),
-                subtitle: Text(c.expiry, textDirection: TextDirection.ltr),
-                trailing: c.id == _cardId
+              ),
+              for (final c in _cards)
+                ListTile(
+                  key: ValueKey('card-${c.id}'),
+                  leading: const Icon(Symbols.credit_card_rounded),
+                  title: Text(
+                    '${_brand(c.brand)} •••• ${c.last4}',
+                    textDirection: TextDirection.ltr,
+                  ),
+                  subtitle: Text(c.expiry, textDirection: TextDirection.ltr),
+                  trailing: c.id == _cardId
+                      ? const Icon(Symbols.check_rounded)
+                      : null,
+                  onTap: () => Navigator.of(sheet).pop(c.id),
+                ),
+              ListTile(
+                key: const ValueKey('card-other'),
+                leading: const Icon(Symbols.add_card_rounded),
+                title: Text(l10n.anotherCard),
+                trailing: _cardId == null
                     ? const Icon(Symbols.check_rounded)
                     : null,
-                onTap: () => Navigator.of(sheet).pop(c.id),
+                onTap: () => Navigator.of(sheet).pop(''),
               ),
-            ListTile(
-              key: const ValueKey('card-other'),
-              leading: const Icon(Symbols.add_card_rounded),
-              title: Text(l10n.anotherCard),
-              trailing: _cardId == null
-                  ? const Icon(Symbols.check_rounded)
-                  : null,
-              onTap: () => Navigator.of(sheet).pop(''),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

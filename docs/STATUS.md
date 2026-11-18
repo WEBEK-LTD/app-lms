@@ -8,6 +8,22 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 158 (every page scrolls to its end, on every phone): the app's own
+screens under a tab bar that floats over them (Leqaa's and Kech Flora's
+petal, the floating pill, the dock, glass off the edges) end their lists
+above it, as Studio pages did: the shop's grid, the Account screens' lists
+and the other tabs' paginated lists, with one shared space (`endRoom`,
+MediaQuery's bottom padding), so their last rows no longer stay under the
+bar on a short phone. Studio pages over the tabs end above the phone's own
+bar (home indicator, Android's navigation bar) and above what is pinned at
+their foot (a sticky "Send flowers"). The sort and choice sheets scroll
+to their last choice on a short phone or with a large font, and the shop's
+next-page spinner lies across the grid, in its middle. `CLIENT_APP_RELEASE`
+is 7. Not yet tried on a phone. Still open: a page a little longer than
+the screen under a folding premium header (Settings on a 320 by 568 phone)
+loses its last lines (ROADMAP 158.3); the staff's and second apps' tabs
+still to take the same space (158.7).
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build

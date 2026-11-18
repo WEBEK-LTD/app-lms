@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' show ImageFilter, lerpDouble;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '../api/models/screens_models.dart';
@@ -969,6 +970,7 @@ class ChromeFoldingHeader extends StatefulWidget {
 
 class _ChromeFoldingHeaderState extends State<ChromeFoldingHeader> {
   final _offset = ValueNotifier<double>(0);
+  double? _later;
 
   @override
   void dispose() {
@@ -978,9 +980,28 @@ class _ChromeFoldingHeaderState extends State<ChromeFoldingHeader> {
 
   bool _onScroll(ScrollNotification n) {
     if (n.metrics.axis == Axis.vertical && n.depth <= 2) {
-      _offset.value = math.max(0, n.metrics.pixels);
+      _fold(math.max(0, n.metrics.pixels));
     }
     return false;
+  }
+
+  /// 158 A scroll the layout itself starts (the page's room changed) is
+  /// told in the middle of the frame: the header follows right after it.
+  void _fold(double offset) {
+    final phase = SchedulerBinding.instance.schedulerPhase;
+    if (phase != SchedulerPhase.persistentCallbacks) {
+      _later = null;
+      _offset.value = offset;
+      return;
+    }
+    final waiting = _later != null;
+    _later = offset;
+    if (waiting) return;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      final later = _later;
+      _later = null;
+      if (mounted && later != null) _offset.value = later;
+    });
   }
 
   @override
