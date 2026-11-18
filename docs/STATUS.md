@@ -8,6 +8,19 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 155 (Apple Pay and Google Pay in Stripe's form): the payment page
+(`/pay/…`) lets the page and Stripe's frames use the Payment Request API
+(`payment=(self "https://js.stripe.com" "https://checkout.stripe.com")`, as
+Stripe's Google Pay guide gives it); every other page keeps `payment=()`.
+The page's domain is registered in each shop's own Stripe account with its
+own key (Payment Method Domains), when its Stripe keys are saved or tested
+and once before Stripe's form if it isn't yet; the answer is kept on the
+shop's payment settings, and a failure never stops a card payment (noted
+for the team). Payments says "Apple Pay and Google Pay: ready" or why not
+yet. The wallets are expected in Safari and Chrome, not inside the apps'
+web views (ROADMAP 155.6). Not yet tried with a real Stripe account on real
+devices (ROADMAP 155.7).
+
 Roadmap 153 (the card inside the payment page for iyzico and Kashier): as
 with Stripe (144), Yallapp's payment page shows the gateway's own card form
 under the customer's details: iyzico's Checkout Form (the script iyzico
@@ -717,8 +730,21 @@ test environment:
   shop with taxes added at checkout, HPOS and a shop with shipping zones
   by postcode are still to try.
 
+- 155 Stripe's Payment Method Domains (`/v1/payment_method_domains`, its
+  list by `domain_name`, `…/validate`, `apple_pay.status_details`) against
+  a real Stripe account, and Apple Pay and Google Pay showing in Embedded
+  Checkout in Safari and Chrome (LAUNCH-CHECKLIST Phase 155). Stripe's docs
+  couldn't be fetched from the work environment; they were read through
+  search summaries.
+
 ## Known gaps
 
+- 155 Apple Pay inside the iPhone app's web view and Google Pay inside the
+  Android app's aren't expected: WebKit allows Apple Pay only in a
+  WKWebView without injected scripts (the app's web view adds its
+  JavaScript channels as user scripts), and Android's WebView keeps the
+  Payment Request API off unless the app turns it on, with each app's
+  Google Pay approval (ROADMAP 155.6). The card form works there as before.
 - 138 An account's limit can be passed by one or two apps when several
   new apps are given accounts in the same instant (each app still gets
   exactly one account, written once). Assignment reads the settings
