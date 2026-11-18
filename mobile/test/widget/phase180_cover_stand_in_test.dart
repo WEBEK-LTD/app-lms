@@ -113,4 +113,52 @@ void main() {
     expect(find.text(question), findsNothing);
     expect(find.byKey(const ValueKey('studio-node-ticket')), findsWidgets);
   });
+
+  group('180.19 a photo header\'s title reads over its photo', () {
+    FakeApi titled(String colour) => FakeApi(config: configJson())
+      ..navigation = navigationJson(
+        tabs: [
+          navTabJson('home', 'Trips', 'home', {
+            'type': 'page',
+            'page_slug': 'home',
+          }),
+          navTabJson('account', 'Account', 'person', {
+            'type': 'screen',
+            'screen': 'account',
+          }),
+        ],
+      )
+      ..pages = {
+        'home': {
+          ...appPageJson(blocks: []),
+          'studio': {
+            'header': {
+              'type': 'title',
+              'style': 'photo',
+              'title': 'Trips',
+              'color': colour,
+              'image_url': 'https://yallapp.test/travel-photos/room.jpg',
+            },
+            'body': {'id': 'root', 'type': 'column', 'children': <Object>[]},
+          },
+        },
+      };
+
+    Color titleColour(WidgetTester tester) {
+      final title = tester
+          .widgetList<Text>(find.text('Trips'))
+          .firstWhere((t) => (t.style?.fontSize ?? 0) >= 30);
+      return title.style!.color!;
+    }
+
+    testWidgets("the look's navy gives way to white", (tester) async {
+      await open(tester, titled('#0E1424'), true);
+      expect(titleColour(tester), Colors.white);
+    });
+
+    testWidgets("an owner's light colour that reads is kept", (tester) async {
+      await open(tester, titled('#F4D9A6'), true);
+      expect(titleColour(tester), const Color(0xFFF4D9A6));
+    });
+  });
 }
