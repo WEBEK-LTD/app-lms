@@ -8,6 +8,8 @@ import { registerClient } from "@/lib/auth/accounts";
 import { demoKind, type StudioDemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoLayout } from "@/lib/demo/setup";
+import { makeFromDemo } from "@/lib/demo/start";
+import { publishLayout as publish } from "@/lib/pages/layout";
 import { workedInCustomersApp } from "@/lib/delivery/courier-app";
 import { twoAppsOf } from "@/lib/delivery/two-apps";
 import { DEFAULT_DELIVERY_SETTINGS } from "@/lib/delivery/settings";
@@ -196,5 +198,30 @@ describe("176.5 Sahm's pickup without the business's street", () => {
       expect(shown, lang).toContain(words[lang]);
       expect(shown.filter((t) => /\[/.test(t)), lang).toEqual([]);
     }
+  });
+});
+
+describe("176.6 a café started from the Defne Café demo on /start", () => {
+  it("never tells its customers the demo's hours and neighbourhoods; the banner's heading and the welcome stay", async () => {
+    const { client } = await registerClient(store, { name: "Lezzet", email: "cafe@lezzet.test", whatsapp: "+905446731942", siteUrl: "", password: null }, NOW);
+    const made = await makeFromDemo(store, { clientId: client.id, plan: PLAN_INFO.pro, lang: "en" }, { demo: "restaurant", name: "Lezzet", colour: "#B5552A", logoAssetId: null, iconAssetId: null }, NOW);
+    const app = (await store.getAppById(made.app.id))!;
+    const draft = JSON.parse(JSON.stringify(withoutStrings((await loadLayout(store, app, NOW)).draft)));
+    // The editor still shows the demo's words, for the owner to change.
+    expect(JSON.stringify(draft)).toContain("Pickup in Moda, delivery in Kadıköy.");
+    expect((await publish(store, app, draft, "owner@lezzet.test", NOW, PLAN_INFO.pro)).ok).toBe(true);
+    for (const lang of ["en", "tr", "ar"]) {
+      const home = await handleHosted(contextOf(app), { method: "GET", path: ["pages", "home"], query: new URLSearchParams({ platform: "android" }), body: undefined, token: null, headers: new Headers({ "accept-language": lang }) });
+      expect(home.status).toBe(200);
+      const body = JSON.stringify(home.body);
+      expect(body, lang).not.toMatch(/Moda|Kadıköy|08:00 to 23:00|08\.00/);
+      expect(body, lang).toContain(lang === "en" ? "Breakfast all day, coffee all night" : lang === "tr" ? "Lezzet" : "Lezzet");
+    }
+    const en = JSON.stringify((await handleHosted(contextOf(app), { method: "GET", path: ["pages", "home"], query: new URLSearchParams({ platform: "android" }), body: undefined, token: null, headers: new Headers({ "accept-language": "en" }) })).body);
+    expect(en).toContain("Welcome to Lezzet");
+    // Yallapp's own demo app keeps them.
+    const kind = demoKind("restaurant");
+    const demo: App = { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, appName: DEMO_BRANDS.restaurant.appName, brandingDoneAt: NOW };
+    expect(JSON.stringify(await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, demo, "banner-asset"))).toContain("Pickup in Moda");
   });
 });

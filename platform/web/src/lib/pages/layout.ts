@@ -18,6 +18,7 @@ import { scheduleAutoScreenshots } from "../app/auto-screenshots";
 import { PAGE_TEXT_FORMS } from "../i18n/builtin";
 import { withoutPlaceholders, withoutStaleTranslations } from "./template-translations";
 import { withSampleProduct } from "../hosted/pages/lists";
+import { withoutDemoWords } from "./demo-words";
 
 /**
  * The draft and the published copy of an app's layout (roadmap 10.4). The
@@ -361,7 +362,9 @@ export function withFreshTranslations<T extends Layout>(layout: T, app: Pick<App
   const sampled = withSampleProducts(layout);
   // 156 And no template [placeholder] for customers: the store's facts fill theirs, the rest waits for the owner's words.
   const delivery = app.catalogSettings?.delivery;
-  const fresh = withoutPlaceholders(withoutStaleTranslations(sampled, { ...words, dropMarks: true }), { cutoff: delivery?.enabled && delivery.sameDay ? delivery.cutoff : null, ownBusiness: app.demo !== true }, words);
+  const placed = withoutPlaceholders(withoutStaleTranslations(sampled, { ...words, dropMarks: true }), { cutoff: delivery?.enabled && delivery.sameDay ? delivery.cutoff : null, ownBusiness: app.demo !== true }, words);
+  // 176.6 And, in a business's own app, no App editor demo's own banner line and welcome sentence.
+  const fresh = app.demo === true ? placed : withoutDemoWords(placed);
   if (fresh === layout) return layout;
   return { ...fresh, version: `${layout.version}~f${sha256Hex(JSON.stringify(fresh)).slice(0, 8)}` };
 }
