@@ -20,6 +20,7 @@ import { siteApp, type Fail } from "../license/chat";
 import { parseSiteInfo } from "../license/service";
 import { pushNotice } from "../owner/push";
 import { pushOwnerSafely } from "../owner/push-env";
+import { payLinkForApps } from "../payments/pay-link";
 import { PROVIDER_NAME, providerTakes } from "../payments/provider";
 import { compareVersions } from "../semver";
 import { orderRefundOptions, refundOrder, type RefundDeps, type RefundResult } from "../refunds/service";
@@ -371,7 +372,7 @@ export async function startSiteStorePayment(
   return {
     status: 200,
     body: {
-      url: `${deps.platformUrl.replace(/\/+$/, "")}/pay/${token}`,
+      url: payLinkForApps(deps.platformUrl, token),
       expires_at: new Date(deps.now.getTime() + PAY_LINK_MINUTES * 60_000).toISOString(),
       payment_id: orderNumber(order),
       gateway,

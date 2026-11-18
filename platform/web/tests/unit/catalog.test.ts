@@ -16,6 +16,7 @@ import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hoste
 import { checkIyzicoKeys, iyzicoAuthorization, type IyzicoKeys } from "@/lib/payments/iyzico";
 import { expectContract } from "./contract";
 import { NOW, setupClient } from "./helpers";
+import { payToken } from "./pay-token";
 
 const KEY = Buffer.alloc(32, 7);
 const IYZICO: IyzicoKeys = { apiKey: "sandbox-api", secretKey: "sandbox-secret", sandbox: true };
@@ -259,9 +260,9 @@ describe("catalog shop on the hosted API", () => {
 
     const link = await checkout("android", [{ product_id: ids.roses, quantity: 2 }]);
     const url = (link.body as { url: string }).url;
-    expect(url).toMatch(/^https:\/\/yallapp\.test\/pay\/[\w-]+$/);
+    expect(url).toMatch(/^https:\/\/yallapp\.test\/pay\/[\w-]+\/in-app$/);
     expect(link.body).toMatchObject({ open_in: "in_app", expires_at: new Date(now.getTime() + 3_600_000).toISOString() });
-    const order = (await store.getCatalogOrderByToken(sha256Hex(url.split("/").pop()!)))!;
+    const order = (await store.getCatalogOrderByToken(sha256Hex(payToken(url))))!;
     expect(order).toMatchObject({ status: "pending", subtotalCents: 90000, shippingCents: 5000, totalCents: 95000, userId: null });
 
     app = { ...app, catalogSettings: { ...app.catalogSettings!, payment: null } };
@@ -299,7 +300,7 @@ describe("catalog shop on the hosted API", () => {
         token: accessToken,
         body: { lines: [{ product_id: ids.roses, quantity: 2 }] },
       });
-      token = (link.body as { url: string }).url.split("/").pop()!;
+      token = payToken((link.body as { url: string }).url);
       order = (await store.getCatalogOrderByToken(sha256Hex(token)))!;
     });
 
@@ -538,11 +539,11 @@ describe("catalog shop on the hosted API", () => {
     it("takes the discount off the order, the payment's lines and counts the use when paid", async () => {
       await coupon({ code: "FIFTY", kind: "amount", value: 5000, maxUses: 5 });
       const link = await call("POST", "/store/checkout-link", { query: { platform: "android" }, body: { lines: [{ product_id: ids.roses, quantity: 2 }], coupon: "fifty" } });
-      const order = (await store.getCatalogOrderByToken(sha256Hex((link.body as { url: string }).url.split("/").pop()!)))!;
+      const order = (await store.getCatalogOrderByToken(sha256Hex(payToken((link.body as { url: string }).url))))!;
       expect(order).toMatchObject({ subtotalCents: 90000, discountCents: 5000, shippingCents: 5000, totalCents: 90000, couponCode: "FIFTY" });
       // A coupon that doesn't apply is left out, never an error.
       const plain = await call("POST", "/store/checkout-link", { query: { platform: "android" }, body: { lines: [{ product_id: ids.roses, quantity: 1 }], coupon: "NOPE" } });
-      const without = (await store.getCatalogOrderByToken(sha256Hex((plain.body as { url: string }).url.split("/").pop()!)))!;
+      const without = (await store.getCatalogOrderByToken(sha256Hex(payToken((plain.body as { url: string }).url))))!;
       expect(without).toMatchObject({ discountCents: 0, couponCode: null, totalCents: 50000 });
 
       const sent: Record<string, unknown>[] = [];

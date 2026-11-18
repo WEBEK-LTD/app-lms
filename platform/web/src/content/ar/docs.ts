@@ -10,6 +10,7 @@ import { AR_DOCS_8 } from "./docs-8";
 import { AR_DOCS_9 } from "./docs-9";
 import { AR_DOCS_10 } from "./docs-10";
 import { AR_DOCS_11 } from "./docs-11";
+import { AR_DOCS_12 } from "./docs-12";
 
 /** 55 The documentation (src/content/docs.ts) in this language, by article slug. */
-export const AR_DOCS: Record<string, DocTranslation> = { ...AR_DOCS_1, ...AR_DOCS_2, ...AR_DOCS_3, ...AR_DOCS_4, ...AR_DOCS_5, ...AR_DOCS_6, ...AR_DOCS_7, ...AR_DOCS_8, ...AR_DOCS_9, ...AR_DOCS_10, ...AR_DOCS_11 };
+export const AR_DOCS: Record<string, DocTranslation> = { ...AR_DOCS_1, ...AR_DOCS_2, ...AR_DOCS_3, ...AR_DOCS_4, ...AR_DOCS_5, ...AR_DOCS_6, ...AR_DOCS_7, ...AR_DOCS_8, ...AR_DOCS_9, ...AR_DOCS_10, ...AR_DOCS_11, ...AR_DOCS_12 };

@@ -12,6 +12,7 @@ import { payClubMembership } from "@/lib/market/flow";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { expectContract } from "./contract";
 import { KEY, NOW, setupClient } from "./helpers";
+import { payToken } from "./pay-token";
 
 const DEVICE = { id: "install-1", platform: "android", name: "Pixel 8", app_version: "1.0.0" };
 const ASSETS = (id: string) => `https://yallapp.test/api/v1/assets/${id}`;
@@ -347,7 +348,7 @@ describe("115 the marketplace's routes", () => {
     expect(joined.status, JSON.stringify(joined.body)).toBe(201);
     const body = joined.body as { membership: { status: string }; pay_url: string };
     expect(body.membership.status).toBe("awaiting_payment");
-    const token = body.pay_url.split("/").pop()!;
+    const token = payToken(body.pay_url);
     const shopOrder = (await store.getCatalogOrderByToken(sha256Hex(token)))!;
     expect(shopOrder).toMatchObject({ totalCents: 49_00, status: "pending", userId: customer.user.id });
     // Not a member until the payment is confirmed.

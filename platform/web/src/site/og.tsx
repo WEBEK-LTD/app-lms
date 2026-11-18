@@ -7,6 +7,10 @@ import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { storyCopyFor } from "@/content/stories";
 import { isStoryId } from "@/site/story/types";
 import { blackFridayOgText } from "@/site/occasions/load";
+import { getStore } from "@/lib/data";
+import { publicTemplate } from "@/lib/studio-market/public";
+import { templateText } from "@/lib/studio-market/templates";
+import { templatesText } from "@/site/templates-text";
 
 /** 32 The share images, 55 in every language: the text on them is the page's language. */
 
@@ -62,4 +66,17 @@ export function storyOgImage(lang: Lang, id: string) {
 /** 124 Black Friday's share image: the offer as the team saved it, or that it's over. */
 export async function blackFridayOgImage(lang: Lang) {
   return ogImage({ ...(await blackFridayOgText(lang)), lang });
+}
+
+/** 106.13 Studio Market's share images: the market's, and a template's with its title and short line (a template not public: the market's). */
+export function templatesOgImage(lang: Lang) {
+  const x = templatesText(lang);
+  return ogImage({ eyebrow: x.eyebrow, title: x.title, text: x.ogText, lang });
+}
+
+export async function templateOgImage(lang: Lang, slug: string) {
+  const found = await publicTemplate(await getStore(), slug);
+  if (!found) return templatesOgImage(lang);
+  const text = templateText(found.template, lang);
+  return ogImage({ eyebrow: templatesText(lang).eyebrow, title: text.title, text: text.short || found.designer.name, lang });
 }

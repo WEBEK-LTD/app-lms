@@ -108,7 +108,9 @@ function Choice({ mode, title, text, points, saving }: { mode: "self" | "managed
 }
 
 export default async function PublishingPage({ searchParams }: PageProps<"/dashboard/publishing">) {
-  const { app, license } = await requireClient("settings");
+  const { app, license, state } = await requireClient("settings");
+  // 187 A request reaches our team only once the app has a paid plan.
+  const paid = state === "active";
   if (!app) redirect("/dashboard/app-type");
   const text = await dashboardText();
   const { t, k, lang } = text;
@@ -146,6 +148,12 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
     </>
   );
 
+  const needsPlan = paid ? null : (
+    <KitCallout tone="warn" icon="lock" role="status">
+      {richText(t("publishing.needsPlan"), { plan: (chunk) => <Link href="/dashboard/license#change-plan">{chunk}</Link> })}
+    </KitCallout>
+  );
+
   const passwords = (
     <KitCallout icon="lock">{richText(t("publishing.passwords"), { email: () => <bdi dir="ltr">{teamEmail}</bdi> })}</KitCallout>
   );
@@ -154,6 +162,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
     return (
       <KitPage>
         {header(null)}
+        {needsPlan}
         <KitHero titleId="h-how" title={t("publishing.howQuestion")}>
           <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
             <Choice
@@ -327,11 +336,12 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           {t("publishing.editTexts")}
         </Link>,
       )}
-      {query.chosen === "managed" ? (
+      {query.chosen === "managed" && paid ? (
         <KitCallout tone="success" icon="check_circle" role="status">
           {t("publishing.thanks")}
         </KitCallout>
       ) : null}
+      {needsPlan}
 
       {/* Where it stands: the stores live as the first tile with its bar, then each store as a tile that opens in the inspector
           (what its state means, why a store turned it down and what to do, our team's note, its link), then the one next step. */}

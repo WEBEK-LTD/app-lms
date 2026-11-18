@@ -57,6 +57,8 @@ describe("32 the website's menu", () => {
       "/yallapp-studio/academy",
       "/yallapp-studio/flowers",
       "/demo/studio",
+      // 106.13 Studio Market's public page.
+      "/templates",
     ]);
     const studio = SITE_NAV.find((e) => e.id === "studio");
     expect(studio?.kind === "group" && studio.items.filter((i) => i.heading).map((i) => i.id)).toEqual(["story-school"]);
@@ -189,7 +191,9 @@ describe("32 search engines", () => {
     for (const s of ALL_SOLUTIONS) expect(urls).toContain(`${BASE}/solutions/${s.id}`);
     for (const d of DOCS) expect(urls).toContain(`${BASE}/docs/${d.slug}`);
     for (const id of STORY_IDS) expect(urls).toContain(`${BASE}${storyPath(id)}`);
-    expect(urls).toHaveLength(19 + compareParams().length + ALL_SOLUTIONS.length + DOCS.length + STORY_IDS.length);
+    // 106.13 With /templates (its templates come from the store: tests/unit/studio-market-public.test.ts).
+    expect(urls).toContain(`${BASE}/templates`);
+    expect(urls).toHaveLength(20 + compareParams().length + ALL_SOLUTIONS.length + DOCS.length + STORY_IDS.length);
     expect(new Set(urls).size).toBe(urls.length);
     for (const url of urls) {
       expect(url.startsWith(BASE)).toBe(true);
@@ -460,6 +464,8 @@ describe("67 Google: the favicon, and every public page indexed", () => {
       if (r === "/docs/[slug]") return DOCS.map((d) => `/docs/${d.slug}`);
       if (r === "/compare/[name]") return compareParams().map((c) => `/compare/${c.name}`);
       if (r === "/yallapp-studio/[story]") return STORY_IDS.map(storyPath);
+      // 106.13 The published templates are listed by app/sitemap.ts from the store (tests/unit/studio-market-public.test.ts).
+      if (r === "/templates/[slug]") return [];
       expect(r, `${r}: list its pages here and in lib/sitemap.ts`).not.toMatch(/\[/);
       return [r];
     });

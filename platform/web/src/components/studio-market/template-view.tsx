@@ -6,6 +6,7 @@ import { applyTemplateAction } from "@/app/actions/studio-market";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { useFormStatus } from "react-dom";
 import { FormMessage } from "@/components/form";
+import { AccountLink } from "@/components/account-link";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
@@ -55,8 +56,9 @@ function useDemo(): DemoState {
 
 const LANG_NAMES: Record<string, string> = { en: "EN", ar: "عربي", tr: "TR" }; // i18n-ok
 
-export function TemplateDemo({ pages, languages, samples, mine, startOpen, title, children }: { pages: DemoPage[]; languages: string[]; samples: Pickable; mine: MineApp[]; startOpen: boolean; title: string; children: ReactNode }) {
-  const [open, setOpen] = useState<{ mine: string | null; page: number } | null>(startOpen ? { mine: null, page: 0 } : null);
+/** `startMine` (106.13, from the website's "Preview it on my app first"): the demo opens with the buyer's first app that fits. */
+export function TemplateDemo({ pages, languages, samples, mine, startOpen, startMine = false, title, children }: { pages: DemoPage[]; languages: string[]; samples: Pickable; mine: MineApp[]; startOpen: boolean; startMine?: boolean; title: string; children: ReactNode }) {
+  const [open, setOpen] = useState<{ mine: string | null; page: number } | null>(startOpen ? { mine: startMine ? (mine[0]?.id ?? null) : null, page: 0 } : null);
   const [selectedApp, selectApp] = useState<string | null>(mine[0]?.id ?? null);
   const value = useMemo<DemoState>(() => ({ pages, languages, samples, mine, open: (mode) => setOpen({ mine: mode.mine, page: mode.page ?? 0 }), selectedApp, selectApp }), [pages, languages, samples, mine, selectedApp]);
   return (
@@ -371,15 +373,38 @@ export interface PlanChoice {
 }
 
 /**
+ * 106.13 On the website, where the plan's button and "Preview it on my app
+ * first" go: signed in, straight to the dashboard (`signedIn`); signed out,
+ * to make an account or sign in first and come back there (`visitor`). Each
+ * is the address before the plan's period, which is added to it.
+ */
+export interface VisitorLinks {
+  checkout: { signedIn: string; visitor: string };
+  preview: { signedIn: string; visitor: string };
+}
+
+/**
  * 106.2 A paid template's plans with their billed prices, the one chosen
  * taken to checkout ("Apply to my app · $24"), where the app is chosen and
- * paid; and "Preview it on my app first".
+ * paid; and "Preview it on my app first". 106.13 `links`: the website's.
  */
-export function PlanPicker({ slug, plans, initial }: { slug: string; plans: PlanChoice[]; initial: string }) {
+export function PlanPicker({ slug, plans, initial, links }: { slug: string; plans: PlanChoice[]; initial: string; links?: VisitorLinks }) {
   const t = useDashT();
   const { open, mine } = useDemo();
   const [plan, setPlan] = useState(initial);
   const chosen = plans.find((p) => p.period === plan) ?? plans[0]!;
+  const pay = (
+    <>
+      <Icon name="format_paint" size={22} />
+      {t("studioMarket.applyPaid", { price: chosen.price })}
+    </>
+  );
+  const preview = (
+    <>
+      <Icon name="visibility" size={21} />
+      {t("studioMarket.previewMine")}
+    </>
+  );
   return (
     <div className="flex flex-col gap-3.5">
       <span className="mk-small">{t("studioMarket.choosePlan")}</span>
@@ -397,16 +422,27 @@ export function PlanPicker({ slug, plans, initial }: { slug: string; plans: Plan
         ))}
       </div>
 
-      <Link href={`/dashboard/studio-market/checkout/${slug}?plan=${chosen.period}`} className="mk-btn mk-btn-ember mk-btn-lg w-full">
-        <Icon name="format_paint" size={22} />
-        {t("studioMarket.applyPaid", { price: chosen.price })}
-      </Link>
-      {mine.length ? (
-        <button type="button" onClick={() => open({ mine: mine[0]!.id })} className="mk-btn mk-btn-ghost w-full">
-          <Icon name="visibility" size={21} />
-          {t("studioMarket.previewMine")}
-        </button>
-      ) : null}
+      {links ? (
+        <>
+          <AccountLink href={`${links.checkout.visitor}${chosen.period}`} signedInHref={`${links.checkout.signedIn}${chosen.period}`} signedIn={pay} className="mk-btn mk-btn-ember mk-btn-lg w-full">
+            {pay}
+          </AccountLink>
+          <AccountLink href={links.preview.visitor} signedInHref={links.preview.signedIn} signedIn={preview} className="mk-btn mk-btn-ghost w-full">
+            {preview}
+          </AccountLink>
+        </>
+      ) : (
+        <>
+          <Link href={`/dashboard/studio-market/checkout/${slug}?plan=${chosen.period}`} className="mk-btn mk-btn-ember mk-btn-lg w-full">
+            {pay}
+          </Link>
+          {mine.length ? (
+            <button type="button" onClick={() => open({ mine: mine[0]!.id })} className="mk-btn mk-btn-ghost w-full">
+              {preview}
+            </button>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }
