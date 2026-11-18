@@ -54,7 +54,7 @@ describe("162 the owner's settings", () => {
   it("serves the rules to the app, and nothing for an app that hasn't set it up, a restaurant or a hand-made value", () => {
     const app = (bouquet: unknown, extra: Partial<App> = {}) => ({ appType: "store", vertical: null, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS, bouquet }, ...extra }) as unknown as App;
     expect(bouquetOf(app(SETTINGS))).toEqual(SETTINGS);
-    expect(bouquetConfigJson(bouquetOf(app(SETTINGS)))).toEqual({ flowers_category_id: 4, wraps_from: "addons", wrap_optional: false, card_optional: true, cards: true, min_stems: 3, max_stems: 12, max_message: 500 });
+    expect(bouquetConfigJson(bouquetOf(app(SETTINGS)))).toEqual({ flowers_category_id: 4, wraps_from: "addons", wrap_optional: false, card_optional: true, has_cards: true, min_stems: 3, max_stems: 12, max_message: 500 });
     expect(bouquetConfigJson(bouquetOf(app({ ...SETTINGS, minStems: null, maxStems: null })))).toMatchObject({ min_stems: 1, max_stems: 99 });
     expect(bouquetOf(app(null))).toBeNull();
     expect(bouquetOf(app(SETTINGS, { vertical: "restaurant" } as Partial<App>))).toBeNull();
@@ -203,7 +203,7 @@ describe("162 Build your bouquet on the shop's own products", () => {
   it("serves the rules in the config and what to choose from: the stems, the wraps and the cards in the owner's order", async () => {
     await setUp();
     const config = (await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).body as { store: { bouquet: unknown } };
-    expect(config.store.bouquet).toEqual({ flowers_category_id: cats.stems, wraps_from: "addons", wrap_optional: false, card_optional: true, cards: true, min_stems: 3, max_stems: 36, max_message: 500 });
+    expect(config.store.bouquet).toEqual({ flowers_category_id: cats.stems, wraps_from: "addons", wrap_optional: false, card_optional: true, has_cards: true, min_stems: 3, max_stems: 36, max_message: 500 });
     const builder = (await call("GET", "/store/bouquet")).body as { flowers: { name: string; addon: boolean }[]; wraps: { name: string; addon: boolean; price: { amount: string } }[]; cards: { name: string }[] };
     expect(builder.flowers.map((p) => p.name)).toEqual(["Blush Ranunculus", "Red Rose"]);
     expect(builder.wraps.map((p) => [p.name, p.addon, p.price.amount])).toEqual([

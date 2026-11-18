@@ -2098,7 +2098,8 @@
         "ken_burns": true,
         "action": {
          "type": "screen",
-         "screen": "search"
+         "screen": "search",
+         "flow": "bouquet"
         },
         "children": [
          {
@@ -2427,7 +2428,8 @@
           },
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "flow": "bouquet"
           },
           "margin": {
            "top": 16,

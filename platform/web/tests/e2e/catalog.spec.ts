@@ -781,7 +781,7 @@ test("162 the owner sets up Build your bouquet; the cart and the order show the 
 
   // The app's rules and what it chooses from.
   const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
-  expect(config.store.bouquet).toMatchObject({ wraps_from: "addons", wrap_optional: false, card_optional: false, cards: true, min_stems: 3, max_stems: 24 });
+  expect(config.store.bouquet).toMatchObject({ wraps_from: "addons", wrap_optional: false, card_optional: false, has_cards: true, min_stems: 3, max_stems: 24 });
   const builder = (await (await request.get(`${api}/store/bouquet`)).json()) as { flowers: { id: number; name: string }[]; wraps: { id: number; name: string }[]; cards: { id: number; name: string }[] };
   expect(builder.flowers.map((p) => p.name)).toEqual(["Red Rose"]);
   expect(builder.wraps.map((p) => p.name)).toEqual(["Kraft Paper Wrap"]);

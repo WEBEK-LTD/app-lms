@@ -136,7 +136,7 @@ export function bouquetConfigJson(s: BouquetSettings | null) {
     wraps_from: s.wraps.from,
     wrap_optional: s.wrapOptional,
     card_optional: s.cardOptional,
-    cards: s.cardProductIds.length > 0,
+    has_cards: s.cardProductIds.length > 0,
     min_stems: s.minStems ?? 1,
     max_stems: s.maxStems ?? BOUQUET_LIMITS.stems,
     max_message: BOUQUET_LIMITS.message,

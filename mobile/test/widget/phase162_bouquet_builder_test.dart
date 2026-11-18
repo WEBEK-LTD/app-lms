@@ -64,7 +64,7 @@ void main() {
     'wraps_from': 'addons',
     'wrap_optional': wrapOptional,
     'card_optional': cardOptional,
-    'cards': cards,
+    'has_cards': cards,
     'min_stems': min,
     'max_stems': max,
     'max_message': 500,
@@ -126,7 +126,10 @@ void main() {
       'bouquet': ?bouquet,
       if (gift) 'checkout_mode': 'gift',
     };
-    return storeApi(store: store)
+    final api = storeApi(store: store);
+    // The app's languages, Arabic among them.
+    api.config = {...api.config, 'languages': languagesJson()};
+    return api
       ..bouquet = bouquet == null ? null : (data ?? builder())
       ..giftOccasions = [
         {
