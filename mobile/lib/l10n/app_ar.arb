@@ -3369,5 +3369,6 @@
   "marketFind": "ابحث",
   "marketBarcodeNotFound": "لا يوجد لدى {vendor} منتج بهذا الباركود.",
   "marketCameraOff": "الكاميرا متوقفة لهذا التطبيق. اكتب الرمز بدلًا من ذلك.",
-  "marketProposalClosed": "انتهى وقت الرد، فطُبّق اختيار طلبك."
+  "marketProposalClosed": "انتهى وقت الرد، فطُبّق اختيار طلبك.",
+  "marketShownCount": "ظاهر {count}"
 }

@@ -13123,4 +13123,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get marketProposalClosed => 'انتهى وقت الرد، فطُبّق اختيار طلبك.';
+
+  @override
+  String marketShownCount(int count) {
+    return 'ظاهر $count';
+  }
 }

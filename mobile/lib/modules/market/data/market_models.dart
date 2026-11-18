@@ -7,6 +7,8 @@
 /// words ("EGP 15.00").
 library;
 
+import '../../../core/api/models/food_models.dart' show DishChoiceGroup;
+
 enum MarketVendorKind { restaurant, grocery, shop }
 
 /// Who brings the order: the app's couriers (live on the map) or the
@@ -244,6 +246,7 @@ class MarketItem {
     this.unit = MarketUnit.piece,
     this.step = 1,
     this.hasChoices = false,
+    this.choices = const [],
     this.popular = false,
     this.inStock = true,
     this.badge,
@@ -280,6 +283,10 @@ class MarketItem {
   /// The amount added each time: 1, or 0.25 for a quarter kilo.
   final double step;
   final bool hasChoices;
+
+  /// 115.23 A dish's choice groups (a size to pick, extras up to a number):
+  /// chosen before it goes in the basket.
+  final List<DishChoiceGroup> choices;
   final bool popular;
   final bool inStock;
   final String? badge;

@@ -13494,4 +13494,9 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get marketProposalClosed =>
       overlay.text('marketProposalClosed') ?? base.marketProposalClosed;
+
+  @override
+  String marketShownCount(int count) =>
+      overlay.format('marketShownCount', {'count': count}) ??
+      base.marketShownCount(count);
 }

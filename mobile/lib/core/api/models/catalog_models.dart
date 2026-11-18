@@ -29,7 +29,12 @@ class PageMeta {
 
 /// A paginated list (`Page` + `items`).
 class Paged<T> {
-  const Paged({required this.items, required this.meta, this.nextCursor});
+  const Paged({
+    required this.items,
+    required this.meta,
+    this.nextCursor,
+    this.counted = true,
+  });
 
   factory Paged.fromJson(Json json, T Function(Json item) parse) => Paged(
     items: reqListOf(json, 'items', parse),
@@ -51,6 +56,7 @@ class Paged<T> {
         totalPages: optInt(json, 'total_pages') ?? 1,
       ),
       nextCursor: optString(json, 'next_cursor'),
+      counted: optInt(json, 'total') != null,
     );
   }
 
@@ -60,6 +66,10 @@ class Paged<T> {
   /// 115.40 The next page's cursor; null on the last page, or from servers
   /// that page by number only ([PageMeta.hasMore] says then).
   final String? nextCursor;
+
+  /// Whether [PageMeta.total] is the server's count (a cursor page counts
+  /// nothing: its total is then only what came).
+  final bool counted;
 
   bool get hasMore => nextCursor != null || meta.hasMore;
 }

@@ -226,6 +226,13 @@ import type {
   MarketProduct,
   MarketProductInput,
   MarketProductQuery,
+  MarketProductPage,
+  MarketStockLine,
+  MarketStockMove,
+  MarketStockTake,
+  MarketStockWho,
+  MarketCatalogChange,
+  MarketCatalogChangeInput,
 } from "./types";
 // 105.2 Ride hailing
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
@@ -1438,8 +1445,33 @@ export interface DataStore {
   saveMarketAisle(input: Omit<MarketAisle, "id"> & { id: number | null }): Promise<MarketAisle | null>;
   /** Its products stay in its department, out of any aisle. */
   deleteMarketAisle(appId: string, vendorId: number, id: number): Promise<void>;
-  /** In stock first, then the vendor's order; `q` searches names, brands and descriptions, `code` a barcode or SKU. */
-  listMarketProducts(query: MarketProductQuery): Promise<{ items: MarketProduct[]; total: number }>;
+  /**
+   * In stock first, then the vendor's order; `code` finds a barcode or SKU. 115.24 `q` matches the
+   * search name (lib/market/search-name.ts): from its start first (by name), then from any of its
+   * words' start. With `cursor`, keyset pages and nothing counted; else pages by number, counted up to MARKET_COUNT_CAP.
+   */
+  listMarketProducts(query: MarketProductQuery): Promise<MarketProductPage>;
+  /** 115.24 The market's search: up to `perVendor` products of each of these vendors matching `q`, `limit` in all, best matches first, in one go. */
+  searchMarketProducts(input: { appId: string; vendorIds: number[]; q: string; withPhoto?: boolean; perVendor: number; limit: number }): Promise<MarketProduct[]>;
+  /**
+   * 115.24 An order takes its lines' counted stock, all or none: never below 0, even with orders at
+   * the same time; products not counted (null) are left as they are. Each (order, line, product) is
+   * taken once. `clamp` (a substitute picked from the shelf) takes what is left instead of refusing.
+   */
+  takeMarketStock(appId: string, orderId: number, lines: MarketStockLine[], reason: "order" | "substitute", who: MarketStockWho, now: Date, clamp?: boolean): Promise<MarketStockTake>;
+  /** 115.24 Gives back what an order's lines took (all its lines when `lineIds` is null), once each. */
+  returnMarketStock(appId: string, orderId: number, lineIds: number[] | null, who: MarketStockWho, now: Date): Promise<MarketStockMove[]>;
+  /** 115.24 Sets a product's counted stock (null: not counted), in the ledger; at 0 it's sold out, above 0 from 0 it's back. Null when it isn't the app's product. */
+  setMarketStock(appId: string, productId: number, stock: number | null, reason: "edit" | "import" | "undo", who: MarketStockWho, now: Date, undoOf?: number | null): Promise<{ move: MarketStockMove | null } | null>;
+  /** 115.24 The ledger, newest first: a vendor's, or one product's. */
+  listMarketStockMoves(appId: string, query: { vendorId?: number; productId?: number; orderId?: number; limit: number; beforeId?: number }): Promise<MarketStockMove[]>;
+  getMarketStockMove(appId: string, id: number): Promise<MarketStockMove | null>;
+  /** 115.24 A place's (or the owner's) change to a catalog, for the owner to see and undo. */
+  addMarketCatalogChange(input: MarketCatalogChangeInput): Promise<MarketCatalogChange>;
+  listMarketCatalogChanges(appId: string, query: { vendorId?: number; open?: boolean; by?: MarketCatalogChange["by"]; limit: number }): Promise<MarketCatalogChange[]>;
+  getMarketCatalogChange(appId: string, id: number): Promise<MarketCatalogChange | null>;
+  /** False when it was undone already (or isn't the app's). */
+  markMarketCatalogChangeUndone(appId: string, id: number, now: Date): Promise<boolean>;
   getMarketProduct(appId: string, id: number): Promise<MarketProduct | null>;
   /** 115 Products whose picture link is still to be fetched into a photo (none fetched, no error), oldest first. */
   listMarketProductsAwaitingPhoto(limit: number, only?: { appId: string; vendorId: number }): Promise<MarketProduct[]>;

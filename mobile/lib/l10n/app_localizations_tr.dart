@@ -12631,4 +12631,9 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get marketProposalClosed =>
       'Yanıt süresi doldu, siparişinizin seçimi uygulandı.';
+
+  @override
+  String marketShownCount(int count) {
+    return '$count gösteriliyor';
+  }
 }

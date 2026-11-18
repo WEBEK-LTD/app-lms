@@ -8,6 +8,21 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 115.21–115.23 (the marketplace audit's three bugs,
+docs/plans/2026-11-18-marketplace-audit.md): orders for later reach their
+vendor from the frequent job at their time less the vendor's preparation
+(with a delay in force), released and announced once even when two runs
+overlap, on memory and MariaDB; the four marketplace notifications are
+sent through the inbox and push path in the person's language, opening
+the right screen (`market_order_update` on each stage, `vendor_order` to
+the vendor's staff on a new or released order, `complaint_update` on
+support's reply or decision, `club_renewal` 3 days before a kept club plan
+ends and on its last day, nothing charged); the customer app opens a
+dish's choices before it goes in the basket and sends them with the quote
+and the order, and shows them in the basket, the checkout and the order.
+No migration and no contract change. Still to check on a real phone: the
+pushes arriving (customer app, vendor app, the Vendor tab) and each tap
+opening its screen, and the dish sheet on a small screen.
 Roadmap 115.40–115.47 (the supermarket in the customer app, the audit's
 Stage 3; on `wip-market-app`, not released yet): Zad Market's home has
 its own search with a barcode button, its offers, its departments as
@@ -1009,6 +1024,46 @@ folded, Studio's plans on a night band, every kind of app each product
 makes, a few questions and a closing band in the night. Only the plans for
 sale show, with their prices from Admin › Plans.
 
+Roadmap 115.24–115.28 (the marketplace's catalog: stock, editing, search
+at scale): a grocery's or shop's counted stock goes down when an order is
+placed, all of its lines or none, never below 0 (the store locks each
+product's row in a transaction on MySQL and MariaDB: two customers ordering
+the last one get one order between them, the other "out of stock"), and
+comes back once on a cancel, a refusal, a line picked as missing or swapped
+(the substitute's stock is taken instead), or an online payment left
+unfinished for 30 minutes (the order cancelled, "Payment not completed",
+its coupon's use freed). Out of stock is gone from customers' lists and
+search at once, and back once stocked. Every change, the place's and
+the owner's and an import's too, is in the `market_stock_moves` ledger
+(who, why, which order and line, before and after); the panel shows each
+product's history, with Undo for the last hand change. At 0 a product is
+sold out by itself and back once stocked; `stock` null isn't counted (D9);
+items sold by weight count their steps (10 kg at 0.25 kg is 40), and the
+pages, the vendor routes and imports read and write kilos. The place's
+owner and managers add, change and delete products (names in en/ar/tr,
+price, by the unit or by weight with its step, least and most, SKU,
+barcode, stock, department and aisle, on or off), departments and aisles
+(their order by drag or arrows) from the partner panel's Menu & stock and
+from the vendor routes (`POST/PATCH/DELETE /vendor/products`,
+`/vendor/departments`, `/vendor/aisles`, their `order`); order takers
+only stock. Each change a place makes is in `market_catalog_changes`
+(before and after), on the owner's new Products page of the place
+(Restaurants › the place › Open the products) with Undo; the owner edits
+any place's catalog there too, each change in the team's audit. The owner's
+place form has its kind (restaurant, grocery, shop). Search reads a
+normalized `search_name` (lower case, Arabic alef forms, taa marbuta, yaa
+and hamza, Turkish i and ı, accents, Arabic-Indic and Persian digits),
+from the start of the name with an index, then from a word's start; lists
+page by a keyset `cursor` (nothing counted) and page numbers count up to
+10,000; `/market/search` reads every shop's products in one query. Imports
+read Arabic-Indic digits and marks. `MarketProduct` has `names`, `sku`,
+`barcode`, `stock` (customers see it only when 10 or fewer are left),
+`sold_by` and its department and aisle; order lines `estimated_total` and
+`weighed_total`, the order `estimated`. Migration `0145_market_catalog`
+(renumbered at merge after the other branches' 0145). Checked on memory and
+on MariaDB 10.11 with a 50,000-product catalog (each page, search and code
+lookup under 400 ms).
+
 ## To verify against real services before release
 
 - 138 The App Store Connect calls of the App Review submission
@@ -1074,6 +1129,15 @@ test environment:
   by postcode are still to try.
 
 ## Known gaps
+
+- 115.24 Unpaid online orders are expired by the frequent job (every 5
+  minutes): an abandoned payment holds its stock for 30 to 35 minutes.
+- 115.24 Products saved before the search name get it the first time
+  their place's catalog is searched, 500 at a time: a big catalog finds
+  everything after a few searches (or a one-off backfill).
+- 115.24 A weighed line's stock is taken as ordered; a different picked
+  weight doesn't change it. A restaurant's menu is still edited by the
+  app's owner only (Stage 6).
 
 - 115.47 No call relay: `MarketTracking.courier.call` is always null, so
   the app shows no call button for the app's courier yet.

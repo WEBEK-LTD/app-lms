@@ -583,7 +583,8 @@ class MarketSoldBy {
   });
 
   factory MarketSoldBy.fromJson(Json json) => MarketSoldBy(
-    byWeight: json['unit'] == 'weight',
+    // `kind` (Stage 1's contract); `unit: weight` from earlier drafts.
+    byWeight: json['kind'] == 'weight' || json['unit'] == 'weight',
     step: optDouble(json, 'step') ?? 1,
     min: optDouble(json, 'min'),
     max: optDouble(json, 'max'),

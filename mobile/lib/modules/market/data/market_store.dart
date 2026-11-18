@@ -32,12 +32,17 @@ class MarketProductList {
     this.error,
     this.cursor,
     this.page = 0,
+    this.counted = true,
   });
 
   final List<MarketItem> items;
 
   /// How many there are in all (the server's count, else what is loaded).
   final int total;
+
+  /// Whether [total] is the server's count; paged by the cursor nothing is
+  /// counted, and only what is loaded is known.
+  final bool counted;
   final bool loading;
 
   /// Everything is loaded.
@@ -67,6 +72,7 @@ class MarketProductList {
     error: clearError ? null : (error ?? this.error),
     cursor: cursor ?? this.cursor,
     page: page ?? this.page,
+    counted: counted,
   );
 }
 
@@ -121,19 +127,24 @@ class MarketProductListController extends Notifier<MarketProductList> {
             aisle: int.tryParse(query.aisle ?? ''),
             query: query.query,
             barcode: query.barcode,
-            cursor: replace ? null : state.cursor,
+            // 115.24 By the cursor from the first page (empty), without
+            // counting; by page number from servers without one.
+            cursor: replace ? '' : state.cursor,
           );
       if (!ref.mounted || generation != _generation) return;
       final items = [
         if (!replace) ...state.items,
         for (final p in page.items) marketItemFrom(p),
       ];
+      final counted = replace ? page.counted : state.counted && page.counted;
+      final told = page.counted ? page.meta.total : (replace ? 0 : state.total);
       state = MarketProductList(
         items: items,
-        total: page.meta.total > items.length ? page.meta.total : items.length,
+        total: told > items.length ? told : items.length,
         done: !page.hasMore || page.items.isEmpty,
         cursor: page.nextCursor,
         page: page.meta.page,
+        counted: counted || (!page.hasMore && page.items.isNotEmpty),
       );
     } on Object catch (e) {
       if (!ref.mounted || generation != _generation) return;

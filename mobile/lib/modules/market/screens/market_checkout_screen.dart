@@ -393,20 +393,14 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
                       line: line,
                       shop: shop,
                       onAdd: () {
-                        ref
-                            .read(marketBasketProvider.notifier)
-                            .add(
-                              vendor,
-                              line.item,
-                              currency: basket.currency,
-                              decimals: basket.decimals,
-                            );
+                        // 115.23 One more of this line, with its choices.
+                        ref.read(marketBasketProvider.notifier).again(line);
                         _requote();
                       },
                       onRemove: () {
                         ref
                             .read(marketBasketProvider.notifier)
-                            .remove(line.item);
+                            .remove(line.item, line: line);
                         _requote();
                       },
                       onIfMissing: (v) {
@@ -738,6 +732,22 @@ class _BasketRow extends StatelessWidget {
                         color: p.text,
                       ),
                     ),
+                    // 115.23 What was chosen with a dish, and its note.
+                    if (line.choiceNames.isNotEmpty)
+                      Text(
+                        line.choiceNames.join(' · '),
+                        key: ValueKey('basket-choices-${item.id}'),
+                        style: TextStyle(fontSize: 13, color: p.textBody),
+                      ),
+                    if (line.note case final note?)
+                      Text(
+                        note,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontStyle: FontStyle.italic,
+                          color: p.textSecondary,
+                        ),
+                      ),
                     Text(
                       item.price,
                       style: TextStyle(fontSize: 13, color: p.textSecondary),

@@ -14147,5 +14147,14 @@
   "marketProposalClosed": "The time to answer has passed, so your order's choice was used.",
   "@marketProposalClosed": {
     "description": "115.40 Answering a proposal too late."
+  },
+  "marketShownCount": "{count} shown",
+  "@marketShownCount": {
+    "description": "115.40 How many are loaded, when the list isn't counted.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

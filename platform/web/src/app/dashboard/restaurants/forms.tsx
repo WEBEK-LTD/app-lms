@@ -8,6 +8,7 @@ import { FormActions, FormSection } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
 import { DeliveryAreaFields } from "@/components/delivery-area-fields";
 import { LEGACY_VENDOR_KM } from "@/lib/market/areas";
+import type { VendorKind } from "@/lib/data/types";
 
 export interface RestaurantFormValues {
   id: number | null;
@@ -36,7 +37,7 @@ export interface RestaurantAreaValues {
 }
 
 /** 105.1 A restaurant's details: where it is, what it cooks, how long it takes, the company's share. 115 In a marketplace, where it delivers. */
-export function RestaurantForm({ restaurant, cuisines, currency, area }: { restaurant: RestaurantFormValues; cuisines: { id: string; name: string }[]; currency: string; area?: RestaurantAreaValues }) {
+export function RestaurantForm({ restaurant, cuisines, currency, area, kind }: { restaurant: RestaurantFormValues; cuisines: { id: string; name: string }[]; currency: string; area?: RestaurantAreaValues; kind?: VendorKind }) {
   const t = useDashT();
   const [state, action] = useActionState(saveRestaurantAction, initialFormState);
   const known = useKnownText();
@@ -53,6 +54,21 @@ export function RestaurantForm({ restaurant, cuisines, currency, area }: { resta
           <Field id={`f-name${suffix}`} label={t("food.name")} name="name" defaultValue={value("name")} maxLength={80} error={state.errors?.name} required />
           <Field id={`f-phone${suffix}`} label={t("food.phone")} name="phone" type="tel" dir="ltr" defaultValue={value("phone")} error={state.errors?.phone} hint={t("food.phoneHint")} />
         </div>
+        {kind ? (
+          // 115.24 A marketplace's place: a restaurant (a menu), a grocery or a shop (products in departments and aisles).
+          <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+            <legend className="mb-1 text-sm font-semibold">{t("food.kindLabel")}</legend>
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              {(["restaurant", "grocery", "shop"] as const).map((k) => (
+                <label key={k} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                  <input type="radio" name="kind" value={k} defaultChecked={(state.values?.kind ?? kind) === k} className="h-4 w-4 accent-midnight" />
+                  {t(`food.kind_${k}`)}
+                </label>
+              ))}
+            </div>
+            <span className="text-[13px] text-muted">{t("food.kindHint")}</span>
+          </fieldset>
+        ) : null}
         <div className="flex flex-col gap-1.5">
           <label htmlFor={`f-description${suffix}`} className="text-sm font-semibold">
             {t("food.about")}

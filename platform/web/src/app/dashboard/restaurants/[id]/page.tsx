@@ -89,6 +89,8 @@ export default async function RestaurantPage({ params, searchParams }: { params:
   const today = utcToLocal(now, timezone).date;
   const daysOff = upcomingClosedDates(restaurant.closedDates, today);
   const edit = restaurant.vendorEdit ?? null;
+  // 115.24 The place's own catalog changes the owner hasn't undone (the latest 100).
+  const placeChanges = (restaurant.kind ?? "restaurant") !== "restaurant" ? (await store.listMarketCatalogChanges(app.id, { vendorId: restaurant.id, by: "vendor", open: true, limit: 100 })).length : 0;
   const dayText = (date: string) => formatDate(new Date(`${date}T00:00:00Z`), lang);
   const rating = restaurantRating(restaurant);
   const methods = hostedSignInMethods(app);
@@ -162,6 +164,22 @@ export default async function RestaurantPage({ params, searchParams }: { params:
             </div>
           </div>
         </Notice>
+      ) : null}
+
+      {/* 115.24 A grocery's or shop's products, departments and aisles, and what the place changed in them. */}
+      {(restaurant.kind ?? "restaurant") !== "restaurant" ? (
+        <SideCard titleId="h-catalog" icon="inventory_2" title={t("food.catalogTitle")}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span className="flex flex-col gap-0.5">
+              <span className="text-[15px] font-semibold">{t("food.catalogIntro")}</span>
+              {placeChanges > 0 ? <span className="text-[13px] font-semibold text-warn">{t("food.catalogPlaceChanges", { count: placeChanges })}</span> : null}
+            </span>
+            <a href={`/dashboard/restaurants/${restaurant.id}/catalog`} className={`${btn.primary} h-10`} data-testid="open-catalog">
+              <Icon name="inventory_2" size={18} />
+              {t("food.catalogOpen")}
+            </a>
+          </div>
+        </SideCard>
       ) : null}
 
       {/* 132.17 Its state in the app, then its menu, hours, details and staff, each in a tab. */}
@@ -377,6 +395,7 @@ export default async function RestaurantPage({ params, searchParams }: { params:
                 coverUrl: restaurant.coverAssetId ? assetUrl(restaurant.coverAssetId) : null,
               }}
               area={isMarketplaceApp(app) ? { areas: serviceAreasOf(settings), values: vendorAreaFormValues(restaurant, serviceAreasOf(settings)), warning: vendorAreaWarning(restaurant, serviceAreasOf(settings)) } : undefined}
+              kind={isMarketplaceApp(app) ? (restaurant.kind ?? "restaurant") : undefined}
             />
           </Section>
           <section aria-labelledby="h-delete" className="flex flex-wrap items-center justify-end gap-3">

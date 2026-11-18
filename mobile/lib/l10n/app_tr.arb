@@ -3369,5 +3369,6 @@
   "marketFind": "Bul",
   "marketBarcodeNotFound": "{vendor} mağazasında bu barkodla ürün yok.",
   "marketCameraOff": "Bu uygulama için kamera kapalı. Bunun yerine kodu yazın.",
-  "marketProposalClosed": "Yanıt süresi doldu, siparişinizin seçimi uygulandı."
+  "marketProposalClosed": "Yanıt süresi doldu, siparişinizin seçimi uygulandı.",
+  "marketShownCount": "{count} gösteriliyor"
 }

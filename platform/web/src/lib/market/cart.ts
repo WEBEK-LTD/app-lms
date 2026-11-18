@@ -10,6 +10,7 @@ import { bestAutomaticOffer, checkCoupon, clubBenefit, couponFromCode, type Coup
 import { marketSettingsOf, marketCurrency } from "./settings";
 import { assetUrl } from "../assets";
 import { photosRequired } from "./photos";
+import { stockAmount, stockUnits } from "./stock";
 
 /**
  * 115 A marketplace cart: read from the app (MarketCartInput), priced at
@@ -192,10 +193,13 @@ async function priceLines(store: DataStore, appId: string, vendor: Restaurant, c
     const field = `lines[${i}]`;
     const p = await store.getMarketProduct(appId, l.productId);
     if (!p || p.vendorId !== vendor.id || (needPhoto && !p.imageAssetId)) return refuse(409, "invalid_request", "One of the items isn't sold here any more. Refresh the list.", field);
-    if (!p.inStock || (p.stock !== null && p.stock <= 0)) return refuse(409, "unavailable_item", `${p.name} is out of stock.`, field);
+    if (!p.inStock || (p.stock !== null && p.stock <= 0)) return refuse(409, "unavailable_item", `${p.name} is no longer available.`, field);
     if (!onStep(l.quantity, p.step)) return refuse(400, "invalid_request", `${p.name} is sold in steps of ${p.step}.`, field);
     if (p.maxQuantity !== null && l.quantity > p.maxQuantity) return refuse(409, "too_many", `You can order up to ${p.maxQuantity} of ${p.name}.`, field);
-    if (p.unit === "item" && p.stock !== null && l.quantity > p.stock) return refuse(409, "too_many", `Only ${p.stock} of ${p.name} left.`, field);
+    // 115.24 Counted stock: items one each, items sold by weight their steps (D9).
+    const inUnit = (n: number) => (p.unit === "item" ? String(n) : `${n} ${p.unit}`);
+    if (p.stock !== null && stockUnits(p, l.quantity) > p.stock) return refuse(409, "too_many", `Only ${inUnit(stockAmount(p, p.stock))} of ${p.name} left.`, field);
+    if (p.minQuantity && l.quantity + 1e-9 < p.minQuantity) return refuse(400, "invalid_request", `Order at least ${inUnit(p.minQuantity)} of ${p.name}.`, field);
     if (l.substituteProductId !== null) {
       const sub = await store.getMarketProduct(appId, l.substituteProductId);
       if (!sub || sub.vendorId !== vendor.id) return refuse(400, "invalid_request", "Choose the item to bring instead from this place.", `${field}.substitute_product_id`);

@@ -4956,6 +4956,8 @@ export interface MarketProduct {
   departmentId: number | null;
   aisleId: number | null;
   name: string;
+  /** 115.24 Its name in the app's other languages (en, ar, tr), shown in that language; null or missing for none. */
+  names?: MarketNames | null;
   description: string | null;
   brand: string | null;
   /** The vendor's own code, unique within the vendor; imports update by it. */
@@ -4977,8 +4979,14 @@ export interface MarketProduct {
   unit: MarketUnit;
   /** The amount added each time (1 for items, 0.25 for a quarter kilo). */
   step: number;
+  /** 115.24 The least a customer may order (a step or more); null or missing for one step. */
+  minQuantity?: number | null;
   maxQuantity: number | null;
-  /** Counted stock; null when not counted (then `inStock` alone says). */
+  /**
+   * Counted stock; null when not counted (then `inStock` alone says, D9).
+   * Items count one each; items sold by weight count their steps (40 at 0.25 kg is 10 kg).
+   * It never goes below 0; at 0 the product is sold out by itself, until stocked again.
+   */
   stock: number | null;
   inStock: boolean;
   tags: string[];
@@ -4988,6 +4996,86 @@ export interface MarketProduct {
 }
 
 export type MarketProductInput = Omit<MarketProduct, "id" | "createdAt" | "updatedAt">;
+
+/** 115.24 A product's name in each of the app's languages. */
+export type MarketNames = Partial<Record<"en" | "ar" | "tr", string>>;
+
+/** 115.24 A page of products: `total` only when paged by number (`page`, at most MARKET_COUNT_CAP), `nextCursor` when paged by cursor. */
+export interface MarketProductPage {
+  items: MarketProduct[];
+  /** Null when paged by cursor (nothing is counted). */
+  total: number | null;
+  /** The next page's cursor; null on the last page or when paged by number. */
+  nextCursor: string | null;
+}
+
+/** 115.24 Page counts stop here: a bigger catalog shows "10,000+". */
+export const MARKET_COUNT_CAP = 10_000;
+
+/** 115.24 Why a product's stock changed. */
+export type MarketStockReason = "order" | "return" | "substitute" | "edit" | "import" | "undo";
+
+/** 115.24 One change of a product's counted stock, in the stock-moves ledger. */
+export interface MarketStockMove {
+  id: number;
+  appId: string;
+  vendorId: number;
+  productId: number;
+  /** The order that took or gave back; null for the place's or the owner's own changes. */
+  orderId: number | null;
+  /** The order's line; null without an order. */
+  lineId: number | null;
+  reason: MarketStockReason;
+  /** Taken (negative) or added (positive). */
+  delta: number;
+  /** Null while it wasn't counted (D9). */
+  before: number | null;
+  after: number | null;
+  by: "customer" | "vendor" | "owner" | "system";
+  /** Who, in words: the staff member's or the owner's name. */
+  byName: string | null;
+  /** The move this one undid (`undo`). */
+  undoOf: number | null;
+  createdAt: Date;
+}
+
+/** 115.24 Who changes stock, for the ledger. */
+export interface MarketStockWho {
+  by: MarketStockMove["by"];
+  byName: string | null;
+}
+
+/** 115.24 An order line's product and how much of its counted stock it takes (items, or steps for items sold by weight). */
+export interface MarketStockLine {
+  lineId: number;
+  productId: number;
+  units: number;
+}
+
+/** 115.24 Why an order couldn't take its stock: this product has only `left` (items or steps). */
+export type MarketStockTake = { ok: true; moves: MarketStockMove[] } | { ok: false; productId: number; left: number };
+
+/** 115.24 A change a place made to its own catalog (D10), for the owner to see and undo. */
+export interface MarketCatalogChange {
+  id: number;
+  appId: string;
+  vendorId: number;
+  entity: "product" | "department" | "aisle";
+  entityId: number;
+  action: "create" | "update" | "delete";
+  /** The row before (null for a create) and after (null for a delete). */
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
+  /** The fields an update changed. */
+  fields: string[];
+  by: "vendor" | "owner";
+  byName: string | null;
+  createdAt: Date;
+  /** When the owner undid it; null while it stands. */
+  undoneAt: Date | null;
+}
+
+export type MarketCatalogChangeInput = Omit<MarketCatalogChange, "id" | "undoneAt">;
 
 export interface MarketProductQuery {
   appId: string;
@@ -5002,8 +5090,15 @@ export interface MarketProductQuery {
   withPhoto?: boolean;
   /** 115 Only products still without an uploaded main photo (the panel's "No photo" filter). */
   withoutPhoto?: boolean;
+  /** 115.24 What customers see: on sale and not counted down to 0 (decision 15: out of stock is gone from their lists). */
+  available?: boolean;
   page: number;
   perPage: number;
+  /**
+   * 115.24 Keyset paging: "" for the first page, then each page's `nextCursor`; `page` is
+   * then ignored and nothing is counted. Without it, pages go by number (counted up to MARKET_COUNT_CAP).
+   */
+  cursor?: string;
 }
 
 export type RestaurantStaffInput = Pick<RestaurantStaff, "appId" | "restaurantId" | "name" | "phone" | "email" | "active"> & { role?: VendorRole };
@@ -5183,6 +5278,8 @@ export interface MarketOrderQuery {
   completedSince?: Date;
   completedUntil?: Date;
   createdSince?: Date;
+  /** 115.24 Made before this time (unpaid orders to expire). */
+  createdBefore?: Date;
   order?: "newest" | "oldest";
   limit: number;
   offset: number;

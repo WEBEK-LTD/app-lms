@@ -4,12 +4,15 @@ import { notFound } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { CatalogSection, ComplaintsSection, DeliverySection, HoursSection, ImportSection, OffersSection, PanelTabs, PartnerFrame, StaffSection, StatementSection } from "@/components/partner-pages";
 import { VendorBoard, type BoardData } from "@/components/vendor-board";
+import { ProductEditor, ShelvesSection } from "@/components/partner-catalog";
+import { sellsProducts } from "@/lib/market/catalog-edit";
 import { assetUrl } from "@/lib/assets";
-import { catalogPage, waitingLinks, deliveryAreaWarning, deliveryValues, monthBounds, panelContext, placeHoursValues, staffList, tabsFor, vendorComplaints, vendorStatement, type ImportResult, type PanelTab } from "@/lib/market/panel-pages";
+import { canEditCatalog, catalogPage, productEditor, shelfList, waitingLinks, deliveryAreaWarning, deliveryValues, monthBounds, panelContext, placeHoursValues, staffList, tabsFor, vendorComplaints, vendorStatement, type ImportResult, type PanelTab } from "@/lib/market/panel-pages";
 import { getStore } from "@/lib/data";
 import { panelCookie, panelStaff } from "@/lib/market/panel";
 import { boardData } from "@/lib/market/panel-board";
 import { fill, PANEL_WORDS, panelLang, type PanelLang, type PanelWords } from "@/lib/market/panel-words";
+import { deleteProductAction, deleteShelfAction, orderShelfAction, saveProductAction, saveShelfAction, undoStockAction } from "./actions";
 import { addDaysOffAction, addStaffAction, bulkPhotosAction, removeDaysOffAction, saveHoursAction, createOfferAction, fetchLinksAction, importAction, offerStateAction, removePhotoAction, requestPanelCode, uploadPhotoAction, saveDeliveryAction, saveStockAction, signOutOfPanel, toggleStaffAction, verifyPanelCode } from "./actions";
 import { vendorDelivery } from "@/lib/market/delivery";
 import { listVendorCoupons, vendorCatalogChoices, vendorCouponRules } from "@/lib/market/vendor-coupons";
@@ -43,12 +46,47 @@ export default async function PartnerPanel(props: PageProps<"/partner/[appId]">)
     const page = Math.max(1, Number(search.page) || 1);
     const text = (v: unknown) => (typeof v === "string" ? v : "");
     let body: React.ReactNode = null;
-    if (tab === "catalog") {
+    // 115.24 The departments and aisles, for the place's owner and managers.
+    const editor = tab === "catalog" && canEditCatalog(staff) && sellsProducts(ctx.vendor);
+    if (editor && search.view === "shelves") {
+      body = (
+        <ShelvesSection
+          w={w}
+          shelves={await shelfList(store, app.id, ctx.vendor.id)}
+          closeHref={`${base}?tab=catalog&lang=${lang}`}
+          error={text(search.error) || null}
+          save={saveShelfAction.bind(null, appId, lang)}
+          remove={deleteShelfAction.bind(null, appId, lang)}
+          move={orderShelfAction.bind(null, appId, lang)}
+          order={orderShelfAction.bind(null, appId, lang)}
+        />
+      );
+    } else if (tab === "catalog") {
       const q = text(search.q).slice(0, 80);
       const out = search.out === "1";
       const noPhoto = search.nophoto === "1";
       const found = await catalogPage(ctx, { q, page, outOfStock: out, noPhoto });
       const photoError = text(search.photo_error) ? { id: Number(search.photo_id), error: text(search.photo_error).slice(0, 200) } : null;
+      // 115.24 One product's sheet: a new one (`edit=new`) or one of the place's.
+      const editing = editor && text(search.edit) ? await productEditor(store, app.id, ctx.vendor.id, ctx.currency, text(search.edit) === "new" ? null : Number(search.edit) || -1) : null;
+      const sheet = editing ? (
+        <ProductEditor
+          w={w}
+          lang={lang}
+          values={editing.values}
+          shelves={editing.shelves}
+          moves={editing.moves}
+          productId={editing.product?.id ?? null}
+          currency={ctx.currency}
+          closeHref={`${base}?tab=catalog&lang=${lang}&page=${page}`}
+          error={text(search.error) || null}
+          saved={search.saved === "1"}
+          save={saveProductAction.bind(null, appId, lang)}
+          remove={deleteProductAction.bind(null, appId, lang)}
+          undoMove={undoStockAction.bind(null, appId, lang)}
+          ownerNote
+        />
+      ) : null;
       body = (
         <CatalogSection
           w={w}
@@ -67,6 +105,8 @@ export default async function PartnerPanel(props: PageProps<"/partner/[appId]">)
           saveStock={saveStockAction.bind(null, appId, lang)}
           savePhoto={uploadPhotoAction.bind(null, appId, lang)}
           dropPhoto={removePhotoAction.bind(null, appId, lang)}
+          canEdit={editor}
+          editor={sheet}
         />
       );
     } else if (tab === "import") {

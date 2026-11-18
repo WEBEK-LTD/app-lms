@@ -98,6 +98,7 @@ export default async function RestaurantsPage({ searchParams }: { searchParams: 
           cuisines={cuisines}
           restaurant={{ id: null, name: "", description: "", phone: "", address: "", details: "", map: "", cuisines: [], prepMinutes: "20", minOrder: "", maxKm: "", commission: "", commissionFixed: "", taxRate: "", logoUrl: null, coverUrl: null }}
           area={isMarketplaceApp(app) ? { areas: serviceAreasOf(settings), values: { area_kind: "km", area_km: "" }, warning: null } : undefined}
+          kind={isMarketplaceApp(app) ? "restaurant" : undefined}
         />
       </Sheet>
 

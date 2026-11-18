@@ -20329,6 +20329,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The time to answer has passed, so your order\'s choice was used.'**
   String get marketProposalClosed;
+
+  /// 115.40 How many are loaded, when the list isn't counted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} shown'**
+  String marketShownCount(int count);
 }
 
 class _AppLocalizationsDelegate

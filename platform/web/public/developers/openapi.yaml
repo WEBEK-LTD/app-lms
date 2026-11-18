@@ -6295,9 +6295,19 @@ paths:
       summary: A vendor's products
       description: |
         Paged, in the vendor's order. `department` and `aisle` keep one,
-        `q` searches names, brands and descriptions, `barcode` finds one by
-        its barcode or SKU. Out-of-stock products are listed with
-        `in_stock` false after the others.
+        `barcode` finds one by its barcode or SKU. 115.24 Out-of-stock
+        products aren't listed (owner's decision 15) until stocked again; a
+        cart line for one is refused with `unavailable_item` ("no longer
+        available"). The vendor's own list still has them.
+
+        115.24 `q` matches the product's names (in every language) and brand,
+        whatever the case, Arabic letter forms (أ إ آ ا, ة ه, ى ي, hamza),
+        diacritics, Turkish i and ı, or Arabic-Indic digits: names that start
+        with it first (by name), then names with a word that starts with it.
+        Send `cursor` (empty for the first page, then each page's
+        `next_cursor`) to page through a big catalog without counting it:
+        `total` and `total_pages` are then null. Without it, pages go by
+        number and `total` stops at 10,000.
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/VendorId'
@@ -6307,20 +6317,13 @@ paths:
         - { name: aisle, in: query, schema: { type: integer } }
         - { name: q, in: query, schema: { type: string, maxLength: 80 } }
         - { name: barcode, in: query, schema: { type: string, maxLength: 64 } }
+        - $ref: '#/components/parameters/ProductCursor'
       responses:
         '200':
           description: Products
           content:
             application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/Page'
-                  - type: object
-                    required: [items]
-                    properties:
-                      items:
-                        type: array
-                        items: { $ref: '#/components/schemas/MarketProduct' }
+              schema: { $ref: '#/components/schemas/MarketProductPage' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
@@ -7285,36 +7288,57 @@ paths:
       tags: [Vendor]
       operationId: listVendorProducts
       summary: The vendor's items, for stock
-      description: Dishes or products, paged; `out_of_stock` keeps those out; `q` and `barcode` find them.
+      description: Dishes or products, paged; `out_of_stock` keeps those out; `q` and `barcode` find them; `department` and `aisle` keep one. 115.24 `cursor` as for the customers' list; products carry `stock` always.
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
         - { name: q, in: query, schema: { type: string, maxLength: 80 } }
         - { name: barcode, in: query, schema: { type: string, maxLength: 64 } }
         - { name: out_of_stock, in: query, schema: { type: boolean } }
+        - { name: department, in: query, schema: { type: integer } }
+        - { name: aisle, in: query, schema: { type: integer } }
+        - $ref: '#/components/parameters/ProductCursor'
       responses:
         '200':
           description: Items
           content:
             application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/Page'
-                  - type: object
-                    required: [items]
-                    properties:
-                      items:
-                        type: array
-                        items: { $ref: '#/components/schemas/MarketProduct' }
+              schema: { $ref: '#/components/schemas/MarketProductPage' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Vendor]
+      operationId: createVendorProduct
+      summary: Add a product
+      description: 115.24 Groceries and shops; the place's owner and managers only. Every change is kept for the app's owner to see and undo (D10); its stock goes through the stock-moves ledger.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MarketProductInput' }
+      responses:
+        '201':
+          description: The product
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarketProduct' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
 
   /vendor/products/{product_id}:
     patch:
       tags: [Vendor]
       operationId: updateVendorProductStock
-      summary: Put an item in or out of stock
-      description: '`in_stock`, and for products that count it, `stock` (out of stock at 0 by itself).'
+      summary: Put an item in or out of stock, or change a product
+      description: |
+        `in_stock`, and for products that count it, `stock` (out of stock at 0
+        by itself, back once stocked); order takers may send only these two.
+        115.24 `stock` is in the product's unit (kilos for items sold by
+        weight) and goes through the stock-moves ledger; null stops counting
+        it. Any other field of `MarketProductInput` changes the product (the
+        place's owner and managers only); fields left out stay.
       parameters:
         - { name: product_id, in: path, required: true, schema: { type: integer } }
       requestBody:
@@ -7322,10 +7346,12 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                in_stock: { type: boolean }
-                stock: { type: [integer, 'null'], minimum: 0 }
+              allOf:
+                - $ref: '#/components/schemas/MarketProductInput'
+                - type: object
+                  properties:
+                    in_stock: { type: boolean }
+                    stock: { type: [number, 'null'], minimum: 0 }
       responses:
         '200':
           description: The item
@@ -7333,6 +7359,247 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/MarketProduct' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Vendor]
+      operationId: deleteVendorProduct
+      summary: Delete a product
+      description: 115.24 The place's owner and managers; the app's owner can undo it.
+      parameters:
+        - { name: product_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vendor/products/{product_id}/stock-moves:
+    get:
+      tags: [Vendor]
+      operationId: listVendorStockMoves
+      summary: A product's stock history
+      description: 115.24 The latest 50 changes of its counted stock, newest first, in its unit.
+      parameters:
+        - { name: product_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: The moves
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/MarketStockMove' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vendor/departments:
+    get:
+      tags: [Vendor]
+      operationId: listVendorDepartments
+      summary: The departments and their aisles, in order
+      description: '115.24 The place''s departments, each with its aisles, in their order.'
+      responses:
+        '200':
+          description: The departments
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/VendorDepartment' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Vendor]
+      operationId: createVendorDepartment
+      summary: Add a department
+      description: 115.24 At the end; the place's owner and managers only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VendorShelfInput' }
+      responses:
+        '201':
+          description: The department
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorShelf' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /vendor/departments/order:
+    post:
+      tags: [Vendor]
+      operationId: orderVendorDepartments
+      summary: Put the departments in order
+      description: 115.24 Every department's id, each once, in the new order (a drag).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids: { type: array, items: { type: integer } }
+      responses:
+        '200':
+          description: The departments, in their new order
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/VendorDepartment' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /vendor/departments/{department_id}:
+    patch:
+      tags: [Vendor]
+      operationId: renameVendorDepartment
+      summary: Rename a department
+      description: '115.24 The place''s owner and managers only.'
+      parameters:
+        - { name: department_id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VendorShelfInput' }
+      responses:
+        '200':
+          description: The department
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorShelf' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    delete:
+      tags: [Vendor]
+      operationId: deleteVendorDepartment
+      summary: Delete a department
+      description: 115.24 Its aisles go with it; its products stay, out of any department.
+      parameters:
+        - { name: department_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vendor/aisles:
+    post:
+      tags: [Vendor]
+      operationId: createVendorAisle
+      summary: Add an aisle to a department
+      description: 115.24 At the end of its department.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/VendorShelfInput'
+                - type: object
+                  required: [department_id]
+                  properties:
+                    department_id: { type: integer }
+      responses:
+        '201':
+          description: The aisle
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorShelf' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /vendor/aisles/order:
+    post:
+      tags: [Vendor]
+      operationId: orderVendorAisles
+      summary: Put a department's aisles in order
+      description: 115.24 Every aisle of the department, each once, in the new order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [department_id, ids]
+              properties:
+                department_id: { type: integer }
+                ids: { type: array, items: { type: integer } }
+      responses:
+        '200':
+          description: The departments, in their new order
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/VendorDepartment' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /vendor/aisles/{aisle_id}:
+    patch:
+      tags: [Vendor]
+      operationId: updateVendorAisle
+      summary: Rename an aisle, or move it to another department
+      description: '115.24 Moved to another department, it goes at its end.'
+      parameters:
+        - { name: aisle_id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/VendorShelfInput'
+                - type: object
+                  properties:
+                    department_id: { type: integer }
+      responses:
+        '200':
+          description: The aisle
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorShelf' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    delete:
+      tags: [Vendor]
+      operationId: deleteVendorAisle
+      summary: Delete an aisle
+      description: 115.24 Its products stay in its department.
+      parameters:
+        - { name: aisle_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '204': { description: Deleted }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -12350,6 +12617,11 @@ components:
       name: per_page
       in: query
       schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+    ProductCursor:
+      name: cursor
+      in: query
+      description: '115.24 Keyset paging: empty for the first page, then the last page''s `next_cursor`. `page` is then ignored and nothing is counted.'
+      schema: { type: string, maxLength: 400, pattern: '^[A-Za-z0-9_-]*$' }
     CourseId:
       name: course_id
       in: path
@@ -19869,6 +20141,121 @@ components:
         tags:
           type: array
           items: { type: string, enum: [spicy, vegetarian, vegan, new, popular, organic, frozen, age_restricted] }
+        names:
+          type: object
+          description: '115.24 Its name in each of the app''s languages (`name` is already in the request''s language when one is given). Missing on dishes and older servers.'
+          properties:
+            en: { type: string }
+            ar: { type: string }
+            tr: { type: string }
+        sku: { type: [string, 'null'], description: '115.24 The place''s own code. Missing on dishes and older servers.' }
+        barcode: { type: [string, 'null'], description: '115.24 Missing on dishes and older servers.' }
+        stock:
+          type: [number, 'null']
+          description: '115.24 Counted stock in the product''s unit (items, or kilos/grams/litres for items sold by weight). Null when not counted (D9) and, for customers, unless 10 or fewer are left. Always there on the vendor''s routes. At 0 the product is out of stock by itself. Missing on dishes and older servers.'
+        sold_by:
+          type: object
+          description: '115.24 By the unit or by weight, with its step and the least and most a customer may order. Missing on dishes and older servers.'
+          required: [kind, unit, step, min, max]
+          properties:
+            kind: { type: string, enum: [unit, weight] }
+            unit: { type: string, enum: [item, kg, g, l] }
+            step: { type: number }
+            min: { type: number, description: 'At least one step.' }
+            max: { type: [number, 'null'] }
+        department_id: { type: [integer, 'null'], description: '115.24 Missing on dishes and older servers.' }
+        aisle_id: { type: [integer, 'null'], description: '115.24 Missing on dishes and older servers.' }
+
+    MarketProductPage:
+      type: object
+      description: '115.24 A page of products: by number (`total` up to 10,000), or by `cursor` (`total` and `total_pages` null, `next_cursor` for the next page).'
+      required: [page, per_page, total, total_pages, items]
+      properties:
+        page: { type: integer }
+        per_page: { type: integer }
+        total: { type: [integer, 'null'] }
+        total_pages: { type: [integer, 'null'] }
+        next_cursor: { type: [string, 'null'], description: 'Null on the last page and when paged by number.' }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/MarketProduct' }
+
+    MarketProductInput:
+      type: object
+      description: '115.24 A product as the place edits it. `name` (and `price`) are needed to add one; a change sends only what changes.'
+      properties:
+        name: { type: string, maxLength: 160, description: 'Shown when the customer''s language has no name of its own.' }
+        names:
+          type: object
+          properties:
+            en: { type: string, maxLength: 160 }
+            ar: { type: string, maxLength: 160 }
+            tr: { type: string, maxLength: 160 }
+        description: { type: [string, 'null'], maxLength: 1000 }
+        brand: { type: [string, 'null'], maxLength: 80 }
+        price: { type: string, description: 'A decimal string in the app''s currency.', example: '35.50' }
+        was_price: { type: [string, 'null'] }
+        sold_by: { type: string, enum: [unit, weight] }
+        unit: { type: string, enum: [item, kg, g, l], description: 'For `weight`: kg, g or l.' }
+        step: { type: number, exclusiveMinimum: 0, description: 'Whole for items.' }
+        min: { type: [number, 'null'], description: 'In steps; empty for one step.' }
+        max: { type: [number, 'null'], description: 'In steps; empty for no limit.' }
+        sku: { type: [string, 'null'], maxLength: 64, description: 'Unique within the place.' }
+        barcode: { type: [string, 'null'], pattern: '^[0-9A-Za-z-]{4,40}$' }
+        stock: { type: [number, 'null'], minimum: 0, description: 'In the product''s unit; null for not counted.' }
+        department_id: { type: [integer, 'null'] }
+        aisle_id: { type: [integer, 'null'], description: 'An aisle of `department_id`.' }
+        in_stock: { type: boolean, description: 'On sale (customers see it).' }
+        tags:
+          type: array
+          items: { type: string, enum: [spicy, vegetarian, vegan, new, popular, organic, frozen, age_restricted] }
+
+    MarketStockMove:
+      type: object
+      description: '115.24 One change of a product''s counted stock, in its unit.'
+      required: [id, reason, order_id, order_reference, change, before, after, by, at]
+      properties:
+        id: { type: integer }
+        reason: { type: string, enum: [order, return, substitute, edit, import, undo] }
+        order_id: { type: [integer, 'null'] }
+        order_reference: { type: [string, 'null'], example: M-1042 }
+        change: { type: number, description: 'Negative when taken.' }
+        before: { type: [number, 'null'], description: 'Null while it wasn''t counted.' }
+        after: { type: [number, 'null'] }
+        by: { type: string, enum: [customer, vendor, owner, system] }
+        at: { type: string, format: date-time }
+
+    VendorShelf:
+      type: object
+      required: [id, name, position]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        position: { type: integer }
+        department_id: { type: integer, description: 'Aisles only.' }
+
+    VendorDepartment:
+      type: object
+      required: [id, name, position, aisles]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        position: { type: integer }
+        aisles:
+          type: array
+          items:
+            type: object
+            required: [id, name, position]
+            properties:
+              id: { type: integer }
+              name: { type: string }
+              position: { type: integer }
+
+    VendorShelfInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
 
     MarketCoupon:
       type: object
@@ -19971,6 +20358,8 @@ components:
         unit_price: { $ref: '#/components/schemas/Money' }
         before_discount: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
         total: { $ref: '#/components/schemas/Money' }
+        estimated_total: { $ref: '#/components/schemas/Money', description: '115.24 The price as ordered (for items sold by weight, an estimate until weighed). Missing on older servers.' }
+        weighed_total: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }], description: '115.24 Items sold by weight, once picked: the weighed price (never above the estimate plus `MarketConfig.weight_tolerance_percent`). Null until then and for items. Missing on older servers.' }
         if_missing: { type: string, enum: [similar, chosen, remove] }
         outcome: { type: [string, 'null'], enum: [picked, substituted, missing, null], description: 'Once picked (groceries and shops).' }
         picked_quantity: { type: [number, 'null'] }
@@ -20031,6 +20420,8 @@ components:
           type: array
           items: { $ref: '#/components/schemas/MarketPriceLine' }
         total: { $ref: '#/components/schemas/Money' }
+        estimated: { type: boolean, description: '115.24 True while items sold by weight aren''t weighed yet: `total` is an estimate until then. Missing on older servers.' }
+        status_note: { type: [string, 'null'], description: '115.24 Why a cancelled or turned-down order ended, in words for the customer, e.g. "Payment not completed" for an online payment left unfinished for 30 minutes. Missing on older servers.' }
         payment:
           type: object
           required: [method, status, wallet_used]

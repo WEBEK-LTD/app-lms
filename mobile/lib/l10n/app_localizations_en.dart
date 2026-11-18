@@ -12726,4 +12726,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get marketProposalClosed =>
       'The time to answer has passed, so your order\'s choice was used.';
+
+  @override
+  String marketShownCount(int count) {
+    return '$count shown';
+  }
 }

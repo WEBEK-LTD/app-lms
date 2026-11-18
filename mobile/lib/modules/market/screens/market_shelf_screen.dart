@@ -112,12 +112,14 @@ class _MarketShelfScreenState extends ConsumerState<MarketShelfScreen> {
       query: null,
       barcode: null,
     );
-    final allTotal = searching
-        ? list.total
-        : ref.watch(marketProductListProvider(allQuery)).total;
+    final all = searching
+        ? list
+        : ref.watch(marketProductListProvider(allQuery));
+    final allTotal = all.total;
     final subtitle = [
       vendor.name,
-      l10n.marketProductCount(allTotal),
+      // Counted only when the server counts (not paged by the cursor).
+      if (all.counted) l10n.marketProductCount(allTotal),
       if (aisles.length > 1) l10n.marketAisleCount(aisles.length),
     ].join(' · ');
     final items = _filtered(list.items);
@@ -156,7 +158,7 @@ class _MarketShelfScreenState extends ConsumerState<MarketShelfScreen> {
                       departmentId: widget.departmentId!,
                       aisles: aisles,
                       selected: _aisle,
-                      allCount: allTotal,
+                      allCount: all.counted ? allTotal : null,
                       onSelect: (a) => setState(() => _aisle = a),
                     ),
                   ),
@@ -229,7 +231,7 @@ class _MarketShelfScreenState extends ConsumerState<MarketShelfScreen> {
                   SliverToBoxAdapter(
                     child: _ShownMeter(
                       shown: list.items.length,
-                      total: list.total,
+                      total: list.counted ? list.total : null,
                       loading: !list.done,
                       error: list.error != null,
                       onRetry: () => ref
@@ -404,7 +406,7 @@ class _AisleChips extends ConsumerWidget {
   final String departmentId;
   final List<MarketShelfAisle> aisles;
   final String? selected;
-  final int allCount;
+  final int? allCount;
   final ValueChanged<String?> onSelect;
 
   @override
@@ -503,7 +505,7 @@ class _AisleChips extends ConsumerWidget {
                 return chip(
                   id: a.id,
                   name: a.name,
-                  count: face.firstLoad ? null : face.total,
+                  count: face.firstLoad || !face.counted ? null : face.total,
                   photo: face.items
                       .where((i) => i.imageUrl != null)
                       .firstOrNull
@@ -603,7 +605,9 @@ class _ShownMeter extends StatelessWidget {
   });
 
   final int shown;
-  final int total;
+
+  /// Null when the list isn't counted (paged by the cursor).
+  final int? total;
   final bool loading;
   final bool error;
   final VoidCallback onRetry;
@@ -619,7 +623,9 @@ class _ShownMeter extends StatelessWidget {
           Flexible(
             flex: 2,
             child: Text(
-              l10n.marketShownOf(shown, total),
+              total == null
+                  ? l10n.marketShownCount(shown)
+                  : l10n.marketShownOf(shown, total!),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 13.5, color: p.textSecondary),
@@ -630,7 +636,12 @@ class _ShownMeter extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(3),
               child: LinearProgressIndicator(
-                value: total == 0 ? 1 : (shown / total).clamp(0, 1),
+                // Without a count, the bar runs while more is coming.
+                value: total == null
+                    ? (loading ? null : 1)
+                    : total == 0
+                    ? 1
+                    : (shown / total!).clamp(0, 1),
                 minHeight: 5,
                 color: p.primary,
                 backgroundColor: p.surfaceMuted,

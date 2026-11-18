@@ -1,12 +1,15 @@
 import type { DataStore } from "../data/store";
 import type { App, CatalogOrder, MarketOrder, MarketOrderStage, MarketOrderStatus, Shipment } from "../data/types";
-import { announceWaiting, moveShipment, settingsOf, type FlowDeps } from "../delivery/flow";
+import { announceWaiting, moveShipment, notifyDeps, settingsOf, type FlowDeps } from "../delivery/flow";
 import { stage } from "../delivery/service";
 import { cashCollector } from "./payments";
 import { marketOrderReference } from "./json";
 import { priceOrder, type Tax } from "./money";
 import { commissionOfVendor } from "./cart";
 import { joinClub, returnToWallet } from "./offers";
+import { giveBackOrderStock, stockAfterPick } from "./stock";
+import { tellMarketCustomer, tellVendor } from "./notify";
+import { prepWithDelay } from "./vendor-controls";
 
 /**
  * 115 How a marketplace order moves. The customer places it (cash, the
@@ -18,7 +21,26 @@ import { joinClub, returnToWallet } from "./offers";
  * (followed by stages) or the customer at pick-up (with the code). Each move
  * is made only while the order is still where the mover saw it. A cancelled
  * or turned-down order gives back what the wallet paid and its coupon's use.
+ * 115.22 Each move tells the customer (`market_order_update`), and an order
+ * that reaches its vendor tells the vendor's staff (`vendor_order`), only
+ * from the run that made the move (lib/market/notify.ts).
  */
+
+/** 115.22 Who is told of a move; `quiet` for a move nobody should hear of (an order undone while it was being placed). */
+export type MarketFlowDeps = FlowDeps & { quiet?: boolean };
+
+/** Tells the customer of the move just made; never fails the move. */
+async function told(deps: MarketFlowDeps, result: MoveResult, moment?: MarketOrderStatus | "picked"): Promise<MoveResult> {
+  if (result.ok && !deps.quiet) await tellMarketCustomer(notifyDeps(deps), result.order, moment).catch(() => 0);
+  return result;
+}
+
+/** 115.22 A new order reached its vendor (placed, paid, or due from later): the customer and the vendor's staff hear of it. */
+export async function announceMarketOrder(deps: FlowDeps, order: MarketOrder, kind: "new" | "released" = "new"): Promise<void> {
+  const n = notifyDeps(deps);
+  await tellMarketCustomer(n, order).catch(() => 0);
+  if (order.status === "placed") await tellVendor(n, order, kind).catch(() => 0);
+}
 
 export type MoveResult = { ok: true; order: MarketOrder } | { ok: false; reason: "changed" | "invalid"; error?: string };
 
@@ -40,6 +62,8 @@ async function move(store: DataStore, order: MarketOrder, patch: Partial<MarketO
 
 /** Gives back what an order that won't be made took: the wallet's part and the coupon's use. */
 async function giveBack(store: DataStore, order: MarketOrder, now: Date): Promise<void> {
+  // 115.24 Its counted stock, once.
+  await giveBackOrderStock(store, order, now);
   if (order.userId !== null && order.money.wallet > 0) await returnToWallet(store, { appId: order.appId, userId: order.userId, orderId: order.id, amount: order.money.wallet }, now);
   if (order.couponCode || order.money.coupon) {
     for (const c of await store.listMarketCoupons(order.appId)) await store.releaseMarketCouponUse(order.appId, c.id, order.id);
@@ -90,28 +114,28 @@ export async function makeMarketCourierJob(deps: FlowDeps, order: MarketOrder): 
 }
 
 /** The vendor accepts a new order with the minutes it needs; groceries and shops then pick it. */
-export async function acceptMarketOrder(deps: FlowDeps, order: MarketOrder, prepMinutes: number): Promise<MoveResult> {
+export async function acceptMarketOrder(deps: MarketFlowDeps, order: MarketOrder, prepMinutes: number): Promise<MoveResult> {
   if (order.status !== "placed") return { ok: false, reason: "changed" };
   const picking = order.vendorKind !== "restaurant";
   const moved = await move(deps.store, order, { status: picking ? "picking" : "accepted", prepMinutes, readyAt: new Date(deps.now.getTime() + prepMinutes * 60_000) }, "vendor", deps.now);
   if (!moved.ok) return moved;
   const job = await makeMarketCourierJob(deps, moved.order);
   if (job) moved.order.shipmentId = job.id;
-  return moved;
+  return told(deps, moved);
 }
 
 export const VENDOR_REJECTIONS = ["closing", "too_busy", "items_unavailable", "outside_area", "other"] as const;
 
 /** The vendor turns a new order down: the wallet's part and the coupon come back; an online payment is the owner's to refund. */
-export async function rejectMarketOrder(deps: FlowDeps, order: MarketOrder, reason: (typeof VENDOR_REJECTIONS)[number], note: string | null): Promise<MoveResult> {
+export async function rejectMarketOrder(deps: MarketFlowDeps, order: MarketOrder, reason: (typeof VENDOR_REJECTIONS)[number], note: string | null): Promise<MoveResult> {
   if (order.status !== "placed") return { ok: false, reason: "changed" };
   const moved = await move(deps.store, order, { status: "rejected", rejection: { reason, note } }, "vendor", deps.now);
   if (moved.ok) await giveBack(deps.store, moved.order, deps.now);
-  return moved;
+  return told(deps, moved);
 }
 
 /** Cancels the order: the customer before the vendor accepted it, the owner any time before it left. */
-export async function cancelMarketOrder(deps: FlowDeps, order: MarketOrder, by: "customer" | "owner"): Promise<MoveResult> {
+export async function cancelMarketOrder(deps: MarketFlowDeps, order: MarketOrder, by: "customer" | "owner"): Promise<MoveResult> {
   const allowed: MarketOrderStatus[] = by === "customer" ? CUSTOMER_CANCELLABLE : [...CUSTOMER_CANCELLABLE, "accepted", "picking", "ready"];
   if (!allowed.includes(order.status)) return { ok: false, reason: "changed" };
   const moved = await move(deps.store, order, { status: "cancelled" }, by, deps.now);
@@ -121,7 +145,7 @@ export async function cancelMarketOrder(deps: FlowDeps, order: MarketOrder, by: 
     const job = await deps.store.getShipment(deps.app.id, order.shipmentId);
     if (job && ["pending", "assigned", "failed"].includes(job.status)) await moveShipment(deps, job, "cancelled", "company", "The order was cancelled.").catch(() => undefined);
   }
-  return moved;
+  return told(deps, moved);
 }
 
 export interface PickedLine {
@@ -131,8 +155,12 @@ export interface PickedLine {
   substitute: { productId: number; quantity: number } | null;
 }
 
-/** A grocery's or shop's picking: each line picked (weighed), swapped or left out; the order priced again, never above the agreed tolerance. */
-export async function pickMarketOrder(store: DataStore, order: MarketOrder, picked: PickedLine[], tolerancePercent: number, tax: Tax | null, now: Date): Promise<MoveResult> {
+/**
+ * A grocery's or shop's picking: each line picked (weighed), swapped or left
+ * out; the order priced again, never above the agreed tolerance. 115.22 With
+ * `tell`, the customer hears when picking changed a line.
+ */
+export async function pickMarketOrder(store: DataStore, order: MarketOrder, picked: PickedLine[], tolerancePercent: number, tax: Tax | null, now: Date, tell?: MarketFlowDeps): Promise<MoveResult> {
   if (order.status !== "picking" && order.status !== "accepted") return { ok: false, reason: "changed" };
   const lines = order.lines.map((l) => ({ ...l }));
   for (const p of picked) {
@@ -179,11 +207,17 @@ export async function pickMarketOrder(store: DataStore, order: MarketOrder, pick
   });
   const patch = { lines, money, updatedAt: now };
   if (!(await store.updateMarketOrder(order.appId, order.id, patch, { statuses: [order.status] }))) return { ok: false, reason: "changed" };
-  return { ok: true, order: { ...order, ...patch } };
+  // 115.24 Left out: its stock back; swapped: the ordered item's back and the substitute's taken.
+  await stockAfterPick(store, order, lines, now);
+  const result: MoveResult = { ok: true, order: { ...order, ...patch } };
+  // Told once: when a line first comes out other than ordered.
+  const changed = (l: MarketOrder["lines"][number]) => l.outcome === "missing" || l.outcome === "substituted" || (l.outcome === "picked" && l.pickedQuantity !== null && l.pickedQuantity !== l.quantity);
+  if (tell && lines.some(changed) && !order.lines.some(changed)) return told(tell, result, "picked");
+  return result;
 }
 
 /** The order is ready: for the courier, the vendor's driver or the customer. */
-export async function readyMarketOrder(deps: FlowDeps, order: MarketOrder): Promise<MoveResult> {
+export async function readyMarketOrder(deps: MarketFlowDeps, order: MarketOrder): Promise<MoveResult> {
   if (order.status !== "accepted" && order.status !== "picking") return { ok: false, reason: "changed" };
   const moved = await move(deps.store, order, { status: "ready", readyAt: deps.now }, "vendor", deps.now);
   if (!moved.ok) return moved;
@@ -191,36 +225,37 @@ export async function readyMarketOrder(deps: FlowDeps, order: MarketOrder): Prom
     const job = await makeMarketCourierJob(deps, moved.order);
     if (job) moved.order.shipmentId = job.id;
   }
-  return moved;
+  return told(deps, moved);
 }
 
 /** Handed over: to the vendor's own driver (on its way), or to the customer at pick-up with the code. The app's courier takes it in Yallapp Courier. */
-export async function handOverMarketOrder(deps: FlowDeps, order: MarketOrder, code: string | null): Promise<MoveResult> {
+export async function handOverMarketOrder(deps: MarketFlowDeps, order: MarketOrder, code: string | null): Promise<MoveResult> {
   if (order.status !== "ready") return { ok: false, reason: "changed" };
   if (order.fulfilment === "pickup") {
     if (!order.pickupCode || code !== order.pickupCode) return { ok: false, reason: "invalid", error: "That isn't the order's pick-up code." };
     const paid = order.paymentMethod === "cash" ? { paymentStatus: "paid" as const } : {};
-    return move(deps.store, order, { status: "picked_up", completedAt: deps.now, ...paid }, "vendor", deps.now);
+    return told(deps, await move(deps.store, order, { status: "picked_up", completedAt: deps.now, ...paid }, "vendor", deps.now));
   }
   if (order.deliveryBy !== "vendor") return { ok: false, reason: "invalid", error: "The app's courier takes this order in the courier app." };
-  return move(deps.store, order, { status: "on_the_way" }, "vendor", deps.now);
+  return told(deps, await move(deps.store, order, { status: "on_the_way" }, "vendor", deps.now));
 }
 
 /** The vendor's own driver delivered it (from the vendor's screens). */
-export async function deliveredByVendor(deps: FlowDeps, order: MarketOrder): Promise<MoveResult> {
+export async function deliveredByVendor(deps: MarketFlowDeps, order: MarketOrder): Promise<MoveResult> {
   if (order.status !== "on_the_way" || order.deliveryBy !== "vendor") return { ok: false, reason: "changed" };
   const paid = order.paymentMethod === "cash" ? { paymentStatus: "paid" as const } : {};
-  return move(deps.store, order, { status: "delivered", completedAt: deps.now, ...paid }, "vendor", deps.now);
+  return told(deps, await move(deps.store, order, { status: "delivered", completedAt: deps.now, ...paid }, "vendor", deps.now));
 }
 
-/** The order follows its courier job: on its way once picked up, delivered when the job is. Made when it's read. */
-export async function syncWithJob(store: DataStore, order: MarketOrder, job: Shipment | null, now: Date): Promise<MarketOrder> {
+/** The order follows its courier job: on its way once picked up, delivered when the job is. Made when it's read; 115.22 with `tell`, the customer hears of it (from the read that moved it). */
+export async function syncWithJob(store: DataStore, order: MarketOrder, job: Shipment | null, now: Date, tell?: MarketFlowDeps): Promise<MarketOrder> {
   if (!job || order.deliveryBy !== "app") return order;
   const next: MarketOrderStatus | null =
     job.status === "delivered" ? "delivered" : (job.status === "picked_up" || job.status === "on_the_way") && ["accepted", "picking", "ready"].includes(order.status) ? "on_the_way" : null;
   if (!next || next === order.status || order.status === "delivered" || order.status === "cancelled") return order;
   const patch: Partial<MarketOrder> & { status: MarketOrderStatus } = { status: next, ...(next === "delivered" ? { completedAt: now, ...(order.paymentMethod === "cash" ? { paymentStatus: "paid" as const } : {}) } : {}) };
   const moved = await move(store, order, patch, "courier", now);
+  if (tell) await told(tell, moved);
   return moved.ok ? moved.order : order;
 }
 
@@ -271,19 +306,46 @@ export async function payMarketOrder(store: DataStore, app: App, paid: CatalogOr
   const status: MarketOrderStatus = order.scheduledFor ? "scheduled" : "placed";
   const timeline = [...order.timeline, marketStage(status, now, "system")];
   const changed = await store.updateMarketOrder(app.id, order.id, { status, paymentStatus: "paid", timeline, updatedAt: now }, { statuses: ["awaiting_payment"] });
-  return changed ? { ...order, status, paymentStatus: "paid", timeline, updatedAt: now } : null;
+  if (!changed) return null;
+  const paidOrder: MarketOrder = { ...order, status, paymentStatus: "paid", timeline, updatedAt: now };
+  // 115.22 The customer hears it's booked or sent, and the vendor's staff of a new order (once: only the confirmation that moved it).
+  await announceMarketOrder({ store, app, now }, paidOrder);
+  return paidOrder;
 }
 
-/** Orders for later reach their vendor when their preparation should start. */
-export async function releaseScheduled(store: DataStore, appId: string, now: Date): Promise<number> {
-  const due = await store.listMarketOrders({ appId, statuses: ["scheduled"], order: "oldest", limit: 200, offset: 0 });
+/** When an order for later reaches its vendor: without one there, the time the slots allowed for preparing it (30 minutes). */
+export const SCHEDULED_LEAD_MINUTES = 30;
+
+/**
+ * Orders for later reach their vendor when their preparation should start:
+ * their time less the vendor's preparation (with a delay in force,
+ * lib/market/vendor-controls.ts), so the frequent job (every 5 minutes)
+ * brings each one to it on time. 115.21 Each order is released by the one
+ * run that moves it from `scheduled` (the store moves it only from there,
+ * on memory and MariaDB alike); only that run tells the customer and the
+ * vendor's staff, so two runs at once release and announce it once.
+ */
+export async function releaseScheduled(deps: FlowDeps): Promise<number> {
+  const { store, app, now } = deps;
+  const vendors = new Map<number, Awaited<ReturnType<DataStore["getRestaurant"]>>>();
+  // Read them all first: releasing one moves it out of this list.
+  const scheduled: MarketOrder[] = [];
+  for (let offset = 0; ; offset += 200) {
+    const page = await store.listMarketOrders({ appId: app.id, statuses: ["scheduled"], order: "oldest", limit: 200, offset });
+    scheduled.push(...page.items);
+    if (page.items.length < 200) break;
+  }
   let released = 0;
-  for (const o of due.items) {
+  for (const o of scheduled) {
     if (!o.scheduledFor) continue;
-    const start = o.scheduledFor.getTime() - (o.prepMinutes ?? 30) * 60_000 - 15 * 60_000;
-    if (start > now.getTime()) continue;
+    if (o.vendorId !== null && !vendors.has(o.vendorId)) vendors.set(o.vendorId, await store.getRestaurant(app.id, o.vendorId));
+    const vendor = o.vendorId !== null ? vendors.get(o.vendorId) : null;
+    const lead = vendor ? prepWithDelay(vendor, now) : SCHEDULED_LEAD_MINUTES;
+    if (o.scheduledFor.getTime() - lead * 60_000 > now.getTime()) continue;
     const moved = await move(store, o, { status: "placed" }, "system", now);
-    if (moved.ok) released++;
+    if (!moved.ok) continue;
+    released++;
+    await announceMarketOrder(deps, moved.order, "released");
   }
   return released;
 }
