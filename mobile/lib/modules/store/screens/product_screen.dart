@@ -546,7 +546,12 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                   SectionHeader(title: context.l10n.youMayAlsoLike),
                   const SizedBox(height: 10),
                   SizedBox(
-                    height: 160 + productCardTextHeight(context),
+                    height:
+                        160 +
+                        productCardTextHeight(
+                          context,
+                          twoPrices: customerPricesShown(ref),
+                        ),
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: product.related.length,

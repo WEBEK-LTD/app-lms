@@ -10,7 +10,7 @@ import type { MemoryStore } from "@/lib/data/memory";
 import { DEFAULT_CATALOG_SETTINGS, type App, type CatalogProductInput, type CatalogSettings, type HostedUser } from "@/lib/data/types";
 import { CatalogConnector } from "@/lib/hosted/connectors/catalog";
 import { LogSender } from "@/lib/hosted/otp-sender";
-import { itemPrice, pricedEntry } from "@/lib/hosted/pages";
+import { courseItem, itemPrice, pricedEntry } from "@/lib/hosted/pages";
 import { handleHosted, type HostedContext, type HostedRequest } from "@/lib/hosted/service";
 import { addDisplayPrices, type DisplayCurrency } from "@/lib/money/display";
 import { ratesOf, type Rates } from "@/lib/money/rates";
@@ -93,7 +93,7 @@ describe("161 GET /pages: a MAD shop's Leqaa home in the customer's currency", (
     await store.createApp(app);
     const roses = await store.createCatalogProduct(product({ name: "Atlas Roses", priceCents: 32000, salePriceCents: 25000 }), new Date(NOW.getTime() + 1000));
     await store.createCatalogProduct(product({ name: "Medina Lilies", priceCents: 18000 }), new Date(NOW.getTime() + 2000));
-    await store.createCatalogCoupon({ appId: app.id, code: "FLORA10", kind: "amount", value: 5000, minOrderCents: 30000, endsAt: null, maxUses: null, active: true, createdAt: NOW, public: true, startsAt: null });
+    await store.createCatalogCoupon({ appId: app.id, code: "LEQAA10", kind: "amount", value: 5000, minOrderCents: 30000, endsAt: null, maxUses: null, active: true, createdAt: NOW, public: true, startsAt: null });
     await store.createFlashSale({ appId: app.id, title: "Rose hour", productIds: [roses.id], categoryId: null, discount: { kind: "percent", percent: 10 }, startsAt: new Date(NOW.getTime() - 3_600_000), endsAt: new Date(NOW.getTime() + 3_600_000), limit: 12, platformCode: null, active: true, createdAt: NOW, updatedAt: NOW });
     void user;
   });
@@ -142,9 +142,9 @@ describe("161 GET /pages: a MAD shop's Leqaa home in the customer's currency", (
   });
 
   it("the cart: its lines, the coupon's discount and the total in USD; what is charged stays the shop's", async () => {
-    const products = (await call("/store/products")).body as { items: { id: number }[] };
-    const lines = [{ product_id: products.items[1]!.id, quantity: 2 }];
-    const cart = await call("/store/cart", "USD", {}, "POST", { lines, coupon: "FLORA10" });
+    const products = (await call("/store/products")).body as { items: { id: number; name: string }[] };
+    const lines = [{ product_id: products.items.find((p) => p.name === "Medina Lilies")!.id, quantity: 2 }];
+    const cart = await call("/store/cart", "USD", {}, "POST", { lines, coupon: "LEQAA10" });
     expectContract("POST", "/store/cart", cart);
     expect(cart.body).toMatchObject({
       currency: "MAD",
@@ -173,7 +173,7 @@ describe("161 GET /pages: a MAD shop's Leqaa home in the customer's currency", (
       tokenHash: sha256Hex("o-161"),
       userId: 5,
       status: "processing",
-      lines: [{ productId: 1, variationId: null, name: "Medina Lilies", quantity: 2, unitCents: 18000, imageAssetId: null, digital: false }],
+      lines: [{ productId: 1, name: "Medina Lilies", quantity: 2, unitCents: 18000, imageAssetId: null, digital: false }],
       subtotalCents: 36000,
       shippingCents: 0,
       totalCents: 36000,
@@ -278,6 +278,9 @@ describe("161 the parts", () => {
   it("a card's price: its amounts and currency, a range's dearest end, nothing without an amount", () => {
     expect(itemPrice({ amount: "100.00", currency: "MAD", formatted: "MAD 100.00", range: true, max_amount: "200.00", regular_amount: null, on_sale: false })).toEqual({ price: { amount: "100.00", currency: "MAD", formatted: "MAD 100.00", range: true, max_amount: "200.00", on_sale: false } });
     expect(itemPrice({ is_free: true, amount: null, currency: null, formatted: null })).toEqual({});
+    // A free course: 0 in its currency (its words "Free"); from a source that names none, nothing.
+    expect(courseItem({ id: 7, title: "Intro", price: { is_free: true, amount: "0.00", currency: "EGP", formatted: null } }, "en")).toMatchObject({ price_label: "Free", price: { amount: "0.00", currency: "EGP", formatted: "E£0.00" } });
+    expect(courseItem({ id: 7, title: "Intro", price: { is_free: true } }, "en")).not.toHaveProperty("price");
     // A range, both ends converted.
     const range = addDisplayPrices({ amount: "100.00", currency: "MAD", formatted: "MAD 100.00 – MAD 200.00", range: true, max_amount: "200.00" }, display) as unknown as { display: Record<string, unknown> };
     expect(range.display).toMatchObject({ formatted: "$10.00 – $20.00", max_amount: "20.00" });

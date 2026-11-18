@@ -6,8 +6,10 @@ import 'package:yallapp/modules/shared/pages/page_providers.dart';
 
 import '../screenshots/support/demo_api.dart';
 import '../screenshots/support/leqaa.dart';
+import '../screenshots/support/shot.dart' show usePhone;
 import '../screenshots/support/studio_demo.dart';
 import '../support/test_app.dart';
+import 'phase161_customer_currency_test.dart' show letStudioOverflows;
 
 /// 161 "افتح" (Open) on a story: the owner of Kech Flora (18 November),
 /// "When I tap 'Open' while viewing a story, it doesn't open any other
@@ -52,17 +54,16 @@ DemoApi _linked(DemoApi api, List<Map<String, dynamic>?> links) {
 
 Future<TestApp> _open(WidgetTester tester, DemoApi api) async {
   StudioDemo.language = 'en';
+  usePhone(tester);
+  letStudioOverflows();
   final app = TestApp(api: api, appType: AppType.store, signedIn: true);
   await app.pump(tester);
   return app;
 }
 
-String _at(TestApp app) => app.container
-    .read(appRouterProvider)
-    .routerDelegate
-    .currentConfiguration
-    .uri
-    .toString();
+/// Where the app is: the screen on top (a page pushed over the tabs too).
+String _at(TestApp app) =>
+    app.container.read(appRouterProvider).state.uri.toString();
 
 final _rings = find.byWidgetPredicate(
   (w) =>
@@ -161,6 +162,8 @@ void main() {
 
   testWidgets('161 in Arabic: «افتح» opens the shop', (tester) async {
     StudioDemo.language = 'ar';
+    usePhone(tester);
+    letStudioOverflows();
     final app = TestApp(
       api: leqaaStudioApi(look: look, lang: 'ar'),
       appType: AppType.store,

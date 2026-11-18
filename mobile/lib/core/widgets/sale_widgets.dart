@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../api/models/commerce_models.dart';
 import '../api/models/store_models.dart' show ProductPrice;
+import '../format/bidi.dart';
 import '../l10n/l10n.dart';
 import '../theme/app_icons.dart';
 import '../theme/palette.dart';
@@ -167,7 +168,8 @@ class SaleChip extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         child: Text(
-          context.l10n.saleOff(percentOff),
+          // 161 Its number and percent the right way round in Arabic.
+          percentText(context.l10n.saleOff(percentOff)),
           maxLines: 1,
           style: TextStyle(
             fontSize: 11,
@@ -344,7 +346,7 @@ class SaleCorner extends StatelessWidget {
                       color: color,
                       alignment: Alignment.center,
                       child: Text(
-                        context.l10n.saleOff(sale.percentOff),
+                        percentText(context.l10n.saleOff(sale.percentOff)),
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w800,

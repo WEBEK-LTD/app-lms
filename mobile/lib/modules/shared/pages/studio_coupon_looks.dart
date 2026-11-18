@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/api/models/models.dart';
+import '../../../core/format/bidi.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
@@ -30,7 +31,10 @@ class StudioCouponLook extends StatelessWidget {
   String? _offerText(BuildContext context) {
     final o = offer;
     if (o == null) return null;
-    if (o.percentOff != null) return context.l10n.saleOff(o.percentOff!);
+    // 161 The number, its sign and percent the right way round in Arabic.
+    if (o.percentOff != null) {
+      return percentText(context.l10n.saleOff(o.percentOff!));
+    }
     if (o.amountOff != null) return context.l10n.couponOff(o.amountOff!);
     return null;
   }

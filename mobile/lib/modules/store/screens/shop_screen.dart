@@ -296,13 +296,20 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     crossAxisCount: columns,
                     mainAxisSpacing: gap,
                     crossAxisSpacing: gap,
-                    mainAxisExtent: tile + productCardTextHeight(context),
+                    // 161 With the shop's price under the customer's.
+                    mainAxisExtent:
+                        tile +
+                        productCardTextHeight(
+                          context,
+                          twoPrices: customerPricesShown(ref),
+                        ),
                   ),
                   itemCount: items.length,
                   itemBuilder: (context, i) {
                     final product = items[i];
                     return ProductCard(
                       product: product,
+                      fill: true,
                       onTap: () => context.push(Paths.product(product.id)),
                     );
                   },

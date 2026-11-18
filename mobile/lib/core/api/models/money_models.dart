@@ -1,3 +1,4 @@
+import '../../format/bidi.dart';
 import '../../l10n/l10n.dart';
 import 'json.dart';
 
@@ -19,13 +20,17 @@ String addedPrice(String shown) => signedPrice('+', shown);
 /// 161 A price taken off ("−E£60.00", "≈ −\$1.25").
 String takenOffPrice(String shown) => signedPrice('−', shown);
 
-/// 161 [sign] before a price, after a [customerPrice]'s approximate sign.
+/// 161 [sign] before a price, after a [customerPrice]'s approximate sign;
+/// the sign and the amount kept together left to right, so in Arabic the
+/// sign never lands after the amount ("E£5.00−").
 String signedPrice(String sign, String shown) {
   final approx = currentL10n.approxPrice('');
   if (approx.isNotEmpty && shown.startsWith(approx)) {
-    return currentL10n.approxPrice('$sign${shown.substring(approx.length)}');
+    return currentL10n.approxPrice(
+      ltrRun('$sign${shown.substring(approx.length)}'),
+    );
   }
-  return '$sign$shown';
+  return ltrRun('$sign$shown');
 }
 
 /// 161 [customerPrice] for a text that may be missing.
