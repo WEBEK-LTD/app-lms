@@ -309,7 +309,9 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
             child: Row(
               children: [
                 Icon(
-                  shop ? Symbols.storefront_rounded : Symbols.restaurant_rounded,
+                  shop
+                      ? Symbols.storefront_rounded
+                      : Symbols.restaurant_rounded,
                   color: p.primary,
                 ),
                 const SizedBox(width: 12),

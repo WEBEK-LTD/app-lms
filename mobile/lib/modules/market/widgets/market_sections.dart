@@ -1096,20 +1096,23 @@ class _Vendors extends StatelessWidget {
 
 /// A restaurant or a shop: its picture with the offer and the time on it,
 /// its mark, name, rating and facts.
-class MarketVendorCard extends StatelessWidget {
+class MarketVendorCard extends ConsumerWidget {
   const MarketVendorCard({super.key, required this.vendor, this.tall = false});
 
   final MarketVendor vendor;
   final bool tall;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final l10n = context.l10n;
     final closed = vendor.state == MarketVendorState.closed;
     final look = MarketCardLook.of(context);
     final radius = BorderRadius.circular(look.radius ?? 24);
     final promo = look.shows(StudioMarketFact.offer) ? vendor.promo : null;
+    final saved =
+        vendor.favorited ||
+        ref.watch(marketSavedPlacesProvider).contains(vendor.id);
     return MarketPressable(
       onTap: () => _openVendor(context, vendor),
       child: Column(
@@ -1178,19 +1181,32 @@ class MarketVendorCard extends StatelessWidget {
                 PositionedDirectional(
                   top: 8,
                   end: 8,
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: p.surface.withValues(alpha: 0.94),
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: AppIcon(
-                      Symbols.favorite_rounded,
-                      size: 19,
-                      filled: vendor.favorited,
-                      color: vendor.favorited ? p.danger : p.text,
+                  // 177 The heart saves the place on the phone (it did nothing).
+                  child: Semantics(
+                    button: true,
+                    label: saved
+                        ? l10n.removeFromFavorites
+                        : l10n.saveToFavorites,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => ref
+                          .read(marketSavedPlacesProvider.notifier)
+                          .toggle(vendor.id),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: p.surface.withValues(alpha: 0.94),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: AppIcon(
+                          Symbols.favorite_rounded,
+                          size: 19,
+                          filled: saved,
+                          color: saved ? p.danger : p.text,
+                        ),
+                      ),
                     ),
                   ),
                 ),

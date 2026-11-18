@@ -465,7 +465,9 @@ class _Stages extends StatelessWidget {
                       color: i <= last && !stopped ? p.primary : p.surfaceMuted,
                     ),
                     child: Icon(
-                      i <= last && !stopped ? Symbols.check_rounded : Symbols.circle_rounded,
+                      i <= last && !stopped
+                          ? Symbols.check_rounded
+                          : Symbols.circle_rounded,
                       size: 16,
                       color: i <= last && !stopped
                           ? p.onPrimary

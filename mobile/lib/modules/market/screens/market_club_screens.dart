@@ -287,7 +287,11 @@ class _MarketClubScreenState extends ConsumerState<MarketClubScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Symbols.check_rounded, size: 18, color: p.success),
+                            Icon(
+                              Symbols.check_rounded,
+                              size: 18,
+                              color: p.success,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
