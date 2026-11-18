@@ -18,7 +18,7 @@ const FIELD = { border: "1px solid var(--sf-line)" } as const;
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (on: boolean) => void }) {
   return (
     <label className="flex items-center gap-1">
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ accentColor: "#1F8A4C" }} />
+      <input type="checkbox" aria-label={label} checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ accentColor: "#1F8A4C" }} />
       {label}
     </label>
   );
@@ -29,7 +29,7 @@ function Colour({ label, value, onChange }: { label: string; value: string | nul
     <label className="flex items-center justify-between gap-2">
       {label}
       <span className="flex items-center gap-1">
-        <input type="color" value={value ?? "#C2185B"} onChange={(e) => onChange(e.target.value.toUpperCase())} className="h-8 w-10 rounded" style={FIELD} />
+        <input type="color" aria-label={label} value={value ?? "#C2185B"} onChange={(e) => onChange(e.target.value.toUpperCase())} className="h-8 w-10 rounded" style={FIELD} />
         {value ? (
           <button type="button" className="cursor-pointer rounded border-0 bg-transparent px-1 text-xs underline" onClick={() => onChange(null)}>
             ×

@@ -128,6 +128,8 @@ export const en = {
   hist_header: "Changed the header of {page}",
   hist_page: "Changed the settings of {page}",
   hist_replaced: "Started {page} from a template",
+  // 174 A published version brought back (Published versions › Bring back).
+  hist_restored: "Brought back the version published {date}",
   hist_page_added: "Added the page {page}",
   hist_page_deleted: "Deleted the page {page}",
   hist_design: "Applied a whole design",
@@ -249,6 +251,8 @@ export const ar: Messages = {
   hist_header: "غيّرت هيدر {page}",
   hist_page: "غيّرت إعدادات {page}",
   hist_replaced: "بدأت {page} من قالب",
+  // 174 A published version brought back (Published versions › Bring back).
+  hist_restored: "رجّعت النسخة اللي اتنشرت {date}",
   hist_page_added: "ضفت صفحة {page}",
   hist_page_deleted: "مسحت صفحة {page}",
   hist_design: "طبّقت تصميم كامل",
@@ -367,6 +371,8 @@ export const tr: Messages = {
   hist_header: "{page} başlığı değiştirildi",
   hist_page: "{page} ayarları değiştirildi",
   hist_replaced: "{page} bir şablondan başlatıldı",
+  // 174 A published version brought back (Published versions › Bring back).
+  hist_restored: "{date} tarihinde yayınlanan sürüm geri getirildi",
   hist_page_added: "{page} sayfası eklendi",
   hist_page_deleted: "{page} sayfası silindi",
   hist_design: "Tüm bir tasarım uygulandı",

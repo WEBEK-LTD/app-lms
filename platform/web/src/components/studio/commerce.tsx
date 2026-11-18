@@ -24,6 +24,10 @@ export interface CommerceWords {
   hours: string;
   minutes: string;
   seconds: string;
+  /** 174.6 The mark on a sample (no sale on, no coupon of the shop's), and what the app does there. */
+  sample?: string;
+  saleSample?: string;
+  couponSample?: string;
 }
 
 export const COMMERCE_WORDS_EN: CommerceWords = {
@@ -37,7 +41,23 @@ export const COMMERCE_WORDS_EN: CommerceWords = {
   hours: "h",
   minutes: "m",
   seconds: "s",
+  sample: "Sample",
+  saleSample: "A sample: the app shows your own flash sale here, and nothing until one is on.",
+  couponSample: "A sample: the app shows your own coupon here, and nothing until you add one.",
 };
+
+/**
+ * 174.6 The mark on a sample the canvas draws in place of the shop's own
+ * sale or coupon (which the app leaves out until there is one), so a demo's
+ * code or a sample price is never taken for the shop's.
+ */
+function SampleMark({ words, dark, hint }: { words: CommerceWords; dark: boolean; hint: string | undefined }) {
+  return (
+    <span data-studio-sample="" title={hint} style={{ display: "inline-flex", alignItems: "center", gap: 3, alignSelf: "flex-start", padding: "2px 8px", borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: 0.4, textTransform: "uppercase", background: dark ? "rgba(244,239,230,0.9)" : "rgba(14,13,36,0.78)", color: dark ? "#0E0D24" : "#FFFFFF" }}>
+      {words.sample ?? COMMERCE_WORDS_EN.sample}
+    </span>
+  );
+}
 
 /** Ticks once a second (never faster), whatever the motion settings: only the numbers change. */
 function useNow(): number {
@@ -107,19 +127,21 @@ interface SaleEntry {
 }
 
 /** The sale the element shows on the canvas, with its products: the shop's, else a sample. */
-function saleOf(node: StudioNode, pickable: Pickable, now: number): { title: string | null; endsAt: string | null; remaining: number | null; total: number | null; entries: SaleEntry[] } {
+function saleOf(node: StudioNode, pickable: Pickable, now: number): { title: string | null; endsAt: string | null; remaining: number | null; total: number | null; entries: SaleEntry[]; sample: boolean } {
   const sales = pickable.commerce?.flashSales ?? [];
   const sale = (node.flash_sale?.sale_id ? sales.find((s) => s.id === node.flash_sale?.sale_id) : null) ?? sales[0];
   const products = pickable.items.products ?? [];
   const onSale = (p: PickableEntry): SaleEntry | null => (p.sale ? { id: p.id, title: p.title, imageUrl: p.imageUrl ?? null, was: p.sale.was, now: p.sale.now, percentOff: p.sale.percentOff } : null);
   const limit = node.flash_sale?.limit ?? 6;
   let entries = (sale ? products.filter((p) => sale.productIds.includes(Number(p.id))) : products).map(onSale).filter((e): e is SaleEntry => e !== null).slice(0, limit);
-  if (!entries.length) {
-    // A sample, so the look shows before the shop has a sale on.
-    entries = Array.from({ length: Math.min(limit, 3) }, (_, i) => ({ id: `s${i}`, title: `[${i + 1}]`, imageUrl: null, was: "₺500", now: "₺400", percentOff: 20 }));
+  const sample = !entries.length;
+  if (sample) {
+    // A sample, so the look shows before the shop has a sale on: 174.6 in the shop's own currency, and marked as one.
+    const prices = pickable.commerce?.samplePrices ?? { was: "500", now: "400" };
+    entries = Array.from({ length: Math.min(limit, 3) }, (_, i) => ({ id: `s${i}`, title: `[${i + 1}]`, imageUrl: null, was: prices.was, now: prices.now, percentOff: 20 }));
   }
   const endsAt = sale?.endsAt ?? new Date(now + 5 * 3_600_000 + 23 * 60_000).toISOString();
-  return { title: sale?.title ?? null, endsAt, remaining: sale?.remaining ?? (sale ? null : 12), total: sale?.total ?? (sale ? null : 40), entries };
+  return { title: sale?.title ?? null, endsAt, remaining: sale?.remaining ?? (sale ? null : 12), total: sale?.total ?? (sale ? null : 40), entries, sample };
 }
 
 function ProductCard({ e, accent, dark, wide }: { e: SaleEntry; accent: string; dark: boolean; wide?: boolean }) {
@@ -164,9 +186,11 @@ export function FlashSaleCanvas({ node, title, pickable, dark, brand, words }: {
     </span>
   );
   const bar = node.flash_sale?.stock_bar !== false ? <StockBar remaining={sale.remaining} total={sale.total} accent={look === "banner" ? "#FFFFFF" : accent} words={words} /> : null;
+  const mark = sale.sample ? <SampleMark words={words} dark={dark} hint={words.saleSample ?? COMMERCE_WORDS_EN.saleSample} /> : null;
   if (look === "banner") {
     return (
       <span data-studio-flash-sale="banner" style={{ display: "flex", flexDirection: "column", gap: 10, padding: 14, borderRadius: "inherit", color: "#FFFFFF", background: `linear-gradient(135deg, ${accent}, ${shade(accent)})` }}>
+        {mark}
         {header}
         {bar}
         <span style={{ display: "flex", gap: 8, overflow: "hidden" }}>
@@ -181,6 +205,7 @@ export function FlashSaleCanvas({ node, title, pickable, dark, brand, words }: {
   }
   return (
     <span data-studio-flash-sale={look} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {mark}
       {header}
       {bar}
       <span style={look === "grid" ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } : { display: "flex", gap: 8, overflow: "hidden" }}>
@@ -206,8 +231,23 @@ export function CouponCanvas({ node, pickable, dark, brand, color, words }: { no
   const accent = color ?? brand;
   const bound = node.coupon?.bind === "public" ? ((node.code ? pickable.commerce?.coupons.find((c) => c.code === node.code) : null) ?? pickable.commerce?.coupons[0]) : undefined;
   const code = bound?.code ?? node.code ?? "SAVE10";
+  // 174.6 Showing the shop's coupon, and the shop has none: the app leaves it out, so the code here (a demo's LEQAA10) is a sample.
+  const sample = node.coupon?.bind === "public" && !bound;
   const offer = bound ? (bound.percentOff ? `${bound.percentOff}% ${words.off}` : bound.amountOff ? `${bound.amountOff} ${words.off}` : null) : null;
-  const look = node.coupon?.look ?? "classic";
+  const drawn = <CouponLook look={node.coupon?.look ?? "classic"} code={code} offer={offer} accent={accent} dark={dark} words={words} faded={sample} />;
+  if (!sample) return drawn;
+  return (
+    <span data-studio-coupon-sample="" style={{ display: "flex", flexDirection: "column", gap: 6, borderRadius: "inherit" }}>
+      <span style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+        <SampleMark words={words} dark={dark} hint={words.couponSample ?? COMMERCE_WORDS_EN.couponSample} />
+        <span style={{ fontSize: 10.5, lineHeight: 1.35, opacity: 0.75, flex: "1 1 140px" }}>{words.couponSample ?? COMMERCE_WORDS_EN.couponSample}</span>
+      </span>
+      {drawn}
+    </span>
+  );
+}
+
+function CouponLook({ look, code, offer, accent, dark, words, faded }: { look: string; code: string; offer: string | null; accent: string; dark: boolean; words: CommerceWords; faded: boolean }) {
   const copy = (
     <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: 8, background: accent, color: "#FFFFFF", fontSize: 12, fontWeight: 700, flex: "none" }}>
       <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 16 }}>
@@ -216,7 +256,7 @@ export function CouponCanvas({ node, pickable, dark, brand, color, words }: { no
       {words.copy}
     </span>
   );
-  const codeText = <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: 2, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: look === "glass" ? undefined : accent }}>{code}</span>;
+  const codeText = <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: 2, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: look === "glass" ? undefined : accent, opacity: faded ? 0.55 : undefined }}>{code}</span>;
   if (look === "ticket") {
     return (
       <span dir="ltr" data-studio-coupon="ticket" style={{ position: "relative", display: "flex", alignItems: "stretch", borderRadius: "inherit", background: dark ? "#2A2742" : "#FFF5F7", border: `1px solid ${accent}33`, overflow: "hidden" }}>

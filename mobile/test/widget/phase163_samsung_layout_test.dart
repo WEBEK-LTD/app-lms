@@ -344,6 +344,53 @@ void main() {
     }
   });
 
+  // 163.13 "Build your bouquet" (صمّم باقتك) at a larger text size: look A's
+  // photo cover (300 points as designed) grows with its words and button;
+  // look B's section holds them. Nothing overflows or spills out of it.
+  group('163.13 "Build your bouquet" holds its words', () {
+    for (final (look, id) in [('a', 'sig-87'), ('b', 'sig-96')]) {
+      for (final language in ['ar', 'en', 'tr']) {
+        for (final scale in [1.3, 1.5]) {
+          final phone = PhoneSettings(
+            width: 360,
+            height: 780,
+            density: 3,
+            fontScale: scale,
+            bottom: 48,
+          );
+          testWidgets('$look $language at ${(scale * 100).round()}%', (
+            tester,
+          ) async {
+            final problems = LayoutProblems();
+            await openLeqaaPage(
+              tester,
+              look: look,
+              slug: 'home',
+              phone: phone,
+              problems: problems,
+              language: language,
+            );
+            final section = find.byKey(ValueKey('studio-node-$id'));
+            await tester.scrollUntilVisible(section, 300, scrollable: _page);
+            await tester.pump(const Duration(milliseconds: 600));
+            await checkLayout(tester, phone, problems, atEnd: false);
+            expect(problems.list, isEmpty, reason: '$problems');
+            // Its button whole inside it.
+            final box = tester.getRect(section);
+            final button = find.descendant(
+              of: section,
+              matching: find.byType(RichText),
+            );
+            for (final e in button.evaluate()) {
+              final r = tester.getRect(find.byElementPredicate((x) => x == e));
+              expect(r.bottom, lessThanOrEqualTo(box.bottom + 1));
+            }
+          });
+        }
+      }
+    }
+  });
+
   group('163.5 the rules', () {
     test('Arabic is never under 1.5; Latin and unset as designed', () {
       expect(studioLineHeight(1.04, 'رحلة زهورك إليهم'), 1.5);

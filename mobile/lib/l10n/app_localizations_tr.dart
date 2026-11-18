@@ -12273,4 +12273,52 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bouquetRemove => 'Buketi kaldır';
+
+  @override
+  String get paySheetWaitingTitle => 'Ödemeyi açılan pencerede tamamlayın';
+
+  @override
+  String get paySheetWaitingBody =>
+      'Orada kartla, Apple Pay veya Google Pay ile ödeyin. Ödeme bitince buraya dönersiniz.';
+
+  @override
+  String get paySheetChecking => 'Ödemeniz kontrol ediliyor…';
+
+  @override
+  String get paySheetPendingTitle => 'Ödemeniz henüz onaylanmadı';
+
+  @override
+  String get paySheetPendingBody =>
+      'Ödediyseniz birkaç dakika içinde onaylanır ve siparişiniz siparişlerinizde görünür. İkinci kez ödemeden önce yeniden kontrol edin.';
+
+  @override
+  String get paySheetNotPaidTitle => 'Henüz ödenmedi';
+
+  @override
+  String get paySheetNotPaidBody =>
+      'Bu sipariş için herhangi bir ücret alınmadı. Şimdi ödeyebilir ya da kapatıp daha sonra dönebilirsiniz.';
+
+  @override
+  String get paySheetFailedBody =>
+      'Ödeme gerçekleşmedi. Yeniden deneyebilirsiniz.';
+
+  @override
+  String get paySheetClosedTitle => 'Bu sipariş kapandı';
+
+  @override
+  String get paySheetClosedBody =>
+      'Burada ödenecek bir şey kalmadı. Hâlâ istiyorsanız geri dönüp yeniden sipariş verin.';
+
+  @override
+  String get paySheetCheckFailedTitle => 'Ödemeniz kontrol edilemedi';
+
+  @override
+  String get paySheetCheckFailedBody =>
+      'Bağlantınızı kontrol edip yeniden deneyin. Ödediyseniz siparişiniz güvende.';
+
+  @override
+  String get paySheetCheckAgain => 'Ödemeyi kontrol et';
+
+  @override
+  String get paySheetOpenAgain => 'Ödeme sayfasını aç';
 }
