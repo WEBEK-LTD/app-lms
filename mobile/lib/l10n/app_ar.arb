@@ -3214,5 +3214,19 @@
   "youPayIn": "ستدفع {total}",
   "youPayShopCurrency": "ستدفع {total}: الدفع بالبطاقة في المتجر لا يقبل {currency}.",
   "orderInYourCurrency": "≈ {total} بعملتك",
-  "orderPaidIn": "تم دفع {total}"
+  "orderPaidIn": "تم دفع {total}",
+  "orderDeliveryTitle": "التوصيل",
+  "orderDeliverySlot": "{slot} بتوقيت المتجر",
+  "orderRecipientTitle": "المستلم",
+  "orderAddressTitle": "العنوان",
+  "orderGiftTitle": "بطاقة الإهداء",
+  "orderGiftFrom": "من {name}",
+  "orderGiftAnonymous": "أُرسلت دون ذكر الاسم",
+  "orderSummaryTitle": "ملخص الدفع",
+  "orderCouponLine": "القسيمة {code}",
+  "orderDiscountLine": "الخصم",
+  "orderPointsLine": "النقاط ({points})",
+  "orderShippingTo": "التوصيل إلى {zone}",
+  "orderSlotFee": "رسوم وقت التوصيل",
+  "orderTaxIncluded": "يشمل {tax}"
 }

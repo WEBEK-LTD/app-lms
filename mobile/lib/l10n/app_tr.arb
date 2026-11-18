@@ -3214,5 +3214,19 @@
   "youPayIn": "Ödeyeceğiniz {total}",
   "youPayShopCurrency": "Ödeyeceğiniz {total}: mağazanın kartla ödemesi {currency} almıyor.",
   "orderInYourCurrency": "Para biriminizde ≈ {total}",
-  "orderPaidIn": "Ödenen {total}"
+  "orderPaidIn": "Ödenen {total}",
+  "orderDeliveryTitle": "Teslimat",
+  "orderDeliverySlot": "{slot}, mağaza saatiyle",
+  "orderRecipientTitle": "Alıcı",
+  "orderAddressTitle": "Adres",
+  "orderGiftTitle": "Hediye kartı",
+  "orderGiftFrom": "Gönderen: {name}",
+  "orderGiftAnonymous": "İsimsiz gönderildi",
+  "orderSummaryTitle": "Ödeme özeti",
+  "orderCouponLine": "Kupon {code}",
+  "orderDiscountLine": "İndirim",
+  "orderPointsLine": "Puan ({points})",
+  "orderShippingTo": "Teslimat: {zone}",
+  "orderSlotFee": "Teslimat saati ücreti",
+  "orderTaxIncluded": "{tax} dahil"
 }

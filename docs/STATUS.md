@@ -77,6 +77,20 @@ the form can't load, the gateway's own page, the same payment. Fawaterk and
 PayPal keep their own pages (ROADMAP 153.7, 153.8). Not yet tried with real
 iyzico and Kashier test accounts (ROADMAP 153.9).
 
+Roadmap 173 (an order shows its delivery, its card and its amounts): in
+Leqaa's app an order showed its lines and its total only (360 + 120 against
+482). The order screen now shows the delivery (the day and the time, in the
+shop's time, the recipient and the address), the gift card (its message and
+who sends it, only when there is one) and the totals that add up: the
+subtotal, the coupon with its code, the points, the delivery for its zone,
+the delivery time's fee, other fees and the tax, then the total. The
+contract's new `Order.amounts` comes from hosted shops (`GET /me/orders`)
+and from WordPress with plugin 0.4.51 (WooCommerce's coupon, shipping, fee
+and tax lines); `delivery.recipient` adds the city. Older apps ignore it;
+older servers leave it out and the app shows the lines and the total as
+before. Needs the next app build (no `CLIENT_APP_RELEASE` change here) and
+plugin 0.4.51 released; not yet tried on a phone (ROADMAP 173.6).
+
 Roadmap 171 (the Orders tab keeps the tab bar): in Leqaa's app (both
 looks, the petal bar), the Orders tab opened Orders on top, without the bar,
 because a store's orders live under Account (`/account/orders`), not among

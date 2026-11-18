@@ -308,6 +308,7 @@ class Order {
     this.canReturn = false,
     this.points,
     this.delivery,
+    this.amounts,
     this.stage,
     this.customerCurrency,
   });
@@ -334,6 +335,7 @@ class Order {
     canReturn: boolOr(json, 'can_return', false),
     points: optObject(json, 'points', OrderPoints.fromJson),
     delivery: OrderDelivery.tryParse(json['delivery']),
+    amounts: OrderAmounts.tryParse(json['amounts']),
     stage: OrderStage.tryParse(json['stage']),
     customerCurrency: OrderCustomerCurrency.tryParse(json['customer_currency']),
   );
@@ -348,6 +350,9 @@ class Order {
 
   /// 131 The delivery day and slot, who receives it and the card.
   final OrderDelivery? delivery;
+
+  /// 173 What the total is made of; null on older servers.
+  final OrderAmounts? amounts;
 
   final int id;
   final String number;
@@ -398,7 +403,13 @@ class Order {
 
   /// Whether the order opens its own screen: to follow it, or for its return.
   bool get opensScreen =>
-      trackable || stage != null || canReturn || returnRequest != null;
+      trackable ||
+      stage != null ||
+      canReturn ||
+      returnRequest != null ||
+      amounts != null ||
+      (delivery?.hasDelivery ?? false) ||
+      (delivery?.hasGift ?? false);
 }
 
 /// 132 Where a store order's delivery is, as the shop set it: the new day

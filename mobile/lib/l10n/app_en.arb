@@ -13257,5 +13257,91 @@
         "type": "String"
       }
     }
+  },
+  "orderDeliveryTitle": "Delivery",
+  "@orderDeliveryTitle": {
+    "description": "173 The order screen: the heading over the delivery day, time, recipient and address."
+  },
+  "orderDeliverySlot": "{slot}, the shop's time",
+  "@orderDeliverySlot": {
+    "description": "173 The order screen: the delivery time chosen, in the shop's time zone, like 10:00–13:00.",
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "orderRecipientTitle": "Recipient",
+  "@orderRecipientTitle": {
+    "description": "173 The order screen: who receives the order."
+  },
+  "orderAddressTitle": "Address",
+  "@orderAddressTitle": {
+    "description": "173 The order screen: where the order is delivered."
+  },
+  "orderGiftTitle": "Gift card",
+  "@orderGiftTitle": {
+    "description": "173 The order screen: the heading over the card's message and who sends it."
+  },
+  "orderGiftFrom": "From {name}",
+  "@orderGiftFrom": {
+    "description": "173 The order screen: who signs the gift card.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "orderGiftAnonymous": "Sent anonymously",
+  "@orderGiftAnonymous": {
+    "description": "173 The order screen: the card doesn't show the sender's name."
+  },
+  "orderSummaryTitle": "Payment summary",
+  "@orderSummaryTitle": {
+    "description": "173 The order screen: the heading over the subtotal, discounts, fees and total."
+  },
+  "orderCouponLine": "Coupon {code}",
+  "@orderCouponLine": {
+    "description": "173 The order screen: the coupon's line in the totals, with its code.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "orderDiscountLine": "Discount",
+  "@orderDiscountLine": {
+    "description": "173 The order screen: a discount without a coupon code."
+  },
+  "orderPointsLine": "Points ({points})",
+  "@orderPointsLine": {
+    "description": "173 The order screen: the loyalty points used, a line in the totals.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "orderShippingTo": "Delivery to {zone}",
+  "@orderShippingTo": {
+    "description": "173 The order screen: the delivery fee and where it was priced for, like Marrakech.",
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "orderSlotFee": "Delivery time fee",
+  "@orderSlotFee": {
+    "description": "173 The order screen: the chosen delivery time's fee."
+  },
+  "orderTaxIncluded": "Includes {tax}",
+  "@orderTaxIncluded": {
+    "description": "173 The order screen: a tax inside the prices, like VAT 20%.",
+    "placeholders": {
+      "tax": {
+        "type": "String"
+      }
+    }
   }
 }

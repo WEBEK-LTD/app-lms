@@ -1879,6 +1879,15 @@ Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
       (iPhone 6.9", iPad 13") in every listing language, framed only when
       the owner ticked it, and both stores take them.
 
+## Phase 173: An order's delivery, card and amounts
+
+- [ ] Release plugin **0.4.51** in Admin › Plugin releases (`Order.amounts`
+      from the WooCommerce order). Older plugins leave it out and the app
+      shows the items and the total, as before.
+- [ ] On a phone, in Leqaa's and Kech Flora's apps: open an order with a
+      card and a coupon (like #1057) and one without; the delivery, the card
+      and the totals show and add up, in English and Arabic.
+
 ## Phase 145: The app audit
 
 - [ ] Release plugin **0.4.50** in Admin › Plugin releases (delivery days in

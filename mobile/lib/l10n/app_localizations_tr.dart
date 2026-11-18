@@ -12023,4 +12023,58 @@ class AppLocalizationsTr extends AppLocalizations {
   String orderPaidIn(String total) {
     return 'Ödenen $total';
   }
+
+  @override
+  String get orderDeliveryTitle => 'Teslimat';
+
+  @override
+  String orderDeliverySlot(String slot) {
+    return '$slot, mağaza saatiyle';
+  }
+
+  @override
+  String get orderRecipientTitle => 'Alıcı';
+
+  @override
+  String get orderAddressTitle => 'Adres';
+
+  @override
+  String get orderGiftTitle => 'Hediye kartı';
+
+  @override
+  String orderGiftFrom(String name) {
+    return 'Gönderen: $name';
+  }
+
+  @override
+  String get orderGiftAnonymous => 'İsimsiz gönderildi';
+
+  @override
+  String get orderSummaryTitle => 'Ödeme özeti';
+
+  @override
+  String orderCouponLine(String code) {
+    return 'Kupon $code';
+  }
+
+  @override
+  String get orderDiscountLine => 'İndirim';
+
+  @override
+  String orderPointsLine(int points) {
+    return 'Puan ($points)';
+  }
+
+  @override
+  String orderShippingTo(String zone) {
+    return 'Teslimat: $zone';
+  }
+
+  @override
+  String get orderSlotFee => 'Teslimat saati ücreti';
+
+  @override
+  String orderTaxIncluded(String tax) {
+    return '$tax dahil';
+  }
 }

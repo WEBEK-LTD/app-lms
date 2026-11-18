@@ -22,6 +22,7 @@ import { orderReceiptUrl } from "../../receipts/links";
 import type { StoreFlashSale } from "../../data/types";
 import { bestSale, unitsLeft, withSale } from "../../selling/flash-sales";
 import { orderDeliveryJson } from "../../selling/gifts";
+import { orderAmountsJson } from "../../catalog/order-amounts";
 import { needsPlace, shippingRulesOf } from "../../selling/shipping";
 import { checkStoreCheckout, handleStoreExtras, quoteDeliveryJson, storeExtrasConfig, storeMap, storeMapRoute } from "../../selling/store";
 import { ADDON_NEEDS_ITEM, checkAddonLines, offeredWith, ownAddonsFor } from "../../selling/addons";
@@ -842,6 +843,8 @@ export class CatalogConnector implements Connector {
       can_return: canReturn(order, this.settings, now),
       // 91.4 The points used on it and earned by it.
       points: orderPointsJson(order.points, order.currency),
+      // 173 What the total is made of: the coupon, the delivery, the slot's fee, the tax.
+      amounts: orderAmountsJson(order),
       // 131 The delivery day and slot, who sends and receives it and the card.
       delivery: orderDeliveryJson(order.delivery, order.delivery?.feeCents ? formatCents(order.delivery.feeCents, order.currency) : null),
       // 47 What the shop refunded of it; all of it: the status is "refunded".

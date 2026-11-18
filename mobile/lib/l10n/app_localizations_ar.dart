@@ -12501,4 +12501,58 @@ class AppLocalizationsAr extends AppLocalizations {
   String orderPaidIn(String total) {
     return 'تم دفع $total';
   }
+
+  @override
+  String get orderDeliveryTitle => 'التوصيل';
+
+  @override
+  String orderDeliverySlot(String slot) {
+    return '$slot بتوقيت المتجر';
+  }
+
+  @override
+  String get orderRecipientTitle => 'المستلم';
+
+  @override
+  String get orderAddressTitle => 'العنوان';
+
+  @override
+  String get orderGiftTitle => 'بطاقة الإهداء';
+
+  @override
+  String orderGiftFrom(String name) {
+    return 'من $name';
+  }
+
+  @override
+  String get orderGiftAnonymous => 'أُرسلت دون ذكر الاسم';
+
+  @override
+  String get orderSummaryTitle => 'ملخص الدفع';
+
+  @override
+  String orderCouponLine(String code) {
+    return 'القسيمة $code';
+  }
+
+  @override
+  String get orderDiscountLine => 'الخصم';
+
+  @override
+  String orderPointsLine(int points) {
+    return 'النقاط ($points)';
+  }
+
+  @override
+  String orderShippingTo(String zone) {
+    return 'التوصيل إلى $zone';
+  }
+
+  @override
+  String get orderSlotFee => 'رسوم وقت التوصيل';
+
+  @override
+  String orderTaxIncluded(String tax) {
+    return 'يشمل $tax';
+  }
 }
