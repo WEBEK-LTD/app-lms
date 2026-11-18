@@ -14,7 +14,7 @@ The owner's report: on "اختياراتك" (Your picks), "شاهدتها مؤخ
 
 - **Fallback at serving time** (`platform/web/src/lib/hosted/pages/lists.ts`, `productFallbacks`; used in `index.ts:101`). Any Studio list of products that comes back empty is served with the shop's best sellers instead (`orderby=popular`, the newest first among equals), else its newest products. That covers lists bound to featured products, a category, products picked by hand, or a template's sample IDs. The original binding still wins whenever the shop has matching products. A list of products **on sale** does not fall back, so other products never appear under a "Sale" title; it hides while nothing is on sale. Because this happens when the page is served, Leqaa and Kech Flora are fixed without their owners editing anything.
 - **The title goes with its list** (`listHeadings` / `withListHeadings`, `index.ts:115`). A list's title is the element just before it that holds only words (texts, icons, buttons and rows or columns of them). It must either have the same name as the list, which is how the templates name a list after its title, or be the list's only companion in a column. When the server leaves a list out, it leaves the title out too, along with any row or column that ends up empty. When the list stays, its title is marked `heads: <list id>` (added to both copies of the contract).
-- **The app** (`StudioNodeView.shownChildren`, `studio_page.dart`): a title marked `heads` hides while its list is hidden. That covers an empty list, a list the server left out, and "Recently viewed" before anything has been viewed. `CLIENT_APP_RELEASE` is now 7 and the preview has been rebuilt.
+- **The app** (`StudioNodeView.shownChildren`, `studio_page.dart`): a title marked `heads` hides while its list is hidden. That covers an empty list, a list the server left out, and "Recently viewed" before anything has been viewed. `CLIENT_APP_RELEASE` is now 9 (after main's 7 for 152 and 8 for 163) and the preview has been rebuilt.
 - **Studio** (`platform/web/src/app/studio/editor/inspector.tsx`, texts in `platform/web/src/i18n/dashboard/studio.ts` in English, Egyptian Arabic and Turkish): a products list now has a "This list shows" choice: featured products, a category, a collection you pick (the shop's products, ticked), best sellers, or newest. The sort and category controls appear only where they apply. A line explains what the app shows when there is nothing to show.
 - **Every list section of the Leqaa template, looks A and B:**
   - Home: "Loved most" (look A, popular) and the price list (look B, featured).
@@ -64,3 +64,23 @@ All of these were run in this session on branch `wip-empty-lists`.
 | ESLint (changed files) | `npx eslint …` | Exit 0, no findings |
 
 Running the e2e here used a local Playwright config, not committed, that only pointed at the pre-installed Chromium (`/opt/pw-browsers/chromium`). The project's Playwright version expects another browser build. The spec has its own super admin (`emptyListsAdminEmail` in `playwright.config.ts`).
+
+## After merging `main` (#451 152 bouquet links, #455)
+
+Conflicts were resolved by hand:
+- `hosted/pages/index.ts`: both 152's product links (a link to no product, or to one the shop no longer has, opens the shop) and this phase's list and bouquet serving are kept. The sample bouquet is rewritten first, then the linked products are checked.
+- `CLIENT_APP_RELEASE`: set to 9, because 163 takes 8.
+- Both sides' e2e admins are kept.
+- Docs keep both sides, in numeric order.
+- The preview was rebuilt, and `--check` passes.
+
+Then run:
+
+| What | Result |
+|---|---|
+| `next typegen`, `tsc --noEmit` | exit 0 |
+| eslint (changed files) | exit 0 |
+| vitest: `phase164-empty-lists`, `bouquet-links-152`, `leqaa-flowers`, `studio-store`, `publish-for-all`, `api-reference`, `dashboard-i18n` | 7 files, 77 passed |
+| e2e: `empty-lists.spec.ts`, `bouquet-links.spec.ts` (new production build) | 3 passed |
+| `dart format`, `flutter analyze` | 0 changed; no issues |
+| Flutter: `phase164_empty_lists_test.dart`, `phase152_bouquet_links_test.dart` | 15 passed |
