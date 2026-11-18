@@ -3,7 +3,9 @@ import { expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
 import type { DataStore } from "@/lib/data/store";
-import type { App, MarketProductInput, RestaurantInput } from "@/lib/data/types";
+import type { App, MarketOrderInput, MarketProductInput, RestaurantInput } from "@/lib/data/types";
+import { expireUnpaidMarketOrders, UNPAID_MINUTES, UNPAID_NOTE } from "@/lib/market/expire";
+import { priceOrder } from "@/lib/market/money";
 import { NOW } from "./helpers";
 
 type Row = Omit<MarketProductInput, "appId" | "vendorId">;
@@ -16,7 +18,7 @@ export function marketStockStoreSuite(store: () => DataStore, options: { big?: n
   async function setup(s: DataStore) {
     const suffix = randomUUID().slice(0, 8);
     const { client } = await registerClient(s, { name: "Souk Now", email: `stock-${suffix}@market.test`, whatsapp: "+905446731947", siteUrl: "", password: null }, NOW);
-    const app: App = { ...newApp(client.id, null, NOW, "food"), backend: "hosted" };
+    const app: App = { ...newApp(client.id, null, NOW, "food"), backend: "hosted", connector: { kind: "restaurants" } };
     await s.createApp(app);
     const vendorInput = (patch: Partial<RestaurantInput> = {}): RestaurantInput => ({
       appId: app.id,
@@ -255,6 +257,63 @@ export function marketStockStoreSuite(store: () => DataStore, options: { big?: n
     const other = await setup(s);
     expect(await s.getMarketCatalogChange(other.app.id, change.id)).toBeNull();
     expect(await s.markMarketCatalogChangeUndone(other.app.id, change.id, NOW)).toBe(false);
+  });
+
+
+  it("hides what's out of stock from customers' lists, and shows it again once stocked", async () => {
+    const s = store();
+    const { app, vendor, make } = await setup(s);
+    const counted = await make({ name: "Milk", stock: 2 });
+    const off = await make({ name: "Milk powder", inStock: false });
+    await make({ name: "Milk free", stock: null });
+    const customers = async () => (await s.listMarketProducts({ appId: app.id, vendorId: vendor.id, q: "milk", available: true, page: 1, perPage: 10, cursor: "" })).items.map((p) => p.name).sort();
+    expect(await customers()).toEqual(["Milk", "Milk free"]);
+    await s.takeMarketStock(app.id, 501, [{ lineId: 1, productId: counted.id, units: 2 }], "order", who, NOW);
+    expect(await customers()).toEqual(["Milk free"]);
+    // By number too, counted without them; the vendor's own list still has them all.
+    expect((await s.listMarketProducts({ appId: app.id, vendorId: vendor.id, available: true, page: 1, perPage: 10 })).total).toBe(1);
+    expect((await s.listMarketProducts({ appId: app.id, vendorId: vendor.id, page: 1, perPage: 10 })).total).toBe(3);
+    expect(await s.searchMarketProducts({ appId: app.id, vendorIds: [vendor.id], q: "milk", perVendor: 5, limit: 10 })).toHaveLength(1);
+    await s.returnMarketStock(app.id, 501, null, who, NOW);
+    expect(await customers()).toEqual(["Milk", "Milk free"]);
+    await s.updateMarketProduct(app.id, off.id, { inStock: true }, NOW);
+    expect(await customers()).toEqual(["Milk", "Milk free", "Milk powder"]);
+  });
+
+  it("cancels online orders left unpaid, giving back their stock and coupon once, even when two runs overlap", async () => {
+    const s = store();
+    const { app, vendor, make } = await setup(s);
+    const eggs = await make({ name: "Eggs", stock: 5 });
+    const coupon = (await s.createMarketCoupon({ appId: app.id, code: `late${randomUUID().slice(0, 6)}`, title: "10% off", kind: "percent", value: 10, maxDiscount: null, minOrder: 0, currency: "EGP", paidBy: "owner", firstOrderOnly: false, vendorIds: [], vendorKinds: [], departmentIds: [], usesLimit: 1, perUserLimit: null, startsAt: null, endsAt: null, active: true, createdAt: NOW, updatedAt: NOW }))!;
+    const order = (patch: Partial<MarketOrderInput>): MarketOrderInput => ({
+      appId: app.id, vendorId: vendor.id, vendorName: vendor.name, vendorKind: "grocery", userId: 7, customerName: "Mariam", customerPhone: "+201001234567", fulfilment: "pickup", deliveryBy: null, scheduledFor: null,
+      lines: [{ id: 1, productId: eggs.id, name: "Eggs", imageUrl: null, quantity: 2, unit: "item", choices: [], note: null, unitPrice: 3500, wasUnitPrice: null, total: 7000, ifMissing: "remove", substituteProductId: null, outcome: null, pickedQuantity: null, substitute: null }],
+      money: priceOrder({ items: [{ unitPrice: 3500, quantity: 2 }], deliveryFee: 0, deliveryBy: null, commission: { kind: "percent", value: 8 }, collectedBy: "owner" }),
+      currency: "EGP", paymentMethod: "card", paymentStatus: "unpaid", paymentRef: null, couponCode: coupon.code, status: "awaiting_payment", dropoff: null, distanceKm: null, notes: null, pickupCode: "1234", prepMinutes: null, readyAt: null, rejection: null, shipmentId: null, rating: null,
+      timeline: [{ status: "awaiting_payment", at: NOW.toISOString(), by: "customer" }], completedAt: null, lang: "en", createdAt: NOW, updatedAt: NOW,
+      ...patch,
+    });
+    const old = await s.createMarketOrder(order({}));
+    const fresh = await s.createMarketOrder(order({ createdAt: new Date(NOW.getTime() + 25 * 60_000), couponCode: null }));
+    await s.takeMarketStock(app.id, old.id, [{ lineId: 1, productId: eggs.id, units: 2 }], "order", who, NOW);
+    await s.takeMarketStock(app.id, fresh.id, [{ lineId: 1, productId: eggs.id, units: 2 }], "order", who, NOW);
+    expect((await s.useMarketCoupon({ appId: app.id, couponId: coupon.id, orderId: old.id, userId: 7, discount: 700, createdAt: NOW }, { usesLimit: 1, perUserLimit: null })).ok).toBe(true);
+    expect((await s.getMarketProduct(app.id, eggs.id))!.stock).toBe(1);
+
+    // Not yet: 29 minutes.
+    expect(await expireUnpaidMarketOrders(s, app.id, new Date(NOW.getTime() + (UNPAID_MINUTES - 1) * 60_000))).toBe(0);
+    const later = new Date(NOW.getTime() + (UNPAID_MINUTES + 1) * 60_000);
+    const runs = await Promise.all([expireUnpaidMarketOrders(s, app.id, later), expireUnpaidMarketOrders(s, app.id, later)]);
+    expect(runs[0]! + runs[1]!).toBe(1);
+    expect(await s.getMarketOrder(app.id, old.id)).toMatchObject({ status: "cancelled", rejection: { reason: "other", note: UNPAID_NOTE } });
+    expect((await s.getMarketOrder(app.id, old.id))!.timeline.at(-1)).toMatchObject({ status: "cancelled", by: "system" });
+    // Its two eggs back once; the order made 25 minutes in still holds its own.
+    expect((await s.getMarketProduct(app.id, eggs.id))!.stock).toBe(3);
+    expect((await s.listMarketStockMoves(app.id, { orderId: old.id, limit: 5 })).filter((m) => m.reason === "return")).toHaveLength(1);
+    expect(await s.getMarketOrder(app.id, fresh.id)).toMatchObject({ status: "awaiting_payment" });
+    // The coupon's only use is free again.
+    expect(await s.countMarketCouponUses(app.id, coupon.id)).toBe(0);
+    expect(await expireUnpaidMarketOrders(s, app.id, later)).toBe(0);
   });
 
   if (options.big) {

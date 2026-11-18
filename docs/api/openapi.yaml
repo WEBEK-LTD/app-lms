@@ -6295,8 +6295,10 @@ paths:
       summary: A vendor's products
       description: |
         Paged, in the vendor's order. `department` and `aisle` keep one,
-        `barcode` finds one by its barcode or SKU. Out-of-stock products are
-        listed with `in_stock` false after the others.
+        `barcode` finds one by its barcode or SKU. 115.24 Out-of-stock
+        products aren't listed (owner's decision 15) until stocked again; a
+        cart line for one is refused with `unavailable_item` ("no longer
+        available"). The vendor's own list still has them.
 
         115.24 `q` matches the product's names (in every language) and brand,
         whatever the case, Arabic letter forms (أ إ آ ا, ة ه, ى ي, hamza),
@@ -20322,6 +20324,7 @@ components:
           items: { $ref: '#/components/schemas/MarketPriceLine' }
         total: { $ref: '#/components/schemas/Money' }
         estimated: { type: boolean, description: '115.24 True while items sold by weight aren''t weighed yet: `total` is an estimate until then. Missing on older servers.' }
+        status_note: { type: [string, 'null'], description: '115.24 Why a cancelled or turned-down order ended, in words for the customer, e.g. "Payment not completed" for an online payment left unfinished for 30 minutes. Missing on older servers.' }
         payment:
           type: object
           required: [method, status, wallet_used]

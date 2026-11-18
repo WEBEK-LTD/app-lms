@@ -22,7 +22,6 @@ import { KEY, NOW, setupClient } from "./helpers";
 const DEVICE = { id: "install-1", platform: "android", name: "Pixel 8", app_version: "1.0.0" };
 const ASSETS = (id: string) => `https://yallapp.test/api/v1/assets/${id}`;
 const SHOP = { address: "Tahrir Square, Cairo", details: null, lat: 30.0444, lng: 31.2357 };
-const HOME = { address: "Cairo Tower, Zamalek", details: "Flat 4", lat: 30.0459, lng: 31.2243 };
 const EVERY_DAY = (["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const).map((day) => ({ day, opens: "00:00", closes: "23:59" }));
 
 const SETTINGS: DeliverySettings = {
@@ -207,15 +206,18 @@ describe("115.24 stock moved by orders, and the catalog edited by the place", ()
     expect((await order(customer.access_token, cart, await quote(customer.access_token, cart))).status).toBe(201);
     const after = await stock(yogurt);
     expect(after).toMatchObject({ stock: 0, inStock: false });
+    // Gone from the customer's list at once (decision 15); a cart with it is refused, "no longer available".
     const list = await call("GET", "/market/vendors/{vendor_id}/products", { params: [String(grocery)] });
-    expect((list.body as { items: { id: number; in_stock: boolean; stock: number | null }[] }).items.find((p) => p.id === yogurt)).toMatchObject({ in_stock: false, stock: 0 });
-    // Out of stock now: the quote refuses it.
-    expect((await call("POST", "/market/quote", { token: customer.access_token, body: cart })).status).toBe(409);
+    expect((list.body as { items: { id: number }[] }).items.some((p) => p.id === yogurt)).toBe(false);
+    expect((await call("POST", "/market/quote", { token: customer.access_token, body: cart })).body).toMatchObject({ code: "unavailable_item", message: "Yogurt is no longer available." });
 
     // The place counts 5 more: back on sale, in the ledger with who did it.
     const staff = await staffOf(grocery, "1115556666", "Hany");
+    // The vendor's own list still has it, marked out of stock.
+    expect(((await call("GET", "/vendor/products", { token: staff.access_token })).body as { items: { id: number; in_stock: boolean }[] }).items.find((p) => p.id === yogurt)).toMatchObject({ in_stock: false });
     const back = await call("PATCH", "/vendor/products/{product_id}", { token: staff.access_token, params: [String(yogurt)], body: { stock: 5 } });
     expect(back.body).toMatchObject({ in_stock: true, stock: 5 });
+    expect(((await call("GET", "/market/vendors/{vendor_id}/products", { params: [String(grocery)] })).body as { items: { id: number }[] }).items.some((p) => p.id === yogurt)).toBe(true);
     const moves = await call("GET", "/vendor/products/{product_id}/stock-moves", { token: staff.access_token, params: [String(yogurt)] });
     expect((moves.body as { items: unknown[] }).items[0]).toMatchObject({ reason: "edit", change: 5, before: 0, after: 5, by: "vendor" });
 

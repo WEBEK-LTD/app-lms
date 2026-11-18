@@ -1344,7 +1344,7 @@
           "method": "GET",
           "path": "/market/vendors/{vendor_id}/products",
           "summary": "A vendor's products",
-          "description": "Paged, in the vendor's order. `department` and `aisle` keep one, `q` searches names, brands and descriptions, `barcode` finds one by its barcode or SKU. Out-of-stock products are listed with `in_stock` false after the others.",
+          "description": "Paged, in the vendor's order. `department` and `aisle` keep one, `barcode` finds one by its barcode or SKU. 115.24 Out-of-stock products aren't listed (owner's decision 15) until stocked again; a cart line for one is refused with `unavailable_item` (\"no longer available\"). The vendor's own list still has them.\n\n115.24 `q` matches the product's names (in every language) and brand, whatever the case, Arabic letter forms (أ إ آ ا, ة ه, ى ي, hamza), diacritics, Turkish i and ı, or Arabic-Indic digits: names that start with it first (by name), then names with a word that starts with it. Send `cursor` (empty for the first page, then each page's `next_cursor`) to page through a big catalog without counting it: `total` and `total_pages` are then null. Without it, pages go by number and `total` stops at 10,000.",
           "access": "optional"
         },
         {
@@ -1588,14 +1588,98 @@
           "method": "GET",
           "path": "/vendor/products",
           "summary": "The vendor's items, for stock",
-          "description": "Dishes or products, paged; `out_of_stock` keeps those out; `q` and `barcode` find them.",
+          "description": "Dishes or products, paged; `out_of_stock` keeps those out; `q` and `barcode` find them; `department` and `aisle` keep one. 115.24 `cursor` as for the customers' list; products carry `stock` always.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/vendor/products",
+          "summary": "Add a product",
+          "description": "115.24 Groceries and shops; the place's owner and managers only. Every change is kept for the app's owner to see and undo (D10); its stock goes through the stock-moves ledger.",
           "access": "signed-in"
         },
         {
           "method": "PATCH",
           "path": "/vendor/products/{product_id}",
-          "summary": "Put an item in or out of stock",
-          "description": "`in_stock`, and for products that count it, `stock` (out of stock at 0 by itself).",
+          "summary": "Put an item in or out of stock, or change a product",
+          "description": "`in_stock`, and for products that count it, `stock` (out of stock at 0 by itself, back once stocked); order takers may send only these two. 115.24 `stock` is in the product's unit (kilos for items sold by weight) and goes through the stock-moves ledger; null stops counting it. Any other field of `MarketProductInput` changes the product (the place's owner and managers only); fields left out stay.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/vendor/products/{product_id}",
+          "summary": "Delete a product",
+          "description": "115.24 The place's owner and managers; the app's owner can undo it.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/vendor/products/{product_id}/stock-moves",
+          "summary": "A product's stock history",
+          "description": "115.24 The latest 50 changes of its counted stock, newest first, in its unit.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/vendor/departments",
+          "summary": "The departments and their aisles, in order",
+          "description": "115.24 The place's departments, each with its aisles, in their order.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/vendor/departments",
+          "summary": "Add a department",
+          "description": "115.24 At the end; the place's owner and managers only.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/vendor/departments/order",
+          "summary": "Put the departments in order",
+          "description": "115.24 Every department's id, each once, in the new order (a drag).",
+          "access": "signed-in"
+        },
+        {
+          "method": "PATCH",
+          "path": "/vendor/departments/{department_id}",
+          "summary": "Rename a department",
+          "description": "115.24 The place's owner and managers only.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/vendor/departments/{department_id}",
+          "summary": "Delete a department",
+          "description": "115.24 Its aisles go with it; its products stay, out of any department.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/vendor/aisles",
+          "summary": "Add an aisle to a department",
+          "description": "115.24 At the end of its department.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/vendor/aisles/order",
+          "summary": "Put a department's aisles in order",
+          "description": "115.24 Every aisle of the department, each once, in the new order.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PATCH",
+          "path": "/vendor/aisles/{aisle_id}",
+          "summary": "Rename an aisle, or move it to another department",
+          "description": "115.24 Moved to another department, it goes at its end.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/vendor/aisles/{aisle_id}",
+          "summary": "Delete an aisle",
+          "description": "115.24 Its products stay in its department.",
           "access": "signed-in"
         }
       ]

@@ -276,6 +276,8 @@ export function customerOrderJson(
     lines: o.lines.map((l) => orderLineJson(l, c)),
     price: priceLinesJson(o.money, c, input.taxLabel),
     total: money(o.money.total, c),
+    // 115.24 Why it was cancelled or turned down, in words for the customer ("Payment not completed").
+    status_note: o.status === "cancelled" || o.status === "rejected" ? (o.rejection?.note ?? null) : null,
     // 115.24 True while items sold by weight aren't weighed yet: the total is an estimate until then.
     estimated: o.lines.some((l) => l.unit !== "item" && l.outcome === null),
     payment: { method: o.paymentMethod, status: o.paymentStatus, wallet_used: o.money.wallet > 0 ? money(o.money.wallet, c) : null },

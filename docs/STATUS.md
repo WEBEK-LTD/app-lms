@@ -992,7 +992,10 @@ placed, all of its lines or none, never below 0 (the store locks each
 product's row in a transaction on MySQL and MariaDB: two customers ordering
 the last one get one order between them, the other "out of stock"), and
 comes back once on a cancel, a refusal, a line picked as missing or swapped
-(the substitute's stock is taken instead). Every change, the place's and
+(the substitute's stock is taken instead), or an online payment left
+unfinished for 30 minutes (the order cancelled, "Payment not completed",
+its coupon's use freed). Out of stock is gone from customers' lists and
+search at once, and back once stocked. Every change, the place's and
 the owner's and an import's too, is in the `market_stock_moves` ledger
 (who, why, which order and line, before and after); the panel shows each
 product's history, with Undo for the last hand change. At 0 a product is
@@ -1089,8 +1092,9 @@ test environment:
 
 ## Known gaps
 
-- 115.24 An online order left waiting for its payment holds its stock
-  until it's cancelled: nothing expires unpaid orders yet.
+- 115.24 Unpaid online orders are expired by the daily job for now (30
+  minutes is the rule): until it runs, an abandoned payment holds its
+  stock. The call moves to the frequent job.
 - 115.24 Products saved before the search name get it the first time
   their place's catalog is searched, 500 at a time: a big catalog finds
   everything after a few searches (or a one-off backfill).

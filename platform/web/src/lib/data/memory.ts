@@ -4563,6 +4563,7 @@ export class MemoryStore implements DataStore {
       (query.outOfStock === undefined || p.inStock !== query.outOfStock) &&
       (!query.withPhoto || p.imageAssetId !== null) &&
       (!query.withoutPhoto || p.imageAssetId === null) &&
+      (!query.available || (p.inStock && (p.stock === null || p.stock > 0))) &&
       (!code || p.barcode === code || p.sku === code)
     );
   }
@@ -4835,7 +4836,8 @@ export class MemoryStore implements DataStore {
           (!query.statuses || query.statuses.includes(o.status)) &&
           (!query.completedSince || (o.completedAt !== null && o.completedAt >= query.completedSince)) &&
           (!query.completedUntil || (o.completedAt !== null && o.completedAt < query.completedUntil)) &&
-          (!query.createdSince || o.createdAt >= query.createdSince),
+          (!query.createdSince || o.createdAt >= query.createdSince) &&
+          (!query.createdBefore || o.createdAt < query.createdBefore),
       )
       .sort((a, b) => (query.order === "oldest" ? 1 : -1) * (a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id));
     return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };

@@ -1,6 +1,7 @@
 import type { DataStore } from "../data/store";
 import { clubDue } from "./offers";
 import { releaseScheduled } from "./flow";
+import { expireUnpaidMarketOrders } from "./expire";
 
 /**
  * 115 The marketplace's daily work (the daily job): club memberships whose
@@ -22,6 +23,7 @@ export async function runMarketDaily(store: DataStore, now: Date): Promise<{ app
     expired += due.expired;
     renewals += due.renewals.length;
     released += await releaseScheduled(store, app.id, now);
+    await expireUnpaidMarketOrders(store, app.id, now);
   }
   return { apps, expired, renewals, released };
 }

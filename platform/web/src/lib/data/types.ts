@@ -5090,6 +5090,8 @@ export interface MarketProductQuery {
   withPhoto?: boolean;
   /** 115 Only products still without an uploaded main photo (the panel's "No photo" filter). */
   withoutPhoto?: boolean;
+  /** 115.24 What customers see: on sale and not counted down to 0 (decision 15: out of stock is gone from their lists). */
+  available?: boolean;
   page: number;
   perPage: number;
   /**
@@ -5257,6 +5259,8 @@ export interface MarketOrderQuery {
   completedSince?: Date;
   completedUntil?: Date;
   createdSince?: Date;
+  /** 115.24 Made before this time (unpaid orders to expire). */
+  createdBefore?: Date;
   order?: "newest" | "oldest";
   limit: number;
   offset: number;

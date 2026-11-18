@@ -5739,6 +5739,7 @@ export class MysqlStore implements DataStore {
       query.outOfStock === undefined ? undefined : eq(t.inStock, !query.outOfStock),
       query.withPhoto ? isNotNull(t.imageAssetId) : undefined,
       query.withoutPhoto ? isNull(t.imageAssetId) : undefined,
+      query.available ? and(eq(t.inStock, true), or(isNull(t.stock), gt(t.stock, 0))) : undefined,
       code ? or(eq(t.barcode, code), eq(t.sku, code)) : undefined,
     );
     const prefix = q ? like(t.searchName, `${likeEscape(q)}%`) : undefined;
@@ -6110,6 +6111,7 @@ export class MysqlStore implements DataStore {
       query.completedSince ? gte(t.completedAt, query.completedSince) : undefined,
       query.completedUntil ? lt(t.completedAt, query.completedUntil) : undefined,
       query.createdSince ? gte(t.createdAt, query.createdSince) : undefined,
+      query.createdBefore ? lt(t.createdAt, query.createdBefore) : undefined,
     );
     const order = query.order === "oldest" ? [asc(t.createdAt), asc(t.id)] : [desc(t.createdAt), desc(t.id)];
     const [items, totals] = await Promise.all([

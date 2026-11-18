@@ -372,6 +372,8 @@ export class MarketConnector {
       ...(q.get("q") ? { q: q.get("q")!.trim().slice(0, 80) } : {}),
       ...(q.get("barcode") ? { code: q.get("barcode")!.trim().slice(0, 64) } : {}),
       ...(needPhoto ? { withPhoto: true } : {}),
+      // 115.24 Out of stock is gone from customers' lists until stocked again (decision 15).
+      available: true,
       page,
       perPage,
       ...cursorOf(q),
@@ -514,8 +516,9 @@ export class MarketConnector {
     const stock = await takeOrderStock(store, created, request.now);
     if (!stock.ok) {
       await store.updateMarketOrder(app.id, created.id, { status: "cancelled", timeline: [...created.timeline, marketStage("cancelled", request.now, "system")], updatedAt: request.now });
-      const left = stockAmount(stock, stock.left);
-      return { status: 409, body: { code: "unavailable_item", message: left > 0 ? `Only ${left}${stock.unit === "item" ? "" : ` ${stock.unit}`} of ${stock.name} left.` : `${stock.name} is out of stock.`, details: { field: "lines", product_id: stock.productId } } };
+      const amount = stockAmount(stock, stock.left);
+      const left = stock.unit === "item" ? String(amount) : `${amount} ${stock.unit}`;
+      return { status: 409, body: { code: "unavailable_item", message: amount > 0 ? `Only ${left} of ${stock.name} left.` : `${stock.name} is no longer available.`, details: { field: "lines", product_id: stock.productId } } };
     }
     // The coupon's use and the wallet's part are taken now; a refused or cancelled order gives them back.
     if (pr.coupon) {
