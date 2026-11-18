@@ -10,6 +10,7 @@ import { forTablet } from "@/lib/studio/tablet";
 import { mapTree } from "@/lib/studio/tree";
 import { withShopCategoriesIn } from "@/lib/studio/shop-categories";
 import { withRideClassesIn } from "@/lib/studio/ride-classes";
+import { withMapWordsIn } from "@/lib/studio/map-words";
 import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
 import { splitTabs } from "@/lib/pages/tab-bar";
@@ -217,7 +218,11 @@ export function StudioView(givenProps: ViewProps) {
   const shopListed = shop ? { ...viewProps, page: { ...viewProps.page, body: withShopCategoriesIn(viewProps.page.body, shop) } } : viewProps;
   // 178 A template's car classes as the company's vehicle types, as the app shows them.
   const rides = shopListed.pickable.rideClasses;
-  const listed = rides ? { ...shopListed, page: { ...shopListed.page, body: withRideClassesIn(shopListed.page.body, rides, shopListed.lang) } } : shopListed;
+  const classed = rides ? { ...shopListed, page: { ...shopListed.page, body: withRideClassesIn(shopListed.page.body, rides, shopListed.lang) } } : shopListed;
+  // 178 A drawn map's template words in the language shown, as the app gets them.
+  const drawsMap = (n: StudioNode): boolean => !!n.map_drawing || (n.children ?? []).some(drawsMap);
+  const mapped = drawsMap(classed.page.body) ? mapTree(classed.page.body, (n) => withMapWordsIn(n, classed.lang)) : null;
+  const listed = mapped && mapped !== classed.page.body ? { ...classed, page: { ...classed.page, body: mapped } } : classed;
   // 159 At their automatic sizes, as the app draws them (a cover's top bar across the cover), unless sized by hand.
   const body = autoSized(listed.tablet ? (mapTree(listed.page.body, forTablet) ?? listed.page.body) : listed.page.body);
   const props = body === listed.page.body ? listed : { ...listed, page: { ...listed.page, body } };

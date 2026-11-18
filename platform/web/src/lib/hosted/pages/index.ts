@@ -20,6 +20,7 @@ import { sha256Hex } from "../../crypto/tokens";
 import { readShopCategories } from "./shop-categories";
 import { showsRideClasses, withRideClassesIn, type RideClasses } from "../../studio/ride-classes";
 import { rideClassesOf } from "./ride-classes";
+import { withMapWordsIn } from "../../studio/map-words";
 import { listHeadings, productFallbacks, withListHeadings, withSampleProduct } from "./lists";
 import "./sources";
 import { dashboardStoriesSaved, ensureStoriesSeeded, servedStories } from "../../stories";
@@ -126,8 +127,8 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
     void _t;
     // 152 A tap linked to one of the shop's products: the product, else the shop.
     const own = texts.action ? { ...texts, action: linkedProduct(pc, texts.action, gone) } : texts;
-    // 129.11–129.20 A premium element's entries, each in the language asked for.
-    const shown = own.entries ? { ...own, entries: own.entries.map((entry) => translated(entry, pc.lang, def)) } : own;
+    // 129.11–129.20 A premium element's entries, each in the language asked for; 178 a drawn map's template words too.
+    const shown = own.map_drawing ? withMapWordsIn(own as StudioNode, pc.lang) : own.entries ? { ...own, entries: own.entries.map((entry) => translated(entry, pc.lang, def)) } : own;
     // 129 The premium elements' entries (stories, photos) in the language asked for too.
     for (const list of ["slides", "images"] as const) {
       const entries = shown[list] as { translations?: Translations }[] | undefined;

@@ -131,3 +131,41 @@ describe("178 the template's car classes are the company's vehicle types, at its
     expect(second).not.toBe(first);
   });
 });
+
+describe("178 a drawn map's words in the customer's language", () => {
+  const mapsOf = (studio: StudioPage) => nodesOf(studio.body).filter((n) => n.map_drawing);
+  const wordsOf = (studio: StudioPage) =>
+    mapsOf(studio).flatMap((n) => {
+      const d = n.map_drawing!;
+      return [...(d.places ?? []).map((p) => p.label), ...(d.labels ?? []).map((l) => l.text), d.route?.to_label, d.route?.eta].filter((t): t is string => typeof t === "string");
+    });
+
+  for (const [demo, look] of [["rides", "a"], ["rides", "b"], ["taxi", "a"], ["taxi", "b"]] as const) {
+    it(`${demo} look ${look}: an app made in English shows its map's places and districts in Arabic and Turkish`, async () => {
+      await start(demo, look);
+      const en = wordsOf(await home("en"));
+      expect(en.length).toBeGreaterThan(0);
+      for (const lang of ["ar", "tr"] as const) {
+        const shown = wordsOf(await home(lang));
+        expect(shown.length, lang).toBe(en.length);
+        // Each of the template's words in the language asked for.
+        const want = new Set(Object.values(APP_WORDS[lang]));
+        for (const t of shown) expect(want.has(t), `${lang}: ${t}`).toBe(true);
+      }
+      const ar = wordsOf(await home("ar"));
+      if (demo === "rides" && look === "a") expect(ar).toEqual(expect.arrayContaining([APP_WORDS.ar.rideHome, APP_WORDS.ar.rideOffice, APP_WORDS.ar.rideAirport, APP_WORDS.ar.sigZamalek]));
+      // "Home" on the map is the saved place, never the Home tab's word.
+      expect(ar).not.toContain(APP_WORDS.ar.tabHome);
+    });
+  }
+
+  it("a word the owner wrote on the map stays as they wrote it", async () => {
+    await start("rides", "a");
+    const id = state.app!.id;
+    const layout = (await state.store.getAppLayout(id))!;
+    const own = JSON.parse(JSON.stringify(layout.published).replace('"text":"Zamalek"', '"text":"Kadıköy"'));
+    await state.store.saveAppLayout({ ...layout, published: own });
+    const ar = wordsOf(await home("ar"));
+    expect(ar).toContain("Kadıköy");
+  });
+});
