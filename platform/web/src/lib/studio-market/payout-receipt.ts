@@ -1,5 +1,4 @@
 import { ltrSpan } from "../arabic-shape";
-import { formatAmount } from "../billing/prices";
 import { COMPANY } from "../company";
 import type { ContactSetting, DesignerPayout, TemplateDesigner } from "../data/types";
 import { yallappSeller } from "../receipts/build";
@@ -116,9 +115,13 @@ export function payoutDay(day: string, lang: Lang): string {
   return formatDate(lang, new Date(`${day}T00:00:00.000Z`), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }
 
-/** "$300.00": a payout always with its cents. */
+const thousands = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+
+/** "$1,300.00": a payout always with its cents, from whole cents (no floating point). */
 export function payoutAmount(cents: number): string {
-  return formatAmount(cents, "USD");
+  if (!Number.isSafeInteger(cents) || cents < 0) throw new RangeError("Not a whole, positive number of cents");
+  const rest = cents % 100;
+  return `$${thousands.format((cents - rest) / 100)}.${String(rest).padStart(2, "0")}`;
 }
 
 /** "YP-5B0C6D1E": the receipt's number. */
