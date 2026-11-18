@@ -261,6 +261,28 @@ size, which Flutter web follows.
   `amounts.items` (before the discounts) don't add up either. This is the
   Owner API's shape; it was left for Business.
 
+## Checked live after the fixes
+
+The app was built for the web from this branch, put in place of the
+preview for the check only, and then restored to main's committed build
+(the integration branch rebuilds it). The platform was rebuilt from this
+branch. Souq Nour was made again the same way.
+
+- Sign-in: `Config.auth.default_country_code` is +20.
+- Served home: no FRESH15 or ZAD20, and no chips around them.
+  Screenshot: `after-01-poster-without-template-code.png`.
+- The bar:
+  - Cart opens the basket with the bar, without Back
+    (`after-08-cart-tab-is-the-basket.png`).
+  - Account opens the account.
+  - Shops and Home are their own pages.
+  - No errors in the log.
+- Zad Market's "Dairy & eggs" chip puts the aisle's heading under the chips
+  (`after-03-aisle-chip-goes-to-its-aisle.png`).
+- Text size 1.3: "15%" is whole (`after-02-poster-at-text-1.3.png`).
+- An Arabic quote reads "المنتجات" and "الإجمالي", the weighing note in
+  Arabic, and "هذا الرمز غير صالح." for FRESH15.
+
 ## Tests and their results (run here, 18 November 2026)
 
 See ROADMAP Phase 177 and the report to the coordinator for the full list.
