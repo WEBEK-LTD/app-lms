@@ -360,13 +360,13 @@ export function hasUnpublishedChanges(record: AppLayoutRecord): boolean {
  * again rather than keep what they had (Leqaa's and Kech Flora's, published
  * before).
  */
-export function withFreshTranslations<T extends Layout>(layout: T, app: Pick<App, "appName"> & Partial<Pick<App, "catalogSettings" | "demo">>): T {
+export function withFreshTranslations<T extends Layout>(layout: T, app: Pick<App, "appName"> & Partial<Pick<App, "catalogSettings" | "demo">>, more: Pick<StoreFacts, "couponCodes"> = {}): T {
   const words = { appName: app.appName, more: PAGE_TEXT_FORMS };
   // 164 First, the template's sample bouquet in an app made before as one of the shop's products: its words are the
   // demo's own, which the pass below leaves out of a business's app, and the bouquet is known by them.
   const sampled = withSampleProducts(layout);
   // 156 And no template [placeholder] for customers: the store's facts fill theirs, the rest waits for the owner's words.
-  const placed = withoutPlaceholders(withoutStaleTranslations(sampled, { ...words, dropMarks: true }), storeFactsOf(app), words);
+  const placed = withoutPlaceholders(withoutStaleTranslations(sampled, { ...words, dropMarks: true }), { ...storeFactsOf(app), couponCodes: more.couponCodes }, words);
   // 176.6 And, in a business's own app, no App editor demo's own banner line and welcome sentence.
   const fresh = app.demo === true ? placed : withoutDemoWords(placed);
   if (fresh === layout) return layout;
@@ -417,6 +417,16 @@ async function unpublishedDefaults(store: DataStore, record: AppLayoutRecord | n
   return record ? { ...defaults, languages: record.draft.languages } : defaults;
 }
 
+/** 177 The app's active coupon codes, uppercase: its marketplace's and its shop's (none asked for in Yallapp's demo apps, which keep their words). */
+export async function activeCouponCodes(store: DataStore, app: Pick<App, "id" | "demo">): Promise<ReadonlySet<string> | null> {
+  if (app.demo === true) return null;
+  const [market, catalog] = await Promise.all([store.listMarketCoupons(app.id, { active: true }), store.listCatalogCoupons(app.id)]);
+  const codes = new Set<string>();
+  for (const c of market) if (c.code) codes.add(c.code.toUpperCase());
+  for (const c of catalog) if (c.active && c.code) codes.add(c.code.toUpperCase());
+  return codes;
+}
+
 /**
  * 179 A school's layout with the template's news ticker running the school's
  * own news (lib/school/news-ticker.ts), before the customers' pass would
@@ -445,11 +455,12 @@ export async function servedLayout(store: DataStore, app: App, plan: PlanInfo | 
   // 43 With Yallapp's own translations of the texts it wrote, where the owner has none.
   // 17 The app preview can show the draft, with the plan's limits like the published layout.
   // 156 Without the template's translations of the texts the owner changed: their own text in every language.
-  if (options.draft) return withBuiltInTexts(layoutForPlan(withFreshTranslations(await schoolNews(store, app, await draftLayout(store, app, options.now ?? new Date())), app), app, plan, await appDefaults(store)));
+  // 177 With the app's own coupon codes: a template's code it doesn't have isn't shown.
+  if (options.draft) return withBuiltInTexts(layoutForPlan(withFreshTranslations(await schoolNews(store, app, await draftLayout(store, app, options.now ?? new Date())), app, { couponCodes: await activeCouponCodes(store, app) }), app, plan, await appDefaults(store)));
   const record = await store.getAppLayout(app.id);
   const published = record?.published ?? null;
   const defaults = await appDefaults(store);
-  if (published) return withBuiltInTexts(layoutForPlan(withFreshTranslations(await schoolNews(store, app, published), app), app, plan, defaults));
+  if (published) return withBuiltInTexts(layoutForPlan(withFreshTranslations(await schoolNews(store, app, published), app, { couponCodes: await activeCouponCodes(store, app) }), app, plan, defaults));
   const content = defaultLayout(app, await unpublishedDefaults(store, record), app.createdAt);
   return withBuiltInTexts(layoutForPlan({ version: `default.${sha256Hex(JSON.stringify(content)).slice(0, 16)}`, ...content }, app, plan, defaults));
 }

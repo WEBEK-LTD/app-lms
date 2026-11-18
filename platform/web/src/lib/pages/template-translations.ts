@@ -541,6 +541,35 @@ export interface StoreFacts {
    * placeholders filled from the store or left out.
    */
   ownBusiness?: boolean;
+  /**
+   * 177 The app's own active coupon codes (uppercase). Given, in a business's
+   * own app, a template's coupon code that isn't one of them goes with the
+   * chip it is in: Zad's posters told every marketplace made from it to type
+   * FRESH15 and ZAD20, which its checkout then refused.
+   */
+  couponCodes?: ReadonlySet<string> | null;
+}
+
+/** 177 The templates' coupon codes, in every language (their words whose name ends in `Code`: Zad's FRESH15, ZAD20). */
+let templateCodes: Set<string> | null = null;
+
+export function templateCouponCodes(): ReadonlySet<string> {
+  if (!templateCodes) {
+    templateCodes = new Set();
+    for (const lang of TEMPLATE_LANGS) {
+      for (const [word, text] of Object.entries(APP_WORDS[lang] as Record<string, string>)) {
+        if (/Code$/.test(word) && /^[A-Z0-9]{3,20}$/i.test(text.trim())) templateCodes.add(text.trim().toUpperCase());
+      }
+    }
+  }
+  return templateCodes;
+}
+
+/** 177 Whether a text is a template's coupon code the app doesn't have. */
+function unknownTemplateCode(text: unknown, facts: StoreFacts): boolean {
+  if (!facts.ownBusiness || !facts.couponCodes || typeof text !== "string") return false;
+  const code = text.trim().toUpperCase();
+  return templateCouponCodes().has(code) && !facts.couponCodes.has(code);
 }
 
 /** The demos' facts by their words in each language, with the template's own words in that language they stand in for. */
@@ -646,6 +675,9 @@ function isLabelWord(node: Record<string, unknown>): boolean {
 
 /** One element and what it holds without placeholders, or null to leave it out. */
 function nodeWithout(node: Record<string, unknown>, facts: StoreFacts, options: TemplateWords): Record<string, unknown> | null {
+  // 177 A template's coupon code the app doesn't have: the code goes, and the chip it is in with its minimum.
+  if (node.type === "text" && unknownTemplateCode(node.text, facts)) return null;
+  if (Array.isArray(node.children) && node.children.some((c) => isRecord(c) && c.type === "text" && unknownTemplateCode(c.text, facts))) return null;
   // An element bound to an entry shows the entry's words: its own sample just goes.
   const own = placeholderFree(node, NODE_TEXTS, node.bind ? [] : NODE_TEXTS, facts, options);
   if (!own) return null;

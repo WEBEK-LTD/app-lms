@@ -24,6 +24,7 @@ import '../data/market_basket.dart';
 import '../data/market_models.dart';
 import '../data/market_place.dart';
 import '../data/market_providers.dart';
+import '../widgets/market_address.dart';
 import 'market_orders_screen.dart' show marketOrdersProvider;
 import '../../../core/widgets/studio_screen_scope.dart';
 
@@ -204,6 +205,13 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
     _requote(now: true);
   }
 
+  /// 177 The address on the map (a pin, the map's address search) or the
+  /// phone's position; only the position before.
+  Future<void> _choosePlace() async {
+    await chooseMarketPlace(context, ref);
+    if (mounted) _requote(now: true);
+  }
+
   Future<void> _place(List<api.MarketPayMethod> methods) async {
     final l10n = context.l10n;
     final auth = ref.read(authControllerProvider);
@@ -309,7 +317,9 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
             child: Row(
               children: [
                 Icon(
-                  shop ? Symbols.storefront : Symbols.restaurant,
+                  shop
+                      ? Symbols.storefront_rounded
+                      : Symbols.restaurant_rounded,
                   color: p.primary,
                 ),
                 const SizedBox(width: 12),
@@ -365,12 +375,12 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
               segments: [
                 ButtonSegment(
                   value: api.MarketFulfilment.delivery,
-                  icon: const Icon(Symbols.two_wheeler),
+                  icon: const Icon(Symbols.two_wheeler_rounded),
                   label: Text(l10n.marketDelivery),
                 ),
                 ButtonSegment(
                   value: api.MarketFulfilment.pickup,
-                  icon: const Icon(Symbols.storefront),
+                  icon: const Icon(Symbols.storefront_rounded),
                   label: Text(l10n.marketPickup),
                 ),
               ],
@@ -390,20 +400,36 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(Symbols.location_on, color: p.primary),
+                      Icon(Symbols.location_on_rounded, color: p.primary),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: Text(
-                          place?.address ?? l10n.marketChooseAddress,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: place == null ? p.textSecondary : p.text,
+                        child: Semantics(
+                          button: true,
+                          child: InkWell(
+                            onTap: _choosePlace,
+                            borderRadius: BorderRadius.circular(10),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                place?.address ??
+                                    (place == null
+                                        ? l10n.marketChooseAddress
+                                        : l10n.deliveryPinSet),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: place == null ? p.primary : p.text,
+                                  decoration: place == null
+                                      ? TextDecoration.underline
+                                      : null,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                       TextButton.icon(
                         onPressed: _locate,
-                        icon: const Icon(Symbols.my_location, size: 18),
+                        icon: const Icon(Symbols.my_location_rounded, size: 18),
                         label: Text(l10n.marketUseMyLocation),
                       ),
                     ],
@@ -463,7 +489,7 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
                     textCapitalization: TextCapitalization.characters,
                     decoration: InputDecoration(
                       hintText: l10n.marketCoupon,
-                      prefixIcon: const Icon(Symbols.sell),
+                      prefixIcon: const Icon(Symbols.sell_rounded),
                     ),
                   ),
                 ),
@@ -487,7 +513,7 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
               child: SwitchListTile.adaptive(
                 contentPadding: EdgeInsets.zero,
                 secondary: Icon(
-                  Symbols.account_balance_wallet,
+                  Symbols.account_balance_wallet_rounded,
                   color: p.primary,
                 ),
                 title: Text(l10n.marketUseWallet),
@@ -562,11 +588,11 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
 }
 
 IconData _methodIcon(api.MarketPayMethod m) => switch (m) {
-  api.MarketPayMethod.cash => Symbols.payments,
-  api.MarketPayMethod.card => Symbols.credit_card,
-  api.MarketPayMethod.applePay => Symbols.contactless,
-  api.MarketPayMethod.googlePay => Symbols.contactless,
-  api.MarketPayMethod.wallet => Symbols.account_balance_wallet,
+  api.MarketPayMethod.cash => Symbols.payments_rounded,
+  api.MarketPayMethod.card => Symbols.credit_card_rounded,
+  api.MarketPayMethod.applePay => Symbols.contactless_rounded,
+  api.MarketPayMethod.googlePay => Symbols.contactless_rounded,
+  api.MarketPayMethod.wallet => Symbols.account_balance_wallet_rounded,
 };
 
 String _methodName(AppLocalizations l10n, api.MarketPayMethod m) => switch (m) {
@@ -669,7 +695,7 @@ class _BasketRow extends StatelessWidget {
               ),
               IconButton(
                 onPressed: onRemove,
-                icon: const Icon(Symbols.remove),
+                icon: const Icon(Symbols.remove_rounded),
                 tooltip: '−',
               ),
               Text(
@@ -678,7 +704,7 @@ class _BasketRow extends StatelessWidget {
               ),
               IconButton(
                 onPressed: onAdd,
-                icon: const Icon(Symbols.add),
+                icon: const Icon(Symbols.add_rounded),
                 tooltip: '+',
               ),
             ],
@@ -686,30 +712,42 @@ class _BasketRow extends StatelessWidget {
           if (shop)
             Row(
               children: [
-                Text(
-                  l10n.marketIfMissing,
-                  style: TextStyle(fontSize: 12.5, color: p.textSecondary),
+                Flexible(
+                  child: Text(
+                    l10n.marketIfMissing,
+                    style: TextStyle(fontSize: 12.5, color: p.textSecondary),
+                  ),
                 ),
                 const SizedBox(width: 8),
-                DropdownButton<api.MarketIfMissing>(
-                  value: line.ifMissing == api.MarketIfMissing.chosen
-                      ? api.MarketIfMissing.similar
-                      : line.ifMissing,
-                  isDense: true,
-                  underline: const SizedBox.shrink(),
-                  items: [
-                    DropdownMenuItem(
-                      value: api.MarketIfMissing.similar,
-                      child: Text(l10n.marketIfMissingSimilar),
-                    ),
-                    DropdownMenuItem(
-                      value: api.MarketIfMissing.remove,
-                      child: Text(l10n.marketIfMissingRemove),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    if (v != null) onIfMissing(v);
-                  },
+                // 177 The room left in the row: at 1.3 it ran 97 points past it.
+                Expanded(
+                  child: DropdownButton<api.MarketIfMissing>(
+                    value: line.ifMissing == api.MarketIfMissing.chosen
+                        ? api.MarketIfMissing.similar
+                        : line.ifMissing,
+                    isDense: true,
+                    isExpanded: true,
+                    underline: const SizedBox.shrink(),
+                    items: [
+                      DropdownMenuItem(
+                        value: api.MarketIfMissing.similar,
+                        child: Text(
+                          l10n.marketIfMissingSimilar,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: api.MarketIfMissing.remove,
+                        child: Text(
+                          l10n.marketIfMissingRemove,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                    onChanged: (v) {
+                      if (v != null) onIfMissing(v);
+                    },
+                  ),
                 ),
               ],
             ),

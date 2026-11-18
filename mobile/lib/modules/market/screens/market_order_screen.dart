@@ -107,7 +107,7 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
       body: order.when(
         loading: () => const SkeletonDetail(),
         error: (e, _) => MessageView(
-          icon: Symbols.error,
+          icon: Symbols.error_rounded,
           title: l10n.marketMyOrders,
           message: '$e',
           actionLabel: l10n.marketBrowse,
@@ -150,6 +150,20 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                                 style: TextStyle(color: p.textBody),
                               ),
                             ),
+                            // 177 Its price before the sale, struck: "Items" is
+                            // the lines before their discounts, so the lines add up to it.
+                            if (line.beforeDiscount case final before?
+                                when before.amount != line.total.amount) ...[
+                              Text(
+                                before.formatted,
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  color: p.textTertiary,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                            ],
                             Text(
                               line.total.formatted,
                               style: TextStyle(
@@ -198,7 +212,7 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                 const SizedBox(height: 16),
                 PrimaryButton(
                   label: l10n.marketPayAgain,
-                  icon: Symbols.credit_card,
+                  icon: Symbols.credit_card_rounded,
                   onPressed: () => _pay(context),
                 ),
               ],
@@ -206,7 +220,7 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                 const SizedBox(height: 16),
                 PrimaryButton(
                   label: l10n.marketOrderAgain,
-                  icon: Symbols.replay,
+                  icon: Symbols.replay_rounded,
                   onPressed: () => orderAgain(context, ref, o),
                 ),
               ],
@@ -221,7 +235,7 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                 const SizedBox(height: 12),
                 SecondaryButton(
                   label: l10n.marketViewComplaint,
-                  icon: Symbols.support_agent,
+                  icon: Symbols.support_agent_rounded,
                   onPressed: () =>
                       context.push(Paths.marketComplaint(o.complaintId!)),
                 ),
@@ -229,7 +243,7 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                 const SizedBox(height: 12),
                 SecondaryButton(
                   label: l10n.marketReportProblem,
-                  icon: Symbols.report,
+                  icon: Symbols.report_rounded,
                   onPressed: () => context.push(Paths.marketComplain(o.id)),
                 ),
               ],
@@ -358,7 +372,7 @@ class _Tracking extends ConsumerWidget {
       return _Box(
         child: Row(
           children: [
-            Icon(Symbols.storefront, color: p.primary),
+            Icon(Symbols.storefront_rounded, color: p.primary),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -387,7 +401,7 @@ class _Tracking extends ConsumerWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Symbols.two_wheeler, color: p.primary),
+                Icon(Symbols.two_wheeler_rounded, color: p.primary),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -465,7 +479,9 @@ class _Stages extends StatelessWidget {
                       color: i <= last && !stopped ? p.primary : p.surfaceMuted,
                     ),
                     child: Icon(
-                      i <= last && !stopped ? Symbols.check : Symbols.circle,
+                      i <= last && !stopped
+                          ? Symbols.check_rounded
+                          : Symbols.circle_rounded,
                       size: 16,
                       color: i <= last && !stopped
                           ? p.onPrimary

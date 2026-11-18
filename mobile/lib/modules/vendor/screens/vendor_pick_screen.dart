@@ -194,7 +194,7 @@ class _VendorPickScreenState extends ConsumerState<VendorPickScreen> {
               child: PrimaryButton(
                 key: const ValueKey('vendor-pick-save'),
                 label: l10n.vendorPickSave,
-                icon: Symbols.done,
+                icon: Symbols.done_rounded,
                 loading: _saving,
                 onPressed: () => _save(order),
               ),
@@ -322,7 +322,7 @@ class _PickCard extends StatelessWidget {
               ListTile(
                 key: ValueKey('vendor-pick-${line.id}-choose'),
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(Symbols.swap_horiz, color: p.primary),
+                leading: Icon(Symbols.swap_horiz_rounded, color: p.primary),
                 title: Text(
                   pick.substituteName ?? l10n.vendorChooseSubstitute,
                   style: TextStyle(fontWeight: FontWeight.w700, color: p.text),
@@ -386,7 +386,7 @@ class _SubstituteSheetState extends ConsumerState<_SubstituteSheet> {
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
                   hintText: l10n.vendorStockSearch,
-                  prefixIcon: const Icon(Symbols.search),
+                  prefixIcon: const Icon(Symbols.search_rounded),
                 ),
                 onSubmitted: (v) => setState(() {
                   _query = v.trim();
@@ -414,7 +414,7 @@ class _SubstituteSheetState extends ConsumerState<_SubstituteSheet> {
                   }
                   if (items.isEmpty) {
                     return MessageView(
-                      icon: Symbols.inventory_2,
+                      icon: Symbols.inventory_2_rounded,
                       title: l10n.vendorStockEmpty,
                     );
                   }

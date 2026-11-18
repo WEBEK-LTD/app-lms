@@ -48,6 +48,7 @@ import {
   money,
   orderLineJson,
   priceLinesJson,
+  inLanguage,
   productJson,
   vendorJson,
   vendorComplaintJson,
@@ -413,12 +414,13 @@ export class MarketConnector {
         quote_id: quoteIdOf(this.deps.app.id, read.value, pr.money.total, expiresAt),
         expires_at: expiresAt.toISOString(),
         lines: pr.lines.map((l) => orderLineJson(l, currency)),
-        price: priceLinesJson(pr.money, currency, pr.settings.tax.label),
+        price: priceLinesJson(pr.money, currency, pr.settings.tax.label, request.lang ?? null),
         total: money(pr.money.total, currency),
         pay_now: money(pr.money.payNow, currency),
         coupon: pr.coupon && pr.coupon.code ? { code: pr.coupon.code, title: pr.coupon.title } : pr.coupon ? { code: "", title: pr.coupon.title } : null,
         delivery_minutes: pr.delivery.minutes === null ? null : { min: Math.max(5, pr.delivery.minutes - 5), max: pr.delivery.minutes + 10 },
-        warnings: pr.warnings,
+        // 177 In the customer's language (Arabic and Turkish customers read them in English before).
+        warnings: pr.warnings.map((w) => inLanguage(w, request.lang)),
       },
     };
   }
@@ -502,7 +504,7 @@ export class MarketConnector {
       }
     }
     const payUrl = status === "awaiting_payment" ? (await this.payLink(created, request.now)).url : null;
-    return { status: 201, body: { order: await this.customerJson(created, request.now), pay_url: payUrl } };
+    return { status: 201, body: { order: await this.customerJson(created, request.now, request.lang ?? null), pay_url: payUrl } };
   }
 
   /** A shop order of one line for the market order (its product id is the order's id, negative), on the app's payment page. */
@@ -542,7 +544,7 @@ export class MarketConnector {
   }
 
   /** The order as its customer sees it: its vendor, tracking while it's on the way, and what they can do now. */
-  private async customerJson(order: MarketOrder, now: Date) {
+  private async customerJson(order: MarketOrder, now: Date, lang: string | null = null) {
     const settings = await this.settings();
     const currency = marketCurrency(settings);
     const job = order.shipmentId !== null ? await this.deps.store.getShipment(this.deps.app.id, order.shipmentId) : null;
@@ -577,6 +579,7 @@ export class MarketConnector {
       canComplain: window.open && !openOne && !["awaiting_payment", "cancelled"].includes(o.status),
       complaintId: latest?.id ?? null,
       eta,
+      lang,
     });
   }
 
@@ -594,14 +597,14 @@ export class MarketConnector {
       offset: (page - 1) * perPage,
     });
     const items = [];
-    for (const o of found.items) items.push(await this.customerJson(o, request.now));
+    for (const o of found.items) items.push(await this.customerJson(o, request.now, request.lang ?? null));
     return { status: 200, body: { page, per_page: perPage, total: found.total, total_pages: Math.max(1, Math.ceil(found.total / perPage)), items } };
   }
 
   private async myOrder(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
     if (!request.user) return signIn();
     const o = await this.ownOrder(request, id);
-    return o ? { status: 200, body: await this.customerJson(o, request.now) } : orderNotFound();
+    return o ? { status: 200, body: await this.customerJson(o, request.now, request.lang ?? null) } : orderNotFound();
   }
 
   private async cancel(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
@@ -610,7 +613,7 @@ export class MarketConnector {
     if (!o) return orderNotFound();
     if (!CUSTOMER_CANCELLABLE.includes(o.status)) return refused("The place has your order now. Ask the app's support to cancel it.");
     const moved = await cancelMarketOrder(this.flow(request.now), o, "customer");
-    return moved.ok ? { status: 200, body: await this.customerJson(moved.order, request.now) } : refused();
+    return moved.ok ? { status: 200, body: await this.customerJson(moved.order, request.now, request.lang ?? null) } : refused();
   }
 
   private async pay(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
@@ -639,7 +642,7 @@ export class MarketConnector {
     const rating = { vendor, courier: o.deliveryBy === "app" ? courier : null, comment, at: request.now.toISOString() };
     if (!(await this.deps.store.updateMarketOrder(this.deps.app.id, o.id, { rating, updatedAt: request.now }, { statuses: [o.status] }))) return error(409, "not_rateable", "Refresh the order and try again.");
     if (o.vendorId !== null) await this.deps.store.addRestaurantRating(this.deps.app.id, o.vendorId, vendor);
-    return { status: 200, body: await this.customerJson({ ...o, rating, updatedAt: request.now }, request.now) };
+    return { status: 200, body: await this.customerJson({ ...o, rating, updatedAt: request.now }, request.now, request.lang ?? null) };
   }
 
   // Complaints
