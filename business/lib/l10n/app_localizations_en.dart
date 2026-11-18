@@ -4001,6 +4001,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get primeWeeklyHelp => 'A summary by email every Monday';
 
   @override
+  String get bouquetWrap => 'Wrap';
+
+  @override
+  String get bouquetCard => 'Card';
+
+  @override
+  String bouquetMessage(String message) {
+    return 'Card message: $message';
+  }
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }
@@ -4537,16 +4548,5 @@ class AppLocalizationsEn extends AppLocalizations {
       one: '1 stem',
     );
     return 'Bouquet · $_temp0';
-  }
-
-  @override
-  String get bouquetWrap => 'Wrap';
-
-  @override
-  String get bouquetCard => 'Card';
-
-  @override
-  String bouquetMessage(String message) {
-    return 'Card message: $message';
   }
 }

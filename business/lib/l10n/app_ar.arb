@@ -1173,6 +1173,9 @@
   "primeMoreActionsHelp": "القسائم والعروض السريعة ومواعيد التوصيل ووضع الانشغال",
   "primeGoalsHelp": "هدف لليوم أو الأسبوع أو الشهر مع حلقة تقدّم في الرئيسية",
   "primeWeeklyHelp": "ملخص بالبريد كل يوم اثنين",
+  "bouquetWrap": "التغليف",
+  "bouquetCard": "البطاقة",
+  "bouquetMessage": "رسالة البطاقة: {message}",
   "minutesAgo": "{count, plural, =1{قبل دقيقة} =2{قبل دقيقتين} few{قبل {count} دقائق} many{قبل {count} دقيقة} other{قبل {count} دقيقة}}",
   "hoursAgo": "{count, plural, =1{قبل ساعة} =2{قبل ساعتين} few{قبل {count} ساعات} many{قبل {count} ساعة} other{قبل {count} ساعة}}",
   "donorsCount": "{count, plural, =0{لا متبرعين} =1{متبرع واحد} =2{متبرعان} few{{count} متبرعين} many{{count} متبرعًا} other{{count} متبرع}}",
@@ -1222,8 +1225,5 @@
   "lowStockAlertHint": "{count, plural, =0{فعّل تنبيه المخزون المنخفض في التنبيهات الذكية لتعرف حين تنفد الكمية.} =1{يخبرك تنبيه المخزون المنخفض حين يتبقى واحد.} =2{يخبرك تنبيه المخزون المنخفض حين يتبقى اثنان.} few{يخبرك تنبيه المخزون المنخفض حين يتبقى {count}.} many{يخبرك تنبيه المخزون المنخفض حين يتبقى {count}.} other{يخبرك تنبيه المخزون المنخفض حين يتبقى {count}.}}",
   "lockAfterMinutes": "{minutes, plural, =1{بعد دقيقة من الخروج} =2{بعد دقيقتين من الخروج} few{بعد {minutes} دقائق من الخروج} many{بعد {minutes} دقيقة من الخروج} other{بعد {minutes} دقيقة من الخروج}}",
   "needsAwaitingPayment": "{count, plural, =1{طلب واحد بانتظار الدفع} =2{طلبان بانتظار الدفع} few{{count} طلبات بانتظار الدفع} many{{count} طلبًا بانتظار الدفع} other{{count} طلب بانتظار الدفع}}",
-  "bouquetGroup": "باقة · {stems, plural, =0{بلا سيقان} =1{ساق واحدة} =2{ساقان} few{{stems} سيقان} many{{stems} ساقًا} other{{stems} ساق}}",
-  "bouquetWrap": "التغليف",
-  "bouquetCard": "البطاقة",
-  "bouquetMessage": "رسالة البطاقة: {message}"
+  "bouquetGroup": "باقة · {stems, plural, =0{بلا سيقان} =1{ساق واحدة} =2{ساقان} few{{stems} سيقان} many{{stems} ساقًا} other{{stems} ساق}}"
 }
