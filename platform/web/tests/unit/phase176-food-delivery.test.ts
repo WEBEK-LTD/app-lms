@@ -186,3 +186,15 @@ describe("176.4 a new food or delivery company isn't told its couriers worked in
     expect((await twoAppsOf(store, app, PLAN_INFO.studio_1))?.before).toBe(true);
   });
 });
+
+describe("176.5 Sahm's pickup without the business's street", () => {
+  it.each(["delivery_signature_a", "delivery_city"])("%s: a business's app asks \"Where from?\" under Pickup, in each language, as the drop-off asks \"Where to?\"", async (template) => {
+    const app = await business("delivery", template, null);
+    const words = { en: "Where from?", ar: "من أين؟", tr: "Nereden?" } as const;
+    for (const lang of ["en", "ar", "tr"] as const) {
+      const shown = await servedTexts(app, lang);
+      expect(shown, lang).toContain(words[lang]);
+      expect(shown.filter((t) => /\[/.test(t)), lang).toEqual([]);
+    }
+  });
+});

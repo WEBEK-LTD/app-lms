@@ -528,11 +528,21 @@ export function hasPlaceholder(text: unknown, options: TemplateWords = {}): bool
   return [...text.matchAll(BRACKETS)].some((m) => known.chunks(m[0]));
 }
 
+/** 176.5 Placeholders a customer's own choice fills, by their words in each language: a pickup street still to be written reads "Where from?", as the drop-off's "Where to?". */
+let askIndex: Map<string, string> | null = null;
+
+function asked(): Map<string, string> {
+  askIndex ??= new Map(TEMPLATE_LANGS.map((l) => [APP_WORDS[l].deliveryFrom, APP_WORDS[l].deliveryWhereFrom]));
+  return askIndex;
+}
+
 /** `text` with the store's facts in place of their placeholders. */
 function filled(text: string, facts: StoreFacts, options: TemplateWords): string {
-  if (!facts.cutoff) return text;
+  const ask = asked();
+  const own = text.replace(BRACKETS, (chunk) => ask.get(chunk) ?? chunk);
+  if (!facts.cutoff) return own;
   const { cutoff } = placeholders(options);
-  return text.replace(BRACKETS, (chunk) => (cutoff.has(chunk) ? facts.cutoff! : chunk));
+  return own.replace(BRACKETS, (chunk) => (cutoff.has(chunk) ? facts.cutoff! : chunk));
 }
 
 /** A node's, entry's or slide's own words, its fields whose placeholder leaves the whole of it out, and its translations without placeholders. */
