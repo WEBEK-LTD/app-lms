@@ -50,12 +50,21 @@ export const CLIENT_APP_RELEASE = 8;
  *    a store's product link with no product chosen opens the shop, and so
  *    does one whose product the shop no longer has (in place of "not
  *    found").
- * 8  163 Studio pages on a Samsung's settings (larger text, display zoom,
- *    its navigation bar): Arabic text never under a 1.5 line, so its
- *    letters don't draw over the next card; a cover grows with what is on
- *    it; a row's last text that shows something gives way; a
- *    testimonial's quote mark isn't cut; the flash sale's title wraps; the
- *    folding header no longer redraws during layout.
+ * 8  The urgent app fixes, in one release: 163 Studio pages on a Samsung's
+ *    settings (Arabic text never under a 1.5 line, a cover grows with what
+ *    is on it, a row's last text gives way); 157 a template's rings, chips
+ *    and tiles open the shop filtered to their category; 158 every page
+ *    scrolls to its end, above a floating tab bar and the phone's own bar;
+ *    159 a cover's top bar at its automatic size, across the cover; 160
+ *    sign-in as the owner's ways say (a code every time, or the password);
+ *    161 the whole app in the customer's currency, and a story's Open opens
+ *    its link or the shop; 162 Build your bouquet (`flow: bouquet`); 164 a
+ *    list's title hides with its list; 165 the story viewer shows Dashboard
+ *    › Stories (its words, button and video, the shop on its category); 167
+ *    Sign out always there for a signed-in person; and 171 a tab of the
+ *    orders, notifications, settings, chat or teachers shows its screen in
+ *    its place, the bar under it, and a journey without an order shows
+ *    nothing.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */

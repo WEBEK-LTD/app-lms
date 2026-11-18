@@ -27,6 +27,54 @@ Studio's canvas draws the lists as the app does. `CLIENT_APP_RELEASE` 8:
 the app opens the category (an older app the whole shop) and asks for the
 shop's chips again when it comes back on screen.
 
+Roadmap 158 (every page scrolls to its end, on every phone): the app's own
+screens under a tab bar that floats over them (Leqaa's and Kech Flora's
+petal, the floating pill, the dock, glass off the edges) end their lists
+above it, as Studio pages did: the shop's grid, the Account screens' lists
+and the other tabs' paginated lists, with one shared space (`endRoom`,
+MediaQuery's bottom padding), so their last rows no longer stay under the
+bar on a short phone. Studio pages over the tabs end above the phone's own
+bar (home indicator, Android's navigation bar) and above what is pinned at
+their foot (a sticky "Send flowers"). The sort and choice sheets scroll
+to their last choice on a short phone or with a large font, and the shop's
+next-page spinner lies across the grid, in its middle. `CLIENT_APP_RELEASE`
+is 8. Not yet tried on a phone. Still open: a page a little longer than
+the screen under a folding premium header (Settings on a 320 by 568 phone)
+loses its last lines (ROADMAP 158.3); the staff's and second apps' tabs
+still to take the same space (158.7).
+
+Roadmap 159 (sizes automatic, by hand only when asked): Kech Flora's bag
+sat about three quarters of the way across the phone because the bar over
+the stories had a width in points from a corner drag on Studio's phone
+(a drag never became Fill there: the corner measured an empty wrapper), and
+the app keeps a width in points. A cover's top bar is now at its automatic
+size, across the cover with its wordmark between the buttons, in Studio's
+canvas, in what the hosted API serves (so apps already on phones draw it at
+once) and in the app (`CLIENT_APP_RELEASE` 8), whatever width it had, unless
+it was sized by hand. Every element's size is automatic until the owner
+changes it: the size fields and the canvas corners ask first, "Back to
+automatic" (or a double click on a corner) puts the template's size back,
+and a corner dragged up to the edge becomes Fill again. WordPress apps keep
+a size by hand with the next plugin release. Not yet seen on Kech Flora's
+phone.
+
+Roadmap 160 (sign-in as the owner's four ways say, and Forgot password): a
+phone number or an email address signs in with a code every time ("…and a
+code": no password anywhere) or with its password ("…and password": the
+code only checks a new account once, which must set a password, and resets
+a forgotten one), never both: the hosted API reads a choice saved with both
+as the password, and App sign-in turns the other off and refuses both on a
+channel. The app shows each way in once with what it signs in with; "Sign
+in with a code instead" is gone. A sign-in opened over the app (the page
+headers' bell, the cart) closes once signed in and opens what it was
+opened for: its screens stayed before, and "Forgot password" tapped there
+opened Notifications. Forgot password opens the reset for the way in use,
+in every sign-in look. The code the phone number starts with follows the
+app: the owner's choice, else the shop's country (where it delivers, else
+its currency), else the owner's, then +90 (a MAD shop delivering to Morocco
+opened on +90). The app's part reaches the stores with
+`CLIENT_APP_RELEASE` 8. Not yet tried on a phone (ROADMAP 160.7).
+
 Roadmap 161 (the whole app in the customer's currency, and a story's
 Open): the hosted API sends every price of Yallapp's own with its amount,
 currency and `display` in the customer's currency, the home's Studio lists
@@ -40,6 +88,86 @@ opens nothing is served opening the shop, so older apps follow. Studio says
 what a story's Open opens. `CLIENT_APP_RELEASE` is 8: apps get a build.
 Prices a template wrote into its own words stay as written (ROADMAP 161.8).
 Not yet tried on Kech Flora (ROADMAP 161.10). No migration.
+
+Roadmap 162 (Build your bouquet): a store's owner sets it up in Store ›
+Delivery & offers › Build your bouquet (the flowers' category, the wraps
+from gift add-ons or a category, the cards, whether the wrap and the card
+may be left out, the least and most stems). Leqaa's Build your bouquet
+sections then open it from their Start (`Action.flow: bouquet`): the
+flowers by the stem with the live total, one wrap, the card and its words
+with the occasions' ready messages, the summary, and the bouquet goes in
+the cart as one group of lines (`bouquet` on each line), priced by the
+server as any cart, kept on the order and shown as one in the cart, the
+customer's order, the dashboard and Yallapp Business. A shop that hasn't
+set it up, an older app and WordPress keep today's Start: the shop.
+Leqaa's demo has it on. `CLIENT_APP_RELEASE` is 8 (after 152's 7).
+
+
+Roadmap 163 (Studio pages on a Samsung's settings): Leqaa's signature
+template, every page of both looks, is drawn by the real app in tests at
+font scales 1.0 to 1.5, display zoom (360, 384, 412 points) and both
+navigation bars, Arabic and English, light and dark. Arabic text in Studio
+pages is never under a 1.5 line, so the Orders title no longer draws over
+the journey's card; a photo cover grows with its words; a row's last text
+gives way (one that shows something, so a long price with no sale
+shrinks); a testimonial's quote mark isn't cut; the flash sale's title
+wraps; the folding header no longer redraws during layout.
+`CLIENT_APP_RELEASE` is 8 (after 152's 7). Lists whose last items stay under the tab bar (Account, Bouquets, Picks) and the Orders empty
+state under the phone's bar are `wip-page-scroll`'s (ROADMAP 163.7). The
+journey's card offset in right-to-left wasn't reproduced (163.8).
+
+Roadmap 164 (a bound list of products is never an empty section): Leqaa's
+"Picked for you" was bound to featured products, which a real shop may not
+have, so the served page dropped the list and kept its title and "Shop all"
+over nothing. Served now with the shop's best sellers, else its newest, when
+what a list is bound to has nothing (featured, a category, picks, a
+template's sample products); a list with nothing at all goes with its title,
+in the served page and in the app (`heads`, `CLIENT_APP_RELEASE` 8). The apps
+already made from the template are right without any edit. Studio's
+inspector chooses what such a list shows: featured, a category, a
+collection, best sellers or newest. The "Our bouquet" page no longer shows
+the template's sample "Blush Garden": it is one of the shop's products, the
+one the owner picks, else the best seller, else the newest, and goes when
+the shop has none; apps made before are served the same.
+
+Roadmap 165 (Dashboard › Stories): the full-screen stories and story rings
+of an app's home are the app's own data (`app_stories`, migration 0143),
+managed in Dashboard › Stories (and in a Studio project's frame): added,
+changed, switched off, scheduled, reordered and removed, each with its
+photo or video, its words in the main language with Arabic and Turkish
+beside it, the ring's name and icon, its button and what it opens, and its
+category, with a live preview. `GET /pages/{slug}` serves them into the
+Studio elements whose source is the dashboard (Leqaa's hero slides, rings
+and look B's chips by default), in the language asked for, so the apps in
+the stores show the changes without a build; a button with nothing chosen
+opens the shop. An app made from the template has its Studio stories
+copied there once, the first time they're needed, nothing it shows
+changing. Studio says where the stories come from, switches the source and
+draws them. `CLIENT_APP_RELEASE` 8: the viewer shows each story's words,
+button and video, and a button opens the shop on a category; older apps
+show the ring's name and photo and open the shop. Not yet checked on
+Leqaa's and Kech Flora's real projects (ROADMAP 165.10).
+
+Roadmap 167 (Sign out always there, whatever draws the Account): Leqaa's
+and Kech Flora's Account had Sign out under the floating petal bar, where
+it couldn't be reached. Every Account look now ends above a bar that floats
+over it, Sign out asks first and signs out, a Studio page on the Account tab
+without the account screen ends with Sign out and Delete account, and
+Studio has a Sign out element, which every template's account page has.
+Delete account stays in Settings, which every look lists. `CLIENT_APP_RELEASE`
+8 rebuilds the apps; to check on a phone (ROADMAP 167.8).
+
+Roadmap 171 (the Orders tab keeps the tab bar): in Leqaa's app (both
+looks, the petal bar), the Orders tab opened Orders on top, without the bar,
+because a store's orders live under Account (`/account/orders`), not among
+its tab places. Now a tab of the orders, the notifications, the settings,
+the chat or an academy's teachers (Rawaq Academy's Teachers tab) shows its
+screen in its place with the bar under it, in every app type; an order
+opened from there covers the bar and Back returns to the tab. And "How your
+flowers travel" with no order showed a sample journey, "Order placed" lit:
+now it, its card and its heading show only with an order, at that order's
+own step. From `CLIENT_APP_RELEASE` 8. Not yet tried on a phone (ROADMAP
+171.7).
 
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
 payout of the 1st covers the sales paid up to the end of the month before,
@@ -80,51 +208,6 @@ now takes about a minute, so slower runners crossed that point. The checks
 call the cron jobs they test themselves, and the job shows the PHP log when
 it fails. Test only: the plugin stays 0.4.50.
 
-Roadmap 160 (sign-in as the owner's four ways say, and Forgot password): a
-phone number or an email address signs in with a code every time ("…and a
-code": no password anywhere) or with its password ("…and password": the
-code only checks a new account once, which must set a password, and resets
-a forgotten one), never both: the hosted API reads a choice saved with both
-as the password, and App sign-in turns the other off and refuses both on a
-channel. The app shows each way in once with what it signs in with; "Sign
-in with a code instead" is gone. A sign-in opened over the app (the page
-headers' bell, the cart) closes once signed in and opens what it was
-opened for: its screens stayed before, and "Forgot password" tapped there
-opened Notifications. Forgot password opens the reset for the way in use,
-in every sign-in look. The code the phone number starts with follows the
-app: the owner's choice, else the shop's country (where it delivers, else
-its currency), else the owner's, then +90 (a MAD shop delivering to Morocco
-opened on +90). The app's part reaches the stores with
-`CLIENT_APP_RELEASE` 8. Not yet tried on a phone (ROADMAP 160.7).
-
-Roadmap 165 (Dashboard › Stories): the full-screen stories and story rings
-of an app's home are the app's own data (`app_stories`, migration 0143),
-managed in Dashboard › Stories (and in a Studio project's frame): added,
-changed, switched off, scheduled, reordered and removed, each with its
-photo or video, its words in the main language with Arabic and Turkish
-beside it, the ring's name and icon, its button and what it opens, and its
-category, with a live preview. `GET /pages/{slug}` serves them into the
-Studio elements whose source is the dashboard (Leqaa's hero slides, rings
-and look B's chips by default), in the language asked for, so the apps in
-the stores show the changes without a build; a button with nothing chosen
-opens the shop. An app made from the template has its Studio stories
-copied there once, the first time they're needed, nothing it shows
-changing. Studio says where the stories come from, switches the source and
-draws them. `CLIENT_APP_RELEASE` 7: the viewer shows each story's words,
-button and video, and a button opens the shop on a category; older apps
-show the ring's name and photo and open the shop. Not yet checked on
-Leqaa's and Kech Flora's real projects (ROADMAP 165.10).
-
-Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
-the iOS job in its queue before any step runs, the report says so as its
-own reason (`ios_no_mac_runner`, read from the run's jobs), not a build
-failure; the Android app is as before. Builds & downloads tells the owner,
-without technical words and in their language, that it's a temporary
-problem on our side and offers iPhone only; the admin shows the technical
-cause and the team gets one alert per build. Nothing retries it. Every
-iPhone failure now says its cause in plain words with where to fix it,
-and the iPhone app's build output is for the admin only.
-
 Roadmap 152 (Our bouquet's chips and button open the product the owner
 links): in Leqaa's looks and the apps made from them (Kech Flora), the
 bouquet's size chips and "Choose this bouquet" open the shop until the
@@ -136,35 +219,6 @@ chosen, or whose product the shop no longer has, opens the shop: hosted
 it, and the app does the same from `CLIENT_APP_RELEASE` 7 (WooCommerce
 stores' pages too). Not yet tried on a phone (ROADMAP 152.7).
 
-Roadmap 163 (Studio pages on a Samsung's settings): Leqaa's signature
-template, every page of both looks, is drawn by the real app in tests at
-font scales 1.0 to 1.5, display zoom (360, 384, 412 points) and both
-navigation bars, Arabic and English, light and dark. Arabic text in Studio
-pages is never under a 1.5 line, so the Orders title no longer draws over
-the journey's card; a photo cover grows with its words; a row's last text
-gives way (one that shows something, so a long price with no sale
-shrinks); a testimonial's quote mark isn't cut; the flash sale's title
-wraps; the folding header no longer redraws during layout.
-`CLIENT_APP_RELEASE` is 8 (after 152's 7). Lists whose last items stay under the tab bar (Account, Bouquets, Picks) and the Orders empty
-state under the phone's bar are `wip-page-scroll`'s (ROADMAP 163.7). The
-journey's card offset in right-to-left wasn't reproduced (163.8).
-
-Roadmap 158 (every page scrolls to its end, on every phone): the app's own
-screens under a tab bar that floats over them (Leqaa's and Kech Flora's
-petal, the floating pill, the dock, glass off the edges) end their lists
-above it, as Studio pages did: the shop's grid, the Account screens' lists
-and the other tabs' paginated lists, with one shared space (`endRoom`,
-MediaQuery's bottom padding), so their last rows no longer stay under the
-bar on a short phone. Studio pages over the tabs end above the phone's own
-bar (home indicator, Android's navigation bar) and above what is pinned at
-their foot (a sticky "Send flowers"). The sort and choice sheets scroll
-to their last choice on a short phone or with a large font, and the shop's
-next-page spinner lies across the grid, in its middle. `CLIENT_APP_RELEASE`
-is 7. Not yet tried on a phone. Still open: a page a little longer than
-the screen under a folding premium header (Settings on a 320 by 568 phone)
-loses its last lines (ROADMAP 158.3); the staff's and second apps' tabs
-still to take the same space (158.7).
-
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build
@@ -174,6 +228,7 @@ problem on our side and offers iPhone only; the admin shows the technical
 cause and the team gets one alert per build. Nothing retries it. Every
 iPhone failure now says its cause in plain words with where to fix it,
 and the iPhone app's build output is for the admin only.
+
 Roadmap 153 (the card inside the payment page for iyzico and Kashier): as
 with Stripe (144), Yallapp's payment page shows the gateway's own card form
 under the customer's details: iyzico's Checkout Form (the script iyzico
@@ -182,56 +237,6 @@ payment our server starts, read back, confirmed and refunded as before; when
 the form can't load, the gateway's own page, the same payment. Fawaterk and
 PayPal keep their own pages (ROADMAP 153.7, 153.8). Not yet tried with real
 iyzico and Kashier test accounts (ROADMAP 153.9).
-
-Roadmap 159 (sizes automatic, by hand only when asked): Kech Flora's bag
-sat about three quarters of the way across the phone because the bar over
-the stories had a width in points from a corner drag on Studio's phone
-(a drag never became Fill there: the corner measured an empty wrapper), and
-the app keeps a width in points. A cover's top bar is now at its automatic
-size, across the cover with its wordmark between the buttons, in Studio's
-canvas, in what the hosted API serves (so apps already on phones draw it at
-once) and in the app (`CLIENT_APP_RELEASE` 7), whatever width it had, unless
-it was sized by hand. Every element's size is automatic until the owner
-changes it: the size fields and the canvas corners ask first, "Back to
-automatic" (or a double click on a corner) puts the template's size back,
-and a corner dragged up to the edge becomes Fill again. WordPress apps keep
-a size by hand with the next plugin release. Not yet seen on Kech Flora's
-phone.
-
-Roadmap 164 (a bound list of products is never an empty section): Leqaa's
-"Picked for you" was bound to featured products, which a real shop may not
-have, so the served page dropped the list and kept its title and "Shop all"
-over nothing. Served now with the shop's best sellers, else its newest, when
-what a list is bound to has nothing (featured, a category, picks, a
-template's sample products); a list with nothing at all goes with its title,
-in the served page and in the app (`heads`, `CLIENT_APP_RELEASE` 9). The apps
-already made from the template are right without any edit. Studio's
-inspector chooses what such a list shows: featured, a category, a
-collection, best sellers or newest. The "Our bouquet" page no longer shows
-the template's sample "Blush Garden": it is one of the shop's products, the
-one the owner picks, else the best seller, else the newest, and goes when
-the shop has none; apps made before are served the same.
-
-Roadmap 167 (Sign out always there, whatever draws the Account): Leqaa's
-and Kech Flora's Account had Sign out under the floating petal bar, where
-it couldn't be reached. Every Account look now ends above a bar that floats
-over it, Sign out asks first and signs out, a Studio page on the Account tab
-without the account screen ends with Sign out and Delete account, and
-Studio has a Sign out element, which every template's account page has.
-Delete account stays in Settings, which every look lists. `CLIENT_APP_RELEASE`
-10 rebuilds the apps; to check on a phone (ROADMAP 167.8).
-
-Roadmap 171 (the Orders tab keeps the tab bar): in Leqaa's app (both
-looks, the petal bar), the Orders tab opened Orders on top, without the bar,
-because a store's orders live under Account (`/account/orders`), not among
-its tab places. Now a tab of the orders, the notifications, the settings,
-the chat or an academy's teachers (Rawaq Academy's Teachers tab) shows its
-screen in its place with the bar under it, in every app type; an order
-opened from there covers the bar and Back returns to the tab. And "How your
-flowers travel" with no order showed a sample journey, "Order placed" lit:
-now it, its card and its heading show only with an order, at that order's
-own step. From `CLIENT_APP_RELEASE` 11. Not yet tried on a phone (ROADMAP
-171.7).
 
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its
@@ -876,19 +881,6 @@ over its edge with each period's saving, compact cards with the rest
 folded, Studio's plans on a night band, every kind of app each product
 makes, a few questions and a closing band in the night. Only the plans for
 sale show, with their prices from Admin › Plans.
-
-Roadmap 162 (Build your bouquet): a store's owner sets it up in Store ›
-Delivery & offers › Build your bouquet (the flowers' category, the wraps
-from gift add-ons or a category, the cards, whether the wrap and the card
-may be left out, the least and most stems). Leqaa's Build your bouquet
-sections then open it from their Start (`Action.flow: bouquet`): the
-flowers by the stem with the live total, one wrap, the card and its words
-with the occasions' ready messages, the summary, and the bouquet goes in
-the cart as one group of lines (`bouquet` on each line), priced by the
-server as any cart, kept on the order and shown as one in the cart, the
-customer's order, the dashboard and Yallapp Business. A shop that hasn't
-set it up, an older app and WordPress keep today's Start: the shop.
-Leqaa's demo has it on. `CLIENT_APP_RELEASE` is 8 (after 152's 7).
 
 ## To verify against real services before release
 

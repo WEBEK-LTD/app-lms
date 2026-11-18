@@ -1968,7 +1968,7 @@ payment each.
 ## Phase 159: Sizes automatic, by hand only when asked
 
 No migration, no setting. The hosted API serves a cover's top bar across the
-cover as soon as the platform is deployed; `CLIENT_APP_RELEASE` 7 gives every
+cover as soon as the platform is deployed; `CLIENT_APP_RELEASE` 8 gives every
 active app one build with the same rule (4 an hour).
 
 - [ ] **Kech Flora on a phone:** after the deploy, open the app (or switch
@@ -2022,8 +2022,8 @@ the dashboard by the code, once, the first time they're needed.
       app and open it again: the new story is first in
       the hero and the rings, the switched-off one is gone, the words are
       in the phone's language. Its button opens the shop (on the category
-      in an app built with release 7).
-- [ ] **Release 7:** once the apps are rebuilt with release 7, a story's
+      in an app built with release 8).
+- [ ] **Release 8:** once the apps are rebuilt with release 8, a story's
       full-screen view shows its small label, title, line and button words,
       and a video story plays its video.
 
