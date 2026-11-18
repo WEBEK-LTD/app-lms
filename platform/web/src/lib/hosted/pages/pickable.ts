@@ -9,6 +9,8 @@ import { itemResolver } from "./items";
 import { itemSourcesFor } from "../../pages/sources";
 import type { ShopCategories } from "../../studio/shop-categories";
 import { readShopCategories } from "./shop-categories";
+import type { RideClasses } from "../../studio/ride-classes";
+import { rideClassesOf } from "./ride-classes";
 import "./sources";
 import type { Connector } from "../connectors/types";
 import { catalogSettings } from "../../catalog/settings";
@@ -51,6 +53,8 @@ export interface Pickable {
   commerce?: PickableCommerce;
   /** 157 The shop's categories a template's lists of them show (lib/studio/shop-categories.ts), as the app gets them. */
   shopCategories?: ShopCategories;
+  /** 178 The company's vehicle types and currency a template's car classes show (lib/studio/ride-classes.ts), as the app gets them. */
+  rideClasses?: RideClasses;
   /** 165 Dashboard › Stories, for Studio's canvas (the story elements whose source is the dashboard). */
   stories?: import("../../stories/view").StoryView[];
   /** 165 Whether the owner has saved them in Dashboard › Stories: until then the story elements follow this design (and stay editable here). */
@@ -157,7 +161,9 @@ export async function pickableContent(
   const commerce = await pickableCommerce(deps.store, app, now).catch(() => undefined);
   // 157 The shop's categories for the template's lists of them, so the canvas draws them as the app does.
   const shopCategories = await pickableShopCategories(app, deps, now).catch(() => null);
-  return { ...content, ...(commerce ? { commerce } : {}), ...(shopCategories ? { shopCategories } : {}) };
+  // 178 The company's vehicle types for the template's car classes, likewise.
+  const rideClasses = app.backend === "hosted" ? await rideClassesOf(app, deps.store).catch(() => null) : null;
+  return { ...content, ...(commerce ? { commerce } : {}), ...(shopCategories ? { shopCategories } : {}), ...(rideClasses ? { rideClasses } : {}) };
 }
 
 /** 157 The shop's categories as hosted `GET /pages` gives the template's lists of them; none for an app whose pages its own site serves. */

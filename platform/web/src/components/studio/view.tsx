@@ -9,6 +9,7 @@ import { autoSized, sizedByHand } from "@/lib/studio/auto-size";
 import { forTablet } from "@/lib/studio/tablet";
 import { mapTree } from "@/lib/studio/tree";
 import { withShopCategoriesIn } from "@/lib/studio/shop-categories";
+import { withRideClassesIn } from "@/lib/studio/ride-classes";
 import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
 import { splitTabs } from "@/lib/pages/tab-bar";
@@ -213,7 +214,10 @@ export function StudioView(givenProps: ViewProps) {
   const viewProps = storied === givenProps.page ? givenProps : { ...givenProps, page: storied };
   // 157 A template's lists of the shop's categories as the app shows them.
   const shop = viewProps.pickable.shopCategories;
-  const listed = shop ? { ...viewProps, page: { ...viewProps.page, body: withShopCategoriesIn(viewProps.page.body, shop) } } : viewProps;
+  const shopListed = shop ? { ...viewProps, page: { ...viewProps.page, body: withShopCategoriesIn(viewProps.page.body, shop) } } : viewProps;
+  // 178 A template's car classes as the company's vehicle types, as the app shows them.
+  const rides = shopListed.pickable.rideClasses;
+  const listed = rides ? { ...shopListed, page: { ...shopListed.page, body: withRideClassesIn(shopListed.page.body, rides, shopListed.lang) } } : shopListed;
   // 159 At their automatic sizes, as the app draws them (a cover's top bar across the cover), unless sized by hand.
   const body = autoSized(listed.tablet ? (mapTree(listed.page.body, forTablet) ?? listed.page.body) : listed.page.body);
   const props = body === listed.page.body ? listed : { ...listed, page: { ...listed.page, body } };
