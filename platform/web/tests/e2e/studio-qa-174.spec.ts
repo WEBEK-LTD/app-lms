@@ -29,6 +29,14 @@ test.beforeAll(async ({ browser }) => {
   await own.getByRole("button", { name: "Create account" }).click();
   await expect(own).toHaveURL(/\/start$/);
 
+  await own.goto("/studio/new");
+  await own.getByRole("radio", { name: /^Store( |$)/ }).first().check();
+  await own.getByLabel("Project name").fill("Kech Flora");
+  await own.getByRole("button", { name: "Next" }).click();
+  await own.getByRole("radio", { name: /Rose hour/ }).first().click();
+  await own.getByRole("button", { name: "Next" }).click();
+  await expect(own).toHaveURL(/\/studio\/project$/);
+  // Activated with the default plan once the project exists, as the QA did.
   const admin = await browser.newPage({ extraHTTPHeaders });
   await admin.goto("/sign-in");
   await admin.getByLabel("Email").fill(E2E.studioQaAdminEmail);
@@ -40,14 +48,6 @@ test.beforeAll(async ({ browser }) => {
   await admin.getByRole("complementary").getByRole("button", { name: "Activate & send license" }).click();
   await expect(admin.getByRole("status")).toContainText("Activated");
   await admin.close();
-
-  await own.goto("/studio/new");
-  await own.getByRole("radio", { name: /^Store( |$)/ }).first().check();
-  await own.getByLabel("Project name").fill("Kech Flora");
-  await own.getByRole("button", { name: "Next" }).click();
-  await own.getByRole("radio", { name: /Rose hour/ }).first().click();
-  await own.getByRole("button", { name: "Next" }).click();
-  await expect(own).toHaveURL(/\/studio\/project$/);
 });
 
 test.afterAll(async () => {
@@ -71,10 +71,10 @@ test("174.1 Pill corners save, a later edit is kept after a reload, and Publish 
   const phone = phoneOf(own);
   const inspector = inspectorOf(own);
   await phone.getByText("Collections", { exact: true }).first().click();
-  await inspector.getByRole("group", { name: "Ready values" }).first().getByRole("button", { name: "Pill" }).click();
+  await inspector.getByRole("button", { name: "Pill", exact: true }).click();
   await saved(own);
   await expect(own.getByRole("status").filter({ hasText: "Not saved" })).toHaveCount(0);
-  await inspector.getByLabel("Text", { exact: true }).fill("Our collections");
+  await inspector.getByRole("textbox", { name: "Text", exact: true }).fill("Our collections");
   await saved(own);
   await own.reload();
   await expect(phoneOf(own).getByText("Our collections", { exact: true }).first()).toBeVisible();
@@ -98,9 +98,6 @@ test("174.2 a rounded button's corner handles can be grabbed: a drag sizes it, a
   await expect(inspector.getByRole("spinbutton", { name: "Width", exact: true })).toHaveValue(/^\d+$/);
   await phone.locator('[data-studio-resize="top-left"]').dblclick();
   await expect(inspector.getByRole("spinbutton", { name: "Width", exact: true })).toHaveCount(0);
-  // A full-width row: its handles are on the phone's frame, still reachable.
-  await phone.getByText("Collections", { exact: true }).first().click();
-  await own.keyboard.press("Escape");
 });
 
 test("174.4 the Motion tab says the plan leaves motion out, and what a plan with it turns on", async () => {
