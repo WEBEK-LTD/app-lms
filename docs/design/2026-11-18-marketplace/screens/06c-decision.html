@@ -45,16 +45,16 @@
 <div id="app"></div>
 <script>
 const v = new URLSearchParams(location.search).get("v") || "card";
-const amount = money(161.55);
+const amount = money(153.25);
 const D = {
   card: { icon: "credit_card", title: t("We're refunding your card", "سنردّ المبلغ إلى بطاقتك"), amount,
     text: t("For the cheese and the bananas. The refund leaves today; your bank shows it in 5 to 10 working days.", "عن الجبنة والموز. يُرسَل المبلغ اليوم، ويظهر في حسابك خلال 5 إلى 10 أيام عمل حسب مصرفك."),
-    facts: [[t("To", "إلى"), t("Card •• 4242", "البطاقة •• 4242")], [t("Order total now", "إجمالي الطلب الآن"), money(254)]],
-    step: t("Refund to card · EGP 161.55", "استرداد إلى البطاقة · 161.55 ج.م"), main: t("Done", "تم"), second: t("Reply", "رد") },
+    facts: [[t("To", "إلى"), t("Card •• 4242", "البطاقة •• 4242")], [t("Order total now", "إجمالي الطلب الآن"), money(236)]],
+    step: t("Refund to card · EGP 153.25", "استرداد إلى البطاقة · 153.25 ج.م"), main: t("Done", "تم"), second: t("Reply", "رد") },
   wallet: { icon: "account_balance_wallet", title: t("It's in your wallet", "أُضيف المبلغ إلى محفظتك"), amount,
     text: t("For the cheese and the bananas, ready now for your next order at any place in Zad.", "عن الجبنة والموز، وهو متاح الآن لطلبك القادم من أي متجر في زاد."),
-    facts: [[t("Wallet balance", "رصيد المحفظة"), money(211.55)], [t("Added", "أُضيف"), t("Today 20:41", "اليوم 20:41")]],
-    step: t("Refund to wallet · EGP 161.55", "استرداد إلى المحفظة · 161.55 ج.م"), main: t("Open wallet", "فتح المحفظة"), second: t("Reply", "رد") },
+    facts: [[t("Wallet balance", "رصيد المحفظة"), money(203.25)], [t("Added", "أُضيف"), t("Today 20:41", "اليوم 20:41")]],
+    step: t("Refund to wallet · EGP 153.25", "استرداد إلى المحفظة · 153.25 ج.م"), main: t("Open wallet", "فتح المحفظة"), second: t("Reply", "رد") },
   coupon: { icon: "confirmation_number", title: t("A coupon for your next order", "قسيمة لطلبك القادم"), amount: money(175, { whole: true }),
     text: t("Off your next order at Zad Market, with no smallest order. It's already in your coupons.", "خصم على طلبك القادم من زاد ماركت دون حد أدنى للطلب، وقد أُضيفت إلى قسائمك.") , coupon: true,
     facts: [[t("Valid until", "صالحة حتى"), t("18 December", "18 ديسمبر")], [t("Use", "الاستخدام"), t("Once", "مرة واحدة")]],
@@ -88,6 +88,7 @@ mount(`
       <div class="st"><span class="d now">${icon(D.declined ? "gavel" : "check")}</span><div><b>${D.step}</b><span>${t("Today 20:41", "اليوم 20:41")}</span></div></div>
     </div>
   </div>
+  <div class="small muted" style="position:absolute;left:16px;right:16px;bottom:100px;text-align:center">${icon("info", "", "font-size:15px")} ${t("Something else wrong with this order? You can open one new complaint on it.", "مشكلة أخرى في هذا الطلب؟ يمكنك فتح شكوى جديدة واحدة عليه.")}</div>
   <div class="dock">
     <div class="btn ghost">${icon(D.declined ? "close" : "chat")}${D.second}</div>
     <div class="btn" style="flex:1.4">${D.main}</div>

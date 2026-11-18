@@ -33,6 +33,8 @@
   .meter { height: 8px; border-radius: 4px; background: var(--field); position: relative; margin: 12px 0 4px; }
   .meter i { position: absolute; inset-inline-start: 0; top: 0; bottom: 0; width: 95%; border-radius: 4px; background: var(--accent); }
   .meter em { position: absolute; top: -4px; bottom: -4px; inset-inline-start: 91%; width: 2px; background: var(--amber); }
+  .refund { display: flex; gap: 8px; align-items: center; margin-top: 10px; padding: 9px 11px; border-radius: 14px; background: var(--ok-soft); color: var(--ok); font-size: 12.5px; font-weight: 600; }
+  .refund .i { font-size: 19px; }
   .pay { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; color: var(--muted); }
 </style>
 </head>
@@ -77,20 +79,18 @@ mount(`
     </div>
 
     <div class="final">
-      <div class="row"><span class="i f" style="color:var(--accent)">scale</span><div class="grow" style="font-weight:800;font-size:14.5px">${t("Weighed and final", "تم الوزن والسعر نهائي")}</div><span class="pill ok" style="height:24px;font-size:11px">${icon("verified", "f")}${t("Within 10%", "ضمن 10%")}</span></div>
+      <div class="row"><span class="i f" style="color:var(--accent)">scale</span><div class="grow" style="font-weight:800;font-size:14.5px">${t("Weighed and final", "تم الوزن والسعر نهائي")}</div><span class="pill ok" style="height:24px;font-size:11px">${icon("verified", "f")}${t("Never more than you paid", "لا يزيد عما دفعت")}</span></div>
       <div class="cmp">
-        <div class="b"><span>${t("You were told", "التقدير")}</span><b class="strike" style="color:var(--muted)">${money(396)}</b></div>
-        <div class="b f"><span>${t("Final price", "السعر النهائي")}</span><b>${money(415.55)}</b></div>
+        <div class="b"><span>${t("You paid", "دفعت")}</span><b style="color:var(--muted)">${money(396)}</b></div>
+        <div class="b f"><span>${t("Final price", "السعر النهائي")}</span><b>${money(389.25)}</b></div>
       </div>
-      <div class="meter"><i></i><em></em></div>
-      <div class="small muted">${t("Weighed items came to", "بلغت الأصناف الموزونة")} ${money(161.55)} ${t("of the limit of", "من حد")} ${money(170.5)}</div>
+      <div class="refund">${icon("undo", "f")}<span><b>${money(6.75)}</b> ${t("is on its way back to card •• 4242, by itself.", "في طريقه إلى البطاقة •• 4242 تلقائيًا.")}</span></div>
       <div style="margin-top:6px">
-        <div class="ln"><span>${t("White cheese", "جبنة بيضاء")} · ${grams(780)} <span class="faint">${t("not", "بدل")} ${grams(750)}</span></span><b class="up">+${money(4.8)}</b></div>
-        <div class="ln"><span>${t("Bananas", "موز")} · ${grams(1050)} <span class="faint">${t("not", "بدل")} ${grams(1000)}</span></span><b class="up">+${money(1.75)}</b></div>
-        <div class="ln"><span>${t("Short-grain rice ×2, you accepted", "أرز قصير الحبة ×2، بموافقتك")}</span><b class="up">+${money(8)}</b></div>
-        <div class="ln"><span>${t("Eggs, 15 ×2, your choice", "بيض 15 ×2، باختيارك")}</span><b class="up">+${money(5)}</b></div>
+        <div class="ln"><span>${t("White cheese", "جبنة بيضاء")} · ${grams(780)} <span class="faint">${t("not", "بدل")} ${grams(750)}</span></span><b>${t("You pay the estimate", "تدفع التقدير")}</b></div>
+        <div class="ln"><span>${t("Bananas", "موز")} · ${grams(950)} <span class="faint">${t("not", "بدل")} ${grams(1000)}</span></span><b class="dn">−${money(1.75)}</b></div>
+        <div class="ln"><span>${t("Short-grain rice ×2, you accepted", "أرز قصير الحبة ×2، بموافقتك")}</span><b>${t("Same price", "السعر نفسه")}</b></div>
+        <div class="ln"><span>${t("Eggs, 15 ×2, your choice", "بيض 15 ×2، باختيارك")}</span><b class="dn">−${money(5)}</b></div>
       </div>
-      <div class="pay">${icon("credit_card", "", "font-size:18px")}<span>${t("Card •• 4242 is charged the final price when it arrives.", "تُخصم القيمة النهائية من البطاقة •• 4242 عند الوصول.")}</span></div>
     </div>
     <div class="row" style="margin-top:12px;padding:12px 14px;border-radius:18px;background:var(--field)">${icon("report", "", "color:var(--muted)")}<span class="grow" style="font-size:13px;font-weight:600">${t("Something wrong with this order?", "مشكلة في هذا الطلب؟")}</span><span class="see">${t("Tell us", "أخبرنا")}</span></div>
   </div>

@@ -32,7 +32,7 @@
 <body>
 <header>
   <h1>Zad marketplace screens</h1>
-  <p>Phase 115: the supermarket inside the marketplace, the vendor app and the complaints dashboard, for the owner's approval. Each screen in English and Arabic, light and dark. Drawn in Zad's "Market arches" look (130.3). Assumptions to confirm are in <a href="README.md">README.md</a>; photo credits in <a href="CREDITS.md">CREDITS.md</a>.</p>
+  <p>Phase 115: the supermarket inside the marketplace, the vendor app and the complaints dashboard, for the owner's approval. Each screen in English and Arabic, light and dark. Drawn in Zad's "Market arches" look (130.3). Screens 1–5 were approved on 18 November. The owner's decisions are in <a href="README.md">README.md</a>; photo credits in <a href="CREDITS.md">CREDITS.md</a>.</p>
   <nav id="nav"></nav>
 </header>
 <main id="sheet"></main>
@@ -78,6 +78,10 @@ for (const g of groups) {
     html += `</section>`;
   }
 }
+html += `<section id="existing"><h2>Today's pages<small>for comparison</small></h2><p class="note">The dashboard's complaints pages as they are now (a local run on Zad's demo), and the app's committed renders of Zad.</p><div class="row wide">` +
+  ["existing/dashboard-complaints-queue-en.png", "existing/dashboard-complaints-queue-ar.png", "existing/dashboard-complaints-queue-en-dark.png", "existing/dashboard-complaint-en.png"].map((f) => `<figure><a href="${f}"><img loading="lazy" src="${f}" alt=""></a><figcaption>${f.split("/")[1]}</figcaption></figure>`).join("") +
+  `</div><div class="row">` + ["zad-home.png", "zad-market.png", "zad-tracking.png"].map((f) => `<figure><img loading="lazy" src="../../../platform/web/public/screens/${f}" alt=""><figcaption>${f}</figcaption></figure>`).join("") + `</div></section>`;
+nav += `<a href="#existing">Today's pages</a>`;
 document.getElementById("nav").innerHTML = nav;
 document.getElementById("sheet").innerHTML = html;
 </script>

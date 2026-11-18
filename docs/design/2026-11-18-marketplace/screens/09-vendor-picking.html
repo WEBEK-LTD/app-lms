@@ -35,7 +35,7 @@
   .wbox .caret { display: inline-block; width: 2px; height: 22px; background: var(--accent); vertical-align: -3px; margin-inline-start: 2px; }
   .wprice { flex: 1; border-radius: 16px; background: var(--poster); color: #fff; padding: 8px 12px; }
   .wprice small { font-size: 10.5px; opacity: .75; font-weight: 700; display: block; }
-  .wprice b { display: block; font: 800 17px/1.3 "Lexend", sans-serif; }
+  .wprice b { display: block; font: 800 15px/1.3 "Lexend", sans-serif; white-space: nowrap; }
   .wprice span { display: block; font-size: 10.5px; color: #FFD27A; font-weight: 700; }
   .keys { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-top: 8px; direction: ltr; }
   .keys > span { height: 34px; border-radius: 10px; background: var(--field); display: grid; place-items: center; font: 700 14px/1 "Lexend", sans-serif; }
@@ -74,7 +74,7 @@ mount(`
       </div>
       <div class="weigh">
         <div class="wbox"><small>${t("Actual weight", "الوزن الفعلي")}</small><b>780<em>${t("g", "غ")}</em><span class="caret"></span></b></div>
-        <div class="wprice"><small>${t("Price", "السعر")}</small><b>${money(124.8)}</b><span>${t("up to", "حتى")} ${grams(825)} · ${money(132)}</span></div>
+        <div class="wprice"><small>${t("Scale price", "سعر الميزان")} ${money(124.8)}</small><b>${t("Charged", "يُحصَّل")} ${money(120)}</b><span>${t("Card: never above the estimate", "بطاقة: لا يزيد عن التقدير")}</span></div>
       </div>
       <div class="keys"><span>7</span><span>8</span><span>0</span><span>⌫</span><span class="scale">${icon("scale", "f", "font-size:16px")}${t("From scale", "من الميزان")}</span></div>
       <div class="pacts">
@@ -98,7 +98,7 @@ mount(`
     <div class="pk done">
       <div class="pr">
         <div class="ph" style="${bg("bananas.jpg")}"></div>
-        <div class="grow"><div class="nm">${t("Bananas", "موز")}</div><div class="ask">${t("Weighed", "الوزن")} <b>${grams(1050)}</b> ${t("of", "من")} ${grams(1000)} · ${money(36.75)}</div></div>
+        <div class="grow"><div class="nm">${t("Bananas", "موز")}</div><div class="ask">${t("Weighed", "الوزن")} <b>${grams(950)}</b> ${t("of", "من")} ${grams(1000)} · ${money(33.25)}</div></div>
         <span class="st ok">${icon("check")}</span>
       </div>
     </div>

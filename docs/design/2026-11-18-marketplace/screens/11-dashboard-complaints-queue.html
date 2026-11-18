@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
 <link rel="stylesheet" href="../kit/dash.css">
 <script src="../kit/kit.js"></script>
+<script src="../kit/studio-shell.js"></script>
 <style>
   .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
   .stat { padding: 14px 16px; }
@@ -13,11 +14,11 @@
   .stat .s { font-size: 12px; color: var(--muted); margin-top: 2px; }
   .split { display: flex; gap: 16px; margin-top: 16px; align-items: flex-start; }
   .queue { flex: 1; min-width: 0; overflow: hidden; }
-  .tabs { display: flex; gap: 4px; padding: 10px 12px 0; border-bottom: 1px solid var(--line); }
-  .tab { padding: 8px 12px 11px; font-size: 13.5px; font-weight: 600; color: var(--muted); position: relative; display: flex; gap: 6px; align-items: center; }
+  .tabs { display: flex; gap: 8px; padding: 14px 14px 12px; border-bottom: 1px solid var(--line); }
+  .tab { height: 34px; padding: 0 14px; border-radius: 17px; border: 1px solid var(--line); font-size: 13.5px; font-weight: 600; color: var(--midnight); display: flex; gap: 6px; align-items: center; }
   .tab b { font-size: 11.5px; min-width: 20px; height: 20px; border-radius: 10px; background: var(--step); display: grid; place-items: center; padding: 0 6px; color: var(--ink-2); }
-  .tab.on { color: var(--midnight); }
-  .tab.on::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 3px; border-radius: 2px; background: var(--midnight); }
+  .tab.on { background: var(--midnight); color: var(--ivory); border-color: var(--midnight); }
+  :root[data-theme="dark"] .tab.on { color: #0E0D24; }
   .tab.on b { background: var(--ember); color: #fff; }
   .tools { display: flex; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line-soft); }
   .search { flex: 1; height: 36px; border-radius: 10px; border: 1px solid var(--line); display: flex; align-items: center; gap: 8px; padding: 0 10px; color: var(--faint); font-size: 13px; background: var(--sand); }
@@ -76,7 +77,7 @@ const wait = (m) => { const cls = m >= 60 ? "t-bad" : m >= 15 ? "t-warn" : "t-ok
 const rows = [
   { ref: "C-1091", who: t("Tarek", "طارق"), ord: "#4802", place: t("Nile Pizza Co.", "نايل بيتزا"), reason: t("Wrong items", "أصناف خاطئة"), what: t("1 item · 1 photo", "صنف واحد · صورة"), st: ["c-new", t("New", "جديدة")], as: null, open: 72, last: 72, amt: 190, sel: true },
   { ref: "C-1094", who: t("Hany", "هاني"), ord: "#4817", place: t("Bab El Sharq Grill", "مشويات باب الشرق"), reason: t("Late", "تأخر"), what: t("The whole order", "الطلب كله"), st: ["c-new", t("New", "جديدة")], as: null, open: 18, last: 18, amt: 320 },
-  { ref: "C-1093", who: t("Mona", "منى"), ord: "#4821", place: t("Zad Market", "زاد ماركت"), reason: t("Quality", "الجودة"), what: t("2 items · 2 photos", "صنفان · صورتان"), st: ["c-review", t("In review", "قيد المراجعة")], as: [t("N", "ن"), C.n, t("Nour", "نور")], open: 41, last: 3, amt: 161.55 },
+  { ref: "C-1093", who: t("Mona", "منى"), ord: "#4821", place: t("Zad Market", "زاد ماركت"), reason: t("Quality", "الجودة"), what: t("2 items · 2 photos", "صنفان · صورتان"), st: ["c-review", t("In review", "قيد المراجعة")], as: [t("N", "ن"), C.n, t("Nour", "نور")], open: 41, last: 3, amt: 153.25 },
   { ref: "C-1090", who: t("Salma", "سلمى"), ord: "#4799", place: t("Zad Market", "زاد ماركت"), reason: t("Missing items", "أصناف ناقصة"), what: t("3 items", "3 أصناف"), st: ["c-review", t("In review", "قيد المراجعة")], as: [t("O", "ع"), C.o, t("Omar", "عمر")], open: 124, last: 9, amt: 96 },
   { ref: "C-1088", who: t("Youssef", "يوسف"), ord: "#4785", place: t("Zad Market", "زاد ماركت"), reason: t("Charged wrong", "خطأ في المبلغ"), what: t("The whole order", "الطلب كله"), st: ["c-review", t("In review", "قيد المراجعة")], as: [t("N", "ن"), C.n, t("Nour", "نور")], open: 186, last: 26, amt: 42.5 },
   { ref: "C-1087", who: t("Rana", "رنا"), ord: "#4770", place: t("Bab El Sharq Grill", "مشويات باب الشرق"), reason: t("The courier", "المندوب"), what: t("The whole order", "الطلب كله"), st: ["c-review", t("In review", "قيد المراجعة")], as: [t("R", "ر"), C.r, t("Rania", "رانيا")], open: 247, last: 48, amt: 0 },
@@ -100,9 +101,7 @@ const replies = AR
   ? ["نعتذر عن ذلك. نراجع الأمر الآن وسنعود إليك قريبًا.", "هل يمكنك إرسال صورة للمنتجات لنحل الأمر بسرعة؟", "أضفنا المبلغ إلى محفظتك، ويمكنك استخدامه في طلبك القادم.", "أعدنا المبلغ إلى وسيلة الدفع، وقد يستغرق ظهوره بضعة أيام.", "شكرًا لإخبارنا. أبلغنا المتجر حتى لا يتكرر ذلك."]
   : ["We're sorry about this. We're looking into it now and will come back to you shortly.", "Could you send a photo of the items, so we can sort this out quickly?", "We've added the amount to your wallet. You can use it on your next order.", "We've refunded the amount to your payment. It can take a few days to show.", "Thank you for telling us. We've passed this on so it doesn't happen again."];
 mount(`
-<div class="shell">
-  ${side}
-  <main class="main">
+${studioShell(t("Complaints", "الشكاوى"), `
     <div class="row"><div class="grow"><h1>${t("Complaints", "الشكاوى")}</h1></div><span class="btn">${icon("download")}${t("Export", "تصدير")}</span><span class="btn">${icon("bolt")}${t("Ready replies", "ردود جاهزة")}</span></div>
     <p class="intro">${t("Customers open a ticket on an order from when it's placed until 48 hours after it arrives. Your support team answers here and decides; the places read only what you share with them.", "يفتح العملاء شكوى على الطلب من لحظة إنشائه حتى 48 ساعة بعد وصوله. يرد فريق الدعم لديك هنا ويتخذ القرار، ولا ترى المحالّ إلا ما تشاركه معها.")}</p>
     <div class="stats">
@@ -134,8 +133,7 @@ mount(`
         <div class="row" style="margin-top:10px"><span class="take">${icon("person_add", "", "font-size:15px")}${t("Take it", "أتولاها")}</span><span class="grow"></span><span class="btn">${t("Open", "فتح")}</span><span class="btn dark">${icon("send", "flip", "font-size:17px")}${t("Send", "إرسال")}</span></div>
       </aside>
     </div>
-  </main>
-</div>`);
+`)}`);
 </script>
 </body>
 </html>

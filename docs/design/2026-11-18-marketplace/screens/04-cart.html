@@ -7,14 +7,14 @@
 <link rel="stylesheet" href="../kit/kit.css">
 <script src="../kit/kit.js"></script>
 <style>
-  .policy { margin: 4px 16px 0; padding: 12px; border-radius: 22px; background: var(--surface); box-shadow: var(--shadow); }
-  .seg { display: flex; background: var(--field); border-radius: 14px; padding: 3px; margin-top: 10px; }
+  .policy { margin: 2px 16px 0; padding: 10px 12px; border-radius: 22px; background: var(--surface); box-shadow: var(--shadow); }
+  .seg { display: flex; background: var(--field); border-radius: 14px; padding: 3px; margin-top: 8px; }
   .seg span { flex: 1; height: 36px; border-radius: 11px; display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: 700; font-size: 12.5px; color: var(--muted); }
   .seg span .i { font-size: 17px; }
   .seg span.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
   :root[data-theme="dark"] .seg span.on { background: var(--tint); color: var(--tint-ink); }
-  .items { margin: 12px 16px 0; background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); padding: 4px 12px; }
-  .it { display: flex; gap: 11px; padding: 10px 0; border-bottom: 1px solid var(--line-2); }
+  .items { margin: 8px 16px 0; background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); padding: 4px 12px; }
+  .it { display: flex; gap: 11px; padding: 7px 0; border-bottom: 1px solid var(--line-2); }
   .it:last-child { border-bottom: 0; }
   .it .ph { width: 56px; height: 56px; border-radius: 15px; flex: none; }
   .it .nm { font-weight: 700; font-size: 13.5px; }
@@ -31,11 +31,14 @@
   .mini-step { display: inline-flex; align-items: center; gap: 0; height: 30px; border-radius: 15px; border: 1px solid var(--line); margin-top: 8px; }
   .mini-step .i { width: 30px; text-align: center; font-size: 17px; color: var(--accent); }
   .mini-step b { font: 700 12px/1 var(--display); min-width: 40px; text-align: center; }
-  .sumcard { margin: 12px 16px 0; padding: 12px 14px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); }
+  .sumcard { margin: 10px 16px 0; padding: 10px 14px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); }
   .sl { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
   .sl b { font: 700 13px/1.2 var(--display); }
   .total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 8px; margin-top: 6px; border-top: 1px dashed var(--line); }
   .total b { font: 800 21px/1 "Lexend", sans-serif; letter-spacing: -.5px; }
+  .paynote { display: flex; gap: 8px; margin-top: 9px; padding: 8px 10px; border-radius: 14px; background: var(--tint); color: var(--tint-ink); font-size: 11.5px; line-height: 1.35; }
+  .paynote .i { font-size: 18px; }
+  .paynote .faint { color: inherit; opacity: .75; }
   .dock { padding: 10px 16px 28px; }
 </style>
 </head>
@@ -85,7 +88,8 @@ mount(`
     <div class="sumcard">
       <div class="sl"><span class="muted">${t("Items, estimated", "الأصناف، تقديريًا")}</span><b>${money(396)}</b></div>
       <div class="sl"><span class="muted">${t("Delivery", "التوصيل")} <span class="pill tint" style="height:20px;font-size:10.5px;padding:0 7px;margin-inline-start:4px">${icon("bolt", "f")}${t("Club", "النادي")}</span></span><b><span class="strike" style="font-weight:600;margin-inline-end:5px">${money(25)}</span>${t("Free", "مجاني")}</b></div>
-      <div class="total"><div><div style="font-weight:800">${t("Estimated total", "الإجمالي التقديري")}</div><div class="small muted" style="margin-top:2px">${t("At most", "بحد أقصى")} ${money(411.5)} ${t("after weighing", "بعد الوزن")}</div></div><b>${money(396)}</b></div>
+      <div class="total"><div><div style="font-weight:800">${t("Estimated total", "الإجمالي التقديري")}</div></div><b>${money(396)}</b></div>
+      <div class="paynote">${icon("credit_card", "f")}<div><b>${t("Card •• 4242", "البطاقة •• 4242")}</b> · ${t("You pay the estimate now; if it weighs less, we refund the difference.", "تدفع السعر التقديري الآن، وإذا جاء الوزن أقل نردّ إليك الفرق.")}<div class="faint" style="margin-top:2px">${t("In cash, you'd pay at most", "ونقدًا تدفع بحد أقصى")} ${money(411.5)}</div></div></div>
     </div>
   </div>
   <div class="dock">
