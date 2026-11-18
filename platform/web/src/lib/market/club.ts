@@ -76,7 +76,9 @@ export function memberState(member: MarketClubMember, now: Date): MemberState {
   if (member.status === "pending") return member.paidUntil && member.paidUntil > now ? "active" : "waiting";
   if (member.status === "expired" || !member.paidUntil || member.paidUntil <= now) return "ended";
   if (member.status === "cancelled") return "ending";
-  return (member.periods ?? 0) > 1 ? "renewed" : "active";
+  // Renewed: a period paid after the one they joined with (also for members from before the count was kept).
+  const paidAgain = !!member.lastPaidAt && !!member.startedAt && member.lastPaidAt.getTime() - member.startedAt.getTime() > 86_400_000;
+  return (member.periods ?? 0) > 1 || paidAgain ? "renewed" : "active";
 }
 
 /**

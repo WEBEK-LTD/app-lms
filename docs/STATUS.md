@@ -8,6 +8,25 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 115.60–115.63 (the wallet and the club, decisions D5 and D6,
+designs 07a and 07b): the wallet is credit only, filled by refunds and the
+owner's credit, paying all or part of an order, never expiring and never
+cashed out, each entry saying where its amount came from and went; its
+balance never goes below zero with two orders at once, on memory and
+MariaDB. The owner's Wallets page adds credit and takes it back with the
+reason the customer reads (the team's activity, the admin's audit), and
+Club members lists each member's plan, end date and whether they renewed
+or ended. A member sees what the club saved them (delivery not paid and
+members' offers, this month and since joining); the club renews by its
+reminder (`club_renewal`, 3 days before and on the last day, each once)
+and its payment link on the app's payment page, from the current end or
+from the day it's paid when it already ended; nothing is charged by
+itself. Migration 0147 (drizzle-kit). Contract: `WalletEntry`'s sources,
+`ClubPlan`'s numbers, `ClubMembership` `started_at`, `remind_at` and
+`savings`, `POST /me/club/renew`, the reminder's `url`. Still to check on
+a real phone: the reminder's push opening the club, its link paying on a
+real gateway's page and coming back, the wallet switch at checkout.
+
 Roadmap 115.21–115.23 (the marketplace audit's three bugs,
 docs/plans/2026-11-18-marketplace-audit.md): orders for later reach their
 vendor from the frequent job at their time less the vendor's preparation
@@ -1196,6 +1215,13 @@ test environment:
   than the proposal said. To lift in Stage 1's or Stage 4's flow work.
 - 115.46 The barcode camera (`mobile_scanner`) is tested only typed by
   hand; the camera itself needs a real phone.
+- 115.61 Members' offers count in a member's savings when the order
+  carries the offer's code; an automatic members-only offer (no code) is
+  taken off the price but not counted there.
+- 115.62 The club renews by payment link only: no gateway in the repo
+  charges a saved card, so there's no automatic renewal (D6).
+- 115.63 The owner's wallets and members are in the dashboard only, not
+  yet in the Owner API (`owner.yaml`) for Yallapp Business.
 - 138 An account's limit can be passed by one or two apps when several
   new apps are given accounts in the same instant (each app still gets
   exactly one account, written once). Assignment reads the settings
