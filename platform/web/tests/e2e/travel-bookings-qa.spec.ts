@@ -56,17 +56,17 @@ test.beforeAll(async ({ browser }, info) => {
   await own.goto("/dashboard/setup?step=website");
   api = (await own.locator("code").filter({ hasText: "/api/app/" }).textContent())!.trim();
 
-  // Travel on Studio plan 1, and the plan on the app.
-  await admin.goto("/admin/plans?family=studio&plan=studio_1");
-  const features = admin.getByRole("form", { name: "Studio plan 1: the plan" });
+  // Travel on Studio plan 3 (the other specs' plans stay as they are), and the plan on the app.
+  await admin.goto("/admin/plans?family=studio&plan=studio_3");
+  const features = admin.getByRole("form", { name: "Studio plan 3: the plan" });
   await features.locator('input[name="features"][value="travel"]').check();
   await features.getByRole("button", { name: "Save plan" }).click();
-  await expect(features.getByRole("status").or(features.getByText(/saved/i)).first()).toBeVisible();
+  await expect(features.getByText(/^Studio plan 3 saved/)).toBeVisible();
   await admin.goto(`/admin/clients?q=${encodeURIComponent(client.email)}`);
   await admin.getByRole("link", { name: client.name, exact: true }).click();
   await admin.waitForURL(/\/admin\/clients\/[0-9a-f-]{36}$/);
   const plan = admin.getByRole("region", { name: "Plan and license" }).first();
-  await plan.getByLabel("Plan").selectOption("studio_1");
+  await plan.getByLabel("Plan").selectOption("studio_3");
   await plan.getByRole("button", { name: "Activate & send license" }).click();
   await expect(admin.getByRole("status")).toContainText("Activated");
   await admin.close();
@@ -103,6 +103,7 @@ test("180.11 Studio's canvas: signed out first, the question; signed in, the nex
 });
 
 test("a customer finds a stay, prices a room and books it; the trip is theirs", async ({ request }) => {
+  test.setTimeout(90_000);
   const call = (method: "GET" | "POST", path: string, opts: { data?: unknown; token?: string; headers?: Record<string, string> } = {}) =>
     request.fetch(`${api}${path}`, {
       method,
@@ -116,8 +117,10 @@ test("a customer finds a stay, prices a room and books it; the trip is theirs", 
   expect(token).toBeTruthy();
 
   const stay = { check_in: day(30), check_out: day(33), guests: "2" };
+  // The plan's Travel reaches the hosted API once its settings' cache (30 seconds per server instance) is read again.
+  await expect.poll(async () => (await call("GET", `/travel/hotels?${new URLSearchParams(stay)}`, { token })).status(), { timeout: 40_000, intervals: [2_000] }).toBe(200);
   const found = await call("GET", `/travel/hotels?${new URLSearchParams(stay)}`, { token });
-  expect(found.status()).toBe(200);
+  expect(found.status(), await found.text()).toBe(200);
   const hotels = (await found.json()) as { items: { id: number; name: string; currency: string; pay_at_hotel: boolean; price: { total: string } | null }[] };
   // A stay paid at the hotel: the new app has no card gateway yet.
   const hotel = hotels.items.find((h) => h.price && h.pay_at_hotel)!;
