@@ -17,6 +17,8 @@ const client = { name: "Leqaa Links", email: `bouquet-links-${suffix}@studio.tes
 const extraHTTPHeaders = { "x-forwarded-for": "198.51.100.152" };
 let own: Page;
 let api = "";
+/** The preview's token: the app's API answers a project with no plan yet only to its preview, here what is published. */
+let previewToken = "";
 const problems: string[] = [];
 
 interface Node {
@@ -64,27 +66,35 @@ test.beforeAll(async ({ browser }) => {
   await expect(own).toHaveURL(/\/studio\/project$/);
   await own.goto("/studio/project/setup?step=website");
   api = (await own.locator("code").filter({ hasText: "/api/app/" }).first().textContent())!.trim();
+  await own.goto("/studio/project/preview?pages=published");
+  const src = (await own.locator("iframe[data-testid=app-preview]").getAttribute("src"))!;
+  previewToken = new URL(src, E2E.baseURL).searchParams.get("token")!;
 });
+
+/** "Choose this bouquet" in the page's layers. */
+const chooseLayer = () => own.locator("[data-studio-layer]").getByRole("button", { name: "Choose this bouquet", exact: true });
+const asApp = () => ({ headers: { "x-yallapp-preview": previewToken } });
 
 test.afterAll(async () => {
   await own.context().close();
 });
 
 test("152 Choose this bouquet linked to one of the shop's products in Studio, published, opens it in the app; the sizes not linked, the shop", async ({ request }) => {
-  // A product of the shop's own.
+  // A product of the shop's own, next to the template's samples.
   await own.goto("/studio/project/catalog/new");
   await own.getByLabel("Name", { exact: true }).fill("Blush Peonies");
   await own.getByLabel(/^Price \(/).fill("900");
   await own.getByRole("button", { name: "Add product" }).click();
-  await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Blush Peonies”.");
-  const listed = await request.get(`${api}/store/products?platform=android`);
+  // Listed with the template's sample bouquets.
+  await expect(own.getByRole("button", { name: "Blush Peonies", exact: true })).toBeVisible();
+  const listed = await request.get(`${api}/store/products?platform=android&per_page=50`, asApp());
   expect(listed.status()).toBe(200);
   const id = String(((await listed.json()) as { items: { id: number; name: string }[] }).items.find((p) => p.name === "Blush Peonies")!.id);
 
   // Our bouquet: "Choose this bouquet" opens the shop, as the template has it.
   await own.goto("/studio/editor?page=bouquet");
   const inspector = own.getByRole("complementary", { name: "Design" });
-  await own.locator("[data-studio-layer]").filter({ hasText: "Choose this bouquet" }).getByRole("button", { name: /Choose this bouquet/ }).click();
+  await chooseLayer().click();
   const tap = inspector.locator("select").filter({ has: own.locator('option[value="item"]') });
   await expect(tap).toHaveValue("screen:search");
   await expect(tap.locator('option[value="item"]')).toHaveText("Opens: A product");
@@ -101,7 +111,7 @@ test("152 Choose this bouquet linked to one of the shop's products in Studio, pu
   // Published: the app gets the product for the button, the shop for the sizes.
   await own.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(own.getByText(/^Published\./)).toBeVisible();
-  const served = await request.get(`${api}/pages/bouquet?platform=android`);
+  const served = await request.get(`${api}/pages/bouquet?platform=android`, asApp());
   expect(served.status()).toBe(200);
   const nodes = nodesOf(((await served.json()) as { studio: { body: Node } }).studio.body);
   expect(nodes.find((n) => n.type === "button" && n.text === "Choose this bouquet")?.action).toEqual({ type: "item", item: { source: "products", id } });
@@ -109,7 +119,7 @@ test("152 Choose this bouquet linked to one of the shop's products in Studio, pu
 
   // Kept in the editor after a reload.
   await own.reload();
-  await own.locator("[data-studio-layer]").filter({ hasText: "Choose this bouquet" }).getByRole("button", { name: /Choose this bouquet/ }).click();
+  await chooseLayer().click();
   await expect(inspector.getByLabel("A product", { exact: true })).toHaveValue(id);
   expect(problems).toEqual([]);
 });
