@@ -1,4 +1,3 @@
-import { sha256Hex } from "../crypto/tokens";
 import type { SchoolAnnouncement } from "../data/types";
 import type { Layout, StudioNode } from "../pages/types";
 import { APP_WORDS } from "../studio/app-words";
@@ -76,11 +75,10 @@ export function withNewsTicker(body: StudioNode, lines: readonly string[]): Stud
   return walk(body) ?? { ...body, children: [] };
 }
 
-/** A layout's Studio pages with their tickers of the school's news; the same layout when none has one. */
-export function withSchoolNews<T extends Pick<Layout, "pages" | "version">>(layout: T, news: readonly SchoolAnnouncement[]): T {
+/** A layout's Studio pages with their tickers of the school's news; the same layout when none has one (no server code here: Studio's inspector reads this file too). */
+export function withSchoolNews<T extends Pick<Layout, "pages">>(layout: T, news: readonly SchoolAnnouncement[]): T {
   if (!layout.pages.some((p) => p.studio && hasTemplateNewsTicker(p.studio.body))) return layout;
   const lines = tickerLines(news);
   const pages = layout.pages.map((p) => (p.studio && hasTemplateNewsTicker(p.studio.body) ? { ...p, studio: { ...p.studio, body: withNewsTicker(p.studio.body, lines) } } : p));
-  // Its own version, so the apps ask for the page again when the school's news change.
-  return { ...layout, pages, version: `${layout.version}~n${sha256Hex(JSON.stringify(lines)).slice(0, 8)}` };
+  return { ...layout, pages };
 }

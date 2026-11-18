@@ -1,8 +1,6 @@
-import { sha256Hex } from "../crypto/tokens";
 import type { Course, Teacher } from "../data/types";
 import type { Layout, StudioNode, StudioStory } from "../pages/types";
 import { APP_WORDS } from "../studio/app-words";
-import { headline } from "./service";
 
 /**
  * 179 Rawaq's faculty is the academy's own teachers. The Signature looks of
@@ -78,7 +76,7 @@ export function facultyOf(teachers: readonly Teacher[], courses: readonly Course
     .map((t) => {
       const own = courses.filter((c) => c.teacherId === t.id && isPublished(c)).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
       const course = own[0] ? { title: own[0].title, line: firstLine(own[0].description) } : null;
-      return { name: t.name, subjects: t.subjects, course, headline: headline(t.bio) };
+      return { name: t.name, subjects: t.subjects, course, headline: firstLine(t.bio) };
     });
 }
 
@@ -209,10 +207,9 @@ export function withFaculty(body: StudioNode, faculty: readonly FacultyMember[])
   return walk(body) ?? { ...body, children: [] };
 }
 
-/** A layout's Studio pages with the academy's own faculty; the same layout when none has the template's. */
-export function withAcademyFaculty<T extends Pick<Layout, "pages" | "version">>(layout: T, faculty: readonly FacultyMember[]): T {
+/** A layout's Studio pages with the academy's own faculty; the same layout when none has the template's (no server code here: Studio's inspector reads this file too). */
+export function withAcademyFaculty<T extends Pick<Layout, "pages">>(layout: T, faculty: readonly FacultyMember[]): T {
   if (!layout.pages.some((p) => p.studio && hasTemplateFaculty(p.studio.body))) return layout;
   const pages = layout.pages.map((p) => (p.studio && hasTemplateFaculty(p.studio.body) ? { ...p, studio: { ...p.studio, body: withFaculty(p.studio.body, faculty) } } : p));
-  // Its own version, so the apps ask for the pages again when the teachers change.
-  return { ...layout, pages, version: `${layout.version}~t${sha256Hex(JSON.stringify(faculty)).slice(0, 8)}` };
+  return { ...layout, pages };
 }

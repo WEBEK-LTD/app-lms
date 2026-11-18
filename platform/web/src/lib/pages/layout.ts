@@ -412,11 +412,13 @@ async function unpublishedDefaults(store: DataStore, record: AppLayoutRecord | n
  */
 async function schoolNews<T extends Layout>(store: DataStore, app: App, layout: T): Promise<T> {
   if (app.demo === true || !layout.pages.some((p) => p.studio)) return layout;
-  if (app.appType === "school") return withSchoolNews(layout, await store.listSchoolAnnouncements(app.id));
+  // Each with its own version, so the apps ask for the pages again when the school's news or the teachers change.
+  const marked = (made: T, mark: string): T => (made === layout ? layout : { ...made, version: `${layout.version}~${mark}${sha256Hex(JSON.stringify(made.pages)).slice(0, 8)}` });
+  if (app.appType === "school") return marked(withSchoolNews(layout, await store.listSchoolAnnouncements(app.id)), "n");
   // 179 An academy with many teachers: Rawaq's faculty is its own teachers (lib/teachers/faculty.ts).
   if (isTeachersApp(app)) {
     const teachers = (await store.listTeachers(app.id, { statuses: ["active"] })).filter((t) => !isReviewTeacher(app, t));
-    return withAcademyFaculty(layout, facultyOf(teachers, courseSetup(app).courses, isPublished));
+    return marked(withAcademyFaculty(layout, facultyOf(teachers, courseSetup(app).courses, isPublished)), "t");
   }
   return layout;
 }
