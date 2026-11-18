@@ -4,6 +4,7 @@ import type { FlowDeps } from "../delivery/flow";
 import { notifyDeps } from "../delivery/flow";
 import { clubDue } from "./offers";
 import { releaseScheduled } from "./flow";
+import { expireUnpaidMarketOrders } from "./expire";
 import { remindClubRenewals } from "./notify";
 
 /** How the marketplace's jobs reach phones: tests pass a fake push and account; left out, each app's own. */
@@ -57,6 +58,8 @@ export async function runMarketFrequent(store: DataStore, now: Date, push: Marke
     apps++;
     try {
       released += await releaseScheduled({ store, app, now, ...push });
+      // 115.24 Online orders left unpaid give back their stock and coupon.
+      await expireUnpaidMarketOrders(store, app.id, now);
     } catch (error) {
       // One app's trouble never stops the others' orders.
       console.error(`[market] orders for later of ${app.id}: ${error instanceof Error ? error.message : String(error)}`);

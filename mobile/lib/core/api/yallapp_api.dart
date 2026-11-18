@@ -923,6 +923,7 @@ abstract class YallappApi {
     int? aisle,
     String? query,
     String? barcode,
+    String? cursor,
   });
   Future<MarketSearchResult> searchMarket(
     String query, {
@@ -950,6 +951,14 @@ abstract class YallappApi {
   });
   Future<MarketOrder> getMyMarketOrder(int id);
   Future<MarketOrder> cancelMyMarketOrder(int id);
+
+  /// 115.40 Accepts the picker's proposed item for a line, or leaves the
+  /// line out, while its time lasts (`proposal_closed` after).
+  Future<MarketOrder> answerMarketSubstitute(
+    int orderId,
+    int lineId, {
+    required bool accept,
+  });
 
   /// A new payment page for an order waiting for its payment.
   Future<String> payMyMarketOrder(int id);
@@ -3215,12 +3224,14 @@ class HttpYallappApi implements YallappApi {
     int? aisle,
     String? query,
     String? barcode,
+    String? cursor,
   }) => _get(
     '/market/vendors/$vendorId/products',
     _optional,
-    (json) => Paged.fromJson(json, MarketProduct.fromJson),
+    // 115.40 Paged by the cursor where the server has one (Stage 1).
+    (json) => Paged.fromCursorJson(json, MarketProduct.fromJson),
     query: {
-      'page': page,
+      if (cursor != null) 'cursor': cursor else 'page': page,
       'per_page': perPage,
       'department': ?department,
       'aisle': ?aisle,
@@ -3307,6 +3318,19 @@ class HttpYallappApi implements YallappApi {
     '/me/market-orders/$id/cancel',
     _required,
     (data) => MarketOrder.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<MarketOrder> answerMarketSubstitute(
+    int orderId,
+    int lineId, {
+    required bool accept,
+  }) => _send(
+    'POST',
+    '/me/market-orders/$orderId/lines/$lineId/proposal',
+    _required,
+    (data) => MarketOrder.fromJson(asJson(data)),
+    body: {'answer': accept ? 'accept' : 'decline'},
   );
 
   @override

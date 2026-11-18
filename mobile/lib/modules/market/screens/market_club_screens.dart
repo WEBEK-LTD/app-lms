@@ -10,7 +10,6 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
-import '../../../core/storage/local_settings.dart';
 import '../../../core/format/bidi.dart';
 import '../../../core/format/text_case.dart';
 import '../../../core/theme/palette.dart';
@@ -20,6 +19,7 @@ import '../../../core/widgets/common.dart';
 import '../../real_estate/widgets/listing_widgets.dart' show signInFor;
 import '../../store/screens/cart_screen.dart' show isOrderReceived;
 import '../data/market_providers.dart' show marketConfigProvider;
+import '../wallet_prefs.dart';
 import '../widgets/market_look.dart' show marketDeeper, marketTint;
 import '../../../core/widgets/studio_screen_scope.dart';
 
@@ -35,24 +35,6 @@ final myClubProvider = FutureProvider.autoDispose<ClubMembership?>((ref) {
   if (!ref.watch(authControllerProvider).isSignedIn) return null;
   return ref.watch(yallappApiProvider).getMyClub();
 });
-
-/// 115.60 Whether the wallet pays first at checkout ("Use it at checkout
-/// first"), kept on the phone; on by default. Checkout reads it.
-final marketWalletFirstProvider = NotifierProvider<MarketWalletFirst, bool>(
-  MarketWalletFirst.new,
-);
-
-class MarketWalletFirst extends Notifier<bool> {
-  static const key = 'market.wallet_first';
-
-  @override
-  bool build() => ref.watch(sharedPreferencesProvider).getBool(key) ?? true;
-
-  void set(bool on) {
-    ref.read(sharedPreferencesProvider).setBool(key, on);
-    state = on;
-  }
-}
 
 /// The app's name, for "Credit from Zad" and "Zad Club".
 String _appName(WidgetRef ref) =>
@@ -259,7 +241,7 @@ class _BalanceCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final l10n = context.l10n;
-    final first = ref.watch(marketWalletFirstProvider);
+    final first = ref.watch(walletUseFirstProvider);
     final mark = _currencyMark(context, currency);
     final amber = p.accent;
     final number = balance.amount;
@@ -368,9 +350,8 @@ class _BalanceCard extends ConsumerWidget {
                         value: first,
                         activeThumbColor: Colors.white,
                         activeTrackColor: amber,
-                        onChanged: (on) => ref
-                            .read(marketWalletFirstProvider.notifier)
-                            .set(on),
+                        onChanged: (on) =>
+                            ref.read(walletUseFirstProvider.notifier).set(on),
                       ),
                     ],
                   ),

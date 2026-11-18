@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "270ca579-5bec-47e5-a6bb-f1efbcef9e3e",
+  "id": "3fdfccb0-aa96-4bc1-b7d6-efa1efe2b0af",
   "prevId": "0ce6da65-49f5-41ae-8daa-e059d728aba9",
   "tables": {
     "account_deletion_requests": {
@@ -14200,6 +14200,151 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "market_catalog_changes": {
+      "name": "market_catalog_changes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "app_id": {
+          "name": "app_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "vendor_id": {
+          "name": "vendor_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entity": {
+          "name": "entity",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "action": {
+          "name": "action",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "before": {
+          "name": "before",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "after": {
+          "name": "after",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "fields": {
+          "name": "fields",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "by": {
+          "name": "by",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "by_name": {
+          "name": "by_name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "undone_at": {
+          "name": "undone_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "market_catalog_changes_vendor_idx": {
+          "name": "market_catalog_changes_vendor_idx",
+          "columns": [
+            "app_id",
+            "vendor_id",
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "market_catalog_changes_app_fk": {
+          "name": "market_catalog_changes_app_fk",
+          "tableFrom": "market_catalog_changes",
+          "tableTo": "apps",
+          "columnsFrom": [
+            "app_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "market_catalog_changes_vendor_fk": {
+          "name": "market_catalog_changes_vendor_fk",
+          "tableFrom": "market_catalog_changes",
+          "tableTo": "restaurants",
+          "columnsFrom": [
+            "vendor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "market_catalog_changes_id": {
+          "name": "market_catalog_changes_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "market_club_members": {
       "name": "market_club_members",
       "columns": {
@@ -14271,29 +14416,6 @@
           "type": "bigint",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "paid_total": {
-          "name": "paid_total",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "periods": {
-          "name": "periods",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "last_paid_at": {
-          "name": "last_paid_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         },
         "created_at": {
@@ -14959,14 +15081,6 @@
           "autoincrement": false,
           "default": false
         },
-        "members_only": {
-          "name": "members_only",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
         "uses_limit": {
           "name": "uses_limit",
           "type": "int",
@@ -15530,6 +15644,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "names": {
+          "name": "names",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "description": {
           "name": "description",
           "type": "varchar(1000)",
@@ -15614,6 +15735,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "min_quantity": {
+          "name": "min_quantity",
+          "type": "double",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "max_quantity": {
           "name": "max_quantity",
           "type": "double",
@@ -15649,6 +15777,14 @@
           "notNull": true,
           "autoincrement": false
         },
+        "search_name": {
+          "name": "search_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
         "created_at": {
           "name": "created_at",
           "type": "datetime(3)",
@@ -15673,6 +15809,15 @@
             "sku"
           ],
           "isUnique": true
+        },
+        "market_products_search_idx": {
+          "name": "market_products_search_idx",
+          "columns": [
+            "app_id",
+            "vendor_id",
+            "search_name"
+          ],
+          "isUnique": false
         },
         "market_products_vendor_idx": {
           "name": "market_products_vendor_idx",
@@ -15769,6 +15914,190 @@
       "compositePrimaryKeys": {
         "market_products_id": {
           "name": "market_products_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "market_stock_moves": {
+      "name": "market_stock_moves",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "app_id": {
+          "name": "app_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "vendor_id": {
+          "name": "vendor_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "order_id": {
+          "name": "order_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "line_id": {
+          "name": "line_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "delta": {
+          "name": "delta",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "before": {
+          "name": "before",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "after": {
+          "name": "after",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "by": {
+          "name": "by",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "by_name": {
+          "name": "by_name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "undo_of": {
+          "name": "undo_of",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "market_stock_moves_order_unique": {
+          "name": "market_stock_moves_order_unique",
+          "columns": [
+            "order_id",
+            "line_id",
+            "product_id",
+            "reason"
+          ],
+          "isUnique": true
+        },
+        "market_stock_moves_product_idx": {
+          "name": "market_stock_moves_product_idx",
+          "columns": [
+            "app_id",
+            "product_id",
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "market_stock_moves_vendor_idx": {
+          "name": "market_stock_moves_vendor_idx",
+          "columns": [
+            "app_id",
+            "vendor_id",
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "market_stock_moves_app_fk": {
+          "name": "market_stock_moves_app_fk",
+          "tableFrom": "market_stock_moves",
+          "tableTo": "apps",
+          "columnsFrom": [
+            "app_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "market_stock_moves_vendor_fk": {
+          "name": "market_stock_moves_vendor_fk",
+          "tableFrom": "market_stock_moves",
+          "tableTo": "restaurants",
+          "columnsFrom": [
+            "vendor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "market_stock_moves_product_fk": {
+          "name": "market_stock_moves_product_fk",
+          "tableFrom": "market_stock_moves",
+          "tableTo": "market_products",
+          "columnsFrom": [
+            "product_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "market_stock_moves_id": {
+          "name": "market_stock_moves_id",
           "columns": [
             "id"
           ]

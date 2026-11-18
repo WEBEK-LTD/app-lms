@@ -1,5 +1,5 @@
 import type { DataStore } from "../data/store";
-import type { App, MarketProduct, MarketServiceArea, OpeningPeriod, Restaurant, RestaurantStaff, VendorClosedDates, VendorRole } from "../data/types";
+import type { App, MarketProduct, MarketServiceArea, MarketStockMove, OpeningPeriod, Restaurant, RestaurantStaff, VendorClosedDates, VendorRole } from "../data/types";
 import { EMPTY_MENU } from "../food/menu";
 import { parseHoursForm, WEEK_DAYS } from "../food/forms";
 import { utcToLocal } from "../bookings/time";
@@ -15,6 +15,8 @@ import { marketCurrency, marketSettingsOf, marketTimezone } from "./settings";
 import { addPhoto, fetchWaitingPhotos, photosRequired, placeBulkPhoto, productPhotos, removePhoto, type BulkPhotoOutcome, type PhotoFetcher, type PhotoResult } from "./photos";
 import { readSheet, SheetError } from "./sheets/read";
 import { buildStatement, type Statement } from "./statement";
+import { productFormValues, setProductStock, type CatalogScope } from "./catalog-edit";
+import { stockAmount } from "./stock";
 
 /**
  * 115.7 The vendors' web panel's pages besides the live board: the menu or
@@ -111,16 +113,79 @@ export async function catalogPage(
       price: p.price,
       unit: p.unit,
       inStock: p.inStock && (p.stock === null || p.stock > 0),
-      stock: p.stock,
+      // 115.24 In its unit (kg for items sold by weight), not in steps.
+      stock: p.stock === null ? null : stockAmount(p, p.stock),
       sku: p.sku,
       image: p.imageAssetId,
       photos: productPhotos(p),
       photoNote: !p.imageAssetId && p.imageUrl ? (p.photoError ?? "waiting") : null,
     })),
-    total: found.total,
+    total: found.total ?? 0,
     perPage,
-    withoutPhoto: missing.total,
+    withoutPhoto: missing.total ?? 0,
   };
+}
+
+// 115.24 Editing the catalog: the place's owner and managers (lib/market/catalog-edit.ts)
+
+/** The roles that add, change and delete products, departments and aisles. */
+export function canEditCatalog(staff: RestaurantStaff): boolean {
+  return (staff.role ?? "manager") === "owner" || (staff.role ?? "manager") === "manager";
+}
+
+export function catalogScopeOf(ctx: PanelContext): CatalogScope {
+  return { store: ctx.store, appId: ctx.app.id, vendor: ctx.vendor, currency: ctx.currency, who: { by: "vendor", byName: ctx.staff.name } };
+}
+
+export interface ShelfList {
+  departments: { id: number; name: string; aisles: { id: number; name: string }[] }[];
+}
+
+export async function shelfList(store: DataStore, appId: string, vendorId: number): Promise<ShelfList> {
+  const [departments, aisles] = await Promise.all([store.listMarketDepartments(appId, vendorId), store.listMarketAisles(appId, vendorId)]);
+  return { departments: departments.map((d) => ({ id: d.id, name: d.name, aisles: aisles.filter((a) => a.departmentId === d.id).map((a) => ({ id: a.id, name: a.name })) })) };
+}
+
+export interface StockMoveRow {
+  id: number;
+  reason: MarketStockMove["reason"];
+  orderRef: string | null;
+  change: number;
+  before: number | null;
+  after: number | null;
+  unit: string;
+  by: MarketStockMove["by"];
+  byName: string | null;
+  at: Date;
+  /** A hand change still undoable (the stock is still what it left). */
+  undoable: boolean;
+}
+
+export async function stockMoveRows(store: DataStore, appId: string, product: MarketProduct, limit = 20): Promise<StockMoveRow[]> {
+  const moves = await store.listMarketStockMoves(appId, { productId: product.id, limit });
+  const undone = new Set(moves.flatMap((m) => (m.undoOf !== null ? [m.undoOf] : [])));
+  const latest = moves[0]?.id;
+  return moves.map((m) => ({
+    id: m.id,
+    reason: m.reason,
+    orderRef: m.orderId !== null ? marketOrderReference({ id: m.orderId }) : null,
+    change: stockAmount(product, m.delta),
+    before: m.before === null ? null : stockAmount(product, m.before),
+    after: m.after === null ? null : stockAmount(product, m.after),
+    unit: product.unit,
+    by: m.by,
+    byName: m.byName,
+    at: m.createdAt,
+    undoable: (m.reason === "edit" || m.reason === "import") && m.id === latest && !undone.has(m.id) && product.stock === m.after,
+  }));
+}
+
+/** The product editor's data: the product (null for a new one), its form, the place's departments and aisles, and its stock history. */
+export async function productEditor(store: DataStore, appId: string, vendorId: number, currency: string, id: number | null) {
+  const product = id !== null ? await store.getMarketProduct(appId, id) : null;
+  if (id !== null && (!product || product.vendorId !== vendorId)) return null;
+  const [shelves, moves] = await Promise.all([shelfList(store, appId, vendorId), product ? stockMoveRows(store, appId, product) : Promise.resolve([])]);
+  return { product, values: productFormValues(product, currency), shelves, moves };
 }
 
 // 115 Photos
@@ -164,10 +229,8 @@ export async function setStock(ctx: PanelContext, id: number, inStock: boolean, 
     await ctx.store.saveRestaurantMenu(ctx.app.id, ctx.vendor.id, menu, now);
     return true;
   }
-  const product = await ctx.store.getMarketProduct(ctx.app.id, id);
-  if (!product || product.vendorId !== ctx.vendor.id) return false;
-  await ctx.store.updateMarketProduct(ctx.app.id, id, { inStock: stock === 0 ? false : inStock, ...(stock !== undefined ? { stock } : {}) }, now);
-  return true;
+  // 115.24 Through the stock-moves ledger; `stock` in the product's unit (kg for items sold by weight).
+  return (await setProductStock(catalogScopeOf(ctx), id, { inStock: stock === 0 ? false : inStock, ...(stock !== undefined ? { amount: stock } : {}) }, now)) !== null;
 }
 
 // Imports

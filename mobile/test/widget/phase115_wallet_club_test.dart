@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
-import 'package:yallapp/modules/market/screens/market_club_screens.dart';
+import 'package:yallapp/modules/market/wallet_prefs.dart';
 
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
@@ -211,10 +211,10 @@ void main() {
           expect(find.text('14 نوفمبر'), findsOneWidget);
         }
         // The switch is kept on the phone.
-        expect(app.container.read(marketWalletFirstProvider), isTrue);
+        expect(app.container.read(walletUseFirstProvider), isTrue);
         await tester.tap(find.byType(Switch));
         await TestApp.settle(tester);
-        expect(app.container.read(marketWalletFirstProvider), isFalse);
+        expect(app.container.read(walletUseFirstProvider), isFalse);
       });
 
       testWidgets('07b the club for a member, $name, text at 1.3', (

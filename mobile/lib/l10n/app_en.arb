@@ -14005,5 +14005,551 @@
         "type": "String"
       }
     }
+  },
+  "marketSearchStore": "Search {name}",
+  "@marketSearchStore": {
+    "description": "115.40 The search box on a shop's page; it searches this shop only.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "marketScanBarcode": "Scan a barcode",
+  "@marketScanBarcode": {
+    "description": "115.40 The barcode button beside a shop's search."
+  },
+  "marketDepartments": "Departments",
+  "@marketDepartments": {
+    "description": "115.40 A shop's departments, as arches on its page."
+  },
+  "marketSeeAllCount": "All {count}",
+  "@marketSeeAllCount": {
+    "description": "115.40 Opens every department.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "marketBuyAgain": "Buy again",
+  "@marketBuyAgain": {
+    "description": "115.40 Items from the customer's earlier orders at this shop."
+  },
+  "marketFromYourOrders": "{count, plural, =1{From your last order} other{From your {count} orders}}",
+  "@marketFromYourOrders": {
+    "description": "115.40 Where \"Buy again\" comes from.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "marketEstimatedAmount": "Estimated {amount}",
+  "@marketEstimatedAmount": {
+    "description": "115.40 The cart bar's running total, before weighing.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketGoCheckout": "Checkout",
+  "@marketGoCheckout": {
+    "description": "115.40 The cart bar's button."
+  },
+  "marketOfferLabel": "Offer",
+  "@marketOfferLabel": {
+    "description": "115.40 The small label over a shop's offer."
+  },
+  "marketThisWeek": "This week",
+  "@marketThisWeek": {
+    "description": "115.40 The label over the first offer."
+  },
+  "marketProductCount": "{count, plural, =0{No products} =1{1 product} other{{count} products}}",
+  "@marketProductCount": {
+    "description": "115.40 How many products a department or search has.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "marketAisleCount": "{count, plural, =1{1 aisle} other{{count} aisles}}",
+  "@marketAisleCount": {
+    "description": "115.40 How many aisles a department has.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "marketAll": "All",
+  "@marketAll": {
+    "description": "115.40 Every aisle of a department."
+  },
+  "marketSortPopular": "Popular",
+  "@marketSortPopular": {
+    "description": "115.40 Puts the popular products first."
+  },
+  "marketFilterOffers": "Offers",
+  "@marketFilterOffers": {
+    "description": "115.40 Only products with a discount."
+  },
+  "marketByWeight": "By weight",
+  "@marketByWeight": {
+    "description": "115.40 A product sold by weight; also the filter."
+  },
+  "marketFilterInStock": "In stock",
+  "@marketFilterInStock": {
+    "description": "115.40 Only products in stock."
+  },
+  "marketShownOf": "{shown} of {total} shown",
+  "@marketShownOf": {
+    "description": "115.40 How much of a long list is loaded.",
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "marketLoadingMore": "Loading more…",
+  "@marketLoadingMore": {
+    "description": "115.40 While the next page loads."
+  },
+  "marketNothingHere": "Nothing here yet",
+  "@marketNothingHere": {
+    "description": "115.40 An aisle or a search with no products."
+  },
+  "marketFreeDeliveryLeft": "Add {amount} for free delivery",
+  "@marketFreeDeliveryLeft": {
+    "description": "115.40 The free-delivery meter.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketFreeDeliveryReached": "Free delivery on this order",
+  "@marketFreeDeliveryReached": {
+    "description": "115.40 The free-delivery meter, once reached."
+  },
+  "marketResultsFor": "Results for “{query}”",
+  "@marketResultsFor": {
+    "description": "115.40 A shop's search results.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "marketSoldByWeight": "Sold by weight",
+  "@marketSoldByWeight": {
+    "description": "115.40 A product page's badge."
+  },
+  "marketPer100g": "{amount} / 100 g",
+  "@marketPer100g": {
+    "description": "115.40 The price per 100 grams.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketInSteps": "in steps of {amount}",
+  "@marketInSteps": {
+    "description": "115.40 Under the weight stepper.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketEstimatedPrice": "Estimated price",
+  "@marketEstimatedPrice": {
+    "description": "115.40 A weighed item's price before weighing."
+  },
+  "marketAtMostAfterWeighing": "At most, after weighing",
+  "@marketAtMostAfterWeighing": {
+    "description": "115.40 The most a weighed item can come to, paying cash."
+  },
+  "marketWeighFinal": "The final price comes after weighing.",
+  "@marketWeighFinal": {
+    "description": "115.40 The note on weighed items."
+  },
+  "marketWeighCard": "You pay the estimate now; if it weighs less, we refund the difference.",
+  "@marketWeighCard": {
+    "description": "115.40 Card orders of weighed items."
+  },
+  "marketWeighCash": "Cash: you pay what the scale reads, at most {amount}.",
+  "@marketWeighCash": {
+    "description": "115.40 Cash orders of weighed items: the estimate plus the tolerance.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketByCard": "By card",
+  "@marketByCard": {
+    "description": "115.40 Before the card note."
+  },
+  "marketPickerSliced": "Sliced",
+  "@marketPickerSliced": {
+    "description": "115.40 A note for the picker."
+  },
+  "marketPickerOnePiece": "One piece",
+  "@marketPickerOnePiece": {
+    "description": "115.40 A note for the picker."
+  },
+  "marketPickerNote": "Note",
+  "@marketPickerNote": {
+    "description": "115.40 Opens a note for the picker."
+  },
+  "marketPickerNoteHint": "A note for the picker",
+  "@marketPickerNoteHint": {
+    "description": "115.40 The picker's note field."
+  },
+  "marketAddWeighed": "Add {amount} · about {price}",
+  "@marketAddWeighed": {
+    "description": "115.40 Adds a weighed item.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "marketAddUnits": "Add {count} · {price}",
+  "@marketAddUnits": {
+    "description": "115.40 Adds items sold by the unit.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "marketUpdateCart": "Update cart · {price}",
+  "@marketUpdateCart": {
+    "description": "115.40 Changes an item already in the cart.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "marketAmountG": "{amount} g",
+  "@marketAmountG": {
+    "description": "115.40 A weight in grams.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketAmountKg": "{amount} kg",
+  "@marketAmountKg": {
+    "description": "115.40 A weight in kilos.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketAmountL": "{amount} L",
+  "@marketAmountL": {
+    "description": "115.40 A volume in litres.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketIfMissingTitle": "If something is missing",
+  "@marketIfMissingTitle": {
+    "description": "115.40 The cart's choice for the whole order."
+  },
+  "marketIfMissingSub": "For the whole order. Change any item below.",
+  "@marketIfMissingSub": {
+    "description": "115.40 Under \"If something is missing\"."
+  },
+  "marketMissingSimilar": "Similar item",
+  "@marketMissingSimilar": {
+    "description": "115.40 Bring a similar item (the picker asks first)."
+  },
+  "marketMissingChosen": "My choice",
+  "@marketMissingChosen": {
+    "description": "115.40 Bring the item the customer chose."
+  },
+  "marketMissingRemove": "Leave it out",
+  "@marketMissingRemove": {
+    "description": "115.40 Leave the item out."
+  },
+  "marketInstead": "Instead: {name}",
+  "@marketInstead": {
+    "description": "115.40 The item the customer chose to bring instead.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "marketChooseInstead": "Choose what to bring instead",
+  "@marketChooseInstead": {
+    "description": "115.40 The picker of the customer's own substitute."
+  },
+  "marketEachPrice": "{price} each",
+  "@marketEachPrice": {
+    "description": "115.40 A unit item's price in the cart.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "marketItemsEstimated": "Items, estimated",
+  "@marketItemsEstimated": {
+    "description": "115.40 The items' total before weighing."
+  },
+  "marketEstimatedTotal": "Estimated total",
+  "@marketEstimatedTotal": {
+    "description": "115.40 The cart's total before weighing."
+  },
+  "marketAtMostAfter": "At most {amount} after weighing",
+  "@marketAtMostAfter": {
+    "description": "115.40 The most a cash order can come to.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketPickedCount": "picked",
+  "@marketPickedCount": {
+    "description": "115.40 Under \"3/5\" in the order's ring."
+  },
+  "marketBeingPickedTitle": "Your order is being picked",
+  "@marketBeingPickedTitle": {
+    "description": "115.40 The order's header while it is picked."
+  },
+  "marketYourAnswer": "Your answer, please",
+  "@marketYourAnswer": {
+    "description": "115.40 Over a proposed substitute."
+  },
+  "marketOutTakeInstead": "{name} is out. Take this instead?",
+  "@marketOutTakeInstead": {
+    "description": "115.40 A proposed substitute.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "marketOutLabel": "Out",
+  "@marketOutLabel": {
+    "description": "115.40 On the missing item's picture."
+  },
+  "marketSimilarLabel": "Similar",
+  "@marketSimilarLabel": {
+    "description": "115.40 On the proposed item's picture."
+  },
+  "marketAccept": "Accept",
+  "@marketAccept": {
+    "description": "115.40 Takes the proposed item."
+  },
+  "marketNoAnswerSimilar": "No answer in time? We follow your choice: a similar item.",
+  "@marketNoAnswerSimilar": {
+    "description": "115.40 What happens after 5 minutes, the order's choice being a similar item."
+  },
+  "marketNoAnswerRemove": "No answer in time? We follow your choice: leave it out.",
+  "@marketNoAnswerRemove": {
+    "description": "115.40 What happens after 5 minutes, the order's choice being to leave it out."
+  },
+  "marketWeighedAt": "Weighed {amount} · {price}",
+  "@marketWeighedAt": {
+    "description": "115.40 A weighed line once picked.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "marketChoiceFor": "Your choice, for {name}",
+  "@marketChoiceFor": {
+    "description": "115.40 A substitute the customer chose.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "marketAcceptedFor": "You accepted it, for {name}",
+  "@marketAcceptedFor": {
+    "description": "115.40 A substitute the customer accepted.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "marketLeftOut": "Left out",
+  "@marketLeftOut": {
+    "description": "115.40 A line left out."
+  },
+  "marketWaitingPick": "Waiting to be picked",
+  "@marketWaitingPick": {
+    "description": "115.40 A line not picked yet."
+  },
+  "marketWeighedFinal": "Weighed and final",
+  "@marketWeighedFinal": {
+    "description": "115.40 The final price against the estimate."
+  },
+  "marketWithinPercent": "Within {percent}%",
+  "@marketWithinPercent": {
+    "description": "115.40 The final price is within the tolerance.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "marketYouWereTold": "You were told",
+  "@marketYouWereTold": {
+    "description": "115.40 The estimate, struck through."
+  },
+  "marketFinalPrice": "Final price",
+  "@marketFinalPrice": {
+    "description": "115.40 The weighed total."
+  },
+  "marketWeighedOfLimit": "Weighed items came to {amount} of the limit of {limit}",
+  "@marketWeighedOfLimit": {
+    "description": "115.40 Under the final price's bar.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "marketNotAmount": "not {amount}",
+  "@marketNotAmount": {
+    "description": "115.40 The amount asked, after the weighed one.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketSubAccepted": "{name}, you accepted",
+  "@marketSubAccepted": {
+    "description": "115.40 A line of the final price.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "marketSubChosen": "{name}, your choice",
+  "@marketSubChosen": {
+    "description": "115.40 A line of the final price.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "marketCardRefunded": "You paid the estimate by card; the difference of {amount} comes back to your card.",
+  "@marketCardRefunded": {
+    "description": "115.40 A card order weighed lower.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketCashFinal": "You pay the final price in cash when it arrives.",
+  "@marketCashFinal": {
+    "description": "115.40 A cash order once weighed."
+  },
+  "marketBringingIt": "{name} is bringing it",
+  "@marketBringingIt": {
+    "description": "115.40 The courier's card.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "marketCallCourier": "Call the courier",
+  "@marketCallCourier": {
+    "description": "115.40 A masked call: neither side sees the other's number."
+  },
+  "marketScanTitle": "Scan a barcode",
+  "@marketScanTitle": {
+    "description": "115.40 The scanner's title."
+  },
+  "marketScanHint": "Point the camera at the barcode. It looks in {vendor} only.",
+  "@marketScanHint": {
+    "description": "115.40 Under the scanner.",
+    "placeholders": {
+      "vendor": {
+        "type": "String"
+      }
+    }
+  },
+  "marketScanWhy": "The camera reads barcodes to find products in this shop. Nothing is recorded.",
+  "@marketScanWhy": {
+    "description": "115.40 Why the scanner asks for the camera."
+  },
+  "marketTypeBarcode": "Type the code",
+  "@marketTypeBarcode": {
+    "description": "115.40 Types a barcode instead of scanning it."
+  },
+  "marketBarcodeHint": "The numbers under the barcode",
+  "@marketBarcodeHint": {
+    "description": "115.40 The typed barcode's field."
+  },
+  "marketFind": "Find",
+  "@marketFind": {
+    "description": "115.40 Looks the typed barcode up."
+  },
+  "marketBarcodeNotFound": "{vendor} has nothing with this barcode.",
+  "@marketBarcodeNotFound": {
+    "description": "115.40 A barcode the shop doesn't sell.",
+    "placeholders": {
+      "vendor": {
+        "type": "String"
+      }
+    }
+  },
+  "marketCameraOff": "The camera is off for this app. Type the code instead.",
+  "@marketCameraOff": {
+    "description": "115.40 The scanner without the camera."
+  },
+  "marketProposalClosed": "The time to answer has passed, so your order's choice was used.",
+  "@marketProposalClosed": {
+    "description": "115.40 Answering a proposal too late."
+  },
+  "marketShownCount": "{count} shown",
+  "@marketShownCount": {
+    "description": "115.40 How many are loaded, when the list isn't counted.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
