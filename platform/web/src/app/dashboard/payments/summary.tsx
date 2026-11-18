@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Icon } from "@/components/icon";
 import { mayDo } from "@/components/owner-only";
 import { KitHero, KitStat } from "@/components/studio-page";
 import { formatDate } from "@/i18n/format";
@@ -7,18 +8,35 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import type { App, CatalogCurrency } from "@/lib/data/types";
 import { PROVIDER_NAME, providerTakes } from "@/lib/payments/provider";
 import { webhookReceipt } from "@/lib/payments/webhooks";
+import { walletDomain, walletLine } from "@/lib/payments/wallets";
+import { appUrl, paymentApiUrls } from "@/lib/env";
 
 /** A tile's state in words, smaller than a figure so it fits its tile (a gateway's name and a currency stay figures). */
 function Words({ children }: { children: ReactNode }) {
   return <span className="block text-[24px] leading-[1.15] font-bold tracking-[-0.2px] break-words max-sm:text-[16px]">{children}</span>;
 }
 
+/** 155 The words of each state of Apple Pay and Google Pay (src/i18n/dashboard/gateways.ts). */
+const WALLET_KEYS = {
+  ready: "gateways.walletsReady",
+  notYet: "gateways.walletsNotYet",
+  partialApple: "gateways.walletsPartialApple",
+  partialGoogle: "gateways.walletsPartialGoogle",
+  inactive: "gateways.walletsInactive",
+  unreachable: "gateways.walletsUnreachable",
+  keysRefused: "gateways.walletsKeysRefused",
+  forbidden: "gateways.walletsForbidden",
+  refused: "gateways.walletsRefused",
+} as const satisfies Record<NonNullable<ReturnType<typeof walletLine>>["code"], string>;
+
 /**
  * 132.120 The top of the Payments page: which gateway is connected and in
  * which mode, the last "Test connection" and when, its webhook's state and
  * the currency it charges in. For whoever may see where the money goes (the
  * owner). 132.180 In the console's look: four tiles, the gateway the first
- * and dark; each a short state, its detail under it.
+ * and dark; each a short state, its detail under it. 155 With Stripe, a line
+ * under them: whether Apple Pay and Google Pay show in its card form (the
+ * payment page's domain registered in the account), and why not yet.
  */
 export async function PaymentsSummary({ app, currency }: { app: App; currency: CatalogCurrency }) {
   if (!(await mayDo("billing"))) return null;
@@ -42,10 +60,25 @@ export async function PaymentsSummary({ app, currency }: { app: App; currency: C
         : receipt?.at
           ? { value: t("gateways.tileWebhookOk"), hint: t("gateways.tileLastOne", { at: at(receipt.at) }), tone: "success" }
           : { value: t("gateways.tileWebhookWaiting"), hint: t("gateways.tileNextPayment"), tone: "neutral" };
+  // 155 Apple Pay and Google Pay in Stripe's form: ready, or not yet and why.
+  const wallets = walletLine(own, walletDomain(appUrl(), Boolean(paymentApiUrls().stripe)));
+  const walletsKey = wallets ? WALLET_KEYS[wallets.code] : null;
   return (
     <KitHero
       label={t("gateways.summary")}
       data-payments-summary=""
+      next={
+        wallets && walletsKey ? (
+          <p className="m-0 flex min-w-0 items-start gap-2.5 text-[14px] leading-relaxed text-(--sp-ink)" data-wallets={wallets.code} role="status">
+            <Icon name={wallets.tone === "success" ? "check_circle" : "info"} size={20} className={`mt-0.5 shrink-0 ${wallets.tone === "success" ? "text-success" : wallets.tone === "warn" ? "text-warn" : "text-(--sp-muted)"}`} />
+            <span className="min-w-0 break-words">
+              {t(walletsKey, { domain: wallets.values.domain })}
+              {wallets.tone !== "success" && wallets.code !== "notYet" ? ` ${t("gateways.walletsCards")}` : null}
+              {"details" in wallets.values && wallets.values.details ? <span className="block text-[13px] text-(--sp-muted)">{t("gateways.walletsSaid", { details: wallets.values.details })}</span> : null}
+            </span>
+          </p>
+        ) : undefined
+      }
       stats={
         <>
           <KitStat
