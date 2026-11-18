@@ -5,6 +5,7 @@ import { registerClient } from "@/lib/auth/accounts";
 import type { DataStore } from "@/lib/data/store";
 import type { App, MarketOrderInput, MarketProductInput, RestaurantInput } from "@/lib/data/types";
 import { expireUnpaidMarketOrders, UNPAID_MINUTES, UNPAID_NOTE } from "@/lib/market/expire";
+import { runMarketFrequent } from "@/lib/market/daily";
 import { priceOrder } from "@/lib/market/money";
 import { NOW } from "./helpers";
 
@@ -314,6 +315,11 @@ export function marketStockStoreSuite(store: () => DataStore, options: { big?: n
     // The coupon's only use is free again.
     expect(await s.countMarketCouponUses(app.id, coupon.id)).toBe(0);
     expect(await expireUnpaidMarketOrders(s, app.id, later)).toBe(0);
+    // The frequent job does it every 5 minutes: the order made 25 minutes in, once its 30 are up.
+    const after = new Date(fresh.createdAt.getTime() + (UNPAID_MINUTES + 1) * 60_000);
+    await runMarketFrequent(s, after);
+    expect(await s.getMarketOrder(app.id, fresh.id)).toMatchObject({ status: "cancelled", rejection: { note: UNPAID_NOTE } });
+    expect((await s.getMarketProduct(app.id, eggs.id))!.stock).toBe(5);
   });
 
   if (options.big) {

@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/api_exception.dart';
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/api/yallapp_api.dart';
+import 'package:yallapp/core/services/push_service.dart'
+    show pushTargetLocation;
 
 import '../support/fixtures.dart';
 
@@ -368,6 +370,30 @@ void main() {
         'question_id': 3,
       });
       expect(page.page.items[2].type, NotificationType.unknown);
+    });
+
+    test('115.22 a marketplace notification opens its order or complaint', () {
+      final order = InboxNotification.fromJson({
+        ...notificationJson(id: 7, type: 'market_order_update'),
+        'market_order_id': 42,
+      });
+      expect(order.type, NotificationType.marketOrderUpdate);
+      expect(pushTargetLocation(order.target), '/market-order/42');
+      final complaint = InboxNotification.fromJson({
+        ...notificationJson(id: 8, type: 'complaint_update'),
+        'complaint_id': 5,
+      });
+      expect(pushTargetLocation(complaint.target), '/market-complaint/5');
+      final vendor = InboxNotification.fromJson({
+        ...notificationJson(id: 9, type: 'vendor_order'),
+        'market_order_id': 42,
+      });
+      expect(pushTargetLocation(vendor.target), '/vendor-order/42');
+      final club = InboxNotification.fromJson(
+        notificationJson(id: 10, type: 'club_renewal'),
+      );
+      expect(club.type, NotificationType.clubRenewal);
+      expect(pushTargetLocation(club.target), '/market-club');
     });
 
     test('reads orders', () {
