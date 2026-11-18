@@ -34,13 +34,15 @@ the stories had a width in points from a corner drag on Studio's phone
 the app keeps a width in points. A cover's top bar is now at its automatic
 size, across the cover with its wordmark between the buttons, in Studio's
 canvas, in what the hosted API serves (so apps already on phones draw it at
-once) and in the app (`CLIENT_APP_RELEASE` 7), whatever width it had, unless
+once) and in the app (with the next `CLIENT_APP_RELEASE`), whatever width it had, unless
 it was sized by hand. Every element's size is automatic until the owner
 changes it: the size fields and the canvas corners ask first, "Back to
 automatic" (or a double click on a corner) puts the template's size back,
 and a corner dragged up to the edge becomes Fill again. WordPress apps keep
-a size by hand with the next plugin release. Not yet seen on Kech Flora's
-phone.
+a size by hand with the next plugin release. With the next app release a round button
+without words (the search, the bag) tells a screen reader what it opens
+("Search", "Cart") in the app's language, or the owner's name for it, not
+just "button". Not yet seen on Kech Flora's phone.
 
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its

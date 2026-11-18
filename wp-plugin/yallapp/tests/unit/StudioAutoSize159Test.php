@@ -3,7 +3,9 @@
  * 159 Sizes set by hand in Studio reach the app: an element's `manual_size` (the
  * automatic sizes a size by hand replaced) is served with it, so the app keeps the
  * owner's width for a cover's top bar sized by hand, and spans the cover with one
- * that isn't. Bad values are none; an element without it is served as before.
+ * that isn't. Bad values are none; an element without it is served as before. And
+ * the owner's name for an element, which the app's screen readers say for a round
+ * button without words (else what it opens).
  *
  * @package Yallapp
  */
@@ -90,4 +92,26 @@ class StudioAutoSize159Test extends TestCase {
 		$this->assertSame( 120.0, $nodes[2]['width'] );
 	}
 
+	public function test_serves_the_owner_s_name_for_a_round_button() {
+		$nodes = $this->served(
+			array(
+				array(
+					'id'     => 'bag',
+					'type'   => 'row',
+					'name'   => ' Your <b>bouquets</b> ',
+					'action' => array(
+						'type'   => 'screen',
+						'screen' => 'cart',
+					),
+				),
+				array(
+					'id'   => 'search',
+					'type' => 'row',
+					'name' => '   ',
+				),
+			)
+		);
+		$this->assertSame( 'Your bouquets', $nodes[0]['name'] );
+		$this->assertArrayNotHasKey( 'name', $nodes[1] );
+	}
 }

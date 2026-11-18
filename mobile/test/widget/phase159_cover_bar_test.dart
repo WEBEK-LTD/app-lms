@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show SemanticsNode;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/models/models.dart';
+import 'package:yallapp/core/config/build_config_data.dart';
+import 'package:yallapp/modules/shared/pages/studio_tap_label.dart';
 
 import '../screenshots/support/shot.dart' show loadAppFonts;
 import '../support/fake_api.dart';
@@ -83,6 +86,8 @@ void main() {
           };
     await TestApp(
       api: api,
+      // A shop, as Kech Flora: its bag opens the cart.
+      appType: AppType.store,
       signedIn: true,
       preferences: {'settings.language': lang},
     ).pump(tester);
@@ -173,6 +178,100 @@ void main() {
       );
     });
   }
+
+  group('159 the round buttons say what they open', () {
+    // The Leqaa QA tester: the search and the bag over the stories had no
+    // name, so a screen reader said only "button".
+    SemanticsNode tap(WidgetTester tester, String id) => tester.getSemantics(
+      find
+          .descendant(
+            of: find.byKey(ValueKey('studio-node-$id')),
+            matching: find.byType(Semantics),
+          )
+          .first,
+    );
+
+    for (final (lang, search, bag) in [
+      ('en', 'Search', 'Cart'),
+      ('ar', 'بحث', 'السلة'),
+      ('tr', 'Ara', 'Sepet'),
+    ]) {
+      testWidgets('in $lang: "$search" and "$bag", as buttons', (tester) async {
+        final handle = tester.ensureSemantics();
+        await draw(tester, 390, hero(), lang: lang);
+        expect(
+          tap(tester, 'sig-45'),
+          isSemantics(label: search, isButton: true, hasTapAction: true),
+        );
+        expect(
+          tap(tester, 'sig-48'),
+          isSemantics(label: bag, isButton: true, hasTapAction: true),
+        );
+        handle.dispose();
+      });
+    }
+
+    testWidgets('the owner\'s name for it first; a page by its title', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final h = hero();
+      final bar = barOf(h)['children'] as List;
+      (bar[2] as Map<String, dynamic>)['name'] = 'Your bouquets';
+      (bar[0] as Map<String, dynamic>)['action'] = {
+        'type': 'page',
+        'page_slug': 'home',
+      };
+      await draw(tester, 390, h);
+      expect(find.bySemanticsLabel('Your bouquets'), findsOneWidget);
+      // The page's title in the app's pages.
+      expect(find.bySemanticsLabel('Discover'), findsWidgets);
+      expect(
+        tap(tester, 'sig-45'),
+        isSemantics(label: 'Discover', isButton: true, hasTapAction: true),
+      );
+      handle.dispose();
+    });
+
+    test('only an element without words of its own gets one', () {
+      StudioNode node(Map<String, dynamic> json) =>
+          StudioNode.tryParse({'id': 'n', ...json})!;
+      expect(studioWordless(node({'type': 'icon', 'icon': 'search'})), isTrue);
+      expect(
+        studioWordless(
+          node({
+            'type': 'row',
+            'children': [
+              {'id': 'i', 'type': 'icon', 'icon': 'search'},
+            ],
+          }),
+        ),
+        isTrue,
+      );
+      expect(
+        studioWordless(node({'type': 'button', 'icon': 'search'})),
+        isTrue,
+      );
+      // Its words are what it says, as before.
+      expect(
+        studioWordless(node({'type': 'button', 'text': 'Send flowers'})),
+        isFalse,
+      );
+      expect(
+        studioWordless(
+          node({
+            'type': 'row',
+            'children': [
+              {'id': 'i', 'type': 'icon', 'icon': 'search'},
+              {'id': 't', 'type': 'text', 'text': 'Search'},
+            ],
+          }),
+        ),
+        isFalse,
+      );
+      expect(studioWordless(node({'type': 'items'})), isFalse);
+    });
+  });
 
   test('a layer that is not a top bar, and the first layer, as before', () {
     StudioNode stack(List<Map<String, dynamic>> layers) =>

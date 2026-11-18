@@ -2616,6 +2616,7 @@ class StudioNode {
   const StudioNode({
     required this.id,
     required this.type,
+    this.name,
     this.children = const [],
     this.width,
     this.height,
@@ -2754,6 +2755,7 @@ class StudioNode {
       return StudioNode(
         id: id,
         type: type,
+        name: optString(json, 'name'),
         children: [
           for (final child in rawChildren is List ? rawChildren : const [])
             ?StudioNode.tryParse(child, depth: depth + 1, tablet: tablet),
@@ -3065,6 +3067,10 @@ class StudioNode {
 
   final String id;
   final StudioNodeType type;
+
+  /// 159 The owner's name for it in Studio: what a screen reader says for
+  /// an element that opens something without words of its own.
+  final String? name;
   final List<StudioNode> children;
   final StudioSize? width;
   final StudioSize? height;
