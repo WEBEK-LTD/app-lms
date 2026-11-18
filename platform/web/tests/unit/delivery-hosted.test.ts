@@ -422,7 +422,7 @@ describe("104 delivery apps on the hosted API", () => {
     const customer = await signUp("1001112222", "Karim Hassan");
     const sent = (await send(customer.access_token, { payment: "card" })).body as { shipment: { id: number; status: string }; pay_url: string };
     expect(sent.shipment.status).toBe("awaiting_payment");
-    expect(sent.pay_url).toMatch(/^https:\/\/yallapp\.test\/pay\/[A-Za-z0-9_-]{32}$/);
+    expect(sent.pay_url).toMatch(/^https:\/\/yallapp\.test\/pay\/[A-Za-z0-9_-]{32}\/in-app$/);
     // Waiting for the payment, it isn't offered to couriers.
     expect(((await call("GET", "/courier/jobs", { token: omar.access_token, query: { scope: "available" } })).body as { total: number }).total).toBe(0);
     const again = await call("POST", "/me/shipments/{shipment_id}/pay", { params: [String(sent.shipment.id)], token: customer.access_token });
