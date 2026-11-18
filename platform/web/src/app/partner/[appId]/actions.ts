@@ -5,8 +5,9 @@ import { redirect } from "next/navigation";
 import { getStore } from "@/lib/data";
 import { sendAppMail } from "@/lib/email/send";
 import { CODE_MINUTES, endPanelSession, finishPanelSignIn, normalEmail, panelCookie, panelStaff, startPanelSignIn } from "@/lib/market/panel";
-import { addStaff, bulkPhotos, can, deletePhoto, fetchLinksNow, hoursFormBody, IMPORT_MAX_BYTES, importCatalog, panelContext, placeHoursValues, saveDelivery, setStaffActive, setStock, uploadPhoto, type PanelContext, type PanelTab } from "@/lib/market/panel-pages";
+import { addStaff, bulkPhotos, can, canEditCatalog, catalogScopeOf, deletePhoto, fetchLinksNow, hoursFormBody, IMPORT_MAX_BYTES, importCatalog, panelContext, placeHoursValues, saveDelivery, setStaffActive, setStock, uploadPhoto, type PanelContext, type PanelTab } from "@/lib/market/panel-pages";
 import { boardAction } from "@/lib/market/panel-board";
+import { createProduct, deleteAisle, deleteDepartment, deleteProduct, formFields, orderShelves, saveAisle, saveDepartment, sellsProducts, undoStockMove, updateProduct } from "@/lib/market/catalog-edit";
 import type { BulkPhotoOutcome } from "@/lib/market/photos";
 import { createVendorCoupon, setVendorCoupon } from "@/lib/market/vendor-coupons";
 import { safeFetcher } from "@/lib/net/safe-fetch";
@@ -79,7 +80,8 @@ export async function saveStockAction(appId: string, lang: string, form: FormDat
   const ctx = await withPanel(appId, "catalog");
   if (ctx) {
     const raw = String(form.get("stock") ?? "").trim();
-    const stock = raw === "" ? null : Math.max(0, Math.floor(Number(raw)) || 0);
+    // 115.24 In the product's unit (kilos for items sold by weight).
+    const stock = raw === "" ? null : Math.max(0, Number(raw.replace(",", ".")) || 0);
     const toggle = form.get("toggle") === "1";
     const current = form.get("in_stock") !== "1";
     await setStock(ctx, Number(form.get("id")), toggle ? !current : stock === 0 ? false : current || (stock ?? 0) > 0, form.has("stock") ? stock : null, new Date());
@@ -219,4 +221,75 @@ export async function offerStateAction(appId: string, lang: string, form: FormDa
   if (action !== "pause" && action !== "resume" && action !== "end") redirect(back(appId, "offers", lang));
   const done = await setVendorCoupon({ store: ctx.store, appId: ctx.app.id, vendor: ctx.vendor, currency: ctx.currency }, Number(form.get("id")), action, new Date());
   redirect(back(appId, "offers", lang, done.ok ? "" : `&error=${encodeURIComponent(done.error)}`));
+}
+
+// 115.24 Editing the catalog: the place's owner and managers (lib/market/catalog-edit.ts).
+
+async function withEditor(appId: string) {
+  const ctx = await withPanel(appId, "catalog");
+  return ctx && canEditCatalog(ctx.staff) && sellsProducts(ctx.vendor) ? ctx : null;
+}
+
+const firstError = (errors: Partial<Record<string, string>>) => Object.values(errors).find(Boolean) ?? "Check the fields.";
+const catalogBack = (appId: string, lang: string, extra: string) => back(appId, "catalog", lang, extra);
+
+export async function saveProductAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withEditor(appId);
+  if (!ctx) redirect(back(appId, "orders", lang));
+  const id = Number(form.get("id")) || null;
+  const scope = catalogScopeOf(ctx);
+  const now = new Date();
+  const saved = id === null ? await createProduct(scope, formFields(form), now) : await updateProduct(scope, id, formFields(form), now);
+  if (!saved) redirect(catalogBack(appId, lang, ""));
+  if (!saved.ok) redirect(catalogBack(appId, lang, `&edit=${id ?? "new"}&error=${encodeURIComponent(firstError(saved.errors))}`));
+  redirect(catalogBack(appId, lang, `&edit=${saved.value.id}&saved=1#product-editor`));
+}
+
+export async function deleteProductAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withEditor(appId);
+  if (ctx) await deleteProduct(catalogScopeOf(ctx), Number(form.get("id")), new Date());
+  redirect(catalogBack(appId, lang, ""));
+}
+
+export async function undoStockAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withEditor(appId);
+  if (!ctx) redirect(back(appId, "orders", lang));
+  const move = await ctx.store.getMarketStockMove(ctx.app.id, Number(form.get("move")));
+  const done = move ? await undoStockMove(catalogScopeOf(ctx), move.id, new Date()) : { ok: false as const, error: "This change isn't there any more." };
+  redirect(catalogBack(appId, lang, `&edit=${move?.productId ?? ""}${done.ok ? "&saved=1" : `&error=${encodeURIComponent(done.error)}`}#product-editor`));
+}
+
+const shelvesBack = (appId: string, lang: string, error?: string) => catalogBack(appId, lang, `&view=shelves${error ? `&error=${encodeURIComponent(error)}` : ""}`);
+
+export async function saveShelfAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withEditor(appId);
+  if (!ctx) redirect(back(appId, "orders", lang));
+  const scope = catalogScopeOf(ctx);
+  const id = Number(form.get("id")) || null;
+  const now = new Date();
+  const saved = form.get("kind") === "aisle" ? await saveAisle(scope, { id, departmentId: Number(form.get("department_id")), name: form.get("name") }, now) : await saveDepartment(scope, { id, name: form.get("name") }, now);
+  redirect(shelvesBack(appId, lang, saved.ok ? undefined : firstError(saved.errors)));
+}
+
+export async function deleteShelfAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withEditor(appId);
+  if (ctx) {
+    const scope = catalogScopeOf(ctx);
+    const id = Number(form.get("id"));
+    if (form.get("kind") === "aisle") await deleteAisle(scope, id, new Date());
+    else await deleteDepartment(scope, id, new Date());
+  }
+  redirect(shelvesBack(appId, lang));
+}
+
+/** An arrow (`move` up or down) or a drag (`ids`, the whole list in its new order). */
+export async function orderShelfAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withEditor(appId);
+  if (!ctx) redirect(back(appId, "orders", lang));
+  const kind = form.get("kind") === "aisle" ? ({ kind: "aisle", departmentId: Number(form.get("department_id")) } as const) : ({ kind: "department" } as const);
+  const ids = String(form.get("ids") ?? "");
+  const move = form.get("move");
+  const order = ids ? ids.split(",").map(Number) : { id: Number(form.get("id")), move: move === "up" ? ("up" as const) : ("down" as const) };
+  await orderShelves(catalogScopeOf(ctx), kind, order, new Date());
+  redirect(shelvesBack(appId, lang));
 }

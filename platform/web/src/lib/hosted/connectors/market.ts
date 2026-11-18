@@ -1128,7 +1128,7 @@ export class MarketConnector {
 
   private async createProduct(s: Staffed, request: ConnectorRequest): Promise<ConnectorResult> {
     const scope = await this.catalogScope(s);
-    if (!sellsProducts(s.vendor)) return error(409, "not_allowed", "Restaurants have a menu, not products.");
+    if (!sellsProducts(s.vendor)) return error(403, "not_allowed", "Restaurants have a menu, not products.");
     const made = await createProduct(scope, this.body(request), request.now);
     if (!made.ok) return editRefused(made.errors);
     return { status: 201, body: productJson(made.value, scope.currency, this.deps.assetUrl, { vendor: true }) };
@@ -1136,7 +1136,7 @@ export class MarketConnector {
 
   private async editProduct(s: Staffed, productId: number, request: ConnectorRequest): Promise<ConnectorResult> {
     const scope = await this.catalogScope(s);
-    if (!sellsProducts(s.vendor)) return error(409, "not_allowed", "Restaurants have a menu, not products.");
+    if (!sellsProducts(s.vendor)) return error(403, "not_allowed", "Restaurants have a menu, not products.");
     const saved = await updateProduct(scope, productId, this.body(request), request.now);
     if (!saved) return error(404, "not_found", "Item not found.");
     if (!saved.ok) return editRefused(saved.errors);
@@ -1163,7 +1163,7 @@ export class MarketConnector {
 
   private async saveShelf(s: Staffed, kind: "department" | "aisle", id: number | null, request: ConnectorRequest): Promise<ConnectorResult> {
     const scope = await this.catalogScope(s);
-    if (!sellsProducts(s.vendor)) return error(409, "not_allowed", "Restaurants have a menu, not departments.");
+    if (!sellsProducts(s.vendor)) return error(403, "not_allowed", "Restaurants have a menu, not departments.");
     const b = this.body(request);
     if (kind === "department") {
       const saved = await saveDepartment(scope, { id, name: b.name }, request.now);

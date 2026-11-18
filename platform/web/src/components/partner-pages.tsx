@@ -6,7 +6,7 @@ import { BulkPhotos, PhotoDrop } from "./partner-photo";
 import { DeliveryAreaFields } from "./delivery-area-fields";
 import { LEGACY_VENDOR_KM } from "@/lib/market/areas";
 import type { BulkPhotoOutcome } from "@/lib/market/photos";
-import type { MarketCoupon, RestaurantStaff } from "@/lib/data/types";
+import { MARKET_COUNT_CAP, type MarketCoupon, type RestaurantStaff } from "@/lib/data/types";
 import { formatMinor, fromMinor, currencyDecimals } from "@/lib/market/currency";
 import type { CatalogItem, ImportResult, PanelTab } from "@/lib/market/panel-pages";
 import { fill, type PanelLang, type PanelWords } from "@/lib/market/panel-words";
@@ -100,18 +100,38 @@ const quiet = "inline-flex h-10 items-center justify-center gap-1.5 rounded-xl b
 
 // Menu & stock
 
-export function CatalogSection({ w, lang, base, items, total, perPage, page, q, outOnly, noPhotoOnly, withoutPhoto, photosRequired, multiPhoto, photoError, currency, assetUrl, saveStock, savePhoto, dropPhoto }: {
+export function CatalogSection({ w, lang, base, items, total, perPage, page, q, outOnly, noPhotoOnly, withoutPhoto, photosRequired, multiPhoto, photoError, currency, assetUrl, saveStock, savePhoto, dropPhoto, canEdit = false, editor = null }: {
   w: PanelWords; lang: PanelLang; base: string; items: CatalogItem[]; total: number; perPage: number; page: number; q: string; outOnly: boolean; noPhotoOnly: boolean; withoutPhoto: number; photosRequired: boolean; multiPhoto: boolean;
   photoError: { id: number; error: string } | null; currency: string; assetUrl: (id: string) => string; saveStock: (f: FormData) => Promise<void>; savePhoto: (f: FormData) => Promise<void>; dropPhoto: (f: FormData) => Promise<void>;
+  /** 115.24 The place's owner and managers add, change and delete products, departments and aisles. */
+  canEdit?: boolean; editor?: ReactNode;
 }) {
   const pages = Math.max(1, Math.ceil(total / perPage));
   const link = (p: number) => `${base}?tab=catalog&lang=${lang}&page=${p}${q ? `&q=${encodeURIComponent(q)}` : ""}${outOnly ? "&out=1" : ""}${noPhotoOnly ? "&nophoto=1" : ""}`;
+  const editLink = (id: number | "new") => `${base}?tab=catalog&lang=${lang}&page=${page}${q ? `&q=${encodeURIComponent(q)}` : ""}&edit=${id}#product-editor`;
   const out = items.filter((i) => !i.inStock).length;
+  // 115.24 Page counts stop at 10,000 (a big catalog isn't counted to its end).
+  const counted = total >= MARKET_COUNT_CAP ? w.countCapped : total.toLocaleString(lang === "ar" ? "ar-EG" : lang);
   return (
+    <>
+    {editor}
     <Card
       title={w.tabCatalog}
-      text={fill(w.itemsCount, { n: total.toLocaleString(lang === "ar" ? "ar-EG" : lang) })}
+      text={fill(w.itemsCount, { n: counted })}
       aside={
+        <div className="flex flex-col items-end gap-3">
+        {canEdit ? (
+          <span className="flex flex-wrap items-center gap-2">
+            <Link href={editLink("new")} className={primary} data-testid="add-product">
+              <Icon name="add" size={18} />
+              {w.addProduct}
+            </Link>
+            <Link href={`${base}?tab=catalog&lang=${lang}&view=shelves`} className={quiet}>
+              <Icon name="category" size={17} />
+              {w.shelves}
+            </Link>
+          </span>
+        ) : null}
         <form className="flex flex-wrap items-center gap-2" action={base}>
           <input type="hidden" name="tab" value="catalog" />
           <input type="hidden" name="lang" value={lang} />
@@ -130,6 +150,7 @@ export function CatalogSection({ w, lang, base, items, total, perPage, page, q, 
           </label>
           <button className={quiet}>{w.search}</button>
         </form>
+        </div>
       }
     >
       {photosRequired && withoutPhoto > 0 ? (
@@ -163,6 +184,12 @@ export function CatalogSection({ w, lang, base, items, total, perPage, page, q, 
                 <span className="flex flex-none flex-col items-end gap-1">
                   <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${it.inStock ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}`}>{it.inStock ? w.inStock : w.outOfStock}</span>
                   {!it.image ? <span className="rounded-full bg-peach px-2.5 py-1 text-xs font-bold text-accent">{photosRequired ? w.needsPhoto : w.noPhoto}</span> : null}
+                  {canEdit ? (
+                    <Link href={editLink(it.id)} className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold text-accent hover:bg-peach" data-testid={`edit-${it.id}`}>
+                      <Icon name="edit" size={14} />
+                      {w.editProduct}
+                    </Link>
+                  ) : null}
                 </span>
               </div>
               {photoError && photoError.id === it.id ? <p className="m-0 rounded-xl bg-danger-bg px-3 py-2 text-[13px] font-semibold text-danger">{photoError.error}</p> : null}
@@ -199,7 +226,7 @@ export function CatalogSection({ w, lang, base, items, total, perPage, page, q, 
                 <input type="hidden" name="id" value={it.id} />
                 <input type="hidden" name="in_stock" value={it.inStock ? "0" : "1"} />
                 {it.stock !== null || it.unit !== "item" || it.sku ? (
-                  <input name="stock" type="number" min={0} defaultValue={it.stock ?? ""} placeholder={w.stockCount} className={`${field} h-10 w-24`} aria-label={w.stockCount} />
+                  <input name="stock" type="number" min={0} step="any" defaultValue={it.stock ?? ""} placeholder={w.stockCount} className={`${field} h-10 w-24`} aria-label={w.stockCount} />
                 ) : null}
                 <button name="toggle" value="1" className={`${quiet} flex-1 ${it.inStock ? "hover:border-danger hover:text-danger" : "hover:border-success hover:text-success"}`}>
                   <Icon name={it.inStock ? "block" : "check"} size={17} />
@@ -232,6 +259,7 @@ export function CatalogSection({ w, lang, base, items, total, perPage, page, q, 
         </span>
       </footer>
     </Card>
+    </>
   );
 }
 

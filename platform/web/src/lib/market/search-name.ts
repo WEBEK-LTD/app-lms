@@ -30,21 +30,23 @@ const ARABIC_FOLD: Record<string, string> = {
   "ـ": "", // ـ
 };
 
+const FOLDED = new RegExp(`[${Object.keys(ARABIC_FOLD).join("")}]`, "g");
+
 /** Western digits for Arabic-Indic and Persian ones; everything else as it is. */
 export function westernDigits(text: string): string {
-  return text.replace(/[٠-٩۰-۹]/g, (d) => String((d.codePointAt(0)! - (d >= "۰" ? 0x06f0 : 0x0660)) % 10));
+  return text.replace(/[\u0660-\u0669\u06f0-\u06f9]/g, (d) => String((d.codePointAt(0)! - (d >= "\u06f0" ? 0x06f0 : 0x0660)) % 10));
 }
 
 /** A text as search keeps it (see above); empty when nothing is left. */
 export function normalizeSearch(text: string): string {
   const folded = westernDigits(text)
     // Turkish İ lower-cases to "i̇" (with a combining dot) in most engines; ı stays dotless: both as i.
-    .replace(/[İı]/g, "i")
+    .replace(/[\u0130\u0131]/g, "i")
     .toLowerCase()
     .normalize("NFKD")
     // Accents, and the Arabic harakat, shadda, sukun and the dagger alef.
-    .replace(/[̀-ًͯ-ٰٟۖ-ۭ]/g, "")
-    .replace(/[ء-ـٱکی]/g, (c) => ARABIC_FOLD[c] ?? c)
+    .replace(/[\u0300-\u036f\u064b-\u065f\u0670\u06d6-\u06ed]/g, "")
+    .replace(FOLDED, (c) => ARABIC_FOLD[c] ?? c)
     // NFKD splits أ into ا + hamza above (dropped above); NFC never comes back here.
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();

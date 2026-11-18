@@ -62,7 +62,8 @@ export function suggestMapping(columns: string[]): ColumnMapping {
 /** "1.234,50", "1,234.50", "EGP 25", "25 ج.م" → minor units, or null. */
 export function readAmount(text: string, currency: string): number | null {
   // 115.24 Arabic-Indic and Persian digits (٢٥٫٥٠) as Western ones, with the Arabic decimal and thousands marks.
-  let value = arabicNumerals(text).replace(/[^\d.,-]/g, "");
+  // A currency's own dots ("ج.م", "Dhs.") around the number aren't its decimals.
+  let value = arabicNumerals(text).replace(/[^\d.,-]/g, "").replace(/^[.,]+|[.,]+$/g, "");
   if (!value) return null;
   const lastComma = value.lastIndexOf(",");
   const lastDot = value.lastIndexOf(".");
