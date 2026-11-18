@@ -1,4 +1,5 @@
 import 'market_models.dart';
+import '../../../core/format/text_case.dart';
 
 /// 115 Sample marketplace data: what the screens show until the platform
 /// serves the marketplace, and what the screenshots and widget tests use.
@@ -313,8 +314,8 @@ abstract final class MarketSamples {
   /// 115 What the search finds among the samples: places by their name,
   /// dishes and products by theirs, each with the place that sells it.
   static MarketSearchResults search(String query) {
-    final q = query.trim().toLowerCase();
-    bool has(String name) => q.isNotEmpty && name.toLowerCase().contains(q);
+    final q = lowerIn(query.trim());
+    bool has(String name) => q.isNotEmpty && lowerIn(name).contains(q);
     return MarketSearchResults(
       places: [
         for (final v in vendors)

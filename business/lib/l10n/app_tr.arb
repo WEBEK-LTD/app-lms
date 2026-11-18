@@ -1173,6 +1173,9 @@
   "primeMoreActionsHelp": "Kuponlar, flaş indirimler, teslimat saatleri, yoğun modu",
   "primeGoalsHelp": "Gün, hafta veya ay için hedef, Bugün'de halkasıyla",
   "primeWeeklyHelp": "Her pazartesi e-postayla özet",
+  "bouquetWrap": "Ambalaj",
+  "bouquetCard": "Kart",
+  "bouquetMessage": "Kart mesajı: {message}",
   "minutesAgo": "{count} dk önce",
   "hoursAgo": "{count} sa önce",
   "donorsCount": "{count} bağışçı",
@@ -1221,5 +1224,6 @@
   "hoursShort": "{hours, plural, other{{hours} saat}}",
   "lowStockAlertHint": "{count, plural, =0{Bir ürün tükendiğinde haber almak için Akıllı uyarılar'da Düşük stok'u açın.} other{Akıllı uyarılar'daki Düşük stok, {count} kaldığında haber verir.}}",
   "lockAfterMinutes": "{minutes, plural, =1{1 dakika uzaktayken} other{{minutes} dakika uzaktayken}}",
-  "needsAwaitingPayment": "{count, plural, =1{Ödemesi beklenen 1 sipariş} other{Ödemesi beklenen {count} sipariş}}"
+  "needsAwaitingPayment": "{count, plural, =1{Ödemesi beklenen 1 sipariş} other{Ödemesi beklenen {count} sipariş}}",
+  "bouquetGroup": "Buket · {stems, plural, other{{stems} dal}}"
 }

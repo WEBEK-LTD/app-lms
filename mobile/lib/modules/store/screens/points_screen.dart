@@ -50,7 +50,8 @@ class PointsScreen extends ConsumerWidget {
       body = RefreshIndicator(
         onRefresh: () => ref.refresh(myPointsProvider.future),
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          // 158 Its end clear of a bar over the screen.
+          padding: EdgeInsets.fromLTRB(20, 8, 20, endRoom(context, 24)),
           children: [
             AppCard(
               padding: const EdgeInsets.all(18),

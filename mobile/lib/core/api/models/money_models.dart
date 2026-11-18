@@ -1,4 +1,53 @@
+import '../../format/bidi.dart';
+import '../../l10n/l10n.dart';
 import 'json.dart';
+
+/// 161 A price as the customer sees it: in their currency when the server
+/// sent it in it ([converted], a `display`'s text), approximate ("≈ \$12.40",
+/// as the shop's prices are), else the shop's own ([shop]). Every price the
+/// app shows goes through this, so none stays in the shop's currency while
+/// the customer chose another. [exact]: the amount the card is charged in
+/// that currency (no "≈").
+String customerPrice(String shop, String? converted, {bool exact = false}) {
+  if (converted == null || converted.isEmpty) return shop;
+  return exact ? converted : currentL10n.approxPrice(converted);
+}
+
+/// 161 A price added to another ("+E£60.00"), a [customerPrice]'s
+/// approximate sign before the plus ("≈ +\$1.25").
+String addedPrice(String shown) => signedPrice('+', shown);
+
+/// 161 A price taken off ("−E£60.00", "≈ −\$1.25").
+String takenOffPrice(String shown) => signedPrice('−', shown);
+
+/// 161 [sign] before a price, after a [customerPrice]'s approximate sign;
+/// the sign and the amount kept together left to right, so in Arabic the
+/// sign never lands after the amount ("E£5.00−").
+String signedPrice(String sign, String shown) {
+  final approx = currentL10n.approxPrice('');
+  if (approx.isNotEmpty && shown.startsWith(approx)) {
+    return currentL10n.approxPrice(
+      ltrRun('$sign${shown.substring(approx.length)}'),
+    );
+  }
+  return ltrRun('$sign$shown');
+}
+
+/// 161 [customerPrice] for a text that may be missing.
+String? customerPriceOr(String? shop, String? converted) =>
+    shop == null ? null : customerPrice(shop, converted);
+
+/// 161 The money text [key] of [json] as the customer sees it: the same
+/// key of its `display` (the server's conversion) when there is one
+/// ([shownKey] when it is named otherwise there), else the shop's. For
+/// texts only shown (a line's total, a fee, a coupon's amount), read this
+/// way where they are parsed, so no screen shows one in the shop's
+/// currency while the customer chose another.
+String? customerText(Json json, String key, {String? shownKey}) =>
+    customerPriceOr(
+      optString(json, key),
+      DisplayMoney.tryParse(json['display'])?[shownKey ?? key],
+    );
 
 /// 135.5 The same money in the customer's currency (`display` on a price, a
 /// cart or a menu's quote, `DisplayMoney` in the contract): each amount of
@@ -42,6 +91,17 @@ class DisplayMoney {
   /// The rates' day, "2026-11-16".
   final String? rateDate;
   final Map<String, String> values;
+
+  /// 161 The text of [key] in the customer's currency ("total", "fee_formatted").
+  String? operator [](String key) => values[key];
+
+  /// 161 As the server sent it, to keep on the phone (a product seen lately).
+  Json toJson() => {
+    'currency': currency,
+    ...values,
+    'rate': rate,
+    'rate_date': rateDate,
+  };
 
   /// A price's "$12.40".
   String? get formatted => values['formatted'];

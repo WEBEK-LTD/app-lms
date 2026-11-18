@@ -10,6 +10,7 @@ import '../../../core/theme/palette.dart';
 import '../../shared/pages/content_blocks.dart' show pageClockProvider;
 import '../data/parent_providers.dart';
 import '../data/school_providers.dart';
+import '../../../core/format/text_case.dart';
 
 /// 128 The family's school day on a school's Studio page (`school`): the
 /// greeting with today's date, the children to switch between and today's
@@ -213,7 +214,7 @@ class _Children extends ConsumerWidget {
         // 128.10 An empty name has no initials (and never throws).
         .where((w) => w.isNotEmpty)
         .take(2)
-        .map((w) => w.characters.first.toUpperCase())
+        .map((w) => w.characters.first.toUpperCaseIn(context))
         .join();
     return SingleChildScrollView(
       key: const ValueKey('studio-school-children'),

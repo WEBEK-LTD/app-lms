@@ -15,6 +15,9 @@ import { inMainLanguage, withBuiltInTexts } from "./builtin";
 import { withLanguageList } from "../i18n/packs";
 import { designFitsApp, findDesign } from "./designs/catalog";
 import { scheduleAutoScreenshots } from "../app/auto-screenshots";
+import { PAGE_TEXT_FORMS } from "../i18n/builtin";
+import { withoutPlaceholders, withoutStaleTranslations } from "./template-translations";
+import { withSampleProduct } from "../hosted/pages/lists";
 
 /**
  * The draft and the published copy of an app's layout (roadmap 10.4). The
@@ -123,7 +126,9 @@ export async function saveDraft(store: DataStore, app: App, input: unknown, now:
   }
   const record = await loadLayout(store, app, now);
   const sentStrings = Boolean(input && typeof input === "object" && "strings" in input);
-  const next: LayoutContent = sentStrings || !record.draft.strings ? parsed.value : { ...parsed.value, strings: record.draft.strings };
+  // 156 The template's translations of texts the owner changed go: the app shows their own text in every language.
+  const fresh = withoutStaleDraftTranslations(parsed.value, app);
+  const next: LayoutContent = sentStrings || !record.draft.strings ? fresh : { ...fresh, strings: record.draft.strings };
   const saved: AppLayoutRecord = { ...record, draft: stampPages(next, record.draft, now), draftUpdatedAt: now };
   await store.saveAppLayout(saved);
   return { ok: true, value: saved };
@@ -339,6 +344,47 @@ export function hasUnpublishedChanges(record: AppLayoutRecord): boolean {
   return JSON.stringify(record.draft) !== JSON.stringify(contentOf(record.published));
 }
 
+/**
+ * 156 A layout without the template's translations of the texts the owner
+ * changed since (lib/pages/template-translations.ts), with Yallapp's own
+ * page texts among the template's words, without the owner's marks, and
+ * without the templates' [placeholders] on its Studio pages:
+ * what leaves the platform for the apps and the WordPress plugin. A layout
+ * it changes gets its own version, so the apps and the plugin fetch it
+ * again rather than keep what they had (Leqaa's and Kech Flora's, published
+ * before).
+ */
+export function withFreshTranslations<T extends Layout>(layout: T, app: Pick<App, "appName"> & Partial<Pick<App, "catalogSettings" | "demo">>): T {
+  const words = { appName: app.appName, more: PAGE_TEXT_FORMS };
+  // 164 First, the template's sample bouquet in an app made before as one of the shop's products: its words are the
+  // demo's own, which the pass below leaves out of a business's app, and the bouquet is known by them.
+  const sampled = withSampleProducts(layout);
+  // 156 And no template [placeholder] for customers: the store's facts fill theirs, the rest waits for the owner's words.
+  const delivery = app.catalogSettings?.delivery;
+  const fresh = withoutPlaceholders(withoutStaleTranslations(sampled, { ...words, dropMarks: true }), { cutoff: delivery?.enabled && delivery.sameDay ? delivery.cutoff : null, ownBusiness: app.demo !== true }, words);
+  if (fresh === layout) return layout;
+  return { ...fresh, version: `${layout.version}~f${sha256Hex(JSON.stringify(fresh)).slice(0, 8)}` };
+}
+
+/** 164 Each Studio page with the template's sample bouquet served as one of the shop's products (lib/hosted/pages/lists.ts). */
+function withSampleProducts<T extends Layout>(layout: T): T {
+  let changed = false;
+  const pages = layout.pages.map((page) => {
+    if (!page.studio) return page;
+    const body = withSampleProduct(page.studio.body);
+    // It rebuilds the tree: a page without the sample stays the same object (and the layout its version).
+    if (JSON.stringify(body) === JSON.stringify(page.studio.body)) return page;
+    changed = true;
+    return { ...page, studio: { ...page.studio, body } };
+  });
+  return changed ? { ...layout, pages } : layout;
+}
+
+/** 156 A draft without the template's translations of the texts the owner changed; the owner's own translations and marks stay. */
+export function withoutStaleDraftTranslations<T extends LayoutContent>(content: T, app: Pick<App, "appName">): T {
+  return withoutStaleTranslations(content, { appName: app.appName, more: PAGE_TEXT_FORMS });
+}
+
 /** What apps get: the published layout, or null before the first publish. */
 export async function publishedLayout(store: DataStore, appId: string): Promise<Layout | null> {
   return (await store.getAppLayout(appId))?.published ?? null;
@@ -361,11 +407,12 @@ async function unpublishedDefaults(store: DataStore, record: AppLayoutRecord | n
 export async function servedLayout(store: DataStore, app: App, plan: PlanInfo | null = null, options: { draft?: boolean; now?: Date } = {}): Promise<Layout> {
   // 43 With Yallapp's own translations of the texts it wrote, where the owner has none.
   // 17 The app preview can show the draft, with the plan's limits like the published layout.
-  if (options.draft) return withBuiltInTexts(layoutForPlan(await draftLayout(store, app, options.now ?? new Date()), app, plan, await appDefaults(store)));
+  // 156 Without the template's translations of the texts the owner changed: their own text in every language.
+  if (options.draft) return withBuiltInTexts(layoutForPlan(withFreshTranslations(await draftLayout(store, app, options.now ?? new Date()), app), app, plan, await appDefaults(store)));
   const record = await store.getAppLayout(app.id);
   const published = record?.published ?? null;
   const defaults = await appDefaults(store);
-  if (published) return withBuiltInTexts(layoutForPlan(published, app, plan, defaults));
+  if (published) return withBuiltInTexts(layoutForPlan(withFreshTranslations(published, app), app, plan, defaults));
   const content = defaultLayout(app, await unpublishedDefaults(store, record), app.createdAt);
   return withBuiltInTexts(layoutForPlan({ version: `default.${sha256Hex(JSON.stringify(content)).slice(0, 16)}`, ...content }, app, plan, defaults));
 }

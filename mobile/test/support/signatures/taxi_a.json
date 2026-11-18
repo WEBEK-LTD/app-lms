@@ -1037,9 +1037,47 @@
     },
     "studio": {
      "body": {
-      "id": "sig-59",
+      "id": "sig-60",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "sig-59",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account",
      "background": "#FFFDF6",
@@ -1062,11 +1100,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-60",
+      "id": "sig-61",
       "type": "column",
       "children": [
        {
-        "id": "sig-68",
+        "id": "sig-69",
         "type": "tracking",
         "tracking": {
          "kind": "nearby_taxis",
@@ -1131,7 +1169,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-61",
+      "id": "sig-62",
       "type": "column",
       "children": []
      },
@@ -1173,7 +1211,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-62",
+      "id": "sig-63",
       "type": "column",
       "children": []
      },
@@ -1215,7 +1253,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-63",
+      "id": "sig-64",
       "type": "column",
       "children": []
      },
@@ -1257,7 +1295,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-64",
+      "id": "sig-65",
       "type": "column",
       "children": []
      },
@@ -1291,7 +1329,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-65",
+      "id": "sig-66",
       "type": "column",
       "children": []
      },
@@ -1308,7 +1346,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-66",
+      "id": "sig-67",
       "type": "column",
       "children": []
      },
@@ -1325,7 +1363,7 @@
     "title": "A ride on its way",
     "studio": {
      "body": {
-      "id": "sig-67",
+      "id": "sig-68",
       "type": "column",
       "children": []
      },

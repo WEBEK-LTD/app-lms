@@ -169,3 +169,9 @@ final addonsProvider = FutureProvider.autoDispose
 final orderTimesProvider = FutureProvider.autoDispose<OrderTimes>(
   (ref) => ref.contentApi.getOrderTimes(),
 );
+
+/// 162 Build your bouquet: the flowers, the wraps and the cards to choose
+/// from, asked each time it opens.
+final bouquetBuilderProvider = FutureProvider.autoDispose<BouquetBuilderData>(
+  (ref) => ref.contentApi.getBouquet(),
+);

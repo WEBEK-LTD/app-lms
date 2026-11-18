@@ -51,9 +51,20 @@ export interface StripeEndpoint {
   enabled_events: string[];
 }
 
+/** 155 A payment method domain the fake Stripe keeps (docs.stripe.com/api/payment_method_domains/object). */
+export interface StripeDomain {
+  id: string;
+  domain_name: string;
+  enabled: boolean;
+  livemode: boolean;
+  apple_pay: { status: "active" | "inactive"; status_details?: { error_message: string } };
+  google_pay: { status: "active" | "inactive"; status_details?: { error_message: string } };
+}
+
 /**
  * Stripe: POST /v1/checkout/sessions, GET /v1/checkout/sessions/{id}, POST /v1/refunds, GET /v1/balance;
- * 132.34 GET /v1/account, GET /v1/checkout/sessions (list), GET /v1/webhook_endpoints, POST /v1/payment_intents and …/cancel.
+ * 132.34 GET /v1/account, GET /v1/checkout/sessions (list), GET /v1/webhook_endpoints, POST /v1/payment_intents and …/cancel;
+ * 155 GET and POST /v1/payment_method_domains, POST …/{id} and …/{id}/validate (a test may turn a wallet off in `domains`).
  */
 export function fakeStripe(options: { secretKey?: string; base?: string; accountName?: string } = {}) {
   const calls: FakeRequest[] = [];
@@ -61,10 +72,38 @@ export function fakeStripe(options: { secretKey?: string; base?: string; account
   const refunds: URLSearchParams[] = [];
   const endpoints: StripeEndpoint[] = [];
   const intents: { id: string; form: URLSearchParams; status: string }[] = [];
+  const domains: StripeDomain[] = [];
+  const domainView = (d: StripeDomain) => ({ object: "payment_method_domain", ...d, link: { status: "active" }, paypal: { status: "active" } });
   const handle: Handler = (request) => {
     const path = request.path.split("?")[0]!;
     if (options.secretKey && request.headers.authorization !== `Bearer ${options.secretKey}`) {
       return { status: 401, json: { error: { message: "Invalid API Key provided" } } };
+    }
+    // 155 Payment method domains: one per domain and mode (a test key's mode is test).
+    const livemode = /^Bearer (sk|rk)_live_/.test(request.headers.authorization ?? "");
+    if (path === "/v1/payment_method_domains" && request.method === "GET") {
+      const name = new URLSearchParams(request.path.split("?")[1] ?? "").get("domain_name");
+      const data = domains.filter((d) => d.livemode === livemode && (!name || d.domain_name === name)).map(domainView);
+      return ok({ object: "list", url: "/v1/payment_method_domains", data, has_more: false });
+    }
+    if (path === "/v1/payment_method_domains" && request.method === "POST") {
+      const form = new URLSearchParams(request.body);
+      const name = form.get("domain_name") ?? "";
+      if (!name) return { status: 400, json: { error: { message: "Missing required param: domain_name.", param: "domain_name" } } };
+      if (domains.some((d) => d.livemode === livemode && d.domain_name === name)) return { status: 400, json: { error: { message: `The domain ${name} is already registered.` } } };
+      const domain: StripeDomain = { id: `pmd_${domains.length + 1}fake`, domain_name: name, enabled: form.get("enabled") !== "false", livemode, apple_pay: { status: "active" }, google_pay: { status: "active" } };
+      domains.push(domain);
+      return ok(domainView(domain));
+    }
+    const pmd = /^\/v1\/payment_method_domains\/([^/]+)(\/validate)?$/.exec(path);
+    if (pmd && request.method === "POST") {
+      const domain = domains.find((d) => d.id === decodeURIComponent(pmd[1]!) && d.livemode === livemode);
+      if (!domain) return notFound;
+      if (!pmd[2]) {
+        const enabled = new URLSearchParams(request.body).get("enabled");
+        if (enabled !== null) domain.enabled = enabled === "true";
+      }
+      return ok(domainView(domain));
     }
     if (path === "/v1/balance") return ok({ object: "balance" });
     if (path === "/v1/account") return ok({ id: "acct_1FakeYallapp", object: "account", country: "AE", default_currency: "aed", charges_enabled: true, business_profile: { name: options.accountName ?? "Test shop" } });
@@ -128,7 +167,7 @@ export function fakeStripe(options: { secretKey?: string; base?: string; account
     const session = sessions.get(id)!;
     Object.assign(session, { status: "complete", payment_status: "paid", payment_intent: `pi_${id.slice(-6)}`, ...extra });
   };
-  return { handle, fetcher: fetcherFor(handle, calls), calls, sessions, refunds, pay, endpoints, intents };
+  return { handle, fetcher: fetcherFor(handle, calls), calls, sessions, refunds, pay, endpoints, intents, domains };
 }
 
 export interface PaypalOrder {

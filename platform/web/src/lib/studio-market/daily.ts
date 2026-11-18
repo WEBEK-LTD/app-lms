@@ -8,6 +8,10 @@ import type { PlanInfo } from "../plans";
 import type { Lang } from "@/i18n/config";
 import { takeOffAtEnd } from "./apply";
 import { marketMailLines } from "./mail";
+import { closeAlerts, raiseAlert, type TeamMail } from "../watch/alerts";
+import { payoutRun, syncLedger } from "./money";
+import { lastSalesDayOf, payoutDayOf } from "./payout-calendar";
+import { formatUsd } from "./plans";
 import { templateText } from "./templates";
 
 /**
@@ -25,6 +29,9 @@ import { templateText } from "./templates";
  *   owner is emailed. Free and lifetime licences have no end date.
  *
  * Safe to run again: what was done for an end date isn't done twice.
+ *
+ * 106.11 Every paid sale is in the designers' ledger (a delivery cut short
+ * is written here).
  */
 
 export const REMINDER_DAYS = 14;
@@ -39,6 +46,10 @@ export interface MarketDailyDeps {
   mail: (key: EmailTemplateKey, to: string, values: Record<string, string>, options: { lang: Lang }) => Promise<unknown>;
   /** The plan of a buyer's app (its published design keeps to it). */
   planOf: (clientId: string, appId: string) => Promise<PlanInfo | null>;
+  /** 106.11 Emails the team a new alert (lib/watch/env.ts › teamMail). */
+  alertMail?: TeamMail | null;
+  /** 106.11 The payouts' clock (lib/studio-market/payout-clock.ts); `now` when not given. */
+  payoutNow?: Date;
 }
 
 export interface MarketDailyReport {
@@ -48,11 +59,21 @@ export interface MarketDailyReport {
   restored: number;
   /** Ends whose app couldn't go back to its previous design (the design stayed; the team sees it in the audit log). */
   restoreFailed: number;
+  /** 106.11 Paid sales put in the designers' ledger now (a delivery cut short wrote none). */
+  ledger: number;
+  /** 106.11 This month's payouts waiting to be prepared (the team alerted from the 1st), or null when it couldn't be read. */
+  payoutsDue: number | null;
 }
 
 export async function runStudioMarketDaily(deps: MarketDailyDeps): Promise<MarketDailyReport> {
   const { store, now } = deps;
-  const report: MarketDailyReport = { reminded: 0, lastDay: 0, ended: 0, restored: 0, restoreFailed: 0 };
+  const report: MarketDailyReport = { reminded: 0, lastDay: 0, ended: 0, restored: 0, restoreFailed: 0, ledger: 0, payoutsDue: null };
+  try {
+    report.ledger = await syncLedger(store, now);
+    report.payoutsDue = await payoutsReady(deps);
+  } catch (e) {
+    console.error(`[daily] studio market ledger: ${e instanceof Error ? e.message : String(e)}`);
+  }
   for (const licence of await store.listTemplateLicencesEndingBy(new Date(now.getTime() + REMINDER_DAYS * DAY))) {
     const endsAt = licence.endsAt!;
     try {
@@ -164,4 +185,45 @@ async function endLicence(deps: MarketDailyDeps, licence: TemplateLicence, endsA
       .catch((e: unknown) => console.error("[mail] Studio Market end failed", e));
   }
   return outcome;
+}
+
+/** 106.11 The team alert's key for a month's run: one a month. */
+export const payoutsAlertKey = (period: string) => `market_payouts:${period}`;
+
+/**
+ * 106.11 The 1st: the month's payouts are ready to prepare. The first daily
+ * run of the month (on the 1st) alerts the team in Admin › Watching and by
+ * email, once, while a designer is due (USD 250 or more of sales paid before
+ * the cut-off, checks approved) or waits for their checks with as much; it
+ * is counted on the next days, and closes by itself once every due payout
+ * is prepared. Returns how many are due.
+ */
+async function payoutsReady(deps: MarketDailyDeps): Promise<number> {
+  const now = deps.payoutNow ?? deps.now;
+  const run = await payoutRun(deps.store, now);
+  const due = run.rows.filter((r) => r.state === "due");
+  const waiting = run.rows.filter((r) => r.state === "checks");
+  const key = payoutsAlertKey(run.period);
+  if (!due.length && !waiting.length) {
+    await closeAlerts(deps.store, [key], deps.now);
+    return 0;
+  }
+  const total = due.reduce((n, r) => n + r.dueCents, 0);
+  const day = payoutDayOf(run.period, "en");
+  await raiseAlert(
+    deps.store,
+    {
+      kind: "market_payouts",
+      key,
+      title: `Studio Market payouts of ${day} are ready to prepare`,
+      detail:
+        `${due.length === 1 ? "1 designer is" : `${due.length} designers are`} due, ${formatUsd(total)} in all, for the sales paid up to ${lastSalesDayOf(run.period, "en")} (midnight Istanbul time).` +
+        (waiting.length ? ` ${waiting.length === 1 ? "1 more designer has" : `${waiting.length} more designers have`} USD 250 or more but their payout checks aren't approved yet.` : "") +
+        " Prepare the bank file, send the transfers from Yallapp's bank and mark each one sent.",
+      link: "/admin/market/payouts",
+    },
+    deps.now,
+    deps.alertMail ?? null,
+  );
+  return due.length;
 }

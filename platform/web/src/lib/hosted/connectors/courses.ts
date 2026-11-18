@@ -426,8 +426,9 @@ export class CoursesConnector implements Connector {
   // Mapping
 
   private price(c: Pick<Course, "priceCents">) {
-    if (c.priceCents === 0) return { is_free: true, amount: null, sale_amount: null, currency: null, formatted: null };
     const { currency } = this.setup;
+    // 161 Free: its amount (0) and currency, for a card's price; still no text.
+    if (c.priceCents === 0) return { is_free: true, amount: centsToDecimal(0), sale_amount: null, currency, formatted: null };
     return { is_free: false, amount: centsToDecimal(c.priceCents), sale_amount: null, currency, formatted: formatCents(c.priceCents, currency) };
   }
 

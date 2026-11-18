@@ -98,6 +98,12 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   // 106.10 A paid template's orders and each period a licence was paid for: the account's purchases, like its licences.
   studio_market_orders: "account",
   studio_market_licence_periods: "account",
+  // 106.11 The designer's money: the ledger of sales, the checks before the first payout, the payouts.
+  studio_market_ledger: "account",
+  studio_market_payout_details: "account",
+  studio_market_payouts: "account",
+  // 106.12 A designer's discounts on their templates: the template's, never an app's.
+  studio_market_discounts: "account",
 
   apps: "app",
 
@@ -133,6 +139,8 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   catalog_coupons: "content",
   store_flash_sales: "content",
   store_gift_occasions: "content",
+  // 165 Dashboard › Stories
+  app_stories: "content",
   listings: "content",
   listing_settings: "content",
   article_categories: "content",

@@ -5,6 +5,7 @@ import '../../../../core/api/models/models.dart';
 import '../../../../core/gate/app_gate.dart';
 import '../../../../core/theme/palette.dart';
 import '../../../../core/widgets/buttons.dart';
+import '../../../../core/widgets/common.dart' show endRoom;
 import '../../../../core/widgets/premium_chrome.dart';
 import '../../../../core/widgets/studio_screen_scope.dart';
 
@@ -86,10 +87,21 @@ class SystemScreenFrame extends ConsumerWidget {
       trailing: actions,
     );
     final openHeight = bar(0).openHeight();
+    // 158 Its end above a tab bar over the screen, or the phone's own bar
+    // (MediaQuery's bottom padding where it is); above the footer, which
+    // keeps clear of them itself.
+    final footed = footer != null || bottomNavigationBar != null;
     Widget content(double inset) => scrollable
-        ? SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(16, inset + 12, 16, 28),
-            child: child,
+        ? Builder(
+            builder: (context) => SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                inset + 12,
+                16,
+                endRoom(context, 28),
+              ),
+              child: child,
+            ),
           )
         : Padding(
             padding: EdgeInsets.only(top: inset),
@@ -103,6 +115,7 @@ class SystemScreenFrame extends ConsumerWidget {
             child: MediaQuery.removePadding(
               context: context,
               removeTop: true,
+              removeBottom: footed,
               child: content(glass ? openHeight : 0),
             ),
           );

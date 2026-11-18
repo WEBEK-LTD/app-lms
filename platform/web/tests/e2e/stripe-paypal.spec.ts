@@ -54,7 +54,10 @@ async function buyTwo(page: Page, request: import("@playwright/test").APIRequest
   const products = await (await request.get(`${api}/store/products`)).json();
   const checkout = await request.post(`${api}/store/checkout-link?platform=android`, { data: { lines: [{ product_id: products.items[0].id, quantity: 2 }] } });
   const { url } = (await checkout.json()) as { url: string };
-  await page.goto(url);
+  const response = await page.goto(url);
+  // 155 The payment page lets Stripe's frames use the Payment Request API (Apple Pay, Google Pay), and only it.
+  expect(response!.headers()["permissions-policy"]).toBe('camera=(), microphone=(), geolocation=(), payment=(self "https://js.stripe.com" "https://checkout.stripe.com")');
+  expect(response!.headers()["x-frame-options"]).toBe("DENY");
   await expect(page.getByText(`Card payments are processed securely by ${provider}.`)).toBeVisible();
   await page.getByLabel("Full name").fill("Ada Lovelace");
   await page.getByLabel("Mobile number").fill("+90 532 111 22 33");
@@ -155,11 +158,21 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await expect(results).toContainText("Currency supported: Stripe takes USD.");
   await expect(results).toContainText("No webhook signing secret yet.");
   await expect(results).toContainText(`Stripe has no webhook endpoint for ${webhookUrl} in this mode.`);
+  // 155 The payment page's domain registered in the shop's Stripe account for Apple Pay and Google Pay, with the keys tested.
+  await expect(results).toContainText("Apple Pay and Google Pay: localhost is registered in this Stripe account");
   await expect(results.locator('li[data-tone="fail"]')).toHaveCount(0);
 
   await payments.getByRole("button", { name: "Save keys" }).click();
   await expect(payments.getByText("Stripe keys saved.")).toBeVisible();
   await expect(payments.getByText("On · your Stripe account · sandbox (test payments)")).toBeVisible();
+  // 155 Saved: the domain is found registered (not twice), kept, and the summary says the wallets are ready.
+  await expect(page.locator("[data-wallets]")).toHaveAttribute("data-wallets", "ready");
+  await expect(page.locator("[data-wallets]")).toContainText("Apple Pay and Google Pay: ready. Stripe's card form offers them on localhost, on phones and browsers that have them.");
+  const registered = () => stripe.calls.filter((c) => c.method === "POST" && c.path === "/v1/payment_method_domains");
+  expect(registered()).toHaveLength(1);
+  expect(new URLSearchParams(registered()[0]!.body).get("domain_name")).toBe("localhost");
+  expect(registered()[0]!.headers.authorization).toBe("Bearer sk_test_51HarbourMugsKey");
+  expect(stripe.domains!.map((d) => `${d.domain_name} ${d.livemode ? "live" : "test"} ${d.apple_pay.status} ${d.google_pay.status}`)).toEqual(["localhost test active active"]);
   await expect(payments.getByTestId("gateway-saved")).toContainText("Saved: Stripe");
   await expect(payments.getByTestId("gateway-saved")).toContainText("Test mode");
   await expect(payments.getByTestId("gateway-saved")).toContainText("Webhook: not received yet");
@@ -201,6 +214,11 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   const created = stripe.calls.find((c) => c.method === "POST" && c.path === "/v1/checkout/sessions")!;
   expect(created.headers["idempotency-key"]).toMatch(/^order-\d+-\d+-embedded$/);
   expect(new URLSearchParams(created.body).get("ui_mode")).toBe("embedded");
+  // 155 Already registered and kept: the payment didn't ask Stripe about the domain again.
+  expect(registered()).toHaveLength(1);
+  expect(stripe.calls.filter((c) => c.path.startsWith("/v1/payment_method_domains") && stripe.calls.indexOf(c) > stripe.calls.indexOf(created))).toEqual([]);
+  // The other pages keep payments off.
+  expect((await request.get("/")).headers()["permissions-policy"]).toBe("camera=(), microphone=(), geolocation=(), payment=()");
 
   // 132.31 Stripe's webhook for that session: a forged one is refused, the signed one taken in (the order is already paid).
   const [session] = [...stripe.sessions!.values()].slice(-1);

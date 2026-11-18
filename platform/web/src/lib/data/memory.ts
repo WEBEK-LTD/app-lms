@@ -16,7 +16,14 @@ import type {
   TemplateOrder,
   TemplateOrderPatch,
   TemplateOrderStatus,
+  DesignerLedgerEntry,
+  DesignerPayout,
+  DesignerPayoutDetails,
+  DesignerPayoutStatus,
+  PayoutDetailsStatus,
 } from "./types";
+// 106.12 Studio Market discounts
+import type { MarketDiscount, MarketDiscountKind } from "./types";
 import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
@@ -24,7 +31,7 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StudioTemplate, StudioDesign, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
-import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
+import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
 import { firebaseAppOrder } from "../firebase/order";
 import type {
@@ -257,6 +264,7 @@ import type { PaymentRefund, RefundKind } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import { mergeCrash } from "../crashes/report";
 import { categoryOrder } from "../catalog/bulk";
+import { storyOrder } from "../stories/order";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
 import type { AddonTaskStatus, AppAddon, AppAddonPatch } from "../addons/types";
@@ -1160,7 +1168,10 @@ export class MemoryStore implements DataStore {
 
   async renameCatalogCategory(appId: string, id: number, name: string): Promise<void> {
     const category = this.catalogCategories.get(id);
-    if (category && category.appId === appId) category.name = name;
+    if (!category || category.appId !== appId) return;
+    category.name = name;
+    // 157 Renamed in the dashboard, a demo's category is the owner's.
+    delete category.sample;
   }
 
   async reorderCatalogCategories(appId: string, ids: number[]): Promise<void> {
@@ -1380,6 +1391,63 @@ export class MemoryStore implements DataStore {
 
   async deleteGiftOccasion(appId: string, id: number): Promise<void> {
     this.giftOccasions = this.giftOccasions.filter((o) => !(o.appId === appId && o.id === id));
+  }
+
+  private appStories: AppStory[] = [];
+  private nextAppStoryId = 1;
+
+  async listAppStories(appId: string): Promise<AppStory[]> {
+    return this.appStories.filter((s) => s.appId === appId).map(clone).sort((a, b) => a.position - b.position || a.id - b.id);
+  }
+
+  async getAppStory(appId: string, id: number): Promise<AppStory | null> {
+    const found = this.appStories.find((s) => s.appId === appId && s.id === id);
+    return found ? clone(found) : null;
+  }
+
+  async createAppStory(input: Omit<AppStory, "id">): Promise<AppStory | null> {
+    if (input.importKey !== null && this.appStories.some((s) => s.appId === input.appId && s.importKey === input.importKey)) return null;
+    const row: AppStory = { ...clone(input), id: this.nextAppStoryId++ };
+    this.appStories.push(row);
+    if (input.importKey === null) this.storiesSaved(input.appId, input.updatedAt);
+    return clone(row);
+  }
+
+  /** 165 The owner saved the app's stories in Dashboard › Stories (`App.storiesSavedAt`). */
+  private storiesSaved(appId: string, now: Date): void {
+    const app = this.apps.get(appId);
+    if (app) app.storiesSavedAt = now;
+  }
+
+  async updateAppStory(appId: string, id: number, patch: Partial<Omit<AppStory, "id" | "appId" | "createdAt" | "importKey">>): Promise<boolean> {
+    const found = this.appStories.find((s) => s.appId === appId && s.id === id);
+    if (!found) return false;
+    Object.assign(found, clone(patch));
+    this.storiesSaved(appId, patch.updatedAt ?? new Date());
+    return true;
+  }
+
+  async deleteAppStory(appId: string, id: number): Promise<boolean> {
+    const before = this.appStories.length;
+    this.appStories = this.appStories.filter((s) => !(s.appId === appId && s.id === id));
+    if (this.appStories.length === before) return false;
+    this.storiesSaved(appId, new Date());
+    return true;
+  }
+
+  async reorderAppStories(appId: string, ids: number[], now: Date): Promise<void> {
+    storyOrder(await this.listAppStories(appId), ids).forEach((id, position) => {
+      const story = this.appStories.find((s) => s.appId === appId && s.id === id);
+      if (story && story.position !== position) Object.assign(story, { position, updatedAt: now });
+    });
+    this.storiesSaved(appId, now);
+  }
+
+  async markStoriesSeeded(appId: string, now: Date): Promise<boolean> {
+    const app = this.apps.get(appId);
+    if (!app || app.storiesSeededAt) return false;
+    app.storiesSeededAt = now;
+    return true;
   }
 
   async createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder> {
@@ -7458,6 +7526,8 @@ export class MemoryStore implements DataStore {
     if (!this.users.has(userId)) return false;
     const clientIds = [...this.clients.values()].filter((c) => c.userId === userId).map((c) => c.id);
     for (const clientId of clientIds) {
+      // 106.11 A designer's checks (their ID and bank) go with their profile, as `on delete cascade` does.
+      for (const designer of this.templateDesigners.values()) if (designer.clientId === clientId) this.payoutDetails.delete(designer.id);
       for (const app of [...this.apps.values(), ...this.deletedApps.values()]) if (app.clientId === clientId) this.cascadeApp(app.id);
       for (const license of this.licenses.values()) if (license.clientId === clientId) this.activations.delete(license.id);
       // Their payments go with the client, as `on delete cascade` does: the caller keeps them first.
@@ -8069,7 +8139,8 @@ export class MemoryStore implements DataStore {
 
   /** Every table holding rows, but the records that outlive what they name (no foreign keys in MySQL). */
   private tables(): { rows(): Record<string, unknown>[]; remove(match: (row: Record<string, unknown>) => boolean): void }[] {
-    const kept = new Set<unknown>([this.appDeletions, this.keptBilling, this.accountDeletions, this.auditEntries, this.deletedApps, this.apps, this.platformSettings]);
+    // 106.11 The designers' ledger and payouts are kept like sales (no foreign key in MySQL either), whoever's account goes.
+    const kept = new Set<unknown>([this.appDeletions, this.keptBilling, this.accountDeletions, this.auditEntries, this.deletedApps, this.apps, this.platformSettings, this.designerLedger, this.designerPayouts]);
     const tables: { rows(): Record<string, unknown>[]; remove(match: (row: Record<string, unknown>) => boolean): void }[] = [];
     const isRow = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !(value instanceof Map) && !(value instanceof Set);
     for (const key of Object.keys(this) as (keyof this)[]) {
@@ -9018,6 +9089,8 @@ export class MemoryStore implements DataStore {
     this.marketTemplates.delete(id);
     for (const [key, v] of this.marketVersions) if (v.templateId === id) this.marketVersions.delete(key);
     this.marketReviews = this.marketReviews.filter((r) => r.templateId !== id);
+    // 106.12 Its discounts go with it, as the database's foreign key does.
+    for (const [key, d] of this.marketDiscounts) if (d.templateId === id) this.marketDiscounts.delete(key);
     return true;
   }
 
@@ -9211,6 +9284,170 @@ export class MemoryStore implements DataStore {
     if (!found || found.endedAt) return false;
     this.templateApplications.set(id, { ...found, ...clone(patch) });
     return true;
+  }
+
+  // ——— 106.12 Studio Market discounts ———
+
+  private marketDiscounts = new Map<string, MarketDiscount>();
+
+  async createMarketDiscount(discount: MarketDiscount): Promise<MarketDiscount | null> {
+    if (discount.code !== null && [...this.marketDiscounts.values()].some((d) => d.templateId === discount.templateId && d.code === discount.code)) return null;
+    this.marketDiscounts.set(discount.id, clone(discount));
+    return clone(discount);
+  }
+
+  async getMarketDiscount(id: string): Promise<MarketDiscount | null> {
+    const found = this.marketDiscounts.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async listMarketDiscounts(filter: { templateIds?: readonly string[]; designerId?: string; kinds?: readonly MarketDiscountKind[]; notEndedAt?: Date }): Promise<MarketDiscount[]> {
+    if (filter.templateIds && !filter.templateIds.length) return [];
+    return [...this.marketDiscounts.values()]
+      .filter(
+        (d) =>
+          (!filter.templateIds || filter.templateIds.includes(d.templateId)) &&
+          (!filter.designerId || d.designerId === filter.designerId) &&
+          (!filter.kinds || filter.kinds.includes(d.kind)) &&
+          (!filter.notEndedAt || d.endsAt === null || d.endsAt.getTime() > filter.notEndedAt.getTime()),
+      )
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+      .map(clone);
+  }
+
+  async findMarketCoupon(templateId: string, code: string): Promise<MarketDiscount | null> {
+    const found = [...this.marketDiscounts.values()].find((d) => d.templateId === templateId && d.kind === "coupon" && d.code === code);
+    return found ? clone(found) : null;
+  }
+
+  async endMarketDiscount(id: string, now: Date): Promise<boolean> {
+    const found = this.marketDiscounts.get(id);
+    if (!found || (found.endsAt && found.endsAt.getTime() <= now.getTime())) return false;
+    const startsAt = found.startsAt && found.startsAt.getTime() > now.getTime() ? new Date(now) : found.startsAt;
+    this.marketDiscounts.set(id, { ...found, startsAt, endsAt: new Date(now), updatedAt: now });
+    return true;
+  }
+
+  async deleteMarketDiscount(id: string): Promise<boolean> {
+    return this.marketDiscounts.delete(id);
+  }
+
+  async countMarketDiscountUses(ids: readonly string[]): Promise<Record<string, number>> {
+    const out: Record<string, number> = {};
+    for (const o of this.templateOrders.values()) if (o.status === "paid" && o.discount && ids.includes(o.discount.id)) out[o.discount.id] = (out[o.discount.id] ?? 0) + 1;
+    return out;
+  }
+
+  async createTemplateOrderWithCoupon(order: TemplateOrder, limit: number, holdSince: Date): Promise<"ok" | "used_up" | "held" | "gone"> {
+    // One step, nothing awaited in between: two buyers at once can't both take the last use.
+    const id = order.discount?.id;
+    if (!id || !this.marketDiscounts.has(id)) return "gone";
+    const mine = [...this.templateOrders.values()].filter((o) => o.discount?.id === id);
+    const paid = mine.filter((o) => o.status === "paid").length;
+    if (paid >= limit) return "used_up";
+    const held = mine.filter((o) => o.status === "pending" && o.createdAt.getTime() >= holdSince.getTime() && o.clientId !== order.clientId).length;
+    if (paid + held >= limit) return "held";
+    this.templateOrders.set(order.id, clone(order));
+    return "ok";
+  }
+
+  // ——— 106.11 The designer's money ———
+
+  private designerLedger = new Map<string, DesignerLedgerEntry>();
+  private payoutDetails = new Map<string, DesignerPayoutDetails>();
+  private designerPayouts = new Map<string, DesignerPayout>();
+
+  async recordDesignerSale(entry: DesignerLedgerEntry): Promise<boolean> {
+    if (this.designerLedger.has(entry.id)) return false;
+    this.designerLedger.set(entry.id, clone(entry));
+    return true;
+  }
+
+  async listDesignerLedger(filter: { designerId?: string }): Promise<DesignerLedgerEntry[]> {
+    return [...this.designerLedger.values()]
+      .filter((e) => !filter.designerId || e.designerId === filter.designerId)
+      .sort((a, b) => b.earnedAt.getTime() - a.earnedAt.getTime() || (a.id < b.id ? 1 : -1))
+      .map(clone);
+  }
+
+  async designerEarnings(before?: Date): Promise<Record<string, { cents: number; sales: number }>> {
+    const out: Record<string, { cents: number; sales: number }> = {};
+    for (const e of this.designerLedger.values()) {
+      if (before && e.earnedAt.getTime() >= before.getTime()) continue;
+      const sum = (out[e.designerId] ??= { cents: 0, sales: 0 });
+      sum.cents += e.designerCents;
+      sum.sales += 1;
+    }
+    return out;
+  }
+
+  async getDesignerPayoutDetails(designerId: string): Promise<DesignerPayoutDetails | null> {
+    const found = this.payoutDetails.get(designerId);
+    return found ? clone(found) : null;
+  }
+
+  async saveDesignerPayoutDetails(details: DesignerPayoutDetails): Promise<void> {
+    this.payoutDetails.set(details.designerId, clone(details));
+  }
+
+  async reviewDesignerPayoutDetails(designerId: string, submittedAt: Date, patch: Pick<DesignerPayoutDetails, "status" | "reviewNote" | "reviewedAt" | "reviewedBy">): Promise<boolean> {
+    const found = this.payoutDetails.get(designerId);
+    if (!found || found.status !== "submitted" || found.submittedAt.getTime() !== submittedAt.getTime()) return false;
+    this.payoutDetails.set(designerId, { ...found, ...clone(patch), updatedAt: patch.reviewedAt ?? found.updatedAt });
+    return true;
+  }
+
+  async listDesignerPayoutDetails(statuses?: readonly PayoutDetailsStatus[]): Promise<DesignerPayoutDetails[]> {
+    return [...this.payoutDetails.values()]
+      .filter((d) => !statuses || statuses.includes(d.status))
+      .sort((a, b) => a.submittedAt.getTime() - b.submittedAt.getTime() || (a.designerId < b.designerId ? -1 : 1))
+      .map(clone);
+  }
+
+  /** The designer's balance before a cut-off: their sales paid before it less their payouts not cancelled. */
+  private designerBalance(designerId: string, before: Date): number {
+    let cents = 0;
+    for (const e of this.designerLedger.values()) if (e.designerId === designerId && e.earnedAt.getTime() < before.getTime()) cents += e.designerCents;
+    for (const p of this.designerPayouts.values()) if (p.designerId === designerId && p.status !== "cancelled") cents -= p.amountCents;
+    return cents;
+  }
+
+  async createDesignerPayout(payout: DesignerPayout, check: { before: Date; expectedCents: number }): Promise<"created" | "exists" | "changed"> {
+    if ([...this.designerPayouts.values()].some((p) => p.id === payout.id || (p.designerId === payout.designerId && p.period === payout.period && p.status !== "cancelled"))) return "exists";
+    if (this.designerBalance(payout.designerId, check.before) !== check.expectedCents) return "changed";
+    this.designerPayouts.set(payout.id, clone(payout));
+    return "created";
+  }
+
+  async getDesignerPayout(id: string): Promise<DesignerPayout | null> {
+    const found = this.designerPayouts.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async listDesignerPayouts(filter: { designerId?: string; period?: string; statuses?: readonly DesignerPayoutStatus[] }): Promise<DesignerPayout[]> {
+    return [...this.designerPayouts.values()]
+      .filter((p) => (!filter.designerId || p.designerId === filter.designerId) && (!filter.period || p.period === filter.period) && (!filter.statuses || filter.statuses.includes(p.status)))
+      .sort((a, b) => b.preparedAt.getTime() - a.preparedAt.getTime() || (a.id < b.id ? 1 : -1))
+      .map(clone);
+  }
+
+  async markDesignerPayoutSent(id: string, patch: Pick<DesignerPayout, "bankReference" | "sentOn" | "sentAt" | "sentBy">): Promise<boolean> {
+    const found = this.designerPayouts.get(id);
+    if (!found || found.status !== "processing") return false;
+    this.designerPayouts.set(id, { ...found, ...clone(patch), status: "sent" });
+    return true;
+  }
+
+  async cancelDesignerPayout(id: string, patch: Pick<DesignerPayout, "cancelledAt" | "cancelledBy" | "cancelNote">): Promise<boolean> {
+    const found = this.designerPayouts.get(id);
+    if (!found || found.status !== "processing") return false;
+    this.designerPayouts.set(id, { ...found, ...clone(patch), status: "cancelled" });
+    return true;
+  }
+
+  async markDesignerPayoutEmailed(id: string, at: Date): Promise<void> {
+    const found = this.designerPayouts.get(id);
+    if (found) this.designerPayouts.set(id, { ...found, emailedAt: new Date(at) });
   }
 }
 

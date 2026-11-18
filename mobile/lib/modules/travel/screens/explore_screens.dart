@@ -16,6 +16,7 @@ import '../widgets/travel_pickers.dart';
 import '../widgets/travel_ui.dart';
 import '../widgets/travel_words.dart';
 import 'hotel_screens.dart';
+import '../../../core/format/text_case.dart';
 
 /// 126 The travel app's first tab: Explore as approved for both (stays,
 /// flights or both in one search, and destinations with the whole trip's
@@ -272,9 +273,10 @@ String _initials(String name) {
       .where((p) => p.isNotEmpty)
       .toList();
   if (parts.isEmpty) return '';
-  return (parts.first.characters.first +
-          (parts.length > 1 ? parts.last.characters.first : ''))
-      .toUpperCase();
+  return upperIn(
+    parts.first.characters.first +
+        (parts.length > 1 ? parts.last.characters.first : ''),
+  );
 }
 
 class _DestinationCard extends ConsumerWidget {
@@ -618,7 +620,8 @@ class StaysHomeScreen extends ConsumerWidget {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.only(bottom: 24),
+          // 158 Its end clear of a tab bar over the screen.
+          padding: EdgeInsets.only(bottom: endRoom(context, 24)),
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
@@ -972,7 +975,8 @@ class FlightsHomeScreen extends ConsumerWidget {
           ),
           SafeArea(
             child: ListView(
-              padding: const EdgeInsets.only(bottom: 24),
+              // 158 Its end clear of a tab bar over the screen.
+              padding: EdgeInsets.only(bottom: endRoom(context, 24)),
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),

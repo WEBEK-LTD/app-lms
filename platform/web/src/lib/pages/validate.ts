@@ -10,6 +10,7 @@ import { ICON_NAME } from "./icons";
 import { innerScreen, innerScreensFor } from "./inner-screens";
 import { appOpensScreen, blockTypesFor, categorySourcesFor, itemSourcesFor, screenName, sortFor } from "./sources";
 import {
+  OWN_TRANSLATIONS,
   ACTION_TYPES,
   APP_FONTS,
   APP_TEMPLATES,
@@ -179,6 +180,8 @@ import {
   STUDIO_TICKET_AXES,
   type StudioEntry,
   type StudioSurface,
+  STORIES_SOURCES,
+  STORY_PARTS,
 } from "./types";
 
 /**
@@ -247,22 +250,29 @@ class Checker {
       if (required) this.fail(where, `add ${what}.`);
       return null;
     }
-    let url: URL | null = null;
-    try {
-      url = new URL(text);
-    } catch {
-      url = null;
-    }
-    // 97.5 The platform's own files too, 99.1 and the designs' pictures (https in production; local tests serve them over http),
-    // 128 and Yallapp's own photos the demos' templates use (public/demo-photos, demo-screens, stories); 130.12 and its travel photos (public/travel-photos).
-    // 131.20 And Leqaa's flower photos (public/flower-photos).
-    const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures|demo-photos|demo-screens|stories|travel-photos|flower-photos)\//.test(url.pathname);
-    if (!url || (url.protocol !== "https:" && !own) || text.length > 2000 || /\s/.test(text)) {
+    const url = mediaAddress(text);
+    if (!url) {
       this.fail(where, `${what} must be a full https address.`);
       return null;
     }
-    return url.toString();
+    return url;
   }
+}
+
+/** An image's or video's address as stored: a full https address, or one of the platform's own files; null otherwise (165 Dashboard › Stories too). */
+export function mediaAddress(text: string): string | null {
+  let url: URL | null = null;
+  try {
+    url = new URL(text);
+  } catch {
+    url = null;
+  }
+  // 97.5 The platform's own files too, 99.1 and the designs' pictures (https in production; local tests serve them over http),
+  // 128 and Yallapp's own photos the demos' templates use (public/demo-photos, demo-screens, stories); 130.12 and its travel photos (public/travel-photos).
+  // 131.20 And Leqaa's flower photos (public/flower-photos).
+  const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures|demo-photos|demo-screens|stories|travel-photos|flower-photos)\//.test(url.pathname);
+  if (!url || (url.protocol !== "https:" && !own) || text.length > 2000 || /\s/.test(text)) return null;
+  return url.toString();
 }
 
 export interface ParseOptions {
@@ -417,6 +427,9 @@ interface Context {
   blockIssues: BlockIssue[];
 }
 
+/** 157 A category of the shop (`Action.category_id`), as the app API gives its IDs. */
+const CATEGORY_ID = /^[1-9][0-9]{0,14}$/;
+
 function parseAction(ctx: Context, where: string, value: unknown, required: boolean): Action | null {
   const { c } = ctx;
   if (value === undefined || value === null) {
@@ -439,6 +452,17 @@ function parseAction(ctx: Context, where: string, value: unknown, required: bool
       if (!oneOf(SCREENS, v.screen)) c.fail(where, "choose a screen.");
       // 31 Only screens the app's module opens: anything else would do nothing when tapped.
       else if (!appOpensScreen(ctx.app, v.screen)) c.fail(where, `this app has no "${screenName(v.screen)}" screen. Choose another screen.`);
+      // 162 Build your bouquet, a store's only, over its shop.
+      if (v.flow === "bouquet" && v.screen === "search" && ctx.app.appType === "store") return { type: "screen", screen: "search", flow: "bouquet" };
+      // 157 The shop opened at one of its categories (a tile's, a ring's): its ID, or the shop as it is.
+      if (v.screen === "search" && v.category_id !== undefined && v.category_id !== null && v.category_id !== "") {
+        const category = String(v.category_id).trim();
+        if (!ctx.sources.includes("products")) c.fail(where, "this app has no shop to open at a category.");
+        else if (!CATEGORY_ID.test(category)) c.fail(where, "choose one of the shop's categories.");
+        else return { type: "screen", screen: "search", category_id: category };
+      }
+      // 165 The shop opened on one of its categories (older apps open the shop).
+      if (v.screen === "courses" && typeof v.category_id === "string" && /^[A-Za-z0-9_.:-]{1,64}$/.test(v.category_id)) return { type: "screen", screen: "courses", category_id: v.category_id };
       return { type: "screen", screen: v.screen as Action["screen"] };
     case "course": {
       if (!ctx.sources.includes("courses")) c.fail(where, "this app has no courses. Choose what happens on tap.");
@@ -462,6 +486,9 @@ function parseAction(ctx: Context, where: string, value: unknown, required: bool
       const web = openIn === "in_app" ? parseWebLook(c, where, v.web) : null;
       return { type: "url", url: url ?? "", open_in: openIn, ...(web ? { web } : {}) };
     }
+    // 167 Sign out: nothing more to choose.
+    case "sign_out":
+      return { type: "sign_out" };
   }
   return null;
 }
@@ -503,6 +530,16 @@ function parseTranslations(ctx: Context, where: string, value: unknown, fields: 
       if (clean) kept[field] = clean;
     }
     if (Object.keys(kept).length) out[lang] = kept;
+  }
+  // 156 The fields the owner wrote by hand in each language (lib/pages/template-translations.ts), for the translations kept.
+  const marks = record(v[OWN_TRANSLATIONS]);
+  if (marks) {
+    const own: Record<string, string> = {};
+    for (const [lang, fields] of Object.entries(marks)) {
+      const kept = typeof fields === "string" ? [...new Set(fields.split(/\s+/))].filter((f) => out[lang]?.[f] !== undefined) : [];
+      if (kept.length) own[lang] = kept.join(" ");
+    }
+    if (Object.keys(own).length) out[OWN_TRANSLATIONS] = own;
   }
   return Object.keys(out).length ? out : undefined;
 }
@@ -1627,12 +1664,25 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   // 107.2 Hidden in the app; the page's own element always shows.
   if (v.hidden === true && depth > 0) node.hidden = true;
   if (v.locked === true && depth > 0) node.locked = true;
+  // 165 A story element's source (Dashboard › Stories or as designed), and what a part of its slides shows of each story.
+  if (v.type === "stories" || v.type === "slider" || v.type === "row") {
+    const source = pick("stories_source", STORIES_SOURCES, "choose where the stories come from.");
+    if (source) node.stories_source = source;
+  }
+  const part = pick("story_part", STORY_PARTS, "choose what this part of the story shows.");
+  if (part) node.story_part = part;
 
   // Size and place.
   const width = parseSize(c, where, v.width, "the width");
   if (width !== undefined) node.width = width;
   const height = parseSize(c, where, v.height, "the height");
   if (height !== undefined) node.height = height;
+  // 159 Its size changed by hand, with the automatic sizes it replaced (null: none of its own).
+  if (v.manual_size !== undefined && v.manual_size !== null) {
+    const m = record(v.manual_size);
+    if (!m) bad("the size set by hand isn't valid.");
+    else node.manual_size = { width: parseSize(c, where, m.width, "the automatic width") ?? null, height: parseSize(c, where, m.height, "the automatic height") ?? null };
+  }
   const minHeight = num("min_height", 0, L.maxSize, "the lowest height");
   if (minHeight) node.min_height = minHeight;
   const ratio = num("aspect_ratio", 0.1, 10, "the width over the height");

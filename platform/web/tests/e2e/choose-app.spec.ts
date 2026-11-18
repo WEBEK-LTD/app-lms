@@ -38,6 +38,8 @@ test.beforeAll(async ({ browser }) => {
   await admin.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
   await admin.getByRole("button", { name: "Sign in" }).click();
   await admin.waitForURL((url) => url.pathname.startsWith("/admin"));
+  // 156 Refreshing demo apps already there asks first: they lose what was changed on them in Studio.
+  admin.on("dialog", (dialog) => void dialog.accept());
   await admin.goto("/admin/demos");
   await admin.getByRole("button", { name: /Create the regular demo apps|Refresh all regular demo apps/ }).click();
   await expect(admin.getByRole("status")).toContainText("up to date", { timeout: 90_000 });

@@ -94,10 +94,11 @@ export function inAppBlock(app: Pick<App, "appType" | "connector" | "backend">):
   }
 }
 
-/** A fingerprint of the saved gateway keys (their encrypted values; never the keys), so a new key needs a new test. */
+/** A fingerprint of the saved gateway keys (their encrypted values; never the keys), so a new key needs a new test. 155 What Stripe said of the wallets' domain isn't a key. */
 export function gatewayKeysFingerprint(payment: OwnPayment): string {
   const keys: Record<string, unknown> = { ...payment };
   delete keys.webhook;
+  delete keys.wallets;
   return sha256Hex(JSON.stringify(keys)).slice(0, 32);
 }
 

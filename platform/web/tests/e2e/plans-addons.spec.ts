@@ -102,7 +102,9 @@ test("the pricing page offers the periods, with the price per month, the saving 
   const visitor = await admin.context().browser()!.newPage({ extraHTTPHeaders });
   await visitor.goto("/pricing");
   const tabs = visitor.locator("[data-period-tabs]");
-  await expect(tabs.locator("[data-period]")).toHaveText(["Monthly", "6 months", "Yearly", "2 years", "3 years", /Lifetime$/]);
+  // 154 Each period with its saving under it, lifetime paid once.
+  await expect(tabs.locator("[data-period] [data-period-label]")).toHaveText(["Monthly", "6 months", "Yearly", "2 years", "3 years", /Lifetime$/]);
+  await expect(tabs.locator('[data-period="lifetime"] [data-period-hint]')).toHaveText("Pay once");
   await tabs.locator('[data-period="6"]').click();
   // 146 One choice of period for the app's plans and Studio's.
   await expect(visitor).toHaveURL(/\/pricing\?period=6#plans$/);

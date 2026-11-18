@@ -485,6 +485,67 @@ test("124.12 Studio's menu leads to how people sign in", async () => {
   await expect(own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "How people sign in", exact: true })).toHaveAttribute("aria-current", "page");
 });
 
+/** 160 The project's hosted `GET /config` `auth`, as the app reads it (with the preview's token, before the app is live). */
+async function appAuth(request: APIRequestContext): Promise<Record<string, unknown>> {
+  await own.goto("/studio/project/setup?step=website");
+  const api = (await own.locator("code").filter({ hasText: "/api/app/" }).textContent())!.trim();
+  const html = await (await own.request.get("/studio/project/preview?pages=draft")).text();
+  const src = /<iframe[^>]*\ssrc="([^"]+)"[^>]*data-testid="app-preview"/.exec(html)![1]!.replaceAll("&amp;", "&");
+  const headers = { "x-yallapp-preview": new URL(src, E2E.baseURL).searchParams.get("token")! };
+  const config = await request.get(`${api}/config?platform=android&app_version=1.0.0`, { headers });
+  expect(config.status()).toBe(200);
+  return (await config.json()).auth;
+}
+
+test("160 How people sign in: a code every time or a password for each of the phone and the email, never both, and the app gets the same", async ({ request }) => {
+  await newProject("Store", "Kech Flora ways");
+  await own.goto("/studio/project/app-sign-in");
+  const ways = own.getByRole("group", { name: "People sign in with" });
+  const phoneCode = ways.getByRole("checkbox", { name: /^Phone number and a code/ });
+  const emailCode = ways.getByRole("checkbox", { name: /^Email address and a code/ });
+  const emailPassword = ways.getByRole("checkbox", { name: /^Email address and password/ });
+  const phonePassword = ways.getByRole("checkbox", { name: /^Phone number and password/ });
+  const save = own.locator("form").filter({ has: ways }).getByRole("button", { name: "Save", exact: true });
+  // The four as the owner reads them.
+  await expect(ways.getByText("A 6-digit code on WhatsApp, every time.")).toBeVisible();
+  await expect(ways.getByText("A 6-digit code by email, every time.")).toBeVisible();
+  await expect(ways.getByText("The address is checked with a code once, at sign-up.")).toBeVisible();
+  await expect(ways.getByText("The number is checked with a code on WhatsApp once, at sign-up.")).toBeVisible();
+
+  // A channel's code and its password can't both be on: turning one on turns the other off.
+  await emailCode.check();
+  await emailPassword.check();
+  await expect(emailCode).not.toBeChecked();
+  await phoneCode.check();
+  await expect(emailPassword).toBeChecked();
+  await save.click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved" })).toBeVisible();
+  // The phone with a code, the email with its password: the app's config says so.
+  expect(await appAuth(request)).toMatchObject({ methods: ["phone", "email"], password_sign_in: { by: ["email"], codes: ["phone"] } });
+
+  // The phone's password instead of its code; both with a password, no code signs in.
+  await own.goto("/studio/project/app-sign-in");
+  await expect(phoneCode).toBeChecked();
+  await expect(emailPassword).toBeChecked();
+  await phonePassword.check();
+  await expect(phoneCode).not.toBeChecked();
+  await save.click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved" })).toBeVisible();
+  expect(await appAuth(request)).toMatchObject({ methods: ["phone", "email"], password_sign_in: { by: ["email", "phone"], codes: [] } });
+
+  // Codes only: no password anywhere.
+  await own.goto("/studio/project/app-sign-in");
+  await phoneCode.check();
+  await emailCode.check();
+  await expect(phonePassword).not.toBeChecked();
+  await expect(emailPassword).not.toBeChecked();
+  await save.click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved" })).toBeVisible();
+  const codes = await appAuth(request);
+  expect(codes).toMatchObject({ methods: ["phone", "email"] });
+  expect(codes).not.toHaveProperty("password_sign_in");
+});
+
 test("124.15 the launch screen: a look, its background in light and dark, the words, saved", async () => {
   await newProject("Academy", "Launch");
   await own.goto("/studio/project/screens");

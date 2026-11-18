@@ -167,7 +167,9 @@ class _EventList extends ConsumerWidget {
         },
         child: ListView.separated(
           key: const ValueKey('events-list'),
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          // 158 Its end, and the next page's spinner, clear of a tab bar
+          // over the screen.
+          padding: EdgeInsets.fromLTRB(20, 8, 20, endRoom(context, 24)),
           itemCount: state.items.length + (state.hasMore ? 1 : 0),
           separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, i) {

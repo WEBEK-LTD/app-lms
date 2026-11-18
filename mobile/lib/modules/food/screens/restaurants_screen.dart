@@ -141,7 +141,8 @@ class _RestaurantList extends ConsumerWidget {
         },
         child: ListView.separated(
           key: const ValueKey('restaurants-list'),
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+          // 158 Its end clear of a tab bar over the screen.
+          padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
           itemCount: state.items.length,
           separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, i) => RestaurantTile(

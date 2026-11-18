@@ -3,7 +3,8 @@
 import { PROVIDER_NAME, providerTakes } from "@/lib/payments/provider";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { chargedAmount, readCustomer, startPayment } from "@/lib/catalog/payment";
+import { chargedAmount, cityOptionalFor, readCustomer, startPayment } from "@/lib/catalog/payment";
+import { payErrors, payLangOf, payMessage } from "@/lib/catalog/pay-words";
 import { formatCents } from "@/lib/catalog/money";
 import { chooseManualPayment, isManualMethod } from "@/lib/catalog/manual";
 import { sendManualOrderMails } from "@/lib/catalog/manual-mail";
@@ -15,6 +16,7 @@ import type { FormState } from "@/lib/forms";
 import { ipFromHeaders } from "@/lib/http";
 import { PaymentError } from "@/lib/payments/errors";
 import { StripeError } from "@/lib/payments/stripe";
+import { walletDomain } from "@/lib/payments/wallets";
 import { callbackUrls } from "@/lib/payments/routes";
 import { settleOrderPayment } from "@/lib/payments/settle";
 import { withDemoChecked } from "@/lib/demo/apps";
@@ -57,7 +59,19 @@ export interface PayState extends FormState {
  * 96.2 places the order to pay by bank transfer or the owner's own method.
  * `hosted` (Stripe's form couldn't load) asks for Stripe's own page.
  */
-export async function payAction(token: string, _: PayState, formData: FormData): Promise<PayState> {
+/**
+ * The payment page's form. 168 Its answers (each field's error, the
+ * page's message) in the customer's language, the order's.
+ */
+export async function payAction(token: string, previous: PayState, formData: FormData): Promise<PayState> {
+  const state = await payActionIn(token, previous, formData);
+  const order = await (await getStore()).getCatalogOrderByToken(sha256Hex(token));
+  const lang = payLangOf(order);
+  if (lang === "en") return state;
+  return { ...state, ...(state.message ? { message: payMessage(state.message, lang) } : {}), ...(state.errors ? { errors: payErrors(state.errors, lang) } : {}) };
+}
+
+async function payActionIn(token: string, _: PayState, formData: FormData): Promise<PayState> {
   const values = Object.fromEntries(["name", "phone", "email", "city", "address"].map((k) => [k, String(formData.get(k) ?? "")]));
   const store = await getStore();
   const order = await store.getCatalogOrderByToken(sha256Hex(token));
@@ -74,7 +88,7 @@ export async function payAction(token: string, _: PayState, formData: FormData):
   // 96.2 Bank transfer or the owner's own method: the order waits for the owner to mark it paid.
   if (app && isManualMethod(method) && !platformOrder) {
     const settings = app.catalogSettings?.manualPayments;
-    const checked = readCustomer(app, values);
+    const checked = readCustomer(app, values, { cityOptional: cityOptionalFor(order) });
     if (!checked.ok) return { errors: checked.errors, values };
     let chosen;
     try {
@@ -97,7 +111,7 @@ export async function payAction(token: string, _: PayState, formData: FormData):
   if (!providerTakes(account.account.provider, charged.currency)) {
     return { message: `${PROVIDER_NAME[account.account.provider]} doesn't take payments in ${charged.currency}, so this shop can't take card payments for now. Choose another way to pay, or go back to the app.`, values };
   }
-  const checked = readCustomer(app, values);
+  const checked = readCustomer(app, values, { cityOptional: cityOptionalFor(order) });
   if (!checked.ok) return { errors: checked.errors, values };
   // 37 A Kashier or Fawaterk payment started earlier may have gone through without its redirect or webhook: read it back before starting another.
   if (order.providerRef && order.paymentProvider && order.paymentProvider !== "iyzico") {
@@ -119,18 +133,21 @@ export async function payAction(token: string, _: PayState, formData: FormData):
   }
   const urls = callbackUrls(appUrl(), "order", account.account.provider, token);
   let started;
+  const apis = paymentApiUrls();
   try {
     started = await startPayment({
       store,
       app,
       account,
-      urls: paymentApiUrls(),
+      urls: apis,
       now,
       order: payable,
       customer: checked.customer,
       ip: ipFromHeaders(await headers()),
       callbackUrls: urls,
       hosted: formData.get("hosted") === "1",
+      // 155 This page's domain, for Apple Pay and Google Pay in Stripe's form.
+      walletDomain: walletDomain(appUrl(), Boolean(apis.stripe)),
     });
   } catch (e) {
     if (e instanceof HoldEndedError) return { message: "The places held for this order were released. Go back to the app and get your tickets again." };

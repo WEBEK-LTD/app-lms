@@ -1494,9 +1494,47 @@
     },
     "studio": {
      "body": {
-      "id": "demo-80",
+      "id": "demo-81",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "demo-80",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account",
      "background": "#F6F0E6",
@@ -1519,7 +1557,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-81",
+      "id": "demo-82",
       "type": "column",
       "children": []
      },
@@ -1561,7 +1599,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-82",
+      "id": "demo-83",
       "type": "column",
       "children": []
      },
@@ -1603,7 +1641,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-83",
+      "id": "demo-84",
       "type": "column",
       "children": []
      },
@@ -1645,7 +1683,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-84",
+      "id": "demo-85",
       "type": "column",
       "children": []
      },
@@ -1679,7 +1717,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-85",
+      "id": "demo-86",
       "type": "column",
       "children": []
      },
@@ -1696,7 +1734,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-86",
+      "id": "demo-87",
       "type": "column",
       "children": []
      },
@@ -1713,7 +1751,7 @@
     "title": "A restaurant's menu",
     "studio": {
      "body": {
-      "id": "demo-87",
+      "id": "demo-88",
       "type": "column",
       "children": []
      },
@@ -1730,7 +1768,7 @@
     "title": "An order",
     "studio": {
      "body": {
-      "id": "demo-88",
+      "id": "demo-89",
       "type": "column",
       "children": []
      },
@@ -1755,7 +1793,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-89",
+      "id": "demo-90",
       "type": "column",
       "children": []
      },

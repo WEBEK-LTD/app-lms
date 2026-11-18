@@ -139,6 +139,8 @@ export function demoTabPage(tab: LayoutTab, ctx: SectionContext): DemoTabPage {
     });
   }
   const account = screen === "account";
+  // 167 The account's Sign out, an element the owner sees in Studio.
+  if (account) children.push(accountSignOut(ctx));
   return {
     slug: tab.id,
     title: title.text,
@@ -149,6 +151,43 @@ export function demoTabPage(tab: LayoutTab, ctx: SectionContext): DemoTabPage {
       screen,
     },
   };
+}
+
+/**
+ * 167 The account page's Sign out element (the owner, 18 November 2026:
+ * "no Sign out in my account"): a button that asks first, then signs out,
+ * for a signed-in person only. Over the app's account screen the app draws
+ * it as the account's own Sign out, last, in the account's look (mobile/lib/
+ * modules/shared/pages/studio_page.dart); on a page of its own, where it is.
+ */
+export function accountSignOut(ctx: Pick<SectionContext, "w" | "lang" | "newId">): StudioNode {
+  const newId = ctx.newId ?? newNodeId;
+  const label = wordIn(ctx as SectionContext, "signOut", "text");
+  return {
+    id: newId(),
+    type: "button",
+    name: "Sign out",
+    text: label.text,
+    ...(label.translations ? { translations: label.translations } : {}),
+    action: { type: "sign_out" },
+    visibility: "signed_in",
+    width: "fill",
+    height: 48,
+    radius: 14,
+    border_color: "#B42318",
+    dark_border_color: "#F0907F",
+    border_width: 1.5,
+    color: "#B42318",
+    dark_color: "#F0907F",
+    font: { size: 15, weight: 700 },
+    text_align: "center",
+    margin: { top: 16, end: 16, bottom: 16, start: 16 },
+  };
+}
+
+/** 167 Whether [node] is a Sign out element. */
+export function isSignOut(node: StudioNode): boolean {
+  return node.action?.type === "sign_out";
 }
 
 /**

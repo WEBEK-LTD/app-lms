@@ -147,7 +147,7 @@ class _TripView extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                l.studioTripDaysTo(f.days, f.city).toUpperCase(),
+                l.studioTripDaysTo(f.days, f.city).toUpperCaseIn(context),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -311,7 +311,9 @@ class _TripTicket extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '${l.studioTripNext} · ${l.studioTripIn(facts.days)}'.toUpperCase(),
+            '${l.studioTripNext} · ${l.studioTripIn(facts.days)}'.toUpperCaseIn(
+              context,
+            ),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -765,7 +767,7 @@ class _RideHeadline extends ConsumerWidget {
                   (ride.status == RideStatus.accepted
                           ? l.studioRideOnTheWayShort
                           : live.title)
-                      .toUpperCase(),
+                      .toUpperCaseIn(context),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

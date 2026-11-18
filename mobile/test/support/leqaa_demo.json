@@ -215,6 +215,7 @@
           "id": "demo-3",
           "type": "slider",
           "name": "Every occasion",
+          "stories_source": "dashboard",
           "height": 520,
           "per_view": 1,
           "autoplay": true,
@@ -276,19 +277,13 @@
                 "type": "icon",
                 "icon": "favorite",
                 "icon_size": 15,
-                "color": "#FFD9C2"
+                "color": "#FFD9C2",
+                "story_part": "icon"
                },
                {
                 "id": "demo-8",
                 "type": "text",
                 "text": "For love",
-                "color": "#FFFFFF",
-                "font": {
-                 "size": 11,
-                 "weight": 700,
-                 "letter_spacing": 1.8,
-                 "uppercase": true
-                },
                 "translations": {
                  "ar": {
                   "text": "للحب"
@@ -296,7 +291,15 @@
                  "tr": {
                   "text": "Aşk için"
                  }
-                }
+                },
+                "color": "#FFFFFF",
+                "font": {
+                 "size": 11,
+                 "weight": 700,
+                 "letter_spacing": 1.8,
+                 "uppercase": true
+                },
+                "story_part": "kicker"
                }
               ]
              },
@@ -304,6 +307,14 @@
               "id": "demo-9",
               "type": "text",
               "text": "Say it with roses.",
+              "translations": {
+               "ar": {
+                "text": "قلها بالورد."
+               },
+               "tr": {
+                "text": "Güllerle söyleyin."
+               }
+              },
               "color": "#FFFFFF",
               "max_lines": 3,
               "font": {
@@ -319,19 +330,20 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "قلها بالورد."
-               },
-               "tr": {
-                "text": "Güllerle söyleyin."
-               }
-              }
+              "story_part": "title"
              },
              {
               "id": "demo-10",
               "type": "text",
               "text": "Bouquets with a card in your own words.",
+              "translations": {
+               "ar": {
+                "text": "باقات مع بطاقة بكلماتك أنت."
+               },
+               "tr": {
+                "text": "Kendi sözlerinizle bir kartla buketler."
+               }
+              },
               "color": "#FFFFFF",
               "opacity": 0.9,
               "max_lines": 2,
@@ -345,14 +357,7 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "باقات مع بطاقة بكلماتك أنت."
-               },
-               "tr": {
-                "text": "Kendi sözlerinizle bir kartla buketler."
-               }
-              }
+              "story_part": "line"
              },
              {
               "id": "demo-11",
@@ -400,7 +405,8 @@
                "tr": {
                 "text": "Çiçek gönder"
                }
-              }
+              },
+              "story_part": "button"
              }
             ]
            },
@@ -452,19 +458,13 @@
                 "type": "icon",
                 "icon": "cake",
                 "icon_size": 15,
-                "color": "#FFD9C2"
+                "color": "#FFD9C2",
+                "story_part": "icon"
                },
                {
                 "id": "demo-16",
                 "type": "text",
                 "text": "For a birthday",
-                "color": "#FFFFFF",
-                "font": {
-                 "size": 11,
-                 "weight": 700,
-                 "letter_spacing": 1.8,
-                 "uppercase": true
-                },
                 "translations": {
                  "ar": {
                   "text": "لعيد ميلاد"
@@ -472,7 +472,15 @@
                  "tr": {
                   "text": "Doğum günü için"
                  }
-                }
+                },
+                "color": "#FFFFFF",
+                "font": {
+                 "size": 11,
+                 "weight": 700,
+                 "letter_spacing": 1.8,
+                 "uppercase": true
+                },
+                "story_part": "kicker"
                }
               ]
              },
@@ -480,6 +488,14 @@
               "id": "demo-17",
               "type": "text",
               "text": "Another year, in bloom.",
+              "translations": {
+               "ar": {
+                "text": "عامٌ جديد يزهر."
+               },
+               "tr": {
+                "text": "Yeni bir yaş, çiçek açarak."
+               }
+              },
               "color": "#FFFFFF",
               "max_lines": 3,
               "font": {
@@ -495,19 +511,20 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "عامٌ جديد يزهر."
-               },
-               "tr": {
-                "text": "Yeni bir yaş, çiçek açarak."
-               }
-              }
+              "story_part": "title"
              },
              {
               "id": "demo-18",
               "type": "text",
               "text": "Bouquets with a card in your own words.",
+              "translations": {
+               "ar": {
+                "text": "باقات مع بطاقة بكلماتك أنت."
+               },
+               "tr": {
+                "text": "Kendi sözlerinizle bir kartla buketler."
+               }
+              },
               "color": "#FFFFFF",
               "opacity": 0.9,
               "max_lines": 2,
@@ -521,14 +538,7 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "باقات مع بطاقة بكلماتك أنت."
-               },
-               "tr": {
-                "text": "Kendi sözlerinizle bir kartla buketler."
-               }
-              }
+              "story_part": "line"
              },
              {
               "id": "demo-19",
@@ -576,7 +586,8 @@
                "tr": {
                 "text": "Çiçek gönder"
                }
-              }
+              },
+              "story_part": "button"
              }
             ]
            },
@@ -628,19 +639,13 @@
                 "type": "icon",
                 "icon": "spa",
                 "icon_size": 15,
-                "color": "#FFD9C2"
+                "color": "#FFD9C2",
+                "story_part": "icon"
                },
                {
                 "id": "demo-24",
                 "type": "text",
                 "text": "With sympathy",
-                "color": "#FFFFFF",
-                "font": {
-                 "size": 11,
-                 "weight": 700,
-                 "letter_spacing": 1.8,
-                 "uppercase": true
-                },
                 "translations": {
                  "ar": {
                   "text": "مع خالص المواساة"
@@ -648,7 +653,15 @@
                  "tr": {
                   "text": "Taziyelerimizle"
                  }
-                }
+                },
+                "color": "#FFFFFF",
+                "font": {
+                 "size": 11,
+                 "weight": 700,
+                 "letter_spacing": 1.8,
+                 "uppercase": true
+                },
+                "story_part": "kicker"
                }
               ]
              },
@@ -656,6 +669,14 @@
               "id": "demo-25",
               "type": "text",
               "text": "Gentle words, in white.",
+              "translations": {
+               "ar": {
+                "text": "كلماتٌ رقيقة بالأبيض."
+               },
+               "tr": {
+                "text": "Beyazla, nazik sözler."
+               }
+              },
               "color": "#FFFFFF",
               "max_lines": 3,
               "font": {
@@ -671,19 +692,20 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "كلماتٌ رقيقة بالأبيض."
-               },
-               "tr": {
-                "text": "Beyazla, nazik sözler."
-               }
-              }
+              "story_part": "title"
              },
              {
               "id": "demo-26",
               "type": "text",
               "text": "Bouquets with a card in your own words.",
+              "translations": {
+               "ar": {
+                "text": "باقات مع بطاقة بكلماتك أنت."
+               },
+               "tr": {
+                "text": "Kendi sözlerinizle bir kartla buketler."
+               }
+              },
               "color": "#FFFFFF",
               "opacity": 0.9,
               "max_lines": 2,
@@ -697,14 +719,7 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "باقات مع بطاقة بكلماتك أنت."
-               },
-               "tr": {
-                "text": "Kendi sözlerinizle bir kartla buketler."
-               }
-              }
+              "story_part": "line"
              },
              {
               "id": "demo-27",
@@ -752,7 +767,8 @@
                "tr": {
                 "text": "Çiçek gönder"
                }
-              }
+              },
+              "story_part": "button"
              }
             ]
            },
@@ -804,19 +820,13 @@
                 "type": "icon",
                 "icon": "child_care",
                 "icon_size": 15,
-                "color": "#FFD9C2"
+                "color": "#FFD9C2",
+                "story_part": "icon"
                },
                {
                 "id": "demo-32",
                 "type": "text",
                 "text": "For a new baby",
-                "color": "#FFFFFF",
-                "font": {
-                 "size": 11,
-                 "weight": 700,
-                 "letter_spacing": 1.8,
-                 "uppercase": true
-                },
                 "translations": {
                  "ar": {
                   "text": "لمولود جديد"
@@ -824,7 +834,15 @@
                  "tr": {
                   "text": "Yeni bebek için"
                  }
-                }
+                },
+                "color": "#FFFFFF",
+                "font": {
+                 "size": 11,
+                 "weight": 700,
+                 "letter_spacing": 1.8,
+                 "uppercase": true
+                },
+                "story_part": "kicker"
                }
               ]
              },
@@ -832,6 +850,14 @@
               "id": "demo-33",
               "type": "text",
               "text": "Hello, little one.",
+              "translations": {
+               "ar": {
+                "text": "أهلًا بالصغير."
+               },
+               "tr": {
+                "text": "Hoş geldin, minik."
+               }
+              },
               "color": "#FFFFFF",
               "max_lines": 3,
               "font": {
@@ -847,19 +873,20 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "أهلًا بالصغير."
-               },
-               "tr": {
-                "text": "Hoş geldin, minik."
-               }
-              }
+              "story_part": "title"
              },
              {
               "id": "demo-34",
               "type": "text",
               "text": "Bouquets with a card in your own words.",
+              "translations": {
+               "ar": {
+                "text": "باقات مع بطاقة بكلماتك أنت."
+               },
+               "tr": {
+                "text": "Kendi sözlerinizle bir kartla buketler."
+               }
+              },
               "color": "#FFFFFF",
               "opacity": 0.9,
               "max_lines": 2,
@@ -873,14 +900,7 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "باقات مع بطاقة بكلماتك أنت."
-               },
-               "tr": {
-                "text": "Kendi sözlerinizle bir kartla buketler."
-               }
-              }
+              "story_part": "line"
              },
              {
               "id": "demo-35",
@@ -928,7 +948,8 @@
                "tr": {
                 "text": "Çiçek gönder"
                }
-              }
+              },
+              "story_part": "button"
              }
             ]
            },
@@ -980,19 +1001,13 @@
                 "type": "icon",
                 "icon": "celebration",
                 "icon_size": 15,
-                "color": "#FFD9C2"
+                "color": "#FFD9C2",
+                "story_part": "icon"
                },
                {
                 "id": "demo-40",
                 "type": "text",
                 "text": "To congratulate",
-                "color": "#FFFFFF",
-                "font": {
-                 "size": 11,
-                 "weight": 700,
-                 "letter_spacing": 1.8,
-                 "uppercase": true
-                },
                 "translations": {
                  "ar": {
                   "text": "للتهنئة"
@@ -1000,7 +1015,15 @@
                  "tr": {
                   "text": "Tebrik için"
                  }
-                }
+                },
+                "color": "#FFFFFF",
+                "font": {
+                 "size": 11,
+                 "weight": 700,
+                 "letter_spacing": 1.8,
+                 "uppercase": true
+                },
+                "story_part": "kicker"
                }
               ]
              },
@@ -1008,6 +1031,14 @@
               "id": "demo-41",
               "type": "text",
               "text": "Well done, in full bloom.",
+              "translations": {
+               "ar": {
+                "text": "تهانينا والزهور في أوجها."
+               },
+               "tr": {
+                "text": "Tebrikler, tam çiçek açmış."
+               }
+              },
               "color": "#FFFFFF",
               "max_lines": 3,
               "font": {
@@ -1023,19 +1054,20 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "تهانينا والزهور في أوجها."
-               },
-               "tr": {
-                "text": "Tebrikler, tam çiçek açmış."
-               }
-              }
+              "story_part": "title"
              },
              {
               "id": "demo-42",
               "type": "text",
               "text": "Bouquets with a card in your own words.",
+              "translations": {
+               "ar": {
+                "text": "باقات مع بطاقة بكلماتك أنت."
+               },
+               "tr": {
+                "text": "Kendi sözlerinizle bir kartla buketler."
+               }
+              },
               "color": "#FFFFFF",
               "opacity": 0.9,
               "max_lines": 2,
@@ -1049,14 +1081,7 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "باقات مع بطاقة بكلماتك أنت."
-               },
-               "tr": {
-                "text": "Kendi sözlerinizle bir kartla buketler."
-               }
-              }
+              "story_part": "line"
              },
              {
               "id": "demo-43",
@@ -1104,7 +1129,8 @@
                "tr": {
                 "text": "Çiçek gönder"
                }
-              }
+              },
+              "story_part": "button"
              }
             ]
            }
@@ -1273,6 +1299,7 @@
           "id": "demo-52",
           "type": "stories",
           "name": "Every occasion",
+          "stories_source": "dashboard",
           "interval_ms": 5000,
           "stories": {
            "size": 62
@@ -2098,7 +2125,8 @@
         "ken_burns": true,
         "action": {
          "type": "screen",
-         "screen": "search"
+         "screen": "search",
+         "flow": "bouquet"
         },
         "children": [
          {
@@ -2427,7 +2455,8 @@
           },
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "flow": "bouquet"
           },
           "margin": {
            "top": 16,
@@ -2718,11 +2747,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-170",
+      "id": "demo-171",
       "type": "column",
       "children": [
        {
-        "id": "demo-171",
+        "id": "demo-172",
         "type": "photo_hero",
         "name": "Find the right flowers",
         "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
@@ -2753,7 +2782,7 @@
         "ken_burns": true,
         "children": [
          {
-          "id": "demo-172",
+          "id": "demo-173",
           "type": "text",
           "text": "Find the right flowers",
           "color": "#FFFFFF",
@@ -2776,7 +2805,7 @@
           }
          },
          {
-          "id": "demo-173",
+          "id": "demo-174",
           "type": "text",
           "text": "By occasion, by colour, by collection.",
           "color": "#FFFFFF",
@@ -2805,9 +2834,10 @@
         ]
        },
        {
-        "id": "demo-174",
+        "id": "demo-175",
         "type": "stories",
         "name": "Every occasion",
+        "stories_source": "dashboard",
         "interval_ms": 5000,
         "stories": {
          "size": 58
@@ -2916,7 +2946,7 @@
         }
        },
        {
-        "id": "demo-175",
+        "id": "demo-176",
         "type": "row",
         "name": "The signature bouquet",
         "gap": 8,
@@ -2929,7 +2959,7 @@
         },
         "children": [
          {
-          "id": "demo-176",
+          "id": "demo-177",
           "type": "button",
           "name": "Our bouquet",
           "text": "Our bouquet",
@@ -2977,7 +3007,7 @@
           }
          },
          {
-          "id": "demo-177",
+          "id": "demo-178",
           "type": "button",
           "name": "Your picks",
           "text": "Your picks",
@@ -3072,13 +3102,13 @@
     },
     "studio": {
      "body": {
-      "id": "demo-178",
+      "id": "demo-179",
       "type": "column",
       "children": [
        {
-        "id": "demo-179",
+        "id": "demo-180",
         "type": "row",
-        "name": "Pick the delivery day and write the card at checkout.",
+        "name": "Pick the delivery day and write the card below, then pay.",
         "gap": 12,
         "cross": "center",
         "radius": 22,
@@ -3101,7 +3131,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "demo-180",
+          "id": "demo-181",
           "type": "icon",
           "icon": "redeem",
           "icon_size": 22,
@@ -3118,9 +3148,9 @@
           }
          },
          {
-          "id": "demo-181",
+          "id": "demo-182",
           "type": "text",
-          "text": "Pick the delivery day and write the card at checkout.",
+          "text": "Pick the delivery day and write the card below, then pay.",
           "font": {
            "size": 13.5,
            "weight": 600,
@@ -3132,17 +3162,17 @@
           "max_lines": 3,
           "translations": {
            "ar": {
-            "text": "اختر يوم التوصيل واكتب البطاقة عند إتمام الطلب."
+            "text": "اختر يوم التوصيل واكتب البطاقة في الأسفل، ثم ادفع."
            },
            "tr": {
-            "text": "Teslimat gününü seçin ve kartı ödemede yazın."
+            "text": "Teslimat gününü seçin ve kartı aşağıya yazın, sonra ödeyin."
            }
           }
          }
         ]
        },
        {
-        "id": "demo-182",
+        "id": "demo-183",
         "type": "coupon",
         "name": "A code for your first bouquet",
         "code": "LEQAA10",
@@ -3202,11 +3232,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-183",
+      "id": "demo-184",
       "type": "column",
       "children": [
        {
-        "id": "demo-184",
+        "id": "demo-185",
         "type": "row",
         "name": "How your flowers travel",
         "cross": "end",
@@ -3219,13 +3249,13 @@
         },
         "children": [
          {
-          "id": "demo-185",
+          "id": "demo-186",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "demo-186",
+            "id": "demo-187",
             "type": "text",
             "text": "How your flowers travel",
             "font": {
@@ -3252,7 +3282,7 @@
         ]
        },
        {
-        "id": "demo-187",
+        "id": "demo-188",
         "type": "timeline",
         "name": "How your flowers travel",
         "timeline": {
@@ -3382,9 +3412,47 @@
     },
     "studio": {
      "body": {
-      "id": "demo-188",
+      "id": "demo-190",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "demo-189",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account",
      "background": "#FBF3F0",
@@ -3420,118 +3488,108 @@
       "children": [
        {
         "id": "demo-122",
-        "type": "gallery",
+        "type": "items",
         "name": "The signature bouquet",
-        "gallery": {
-         "layout": "filmstrip",
-         "radius": 28,
-         "captions": false
-        },
-        "height": 380,
-        "images": [
-         {
-          "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
-          "caption": null
-         },
-         {
-          "image_url": "http://localhost:3000/flower-photos/red-rose.jpg",
-          "caption": null
-         },
-         {
-          "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
-          "caption": null
-         },
-         {
-          "image_url": "http://localhost:3000/flower-photos/atelier.jpg",
-          "caption": null
-         }
-        ],
+        "source": "products",
+        "layout": "list",
         "padding": {
          "top": 8,
          "end": 16,
-         "bottom": 0,
+         "bottom": 4,
          "start": 16
+        },
+        "query": {
+         "limit": 1,
+         "category_id": null,
+         "featured": false,
+         "sort": "popular",
+         "ids": []
+        },
+        "card": {
+         "id": "demo-123",
+         "type": "column",
+         "gap": 6,
+         "children": [
+          {
+           "id": "demo-124",
+           "type": "image",
+           "bind": "image",
+           "width": "fill",
+           "height": 380,
+           "radius": 28,
+           "fit": "cover"
+          },
+          {
+           "id": "demo-125",
+           "type": "text",
+           "text": "The signature bouquet",
+           "font": {
+            "size": 11,
+            "weight": 700,
+            "letter_spacing": 2,
+            "uppercase": true
+           },
+           "color": "#A8325A",
+           "dark_color": "#F3A9C0",
+           "margin": {
+            "top": 12,
+            "end": 2,
+            "bottom": 0,
+            "start": 2
+           },
+           "translations": {
+            "ar": {
+             "text": "الباقة المميّزة"
+            },
+            "tr": {
+             "text": "İmza buket"
+            }
+           }
+          },
+          {
+           "id": "demo-126",
+           "type": "text",
+           "bind": "title",
+           "max_lines": 2,
+           "color": "#2A121C",
+           "dark_color": "#F8EAEE",
+           "font": {
+            "family": "Fraunces",
+            "size": 34,
+            "weight": 500,
+            "line_height": 1.04,
+            "letter_spacing": -0.68
+           },
+           "margin": {
+            "top": 0,
+            "end": 2,
+            "bottom": 0,
+            "start": 2
+           }
+          },
+          {
+           "id": "demo-127",
+           "type": "text",
+           "bind": "price",
+           "max_lines": 1,
+           "color": "#A8325A",
+           "dark_color": "#F3A9C0",
+           "font": {
+            "size": 16,
+            "weight": 700
+           },
+           "margin": {
+            "top": 0,
+            "end": 2,
+            "bottom": 0,
+            "start": 2
+           }
+          }
+         ]
         }
        },
        {
-        "id": "demo-123",
-        "type": "column",
-        "gap": 6,
-        "padding": {
-         "top": 18,
-         "end": 18,
-         "bottom": 4,
-         "start": 18
-        },
-        "children": [
-         {
-          "id": "demo-124",
-          "type": "text",
-          "text": "The signature bouquet",
-          "font": {
-           "size": 11,
-           "weight": 700,
-           "letter_spacing": 2,
-           "uppercase": true
-          },
-          "color": "#A8325A",
-          "dark_color": "#F3A9C0",
-          "translations": {
-           "ar": {
-            "text": "الباقة المميّزة"
-           },
-           "tr": {
-            "text": "İmza buket"
-           }
-          }
-         },
-         {
-          "id": "demo-125",
-          "type": "text",
-          "text": "Blush Garden",
-          "font": {
-           "family": "Fraunces",
-           "size": 34,
-           "weight": 500,
-           "line_height": 1.04,
-           "letter_spacing": -0.68
-          },
-          "color": "#2A121C",
-          "dark_color": "#F8EAEE",
-          "max_lines": 2,
-          "translations": {
-           "ar": {
-            "text": "حديقة الورد"
-           },
-           "tr": {
-            "text": "Pembe Bahçe"
-           }
-          }
-         },
-         {
-          "id": "demo-126",
-          "type": "text",
-          "text": "Blush roses, lisianthus and eucalyptus, made on the day it is delivered.",
-          "font": {
-           "size": 14,
-           "line_height": 1.45
-          },
-          "color": "#7B5E67",
-          "dark_color": "#C9AEB6",
-          "max_lines": 3,
-          "translations": {
-           "ar": {
-            "text": "ورد وردي وليزيانثوس وأوكالبتوس، تُصنع في يوم توصيلها."
-           },
-           "tr": {
-            "text": "Pembe güller, lisianthus ve okaliptüs; teslim edildiği gün hazırlanır."
-           }
-          }
-         }
-        ]
-       },
-       {
-        "id": "demo-127",
+        "id": "demo-128",
         "type": "row",
         "name": "Choose a size",
         "cross": "end",
@@ -3544,13 +3602,13 @@
         },
         "children": [
          {
-          "id": "demo-128",
+          "id": "demo-129",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "demo-129",
+            "id": "demo-130",
             "type": "text",
             "text": "Choose a size",
             "font": {
@@ -3577,7 +3635,7 @@
         ]
        },
        {
-        "id": "demo-130",
+        "id": "demo-131",
         "type": "row",
         "name": "Choose a size",
         "gap": 10,
@@ -3589,7 +3647,7 @@
         },
         "children": [
          {
-          "id": "demo-131",
+          "id": "demo-132",
           "type": "column",
           "name": "Classic",
           "width": "fill",
@@ -3613,7 +3671,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "demo-132",
+            "id": "demo-133",
             "type": "icon",
             "icon": "local_florist",
             "icon_size": 20,
@@ -3621,7 +3679,7 @@
             "dark_color": "#F3A9C0"
            },
            {
-            "id": "demo-133",
+            "id": "demo-134",
             "type": "text",
             "text": "Classic",
             "font": {
@@ -3640,7 +3698,7 @@
             }
            },
            {
-            "id": "demo-134",
+            "id": "demo-135",
             "type": "text",
             "text": "12 stems",
             "font": {
@@ -3661,7 +3719,7 @@
           ]
          },
          {
-          "id": "demo-135",
+          "id": "demo-136",
           "type": "column",
           "name": "Deluxe",
           "width": "fill",
@@ -3682,7 +3740,7 @@
           "dark_background": "#F3A9C0",
           "children": [
            {
-            "id": "demo-136",
+            "id": "demo-137",
             "type": "icon",
             "icon": "local_florist",
             "icon_size": 26,
@@ -3690,7 +3748,7 @@
             "dark_color": "#2A121C"
            },
            {
-            "id": "demo-137",
+            "id": "demo-138",
             "type": "text",
             "text": "Deluxe",
             "font": {
@@ -3709,7 +3767,7 @@
             }
            },
            {
-            "id": "demo-138",
+            "id": "demo-139",
             "type": "text",
             "text": "24 stems",
             "font": {
@@ -3730,7 +3788,7 @@
           ]
          },
          {
-          "id": "demo-139",
+          "id": "demo-140",
           "type": "column",
           "name": "Grand",
           "width": "fill",
@@ -3754,7 +3812,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "demo-140",
+            "id": "demo-141",
             "type": "icon",
             "icon": "local_florist",
             "icon_size": 20,
@@ -3762,7 +3820,7 @@
             "dark_color": "#F3A9C0"
            },
            {
-            "id": "demo-141",
+            "id": "demo-142",
             "type": "text",
             "text": "Grand",
             "font": {
@@ -3781,7 +3839,7 @@
             }
            },
            {
-            "id": "demo-142",
+            "id": "demo-143",
             "type": "text",
             "text": "36 stems",
             "font": {
@@ -3804,7 +3862,7 @@
         ]
        },
        {
-        "id": "demo-143",
+        "id": "demo-144",
         "type": "row",
         "name": "Send today",
         "cross": "end",
@@ -3817,13 +3875,13 @@
         },
         "children": [
          {
-          "id": "demo-144",
+          "id": "demo-145",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "demo-145",
+            "id": "demo-146",
             "type": "text",
             "text": "Send today",
             "font": {
@@ -3850,7 +3908,7 @@
         ]
        },
        {
-        "id": "demo-146",
+        "id": "demo-147",
         "type": "text",
         "text": "Today or tomorrow, in the time slot you choose.",
         "font": {
@@ -3876,14 +3934,14 @@
         }
        },
        {
-        "id": "demo-147",
+        "id": "demo-148",
         "type": "row",
         "name": "Delivery days · today, tomorrow, a date",
         "gap": 6,
         "width": "fill",
         "children": [
          {
-          "id": "demo-148",
+          "id": "demo-149",
           "type": "row",
           "name": "Today",
           "width": "fill",
@@ -3906,7 +3964,7 @@
           "dark_background": "#F3A9C0",
           "children": [
            {
-            "id": "demo-149",
+            "id": "demo-150",
             "type": "icon",
             "icon": "bolt",
             "icon_size": 15,
@@ -3914,7 +3972,7 @@
             "dark_color": "#2A121C"
            },
            {
-            "id": "demo-150",
+            "id": "demo-151",
             "type": "text",
             "text": "Today",
             "max_lines": 1,
@@ -3936,7 +3994,7 @@
           ]
          },
          {
-          "id": "demo-151",
+          "id": "demo-152",
           "type": "row",
           "name": "Tomorrow",
           "width": "fill",
@@ -3960,7 +4018,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "demo-152",
+            "id": "demo-153",
             "type": "text",
             "text": "Tomorrow",
             "max_lines": 1,
@@ -3982,7 +4040,7 @@
           ]
          },
          {
-          "id": "demo-153",
+          "id": "demo-154",
           "type": "row",
           "name": "Pick a date",
           "width": "fill",
@@ -4006,7 +4064,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "demo-154",
+            "id": "demo-155",
             "type": "text",
             "text": "Pick a date",
             "max_lines": 1,
@@ -4036,7 +4094,7 @@
         }
        },
        {
-        "id": "demo-155",
+        "id": "demo-156",
         "type": "row",
         "name": "Your card",
         "cross": "end",
@@ -4049,13 +4107,13 @@
         },
         "children": [
          {
-          "id": "demo-156",
+          "id": "demo-157",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "demo-157",
+            "id": "demo-158",
             "type": "text",
             "text": "Your card",
             "font": {
@@ -4167,7 +4225,7 @@
         ]
        },
        {
-        "id": "demo-158",
+        "id": "demo-159",
         "type": "button",
         "name": "Choose this bouquet",
         "text": "Choose this bouquet",
@@ -4256,7 +4314,7 @@
      "background": "#FBF3F0",
      "dark_background": "#140A0F",
      "body": {
-      "id": "demo-159",
+      "id": "demo-160",
       "type": "column",
       "padding": {
        "top": 0,
@@ -4266,7 +4324,7 @@
       },
       "children": [
        {
-        "id": "demo-160",
+        "id": "demo-161",
         "type": "items",
         "name": "Lately viewed",
         "source": "products",
@@ -4297,7 +4355,7 @@
         }
        },
        {
-        "id": "demo-161",
+        "id": "demo-162",
         "type": "row",
         "name": "Picked for you",
         "cross": "end",
@@ -4310,13 +4368,13 @@
         },
         "children": [
          {
-          "id": "demo-162",
+          "id": "demo-163",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "demo-163",
+            "id": "demo-164",
             "type": "text",
             "text": "Picked for you",
             "font": {
@@ -4341,7 +4399,7 @@
           ]
          },
          {
-          "id": "demo-164",
+          "id": "demo-165",
           "type": "text",
           "text": "Shop all",
           "font": {
@@ -4372,7 +4430,7 @@
         ]
        },
        {
-        "id": "demo-165",
+        "id": "demo-166",
         "type": "items",
         "name": "Picked for you",
         "source": "products",
@@ -4393,12 +4451,12 @@
          "ids": []
         },
         "card": {
-         "id": "demo-166",
+         "id": "demo-167",
          "type": "column",
          "gap": 6,
          "children": [
           {
-           "id": "demo-167",
+           "id": "demo-168",
            "type": "image",
            "bind": "image",
            "width": "fill",
@@ -4407,7 +4465,7 @@
            "fit": "cover"
           },
           {
-           "id": "demo-168",
+           "id": "demo-169",
            "type": "text",
            "bind": "title",
            "max_lines": 1,
@@ -4422,7 +4480,7 @@
            }
           },
           {
-           "id": "demo-169",
+           "id": "demo-170",
            "type": "text",
            "bind": "price",
            "max_lines": 1,
@@ -4476,7 +4534,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-189",
+      "id": "demo-191",
       "type": "column",
       "children": []
      },
@@ -4518,7 +4576,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-190",
+      "id": "demo-192",
       "type": "column",
       "children": []
      },
@@ -4560,7 +4618,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-191",
+      "id": "demo-193",
       "type": "column",
       "children": []
      },
@@ -4602,7 +4660,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-192",
+      "id": "demo-194",
       "type": "column",
       "children": []
      },
@@ -4636,7 +4694,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-193",
+      "id": "demo-195",
       "type": "column",
       "children": []
      },
@@ -4653,7 +4711,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-194",
+      "id": "demo-196",
       "type": "column",
       "children": []
      },

@@ -35,6 +35,8 @@ export function optionGroupsJson(groups: CatalogOptionGroup[], currency: Catalog
       name: o.name,
       price_delta: centsToDecimal(o.priceDeltaCents),
       price_delta_formatted: o.priceDeltaCents > 0 ? `+${formatCents(o.priceDeltaCents, currency)}` : null,
+      // 161 Its currency: the hosted API adds the price in the customer's (`display.price_delta_formatted`, without the plus).
+      currency,
     })),
   }));
 }

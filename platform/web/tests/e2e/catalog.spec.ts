@@ -369,7 +369,7 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
   await loyalty.getByRole("button", { name: "Save loyalty points" }).click();
   await expect(loyalty.getByText("Loyalty points saved.")).toBeVisible();
   const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
-  expect(config.store.loyalty).toEqual({ enabled: true, spend_per_point: "10.00", spend_per_point_formatted: "₺10.00", point_value: "0.10", point_value_formatted: "₺0.10", min_points: 10 });
+  expect(config.store.loyalty).toEqual({ enabled: true, spend_per_point: "10.00", spend_per_point_formatted: "₺10.00", point_value: "0.10", point_value_formatted: "₺0.10", min_points: 10, currency: "TRY" });
 
   const email = `deniz-${suffix}@example.com`;
   const device = { id: `e2e-points-${suffix}`, platform: "android", name: "Pixel", app_version: "1.0.0" };
@@ -395,7 +395,7 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
   };
 
   // A first order: no points yet; completed, it earns 35 (₺350 of products).
-  expect((await (await request.post(`${api}/store/cart`, { headers, data: { lines, use_points: true } })).json()).points).toEqual({ balance: 0, usable: 0, usable_value: null, applied: false, discount: null });
+  expect((await (await request.post(`${api}/store/cart`, { headers, data: { lines, use_points: true } })).json()).points).toEqual({ balance: 0, usable: 0, usable_value: null, applied: false, discount: null, currency: "TRY", usable_value_amount: null, discount_amount: null });
   await pay({}, "₺400.00");
   await page.goto("/dashboard/orders");
   await page.getByRole("listitem").filter({ hasText: "Deniz Kaya" }).getByRole("button", { name: "Mark completed" }).click();
@@ -736,4 +736,102 @@ test("132.186 several delivery times a day, any country with its own cities, and
   await expect(row.locator("img")).toHaveCount(1);
   await row.getByRole("button", { name: "Weekend tulips" }).click();
   await expect(page.locator("[data-inspector-products] li").filter({ hasText: "Rose Box" }).locator("img")).toHaveCount(1);
+});
+
+test("162 the owner sets up Build your bouquet; the cart and the order show the bouquet as one", async ({ page, request }) => {
+  await signIn(page, client.email, client.password);
+  // The loose stems, a wrap and a card, as the owner adds them.
+  await page.goto("/dashboard/catalog/categories");
+  await page.getByLabel("New category").fill("Loose stems");
+  await page.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(page.getByLabel("New category")).toHaveValue("");
+  const addProduct = async (name: string, price: string, extra: (p: Page) => Promise<void>) => {
+    await page.goto("/dashboard/catalog");
+    await page.getByRole("link", { name: "Add product" }).click();
+    await page.getByLabel("Name", { exact: true }).fill(name);
+    await page.getByLabel("Description").fill(`${name}, for a bouquet.`);
+    await page.getByLabel("Price (TRY)", { exact: true }).fill(price);
+    await extra(page);
+    await page.getByRole("button", { name: "Add product" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText(`Saved “${name}”.`);
+  };
+  await addProduct("Red Rose", "45", (p) => p.getByLabel("Loose stems").check());
+  await addProduct("Kraft Paper Wrap", "60", (p) => p.getByLabel("Sell only as an add-on (gift extra)").check());
+  await addProduct("Love Note", "25", (p) => p.getByLabel("Sell only as an add-on (gift extra)").check());
+
+  // Not set up yet: the app's Start opens the shop.
+  expect((await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()).store.bouquet).toBeNull();
+  expect((await request.get(`${api}/store/bouquet`)).status()).toBe(404);
+
+  // Store › Delivery & offers › Build your bouquet: refused without its flowers, then saved.
+  await page.goto("/dashboard/selling?tab=bouquet");
+  const form = page.locator("[data-bouquet-form]");
+  await form.getByLabel("Offer Build your bouquet in the app").check();
+  await form.locator('[data-bouquet-addons="wrapIds"]').getByLabel(/Kraft Paper Wrap/).check();
+  await form.getByRole("button", { name: "Save Build your bouquet" }).click();
+  await expect(form.getByText("Choose the category of your flowers.")).toBeVisible();
+  await form.locator('[data-bouquet-select="flowersCategoryId"]').selectOption({ label: "Loose stems" });
+  await form.locator('[data-bouquet-addons="cardIds"]').getByLabel(/Love Note/).check();
+  await form.getByLabel("Least stems").fill("3");
+  await form.getByLabel("Most stems").fill("24");
+  await form.getByRole("button", { name: "Save Build your bouquet" }).click();
+  await expect(form.getByRole("status")).toContainText("Saved.");
+  await page.reload();
+  await expect(page.locator("[data-bouquet-form]").getByLabel("Offer Build your bouquet in the app")).toBeChecked();
+
+  // The app's rules and what it chooses from.
+  const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
+  expect(config.store.bouquet).toMatchObject({ wraps_from: "addons", wrap_optional: false, card_optional: false, has_cards: true, min_stems: 3, max_stems: 24 });
+  const builder = (await (await request.get(`${api}/store/bouquet`)).json()) as { flowers: { id: number; name: string }[]; wraps: { id: number; name: string }[]; cards: { id: number; name: string }[] };
+  expect(builder.flowers.map((p) => p.name)).toEqual(["Red Rose"]);
+  expect(builder.wraps.map((p) => p.name)).toEqual(["Kraft Paper Wrap"]);
+  expect(builder.cards.map((p) => p.name)).toEqual(["Love Note"]);
+  const [rose, wrap, card] = [builder.flowers[0]!, builder.wraps[0]!, builder.cards[0]!];
+
+  // The bouquet as the app sends it: one group of lines, priced by the server.
+  const id = `b-e2e-${suffix}`;
+  const lines = [
+    { product_id: rose.id, quantity: 6, bouquet: { id, part: "flower" } },
+    { product_id: wrap.id, quantity: 1, addon_of: rose.id, bouquet: { id, part: "wrap" } },
+    { product_id: card.id, quantity: 1, addon_of: rose.id, bouquet: { id, part: "card", message: "Happy birthday, Mama." } },
+  ];
+  const cart = (await (await request.post(`${api}/store/cart`, { data: { lines } })).json()) as { lines: { available: boolean; bouquet?: { id: string; part: string } }[]; subtotal: string };
+  expect(cart.lines.map((l) => [l.available, l.bouquet?.id, l.bouquet?.part])).toEqual([
+    [true, id, "flower"],
+    [true, id, "wrap"],
+    [true, id, "card"],
+  ]);
+  expect(cart.subtotal).toBe("₺355.00");
+
+  // Paid, as any order (the gift checkout's details when the shop has it on).
+  const gift = config.store.checkout_mode === "gift";
+  const tomorrow = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Istanbul" }).format(new Date(Date.now() + 86_400_000));
+  const details = gift
+    ? { delivery_date: tomorrow, delivery_slot: config.store.delivery_date.slots?.[0]?.id, sender: { name: "Omar Hany", phone: "+905321231234", email: `omar-${suffix}@example.com` }, recipient: { name: "Mona Hany", phone: "+905329879876", address: "Bağdat Cd. 7, Kadıköy" } }
+    : {};
+  const link = await request.post(`${api}/store/checkout-link?platform=android`, { data: { lines, ...details } });
+  expect(link.status(), await link.text()).toBe(200);
+  await page.goto(((await link.json()) as { url: string }).url);
+  if (!gift) {
+    await page.getByLabel("Full name").fill("Omar Hany");
+    await page.getByLabel("Mobile number").fill("0532 123 12 34");
+    await page.getByLabel("Email").fill(`omar-${suffix}@example.com`);
+    await page.getByLabel("Address").fill("Bağdat Cd. 7, Kadıköy");
+  }
+  const city = page.getByLabel("City");
+  if (await city.isVisible()) await city.fill("Istanbul");
+  await page.getByRole("button", { name: /^Pay ₺/ }).click();
+  await payInPage(page);
+  await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
+
+  // The owner's order: the bouquet once, its stems, its wrap, its card and the card's words.
+  await page.goto("/dashboard/orders");
+  const row = page.getByRole("listitem").filter({ hasText: "Omar Hany" }).first();
+  await row.getByRole("button", { name: /^Order \d+/ }).click();
+  const bouquet = page.locator(`[data-order-bouquet="${id}"]`);
+  await expect(bouquet).toContainText("Bouquet · 6 stems");
+  await expect(bouquet.locator('[data-bouquet-part="flower"]')).toContainText("Red Rose × 6");
+  await expect(bouquet.locator('[data-bouquet-part="wrap"]')).toContainText("Wrap: Kraft Paper Wrap × 1");
+  await expect(bouquet.locator('[data-bouquet-part="card"]')).toContainText("Card: Love Note × 1");
+  await expect(bouquet.locator("[data-bouquet-message]")).toContainText("Card message: Happy birthday, Mama.");
 });

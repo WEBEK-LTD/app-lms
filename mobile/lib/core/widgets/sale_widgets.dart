@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../api/models/commerce_models.dart';
 import '../api/models/store_models.dart' show ProductPrice;
+import '../format/bidi.dart';
 import '../l10n/l10n.dart';
 import '../theme/app_icons.dart';
 import '../theme/palette.dart';
@@ -167,7 +168,8 @@ class SaleChip extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         child: Text(
-          context.l10n.saleOff(percentOff),
+          // 161 Its number and percent the right way round in Arabic.
+          percentText(context.l10n.saleOff(percentOff)),
           maxLines: 1,
           style: TextStyle(
             fontSize: 11,
@@ -344,7 +346,7 @@ class SaleCorner extends StatelessWidget {
                       color: color,
                       alignment: Alignment.center,
                       child: Text(
-                        context.l10n.saleOff(sale.percentOff),
+                        percentText(context.l10n.saleOff(sale.percentOff)),
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
@@ -403,13 +405,15 @@ class _ProductFlashSaleState extends State<ProductFlashSale> {
   /// its sale; the sale's own without a chosen price.
   static ProductSale? _shown(ProductSale sale, ProductPrice? price) {
     if (price == null) return sale;
-    final was = price.regularFormatted;
+    // 161 In the customer's currency when the server sent it.
+    final was = price.shownRegular;
     if (price.range || !price.onSale || was == null) return null;
     return ProductSale(
       was: price.regularAmount ?? sale.was,
       wasFormatted: was,
       now: price.amount,
-      nowFormatted: price.formatted,
+      nowFormatted: price.shown,
+      shopNowFormatted: price.formatted,
       percentOff: sale.percentOff,
       startsAt: sale.startsAt,
       endsAt: sale.endsAt,
@@ -445,7 +449,9 @@ class _ProductFlashSaleState extends State<ProductFlashSale> {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  l10n.flashSaleTitle,
+                  // 168 The owner's name for the sale, in the app's language.
+                  sale.titleIn(Localizations.localeOf(context).languageCode) ??
+                      l10n.flashSaleTitle,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -465,7 +471,9 @@ class _ProductFlashSaleState extends State<ProductFlashSale> {
                     vertical: 4,
                   ),
                   child: Text(
-                    l10n.salePercentBadge(sale.percentOff),
+                    // 161 Its sign, number and percent the right way round in
+                    // Arabic (never "25٪−").
+                    percentText(l10n.salePercentBadge(sale.percentOff)),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w900,

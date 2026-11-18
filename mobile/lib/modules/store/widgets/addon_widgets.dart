@@ -140,7 +140,8 @@ class _AddonRow extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '+${sale?.nowFormatted ?? addon.price.formatted}',
+                        // 161 In the customer's currency when the server sent it.
+                        addedPrice(sale?.nowFormatted ?? addon.price.shown),
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,

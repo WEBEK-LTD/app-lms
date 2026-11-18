@@ -262,9 +262,61 @@ export interface TemplateOrder {
   applyError: string | null;
   createdAt: Date;
   paidAt: Date | null;
+  /**
+   * 106.12 The discount it was bought with (a price drop, a flash sale or a
+   * coupon code), or null (and missing on orders made before): `grossCents`
+   * is then the price paid, the split is of it.
+   */
+  discount?: TemplateOrderDiscount | null;
 }
 
-export type TemplateOrderPatch = Partial<Pick<TemplateOrder, "licenceId" | "startsAt" | "endsAt" | "appliedAt" | "applyError">>;
+/** 106.12 The discount an order got: what the plan cost before it and what came off, in US cents. */
+export interface TemplateOrderDiscount {
+  /** The discount's id (`MarketDiscount.id`): a coupon's uses are its paid orders. */
+  id: string;
+  kind: MarketDiscountKind;
+  /** The coupon's code as the buyer used it (upper case); null for a price drop or a flash sale. */
+  code: string | null;
+  /** The plan's price before the discount; `grossCents` is after it. */
+  listCents: number;
+  /** listCents − grossCents. */
+  offCents: number;
+}
+
+export type TemplateOrderPatch = Partial<Pick<TemplateOrder, "licenceId" | "startsAt" | "endsAt" | "appliedAt" | "applyError" | "providerRef">>;
+
+/** 106.12 A price drop (automatic), a flash sale (automatic, with a countdown and the market's flash strip) or a coupon code the designer gives out. */
+export type MarketDiscountKind = "drop" | "flash" | "coupon";
+
+/**
+ * 106.12 A designer's discount on one of their templates: an amount or a
+ * percentage off, on some or all of its plans, from a start (or now) to an
+ * end (or until it is ended). Nothing stacks: a buyer gets the better of
+ * the automatic price (a drop or a flash sale) or their code. A price never
+ * goes below the plans' lowest price ($1): a discount never makes a paid
+ * plan free.
+ */
+export interface MarketDiscount {
+  id: string;
+  templateId: string;
+  designerId: string;
+  kind: MarketDiscountKind;
+  /** A coupon's code in upper case (codes are read without regard to case); null for a drop or a flash sale. */
+  code: string | null;
+  /** A percentage (1 to 100) or an amount in US cents off. */
+  offType: "percent" | "amount";
+  offValue: number;
+  /** The plans it is for; null for every plan the template offers (also those added later). */
+  plans: MarketPlanPeriod[] | null;
+  /** From then (inclusive), UTC; null: from when it was made. A flash sale always has both. */
+  startsAt: Date | null;
+  /** Until then (exclusive), UTC; null: until the designer ends it. */
+  endsAt: Date | null;
+  /** A coupon's most uses (paid orders); null for no limit. */
+  usageLimit: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 /** Why an application ended. */
 export type TemplateApplicationEnd = "moved" | "restored" | "replaced" | "ended";
@@ -288,3 +340,116 @@ export interface TemplateApplication {
 }
 
 export type TemplateApplicationPatch = Partial<Pick<TemplateApplication, "versionId" | "endedAt" | "endReason">>;
+
+/**
+ * 106.11 One paid sale in the designer's ledger, from the order's own
+ * amounts: the sale, Yallapp's 25% and the designer's exact 75% (Yallapp's
+ * share covers taxes, the gateway's fees and the SWIFT and intermediary
+ * banks' fees, so the designer's never changes). One per paid order (its
+ * id is the order's); kept when the template, the buyer or the designer is
+ * gone, like the order.
+ */
+export interface DesignerLedgerEntry {
+  /** The order's id. */
+  id: string;
+  designerId: string;
+  templateId: string;
+  /** The buyer's account. */
+  clientId: string;
+  kind: TemplateOrder["kind"];
+  plan: MarketPlanPeriod;
+  /** US cents: the sale, and its split (designerCents + yallappCents = grossCents). */
+  grossCents: number;
+  designerCents: number;
+  yallappCents: number;
+  /** When the payment was confirmed. */
+  earnedAt: Date;
+  createdAt: Date;
+}
+
+/** 106.11 A payout's status: prepared for the bank's file (its amount fixed), sent by the team, or cancelled before it was sent (the amount back in the balance). */
+export type DesignerPayoutStatus = "processing" | "sent" | "cancelled";
+
+/**
+ * 106.11 One monthly payout to a designer, by SWIFT to their bank, in US
+ * dollars, recorded by Yallapp's team (nothing is sent by the platform). Its
+ * amount is fixed when the month's bank file is prepared, with the bank
+ * details as they were approved then; the team marks it sent with the
+ * bank's reference and date, which emails the designer a receipt. Kept
+ * when the designer is gone.
+ */
+export interface DesignerPayout {
+  id: string;
+  designerId: string;
+  /** The month it is for, "2026-12" (UTC): one payout a month per designer. */
+  period: string;
+  status: DesignerPayoutStatus;
+  /** US cents. */
+  amountCents: number;
+  currency: "USD";
+  /** The bank details as approved when it was prepared (the account encrypted, like the designer's own). */
+  payeeName: string;
+  payeeCountry: string;
+  payeeAddress: string;
+  accountKind: "iban" | "number";
+  accountEncrypted: string;
+  /** "TR33 •••• 1326": shown on receipts. */
+  accountHint: string;
+  swift: string;
+  bankCode: string | null;
+  bankName: string;
+  bankCountry: string;
+  preparedAt: Date;
+  preparedBy: string;
+  /** Once sent: the bank's reference and the day it went out ("2026-12-03"). */
+  bankReference: string | null;
+  sentOn: string | null;
+  sentAt: Date | null;
+  sentBy: string | null;
+  /** When the receipt email went out. */
+  emailedAt: Date | null;
+  cancelledAt: Date | null;
+  cancelledBy: string | null;
+  cancelNote: string | null;
+}
+
+/** 106.11 Where the designer's checks are: sent to the team, approved, or sent back with a note. */
+export type PayoutDetailsStatus = "submitted" | "approved" | "changes_requested";
+
+/**
+ * 106.11 The checks before a designer's first payout (not before
+ * publishing): their ID, name and country, and their bank details for
+ * SWIFT. The ID number and the IBAN or account number are encrypted at rest
+ * (lib/crypto/encryption.ts, the platform's key) and shown masked, except
+ * to the team members with `market.payouts`. The ID document is a private
+ * file only they open. A change sends them to the team again.
+ */
+export interface DesignerPayoutDetails {
+  designerId: string;
+  /** The name on their ID. */
+  legalName: string;
+  /** Where they live (ISO 3166-1 alpha-2). */
+  country: string;
+  idType: "passport" | "national_id";
+  idNumberEncrypted: string;
+  /** A private file (assets, kind `designer_id_document`): a photo or PDF of the ID. */
+  idDocumentAssetId: string | null;
+  /** The bank account: its holder, the IBAN or account number (encrypted), SWIFT/BIC, a routing or sort code, the bank and its country. */
+  holderName: string;
+  accountKind: "iban" | "number";
+  accountEncrypted: string;
+  swift: string;
+  bankCode: string | null;
+  bankName: string;
+  bankCountry: string;
+  /** The holder's address, as SWIFT transfers need it. */
+  address: string;
+  status: PayoutDetailsStatus;
+  /** The team's note when they ask for a fix. */
+  reviewNote: string | null;
+  submittedAt: Date;
+  reviewedAt: Date | null;
+  reviewedBy: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}

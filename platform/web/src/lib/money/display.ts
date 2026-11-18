@@ -82,6 +82,12 @@ export class Shown {
     return new Shown(base, display.currency, rate, display.rates.date);
   }
 
+  /** 161 At a rate kept with something (an order's, on the day it was placed). */
+  static at(base: string, currency: string, rate: number, rateDate: string | null): Shown | null {
+    if (currency === base || !(rate > 0)) return null;
+    return new Shown(base, currency, rate, rateDate);
+  }
+
   /** The shop's cents in the customer's currency, rounded to its digits. */
   cents(cents: number): number {
     return convertCents(cents, this.rate, this.currency);
@@ -129,10 +135,18 @@ function formattedKey(object: Record<string, unknown>, key: string): string | nu
 export function addDisplayPrices<T>(body: T, display: DisplayCurrency | null | undefined): T {
   if (!display) return body;
   const cache = new Map<string, Shown | null>();
-  const shownFor = (base: string) => {
+  return addDisplayPricesWith(body, (base) => {
     if (!cache.has(base)) cache.set(base, Shown.for(base, display));
     return cache.get(base)!;
-  };
+  });
+}
+
+/**
+ * 161 [addDisplayPrices] with the conversion given: `shownFor` the
+ * currency of a money object (null: left as it is). An order's lines at the
+ * order's own rate, for one (lib/hosted/connectors/catalog.ts).
+ */
+export function addDisplayPricesWith<T>(body: T, shownFor: (base: string) => Shown | null): T {
   const visit = (value: unknown, depth: number) => {
     if (depth > 12 || !value || typeof value !== "object") return;
     if (Array.isArray(value)) {
