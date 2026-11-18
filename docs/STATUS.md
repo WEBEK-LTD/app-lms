@@ -69,6 +69,10 @@ Roadmap 150: Studio's canvas draws a cover's top row (the search, the
 wordmark and the bag) across the cover, as the app does; it shrank to its
 icons, which put Kech Flora's bag in the middle.
 
+Roadmap 132.188: Studio's menu and crumbs come to life with its frame, so
+a page opened from the bar's account menu right after the overview no
+longer throws React's hydration error #418 (main's MariaDB e2e job).
+
 Roadmap 147 (a search opens with its keyboard closed): the shop's, the
 academy's, real estate's, events' and news' searches no longer focus their
 field when they open, so Leqaa's and Kech Flora's Bouquets tab doesn't bring

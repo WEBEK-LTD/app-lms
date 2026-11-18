@@ -1,4 +1,4 @@
-import { Suspense, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { openStudioProjectAction } from "@/app/actions/studio-projects";
 import { DashboardLanguage } from "@/components/dashboard-language";
@@ -136,28 +136,31 @@ export async function StudioConsole({ context, text, children, notice }: { conte
     <div lang={lang} dir={dir} className="sc" data-site-theme="" data-studio-frame="" data-studio-console="">
       {/* The pages' links to the dashboard open the same page in Studio's frame. */}
       {project ? <StudioDashboardLinks /> : null}
-      <Suspense>
-        <ProjectNav
-          label={label}
-          menuLabel={t("studio.projectMenu")}
-          closeLabel={t("studio.closeProjectMenu")}
-          groups={groups}
-          more={more}
-          appName={name}
-          home={{ href: "/studio", label: t("studio.yourProjects") }}
-          switcher={switcher}
-          footer={footer}
-          help={help}
-        />
-      </Suspense>
+      {/*
+        132.188 The menu and the crumbs draw the page open (its group on the phone's tab bar, where
+        it is on the bar), so they come to life with the frame, not in a Suspense boundary of their
+        own: one that comes to life after a link of the bar opened another page draws that page
+        over the server's HTML of this one (React's hydration error #418). The frame's pages are
+        rendered on request, so useSearchParams needs no boundary.
+      */}
+      <ProjectNav
+        label={label}
+        menuLabel={t("studio.projectMenu")}
+        closeLabel={t("studio.closeProjectMenu")}
+        groups={groups}
+        more={more}
+        appName={name}
+        home={{ href: "/studio", label: t("studio.yourProjects") }}
+        switcher={switcher}
+        footer={footer}
+        help={help}
+      />
       <div className="sc-canvas">
         <div className="sc-top">
           <header className="sc-bar">
             {/* Phones: the project on the frame, above the canvas. */}
             {switcher ? <div className="sc-mswitch">{switcher}</div> : null}
-            <Suspense>
-              <ConsoleCrumbs label={t("studioPage.breadcrumb")} groups={groups} more={more} root={{ href: project ? "/studio/project" : "/studio", label: name }} />
-            </Suspense>
+            <ConsoleCrumbs label={t("studioPage.breadcrumb")} groups={groups} more={more} root={{ href: project ? "/studio/project" : "/studio", label: name }} />
             {project ? (
               <>
                 <Link href="/studio/project/preview" className="sc-gb" title={t("studio.previewOnPhone")}>

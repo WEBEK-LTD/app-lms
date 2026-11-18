@@ -145,6 +145,31 @@ for (const [i, kind] of KINDS.entries()) {
   });
 }
 
+/**
+ * 132.188 Whether `marker` is first in the page's HTML in its shell: inside no Suspense boundary
+ * (`<!--$-->`), nor in one streamed in after it (`<div hidden id="S:…">`). There it comes to
+ * life with the rest of the frame, before a link of the bar can open another page.
+ */
+function inShell(html: string, marker: string): boolean {
+  const at = html.indexOf(marker);
+  if (at < 0) return false;
+  const before = html.slice(0, at);
+  const opened = (before.match(/<!--\$[?!]?-->/g) ?? []).length;
+  const closed = (before.match(/<!--\/\$-->/g) ?? []).length;
+  return opened === closed && !before.includes('<div hidden id="S:');
+}
+
+test("132.188 the frame's menu, the phone's tab bar and the crumbs come to life with the frame", async () => {
+  // They draw the page open: in a Suspense boundary of their own, one that came to life after a link of the bar had
+  // opened another page drew that page over this one's HTML (React's error #418, the MariaDB job's slower pages).
+  for (const path of ["/studio/project", "/studio/project/invoices", "/studio/account"]) {
+    const response = await own.request.get(path, { headers: extraHTTPHeaders });
+    expect(response.status(), path).toBe(200);
+    const html = await response.text();
+    for (const marker of ['class="sc-side"', 'class="sc-tabbar"', 'class="sc-crumbs']) expect(inShell(html, marker), `${path}: ${marker}`).toBe(true);
+  }
+});
+
 test("the quick search, the groups, the phone's sheet, Arabic and the dark frame", async () => {
   await own.goto("/studio/project");
   // Ctrl+K: type, then Enter.
