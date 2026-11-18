@@ -3820,6 +3820,7 @@ The owner (17 November), on Kech Flora's home in Studio: the row with the search
 | Status | Item | Tests |
 |---|---|---|
 | [x] | 150.1 On a stack's layer, a row with no width of its own or `fill` spans the layer whatever its own placement, which moves it up or down only; a row with a width, a column and anything else keep their placement across (`view.tsx`, as `studio_page.dart`'s `Align` around a `Row`) | `studio-canvas-layout.test.ts` |
+| [x] | 150.2 A row that hugs spans its layer too: the app's Row takes the layer's whole width unless it has a width in points, and Kech Flora's top row, set to hug, still put the bag mid-cover on the canvas | `studio-canvas-layout.test.ts` |
 
 ## Phase 153: The card inside the payment page for iyzico and Kashier
 
