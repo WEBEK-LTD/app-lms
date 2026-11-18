@@ -2,11 +2,12 @@
 
 The owner's request: the stories of the Leqaa app are managed from the
 dashboard (add, remove, reorder, the category, the button…), not only in
-the editor. Branch `wip-stories-dashboard`. **Migration number: 0143**
-(`drizzle/0143_app_stories.sql`). It was 0142 until main took
-`0142_studio_market_money` (#452); after merging main it was dropped and
-made again with `drizzle-kit generate` on top of 0142. Studio Market stage 4
-(`wip-market-discounts`) renumbers after this one.
+the editor. Branch `wip-stories-dashboard`. **Migration number: 0144**
+(`drizzle/0144_app_stories.sql`). It was 0142 until main took
+`0142_studio_market_money` (#452), then 0143 until main took
+`0143_studio_market_discounts` (#459); each time it was dropped and made
+again with `drizzle-kit generate` on top of main's last. On
+`wip-urgent-apps` it also holds `apps.stories_saved_at`.
 
 ## What the owner now sees
 
@@ -50,7 +51,7 @@ Data
 - Table and column: `platform/web/src/lib/db/schema.ts:1277` (`app_stories`,
   foreign key `app_stories_app_fk`, `app_stories_import_unique`),
   `platform/web/src/lib/db/schema.ts:394` (`apps.stories_seeded_at`);
-  migration `platform/web/drizzle/0143_app_stories.sql`.
+  migration `platform/web/drizzle/0144_app_stories.sql`.
 - Type: `platform/web/src/lib/data/types.ts:1443` (`AppStory`).
 - Store interface: `platform/web/src/lib/data/store.ts:876`; memory
   `platform/web/src/lib/data/memory.ts:1386`; MySQL
@@ -183,7 +184,7 @@ redrawn here.
 ## After merging main (#451, #452, #453, #455)
 
 Main took `0142_studio_market_money`, so this migration was dropped and made
-again on top of it: **0143_app_stories**. `CLIENT_APP_RELEASE` is 9 (main's
+again on top of it, then again on top of main's 0143: **0144_app_stories**. `CLIENT_APP_RELEASE` is 9 (main's
 152 is 7 and 163 is 8; the urgent apps share 9), with its line in
 the releases' list. Main's 152 (`linkedProduct`, a product link with none
 chosen or one the shop no longer has opens the shop) also applies to a

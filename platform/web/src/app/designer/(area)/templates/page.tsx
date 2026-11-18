@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { openStudioProjectAction } from "@/app/actions/studio-projects";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
-import { FreePrice, KindTag } from "@/components/studio-market/parts";
+import { KindTag, PriceTagView } from "@/components/studio-market/parts";
 import { MarketPhones, PageThumb } from "@/components/studio-market/phone";
 import { EmptyState, Notice, btn, formatDate } from "@/components/ui";
 import { MarketHeader } from "@/components/studio-market/header";
@@ -13,10 +13,12 @@ import { requireClient } from "@/lib/auth/session";
 import type { MarketTemplate, MarketTemplateStatus } from "@/lib/data/types";
 import { getStore } from "@/lib/data";
 import { dashboardText } from "@/lib/dashboard-lang";
-import { sellerTemplates, type SellerRow } from "@/lib/studio-market/catalog";
+import { automaticDiscounts, sellerTemplates, type SellerRow } from "@/lib/studio-market/catalog";
+import { marketPrice } from "@/lib/studio-market/discounts";
 import { formatUsd } from "@/lib/studio-market/plans";
 import { latestNotes } from "@/lib/studio-market/review";
 import { stepsDone } from "@/lib/studio-market/templates";
+import { offeredPlans } from "@/lib/studio-market/plans";
 import { sampleEntries } from "@/lib/studio/sample-entries";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -48,7 +50,13 @@ export default async function DesignerTemplatesPage({ searchParams }: PageProps<
   const count = (status: MarketTemplateStatus) => rows.filter((r) => r.template.status === status).length;
   // 106.11 What each template earned: the designer's 75% of its paid sales, from their ledger.
   const earned = new Map<string, number>();
-  for (const sale of await store.listDesignerLedger({ designerId: designer.id })) earned.set(sale.templateId, (earned.get(sale.templateId) ?? 0) + sale.designerCents);
+  const sold = new Map<string, number>();
+  for (const sale of await store.listDesignerLedger({ designerId: designer.id })) {
+    earned.set(sale.templateId, (earned.get(sale.templateId) ?? 0) + sale.designerCents);
+    sold.set(sale.templateId, (sold.get(sale.templateId) ?? 0) + 1);
+  }
+  // 106.12 Each template's price as buyers see it now: its plans at their automatic discounts' prices.
+  const discounts = await automaticDiscounts(store, rows.map((r) => r.template.id), now);
 
   const status: Record<MarketTemplateStatus, [string, IconName, string]> = {
     published: ["bg-success-bg text-success", "check_circle", t("studioMarket.statusPublished")],
@@ -97,6 +105,13 @@ export default async function DesignerTemplatesPage({ searchParams }: PageProps<
           <Icon name="edit" size={16} />
           {t("studioMarket.editTemplate")}
         </Link>
+        {/* 106.12 A paid template's discounts. */}
+        {offeredPlans(r.template).length ? (
+          <Link href={`/designer/discounts/${id}`} title={t("marketDiscounts.discountsOf", { title: r.title })} className={`${btn.ghost} h-[30px] rounded-lg px-2`}>
+            <Icon name="sell" size={16} />
+            <span className="sr-only">{t("marketDiscounts.discountsOf", { title: r.title })}</span>
+          </Link>
+        ) : null}
         <Link href={`/dashboard/studio-market/t/${r.template.slug}`} className={`${btn.ghost} h-[30px] rounded-lg px-2`}>
           <Icon name="open_in_new" size={16} />
           <span className="sr-only">{t("studioMarket.openPage")}</span>
@@ -223,10 +238,13 @@ export default async function DesignerTemplatesPage({ searchParams }: PageProps<
                         </td>
                         <td className={`px-4 py-3.5 align-middle ${line}`}>{badge(r.template.status)}</td>
                         <td className={`px-4 py-3.5 align-middle ${line}`}>
-                          <FreePrice />
+                          {(() => {
+                            const price = marketPrice(r.template, discounts.get(r.template.id) ?? [], now);
+                            return <PriceTagView price={price.tag} wasCents={price.wasCents} />;
+                          })()}
                         </td>
                         <td className={`px-4 py-3.5 text-end align-middle tabular-nums ${line}`}>{live ? r.template.views : <span className="text-faint">—</span>}</td>
-                        <td className={`px-4 py-3.5 text-end align-middle tabular-nums ${line}`}>{live ? t("studioMarket.salesFree", { count: r.applies }) : <span className="text-faint">—</span>}</td>
+                        <td className={`px-4 py-3.5 text-end align-middle tabular-nums ${line}`}>{live ? (r.template.free ? t("studioMarket.salesFree", { count: r.applies }) : t("studioMarket.salesPaid", { count: sold.get(r.template.id) ?? 0 })) : <span className="text-faint">—</span>}</td>
                         <td className={`px-4 py-3.5 text-end align-middle font-bold tabular-nums ${line}`}>{live || earned.has(r.template.id) ? <bdi dir="ltr">{formatUsd(earned.get(r.template.id) ?? 0)}</bdi> : <span className="text-faint">—</span>}</td>
                         <td className={`py-3.5 ps-4 pe-6 align-middle ${line}`}>
                           <span className="flex justify-end gap-1.5">{action(r)}</span>
