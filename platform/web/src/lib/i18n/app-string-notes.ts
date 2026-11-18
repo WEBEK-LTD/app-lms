@@ -10,6 +10,37 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  // 115.70–115.77 The marketplace's vendor app.
+  "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders.": {
+    en: "The vendor app's live orders: its header, today's numbers and the lists of orders.",
+    ar: "الطلبات المباشرة في تطبيق المحلات: رأس الشاشة، وأرقام اليوم، وقوائم الطلبات.",
+    tr: "Satıcı uygulamasının canlı siparişleri: üst bölüm, günün rakamları ve sipariş listeleri.",
+  },
+  "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers.": {
+    en: "A new order in the vendor app: its tags, items, how it's delivered and paid, the ready-in time, and accepting or turning it down.",
+    ar: "طلب جديد في تطبيق المحلات: وسومه وأصنافه وطريقة توصيله ودفعه، ووقت التجهيز، وقبوله أو رفضه.",
+    tr: "Satıcı uygulamasında yeni bir sipariş: etiketleri, ürünleri, nasıl teslim edilip ödendiği, hazır olma süresi, kabul veya ret.",
+  },
+  "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.": {
+    en: "Picking an order in the vendor app: each item by aisle, the customer's choice if it's missing, its weight and price, and what's left before it's ready.",
+    ar: "تجهيز الطلب في تطبيق المحلات: كل صنف حسب الممر، واختيار العميل عند نفاده، ووزنه وسعره، وما بقي قبل أن يصبح جاهزًا.",
+    tr: "Satıcı uygulamasında sipariş toplama: reyona göre her ürün, eksikse müşterinin tercihi, ağırlığı ve fiyatı, hazır olmadan önce kalanlar.",
+  },
+  "115.71 Offering the customer a similar item for a missing line, while they have 5 minutes to answer.": {
+    en: "Offering the customer a similar item for a missing one; they have 5 minutes to answer.",
+    ar: "اقتراح صنف مشابه على العميل بدل صنف ناقص، وأمامه 5 دقائق للرد.",
+    tr: "Eksik bir ürün yerine müşteriye benzerini önerme; yanıt için 5 dakikası var.",
+  },
+  "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product.": {
+    en: "Stock in the vendor app: search and scan, in and out of stock, changing a price for new orders, and adding a product.",
+    ar: "المخزون في تطبيق المحلات: البحث والمسح، والمتوفر وغير المتوفر، وتغيير السعر للطلبات الجديدة، وإضافة منتج.",
+    tr: "Satıcı uygulamasında stok: arama ve okutma, stokta olan ve olmayan, yeni siparişler için fiyat değiştirme ve ürün ekleme.",
+  },
+  "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers.": {
+    en: "The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers.",
+    ar: "تبويبا التجهيز والعروض في تطبيق المحلات: الطلبات قيد التحضير، وعروض المكان الخاصة.",
+    tr: "Satıcı uygulamasının Toplama ve Kampanyalar sekmeleri: hazırlanan siparişler ve işletmenin kendi kampanyaları.",
+  },
   "Button on the empty My tickets list of an Events app: opens the events.": {
     ar: "زر في قائمة «تذاكري» الفارغة في تطبيق الفعاليات: يفتح الفعاليات.",
     tr: "Etkinlik uygulamasında boş Biletlerim listesindeki düğme: etkinlikleri açar.",

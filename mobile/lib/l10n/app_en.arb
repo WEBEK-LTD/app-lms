@@ -13669,7 +13669,7 @@
   },
   "vendorSignedInAs": "{app} · {name}, {role}",
   "@vendorSignedInAs": {
-    "description": "115.70 Under the place's name on the vendor desk: the app, the signed-in person's first name and role.",
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders.",
     "placeholders": {
       "app": {
         "type": "String"
@@ -13684,7 +13684,7 @@
   },
   "vendorNewCount": "{n, plural, other{{n} new}}",
   "@vendorNewCount": {
-    "description": "115.70 The ringing bell on the vendor desk: how many orders wait for an answer.",
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders.",
     "placeholders": {
       "n": {
         "type": "int"
@@ -13693,19 +13693,19 @@
   },
   "vendorSoundOn": "Sound on",
   "@vendorSoundOn": {
-    "description": "115.70 The sound switch on the vendor desk, while new orders ring."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorSoundOff": "Sound off",
   "@vendorSoundOff": {
-    "description": "115.70 The sound switch on the vendor desk, while new orders are silent."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorBusyAsk": "Busy?",
   "@vendorBusyAsk": {
-    "description": "115.70 Next to the place's state on the vendor desk: opens the busy and pause choices."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorBusyPlus": "+{n} min",
   "@vendorBusyPlus": {
-    "description": "115.70 After Busy?: the extra minutes it offers first.",
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders.",
     "placeholders": {
       "n": {
         "type": "int"
@@ -13714,47 +13714,47 @@
   },
   "vendorOrdersToday": "Orders today",
   "@vendorOrdersToday": {
-    "description": "115.70 A tile on the vendor desk."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorSalesToday": "Sales today",
   "@vendorSalesToday": {
-    "description": "115.70 A tile on the vendor desk."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorNewNow": "New now",
   "@vendorNewNow": {
-    "description": "115.70 A tile on the vendor desk: orders waiting for an answer."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorTabNew": "New",
   "@vendorTabNew": {
-    "description": "115.70 The vendor desk's lists: new orders."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorTabPreparing": "Preparing",
   "@vendorTabPreparing": {
-    "description": "115.70 The vendor desk's lists: accepted, being prepared or picked."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorTabReady": "Ready",
   "@vendorTabReady": {
-    "description": "115.70 The vendor desk's lists: ready, waiting to be taken."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorTabLater": "For later",
   "@vendorTabLater": {
-    "description": "115.70 The vendor desk's lists: orders for later."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorTabDone": "Done",
   "@vendorTabDone": {
-    "description": "115.70 The vendor desk's lists: the last days' finished orders."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorRinging": "Ringing",
   "@vendorRinging": {
-    "description": "115.70 The tag of a new order that is ringing."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorNewTag": "New",
   "@vendorNewTag": {
-    "description": "115.70 The tag of a new order waiting for an answer, after the first."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorAgo": "{n} min ago",
   "@vendorAgo": {
-    "description": "115.70 How long ago a new order came, in minutes.",
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers.",
     "placeholders": {
       "n": {
         "type": "int"
@@ -13763,35 +13763,35 @@
   },
   "vendorJustNow": "just now",
   "@vendorJustNow": {
-    "description": "115.70 A new order that came less than a minute ago."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorByAppCourier": "The app's courier",
   "@vendorByAppCourier": {
-    "description": "115.70 On an order: the app's courier takes it."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorByOwnDriver": "Our driver",
   "@vendorByOwnDriver": {
-    "description": "115.70 On an order: the place's own driver takes it."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorPickupTag": "Pick-up",
   "@vendorPickupTag": {
-    "description": "115.70 On an order: the customer picks it up."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorPayCash": "Cash",
   "@vendorPayCash": {
-    "description": "115.70 On an order: paid in cash."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorPayCard": "Card",
   "@vendorPayCard": {
-    "description": "115.70 On an order: paid by card."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorPayWallet": "Wallet",
   "@vendorPayWallet": {
-    "description": "115.70 On an order: paid from the wallet."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorByWeight": "{n} by weight",
   "@vendorByWeight": {
-    "description": "115.70 On an order: how many of its lines are weighed.",
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers.",
     "placeholders": {
       "n": {
         "type": "int"
@@ -13800,7 +13800,7 @@
   },
   "vendorItemCount": "{n} items",
   "@vendorItemCount": {
-    "description": "115.70 On an order: how many lines it has.",
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers.",
     "placeholders": {
       "n": {
         "type": "int"
@@ -13809,23 +13809,23 @@
   },
   "vendorWeighTag": "weigh",
   "@vendorWeighTag": {
-    "description": "115.70 The tag of a line sold by weight on a new order."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorMoreItems": "more items",
   "@vendorMoreItems": {
-    "description": "115.70 After +N on a new order: the lines not shown."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorReadyIn": "Ready in",
   "@vendorReadyIn": {
-    "description": "115.70 Above the minutes a new order needs."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorMin": "min",
   "@vendorMin": {
-    "description": "115.70 Under a number of minutes in the ready-in choices."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorAcceptReady": "Accept · ready {time}",
   "@vendorAcceptReady": {
-    "description": "115.70 The accept button: accept, ready at that time.",
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers.",
     "placeholders": {
       "time": {
         "type": "String"
@@ -13834,35 +13834,35 @@
   },
   "vendorTurnDown": "Turn down",
   "@vendorTurnDown": {
-    "description": "115.70 The button that turns a new order down."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorRejectWhy": "Why are you turning it down?",
   "@vendorRejectWhy": {
-    "description": "115.70 The title of the reasons to turn an order down."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorWhyClosing": "We're closing",
   "@vendorWhyClosing": {
-    "description": "115.70 A reason to turn an order down."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorWhyTooBusy": "Too busy",
   "@vendorWhyTooBusy": {
-    "description": "115.70 A reason to turn an order down."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorWhyItems": "Items unavailable",
   "@vendorWhyItems": {
-    "description": "115.70 A reason to turn an order down."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorWhyTooFar": "Too far",
   "@vendorWhyTooFar": {
-    "description": "115.70 A reason to turn an order down."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorWhyOther": "Other",
   "@vendorWhyOther": {
-    "description": "115.70 A reason to turn an order down."
+    "description": "115.70 A new order on the vendor's desk: its tags, lines, how it goes and is paid, the ready-in time and the answers."
   },
   "vendorOrderTitle": "Order {ref} · {name}",
   "@vendorOrderTitle": {
-    "description": "115.71 The picking screen's title: the order and the customer's first name.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "ref": {
         "type": "String"
@@ -13874,7 +13874,7 @@
   },
   "vendorCourierComes": "Courier comes {time}",
   "@vendorCourierComes": {
-    "description": "115.71 Under the picking title: when the app's courier comes.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "time": {
         "type": "String"
@@ -13883,7 +13883,7 @@
   },
   "vendorReadyBy": "Ready by {time}",
   "@vendorReadyBy": {
-    "description": "115.71 Under the picking title: when it should be ready.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "time": {
         "type": "String"
@@ -13892,7 +13892,7 @@
   },
   "vendorPickingFor": "picking {time}",
   "@vendorPickingFor": {
-    "description": "115.71 Under the picking title: how long it has been picked.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "time": {
         "type": "String"
@@ -13901,7 +13901,7 @@
   },
   "vendorAisle": "{aisle} · aisle {n}",
   "@vendorAisle": {
-    "description": "115.71 A heading of the picking list: the aisle's name and number.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "aisle": {
         "type": "String"
@@ -13913,55 +13913,55 @@
   },
   "vendorOtherItems": "Other items",
   "@vendorOtherItems": {
-    "description": "115.71 The picking list's heading for items in no aisle."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorAsked": "Asked",
   "@vendorAsked": {
-    "description": "115.71 Before what the customer ordered of a line."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorIfOutSimilar": "If out: similar",
   "@vendorIfOutSimilar": {
-    "description": "115.71 A line's choice: a similar item when it's out."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorIfOutChosen": "If out: their pick",
   "@vendorIfOutChosen": {
-    "description": "115.71 A line's choice: the item the customer chose when it's out."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorIfOutRemove": "If out: leave it out",
   "@vendorIfOutRemove": {
-    "description": "115.71 A line's choice: left out when it's out."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorActualWeight": "Actual weight",
   "@vendorActualWeight": {
-    "description": "115.71 Above the weight typed on the keypad."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorFromScale": "From scale",
   "@vendorFromScale": {
-    "description": "115.71 The keypad's scale key."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorScaleLater": "A connected scale comes later. Type the weight for now.",
   "@vendorScaleLater": {
-    "description": "115.71 Shown when the scale key is tapped."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorOut": "Out",
   "@vendorOut": {
-    "description": "115.71 The button: this line is out of stock."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorSwap": "Swap",
   "@vendorSwap": {
-    "description": "115.71 The button: offer something else for this line."
+    "description": "115.71 Offering the customer a similar item for a missing line, while they have 5 minutes to answer."
   },
   "vendorPickedButton": "Picked",
   "@vendorPickedButton": {
-    "description": "115.71 The button: this line is picked."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorLineOut": "Out of stock",
   "@vendorLineOut": {
-    "description": "115.71 A line found out of stock."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorAskedCustomer": "Asked the customer · {time} left",
   "@vendorAskedCustomer": {
-    "description": "115.71 A proposed substitute waiting for the customer, with the time left.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "time": {
         "type": "String"
@@ -13970,7 +13970,7 @@
   },
   "vendorWeighed": "Weighed {weight} of {ordered} · {price}",
   "@vendorWeighed": {
-    "description": "115.71 A weighed line once picked.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "weight": {
         "type": "String"
@@ -13985,7 +13985,7 @@
   },
   "vendorPickedLine": "Picked {qty} · {price}",
   "@vendorPickedLine": {
-    "description": "115.71 A line of items once picked.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "qty": {
         "type": "String"
@@ -13997,7 +13997,7 @@
   },
   "vendorTheirPick": "Their pick, for {name}",
   "@vendorTheirPick": {
-    "description": "115.71 The customer's own pick brought instead of a line.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -14006,7 +14006,7 @@
   },
   "vendorInsteadOf": "Instead of {name}",
   "@vendorInsteadOf": {
-    "description": "115.71 A substitute the customer accepted.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -14015,23 +14015,23 @@
   },
   "vendorLeftOut": "Left out",
   "@vendorLeftOut": {
-    "description": "115.71 A line left out of the order."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorReadyForCourier": "Ready for courier",
   "@vendorReadyForCourier": {
-    "description": "115.71 The button once every line is done: for the app's courier."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorReadyForPickup": "Ready for pick-up",
   "@vendorReadyForPickup": {
-    "description": "115.71 The button once every line is done: for the customer to pick up."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorReadyForDriver": "Ready for our driver",
   "@vendorReadyForDriver": {
-    "description": "115.71 The button once every line is done: for the place's own driver."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorLinesLeft": "{n, plural, =1{1 line left: {names}} other{{n} lines left: {names}}}",
   "@vendorLinesLeft": {
-    "description": "115.71 Under the ready button: the lines still to do.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "n": {
         "type": "int"
@@ -14043,7 +14043,7 @@
   },
   "vendorWaitingCustomer": "{name} waiting for the customer",
   "@vendorWaitingCustomer": {
-    "description": "115.71 A line left, its substitute waiting for the customer.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -14052,11 +14052,11 @@
   },
   "vendorSwapTitle": "Offer something similar",
   "@vendorSwapTitle": {
-    "description": "115.71 The sheet that offers the customer a substitute."
+    "description": "115.71 Offering the customer a similar item for a missing line, while they have 5 minutes to answer."
   },
   "vendorSwapRule": "Same aisle, never dearer than {price}",
   "@vendorSwapRule": {
-    "description": "115.71 Under the substitute sheet's title.",
+    "description": "115.71 Offering the customer a similar item for a missing line, while they have 5 minutes to answer.",
     "placeholders": {
       "price": {
         "type": "String"
@@ -14065,27 +14065,27 @@
   },
   "vendorSwapAsk": "Ask the customer",
   "@vendorSwapAsk": {
-    "description": "115.71 The button that asks the customer about a substitute."
+    "description": "115.71 Offering the customer a similar item for a missing line, while they have 5 minutes to answer."
   },
   "vendorSwapNote": "The customer has 5 minutes to answer; then their choice for missing items applies.",
   "@vendorSwapNote": {
-    "description": "115.71 What happens after a substitute is offered."
+    "description": "115.71 Offering the customer a similar item for a missing line, while they have 5 minutes to answer."
   },
   "vendorSwapNone": "Nothing similar in stock at this price.",
   "@vendorSwapNone": {
-    "description": "115.71 No substitute found."
+    "description": "115.71 Offering the customer a similar item for a missing line, while they have 5 minutes to answer."
   },
   "vendorSwapAsked": "Asked the customer.",
   "@vendorSwapAsked": {
-    "description": "115.71 After a substitute was offered."
+    "description": "115.71 Offering the customer a similar item for a missing line, while they have 5 minutes to answer."
   },
   "vendorBringTheirPick": "Bring their pick",
   "@vendorBringTheirPick": {
-    "description": "115.71 The swap of a line whose customer chose the substitute."
+    "description": "115.71 Offering the customer a similar item for a missing line, while they have 5 minutes to answer."
   },
   "vendorStockSummary": "{store} · {n} products · {out} out",
   "@vendorStockSummary": {
-    "description": "115.72 Under the Stock title: the place, its products and how many are out.",
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product.",
     "placeholders": {
       "store": {
         "type": "String"
@@ -14100,31 +14100,31 @@
   },
   "vendorStockHint": "Name, SKU or barcode",
   "@vendorStockHint": {
-    "description": "115.72 The stock search's hint."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorFilterAll": "All",
   "@vendorFilterAll": {
-    "description": "115.72 A stock filter."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorFilterOut": "Out of stock",
   "@vendorFilterOut": {
-    "description": "115.72 A stock filter: out of stock."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorFilterWeight": "By weight",
   "@vendorFilterWeight": {
-    "description": "115.72 A stock filter: sold by weight."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorFilterOffers": "Offers",
   "@vendorFilterOffers": {
-    "description": "115.72 A stock filter: on offer."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorInStock": "In stock",
   "@vendorInStock": {
-    "description": "115.72 A product in stock."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorInStockLeft": "In stock · {n} left",
   "@vendorInStockLeft": {
-    "description": "115.72 A product in stock, counted: how many, or how much for one sold by weight.",
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product.",
     "placeholders": {
       "n": {
         "type": "String"
@@ -14133,27 +14133,27 @@
   },
   "vendorUnitKg": "kg",
   "@vendorUnitKg": {
-    "description": "115.72 Kilograms, short."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorUnitG": "g",
   "@vendorUnitG": {
-    "description": "115.72 Grams, short."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorUnitL": "l",
   "@vendorUnitL": {
-    "description": "115.72 Litres, short."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorPerKg": "per kg",
   "@vendorPerKg": {
-    "description": "115.72 After a product's SKU: its price is per kilo."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorNewPrice": "New price",
   "@vendorNewPrice": {
-    "description": "115.72 The price editor's field."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorNewPricePer": "New price / {unit}",
   "@vendorNewPricePer": {
-    "description": "115.72 The price editor's field, for a price per unit.",
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product.",
     "placeholders": {
       "unit": {
         "type": "String"
@@ -14162,23 +14162,23 @@
   },
   "vendorShownAsWas": "Shown as was",
   "@vendorShownAsWas": {
-    "description": "115.72 The price before the offer, struck through."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorShowOffer": "Show as an offer",
   "@vendorShowOffer": {
-    "description": "115.72 The price editor's check: show the old price struck through."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorSave": "Save",
   "@vendorSave": {
-    "description": "115.72 The price editor's save."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorCancel": "Cancel",
   "@vendorCancel": {
-    "description": "115.72 The price editor's cancel."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorPriceApplies": "{n, plural, =0{Applies at once to new orders; orders already placed keep their price.} =1{Applies at once to new orders, not to the 1 already placed.} other{Applies at once to new orders, not to the {n} already placed.}}",
   "@vendorPriceApplies": {
-    "description": "115.72 Under the price editor: who the new price applies to.",
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product.",
     "placeholders": {
       "n": {
         "type": "int"
@@ -14187,7 +14187,7 @@
   },
   "vendorPriceUndo": "{team}'s team sees each change and can undo it.",
   "@vendorPriceUndo": {
-    "description": "115.72 Under the price editor: the owner's team sees each change.",
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product.",
     "placeholders": {
       "team": {
         "type": "String"
@@ -14196,19 +14196,19 @@
   },
   "vendorPriceSaved": "New price saved",
   "@vendorPriceSaved": {
-    "description": "115.72 After a new price is saved."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorPriceInvalid": "Enter a price above zero.",
   "@vendorPriceInvalid": {
-    "description": "115.72 A price that isn't a number above zero."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorWasAbove": "The price it was must be above the new one.",
   "@vendorWasAbove": {
-    "description": "115.72 The price before the offer isn't above the new one."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorScanned": "Scanned: {name}",
   "@vendorScanned": {
-    "description": "115.72 The toast after a barcode is read.",
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -14217,11 +14217,11 @@
   },
   "vendorOpen": "Open",
   "@vendorOpen": {
-    "description": "115.72 The toast's button: open the scanned product."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorScanNotFound": "Nothing here has the code {code}.",
   "@vendorScanNotFound": {
-    "description": "115.72 No product has the scanned code.",
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product.",
     "placeholders": {
       "code": {
         "type": "String"
@@ -14230,79 +14230,79 @@
   },
   "vendorScanTitle": "Scan a barcode",
   "@vendorScanTitle": {
-    "description": "115.72 The scan button and its sheet."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorScanTyped": "Type or paste the barcode or SKU",
   "@vendorScanTyped": {
-    "description": "115.72 The scan sheet's field, typed or pasted."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorScanFind": "Find",
   "@vendorScanFind": {
-    "description": "115.72 The scan sheet's button."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorAddProduct": "Add a product",
   "@vendorAddProduct": {
-    "description": "115.72 The add button on Stock and its sheet."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorProductName": "Name",
   "@vendorProductName": {
-    "description": "115.72 The new product's name."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorPrice": "Price",
   "@vendorPrice": {
-    "description": "115.72 The new product's price."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorSoldByItem": "By the item",
   "@vendorSoldByItem": {
-    "description": "115.72 A new product sold by the item."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorSoldByKg": "By the kilo",
   "@vendorSoldByKg": {
-    "description": "115.72 A new product sold by the kilo."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorSku": "SKU",
   "@vendorSku": {
-    "description": "115.72 The new product's own code."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorBarcode": "Barcode",
   "@vendorBarcode": {
-    "description": "115.72 The new product's barcode."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorAdd": "Add",
   "@vendorAdd": {
-    "description": "115.72 The add sheet's button."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorProductAdded": "Product added",
   "@vendorProductAdded": {
-    "description": "115.72 After a product is added."
+    "description": "115.72 The vendor's stock: search and scan, in and out of stock, a price changed for new orders, and adding a product."
   },
   "vendorUnitMl": "ml",
   "@vendorUnitMl": {
-    "description": "115.71 Millilitres, short, for a weighed line sold by the litre."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorRoleOwner": "Owner",
   "@vendorRoleOwner": {
-    "description": "115.70 A staff member's role, after their name on the vendor desk."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorRoleManager": "Manager",
   "@vendorRoleManager": {
-    "description": "115.70 A staff member's role, after their name on the vendor desk."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorRoleOrders": "Orders",
   "@vendorRoleOrders": {
-    "description": "115.70 A staff member's role, after their name on the vendor desk."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorRolePicker": "Picker",
   "@vendorRolePicker": {
-    "description": "115.70 A staff member's role, after their name on the vendor desk."
+    "description": "115.70 The vendor app's live orders: its header, today's numbers and the lists of orders."
   },
   "vendorPriceLabel": "Price",
   "@vendorPriceLabel": {
-    "description": "115.71 Above a weighed line's price for the typed weight."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorCapCard": "Card order: up to {weight} · {amount}",
   "@vendorCapCard": {
-    "description": "115.71 Under a weighed line's price, a card, Apple Pay or Google Pay order: the most it may weigh and cost.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "weight": {
         "type": "String"
@@ -14314,7 +14314,7 @@
   },
   "vendorCapWallet": "Wallet order: up to {weight} · {amount}",
   "@vendorCapWallet": {
-    "description": "115.71 Under a weighed line's price, a wallet order: the most it may weigh and cost.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "weight": {
         "type": "String"
@@ -14326,7 +14326,7 @@
   },
   "vendorCapCash": "Cash order: up to {weight} · {amount}",
   "@vendorCapCash": {
-    "description": "115.71 Under a weighed line's price, a cash order: the most it may weigh and cost (the tolerance over the weight asked).",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "weight": {
         "type": "String"
@@ -14338,7 +14338,7 @@
   },
   "vendorOverCap": "Too heavy: at most {weight}",
   "@vendorOverCap": {
-    "description": "115.71 A weight above what the order allows.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "weight": {
         "type": "String"
@@ -14347,19 +14347,19 @@
   },
   "vendorOffersTitle": "Your offers",
   "@vendorOffersTitle": {
-    "description": "115.77 The Offers tab's title."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOffersText": "Coupons and automatic offers for your place only. You pay for the discount; it shows on your statements.",
   "@vendorOffersText": {
-    "description": "115.77 Under the Offers title."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOffersOff": "The app doesn't let places make their own offers right now.",
   "@vendorOffersOff": {
-    "description": "115.77 The app's owner doesn't let places make offers."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOffersMax": "The app allows up to {max}% off.",
   "@vendorOffersMax": {
-    "description": "115.77 The largest percentage the owner allows.",
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers.",
     "placeholders": {
       "max": {
         "type": "String"
@@ -14368,107 +14368,107 @@
   },
   "vendorOfferNew": "New offer",
   "@vendorOfferNew": {
-    "description": "115.77 The button and sheet that make an offer."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferName": "Name customers see",
   "@vendorOfferName": {
-    "description": "115.77 The offer's name field."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferCode": "Code",
   "@vendorOfferCode": {
-    "description": "115.77 The offer's code field."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferCodeHint": "Leave it empty for an automatic offer that applies by itself.",
   "@vendorOfferCodeHint": {
-    "description": "115.77 Under the code field."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferKind": "What it takes off",
   "@vendorOfferKind": {
-    "description": "115.77 What the offer takes off."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferPercent": "A percentage",
   "@vendorOfferPercent": {
-    "description": "115.77 An offer kind."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferAmount": "An amount",
   "@vendorOfferAmount": {
-    "description": "115.77 An offer kind."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferFree": "Free delivery",
   "@vendorOfferFree": {
-    "description": "115.77 An offer kind."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferFreeNote": "Free delivery is for places that deliver themselves.",
   "@vendorOfferFreeNote": {
-    "description": "115.77 Under the kinds."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferValue": "Percentage or amount",
   "@vendorOfferValue": {
-    "description": "115.77 The percentage or amount field."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferMinOrder": "Smallest order (optional)",
   "@vendorOfferMinOrder": {
-    "description": "115.77 The smallest order field."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferEnds": "Ends",
   "@vendorOfferEnds": {
-    "description": "115.77 The last day field."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferCreate": "Create the offer",
   "@vendorOfferCreate": {
-    "description": "115.77 The sheet's button."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOffersNone": "No offers yet.",
   "@vendorOffersNone": {
-    "description": "115.77 No offers yet."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferAuto": "Automatic",
   "@vendorOfferAuto": {
-    "description": "115.77 An offer without a code."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferActive": "On",
   "@vendorOfferActive": {
-    "description": "115.77 An offer's state."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferPaused": "Paused",
   "@vendorOfferPaused": {
-    "description": "115.77 An offer's state."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferEnded": "Ended",
   "@vendorOfferEnded": {
-    "description": "115.77 An offer's state."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferOwnerPaused": "Paused by the app",
   "@vendorOfferOwnerPaused": {
-    "description": "115.77 An offer's state: paused by the app's owner."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferPause": "Pause",
   "@vendorOfferPause": {
-    "description": "115.77 An offer's button."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferResume": "Start again",
   "@vendorOfferResume": {
-    "description": "115.77 An offer's button."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferEnd": "End",
   "@vendorOfferEnd": {
-    "description": "115.77 An offer's button."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOfferSaved": "The offer is on.",
   "@vendorOfferSaved": {
-    "description": "115.77 After an offer is made."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorTabPicking": "Picking",
   "@vendorTabPicking": {
-    "description": "115.77 The vendor app's tab of the orders being picked."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorPickingEmpty": "Orders being prepared show here.",
   "@vendorPickingEmpty": {
-    "description": "115.77 The Picking tab without orders."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "vendorOffersOwners": "Offers are for the place's owner and managers.",
   "@vendorOffersOwners": {
-    "description": "115.77 The Offers tab for staff who are not the owner or a manager."
+    "description": "115.77 The vendor app's Picking and Offers tabs: the orders being prepared, and the place's own offers."
   },
   "marketSearchStore": "Search {name}",
   "@marketSearchStore": {
@@ -15018,7 +15018,7 @@
   },
   "vendorProposalYes": "{name}: the customer said yes",
   "@vendorProposalYes": {
-    "description": "115.71 A line whose substitute the customer accepted: bring it.",
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -15027,10 +15027,10 @@
   },
   "vendorProposalNo": "The customer said to leave it out",
   "@vendorProposalNo": {
-    "description": "115.71 A line whose substitute the customer declined (or the time ran out with leave it out)."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   },
   "vendorBringIt": "Bring it",
   "@vendorBringIt": {
-    "description": "115.71 The button that brings the substitute the customer accepted."
+    "description": "115.71 The vendor's picking screen: each line by aisle, its choice, its weight and price, and what's left before it's ready."
   }
 }
