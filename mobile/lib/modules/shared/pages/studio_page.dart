@@ -1343,7 +1343,8 @@ class StudioNodeView extends ConsumerWidget {
       fontWeight: _weight(font?.weight),
       fontStyle: font?.italic == true ? FontStyle.italic : null,
       decoration: _decoration(font),
-      height: font?.lineHeight,
+      // 163 Never tighter than its script's letters need.
+      height: studioLineHeight(font?.lineHeight, _text()),
       letterSpacing: font?.letterSpacing,
     );
   }
@@ -1357,30 +1358,7 @@ class StudioNodeView extends ConsumerWidget {
         : text;
   }
 
-  String? _ownText() {
-    final entry = scope.entry;
-    if (entry != null && node.bind != null) {
-      return switch (node.bind!) {
-        StudioBind.title => entry.title,
-        StudioBind.subtitle => entry.subtitle,
-        // 131 A product on sale: its sale price. 161 In the customer's
-        // currency when the server sent it (a range's both ends, "From").
-        StudioBind.price => entry.shownPrice,
-        StudioBind.badge => entry.badge,
-        StudioBind.image => null,
-        // 128.8 Drawn with its star by [_StudioRating]; none, nothing.
-        StudioBind.rating => entry.rating?.toStringAsFixed(1),
-        // 131 The share off and the price before it; nothing when not on sale.
-        StudioBind.sale => switch (entry.sale) {
-          // 161 Its number and percent the right way round in Arabic.
-          final sale? => percentText(currentL10n.saleOff(sale.percentOff)),
-          null => '',
-        },
-        StudioBind.wasPrice => entry.sale?.wasFormatted ?? '',
-      };
-    }
-    return node.text;
-  }
+  String? _ownText() => studioOwnText(node, scope);
 
   Widget _content(BuildContext context, WidgetRef ref, Color? color) {
     final p = context.palette;
@@ -1874,7 +1852,12 @@ class StudioNodeView extends ConsumerWidget {
         final stretch =
             node.cross == StudioCross.stretch ||
             kids.any((k) => k.height?.fill == true);
-        final givesWay = studioTextGivingWay(kids);
+        // 163 Of the texts that show something here: a card's was-price
+        // with no sale draws nothing, and can't give way for its price.
+        final givesWay = studioTextGivingWay([
+          for (final k in kids)
+            if (!_boundEmpty(k)) k,
+        ]);
         final row = Row(
           mainAxisAlignment: _main(node.align),
           crossAxisAlignment: stretch
@@ -1918,6 +1901,15 @@ class StudioNodeView extends ConsumerWidget {
         );
     }
   }
+
+  /// Whether [child] is a text bound to what this card's entry hasn't (it
+  /// draws nothing).
+  bool _boundEmpty(StudioNode child) =>
+      scope.entry != null &&
+      child.type == StudioNodeType.text &&
+      child.bind != null &&
+      child.bind != StudioBind.image &&
+      (studioOwnText(child, scope) ?? '').trim().isEmpty;
 
   /// An element across its parent: its own alignment, else hugging its
   /// content when its size across says so.
@@ -2079,11 +2071,59 @@ AlignmentDirectional _stackAlign(StudioCross cross) => switch (cross) {
   StudioCross.stretch => AlignmentDirectional.topStart,
 };
 
+/// The text [node] shows in [scope]: the entry's for an element bound to
+/// it in a card, else its own.
+String? studioOwnText(StudioNode node, StudioScope scope) {
+  final entry = scope.entry;
+  if (entry != null && node.bind != null) {
+    return switch (node.bind!) {
+      StudioBind.title => entry.title,
+      StudioBind.subtitle => entry.subtitle,
+      // 131 A product on sale: its sale price. 161 In the customer's
+      // currency when the server sent it (a range's both ends, "From").
+      StudioBind.price => entry.shownPrice,
+      StudioBind.badge => entry.badge,
+      StudioBind.image => null,
+      // 128.8 Drawn with its star by [_StudioRating]; none, nothing.
+      StudioBind.rating => entry.rating?.toStringAsFixed(1),
+      // 131 The share off and the price before it; nothing when not on sale.
+      StudioBind.sale => switch (entry.sale) {
+        // 161 Its number and percent the right way round in Arabic.
+        final sale? => percentText(currentL10n.saleOff(sale.percentOff)),
+        null => '',
+      },
+      StudioBind.wasPrice => entry.sale?.wasFormatted ?? '',
+    };
+  }
+  return node.text;
+}
+
+/// 163 The line height [text] is drawn with: the one designed, but never
+/// under 1.5 for Arabic. The app's Arabic face (Readex Pro) gives its line
+/// 1.25 of its size, yet its letters reach 0.51 under the baseline (ي ج ح
+/// ع م) and 1.13 over it: a heading's 1.04, made for a Latin display face,
+/// let them draw over what follows (Leqaa's "رحلة زهورك إليهم" over the top
+/// of the journey's card, more so at a Samsung's larger text). Latin text
+/// keeps its height.
+double? studioLineHeight(double? designed, String? text) {
+  if (designed == null || designed >= _arabicLineHeight || text == null) {
+    return designed;
+  }
+  return _arabicLetters.hasMatch(text) ? _arabicLineHeight : designed;
+}
+
+const _arabicLineHeight = 1.5;
+final _arabicLetters = RegExp(
+  '[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]',
+);
+
 /// 128.10 The one text in a row that gives way to what follows it: the
 /// row's only text cut to its lines without a width of its own, when
 /// nothing in the row fills it (Studio's canvas: components/studio/
-/// view.tsx `textGivingWay`). With two such texts, or none, none does and
-/// the row is as before.
+/// view.tsx `textGivingWay`). None such, none does and the row is as
+/// before. 163 With two or more, the last gives way (a price's was-price
+/// after it, on a card of a fixed width): before, none did and the row ran
+/// past the card at a larger text size. As before whenever the row fits.
 StudioNode? studioTextGivingWay(List<StudioNode> kids) {
   if (kids.any((k) => k.width?.fill == true)) return null;
   final texts = [
@@ -2093,7 +2133,7 @@ StudioNode? studioTextGivingWay(List<StudioNode> kids) {
           k.width?.fixed == null)
         k,
   ];
-  return texts.length == 1 ? texts.single : null;
+  return texts.lastOrNull;
 }
 
 /// 128.10 What it holds at its own width when the width around it is

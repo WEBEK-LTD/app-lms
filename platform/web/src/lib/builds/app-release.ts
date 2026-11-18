@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 8;
+export const CLIENT_APP_RELEASE = 9;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -50,7 +50,13 @@ export const CLIENT_APP_RELEASE = 8;
  *    a store's product link with no product chosen opens the shop, and so
  *    does one whose product the shop no longer has (in place of "not
  *    found").
- * 8  161 The whole app in the customer's currency: the home's Studio
+ * 8  163 Studio pages on a Samsung's settings (larger text, display zoom,
+ *    its navigation bar): Arabic text never under a 1.5 line, so its
+ *    letters don't draw over the next card; a cover grows with what is on
+ *    it; a row's last text that shows something gives way; a
+ *    testimonial's quote mark isn't cut; the flash sale's title wraps; the
+ *    folding header no longer redraws during layout.
+ * 9  161 The whole app in the customer's currency: the home's Studio
  *    cards (a range's both ends, "From"), the sale and the price before it,
  *    the flash sale, the coupon, plans, add-ons, options, the cart's lines
  *    and sums, slot fees, points and orders, "≈" as the shop's are, what is

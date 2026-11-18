@@ -15,7 +15,7 @@ import 'package:yallapp/modules/store/data/cart_controller.dart';
 import 'package:yallapp/modules/store/widgets/product_widgets.dart';
 
 import '../screenshots/support/demo_api.dart';
-import '../screenshots/support/shot.dart' show usePhone;
+import '../screenshots/support/shot.dart' show loadAppFonts, usePhone;
 import '../screenshots/support/studio_demo.dart';
 import '../support/test_app.dart';
 
@@ -198,7 +198,6 @@ Future<TestApp> _open(
 }) async {
   StudioDemo.language = 'en';
   usePhone(tester);
-  letStudioOverflows();
   final app = TestApp(
     api: api,
     appType: AppType.store,
@@ -209,31 +208,16 @@ Future<TestApp> _open(
   return app;
 }
 
-/// 161 Layout overflows inside Studio's elements in the test's font, whose
-/// letters are all as wide as they are tall (the cover's top row, the
-/// flash sale's title beside its countdown), belong to the layout fixes
-/// (163); these tests are about the prices, so only those are let through.
-/// Any other error, and an overflow anywhere else (the shop's cards), still
-/// fails the test.
-void letStudioOverflows() {
-  final shown = FlutterError.onError;
-  FlutterError.onError = (details) {
-    final text = details.toString();
-    if (text.contains('overflowed') &&
-        text.contains('/lib/modules/shared/pages/')) {
-      return;
-    }
-    shown?.call(details);
-  };
-  addTearDown(() => FlutterError.onError = shown);
-}
-
 /// Every text on screen.
 List<String> _texts() => [
   for (final e in find.byType(Text).evaluate()) ?(e.widget as Text).data,
 ];
 
 void main() {
+  // The app's own fonts, on a phone's size (support/shot.dart), as the
+  // layout tests draw Leqaa (163).
+  setUpAll(loadAppFonts);
+
   for (final c in ['USD', 'EGP', 'EUR']) {
     group('161 a shop in MAD, the customer in $c', () {
       testWidgets(
