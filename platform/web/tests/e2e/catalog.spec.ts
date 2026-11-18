@@ -369,7 +369,7 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
   await loyalty.getByRole("button", { name: "Save loyalty points" }).click();
   await expect(loyalty.getByText("Loyalty points saved.")).toBeVisible();
   const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
-  expect(config.store.loyalty).toEqual({ enabled: true, spend_per_point: "10.00", spend_per_point_formatted: "₺10.00", point_value: "0.10", point_value_formatted: "₺0.10", min_points: 10 });
+  expect(config.store.loyalty).toEqual({ enabled: true, spend_per_point: "10.00", spend_per_point_formatted: "₺10.00", point_value: "0.10", point_value_formatted: "₺0.10", min_points: 10, currency: "TRY" });
 
   const email = `deniz-${suffix}@example.com`;
   const device = { id: `e2e-points-${suffix}`, platform: "android", name: "Pixel", app_version: "1.0.0" };
