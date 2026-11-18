@@ -1342,7 +1342,8 @@ class StudioNodeView extends ConsumerWidget {
       fontWeight: _weight(font?.weight),
       fontStyle: font?.italic == true ? FontStyle.italic : null,
       decoration: _decoration(font),
-      height: font?.lineHeight,
+      // 163 Never tighter than its script's letters need.
+      height: studioLineHeight(font?.lineHeight, _text()),
       letterSpacing: font?.letterSpacing,
     );
   }
@@ -2076,11 +2077,32 @@ AlignmentDirectional _stackAlign(StudioCross cross) => switch (cross) {
   StudioCross.stretch => AlignmentDirectional.topStart,
 };
 
+/// 163 The line height [text] is drawn with: the one designed, but never
+/// under 1.5 for Arabic. The app's Arabic face (Readex Pro) gives its line
+/// 1.25 of its size, yet its letters reach 0.51 under the baseline (ي ج ح
+/// ع م) and 1.13 over it: a heading's 1.04, made for a Latin display face,
+/// let them draw over what follows (Leqaa's "رحلة زهورك إليهم" over the top
+/// of the journey's card, more so at a Samsung's larger text). Latin text
+/// keeps its height.
+double? studioLineHeight(double? designed, String? text) {
+  if (designed == null || designed >= _arabicLineHeight || text == null) {
+    return designed;
+  }
+  return _arabicLetters.hasMatch(text) ? _arabicLineHeight : designed;
+}
+
+const _arabicLineHeight = 1.5;
+final _arabicLetters = RegExp(
+  '[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]',
+);
+
 /// 128.10 The one text in a row that gives way to what follows it: the
 /// row's only text cut to its lines without a width of its own, when
 /// nothing in the row fills it (Studio's canvas: components/studio/
-/// view.tsx `textGivingWay`). With two such texts, or none, none does and
-/// the row is as before.
+/// view.tsx `textGivingWay`). None such, none does and the row is as
+/// before. 163 With two or more, the last gives way (a price's was-price
+/// after it, on a card of a fixed width): before, none did and the row ran
+/// past the card at a larger text size. As before whenever the row fits.
 StudioNode? studioTextGivingWay(List<StudioNode> kids) {
   if (kids.any((k) => k.width?.fill == true)) return null;
   final texts = [
@@ -2090,7 +2112,7 @@ StudioNode? studioTextGivingWay(List<StudioNode> kids) {
           k.width?.fixed == null)
         k,
   ];
-  return texts.length == 1 ? texts.single : null;
+  return texts.lastOrNull;
 }
 
 /// 128.10 What it holds at its own width when the width around it is

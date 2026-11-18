@@ -1064,9 +1064,18 @@ class MessageView extends StatelessWidget {
     // 130.22 The premium empty state: the icon on the brand's disc.
     final premium =
         SystemLookScope.lookOf(context, SystemScreen.states) != null;
+    final room = tight ? 16.0 : 32.0;
     return Center(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(tight ? 16 : 32),
+        // 163 Clear of the phone's own bar at the bottom (three buttons or
+        // the gesture bar) on a screen that reaches it: its button was
+        // under a Samsung's navigation bar on Leqaa's orders.
+        padding: EdgeInsets.fromLTRB(
+          room,
+          room,
+          room,
+          room + MediaQuery.paddingOf(context).bottom,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

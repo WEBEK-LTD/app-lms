@@ -254,9 +254,9 @@ void main() {
       );
     });
 
-    testWidgets('two such texts: neither gives way (each as before)', (
-      tester,
-    ) async {
+    // 163 Two such texts: the last gives way (before, neither did and the
+    // row ran past its card at a larger text size).
+    testWidgets('two such texts: the last gives way', (tester) async {
       await open(
         tester,
         api([
@@ -276,7 +276,7 @@ void main() {
       );
       expect(
         find.ancestor(of: find.text('Farouk'), matching: find.byType(Flexible)),
-        findsNothing,
+        findsOneWidget,
       );
     });
 
