@@ -4005,6 +4005,17 @@ class AppLocalizationsTr extends AppLocalizations {
   String get primeWeeklyHelp => 'Her pazartesi e-postayla özet';
 
   @override
+  String get bouquetWrap => 'Ambalaj';
+
+  @override
+  String get bouquetCard => 'Kart';
+
+  @override
+  String bouquetMessage(String message) {
+    return 'Kart mesajı: $message';
+  }
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }
@@ -4454,17 +4465,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String bouquetGroup(int stems) {
-    return 'Buket · $stems dal';
-  }
-
-  @override
-  String get bouquetWrap => 'Ambalaj';
-
-  @override
-  String get bouquetCard => 'Kart';
-
-  @override
-  String bouquetMessage(String message) {
-    return 'Kart mesajı: $message';
+    String _temp0 = intl.Intl.pluralLogic(
+      stems,
+      locale: localeName,
+      other: '$stems dal',
+    );
+    return 'Buket · $_temp0';
   }
 }

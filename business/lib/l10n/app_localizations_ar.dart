@@ -3984,6 +3984,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get primeWeeklyHelp => 'ملخص بالبريد كل يوم اثنين';
 
   @override
+  String get bouquetWrap => 'التغليف';
+
+  @override
+  String get bouquetCard => 'البطاقة';
+
+  @override
+  String bouquetMessage(String message) {
+    return 'رسالة البطاقة: $message';
+  }
+
+  @override
   String minutesAgo(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -4683,16 +4694,5 @@ class AppLocalizationsAr extends AppLocalizations {
       zero: 'بلا سيقان',
     );
     return 'باقة · $_temp0';
-  }
-
-  @override
-  String get bouquetWrap => 'التغليف';
-
-  @override
-  String get bouquetCard => 'البطاقة';
-
-  @override
-  String bouquetMessage(String message) {
-    return 'رسالة البطاقة: $message';
   }
 }
