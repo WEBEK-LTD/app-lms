@@ -169,6 +169,29 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('the card follows the ride while the home stays open: the '
+        'driver found, then at the pickup, then nothing once it is over', (
+      tester,
+    ) async {
+      phone(tester);
+      final fake = api(rides: [rideJson(status: 'searching')]);
+      final app = TestApp(api: fake, appType: AppType.rides, signedIn: true);
+      await app.pump(tester);
+      await TestApp.settle(tester, 20);
+      expect(find.text('FINDING YOUR DRIVER'), findsOneWidget);
+      fake.rides = [rideJson(status: 'arrived')];
+      await tester.pump(activeRideRefresh + const Duration(seconds: 1));
+      await TestApp.settle(tester, 20);
+      expect(find.text('FINDING YOUR DRIVER'), findsNothing);
+      expect(find.text('YOUR DRIVER IS HERE'), findsOneWidget);
+      fake.rides = [rideJson(status: 'completed', paid: true)];
+      await tester.pump(activeRideRefresh + const Duration(seconds: 1));
+      await TestApp.settle(tester, 20);
+      expect(find.text('YOUR DRIVER IS HERE'), findsNothing);
+      expect(find.byKey(ValueKey('studio-node-${glass['id']}')), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('"Where to?" opens the ride under the page\'s own "Ride" '
         'header: no second menu and app chip under it', (tester) async {
       phone(tester);

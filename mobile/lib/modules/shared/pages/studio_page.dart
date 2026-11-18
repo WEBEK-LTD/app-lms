@@ -27,6 +27,7 @@ import '../../../core/widgets/common.dart';
 import '../../../core/widgets/star_text.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
 import '../../lms/home/learning_cards.dart';
+import '../../rides/data/rides_providers.dart' show ActiveRideFollower;
 import '../../school/widgets/studio_school.dart';
 import '../../market/widgets/market_sections.dart';
 import '../account/order_journey.dart' show isJourneyHeading, orderJourneyShows;
@@ -1846,7 +1847,10 @@ class StudioNodeView extends ConsumerWidget {
       case StudioNodeType.photoHero || StudioNodeType.mapHeader:
         return const SizedBox.shrink();
       case StudioNodeType.tracking:
-        return StudioTrackingView(node: node);
+        // 178 The person's ride follows its stages while it is on screen.
+        return node.tracking?.kind == StudioTrackingKind.ride
+            ? ActiveRideFollower(child: StudioTrackingView(node: node))
+            : StudioTrackingView(node: node);
       case StudioNodeType.greeting:
         return StudioGreetingView(node: node);
       case StudioNodeType.school:

@@ -143,7 +143,8 @@ class _StudioMapLooksState extends ConsumerState<StudioMapLooks>
     );
     final drives = route != null && route.moving && route.live == null;
 
-    return LayoutBuilder(
+    // 178 A route that follows the person's ride follows its stages too.
+    final map = LayoutBuilder(
       builder: (context, box) {
         final w = box.maxWidth, h = box.maxHeight;
         final lens = style == StudioMapStyle.lens ? _lensBox(w, h) : null;
@@ -409,6 +410,9 @@ class _StudioMapLooksState extends ConsumerState<StudioMapLooks>
         );
       },
     );
+    return route?.live == StudioMapRouteLive.ride
+        ? ActiveRideFollower(child: map)
+        : map;
   }
 }
 
