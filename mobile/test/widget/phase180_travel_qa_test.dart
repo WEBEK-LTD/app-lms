@@ -182,4 +182,21 @@ void main() {
     expect(tester.widget<TravelToggle>(toggle).on, isTrue);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('180.10 in Arabic the flights\' times point the reading way', (
+    tester,
+  ) async {
+    usePhone(tester);
+    final app = travelApp(lang: 'ar');
+    await app.pump(tester);
+    app.container.read(flightSearchProvider.notifier).set(fixtureFlights());
+    await open(app, tester, TravelPaths.flightResults);
+    final texts = [
+      for (final e in find.byType(RichText).evaluate())
+        (e.widget as RichText).text.toPlainText(),
+    ];
+    expect(texts.where((t) => t.contains('←')), isNotEmpty);
+    expect(texts.where((t) => t.contains('→')), isEmpty);
+    expect(tester.takeException(), isNull);
+  });
 }

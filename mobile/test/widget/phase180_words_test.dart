@@ -9,6 +9,7 @@ import 'package:yallapp/modules/travel/widgets/travel_words.dart';
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
 import '../support/test_app.dart';
+import 'fitness_test.dart' show gymApi, openGym;
 
 /// 180.5–180.7 Words the servers write in English, in the app's language.
 void main() {
@@ -86,5 +87,31 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       app.container.dispose();
     }
+  });
+
+  testWidgets('180.8 a membership plan\'s price in the customer\'s '
+      'currency too', (tester) async {
+    final api = gymApi();
+    api.plans = [
+      {
+        ...api.plans.first,
+        'price': {
+          ...bookingPriceJson('1800.00'),
+          'display': {
+            'currency': 'USD',
+            'amount': '52.20',
+            'formatted': r'$52.20',
+            'rate': '0.029',
+            'rate_date': '2026-11-18',
+          },
+        },
+      },
+    ];
+    final app = await openGym(tester, api: api);
+    app.container.read(appRouterProvider).go('/memberships');
+    await TestApp.settle(tester);
+    expect(find.textContaining(r'$52.20'), findsOneWidget);
+    expect(find.textContaining('₺1800.00'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

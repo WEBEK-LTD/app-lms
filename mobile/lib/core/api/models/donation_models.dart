@@ -1,3 +1,4 @@
+import '../../format/digits.dart';
 import 'json.dart';
 import 'learning_models.dart';
 
@@ -288,20 +289,8 @@ class DonationRequest {
 /// An amount typed in the app ("250", "250,5", "1.250,00") as a decimal
 /// string ("250.00"), or null when it isn't one.
 String? parseAmount(String text) {
-  var t = text.trim().replaceAll(RegExp(r'[\s₺$€]'), '');
-  if (!RegExp(r'^\d[\d.,]*$').hasMatch(t)) return null;
-  final decimalAt = [
-    t.lastIndexOf(','),
-    t.lastIndexOf('.'),
-  ].reduce((a, b) => a > b ? a : b);
-  if (decimalAt >= 0 && t.length - decimalAt - 1 <= 2) {
-    t =
-        '${t.substring(0, decimalAt).replaceAll(RegExp('[.,]'), '')}.'
-        '${t.substring(decimalAt + 1)}';
-  } else {
-    t = t.replaceAll(RegExp('[.,]'), '');
-  }
-  final value = double.tryParse(t);
+  // 180.9 Arabic digits too, through the one reading of a typed number.
+  final value = parseTypedNumber(text);
   if (value == null || value <= 0 || value >= 1e9) return null;
   return value.toStringAsFixed(2);
 }

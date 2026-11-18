@@ -255,7 +255,7 @@ class _PriceCalendarScreenState extends ConsumerState<PriceCalendarScreen> {
             children: [
               Text(
                 search.roundTrip
-                    ? '${shortDay(search.depart)} → ${shortDay(search.back)}'
+                    ? route(shortDay(search.depart), shortDay(search.back))
                     : shortDay(search.depart),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -820,7 +820,7 @@ class _OptionCard extends ConsumerWidget {
         Text.rich(
           TextSpan(
             children: [
-              TextSpan(text: '${g.departTime} → ${g.arriveTime}'),
+              TextSpan(text: route(g.departTime, g.arriveTime)),
               if (g.daysLater > 0)
                 TextSpan(
                   text: ' +${g.daysLater}',

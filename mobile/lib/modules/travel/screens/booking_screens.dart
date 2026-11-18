@@ -844,7 +844,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             style: t.ui(12, color: t.muted),
                           ),
                           Text(
-                            '${shortDay(stay.checkIn)} → ${shortDay(stay.checkOut)}',
+                            route(
+                              shortDay(stay.checkIn),
+                              shortDay(stay.checkOut),
+                            ),
                             style: t.ui(12, weight: FontWeight.w800),
                           ),
                         ],

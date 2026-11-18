@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/api/yallapp_api.dart';
 import '../../../core/data/paged_controller.dart';
 import '../../../core/gate/app_gate.dart';
+import '../../../core/format/digits.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
@@ -298,7 +298,9 @@ class _FiltersSheetState extends ConsumerState<FiltersSheet> {
             : value.toString());
 
   static double? _parse(TextEditingController c) {
-    final value = double.tryParse(c.text.trim().replaceAll(',', ''));
+    // 180.9 "1.500.000" in Turkish and Arabic digits too (it was dropped, or
+    // read as 1.5).
+    final value = parseTypedNumber(c.text);
     return (value == null || value < 0) ? null : value;
   }
 
@@ -390,9 +392,7 @@ class _FiltersSheetState extends ConsumerState<FiltersSheet> {
       InputDecoration decoration(String label, String hint) =>
           InputDecoration(labelText: label, hintText: hint, suffixText: suffix);
       final keyboard = const TextInputType.numberWithOptions(decimal: true);
-      final formatters = [
-        FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-      ];
+      final formatters = [const TypedNumberFormatter()];
       return Row(
         children: [
           Expanded(
