@@ -50,7 +50,7 @@ class MarketWalletScreen extends ConsumerWidget {
       body: wallet.when(
         loading: () => const SkeletonDetail(),
         error: (e, _) => MessageView(
-          icon: Symbols.error,
+          icon: Symbols.error_rounded,
           title: l10n.marketWallet,
           message: '$e',
           actionLabel: l10n.marketBrowse,
@@ -110,10 +110,10 @@ class MarketWalletScreen extends ConsumerWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(switch (e.kind) {
-                  'refund' => Symbols.undo,
-                  'credit' => Symbols.redeem,
-                  'payment' => Symbols.shopping_bag,
-                  _ => Symbols.hourglass_bottom,
+                  'refund' => Symbols.undo_rounded,
+                  'credit' => Symbols.redeem_rounded,
+                  'payment' => Symbols.shopping_bag_rounded,
+                  _ => Symbols.hourglass_bottom_rounded,
                 }, color: p.primary),
                 title: Text(e.label),
                 subtitle: Text(
@@ -202,7 +202,7 @@ class _MarketClubScreenState extends ConsumerState<MarketClubScreen> {
       body: club.when(
         loading: () => const SkeletonDetail(),
         error: (e, _) => MessageView(
-          icon: Symbols.workspace_premium,
+          icon: Symbols.workspace_premium_rounded,
           title: l10n.marketClub,
           message: l10n.marketClubNone,
           actionLabel: l10n.marketBrowse,
@@ -221,7 +221,7 @@ class _MarketClubScreenState extends ConsumerState<MarketClubScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(
-                    Symbols.workspace_premium,
+                    Symbols.workspace_premium_rounded,
                     color: Color(0xFFF2994A),
                     size: 34,
                   ),
@@ -287,7 +287,7 @@ class _MarketClubScreenState extends ConsumerState<MarketClubScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Symbols.check, size: 18, color: p.success),
+                            Icon(Symbols.check_rounded, size: 18, color: p.success),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -340,7 +340,7 @@ class _WalletRow extends ConsumerWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: ListTile(
-        leading: Icon(Symbols.account_balance_wallet, color: p.primary),
+        leading: Icon(Symbols.account_balance_wallet_rounded, color: p.primary),
         title: Text(
           l10n.marketWallet,
           style: TextStyle(fontWeight: FontWeight.w800, color: p.text),

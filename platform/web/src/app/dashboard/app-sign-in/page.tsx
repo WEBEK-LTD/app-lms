@@ -210,7 +210,7 @@ export default async function AppSignInPage() {
   const ways = studio ? Object.entries(studioWays(app)).filter(([name, on]) => name !== "recovery" && on === "on").length : 0;
   const choice = signInMethodsChoice(methods);
   // 160.8 The code sign-in shows first: the owner's, else the shop's country, the account's, then the platform's.
-  const countryCode = appCountryCode(app, client.country);
+  const countryCode = appCountryCode(app, client.country, await (await getStore()).getDeliverySettings(app.id));
   const rules: HostedSettingsForm | null = wordpress ? null : { ...hostedSettingsValues(hostedSettings(app)), defaultCountryCode: countryCode.code.replace(/^\+/, "") };
   // 132.136 The premium kit: how people sign in, its choice in sight; the rules, the WhatsApp number and the email each a row with its state as a pill, their forms folded.
   return (

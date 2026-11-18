@@ -156,7 +156,7 @@ class MarketWalletButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => IconButton(
     tooltip: context.l10n.marketWallet,
-    icon: const Icon(Symbols.account_balance_wallet),
+    icon: const Icon(Symbols.account_balance_wallet_rounded),
     onPressed: () => context.push(Paths.marketWallet),
   );
 }
@@ -174,7 +174,7 @@ class MarketOrderList extends ConsumerWidget {
     return orders.when(
       loading: () => const SkeletonList(),
       error: (e, _) => MessageView(
-        icon: Symbols.error,
+        icon: Symbols.error_rounded,
         title: l10n.marketMyOrders,
         message: '$e',
         actionLabel: l10n.marketBrowse,
@@ -182,7 +182,7 @@ class MarketOrderList extends ConsumerWidget {
       ),
       data: (page) => page.items.isEmpty
           ? MessageView(
-              icon: Symbols.receipt_long,
+              icon: Symbols.receipt_long_rounded,
               title: l10n.marketNoOrders,
               message: l10n.marketEmptyBasketMessage,
               actionLabel: l10n.marketBrowse,

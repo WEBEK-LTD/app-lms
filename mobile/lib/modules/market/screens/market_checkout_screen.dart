@@ -309,7 +309,7 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
             child: Row(
               children: [
                 Icon(
-                  shop ? Symbols.storefront : Symbols.restaurant,
+                  shop ? Symbols.storefront_rounded : Symbols.restaurant_rounded,
                   color: p.primary,
                 ),
                 const SizedBox(width: 12),
@@ -365,12 +365,12 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
               segments: [
                 ButtonSegment(
                   value: api.MarketFulfilment.delivery,
-                  icon: const Icon(Symbols.two_wheeler),
+                  icon: const Icon(Symbols.two_wheeler_rounded),
                   label: Text(l10n.marketDelivery),
                 ),
                 ButtonSegment(
                   value: api.MarketFulfilment.pickup,
-                  icon: const Icon(Symbols.storefront),
+                  icon: const Icon(Symbols.storefront_rounded),
                   label: Text(l10n.marketPickup),
                 ),
               ],
@@ -390,7 +390,7 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(Symbols.location_on, color: p.primary),
+                      Icon(Symbols.location_on_rounded, color: p.primary),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -403,7 +403,7 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
                       ),
                       TextButton.icon(
                         onPressed: _locate,
-                        icon: const Icon(Symbols.my_location, size: 18),
+                        icon: const Icon(Symbols.my_location_rounded, size: 18),
                         label: Text(l10n.marketUseMyLocation),
                       ),
                     ],
@@ -463,7 +463,7 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
                     textCapitalization: TextCapitalization.characters,
                     decoration: InputDecoration(
                       hintText: l10n.marketCoupon,
-                      prefixIcon: const Icon(Symbols.sell),
+                      prefixIcon: const Icon(Symbols.sell_rounded),
                     ),
                   ),
                 ),
@@ -487,7 +487,7 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
               child: SwitchListTile.adaptive(
                 contentPadding: EdgeInsets.zero,
                 secondary: Icon(
-                  Symbols.account_balance_wallet,
+                  Symbols.account_balance_wallet_rounded,
                   color: p.primary,
                 ),
                 title: Text(l10n.marketUseWallet),
@@ -562,11 +562,11 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
 }
 
 IconData _methodIcon(api.MarketPayMethod m) => switch (m) {
-  api.MarketPayMethod.cash => Symbols.payments,
-  api.MarketPayMethod.card => Symbols.credit_card,
-  api.MarketPayMethod.applePay => Symbols.contactless,
-  api.MarketPayMethod.googlePay => Symbols.contactless,
-  api.MarketPayMethod.wallet => Symbols.account_balance_wallet,
+  api.MarketPayMethod.cash => Symbols.payments_rounded,
+  api.MarketPayMethod.card => Symbols.credit_card_rounded,
+  api.MarketPayMethod.applePay => Symbols.contactless_rounded,
+  api.MarketPayMethod.googlePay => Symbols.contactless_rounded,
+  api.MarketPayMethod.wallet => Symbols.account_balance_wallet_rounded,
 };
 
 String _methodName(AppLocalizations l10n, api.MarketPayMethod m) => switch (m) {
@@ -669,7 +669,7 @@ class _BasketRow extends StatelessWidget {
               ),
               IconButton(
                 onPressed: onRemove,
-                icon: const Icon(Symbols.remove),
+                icon: const Icon(Symbols.remove_rounded),
                 tooltip: '−',
               ),
               Text(
@@ -678,7 +678,7 @@ class _BasketRow extends StatelessWidget {
               ),
               IconButton(
                 onPressed: onAdd,
-                icon: const Icon(Symbols.add),
+                icon: const Icon(Symbols.add_rounded),
                 tooltip: '+',
               ),
             ],
