@@ -1761,6 +1761,33 @@ export interface OwnStripePayment {
   webhookSecretEncrypted?: string | null;
   /** 132.33 The last webhook Stripe sent to /api/pay/stripe/webhook/<app id>; missing: none yet. */
   webhook?: PaymentWebhookReceipt | null;
+  /** 155 The payment page's domain as registered for Apple Pay and Google Pay in this account (lib/payments/wallets.ts); missing: not tried yet. */
+  wallets?: StripeWallets | null;
+}
+
+/**
+ * 155 Where Apple Pay and Google Pay stand in Stripe's card form for one
+ * account: the payment page's domain registered in it (a payment method
+ * domain, per mode), kept so it's asked once and not at every payment.
+ * Never a key; Stripe's own words only when something isn't active.
+ */
+export interface StripeWallets {
+  /** The payment page's host (appUrl()) it was registered for. */
+  domain: string;
+  /** The keys' mode: Stripe registers a domain in test and live mode apart. */
+  mode: "test" | "live";
+  /** "ready": both wallets active; "partial": one of them; "failed": neither, or not registered. */
+  status: "ready" | "partial" | "failed";
+  /** Stripe's payment method domain (pmd_…); null when it isn't registered. */
+  id: string | null;
+  applePay: boolean;
+  googlePay: boolean;
+  /** Why it isn't ready (lib/payments/wallets.ts WalletReason); null when ready. */
+  reason: "unreachable" | "keysRefused" | "forbidden" | "refused" | "inactive" | null;
+  /** Stripe's words for it, keys cut out (at most 300 characters). */
+  details: string | null;
+  /** When it was last asked (ISO). */
+  at: string;
 }
 
 /**

@@ -220,6 +220,19 @@ chosen, or whose product the shop no longer has, opens the shop: hosted
 it, and the app does the same from `CLIENT_APP_RELEASE` 7 (WooCommerce
 stores' pages too). Not yet tried on a phone (ROADMAP 152.7).
 
+Roadmap 155 (Apple Pay and Google Pay in Stripe's form): the payment page
+(`/pay/…`) lets the page and Stripe's frames use the Payment Request API
+(`payment=(self "https://js.stripe.com" "https://checkout.stripe.com")`, as
+Stripe's Google Pay guide gives it); every other page keeps `payment=()`.
+The page's domain is registered in each shop's own Stripe account with its
+own key (Payment Method Domains), when its Stripe keys are saved or tested
+and once before Stripe's form if it isn't yet; the answer is kept on the
+shop's payment settings, and a failure never stops a card payment (noted
+for the team). Payments says "Apple Pay and Google Pay: ready" or why not
+yet. The wallets are expected in Safari and Chrome, not inside the apps'
+web views (ROADMAP 155.6). Not yet tried with a real Stripe account on real
+devices (ROADMAP 155.7).
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build
