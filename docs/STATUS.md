@@ -4,9 +4,17 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 17 November 2026.
+Last updated: 18 November 2026.
 
 ## Current release
+
+Roadmap 154 (the pricing page in its Day and night look): /pricing in the
+design the owner chose, the app by day and Studio by night: a night hero
+with the two products and their fanned phones, the period picker floating
+over its edge with each period's saving, compact cards with the rest
+folded, Studio's plans on a night band, every kind of app each product
+makes, a few questions and a closing band in the night. Only the plans for
+sale show, with their prices from Admin › Plans.
 
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its
