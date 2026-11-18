@@ -19801,6 +19801,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove the bouquet'**
   String get bouquetRemove;
+
+  /// No description provided for @appointmentStatusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get appointmentStatusApproved;
+
+  /// No description provided for @appointmentStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get appointmentStatusPending;
+
+  /// No description provided for @appointmentStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get appointmentStatusCancelled;
+
+  /// No description provided for @appointmentStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get appointmentStatusRejected;
+
+  /// No description provided for @appointmentStatusNoShow.
+  ///
+  /// In en, this message translates to:
+  /// **'No-show'**
+  String get appointmentStatusNoShow;
+
+  /// No description provided for @appointmentStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get appointmentStatusCompleted;
+
+  /// No description provided for @propertyTypeApartment.
+  ///
+  /// In en, this message translates to:
+  /// **'Apartment'**
+  String get propertyTypeApartment;
+
+  /// No description provided for @propertyTypeVilla.
+  ///
+  /// In en, this message translates to:
+  /// **'Villa'**
+  String get propertyTypeVilla;
+
+  /// No description provided for @propertyTypeHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'House'**
+  String get propertyTypeHouse;
+
+  /// No description provided for @propertyTypeTownhouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Townhouse'**
+  String get propertyTypeTownhouse;
+
+  /// No description provided for @propertyTypeDuplex.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplex'**
+  String get propertyTypeDuplex;
+
+  /// No description provided for @propertyTypePenthouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Penthouse'**
+  String get propertyTypePenthouse;
+
+  /// No description provided for @propertyTypeStudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Studio'**
+  String get propertyTypeStudio;
+
+  /// No description provided for @propertyTypeChalet.
+  ///
+  /// In en, this message translates to:
+  /// **'Chalet'**
+  String get propertyTypeChalet;
+
+  /// No description provided for @propertyTypeLand.
+  ///
+  /// In en, this message translates to:
+  /// **'Land'**
+  String get propertyTypeLand;
+
+  /// No description provided for @propertyTypeOffice.
+  ///
+  /// In en, this message translates to:
+  /// **'Office'**
+  String get propertyTypeOffice;
+
+  /// No description provided for @propertyTypeShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get propertyTypeShop;
+
+  /// No description provided for @propertyTypeWarehouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse'**
+  String get propertyTypeWarehouse;
+
+  /// No description provided for @propertyTypeBuilding.
+  ///
+  /// In en, this message translates to:
+  /// **'Building'**
+  String get propertyTypeBuilding;
+
+  /// No description provided for @travelPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Power outlet'**
+  String get travelPower;
+
+  /// No description provided for @travelEntertainment.
+  ///
+  /// In en, this message translates to:
+  /// **'Entertainment'**
+  String get travelEntertainment;
+
+  /// No description provided for @travelLounge.
+  ///
+  /// In en, this message translates to:
+  /// **'Lounge'**
+  String get travelLounge;
 }
 
 class _AppLocalizationsDelegate

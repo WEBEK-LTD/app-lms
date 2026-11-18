@@ -12273,4 +12273,70 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bouquetRemove => 'Buketi kaldır';
+
+  @override
+  String get appointmentStatusApproved => 'Onaylandı';
+
+  @override
+  String get appointmentStatusPending => 'Beklemede';
+
+  @override
+  String get appointmentStatusCancelled => 'İptal edildi';
+
+  @override
+  String get appointmentStatusRejected => 'Reddedildi';
+
+  @override
+  String get appointmentStatusNoShow => 'Gelmedi';
+
+  @override
+  String get appointmentStatusCompleted => 'Tamamlandı';
+
+  @override
+  String get propertyTypeApartment => 'Daire';
+
+  @override
+  String get propertyTypeVilla => 'Villa';
+
+  @override
+  String get propertyTypeHouse => 'Müstakil ev';
+
+  @override
+  String get propertyTypeTownhouse => 'Sıra ev';
+
+  @override
+  String get propertyTypeDuplex => 'Dubleks';
+
+  @override
+  String get propertyTypePenthouse => 'Çatı katı dairesi';
+
+  @override
+  String get propertyTypeStudio => 'Stüdyo daire';
+
+  @override
+  String get propertyTypeChalet => 'Şale';
+
+  @override
+  String get propertyTypeLand => 'Arsa';
+
+  @override
+  String get propertyTypeOffice => 'Ofis';
+
+  @override
+  String get propertyTypeShop => 'Dükkân';
+
+  @override
+  String get propertyTypeWarehouse => 'Depo';
+
+  @override
+  String get propertyTypeBuilding => 'Bina';
+
+  @override
+  String get travelPower => 'Priz';
+
+  @override
+  String get travelEntertainment => 'Eğlence sistemi';
+
+  @override
+  String get travelLounge => 'Bekleme salonu';
 }

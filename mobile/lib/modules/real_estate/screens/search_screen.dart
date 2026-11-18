@@ -465,7 +465,11 @@ class _FiltersSheetState extends ConsumerState<FiltersSheet> {
                           selected: _type,
                           label: (key) => key == null
                               ? l10n.filterAny
-                              : f.types.firstWhere((t) => t.key == key).label,
+                              : propertyTypeLabel(
+                                  l10n,
+                                  key,
+                                  f.types.firstWhere((t) => t.key == key).label,
+                                ),
                           onSelected: (v) => _type = v,
                         ),
                       ],

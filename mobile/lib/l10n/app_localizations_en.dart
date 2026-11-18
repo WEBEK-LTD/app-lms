@@ -12367,4 +12367,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bouquetRemove => 'Remove the bouquet';
+
+  @override
+  String get appointmentStatusApproved => 'Approved';
+
+  @override
+  String get appointmentStatusPending => 'Pending';
+
+  @override
+  String get appointmentStatusCancelled => 'Cancelled';
+
+  @override
+  String get appointmentStatusRejected => 'Rejected';
+
+  @override
+  String get appointmentStatusNoShow => 'No-show';
+
+  @override
+  String get appointmentStatusCompleted => 'Completed';
+
+  @override
+  String get propertyTypeApartment => 'Apartment';
+
+  @override
+  String get propertyTypeVilla => 'Villa';
+
+  @override
+  String get propertyTypeHouse => 'House';
+
+  @override
+  String get propertyTypeTownhouse => 'Townhouse';
+
+  @override
+  String get propertyTypeDuplex => 'Duplex';
+
+  @override
+  String get propertyTypePenthouse => 'Penthouse';
+
+  @override
+  String get propertyTypeStudio => 'Studio';
+
+  @override
+  String get propertyTypeChalet => 'Chalet';
+
+  @override
+  String get propertyTypeLand => 'Land';
+
+  @override
+  String get propertyTypeOffice => 'Office';
+
+  @override
+  String get propertyTypeShop => 'Shop';
+
+  @override
+  String get propertyTypeWarehouse => 'Warehouse';
+
+  @override
+  String get propertyTypeBuilding => 'Building';
+
+  @override
+  String get travelPower => 'Power outlet';
+
+  @override
+  String get travelEntertainment => 'Entertainment';
+
+  @override
+  String get travelLounge => 'Lounge';
 }

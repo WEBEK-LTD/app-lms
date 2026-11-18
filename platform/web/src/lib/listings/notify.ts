@@ -3,6 +3,7 @@ import type { DataStore } from "../data/store";
 import type { App, HostedNotification, HostedUser, Listing, ListingInquiry } from "../data/types";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
 import { pushTarget, sendPush, type ServiceAccount } from "../hosted/push";
+import { appLang } from "../bookings/reschedule";
 import { getDashT } from "@/i18n/dashboard";
 import type { Lang } from "@/i18n/config";
 
@@ -28,6 +29,18 @@ export function newInquiryMail(input: { listing: Listing; user: HostedUser; text
   return { subject: subject.slice(0, 150), text };
 }
 
+/** 180.4 The notification's title in the app's language (English, Arabic or Turkish), as a moved appointment's is. */
+export function repliedTitle(lang: Lang, officeName: string): string {
+  switch (lang) {
+    case "ar":
+      return `ردّ ${officeName} على رسالتك`;
+    case "tr":
+      return `${officeName} yanıt verdi`;
+    default:
+      return `${officeName} replied`;
+  }
+}
+
 const clip = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
 
 /**
@@ -46,7 +59,7 @@ export async function notifyInquiryReply(input: {
   send?: typeof sendPush;
 }): Promise<{ notification: HostedNotification; pushed: number }> {
   const { store, app, inquiry } = input;
-  const title = clip(`${input.officeName} replied`, NOTIFICATION_TITLE_MAX);
+  const title = clip(repliedTitle(await appLang(store, app.id), input.officeName), NOTIFICATION_TITLE_MAX);
   const body = clip(input.listing ? `${input.listing.title}: ${input.text}` : input.text, NOTIFICATION_BODY_MAX);
   const notification = await store.createHostedNotification({ appId: app.id, userId: inquiry.userId, title, body, createdAt: input.now });
   if (!input.account) return { notification, pushed: 0 };

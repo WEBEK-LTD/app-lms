@@ -13107,4 +13107,94 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get bouquetRemove =>
       overlay.text('bouquetRemove') ?? base.bouquetRemove;
+
+  @override
+  String get appointmentStatusApproved =>
+      overlay.text('appointmentStatusApproved') ??
+      base.appointmentStatusApproved;
+
+  @override
+  String get appointmentStatusPending =>
+      overlay.text('appointmentStatusPending') ?? base.appointmentStatusPending;
+
+  @override
+  String get appointmentStatusCancelled =>
+      overlay.text('appointmentStatusCancelled') ??
+      base.appointmentStatusCancelled;
+
+  @override
+  String get appointmentStatusRejected =>
+      overlay.text('appointmentStatusRejected') ??
+      base.appointmentStatusRejected;
+
+  @override
+  String get appointmentStatusNoShow =>
+      overlay.text('appointmentStatusNoShow') ?? base.appointmentStatusNoShow;
+
+  @override
+  String get appointmentStatusCompleted =>
+      overlay.text('appointmentStatusCompleted') ??
+      base.appointmentStatusCompleted;
+
+  @override
+  String get propertyTypeApartment =>
+      overlay.text('propertyTypeApartment') ?? base.propertyTypeApartment;
+
+  @override
+  String get propertyTypeVilla =>
+      overlay.text('propertyTypeVilla') ?? base.propertyTypeVilla;
+
+  @override
+  String get propertyTypeHouse =>
+      overlay.text('propertyTypeHouse') ?? base.propertyTypeHouse;
+
+  @override
+  String get propertyTypeTownhouse =>
+      overlay.text('propertyTypeTownhouse') ?? base.propertyTypeTownhouse;
+
+  @override
+  String get propertyTypeDuplex =>
+      overlay.text('propertyTypeDuplex') ?? base.propertyTypeDuplex;
+
+  @override
+  String get propertyTypePenthouse =>
+      overlay.text('propertyTypePenthouse') ?? base.propertyTypePenthouse;
+
+  @override
+  String get propertyTypeStudio =>
+      overlay.text('propertyTypeStudio') ?? base.propertyTypeStudio;
+
+  @override
+  String get propertyTypeChalet =>
+      overlay.text('propertyTypeChalet') ?? base.propertyTypeChalet;
+
+  @override
+  String get propertyTypeLand =>
+      overlay.text('propertyTypeLand') ?? base.propertyTypeLand;
+
+  @override
+  String get propertyTypeOffice =>
+      overlay.text('propertyTypeOffice') ?? base.propertyTypeOffice;
+
+  @override
+  String get propertyTypeShop =>
+      overlay.text('propertyTypeShop') ?? base.propertyTypeShop;
+
+  @override
+  String get propertyTypeWarehouse =>
+      overlay.text('propertyTypeWarehouse') ?? base.propertyTypeWarehouse;
+
+  @override
+  String get propertyTypeBuilding =>
+      overlay.text('propertyTypeBuilding') ?? base.propertyTypeBuilding;
+
+  @override
+  String get travelPower => overlay.text('travelPower') ?? base.travelPower;
+
+  @override
+  String get travelEntertainment =>
+      overlay.text('travelEntertainment') ?? base.travelEntertainment;
+
+  @override
+  String get travelLounge => overlay.text('travelLounge') ?? base.travelLounge;
 }

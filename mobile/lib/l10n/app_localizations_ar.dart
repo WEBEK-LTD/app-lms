@@ -12761,4 +12761,70 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get bouquetRemove => 'احذف الباقة';
+
+  @override
+  String get appointmentStatusApproved => 'تمت الموافقة';
+
+  @override
+  String get appointmentStatusPending => 'قيد الانتظار';
+
+  @override
+  String get appointmentStatusCancelled => 'ملغى';
+
+  @override
+  String get appointmentStatusRejected => 'مرفوض';
+
+  @override
+  String get appointmentStatusNoShow => 'لم يحضر';
+
+  @override
+  String get appointmentStatusCompleted => 'مكتمل';
+
+  @override
+  String get propertyTypeApartment => 'شقة';
+
+  @override
+  String get propertyTypeVilla => 'فيلا';
+
+  @override
+  String get propertyTypeHouse => 'منزل';
+
+  @override
+  String get propertyTypeTownhouse => 'منزل متلاصق';
+
+  @override
+  String get propertyTypeDuplex => 'دوبلكس';
+
+  @override
+  String get propertyTypePenthouse => 'بنتهاوس';
+
+  @override
+  String get propertyTypeStudio => 'استوديو';
+
+  @override
+  String get propertyTypeChalet => 'شاليه';
+
+  @override
+  String get propertyTypeLand => 'أرض';
+
+  @override
+  String get propertyTypeOffice => 'مكتب';
+
+  @override
+  String get propertyTypeShop => 'محل تجاري';
+
+  @override
+  String get propertyTypeWarehouse => 'مستودع';
+
+  @override
+  String get propertyTypeBuilding => 'مبنى';
+
+  @override
+  String get travelPower => 'مقبس كهرباء';
+
+  @override
+  String get travelEntertainment => 'وسائل ترفيه';
+
+  @override
+  String get travelLounge => 'صالة انتظار';
 }

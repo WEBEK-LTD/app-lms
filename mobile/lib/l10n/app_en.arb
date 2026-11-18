@@ -13610,5 +13610,27 @@
   "bouquetRemove": "Remove the bouquet",
   "@bouquetRemove": {
     "description": "162 A bouquet the customer built, shown as one in the cart and in the order."
-  }
+  },
+  "appointmentStatusApproved": "Approved",
+  "appointmentStatusPending": "Pending",
+  "appointmentStatusCancelled": "Cancelled",
+  "appointmentStatusRejected": "Rejected",
+  "appointmentStatusNoShow": "No-show",
+  "appointmentStatusCompleted": "Completed",
+  "propertyTypeApartment": "Apartment",
+  "propertyTypeVilla": "Villa",
+  "propertyTypeHouse": "House",
+  "propertyTypeTownhouse": "Townhouse",
+  "propertyTypeDuplex": "Duplex",
+  "propertyTypePenthouse": "Penthouse",
+  "propertyTypeStudio": "Studio",
+  "propertyTypeChalet": "Chalet",
+  "propertyTypeLand": "Land",
+  "propertyTypeOffice": "Office",
+  "propertyTypeShop": "Shop",
+  "propertyTypeWarehouse": "Warehouse",
+  "propertyTypeBuilding": "Building",
+  "travelPower": "Power outlet",
+  "travelEntertainment": "Entertainment",
+  "travelLounge": "Lounge"
 }
