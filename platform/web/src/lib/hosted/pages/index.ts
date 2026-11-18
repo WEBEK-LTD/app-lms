@@ -19,6 +19,8 @@ import { sha256Hex } from "../../crypto/tokens";
 import { readShopCategories } from "./shop-categories";
 import { listHeadings, productFallbacks, withListHeadings, withSampleProduct } from "./lists";
 import "./sources";
+import { ensureStoriesSeeded, servedStories } from "../../stories";
+import { dashboardStoryElements, withServedStories, type ServedStory, type StoryElementKind } from "../../stories/elements";
 
 /**
  * GET /pages and GET /pages/{slug} on the hosted API (roadmap 10.6): the
@@ -98,6 +100,15 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
   const gone = await goneProducts(pc, studio);
   // 157 A template's lists of the shop's categories follow them, read from the layout's own words before any translation.
   const listed = await withCategoryLists(pc, studio.body);
+  // 165 The story elements whose stories come from Dashboard › Stories (copied there from the design the first time).
+  const storyElements = new Map<string, StoryElementKind>(dashboardStoryElements(studio.body).map((e) => [e.node.id, e.kind]));
+  let stories: ServedStory[] | null = null;
+  const dashboardStories = async () => {
+    if (stories) return stories;
+    await ensureStoriesSeeded(pc.ctx.store, pc.ctx.app, pc.ctx.now);
+    stories = servedStories(await pc.ctx.store.listAppStories(pc.ctx.app.id), pc.lang, def, pc.ctx.now);
+    return stories;
+  };
   const body = await mapTreeAsync(listed, async (node) => {
     // 107.2 A hidden element stays in the editor only.
     if (node.hidden) return null;
@@ -132,6 +143,9 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
     // 131 A flash sale with its sale and products; a coupon bound to the shop's coupons with the one it shows; else left out.
     if (node.type === "flash_sale") return servedFlashSale(pc, shown as StudioNode);
     if (node.type === "coupon" && node.coupon?.bind === "public") return servedCoupon(pc, shown as StudioNode);
+    // 165 Dashboard › Stories in the language asked for; left out while none is shown.
+    const storyKind = storyElements.get(node.id);
+    if (storyKind) return withServedStories(shown as StudioNode, storyKind, await dashboardStories());
     return shown as StudioNode;
   });
   const header = studio.header ? (({ translations: _h, ...rest }) => (void _h, rest))(translated(studio.header, pc.lang, def)) : studio.header;

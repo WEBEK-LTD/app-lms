@@ -111,6 +111,17 @@ String? actionLocation(WidgetRef ref, PageAction action) {
       final appType = ref.read(appEnvironmentProvider).build.appType;
       final category = actionCategoryLocation(action, appType, config);
       if (category != null) return category;
+      // 165 The shop on one of its categories (a story's button in
+      // Dashboard › Stories); apps without one open the shop.
+      final storyCategory = action.categoryId;
+      if (screen == BuiltInScreen.courses && storyCategory != null) {
+        final filtered = categoryLocation(
+          appType == AppType.lms ? ItemSource.courses : ItemSource.products,
+          appType,
+          storyCategory,
+        );
+        if (filtered != null) return filtered;
+      }
       return ref.read(appModuleProvider).screenLocation(screen, config);
     case PageActionType.course ||
         PageActionType.item ||

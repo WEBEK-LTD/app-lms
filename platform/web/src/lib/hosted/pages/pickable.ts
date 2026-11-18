@@ -51,6 +51,8 @@ export interface Pickable {
   commerce?: PickableCommerce;
   /** 157 The shop's categories a template's lists of them show (lib/studio/shop-categories.ts), as the app gets them. */
   shopCategories?: ShopCategories;
+  /** 165 Dashboard › Stories, for Studio's canvas (the story elements whose source is the dashboard). */
+  stories?: import("../../stories/view").StoryView[];
 }
 
 /** 110 The cards the app shows for a source the platform fills (lib/hosted/pages/sources.ts), by entry. */

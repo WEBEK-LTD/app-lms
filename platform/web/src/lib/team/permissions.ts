@@ -116,6 +116,8 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   ["/dashboard/stability", "settings"],
   ["/dashboard/integrations", "settings"],
   ["/dashboard/media", "media"],
+  // 165 The app's stories (its design, as Pages & look).
+  ["/dashboard/stories", "settings"],
   ["/dashboard/analytics", "analytics"],
   ["/dashboard/orders", "orders"],
   ["/dashboard/catalog", "catalog"],

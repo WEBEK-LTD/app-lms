@@ -215,6 +215,7 @@
           "id": "demo-3",
           "type": "slider",
           "name": "Every occasion",
+          "stories_source": "dashboard",
           "height": 520,
           "per_view": 1,
           "autoplay": true,
@@ -276,19 +277,13 @@
                 "type": "icon",
                 "icon": "favorite",
                 "icon_size": 15,
-                "color": "#FFD9C2"
+                "color": "#FFD9C2",
+                "story_part": "icon"
                },
                {
                 "id": "demo-8",
                 "type": "text",
                 "text": "For love",
-                "color": "#FFFFFF",
-                "font": {
-                 "size": 11,
-                 "weight": 700,
-                 "letter_spacing": 1.8,
-                 "uppercase": true
-                },
                 "translations": {
                  "ar": {
                   "text": "للحب"
@@ -296,7 +291,15 @@
                  "tr": {
                   "text": "Aşk için"
                  }
-                }
+                },
+                "color": "#FFFFFF",
+                "font": {
+                 "size": 11,
+                 "weight": 700,
+                 "letter_spacing": 1.8,
+                 "uppercase": true
+                },
+                "story_part": "kicker"
                }
               ]
              },
@@ -304,6 +307,14 @@
               "id": "demo-9",
               "type": "text",
               "text": "Say it with roses.",
+              "translations": {
+               "ar": {
+                "text": "قلها بالورد."
+               },
+               "tr": {
+                "text": "Güllerle söyleyin."
+               }
+              },
               "color": "#FFFFFF",
               "max_lines": 3,
               "font": {
@@ -319,19 +330,20 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "قلها بالورد."
-               },
-               "tr": {
-                "text": "Güllerle söyleyin."
-               }
-              }
+              "story_part": "title"
              },
              {
               "id": "demo-10",
               "type": "text",
               "text": "Bouquets with a card in your own words.",
+              "translations": {
+               "ar": {
+                "text": "باقات مع بطاقة بكلماتك أنت."
+               },
+               "tr": {
+                "text": "Kendi sözlerinizle bir kartla buketler."
+               }
+              },
               "color": "#FFFFFF",
               "opacity": 0.9,
               "max_lines": 2,
@@ -345,14 +357,7 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "باقات مع بطاقة بكلماتك أنت."
-               },
-               "tr": {
-                "text": "Kendi sözlerinizle bir kartla buketler."
-               }
-              }
+              "story_part": "line"
              },
              {
               "id": "demo-11",
@@ -400,7 +405,8 @@
                "tr": {
                 "text": "Çiçek gönder"
                }
-              }
+              },
+              "story_part": "button"
              }
             ]
            },
@@ -452,19 +458,13 @@
                 "type": "icon",
                 "icon": "cake",
                 "icon_size": 15,
-                "color": "#FFD9C2"
+                "color": "#FFD9C2",
+                "story_part": "icon"
                },
                {
                 "id": "demo-16",
                 "type": "text",
                 "text": "For a birthday",
-                "color": "#FFFFFF",
-                "font": {
-                 "size": 11,
-                 "weight": 700,
-                 "letter_spacing": 1.8,
-                 "uppercase": true
-                },
                 "translations": {
                  "ar": {
                   "text": "لعيد ميلاد"
@@ -472,7 +472,15 @@
                  "tr": {
                   "text": "Doğum günü için"
                  }
-                }
+                },
+                "color": "#FFFFFF",
+                "font": {
+                 "size": 11,
+                 "weight": 700,
+                 "letter_spacing": 1.8,
+                 "uppercase": true
+                },
+                "story_part": "kicker"
                }
               ]
              },
@@ -480,6 +488,14 @@
               "id": "demo-17",
               "type": "text",
               "text": "Another year, in bloom.",
+              "translations": {
+               "ar": {
+                "text": "عامٌ جديد يزهر."
+               },
+               "tr": {
+                "text": "Yeni bir yaş, çiçek açarak."
+               }
+              },
               "color": "#FFFFFF",
               "max_lines": 3,
               "font": {
@@ -495,19 +511,20 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "عامٌ جديد يزهر."
-               },
-               "tr": {
-                "text": "Yeni bir yaş, çiçek açarak."
-               }
-              }
+              "story_part": "title"
              },
              {
               "id": "demo-18",
               "type": "text",
               "text": "Bouquets with a card in your own words.",
+              "translations": {
+               "ar": {
+                "text": "باقات مع بطاقة بكلماتك أنت."
+               },
+               "tr": {
+                "text": "Kendi sözlerinizle bir kartla buketler."
+               }
+              },
               "color": "#FFFFFF",
               "opacity": 0.9,
               "max_lines": 2,
@@ -521,14 +538,7 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "باقات مع بطاقة بكلماتك أنت."
-               },
-               "tr": {
-                "text": "Kendi sözlerinizle bir kartla buketler."
-               }
-              }
+              "story_part": "line"
              },
              {
               "id": "demo-19",
@@ -576,7 +586,8 @@
                "tr": {
                 "text": "Çiçek gönder"
                }
-              }
+              },
+              "story_part": "button"
              }
             ]
            },
@@ -628,19 +639,13 @@
                 "type": "icon",
                 "icon": "spa",
                 "icon_size": 15,
-                "color": "#FFD9C2"
+                "color": "#FFD9C2",
+                "story_part": "icon"
                },
                {
                 "id": "demo-24",
                 "type": "text",
                 "text": "With sympathy",
-                "color": "#FFFFFF",
-                "font": {
-                 "size": 11,
-                 "weight": 700,
-                 "letter_spacing": 1.8,
-                 "uppercase": true
-                },
                 "translations": {
                  "ar": {
                   "text": "مع خالص المواساة"
@@ -648,7 +653,15 @@
                  "tr": {
                   "text": "Taziyelerimizle"
                  }
-                }
+                },
+                "color": "#FFFFFF",
+                "font": {
+                 "size": 11,
+                 "weight": 700,
+                 "letter_spacing": 1.8,
+                 "uppercase": true
+                },
+                "story_part": "kicker"
                }
               ]
              },
@@ -656,6 +669,14 @@
               "id": "demo-25",
               "type": "text",
               "text": "Gentle words, in white.",
+              "translations": {
+               "ar": {
+                "text": "كلماتٌ رقيقة بالأبيض."
+               },
+               "tr": {
+                "text": "Beyazla, nazik sözler."
+               }
+              },
               "color": "#FFFFFF",
               "max_lines": 3,
               "font": {
@@ -671,19 +692,20 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "كلماتٌ رقيقة بالأبيض."
-               },
-               "tr": {
-                "text": "Beyazla, nazik sözler."
-               }
-              }
+              "story_part": "title"
              },
              {
               "id": "demo-26",
               "type": "text",
               "text": "Bouquets with a card in your own words.",
+              "translations": {
+               "ar": {
+                "text": "باقات مع بطاقة بكلماتك أنت."
+               },
+               "tr": {
+                "text": "Kendi sözlerinizle bir kartla buketler."
+               }
+              },
               "color": "#FFFFFF",
               "opacity": 0.9,
               "max_lines": 2,
@@ -697,14 +719,7 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "باقات مع بطاقة بكلماتك أنت."
-               },
-               "tr": {
-                "text": "Kendi sözlerinizle bir kartla buketler."
-               }
-              }
+              "story_part": "line"
              },
              {
               "id": "demo-27",
@@ -752,7 +767,8 @@
                "tr": {
                 "text": "Çiçek gönder"
                }
-              }
+              },
+              "story_part": "button"
              }
             ]
            },
@@ -804,19 +820,13 @@
                 "type": "icon",
                 "icon": "child_care",
                 "icon_size": 15,
-                "color": "#FFD9C2"
+                "color": "#FFD9C2",
+                "story_part": "icon"
                },
                {
                 "id": "demo-32",
                 "type": "text",
                 "text": "For a new baby",
-                "color": "#FFFFFF",
-                "font": {
-                 "size": 11,
-                 "weight": 700,
-                 "letter_spacing": 1.8,
-                 "uppercase": true
-                },
                 "translations": {
                  "ar": {
                   "text": "لمولود جديد"
@@ -824,7 +834,15 @@
                  "tr": {
                   "text": "Yeni bebek için"
                  }
-                }
+                },
+                "color": "#FFFFFF",
+                "font": {
+                 "size": 11,
+                 "weight": 700,
+                 "letter_spacing": 1.8,
+                 "uppercase": true
+                },
+                "story_part": "kicker"
                }
               ]
              },
@@ -832,6 +850,14 @@
               "id": "demo-33",
               "type": "text",
               "text": "Hello, little one.",
+              "translations": {
+               "ar": {
+                "text": "أهلًا بالصغير."
+               },
+               "tr": {
+                "text": "Hoş geldin, minik."
+               }
+              },
               "color": "#FFFFFF",
               "max_lines": 3,
               "font": {
@@ -847,19 +873,20 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "أهلًا بالصغير."
-               },
-               "tr": {
-                "text": "Hoş geldin, minik."
-               }
-              }
+              "story_part": "title"
              },
              {
               "id": "demo-34",
               "type": "text",
               "text": "Bouquets with a card in your own words.",
+              "translations": {
+               "ar": {
+                "text": "باقات مع بطاقة بكلماتك أنت."
+               },
+               "tr": {
+                "text": "Kendi sözlerinizle bir kartla buketler."
+               }
+              },
               "color": "#FFFFFF",
               "opacity": 0.9,
               "max_lines": 2,
@@ -873,14 +900,7 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "باقات مع بطاقة بكلماتك أنت."
-               },
-               "tr": {
-                "text": "Kendi sözlerinizle bir kartla buketler."
-               }
-              }
+              "story_part": "line"
              },
              {
               "id": "demo-35",
@@ -928,7 +948,8 @@
                "tr": {
                 "text": "Çiçek gönder"
                }
-              }
+              },
+              "story_part": "button"
              }
             ]
            },
@@ -980,19 +1001,13 @@
                 "type": "icon",
                 "icon": "celebration",
                 "icon_size": 15,
-                "color": "#FFD9C2"
+                "color": "#FFD9C2",
+                "story_part": "icon"
                },
                {
                 "id": "demo-40",
                 "type": "text",
                 "text": "To congratulate",
-                "color": "#FFFFFF",
-                "font": {
-                 "size": 11,
-                 "weight": 700,
-                 "letter_spacing": 1.8,
-                 "uppercase": true
-                },
                 "translations": {
                  "ar": {
                   "text": "للتهنئة"
@@ -1000,7 +1015,15 @@
                  "tr": {
                   "text": "Tebrik için"
                  }
-                }
+                },
+                "color": "#FFFFFF",
+                "font": {
+                 "size": 11,
+                 "weight": 700,
+                 "letter_spacing": 1.8,
+                 "uppercase": true
+                },
+                "story_part": "kicker"
                }
               ]
              },
@@ -1008,6 +1031,14 @@
               "id": "demo-41",
               "type": "text",
               "text": "Well done, in full bloom.",
+              "translations": {
+               "ar": {
+                "text": "تهانينا والزهور في أوجها."
+               },
+               "tr": {
+                "text": "Tebrikler, tam çiçek açmış."
+               }
+              },
               "color": "#FFFFFF",
               "max_lines": 3,
               "font": {
@@ -1023,19 +1054,20 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "تهانينا والزهور في أوجها."
-               },
-               "tr": {
-                "text": "Tebrikler, tam çiçek açmış."
-               }
-              }
+              "story_part": "title"
              },
              {
               "id": "demo-42",
               "type": "text",
               "text": "Bouquets with a card in your own words.",
+              "translations": {
+               "ar": {
+                "text": "باقات مع بطاقة بكلماتك أنت."
+               },
+               "tr": {
+                "text": "Kendi sözlerinizle bir kartla buketler."
+               }
+              },
               "color": "#FFFFFF",
               "opacity": 0.9,
               "max_lines": 2,
@@ -1049,14 +1081,7 @@
                "bottom": 0,
                "start": 0
               },
-              "translations": {
-               "ar": {
-                "text": "باقات مع بطاقة بكلماتك أنت."
-               },
-               "tr": {
-                "text": "Kendi sözlerinizle bir kartla buketler."
-               }
-              }
+              "story_part": "line"
              },
              {
               "id": "demo-43",
@@ -1104,7 +1129,8 @@
                "tr": {
                 "text": "Çiçek gönder"
                }
-              }
+              },
+              "story_part": "button"
              }
             ]
            }
@@ -1273,6 +1299,7 @@
           "id": "demo-52",
           "type": "stories",
           "name": "Every occasion",
+          "stories_source": "dashboard",
           "interval_ms": 5000,
           "stories": {
            "size": 62
@@ -2808,6 +2835,7 @@
         "id": "demo-175",
         "type": "stories",
         "name": "Every occasion",
+        "stories_source": "dashboard",
         "interval_ms": 5000,
         "stories": {
          "size": 58

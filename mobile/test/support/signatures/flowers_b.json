@@ -266,6 +266,7 @@
           "type": "row",
           "gap": 8,
           "scroll": true,
+          "stories_source": "dashboard",
           "padding": {
            "top": 0,
            "end": 16,
@@ -300,7 +301,8 @@
               "icon": "favorite",
               "icon_size": 17,
               "color": "#FFFFFF",
-              "dark_color": "#0A120E"
+              "dark_color": "#0A120E",
+              "story_part": "icon"
              },
              {
               "id": "sig-7",
@@ -312,6 +314,7 @@
               },
               "color": "#FFFFFF",
               "dark_color": "#0A120E",
+              "story_part": "ring",
               "translations": {
                "ar": {
                 "text": "حب"
@@ -353,7 +356,8 @@
               "icon": "cake",
               "icon_size": 17,
               "color": "#B5603F",
-              "dark_color": "#F2B79E"
+              "dark_color": "#F2B79E",
+              "story_part": "icon"
              },
              {
               "id": "sig-10",
@@ -365,6 +369,7 @@
               },
               "color": "#15241D",
               "dark_color": "#EDF3EE",
+              "story_part": "ring",
               "translations": {
                "ar": {
                 "text": "عيد ميلاد"
@@ -406,7 +411,8 @@
               "icon": "spa",
               "icon_size": 17,
               "color": "#B5603F",
-              "dark_color": "#F2B79E"
+              "dark_color": "#F2B79E",
+              "story_part": "icon"
              },
              {
               "id": "sig-13",
@@ -418,6 +424,7 @@
               },
               "color": "#15241D",
               "dark_color": "#EDF3EE",
+              "story_part": "ring",
               "translations": {
                "ar": {
                 "text": "مواساة"
@@ -459,7 +466,8 @@
               "icon": "child_care",
               "icon_size": 17,
               "color": "#B5603F",
-              "dark_color": "#F2B79E"
+              "dark_color": "#F2B79E",
+              "story_part": "icon"
              },
              {
               "id": "sig-16",
@@ -471,6 +479,7 @@
               },
               "color": "#15241D",
               "dark_color": "#EDF3EE",
+              "story_part": "ring",
               "translations": {
                "ar": {
                 "text": "مولود جديد"
@@ -512,7 +521,8 @@
               "icon": "celebration",
               "icon_size": 17,
               "color": "#B5603F",
-              "dark_color": "#F2B79E"
+              "dark_color": "#F2B79E",
+              "story_part": "icon"
              },
              {
               "id": "sig-19",
@@ -524,6 +534,7 @@
               },
               "color": "#15241D",
               "dark_color": "#EDF3EE",
+              "story_part": "ring",
               "translations": {
                "ar": {
                 "text": "تهنئة"
@@ -2542,6 +2553,7 @@
         "id": "sig-180",
         "type": "stories",
         "name": "Every occasion",
+        "stories_source": "dashboard",
         "interval_ms": 5000,
         "stories": {
          "size": 58

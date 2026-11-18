@@ -791,6 +791,8 @@ export interface App {
    * app's default never moves a site whose plugin can't relay.
    */
   pushRelayAt?: Date | null;
+  /** 165 When the stories of its Studio design were copied into Dashboard › Stories (once); null or missing: not yet. */
+  storiesSeededAt?: Date | null;
   /** Shop settings when the products are managed in the dashboard (connector "catalog"). */
   catalogSettings: CatalogSettings | null;
   /** 77 The chat's settings; null: on (when the plan has chat), without course groups. */
@@ -1444,6 +1446,58 @@ export interface GiftOccasion {
   templates: GiftTemplate[];
   createdAt: Date;
   updatedAt: Date;
+}
+
+/**
+ * 165 One of the app's stories (Dashboard › Stories): the full-screen
+ * stories at the top of a home (a hero slider) and the story rings, served
+ * into the Studio elements whose source is the dashboard (`stories_source`).
+ */
+export interface AppStory {
+  id: number;
+  appId: string;
+  /** Its place among the app's stories (0 first). */
+  position: number;
+  /** Off: kept, never served. */
+  enabled: boolean;
+  /** Served from this time on; null: at once. */
+  startsAt: Date | null;
+  /** Served until this time; null: always. */
+  endsAt: Date | null;
+  /** Its photo or video (a video's photo shows until it plays, and in older apps). */
+  media: AppStoryMedia;
+  /** Its words by language code: the app's main language, and Arabic and Turkish beside it. */
+  texts: Record<string, AppStoryTexts>;
+  /** The ring's icon (Material Symbols Rounded); null: none. */
+  icon: string | null;
+  /** What its button opens; null: the shop (never Home). */
+  action: import("../pages/types").Action | null;
+  /** The store's category it belongs to; null: none. */
+  categoryId: string | null;
+  /** Copied from the app's Studio design (`<page>:<element>:<n>`), so it is copied once; null: the owner's own. */
+  importKey: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AppStoryMedia {
+  kind: "image" | "video";
+  /** The photo; for a video, its first picture (or null). */
+  imageUrl: string | null;
+  /** For a video: the video. */
+  videoUrl: string | null;
+}
+
+/** 165 A story's words in one language; empty or missing: the main language's. */
+export interface AppStoryTexts {
+  /** The small line over its title ("For love"). */
+  kicker?: string;
+  title?: string;
+  line?: string;
+  /** The ring's name, under its round photo. */
+  ring?: string;
+  /** Its button's words. */
+  button?: string;
 }
 
 /** 131 One ready card message: its words in each language (the app's default language at least). */

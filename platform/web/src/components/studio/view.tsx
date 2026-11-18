@@ -1,5 +1,6 @@
 "use client";
 
+import { withDashboardStories } from "@/lib/stories/canvas";
 import { COMMERCE_WORDS_EN, CouponCanvas, FlashSaleCanvas, type CommerceWords } from "./commerce";
 import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import type { LanguageCode } from "@/lib/pages/types";
@@ -206,7 +207,10 @@ export function textGivingWay(kids: readonly StudioNode[]): string | null {
   return texts.length === 1 ? texts[0]!.id : null;
 }
 
-export function StudioView(viewProps: ViewProps) {
+export function StudioView(givenProps: ViewProps) {
+  // 165 The story elements from Dashboard › Stories show its stories, as the app does now.
+  const storied = withDashboardStories(givenProps.page, givenProps.pickable?.stories, givenProps.lang, givenProps.defaultLang, new Date());
+  const viewProps = storied === givenProps.page ? givenProps : { ...givenProps, page: storied };
   // 157 A template's lists of the shop's categories as the app shows them.
   const shop = viewProps.pickable.shopCategories;
   const listed = shop ? { ...viewProps, page: { ...viewProps.page, body: withShopCategoriesIn(viewProps.page.body, shop) } } : viewProps;

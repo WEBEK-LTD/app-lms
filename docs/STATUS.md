@@ -97,6 +97,24 @@ its currency), else the owner's, then +90 (a MAD shop delivering to Morocco
 opened on +90). The app's part reaches the stores with
 `CLIENT_APP_RELEASE` 8. Not yet tried on a phone (ROADMAP 160.7).
 
+Roadmap 165 (Dashboard › Stories): the full-screen stories and story rings
+of an app's home are the app's own data (`app_stories`, migration 0143),
+managed in Dashboard › Stories (and in a Studio project's frame): added,
+changed, switched off, scheduled, reordered and removed, each with its
+photo or video, its words in the main language with Arabic and Turkish
+beside it, the ring's name and icon, its button and what it opens, and its
+category, with a live preview. `GET /pages/{slug}` serves them into the
+Studio elements whose source is the dashboard (Leqaa's hero slides, rings
+and look B's chips by default), in the language asked for, so the apps in
+the stores show the changes without a build; a button with nothing chosen
+opens the shop. An app made from the template has its Studio stories
+copied there once, the first time they're needed, nothing it shows
+changing. Studio says where the stories come from, switches the source and
+draws them. `CLIENT_APP_RELEASE` 7: the viewer shows each story's words,
+button and video, and a button opens the shop on a category; older apps
+show the ring's name and photo and open the shop. Not yet checked on
+Leqaa's and Kech Flora's real projects (ROADMAP 165.10).
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build
@@ -935,6 +953,10 @@ test environment:
   products without sizes to choose (a product with variations isn't
   offered by the stem).
 
+- 165 A story's video plays in the story viewer only in apps from release
+  7; older apps show its first picture. A story element from the
+  dashboard is left out of the page while no story is shown (on, between
+  its dates); the space a Leqaa hero's stack keeps for it stays.
 - 138 An account's limit can be passed by one or two apps when several
   new apps are given accounts in the same instant (each app still gets
   exactly one account, written once). Assignment reads the settings

@@ -2006,3 +2006,24 @@ on the same channel now signs in with the password there.
       and a code" with "Email address and password": the app shows Email
       (the password) and Phone (a code).
 
+## Phase 165: Dashboard › Stories
+
+Deploy runs migration 0143 (`app_stories`, `apps.stories_seeded_at`) as any
+other. Nothing to copy by hand: each app's Studio stories are copied into
+the dashboard by the code, once, the first time they're needed.
+
+- [ ] **Leqaa and Kech Flora:** open **Stories** in each project. The note
+      says the stories were copied from Studio; the five occasions are
+      there with their photos, words and buttons. Open the app on a phone:
+      the home looks exactly as before.
+- [ ] **A change reaches the app without a build:** add a story with a
+      photo, its words in English and Arabic and a button opening one of
+      the shop's categories; move it first; switch another off. Close the
+      app and open it again: the new story is first in
+      the hero and the rings, the switched-off one is gone, the words are
+      in the phone's language. Its button opens the shop (on the category
+      in an app built with release 7).
+- [ ] **Release 7:** once the apps are rebuilt with release 7, a story's
+      full-screen view shows its small label, title, line and button words,
+      and a video story plays its video.
+
