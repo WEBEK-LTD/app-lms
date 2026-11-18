@@ -970,7 +970,6 @@ class ChromeFoldingHeader extends StatefulWidget {
 
 class _ChromeFoldingHeaderState extends State<ChromeFoldingHeader> {
   final _offset = ValueNotifier<double>(0);
-  double? _later;
 
   @override
   void dispose() {
@@ -980,28 +979,20 @@ class _ChromeFoldingHeaderState extends State<ChromeFoldingHeader> {
 
   bool _onScroll(ScrollNotification n) {
     if (n.metrics.axis == Axis.vertical && n.depth <= 2) {
-      _fold(math.max(0, n.metrics.pixels));
+      final offset = math.max(0.0, n.metrics.pixels);
+      // 163 A list told while it is laid out (its content grew or shrank
+      // under a finger, a Samsung's larger text): the header redraws after
+      // this frame, not during it ("Build scheduled during frame").
+      if (SchedulerBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _offset.value = offset;
+        });
+      } else {
+        _offset.value = offset;
+      }
     }
     return false;
-  }
-
-  /// 158 A scroll the layout itself starts (the page's room changed) is
-  /// told in the middle of the frame: the header follows right after it.
-  void _fold(double offset) {
-    final phase = SchedulerBinding.instance.schedulerPhase;
-    if (phase != SchedulerPhase.persistentCallbacks) {
-      _later = null;
-      _offset.value = offset;
-      return;
-    }
-    final waiting = _later != null;
-    _later = offset;
-    if (waiting) return;
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      final later = _later;
-      _later = null;
-      if (mounted && later != null) _offset.value = later;
-    });
   }
 
   @override

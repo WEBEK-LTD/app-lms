@@ -662,6 +662,9 @@ void _expectEndInReach(WidgetTester tester, String why) {
   }
   expect(lowest, greaterThan(0), reason: '$why: the page shows something');
   final clear = _clearAbove(tester);
+  if (const bool.fromEnvironment('PAGE_END_DEBUG')) {
+    debugPrint('DEBUG $why lowest $lowest ("$what") clear $clear');
+  }
   expect(
     lowest,
     lessThanOrEqualTo(clear + 0.5),
