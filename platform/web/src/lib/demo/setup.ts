@@ -123,6 +123,8 @@ function hostedSettingsFor(deps: DemoSetupDeps, id: DemoId): HostedSettings {
     signupFields: [],
     signupAllowed: true,
     defaultCountryCode: DEMO_SIGN_IN.countryCode,
+    // 160.8 The demo number's code, whatever the demo shop's country.
+    countryCodeChosen: true,
     deviceLimit: 0,
     supportWhatsapp: deps.contact.whatsapp,
     termsUrl: `${deps.platformUrl}/terms`,

@@ -19,7 +19,10 @@ in with a code instead" is gone. A sign-in opened over the app (the page
 headers' bell, the cart) closes once signed in and opens what it was
 opened for: its screens stayed before, and "Forgot password" tapped there
 opened Notifications. Forgot password opens the reset for the way in use,
-in every sign-in look. The app's part reaches the stores with
+in every sign-in look. The code the phone number starts with follows the
+app: the owner's choice, else the shop's country (where it delivers, else
+its currency), else the owner's, then +90 (a MAD shop delivering to Morocco
+opened on +90). The app's part reaches the stores with
 `CLIENT_APP_RELEASE` 8. Not yet tried on a phone (ROADMAP 160.7).
 
 Roadmap 152 (Our bouquet's chips and button open the product the owner

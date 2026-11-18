@@ -11,6 +11,7 @@ import { DEFAULT_HOSTED_SETTINGS } from "@/lib/data/types";
 import { appMailFormValues, appMailServer, appMailTarget, parseAppMailForm, sendThroughServer, type AppMailFormValues } from "@/lib/email/app-mail";
 import { appUrl, encryptionKey, isProduction, waabekApiUrl } from "@/lib/env";
 import { ensureAuthKey, rotateAuthKey, yallappSignsIn } from "@/lib/hosted/app-auth";
+import { derivedCountryCode } from "@/lib/hosted/country-code";
 import { resendWebhook } from "@/lib/hosted/api-webhooks";
 import { issueTestToken } from "@/lib/hosted/test-token";
 import type { FormState } from "@/lib/forms";
@@ -138,8 +139,10 @@ export async function saveAppSignInAction(_: FormState, formData: FormData): Pro
   for (const name of FIELDS) values[name] = String(formData.get(name) ?? "").trim();
   const parsed = parseHostedSettingsForm(values);
   if (!parsed.ok) return { errors: parsed.errors, values };
+  // 160.8 A code other than the one the app would have by itself is the owner's choice; the same one keeps following the shop.
+  const countryCodeChosen = parsed.value.defaultCountryCode !== derivedCountryCode(app, context.client.country).code;
   const store = await getStore();
-  const next = withSettings(app, parsed.value);
+  const next = withSettings(app, { ...parsed.value, countryCodeChosen });
   await store.updateApp(app.id, { hostedSettings: next }, new Date());
   await recordStaffChange(context, "Saved the app sign-in rules", auditable(app.hostedSettings), auditable(next));
   revalidatePath("/dashboard/app-sign-in");

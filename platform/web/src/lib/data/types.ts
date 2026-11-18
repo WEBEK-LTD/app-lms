@@ -398,6 +398,12 @@ export interface HostedSettings {
   signupFields: ("email" | "city")[];
   signupAllowed: boolean;
   defaultCountryCode: string;
+  /**
+   * 160.8 Whether the owner chose `defaultCountryCode` on App sign-in; false:
+   * the app follows the shop's country, then the owner's (lib/hosted/country-code.ts).
+   * Missing (saved before 160): any code but the platform's default was chosen.
+   */
+  countryCodeChosen?: boolean;
   /** Devices per customer; 0 for no limit. */
   deviceLimit: number;
   supportWhatsapp: string | null;

@@ -55,6 +55,7 @@ import { DEMO_LIMITS, DEMO_SIGN_IN, DEMO_USER_NAME } from "../demo/constants";
 import { recordDemoVisit } from "../live-activity/demo";
 import { hostedSignInMethods, normalizeEmail, normalizeUsername, PASSWORD_MIN_LENGTH, passwordProblem, passwordSignIn } from "./sign-in-methods";
 import { hashPassword, verifyPassword } from "../auth/password";
+import { appCountryCode } from "./country-code";
 import { personClaims, yallappSignsIn, type AppSignIn } from "./app-auth";
 import { localizedError, requestLanguage } from "../i18n/builtin";
 import { chatConfig, chatSessionKind } from "../chat/access";
@@ -129,6 +130,8 @@ export interface HostedContext {
   ip: string;
   /** 85.1 The country the request came from (lib/geo.ts), kept on the phone for campaigns' audiences. */
   country?: string | null;
+  /** 160.8 The owner's account's country (ISO alpha-2): the app's default country code after the shop's. */
+  ownerCountry?: string | null;
   /** Signs access tokens and hashes codes. */
   secret: string;
   sender: OtpSender | null;
@@ -625,7 +628,7 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       // Yallapp, when the owner left them on) and the plan has offline mode.
       downloads: extra.features?.downloads === true && ctx.plan !== undefined && hasFeature(ctx.plan, "offline_downloads"),
     },
-    auth: authConfig(app),
+    auth: authConfig(app, ctx.ownerCountry),
     // 118.3 Studio apps: the sign-in screen's look and the account menu.
     ...screensConfig(app),
     // Paid courses never show "Enroll now" on iOS, nor without card payments in the plan (13.1).
@@ -706,12 +709,13 @@ async function schoolConfigOf(ctx: HostedContext) {
 }
 
 /** `Config.auth`: the owner's sign-in choices. */
-function authConfig(app: App) {
+function authConfig(app: App, ownerCountry: string | null | undefined) {
   const settings = hostedSettings(app);
   return {
     signup_allowed: settings.signupAllowed,
     signup_fields: signupFields(settings),
-    default_country_code: settings.defaultCountryCode,
+    // 160.8 The owner's choice, else the shop's country, the owner's, then the platform's.
+    default_country_code: appCountryCode(app, ownerCountry).code,
     // 18 Phone, email (a code by email) or both, as the owner chose.
     methods: hostedSignInMethods(app),
     ...(hostedSignInMethods(app).includes("email") ? { email_sign_in: "code" } : {}),
@@ -752,7 +756,7 @@ function signInConfig(ctx: HostedContext, req: HostedRequest): HostedResult {
     },
     branding: { logo_url: app.logoAssetId ? ctx.assetUrl(app.logoAssetId) : null, primary_color: app.primaryColor },
     features: { lms: null, lms_version: "", pro: false, certificates: false, quizzes: false, wishlist: false, reviews: false, qna: false, push: false },
-    auth: { ...authConfig(app), provider: "yallapp", base_url: ctx.yallappSignIn!.baseUrl },
+    auth: { ...authConfig(app, ctx.ownerCountry), provider: "yallapp", base_url: ctx.yallappSignIn!.baseUrl },
     // 118.3 A Studio app on its own API: the app takes these with the sign-in rules.
     ...screensConfig(app),
     purchases: { enroll_button: false, free_enrollment: false },

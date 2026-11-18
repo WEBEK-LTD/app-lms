@@ -23,6 +23,7 @@ import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form"
 import { MAIL_PRESETS, SECURITY_LABELS, mailPreset, type MailSecurity } from "@/lib/email/app-mail-presets";
 import { initialFormState } from "@/lib/forms";
 import { studioRecoveryAfter, studioWaysAfter, type StudioWayName, type StudioWays } from "@/lib/hosted/studio-ways";
+import type { CountryCodeSource } from "@/lib/hosted/country-code";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
 import { LANG_INFO } from "@/i18n/config";
@@ -449,7 +450,7 @@ export function AppWhatsappForms({
   );
 }
 
-export function AppSignInForm({ current, emailOnly = false }: { current: Record<string, string>; emailOnly?: boolean }) {
+export function AppSignInForm({ current, emailOnly = false, countryCodeFrom = "chosen" }: { current: Record<string, string>; emailOnly?: boolean; countryCodeFrom?: CountryCodeSource }) {
   const t = useDashT();
   const [state, action] = useActionState(saveAppSignInAction, initialFormState);
   const v = state.values ?? current;
@@ -476,7 +477,7 @@ export function AppSignInForm({ current, emailOnly = false }: { current: Record<
             name="defaultCountryCode"
             inputMode="numeric"
             defaultValue={v.defaultCountryCode}
-            hint={t("signin.countryCodeHint")}
+            hint={t(countryCodeFrom === "shop" ? "signin.countryCodeFromShop" : countryCodeFrom === "owner" ? "signin.countryCodeFromOwner" : "signin.countryCodeHint")}
             error={e.defaultCountryCode}
           />
           <Field

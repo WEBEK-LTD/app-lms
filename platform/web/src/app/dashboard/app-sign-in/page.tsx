@@ -13,6 +13,7 @@ import { appUrl, isProduction } from "@/lib/env";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSettingsValues } from "@/lib/hosted/settings-form";
+import { appCountryCode } from "@/lib/hosted/country-code";
 import { chosenEmailSignIn, chosenSignInMethods, emailSignInNote, emailSignInPossible, hostedSignInMethods, passwordSignIn, passwordSignInPossible, signInMethodsChoice } from "@/lib/hosted/sign-in-methods";
 import { signedInPath } from "@/lib/app/api-check";
 import { jwksUrl, tokenIssuer, yallappSignsIn } from "@/lib/hosted/app-auth";
@@ -208,7 +209,9 @@ export default async function AppSignInPage() {
   const studio = !wordpress && passwordSignInPossible(app);
   const ways = studio ? Object.entries(studioWays(app)).filter(([name, on]) => name !== "recovery" && on === "on").length : 0;
   const choice = signInMethodsChoice(methods);
-  const rules = wordpress ? null : hostedSettingsValues(hostedSettings(app));
+  // 160.8 The code sign-in shows first: the owner's, else the shop's country, the account's, then the platform's.
+  const countryCode = appCountryCode(app, client.country);
+  const rules = wordpress ? null : { ...hostedSettingsValues(hostedSettings(app)), defaultCountryCode: countryCode.code.replace(/^\+/, "") };
   // 132.136 The premium kit: how people sign in, its choice in sight; the rules, the WhatsApp number and the email each a row with its state as a pill, their forms folded.
   return (
     <KitPage>
@@ -264,7 +267,7 @@ export default async function AppSignInPage() {
               description={t("signin.rulesLine")}
             >
               <KitFold summary={t("signin.rulesOpen")} icon="tune" data-fold="rules">
-                <AppSignInForm current={rules} emailOnly={methods.length === 1 && methods[0] === "email"} />
+                <AppSignInForm current={rules} emailOnly={methods.length === 1 && methods[0] === "email"} countryCodeFrom={countryCode.source} />
               </KitFold>
             </KitSettingRow>
           ) : null}
