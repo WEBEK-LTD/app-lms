@@ -28,7 +28,6 @@ import 'sign_out.dart';
 import '../../../core/widgets/premium_chrome.dart';
 import 'premium/premium_choice_sheet.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/l10n/vertical_wording.dart';
 
 /// Appearance, video defaults, notifications and security (design:
 /// Settings). Notification choices are sent with `PUT /me/push-token`.

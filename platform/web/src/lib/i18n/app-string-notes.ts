@@ -5254,6 +5254,81 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "باقة الزبون صمّمها، بتظهر كباقة واحدة في السلة وفي الطلب.",
     tr: "Müşterinin oluşturduğu buket, sepette ve siparişte tek parça olarak görünür.",
   },
+  "169 The same for an app of another kind than an academy (its kind's words).": {
+    en: "The same for an app of another kind than an academy, in its kind's words.",
+    ar: "نفس الكلام لأبلكيشن من نوع غير الأكاديمية، بكلام نوعه.",
+    tr: "Akademi dışındaki bir uygulama türü için aynısı, kendi türünün sözcükleriyle.",
+  },
+  "173 The order screen: the heading over the delivery day, time, recipient and address.": {
+    en: "The order screen: the heading over the delivery day, time, recipient and address.",
+    ar: "شاشة الطلب: العنوان اللي فوق يوم التوصيل ووقته والمستلم والعنوان.",
+    tr: "Sipariş ekranı: teslimat günü, saati, alıcı ve adresin üstündeki başlık.",
+  },
+  "173 The order screen: the delivery time chosen, in the shop's time zone, like 10:00–13:00.": {
+    en: "The order screen: the delivery time chosen, in the shop's time zone, like 10:00–13:00.",
+    ar: "شاشة الطلب: وقت التوصيل المختار، بتوقيت المحل، زي 10:00–13:00.",
+    tr: "Sipariş ekranı: seçilen teslimat saati, mağazanın saat diliminde, örneğin 10:00–13:00.",
+  },
+  "173 The order screen: who receives the order.": {
+    en: "The order screen: who receives the order.",
+    ar: "شاشة الطلب: مين هيستلم الطلب.",
+    tr: "Sipariş ekranı: siparişi kimin teslim alacağı.",
+  },
+  "173 The order screen: where the order is delivered.": {
+    en: "The order screen: where the order is delivered.",
+    ar: "شاشة الطلب: الطلب هيتوصل فين.",
+    tr: "Sipariş ekranı: siparişin teslim edileceği yer.",
+  },
+  "173 The order screen: the heading over the card's message and who sends it.": {
+    en: "The order screen: the heading over the card's message and who sends it.",
+    ar: "شاشة الطلب: العنوان اللي فوق رسالة الكارت ومين باعتها.",
+    tr: "Sipariş ekranı: kart mesajının ve gönderenin üstündeki başlık.",
+  },
+  "173 The order screen: who signs the gift card.": {
+    en: "The order screen: who signs the gift card.",
+    ar: "شاشة الطلب: مين بيمضي كارت الهدية.",
+    tr: "Sipariş ekranı: hediye kartını kimin imzaladığı.",
+  },
+  "173 The order screen: the card doesn't show the sender's name.": {
+    en: "The order screen: the card doesn't show the sender's name.",
+    ar: "شاشة الطلب: الكارت مش بيبيّن اسم الراسل.",
+    tr: "Sipariş ekranı: kart gönderenin adını göstermez.",
+  },
+  "173 The order screen: the heading over the subtotal, discounts, fees and total.": {
+    en: "The order screen: the heading over the subtotal, discounts, fees and total.",
+    ar: "شاشة الطلب: العنوان اللي فوق المجموع الفرعي والخصومات والرسوم والإجمالي.",
+    tr: "Sipariş ekranı: ara toplam, indirimler, ücretler ve toplamın üstündeki başlık.",
+  },
+  "173 The order screen: the coupon's line in the totals, with its code.": {
+    en: "The order screen: the coupon's line in the totals, with its code.",
+    ar: "شاشة الطلب: سطر الكوبون في الحساب، بكوده.",
+    tr: "Sipariş ekranı: tutarlardaki kupon satırı, koduyla birlikte.",
+  },
+  "173 The order screen: a discount without a coupon code.": {
+    en: "The order screen: a discount without a coupon code.",
+    ar: "شاشة الطلب: خصم من غير كود كوبون.",
+    tr: "Sipariş ekranı: kupon kodu olmayan bir indirim.",
+  },
+  "173 The order screen: the loyalty points used, a line in the totals.": {
+    en: "The order screen: the loyalty points used, a line in the totals.",
+    ar: "شاشة الطلب: نقاط الولاء اللي اتستخدمت، سطر في الحساب.",
+    tr: "Sipariş ekranı: kullanılan sadakat puanları, tutarlarda bir satır.",
+  },
+  "173 The order screen: the delivery fee and where it was priced for, like Marrakech.": {
+    en: "The order screen: the delivery fee and where it was priced for, like Marrakech.",
+    ar: "شاشة الطلب: رسوم التوصيل والمكان اللي اتحسبت له، زي مراكش.",
+    tr: "Sipariş ekranı: teslimat ücreti ve fiyatlandırıldığı yer, örneğin Marakeş.",
+  },
+  "173 The order screen: the chosen delivery time's fee.": {
+    en: "The order screen: the chosen delivery time's fee.",
+    ar: "شاشة الطلب: رسوم وقت التوصيل المختار.",
+    tr: "Sipariş ekranı: seçilen teslimat saatinin ücreti.",
+  },
+  "173 The order screen: a tax inside the prices, like VAT 20%.": {
+    en: "The order screen: a tax inside the prices, like VAT 20%.",
+    ar: "شاشة الطلب: ضريبة جوه الأسعار، زي ضريبة القيمة المضافة 20%.",
+    tr: "Sipariş ekranı: fiyatlara dahil bir vergi, örneğin %20 KDV.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

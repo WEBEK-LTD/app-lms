@@ -1511,7 +1511,7 @@ class StudioNodeView extends ConsumerWidget {
       fontStyle: font?.italic == true ? FontStyle.italic : null,
       decoration: _decoration(font),
       // 163 Never tighter than its script's letters need.
-      height: studioLineHeight(font?.lineHeight, _text()),
+      height: studioLineHeight(font?.lineHeight, _ownText()),
       letterSpacing: font?.letterSpacing,
     );
   }

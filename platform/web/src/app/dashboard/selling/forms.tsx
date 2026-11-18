@@ -494,7 +494,7 @@ export function BouquetForm({ values: saved, categories, addons, platform }: { v
                   <img src={a.image} alt="" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
                 ) : (
                   <span aria-hidden="true" className="material-symbols-rounded flex h-9 w-9 items-center justify-center rounded-lg bg-(--sp-soft) text-[20px]">
-                    redeem
+                    {/* i18n-ok: an icon's name */ "redeem"}
                   </span>
                 )}
                 <span className="flex min-w-0 flex-col">
