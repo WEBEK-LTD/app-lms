@@ -63,6 +63,8 @@ function productLinks(lang: Lang, m: Messages): { id: string; href: string; labe
     { id: "pricing", href: "/pricing", label: nav.pricing },
     { id: "demo", href: "/demo", label: nav.demo },
     { id: "studio-demo", href: "/demo/studio", label: m.footer.studioDemo },
+    // 106.13 Studio Market's public page.
+    { id: "templates", href: "/templates", label: nav.market },
   ].map((l) => ({ ...l, href: localePath(lang, l.href) }));
 }
 

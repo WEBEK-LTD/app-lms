@@ -72,6 +72,8 @@ export function sitemapEntries(base: string, updated: Record<string, string | un
     ...compareParams().map((c) => entry(`/compare/${c.name}`, 0.7)),
     entry("/demo", 0.7),
     entry("/demo/studio", 0.7),
+    // 106.13 Studio Market's public page; its published templates are added by app/sitemap.ts (lib/studio-market/public.ts).
+    entry("/templates", 0.8),
     entry("/docs", 0.7),
     ...DOCS.map((d) => entry(`/docs/${d.slug}`, 0.6)),
     entry("/developers", 0.5),

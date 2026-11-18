@@ -1418,6 +1418,28 @@ export const TR_MARKETING: MarketingTranslation = {
         },
       ],
     },
+    // 106.13 Studio Market.
+    {
+      title: "Studio Market",
+      items: [
+        {
+          q: "Studio Market nedir?",
+          a: "Bağımsız tasarımcıların Yallapp Studio'da hazırladığı, ilk yayımlanmadan önce ekibimizce incelenen bütün uygulama tasarımları. Her birini [Studio Market](/templates) sayfasında demosunda deneyin, sonra Studio uygulamanıza ücretsiz ya da bir süreliğine uygulayın.",
+        },
+        {
+          q: "Şablon kendiliğinden yenilenir mi?",
+          a: "Hayır. Bitişten 14 gün önce ve son gün size hatırlatırız; yeniden ödeyerek yenilersiniz. Plan bittiğinde, şablonun sayfasında yazdığı gibi tasarım güncelleme almadan kalır ya da uygulamanız önceki tasarımına döner. [Studio Market](/docs/studio-market) rehberine bakın.",
+        },
+        {
+          q: "Bir şablon için iade alabilir miyim?",
+          a: "Hayır. Şablonlar hemen uygulanan dijital içeriktir; bu yüzden Studio Market'te satın alınanlar iade edilemez. Satın almadan önce demoyu deneyin ve uygulamanızda görün.",
+        },
+        {
+          q: "Tasarımcılara nasıl ödeme yapılır?",
+          a: "Yallapp her satışın %25'ini alır, tasarımcı her zaman tam %75'ini alır; bakiyesi 250 ABD doları veya üzerindeyse ve bilgileri incelendiyse her ayın 1'inde ödenir.",
+        },
+      ],
+    },
     {
       title: "İçerik kaynakları",
       items: [

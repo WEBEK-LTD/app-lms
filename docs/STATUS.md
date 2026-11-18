@@ -260,6 +260,32 @@ price or the code. The server works the price out again at Pay; the
 order's gross is the price paid, so the 75/25 split is of it. A discount
 never takes a plan below $1 (100% off is $1). Migration 0143.
 
+Roadmap 106.13 (Studio Market on the website): `/templates` (`/ar/templates`,
+`/tr/templates`) shows visitors who aren't signed in the published
+templates, in the market's two looks with the site's light and dark:
+search, app kinds, price and order, the featured template, the flash
+strip, new this week, the most applied and the top designers, with the
+dashboard's cards and price rules ("From $X/mo", "$X once", "Free", the old
+price struck through with the Sale or Flash sale pill and its countdown;
+the plan prices and price words now come from one place,
+`lib/studio-market/listing.ts`, for the dashboard and the website). A
+template's page (`/templates/<slug>`) draws its pages in phones in the
+visitor's language, light and dark, with each plan's price now, what
+happens when a plan ends, what's included, the designer (their public name
+and line only), "Try the demo", and buttons to the dashboard's checkout
+for the plan or "Preview it on my app first": straight there when signed
+in, through sign-up or sign-in first otherwise (a cookie for an hour,
+`yallapp_market_next`, that only names those dashboard addresses). The
+Arabic is Modern Standard Arabic. Metadata, Open Graph images, canonical
+and hreflang per language; JSON-LD ItemList and Product with an Offer per
+plan; each published template in the sitemap in each language; a template
+not published, or whose designer is suspended, is "page not found" and
+isn't listed. In the header's Studio list, the footer and /demo/studio; a
+docs article (`/docs/studio-market`) for owners and designers and four FAQ
+questions, in three languages. No migration. A designer's own public page
+isn't built: the privacy policy doesn't say a designer's profile is public
+(see the roadmap).
+
 The plugin's end-to-end job (WordPress + Tutor LMS) no longer loses a check
 about a minute into its run (main #449 and #450, PR #454): the dev site runs
 no WP-Cron of its own (`DISABLE_WP_CRON`). WP-CLI took WordPress's cron lock
