@@ -152,6 +152,11 @@ export interface PickedLine {
   substitute: { productId: number; quantity: number } | null;
 }
 
+/** 115.75 The most a weighed line may weigh: the weight asked plus [allowancePercent], to the gram (millilitre). */
+export function weightCapOf(quantity: number, allowancePercent: number): number {
+  return Math.floor(((quantity * (100 + allowancePercent)) / 100) * 1000 + 1e-6) / 1000;
+}
+
 /**
  * A grocery's or shop's picking: each line picked (weighed), swapped or left
  * out; the order priced again: online-paid lines never above the estimate,
@@ -181,9 +186,13 @@ export async function pickMarketOrder(store: DataStore, order: MarketOrder, pick
     }
     const quantity = p.pickedQuantity ?? line.quantity;
     if (quantity <= 0) return { ok: false, reason: "invalid", error: "Enter what you picked." };
-    // 115.75 (D1) Paid online (card, Apple Pay, Google Pay, wallet): never more than the estimate the customer paid, whatever it weighs.
-    // Paid in cash: what the scale reads, never more than the tolerance over the estimate (the picker's app refuses a heavier weight).
+    // 115.75 (D1) Paid online (card, Apple Pay, Google Pay, wallet): at most the weight asked, so never more than was paid;
+    // a lighter one is refunded. Paid in cash: what the scale reads, at most the tolerance over the weight asked. Heavier is refused.
     const allowance = order.paymentMethod === "cash" ? tolerancePercent : 0;
+    const most = weightCapOf(line.quantity, allowance);
+    if (line.unit !== "item" && quantity > most + 1e-9) {
+      return { ok: false, reason: "invalid", error: `${line.name}: at most ${most} ${line.unit} for ${order.paymentMethod === "cash" ? "a cash order" : "an order paid online"}.` };
+    }
     const exact = Math.round(line.unitPrice * quantity + 1e-9);
     const cap = Math.round((line.unitPrice * line.quantity * (100 + allowance)) / 100 + 1e-9);
     Object.assign(line, { outcome: "picked", pickedQuantity: quantity, substitute: null, total: Math.min(exact, cap) });

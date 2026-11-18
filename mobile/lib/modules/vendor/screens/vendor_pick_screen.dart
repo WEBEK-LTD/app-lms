@@ -792,14 +792,13 @@ class _PickCard extends StatelessWidget {
           ? keypadToQuantity(typedNum, l.unit)
           : null;
       final cap = weightCap(l, pay, tolerance);
-      final over = quantity != null && cap != null && quantity > cap + 1e-9;
+      final over = weighed && quantity != null && quantity > cap + 1e-9;
       if (weighed) {
-        final scale = quantity == null
-            ? null
-            : moneyValue(l.unitPrice) * quantity;
-        final charged = quantity == null
-            ? null
-            : chargeFor(l, quantity, pay, tolerance);
+        final price = quantity == null ? null : chargeFor(l, quantity);
+        final capText = [
+          amountText(l10n, cap, l.unit),
+          moneyLike(l.unitPrice, chargeFor(l, cap)),
+        ];
         body.addAll([
           const SizedBox(height: 10),
           IntrinsicHeight(
@@ -890,9 +889,7 @@ class _PickCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          l10n.vendorScalePrice(
-                            scale == null ? '—' : moneyLike(l.unitPrice, scale),
-                          ),
+                          l10n.vendorPriceLabel,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -903,12 +900,8 @@ class _PickCard extends StatelessWidget {
                           fit: BoxFit.scaleDown,
                           alignment: AlignmentDirectional.centerStart,
                           child: Text(
-                            l10n.vendorCharged(
-                              charged == null
-                                  ? '—'
-                                  : moneyLike(l.unitPrice, charged),
-                            ),
-                            key: ValueKey('vendor-pick-${l.id}-charged'),
+                            price == null ? '—' : moneyLike(l.unitPrice, price),
+                            key: ValueKey('vendor-pick-${l.id}-price'),
                             maxLines: 1,
                             style: const TextStyle(
                               fontSize: 15,
@@ -920,10 +913,14 @@ class _PickCard extends StatelessWidget {
                         Text(
                           switch (pay) {
                             MarketPayMethod.cash => l10n.vendorCapCash(
-                              amountText(l10n, cap!, l.unit),
+                              capText[0],
+                              capText[1],
                             ),
-                            MarketPayMethod.wallet => l10n.vendorCapWallet,
-                            _ => l10n.vendorCapCard,
+                            MarketPayMethod.wallet => l10n.vendorCapWallet(
+                              capText[0],
+                              capText[1],
+                            ),
+                            _ => l10n.vendorCapCard(capText[0], capText[1]),
                           },
                           key: ValueKey('vendor-pick-${l.id}-cap'),
                           style: const TextStyle(

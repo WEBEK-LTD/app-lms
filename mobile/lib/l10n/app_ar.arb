@@ -3345,12 +3345,6 @@
   "vendorIfOutChosen": "عند النفاد: اختيار العميل",
   "vendorIfOutRemove": "عند النفاد: يُحذف",
   "vendorActualWeight": "الوزن الفعلي",
-  "vendorScalePrice": "سعر الميزان {amount}",
-  "vendorCharged": "يُحصَّل {amount}",
-  "vendorCapCard": "بطاقة: لا يزيد عن التقدير",
-  "vendorCapWallet": "المحفظة: لا يزيد عن التقدير",
-  "vendorCapCash": "نقدًا: {weight} كحد أقصى",
-  "vendorOverCap": "أثقل من المسموح لطلب نقدي: {weight} كحد أقصى",
   "vendorFromScale": "من الميزان",
   "vendorScaleLater": "ربط الميزان قادم لاحقًا. اكتب الوزن الآن.",
   "vendorOut": "نفد",
@@ -3417,5 +3411,10 @@
   "vendorRoleOwner": "المالك",
   "vendorRoleManager": "المدير",
   "vendorRoleOrders": "الطلبات",
-  "vendorRolePicker": "التجهيز"
+  "vendorRolePicker": "التجهيز",
+  "vendorPriceLabel": "السعر",
+  "vendorCapCard": "طلب بطاقة: حتى {weight} · {amount}",
+  "vendorCapWallet": "طلب بالمحفظة: حتى {weight} · {amount}",
+  "vendorCapCash": "طلب نقدي: حتى {weight} · {amount}",
+  "vendorOverCap": "أثقل من المسموح: {weight} كحد أقصى"
 }

@@ -12990,32 +12990,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vendorActualWeight => 'الوزن الفعلي';
 
   @override
-  String vendorScalePrice(String amount) {
-    return 'سعر الميزان $amount';
-  }
-
-  @override
-  String vendorCharged(String amount) {
-    return 'يُحصَّل $amount';
-  }
-
-  @override
-  String get vendorCapCard => 'بطاقة: لا يزيد عن التقدير';
-
-  @override
-  String get vendorCapWallet => 'المحفظة: لا يزيد عن التقدير';
-
-  @override
-  String vendorCapCash(String weight) {
-    return 'نقدًا: $weight كحد أقصى';
-  }
-
-  @override
-  String vendorOverCap(String weight) {
-    return 'أثقل من المسموح لطلب نقدي: $weight كحد أقصى';
-  }
-
-  @override
   String get vendorFromScale => 'من الميزان';
 
   @override
@@ -13263,4 +13237,27 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get vendorRolePicker => 'التجهيز';
+
+  @override
+  String get vendorPriceLabel => 'السعر';
+
+  @override
+  String vendorCapCard(String weight, String amount) {
+    return 'طلب بطاقة: حتى $weight · $amount';
+  }
+
+  @override
+  String vendorCapWallet(String weight, String amount) {
+    return 'طلب بالمحفظة: حتى $weight · $amount';
+  }
+
+  @override
+  String vendorCapCash(String weight, String amount) {
+    return 'طلب نقدي: حتى $weight · $amount';
+  }
+
+  @override
+  String vendorOverCap(String weight) {
+    return 'أثقل من المسموح: $weight كحد أقصى';
+  }
 }

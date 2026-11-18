@@ -257,36 +257,18 @@ String payText(AppLocalizations l10n, MarketPayMethod m) => switch (m) {
   MarketPayMethod.googlePay => 'Google Pay',
 };
 
-/// 115.71 (D1) The most a weighed line may charge: the estimate for an
-/// order paid online (card, Apple Pay, Google Pay, wallet), the estimate
-/// plus the tolerance for cash.
-double chargeCap(MarketOrderLine line, MarketPayMethod pay, int tolerance) {
-  final estimate = moneyValue(line.unitPrice) * line.quantity;
-  return pay == MarketPayMethod.cash
-      ? estimate * (100 + tolerance) / 100
-      : estimate;
-}
-
-/// 115.71 The most a cash order's weighed line may weigh, in its unit;
-/// null when any weight is taken (paid online: charged at most the
-/// estimate whatever it weighs).
-double? weightCap(MarketOrderLine line, MarketPayMethod pay, int tolerance) =>
+/// 115.71 (D1) The most a weighed line may weigh, in its unit: the weight
+/// asked for an order paid online (card, Apple Pay, Google Pay, wallet),
+/// so it never costs more than was paid (a lighter one is refunded); the
+/// weight asked plus the tolerance for cash. The server refuses more.
+double weightCap(MarketOrderLine line, MarketPayMethod pay, int tolerance) =>
     pay == MarketPayMethod.cash
-    ? line.quantity * (100 + tolerance) / 100
-    : null;
+    ? (line.quantity * (100 + tolerance) / 100 * 1000 + 1e-6).floor() / 1000
+    : line.quantity;
 
-/// What a weighed line charges for [quantity]: what the scale reads, never
-/// above [chargeCap].
-double chargeFor(
-  MarketOrderLine line,
-  double quantity,
-  MarketPayMethod pay,
-  int tolerance,
-) {
-  final scale = moneyValue(line.unitPrice) * quantity;
-  final cap = chargeCap(line, pay, tolerance);
-  return scale < cap ? scale : cap;
-}
+/// What a weighed line costs for [quantity]: what the scale reads.
+double chargeFor(MarketOrderLine line, double quantity) =>
+    moneyValue(line.unitPrice) * quantity;
 
 /// "4:32": minutes and seconds.
 String minutesSeconds(Duration d) {

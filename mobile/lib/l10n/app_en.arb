@@ -13935,50 +13935,6 @@
   "@vendorActualWeight": {
     "description": "115.71 Above the weight typed on the keypad."
   },
-  "vendorScalePrice": "Scale price {amount}",
-  "@vendorScalePrice": {
-    "description": "115.71 The weighed price before the cap.",
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "vendorCharged": "Charged {amount}",
-  "@vendorCharged": {
-    "description": "115.71 What the customer pays for the weighed line.",
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "vendorCapCard": "Card: never above the estimate",
-  "@vendorCapCard": {
-    "description": "115.71 Under the charged price of a card or Apple Pay or Google Pay order."
-  },
-  "vendorCapWallet": "Wallet: never above the estimate",
-  "@vendorCapWallet": {
-    "description": "115.71 Under the charged price of a wallet order."
-  },
-  "vendorCapCash": "Cash: at most {weight}",
-  "@vendorCapCash": {
-    "description": "115.71 Under the charged price of a cash order: the heaviest it may weigh.",
-    "placeholders": {
-      "weight": {
-        "type": "String"
-      }
-    }
-  },
-  "vendorOverCap": "Too heavy for a cash order: at most {weight}",
-  "@vendorOverCap": {
-    "description": "115.71 A cash order's weight above the tolerance.",
-    "placeholders": {
-      "weight": {
-        "type": "String"
-      }
-    }
-  },
   "vendorFromScale": "From scale",
   "@vendorFromScale": {
     "description": "115.71 The keypad's scale key."
@@ -14339,5 +14295,54 @@
   "vendorRolePicker": "Picker",
   "@vendorRolePicker": {
     "description": "115.70 A staff member's role, after their name on the vendor desk."
+  },
+  "vendorPriceLabel": "Price",
+  "@vendorPriceLabel": {
+    "description": "115.71 Above a weighed line's price for the typed weight."
+  },
+  "vendorCapCard": "Card order: up to {weight} · {amount}",
+  "@vendorCapCard": {
+    "description": "115.71 Under a weighed line's price, a card, Apple Pay or Google Pay order: the most it may weigh and cost.",
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorCapWallet": "Wallet order: up to {weight} · {amount}",
+  "@vendorCapWallet": {
+    "description": "115.71 Under a weighed line's price, a wallet order: the most it may weigh and cost.",
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorCapCash": "Cash order: up to {weight} · {amount}",
+  "@vendorCapCash": {
+    "description": "115.71 Under a weighed line's price, a cash order: the most it may weigh and cost (the tolerance over the weight asked).",
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorOverCap": "Too heavy: at most {weight}",
+  "@vendorOverCap": {
+    "description": "115.71 A weight above what the order allows.",
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
   }
 }

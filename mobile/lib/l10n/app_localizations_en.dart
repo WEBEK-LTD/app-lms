@@ -12593,32 +12593,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vendorActualWeight => 'Actual weight';
 
   @override
-  String vendorScalePrice(String amount) {
-    return 'Scale price $amount';
-  }
-
-  @override
-  String vendorCharged(String amount) {
-    return 'Charged $amount';
-  }
-
-  @override
-  String get vendorCapCard => 'Card: never above the estimate';
-
-  @override
-  String get vendorCapWallet => 'Wallet: never above the estimate';
-
-  @override
-  String vendorCapCash(String weight) {
-    return 'Cash: at most $weight';
-  }
-
-  @override
-  String vendorOverCap(String weight) {
-    return 'Too heavy for a cash order: at most $weight';
-  }
-
-  @override
   String get vendorFromScale => 'From scale';
 
   @override
@@ -12863,4 +12837,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vendorRolePicker => 'Picker';
+
+  @override
+  String get vendorPriceLabel => 'Price';
+
+  @override
+  String vendorCapCard(String weight, String amount) {
+    return 'Card order: up to $weight · $amount';
+  }
+
+  @override
+  String vendorCapWallet(String weight, String amount) {
+    return 'Wallet order: up to $weight · $amount';
+  }
+
+  @override
+  String vendorCapCash(String weight, String amount) {
+    return 'Cash order: up to $weight · $amount';
+  }
+
+  @override
+  String vendorOverCap(String weight) {
+    return 'Too heavy: at most $weight';
+  }
 }

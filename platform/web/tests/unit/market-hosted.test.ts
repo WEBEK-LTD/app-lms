@@ -282,8 +282,9 @@ describe("115 the marketplace's routes", () => {
     const staff = await staffOf(grocery, "1114445556", "Salma");
     expect((await call("POST", "/vendor/orders/{order_id}/accept", { token: staff.access_token, params: [String(order.id)], body: { prep_minutes: 15 } })).body).toMatchObject({ status: "picking" });
     expect((await call("POST", "/vendor/orders/{order_id}/ready", { token: staff.access_token, params: [String(order.id)] })).status).toBe(409);
-    // 1.8 kg weighed: never more than 10% above the 60 agreed (66); the milk is out.
-    const picked = await call("PATCH", "/vendor/orders/{order_id}/lines", { token: staff.access_token, params: [String(order.id)], body: { lines: [{ line_id: 1, outcome: "picked", quantity: 1.8 }, { line_id: 2, outcome: "missing" }] } });
+    // 115.75 (D1) A cash order: never more than 10% over the 1.5 kg agreed, so 1.8 kg is refused; 1.65 kg is 66. The milk is out.
+    expect((await call("PATCH", "/vendor/orders/{order_id}/lines", { token: staff.access_token, params: [String(order.id)], body: { lines: [{ line_id: 1, outcome: "picked", quantity: 1.8 }] } })).status).toBe(400);
+    const picked = await call("PATCH", "/vendor/orders/{order_id}/lines", { token: staff.access_token, params: [String(order.id)], body: { lines: [{ line_id: 1, outcome: "picked", quantity: 1.65 }, { line_id: 2, outcome: "missing" }] } });
     expect(picked.body).toMatchObject({ lines: [{ outcome: "picked", total: { amount: "66.00" } }, { outcome: "missing", total: { amount: "0.00" } }], subtotal: { amount: "66.00" } });
     await call("POST", "/vendor/orders/{order_id}/ready", { token: staff.access_token, params: [String(order.id)] });
     expect((await call("POST", "/vendor/orders/{order_id}/handover", { token: staff.access_token, params: [String(order.id)], body: { to: "customer", pickup_code: "0000" === order.pickup_code ? "1111" : "0000" } })).status).toBe(400);

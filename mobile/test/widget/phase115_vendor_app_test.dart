@@ -163,47 +163,54 @@ void main() {
       expect(find.text('Weighed 950 g of 1 kg · EGP 33.25'), findsOneWidget);
     });
 
-    testWidgets('card: any weight, never charged above the estimate (D1)', (
+    testWidgets('card: up to the weight asked, never more (D1)', (
       tester,
     ) async {
       phone(tester);
       final api = zadVendorApi();
       api.vendorOrders['active'] = [zadPickOrder(proposal: false)];
       await open(zadVendorApp(api), tester, Paths.vendorPick(4821));
-      for (final k in ['7', '8', '0']) {
+      expect(find.text('Card order: up to 750 g · EGP 120.00'), findsOneWidget);
+      for (final k in ['7', '4', '0']) {
         await tester.tap(find.byKey(ValueKey('vendor-key-31-$k')));
+        await tester.pump();
       }
+      // Lighter costs less: the difference is refunded.
+      expect(find.text('EGP 118.40'), findsOneWidget);
+      // Heavier than asked (760 g) is refused: the card never pays more.
+      for (final k in ['⌫', '⌫', '6', '0']) {
+        await tester.tap(find.byKey(ValueKey('vendor-key-31-$k')));
+        await tester.pump();
+      }
+      expect(find.text('Too heavy: at most 750 g'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('vendor-pick-31-picked')));
       await tester.pump();
-      expect(find.text('Scale price EGP 124.80'), findsOneWidget);
-      expect(find.text('Charged EGP 120.00'), findsOneWidget);
-      expect(find.text('Card: never above the estimate'), findsOneWidget);
-      // Much heavier is still taken: the card never pays more.
-      await tester.tap(find.byKey(const ValueKey('vendor-key-31-0')));
-      await tester.pump();
-      expect(find.text('Charged EGP 120.00'), findsOneWidget);
-      expect(find.byKey(const ValueKey('vendor-pick-31-over')), findsNothing);
-      await tester.tap(find.byKey(const ValueKey('vendor-key-31-⌫')));
-      await tester.pump();
+      expect(api.vendorCalls.where((c) => c.startsWith('pick')), isEmpty);
+      for (final k in ['⌫', '⌫', '4', '0']) {
+        await tester.tap(find.byKey(ValueKey('vendor-key-31-$k')));
+        await tester.pump();
+      }
       await tester.tap(find.byKey(const ValueKey('vendor-pick-31-picked')));
       await TestApp.settle(tester, 20);
-      expect(api.vendorCalls, contains('pick 4821 31:picked:0.78:'));
+      expect(api.vendorCalls, contains('pick 4821 31:picked:0.74:'));
     });
 
-    testWidgets('wallet: never charged above the estimate either (D1)', (
-      tester,
-    ) async {
+    testWidgets('wallet: the same as a card (D1)', (tester) async {
       phone(tester);
       final api = zadVendorApi();
       api.vendorOrders['active'] = [
         zadPickOrder(pay: 'wallet', proposal: false),
       ];
       await open(zadVendorApp(api), tester, Paths.vendorPick(4821));
-      for (final k in ['9', '0', '0']) {
+      expect(
+        find.text('Wallet order: up to 750 g · EGP 120.00'),
+        findsOneWidget,
+      );
+      for (final k in ['7', '6', '0']) {
         await tester.tap(find.byKey(ValueKey('vendor-key-31-$k')));
+        await tester.pump();
       }
-      await tester.pump();
-      expect(find.text('Charged EGP 120.00'), findsOneWidget);
-      expect(find.text('Wallet: never above the estimate'), findsOneWidget);
+      expect(find.text('Too heavy: at most 750 g'), findsOneWidget);
     });
 
     testWidgets('cash: at most 10% over, heavier refused (D1)', (tester) async {
@@ -211,28 +218,26 @@ void main() {
       final api = zadVendorApi();
       api.vendorOrders['active'] = [zadPickOrder(pay: 'cash', proposal: false)];
       await open(zadVendorApp(api), tester, Paths.vendorPick(4821));
-      // 750 g ordered: at most 825 g.
-      expect(find.text('Cash: at most 825 g'), findsOneWidget);
+      // 750 g asked: at most 825 g, EGP 132.00.
+      expect(find.text('Cash order: up to 825 g · EGP 132.00'), findsOneWidget);
       for (final k in ['9', '0', '0']) {
         await tester.tap(find.byKey(ValueKey('vendor-key-31-$k')));
+        await tester.pump();
       }
-      await tester.pump();
-      expect(
-        find.text('Too heavy for a cash order: at most 825 g'),
-        findsOneWidget,
-      );
+      expect(find.text('Too heavy: at most 825 g'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('vendor-pick-31-picked')));
       await tester.pump();
       expect(api.vendorCalls.where((c) => c.startsWith('pick')), isEmpty);
       for (var i = 0; i < 3; i++) {
         await tester.tap(find.byKey(const ValueKey('vendor-key-31-⌫')));
+        await tester.pump();
       }
       for (final k in ['8', '2', '0']) {
         await tester.tap(find.byKey(ValueKey('vendor-key-31-$k')));
+        await tester.pump();
       }
-      await tester.pump();
       // What the scale reads: 820 g × 160 = 131.20.
-      expect(find.text('Charged EGP 131.20'), findsOneWidget);
+      expect(find.text('EGP 131.20'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('vendor-pick-31-picked')));
       await TestApp.settle(tester, 20);
       expect(api.vendorCalls, contains('pick 4821 31:picked:0.82:'));
@@ -253,19 +258,10 @@ void main() {
         MarketPayMethod.googlePay,
         MarketPayMethod.wallet,
       ]) {
-        expect(chargeFor(line, 0.78, online, 10), closeTo(120, 1e-9));
-        expect(chargeFor(line, 0.70, online, 10), closeTo(112, 1e-9));
-        expect(weightCap(line, online, 10), isNull);
+        expect(weightCap(line, online, 10), 0.75);
       }
-      expect(
-        chargeFor(line, 0.78, MarketPayMethod.cash, 10),
-        closeTo(124.8, 1e-9),
-      );
-      expect(
-        chargeFor(line, 0.9, MarketPayMethod.cash, 10),
-        closeTo(132, 1e-9),
-      );
-      expect(weightCap(line, MarketPayMethod.cash, 10), closeTo(0.825, 1e-9));
+      expect(weightCap(line, MarketPayMethod.cash, 10), 0.825);
+      expect(chargeFor(line, 0.74), closeTo(118.4, 1e-9));
       expect(moneyLike(line.unitPrice, 124.8), 'EGP 124.80');
       expect(
         moneyLike(

@@ -314,12 +314,6 @@ const en = {
   ifOutChosen: "If out: their pick",
   ifOutRemove: "If out: leave it out",
   actualWeight: "Actual weight",
-  scalePrice: "Scale price {amount}",
-  charged: "Charged {amount}",
-  capCard: "Card: never above the estimate",
-  capWallet: "Wallet: never above the estimate",
-  capCash: "Cash: at most {weight}",
-  overCap: "Too heavy for a cash order: at most {weight}",
   fromScale: "From scale",
   scaleLater: "A connected scale comes later. Type the weight for now.",
   outBtn: "Out",
@@ -374,6 +368,12 @@ const en = {
   productAdded: "Product added",
   // 115.70 The vendor app's live orders, picking and stock (also its words in the app's ARBs).
   unitMl: "ml",
+  // 115.70 The vendor app's live orders, picking and stock (also its words in the app's ARBs).
+  priceLabel: "Price",
+  capCard: "Card order: up to {weight} · {amount}",
+  capWallet: "Wallet order: up to {weight} · {amount}",
+  capCash: "Cash order: up to {weight} · {amount}",
+  overCap: "Too heavy: at most {weight}",
 };
 
 export type PanelWords = typeof en;
@@ -684,12 +684,6 @@ const ar: PanelWords = {
   ifOutChosen: "عند النفاد: اختيار العميل",
   ifOutRemove: "عند النفاد: يُحذف",
   actualWeight: "الوزن الفعلي",
-  scalePrice: "سعر الميزان {amount}",
-  charged: "يُحصَّل {amount}",
-  capCard: "بطاقة: لا يزيد عن التقدير",
-  capWallet: "المحفظة: لا يزيد عن التقدير",
-  capCash: "نقدًا: {weight} كحد أقصى",
-  overCap: "أثقل من المسموح لطلب نقدي: {weight} كحد أقصى",
   fromScale: "من الميزان",
   scaleLater: "ربط الميزان قادم لاحقًا. اكتب الوزن الآن.",
   outBtn: "نفد",
@@ -743,6 +737,11 @@ const ar: PanelWords = {
   barcode: "الباركود",
   productAdded: "أُضيف المنتج",
   unitMl: "مل",
+  priceLabel: "السعر",
+  capCard: "طلب بطاقة: حتى {weight} · {amount}",
+  capWallet: "طلب بالمحفظة: حتى {weight} · {amount}",
+  capCash: "طلب نقدي: حتى {weight} · {amount}",
+  overCap: "أثقل من المسموح: {weight} كحد أقصى",
 };
 
 const tr: PanelWords = {
@@ -1051,12 +1050,6 @@ const tr: PanelWords = {
   ifOutChosen: "Yoksa: müşterinin seçimi",
   ifOutRemove: "Yoksa: çıkarılır",
   actualWeight: "Gerçek ağırlık",
-  scalePrice: "Terazi fiyatı {amount}",
-  charged: "Tahsil edilen {amount}",
-  capCard: "Kart: tahminin üstüne çıkmaz",
-  capWallet: "Cüzdan: tahminin üstüne çıkmaz",
-  capCash: "Nakit: en çok {weight}",
-  overCap: "Nakit sipariş için fazla: en çok {weight}",
   fromScale: "Teraziden",
   scaleLater: "Terazi bağlantısı daha sonra gelecek. Şimdilik ağırlığı yazın.",
   outBtn: "Yok",
@@ -1110,6 +1103,11 @@ const tr: PanelWords = {
   barcode: "Barkod",
   productAdded: "Ürün eklendi",
   unitMl: "ml",
+  priceLabel: "Fiyat",
+  capCard: "Kartlı sipariş: en çok {weight} · {amount}",
+  capWallet: "Cüzdanlı sipariş: en çok {weight} · {amount}",
+  capCash: "Nakit sipariş: en çok {weight} · {amount}",
+  overCap: "Fazla ağır: en çok {weight}",
 };
 
 export const PANEL_WORDS: Record<PanelLang, PanelWords> = { en, ar, tr };

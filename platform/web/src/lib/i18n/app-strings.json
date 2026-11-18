@@ -3343,12 +3343,6 @@
 {"key":"vendorIfOutChosen","en":"If out: their pick","ar":"عند النفاد: اختيار العميل","tr":"Yoksa: müşterinin seçimi","description":"115.71 A line's choice: the item the customer chose when it's out."},
 {"key":"vendorIfOutRemove","en":"If out: leave it out","ar":"عند النفاد: يُحذف","tr":"Yoksa: çıkarılır","description":"115.71 A line's choice: left out when it's out."},
 {"key":"vendorActualWeight","en":"Actual weight","ar":"الوزن الفعلي","tr":"Gerçek ağırlık","description":"115.71 Above the weight typed on the keypad."},
-{"key":"vendorScalePrice","en":"Scale price {amount}","ar":"سعر الميزان {amount}","tr":"Terazi fiyatı {amount}","description":"115.71 The weighed price before the cap.","placeholders":{"amount":"String"}},
-{"key":"vendorCharged","en":"Charged {amount}","ar":"يُحصَّل {amount}","tr":"Tahsil edilen {amount}","description":"115.71 What the customer pays for the weighed line.","placeholders":{"amount":"String"}},
-{"key":"vendorCapCard","en":"Card: never above the estimate","ar":"بطاقة: لا يزيد عن التقدير","tr":"Kart: tahminin üstüne çıkmaz","description":"115.71 Under the charged price of a card or Apple Pay or Google Pay order."},
-{"key":"vendorCapWallet","en":"Wallet: never above the estimate","ar":"المحفظة: لا يزيد عن التقدير","tr":"Cüzdan: tahminin üstüne çıkmaz","description":"115.71 Under the charged price of a wallet order."},
-{"key":"vendorCapCash","en":"Cash: at most {weight}","ar":"نقدًا: {weight} كحد أقصى","tr":"Nakit: en çok {weight}","description":"115.71 Under the charged price of a cash order: the heaviest it may weigh.","placeholders":{"weight":"String"}},
-{"key":"vendorOverCap","en":"Too heavy for a cash order: at most {weight}","ar":"أثقل من المسموح لطلب نقدي: {weight} كحد أقصى","tr":"Nakit sipariş için fazla: en çok {weight}","description":"115.71 A cash order's weight above the tolerance.","placeholders":{"weight":"String"}},
 {"key":"vendorFromScale","en":"From scale","ar":"من الميزان","tr":"Teraziden","description":"115.71 The keypad's scale key."},
 {"key":"vendorScaleLater","en":"A connected scale comes later. Type the weight for now.","ar":"ربط الميزان قادم لاحقًا. اكتب الوزن الآن.","tr":"Terazi bağlantısı daha sonra gelecek. Şimdilik ağırlığı yazın.","description":"115.71 Shown when the scale key is tapped."},
 {"key":"vendorOut","en":"Out","ar":"نفد","tr":"Yok","description":"115.71 The button: this line is out of stock."},
@@ -3415,4 +3409,9 @@
 {"key":"vendorRoleOwner","en":"Owner","ar":"المالك","tr":"Sahip","description":"115.70 A staff member's role, after their name on the vendor desk."},
 {"key":"vendorRoleManager","en":"Manager","ar":"المدير","tr":"Yönetici","description":"115.70 A staff member's role, after their name on the vendor desk."},
 {"key":"vendorRoleOrders","en":"Orders","ar":"الطلبات","tr":"Siparişler","description":"115.70 A staff member's role, after their name on the vendor desk."},
-{"key":"vendorRolePicker","en":"Picker","ar":"التجهيز","tr":"Toplayıcı","description":"115.70 A staff member's role, after their name on the vendor desk."}]}
+{"key":"vendorRolePicker","en":"Picker","ar":"التجهيز","tr":"Toplayıcı","description":"115.70 A staff member's role, after their name on the vendor desk."},
+{"key":"vendorPriceLabel","en":"Price","ar":"السعر","tr":"Fiyat","description":"115.71 Above a weighed line's price for the typed weight."},
+{"key":"vendorCapCard","en":"Card order: up to {weight} · {amount}","ar":"طلب بطاقة: حتى {weight} · {amount}","tr":"Kartlı sipariş: en çok {weight} · {amount}","description":"115.71 Under a weighed line's price, a card, Apple Pay or Google Pay order: the most it may weigh and cost.","placeholders":{"weight":"String","amount":"String"}},
+{"key":"vendorCapWallet","en":"Wallet order: up to {weight} · {amount}","ar":"طلب بالمحفظة: حتى {weight} · {amount}","tr":"Cüzdanlı sipariş: en çok {weight} · {amount}","description":"115.71 Under a weighed line's price, a wallet order: the most it may weigh and cost.","placeholders":{"weight":"String","amount":"String"}},
+{"key":"vendorCapCash","en":"Cash order: up to {weight} · {amount}","ar":"طلب نقدي: حتى {weight} · {amount}","tr":"Nakit sipariş: en çok {weight} · {amount}","description":"115.71 Under a weighed line's price, a cash order: the most it may weigh and cost (the tolerance over the weight asked).","placeholders":{"weight":"String","amount":"String"}},
+{"key":"vendorOverCap","en":"Too heavy: at most {weight}","ar":"أثقل من المسموح: {weight} كحد أقصى","tr":"Fazla ağır: en çok {weight}","description":"115.71 A weight above what the order allows.","placeholders":{"weight":"String"}}]}

@@ -3345,12 +3345,6 @@
   "vendorIfOutChosen": "Yoksa: müşterinin seçimi",
   "vendorIfOutRemove": "Yoksa: çıkarılır",
   "vendorActualWeight": "Gerçek ağırlık",
-  "vendorScalePrice": "Terazi fiyatı {amount}",
-  "vendorCharged": "Tahsil edilen {amount}",
-  "vendorCapCard": "Kart: tahminin üstüne çıkmaz",
-  "vendorCapWallet": "Cüzdan: tahminin üstüne çıkmaz",
-  "vendorCapCash": "Nakit: en çok {weight}",
-  "vendorOverCap": "Nakit sipariş için fazla: en çok {weight}",
   "vendorFromScale": "Teraziden",
   "vendorScaleLater": "Terazi bağlantısı daha sonra gelecek. Şimdilik ağırlığı yazın.",
   "vendorOut": "Yok",
@@ -3417,5 +3411,10 @@
   "vendorRoleOwner": "Sahip",
   "vendorRoleManager": "Yönetici",
   "vendorRoleOrders": "Siparişler",
-  "vendorRolePicker": "Toplayıcı"
+  "vendorRolePicker": "Toplayıcı",
+  "vendorPriceLabel": "Fiyat",
+  "vendorCapCard": "Kartlı sipariş: en çok {weight} · {amount}",
+  "vendorCapWallet": "Cüzdanlı sipariş: en çok {weight} · {amount}",
+  "vendorCapCash": "Nakit sipariş: en çok {weight} · {amount}",
+  "vendorOverCap": "Fazla ağır: en çok {weight}"
 }

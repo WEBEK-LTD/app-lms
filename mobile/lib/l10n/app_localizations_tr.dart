@@ -12499,32 +12499,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get vendorActualWeight => 'Gerçek ağırlık';
 
   @override
-  String vendorScalePrice(String amount) {
-    return 'Terazi fiyatı $amount';
-  }
-
-  @override
-  String vendorCharged(String amount) {
-    return 'Tahsil edilen $amount';
-  }
-
-  @override
-  String get vendorCapCard => 'Kart: tahminin üstüne çıkmaz';
-
-  @override
-  String get vendorCapWallet => 'Cüzdan: tahminin üstüne çıkmaz';
-
-  @override
-  String vendorCapCash(String weight) {
-    return 'Nakit: en çok $weight';
-  }
-
-  @override
-  String vendorOverCap(String weight) {
-    return 'Nakit sipariş için fazla: en çok $weight';
-  }
-
-  @override
   String get vendorFromScale => 'Teraziden';
 
   @override
@@ -12768,4 +12742,27 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get vendorRolePicker => 'Toplayıcı';
+
+  @override
+  String get vendorPriceLabel => 'Fiyat';
+
+  @override
+  String vendorCapCard(String weight, String amount) {
+    return 'Kartlı sipariş: en çok $weight · $amount';
+  }
+
+  @override
+  String vendorCapWallet(String weight, String amount) {
+    return 'Cüzdanlı sipariş: en çok $weight · $amount';
+  }
+
+  @override
+  String vendorCapCash(String weight, String amount) {
+    return 'Nakit sipariş: en çok $weight · $amount';
+  }
+
+  @override
+  String vendorOverCap(String weight) {
+    return 'Fazla ağır: en çok $weight';
+  }
 }

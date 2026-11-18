@@ -13367,34 +13367,6 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('vendorActualWeight') ?? base.vendorActualWeight;
 
   @override
-  String vendorScalePrice(String amount) =>
-      overlay.format('vendorScalePrice', {'amount': amount}) ??
-      base.vendorScalePrice(amount);
-
-  @override
-  String vendorCharged(String amount) =>
-      overlay.format('vendorCharged', {'amount': amount}) ??
-      base.vendorCharged(amount);
-
-  @override
-  String get vendorCapCard =>
-      overlay.text('vendorCapCard') ?? base.vendorCapCard;
-
-  @override
-  String get vendorCapWallet =>
-      overlay.text('vendorCapWallet') ?? base.vendorCapWallet;
-
-  @override
-  String vendorCapCash(String weight) =>
-      overlay.format('vendorCapCash', {'weight': weight}) ??
-      base.vendorCapCash(weight);
-
-  @override
-  String vendorOverCap(String weight) =>
-      overlay.format('vendorOverCap', {'weight': weight}) ??
-      base.vendorOverCap(weight);
-
-  @override
   String get vendorFromScale =>
       overlay.text('vendorFromScale') ?? base.vendorFromScale;
 
@@ -13671,4 +13643,28 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get vendorRolePicker =>
       overlay.text('vendorRolePicker') ?? base.vendorRolePicker;
+
+  @override
+  String get vendorPriceLabel =>
+      overlay.text('vendorPriceLabel') ?? base.vendorPriceLabel;
+
+  @override
+  String vendorCapCard(String weight, String amount) =>
+      overlay.format('vendorCapCard', {'weight': weight, 'amount': amount}) ??
+      base.vendorCapCard(weight, amount);
+
+  @override
+  String vendorCapWallet(String weight, String amount) =>
+      overlay.format('vendorCapWallet', {'weight': weight, 'amount': amount}) ??
+      base.vendorCapWallet(weight, amount);
+
+  @override
+  String vendorCapCash(String weight, String amount) =>
+      overlay.format('vendorCapCash', {'weight': weight, 'amount': amount}) ??
+      base.vendorCapCash(weight, amount);
+
+  @override
+  String vendorOverCap(String weight) =>
+      overlay.format('vendorOverCap', {'weight': weight}) ??
+      base.vendorOverCap(weight);
 }

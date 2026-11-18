@@ -110,7 +110,7 @@ void main() {
           setUp: (app) => app.api.vendorOrders['active'] = [zadPickOrder()],
           path: Paths.vendorPick(4821),
           then: () async {
-            for (final k in ['7', '8', '0']) {
+            for (final k in ['7', '4', '0']) {
               await tester.tap(find.byKey(ValueKey('vendor-key-31-$k')));
               await tester.pump();
             }

@@ -229,27 +229,29 @@ describe("115.70 the vendor app's server side", () => {
     expect(accepted.lines[1]!.aisle?.name).toBe("Cheese & eggs");
   });
 
-  it("caps a weighed line at the estimate for card and wallet orders, and at the tolerance for cash (D1)", async () => {
+  it("takes at most the weight asked for card and wallet orders, and the tolerance over it for cash (D1)", async () => {
     const customer = await signUp("1009876543", "Mona");
     const staff = await staffOf(grocery, "1114445556", "Samir");
-    const weigh = async (payment: "cash" | "card" | "wallet" | "apple_pay", grams: number) => {
+    const weigh = async (payment: "cash" | "card" | "wallet" | "apple_pay" | "google_pay", grams: number) => {
       const id = await order(customer.access_token, [{ product_id: cheese, quantity: 0.75 }]);
       // How it was paid, as the gateway or the wallet would have left it.
       await store.updateMarketOrder(app.id, id, { paymentMethod: payment, paymentStatus: payment === "cash" ? "unpaid" : "paid" } as Parameters<MemoryStore["updateMarketOrder"]>[2]);
       await call("POST", "/vendor/orders/{order_id}/accept", { token: staff.access_token, params: [String(id)], body: { prep_minutes: 20 } });
       const picked = await call("PATCH", "/vendor/orders/{order_id}/lines", { token: staff.access_token, params: [String(id)], body: { lines: [{ line_id: 1, outcome: "picked", quantity: grams / 1000 }] } });
-      expect(picked.status, JSON.stringify(picked.body)).toBe(200);
-      return (picked.body as { lines: { total: { amount: string } }[] }).lines[0]!.total.amount;
+      return picked.status === 200 ? (picked.body as { lines: { total: { amount: string } }[] }).lines[0]!.total.amount : picked.status;
     };
-    // 0.75 kg × 160 = 120 estimated. 780 g reads 124.80 on the scale.
-    expect(await weigh("card", 780)).toBe("120.00");
-    expect(await weigh("wallet", 780)).toBe("120.00");
-    expect(await weigh("apple_pay", 780)).toBe("120.00");
+    // 750 g asked at 160 a kilo: 120 paid online.
+    for (const online of ["card", "wallet", "apple_pay", "google_pay"] as const) {
+      expect(await weigh(online, 750)).toBe("120.00");
+      // Lighter: less, the difference refunded.
+      expect(await weigh(online, 740)).toBe("118.40");
+      // Heavier is refused: the customer never pays more than they paid.
+      expect(await weigh(online, 760)).toBe(400);
+    }
+    // Cash: what the scale reads, up to 10% over (825 g, 132).
     expect(await weigh("cash", 780)).toBe("124.80");
-    // Cash, never above 10% over: 132.
-    expect(await weigh("cash", 900)).toBe("132.00");
-    // Lighter costs less whatever the payment.
-    expect(await weigh("card", 700)).toBe("112.00");
+    expect(await weigh("cash", 825)).toBe("132.00");
+    expect(await weigh("cash", 826)).toBe(400);
   });
 
   it("makes the store review account a test manager of the first supermarket, on its own orders only, with a sample order", async () => {

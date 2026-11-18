@@ -20180,42 +20180,6 @@ abstract class AppLocalizations {
   /// **'Actual weight'**
   String get vendorActualWeight;
 
-  /// 115.71 The weighed price before the cap.
-  ///
-  /// In en, this message translates to:
-  /// **'Scale price {amount}'**
-  String vendorScalePrice(String amount);
-
-  /// 115.71 What the customer pays for the weighed line.
-  ///
-  /// In en, this message translates to:
-  /// **'Charged {amount}'**
-  String vendorCharged(String amount);
-
-  /// 115.71 Under the charged price of a card or Apple Pay or Google Pay order.
-  ///
-  /// In en, this message translates to:
-  /// **'Card: never above the estimate'**
-  String get vendorCapCard;
-
-  /// 115.71 Under the charged price of a wallet order.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallet: never above the estimate'**
-  String get vendorCapWallet;
-
-  /// 115.71 Under the charged price of a cash order: the heaviest it may weigh.
-  ///
-  /// In en, this message translates to:
-  /// **'Cash: at most {weight}'**
-  String vendorCapCash(String weight);
-
-  /// 115.71 A cash order's weight above the tolerance.
-  ///
-  /// In en, this message translates to:
-  /// **'Too heavy for a cash order: at most {weight}'**
-  String vendorOverCap(String weight);
-
   /// 115.71 The keypad's scale key.
   ///
   /// In en, this message translates to:
@@ -20617,6 +20581,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Picker'**
   String get vendorRolePicker;
+
+  /// 115.71 Above a weighed line's price for the typed weight.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get vendorPriceLabel;
+
+  /// 115.71 Under a weighed line's price, a card, Apple Pay or Google Pay order: the most it may weigh and cost.
+  ///
+  /// In en, this message translates to:
+  /// **'Card order: up to {weight} · {amount}'**
+  String vendorCapCard(String weight, String amount);
+
+  /// 115.71 Under a weighed line's price, a wallet order: the most it may weigh and cost.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet order: up to {weight} · {amount}'**
+  String vendorCapWallet(String weight, String amount);
+
+  /// 115.71 Under a weighed line's price, a cash order: the most it may weigh and cost (the tolerance over the weight asked).
+  ///
+  /// In en, this message translates to:
+  /// **'Cash order: up to {weight} · {amount}'**
+  String vendorCapCash(String weight, String amount);
+
+  /// 115.71 A weight above what the order allows.
+  ///
+  /// In en, this message translates to:
+  /// **'Too heavy: at most {weight}'**
+  String vendorOverCap(String weight);
 }
 
 class _AppLocalizationsDelegate
