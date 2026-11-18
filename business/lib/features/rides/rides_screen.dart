@@ -19,7 +19,9 @@ import '../studio/studio_widgets.dart';
 Tone rideTone(String status) => switch (status) {
   'searching' => Tone.warn,
   'in_progress' || 'completed' => Tone.good,
-  'assigned' || 'arrived' || 'scheduled' => Tone.info,
+  // 178 A driver on the way (`accepted`, the Owner API's status; there is no
+  // `assigned` ride) in the same blue as at the pickup.
+  'accepted' || 'arrived' || 'scheduled' => Tone.info,
   'cancelled' || 'no_driver' => Tone.bad,
   _ => Tone.neutral,
 };
