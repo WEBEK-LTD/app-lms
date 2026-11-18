@@ -41,6 +41,15 @@ export async function reviewDriverFor(store: DataStore, app: App, user: HostedUs
 }
 
 /**
+ * 178 The rider of the review driver's sample rides. They are the review
+ * account's, so the riders' app (the same review number) leaves them out of
+ * its rides and of "You already have a ride on the way": before, a reviewer
+ * of the riders' app saw "Finding your driver" for a ride never asked for,
+ * and couldn't ask for one, while the drivers' app was online.
+ */
+export const SAMPLE_RIDER_NAME = "App Review (sample)";
+
+/**
  * A sample ride offered to the review driver when they are online with no
  * ride (in the drivers' app the reviewers have no riders' app to ask for
  * one): from the review account, paid by card, offered for the company's
@@ -52,7 +61,7 @@ export async function createSampleRide(store: DataStore, app: App, settings: Del
   return store.createRide({
     appId: app.id,
     userId: user.id,
-    riderName: "App Review (sample)",
+    riderName: SAMPLE_RIDER_NAME,
     riderPhone: user.phone,
     vehicleTypeId: type?.id ?? null,
     vehicleTypeName: type?.name ?? "Car",

@@ -5327,6 +5327,7 @@ export class MemoryStore implements DataStore {
           r.appId === query.appId &&
           (query.userId === undefined || r.userId === query.userId) &&
           (query.notUserId === undefined || r.userId !== query.notUserId) &&
+          (query.notRiderName === undefined || r.riderName !== query.notRiderName) &&
           (query.driverId === undefined || r.driverId === query.driverId) &&
           (query.offeredTo === undefined || r.offeredTo === query.offeredTo) &&
           (!query.statuses || query.statuses.includes(r.status)) &&
