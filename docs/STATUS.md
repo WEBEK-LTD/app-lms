@@ -49,6 +49,18 @@ the form can't load, the gateway's own page, the same payment. Fawaterk and
 PayPal keep their own pages (ROADMAP 153.7, 153.8). Not yet tried with real
 iyzico and Kashier test accounts (ROADMAP 153.9).
 
+Roadmap 171 (the Orders tab keeps the tab bar): in Leqaa's app (both
+looks, the petal bar), the Orders tab opened Orders on top, without the bar,
+because a store's orders live under Account (`/account/orders`), not among
+its tab places. Now a tab of the orders, the notifications, the settings,
+the chat or an academy's teachers (Rawaq Academy's Teachers tab) shows its
+screen in its place with the bar under it, in every app type; an order
+opened from there covers the bar and Back returns to the tab. And "How your
+flowers travel" with no order showed a sample journey, "Order placed" lit:
+now it, its card and its heading show only with an order, at that order's
+own step. From `CLIENT_APP_RELEASE` 8. Not yet tried on a phone (ROADMAP
+171.7).
+
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its
 "from" price; one billing period for both, lifetime among its choices;

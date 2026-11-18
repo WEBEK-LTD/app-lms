@@ -17,8 +17,10 @@ import '../support/test_app.dart';
 /// the order's notification arriving while the app is open (or tapped), and
 /// the app coming back to the front, ask for the orders again; the stage
 /// shows on every order still on its way, whatever its status; and "How
-/// your flowers travel" follows the person's newest order on its way, its
-/// steps as drawn without one, signed out, and on a source it doesn't know.
+/// your flowers travel" follows the person's newest order on its way (171
+/// else their newest delivered one), nothing without one and signed out
+/// (171; its steps as drawn before), its steps as drawn on a source it
+/// doesn't know.
 
 class _Push implements PushService {
   final received = StreamController<Map<String, dynamic>>.broadcast();
@@ -331,25 +333,32 @@ void main() {
       expect(api.count('getOrder'), greaterThan(0));
     });
 
-    testWidgets('no order on its way: the steps as drawn', (tester) async {
+    // 171 Only a delivered order: its last step (the steps as drawn
+    // before, "Order placed" lit).
+    testWidgets('only a delivered order: its last step', (tester) async {
       final api = _api()..orders = [_order(status: 'completed')];
       await _open(tester, api);
       expect(
-        find.bySemanticsLabel(RegExp('Step 1 of 4, Current step')),
+        find.bySemanticsLabel(RegExp('Step 4 of 4, Current step')),
         findsOneWidget,
       );
-      expect(find.byKey(const ValueKey('order-journey-track')), findsNothing);
+      expect(find.byKey(const ValueKey('order-journey-track')), findsOneWidget);
     });
 
-    testWidgets('signed out: the steps as drawn, no orders asked', (
-      tester,
-    ) async {
+    // 171 No order at all: no journey (it showed its steps as drawn).
+    testWidgets('no order: nothing', (tester) async {
+      final api = _api()..orders = [];
+      await _open(tester, api);
+      expect(find.bySemanticsLabel(RegExp('Current step')), findsNothing);
+      expect(find.byType(OrderJourneyTimeline), findsNothing);
+    });
+
+    // 171 Signed out: no journey (it showed its steps as drawn).
+    testWidgets('signed out: nothing, no orders asked', (tester) async {
       final api = _api()..orders = [_order(stage: _shipped)];
       await _open(tester, api, signedIn: false, guest: true);
-      expect(
-        find.bySemanticsLabel(RegExp('Step 1 of 4, Current step')),
-        findsOneWidget,
-      );
+      expect(find.bySemanticsLabel(RegExp('Current step')), findsNothing);
+      expect(find.byType(OrderJourneyTimeline), findsNothing);
       expect(api.count('listOrders'), 0);
     });
 

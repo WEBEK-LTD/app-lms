@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 7;
+export const CLIENT_APP_RELEASE = 8;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -50,6 +50,11 @@ export const CLIENT_APP_RELEASE = 7;
  *    a store's product link with no product chosen opens the shop, and so
  *    does one whose product the shop no longer has (in place of "not
  *    found").
+ * 8  171 A tab of the orders, the notifications, the settings, the chat or
+ *    an academy's teachers shows its screen in its place, the bar under it
+ *    (Leqaa's Orders tab opened Orders on top, without the bar); and a
+ *    journey that follows the person's order shows nothing without one (no
+ *    sample "Order placed"), that order's own step with one.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */

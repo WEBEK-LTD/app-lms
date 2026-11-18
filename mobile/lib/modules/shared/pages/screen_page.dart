@@ -8,6 +8,7 @@ import '../../../core/routing/app_module.dart';
 import '../../../core/routing/app_router.dart';
 import '../../../core/routing/inner_screens.dart';
 import '../../chat/chat_routes.dart';
+import '../shared_routes.dart' show sharedTabScreens;
 import 'page_providers.dart';
 import 'studio_page.dart';
 
@@ -138,6 +139,8 @@ Widget? builtInScreenWidget(BuildContext context, WidgetRef ref, String name) {
   final match = [
     ...module.screens(),
     chatTabScreen(),
+    // 171 The orders, the notifications and the settings too.
+    ...sharedTabScreens(),
   ].where((s) => s.path == path).firstOrNull;
   if (match == null) return null;
   return match.build(GoRouterState.of(context));

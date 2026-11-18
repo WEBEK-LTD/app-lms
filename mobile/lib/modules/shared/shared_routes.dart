@@ -121,6 +121,27 @@ GoRoute _rootPage(String path, Widget Function() build) => GoRoute(
   pageBuilder: (context, state) => appPage(state, build()),
 );
 
+/// The settings' own pages, under it wherever it is (Account's, a tab).
+List<RouteBase> _settingsRoutes() => [
+  _rootPage('devices', () => const DevicesScreen()),
+  // 118 Studio apps with passwords.
+  _rootPage('password', () => const ChangePasswordScreen()),
+];
+
+/// 26 An order, followed step by step: over the tabs, from its list
+/// wherever that is (Account's, 171 the Orders tab).
+GoRoute _orderRoute() => GoRoute(
+  path: ':id',
+  parentNavigatorKey: rootNavigatorKey,
+  pageBuilder: (context, state) {
+    final id = intParam(state, 'id');
+    return appPage(
+      state,
+      id == null ? const NotFoundScreen() : OrderScreen(orderId: id),
+    );
+  },
+);
+
 /// Pages under the Account tab that every app type has. [extra] adds the
 /// app type's own pages (certificates, quiz results).
 List<RouteBase> accountSubRoutes({List<RouteBase> extra = const []}) => [
@@ -129,32 +150,44 @@ List<RouteBase> accountSubRoutes({List<RouteBase> extra = const []}) => [
     path: 'settings',
     parentNavigatorKey: rootNavigatorKey,
     pageBuilder: (context, state) => appPage(state, const SettingsScreen()),
-    routes: [
-      _rootPage('devices', () => const DevicesScreen()),
-      // 118 Studio apps with passwords.
-      _rootPage('password', () => const ChangePasswordScreen()),
-    ],
+    routes: _settingsRoutes(),
   ),
   GoRoute(
     path: 'orders',
     parentNavigatorKey: rootNavigatorKey,
     pageBuilder: (context, state) => appPage(state, const OrdersScreen()),
-    routes: [
-      // 26 A restaurant's order, followed step by step.
-      GoRoute(
-        path: ':id',
-        parentNavigatorKey: rootNavigatorKey,
-        pageBuilder: (context, state) {
-          final id = intParam(state, 'id');
-          return appPage(
-            state,
-            id == null ? const NotFoundScreen() : OrderScreen(orderId: id),
-          );
-        },
-      ),
-    ],
+    routes: [_orderRoute()],
   ),
   ...extra,
+];
+
+/// 171 The screens of every app type that a published tab can show in its
+/// place, the bar under them ([Paths.sharedTabPaths]; the chat is
+/// [chatTabScreen]). Elsewhere they open on top, as before: the orders and
+/// the settings from Account, the notifications from a page's bell.
+List<TabScreen> sharedTabScreens() => [
+  TabScreen(
+    Paths.orders,
+    (state) => const OrdersScreen(),
+    routes: [_orderRoute()],
+  ),
+  TabScreen(Paths.notifications, (state) => const NotificationsScreen()),
+  TabScreen(
+    Paths.settings,
+    (state) => const SettingsScreen(),
+    routes: _settingsRoutes(),
+  ),
+];
+
+/// [routes] under [parent] without those a tab shows ([tabbed]), which are
+/// the tab's branch's own then (171 the Orders tab's, not Account's).
+List<RouteBase> _withoutTabs(
+  String parent,
+  List<RouteBase> routes,
+  Set<String> tabbed,
+) => [
+  for (final r in routes)
+    if (r is! GoRoute || !tabbed.contains('$parent/${r.path}')) r,
 ];
 
 /// Top-level pages every app type has.
@@ -211,13 +244,20 @@ List<RouteBase> tabbedRoutes({
   final screens = {
     for (final s in [...module.screens(), chatTabScreen()]) s.path: s,
   };
+  // 171 Every app type's own screens a tab can show (the orders...).
+  final shared = {for (final s in sharedTabScreens()) s.path: s};
+  // The places the tabs show, so a screen's pages leave out one a tab has.
+  final tabbed = {
+    for (final t in tabs)
+      if (t.location != null) ?t.path,
+  };
   final used = <String>{};
   final branches = <StatefulShellBranch>[];
   for (final tab in tabs) {
     final location = tab.location;
     final path = tab.path;
     if (location == null || path == null || used.contains(path)) continue;
-    final screen = screens[path];
+    final screen = screens[path] ?? shared[path];
     final GoRoute route;
     if (screen != null) {
       // 120 With the Studio page the owner drew around it.
@@ -227,7 +267,7 @@ List<RouteBase> tabbedRoutes({
           state,
           ScreenWithPage(path: screen.path, child: screen.build(state)),
         ),
-        routes: screen.routes,
+        routes: _withoutTabs(path, screen.routes, tabbed),
       );
     } else if (path.startsWith(Paths.webTabPrefix)) {
       // 122 A web page in the app, as a tab.
@@ -289,7 +329,7 @@ List<RouteBase> tabbedRoutes({
               ),
             );
           },
-          routes: screen.routes,
+          routes: _withoutTabs(screen.path, screen.routes, tabbed),
         ),
     GoRoute(
       path: '${Paths.pagePrefix}:slug',
@@ -299,7 +339,9 @@ List<RouteBase> tabbedRoutes({
       },
     ),
     ...module.routes(),
-    ...sharedPageRoutes(),
+    // 171 Less the notifications when a tab shows them.
+    for (final r in sharedPageRoutes())
+      if (r is! GoRoute || !used.contains(r.path)) r,
   ];
 }
 

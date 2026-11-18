@@ -9,7 +9,8 @@ import 'premium/system_screen_frame.dart';
 // 130.21 The system screen a pushed account screen is, for its premium look.
 export '../../../core/api/models/screens_models.dart' show SystemScreen;
 
-/// A pushed account screen: back button and title (design: Settings).
+/// A pushed account screen: back button and title (design: Settings); 171
+/// in a tab, the title alone.
 class AccountScaffold extends StatelessWidget {
   const AccountScaffold({
     super.key,
@@ -57,8 +58,12 @@ class AccountScaffold extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
                 child: Row(
                   children: [
-                    const AppBackButton(),
-                    const SizedBox(width: 12),
+                    // 171 Shown in a tab (the orders, the notifications),
+                    // nothing to go back to: no back button.
+                    if (Navigator.of(context).canPop()) ...[
+                      const AppBackButton(),
+                      const SizedBox(width: 12),
+                    ],
                     Expanded(
                       child: Semantics(
                         header: true,
