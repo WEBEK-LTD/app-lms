@@ -1889,3 +1889,34 @@ Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
       showing "Courses" over the Bouquets tab.
 - [ ] On a phone with a release 4 build: publish a change in Studio, switch
       away from the app and back, and see it without restarting the app.
+
+## Phase 153: The card inside the payment page (iyzico, Kashier)
+
+Nothing to deploy beyond the code: no migration, no setting, no app build.
+Use test keys only (iyzico sandbox, Kashier test mode), then one live
+payment each.
+
+- [ ] **iyzico (sandbox keys on a test shop):** check out from the app on a
+      phone, enter the details, tap Pay: "Your card" shows iyzico's form in
+      the page (not iyzico's own page). Pay with iyzico's sandbox test card
+      and its 3-D Secure step: the app ends on the order's page, the order
+      shows as paid on **Orders**. Do the same in a desktop browser. Then
+      refund it from **Orders** as before. If the form doesn't appear, or
+      the 3-D Secure step ends inside the form instead of on the order's
+      page, send us a screenshot and what iyzico's panel shows.
+- [ ] **iyzico's way out:** in a browser, block `static.iyzipay.com` (or
+      `sandbox-static.iyzipay.com`) and pay: "Pay on iyzico's secure page
+      instead" opens iyzico's page, and the payment works there.
+- [ ] **Kashier (test-mode keys on a test shop):** check out from the app
+      on a phone, enter the details, tap Pay: "Your card" shows Kashier's
+      card form in a frame. Pay with Kashier's test card and its 3-D Secure
+      step: the page goes on by itself to the order's page (the app's
+      checkout ends there), the order shows as paid on **Orders**, and its
+      webhook as working on the Payments page. Do the same in a desktop
+      browser and on an iPhone. If the frame stays empty or says the site
+      can't be shown, if a domain must be allowed in Kashier's dashboard, or
+      if the page stays on Kashier's "paid" screen, send us a screenshot and
+      what Kashier's dashboard shows; "Pay on Kashier's secure page instead"
+      shows after 20 seconds, and the payment works there meanwhile.
+- [ ] **Fawaterk and PayPal:** unchanged, their own pages as before
+      (ROADMAP 153.7, 153.8).

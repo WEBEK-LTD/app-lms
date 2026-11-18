@@ -67,11 +67,33 @@ interface PaymentDeps {
 }
 
 /**
- * How a card payment started: the provider's page to go to, or 144 Stripe's
+ * 153 iyzico's or Kashier's own card form, for inside our payment page: iyzico's
+ * Checkout Form (the script it gives with the payment, which fills the div
+ * `iyzipay-checkout-form`), Kashier's payment session in a frame. Either is
+ * the same payment as the provider's page, which stays the way out when the
+ * form can't load.
+ */
+export type GatewayEmbed = { provider: "iyzico"; formContent: string } | { provider: "kashier"; frameUrl: string };
+
+/**
+ * How a card payment started: the provider's page to go to (153 with
+ * iyzico's or Kashier's form to show in our page first), or 144 Stripe's
  * card form to mount inside our payment page (its session's secret, the
  * shop's publishable key).
  */
-export type StartedPayment = { url: string; stripe: null } | { url: null; stripe: { clientSecret: string; publishableKey: string } };
+export type StartedPayment = { url: string; stripe: null; embed?: GatewayEmbed } | { url: null; stripe: { clientSecret: string; publishableKey: string } };
+
+/**
+ * 153 The provider's form for our page, when it has one: iyzico's Checkout
+ * Form (when its answer brought it), Kashier's session page. Fawaterk and
+ * PayPal keep their own pages (ROADMAP 153: Fawaterk's frame makes its own
+ * invoice, PayPal's buttons open PayPal's window).
+ */
+export function gatewayEmbed(provider: CheckoutAccount["account"]["provider"], started: { url: string; iyzicoFormContent?: string }): GatewayEmbed | null {
+  if (provider === "iyzico" && started.iyzicoFormContent) return { provider: "iyzico", formContent: started.iyzicoFormContent };
+  if (provider === "kashier") return { provider: "kashier", frameUrl: started.url };
+  return null;
+}
 
 /**
  * 144 The shop's publishable key when Stripe's card form can go inside our
@@ -89,7 +111,8 @@ export function stripeEmbeddedKey(app: App, account: CheckoutAccount["account"])
  * provider's page, or 144 with Stripe (its publishable key saved) its card
  * form inside our page; `hosted` asks for Stripe's page all the same (the
  * form couldn't load). When Stripe won't start an embedded session, its page
- * is used instead.
+ * is used instead. 153 iyzico's and Kashier's forms come with their page,
+ * for inside ours (`embed`); `hosted` leaves them out.
  */
 export async function startPayment(
   deps: PaymentDeps & {
@@ -177,7 +200,9 @@ export async function startPayment(
     providerRef: started.providerRef.slice(0, 191),
     updatedAt: deps.now,
   });
-  return started.stripeClientSecret && publishableKey ? { url: null, stripe: { clientSecret: started.stripeClientSecret, publishableKey } } : { url: started.url, stripe: null };
+  if (started.stripeClientSecret && publishableKey) return { url: null, stripe: { clientSecret: started.stripeClientSecret, publishableKey } };
+  const embed = deps.hosted ? null : gatewayEmbed(account.provider, started);
+  return embed ? { url: started.url, stripe: null, embed } : { url: started.url, stripe: null };
 }
 
 /**

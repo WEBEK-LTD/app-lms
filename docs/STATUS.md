@@ -18,6 +18,15 @@ cause and the team gets one alert per build. Nothing retries it. Every
 iPhone failure now says its cause in plain words with where to fix it,
 and the iPhone app's build output is for the admin only.
 
+Roadmap 153 (the card inside the payment page for iyzico and Kashier): as
+with Stripe (144), Yallapp's payment page shows the gateway's own card form
+under the customer's details: iyzico's Checkout Form (the script iyzico
+answers with the payment) and Kashier's payment session in a frame, the same
+payment our server starts, read back, confirmed and refunded as before; when
+the form can't load, the gateway's own page, the same payment. Fawaterk and
+PayPal keep their own pages (ROADMAP 153.7, 153.8). Not yet tried with real
+iyzico and Kashier test accounts (ROADMAP 153.9).
+
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its
 "from" price; one billing period for both, lifetime among its choices;
@@ -67,6 +76,10 @@ that looked the same in every app.
 Roadmap 150: Studio's canvas draws a cover's top row (the search, the
 wordmark and the bag) across the cover, as the app does; it shrank to its
 icons, which put Kech Flora's bag in the middle.
+
+Roadmap 132.188: Studio's menu and crumbs come to life with its frame, so
+a page opened from the bar's account menu right after the overview no
+longer throws React's hydration error #418 (main's MariaDB e2e job).
 
 Roadmap 147 (a search opens with its keyboard closed): the shop's, the
 academy's, real estate's, events' and news' searches no longer focus their

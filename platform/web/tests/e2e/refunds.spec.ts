@@ -151,7 +151,8 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   await page.getByLabel("City").fill("Cairo");
   await page.getByLabel("Address").fill("9 Road 9, Maadi");
   await page.getByRole("button", { name: "Pay E£1,700.00" }).click();
-  await page.getByRole("button", { name: "Pay with test card" }).click();
+  // 153 Kashier's card form, in a frame on the payment page.
+  await page.frameLocator("iframe[data-kashier-embedded]").getByRole("button", { name: "Pay with test card" }).click();
   await expect(page).toHaveURL(/\/pay\/[\w-]+\/order-received$/);
   const session = kashier.calls.filter((c) => c.path === "/v3/payment/sessions").length;
   expect(session).toBeGreaterThan(0);
