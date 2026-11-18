@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 12;
+export const CLIENT_APP_RELEASE = 7;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -50,10 +50,6 @@ export const CLIENT_APP_RELEASE = 12;
  *    a store's product link with no product chosen opens the shop, and so
  *    does one whose product the shop no longer has (in place of "not
  *    found").
- * 12 165 Dashboard › Stories: the story viewer shows each story's small
- *    line, title, line, button words and video, and a story's button opens
- *    the shop on its category (`Action.category_id`); older apps show the
- *    ring's name, "Open" and the photo, and open the shop.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */
