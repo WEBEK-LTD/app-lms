@@ -215,6 +215,70 @@ void main() {
     expect(stack.clipBehavior, Clip.none);
   });
 
+  // 163.11 The occasions' rings on the shop (Leqaa's tester: "Sympat…",
+  // "New ba…" at 130%): each name whole, on two lines when it needs them.
+  group('163.11 the occasion rings name each occasion whole', () {
+    for (final look in ['a', 'b']) {
+      for (final language in ['en', 'ar', 'tr']) {
+        for (final scale in [1.0, 1.3, 2.0]) {
+          final phone = PhoneSettings(
+            width: 360,
+            height: 780,
+            density: 3,
+            fontScale: scale,
+            bottom: 48,
+          );
+          testWidgets('$look $language at ${(scale * 100).round()}%', (
+            tester,
+          ) async {
+            await openLeqaaPage(
+              tester,
+              look: look,
+              slug: 'shop',
+              phone: phone,
+              problems: LayoutProblems(),
+              language: language,
+            );
+            final tiles = find.byWidgetPredicate(
+              (w) =>
+                  w is GestureDetector &&
+                  '${w.key}'.contains('studio-story-') &&
+                  !'${w.key}'.contains('ring'),
+            );
+            expect(tiles, findsNWidgets(5));
+            for (final tile in tiles.evaluate()) {
+              final label = find
+                  .descendant(
+                    of: find.byElementPredicate((e) => e == tile),
+                    matching: find.byType(RichText),
+                  )
+                  .evaluate()
+                  .map((e) => e.renderObject! as RenderParagraph)
+                  .where((p) => p.maxLines == 2)
+                  .single;
+              final name = label.text.toPlainText();
+              expect(label.didExceedMaxLines, isFalse, reason: name);
+              // No word broken across lines: each fits the label's width.
+              for (final word in name.split(RegExp(r'\s+'))) {
+                final painter = TextPainter(
+                  text: TextSpan(text: word, style: label.text.style),
+                  textDirection: label.textDirection,
+                  textScaler: label.textScaler,
+                )..layout();
+                expect(
+                  painter.width,
+                  lessThanOrEqualTo(label.constraints.maxWidth + 0.5),
+                  reason: '"$word" of "$name"',
+                );
+                painter.dispose();
+              }
+            }
+          });
+        }
+      }
+    }
+  });
+
   group('163.5 the rules', () {
     test('Arabic is never under 1.5; Latin and unset as designed', () {
       expect(studioLineHeight(1.04, 'رحلة زهورك إليهم'), 1.5);

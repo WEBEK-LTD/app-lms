@@ -131,3 +131,23 @@ date). On the merged tree:
 | Template guard, Leqaa cases (`--plain-name flowers_signature`) | 20 passed |
 
 The whole suite was run once, before the merge (above); not again after it.
+
+## The occasion rings at a larger text size (Leqaa's tester, after the merge)
+
+"Sympat…", "New ba…" on the shop at 130%. Cause:
+`mobile/lib/modules/shared/pages/studio_stories.dart:84` (`width: size + 8`,
+66 pt for Leqaa's 58-point rings) with the name at `:107`–`:110`
+(`maxLines: 1`, ellipsis). "Congratulations" was cut even at 100%. Fix:
+each tile is as wide as its ring, or as its name's longest word at the
+phone's text size (`_longestWord`), and the name takes two lines when it
+needs them. A tile is wider only where its word needs it.
+
+| Run | Result |
+|---|---|
+| `flutter test test/widget/phase163_samsung_layout_test.dart --plain-name 163.11` (both looks × en/ar/tr × 100/130/200%) | 18 passed; on the old `studio_stories.dart`, 18 failed |
+| `dart format --output=none --set-exit-if-changed` (lib, my tests) | 469 files, 0 changed |
+| `flutter analyze` | No issues found |
+| `flutter test test/widget/phase163_samsung_layout_test.dart` (whole file) | 426 passed |
+
+No release bump and no preview rebuild here, as the coordinator asked;
+`tool/build_preview.sh --check` will need a rebuild once this lands.
