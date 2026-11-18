@@ -224,7 +224,7 @@ describe("classes and memberships on the hosted API", () => {
   async function buy(token: string, planId: number) {
     const link = await call("POST", "/memberships/checkout-link", { token, query: { platform: "ios" }, body: { plan_id: planId } });
     expect(link.status).toBe(200);
-    expect((link.body as { url: string }).url).toMatch(/^https:\/\/yallapp\.test\/pay\/[A-Za-z0-9_-]+$/);
+    expect((link.body as { url: string }).url).toMatch(/^https:\/\/yallapp\.test\/pay\/[A-Za-z0-9_-]+\/in-app$/);
     const order = (await store.listCatalogOrders({ appId: app.id, offset: 0, limit: 1 })).items[0]!;
     expect(order).toMatchObject({ status: "pending", totalCents: studio().membershipPlans!.find((p) => p.id === planId)!.priceCents, currency: "TRY" });
     expect(await store.payCatalogOrder(app.id, order.id, `pay-${order.id}`, now)).toBe(true);

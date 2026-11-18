@@ -23,6 +23,7 @@ export const en = {
   buildQueued: "Build #{number} is queued. We'll email you when your files are ready.",
   apiProblem: "Your API didn't pass its last check: {body} <link>Check your API</link>",
   unavailable: "That file isn't available to download right now. Try again from the list below, or <wa>message us on WhatsApp</wa>.",
+  needsPlan: "Your app's files download once it has a plan. <plan>Choose a plan</plan>, then download them here.",
   expiredNotice:
     "This app's plan ended on {date}. New builds need an active plan: <renew>renew it on {page}</renew> or <wa>message us on WhatsApp</wa>. Files from your earlier builds stay available below.",
   suspendedNotice: "This account is suspended, so new builds can't start. Files from earlier builds stay available below.",
@@ -318,6 +319,7 @@ export const en = {
     addAppleKey: "Add your App Store Connect key in App setup › Publishing to get the iOS app",
     addIcon: "Not in this build. Add an app icon in App setup › Branding, then start a new build.",
     notInBuild: "Not in this build. Start a new build to get it.",
+    needsPlan: "Choose a plan for this app to download it",
     underMinute: "under a minute",
     minutes: "{minutes} min",
     hoursMinutes: "{hours} h {minutes} min",
@@ -350,6 +352,7 @@ export const ar: Messages = {
   buildQueued: "الإصدار رقم {number} دخل قايمة الانتظار. هنبعتلك إيميل لما ملفاتك تجهز.",
   apiProblem: "الـ API بتاعك منجحش في آخر فحص: {body} <link>افحص الـ API بتاعك</link>",
   unavailable: "الملف ده مش متاح للتنزيل دلوقتي. جرّب تاني من القايمة اللي تحت، أو <wa>راسلنا على WhatsApp</wa>.",
+  needsPlan: "ملفات تطبيقك بتتنزّل أول ما يبقى عليه باقة. <plan>اختار باقة</plan>، وبعدين نزّلها من هنا.",
   expiredNotice:
     "باقة التطبيق ده خلصت يوم {date}. الإصدارات الجديدة محتاجة باقة شغالة: <renew>جدّدها من صفحة {page}</renew> أو <wa>راسلنا على WhatsApp</wa>. ملفات إصداراتك اللي فاتت لسه موجودة تحت.",
   suspendedNotice: "الحساب ده موقوف، فمينفعش تبدأ إصدارات جديدة. ملفات الإصدارات اللي فاتت لسه موجودة تحت.",
@@ -627,6 +630,7 @@ export const ar: Messages = {
     addAppleKey: "ضيف مفتاح App Store Connect في إعداد التطبيق › النشر عشان تاخد تطبيق iOS",
     addIcon: "مش موجود في الإصدار ده. ضيف أيقونة للتطبيق في إعداد التطبيق › الهوية، وبعدين ابدأ إصدار جديد.",
     notInBuild: "مش موجود في الإصدار ده. ابدأ إصدار جديد عشان تاخده.",
+    needsPlan: "اختار باقة للتطبيق ده عشان تنزّله",
     underMinute: "أقل من دقيقة",
     minutes: "{minutes} د",
     hoursMinutes: "{hours} س {minutes} د",
@@ -657,6 +661,7 @@ export const tr: Messages = {
   buildQueued: "#{number} numaralı derleme sıraya alındı. Dosyalarınız hazır olduğunda size e-posta göndereceğiz.",
   apiProblem: "API'niz son denetimi geçemedi: {body} <link>API'nizi denetleyin</link>",
   unavailable: "Bu dosya şu anda indirilemiyor. Aşağıdaki listeden tekrar deneyin veya <wa>bize WhatsApp'tan yazın</wa>.",
+  needsPlan: "Uygulamanızın dosyaları bir paketi olduğunda indirilir. <plan>Bir paket seçin</plan>, sonra buradan indirin.",
   expiredNotice:
     "Bu uygulamanın paketi {date} tarihinde sona erdi. Yeni derlemeler için etkin bir paket gerekir: <renew>{page} sayfasında yenileyin</renew> veya <wa>bize WhatsApp'tan yazın</wa>. Önceki derlemelerinizin dosyaları aşağıda kullanılabilir olmaya devam eder.",
   suspendedNotice: "Bu hesap askıya alındı; bu yüzden yeni derlemeler başlatılamaz. Önceki derlemelerin dosyaları aşağıda kullanılabilir olmaya devam eder.",
@@ -934,6 +939,7 @@ export const tr: Messages = {
     addAppleKey: "iOS uygulaması için Uygulama kurulumu › Yayınlama bölümüne App Store Connect anahtarınızı ekleyin",
     addIcon: "Bu derlemede yok. Uygulama kurulumu › Marka bölümünde bir uygulama simgesi ekleyin, ardından yeni bir derleme başlatın.",
     notInBuild: "Bu derlemede yok. Almak için yeni bir derleme başlatın.",
+    needsPlan: "İndirmek için bu uygulamaya bir paket seçin",
     underMinute: "bir dakikadan az",
     minutes: "{minutes} dk",
     hoursMinutes: "{hours} sa {minutes} dk",

@@ -25,6 +25,8 @@ export type SitePage =
   | "developers"
   | "contact"
   | "studio-demo"
+  // 106.13 Studio Market's public page and its templates.
+  | "templates"
   // 124 Black Friday's page: in the footer while the offer is on (site/occasions).
   | "black-friday"
   | `story-${StoryId}`;
@@ -83,6 +85,8 @@ export const STUDIO_LINKS: SiteLink[] = [
   PRODUCT_LINKS[0]!,
   ...STORY_LINKS.map((link, i) => (i === 0 ? { ...link, heading: "Apps made in Studio" } : link)),
   { id: "studio-demo", href: "/demo/studio", label: "Studio demo", description: "Try Studio's apps on your phone", icon: "play_circle" },
+  // 106.13 Studio Market: whole app designs by designers.
+  { id: "templates", href: "/templates", label: "Studio Market", description: "Ready app designs by designers", icon: "storefront" },
 ];
 
 export const RESOURCE_LINKS: SiteLink[] = [
@@ -117,6 +121,7 @@ export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
     product: [m.product],
     studio: [m.studio, m.studioText],
     "studio-demo": [m.studioDemo, m.studioDemoText],
+    templates: [m.market, m.marketText],
     "story-school": [m.storySchool, m.storySchoolText],
     "story-rides": [m.storyRides, m.storyRidesText],
     "story-delivery": [m.storyDelivery, m.storyDeliveryText],

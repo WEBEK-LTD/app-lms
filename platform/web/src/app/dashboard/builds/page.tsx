@@ -271,7 +271,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
     const source = readyFor(kind);
     const url = source?.artifacts.find((a) => a.kind === kind)?.url;
     const link = url ? fileLink(url, now) : null;
-    const unavailable = fileUnavailableReason({ kind, build: source, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null });
+    const unavailable = fileUnavailableReason({ kind, build: source, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null, planActive: state === "active" });
     return { href: unavailable === null && source ? dashboardFileHref(source.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
 
@@ -330,7 +330,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const vendorFileRow = (kind: ArtifactKind) => {
     const url = vendorReady?.artifacts.find((a) => a.kind === kind)?.url;
     const link = url ? fileLink(url, now) : null;
-    const unavailable = fileUnavailableReason({ kind, build: vendorReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null });
+    const unavailable = fileUnavailableReason({ kind, build: vendorReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null, planActive: state === "active" });
     return { href: unavailable === null && vendorReady ? dashboardFileHref(vendorReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
   // 116 A school's or academy's staff app, when the owner put the staff in an app of their own.
@@ -351,7 +351,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const staffFileRow = (kind: ArtifactKind) => {
     const url = staffReady?.artifacts.find((a) => a.kind === kind)?.url;
     const link = url ? fileLink(url, now) : null;
-    const unavailable = fileUnavailableReason({ kind, build: staffReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null });
+    const unavailable = fileUnavailableReason({ kind, build: staffReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null, planActive: state === "active" });
     return { href: unavailable === null && staffReady ? dashboardFileHref(staffReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
   const courierCurrent = courier?.builds[0] ?? null;
@@ -362,7 +362,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const courierFileRow = (kind: ArtifactKind) => {
     const url = courierReady?.artifacts.find((a) => a.kind === kind)?.url;
     const link = url ? fileLink(url, now) : null;
-    const unavailable = fileUnavailableReason({ kind, build: courierReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null });
+    const unavailable = fileUnavailableReason({ kind, build: courierReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null, planActive: state === "active" });
     return { href: unavailable === null && courierReady ? dashboardFileHref(courierReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
 
@@ -465,6 +465,12 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
       {download === "unavailable" ? (
         <KitCallout tone="warn" icon="warning" role="alert">
           {richText(t("builds.unavailable"), wa)}
+        </KitCallout>
+      ) : null}
+      {/* 187 No plan, no app to download. */}
+      {download === "plan" ? (
+        <KitCallout tone="warn" icon="lock" role="alert">
+          {richText(t("builds.needsPlan"), { plan: (chunk) => <Link href="/dashboard/license#change-plan">{chunk}</Link> })}
         </KitCallout>
       ) : null}
 

@@ -49,6 +49,9 @@ export const ar: Messages = {
     storyFlowersText: "مواعيد التوصيل ورسائل البطاقات والتخفيضات السريعة",
     studioDemo: "عرض Studio",
     studioDemoText: "جرّب تطبيقات Studio على هاتفك",
+    // 106.13 Studio Market's public page, in the Studio menu and the footer.
+    market: "ماركت Studio",
+    marketText: "تصاميم تطبيقات جاهزة من المصممين",
     signIn: "تسجيل الدخول",
     getStarted: "ابدأ الآن",
     dashboard: "لوحة التحكم",
