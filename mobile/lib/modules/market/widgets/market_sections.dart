@@ -519,7 +519,11 @@ class _KindTile extends StatelessWidget {
                     bottom: -14,
                     width: 116,
                     height: 88,
-                    child: Transform.rotate(angle: -0.08, child: picture),
+                    // 177 A picture cut by the tile's corner: decoration, the
+                    // whole tile is the tap (the template guard's rule).
+                    child: IgnorePointer(
+                      child: Transform.rotate(angle: -0.08, child: picture),
+                    ),
                   ),
                   if (kind.badge != null)
                     PositionedDirectional(
@@ -700,18 +704,21 @@ class _OfferCard extends StatelessWidget {
               end: -26,
               top: 14,
               bottom: 14,
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.18),
-                  ),
-                  padding: const EdgeInsets.all(10),
-                  child: ClipOval(
-                    child: AppNetworkImage(
-                      url: offer.imageUrl,
-                      seed: offer.id.hashCode,
+              // 177 Cut by the card's edge: decoration, the card is the tap.
+              child: IgnorePointer(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.18),
+                    ),
+                    padding: const EdgeInsets.all(10),
+                    child: ClipOval(
+                      child: AppNetworkImage(
+                        url: offer.imageUrl,
+                        seed: offer.id.hashCode,
+                      ),
                     ),
                   ),
                 ),
@@ -1562,7 +1569,9 @@ class _Reorders extends ConsumerWidget {
       children: [
         MarketSectionHead(title: node.title, subtitle: node.text),
         SizedBox(
-          height: 128,
+          // 177 Taller with a larger text size (128 at 1.0): its words ran
+          // 12 points past the card at 1.3.
+          height: 72 + MediaQuery.textScalerOf(context).scale(56),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),

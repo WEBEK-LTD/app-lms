@@ -2525,6 +2525,12 @@ class _StudioSlider extends ConsumerStatefulWidget {
   ConsumerState<_StudioSlider> createState() => _StudioSliderState();
 }
 
+/// Whether [node] or what it holds shows words (a text or a button).
+bool _hasWords(StudioNode node) =>
+    node.type == StudioNodeType.text ||
+    node.type == StudioNodeType.button ||
+    node.children.any(_hasWords);
+
 class _StudioSliderState extends ConsumerState<_StudioSlider>
     with SingleTickerProviderStateMixin {
   late final PageController _controller = PageController(
@@ -2617,11 +2623,23 @@ class _StudioSliderState extends ConsumerState<_StudioSlider>
     return LayoutBuilder(
       builder: (context, constraints) {
         final ratio = node.aspectRatio;
-        final height =
+        final drawn =
             node.height?.fixed ??
             (ratio != null && ratio > 0 && constraints.maxWidth.isFinite
                 ? constraints.maxWidth / ratio
                 : 180.0);
+        // 177 Slides with words grow with a larger text size, as a photo
+        // cover does (163.2): an Arabic slide ran 22 points past its
+        // slider at 1.3. Pictures alone keep the height drawn.
+        final grow = MediaQuery.textScalerOf(context).scale(1);
+        // Never past the room a fixed parent gives (Leqaa's hero is a
+        // slider in a 520-point stack).
+        final room = constraints.maxHeight.isFinite
+            ? math.max(drawn, constraints.maxHeight)
+            : double.infinity;
+        final height = grow > 1 && kids.any(_hasWords)
+            ? math.min(drawn * grow, room)
+            : drawn;
         final pages = PageView.builder(
           controller: _controller,
           padEnds: false,
