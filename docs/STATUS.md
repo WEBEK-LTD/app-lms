@@ -8,6 +8,14 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 187 (no paid plan, no app and no publishing request): an app
+without a paid plan running now (never paid, or its plan ended) can't
+download its files (APK, AAB, IPA, store files; the Android upload key stays
+the owner's), and its "Publish it for me" reaches nobody on our team: the
+dashboard says the request goes out once the app has a plan, Admin ›
+Publishing keeps such requests under "Waiting for a plan", and the team is
+emailed when the plan is paid. Builds already needed the plan.
+
 Roadmap 170 (paying in the app in the phone's browser sheet, closing
 155.6): inside the apps, Yallapp's payment page opens in the phone's browser
 sheet over the app (SFSafariViewController on iPhone, Chrome Custom Tabs on

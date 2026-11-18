@@ -11,6 +11,7 @@ import { getStore } from "@/lib/data";
 import type { DataStore } from "@/lib/data/store";
 import { DEFAULT_HOSTED_SETTINGS, type App, type PublishingRequest } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
+import { appPlanActive } from "@/lib/license/status";
 import type { FormState } from "@/lib/forms";
 import { encryptReviewAccount, parseReviewAccountForm, reviewSignInKind } from "@/lib/publishing/review-account";
 import { choosePublishingMode, notifyPublishingTeam } from "@/lib/publishing/service";
@@ -40,7 +41,8 @@ async function saveWithReadiness(store: DataStore, context: ClientContext & { ap
   const becameReady = complete && request.readyAt === null;
   const next: PublishingRequest = { ...request, readyAt: complete ? (request.readyAt ?? now) : null, updatedAt: now };
   await store.savePublishingRequest(next);
-  if (becameReady && next.mode === "managed") {
+  // 187 Only an app with a paid plan: without one, the team hears of it once the plan is paid.
+  if (becameReady && next.mode === "managed" && (await appPlanActive(store, app, now))) {
     await notifyPublishingTeam(store, { user: context.user, client: context.client, app, event: "finished the publishing checklist" });
   }
   return next;

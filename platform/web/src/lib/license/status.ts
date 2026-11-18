@@ -1,4 +1,5 @@
-import type { Client, License, LicenseState } from "../data/types";
+import type { DataStore } from "../data/store";
+import type { App, Client, License, LicenseState } from "../data/types";
 
 export type AccountState = "pending" | "active" | "expired" | "suspended";
 
@@ -36,6 +37,18 @@ export function appState(client: Pick<Client, "status">, license: Pick<License, 
  */
 export function appIsActive(license: Pick<License, "expiresAt"> | null, client: Pick<Client, "status"> | null, now: Date): boolean {
   return client !== null && license !== null && appState(client, license, now) === "active";
+}
+
+/**
+ * 187 Whether an app has a plan that is paid and running now (its account
+ * active, its own license not ended): what an app needs before it is built,
+ * before its files are downloaded and before a request to publish it reaches
+ * our team. The team activating it, a card payment or a recorded bank
+ * transfer gives it one.
+ */
+export async function appPlanActive(store: Pick<DataStore, "getClientById" | "getLicenseForApp">, app: Pick<App, "id" | "clientId">, now: Date): Promise<boolean> {
+  const [client, license] = await Promise.all([store.getClientById(app.clientId), store.getLicenseForApp(app.clientId, app.id)]);
+  return appIsActive(license, client, now);
 }
 
 /** The license that lasts longest: the one that decides the account's state. */

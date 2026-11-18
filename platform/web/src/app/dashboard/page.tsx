@@ -305,7 +305,8 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
 
   // The latest Android APK, to try the app at once (signed when clicked, like on Builds & downloads).
   const apk = lastReady?.artifacts.find((a) => a.kind === "apk");
-  const apkHref = lastReady && apk && fileLink(apk.url, now).disabledReason === null ? dashboardFileHref(lastReady.id, "apk") : null;
+  // 187 The app to download only while it has a paid plan.
+  const apkHref = lastReady && apk && state === "active" && fileLink(apk.url, now).disabledReason === null ? dashboardFileHref(lastReady.id, "apk") : null;
   const building = isInProgress(latest, now);
   // 93.1 The guide through the first app, until it's on a store or the owner hides it.
   const guide = firstAppGuide({
