@@ -33,7 +33,7 @@ let slug = "";
 async function page(browser: Browser): Promise<Page> {
   const p = await (await browser.newContext({ extraHTTPHeaders })).newPage();
   const browserNote = /was preloaded using link preload|WebGL|GL Driver Message/;
-  const ours = () => /\/(?:dashboard\/studio-market|designer|admin\/market)(?:[/?#]|$)/.test(new URL(p.url()).pathname + "/");
+  const ours = () => /\/(?:studio\/market|designer|admin\/market)(?:[/?#]|$)/.test(new URL(p.url()).pathname + "/");
   p.on("console", (m) => {
     if (ours() && (m.type() === "error" || m.type() === "warning") && !m.location().url.includes("/api/v1/fonts/") && !browserNote.test(m.text())) problems.push(`${m.type()} on ${p.url()}: ${m.text()}`);
   });
@@ -94,7 +94,7 @@ async function applyCode(p: Page, code: string, button = "Apply"): Promise<void>
 async function payOnKashier(p: Page, total: string): Promise<void> {
   await expect(p.getByText(`Total ${total}`)).toBeVisible();
   await p.getByRole("button", { name: "Pay with test card" }).click();
-  await expect(p).toHaveURL(/\/dashboard\/studio-market\/mine\?done=/);
+  await expect(p).toHaveURL(/\/studio\/market\/mine\?done=/);
 }
 
 test.beforeAll(async ({ browser }) => {
@@ -291,7 +291,7 @@ test("the market shows the template in its flash strip, with a live countdown an
   await newProject(own, "Store", "Zeynep Flowers");
   await newProject(own, "Store", "Zeynep Gifts");
 
-  await own.goto("/dashboard/studio-market");
+  await own.goto("/studio/market");
   const strip = own.locator("[data-flash-strip]");
   await expect(strip.getByRole("heading", { name: "Lower prices, for a few hours" })).toBeVisible();
   const card = strip.locator("[data-template-card]").filter({ hasText: title });
@@ -307,11 +307,11 @@ test("the market shows the template in its flash strip, with a live countdown an
   await expect.poll(async () => timer.textContent(), { timeout: 5_000 }).not.toBe(first);
 
   // Searching keeps the struck price.
-  await own.goto(`/dashboard/studio-market?q=${suffix}`);
+  await own.goto(`/studio/market?q=${suffix}`);
   await expect(own.locator("[data-template-card]").filter({ hasText: title })).toContainText("From $6.40/mo");
 
   // The template's page: each plan at its price now, the plan's own struck through, the sale's countdown.
-  await own.goto(`/dashboard/studio-market/t/${slug}`);
+  await own.goto(`/studio/market/t/${slug}`);
   await expect(own.locator("[data-price-tag]")).toHaveText("$6.40/mo");
   await expect(own.locator('button[data-plan="3m"]')).toContainText("$19.20");
   await expect(own.locator('button[data-plan="3m"] [data-was]')).toContainText("$24");
@@ -389,7 +389,7 @@ test("the sale is split on the price paid, and the code is used up", async () =>
   await expect(mine.locator("td").nth(5)).toHaveText("$12.60");
 
   // Used up for the next purchase.
-  await own.goto(`/dashboard/studio-market/checkout/${slug}?plan=3m`);
+  await own.goto(`/studio/market/checkout/${slug}?plan=3m`);
   await own.locator('label[data-app="later"]').click();
   await applyCode(own, "LALE30");
   await expect(own.locator("[data-code-message]")).toHaveText("This code is used up.");
@@ -413,7 +413,7 @@ test("the same in Arabic: a new code, the flash strip, the better price paid, an
   await expect(section("coupon").locator('tr[data-code="LALE30"]')).toContainText("خلصت مرّاته");
 
   // The buyer, in Arabic: the flash strip and its countdown.
-  await own.goto("/dashboard/studio-market");
+  await own.goto("/studio/market");
   await language(own, "العربية", "rtl");
   const strip = own.locator("[data-flash-strip]");
   await expect(strip.getByRole("heading", { name: "أسعار أقل لساعات بس" })).toBeVisible();
@@ -423,7 +423,7 @@ test("the same in Arabic: a new code, the flash strip, the better price paid, an
   await expect(card.locator("[data-was]")).toContainText("$8");
 
   // Checkout in Arabic: the refusals, then the code's better price, paid.
-  await own.goto(`/dashboard/studio-market/checkout/${slug}?plan=3m`);
+  await own.goto(`/studio/market/checkout/${slug}?plan=3m`);
   await own.locator("label[data-app]").filter({ hasText: "Zeynep Gifts" }).click();
   await applyCode(own, "spring5", "طبّق");
   await expect(own.locator("[data-code-message]")).toHaveText("الكود ده خلص وقته.");
@@ -443,7 +443,7 @@ test("the same in Arabic: a new code, the flash strip, the better price paid, an
   await expect(own.getByText("الدفع وصل. التمبلت اتطبّق على تطبيقك.")).toBeVisible();
 
   // Used up now, in Arabic too.
-  await own.goto(`/dashboard/studio-market/checkout/${slug}?plan=3m`);
+  await own.goto(`/studio/market/checkout/${slug}?plan=3m`);
   await own.locator('label[data-app="later"]').click();
   await applyCode(own, "RAMADAN", "طبّق");
   await expect(own.locator("[data-code-message]")).toHaveText("الكود ده خلصت مرّات استخدامه.");

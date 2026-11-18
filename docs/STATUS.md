@@ -8,6 +8,13 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 191 (Studio Market lives in Studio): the market's pages are in
+Studio's own frame (/studio/market, a template, My templates, checkout), in
+Studio's menu (Browse templates, My templates, Sell your designs) and on
+Studio's bar; the regular dashboard has none of it, its old addresses open
+the same page in Studio. The website's header has Studio Market on its bar;
+the footer and Studio's list had it already.
+
 Roadmap 188 (Stripe's PaymentSheet in the apps): the payment page stays
 inside the app's web view, and a Stripe payment there is taken by Stripe's
 native bottom sheet in the app, with the card, Google Pay on Android and

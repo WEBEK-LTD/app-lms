@@ -86,7 +86,7 @@ export function Board({ children, className = "", style }: { children: React.Rea
  * pool in dark. Lifts and tilts its phone on hover; "View template" fades in.
  */
 /** `base`: where a card opens its template (106.13: the website's /templates, in its language). */
-export function TemplateCardView({ card, rank, phone = 170, height, pool, base = "/dashboard/studio-market/t" }: { card: TemplateCard; rank?: number; phone?: number; height?: number; pool?: string; base?: string }) {
+export function TemplateCardView({ card, rank, phone = 170, height, pool, base = "/studio/market/t" }: { card: TemplateCard; rank?: number; phone?: number; height?: number; pool?: string; base?: string }) {
   const t = useDashT();
   const known = useKnownText();
   const kind = card.kinds[0];
@@ -155,7 +155,7 @@ export function DesignerCardView({ designer, country }: { designer: DesignerCard
       <div className="flex items-center gap-3">
         <DesignerAvatar designer={designer} size="lg" />
         <div className="flex min-w-0 flex-1 flex-col">
-          <Link href={`/dashboard/studio-market?designer=${designer.slug}`} dir="auto" className="truncate text-base font-bold text-midnight no-underline hover:text-midnight">
+          <Link href={`/studio/market?designer=${designer.slug}`} dir="auto" className="truncate text-base font-bold text-midnight no-underline hover:text-midnight">
             {designer.name}
           </Link>
           <span className="text-[13px] text-muted">{country}</span>

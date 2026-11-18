@@ -145,7 +145,7 @@ test("a designer's paid template, published by the team", async ({ browser }) =>
   await expect(admin.getByText("Approved and published. The designer was emailed.")).toBeVisible();
 
   // Its address, from the dashboard's market.
-  await dz.goto(`/dashboard/studio-market?q=${encodeURIComponent(title)}`);
+  await dz.goto(`/studio/market?q=${encodeURIComponent(title)}`);
   const href = await dz.locator(`[data-template-card] a`).first().getAttribute("href");
   slug = href!.split("/").pop()!;
   expect(slug).toMatch(/^[a-z0-9-]+$/);
@@ -209,17 +209,17 @@ test("a visitor browses and filters the market, opens the template and signs up 
   await v.getByRole("link", { name: "Apply to my app · $24" }).click();
   await expect(v).toHaveURL(/\/sign-up$/);
   await signUp(v, buyer, "+90 532 000 0337");
-  await expect(v).toHaveURL(new RegExp(`/dashboard/studio-market/checkout/${slug}\\?plan=3m$`));
+  await expect(v).toHaveURL(new RegExp(`/studio/market/checkout/${slug}\\?plan=3m$`));
 
   // Signed in: straight there, and "Preview it on my app first" opens the dashboard's demo.
   await v.goto(`/templates/${slug}`);
   await expect(v.locator("[data-visitor-note]")).toHaveCount(0);
   await v.getByRole("radio", { name: /Lifetime/ }).click();
   await v.getByRole("link", { name: "Apply to my app · $149" }).click();
-  await expect(v).toHaveURL(new RegExp(`/dashboard/studio-market/checkout/${slug}\\?plan=life$`));
+  await expect(v).toHaveURL(new RegExp(`/studio/market/checkout/${slug}\\?plan=life$`));
   await v.goto(`/templates/${slug}`);
   await v.getByRole("link", { name: "Preview it on my app first" }).click();
-  await expect(v).toHaveURL(new RegExp(`/dashboard/studio-market/t/${slug}\\?demo=mine$`));
+  await expect(v).toHaveURL(new RegExp(`/studio/market/t/${slug}\\?demo=mine$`));
   await expect(v.getByRole("dialog")).toBeVisible();
 });
 
@@ -246,7 +246,7 @@ test("in Arabic: right to left, filtered, the template, and signing in back to i
   await v.getByLabel("البريد الإلكتروني").fill(buyer.email);
   await v.getByLabel("كلمة المرور", { exact: true }).fill(buyer.password);
   await v.getByRole("button", { name: "تسجيل الدخول" }).click();
-  await expect(v).toHaveURL(new RegExp(`/dashboard/studio-market/checkout/${slug}\\?plan=(3m|life)$`));
+  await expect(v).toHaveURL(new RegExp(`/studio/market/checkout/${slug}\\?plan=(3m|life)$`));
 });
 
 test("a template not published is page not found, and the sitemap lists the published one in each language", async ({ request }) => {

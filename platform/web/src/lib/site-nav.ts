@@ -100,6 +100,8 @@ export const SITE_NAV: SiteNavEntry[] = [
   // Yallapp Studio has its own list on the bar (so not in Product's), with "New" while it is new; the footer has it under Product.
   { kind: "group", id: "product", label: "Product", items: PRODUCT_LINKS.filter((link) => link.id !== "studio") },
   { kind: "group", id: "studio", label: "Studio", items: STUDIO_LINKS, badge: "New" },
+  // 191 Studio Market on the bar itself too (and in Studio's list and the footer).
+  { kind: "link", id: "templates", href: "/templates", label: "Studio Market" },
   { kind: "link", id: "pricing", href: "/pricing", label: "Pricing" },
   { kind: "link", id: "demo", href: "/demo", label: "Demo" },
   { kind: "group", id: "resources", label: "Resources", items: RESOURCE_LINKS },

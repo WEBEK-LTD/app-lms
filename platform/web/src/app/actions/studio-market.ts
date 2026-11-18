@@ -51,7 +51,7 @@ function noticeKey(message: string): string {
 }
 
 function back(params: Record<string, string>): never {
-  redirect(`/dashboard/studio-market/mine?${new URLSearchParams(params)}`);
+  redirect(`/studio/market/mine?${new URLSearchParams(params)}`);
 }
 
 /** The template page's "Apply to my app": the template on the chosen app, a free licence recorded. */
@@ -67,7 +67,7 @@ export async function applyTemplateAction(_: FormState, formData: FormData): Pro
   if (!done.ok) return { message: done.message, ...(done.errors ? { errors: { details: done.errors.join("\n") } } : {}), values };
   const app = context.apps.find((a) => a.id === appId) ?? null;
   await recordStaffChange({ ...context, app }, `Applied the Studio Market template “${templateText(template, "en").title}”`);
-  revalidatePath("/dashboard/studio-market", "layout");
+  revalidatePath("/studio/market", "layout");
   return { ok: true, message: done.live ? APPLY_MESSAGES.applied : APPLY_MESSAGES.appliedDraft, values: { ...values, licence: done.licence.id } };
 }
 
@@ -82,7 +82,7 @@ export async function applyLicenceAction(formData: FormData): Promise<void> {
   const done = await applyTemplate(d, { clientId: context.client.id, apps: context.apps, appId, template, licenceId: licence.id, by: actorOf(context).email, plan: await planOf(context, appId, d) });
   if (!done.ok) back({ error: noticeKey(done.message), ...(done.errors?.[0] ? { detail: done.errors[0].slice(0, 300) } : {}) });
   await recordStaffChange({ ...context, app: context.apps.find((a) => a.id === appId) ?? null }, `Applied the Studio Market template “${templateText(template, "en").title}”`);
-  revalidatePath("/dashboard/studio-market", "layout");
+  revalidatePath("/studio/market", "layout");
   back({ done: noticeKey(done.live ? APPLY_MESSAGES.applied : APPLY_MESSAGES.appliedDraft) });
 }
 
@@ -95,7 +95,7 @@ export async function restoreTemplateAction(formData: FormData): Promise<void> {
   const done = await restorePrevious(d, { clientId: context.client.id, apps: context.apps, applicationId, by: actorOf(context).email, plan: application ? await planOf(context, application.appId, d) : null });
   if (!done.ok) back({ error: noticeKey(done.message), ...(done.errors?.[0] ? { detail: done.errors[0].slice(0, 300) } : {}) });
   await recordStaffChange({ ...context, app: context.apps.find((a) => a.id === application?.appId) ?? null }, "Went back to the design the app had before a Studio Market template");
-  revalidatePath("/dashboard/studio-market", "layout");
+  revalidatePath("/studio/market", "layout");
   back({ done: noticeKey(APPLY_MESSAGES.restored) });
 }
 
@@ -110,7 +110,7 @@ export async function moveTemplateAction(formData: FormData): Promise<void> {
   const done = await moveTemplate(d, { clientId: context.client.id, apps: context.apps, licenceId: licence.id, toAppId, template, by: actorOf(context).email, plan: await planOf(context, toAppId, d) });
   if (!done.ok) back({ error: noticeKey(done.message), move: licence.id, ...(done.errors?.[0] ? { detail: done.errors[0].slice(0, 300) } : {}) });
   await recordStaffChange({ ...context, app: context.apps.find((a) => a.id === toAppId) ?? null }, `Moved the Studio Market template “${templateText(template, "en").title}” to this app`);
-  revalidatePath("/dashboard/studio-market", "layout");
+  revalidatePath("/studio/market", "layout");
   back({ done: noticeKey(APPLY_MESSAGES.moved) });
 }
 
@@ -125,7 +125,7 @@ export async function updateTemplateAction(formData: FormData): Promise<void> {
   const done = await updateToLatest(d, { clientId: context.client.id, apps: context.apps, applicationId, template, by: actorOf(context).email, plan: await planOf(context, application.appId, d) });
   if (!done.ok) back({ error: noticeKey(done.message), ...(done.errors?.[0] ? { detail: done.errors[0].slice(0, 300) } : {}) });
   await recordStaffChange({ ...context, app: context.apps.find((a) => a.id === application.appId) ?? null }, `Updated the Studio Market template “${templateText(template, "en").title}”`);
-  revalidatePath("/dashboard/studio-market", "layout");
+  revalidatePath("/studio/market", "layout");
   back({ done: noticeKey(APPLY_MESSAGES.updated) });
 }
 

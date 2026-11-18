@@ -559,7 +559,7 @@ export async function TemplatePublicPage({ lang, slug, demo }: { lang: Lang; slu
 
   // Where its buttons go: signed in, the dashboard; signed out, sign-up (or sign-in) first, then back there.
   const links = {
-    checkout: { signedIn: `/dashboard/studio-market/checkout/${template.slug}?plan=`, visitor: continueHref(lang, "checkout", template.slug) },
+    checkout: { signedIn: `/studio/market/checkout/${template.slug}?plan=`, visitor: continueHref(lang, "checkout", template.slug) },
     preview: { signedIn: marketNextPath("preview", template.slug)!, visitor: continueHref(lang, "preview", template.slug) },
   };
   const initialPlan = rows.find((r) => r.best)?.period ?? rows[0]?.period ?? null;

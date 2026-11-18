@@ -127,7 +127,7 @@ export default async function PublishTemplatePage({ searchParams }: PageProps<"/
       lead={live ? t("studioMarket.publishedIntro") : t("studioMarket.publishIntro")}
       actions={
         live && template ? (
-          <Link href={`/dashboard/studio-market/t/${template.slug}`} className="mk-btn mk-btn-ghost mk-btn-sm">
+          <Link href={`/studio/market/t/${template.slug}`} className="mk-btn mk-btn-ghost mk-btn-sm">
             <Icon name="visibility" size={20} />
             {t("studioMarket.previewPage")}
           </Link>

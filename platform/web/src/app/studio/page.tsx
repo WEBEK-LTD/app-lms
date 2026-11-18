@@ -62,7 +62,7 @@ export default async function StudioHomePage() {
             {t("studio.studioSection")}
           </Link>
           {/* 106 Studio Market: whole designs to apply, and selling your own. */}
-          <Link href="/dashboard/studio-market" className="flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] no-underline" style={{ color: C.barMuted }}>
+          <Link href="/studio/market" className="flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] no-underline" style={{ color: C.barMuted }}>
             <Glyph name="storefront" size={18} />
             {t("studioMarket.nav")}
           </Link>

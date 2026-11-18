@@ -38,7 +38,7 @@ export const dynamic = "force-dynamic";
  * page), with the original price, the discount and the total; the payment
  * works it out again on the server.
  */
-export default async function CheckoutPage({ params, searchParams }: PageProps<"/dashboard/studio-market/checkout/[slug]">) {
+export default async function CheckoutPage({ params, searchParams }: PageProps<"/studio/market/checkout/[slug]">) {
   const context = await requireClient("billing");
   const { t, k, lang } = await dashboardText();
   const store = await getStore();
@@ -46,12 +46,12 @@ export default async function CheckoutPage({ params, searchParams }: PageProps<"
   const template = await store.getMarketTemplateBySlug((await params).slug);
   if (!template || template.status !== "published" || !template.currentVersionId) notFound();
   const plans = offeredPlans(template);
-  const page = `/dashboard/studio-market/t/${template.slug}`;
+  const page = `/studio/market/t/${template.slug}`;
   if (!plans.length || template.clientId === context.client.id) redirect(page);
   const query = await searchParams;
   const one = (key: string) => (typeof query[key] === "string" ? (query[key] as string) : "");
   const renew = one("renew") ? await store.getTemplateLicence(one("renew")) : null;
-  if (one("renew") && (!renew || renew.clientId !== context.client.id || renew.templateId !== template.id || !renewable(renew))) redirect("/dashboard/studio-market/mine");
+  if (one("renew") && (!renew || renew.clientId !== context.client.id || renew.templateId !== template.id || !renewable(renew))) redirect("/studio/market/mine");
   const [designer, version, account, billing] = await Promise.all([
     store.getTemplateDesigner(template.designerId),
     store.getMarketTemplateVersion(template.currentVersionId),

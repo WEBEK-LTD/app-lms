@@ -32,7 +32,7 @@ const DAY = 24 * 60 * 60 * 1000;
  * designer, the most applied; selling your own designs. Cards show their
  * prices after the automatic discounts, the old ones struck through.
  */
-export default async function StudioMarketPage({ searchParams }: PageProps<"/dashboard/studio-market">) {
+export default async function StudioMarketPage({ searchParams }: PageProps<"/studio/market">) {
   const context = await requireClient("settings");
   const { t, k, lang } = await dashboardText();
   const store = await getStore();
@@ -55,7 +55,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
     if (next.sort !== "popular" || typeof params.sort === "string" || change.sort) out.set("sort", next.sort);
     if (designerSlug) out.set("designer", designerSlug);
     const text = out.toString();
-    return `/dashboard/studio-market${text ? `?${text}` : ""}`;
+    return `/studio/market${text ? `?${text}` : ""}`;
   };
   const sortName = { popular: t("studioMarket.sortPopular"), newest: t("studioMarket.sortNewest"), name: t("studioMarket.sortName") };
 
@@ -86,7 +86,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
   const page = (i: number): CoverView | null => featuredPages[i] ?? featuredPages[0] ?? null;
 
   const search = (id: string, ember: boolean) => (
-    <form action="/dashboard/studio-market" method="get" role="search" className="mk-search w-full max-w-[600px]">
+    <form action="/studio/market" method="get" role="search" className="mk-search w-full max-w-[600px]">
       <Icon name="search" size={24} className="mk-muted" />
       <label htmlFor={id} className="sr-only">
         {t("studioMarket.searchLabel")}
@@ -311,7 +311,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
             <h2 id="h-results" className="mk-h2">
               {t("studioMarket.results", { count: shown.length })}
             </h2>
-            <Link href="/dashboard/studio-market" className="mk-link">
+            <Link href="/studio/market" className="mk-link">
               {t("studioMarket.clear")}
             </Link>
           </div>
@@ -371,7 +371,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
         {newest.length ? (
           <section aria-label={t("studioMarket.newWeek")} className="mk-band mk-sec mt-16 py-14 md:mt-[104px] md:py-[88px]">
             <div className="mk-in">
-              {head(t("studioMarket.justIn"), t("studioMarket.newWeek"), t("studioMarket.newWeekHint"), "/dashboard/studio-market?sort=newest")}
+              {head(t("studioMarket.justIn"), t("studioMarket.newWeek"), t("studioMarket.newWeekHint"), "/studio/market?sort=newest")}
               {grid(newest.slice(0, 4), { pool: "rgba(120,98,255,.45)" })}
             </div>
           </section>
@@ -414,7 +414,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
                       ))}
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
-                      <Link href={`/dashboard/studio-market?designer=${top.slug}`} className="mk-btn mk-btn-ink">
+                      <Link href={`/studio/market?designer=${top.slug}`} className="mk-btn mk-btn-ink">
                         {t("studioMarket.seeTheirs")}
                         <Icon name="arrow_forward" size={20} />
                       </Link>
@@ -426,7 +426,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
                   <div className="-mx-5 mt-7 flex items-center gap-3 overflow-x-auto px-5 md:mx-0 md:mt-10 md:px-0">
                     <span className="mk-small me-2 hidden md:inline">{t("studioMarket.moreDesigners")}</span>
                     {catalog.designers.slice(1, 5).map((d) => (
-                      <Link key={d.id} href={`/dashboard/studio-market?designer=${d.slug}`} className="mk-panel flex flex-none items-center gap-2.5 rounded-full py-2.5 ps-2.5 pe-4 text-midnight no-underline hover:text-midnight">
+                      <Link key={d.id} href={`/studio/market?designer=${d.slug}`} className="mk-panel flex flex-none items-center gap-2.5 rounded-full py-2.5 ps-2.5 pe-4 text-midnight no-underline hover:text-midnight">
                         <DesignerAvatar designer={d} size="sm" />
                         <span className="flex flex-col">
                           <b dir="auto" className="text-sm">
@@ -446,14 +446,14 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
           ? sec(
               "popular",
               <>
-                {head(t("studioMarket.lastDays"), t("studioMarket.popular"), undefined, "/dashboard/studio-market?sort=popular")}
+                {head(t("studioMarket.lastDays"), t("studioMarket.popular"), undefined, "/studio/market?sort=popular")}
                 <ol className="m-0 grid list-none grid-cols-1 gap-x-14 p-0 md:grid-cols-2">
                   {popular.slice(0, 6).map((card, i) => (
                     <li key={card.id} className="relative flex items-center gap-4 border-t border-[var(--mk-hair)] py-[18px]">
                       <span className="mk-rank">{String(i + 1).padStart(2, "0")}</span>
                       <span className="h-[62px] w-[46px] flex-none overflow-hidden rounded-[10px] shadow-[0_10px_20px_-12px_rgba(14,13,36,0.5)]">{card.cover ? <PageThumb view={card.cover} width={46} height={62} /> : null}</span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <Link href={`/dashboard/studio-market/t/${card.slug}`} dir="auto" className="truncate text-[17px] font-bold text-[var(--mk-ink)] no-underline after:absolute after:inset-0 hover:text-[var(--mk-ink)]">
+                        <Link href={`/studio/market/t/${card.slug}`} dir="auto" className="truncate text-[17px] font-bold text-[var(--mk-ink)] no-underline after:absolute after:inset-0 hover:text-[var(--mk-ink)]">
                           {card.title}
                         </Link>
                         <span dir="auto" className="mk-muted truncate text-[13px]">
@@ -506,7 +506,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/das
         {owner && mine.length ? (
           <div className="mk-sec pt-8">
             <div className="mk-in flex justify-end">
-              <Link href="/dashboard/studio-market/mine" className="mk-link">
+              <Link href="/studio/market/mine" className="mk-link">
                 <Icon name="dashboard_customize" size={18} />
                 {t("studioMarket.navMine")} · {mine.length}
               </Link>

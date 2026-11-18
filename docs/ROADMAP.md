@@ -4297,3 +4297,14 @@ The owner's request (18 November, urgent): Google Pay and Apple Pay through a ga
 | [ ] | 188.8 On a real iPhone: the card in the sheet; with the owner's merchant ID linked to the App ID and Stripe's Apple Pay certificate, Apple Pay in it | — |
 | [ ] | 188.9 The owner's Apple Pay set-up per app (merchant ID, its link to the App ID, Stripe's certificate) | — |
 | [x] | 188.10 App release 11 on its own: `CLIENT_APP_RELEASE` 11 with its release line (`lib/builds/app-release.ts`), and the app preview rebuilt with Flutter 3.47.5 (`mobile/tool/build_preview.sh`; flutter_stripe compiles for the web, where the app never makes the sheet, so the preview keeps Stripe's form in the page) | `publish-for-all.test.ts`, `build_preview.sh --check` |
+
+## Phase 191: Studio Market lives in Studio
+
+The owner's word (18 November, urgent): Studio Market (106) didn't open from Studio. Studio's bar sent it to the regular dashboard, whose dark bar and menu had it. It belongs to Studio, and the owner doesn't want it in the regular dashboard at all. Its public page (106.13, `/templates`) was already built and in the footer and the header's Studio list; it now has its own link on the header's bar too. Every Studio demo in it as a free template is Phase 190's. No migration, no app build.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 191.1 The market's pages in Studio's own frame (the console, as Your account and Team): `/studio/market` (the market), `/studio/market/t/<slug>` (a template), `/studio/market/mine` (My templates) and `/studio/market/checkout/<slug>`. Every link, form, email, the website's buttons and the designer's area go there; Studio's bar opens it | `studio-market*.test.ts`, `studio-market*.spec.ts` |
+| [x] | 191.2 Studio's menu has a "Studio Market" group (Browse templates, My templates, Sell your designs; the same permissions as before, `STUDIO_PATHS` in `lib/team/permissions.ts`), in a project and on the account's pages | `studio-market.test.ts`, `studio-market.spec.ts` |
+| [x] | 191.3 None of it in the regular dashboard: its menu group and the dark bar's third switch are gone; its old addresses (`/dashboard/studio-market/…`, emails sent before, bookmarks) open the same page in Studio, the query kept | `team-permissions.test.ts`, `studio-market.spec.ts` |
+| [x] | 191.4 The website's header has "Studio Market" on its bar (after Studio's list), marked on its page; still in Studio's list and the footer | `website-seo.test.ts`, `studio-market-public.spec.ts` |
