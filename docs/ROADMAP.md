@@ -4260,6 +4260,36 @@ The QA pass of 18 November (`docs/qa/2026-11-18-dashboard/REPORT.md` on `wip-qa-
 | [ ] | 175.15 Not done here: Yallapp Business still has no client for `PUT …/orders/{id}/shipment` (report #11, not in this task); the Business app isn't released from this branch, and `mobile/` isn't changed (no `CLIENT_APP_RELEASE` bump, no preview rebuilt) | — |
 | [ ] | 175.16 For the owner: try the cancel dialog (refund and no refund) on a real card payment, a guest's stage emails, and a currency change with real rates | — |
 
+## Phase 183: `brand`'s Start now opens the app's main screen
+
+The template guard (166, `docs/qa/2026-11-18-guard/NOTES.md`) found that `brand`, the template for every kind of project, served its hero's "Start now" with `action: null`: the button opened nothing. The kinds' own templates name a screen; `brand` named none, and no helper mapped a kind to its main screen. The owner's rule is that every app comes out with no dead buttons. Now each kind has a main screen, `brand` opens it when a project is made, and the hosted API gives it to a page's button that names nothing, so projects made before are fixed too. The owner's own link always wins. `brand`'s look and words are unchanged; no migration, no contract change, no `CLIENT_APP_RELEASE` change (the app already opens these screens).
+
+| Kind | Opens (`screen`) |
+|---|---|
+| store, marketplace | the shop, `search` (the Shop and Search tabs) |
+| restaurant | the menu, `search` (its Menu tab) |
+| food | `restaurants`: a food delivery company's menus are its restaurants'; its app has no menu screen of its own |
+| academy, instructors | `courses` |
+| bookings, clinic, services | `services` |
+| fitness | `classes`, a gym's booking list (its first tab) |
+| events | `events` |
+| real_estate | `courses`, "All listings" |
+| news | `articles` |
+| charity | `campaigns` |
+| travel | `explore` |
+| rides, taxi | `ride`, the ride request on the home map |
+| school | `school`: there is no Today screen, so its first tab, which shows the day |
+| delivery | `send_parcel` |
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 183.1 `mainScreenOf(kind)` and `mainScreenOfApp(app)` (`lib/app/kinds.ts`): the table above, all `screen` actions (ACTION_TYPES) with screens in the contract's `ScreenName` that each kind's app opens. A kind with no entry: its first tab that isn't Home, else the screen of Home's first list, else its engine's first screen; never null | `phase183-brand-start.test.ts` |
+| [x] | 183.2 Making a project from `brand` (`makeStudioProject`, and Studio's editor when it adds the template): "Start now" opens the kind's main screen (`SectionContext.main`) | `phase183-brand-start.test.ts` (every kind) |
+| [x] | 183.3 Hosted `GET /pages/{slug}`: a button on a Studio page with no action (`brand`'s "Start now" in a project made before) is served with the app's main screen (`lib/studio/main-screen.ts`), next to 152's and 161's served fixes. A list's card's buttons are left as they are (the card opens its entry); a button with the owner's own link keeps it | `phase183-brand-start.test.ts` (every kind, the owner's link) |
+| [x] | 183.4 Studio's inspector: for such a button, "When the customer taps" shows "Opens: <the main screen>" (the tab's name when a tab opens it: "Shop", "Menu"), with a line saying the owner can choose another, in English, Egyptian Arabic and Turkish | tsc, eslint, next build |
+| [x] | 183.5 The guard (`wip-template-guard`'s tests, run on a local merge): `brand on a store project` passes all 11 checks, the tap check included (10 of 11 before) | `template-guard.test.ts` |
+| [ ] | 183.6 For the guard's branch: regenerate its fixtures (`mobile/tool/template_guard_fixtures.sh`) once this is merged, since `brand.json` now has "Start now" opening the shop; until then its fixtures check reports `brand.json` as stale | `template-guard-fixtures.test.ts` |
+
 ## Phase 185: Client Android builds survive a busy Maven Central
 
 On 18 November (run 44284453178) one of three Android client builds running at once failed in "Build, sign and upload" after 48 seconds: Gradle couldn't resolve `org.jetbrains.kotlin:kotlin-gradle-plugins-bom:2.2.20` and `kotlin-stdlib:2.2.21` because Maven Central and the Gradle Plugin Portal answered 429 Too Many Requests, and Flutter's own single retry after 100 ms came too soon. It was a client's real store build; the next run, 1 h 45 later, made it. Each job downloaded every Gradle dependency from scratch.

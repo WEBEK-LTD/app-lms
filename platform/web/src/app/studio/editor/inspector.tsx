@@ -64,6 +64,7 @@ import { SCRIM_DEFAULT } from "@/lib/studio/scrim";
 import { automaticSize, sizedByHand } from "@/lib/studio/auto-size";
 import { forTablet } from "@/lib/studio/tablet";
 import { mapTree } from "@/lib/studio/tree";
+import { mainScreenButtons } from "@/lib/studio/main-screen";
 import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
 import { CoverControls, TrackingControls } from "./cover-controls";
@@ -135,6 +136,8 @@ interface Props {
   sources: ItemSource[];
   categorySources: ItemSource[];
   screens: ScreenOption[];
+  /** 183 The app's main screen (lib/app/kinds.ts `mainScreenOf`): what a page's button with nothing chosen opens. */
+  mainScreen?: Action;
   /** 120 The screens a page can be drawn around. */
   pageScreens: { value: string; label: string }[];
   pickable: Pickable;
@@ -491,9 +494,19 @@ function Chevron() {
  * is "A product", picked from the shop's own products: one not chosen, or
  * gone from the shop, opens the shop.
  */
-export function TapAction({ id, action, onChange, pages, sources, screens, pickable }: { id: string; action: Action | null; onChange: (action: Action | null) => void; pages: { slug: string; title: string }[]; sources: ItemSource[]; screens: ScreenOption[]; pickable: Pickable }) {
+/** 183 The main screen's name in Studio: the tab that opens it ("Shop", "Menu"), else the screen's. */
+function mainScreenName(main: Action, tabs: readonly LayoutTab[], screens: readonly ScreenOption[], known: (text: string) => string): string {
+  const tab = tabs.find((x) => x.target.type === main.type && x.target.screen === main.screen && x.target.page_slug === main.page_slug);
+  if (tab) return known(tab.label);
+  const screen = screens.find((x) => x.value === main.screen && !x.alias);
+  return known(screen?.label ?? main.screen ?? main.page_slug ?? "");
+}
+
+export function TapAction({ id, action, onChange, pages, sources, screens, pickable, main }: { id: string; action: Action | null; onChange: (action: Action | null) => void; pages: { slug: string; title: string }[]; sources: ItemSource[]; screens: ScreenOption[]; pickable: Pickable; main?: { action: Action; tabs: readonly LayoutTab[] } | null }) {
   const t = useDashT();
   const known = useKnownText();
+  // 183 A page's button with nothing chosen opens the app's main screen (lib/studio/main-screen.ts), named here.
+  const mainScreen = main ? mainScreenName(main.action, main.tabs, screens, known) : null;
   const entrySources = sources.filter((s) => s !== "courses" && s !== "posts");
   // 152 A store's entries are its products.
   const onlyProducts = entrySources.length === 1 && entrySources[0] === "products";
@@ -531,7 +544,7 @@ export function TapAction({ id, action, onChange, pages, sources, screens, picka
           <Glyph name={icon} size={18} />
         </span>
         <select id={id} value={value} onChange={(e) => choose(e.target.value)} className={`${field} cursor-pointer appearance-none ps-9 pe-7`} style={line}>
-          <option value="none">{opens(t("studio.opensNothing"))}</option>
+          <option value="none">{opens(mainScreen ?? t("studio.opensNothing"))}</option>
           <optgroup label={t("studio.tapScreen")}>
             {screens
               .filter((s) => !s.alias || value === `screen:${s.value}`)
@@ -560,6 +573,12 @@ export function TapAction({ id, action, onChange, pages, sources, screens, picka
         </select>
         <Chevron />
       </label>
+      {/* 183 Nothing chosen: the app's main screen, which the owner can change above. */}
+      {!action && mainScreen ? (
+        <p role="status" className="m-0 text-xs leading-relaxed" style={{ color: "var(--sf-muted)" }} data-main-screen-hint="">
+          {t("studio.mainScreenHint")}
+        </p>
+      ) : null}
       {/* 162 Until the store sets Build your bouquet up, it opens the shop: where to set it up. */}
       {value === "flow:bouquet" && !pickable.commerce?.bouquet ? (
         <p role="status" className="m-0 text-xs leading-relaxed" style={{ color: "var(--sf-muted)" }} data-bouquet-hint="">
@@ -1207,7 +1226,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
         <>
           <Rule />
           <Heading>{t("studio.whenTapped")}</Heading>
-          <TapAction id={`action-${node.id}`} action={node.action ?? null} onChange={(action) => onChange({ action: action ?? undefined })} pages={props.pages} sources={props.sources} screens={props.screens} pickable={props.pickable} />
+          <TapAction id={`action-${node.id}`} action={node.action ?? null} onChange={(action) => onChange({ action: action ?? undefined })} pages={props.pages} sources={props.sources} screens={props.screens} pickable={props.pickable} main={props.mainScreen && mainScreenButtons(props.page.body).has(node.id) ? { action: props.mainScreen, tabs: props.tabs } : null} />
         </>
       ) : null}
       <div className="flex items-center justify-between">

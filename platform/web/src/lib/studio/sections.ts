@@ -335,6 +335,8 @@ export interface SectionContext {
   look?: SignatureLook;
   /** 130.62 The project's kind, for a landing template's photos, words, screens and live card (lib/studio/premium-landings.ts); missing, the general ones. */
   kind?: ProjectKind | null;
+  /** 183 The project's main screen (lib/app/kinds.ts `mainScreenOf`): what `brand`'s "Start now" opens; missing, nothing until the app is served. */
+  main?: Action;
 }
 
 /** 103R.7 The project types a section or template is made for; none: every type. */
@@ -1263,7 +1265,8 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   demoDesignTemplate("rides"),
   demoDesignTemplate("taxi"),
   // For every project.
-  { id: "brand", icon: "auto_awesome", make: (ctx) => translatedPageOf(ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
+  // 183 Its "Start now" opens the project's main screen: the shop, the courses, the ride (lib/app/kinds.ts `mainScreenOf`).
+  { id: "brand", icon: "auto_awesome", make: (ctx) => translatedPageOf(ctx.main ? { ...ctx, button: { word: "heroButton", action: ctx.main } } : ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
   { id: "contact", icon: "call", make: (ctx) => translatedPageOf(ctx, ["contact", "form"], { type: "title_search", buttons: [] }) },
   { id: "blank", icon: "note_add", make: (ctx) => ({ header: { type: "logo_actions", buttons: ["notifications", "account"] }, body: { id: (ctx.newId ?? newNodeId)(), type: "column", gap: 8, children: [] } }) },
 ];
