@@ -4,6 +4,10 @@ import type { App, HostedNotification, ListingInquiry } from "@/lib/data/types";
 import { notifyInquiryReply, repliedTitle } from "@/lib/listings/notify";
 import type { StudioNode } from "@/lib/pages/types";
 import { shownWhen } from "@/lib/studio/signed-in";
+import { addDisplayPrices, DISPLAY_CONNECTORS } from "@/lib/money/display";
+import { ratesOf } from "@/lib/money/rates";
+import { lowestPaid } from "@/lib/events/service";
+import type { TicketType } from "@/lib/data/types";
 
 /** 180 The travel and bookings templates' QA (docs/qa/2026-11-18-travel-bookings/NOTES.md). */
 describe("180.4 the office's reply, in the app's language", () => {
@@ -68,5 +72,29 @@ describe("180.11 Studio's canvas as a customer signed in or signed out sees the 
   it("a page with nothing marked is left as it is", () => {
     const plain: StudioNode = { id: "body", type: "column", children: [{ id: "a", type: "text", text: "Hi" }] };
     expect(shownWhen(plain, false)).toBe(plain);
+  });
+});
+
+describe("180.13 events, homes and campaigns in the customer's currency", () => {
+  const rates = ratesOf({ rates: { USD: 1, EGP: 50, TRY: 40 }, date: "2026-11-18", fetchedAt: "2026-11-18T06:00:00.000Z", source: "ExchangeRate-API" }, null);
+  const usd = { currency: "USD", rates };
+
+  it("their apps get the conversion as the shop's do", () => {
+    for (const kind of ["travel", "listings", "campaigns", "events", "bookings", "catalog"]) expect(DISPLAY_CONNECTORS.has(kind), kind).toBe(true);
+  });
+
+  it("an event's cheapest paid ticket as money, null when every ticket is free", () => {
+    const type = (priceCents: number) => ({ priceCents }) as TicketType;
+    expect(lowestPaid([type(0), type(25000), type(15000)], "EGP")).toEqual({ amount: "150.00", currency: "EGP", formatted: "E£150.00" });
+    expect(lowestPaid([type(0)], "EGP")).toBeNull();
+    const shown = addDisplayPrices({ price_label: "From E£150.00", price_from: lowestPaid([type(15000)], "EGP") }, usd);
+    expect(shown.price_from!.display).toMatchObject({ currency: "USD", amount: "3.00", formatted: "$3.00" });
+  });
+
+  it("a home's price and a campaign's goal and what was raised", () => {
+    const home = addDisplayPrices({ price: { amount: "4250000.00", currency: "EGP", formatted: "EGP 4,250,000", period: null, negotiable: false } }, usd);
+    expect(home.price).toMatchObject({ display: { currency: "USD", amount: "85000.00" } });
+    const campaign = addDisplayPrices({ goal: "50000.00", goal_formatted: "₺50,000.00", raised: "12000.00", raised_formatted: "₺12,000.00", currency: "TRY" }, usd);
+    expect(campaign).toMatchObject({ display: { currency: "USD", goal: "1250.00", raised: "300.00", raised_formatted: "$300.00" } });
   });
 });

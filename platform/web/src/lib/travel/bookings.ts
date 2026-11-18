@@ -312,6 +312,9 @@ export function lineJson(deps: Pick<TravelDeps, "settings">, line: TravelLine, c
   return {
     kind: line.kind,
     count: line.count,
+    // 180.12 With the currency, the hosted API adds each in the customer's (a discount's, below zero, stays as it is).
+    currency,
+    unit_amount: line.unitCents === null ? null : centsToDecimal(line.unitCents),
     unit_formatted: line.unitCents === null ? null : formatCents(line.unitCents, currency),
     amount: centsToDecimal(line.cents),
     amount_formatted: line.cents < 0 ? `−${formatCents(-line.cents, currency)}` : formatCents(line.cents, currency),
@@ -325,6 +328,7 @@ export function quoteJson(deps: TravelDeps, priced: Priced) {
     lines: priced.lines.map((l) => lineJson(deps, l)),
     total: centsToDecimal(priced.totalCents),
     total_formatted: money(deps, priced.totalCents),
+    saving_amount: saving > 0 ? centsToDecimal(saving) : null,
     saving_formatted: saving > 0 ? money(deps, saving) : null,
     refundable: priced.refundable,
     free_cancel_until: priced.freeCancelUntil,
@@ -526,6 +530,8 @@ export async function bookingJson(deps: TravelDeps, booking: TravelBooking, flig
     payment: {
       method: booking.paymentMethod,
       status: booking.paymentStatus,
+      currency,
+      paid_amount: booking.paidCents > 0 ? centsToDecimal(booking.paidCents) : null,
       paid_formatted: booking.paidCents > 0 ? fm(booking.paidCents) : null,
       due: due > 0 ? centsToDecimal(due) : null,
       due_formatted: due > 0 ? fm(due) : null,
@@ -534,8 +540,9 @@ export async function bookingJson(deps: TravelDeps, booking: TravelBooking, flig
     lines: booking.lines.map((l) => lineJson(deps, l, currency)),
     total: centsToDecimal(booking.totalCents),
     total_formatted: fm(booking.totalCents),
-    cancellation: booking.cancellation ? { at: booking.cancellation.at, by: booking.cancellation.by, refund_formatted: booking.refundCents > 0 ? fm(booking.refundCents) : null } : null,
+    cancellation: booking.cancellation ? { at: booking.cancellation.at, by: booking.cancellation.by, currency, refund_amount: booking.refundCents > 0 ? centsToDecimal(booking.refundCents) : null, refund_formatted: booking.refundCents > 0 ? fm(booking.refundCents) : null } : null,
     can_cancel: canCancel(booking, flights, deps.now, zone),
+    cancel_refund_amount: refund > 0 ? centsToDecimal(refund) : null,
     cancel_refund_formatted: refund > 0 ? fm(refund) : null,
     can_change: canChange(booking, flights, deps.now, zone),
     passes_open: passesOpen(booking, flights, deps.now, zone),

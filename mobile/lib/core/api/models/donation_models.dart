@@ -1,4 +1,5 @@
 import '../../format/digits.dart';
+import 'money_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
 
@@ -68,9 +69,10 @@ class CampaignSummary {
     summary: optString(json, 'summary'),
     imageUrl: optString(json, 'image_url'),
     goal: optString(json, 'goal'),
-    goalFormatted: optString(json, 'goal_formatted'),
+    // 180.13 In the customer's currency when the server sent it.
+    goalFormatted: customerText(json, 'goal_formatted'),
     raised: optString(json, 'raised') ?? '0.00',
-    raisedFormatted: optString(json, 'raised_formatted') ?? '',
+    raisedFormatted: customerText(json, 'raised_formatted') ?? '',
     donorCount: intOr(json, 'donor_count', 0),
     currency: optString(json, 'currency') ?? 'TRY',
     progress: optDouble(json, 'progress'),

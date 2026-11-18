@@ -137,6 +137,14 @@ export function priceLabel(types: TicketType[], currency: CatalogCurrency, words
   return new Set(paid).size === 1 ? lowest : words.from(lowest);
 }
 
+/** 180.13 The cheapest paid ticket of an event as money; null when every ticket is free or none is set. */
+export function lowestPaid(types: TicketType[], currency: CatalogCurrency): { amount: string; currency: CatalogCurrency; formatted: string } | null {
+  const paid = types.filter((t) => t.priceCents > 0).map((t) => t.priceCents);
+  if (paid.length === 0) return null;
+  const cents = Math.min(...paid);
+  return { amount: centsToDecimal(cents), currency, formatted: formatCents(cents, currency) };
+}
+
 /** "2026-10-20T20:30": an instant on the clock of the time zone. */
 export function localClock(at: Date, timeZone: string): string {
   const local = utcToLocal(at, timeZone);
@@ -169,6 +177,8 @@ export function eventSummaryJson(data: EventsData, event: EventRecord, deps: Jso
       : null,
     online: Boolean(event.onlineUrl),
     price_label: priceLabel(types, data.settings.currency, itemWords(deps.lang)),
+    // 180.13 The lowest paid ticket as money: the hosted API adds it in the customer's currency (`display`).
+    price_from: lowestPaid(types, data.settings.currency),
     status: phase,
     spots_left: left.event,
     sold_out: types.length > 0 && types.every((t) => left.types.get(t.id) === 0),

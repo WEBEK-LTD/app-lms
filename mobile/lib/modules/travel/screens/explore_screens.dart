@@ -6,6 +6,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/format/dates.dart';
+import '../../../core/l10n/currency.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
@@ -992,7 +993,8 @@ class FlightsHomeScreen extends ConsumerWidget {
                         ),
                       ),
                       TravelPill(
-                        '${config.currency} · $lang',
+                        // 180.12 The customer's currency, as the prices.
+                        '${ref.watch(appCurrencyProvider) ?? config.currency} · $lang',
                         t: t,
                         tone: PillTone.glass,
                       ),

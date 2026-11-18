@@ -1,3 +1,4 @@
+import 'money_models.dart';
 import 'json.dart';
 
 enum AreaUnit { m2, ft2 }
@@ -147,7 +148,11 @@ class ListingPrice {
   factory ListingPrice.fromJson(Json json) => ListingPrice(
     amount: reqString(json, 'amount'),
     currency: reqString(json, 'currency'),
-    formatted: reqString(json, 'formatted'),
+    // 180.13 In the customer's currency when the server sent it ("≈ \$85,000.00").
+    formatted: customerPrice(
+      reqString(json, 'formatted'),
+      DisplayMoney.tryParse(json['display'])?.formatted,
+    ),
     period: enumOrNull(RentPeriod.values, json['period']),
     negotiable: boolOr(json, 'negotiable', false),
   );
