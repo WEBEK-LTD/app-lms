@@ -166,3 +166,9 @@ whose cards line up side by side, keep their one line.
 | Run | Result |
 |---|---|
 | `--plain-name 163.12` (en and ar × 360, 390, 412 points × 100% and 130%) | 12 passed; on the previous code 7 failed (all at 130%, and Arabic at 360 at 100%) |
+
+## The whole suite, with 163.11 and 163.12
+
+`flutter test` (mobile) on the ring and price-list fixes (the same code as
+46fcb14, whose merge brought in docs only): **2,594 passed, 776 skipped
+(screenshots and gallery, off by default), 0 failed** (9 min 47 s).
