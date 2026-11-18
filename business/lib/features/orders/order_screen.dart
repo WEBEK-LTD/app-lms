@@ -8,6 +8,7 @@ import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/contact.dart';
+import '../../core/widgets/digits.dart';
 import '../../core/widgets/l10n.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/widgets/states.dart';
@@ -256,12 +257,15 @@ class _OrderBody extends ConsumerWidget {
                     ),
                   ),
                 const SizedBox(height: 10),
+                // 175 Signed with no sender's or customer's name: said so, never "Signed by " alone.
                 IconText(
                   d.anonymous ? AppIcons.hidden : AppIcons.giftCard,
                   d.anonymous
                       ? l10n.sentAnonymously
+                      : signerOf(d.signedBy, order.buyerName) == null
+                      ? l10n.signedNoName
                       : l10n.signedBy(
-                          isolate(d.signedBy ?? order.buyerName ?? ''),
+                          isolate(signerOf(d.signedBy, order.buyerName)!),
                         ),
                   color: d.anonymous ? c.warning : c.ink2,
                 ),
@@ -491,20 +495,17 @@ class OrderLines extends StatelessWidget {
       rows.add(_BouquetRows(lines: group));
       placed.addAll(group);
     }
-    final items = lines
-        .where((l) => l.addonOf == null && !placed.contains(l))
-        .toList();
-    for (final item in items) {
-      rows.add(_LineRow(line: item));
-      placed.add(item);
-      for (final addon in lines.where(
-        (l) =>
-            l.addonOf != null &&
-            l.addonOf == item.productId &&
-            !placed.contains(l),
-      )) {
-        rows.add(_LineRow(line: addon, addon: true));
-        placed.add(addon);
+    // 175 Each add-on under the line it was chosen with.
+    final owners = addonOwners(lines);
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i].addonOf != null || placed.contains(lines[i])) continue;
+      rows.add(_LineRow(line: lines[i]));
+      placed.add(lines[i]);
+      for (var j = 0; j < lines.length; j++) {
+        if (owners[j] == i && !placed.contains(lines[j])) {
+          rows.add(_LineRow(line: lines[j], addon: true));
+          placed.add(lines[j]);
+        }
       }
     }
     // An add-on whose item isn't on the order (older orders): still listed.
@@ -513,6 +514,30 @@ class OrderLines extends StatelessWidget {
     }
     return Column(children: rows);
   }
+}
+
+/// 175 Which line each add-on goes under (its index; null: its item isn't
+/// on the order). The order keeps an add-on after the item it was chosen
+/// with, so with two sizes of one bouquet each add-on goes under the size
+/// before it, not always under the first one; an add-on before any of its
+/// product's lines goes under the first.
+List<int?> addonOwners(List<OrderLine> lines) {
+  return [
+    for (var j = 0; j < lines.length; j++)
+      if (lines[j].addonOf == null) null else _ownerOf(lines, j),
+  ];
+}
+
+int? _ownerOf(List<OrderLine> lines, int j) {
+  final product = lines[j].addonOf;
+  bool mine(int i) => lines[i].addonOf == null && lines[i].productId == product;
+  for (var i = j - 1; i >= 0; i--) {
+    if (mine(i)) return i;
+  }
+  for (var i = 0; i < lines.length; i++) {
+    if (mine(i)) return i;
+  }
+  return null;
 }
 
 /// 162 A bouquet the customer built: a heading with its stems, then its
@@ -801,7 +826,8 @@ class _RefundSheetState extends ConsumerState<RefundSheet> {
             ref.read(appIdProvider),
             widget.order.id,
             RefundRequest(
-              amount: _amount.text.trim().replaceAll(',', '.'),
+              // 175 Typed on an Arabic keyboard too.
+              amount: typedAmount(_amount.text),
               reason: _reason,
               note: _note.text.trim(),
               method: _method,
@@ -942,4 +968,14 @@ class _RefundSheetState extends ConsumerState<RefundSheet> {
       ),
     );
   }
+}
+
+/// 175 Who signs the card: the sender's name, else the customer's; null
+/// when neither has one (blank names don't count).
+String? signerOf(String? signedBy, String? buyer) {
+  for (final name in [signedBy, buyer]) {
+    final trimmed = name?.trim() ?? '';
+    if (trimmed.isNotEmpty) return trimmed;
+  }
+  return null;
 }

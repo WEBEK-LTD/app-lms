@@ -245,6 +245,9 @@ platform :ios do
     # 46 Universal Links: Yallapp's link domain and a WordPress site's own (build config `links`).
     links = config["links"] || {}
     link_hosts = [links["yallapp_base_url"], links["site_base_url"]].compact.map { |url| URI.parse(url).host }.uniq
+    # 188 Apple Pay in the app's Stripe PaymentSheet: the owner's merchant ID (Payments › Stripe).
+    apple_pay_merchant = (config["payments"] || {})["apple_pay_merchant_id"].to_s
+    apple_pay_merchant = "" unless apple_pay_merchant.match?(/\Amerchant\.[A-Za-z0-9.-]{3,119}\z/)
 
     # The App ID, with push notifications when the app has Firebase.
     bundle = Spaceship::ConnectAPI::BundleId.find(bundle_id) ||
@@ -254,6 +257,17 @@ platform :ios do
     end
     if link_hosts.any? && bundle.get_capabilities.none? { |c| c.capability_type == "ASSOCIATED_DOMAINS" }
       bundle.create_capability(Spaceship::ConnectAPI::BundleIdCapability::Type::ASSOCIATED_DOMAINS)
+    end
+    # 188 The App ID gets Apple Pay; the owner links their merchant ID to it in Apple's developer account
+    # (the API can't). Never stops the build: without it the app's sheet shows the card only on iPhone.
+    if !apple_pay_merchant.empty?
+      begin
+        if bundle.get_capabilities.none? { |c| c.capability_type == "APPLE_PAY" }
+          bundle.create_capability(Spaceship::ConnectAPI::BundleIdCapability::Type::APPLE_PAY)
+        end
+      rescue StandardError => e
+        UI.important("Apple Pay couldn't be turned on for #{bundle_id}: #{e.message}")
+      end
     end
 
     keychain = "yallapp-build.keychain"
@@ -288,10 +302,22 @@ platform :ios do
     File.write(options[:team_out], team_id) if options[:team_out]
 
     ios_dir = File.join(options[:mobile], "ios")
+    # 188 Signed in only when the profile has the merchant ID (linked to the App ID), else the signing would fail.
+    profile_merchants = Array((profile["Entitlements"] || {})["com.apple.developer.in-app-payments"])
+    apple_pay = !apple_pay_merchant.empty? && profile_merchants.include?(apple_pay_merchant)
+    if !apple_pay_merchant.empty? && !apple_pay
+      UI.important("Apple Pay is left out of this build: link the merchant ID #{apple_pay_merchant} to the App ID #{bundle_id} in Apple's developer account (Identifiers › #{bundle_id} › Apple Pay Payment Processing), then build again.")
+      # The app then doesn't offer Apple Pay in its sheet either (tool/apply_config.dart wrote the ID into its config).
+      generated = File.join(options[:mobile], "lib", "generated", "build_config.g.dart")
+      if File.exist?(generated)
+        File.write(generated, File.read(generated).sub(/^  applePayMerchantId: .*,$/, "  applePayMerchantId: null,"))
+      end
+    end
     entitlements = nil
-    if push || link_hosts.any?
+    if push || link_hosts.any? || apple_pay
       entitlements = "Runner/Runner.entitlements"
       keys = []
+      keys << "\t<key>com.apple.developer.in-app-payments</key>\n\t<array>\n\t\t<string>#{apple_pay_merchant}</string>\n\t</array>" if apple_pay
       keys << "\t<key>aps-environment</key>\n\t<string>production</string>" if push
       if link_hosts.any?
         domains = link_hosts.map { |host| "\t\t<string>applinks:#{host}</string>" }.join("\n")

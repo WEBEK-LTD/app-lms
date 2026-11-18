@@ -72,6 +72,12 @@ flutter {
     source = "../.."
 }
 
+// 188 The AppCompat themes (res/values/styles.xml) Stripe's PaymentSheet needs; the
+// Stripe SDK brings AppCompat too, this keeps the themes resolving whatever it brings.
+dependencies {
+    implementation("androidx.appcompat:appcompat:1.7.1")
+}
+
 // Push notifications: only when the client's google-services.json is present
 // (downloaded by tool/apply_config.dart, never committed). Without it the app
 // builds normally and push stays off.

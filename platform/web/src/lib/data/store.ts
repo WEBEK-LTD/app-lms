@@ -44,6 +44,7 @@ import type {
   Build,
   BuildStatus,
   CatalogCategory,
+  LangText,
   CatalogOrder,
   CatalogOrderPatch,
   CatalogOrderStatus,
@@ -821,9 +822,11 @@ export interface DataStore {
   // Catalog (apps without a website)
   listCatalogCategories(appId: string): Promise<CatalogCategory[]>;
   /** 110.2 `sample`: a category made with the sample products. */
-  createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory>;
+  createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null }): Promise<CatalogCategory>;
   /** 157 Also makes a demo's (`sample`) category the owner's. */
   renameCatalogCategory(appId: string, id: number, name: string): Promise<void>;
+  /** 175 Its names in the app's other languages; null: none. */
+  setCatalogCategoryNames(appId: string, id: number, names: LangText | null): Promise<void>;
   /** 132.12 The categories in this order (their `position`); ids of other apps or missing ones are skipped, the rest keep their place after these. */
   reorderCatalogCategories(appId: string, ids: number[]): Promise<void>;
   /** Also removes the category from its products. */
@@ -905,6 +908,12 @@ export interface DataStore {
    * stock, once: false when the order wasn't pending.
    */
   payCatalogOrder(appId: string, id: number, paymentId: string, now: Date): Promise<boolean>;
+  /**
+   * 175 Cancels a paid order in progress ("processing" to "cancelled") and
+   * puts its quantities back in stock (the product's and its variation's),
+   * once: false when the order wasn't in progress.
+   */
+  cancelCatalogOrder(appId: string, id: number, now: Date): Promise<boolean>;
   /**
    * Newest first; `statuses` limits the list (the app shows paid orders only).
    * 96.2 `manualOnly`: only those to pay by bank transfer or the owner's own
@@ -1975,7 +1984,7 @@ export interface DataStore {
   listTeamActivity(clientId: string, input: { limit: number; offset?: number; actorId?: string }): Promise<{ items: TeamActivity[]; total: number }>;
 
   // 61 Today's numbers counted by the database, for a window [from, to)
-  /** Paid orders (in progress, completed, cancelled or refunded) whose payment came in the window. */
+  /** Paid orders (in progress, completed or refunded; 175 not cancelled) whose payment came in the window. */
   sumPaidCatalogOrders(appId: string, from: Date, to: Date): Promise<PaidTotals>;
   /** Paid (or since refunded) donations whose payment came in the window. */
   sumPaidDonations(appId: string, from: Date, to: Date): Promise<PaidTotals>;

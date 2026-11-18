@@ -67,6 +67,7 @@ import type {
   HostedDevice,
   HostedNotification,
   CatalogCategory,
+  LangText,
   CatalogOrder,
   CatalogOrderPatch,
   CatalogOrderStatus,
@@ -1159,9 +1160,9 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
-  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory> {
+  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null }): Promise<CatalogCategory> {
     const position = Math.max(0, ...[...this.catalogCategories.values()].filter((c) => c.appId === input.appId).map((c) => c.position + 1));
-    const category: CatalogCategory = { id: this.nextCatalogId++, appId: input.appId, name: input.name, position, ...(input.sample ? { sample: true } : {}), createdAt: input.now };
+    const category: CatalogCategory = { id: this.nextCatalogId++, appId: input.appId, name: input.name, position, ...(input.sample ? { sample: true } : {}), createdAt: input.now, ...(input.names ? { names: { ...input.names } } : {}) };
     this.catalogCategories.set(category.id, clone(category));
     return category;
   }
@@ -1172,6 +1173,11 @@ export class MemoryStore implements DataStore {
     category.name = name;
     // 157 Renamed in the dashboard, a demo's category is the owner's.
     delete category.sample;
+  }
+
+  async setCatalogCategoryNames(appId: string, id: number, names: LangText | null): Promise<void> {
+    const category = this.catalogCategories.get(id);
+    if (category && category.appId === appId) category.names = names ? { ...names } : null;
   }
 
   async reorderCatalogCategories(appId: string, ids: number[]): Promise<void> {
@@ -1487,6 +1493,21 @@ export class MemoryStore implements DataStore {
     return true;
   }
 
+  async cancelCatalogOrder(appId: string, id: number, now: Date): Promise<boolean> {
+    const order = this.catalogOrders.get(id);
+    if (!order || order.appId !== appId || order.status !== "processing") return false;
+    Object.assign(order, { status: "cancelled", updatedAt: now });
+    for (const line of order.lines) {
+      const product = this.catalogProducts.get(line.productId);
+      if (!product || product.appId !== appId) continue;
+      product.salesCount = Math.max(0, product.salesCount - line.quantity);
+      if (product.stock !== null) product.stock += line.quantity;
+      const variant = line.variantId !== undefined ? product.variants?.items.find((v) => v.id === line.variantId) : undefined;
+      if (variant && variant.stock !== null) variant.stock += line.quantity;
+    }
+    return true;
+  }
+
   async listCatalogOrders(input: {
     appId: string;
     userId?: number;
@@ -1521,7 +1542,8 @@ export class MemoryStore implements DataStore {
       const refunded = (order.refundedCents ?? 0) + input.amountCents;
       if (input.amountCents <= 0 || refunded > order.totalCents) return null;
       order.refundedCents = refunded;
-      if (refunded === order.totalCents) order.status = "refunded";
+      // 175 A cancelled order stays cancelled (refunded in full or not): it is no sale either way.
+      if (refunded === order.totalCents && order.status !== "cancelled") order.status = "refunded";
       if (order.commissionCents !== null && input.commissionCents) order.commissionCents = Math.max(0, order.commissionCents - input.commissionCents);
       order.updatedAt = now;
     } else {
@@ -6858,7 +6880,8 @@ export class MemoryStore implements DataStore {
   // 61 Today's numbers counted from every row, as the database's aggregates
 
   async sumPaidCatalogOrders(appId: string, from: Date, to: Date): Promise<PaidTotals> {
-    const paid = new Set(["processing", "completed", "cancelled", "refunded"]);
+    // 175 A cancelled order is no sale.
+    const paid = new Set(["processing", "completed", "refunded"]);
     return paidTotals(
       [...this.catalogOrders.values()]
         .filter((o) => o.appId === appId && paid.has(o.status) && within(o.paidAt, from, to))

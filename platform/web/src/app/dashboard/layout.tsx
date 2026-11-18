@@ -30,6 +30,9 @@ import { redirect } from "next/navigation";
 import { studioAccountPathFor, studioPathFor } from "@/lib/studio/section";
 import { bellWords, dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
+import { ShopSampleProvider } from "@/components/studio/shop-sample";
+import { shopSampleOf } from "@/lib/studio/shop-sample";
+import { currentRates } from "@/lib/money/rates";
 import { ACCOUNT_STATE_LABEL, appState } from "@/lib/license/status";
 import { loadUpdates } from "@/lib/updates";
 import { bellData, readerOf } from "@/lib/updates-view";
@@ -198,6 +201,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <DashboardI18n lang={lang} messages={dashboardMessages(lang)} knownEnglish={lang === "en" ? {} : knownEnglish()}>
+      {/* 175 Studio's samples (the gift checkout's) in the shop's currency, places and today. */}
+      <ShopSampleProvider value={shopSampleOf(context.app, context.client, await currentRates(await getStore()), now)}>
       <DocumentLang lang={lang} />
       {/* 73 Light or dark like the website (globals.css). */}
       <div lang={lang} dir={dir} data-site-theme="" className="flex min-h-screen flex-col bg-ivory md:flex-row">
@@ -277,6 +282,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </main>
         </div>
       </div>
+      </ShopSampleProvider>
     </DashboardI18n>
   );
 }

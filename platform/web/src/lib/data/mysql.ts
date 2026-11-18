@@ -233,6 +233,7 @@ import type {
   BuildVariant,
   BuildStatus,
   CatalogCategory,
+  LangText,
   CatalogOrder,
   CatalogOrderPatch,
   CatalogOrderStatus,
@@ -1343,16 +1344,25 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory> {
+  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null }): Promise<CatalogCategory> {
     const rows = await this.run((db) =>
       db
         .select({ next: sql<number | null>`max(${schema.catalogCategories.position}) + 1` })
         .from(schema.catalogCategories)
         .where(eq(schema.catalogCategories.appId, input.appId)),
     );
-    const values = { appId: input.appId, name: input.name, position: Number(rows[0]?.next ?? 0), sample: input.sample === true, createdAt: input.now };
+    const values = { appId: input.appId, name: input.name, position: Number(rows[0]?.next ?? 0), sample: input.sample === true, createdAt: input.now, names: input.names ?? null };
     const [result] = await this.run((db) => db.insert(schema.catalogCategories).values(values));
     return { id: Number(result.insertId), ...values };
+  }
+
+  async setCatalogCategoryNames(appId: string, id: number, names: LangText | null): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.catalogCategories)
+        .set({ names })
+        .where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
+    );
   }
 
   async renameCatalogCategory(appId: string, id: number, name: string): Promise<void> {
@@ -1832,6 +1842,45 @@ export class MysqlStore implements DataStore {
     );
   }
 
+  async cancelCatalogOrder(appId: string, id: number, now: Date): Promise<boolean> {
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        const [result] = await tx
+          .update(schema.catalogOrders)
+          .set({ status: "cancelled", updatedAt: now })
+          .where(and(eq(schema.catalogOrders.appId, appId), eq(schema.catalogOrders.id, id), eq(schema.catalogOrders.status, "processing")));
+        if (result.affectedRows !== 1) return false;
+        const [order] = await tx.select().from(schema.catalogOrders).where(eq(schema.catalogOrders.id, id)).limit(1);
+        for (const line of order?.lines ?? []) {
+          await tx
+            .update(schema.catalogProducts)
+            .set({
+              salesCount: sql`greatest(${schema.catalogProducts.salesCount} - ${line.quantity}, 0)`,
+              stock: sql`case when ${schema.catalogProducts.stock} is null then null else ${schema.catalogProducts.stock} + ${line.quantity} end`,
+            })
+            .where(and(eq(schema.catalogProducts.appId, appId), eq(schema.catalogProducts.id, line.productId)));
+          // The variation's own stock, in the product's row (locked while it changes).
+          if (line.variantId !== undefined) {
+            const [row] = await tx
+              .select({ variants: schema.catalogProducts.variants })
+              .from(schema.catalogProducts)
+              .where(and(eq(schema.catalogProducts.appId, appId), eq(schema.catalogProducts.id, line.productId)))
+              .for("update");
+            const variant = row?.variants?.items.find((v) => v.id === line.variantId);
+            if (row?.variants && variant && variant.stock !== null) {
+              variant.stock += line.quantity;
+              await tx
+                .update(schema.catalogProducts)
+                .set({ variants: row.variants })
+                .where(and(eq(schema.catalogProducts.appId, appId), eq(schema.catalogProducts.id, line.productId)));
+            }
+          }
+        }
+        return true;
+      }),
+    );
+  }
+
   async listCatalogOrders(input: {
     appId: string;
     userId?: number;
@@ -1878,7 +1927,7 @@ export class MysqlStore implements DataStore {
             .update(o)
             .set({
               refundedCents: sql`${o.refundedCents} + ${input.amountCents}`,
-              status: sql`case when ${o.refundedCents} + ${input.amountCents} = ${o.totalCents} then 'refunded' else ${o.status} end`,
+              status: sql`case when ${o.refundedCents} + ${input.amountCents} = ${o.totalCents} and ${o.status} <> 'cancelled' then 'refunded' else ${o.status} end`,
               ...(input.commissionCents ? { commissionCents: sql`case when ${o.commissionCents} is null then null else greatest(cast(${o.commissionCents} as signed) - ${input.commissionCents}, 0) end` } : {}),
               updatedAt: now,
             })
@@ -8548,7 +8597,7 @@ export class MysqlStore implements DataStore {
 
   async sumPaidCatalogOrders(appId: string, from: Date, to: Date): Promise<PaidTotals> {
     const t = schema.catalogOrders;
-    return this.paidTotals(t, t.totalCents, and(eq(t.appId, appId), inArray(t.status, ["processing", "completed", "cancelled", "refunded"]), gte(t.paidAt, from), lt(t.paidAt, to)));
+    return this.paidTotals(t, t.totalCents, and(eq(t.appId, appId), inArray(t.status, ["processing", "completed", "refunded"]), gte(t.paidAt, from), lt(t.paidAt, to)));
   }
 
   async sumPaidDonations(appId: string, from: Date, to: Date): Promise<PaidTotals> {

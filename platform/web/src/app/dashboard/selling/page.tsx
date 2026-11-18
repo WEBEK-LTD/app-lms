@@ -11,6 +11,8 @@ import { KitTabPanel, KitTabs } from "@/components/studio-page/tabs";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { requireClient } from "@/lib/auth/session";
+import { hintPointOf } from "@/lib/app/country-defaults";
+import { zoneOfPhone } from "@/lib/analytics/zone";
 import { centsToDecimal, formatCents } from "@/lib/catalog/money";
 import { catalogSettings, paymentsSetUp } from "@/lib/catalog/settings";
 import { getStore } from "@/lib/data";
@@ -53,7 +55,7 @@ function sourceOf(app: App): Source {
 
 /** 131 Store › Delivery & offers, for every store app whatever its source. */
 export default async function SellingPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
-  const { app } = await requireClient("catalog");
+  const { app, client } = await requireClient("catalog");
   const { t, lang, num, date } = await dashboardText();
   if (!app || app.appType !== "store") {
     return (
@@ -69,7 +71,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
   const platform = source.kind === "platform" ? source.name : null;
   const settings = catalogSettings(app);
   const currency = settings.currency;
-  const money = (cents: number) => formatCents(cents, currency);
+  const money = (cents: number) => formatCents(cents, currency, lang);
   const now = new Date();
   const zone = shopZone(app);
   const gifts = giftsOf(app);
@@ -579,7 +581,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
                   {t("selling.needsWeights", { count: noWeight })}
                 </KitCallout>
               ) : null}
-              <AreasForm values={areaValues} currency={currency} countries={allCountries} starters={startersOf} areas={areasStart} />
+              <AreasForm values={areaValues} currency={currency} countries={allCountries} starters={startersOf} areas={areasStart} hintPoint={hintPointOf(settings.delivery?.timezone ?? zoneOfPhone(client?.whatsapp))} />
             </KitSection>
           </KitTabPanel>
         ) : null}

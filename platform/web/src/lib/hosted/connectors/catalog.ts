@@ -1,8 +1,9 @@
 import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf, orderTimesJson } from "../../catalog/fulfilment";
+import { categoryNameIn } from "../../catalog/category-names";
 import { serverMessage } from "../../i18n/builtin";
 import { LOYALTY_HISTORY, loyaltyConfigJson, loyaltyOf, orderPointsJson, pointsAccountJson, usablePoints } from "../../catalog/loyalty";
 import { taxCents, taxLabel, taxOf } from "../../catalog/tax";
-import { attributesJson, sellableVariants, variantLabel, variantMax, variantPrices, variantsOf, variationAttributes } from "../../catalog/variants";
+import { attributesJson, sellableVariants, servedPrice, variantLabel, variantMax, variantPrices, variantsOf, variationAttributes } from "../../catalog/variants";
 import { canReturn, parseReturnInput, requestReturn, returnDays, returnJson } from "../../catalog/returns";
 import { couponDiscount, normalizeCouponCode } from "../../catalog/coupons";
 import { ownCategoryIds, shownCategories } from "../../catalog/categories";
@@ -158,6 +159,8 @@ export class CatalogConnector implements Connector {
   /** 131 The shop's flash sales (loaded once a request), and the request's time they're on at. */
   private flash: StoreFlashSale[] = [];
   private now: Date = new Date();
+  /** 175 The language the app asks in, for the categories' names. */
+  private lang: string | null = null;
 
   async config() {
     return {
@@ -185,6 +188,8 @@ export class CatalogConnector implements Connector {
     const route = `${request.method} /${request.path.join("/")}`;
     // 131 The flash sales on now price the products below.
     this.now = request.now;
+    // 175 The categories' names in the app's language.
+    this.lang = request.lang ?? null;
     // 149 Never in a currency the owner left out of the app's, nor with the switch off (the hosted API sends none then too).
     const display = request.display && customerCurrencyAllowed(customerCurrencyRule(this.settings), request.display.currency) ? request.display : null;
     this.shown = Shown.for(this.settings.currency, display);
@@ -255,37 +260,19 @@ export class CatalogConnector implements Connector {
   // Mapping
 
   private price(p: CatalogProduct) {
-    // 91.5 A product with variations: from its cheapest to its dearest one on sale now.
-    const variants = variantsOf(p);
-    if (variants) {
-      const items = sellableVariants(p);
-      const prices = (items.length ? items : variants.items).map((v) => variantPrices(p, v));
-      const low = Math.min(...prices.map((x) => x.now));
-      const high = Math.max(...prices.map((x) => x.now));
-      const onSale = prices.some((x) => x.now < x.regular);
-      const single = low === high && prices.length > 0 ? prices.find((x) => x.now === low)! : null;
-      return {
-        amount: centsToDecimal(low, this.settings.currency),
-        regular_amount: single && onSale ? centsToDecimal(single.regular, this.settings.currency) : null,
-        regular_formatted: single && onSale ? this.money(single.regular) : null,
-        currency: this.settings.currency,
-        formatted: low === high ? this.money(low) : `${this.money(low)} – ${this.money(high)}`,
-        on_sale: onSale,
-        range: low !== high,
-        // 135.5 A range's dearest end, for the price in the customer's currency.
-        ...(low !== high ? { max_amount: centsToDecimal(high, this.settings.currency) } : {}),
-      };
-    }
-    const onSale = p.salePriceCents !== null && p.salePriceCents < p.priceCents;
-    const now = priceOf(p);
+    // 91.5 A product with variations: from its cheapest to its dearest one on sale now (175 the products list shows the same).
+    const { low, high, regular, onSale } = servedPrice(p);
+    const range = low !== high;
     return {
-      amount: centsToDecimal(now, this.settings.currency),
-      regular_amount: onSale ? centsToDecimal(p.priceCents, this.settings.currency) : null,
-      regular_formatted: onSale ? this.money(p.priceCents) : null,
+      amount: centsToDecimal(low, this.settings.currency),
+      regular_amount: regular !== null ? centsToDecimal(regular, this.settings.currency) : null,
+      regular_formatted: regular !== null ? this.money(regular) : null,
       currency: this.settings.currency,
-      formatted: this.money(now),
+      formatted: range ? `${this.money(low)} – ${this.money(high)}` : this.money(low),
       on_sale: onSale,
-      range: false,
+      range,
+      // 135.5 A range's dearest end, for the price in the customer's currency.
+      ...(range ? { max_amount: centsToDecimal(high, this.settings.currency) } : {}),
     };
   }
 
@@ -325,7 +312,8 @@ export class CatalogConnector implements Connector {
   /** 112.4 A category's picture: its first product's that has one. */
   private category(c: CatalogCategory, count: number, products: CatalogProduct[] = []) {
     const pictured = products.find((p) => p.categoryIds.includes(c.id) && p.imageAssetIds[0]);
-    return { id: c.id, name: c.name, count, parent_id: null, image_url: pictured ? this.deps.assetUrl(pictured.imageAssetIds[0]!) : null };
+    // 175 In the app's language when the owner named it so.
+    return { id: c.id, name: categoryNameIn(c, this.lang), count, parent_id: null, image_url: pictured ? this.deps.assetUrl(pictured.imageAssetIds[0]!) : null };
   }
 
   // Catalog

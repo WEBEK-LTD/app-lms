@@ -193,7 +193,7 @@ export function pushNewOrder(deps: OwnerPushDeps, app: App, order: CatalogOrder)
       deps,
       app.clientId,
       "payment_received",
-      (w) => ({ title: w.t("owner.push.schoolFee"), body: w.t("owner.push.schoolFeeBody", { app: appName(app, w), amount: formatCents(order.totalCents, order.currency) }) }),
+      (w) => ({ title: w.t("owner.push.schoolFee"), body: w.t("owner.push.schoolFeeBody", { app: appName(app, w), amount: formatCents(order.totalCents, order.currency, w.lang) }) }),
       { app_id: app.id },
       "settings",
     );
@@ -202,7 +202,7 @@ export function pushNewOrder(deps: OwnerPushDeps, app: App, order: CatalogOrder)
     deps,
     app.clientId,
     "new_order",
-    (w) => ({ title: w.t("owner.push.newOrder", { number: orderNumber(order) }), body: w.t("owner.push.newOrderBody", { app: appName(app, w), total: formatCents(order.totalCents, order.currency) }) }),
+    (w) => ({ title: w.t("owner.push.newOrder", { number: orderNumber(order) }), body: w.t("owner.push.newOrderBody", { app: appName(app, w), total: formatCents(order.totalCents, order.currency, w.lang) }) }),
     { app_id: app.id, order_id: String(order.id) },
   );
 }
@@ -290,7 +290,7 @@ export function pushDonation(deps: OwnerPushDeps, app: App, donation: Donation):
     "payment_received",
     (w) => ({
       title: w.t("owner.push.donation"),
-      body: w.t("owner.push.donationBody", { app: appName(app, w), amount: formatCents(donation.amountCents, donation.currency), campaign: donation.campaignTitle }),
+      body: w.t("owner.push.donationBody", { app: appName(app, w), amount: formatCents(donation.amountCents, donation.currency, w.lang), campaign: donation.campaignTitle }),
     }),
     { app_id: app.id, donation_id: String(donation.id) },
     "donations",
@@ -385,7 +385,7 @@ export function pushNewFoodOrder(deps: OwnerPushDeps, app: App, order: FoodOrder
     "new_food_order",
     (w) => ({
       title: w.t("owner.push.newFoodOrder", { reference: foodOrderReference(order) }),
-      body: w.t("owner.push.newFoodOrderBody", { restaurant: order.restaurantName, total: formatCents(order.totalCents, order.currency) }),
+      body: w.t("owner.push.newFoodOrderBody", { restaurant: order.restaurantName, total: formatCents(order.totalCents, order.currency, w.lang) }),
     }),
     { app_id: app.id, food_order_id: String(order.id) },
   );

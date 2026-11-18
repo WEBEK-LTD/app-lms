@@ -1,4 +1,5 @@
 import type { Lang } from "@/i18n/config";
+import type { GuestMailer } from "../hosted/auto-notifications";
 import type { DashT } from "@/i18n/dashboard";
 import type { AccountState } from "../license/status";
 import type { DataStore } from "../data/store";
@@ -30,6 +31,8 @@ export interface OwnerDeps {
   media: MediaStorage | null;
   /** The refund emails to customers (in the app's name). */
   mail: RefundDeps["mail"];
+  /** 175 A guest customer's order emails (cancelled, the delivery's stages), in the app's name; none: guests aren't emailed. */
+  guestMail?: GuestMailer;
   /** 60 The `team_invitation` email (lib/email/send.ts sendTemplate). */
   teamMail?: (to: string, values: Record<string, string>, lang: Lang) => Promise<unknown>;
   /** 125 The `account_manager_call` email to the account manager (Yallapp's team, English). */

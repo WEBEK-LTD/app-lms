@@ -13349,7 +13349,7 @@ components:
       required: [id, name, count]
       properties:
         id: { type: integer }
-        name: { type: string }
+        name: { type: string, description: "175 In the app's language (`Accept-Language`) when the shop named it so (Arabic, Turkish), else its main name." }
         count: { type: integer }
         image_url: { type: [string, 'null'], format: uri, description: "112.4 The category's picture, when it has one (a store's categories); shown by a Studio `categories` element as pictures or circles." }
 

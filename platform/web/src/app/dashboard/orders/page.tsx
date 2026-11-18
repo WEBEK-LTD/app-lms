@@ -28,6 +28,8 @@ import { ShippingForm } from "./shipping";
 import { StageForms } from "./stages";
 import { CARRIER_SUGGESTIONS, shippable, waybillLink } from "@/lib/catalog/shipping";
 import { RefundSection } from "./refunds-view";
+import { CancelOrderButton } from "./cancel";
+import { cancelRefundCents } from "@/lib/catalog/cancel";
 import { AwaitingPayment } from "./awaiting";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
@@ -83,7 +85,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
   // 132.132 The hero's numbers: what still waits for the owner, and what's done.
   const countOf = async (status: CatalogOrderStatus) => (await store.listCatalogOrders({ appId: app.id, statuses: [status], offset: 0, limit: 1 })).total;
-  const [open, completed] = await Promise.all([countOf("processing"), countOf("completed")]);
+  const [open, completed, cancelled] = await Promise.all([countOf("processing"), countOf("completed"), countOf("cancelled")]);
   const closeLabel = t("common.close");
   // 47 Each order's refunds and what its Refund form offers.
   const key = encryptionKey();
@@ -111,7 +113,8 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
               {/* 132.152 The first tile's bar: how many of the paid orders are done. */}
               <KitStat icon="package_2" tone="accent" label={t("studioPage.ordersOpen")} value={num(open)} progress={total ? completed / total : 0} />
               <KitStat icon="check_circle" tone="success" label={k(ORDER_STATUS_LABELS.completed)} value={num(completed)} />
-              <KitStat icon="receipt_long" label={t("studioPage.ordersPaid")} value={num(total)} />
+              {/* 175 A cancelled order is no longer a paid one. */}
+              <KitStat icon="receipt_long" label={t("studioPage.ordersPaid")} value={num(total - cancelled)} />
             </>
           }
         />
@@ -129,7 +132,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
             noMatch={t("orders.noMatch")}
             filters={groups}
             items={items.map((order, index) => {
-              const title = t("orders.orderTitle", { number: orderNumber(order), total: formatCents(order.totalCents, order.currency) });
+              const title = t("orders.orderTitle", { number: orderNumber(order), total: formatCents(order.totalCents, order.currency, lang) });
               const paidLine = `${t("orders.paidOn", { date: formatDateTime(order.paidAt, lang, zone) })}${order.refundedCents && order.status !== "refunded" ? ` · ${k(refundedLine(order.refundedCents, order.totalCents, order.currency) ?? "")}` : ""}`;
               const status = order.shipment && order.status === "processing" ? k("Shipped") : k(ORDER_STATUS_LABELS[order.status]);
               // 162 A bouquet the customer built counts once.
@@ -155,7 +158,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                             {order.customerCurrency?.charged ? (
                               <span className="text-[13px] font-semibold text-(--sp-muted)" title={t("money.chargedHint")} data-order-charged="">
                                 {t("money.charged", {
-                                  amount: formatCents(order.customerCurrency.totalCents, order.customerCurrency.currency),
+                                  amount: formatCents(order.customerCurrency.totalCents, order.customerCurrency.currency, lang),
                                   rate: rateText(order.customerCurrency.rate, order.currency, order.customerCurrency.currency),
                                 })}
                               </span>
@@ -200,26 +203,26 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                             </li>
                           ),
                         )}
-                        {order.discountCents ? <li className="text-sm text-(--sp-muted)">{t("orders.coupon", { code: order.couponCode ?? "", amount: formatCents(order.discountCents, order.currency) })}</li> : null}
+                        {order.discountCents ? <li className="text-sm text-(--sp-muted)">{t("orders.coupon", { code: order.couponCode ?? "", amount: formatCents(order.discountCents, order.currency, lang) })}</li> : null}
                         {/* 91.4 The loyalty points used on it, and those it earned. */}
                         {order.points?.discountCents ? (
-                          <li className="text-sm text-(--sp-muted)">{t("orders.pointsUsed", { points: num(order.points.used), amount: formatCents(order.points.discountCents, order.currency) })}</li>
+                          <li className="text-sm text-(--sp-muted)">{t("orders.pointsUsed", { points: num(order.points.used), amount: formatCents(order.points.discountCents, order.currency, lang) })}</li>
                         ) : null}
                         {order.points?.earned ? <li className="text-sm text-(--sp-muted)">{t("orders.pointsEarned", { points: num(order.points.earned) })}</li> : null}
                         {/* 91.5 The tax, added or inside the total. */}
                         {order.tax ? (
                           <li className="text-sm text-(--sp-muted)">
-                            {t(order.tax.included ? "orders.taxIncluded" : "orders.taxAdded", { tax: taxLabel(order.tax), amount: formatCents(order.tax.cents, order.currency) })}
+                            {t(order.tax.included ? "orders.taxIncluded" : "orders.taxAdded", { tax: taxLabel(order.tax), amount: formatCents(order.tax.cents, order.currency, lang) })}
                           </li>
                         ) : null}
-                        {order.shippingCents > 0 ? <li className="text-sm text-(--sp-muted)">{t("orders.shipping", { amount: formatCents(order.shippingCents, order.currency) })}</li> : null}
+                        {order.shippingCents > 0 ? <li className="text-sm text-(--sp-muted)">{t("orders.shipping", { amount: formatCents(order.shippingCents, order.currency, lang) })}</li> : null}
                       </ul>
                       {order.commissionCents !== null ? (
                         <p className="m-0 text-[13px] leading-relaxed text-(--sp-muted)">
                           {richText(
                             t("orders.soldThrough", {
-                              commission: formatCents(order.commissionCents, order.currency),
-                              share: formatCents(order.totalCents - (order.refundedCents ?? 0) - order.commissionCents, order.currency),
+                              commission: formatCents(order.commissionCents, order.currency, lang),
+                              share: formatCents(order.totalCents - (order.refundedCents ?? 0) - order.commissionCents, order.currency, lang),
                             }),
                             { b: (chunk) => <strong>{chunk}</strong> },
                           )}{" "}
@@ -252,7 +255,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                               <span className="font-semibold">{t("selling.when")}:</span> {deliveryDayLabel(order.delivery.date, lang)}
                               {order.delivery.slot ? ` · ${slotLabel(order.delivery.slot)}` : ""}
                               {order.delivery.shipping?.zone ? ` · ${t("selling.zone")}: ${order.delivery.shipping.zone}` : ""}
-                              {order.shippingCents > 0 ? ` · ${t("selling.fee")}: ${formatCents(order.shippingCents, order.currency)}` : ""}
+                              {order.shippingCents > 0 ? ` · ${t("selling.fee")}: ${formatCents(order.shippingCents, order.currency, lang)}` : ""}
                             </p>
                           ) : null}
                           {order.delivery.sender ? (
@@ -337,7 +340,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                           {stageRefundStatus(order) === "needed" ? (
                             <div className="flex flex-col gap-2 rounded-xl bg-warn-bg p-3 text-[15px]" data-refund-due="needed">
                               <span className="font-bold">{t("orders.needsRefund")}</span>
-                              <span>{t("orders.needsRefundText", { amount: formatCents(order.stageRefund!.cents, order.currency) })}</span>
+                              <span>{t("orders.needsRefundText", { amount: formatCents(order.stageRefund!.cents, order.currency, lang) })}</span>
                               {order.stageRefund!.why ? <span className="text-(--sp-muted)">{k(order.stageRefund!.why)}</span> : null}
                               <form action={markStageRefundedAction}>
                                 <input type="hidden" name="id" value={order.id} />
@@ -346,7 +349,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                             </div>
                           ) : stageRefundStatus(order) === "refunded" ? (
                             <p className="m-0 text-[15px] text-success" data-refund-due="refunded">
-                              {t("orders.refundedAuto", { amount: formatCents(order.stageRefund!.cents, order.currency) })}
+                              {t("orders.refundedAuto", { amount: formatCents(order.stageRefund!.cents, order.currency, lang) })}
                             </p>
                           ) : stageRefundStatus(order) === "recorded" && order.stageRefund!.doneBy ? (
                             <p className="m-0 text-[15px] text-(--sp-muted)" data-refund-due="recorded">
@@ -437,7 +440,8 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                         {order.status === "processing" ? (
                           <>
                             <StatusButton order={order} status="completed" label={t("orders.markCompleted")} />
-                            <StatusButton order={order} status="cancelled" label={t("orders.cancelOrder")} />
+                            {/* 175 Asks first, and for a paid order the owner chooses: refund or not. */}
+                            <CancelOrderButton id={order.id} number={orderNumber(order)} refund={cancelRefundCents(order) !== null ? formatCents(cancelRefundCents(order)!, order.currency, lang) : null} byGateway={options[index]!.refundable && options[index]!.byApi} />
                           </>
                         ) : null}
                         {/* 71 The customer's receipt, the same PDF they got by email. */}

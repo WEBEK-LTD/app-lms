@@ -64,7 +64,15 @@ abstract class OwnerApi {
     int perPage = 20,
   });
   Future<Order> order(String appId, int orderId);
-  Future<Order> changeOrderStatus(String appId, int orderId, String status);
+
+  /// 175 [refund]: with `cancelled`, the owner's choice for a paid order
+  /// (`Order.cancelRefund`): refund what's left, or not.
+  Future<Order> changeOrderStatus(
+    String appId,
+    int orderId,
+    String status, {
+    bool? refund,
+  });
 
   /// 132 The business's reply under a customer's rating (`food`, `market`
   /// or `ride`), written or changed; the customer is told the first time.

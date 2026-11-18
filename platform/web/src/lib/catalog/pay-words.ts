@@ -104,6 +104,12 @@ const EN = {
   theShop: "The shop",
   theShopLower: "the shop",
   theOrganiser: "The organiser",
+  // 188 Stripe's payment sheet in the app (card, Apple Pay, Google Pay).
+  sheetTitle: "Pay in the app",
+  sheetOpening: "Opening the secure payment sheet…",
+  sheetIntro: "Pay {total} by card, Apple Pay or Google Pay in the app's secure Stripe sheet.",
+  sheetCanceled: "The payment wasn't completed. Nothing was charged.",
+  sheetPay: "Pay {total}",
 };
 
 export type PayWords = typeof EN;
@@ -185,6 +191,11 @@ const AR: PayWords = {
   theShop: "المتجر",
   theShopLower: "المتجر",
   theOrganiser: "المنظّم",
+  sheetTitle: "الدفع في التطبيق",
+  sheetOpening: "جارٍ فتح نافذة الدفع الآمنة…",
+  sheetIntro: "ادفع {total} بالبطاقة أو Apple Pay أو Google Pay في نافذة Stripe الآمنة داخل التطبيق.",
+  sheetCanceled: "لم تكتمل عملية الدفع. لم يُخصم أي مبلغ.",
+  sheetPay: "ادفع {total}",
 };
 
 const TR: PayWords = {
@@ -264,6 +275,11 @@ const TR: PayWords = {
   theShop: "Mağaza",
   theShopLower: "mağaza",
   theOrganiser: "Organizatör",
+  sheetTitle: "Uygulamada öde",
+  sheetOpening: "Güvenli ödeme penceresi açılıyor…",
+  sheetIntro: "{total} tutarını uygulamanın güvenli Stripe penceresinde kartla, Apple Pay veya Google Pay ile ödeyin.",
+  sheetCanceled: "Ödeme tamamlanmadı. Ücret alınmadı.",
+  sheetPay: "{total} öde",
 };
 
 const WORDS: Record<PayLang, PayWords> = { en: EN, ar: AR, tr: TR };

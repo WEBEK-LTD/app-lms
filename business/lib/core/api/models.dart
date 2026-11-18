@@ -1430,6 +1430,7 @@ class Order {
     this.stageHistory = const [],
     this.nextStages = const [],
     this.refundDue,
+    this.cancelRefund,
   });
 
   factory Order.fromJson(Json json) {
@@ -1466,6 +1467,10 @@ class Order {
       stageHistory: listOf(json, 'stage_history', OrderStage.fromJson),
       nextStages: strings(json, 'next_stages'),
       refundDue: RefundDue.opt(json, 'refund_due'),
+      cancelRefund: Money.opt(
+        optObject(json, 'cancel_refund') ?? const {},
+        'amount',
+      ),
     );
   }
 
@@ -1514,6 +1519,11 @@ class Order {
   /// 132 The customer's money after a failed delivery cancelled it.
   final RefundDue? refundDue;
 
+  /// 175 What cancelling it now can refund (all that's left of its
+  /// payment): the owner chooses to refund it or not. Null when nothing paid
+  /// is left, and from older servers.
+  final Money? cancelRefund;
+
   /// 132 The owner still has to pay the customer back.
   bool get needsRefund => refundDue?.status == 'needed';
 
@@ -1537,6 +1547,8 @@ class Order {
     List<String>? nextStages,
     OrderDelivery? delivery,
     RefundDue? refundDue,
+    Money? cancelRefund,
+    bool clearCancelRefund = false,
   }) => Order(
     id: id,
     number: number,
@@ -1561,6 +1573,9 @@ class Order {
     stageHistory: stageHistory ?? this.stageHistory,
     nextStages: nextStages ?? this.nextStages,
     refundDue: refundDue ?? this.refundDue,
+    cancelRefund: clearCancelRefund
+        ? null
+        : (cancelRefund ?? this.cancelRefund),
   );
 }
 

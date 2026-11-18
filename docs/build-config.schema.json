@@ -85,6 +85,14 @@
         "site_paths": { "type": "array", "maxItems": 20, "items": { "type": "string", "maxLength": 100, "pattern": "^/([A-Za-z0-9._~%-]+/)+$" }, "description": "48 The paths of the WordPress site's own pages that open the app (permalink bases like /courses/ and /product/, as the plugin reported them with its license check): the Android build adds an intent filter for each on the site's host. Needs site_base_url. Left out when there are none." },
         "crash_report_url": { "type": "string", "format": "uri", "pattern": "^https://[^?#]+/crashes$", "description": "POST /crashes at Yallapp for this app: https://yallapp.com.tr/api/app/{app_id}/crashes." }
       }
+    },
+    "payments": {
+      "type": "object",
+      "description": "Optional. 188 The app's Stripe PaymentSheet. Without it the iPhone app's sheet shows the card but not Apple Pay (Android shows Google Pay either way).",
+      "additionalProperties": false,
+      "properties": {
+        "apple_pay_merchant_id": { "type": "string", "maxLength": 128, "pattern": "^merchant\\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$", "description": "The owner's Apple Pay merchant ID (Payments › Stripe). The iOS build writes the com.apple.developer.in-app-payments entitlement with it once the App ID's provisioning profile has it." }
+      }
     }
   }
 }

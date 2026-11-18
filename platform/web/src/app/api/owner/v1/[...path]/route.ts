@@ -1,6 +1,6 @@
 import { chatPushes } from "@/lib/chat/push-env";
 import { getStore } from "@/lib/data";
-import { sendTemplate } from "@/lib/email/send";
+import { sendAppMail, sendTemplate } from "@/lib/email/send";
 import { appUrl, encryptionKey, paymentApiUrls, signingSecret } from "@/lib/env";
 import { errorResponse, ipFromHeaders, json, noContent } from "@/lib/http";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
@@ -40,6 +40,7 @@ async function handle(request: Request, { params }: RouteContext<"/api/owner/v1/
       paymentUrls: paymentApiUrls(),
       media: getMediaStorage(),
       mail: (key, to, values, app) => sendTemplate(key, to, values, { app }),
+      guestMail: async (app, to, mail) => sendAppMail(await getStore(), app, { to, ...mail }),
       teamMail: (to, values, lang) => sendTemplate("team_invitation", to, values, { lang }),
       staffMail: (to, values) => sendTemplate("account_manager_call", to, values),
       chatPushes,

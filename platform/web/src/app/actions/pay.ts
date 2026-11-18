@@ -3,7 +3,7 @@
 import { PROVIDER_NAME, providerTakes } from "@/lib/payments/provider";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { chargedAmount, cityOptionalFor, readCustomer, startPayment } from "@/lib/catalog/payment";
+import { chargedAmount, cityOptionalFor, readCustomer, startPayment, stripeEmbeddedKey } from "@/lib/catalog/payment";
 import { payErrors, payLangOf, payMessage } from "@/lib/catalog/pay-words";
 import { formatCents } from "@/lib/catalog/money";
 import { chooseManualPayment, isManualMethod } from "@/lib/catalog/manual";
@@ -21,7 +21,7 @@ import { callbackUrls } from "@/lib/payments/routes";
 import { settleOrderPayment } from "@/lib/payments/settle";
 import { withDemoChecked } from "@/lib/demo/apps";
 import { placeDemoOrder } from "@/lib/demo/checkout";
-import { HoldEndedError } from "@/lib/events/holds";
+import { checkTicketHold, HoldEndedError } from "@/lib/events/holds";
 import { noteAppError } from "@/lib/watch/app-errors";
 import { revalidatePath } from "next/cache";
 import { quoteBeforePayment } from "@/lib/selling/in-app-pay";
@@ -50,6 +50,8 @@ export interface PayState extends FormState {
   stripe?: { clientSecret: string; publishableKey: string; jsUrl: string };
   iyzico?: { formContent: string; pageUrl: string };
   kashier?: { frameUrl: string; pageUrl: string; returnUrl: string };
+  /** 188 The details are saved: the app's Stripe PaymentSheet takes the payment (the page asks the app). */
+  sheet?: boolean;
 }
 
 /**
@@ -130,6 +132,18 @@ async function payActionIn(token: string, _: PayState, formData: FormData): Prom
       revalidatePath(`/pay/${token}`);
       return { message: `With the shipping and tax for your address, the total is ${formatCents(fresh.totalCents, fresh.currency)}. Check it, then tap Pay.`, values };
     }
+  }
+  // 188 In the app, with Stripe: the details are saved and the app's own PaymentSheet takes the payment
+  // (card, Apple Pay, Google Pay); it asks /pay/<token>/sheet for the PaymentIntent. Without the publishable key, Stripe's form here.
+  if (formData.get("sheet") === "1" && formData.get("hosted") !== "1" && stripeEmbeddedKey(app, account.account)) {
+    try {
+      await checkTicketHold(store, app, payable, now);
+    } catch (e) {
+      if (e instanceof HoldEndedError) return { message: "The places held for this order were released. Go back to the app and get your tickets again." };
+      throw e;
+    }
+    await store.updateCatalogOrder(app.id, payable.id, { customer: checked.customer, updatedAt: now });
+    return { values, sheet: true };
   }
   const urls = callbackUrls(appUrl(), "order", account.account.provider, token);
   let started;

@@ -13,7 +13,9 @@ import 'pay_sheet.dart';
 import 'pay_sheet_view.dart';
 import 'web_files.dart';
 import 'site_sign_in.dart';
+import 'stripe_pay_sheet.dart';
 import 'web_view.dart';
+import '../providers.dart';
 import '../l10n/l10n.dart';
 
 class WebPageArgs {
@@ -61,6 +63,11 @@ class WebPageArgs {
 /// is through, telling [WebPageArgs.onCompleted] the order received page's
 /// address as the web view did. Every other page, the app preview and
 /// builds without their return address keep the web view.
+///
+/// 188 That browser sheet is now dormant ([opensInPaySheetProvider]): the
+/// payment page stays in the web view, and a Stripe payment there is taken
+/// by Stripe's native PaymentSheet ([StripePagePayment], card, Apple Pay,
+/// Google Pay), which the page asks for through the `YallappPay` channel.
 class WebPageScreen extends ConsumerStatefulWidget {
   const WebPageScreen({super.key, required this.args});
 
@@ -75,6 +82,11 @@ class _WebPageScreenState extends ConsumerState<WebPageScreen> {
   late final Uri _page = Uri.parse(widget.args.url);
   WebViewRequest? _request;
 
+  /// 188 The payment page and its hand-off to Stripe's PaymentSheet; null
+  /// for every other page, and where the sheet can't show.
+  StripePagePayment? _stripe;
+  WebViewHandle? _handle;
+
   /// 170 Paying in the browser sheet (until the phone can't open it).
   late bool _sheet =
       !widget.args.ownerPage && ref.read(opensInPaySheetProvider)(_page);
@@ -82,6 +94,7 @@ class _WebPageScreenState extends ConsumerState<WebPageScreen> {
   @override
   void initState() {
     super.initState();
+    _stripe = _stripeFor(_page);
     if (!widget.args.ownerPage) {
       _request = _requestFor(_page);
       return;
@@ -99,9 +112,40 @@ class _WebPageScreenState extends ConsumerState<WebPageScreen> {
     );
   }
 
+  StripePagePayment? _stripeFor(Uri url) {
+    if (widget.args.ownerPage) return null;
+    final presenter = ref.read(stripeSheetPresenterProvider);
+    final page = payPageOf(url, ref.read(appEnvironmentProvider).build);
+    if (presenter == null || page == null) return null;
+    return StripePagePayment(
+      page: page,
+      readSetup: ref.read(sheetSetupReaderProvider),
+      presenter: presenter,
+      readStatus: ref.read(payStatusReaderProvider),
+      toPage: (message) async => _handle?.postToPage(message),
+      onPaid: _paidInSheet,
+      applePayMerchantId: ref
+          .read(appEnvironmentProvider)
+          .build
+          .applePayMerchantId,
+      dark:
+          WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+          Brightness.dark,
+    );
+  }
+
+  /// 188 The page asks the app to take its Stripe payment.
+  void _onPayMessage(String message) {
+    final stripe = _stripe;
+    if (stripe == null || !isSheetRequest(message) || _completed) return;
+    unawaited(stripe.run());
+  }
+
   WebViewRequest _requestFor(Uri url) => WebViewRequest(
     url: url,
     headers: widget.args.headers,
+    channels: _stripe == null ? const {} : {payChannelName: _onPayMessage},
+    onCreated: _stripe == null ? null : (handle) => _handle = handle,
     onUrlChange: _onUrl,
     debugLabel: 'page',
     injectCss: widget.args.look?.css,
@@ -125,9 +169,10 @@ class _WebPageScreenState extends ConsumerState<WebPageScreen> {
   void _close() => Navigator.of(context).pop(_completed);
 
   /// 170 The platform says the order is through: as when the web view
-  /// reached the order received page, then the screen closes.
+  /// reached the order received page, then the screen closes. 188 Also
+  /// after Stripe's PaymentSheet.
   void _paidInSheet(Uri received) {
-    if (!mounted) return;
+    if (!mounted || _completed) return;
     _completed = true;
     widget.args.onCompleted?.call(received);
     _close();

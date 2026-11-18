@@ -162,7 +162,7 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
           : v.status === "return_declined"
             ? `Your return was declined.${v.reply ? ` ${v.reply}` : ""}`
             : v.status === "shipped"
-          ? `Your order is on its way${v.tracking ? `: ${v.tracking}` : ""}. Tap to follow it.`
+          ? `Your order is on its way${v.tracking ? `: ${v.tracking}` : ""}.${v.email ? "" : " Tap to follow it."}`
           : v.status === "cancelled"
             ? "Your order was cancelled."
             : v.status === "refunded"
@@ -185,7 +185,7 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
           : v.status === "return_declined"
             ? `تم رفض إرجاع طلبك.${v.reply ? ` ${v.reply}` : ""}`
             : v.status === "shipped"
-          ? `طلبك في الطريق${v.tracking ? `: ${v.tracking}` : ""}. اضغط لتتبّعه.`
+          ? `طلبك في الطريق${v.tracking ? `: ${v.tracking}` : ""}.${v.email ? "" : " اضغط لتتبّعه."}`
           : v.status === "cancelled"
             ? "تم إلغاء طلبك."
             : v.status === "refunded"
@@ -208,7 +208,7 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
           : v.status === "return_declined"
             ? `İade talebiniz reddedildi.${v.reply ? ` ${v.reply}` : ""}`
             : v.status === "shipped"
-          ? `Siparişiniz yolda${v.tracking ? `: ${v.tracking}` : ""}. Takip etmek için dokunun.`
+          ? `Siparişiniz yolda${v.tracking ? `: ${v.tracking}` : ""}.${v.email ? "" : " Takip etmek için dokunun."}`
           : v.status === "cancelled"
             ? "Siparişiniz iptal edildi."
             : v.status === "refunded"
@@ -288,6 +288,65 @@ export interface AutoDeps {
   key: Buffer;
   now: Date;
   send?: typeof sendPush;
+  /** 175 Emails a guest customer (no account in the app) in the app's name; without it, guests aren't emailed. */
+  guestMail?: GuestMailer;
+}
+
+/** 175 An email to a customer who ordered as a guest, in the app's name (lib/email/send.ts sendAppMail). */
+export type GuestMailer = (app: App, to: string, mail: { subject: string; text: string }) => Promise<unknown>;
+
+/** 175 The words around a guest's order email, in the customer's language (Modern Standard Arabic). */
+const GUEST_MAIL: Record<Lang, { hello: (name: string) => string; footer: (shop: string, number: string) => string }> = {
+  en: {
+    hello: (name) => (name ? `Dear ${name},` : "Hello,"),
+    footer: (shop, number) => `If you have a question about your order, contact ${shop} and give the order number ${number}.`,
+  },
+  ar: {
+    hello: (name) => (name ? `مرحبًا ${name}،` : "مرحبًا،"),
+    footer: (shop, number) => `إن كان لديك سؤال عن طلبك، فتواصل مع ${shop} واذكر رقم الطلب ${number}.`,
+  },
+  tr: {
+    hello: (name) => (name ? `Sayın ${name},` : "Merhaba,"),
+    footer: (shop, number) => `Siparişinizle ilgili bir sorunuz olursa ${shop} ile iletişime geçin ve sipariş numarasını (${number}) belirtin.`,
+  },
+};
+
+/** 175 The language of a guest's emails: the one they checked out in when the app has it, else the app's. */
+async function guestLang(store: DataStore, app: App, wanted: string | null | undefined): Promise<Lang> {
+  const asked = wanted?.trim().toLowerCase().split(/[-_]/)[0] ?? "";
+  if (asked === "en" || asked === "ar" || asked === "tr") {
+    const layout = await store.getAppLayout(app.id);
+    const available = (layout?.published ?? layout?.draft)?.languages.available;
+    if (!available || (available as readonly string[]).includes(asked)) return asked;
+  }
+  return appLang(store, app.id);
+}
+
+type GuestOrder = Pick<CatalogOrder, "id" | "userId"> & Partial<Pick<CatalogOrder, "customer" | "lang">>;
+
+/**
+ * 175 A guest customer has no inbox or phone in the app: what a signed-in
+ * customer is told (the order_update words) goes to the email they gave at
+ * checkout, in their language, once per change. False when nothing was sent
+ * (a signed-in customer, no email, no mailer, the owner turned order updates
+ * off).
+ */
+export async function mailGuestOrder(deps: AutoDeps, app: App, order: GuestOrder, values: Values, options: { always?: boolean } = {}): Promise<boolean> {
+  const to = order.customer?.email?.trim();
+  if (order.userId !== null || !to || !deps.guestMail) return false;
+  if (!options.always && !autoOn(app, "order_update")) return false;
+  if (!autoKindsFor(app).includes("order_update")) return false;
+  const lang = await guestLang(deps.store, app, order.lang);
+  const text = AUTO_TEXT.order_update[lang]({ ...values, email: "1" });
+  const shop = app.appName?.trim() || "—";
+  const words = GUEST_MAIL[lang];
+  try {
+    await deps.guestMail(app, to, { subject: `${shop} · ${text.title}`, text: `${words.hello(order.customer?.name?.trim() ?? "")}\n\n${text.body}\n\n${words.footer(shop, values.number ?? "")}` });
+    return true;
+  } catch (e) {
+    console.error(`[orders] the guest's order email failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 400));
+    return false;
+  }
 }
 
 export interface AutoItem {
@@ -398,29 +457,33 @@ export async function notifyOrderRefund(deps: AutoDeps, app: App, order: Pick<Ca
 }
 
 /** 132 A store order's delivery stage (shipped, postponed, a failed attempt): its customer, once per change. */
-export async function notifyOrderStage(deps: AutoDeps, app: App, order: Pick<CatalogOrder, "id" | "userId" | "stageLog">, entry: OrderStageEntry) {
-  if (order.userId === null || !(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
-  return notifyAuto(deps, app, "order_update", [
-    {
-      userId: order.userId,
-      ref: `order:${order.id}:stage:${order.stageLog?.length ?? 0}`,
-      values: {
-        number: orderNumber(order),
-        status: entry.stage,
-        tracking: "",
-        reason: entry.reason ?? "",
-        next: entry.next ?? "",
-        date: entry.date ?? "",
-        slot: entry.slot ? slotLabel(entry.slot) : "",
-      },
-      data: { order_id: String(order.id) },
-    },
-  ]);
+export async function notifyOrderStage(deps: AutoDeps, app: App, order: Pick<CatalogOrder, "id" | "userId" | "stageLog"> & Partial<Pick<CatalogOrder, "customer" | "lang">>, entry: OrderStageEntry) {
+  if (!(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
+  const values = {
+    number: orderNumber(order),
+    status: entry.stage,
+    tracking: "",
+    reason: entry.reason ?? "",
+    next: entry.next ?? "",
+    date: entry.date ?? "",
+    slot: entry.slot ? slotLabel(entry.slot) : "",
+  };
+  // 175 A guest is told by email (with the tracking link, when the shop gave one).
+  if (order.userId === null) {
+    await mailGuestOrder(deps, app, order, { ...values, tracking: entry.stage === "shipped" ? (entry.trackingUrl ?? "") : "" });
+    return { people: 0, phones: 0 };
+  }
+  return notifyAuto(deps, app, "order_update", [{ userId: order.userId, ref: `order:${order.id}:stage:${order.stageLog?.length ?? 0}`, values, data: { order_id: String(order.id) } }]);
 }
 
 /** 91.2 An order of a shop without a website completed or cancelled (Orders, the Owner API): its customer; 132 delivered, when its delivery stage completed it. */
-export async function notifyOrderUpdate(deps: AutoDeps, app: App, order: Pick<CatalogOrder, "id" | "userId">, status: "completed" | "cancelled" | "delivered") {
-  if (order.userId === null || !(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
+export async function notifyOrderUpdate(deps: AutoDeps, app: App, order: GuestOrder, status: "completed" | "cancelled" | "delivered") {
+  if (!(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
+  // 175 A guest is told by email.
+  if (order.userId === null) {
+    await mailGuestOrder(deps, app, order, { number: orderNumber(order), status });
+    return { people: 0, phones: 0 };
+  }
   return notifyAuto(deps, app, "order_update", [
     { userId: order.userId, ref: `order:${order.id}:${status}`, values: { number: orderNumber(order), status }, data: { order_id: String(order.id) } },
   ]);

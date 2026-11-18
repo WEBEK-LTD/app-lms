@@ -23,7 +23,7 @@ S = [
 ("delivered", "Delivered", "تم التوصيل", "Teslim edildi"),
 ("cancelOrder", "Cancel order", "إلغاء الطلب", "Siparişi iptal et"),
 ("cancelOrderTitle", "Cancel order {number}?", "إلغاء الطلب {number}؟", "{number} numaralı sipariş iptal edilsin mi?"),
-("cancelOrderText", "The customer is told. A payment taken for it is refunded separately.", "سيتم إبلاغ العميل. يُسترد أي مبلغ مدفوع بشكل منفصل.", "Müşteriye bildirilir. Alınan ödeme ayrıca iade edilir."),
+("cancelOrderText", "The customer is told, and its items go back in stock.", "سيتم إبلاغ العميل، وتعود المنتجات إلى المخزون.", "Müşteriye bildirilir ve ürünler stoğa geri döner."),
 ("orderUpdated", "Order {number}: {status}", "الطلب {number}: {status}", "Sipariş {number}: {status}"),
 ("noOrdersInProgress", "No orders in progress", "لا طلبات قيد التنفيذ", "Hazırlanan sipariş yok"),
 ("noOrders", "No orders here yet", "لا طلبات هنا بعد", "Burada henüz sipariş yok"),

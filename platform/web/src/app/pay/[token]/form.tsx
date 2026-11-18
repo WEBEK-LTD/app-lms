@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { payAction, type PayState } from "@/app/actions/pay";
 import { Field, FieldError, FormMessage } from "@/components/form";
@@ -10,6 +10,7 @@ import { initialFormState } from "@/lib/forms";
 import { IyzicoCard } from "./iyzico-card";
 import { KashierCard } from "./kashier-card";
 import { StripeCard } from "./stripe-card";
+import { AppSheet, useAppSheet } from "./app-sheet";
 import type { PayWords } from "@/lib/catalog/pay-words";
 
 /** `{name}` in a text with its value (lib/catalog/pay-words.ts `fill`, without its server imports). */
@@ -76,6 +77,32 @@ export function PayForm({
   // The choice lives outside the form, which React resets after each submit.
   const [method, setMethod] = useState(methods[0]?.method ?? "card");
   const chosen = methods.find((m) => m.method === method);
+  // 188 In the app's web view: the app's own Stripe PaymentSheet takes a Stripe payment (card, Apple Pay, Google Pay).
+  const inApp = useAppSheet();
+  const [noSheet, setNoSheet] = useState(false);
+  const fallback = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (noSheet && state.sheet) fallback.current?.requestSubmit();
+  }, [noSheet, state.sheet]);
+  if (state.sheet) {
+    return noSheet ? (
+      // The app couldn't take it: Stripe's form in this page, with the same details.
+      <form ref={fallback} action={action} className="flex flex-col gap-3" data-pay-step="sheet-fallback">
+        <input type="hidden" name="method" value="card" />
+        {(["name", "phone", "email", "city", "address"] as const).map((name) => (
+          <input key={name} type="hidden" name={name} value={value(name)} />
+        ))}
+        <PayButton label={fill(w.pay, { total })} busy={w.opening} color={color} textColor={textColor} />
+      </form>
+    ) : (
+      <div className="flex flex-col gap-4">
+        <AppSheet token={token} total={total} color={color} textColor={textColor} words={w} onUnavailable={() => setNoSheet(true)} />
+        <button type="button" onClick={() => window.location.reload()} className="cursor-pointer self-start border-0 bg-transparent p-0 text-[15px] font-semibold underline">
+          {w.changeDetails}
+        </button>
+      </div>
+    );
+  }
   // 144 The details are in: Stripe's card form (153 iyzico's, Kashier's), in this page.
   if (state.stripe || state.iyzico || state.kashier) {
     const provider = state.stripe ? "Stripe" : state.iyzico ? "iyzico" : "Kashier";
@@ -144,6 +171,7 @@ export function PayForm({
       ) : null}
       <form action={action} noValidate className="flex flex-col gap-4">
         <input type="hidden" name="method" value={method} />
+        {inApp && method === "card" && card === "Stripe" ? <input type="hidden" name="sheet" value="1" /> : null}
         <FormMessage message={state.message} ok={state.ok} />
         <Field label={w.fullName} name="name" autoComplete="name" required defaultValue={value("name")} error={state.errors?.name} />
         <Field label={w.mobile} name="phone" type="tel" autoComplete="tel" required defaultValue={value("phone")} error={state.errors?.phone} />
