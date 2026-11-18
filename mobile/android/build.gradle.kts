@@ -35,6 +35,14 @@ subprojects {
 subprojects {
     project.evaluationDependsOn(":app")
 }
+// 192 Google's play-services-tapandpay (for issuing cards to wallets, which the apps don't do)
+// isn't on any public repository: left out of every library's lint checks, where Stripe's
+// push-provisioning module asks for it, so nothing tries to download it.
+subprojects {
+    configurations.matching { it.name.contains("LintChecks", ignoreCase = true) || it.name == "lintChecks" || it.name == "lintPublish" }.configureEach {
+        exclude(group = "com.google.android.gms", module = "play-services-tapandpay")
+    }
+}
 
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)

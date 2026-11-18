@@ -129,6 +129,11 @@ jobs:
       - name: Build debug APK
         run: flutter build apk --debug
 
+      # 192 A release build too (the debug key, never uploaded): client builds are release builds,
+      # and release runs steps a debug build doesn't (R8, resource shrinking, lint's vital pass).
+      - name: Build release APK (debug key)
+        run: flutter build apk --release
+
       - name: Upload debug APK
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
