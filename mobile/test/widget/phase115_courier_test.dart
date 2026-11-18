@@ -73,13 +73,19 @@ void main() {
     expect(map.cash, isTrue);
   });
 
-  testWidgets('the vendor app opens on the orders, with stock and Account', (
-    tester,
-  ) async {
+  testWidgets('the vendor app opens on the orders, with picking, stock, '
+      'offers and Account', (tester) async {
     phone(tester);
     final a = app(api('vendor'), AppRole.vendor);
     await a.pump(tester);
-    expect(tabs(a), [Paths.vendorDesk, Paths.vendorStock, Paths.account]);
+    // 115.77 The approved bar: orders, picking, stock, offers, account.
+    expect(tabs(a), [
+      Paths.vendorDesk,
+      Paths.vendorPicking,
+      Paths.vendorStock,
+      Paths.vendorOffers,
+      Paths.account,
+    ]);
     expect(
       a.container.read(appRouterProvider).state.uri.path,
       Paths.vendorDesk,
