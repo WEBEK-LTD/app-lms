@@ -1023,6 +1023,13 @@
       "when": 1795006514565,
       "tag": "0146_market_if_missing",
       "breakpoints": true
+    },
+    {
+      "idx": 147,
+      "version": "5",
+      "when": 1795007191045,
+      "tag": "0147_market_settlement",
+      "breakpoints": true
     }
   ]
 }

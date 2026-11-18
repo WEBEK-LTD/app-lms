@@ -20305,7 +20305,7 @@ components:
       type: object
       required: [kind, label, amount]
       properties:
-        kind: { type: string, enum: [items, item_discounts, coupon, club, delivery, delivery_discount, tax, tip, wallet, total] }
+        kind: { type: string, enum: [items, item_discounts, coupon, club, delivery, delivery_discount, tax, tip, wallet, total, refund], description: "115.29 `refund` comes after the total: what went back once a weighed order came to less than was paid (negative)." }
         label: { type: string, example: Delivery }
         amount: { $ref: '#/components/schemas/Money' }
 
@@ -20421,6 +20421,15 @@ components:
           items: { $ref: '#/components/schemas/MarketPriceLine' }
         total: { $ref: '#/components/schemas/Money' }
         estimated: { type: boolean, description: '115.24 True while items sold by weight aren''t weighed yet: `total` is an estimate until then. Missing on older servers.' }
+        settlement:
+          type: [object, 'null']
+          description: '115.29 A weighed order paid by card, Apple Pay, Google Pay or the wallet, once ready: what it was charged (`paid`, the estimate), what it came to once picked (`final`), and what went back to the card and to the wallet (to the wallet when the card''s refund failed or the gateway has none). Null before or when nothing went back; missing on older servers.'
+          required: [paid, final, to_card, to_wallet]
+          properties:
+            paid: { $ref: '#/components/schemas/Money' }
+            final: { $ref: '#/components/schemas/Money' }
+            to_card: { $ref: '#/components/schemas/Money' }
+            to_wallet: { $ref: '#/components/schemas/Money' }
         status_note: { type: [string, 'null'], description: '115.24 Why a cancelled or turned-down order ended, in words for the customer, e.g. "Payment not completed" for an online payment left unfinished for 30 minutes. Missing on older servers.' }
         payment:
           type: object

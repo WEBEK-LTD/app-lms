@@ -1268,4 +1268,14 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "Enter the stock as a number.": "أدخل المخزون رقمًا.",
   "{0} is no longer available.": "{0} لم يعد متوفرًا.",
   "Order at least {0} of {1}.": "اطلب {0} على الأقل من {1}.",
+  // 115.40 Proposing a similar item.
+  "Accept the item or leave it out.": "اقبل الصنف أو استبعده.",
+  "Choose the item to propose.": "اختر الصنف الذي تقترحه.",
+  "Choose what to do if something is out.": "اختر ما يُفعل إذا نفد صنف.",
+  "This order has moved on. Refresh it.": "تقدّم هذا الطلب إلى مرحلة أخرى. حدّثه.",
+  "That line isn't on this order.": "هذا البند ليس في هذا الطلب.",
+  "This line is already picked.": "جُهّز هذا البند بالفعل.",
+  "That item isn't sold here.": "هذا الصنف لا يُباع هنا.",
+  "Choose another item that's in stock.": "اختر صنفًا آخر متوفرًا.",
+  "There's nothing to answer on this line.": "لا يوجد ما يُجاب عنه في هذا البند.",
 };

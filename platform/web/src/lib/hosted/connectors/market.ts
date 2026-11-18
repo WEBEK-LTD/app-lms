@@ -41,6 +41,7 @@ import {
 import { giveBackOrderStock, stockAmount, takeOrderStock } from "../../market/stock";
 import { createProduct, deleteAisle, deleteDepartment, deleteProduct, orderShelves, saveAisle, saveDepartment, sellsProducts, setProductStock, updateProduct, type CatalogErrors, type CatalogScope } from "../../market/catalog-edit";
 import { readCursorParam } from "../../market/product-paging";
+import { gatewayRefund, settleWeighedOrder, type CardRefund } from "../../market/settlement";
 import {
   clubPlanJson,
   complaintJson,
@@ -100,6 +101,10 @@ export interface MarketDeps {
   cardPayments?: boolean;
   /** 115.11 Photos customers add to complaints, into the app's Media library; without it complaints take words only. */
   uploads?: { storage: MediaStorage; chunkBytes: number; limitBytes: () => Promise<number | null> };
+  /** 115.29 The encryption key, for weighed orders' refunds through the app's own gateway. */
+  key?: Buffer;
+  /** 115.29 Tests: the card's refund instead of the gateway's. */
+  refundToCard?: CardRefund;
 }
 
 /** Complaint photos: pictures (JPEG, PNG or WebP) up to 8 MB. */
@@ -1111,7 +1116,11 @@ export class MarketConnector {
     if (!o) return orderNotFound();
     if (o.vendorKind !== "restaurant" && o.lines.some((l) => l.outcome === null)) return error(409, "not_picked", "Pick every line first.");
     const moved = await readyMarketOrder(this.flow(now), o);
-    return moved.ok ? { status: 200, body: await this.vendorJsonOf(moved.order, now) } : refused();
+    if (!moved.ok) return refused();
+    // 115.29 A weighed order paid ahead gets back what it came to less; a cash order's courier collects the new total.
+    const refundToCard = this.deps.refundToCard ?? (this.deps.key ? gatewayRefund(this.deps.store, this.deps.app, this.deps.key, "127.0.0.1", now) : undefined);
+    const settled = await settleWeighedOrder({ store: this.deps.store, app: this.deps.app, now, refundToCard }, moved.order);
+    return { status: 200, body: await this.vendorJsonOf(settled.settled ? settled.order : moved.order, now) };
   }
 
   private async handover(s: Staffed, id: number, request: ConnectorRequest): Promise<ConnectorResult> {

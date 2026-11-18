@@ -6268,7 +6268,7 @@ components:
                 type: object
                 required: [kind, amount]
                 properties:
-                  kind: { type: string, enum: [items, item_discounts, coupon, club, delivery, delivery_discount, tax, tip, wallet, total] }
+                  kind: { type: string, enum: [items, item_discounts, coupon, club, delivery, delivery_discount, tax, tip, wallet, total, refund], description: "115.29 `refund` comes after the total: what went back once a weighed order came to less than was paid (negative)." }
                   amount: { $ref: '#/components/schemas/Money' }
             courier:
               description: 132 The app's courier on it.

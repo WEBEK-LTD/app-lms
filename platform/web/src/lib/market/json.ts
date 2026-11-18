@@ -54,6 +54,8 @@ const PRICE_LABELS: Record<PriceLineKind, string> = {
   tip: "Tip",
   wallet: "Wallet",
   total: "Total",
+  // 115.29 After the total: what went back once the order was weighed for less.
+  refund: "Refunded after weighing",
 };
 
 /** Every line of the price, in order, ending with the total. */
@@ -293,6 +295,8 @@ export function customerOrderJson(
     if_missing: o.ifMissing ?? null,
     price: priceLinesJson(o.money, c, input.taxLabel),
     total: money(o.money.total, c),
+    // 115.29 What went back once the weighed order came to less than was paid.
+    settlement: o.money.settlement ? { paid: money(o.money.settlement.paid, c), final: money(o.money.settlement.final, c), to_card: money(o.money.settlement.toCard, c), to_wallet: money(o.money.settlement.toWallet, c) } : null,
     // 115.24 Why it was cancelled or turned down, in words for the customer ("Payment not completed").
     status_note: o.status === "cancelled" || o.status === "rejected" ? (o.rejection?.note ?? null) : null,
     // 115.24 True while items sold by weight aren't weighed yet: the total is an estimate until then.

@@ -1024,6 +1024,21 @@ folded, Studio's plans on a night band, every kind of app each product
 makes, a few questions and a closing band in the night. Only the plans for
 sale show, with their prices from Admin › Plans.
 
+Roadmap 115.29–115.32 (weighed orders settled with what was paid): card,
+Apple Pay, Google Pay and wallet orders pay the estimate and are never
+charged more (picking caps each line at its estimate); once ready, what the
+order came to less is refunded once, on its own, to the card through the
+app's own gateway and to the wallet for what the wallet paid, or to the
+wallet when the card's refund fails or the gateway has none. It's on the
+order's price lines (a `refund` line after the total) and its new
+`settlement`, in the wallet's ledger, and counted by complaints' later
+refunds. Cash orders pay what they weigh, at most the estimate plus the
+vendor's tolerance, and the app's courier collects that. A weight picked
+other than ordered moves the stock by the difference (`pick` in the
+ledger). The daily job gives older products their search names, 500 at a
+time. The "changed while picked" push says what goes back. Migration
+`0147_market_settlement` (one nullable column, `market_orders.settled_at`).
+
 Roadmap 115.24–115.28 (the marketplace's catalog: stock, editing, search
 at scale): a grocery's or shop's counted stock goes down when an order is
 placed, all of its lines or none, never below 0 (the store locks each
@@ -1132,12 +1147,13 @@ test environment:
 
 - 115.24 Unpaid online orders are expired by the frequent job (every 5
   minutes): an abandoned payment holds its stock for 30 to 35 minutes.
-- 115.24 Products saved before the search name get it the first time
-  their place's catalog is searched, 500 at a time: a big catalog finds
-  everything after a few searches (or a one-off backfill).
-- 115.24 A weighed line's stock is taken as ordered; a different picked
-  weight doesn't change it. A restaurant's menu is still edited by the
-  app's owner only (Stage 6).
+- 115.24 Products saved before the search name get it from the daily job
+  (or their place's first searches), 500 at a time.
+- 115.24 A restaurant's menu is still edited by the app's owner only
+  (Stage 6).
+- 115.29 A line picked again with another weight moves its stock once (its
+  first different weight); the settlement is made once, when the order is
+  first ready.
 
 - 115.47 No call relay: `MarketTracking.courier.call` is always null, so
   the app shows no call button for the app's courier yet.

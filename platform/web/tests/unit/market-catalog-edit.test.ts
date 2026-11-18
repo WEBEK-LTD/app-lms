@@ -9,6 +9,7 @@ import { normalizeSearch, productSearchName, searchMatch } from "@/lib/market/se
 import { decodeProductCursor, encodeProductCursor, readCursorParam } from "@/lib/market/product-paging";
 import { stockAmount, stockUnits } from "@/lib/market/stock";
 import { perVendorTake, topK } from "@/lib/market/top-k";
+import { refundWords, settlementDue } from "@/lib/market/settlement";
 import { NOW } from "./helpers";
 
 describe("115.24 search names", () => {
@@ -198,5 +199,21 @@ describe("115.24 editing a place's catalog, and the owner's undo", () => {
     const kitchen = await store.createRestaurant({ ...place.vendor, kind: "restaurant", name: "Kitchen" }, { sections: [], nextId: 1 }, NOW);
     expect((await createProduct({ ...place, vendor: kitchen }, { name: "X", price: "1" }, NOW)).ok).toBe(false);
     expect(app.id).toBeTruthy();
+  });
+});
+
+describe("115.29 what a weighed order gets back", () => {
+  const money = (total: number, payNow: number, wallet: number, charged?: { total: number; payNow: number; wallet: number }) => ({ total, payNow, wallet, ...(charged ? { charged } : {}) }) as never;
+  it("is the card's part and the wallet's part of what it came to less, said in the push in the customer's language", () => {
+    const card = { paymentMethod: "card" as const, paymentStatus: "paid" as const, currency: "EGP", money: money(30000, 30000, 0, { total: 40000, payNow: 40000, wallet: 0 }) };
+    expect(settlementDue(card)).toEqual({ toCard: 10000, toWallet: 0 });
+    expect(refundWords(card, "en")).toBe("EGP 100.00");
+    expect(refundWords(card, "ar")).toMatch(/100\.00/);
+    // Part from the wallet: what went over it goes back to the wallet too.
+    expect(settlementDue({ ...card, money: money(5000, 0, 5000, { total: 40000, payNow: 30000, wallet: 10000 }) })).toEqual({ toCard: 30000, toWallet: 5000 });
+    // Not picked yet, cash, or still unpaid: nothing.
+    expect(settlementDue({ ...card, money: money(40000, 40000, 0) })).toEqual({ toCard: 0, toWallet: 0 });
+    expect(refundWords({ ...card, paymentMethod: "cash" }, "en")).toBe("");
+    expect(settlementDue({ ...card, paymentStatus: "unpaid" })).toEqual({ toCard: 0, toWallet: 0 });
   });
 });

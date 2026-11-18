@@ -8,6 +8,7 @@ import { priceOrder, type Tax } from "./money";
 import { commissionOfVendor } from "./cart";
 import { joinClub, returnToWallet } from "./offers";
 import { giveBackOrderStock, stockAfterPick } from "./stock";
+import { paidAhead } from "./settlement";
 import { tellMarketCustomer, tellVendor } from "./notify";
 import { prepWithDelay } from "./vendor-controls";
 
@@ -184,7 +185,8 @@ export async function pickMarketOrder(store: DataStore, order: MarketOrder, pick
     const quantity = p.pickedQuantity ?? line.quantity;
     if (quantity <= 0) return { ok: false, reason: "invalid", error: "Enter what you picked." };
     const exact = Math.round(line.unitPrice * quantity + 1e-9);
-    const cap = Math.round((line.unitPrice * line.quantity * (100 + tolerancePercent)) / 100 + 1e-9);
+    // 115.29 Paid ahead (card, wallet): never more than the estimate it was charged; cash: up to the vendor's tolerance above it.
+    const cap = Math.round((line.unitPrice * line.quantity * (100 + (paidAhead(order) ? 0 : tolerancePercent))) / 100 + 1e-9);
     Object.assign(line, { outcome: "picked", pickedQuantity: quantity, substitute: null, total: Math.min(exact, cap) });
   }
   // The money again from the picked lines, keeping the coupon, club, delivery and tax as they were.
@@ -205,7 +207,8 @@ export async function pickMarketOrder(store: DataStore, order: MarketOrder, pick
     collectedBy: m.split.collectedBy,
     courierCharge: m.split.courierCharge ?? 0,
   });
-  const patch = { lines, money, updatedAt: now };
+  // 115.29 What was charged before picking changed it, for the settlement once ready.
+  const patch = { lines, money: { ...money, charged: m.charged ?? { total: m.total, payNow: m.payNow, wallet: m.wallet } }, updatedAt: now };
   if (!(await store.updateMarketOrder(order.appId, order.id, patch, { statuses: [order.status] }))) return { ok: false, reason: "changed" };
   // 115.24 Left out: its stock back; swapped: the ordered item's back and the substitute's taken.
   await stockAfterPick(store, order, lines, now);

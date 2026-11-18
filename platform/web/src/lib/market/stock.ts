@@ -98,4 +98,12 @@ export async function stockAfterPick(store: DataStore, before: MarketOrder, afte
   // What those lines took first (the ordered item, or an earlier substitute), then the new substitutes.
   if (back.length) await store.returnMarketStock(before.appId, before.id, back, who, now);
   if (subs.length) await store.takeMarketStock(before.appId, before.id, subs, "substitute", who, now, true);
+  // 115.29 A weight picked other than ordered: its stock moves by the difference (once per line, `pick`).
+  for (const line of after) {
+    if (line.outcome !== "picked" || line.pickedQuantity === null || line.pickedQuantity === line.quantity) continue;
+    const p = await store.getMarketProduct(before.appId, line.productId);
+    if (!p || p.stock === null) continue;
+    const units = stockUnits(p, line.quantity) - stockUnits(p, line.pickedQuantity);
+    if (units !== 0) await store.adjustMarketStockForPick(before.appId, before.id, line.id, p.id, units, who, now);
+  }
 }

@@ -119,7 +119,7 @@ function sourceConnector(app: App, key: Buffer, deps: Parameters<typeof connecto
   if (app.connector?.kind === "events") return new EventsConnector({ ...deps, app });
   if (app.connector?.kind === "campaigns") return new DonationsConnector({ ...deps, app });
   if (app.connector?.kind === "deliveries") return new DeliveryConnector({ ...deps, app, fetcher });
-  if (app.connector?.kind === "restaurants") return new FoodConnector({ ...deps, app, fetcher });
+  if (app.connector?.kind === "restaurants") return new FoodConnector({ ...deps, app, fetcher, key });
   if (app.connector?.kind === "rides") {
     // 105.9 A live taxi app: the rides engine with the live map; 112.1 ride hailing apps on the same map.
     return new TaxiConnector({ ...deps, app, fetcher, key, account: serviceAccountOf(app, key), maps: { fetcher } });

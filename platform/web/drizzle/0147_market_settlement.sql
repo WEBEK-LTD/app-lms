@@ -1,0 +1,1 @@
+ALTER TABLE `market_orders` ADD `settled_at` datetime(3);

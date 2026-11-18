@@ -1459,6 +1459,15 @@ export interface DataStore {
    * taken once. `clamp` (a substitute picked from the shelf) takes what is left instead of refusing.
    */
   takeMarketStock(appId: string, orderId: number, lines: MarketStockLine[], reason: "order" | "substitute", who: MarketStockWho, now: Date, clamp?: boolean): Promise<MarketStockTake>;
+  /**
+   * 115.29 A picked weight that differs from the order's: the line's product stock moves by `units`
+   * (negative: more taken, never below 0; positive: given back), once per line (`pick` in the ledger).
+   */
+  adjustMarketStockForPick(appId: string, orderId: number, lineId: number, productId: number, units: number, who: MarketStockWho, now: Date): Promise<MarketStockMove | null>;
+  /** 115.29 Takes an order's settlement once: false when it was settled already (or isn't the app's). */
+  claimMarketSettlement(appId: string, orderId: number, now: Date): Promise<boolean>;
+  /** 115.29 Products saved before their search name was kept get it, `limit` at a time across every app; returns how many. */
+  backfillMarketSearchNames(limit: number): Promise<number>;
   /** 115.24 Gives back what an order's lines took (all its lines when `lineIds` is null), once each. */
   returnMarketStock(appId: string, orderId: number, lineIds: number[] | null, who: MarketStockWho, now: Date): Promise<MarketStockMove[]>;
   /** 115.24 Sets a product's counted stock (null: not counted), in the ledger; at 0 it's sold out, above 0 from 0 it's back. Null when it isn't the app's product. */

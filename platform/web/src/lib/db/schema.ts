@@ -2053,6 +2053,8 @@ export const marketOrders = mysqlTable(
     rating: jsonText<MarketOrder["rating"]>("rating"),
     timeline: jsonText<MarketOrderStage[]>("timeline").notNull(),
     completedAt: time("completed_at"),
+    // 115.29 When the weighed price was settled with what was paid (taken once).
+    settledAt: time("settled_at"),
     lang: varchar("lang", { length: 8 }),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),

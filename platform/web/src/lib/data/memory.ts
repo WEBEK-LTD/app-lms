@@ -4739,19 +4739,52 @@ export class MemoryStore implements DataStore {
   }
 
   async returnMarketStock(appId: string, orderId: number, lineIds: number[] | null, who: MarketStockWho, now: Date): Promise<MarketStockMove[]> {
-    const taken = this.marketStockMoves.filter((m) => m.appId === appId && m.orderId === orderId && (m.reason === "order" || m.reason === "substitute") && (lineIds === null || (m.lineId !== null && lineIds.includes(m.lineId))));
+    // 115.29 What each line's product took in all (ordered, substitute, a heavier or lighter pick), given back once.
+    const net = new Map<string, { lineId: number; productId: number; taken: number }>();
+    for (const m of this.marketStockMoves) {
+      if (m.appId !== appId || m.orderId !== orderId || m.lineId === null || !["order", "substitute", "pick"].includes(m.reason) || (lineIds !== null && !lineIds.includes(m.lineId))) continue;
+      const key = `${m.lineId}:${m.productId}`;
+      const row = net.get(key) ?? { lineId: m.lineId, productId: m.productId, taken: 0 };
+      row.taken -= m.delta;
+      net.set(key, row);
+    }
     const out: MarketStockMove[] = [];
-    for (const t of taken) {
-      if (this.orderMoved(orderId, t.lineId!, t.productId, "return")) continue;
+    for (const t of net.values()) {
+      if (t.taken <= 0 || this.orderMoved(orderId, t.lineId, t.productId, "return")) continue;
       const p = this.marketProducts.get(t.productId);
       if (!p || p.appId !== appId || p.stock === null) continue;
       const before = p.stock;
-      p.stock = before - t.delta;
+      p.stock = before + t.taken;
       if (before === 0 && p.stock > 0) p.inStock = true;
       p.updatedAt = now;
       out.push(this.addStockMove({ appId, vendorId: p.vendorId, productId: p.id, orderId, lineId: t.lineId, reason: "return", before, after: p.stock, by: who.by, byName: who.byName, undoOf: null, createdAt: now }));
     }
     return out;
+  }
+
+  async adjustMarketStockForPick(appId: string, orderId: number, lineId: number, productId: number, units: number, who: MarketStockWho, now: Date): Promise<MarketStockMove | null> {
+    const p = this.marketProducts.get(productId);
+    if (!p || p.appId !== appId || p.stock === null || units === 0 || this.orderMoved(orderId, lineId, productId, "pick")) return null;
+    const before = p.stock;
+    const after = Math.max(0, before + units);
+    if (after === before) return null;
+    p.stock = after;
+    if (after === 0) p.inStock = false;
+    else if (before === 0) p.inStock = true;
+    p.updatedAt = now;
+    return this.addStockMove({ appId, vendorId: p.vendorId, productId, orderId, lineId, reason: "pick", before, after, by: who.by, byName: who.byName, undoOf: null, createdAt: now });
+  }
+
+  async claimMarketSettlement(appId: string, orderId: number, now: Date): Promise<boolean> {
+    const order = this.marketOrders.get(orderId);
+    if (!order || order.appId !== appId || order.settledAt) return false;
+    order.settledAt = now;
+    return true;
+  }
+
+  async backfillMarketSearchNames(): Promise<number> {
+    // Every product's search name is kept as it's saved here.
+    return 0;
   }
 
   async setMarketStock(appId: string, productId: number, stock: number | null, reason: "edit" | "import" | "undo", who: MarketStockWho, now: Date, undoOf: number | null = null): Promise<{ move: MarketStockMove | null } | null> {

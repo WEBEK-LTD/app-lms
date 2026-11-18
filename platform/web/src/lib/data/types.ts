@@ -4706,7 +4706,7 @@ export interface Shipment {
 }
 
 export type ShipmentInput = Omit<Shipment, "id">;
-export type ShipmentPatch = Partial<Pick<Shipment, "status" | "courierId" | "courierName" | "timeline" | "paymentStatus" | "orderId" | "userId" | "updatedAt">>;
+export type ShipmentPatch = Partial<Pick<Shipment, "status" | "priceCents" | "courierId" | "courierName" | "timeline" | "paymentStatus" | "orderId" | "userId" | "updatedAt">>;
 
 /** Which shipments a list holds. */
 export interface ShipmentQuery {
@@ -5013,7 +5013,7 @@ export interface MarketProductPage {
 export const MARKET_COUNT_CAP = 10_000;
 
 /** 115.24 Why a product's stock changed. */
-export type MarketStockReason = "order" | "return" | "substitute" | "edit" | "import" | "undo";
+export type MarketStockReason = "order" | "return" | "substitute" | "pick" | "edit" | "import" | "undo";
 
 /** 115.24 One change of a product's counted stock, in the stock-moves ledger. */
 export interface MarketStockMove {
@@ -5259,6 +5259,8 @@ export interface MarketOrder {
   timeline: MarketOrderStage[];
   /** When it was delivered or picked up (statements count it then). */
   completedAt: Date | null;
+  /** 115.29 When its weighed price was settled with what was paid (once: lib/market/settlement.ts); null or missing before. */
+  settledAt?: Date | null;
   lang: string | null;
   createdAt: Date;
   updatedAt: Date;

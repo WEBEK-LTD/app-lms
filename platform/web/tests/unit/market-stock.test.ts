@@ -8,6 +8,7 @@ import { FoodConnector } from "@/lib/hosted/connectors/food";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import { cancelMarketOrder } from "@/lib/market/flow";
+import { settleWeighedOrder } from "@/lib/market/settlement";
 import { expectContract } from "./contract";
 import { KEY, NOW, setupClient } from "./helpers";
 
@@ -22,6 +23,7 @@ import { KEY, NOW, setupClient } from "./helpers";
 const DEVICE = { id: "install-1", platform: "android", name: "Pixel 8", app_version: "1.0.0" };
 const ASSETS = (id: string) => `https://yallapp.test/api/v1/assets/${id}`;
 const SHOP = { address: "Tahrir Square, Cairo", details: null, lat: 30.0444, lng: 31.2357 };
+const HOME = { address: "Cairo Tower, Zamalek", details: "Flat 4", lat: 30.0459, lng: 31.2243 };
 const EVERY_DAY = (["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const).map((day) => ({ day, opens: "00:00", closes: "23:59" }));
 
 const SETTINGS: DeliverySettings = {
@@ -39,7 +41,7 @@ const SETTINGS: DeliverySettings = {
     country: "EG",
     currency: null,
     tax: { ratePercent: 0, included: true, onDelivery: false, label: "VAT" },
-    payment: { gateway: "iyzico", cash: true, cashMax: null, applePay: false, googlePay: false },
+    payment: { gateway: "kashier", cash: true, cashMax: null, applePay: false, googlePay: false },
     pickup: true,
     scheduling: { enabled: false, daysAhead: 3 },
     club: false,
@@ -82,6 +84,9 @@ describe("115.24 stock moved by orders, and the catalog edited by the place", ()
   let cheese: number;
   let yogurt: number;
   let bread: number;
+  /** 115.29 The card's refunds, as the app's gateway would make them (a failure when `cardDown`). */
+  let refunds: { orderId: number; cents: number }[];
+  let cardDown: boolean;
 
   beforeEach(async () => {
     ({ store } = await setupClient());
@@ -115,6 +120,8 @@ describe("115.24 stock moved by orders, and the catalog edited by the place", ()
     bread = await made(other, "Bread", 5_00, "item", 1, 50);
     sender = new LogSender();
     now = NOW;
+    refunds = [];
+    cardDown = false;
   });
 
   const context = (): HostedContext => ({
@@ -128,7 +135,18 @@ describe("115.24 stock moved by orders, and the catalog edited by the place", ()
     push: false,
     assetUrl: ASSETS,
     platformUrl: "https://yallapp.test",
-    connector: new FoodConnector({ store, app, assetUrl: ASSETS, platformUrl: "https://yallapp.test", food: true }),
+    connector: new FoodConnector({
+      store,
+      app,
+      assetUrl: ASSETS,
+      platformUrl: "https://yallapp.test",
+      food: true,
+      refundToCard: async (order, cents) => {
+        if (cardDown) return { ok: false, error: "The gateway refused the refund." };
+        refunds.push({ orderId: order.id, cents });
+        return { ok: true };
+      },
+    }),
   });
 
   async function call(method: string, route: string, options: { query?: Record<string, string>; params?: string[]; token?: string; body?: unknown } = {}): Promise<HostedResult> {
@@ -335,5 +353,123 @@ describe("115.24 stock moved by orders, and the catalog edited by the place", ()
     // Customers never see another vendor's products or stock counts above the few left.
     const list = await call("GET", "/market/vendors/{vendor_id}/products", { params: [String(other)] });
     expect((list.body as { items: { id: number; stock: number | null }[] }).items).toEqual([expect.objectContaining({ id: bread, stock: null })]);
+  });
+
+  // 115.29 Weighed orders settled with what was paid (D1).
+
+  /** A card order as the gateway confirmed it, accepted and picked as given, then ready. */
+  async function paidCardOrder(lines: Record<string, unknown>[], payment: "card" | "cash" | "wallet" = "card", fulfilment = "pickup") {
+    const customer = await signUp(`10${Math.floor(10_000_000 + Math.random() * 89_999_999)}`, "Nour");
+    const cart = { vendor_id: grocery, lines, fulfilment, ...(fulfilment === "delivery" ? { dropoff: HOME } : {}) };
+    if (payment === "wallet") await store.addWalletEntry({ appId: app.id, userId: customer.user.id, kind: "credit", amount: 5000_00, label: "Gift", orderId: null, complaintId: null, key: `gift-${customer.user.id}`, createdAt: now });
+    const placed = await call("POST", "/market/orders", { token: customer.access_token, query: { platform: "android" }, body: { ...cart, quote_id: await quote(customer.access_token, cart), payment } });
+    expect(placed.status, JSON.stringify(placed.body)).toBe(201);
+    const id = (placed.body as { order: { id: number } }).order.id;
+    if (payment === "card") await store.updateMarketOrder(app.id, id, { status: "placed", paymentStatus: "paid", paymentRef: "pay-1", timeline: [...(await store.getMarketOrder(app.id, id))!.timeline, { status: "placed", at: now.toISOString(), by: "system" }] });
+    return { customer, id };
+  }
+
+  async function pickAndReady(id: number, picks: Record<string, unknown>[]) {
+    const staff = await staffOf(grocery, `11${Math.floor(10_000_000 + Math.random() * 89_999_999)}`, "Rana");
+    expect((await call("POST", "/vendor/orders/{order_id}/accept", { token: staff.access_token, params: [String(id)], body: { prep_minutes: 10 } })).status).toBe(200);
+    const picked = await call("PATCH", "/vendor/orders/{order_id}/lines", { token: staff.access_token, params: [String(id)], body: { lines: picks } });
+    expect(picked.status, JSON.stringify(picked.body)).toBe(200);
+    expect((await call("POST", "/vendor/orders/{order_id}/ready", { token: staff.access_token, params: [String(id)] })).status).toBe(200);
+    return staff;
+  }
+
+  it("refunds a card order weighed lighter, once, on its money lines and order, and moves the stock by the weight", async () => {
+    // 2 kg of cheese at 200: 400 charged.
+    const { customer, id } = await paidCardOrder([{ product_id: cheese, quantity: 2 }]);
+    expect((await stock(cheese)).stock).toBe(0);
+    await pickAndReady(id, [{ line_id: 1, outcome: "picked", quantity: 1.5 }]);
+    expect(refunds).toEqual([{ orderId: id, cents: 100_00 }]);
+    const order = (await store.getMarketOrder(app.id, id))!;
+    expect(order).toMatchObject({ paymentStatus: "partly_refunded", money: { total: 300_00, settlement: { paid: 400_00, final: 300_00, toCard: 100_00, toWallet: 0, cardError: null } } });
+    expect(order.settledAt).toBeTruthy();
+    // The stock follows the weight: half a kilo (one step) back.
+    expect((await stock(cheese)).stock).toBe(1);
+    expect((await store.listMarketStockMoves(app.id, { orderId: id, limit: 5 })).map((m) => [m.reason, m.delta])).toContainEqual(["pick", 1]);
+    const mine = await call("GET", "/me/market-orders/{order_id}", { token: customer.access_token, params: [String(id)] });
+    expect(mine.body).toMatchObject({ estimated: false, settlement: { paid: { amount: "400.00" }, final: { amount: "300.00" }, to_card: { amount: "100.00" }, to_wallet: { amount: "0.00" } }, payment: { status: "partly_refunded" } });
+    const price = (mine.body as { price: { kind: string; amount: { amount: string } }[] }).price;
+    expect(price.at(-1)).toMatchObject({ kind: "refund", amount: { amount: "-100.00" } });
+    // Cancelled afterwards by the owner: the stock that's still taken comes back, and nothing is refunded again.
+    await cancelMarketOrder({ store, app, now }, (await store.getMarketOrder(app.id, id))!, "owner");
+    expect((await stock(cheese)).stock).toBe(4);
+    expect(refunds).toHaveLength(1);
+  });
+
+  it("settles nothing when it's weighed as ordered or heavier, and never charges a card more than it paid", async () => {
+    const same = await paidCardOrder([{ product_id: cheese, quantity: 1 }]);
+    await pickAndReady(same.id, [{ line_id: 1, outcome: "picked", quantity: 1 }]);
+    const heavy = await paidCardOrder([{ product_id: cheese, quantity: 1 }]);
+    await pickAndReady(heavy.id, [{ line_id: 1, outcome: "picked", quantity: 1.1 }]);
+    expect(refunds).toEqual([]);
+    expect(await store.getMarketOrder(app.id, same.id)).toMatchObject({ money: { total: 200_00 }, paymentStatus: "paid" });
+    expect((await store.getMarketOrder(app.id, same.id))!.settledAt ?? null).toBeNull();
+    // 1.1 kg would be 220; paid ahead, it stays at the 200 charged.
+    expect(await store.getMarketOrder(app.id, heavy.id)).toMatchObject({ money: { total: 200_00 }, paymentStatus: "paid" });
+    expect((await store.getMarketOrder(app.id, heavy.id))!.money.lines.some((l) => l.kind === "refund")).toBe(false);
+  });
+
+  it("refunds a cheaper substitute and a line left out, and nothing for a substitute at the same price", async () => {
+    await store.updateMarketProduct(app.id, yogurt, { stock: 10 }, now);
+    // Milk 30 × 2 out, yogurt (10) chosen instead of 1 kg of cheese (200): 260 back of 260.
+    const { id } = await paidCardOrder([{ product_id: milk, quantity: 2, if_missing: "remove" }, { product_id: cheese, quantity: 1, if_missing: "chosen", substitute_product_id: yogurt }]);
+    await pickAndReady(id, [{ line_id: 1, outcome: "missing" }, { line_id: 2, outcome: "substituted", quantity: 1 }]);
+    expect(refunds).toEqual([{ orderId: id, cents: 60_00 + 190_00 }]);
+    expect((await store.getMarketOrder(app.id, id))!.money.settlement).toMatchObject({ paid: 260_00, final: 10_00 });
+    // Milk swapped for milk at its price: nothing back.
+    const twin = (await store.createMarketProduct({ appId: app.id, vendorId: grocery, departmentId: null, aisleId: null, name: "Milk too", description: null, brand: null, sku: null, barcode: null, imageAssetId: null, imageUrl: null, price: 30_00, wasPrice: null, unit: "item", step: 1, maxQuantity: null, stock: 5, inStock: true, tags: [], position: 1 }, now));
+    if (!twin.ok) throw new Error("product");
+    const swap = await paidCardOrder([{ product_id: milk, quantity: 1, if_missing: "chosen", substitute_product_id: twin.product.id }]);
+    await pickAndReady(swap.id, [{ line_id: 1, outcome: "substituted", quantity: 1 }]);
+    expect(refunds).toHaveLength(1);
+  });
+
+  it("puts the refund in the wallet when the card's refund fails, or for what the wallet paid", async () => {
+    cardDown = true;
+    const { customer, id } = await paidCardOrder([{ product_id: cheese, quantity: 2 }]);
+    await pickAndReady(id, [{ line_id: 1, outcome: "picked", quantity: 1 }]);
+    expect((await store.getMarketOrder(app.id, id))!.money.settlement).toMatchObject({ toCard: 0, toWallet: 200_00, cardError: "The gateway refused the refund." });
+    expect(await store.walletBalance(app.id, customer.user.id)).toBe(200_00);
+    cardDown = false;
+    // Paid from the wallet: back to it.
+    const wallet = await paidCardOrder([{ product_id: cheese, quantity: 1 }], "wallet");
+    const before = await store.walletBalance(app.id, wallet.customer.user.id);
+    await pickAndReady(wallet.id, [{ line_id: 1, outcome: "picked", quantity: 0.5 }]);
+    expect(await store.walletBalance(app.id, wallet.customer.user.id)).toBe(before + 100_00);
+    expect(refunds).toEqual([]);
+  });
+
+  it("settles once when two runs settle the same order at the same time", async () => {
+    const { id } = await paidCardOrder([{ product_id: cheese, quantity: 2 }]);
+    const staff = await staffOf(grocery, "1118887777", "Rana");
+    await call("POST", "/vendor/orders/{order_id}/accept", { token: staff.access_token, params: [String(id)], body: { prep_minutes: 10 } });
+    await call("PATCH", "/vendor/orders/{order_id}/lines", { token: staff.access_token, params: [String(id)], body: { lines: [{ line_id: 1, outcome: "picked", quantity: 1 }] } });
+    const order = (await store.getMarketOrder(app.id, id))!;
+    const refundToCard = async (o: { id: number }, cents: number) => {
+      refunds.push({ orderId: o.id, cents });
+      return { ok: true as const };
+    };
+    const runs = await Promise.all([settleWeighedOrder({ store, app, now, refundToCard }, order), settleWeighedOrder({ store, app, now, refundToCard }, order)]);
+    expect(runs.filter((r) => r.settled)).toHaveLength(1);
+    expect(refunds).toEqual([{ orderId: id, cents: 200_00 }]);
+  });
+
+  it("charges a cash order what it weighs, at most the estimate and the vendor's tolerance, and its courier collects that", async () => {
+    // Delivered by the app's courier, cash: the job collects the new total.
+    const { id } = await paidCardOrder([{ product_id: cheese, quantity: 1 }], "cash", "delivery");
+    const fresh = (await store.getMarketOrder(app.id, id))!;
+    await pickAndReady(id, [{ line_id: 1, outcome: "picked", quantity: 1.5 }]);
+    const order = (await store.getMarketOrder(app.id, id))!;
+    // 1.5 kg would be 300; 10% over the 200 agreed is the most: 220.
+    expect(order.lines[0]).toMatchObject({ total: 220_00 });
+    expect(order.money.total - fresh.money.total).toBe(20_00);
+    expect(order.settledAt ?? null).toBeNull();
+    expect(refunds).toEqual([]);
+    const job = await store.getShipment(app.id, order.shipmentId!);
+    expect(job).toMatchObject({ paymentMethod: "cash", priceCents: order.money.payNow });
   });
 });

@@ -5,6 +5,7 @@ import { notifyDeps } from "../delivery/flow";
 import { clubDue } from "./offers";
 import { releaseScheduled } from "./flow";
 import { expireUnpaidMarketOrders } from "./expire";
+import { backfillSearchNames } from "./search-backfill";
 import { remindClubRenewals } from "./notify";
 
 /** How the marketplace's jobs reach phones: tests pass a fake push and account; left out, each app's own. */
@@ -25,6 +26,8 @@ async function marketplaces(store: DataStore): Promise<App[]> {
  */
 export async function runMarketDaily(store: DataStore, now: Date, push: MarketJobPush = {}): Promise<{ apps: number; expired: number; renewals: number; reminded: number; released: number }> {
   await store.purgeVendorWeb(now);
+  // 115.29 Older products' search names, a few batches a day until none is left.
+  await backfillSearchNames(store).catch((e: unknown) => console.error(`[market] search names: ${e instanceof Error ? e.message : String(e)}`));
   let apps = 0;
   let expired = 0;
   let renewals = 0;

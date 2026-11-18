@@ -1,3 +1,4 @@
+import type { CardRefund } from "../../market/settlement";
 import { paymentsSetUp } from "../../catalog/settings";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import type { DeliverySettings, FoodOrder, HostedUser, Restaurant } from "../../data/types";
@@ -40,6 +41,10 @@ export interface FoodDeps extends Omit<DeliveryDeps, "delivery"> {
   food?: boolean;
   /** 115 The marketplace's routes; 115.13 on for marketplace projects whose plan has them (lib/market/plan.ts `marketplaceOn`), left out: on with food. */
   marketplace?: boolean;
+  /** 115.29 The encryption key: weighed orders' refunds go back through the app's own gateway. */
+  key?: Buffer;
+  /** 115.29 Tests: the card's refund instead of the gateway's. */
+  refundToCard?: CardRefund;
 }
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");

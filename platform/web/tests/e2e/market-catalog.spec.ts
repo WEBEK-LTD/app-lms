@@ -3,6 +3,7 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
+import { startFakeKashier } from "./fake-gateways";
 
 /**
  * 115.24 A marketplace's grocery edits its own catalog: the team puts the
@@ -12,7 +13,10 @@ import { solidPng } from "./png";
  * product sold by weight (its step, least and most, its stock in kilos) with
  * its photo; a customer orders a kilo of it from the app; the stock goes down
  * by that kilo, in the product's stock history; and the owner sees what the
- * place added, with Undo.
+ * place added, with Undo. 115.29 Then the owner takes cards on their own
+ * Kashier account, a customer pays 1 kg of the cheese by card, the place
+ * picks 750 g and readies it, and the 25% that wasn't weighed goes back to
+ * the card on its own, shown on the order.
  */
 test.describe.configure({ mode: "serial" });
 
@@ -30,6 +34,8 @@ let admin: Page;
 let api = "";
 let appId = "";
 let placeId = 0;
+let cheeseId = 0;
+let managerPanel: Page | null = null;
 const extraHTTPHeaders = { "x-forwarded-for": "198.51.100.124" };
 
 /** The latest code emailed to this address (captured in YALLAPP_MAIL_DIR). */
@@ -201,6 +207,7 @@ test("the place's manager adds a product sold by weight, a customer orders it, a
   }).toPass({ timeout: 45_000, intervals: [2_000] });
   const products = (await listed.json()) as { items: { id: number; name: string; sold_by: { kind: string; step: number; min: number; max: number } }[]; next_cursor: string | null };
   const cheese = products.items.find((p) => p.name === "Roumi cheese")!;
+  cheeseId = cheese.id;
   expect(cheese.sold_by).toMatchObject({ kind: "weight", step: 0.25, min: 0.5, max: 2 });
   const cart = { vendor_id: placeId, lines: [{ product_id: cheese.id, quantity: 1 }], fulfilment: "delivery", dropoff: HOME };
   const quote = await request.post(`${api}/market/quote`, { headers, data: cart });
@@ -217,10 +224,82 @@ test("the place's manager adds a product sold by weight, a customer orders it, a
   await expect(panel.getByTestId("stock-history")).toContainText("3 kg → 2 kg");
   const after = (await (await request.get(`${api}/market/vendors/${placeId}/products?q=${encodeURIComponent("جبنه")}`, { headers })).json()) as { items: { id: number; stock: number | null }[] };
   expect(after.items.find((p) => p.id === cheese.id)?.stock).toBe(2);
-  await panel.close();
+  managerPanel = panel;
 
   // The owner sees what the place added, with Undo.
   await own.goto(`/dashboard/restaurants/${placeId}/catalog`);
   await expect(own.getByTestId("place-changes")).toContainText("Added the product Roumi cheese");
   await expect(own.getByTestId("place-changes").getByRole("button", { name: "Undo" }).first()).toBeVisible();
+});
+
+test("a weighed card order picked lighter gets the difference back on its card, shown on the order", async ({ request }) => {
+  test.setTimeout(150_000);
+  const kashier = await startFakeKashier(E2E.kashierPort);
+  try {
+    // The owner's own Kashier account, and the marketplace takes cards through it.
+    await own.goto("/dashboard/payments");
+    const payments = own.getByRole("region", { name: "Card payments" });
+    await payments.getByRole("button", { name: "Connect", exact: true }).click();
+    await payments.locator('[data-gateway="kashier"]').click();
+    await payments.getByLabel("Merchant ID").fill("MID-1524-001");
+    await payments.getByLabel("Payment API key").fill("souk-kashier-api-key");
+    await payments.getByLabel("Secret key").fill("souk-kashier-secret");
+    await payments.getByText("Test mode keys").click();
+    await payments.getByRole("button", { name: "Save keys" }).click();
+    await expect(payments.getByText("Kashier keys saved.")).toBeVisible();
+    await own.goto("/dashboard/market/settings");
+    await own.getByLabel("Payment gateway").selectOption("kashier");
+    await own.getByRole("button", { name: "Save the settings" }).click();
+    await expect(own.getByText("The marketplace settings are saved.")).toBeVisible();
+
+    // The customer pays 1 kg (EGP 200) by card on Kashier's form.
+    const asked = (await (await request.post(`${api}/auth/email/request`, { data: { email: `card-${customerEmail}` }, headers: { "x-forwarded-for": "198.51.100.127" } })).json()) as { request_id: string };
+    const verified = (await (await request.post(`${api}/auth/otp/verify`, { data: { request_id: asked.request_id, code: await emailedCode(`card-${customerEmail}`), device: { ...device, id: `${device.id}-card` } } })).json()) as { signup_token: string };
+    const registered = await request.post(`${api}/auth/register`, { data: { signup_token: verified.signup_token, name: "Karim Card", device: { ...device, id: `${device.id}-card` } } });
+    const headers = { authorization: `Bearer ${((await registered.json()) as { access_token: string }).access_token}` };
+    const cart = { vendor_id: placeId, lines: [{ product_id: cheeseId, quantity: 1 }], fulfilment: "delivery", dropoff: HOME };
+    let placed = await request.post(`${api}/market/orders?platform=android`, { headers, data: cart });
+    await expect(async () => {
+      const quote = await request.post(`${api}/market/quote`, { headers, data: cart });
+      placed = await request.post(`${api}/market/orders?platform=android`, { headers, data: { ...cart, quote_id: ((await quote.json()) as { quote_id: string }).quote_id, payment: "card" } });
+      // Cards are offered once the settings' cache (30 seconds) has the gateway.
+      expect(placed.status(), await placed.text()).toBe(201);
+    }).toPass({ timeout: 45_000, intervals: [3_000] });
+    const { order, pay_url: payUrl } = (await placed.json()) as { order: { id: number; status: string }; pay_url: string };
+    expect(order.status).toBe("awaiting_payment");
+    const page = managerPanel!;
+    await page.goto(payUrl);
+    for (const [field, value] of [["Full name", "Karim Card"], ["Mobile number", "+20 100 222 3345"], ["Email", `card-${customerEmail}`], ["City", "Cairo"], ["Address", "Cairo Tower, Zamalek"]] as const) {
+      const input = page.getByLabel(field, { exact: true });
+      if (await input.count()) await input.fill(value);
+    }
+    await page.getByRole("button", { name: /^Pay / }).click();
+    await page.frameLocator("iframe[data-kashier-embedded]").getByRole("button", { name: "Pay with test card" }).click();
+    await expect(page).toHaveURL(/order-received$/);
+    await expect(async () => {
+      const mine = (await (await request.get(`${api}/me/market-orders/${order.id}`, { headers })).json()) as { status: string; payment: { status: string } };
+      expect(mine).toMatchObject({ status: "placed", payment: { status: "paid" } });
+    }).toPass({ timeout: 15_000 });
+
+    // The place accepts it, weighs 750 g and readies it, from its board.
+    const board = `/api/partner/${appId}/board`;
+    await page.goto(`/partner/${appId}?lang=en`);
+    expect((await page.request.post(board, { data: { action: "accept", order_id: order.id, prep_minutes: 10 } })).status()).toBe(200);
+    expect((await page.request.post(board, { data: { action: "lines", order_id: order.id, lines: [{ line_id: 1, outcome: "picked", quantity: 0.75 }] } })).status()).toBe(200);
+    expect((await page.request.post(board, { data: { action: "ready", order_id: order.id } })).status()).toBe(200);
+
+    // EGP 50 back to the card, once, through the owner's Kashier keys.
+    expect(kashier.refunds).toHaveLength(1);
+    expect(kashier.refunds[0]!.authorization).toBe("souk-kashier-secret");
+    expect(JSON.stringify(kashier.refunds[0]!.body)).toContain("50");
+    const settled = (await (await request.get(`${api}/me/market-orders/${order.id}`, { headers })).json()) as { estimated: boolean; settlement: Record<string, { amount: string }>; price: { kind: string; amount: { amount: string } }[]; payment: { status: string } };
+    expect(settled).toMatchObject({ estimated: false, payment: { status: "partly_refunded" }, settlement: { paid: { amount: "200.00" }, final: { amount: "150.00" }, to_card: { amount: "50.00" }, to_wallet: { amount: "0.00" } } });
+    expect(settled.price.at(-1)).toMatchObject({ kind: "refund", amount: { amount: "-50.00" } });
+    // Readied again (a second tap): nothing more goes back.
+    await page.request.post(board, { data: { action: "ready", order_id: order.id } });
+    expect(kashier.refunds).toHaveLength(1);
+    await page.close();
+  } finally {
+    await kashier.close();
+  }
 });

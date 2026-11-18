@@ -78,7 +78,7 @@ export interface PriceInput {
   courierCharge?: number;
 }
 
-export type PriceLineKind = "items" | "item_discounts" | "coupon" | "club" | "delivery" | "delivery_discount" | "tax" | "tip" | "wallet" | "total";
+export type PriceLineKind = "items" | "item_discounts" | "coupon" | "club" | "delivery" | "delivery_discount" | "tax" | "tip" | "wallet" | "total" | "refund";
 
 export interface PriceLine {
   kind: PriceLineKind;
@@ -105,6 +105,22 @@ export interface OrderMoney {
   /** What is left to pay after the wallet. */
   payNow: number;
   split: Split;
+  /** 115.29 What was charged before picking changed the price (kept from the first pick): online, from the wallet, in all. */
+  charged?: { total: number; payNow: number; wallet: number };
+  /** 115.29 The weighed price settled with what was paid, once (lib/market/settlement.ts). */
+  settlement?: Settlement;
+}
+
+/** 115.29 What a weighed order paid online or from the wallet, what it came to once picked, and what went back. */
+export interface Settlement {
+  paid: number;
+  final: number;
+  /** Back to the card (through the app's gateway) and to the wallet; their sum is `paid - final`. */
+  toCard: number;
+  toWallet: number;
+  /** Why the card's refund went to the wallet instead; null when it didn't. */
+  cardError: string | null;
+  at: string;
 }
 
 export interface Split {

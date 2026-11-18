@@ -1,3 +1,4 @@
+import { refundWords } from "./settlement";
 import type { Lang } from "@/i18n/config";
 import { appLang } from "../bookings/reschedule";
 import type { DataStore } from "../data/store";
@@ -58,9 +59,10 @@ const CUSTOMER: Partial<Record<MarketOrderStatus | "picked", OrderText>> = {
     tr: (ref, v, at) => ({ title: "Siparişiniz toplanıyor", body: `${v}, ${ref} siparişini kabul etti ve topluyor. Yaklaşık ${at} hazır olur.` }),
   },
   picked: {
-    en: (ref, v) => ({ title: "Your order changed while it was picked", body: `${v} weighed, swapped or left out some of ${ref}. See the new total in the app.` }),
-    ar: (ref, v) => ({ title: "تغيّر طلبك أثناء تجهيزه", body: `وزن ${v} بعض أصناف ${ref} أو استبدلها أو استبعدها. اطّلع على الإجمالي الجديد في التطبيق.` }),
-    tr: (ref, v) => ({ title: "Siparişiniz toplanırken değişti", body: `${v}, ${ref} siparişindeki bazı ürünleri tarttı, değiştirdi ya da çıkardı. Yeni toplamı uygulamada görün.` }),
+    // 115.29 With what goes back to the customer, when the picked order comes to less than was paid.
+    en: (ref, v, back) => ({ title: "Your order changed while it was picked", body: back ? `${v} weighed, swapped or left out some of ${ref}. ${back} goes back to you once it's ready.` : `${v} weighed, swapped or left out some of ${ref}. See the new total in the app.` }),
+    ar: (ref, v, back) => ({ title: "تغيّر طلبك أثناء تجهيزه", body: back ? `وزن ${v} بعض أصناف ${ref} أو استبدلها أو استبعدها. يُعاد إليك ${back} عند تجهيز الطلب.` : `وزن ${v} بعض أصناف ${ref} أو استبدلها أو استبعدها. اطّلع على الإجمالي الجديد في التطبيق.` }),
+    tr: (ref, v, back) => ({ title: "Siparişiniz toplanırken değişti", body: back ? `${v}, ${ref} siparişindeki bazı ürünleri tarttı, değiştirdi ya da çıkardı. Sipariş hazır olunca ${back} size geri ödenir.` : `${v}, ${ref} siparişindeki bazı ürünleri tarttı, değiştirdi ya da çıkardı. Yeni toplamı uygulamada görün.` }),
   },
   ready: {
     en: (ref, v) => ({ title: "Your order is ready", body: `${ref} is ready at ${v}.` }),
@@ -182,7 +184,9 @@ export async function tellMarketCustomer(deps: DeliveryNotifyDeps, order: Market
     const extra =
       moment === "rejected"
         ? (REJECTIONS[order.rejection?.reason ?? "other"] ?? REJECTIONS.other!)[lang]
-        : moment === "scheduled"
+        : moment === "picked"
+          ? refundWords(order, lang)
+          : moment === "scheduled"
           ? order.scheduledFor
             ? dayAndTime(order.scheduledFor, timezone, lang)
             : ""

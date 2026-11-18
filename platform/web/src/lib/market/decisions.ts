@@ -22,7 +22,7 @@ export function complaintDecisionDeps(store: DataStore, app: App, key: Buffer, i
       if (!account) return { ok: false, error: "The app's payments aren't set up, so the refund can't go back to the card. Refund to the wallet instead." };
       const earlier = (await store.listMarketComplaints({ appId: app.id, orderId: order.id, limit: 100, offset: 0 })).items
         .filter((c) => c.id !== complaintId && c.decision?.to === "payment")
-        .reduce((sum, c) => sum + (c.decision?.amount ?? 0), 0);
+        .reduce((sum, c) => sum + (c.decision?.amount ?? 0), 0) + (order.money.settlement?.toCard ?? 0);
       const done = await refundMarketPayment(account, order, { cents: amount, refundedBefore: earlier, paymentId: null, note: `Complaint ${complaintId}`, ip: input.ip, now: input.now });
       return done.ok ? { ok: true } : { ok: false, error: done.error };
     },

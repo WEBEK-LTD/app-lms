@@ -322,6 +322,42 @@ export function marketStockStoreSuite(store: () => DataStore, options: { big?: n
     expect((await s.getMarketProduct(app.id, eggs.id))!.stock).toBe(5);
   });
 
+
+  it("moves a line's stock by its picked weight once, gives back all it took, and settles an order once", async () => {
+    const s = store();
+    const { app, vendor, make } = await setup(s);
+    const cheese = await make({ name: "Cheese", unit: "kg", step: 0.25, stock: 20 });
+    // 2 kg ordered (8 steps), 2.5 kg picked: 2 steps more; again: nothing more.
+    await s.takeMarketStock(app.id, 701, [{ lineId: 1, productId: cheese.id, units: 8 }], "order", who, NOW);
+    expect(await s.adjustMarketStockForPick(app.id, 701, 1, cheese.id, -2, { by: "vendor", byName: "Rana" }, NOW)).toMatchObject({ reason: "pick", delta: -2, before: 12, after: 10 });
+    expect(await s.adjustMarketStockForPick(app.id, 701, 1, cheese.id, -2, { by: "vendor", byName: "Rana" }, NOW)).toBeNull();
+    expect((await s.getMarketProduct(app.id, cheese.id))!.stock).toBe(10);
+    // Lighter on another order: given back; never below 0 when heavier than what's left.
+    await s.takeMarketStock(app.id, 702, [{ lineId: 1, productId: cheese.id, units: 4 }], "order", who, NOW);
+    expect(await s.adjustMarketStockForPick(app.id, 702, 1, cheese.id, 1, who, NOW)).toMatchObject({ delta: 1, after: 7 });
+    expect(await s.adjustMarketStockForPick(app.id, 703, 1, cheese.id, -50, who, NOW)).toMatchObject({ after: 0 });
+    await s.setMarketStock(app.id, cheese.id, 7, "edit", who, NOW);
+    // Cancelled: 701 gives back its 8 and the 2 more, at once.
+    const back = await s.returnMarketStock(app.id, 701, null, who, NOW);
+    expect(back.map((m) => m.delta)).toEqual([10]);
+    expect((await s.getMarketProduct(app.id, cheese.id))!.stock).toBe(17);
+    expect(await s.returnMarketStock(app.id, 702, null, who, NOW)).toMatchObject([{ delta: 3 }]);
+
+    // The settlement is taken by one of two runs at once.
+    const order = await s.createMarketOrder({
+      appId: app.id, vendorId: vendor.id, vendorName: vendor.name, vendorKind: "grocery", userId: 7, customerName: "Mariam", customerPhone: "+201001234567", fulfilment: "pickup", deliveryBy: null, scheduledFor: null,
+      lines: [], money: priceOrder({ items: [{ unitPrice: 3500, quantity: 2 }], deliveryFee: 0, deliveryBy: null, commission: { kind: "percent", value: 8 }, collectedBy: "owner" }),
+      currency: "EGP", paymentMethod: "card", paymentStatus: "paid", paymentRef: "p", couponCode: null, status: "ready", dropoff: null, distanceKm: null, notes: null, pickupCode: "1234", prepMinutes: null, readyAt: null, rejection: null, shipmentId: null, rating: null,
+      timeline: [], completedAt: null, lang: "en", createdAt: NOW, updatedAt: NOW,
+    });
+    const claims = await Promise.all([s.claimMarketSettlement(app.id, order.id, NOW), s.claimMarketSettlement(app.id, order.id, NOW)]);
+    expect(claims.filter(Boolean)).toHaveLength(1);
+    expect((await s.getMarketOrder(app.id, order.id))!.settledAt).toEqual(NOW);
+    expect(await s.claimMarketSettlement(app.id, order.id, NOW)).toBe(false);
+    const other = await setup(s);
+    expect(await s.claimMarketSettlement(other.app.id, order.id, NOW)).toBe(false);
+  });
+
   if (options.big) {
     const big = options.big;
     it(`stays fast on a catalog of ${big.toLocaleString("en")} products: a page, a search, a deep cursor`, async () => {

@@ -5981,23 +5981,70 @@ export class MysqlStore implements DataStore {
         const taken = await tx
           .select()
           .from(m)
-          .where(and(eq(m.appId, appId), eq(m.orderId, orderId), inArray(m.reason, ["order", "substitute"]), lineIds === null ? undefined : inArray(m.lineId, lineIds)))
+          .where(and(eq(m.appId, appId), eq(m.orderId, orderId), inArray(m.reason, ["order", "substitute", "pick"]), lineIds === null ? undefined : inArray(m.lineId, lineIds)))
           .orderBy(asc(m.productId), asc(m.id));
-        const out: MarketStockMove[] = [];
+        // 115.29 What each line's product took in all (ordered, substitute, a heavier or lighter pick), given back once.
+        const net = new Map<string, { lineId: number; productId: number; vendorId: number; taken: number }>();
         for (const x of taken) {
+          if (x.lineId === null) continue;
+          const key = `${x.lineId}:${x.productId}`;
+          const row = net.get(key) ?? { lineId: x.lineId, productId: x.productId, vendorId: x.vendorId, taken: 0 };
+          row.taken -= x.delta;
+          net.set(key, row);
+        }
+        const out: MarketStockMove[] = [];
+        for (const x of net.values()) {
+          if (x.taken <= 0) continue;
           const [row] = await tx.select({ stock: t.stock }).from(t).where(and(eq(t.appId, appId), eq(t.id, x.productId))).for("update");
           if (!row || row.stock === null) continue;
-          const [done] = await tx.select({ id: m.id }).from(m).where(and(eq(m.orderId, orderId), eq(m.lineId, x.lineId!), eq(m.productId, x.productId), eq(m.reason, "return"))).limit(1);
+          const [done] = await tx.select({ id: m.id }).from(m).where(and(eq(m.orderId, orderId), eq(m.lineId, x.lineId), eq(m.productId, x.productId), eq(m.reason, "return"))).limit(1);
           if (done) continue;
-          const after = row.stock - x.delta;
+          const after = row.stock + x.taken;
           await tx.update(t).set({ stock: after, ...(row.stock === 0 && after > 0 ? { inStock: true } : {}), updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, x.productId)));
-          const move = { appId, vendorId: x.vendorId, productId: x.productId, orderId, lineId: x.lineId, reason: "return" as const, delta: -x.delta, before: row.stock, after, by: who.by, byName: who.byName, undoOf: null, createdAt: now };
+          const move = { appId, vendorId: x.vendorId, productId: x.productId, orderId, lineId: x.lineId, reason: "return" as const, delta: x.taken, before: row.stock, after, by: who.by, byName: who.byName, undoOf: null, createdAt: now };
           const [result] = await tx.insert(m).values(move);
           out.push({ id: Number(result.insertId), ...move });
         }
         return out;
       }),
     );
+  }
+
+  async adjustMarketStockForPick(appId: string, orderId: number, lineId: number, productId: number, units: number, who: MarketStockWho, now: Date): Promise<MarketStockMove | null> {
+    const t = schema.marketProducts;
+    const m = schema.marketStockMoves;
+    if (units === 0) return null;
+    try {
+      return await this.run((db) =>
+        db.transaction(async (tx) => {
+          const [row] = await tx.select({ stock: t.stock, vendorId: t.vendorId }).from(t).where(and(eq(t.appId, appId), eq(t.id, productId))).for("update");
+          if (!row || row.stock === null) return null;
+          const after = Math.max(0, row.stock + units);
+          if (after === row.stock) return null;
+          // The ledger's row first: a second adjustment of the line is a duplicate key, and nothing moves.
+          const move = { appId, vendorId: row.vendorId, productId, orderId, lineId, reason: "pick" as const, delta: after - row.stock, before: row.stock, after, by: who.by, byName: who.byName, undoOf: null, createdAt: now };
+          const [result] = await tx.insert(m).values(move);
+          await tx.update(t).set({ stock: after, ...(after === 0 ? { inStock: false } : row.stock === 0 ? { inStock: true } : {}), updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, productId)));
+          return { id: Number(result.insertId), ...move };
+        }),
+      );
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return null;
+      throw error;
+    }
+  }
+
+  async claimMarketSettlement(appId: string, orderId: number, now: Date): Promise<boolean> {
+    const t = schema.marketOrders;
+    const [result] = await this.run((db) => db.update(t).set({ settledAt: now }).where(and(eq(t.appId, appId), eq(t.id, orderId), isNull(t.settledAt))));
+    return result.affectedRows === 1;
+  }
+
+  async backfillMarketSearchNames(limit: number): Promise<number> {
+    const t = schema.marketProducts;
+    const rows = await this.run((db) => db.select({ id: t.id, name: t.name, names: t.names, brand: t.brand }).from(t).where(eq(t.searchName, "")).limit(limit));
+    for (const r of rows) await this.run((db) => db.update(t).set({ searchName: productSearchName(r) || "#" }).where(and(eq(t.id, r.id), eq(t.searchName, ""))));
+    return rows.length;
   }
 
   async setMarketStock(appId: string, productId: number, stock: number | null, reason: "edit" | "import" | "undo", who: MarketStockWho, now: Date, undoOf: number | null = null): Promise<{ move: MarketStockMove | null } | null> {
