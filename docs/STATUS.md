@@ -37,11 +37,12 @@ bar on a short phone. Studio pages over the tabs end above the phone's own
 bar (home indicator, Android's navigation bar) and above what is pinned at
 their foot (a sticky "Send flowers"). The sort and choice sheets scroll
 to their last choice on a short phone or with a large font, and the shop's
-next-page spinner lies across the grid, in its middle. `CLIENT_APP_RELEASE`
-is 8. Not yet tried on a phone. Still open: a page a little longer than
-the screen under a folding premium header (Settings on a 320 by 568 phone)
-loses its last lines (ROADMAP 158.3); the staff's and second apps' tabs
-still to take the same space (158.7).
+next-page spinner lies across the grid, in its middle. It reaches the
+stores with the release the urgent fixes share. Not yet tried on a phone.
+Still open: a page a little longer than the screen under a folding premium
+header (Settings on a 320 by 568 phone) loses its last lines (ROADMAP
+158.3); the staff's and second apps' tabs still to take the same space
+(158.6).
 
 Roadmap 159 (sizes automatic, by hand only when asked): Kech Flora's bag
 sat about three quarters of the way across the phone because the bar over
