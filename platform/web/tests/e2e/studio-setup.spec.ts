@@ -341,6 +341,10 @@ test("128.11 on the canvas a transparent header over a cover takes the page's ba
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);
   await own.goto("/studio/editor");
+  // 180.11 The canvas shows the page signed out first; Nakhla's home is long enough to scroll as a signed-in parent sees it.
+  const signed = own.locator("[data-canvas-signed]");
+  await own.getByRole("button").filter({ has: signed }).click();
+  await expect(signed).toHaveAttribute("data-canvas-signed", "in");
   const header = own.locator(".studio-screen [data-studio-header-over-cover]");
   await expect(header).toHaveAttribute("data-studio-header-over-cover", "top");
   await own.locator(".studio-screen").evaluate((screen) => screen.scrollTo(0, 320));
