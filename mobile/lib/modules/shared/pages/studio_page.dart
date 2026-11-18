@@ -1613,6 +1613,21 @@ class StudioNodeView extends ConsumerWidget {
                 node.maxLines == 1
             ? 2
             : node.maxLines;
+        // 177 One word on one line at a display size (Zad's poster's "15%")
+        // shrinks to its room at a larger text size instead of being cut to "1…".
+        if (lines == 1 &&
+            (node.font?.size ?? 0) >= 32 &&
+            !text.trim().contains(RegExp(r'\s'))) {
+          return FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: switch (align) {
+              TextAlign.center => Alignment.center,
+              TextAlign.end || TextAlign.right => AlignmentDirectional.centerEnd,
+              _ => AlignmentDirectional.centerStart,
+            },
+            child: StarText(text, textAlign: align, maxLines: 1),
+          );
+        }
         // 128 A rating's ★ (a restaurant's badge) as the star icon.
         return StarText(
           text,
