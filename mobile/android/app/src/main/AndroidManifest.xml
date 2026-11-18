@@ -50,6 +50,25 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- 170 The payment page in Chrome's Custom Tab sends the customer
+             back with the app's own address (yallapp-<app id>://app/pay-return):
+             this screen-less activity brings the app back over the tab and
+             hands the link to the payment screen (PayReturnActivity.kt). The
+             scheme comes from android/app/yallapp.properties. -->
+        <activity
+            android:name="com.yallapp.app.PayReturnActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="${yallappReturnScheme}" android:host="app" android:path="/pay-return" />
+            </intent-filter>
+        </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
