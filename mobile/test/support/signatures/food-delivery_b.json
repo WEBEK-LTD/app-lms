@@ -340,7 +340,7 @@
         "entries": [
          {
           "title": "Grill",
-          "text": "Sahara Grill",
+          "text": "Charcoal grilled",
           "subtitle": "Mixed grill · EGP 240",
           "size": "large",
           "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg",
@@ -351,12 +351,12 @@
           "translations": {
            "ar": {
             "title": "مشويات",
-            "text": "صحارى جريل",
+            "text": "مشوي على الفحم",
             "subtitle": "مشويات مشكّلة · 240 ج.م"
            },
            "tr": {
             "title": "Izgara",
-            "text": "Sahara Grill",
+            "text": "Kömürde ızgara",
             "subtitle": "Karışık ızgara · 240 EGP"
            }
           }
@@ -655,7 +655,7 @@
         "entries": [
          {
           "title": "Grill",
-          "text": "Sahara Grill",
+          "text": "Charcoal grilled",
           "subtitle": "Mixed grill · EGP 240",
           "size": "large",
           "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg",
@@ -666,12 +666,12 @@
           "translations": {
            "ar": {
             "title": "مشويات",
-            "text": "صحارى جريل",
+            "text": "مشوي على الفحم",
             "subtitle": "مشويات مشكّلة · 240 ج.م"
            },
            "tr": {
             "title": "Izgara",
-            "text": "Sahara Grill",
+            "text": "Kömürde ızgara",
             "subtitle": "Karışık ızgara · 240 EGP"
            }
           }

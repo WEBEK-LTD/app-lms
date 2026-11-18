@@ -41,6 +41,7 @@ process.env.YALLAPP_BLOBS_DIR = BLOBS;
 afterAll(() => rmSync(BLOBS, { recursive: true, force: true }));
 
 const NOW = new Date("2026-11-18T10:00:00Z");
+let businesses = 0;
 /** The demos' own: their pounds and their restaurants and street. */
 const DEMO_WORDS = /EGP|ج\.م|Zamalek|الزمالك|Forno|فورنو|Sahara|صحارى|Koshary EGP|Bayt El Koshary|بيت الكشري|Abbas|عباس/;
 
@@ -76,7 +77,7 @@ async function servedTexts(app: App, lang: string): Promise<string[]> {
 
 /** A business's project from the template, in lira, its draft published as Studio's editor publishes it. */
 async function business(kindId: "food" | "delivery", templateId: string, fromDemo: StudioDemoId | null): Promise<App> {
-  const { client } = await registerClient(store, { name: "Lezzet", email: `${templateId}-${fromDemo ?? "steps"}@lezzet.test`, whatsapp: "+905446731942", siteUrl: "", password: null }, NOW);
+  const { client } = await registerClient(store, { name: "Lezzet", email: `${templateId}-${fromDemo ?? "steps"}-${++businesses}@lezzet.test`, whatsapp: "+905446731942", siteUrl: "", password: null }, NOW);
   const template = TEMPLATES.find((t) => t.id === templateId)!;
   const languages = { default: "en", available: ["en", "ar", "tr"] };
   const made = await makeStudioProject(store, { clientId: client.id, name: "Lezzet", kind: kindById(kindId)!, source: "catalog", template, words: appWords("en", "Lezzet"), lang: "en", languages, fromDemo }, NOW);
@@ -114,6 +115,9 @@ describe("176.1 a business's own food or delivery app: no demo restaurants, no d
     expect(b).toEqual(expect.arrayContaining(["مشوي على الفحم", "مشويات مشكّلة", "كشري وفول وطعمية", "كشري\nمشويات مشكّلة\nمارجريتا\nشيش طاووق"]));
     const sahm = await servedTexts(await business("delivery", "delivery_signature_a", "delivery"), "tr");
     expect(sahm).toEqual(expect.arrayContaining(["Şimdi paket gönder", "Ekspres"]));
+    // Each language in its own words: Sofra A's second dish in Turkish has no English line left.
+    const tr = await servedTexts(await business("food", "food_signature_a", "food"), "tr");
+    expect(tr).not.toContain("Charcoal grilled");
   });
 
   it.each([

@@ -268,8 +268,6 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     sofTonight3: { en: "Made at home at Bayt El Koshary", ar: "كما في البيت في بيت الكشري", tr: "Bayt El Koshary'de ev usulü" },
     sofDish3Line: { en: "Rice, lentils, pasta and crispy onions · EGP 55", ar: "أرز وعدس ومكرونة وبصل مقرمش · 55 ج.م", tr: "Pirinç, mercimek, makarna ve çıtır soğan · 55 EGP" },
     sofDeliveryFee: { en: "Delivery EGP 25", ar: "التوصيل 25 ج.م", tr: "Teslimat 25 EGP" },
-    // The restaurant on Sofra B's grill tile: a business's own app has the template's line, so the bento keeps its tile.
-    sofGrillPlace: { en: "Sahara Grill", ar: "صحارى جريل", tr: "Sahara Grill" },
     sofForno: { en: "Forno Zamalek", ar: "فورنو الزمالك", tr: "Forno Zamalek" },
     sofSahara: { en: "Sahara Grill", ar: "صحارى جريل", tr: "Sahara Grill" },
     sofPrice140: { en: "EGP 140", ar: "140 ج.م", tr: "140 EGP" },
