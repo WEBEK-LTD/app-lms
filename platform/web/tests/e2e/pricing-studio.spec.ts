@@ -245,7 +245,7 @@ test("each product explained with real screens, how they differ, every feature i
     await expect(detail.locator("ol > li")).toHaveCount(3);
     // What you get and who it suits, folded.
     const more = detail.locator("details[data-about-more]");
-    await expect(more.getByRole("heading", { level: 4, name: "What you get" })).toBeVisible();
+    await expect(more.locator("summary h4")).toHaveText("What you get");
     await expect(more.getByRole("heading", { level: 4, name: "Who it suits" })).toBeHidden();
     await more.locator("summary").click();
     await expect(more.getByRole("heading", { level: 4, name: "Who it suits" })).toBeVisible();
