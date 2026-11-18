@@ -1209,6 +1209,8 @@ export const KINDS: readonly KindInfo[] = [
           { href: "/dashboard/restaurants", label: "Vendors", icon: "storefront" },
           { href: "/dashboard/market/joining", label: "Joining", icon: "note_add" },
           { href: "/dashboard/market/offers", label: "Offers & club", icon: "local_offer" },
+          { href: "/dashboard/market/club", label: "Club members", icon: "card_membership" },
+          { href: "/dashboard/market/wallets", label: "Wallets", icon: "payments" },
           { href: "/dashboard/market/statements", label: "Statements", icon: "receipt_long" },
           { href: "/dashboard/shipments", label: "Courier jobs", icon: "package_2" },
           { href: "/dashboard/couriers", label: "Couriers", icon: "two_wheeler" },

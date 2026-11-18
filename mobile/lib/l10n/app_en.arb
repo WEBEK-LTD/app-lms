@@ -13666,5 +13666,344 @@
   "paySheetOpenAgain": "Open the payment page",
   "@paySheetOpenAgain": {
     "description": "170 Button: open the payment page in the browser sheet again."
+  },
+  "marketWalletAbout": "About the wallet",
+  "@marketWalletAbout": {
+    "description": "115.60 The wallet's help button."
+  },
+  "marketWalletPays": "Pays all or part of any order in {app}",
+  "@marketWalletPays": {
+    "description": "115.60 Under the wallet's balance.",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "marketWalletUseFirst": "Use it at checkout first",
+  "@marketWalletUseFirst": {
+    "description": "115.60 The wallet pays first at checkout (a switch)."
+  },
+  "marketWalletInstant": "Refunds land here at once",
+  "@marketWalletInstant": {
+    "description": "115.60 A fact about the wallet."
+  },
+  "marketWalletNeverExpires": "Your balance never expires",
+  "@marketWalletNeverExpires": {
+    "description": "115.60 A fact about the wallet."
+  },
+  "marketWalletToday": "Today",
+  "@marketWalletToday": {
+    "description": "115.60 The wallet's entries of today."
+  },
+  "marketWalletRefundComplaint": "Refund · complaint {ref}",
+  "@marketWalletRefundComplaint": {
+    "description": "115.60 A refund decided on a complaint.",
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "marketWalletRefundCancelled": "Refund · order {ref} cancelled",
+  "@marketWalletRefundCancelled": {
+    "description": "115.60 What a cancelled order's wallet payment gave back.",
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "marketWalletRefund": "Refund",
+  "@marketWalletRefund": {
+    "description": "115.60 A refund to the wallet."
+  },
+  "marketWalletPaidToward": "Paid toward order {ref}",
+  "@marketWalletPaidToward": {
+    "description": "115.60 The wallet paid (part of) an order.",
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "marketWalletPaid": "Paid toward an order",
+  "@marketWalletPaid": {
+    "description": "115.60 The wallet paid an order."
+  },
+  "marketWalletRestBy": "the rest by {how}",
+  "@marketWalletRestBy": {
+    "description": "115.60 How the rest of an order was paid.",
+    "placeholders": {
+      "how": {
+        "type": "String"
+      }
+    }
+  },
+  "marketWalletByCard": "card",
+  "@marketWalletByCard": {
+    "description": "115.60 The rest paid by card."
+  },
+  "marketWalletByCash": "cash",
+  "@marketWalletByCash": {
+    "description": "115.60 The rest paid in cash."
+  },
+  "marketWalletByApplePay": "Apple Pay",
+  "@marketWalletByApplePay": {
+    "description": "115.60 The rest paid by Apple Pay."
+  },
+  "marketWalletByGooglePay": "Google Pay",
+  "@marketWalletByGooglePay": {
+    "description": "115.60 The rest paid by Google Pay."
+  },
+  "marketWalletCreditFrom": "Credit from {app}",
+  "@marketWalletCreditFrom": {
+    "description": "115.60 The owner's credit.",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "marketWalletTakenBack": "Taken back by {app}",
+  "@marketWalletTakenBack": {
+    "description": "115.60 Credit the owner took back.",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "marketWalletExpiredEntry": "Expired",
+  "@marketWalletExpiredEntry": {
+    "description": "115.60 An old expired entry."
+  },
+  "marketClubNamed": "{app} Club",
+  "@marketClubNamed": {
+    "description": "115.61 The club's name.",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubMemberBadge": "Member",
+  "@marketClubMemberBadge": {
+    "description": "115.61 The member's badge in the club's header."
+  },
+  "marketClubFreeOver": "Free delivery on orders over {amount}",
+  "@marketClubFreeOver": {
+    "description": "115.61 The club's benefit.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubFreeAlways": "Free delivery on every order",
+  "@marketClubFreeAlways": {
+    "description": "115.61 The club's benefit."
+  },
+  "marketClubPercentOff": "{percent}% off delivery",
+  "@marketClubPercentOff": {
+    "description": "115.61 The club's benefit.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubFreeByCouriersOver": "Free delivery by the app's couriers over {amount}",
+  "@marketClubFreeByCouriersOver": {
+    "description": "115.61 A perk of the club.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubSince": "Member since",
+  "@marketClubSince": {
+    "description": "115.61 Above the date the member first joined."
+  },
+  "marketClubNextPayment": "Next payment {date}",
+  "@marketClubNextPayment": {
+    "description": "115.61 When the next period is paid (by the reminder's link).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubEndsOn": "Ends {date}",
+  "@marketClubEndsOn": {
+    "description": "115.61 A membership the member ended.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubEndedOn": "Ended {date}",
+  "@marketClubEndedOn": {
+    "description": "115.61 A membership that ended.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubMonthly": "Monthly",
+  "@marketClubMonthly": {
+    "description": "115.61 A monthly plan."
+  },
+  "marketClubYearly": "Yearly",
+  "@marketClubYearly": {
+    "description": "115.61 A yearly plan."
+  },
+  "marketClubSlashMonth": "month",
+  "@marketClubSlashMonth": {
+    "description": "115.61 After a monthly price: / month."
+  },
+  "marketClubSlashYear": "year",
+  "@marketClubSlashYear": {
+    "description": "115.61 After a yearly price: / year."
+  },
+  "marketClubYouSaved": "You've saved",
+  "@marketClubYouSaved": {
+    "description": "115.61 The savings card's title."
+  },
+  "marketClubTimesPaid": "{times}× what you paid",
+  "@marketClubTimesPaid": {
+    "description": "115.61 The savings against the fees paid.",
+    "placeholders": {
+      "times": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubSinceJoinedFor": "since you joined, for {amount} in fees",
+  "@marketClubSinceJoinedFor": {
+    "description": "115.61 Under the savings.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubThisMonth": "This month",
+  "@marketClubThisMonth": {
+    "description": "115.61 Savings this month."
+  },
+  "marketClubFreeDeliveries": "Free deliveries",
+  "@marketClubFreeDeliveries": {
+    "description": "115.61 Free deliveries since joining."
+  },
+  "marketClubOfCount": "{count} of {total}",
+  "@marketClubOfCount": {
+    "description": "115.61 Free deliveries of all deliveries.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubMembersOffers": "Members' offers",
+  "@marketClubMembersOffers": {
+    "description": "115.61 Savings from members' offers."
+  },
+  "marketClubRemindOn": "We remind you on {date} with a link to pay. Nothing is charged by itself.",
+  "@marketClubRemindOn": {
+    "description": "115.62 The renewal by reminder and payment link.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubEnd": "End membership",
+  "@marketClubEnd": {
+    "description": "115.62 Ends the membership."
+  },
+  "marketClubEndAsk": "End your membership?",
+  "@marketClubEndAsk": {
+    "description": "115.62 Asked before ending."
+  },
+  "marketClubEndText": "You keep its benefits until {date}, and we won't remind you to pay again.",
+  "@marketClubEndText": {
+    "description": "115.62 What ending the membership does.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubKeep": "Keep it",
+  "@marketClubKeep": {
+    "description": "115.62 Keeps the membership."
+  },
+  "marketClubEndedNote": "Your membership stays until {date}; we won't remind you again.",
+  "@marketClubEndedNote": {
+    "description": "115.62 After the member ended it.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubRenewWith": "Pay the next period · {price}",
+  "@marketClubRenewWith": {
+    "description": "115.62 Pays the next period by the payment page.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubRenewAgainWith": "Renew · {price}",
+  "@marketClubRenewAgainWith": {
+    "description": "115.62 Renews a membership that ended, from today.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubSwitchWith": "Switch to {plan} · {price}",
+  "@marketClubSwitchWith": {
+    "description": "115.62 Pays the next period on another plan.",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubRenewed": "Paid. Your membership runs on from its end date.",
+  "@marketClubRenewed": {
+    "description": "115.62 After paying the next period."
+  },
+  "marketClubMonthsFree": "{count, plural, =1{One month free} =2{Two months free} other{{count} months free}}",
+  "@marketClubMonthsFree": {
+    "description": "115.61 What the yearly plan saves against twelve months.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "marketWalletOrderRef": "order {ref}",
+  "@marketWalletOrderRef": {
+    "description": "115.60 An order's number in a wallet entry.",
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
   }
 }

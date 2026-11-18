@@ -60,6 +60,9 @@ export const TEAM_ACTIONS = [
   "prime.weekly_report",
   // 132 The business's reply under a food order's, a marketplace order's or a ride's rating.
   "rating.reply",
+  // 115.63 The owner's credit added to a customer's wallet, or taken back.
+  "wallet.credit",
+  "wallet.take_back",
 ] as const;
 export type TeamAction = (typeof TEAM_ACTIONS)[number];
 

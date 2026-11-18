@@ -2321,6 +2321,20 @@ class FakeApi implements YallappApi {
         );
       });
 
+  /// 115.62 The plans asked to renew on (null: the member's own).
+  final List<int?> clubRenewals = [];
+
+  @override
+  Future<({ClubMembership? membership, String? payUrl})> renewClub({
+    int? planId,
+  }) => _answer('renewClub', () {
+    clubRenewals.add(planId);
+    return (
+      membership: myClub == null ? null : ClubMembership.fromJson(myClub!),
+      payUrl: clubPayUrl,
+    );
+  });
+
   @override
   Future<ClubMembership?> cancelClub() => _answer('cancelClub', () {
     if (myClub == null) return null;

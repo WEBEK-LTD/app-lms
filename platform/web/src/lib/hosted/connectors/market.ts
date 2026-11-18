@@ -8,7 +8,7 @@ import { isReviewCourier } from "../../delivery/review";
 import { demoCourierPosition } from "../../demo/courier";
 import { deliverySettingsOf } from "../../delivery/settings";
 import type { DataStore } from "../../data/store";
-import type { App, DeliverySettings, HostedUser, MarketOrder, MarketOrderStatus, Restaurant, RestaurantMenu, RestaurantPatch, RestaurantStaff, VendorRole } from "../../data/types";
+import type { App, DeliverySettings, HostedUser, MarketClubMember, MarketClubPlan, MarketOrder, MarketOrderStatus, Restaurant, RestaurantMenu, RestaurantPatch, RestaurantStaff, VendorRole } from "../../data/types";
 import { EMPTY_MENU } from "../../food/menu";
 import { distanceFrom, restaurantState } from "../../food/service";
 import { platformSetting } from "../../settings/platform";
@@ -59,6 +59,8 @@ import {
   type VendorNear,
 } from "../../market/json";
 import { cancelClub as endClub, joinClub as joinClubPaid, payFromWallet, redeemCoupon } from "../../market/offers";
+import { clubPayLink, clubSavings } from "../../market/club";
+import { entryDetails } from "../../market/wallet";
 import { paymentChoices } from "../../market/payments";
 import { marketConfigJson, marketCurrency, marketSettingsOf, marketTimezone, paymentSettingsOf } from "../../market/settings";
 import { photosRequired } from "../../market/photos";
@@ -190,6 +192,7 @@ export class MarketConnector {
         if (p.length === 2 && m === "GET") return this.myClub(request);
         if (p.length === 2 && m === "POST") return this.joinClub(request);
         if (p.length === 3 && p[2] === "cancel" && m === "POST") return this.cancelClub(request);
+        if (p.length === 3 && p[2] === "renew" && m === "POST") return this.renewClub(request);
       }
       return error(404, "not_found", "Not found.");
     }
@@ -770,7 +773,8 @@ export class MarketConnector {
       this.deps.store.listWalletEntries(this.deps.app.id, request.user.id, { limit: perPage, offset: (page - 1) * perPage }),
       this.settings(),
     ]);
-    return { status: 200, body: walletJson(balance, entries.items, marketCurrency(settings), page, Math.max(1, Math.ceil(entries.total / perPage))) };
+    const details = await entryDetails(this.deps.store, this.deps.app.id, entries.items);
+    return { status: 200, body: walletJson(balance, entries.items, marketCurrency(settings), page, Math.max(1, Math.ceil(entries.total / perPage)), details) };
   }
 
   private async club(): Promise<ConnectorResult> {
@@ -781,11 +785,43 @@ export class MarketConnector {
     return { status: 200, body: { name: "Club", description: plans[0]!.description, plans: plans.map(clubPlanJson) } };
   }
 
+  /** 115.61 The membership with what the club saved them, read from their orders. */
+  private async membership(member: MarketClubMember | null, plan: MarketClubPlan | null, now: Date) {
+    const settings = await this.settings();
+    const savings = member && plan ? await clubSavings(this.deps.store, this.deps.app.id, member, now, marketTimezone(settings)) : undefined;
+    return membershipJson(member, plan, marketCurrency(settings), savings, now);
+  }
+
   private async myClub(request: ConnectorRequest): Promise<ConnectorResult> {
     if (!request.user) return signIn();
     const member = await this.deps.store.getMarketClubMember(this.deps.app.id, request.user.id);
     const plan = member?.planId ? await this.deps.store.getMarketClubPlan(this.deps.app.id, member.planId) : null;
-    return { status: 200, body: { membership: membershipJson(member, plan, marketCurrency(await this.settings())) } };
+    return { status: 200, body: { membership: await this.membership(member, plan, request.now) } };
+  }
+
+  /**
+   * 115.62 D6's renewal: a payment link for the next period on the member's
+   * plan (or another one they choose), at the owner's price, on the app's
+   * payment page. Paid, it runs from the current end, or from that day when
+   * the period already ended. Nothing is charged by itself.
+   */
+  private async renewClub(request: ConnectorRequest): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    if (!marketSettingsOf(await this.settings()).club) return error(404, "not_found", "This app has no club.");
+    const member = await this.deps.store.getMarketClubMember(this.deps.app.id, request.user.id);
+    if (!member || member.status === "pending" || !member.planId) return error(404, "not_found", "You aren't a member.");
+    const chosen = (request.body as { plan_id?: unknown } | null)?.plan_id;
+    if (chosen !== undefined && chosen !== null && (typeof chosen !== "number" || !Number.isInteger(chosen))) return error(400, "invalid_request", "Choose a plan.");
+    const plan = await this.deps.store.getMarketClubPlan(this.deps.app.id, typeof chosen === "number" ? chosen : member.planId);
+    if (!plan || !plan.active) return error(404, "not_found", "This plan isn't offered any more.");
+    if (plan.price <= 0) {
+      const renewed = await joinClubPaid(this.deps.store, plan, request.user.id, "free", request.now, 0);
+      return { status: 201, body: { membership: await this.membership(renewed, plan, request.now), pay_url: null } };
+    }
+    if (!this.canTakeCards) return error(503, "payments_unavailable", "Online payments aren't available right now. Please try again later.");
+    const url = await clubPayLink(this.deps.store, { appId: this.deps.app.id, platformUrl: this.deps.platformUrl, userId: request.user.id, lang: request.lang ?? null, plan }, request.now);
+    const current = member.planId === plan.id ? plan : await this.deps.store.getMarketClubPlan(this.deps.app.id, member.planId);
+    return { status: 201, body: { membership: await this.membership(member, current, request.now), pay_url: url } };
   }
 
   private async joinClub(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -801,8 +837,8 @@ export class MarketConnector {
     if (current && paidUp && (current.status === "active" || current.planId !== plan.id)) return error(409, "already_member", "You're already a member.");
     // A plan the owner offers for free starts at once.
     if (plan.price <= 0) {
-      const joined = await joinClubPaid(this.deps.store, plan, request.user.id, "free", request.now);
-      return { status: 201, body: { membership: membershipJson(joined, plan, marketCurrency(await this.settings())), pay_url: null } };
+      const joined = await joinClubPaid(this.deps.store, plan, request.user.id, "free", request.now, 0);
+      return { status: 201, body: { membership: await this.membership(joined, plan, request.now), pay_url: null } };
     }
     if (!this.canTakeCards) return error(503, "payments_unavailable", "Online payments aren't available right now. Please try again later.");
     // 115.11 Paid on the app's payment page (card, Apple Pay or Google Pay): the membership starts once the payment is confirmed.
@@ -814,7 +850,7 @@ export class MarketConnector {
             request.now,
           );
     const link = await this.payOrder({ userId: request.user.id, lang: request.lang ?? null, productId: CLUB_PAY_LINE(plan.id), name: plan.name, cents: plan.price, currency: plan.currency }, request.now);
-    return { status: 201, body: { membership: membershipJson(member, plan, marketCurrency(await this.settings())), pay_url: link.url } };
+    return { status: 201, body: { membership: await this.membership(member, plan, request.now), pay_url: link.url } };
   }
 
   private async cancelClub(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -823,7 +859,7 @@ export class MarketConnector {
     if (!member || member.status !== "active") return error(404, "not_found", "You aren't a member.");
     const ended = await endClub(this.deps.store, member, request.now);
     const plan = ended.planId ? await this.deps.store.getMarketClubPlan(this.deps.app.id, ended.planId) : null;
-    return { status: 200, body: { membership: membershipJson(ended, plan, marketCurrency(await this.settings())) } };
+    return { status: 200, body: { membership: await this.membership(ended, plan, request.now) } };
   }
 
   // The vendor

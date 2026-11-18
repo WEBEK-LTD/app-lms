@@ -982,6 +982,11 @@ abstract class YallappApi {
   /// for a free plan, which starts at once).
   Future<({ClubMembership? membership, String? payUrl})> joinClub(int planId);
   Future<ClubMembership?> cancelClub();
+
+  /// 115.62 `POST /me/club/renew`: the next period's payment page (null for a free plan, renewed at once).
+  Future<({ClubMembership? membership, String? payUrl})> renewClub({
+    int? planId,
+  });
   Future<FoodQuote> quoteFoodOrder(FoodOrderRequest request);
 
   /// The order and, paid by card, its payment page.
@@ -3425,6 +3430,24 @@ class HttpYallappApi implements YallappApi {
         body: {'plan_id': planId},
         query: {'platform': platform.name},
       );
+
+  @override
+  Future<({ClubMembership? membership, String? payUrl})> renewClub({
+    int? planId,
+  }) => _send(
+    'POST',
+    '/me/club/renew',
+    _required,
+    (data) {
+      final json = asJson(data);
+      return (
+        membership: optObject(json, 'membership', ClubMembership.fromJson),
+        payUrl: optString(json, 'pay_url'),
+      );
+    },
+    body: {'plan_id': ?planId},
+    query: {'platform': platform.name},
+  );
 
   @override
   Future<ClubMembership?> cancelClub() => _send(

@@ -2037,7 +2037,7 @@ export const walletEntries = mysqlTable(
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
     userId: bigint("user_id", { mode: "number", unsigned: true }).notNull(),
-    kind: varchar("kind", { length: 12 }).$type<"refund" | "credit" | "payment" | "expired">().notNull(),
+    kind: varchar("kind", { length: 12 }).$type<"refund" | "credit" | "payment" | "expired" | "taken_back">().notNull(),
     amount: bigint("amount", { mode: "number" }).notNull(),
     label: varchar("label", { length: 160 }).notNull(),
     orderId: bigint("order_id", { mode: "number", unsigned: true }),
@@ -2073,6 +2073,8 @@ export const marketCoupons = mysqlTable(
     productIds: jsonText<number[]>("product_ids"),
     createdByVendorId: bigint("created_by_vendor_id", { mode: "number", unsigned: true }),
     ownerPaused: boolean("owner_paused").notNull().default(false),
+    // 115.61 A members' offer: for the club's members only.
+    membersOnly: boolean("members_only").notNull().default(false),
     usesLimit: int("uses_limit"),
     perUserLimit: int("per_user_limit"),
     startsAt: time("starts_at"),
@@ -2140,6 +2142,12 @@ export const marketClubMembers = mysqlTable(
     paidUntil: time("paid_until"),
     paymentRef: varchar("payment_ref", { length: 120 }),
     saved: bigint("saved", { mode: "number" }).notNull(),
+    // 115.61 What they paid and how many periods; 115.62 the period end each renewal reminder was sent for.
+    paidTotal: bigint("paid_total", { mode: "number" }).notNull().default(0),
+    periods: int("periods").notNull().default(0),
+    lastPaidAt: time("last_paid_at"),
+    reminded3dFor: time("reminded_3d_for"),
+    remindedLastFor: time("reminded_last_for"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },

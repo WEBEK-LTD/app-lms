@@ -203,6 +203,8 @@ import type {
   MarketOrderQuery,
   MarketOrderStatus,
   WalletEntry,
+  WalletSummary,
+  ClubReminder,
   MarketApplication,
   MarketApplicationForm,
   MarketApplicationFormInput,
@@ -1464,6 +1466,8 @@ export interface DataStore {
   addWalletEntry(entry: Omit<WalletEntry, "id">): Promise<{ ok: true; entry: WalletEntry } | { ok: false; reason: "duplicate" | "insufficient" }>;
   walletBalance(appId: string, userId: number): Promise<number>;
   listWalletEntries(appId: string, userId: number, page: { limit: number; offset: number }): Promise<{ items: WalletEntry[]; total: number }>;
+  /** 115.63 Every customer with a wallet entry in the app, latest first: their balance, entries and last entry; `userIds` narrows it (a search). */
+  listWallets(appId: string, query: { userIds?: number[]; limit: number; offset: number }): Promise<{ items: WalletSummary[]; total: number }>;
 
   // 115.3 (part 3) Coupons, the club, joining forms and the vendors' web sign-in
   /** Null when the app already has a coupon with this code. */
@@ -1490,6 +1494,12 @@ export interface DataStore {
   /** Makes or replaces the customer's membership. */
   saveMarketClubMember(member: MarketClubMemberInput, now: Date): Promise<MarketClubMember>;
   listMarketClubMembers(appId: string, query: { status?: MarketClubMember["status"]; planId?: number; limit: number; offset: number }): Promise<{ items: MarketClubMember[]; total: number }>;
+  /**
+   * 115.62 Takes a renewal reminder for the membership's period ending at
+   * `periodEnd`, once: true for the first caller, false when it was already
+   * taken for that period (or the period moved).
+   */
+  claimClubReminder(appId: string, userId: number, which: ClubReminder, periodEnd: Date, now: Date): Promise<boolean>;
   /** Adds to what the club saved the customer. */
   addMarketClubSaving(appId: string, userId: number, amount: number, now: Date): Promise<void>;
   createMarketApplicationForm(input: MarketApplicationFormInput): Promise<MarketApplicationForm>;

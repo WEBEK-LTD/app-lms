@@ -180,7 +180,8 @@ void main() {
     expect(find.text('EGP 55.00'), findsOneWidget);
     await tester.tap(find.text('Wallet'));
     await TestApp.settle(tester, 20);
-    expect(find.text('Your balance'), findsOneWidget);
+    // 115.60 The balance's title in capitals (07a).
+    expect(find.text('YOUR BALANCE'), findsOneWidget);
   });
 
   testWidgets('a food delivery app has no Search or Club to show', (

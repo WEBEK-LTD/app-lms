@@ -6785,7 +6785,10 @@ paths:
       tags: [Market]
       operationId: getMyWallet
       summary: The customer's wallet
-      description: Its balance and history (refunds, credit from support, paid orders). The wallet is in `MarketConfig.currency` and can't be withdrawn as cash.
+      description: >-
+        Its balance and history (refunds, the owner's credit and take-backs, paid orders), latest first.
+        115.60 The wallet is credit only: it's filled by refunds and the owner's credit, pays all or part of
+        an order, never expires, and can't be topped up by card or withdrawn as cash. It is in `MarketConfig.currency`.
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
@@ -6883,12 +6886,52 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /me/club/renew:
+    post:
+      tags: [Market]
+      operationId: renewClub
+      summary: Pay the club's next period
+      description: |
+        115.62 D6's renewal: a payment link (`pay_url`) for the next period on
+        the member's plan, or on `plan_id` when they switch, at the owner's
+        price, on the app's payment page (every gateway the app has). Once
+        paid, the period runs from the current end, or from the day it's paid
+        when the period already ended; nothing is charged by itself. The same
+        link comes in the `club_renewal` reminder (its `url`). Null `pay_url`
+        for a plan the owner offers for free, renewed at once.
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plan_id: { type: [integer, 'null'], description: 'Another plan for the next period; missing: the member''s.' }
+      responses:
+        '201':
+          description: The membership and its payment page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [membership, pay_url]
+                properties:
+                  membership: { $ref: '#/components/schemas/ClubMembership' }
+                  pay_url: { type: [string, 'null'], format: uri }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
   /me/club/cancel:
     post:
       tags: [Market]
       operationId: cancelClub
       summary: Stop the club from renewing
-      description: The membership stays until the end of the period it is paid for.
+      description: The membership stays until the end of the period it is paid for; no more renewal reminders come.
       responses:
         '200':
           description: The membership
@@ -14603,8 +14646,9 @@ components:
             delivered, turned down), and opens it; `vendor_order` (with `market_order_id`): a new
             order reached the vendor (pushed with the push's sound), and opens it in the Vendor
             screens; `complaint_update` (with `complaint_id`): support answered or decided one of
-            the customer's complaints, and opens it; `club_renewal`: the customer's club
-            membership renews in 3 days, or its renewal payment failed, and opens the club.
+            the customer's complaints, and opens it; `club_renewal` (with `plan_id`, `reminder` 3d or last, and
+            `url`, the payment link): the customer's club membership ends in 3 days or today and is
+            paid for by that link (nothing is charged by itself), and opens the club.
             105.2 `ride_update` (with `ride_id`): one of the rider's rides moved to another
             stage (a driver accepted, arrived, the ride ended, or no driver was found), and
             opens it; `ride_offer` (with `ride_id`): a ride is offered to the driver, and
@@ -20068,20 +20112,30 @@ components:
           type: array
           items:
             type: object
-            required: [id, kind, amount, label, order_id, at]
+            required: [id, kind, amount, label, order_id, order_reference, vendor_name, complaint_reference, rest_paid_by, at]
             properties:
               id: { type: integer }
-              kind: { type: string, enum: [refund, credit, payment, expired] }
+              kind:
+                type: string
+                enum: [refund, credit, payment, expired, taken_back]
+                description: '`credit`: the owner''s credit; `taken_back`: credit the owner took back (negative); `payment`: what paid (part of) an order (negative).'
               amount: { $ref: '#/components/schemas/Money' }
-              label: { type: string }
+              label: { type: string, description: 'For the owner''s credit and take-backs, the owner''s reason.' }
               order_id: { type: [integer, 'null'] }
+              order_reference: { type: [string, 'null'], example: M-4821, description: 'The order it came from or paid.' }
+              vendor_name: { type: [string, 'null'], description: 'That order''s place.' }
+              complaint_reference: { type: [string, 'null'], example: C-1093, description: 'The complaint a refund came from.' }
+              rest_paid_by:
+                type: [string, 'null']
+                enum: [cash, card, apple_pay, google_pay, null]
+                description: 'When the wallet paid part of an order: how the rest was paid.'
               at: { type: string, format: date-time }
         page: { type: integer }
         total_pages: { type: integer }
 
     ClubPlan:
       type: object
-      required: [id, name, period, price, benefits]
+      required: [id, name, period, price, benefits, free_delivery_over, delivery_percent_off, perks]
       properties:
         id: { type: integer }
         name: { type: string, example: Monthly }
@@ -20090,16 +20144,43 @@ components:
         benefits:
           type: array
           items: { type: string, example: 'Free delivery on orders over EGP 150.00' }
+        free_delivery_over:
+          description: '115.61 Free delivery on orders whose items reach this (zero: every order); null: no free delivery.'
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        delivery_percent_off: { type: [integer, 'null'], description: 'Cheaper delivery: this percentage off, when delivery isn''t free.' }
+        perks:
+          type: array
+          description: The owner's own words for the plan's other perks.
+          items: { type: string }
 
     ClubMembership:
       type: [object, 'null']
-      required: [plan, status, renews, current_period_end, saved]
+      required: [plan, status, renews, current_period_end, saved, started_at, remind_at, savings]
+      description: >-
+        115.61 D6: the club renews by a reminder with a payment link (`club_renewal`, 3 days before the end
+        and on the last day) at the owner's prices; nothing is charged by itself. `renews` false once the
+        member ended it (`ending` until the end of the paid period). A period paid late runs from the day
+        it's paid.
       properties:
         plan: { $ref: '#/components/schemas/ClubPlan' }
         status: { type: string, enum: [awaiting_payment, active, ending, ended, payment_failed] }
-        renews: { type: boolean }
+        renews: { type: boolean, description: 'The member will be reminded to pay the next period.' }
         current_period_end: { type: [string, 'null'], format: date-time }
-        saved: { $ref: '#/components/schemas/Money', description: 'What the club saved the member so far.' }
+        saved: { $ref: '#/components/schemas/Money', description: 'What the club saved the member since they first joined (`savings.total`).' }
+        started_at: { type: [string, 'null'], format: date-time, description: 'When they first joined.' }
+        remind_at: { type: [string, 'null'], format: date-time, description: 'When the first renewal reminder comes; null when it won''t.' }
+        savings:
+          type: [object, 'null']
+          required: [total, this_month, delivery, offers, free_deliveries, deliveries, paid]
+          description: 'Read from the member''s completed orders since they first joined: delivery fees not paid and members'' offers.'
+          properties:
+            total: { $ref: '#/components/schemas/Money' }
+            this_month: { $ref: '#/components/schemas/Money', description: 'In this month of the marketplace''s time zone.' }
+            delivery: { $ref: '#/components/schemas/Money', description: 'Delivery fees not paid.' }
+            offers: { $ref: '#/components/schemas/Money', description: 'Members'' offers used.' }
+            free_deliveries: { type: integer, description: 'Delivered orders whose delivery the club made free.' }
+            deliveries: { type: integer, description: 'Delivered orders.' }
+            paid: { $ref: '#/components/schemas/Money', description: 'What they paid for the club, in all.' }
 
     VendorDesk:
       type: object

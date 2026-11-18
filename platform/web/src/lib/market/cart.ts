@@ -6,7 +6,7 @@ import { EMPTY_MENU } from "../food/menu";
 import { currencyDecimals, toMinor } from "./currency";
 import { quoteMarketDelivery, vendorDelivery, type DeliveryQuote } from "./delivery";
 import { priceOrder, type ClubBenefit, type Commission, type OrderMoney } from "./money";
-import { bestAutomaticOffer, checkCoupon, clubBenefit, couponFromCode, type CouponCheck } from "./offers";
+import { bestAutomaticOffer, checkCoupon, clubBenefit, couponFromCode, isClubMember, type CouponCheck } from "./offers";
 import { marketSettingsOf, marketCurrency } from "./settings";
 import { assetUrl } from "../assets";
 import { photosRequired } from "./photos";
@@ -246,7 +246,16 @@ export async function priceMarketCart(
 
   // The coupon typed, or else the best automatic offer; each line with its department (a dish's menu section) and product.
   const firstOrder = userId === null ? false : (await store.listMarketOrders({ appId, userId, statuses: ["delivered", "picked_up"], limit: 1, offset: 0 })).total === 0;
-  const ctx = { now, vendorId: vendor.id, vendorKind: vendor.kind ?? "restaurant", lines: lined.lines.map((l, i) => ({ departmentId: lined.departments[i] ?? null, productId: l.productId, total: l.total })), userId, firstOrder } as const;
+  // The club's benefit, for members; 115.61 members' offers for them only.
+  let club: ClubBenefit | null = null;
+  let member = false;
+  if (userId !== null && settings.club) {
+    const membership = await store.getMarketClubMember(appId, userId);
+    const plan = membership?.planId ? await store.getMarketClubPlan(appId, membership.planId) : null;
+    club = clubBenefit(membership, plan, now);
+    member = isClubMember(membership, now);
+  }
+  const ctx = { now, vendorId: vendor.id, vendorKind: vendor.kind ?? "restaurant", lines: lined.lines.map((l, i) => ({ departmentId: lined.departments[i] ?? null, productId: l.productId, total: l.total })), userId, firstOrder, member } as const;
   let coupon: PricedCart["coupon"] = null;
   let couponCheck: Extract<CouponCheck, { ok: true }> | null = null;
   let couponRefused: string | null = null;
@@ -263,14 +272,6 @@ export async function priceMarketCart(
       coupon = { record: best.record, title: best.record.title, code: null };
       couponCheck = best.check;
     }
-  }
-
-  // The club's benefit, for members.
-  let club: ClubBenefit | null = null;
-  if (userId !== null && settings.club) {
-    const member = await store.getMarketClubMember(appId, userId);
-    const plan = member?.planId ? await store.getMarketClubPlan(appId, member.planId) : null;
-    club = clubBenefit(member, plan, now);
   }
 
   const walletBalance = userId !== null && settings.wallet ? await store.walletBalance(appId, userId) : 0;

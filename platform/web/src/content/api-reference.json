@@ -1470,7 +1470,7 @@
           "method": "GET",
           "path": "/me/wallet",
           "summary": "The customer's wallet",
-          "description": "Its balance and history (refunds, credit from support, paid orders). The wallet is in `MarketConfig.currency` and can't be withdrawn as cash.",
+          "description": "Its balance and history (refunds, the owner's credit and take-backs, paid orders), latest first. 115.60 The wallet is credit only: it's filled by refunds and the owner's credit, pays all or part of an order, never expires, and can't be topped up by card or withdrawn as cash. It is in `MarketConfig.currency`.",
           "access": "signed-in"
         },
         {
@@ -1496,9 +1496,16 @@
         },
         {
           "method": "POST",
+          "path": "/me/club/renew",
+          "summary": "Pay the club's next period",
+          "description": "115.62 D6's renewal: a payment link (`pay_url`) for the next period on the member's plan, or on `plan_id` when they switch, at the owner's price, on the app's payment page (every gateway the app has). Once paid, the period runs from the current end, or from the day it's paid when the period already ended; nothing is charged by itself. The same link comes in the `club_renewal` reminder (its `url`). Null `pay_url` for a plan the owner offers for free, renewed at once.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
           "path": "/me/club/cancel",
           "summary": "Stop the club from renewing",
-          "description": "The membership stays until the end of the period it is paid for.",
+          "description": "The membership stays until the end of the period it is paid for; no more renewal reminders come.",
           "access": "signed-in"
         }
       ]

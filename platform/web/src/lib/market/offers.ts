@@ -22,12 +22,14 @@ export interface CouponContext {
   userId: number | null;
   /** The customer has no earlier completed order in this app. */
   firstOrder: boolean;
+  /** 115.61 The customer is a club member now (members' offers). */
+  member?: boolean;
   /** Uses so far, in all and the customer's. */
   uses: number;
   userUses: number;
 }
 
-export type CouponRefusal = "inactive" | "not_started" | "ended" | "min_order" | "first_order_only" | "wrong_vendor" | "wrong_kind" | "wrong_department" | "used_up" | "user_limit" | "sign_in";
+export type CouponRefusal = "inactive" | "not_started" | "ended" | "min_order" | "first_order_only" | "wrong_vendor" | "wrong_kind" | "wrong_department" | "used_up" | "user_limit" | "sign_in" | "members_only";
 
 export type CouponCheck = { ok: true; coupon: Coupon; discountBase: number } | { ok: false; refusal: CouponRefusal; error: string };
 
@@ -43,6 +45,7 @@ const MESSAGES: Record<CouponRefusal, string> = {
   used_up: "This code has been used up.",
   user_limit: "You've used this code already.",
   sign_in: "Sign in to use this code.",
+  members_only: "This offer is for the club's members.",
 };
 
 const refuse = (refusal: CouponRefusal): CouponCheck => ({ ok: false, refusal, error: MESSAGES[refusal] });
@@ -55,7 +58,8 @@ export function checkCoupon(c: MarketCoupon, ctx: CouponContext): CouponCheck {
   if (c.endsAt && ctx.now >= c.endsAt) return refuse("ended");
   if (c.vendorIds.length && !c.vendorIds.includes(ctx.vendorId)) return refuse("wrong_vendor");
   if (c.vendorKinds.length && !c.vendorKinds.includes(ctx.vendorKind)) return refuse("wrong_kind");
-  if ((c.firstOrderOnly || c.perUserLimit !== null) && ctx.userId === null) return refuse("sign_in");
+  if ((c.firstOrderOnly || c.perUserLimit !== null || c.membersOnly) && ctx.userId === null) return refuse("sign_in");
+  if (c.membersOnly && !ctx.member) return refuse("members_only");
   if (c.firstOrderOnly && !ctx.firstOrder) return refuse("first_order_only");
   if (c.usesLimit !== null && ctx.uses >= c.usesLimit) return refuse("used_up");
   if (c.perUserLimit !== null && ctx.userUses >= c.perUserLimit) return refuse("user_limit");
@@ -154,11 +158,21 @@ export async function returnToWallet(store: DataStore, input: { appId: string; u
 
 // The club
 
-function addPeriod(from: Date, period: MarketClubPlan["period"]): Date {
+/** The end of a period from `from`: a month or a year on, kept to the month's last day (31 January → 28 or 29 February). */
+export function addPeriod(from: Date, period: MarketClubPlan["period"]): Date {
   const d = new Date(from);
+  const day = d.getUTCDate();
+  d.setUTCDate(1);
   if (period === "month") d.setUTCMonth(d.getUTCMonth() + 1);
   else d.setUTCFullYear(d.getUTCFullYear() + 1);
+  const last = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+  d.setUTCDate(Math.min(day, last));
   return d;
+}
+
+/** 115.61 A member now: their period is paid (also after ending it, until its end). */
+export function isClubMember(member: MarketClubMember | null, now: Date): boolean {
+  return !!member && ["active", "cancelled"].includes(member.status) && !!member.paidUntil && member.paidUntil > now;
 }
 
 /** A member's delivery benefit now: while paid, by the plan they are on. */
@@ -170,20 +184,42 @@ export function clubBenefit(member: MarketClubMember | null, plan: MarketClubPla
   return null;
 }
 
-/** Joining once paid (115.11 takes the payment): active until the end of the first period. */
-export async function joinClub(store: DataStore, plan: MarketClubPlan, userId: number, paymentRef: string, now: Date): Promise<MarketClubMember> {
+/** 115.61 Where a paid period starts: the end of the one still running, or now when it already ended (a renewal paid late). */
+export function renewalStart(member: Pick<MarketClubMember, "paidUntil"> | null, now: Date): Date {
+  return member?.paidUntil && member.paidUntil > now ? new Date(member.paidUntil) : new Date(now);
+}
+
+/**
+ * A period paid (115.11 takes the payment): joining, or D6's renewal by its
+ * payment link, on any plan. It runs from the end of the period still paid,
+ * or from now once it ended; nothing is charged by itself. What was paid
+ * and when are kept for the member's savings; joining again after it ended
+ * keeps the date they first joined.
+ */
+export async function joinClub(store: DataStore, plan: MarketClubPlan, userId: number, paymentRef: string, now: Date, paid: number = plan.price): Promise<MarketClubMember> {
   const current = await store.getMarketClubMember(plan.appId, userId);
-  const stillPaid = current && current.paidUntil && current.paidUntil > now && current.planId === plan.id;
   return store.saveMarketClubMember(
-    { appId: plan.appId, userId, planId: plan.id, status: "active", renews: true, startedAt: current?.startedAt ?? now, paidUntil: addPeriod(stillPaid ? current!.paidUntil! : now, plan.period), paymentRef, saved: current?.saved ?? 0 },
+    {
+      appId: plan.appId,
+      userId,
+      planId: plan.id,
+      status: "active",
+      renews: true,
+      startedAt: current?.startedAt ?? now,
+      paidUntil: addPeriod(renewalStart(current, now), plan.period),
+      paymentRef,
+      saved: current?.saved ?? 0,
+      paidTotal: (current?.paidTotal ?? 0) + Math.max(0, paid),
+      periods: (current?.periods ?? 0) + 1,
+      lastPaidAt: now,
+    },
     now,
   );
 }
 
-/** A renewal paid: the next period from the end of the current one. */
+/** A renewal paid: the next period from the end of the current one (or now, paid late). */
 export async function renewClub(store: DataStore, plan: MarketClubPlan, member: MarketClubMember, paymentRef: string, now: Date): Promise<MarketClubMember> {
-  const from = member.paidUntil && member.paidUntil > now ? member.paidUntil : now;
-  return store.saveMarketClubMember({ ...member, status: "active", paidUntil: addPeriod(from, plan.period), paymentRef }, now);
+  return joinClub(store, plan, member.userId, paymentRef, now);
 }
 
 /** Cancelling stops renewal; the benefit stays until the paid period ends. */
@@ -191,7 +227,12 @@ export async function cancelClub(store: DataStore, member: MarketClubMember, now
   return store.saveMarketClubMember({ ...member, status: member.paidUntil && member.paidUntil > now ? "cancelled" : "expired", renews: false }, now);
 }
 
-/** The daily job: members whose paid period ended and who don't renew become expired; those who renew are due a payment. */
+/**
+ * The daily job: members whose paid period ended become expired (D6: no
+ * automatic charge; their renewal link still renews them from today, and
+ * their history stays). `renewals` are those who meant to renew and didn't
+ * pay, counted.
+ */
 export async function clubDue(store: DataStore, appId: string, now: Date): Promise<{ expired: number; renewals: MarketClubMember[] }> {
   let expired = 0;
   const renewals: MarketClubMember[] = [];
@@ -206,10 +247,8 @@ export async function clubDue(store: DataStore, appId: string, now: Date): Promi
     for (const m of members) {
       if (!m.paidUntil || m.paidUntil > now) continue;
       if (m.renews && status === "active") renewals.push(m);
-      else {
-        await store.saveMarketClubMember({ ...m, status: "expired", renews: false }, now);
-        expired++;
-      }
+      await store.saveMarketClubMember({ ...m, status: "expired", renews: false }, now);
+      expired++;
     }
   }
   return { expired, renewals };

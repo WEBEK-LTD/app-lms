@@ -62,6 +62,7 @@ export default async function OffersPage({ searchParams }: { searchParams: Promi
                     <span>{t(c.paidBy === "vendor" ? "market.f_vendor" : "market.f_owner")}</span>
                     {placeOf(c) !== null ? <span>{t("market.byPlace", { place: placeOf(c)! })}</span> : null}
                     {c.firstOrderOnly ? <span>{t("market.firstOrder")}</span> : null}
+                    {c.membersOnly ? <span>{t("market.membersOffer")}</span> : null}
                     {c.endsAt ? <span dir="ltr">→ {c.endsAt.toISOString().slice(0, 10)}</span> : null}
                   </>
                 }
@@ -155,6 +156,10 @@ export default async function OffersPage({ searchParams }: { searchParams: Promi
           <label className="flex items-center gap-2 self-end pb-2 text-[14px]">
             <input type="checkbox" name="first_order" value="1" />
             {t("market.firstOrder")}
+          </label>
+          <label className="flex items-center gap-2 self-end pb-2 text-[14px]">
+            <input type="checkbox" name="members_only" value="1" />
+            {t("market.membersOnly")}
           </label>
           <div className="sm:col-span-2 lg:col-span-3">
             <button type="submit" className={`${btn.primary} h-11 px-5 text-sm`}>

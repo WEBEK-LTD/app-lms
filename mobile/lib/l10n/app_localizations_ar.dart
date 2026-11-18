@@ -12809,4 +12809,218 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get paySheetOpenAgain => 'افتح صفحة الدفع';
+
+  @override
+  String get marketWalletAbout => 'عن المحفظة';
+
+  @override
+  String marketWalletPays(String app) {
+    return 'تدفع به الطلب كله أو جزءًا منه في $app';
+  }
+
+  @override
+  String get marketWalletUseFirst => 'استخدمه أولًا عند الدفع';
+
+  @override
+  String get marketWalletInstant => 'تصل المبالغ المستردة فورًا';
+
+  @override
+  String get marketWalletNeverExpires => 'رصيدك لا تنتهي صلاحيته';
+
+  @override
+  String get marketWalletToday => 'اليوم';
+
+  @override
+  String marketWalletRefundComplaint(String ref) {
+    return 'استرداد · الشكوى $ref';
+  }
+
+  @override
+  String marketWalletRefundCancelled(String ref) {
+    return 'استرداد · أُلغي الطلب $ref';
+  }
+
+  @override
+  String get marketWalletRefund => 'استرداد';
+
+  @override
+  String marketWalletPaidToward(String ref) {
+    return 'دُفع من الطلب $ref';
+  }
+
+  @override
+  String get marketWalletPaid => 'دُفع في طلب';
+
+  @override
+  String marketWalletRestBy(String how) {
+    return 'والباقي $how';
+  }
+
+  @override
+  String get marketWalletByCard => 'بالبطاقة';
+
+  @override
+  String get marketWalletByCash => 'نقدًا';
+
+  @override
+  String get marketWalletByApplePay => 'عبر Apple Pay';
+
+  @override
+  String get marketWalletByGooglePay => 'عبر Google Pay';
+
+  @override
+  String marketWalletCreditFrom(String app) {
+    return 'رصيد من $app';
+  }
+
+  @override
+  String marketWalletTakenBack(String app) {
+    return 'استرجعه $app';
+  }
+
+  @override
+  String get marketWalletExpiredEntry => 'انتهت صلاحيته';
+
+  @override
+  String marketClubNamed(String app) {
+    return 'نادي $app';
+  }
+
+  @override
+  String get marketClubMemberBadge => 'عضو';
+
+  @override
+  String marketClubFreeOver(String amount) {
+    return 'توصيل مجاني للطلبات فوق $amount';
+  }
+
+  @override
+  String get marketClubFreeAlways => 'توصيل مجاني لكل الطلبات';
+
+  @override
+  String marketClubPercentOff(String percent) {
+    return 'خصم $percent% على التوصيل';
+  }
+
+  @override
+  String marketClubFreeByCouriersOver(String amount) {
+    return 'توصيل مجاني بمندوبي التطبيق فوق $amount';
+  }
+
+  @override
+  String get marketClubSince => 'عضو منذ';
+
+  @override
+  String marketClubNextPayment(String date) {
+    return 'الدفعة التالية $date';
+  }
+
+  @override
+  String marketClubEndsOn(String date) {
+    return 'تنتهي في $date';
+  }
+
+  @override
+  String marketClubEndedOn(String date) {
+    return 'انتهت في $date';
+  }
+
+  @override
+  String get marketClubMonthly => 'شهري';
+
+  @override
+  String get marketClubYearly => 'سنوي';
+
+  @override
+  String get marketClubSlashMonth => 'شهر';
+
+  @override
+  String get marketClubSlashYear => 'سنة';
+
+  @override
+  String get marketClubYouSaved => 'وفّرت';
+
+  @override
+  String marketClubTimesPaid(String times) {
+    return '$times أضعاف ما دفعت';
+  }
+
+  @override
+  String marketClubSinceJoinedFor(String amount) {
+    return 'منذ انضمامك، مقابل $amount رسومًا';
+  }
+
+  @override
+  String get marketClubThisMonth => 'هذا الشهر';
+
+  @override
+  String get marketClubFreeDeliveries => 'توصيلات مجانية';
+
+  @override
+  String marketClubOfCount(String count, String total) {
+    return '$count من $total';
+  }
+
+  @override
+  String get marketClubMembersOffers => 'عروض الأعضاء';
+
+  @override
+  String marketClubRemindOn(String date) {
+    return 'نذكّرك في $date برابط للدفع، ولا يُخصم شيء تلقائيًا.';
+  }
+
+  @override
+  String get marketClubEnd => 'إنهاء العضوية';
+
+  @override
+  String get marketClubEndAsk => 'هل تريد إنهاء عضويتك؟';
+
+  @override
+  String marketClubEndText(String date) {
+    return 'تبقى لك مزاياها حتى $date، ولن نذكّرك بالدفع مرة أخرى.';
+  }
+
+  @override
+  String get marketClubKeep => 'إبقاؤها';
+
+  @override
+  String marketClubEndedNote(String date) {
+    return 'تبقى عضويتك حتى $date، ولن نذكّرك مرة أخرى.';
+  }
+
+  @override
+  String marketClubRenewWith(String price) {
+    return 'ادفع الفترة التالية · $price';
+  }
+
+  @override
+  String marketClubRenewAgainWith(String price) {
+    return 'جدّد · $price';
+  }
+
+  @override
+  String marketClubSwitchWith(String plan, String price) {
+    return 'انتقل إلى $plan · $price';
+  }
+
+  @override
+  String get marketClubRenewed => 'تم الدفع، وتستمر عضويتك من تاريخ نهايتها.';
+
+  @override
+  String marketClubMonthsFree(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count شهرًا مجانًا',
+      few: '$count أشهر مجانًا',
+      two: 'شهران مجانًا',
+      one: 'شهر مجانًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketWalletOrderRef(String ref) {
+    return 'الطلب $ref';
+  }
 }

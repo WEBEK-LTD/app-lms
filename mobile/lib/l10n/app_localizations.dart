@@ -19885,6 +19885,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open the payment page'**
   String get paySheetOpenAgain;
+
+  /// 115.60 The wallet's help button.
+  ///
+  /// In en, this message translates to:
+  /// **'About the wallet'**
+  String get marketWalletAbout;
+
+  /// 115.60 Under the wallet's balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Pays all or part of any order in {app}'**
+  String marketWalletPays(String app);
+
+  /// 115.60 The wallet pays first at checkout (a switch).
+  ///
+  /// In en, this message translates to:
+  /// **'Use it at checkout first'**
+  String get marketWalletUseFirst;
+
+  /// 115.60 A fact about the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds land here at once'**
+  String get marketWalletInstant;
+
+  /// 115.60 A fact about the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your balance never expires'**
+  String get marketWalletNeverExpires;
+
+  /// 115.60 The wallet's entries of today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get marketWalletToday;
+
+  /// 115.60 A refund decided on a complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund · complaint {ref}'**
+  String marketWalletRefundComplaint(String ref);
+
+  /// 115.60 What a cancelled order's wallet payment gave back.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund · order {ref} cancelled'**
+  String marketWalletRefundCancelled(String ref);
+
+  /// 115.60 A refund to the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get marketWalletRefund;
+
+  /// 115.60 The wallet paid (part of) an order.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid toward order {ref}'**
+  String marketWalletPaidToward(String ref);
+
+  /// 115.60 The wallet paid an order.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid toward an order'**
+  String get marketWalletPaid;
+
+  /// 115.60 How the rest of an order was paid.
+  ///
+  /// In en, this message translates to:
+  /// **'the rest by {how}'**
+  String marketWalletRestBy(String how);
+
+  /// 115.60 The rest paid by card.
+  ///
+  /// In en, this message translates to:
+  /// **'card'**
+  String get marketWalletByCard;
+
+  /// 115.60 The rest paid in cash.
+  ///
+  /// In en, this message translates to:
+  /// **'cash'**
+  String get marketWalletByCash;
+
+  /// 115.60 The rest paid by Apple Pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Pay'**
+  String get marketWalletByApplePay;
+
+  /// 115.60 The rest paid by Google Pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Pay'**
+  String get marketWalletByGooglePay;
+
+  /// 115.60 The owner's credit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit from {app}'**
+  String marketWalletCreditFrom(String app);
+
+  /// 115.60 Credit the owner took back.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken back by {app}'**
+  String marketWalletTakenBack(String app);
+
+  /// 115.60 An old expired entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get marketWalletExpiredEntry;
+
+  /// 115.61 The club's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{app} Club'**
+  String marketClubNamed(String app);
+
+  /// 115.61 The member's badge in the club's header.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get marketClubMemberBadge;
+
+  /// 115.61 The club's benefit.
+  ///
+  /// In en, this message translates to:
+  /// **'Free delivery on orders over {amount}'**
+  String marketClubFreeOver(String amount);
+
+  /// 115.61 The club's benefit.
+  ///
+  /// In en, this message translates to:
+  /// **'Free delivery on every order'**
+  String get marketClubFreeAlways;
+
+  /// 115.61 The club's benefit.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% off delivery'**
+  String marketClubPercentOff(String percent);
+
+  /// 115.61 A perk of the club.
+  ///
+  /// In en, this message translates to:
+  /// **'Free delivery by the app\'s couriers over {amount}'**
+  String marketClubFreeByCouriersOver(String amount);
+
+  /// 115.61 Above the date the member first joined.
+  ///
+  /// In en, this message translates to:
+  /// **'Member since'**
+  String get marketClubSince;
+
+  /// 115.61 When the next period is paid (by the reminder's link).
+  ///
+  /// In en, this message translates to:
+  /// **'Next payment {date}'**
+  String marketClubNextPayment(String date);
+
+  /// 115.61 A membership the member ended.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends {date}'**
+  String marketClubEndsOn(String date);
+
+  /// 115.61 A membership that ended.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended {date}'**
+  String marketClubEndedOn(String date);
+
+  /// 115.61 A monthly plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get marketClubMonthly;
+
+  /// 115.61 A yearly plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get marketClubYearly;
+
+  /// 115.61 After a monthly price: / month.
+  ///
+  /// In en, this message translates to:
+  /// **'month'**
+  String get marketClubSlashMonth;
+
+  /// 115.61 After a yearly price: / year.
+  ///
+  /// In en, this message translates to:
+  /// **'year'**
+  String get marketClubSlashYear;
+
+  /// 115.61 The savings card's title.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve saved'**
+  String get marketClubYouSaved;
+
+  /// 115.61 The savings against the fees paid.
+  ///
+  /// In en, this message translates to:
+  /// **'{times}× what you paid'**
+  String marketClubTimesPaid(String times);
+
+  /// 115.61 Under the savings.
+  ///
+  /// In en, this message translates to:
+  /// **'since you joined, for {amount} in fees'**
+  String marketClubSinceJoinedFor(String amount);
+
+  /// 115.61 Savings this month.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get marketClubThisMonth;
+
+  /// 115.61 Free deliveries since joining.
+  ///
+  /// In en, this message translates to:
+  /// **'Free deliveries'**
+  String get marketClubFreeDeliveries;
+
+  /// 115.61 Free deliveries of all deliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total}'**
+  String marketClubOfCount(String count, String total);
+
+  /// 115.61 Savings from members' offers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members\' offers'**
+  String get marketClubMembersOffers;
+
+  /// 115.62 The renewal by reminder and payment link.
+  ///
+  /// In en, this message translates to:
+  /// **'We remind you on {date} with a link to pay. Nothing is charged by itself.'**
+  String marketClubRemindOn(String date);
+
+  /// 115.62 Ends the membership.
+  ///
+  /// In en, this message translates to:
+  /// **'End membership'**
+  String get marketClubEnd;
+
+  /// 115.62 Asked before ending.
+  ///
+  /// In en, this message translates to:
+  /// **'End your membership?'**
+  String get marketClubEndAsk;
+
+  /// 115.62 What ending the membership does.
+  ///
+  /// In en, this message translates to:
+  /// **'You keep its benefits until {date}, and we won\'t remind you to pay again.'**
+  String marketClubEndText(String date);
+
+  /// 115.62 Keeps the membership.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get marketClubKeep;
+
+  /// 115.62 After the member ended it.
+  ///
+  /// In en, this message translates to:
+  /// **'Your membership stays until {date}; we won\'t remind you again.'**
+  String marketClubEndedNote(String date);
+
+  /// 115.62 Pays the next period by the payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay the next period · {price}'**
+  String marketClubRenewWith(String price);
+
+  /// 115.62 Renews a membership that ended, from today.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew · {price}'**
+  String marketClubRenewAgainWith(String price);
+
+  /// 115.62 Pays the next period on another plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {plan} · {price}'**
+  String marketClubSwitchWith(String plan, String price);
+
+  /// 115.62 After paying the next period.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid. Your membership runs on from its end date.'**
+  String get marketClubRenewed;
+
+  /// 115.61 What the yearly plan saves against twelve months.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{One month free} =2{Two months free} other{{count} months free}}'**
+  String marketClubMonthsFree(int count);
+
+  /// 115.60 An order's number in a wallet entry.
+  ///
+  /// In en, this message translates to:
+  /// **'order {ref}'**
+  String marketWalletOrderRef(String ref);
 }
 
 class _AppLocalizationsDelegate

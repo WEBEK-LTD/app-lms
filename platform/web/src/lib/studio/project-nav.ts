@@ -74,6 +74,8 @@ const SCHOOL_WORDS: Record<string, DashKey> = {
 const MARKET_PAGES = [
   { href: "/dashboard/market/orders", label: "Marketplace orders", icon: "shopping_bag" },
   { href: "/dashboard/market/offers", label: "Offers & club", icon: "local_offer" },
+  { href: "/dashboard/market/club", label: "Club members", icon: "card_membership" },
+  { href: "/dashboard/market/wallets", label: "Wallets", icon: "payments" },
   { href: "/dashboard/market/joining", label: "Joining", icon: "note_add" },
   { href: "/dashboard/market/complaints", label: "Complaints", icon: "support_agent" },
   { href: "/dashboard/market/statements", label: "Statements", icon: "receipt_long" },

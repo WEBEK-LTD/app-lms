@@ -61,6 +61,8 @@ import type {
   MarketOrderQuery,
   MarketOrderStatus,
   WalletEntry,
+  WalletSummary,
+  ClubReminder,
   MarketApplication,
   MarketApplicationForm,
   MarketApplicationFormInput,
@@ -5962,11 +5964,35 @@ export class MysqlStore implements DataStore {
     return { items, total: Number(totals[0]?.n ?? 0) };
   }
 
+  async listWallets(appId: string, query: { userIds?: number[]; limit: number; offset: number }): Promise<{ items: WalletSummary[]; total: number }> {
+    const t = schema.walletEntries;
+    if (query.userIds && query.userIds.length === 0) return { items: [], total: 0 };
+    const where = and(eq(t.appId, appId), query.userIds ? inArray(t.userId, query.userIds) : undefined);
+    const lastAt = sql<Date | string>`max(${t.createdAt})`;
+    const [rows, totals] = await Promise.all([
+      this.run((db) =>
+        db
+          .select({ userId: t.userId, balance: sql<string>`sum(${t.amount})`, entries: count(), lastAt })
+          .from(t)
+          .where(where)
+          .groupBy(t.userId)
+          .orderBy(desc(lastAt), desc(t.userId))
+          .limit(query.limit)
+          .offset(query.offset),
+      ),
+      this.run((db) => db.select({ n: sql<string>`count(distinct ${t.userId})` }).from(t).where(where)),
+    ]);
+    return {
+      items: rows.map((r) => ({ userId: r.userId, balance: Number(r.balance ?? 0), entries: Number(r.entries), lastAt: r.lastAt instanceof Date ? r.lastAt : new Date(`${String(r.lastAt).replace(" ", "T")}Z`) })),
+      total: Number(totals[0]?.n ?? 0),
+    };
+  }
+
   // 115.3 (part 3) Coupons, the club, joining forms and the vendors' web sign-in
 
   async createMarketCoupon(input: MarketCouponInput): Promise<MarketCoupon | null> {
     // 115.18 The vendor's fields as the database keeps them when left out.
-    const values = { productIds: null, createdByVendorId: null, ownerPaused: false, ...input, code: input.code === null ? null : input.code.toUpperCase() };
+    const values = { productIds: null, createdByVendorId: null, ownerPaused: false, membersOnly: false, ...input, code: input.code === null ? null : input.code.toUpperCase() };
     try {
       const [result] = await this.run((db) => db.insert(schema.marketCoupons).values(values));
       return { id: Number(result.insertId), ...values };
@@ -6131,6 +6157,19 @@ export class MysqlStore implements DataStore {
       this.run((db) => db.select({ n: count() }).from(t).where(where)),
     ]);
     return { items, total: Number(totals[0]?.n ?? 0) };
+  }
+
+  async claimClubReminder(appId: string, userId: number, which: ClubReminder, periodEnd: Date, now: Date): Promise<boolean> {
+    const t = schema.marketClubMembers;
+    const field = which === "3d" ? t.reminded3dFor : t.remindedLastFor;
+    // One update decides it: two daily runs at once can't both take the same reminder.
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(which === "3d" ? { reminded3dFor: periodEnd, updatedAt: now } : { remindedLastFor: periodEnd, updatedAt: now })
+        .where(and(eq(t.appId, appId), eq(t.userId, userId), eq(t.paidUntil, periodEnd), or(isNull(field), ne(field, periodEnd)))),
+    );
+    return result.affectedRows === 1;
   }
 
   async addMarketClubSaving(appId: string, userId: number, amount: number, now: Date): Promise<void> {

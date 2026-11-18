@@ -127,13 +127,14 @@ describe("115.10 the club", () => {
     const cancelled = await cancelClub(store, renewed, days(21));
     expect(cancelled).toMatchObject({ status: "cancelled", renews: false });
     expect(clubBenefit(cancelled, monthly, days(40))).not.toBeNull();
-    // A second member on a yearly plan that renews: due a payment when it ends; the cancelled one expires.
+    // A second member on a yearly plan that renews: counted as a renewal due when it ends, and (D6: nothing is charged by itself) both end.
     const other = await joinClub(store, half, 8, "pay_3", NOW);
     expect(clubBenefit(other, half, NOW)).toEqual({ kind: "delivery_percent", value: 50 });
     expect(clubBenefit(other, monthly, NOW)).toBeNull();
     const due = await clubDue(store, app.id, days(400));
-    expect(due.expired).toBe(1);
+    expect(due.expired).toBe(2);
     expect(due.renewals.map((m) => m.userId)).toEqual([8]);
     expect((await store.getMarketClubMember(app.id, 7))!.status).toBe("expired");
+    expect((await store.getMarketClubMember(app.id, 8))!).toMatchObject({ status: "expired", startedAt: NOW, periods: 1 });
   });
 });

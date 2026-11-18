@@ -13163,4 +13163,237 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get paySheetOpenAgain =>
       overlay.text('paySheetOpenAgain') ?? base.paySheetOpenAgain;
+
+  @override
+  String get marketWalletAbout =>
+      overlay.text('marketWalletAbout') ?? base.marketWalletAbout;
+
+  @override
+  String marketWalletPays(String app) =>
+      overlay.format('marketWalletPays', {'app': app}) ??
+      base.marketWalletPays(app);
+
+  @override
+  String get marketWalletUseFirst =>
+      overlay.text('marketWalletUseFirst') ?? base.marketWalletUseFirst;
+
+  @override
+  String get marketWalletInstant =>
+      overlay.text('marketWalletInstant') ?? base.marketWalletInstant;
+
+  @override
+  String get marketWalletNeverExpires =>
+      overlay.text('marketWalletNeverExpires') ?? base.marketWalletNeverExpires;
+
+  @override
+  String get marketWalletToday =>
+      overlay.text('marketWalletToday') ?? base.marketWalletToday;
+
+  @override
+  String marketWalletRefundComplaint(String ref) =>
+      overlay.format('marketWalletRefundComplaint', {'ref': ref}) ??
+      base.marketWalletRefundComplaint(ref);
+
+  @override
+  String marketWalletRefundCancelled(String ref) =>
+      overlay.format('marketWalletRefundCancelled', {'ref': ref}) ??
+      base.marketWalletRefundCancelled(ref);
+
+  @override
+  String get marketWalletRefund =>
+      overlay.text('marketWalletRefund') ?? base.marketWalletRefund;
+
+  @override
+  String marketWalletPaidToward(String ref) =>
+      overlay.format('marketWalletPaidToward', {'ref': ref}) ??
+      base.marketWalletPaidToward(ref);
+
+  @override
+  String get marketWalletPaid =>
+      overlay.text('marketWalletPaid') ?? base.marketWalletPaid;
+
+  @override
+  String marketWalletRestBy(String how) =>
+      overlay.format('marketWalletRestBy', {'how': how}) ??
+      base.marketWalletRestBy(how);
+
+  @override
+  String get marketWalletByCard =>
+      overlay.text('marketWalletByCard') ?? base.marketWalletByCard;
+
+  @override
+  String get marketWalletByCash =>
+      overlay.text('marketWalletByCash') ?? base.marketWalletByCash;
+
+  @override
+  String get marketWalletByApplePay =>
+      overlay.text('marketWalletByApplePay') ?? base.marketWalletByApplePay;
+
+  @override
+  String get marketWalletByGooglePay =>
+      overlay.text('marketWalletByGooglePay') ?? base.marketWalletByGooglePay;
+
+  @override
+  String marketWalletCreditFrom(String app) =>
+      overlay.format('marketWalletCreditFrom', {'app': app}) ??
+      base.marketWalletCreditFrom(app);
+
+  @override
+  String marketWalletTakenBack(String app) =>
+      overlay.format('marketWalletTakenBack', {'app': app}) ??
+      base.marketWalletTakenBack(app);
+
+  @override
+  String get marketWalletExpiredEntry =>
+      overlay.text('marketWalletExpiredEntry') ?? base.marketWalletExpiredEntry;
+
+  @override
+  String marketClubNamed(String app) =>
+      overlay.format('marketClubNamed', {'app': app}) ??
+      base.marketClubNamed(app);
+
+  @override
+  String get marketClubMemberBadge =>
+      overlay.text('marketClubMemberBadge') ?? base.marketClubMemberBadge;
+
+  @override
+  String marketClubFreeOver(String amount) =>
+      overlay.format('marketClubFreeOver', {'amount': amount}) ??
+      base.marketClubFreeOver(amount);
+
+  @override
+  String get marketClubFreeAlways =>
+      overlay.text('marketClubFreeAlways') ?? base.marketClubFreeAlways;
+
+  @override
+  String marketClubPercentOff(String percent) =>
+      overlay.format('marketClubPercentOff', {'percent': percent}) ??
+      base.marketClubPercentOff(percent);
+
+  @override
+  String marketClubFreeByCouriersOver(String amount) =>
+      overlay.format('marketClubFreeByCouriersOver', {'amount': amount}) ??
+      base.marketClubFreeByCouriersOver(amount);
+
+  @override
+  String get marketClubSince =>
+      overlay.text('marketClubSince') ?? base.marketClubSince;
+
+  @override
+  String marketClubNextPayment(String date) =>
+      overlay.format('marketClubNextPayment', {'date': date}) ??
+      base.marketClubNextPayment(date);
+
+  @override
+  String marketClubEndsOn(String date) =>
+      overlay.format('marketClubEndsOn', {'date': date}) ??
+      base.marketClubEndsOn(date);
+
+  @override
+  String marketClubEndedOn(String date) =>
+      overlay.format('marketClubEndedOn', {'date': date}) ??
+      base.marketClubEndedOn(date);
+
+  @override
+  String get marketClubMonthly =>
+      overlay.text('marketClubMonthly') ?? base.marketClubMonthly;
+
+  @override
+  String get marketClubYearly =>
+      overlay.text('marketClubYearly') ?? base.marketClubYearly;
+
+  @override
+  String get marketClubSlashMonth =>
+      overlay.text('marketClubSlashMonth') ?? base.marketClubSlashMonth;
+
+  @override
+  String get marketClubSlashYear =>
+      overlay.text('marketClubSlashYear') ?? base.marketClubSlashYear;
+
+  @override
+  String get marketClubYouSaved =>
+      overlay.text('marketClubYouSaved') ?? base.marketClubYouSaved;
+
+  @override
+  String marketClubTimesPaid(String times) =>
+      overlay.format('marketClubTimesPaid', {'times': times}) ??
+      base.marketClubTimesPaid(times);
+
+  @override
+  String marketClubSinceJoinedFor(String amount) =>
+      overlay.format('marketClubSinceJoinedFor', {'amount': amount}) ??
+      base.marketClubSinceJoinedFor(amount);
+
+  @override
+  String get marketClubThisMonth =>
+      overlay.text('marketClubThisMonth') ?? base.marketClubThisMonth;
+
+  @override
+  String get marketClubFreeDeliveries =>
+      overlay.text('marketClubFreeDeliveries') ?? base.marketClubFreeDeliveries;
+
+  @override
+  String marketClubOfCount(String count, String total) =>
+      overlay.format('marketClubOfCount', {'count': count, 'total': total}) ??
+      base.marketClubOfCount(count, total);
+
+  @override
+  String get marketClubMembersOffers =>
+      overlay.text('marketClubMembersOffers') ?? base.marketClubMembersOffers;
+
+  @override
+  String marketClubRemindOn(String date) =>
+      overlay.format('marketClubRemindOn', {'date': date}) ??
+      base.marketClubRemindOn(date);
+
+  @override
+  String get marketClubEnd =>
+      overlay.text('marketClubEnd') ?? base.marketClubEnd;
+
+  @override
+  String get marketClubEndAsk =>
+      overlay.text('marketClubEndAsk') ?? base.marketClubEndAsk;
+
+  @override
+  String marketClubEndText(String date) =>
+      overlay.format('marketClubEndText', {'date': date}) ??
+      base.marketClubEndText(date);
+
+  @override
+  String get marketClubKeep =>
+      overlay.text('marketClubKeep') ?? base.marketClubKeep;
+
+  @override
+  String marketClubEndedNote(String date) =>
+      overlay.format('marketClubEndedNote', {'date': date}) ??
+      base.marketClubEndedNote(date);
+
+  @override
+  String marketClubRenewWith(String price) =>
+      overlay.format('marketClubRenewWith', {'price': price}) ??
+      base.marketClubRenewWith(price);
+
+  @override
+  String marketClubRenewAgainWith(String price) =>
+      overlay.format('marketClubRenewAgainWith', {'price': price}) ??
+      base.marketClubRenewAgainWith(price);
+
+  @override
+  String marketClubSwitchWith(String plan, String price) =>
+      overlay.format('marketClubSwitchWith', {'plan': plan, 'price': price}) ??
+      base.marketClubSwitchWith(plan, price);
+
+  @override
+  String get marketClubRenewed =>
+      overlay.text('marketClubRenewed') ?? base.marketClubRenewed;
+
+  @override
+  String marketClubMonthsFree(int count) =>
+      overlay.format('marketClubMonthsFree', {'count': count}) ??
+      base.marketClubMonthsFree(count);
+
+  @override
+  String marketWalletOrderRef(String ref) =>
+      overlay.format('marketWalletOrderRef', {'ref': ref}) ??
+      base.marketWalletOrderRef(ref);
 }

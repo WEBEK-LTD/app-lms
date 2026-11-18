@@ -1182,28 +1182,59 @@ class MarketWallet {
 
   factory MarketWallet.fromJson(Json json) => MarketWallet(
     balance: MarketMoney.fromJson(asJson(json['balance'], 'balance')),
-    entries: listOf(
-      json,
-      'entries',
-      (j) => (
-        kind: reqString(j, 'kind'),
-        label: reqString(j, 'label'),
-        amount: MarketMoney.fromJson(asJson(j['amount'], 'amount')),
-        orderId: optInt(j, 'order_id'),
-        at: reqDate(j, 'at'),
-      ),
-    ),
+    entries: listOf(json, 'entries', MarketWalletEntry.fromJson),
     page: intOr(json, 'page', 1),
     totalPages: intOr(json, 'total_pages', 1),
   );
 
   final MarketMoney balance;
-  final List<
-    ({String kind, String label, MarketMoney amount, int? orderId, DateTime at})
-  >
-  entries;
+  final List<MarketWalletEntry> entries;
   final int page;
   final int totalPages;
+}
+
+/// One of the wallet's entries; 115.60 where its money came from or went.
+class MarketWalletEntry {
+  const MarketWalletEntry({
+    required this.kind,
+    required this.label,
+    required this.amount,
+    required this.at,
+    this.orderId,
+    this.orderReference,
+    this.vendorName,
+    this.complaintReference,
+    this.restPaidBy,
+  });
+
+  factory MarketWalletEntry.fromJson(Json json) => MarketWalletEntry(
+    kind: reqString(json, 'kind'),
+    label: reqString(json, 'label'),
+    amount: MarketMoney.fromJson(asJson(json['amount'], 'amount')),
+    orderId: optInt(json, 'order_id'),
+    orderReference: optString(json, 'order_reference'),
+    vendorName: optString(json, 'vendor_name'),
+    complaintReference: optString(json, 'complaint_reference'),
+    restPaidBy: optString(json, 'rest_paid_by'),
+    at: reqDate(json, 'at'),
+  );
+
+  /// refund, credit (the owner's), payment, expired or taken_back.
+  final String kind;
+
+  /// The owner's reason, for their credit and take-backs.
+  final String label;
+  final MarketMoney amount;
+  final int? orderId;
+  final String? orderReference;
+  final String? vendorName;
+  final String? complaintReference;
+
+  /// cash, card, apple_pay or google_pay: the rest of an order it paid part of.
+  final String? restPaidBy;
+  final DateTime at;
+
+  bool get isIn => !amount.amount.startsWith('-');
 }
 
 /// `ClubPlan`: a delivery club plan, at the app owner's price.
@@ -1214,6 +1245,9 @@ class ClubPlan {
     required this.yearly,
     required this.price,
     this.benefits = const [],
+    this.freeDeliveryOver,
+    this.deliveryPercentOff,
+    this.perks = const [],
   });
 
   factory ClubPlan.fromJson(Json json) => ClubPlan(
@@ -1222,6 +1256,13 @@ class ClubPlan {
     yearly: json['period'] == 'year',
     price: MarketMoney.fromJson(asJson(json['price'], 'price')),
     benefits: stringList(json, 'benefits'),
+    freeDeliveryOver: optObject(
+      json,
+      'free_delivery_over',
+      MarketMoney.fromJson,
+    ),
+    deliveryPercentOff: optInt(json, 'delivery_percent_off'),
+    perks: stringList(json, 'perks'),
   );
 
   final int id;
@@ -1229,6 +1270,15 @@ class ClubPlan {
   final bool yearly;
   final MarketMoney price;
   final List<String> benefits;
+
+  /// 115.61 Free delivery on orders over this (zero: every order); null: none.
+  final MarketMoney? freeDeliveryOver;
+
+  /// Cheaper delivery: this percentage off, when it isn't free.
+  final int? deliveryPercentOff;
+
+  /// The owner's own words for the plan's other perks.
+  final List<String> perks;
 }
 
 /// `GET /market/club`: the club's name, words and plans.
@@ -1258,6 +1308,9 @@ class ClubMembership {
     required this.renews,
     required this.saved,
     this.periodEnd,
+    this.startedAt,
+    this.remindAt,
+    this.savings,
   });
 
   factory ClubMembership.fromJson(Json json) => ClubMembership(
@@ -1266,15 +1319,59 @@ class ClubMembership {
     renews: boolOr(json, 'renews', false),
     periodEnd: optDate(json, 'current_period_end'),
     saved: MarketMoney.fromJson(asJson(json['saved'], 'saved')),
+    startedAt: optDate(json, 'started_at'),
+    remindAt: optDate(json, 'remind_at'),
+    savings: optObject(json, 'savings', ClubSavings.fromJson),
   );
 
   final ClubPlan plan;
 
   /// awaiting_payment, active, ending, ended or payment_failed.
   final String status;
+
+  /// 115.62 The member will be reminded, with a payment link, to pay the next period.
   final bool renews;
   final DateTime? periodEnd;
   final MarketMoney saved;
 
+  /// When they first joined.
+  final DateTime? startedAt;
+
+  /// When the first renewal reminder comes; null when it won't.
+  final DateTime? remindAt;
+  final ClubSavings? savings;
+
   bool get active => status == 'active' || status == 'ending';
+}
+
+/// 115.61 What the club saved a member: delivery fees not paid and members'
+/// offers, this month and since they first joined.
+class ClubSavings {
+  const ClubSavings({
+    required this.total,
+    required this.thisMonth,
+    required this.delivery,
+    required this.offers,
+    required this.paid,
+    this.freeDeliveries = 0,
+    this.deliveries = 0,
+  });
+
+  factory ClubSavings.fromJson(Json json) => ClubSavings(
+    total: MarketMoney.fromJson(asJson(json['total'], 'total')),
+    thisMonth: MarketMoney.fromJson(asJson(json['this_month'], 'this_month')),
+    delivery: MarketMoney.fromJson(asJson(json['delivery'], 'delivery')),
+    offers: MarketMoney.fromJson(asJson(json['offers'], 'offers')),
+    paid: MarketMoney.fromJson(asJson(json['paid'], 'paid')),
+    freeDeliveries: intOr(json, 'free_deliveries', 0),
+    deliveries: intOr(json, 'deliveries', 0),
+  );
+
+  final MarketMoney total;
+  final MarketMoney thisMonth;
+  final MarketMoney delivery;
+  final MarketMoney offers;
+  final MarketMoney paid;
+  final int freeDeliveries;
+  final int deliveries;
 }

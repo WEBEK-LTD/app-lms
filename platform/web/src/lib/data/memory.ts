@@ -142,6 +142,8 @@ import type {
   MarketOrderQuery,
   MarketOrderStatus,
   WalletEntry,
+  WalletSummary,
+  ClubReminder,
   MarketApplication,
   MarketApplicationForm,
   MarketApplicationFormInput,
@@ -4699,7 +4701,9 @@ export class MemoryStore implements DataStore {
 
   async addWalletEntry(entry: Omit<WalletEntry, "id">): Promise<{ ok: true; entry: WalletEntry } | { ok: false; reason: "duplicate" | "insufficient" }> {
     if (this.walletEntries.some((e) => e.appId === entry.appId && e.key === entry.key)) return { ok: false, reason: "duplicate" };
-    if (entry.amount < 0 && (await this.walletBalance(entry.appId, entry.userId)) + entry.amount < 0) return { ok: false, reason: "insufficient" };
+    // 115.60 Read and added with no await between them, so two payments at once can't both spend the balance.
+    const balance = this.walletEntries.filter((e) => e.appId === entry.appId && e.userId === entry.userId).reduce((sum, e) => sum + e.amount, 0);
+    if (entry.amount < 0 && balance + entry.amount < 0) return { ok: false, reason: "insufficient" };
     const saved: WalletEntry = { ...clone(entry), id: this.nextWalletEntryId++ };
     this.walletEntries.push(clone(saved));
     return { ok: true, entry: saved };
@@ -4712,6 +4716,20 @@ export class MemoryStore implements DataStore {
   async listWalletEntries(appId: string, userId: number, page: { limit: number; offset: number }): Promise<{ items: WalletEntry[]; total: number }> {
     const all = this.walletEntries.filter((e) => e.appId === appId && e.userId === userId).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
     return { items: all.slice(page.offset, page.offset + page.limit).map(clone), total: all.length };
+  }
+
+  async listWallets(appId: string, query: { userIds?: number[]; limit: number; offset: number }): Promise<{ items: WalletSummary[]; total: number }> {
+    const by = new Map<number, WalletSummary>();
+    for (const e of this.walletEntries) {
+      if (e.appId !== appId || (query.userIds && !query.userIds.includes(e.userId))) continue;
+      const w = by.get(e.userId) ?? { userId: e.userId, balance: 0, entries: 0, lastAt: e.createdAt };
+      w.balance += e.amount;
+      w.entries += 1;
+      if (e.createdAt > w.lastAt) w.lastAt = e.createdAt;
+      by.set(e.userId, w);
+    }
+    const all = [...by.values()].sort((a, b) => b.lastAt.getTime() - a.lastAt.getTime() || b.userId - a.userId);
+    return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };
   }
 
   // 115.3 (part 3) Coupons, the club, joining forms and the vendors' web sign-in
@@ -4740,7 +4758,7 @@ export class MemoryStore implements DataStore {
     const code = input.code === null ? null : input.code.toUpperCase();
     if (this.couponCodeTaken(input.appId, code, null)) return null;
     // 115.18 The vendor's fields as the database keeps them when left out.
-    const coupon: MarketCoupon = { productIds: null, createdByVendorId: null, ownerPaused: false, ...clone(input), code, id: this.nextMarketCouponId++ };
+    const coupon: MarketCoupon = { productIds: null, createdByVendorId: null, ownerPaused: false, membersOnly: false, ...clone(input), code, id: this.nextMarketCouponId++ };
     this.marketCoupons.set(coupon.id, clone(coupon));
     return coupon;
   }
@@ -4846,7 +4864,10 @@ export class MemoryStore implements DataStore {
   async saveMarketClubMember(member: MarketClubMemberInput, now: Date): Promise<MarketClubMember> {
     const key = `${member.appId}:${member.userId}`;
     const existing = this.marketClubMembers.get(key);
-    const saved: MarketClubMember = { ...clone(member), id: existing?.id ?? this.nextMarketClubMemberId++, createdAt: existing?.createdAt ?? now, updatedAt: now };
+    // 115.61 Fields left out keep what the database keeps (MySQL leaves them as they were).
+    const kept = { paidTotal: existing?.paidTotal ?? 0, periods: existing?.periods ?? 0, lastPaidAt: existing?.lastPaidAt ?? null, reminded3dFor: existing?.reminded3dFor ?? null, remindedLastFor: existing?.remindedLastFor ?? null };
+    const given = Object.fromEntries(Object.entries(clone(member)).filter(([, v]) => v !== undefined)) as MarketClubMemberInput;
+    const saved: MarketClubMember = { ...kept, ...given, id: existing?.id ?? this.nextMarketClubMemberId++, createdAt: existing?.createdAt ?? now, updatedAt: now };
     this.marketClubMembers.set(key, clone(saved));
     return saved;
   }
@@ -4856,6 +4877,16 @@ export class MemoryStore implements DataStore {
       .filter((m) => m.appId === appId && (query.status === undefined || m.status === query.status) && (query.planId === undefined || m.planId === query.planId))
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
     return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };
+  }
+
+  async claimClubReminder(appId: string, userId: number, which: ClubReminder, periodEnd: Date, now: Date): Promise<boolean> {
+    const member = this.marketClubMembers.get(`${appId}:${userId}`);
+    if (!member || member.paidUntil?.getTime() !== periodEnd.getTime()) return false;
+    const field = which === "3d" ? "reminded3dFor" : "remindedLastFor";
+    if (member[field]?.getTime() === periodEnd.getTime()) return false;
+    member[field] = new Date(periodEnd);
+    member.updatedAt = now;
+    return true;
   }
 
   async addMarketClubSaving(appId: string, userId: number, amount: number, now: Date): Promise<void> {

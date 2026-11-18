@@ -340,10 +340,32 @@ export function complaintJson(c: MarketComplaint, currency: string, assetUrl: As
   };
 }
 
-export function walletJson(balance: number, entries: WalletEntry[], currency: string, page: number, totalPages: number) {
+/** 115.60 Where an entry's money came from or went (lib/market/wallet.ts). */
+export interface WalletEntryDetail {
+  vendorName: string | null;
+  orderReference: string | null;
+  complaintReference: string | null;
+  restPaidBy: string | null;
+}
+
+export function walletJson(balance: number, entries: WalletEntry[], currency: string, page: number, totalPages: number, details: Map<number, WalletEntryDetail> = new Map()) {
   return {
     balance: money(balance, currency),
-    entries: entries.map((e) => ({ id: e.id, kind: e.kind, amount: money(e.amount, currency), label: e.label, order_id: e.orderId, at: e.createdAt.toISOString() })),
+    entries: entries.map((e) => {
+      const d = details.get(e.id);
+      return {
+        id: e.id,
+        kind: e.kind,
+        amount: money(e.amount, currency),
+        label: e.label,
+        order_id: e.orderId,
+        order_reference: d?.orderReference ?? null,
+        vendor_name: d?.vendorName ?? null,
+        complaint_reference: d?.complaintReference ?? null,
+        rest_paid_by: d?.restPaidBy ?? null,
+        at: e.createdAt.toISOString(),
+      };
+    }),
     page,
     total_pages: totalPages,
   };
@@ -358,7 +380,28 @@ export function clubBenefits(plan: MarketClubPlan): string[] {
 }
 
 export function clubPlanJson(plan: MarketClubPlan) {
-  return { id: plan.id, name: plan.name, period: plan.period, price: money(plan.price, plan.currency), benefits: clubBenefits(plan) };
+  return {
+    id: plan.id,
+    name: plan.name,
+    period: plan.period,
+    price: money(plan.price, plan.currency),
+    benefits: clubBenefits(plan),
+    // 115.61 The benefit as numbers, for the app to say in its own languages, and the owner's own perks.
+    free_delivery_over: plan.freeDeliveryOver === null ? null : money(plan.freeDeliveryOver, plan.currency),
+    delivery_percent_off: plan.freeDeliveryOver === null ? (plan.deliveryDiscountPercent ?? null) : null,
+    perks: plan.perks,
+  };
+}
+
+/** 115.61 What the club saved a member (lib/market/club.ts). */
+export interface ClubSavingsJson {
+  total: number;
+  thisMonth: number;
+  delivery: number;
+  offers: number;
+  freeDeliveries: number;
+  deliveries: number;
+  paid: number;
 }
 
 const MEMBER_STATUS: Record<MarketClubMember["status"], "awaiting_payment" | "active" | "ending" | "ended"> = {
@@ -368,14 +411,32 @@ const MEMBER_STATUS: Record<MarketClubMember["status"], "awaiting_payment" | "ac
   expired: "ended",
 };
 
-export function membershipJson(member: MarketClubMember | null, plan: MarketClubPlan | null, currency: string) {
+export function membershipJson(member: MarketClubMember | null, plan: MarketClubPlan | null, currency: string, savings?: ClubSavingsJson, now: Date = new Date()) {
   if (!member || !plan) return null;
+  const paid = !!member.paidUntil && member.paidUntil > now;
+  // A period that ended (or wasn't paid) reads as ended, whatever the daily job has done yet.
+  const status = member.status !== "pending" && !paid ? "ended" : MEMBER_STATUS[member.status];
+  const renews = member.renews && member.status === "active" && paid;
   return {
     plan: clubPlanJson(plan),
-    status: MEMBER_STATUS[member.status],
-    renews: member.renews && member.status === "active",
+    status,
+    renews,
     current_period_end: member.paidUntil ? member.paidUntil.toISOString() : null,
-    saved: money(member.saved, currency),
+    saved: money(savings ? savings.total : member.saved, currency),
+    // 115.61 and 115.62 When they first joined, when the reminder with the payment link comes (null when they ended it), and the savings.
+    started_at: member.startedAt ? member.startedAt.toISOString() : null,
+    remind_at: renews && member.paidUntil ? new Date(member.paidUntil.getTime() - 3 * 86_400_000).toISOString() : null,
+    savings: savings
+      ? {
+          total: money(savings.total, currency),
+          this_month: money(savings.thisMonth, currency),
+          delivery: money(savings.delivery, currency),
+          offers: money(savings.offers, currency),
+          free_deliveries: savings.freeDeliveries,
+          deliveries: savings.deliveries,
+          paid: money(savings.paid, currency),
+        }
+      : null,
   };
 }
 

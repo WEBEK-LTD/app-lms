@@ -5232,8 +5232,10 @@ export interface WalletEntry {
   id: number;
   appId: string;
   userId: number;
-  kind: "refund" | "credit" | "payment" | "expired";
+  /** 115.60 `taken_back`: credit the owner took back (negative); the wallet is credit only (D5), never cashed out. */
+  kind: "refund" | "credit" | "payment" | "expired" | "taken_back";
   amount: number;
+  /** What the customer reads; for the owner's credit and take-backs, the owner's reason. */
   label: string;
   orderId: number | null;
   complaintId: number | null;
@@ -5246,6 +5248,8 @@ export interface WalletEntry {
 
 /** 115.10 A coupon: a code the customer types, or automatic (no code) when its conditions hold. Amounts in the currency's minor units. */
 export interface MarketCoupon {
+  /** 115.61 For the club's members only (a members' offer); missing: false. */
+  membersOnly?: boolean;
   id: number;
   appId: string;
   /** Uppercase; null for an automatic offer. */
@@ -5335,10 +5339,30 @@ export interface MarketClubMember {
   startedAt: Date | null;
   paidUntil: Date | null;
   paymentRef: string | null;
-  /** What the club saved them, in all. */
+  /** What the club saved them, in all (kept from before 115.61; the savings are now read from their orders). */
   saved: number;
+  /** 115.61 What they paid for the club, in all; missing: 0. */
+  paidTotal?: number;
+  /** 115.61 How many periods they paid; missing: 0. */
+  periods?: number;
+  /** 115.61 When the last period was paid. */
+  lastPaidAt?: Date | null;
+  /** 115.62 The period end (paidUntil) the reminder 3 days before was sent for, and the last day's. */
+  reminded3dFor?: Date | null;
+  remindedLastFor?: Date | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/** 115.62 Which renewal reminder. */
+export type ClubReminder = "3d" | "last";
+
+/** 115.63 One customer's wallet, for the owner's Wallets page. */
+export interface WalletSummary {
+  userId: number;
+  balance: number;
+  entries: number;
+  lastAt: Date;
 }
 
 export type MarketClubMemberInput = Omit<MarketClubMember, "id" | "createdAt" | "updatedAt">;

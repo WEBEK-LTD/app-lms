@@ -12321,4 +12321,216 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get paySheetOpenAgain => 'Ödeme sayfasını aç';
+
+  @override
+  String get marketWalletAbout => 'Cüzdan hakkında';
+
+  @override
+  String marketWalletPays(String app) {
+    return '$app içindeki her siparişin tamamını ya da bir kısmını öder';
+  }
+
+  @override
+  String get marketWalletUseFirst => 'Ödemede önce bunu kullan';
+
+  @override
+  String get marketWalletInstant => 'İadeler buraya hemen gelir';
+
+  @override
+  String get marketWalletNeverExpires => 'Bakiyenizin süresi dolmaz';
+
+  @override
+  String get marketWalletToday => 'Bugün';
+
+  @override
+  String marketWalletRefundComplaint(String ref) {
+    return 'İade · şikâyet $ref';
+  }
+
+  @override
+  String marketWalletRefundCancelled(String ref) {
+    return 'İade · $ref siparişi iptal edildi';
+  }
+
+  @override
+  String get marketWalletRefund => 'İade';
+
+  @override
+  String marketWalletPaidToward(String ref) {
+    return '$ref siparişine ödendi';
+  }
+
+  @override
+  String get marketWalletPaid => 'Siparişe ödendi';
+
+  @override
+  String marketWalletRestBy(String how) {
+    return 'kalanı $how';
+  }
+
+  @override
+  String get marketWalletByCard => 'kartla';
+
+  @override
+  String get marketWalletByCash => 'nakit';
+
+  @override
+  String get marketWalletByApplePay => 'Apple Pay ile';
+
+  @override
+  String get marketWalletByGooglePay => 'Google Pay ile';
+
+  @override
+  String marketWalletCreditFrom(String app) {
+    return '$app bakiyesi';
+  }
+
+  @override
+  String marketWalletTakenBack(String app) {
+    return '$app geri aldı';
+  }
+
+  @override
+  String get marketWalletExpiredEntry => 'Süresi doldu';
+
+  @override
+  String marketClubNamed(String app) {
+    return '$app Kulübü';
+  }
+
+  @override
+  String get marketClubMemberBadge => 'Üye';
+
+  @override
+  String marketClubFreeOver(String amount) {
+    return '$amount üzeri siparişlerde ücretsiz teslimat';
+  }
+
+  @override
+  String get marketClubFreeAlways => 'Her siparişte ücretsiz teslimat';
+
+  @override
+  String marketClubPercentOff(String percent) {
+    return 'Teslimatta %$percent indirim';
+  }
+
+  @override
+  String marketClubFreeByCouriersOver(String amount) {
+    return '$amount üzeri uygulama kuryeleriyle ücretsiz teslimat';
+  }
+
+  @override
+  String get marketClubSince => 'Üyelik başlangıcı';
+
+  @override
+  String marketClubNextPayment(String date) {
+    return 'Sonraki ödeme $date';
+  }
+
+  @override
+  String marketClubEndsOn(String date) {
+    return '$date tarihinde bitiyor';
+  }
+
+  @override
+  String marketClubEndedOn(String date) {
+    return '$date tarihinde bitti';
+  }
+
+  @override
+  String get marketClubMonthly => 'Aylık';
+
+  @override
+  String get marketClubYearly => 'Yıllık';
+
+  @override
+  String get marketClubSlashMonth => 'ay';
+
+  @override
+  String get marketClubSlashYear => 'yıl';
+
+  @override
+  String get marketClubYouSaved => 'Tasarrufunuz';
+
+  @override
+  String marketClubTimesPaid(String times) {
+    return 'Ödediğinizin $times katı';
+  }
+
+  @override
+  String marketClubSinceJoinedFor(String amount) {
+    return 'katıldığınızdan beri, $amount ücret karşılığında';
+  }
+
+  @override
+  String get marketClubThisMonth => 'Bu ay';
+
+  @override
+  String get marketClubFreeDeliveries => 'Ücretsiz teslimatlar';
+
+  @override
+  String marketClubOfCount(String count, String total) {
+    return '$total siparişin $count\'i';
+  }
+
+  @override
+  String get marketClubMembersOffers => 'Üye kampanyaları';
+
+  @override
+  String marketClubRemindOn(String date) {
+    return '$date tarihinde ödeme bağlantısıyla hatırlatırız. Hiçbir şey kendiliğinden çekilmez.';
+  }
+
+  @override
+  String get marketClubEnd => 'Üyeliği sonlandır';
+
+  @override
+  String get marketClubEndAsk => 'Üyeliğiniz sonlansın mı?';
+
+  @override
+  String marketClubEndText(String date) {
+    return 'Avantajları $date tarihine kadar sizde kalır; ödeme için bir daha hatırlatmayız.';
+  }
+
+  @override
+  String get marketClubKeep => 'Devam et';
+
+  @override
+  String marketClubEndedNote(String date) {
+    return 'Üyeliğiniz $date tarihine kadar sürer; bir daha hatırlatmayız.';
+  }
+
+  @override
+  String marketClubRenewWith(String price) {
+    return 'Sonraki dönemi öde · $price';
+  }
+
+  @override
+  String marketClubRenewAgainWith(String price) {
+    return 'Yenile · $price';
+  }
+
+  @override
+  String marketClubSwitchWith(String plan, String price) {
+    return '$plan planına geç · $price';
+  }
+
+  @override
+  String get marketClubRenewed =>
+      'Ödendi. Üyeliğiniz bitiş tarihinden itibaren sürer.';
+
+  @override
+  String marketClubMonthsFree(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ay ücretsiz',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketWalletOrderRef(String ref) {
+    return 'sipariş $ref';
+  }
 }

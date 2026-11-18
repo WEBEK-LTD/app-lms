@@ -76,6 +76,8 @@ export function parseCouponForm(form: Record<string, string>, input: { appId: st
       currency: input.currency,
       paidBy: str(form, "paid_by") === "vendor" ? "vendor" : "owner",
       firstOrderOnly: form.first_order === "1",
+      // 115.61 A members' offer: for the club's members only.
+      membersOnly: form.members_only === "1",
       vendorIds: [],
       vendorKinds: [],
       departmentIds: [],
