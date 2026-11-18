@@ -331,7 +331,13 @@ class StudioPageView extends ConsumerWidget {
       builder: (context) => MediaQuery.removePadding(
         context: context,
         removeTop: true,
-        child: StudioScreenScope(hidesTitle: header != null, child: hosted),
+        // 193 The screen on the page's own background: the shop's grid
+        // stood on the app's plain one, a seam across the page under its
+        // top (Leqaa's blush over the shop's beige).
+        child: Theme(
+          data: Theme.of(context).copyWith(scaffoldBackgroundColor: background),
+          child: StudioScreenScope(hidesTitle: header != null, child: hosted),
+        ),
       ),
     );
     final Widget rest = over.children.isEmpty

@@ -8,6 +8,16 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 193 (the products page shows every product, in tidy rows): on
+Kech Flora's products page (the shop under Leqaa's page), every product is
+reached as the customer scrolls (tested with 45 products served 20 at a
+time, on a tall and a small phone). The grid now goes row by row: the cards
+of a row the same height, as tall as their fullest one, each name keeping
+two lines so the prices sit level, the countdown and rating under the
+price, with no empty band in the middle of a card; and the shop stands on
+the page's own background. The app's change comes with the next
+`CLIENT_APP_RELEASE`. No migration.
+
 Roadmap 183 (`brand`'s Start now opens the app's main screen): the
 template for every kind of project served its hero's "Start now" opening
 nothing. Each kind now has a main screen (`mainScreenOf`, lib/app/kinds.ts):

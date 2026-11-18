@@ -29,6 +29,11 @@ class DemoApi extends FakeApi {
   List<Map<String, dynamic>>? shopProducts;
   List<Map<String, dynamic>>? shopCategories;
 
+  /// 193 [shopProducts] served [shopPerPage] at a time, as the hosted API
+  /// pages them (null: all on one page); the pages asked for, in [shopPages].
+  int? shopPerPage;
+  final shopPages = <int>[];
+
   /// 131.20 Leqaa, the flower shop in Cairo (its products: leqaa.dart).
   factory DemoApi.leqaa() => DemoApi.store(primary: '#8E2445');
 
@@ -2989,7 +2994,28 @@ class DemoApi extends FakeApi {
       );
 
   @override
-  Future<Paged<ProductSummary>> listProducts(ProductQuery query) => super
+  Future<Paged<ProductSummary>> listProducts(ProductQuery query) {
+    final perPage = shopPerPage;
+    if (perPage != null && !restaurant) {
+      shopPages.add(query.page);
+      final all = shopProducts ?? _products;
+      final start = (query.page - 1) * perPage;
+      return super
+          .listProducts(query)
+          .then(
+            (_) => Paged.fromJson({
+              'page': query.page,
+              'per_page': perPage,
+              'total': all.length,
+              'total_pages': (all.length / perPage).ceil().clamp(1, 1 << 20),
+              'items': all.skip(start).take(perPage).toList(),
+            }, ProductSummary.fromJson),
+          );
+    }
+    return _listProducts(query);
+  }
+
+  Future<Paged<ProductSummary>> _listProducts(ProductQuery query) => super
       .listProducts(query)
       .then(
         (_) => Paged.fromJson(

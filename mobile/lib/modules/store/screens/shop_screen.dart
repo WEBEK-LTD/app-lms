@@ -349,33 +349,45 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           const gap = 12.0;
           final width = box.maxWidth - 40;
           final columns = (width / 220).ceil().clamp(2, 6);
-          final tile = (width - gap * (columns - 1)) / columns;
           return CustomScrollView(
             slivers: [
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
-                sliver: SliverGrid.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: columns,
-                    mainAxisSpacing: gap,
-                    crossAxisSpacing: gap,
-                    // 161 With the shop's price under the customer's.
-                    mainAxisExtent:
-                        tile +
-                        productCardTextHeight(
-                          context,
-                          twoPrices: customerPricesShown(ref),
-                        ),
+                // 193 Row by row, each row as tall as its fullest card: the
+                // cards of a row the same height, their names and prices
+                // level, and no row taller than its products need (a grid
+                // of one fixed height left a band empty in most cards).
+                sliver: SliverList.builder(
+                  itemCount: (items.length + columns - 1) ~/ columns,
+                  itemBuilder: (context, row) => Padding(
+                    padding: EdgeInsets.only(top: row == 0 ? 0 : gap),
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (var c = 0; c < columns; c++) ...[
+                            if (c > 0) const SizedBox(width: gap),
+                            Expanded(
+                              child: row * columns + c < items.length
+                                  ? ProductCard(
+                                      key: ValueKey(
+                                        'shop-product-${items[row * columns + c].id}',
+                                      ),
+                                      product: items[row * columns + c],
+                                      fill: true,
+                                      onTap: () => context.push(
+                                        Paths.product(
+                                          items[row * columns + c].id,
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
-                  itemCount: items.length,
-                  itemBuilder: (context, i) {
-                    final product = items[i];
-                    return ProductCard(
-                      product: product,
-                      fill: true,
-                      onTap: () => context.push(Paths.product(product.id)),
-                    );
-                  },
                 ),
               ),
               // 158 The next page's spinner across the grid, in its middle

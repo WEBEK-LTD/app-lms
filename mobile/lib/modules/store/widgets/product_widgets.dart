@@ -147,6 +147,22 @@ bool customerPricesShown(WidgetRef ref) {
 Widget _fillOr(bool fill, Widget child) =>
     fill ? Expanded(child: child) : child;
 
+/// 193 Two lines of a card's name in [style], at the phone's text size.
+double _nameHeight(BuildContext context, TextStyle style) {
+  final painter = TextPainter(
+    text: TextSpan(
+      text: 'Ag\nAg',
+      style: DefaultTextStyle.of(context).style.merge(style),
+    ),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+    maxLines: 2,
+  )..layout();
+  final height = painter.height;
+  painter.dispose();
+  return height;
+}
+
 /// A product in the shop grid and the home rows.
 class ProductCard extends StatelessWidget {
   const ProductCard({
@@ -177,6 +193,12 @@ class ProductCard extends StatelessWidget {
       seed: product.id,
       placeholderIcon: AppIcons.shop,
       radius: plain ? context.shapes.card : 0,
+    );
+    final nameStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      height: 1.35,
+      color: p.text,
     );
     final content = ExcludeSemantics(
       child: Column(
@@ -220,20 +242,20 @@ class ProductCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    product.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      height: 1.35,
-                      color: p.text,
+                  // 193 In a grid or a row, the name's two lines kept for
+                  // every card, so the prices sit level across the row
+                  // (they stood at different heights, under a band left
+                  // empty in the middle of the card).
+                  SizedBox(
+                    height: fill ? _nameHeight(context, nameStyle) : null,
+                    child: Text(
+                      product.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: nameStyle,
                     ),
                   ),
                   const SizedBox(height: 6),
-                  // 161 The price at the card's foot in a grid's cell.
-                  if (fill) const Spacer(),
                   ProductPriceLabel(product.price, size: 14),
                   // 131 A flash sale (one with an end): its countdown, live.
                   if (product.sale case final sale?

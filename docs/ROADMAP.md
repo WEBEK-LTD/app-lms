@@ -4360,3 +4360,15 @@ The owner's report (18 November, urgent): a client's Android build failed after 
 | [x] | 192.2 `play-services-tapandpay` left out of every library's lint-check configurations (`mobile/android/build.gradle.kts`), so nothing asks the repositories for it (the apps don't issue cards to wallets) | CI "Build release APK (debug key)" |
 | [x] | 192.3 CI's Flutter job builds a release APK too (the debug key, never uploaded), as client builds do; and the iOS job a release build for a real iPhone (unsigned), so neither store's release build is first tried on a client's app | `mobile.yml` |
 | [ ] | 192.4 The failed client's build run again, and passing | — |
+
+## Phase 193: The products page shows every product, in tidy rows
+
+The owner's report (18 November, urgent), on Kech Flora (made from Leqaa's Signature template): "not all the products show" on the products page (the Bouquets tab: the shop under Leqaa's page), and "the all-products page feels disorganised". The shop, the hosted catalog and the plugin all page their products (20 at a time, the app asking for the next page as it nears the end); a test of the Bouquets tab with 45 products, on a tall and a small phone, by drags and by flings, reaches the 45th each time, so nothing was cut off there. What made the page look short and messy was the grid: every card one fixed height, made for the fullest card (a two-line name, two prices, a flash sale's countdown, a rating), the name at the top and the price pushed to the foot, so most cards had an empty band in their middle, the prices of a row at different heights (one with a countdown stood higher), few products in sight per screen; and the shop stood on the app's plain background under the page's own (a seam across the page under its top).
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 193.1 The shop's grid row by row (`ShopScreen`): the cards of a row as tall as the row's fullest one, no row taller than its products need | `phase193_all_products_test.dart` |
+| [x] | 193.2 A card in a grid or a row (`ProductCard.fill`) keeps two lines for its name whatever its length, the price right under them: the prices of a row level, the countdown and the rating under the price | `phase193_all_products_test.dart`, `phase161_customer_currency_test.dart`, `phase158_page_end_test.dart` |
+| [x] | 193.3 A Studio page around an app's screen (`StudioPage.screen`) draws the screen on the page's own background, by day and by night | screenshots (Leqaa A and B, English and Arabic, light and dark) |
+| [x] | 193.4 Every product reached: the Bouquets tab, 45 products served 20 at a time, looks A and B, 390×844 and 320×568, drags and flings, reaches the last one (pages 1, 2 and 3 asked for) | `phase193_all_products_test.dart` |
+| [ ] | 193.5 With the next `CLIENT_APP_RELEASE` (the app's change), the preview rebuilt; on Kech Flora's phone, the products page shows all its products in level rows | — |
