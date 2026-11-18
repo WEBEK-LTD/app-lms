@@ -18,7 +18,7 @@ import { appOtpSender, appWhatsappSender, parseAppWhatsappForm } from "@/lib/hos
 import { OtpSendError } from "@/lib/hosted/otp-sender";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { parseHostedSettingsForm } from "@/lib/hosted/settings-form";
-import { emailSignInNote, emailSignInPossible, normalizeEmail, parseEmailSignInChoice, parseSignInMethodsChoice, PASSWORD_WAYS, passwordChannels, passwordSignInPossible, SIGN_IN_METHODS } from "@/lib/hosted/sign-in-methods";
+import { conflictingCodes, emailSignInNote, emailSignInPossible, normalizeEmail, parseEmailSignInChoice, parseSignInMethodsChoice, PASSWORD_WAYS, passwordChannels, passwordSignInPossible, SIGN_IN_CLASH, SIGN_IN_METHODS } from "@/lib/hosted/sign-in-methods";
 import type { PasswordSignInSettings, PasswordWay, SignInMethod } from "@/lib/data/types";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
@@ -193,7 +193,8 @@ export async function saveSignInMethodsAction(_: FormState, formData: FormData):
 /**
  * 118 Yallapp Studio apps: any of a code by phone, a code by email, and a
  * password with the email address, the phone number or a username (whose
- * accounts are verified and reset by email or by phone).
+ * accounts are verified and reset by email or by phone). 160 A channel is
+ * a code's or a password's, never both.
  */
 export async function saveStudioSignInAction(_: FormState, formData: FormData): Promise<FormState> {
   const { context, app } = await signInContext(true);
@@ -207,6 +208,9 @@ export async function saveStudioSignInAction(_: FormState, formData: FormData): 
     recovery,
   };
   if (!codes.length && !by.length) return { errors: { ways: "Choose at least one way to sign in." }, values };
+  // 160 A channel signs in with a code every time or with a password, never both: with a password, its code is only for sign-up and a forgotten password.
+  const clash = conflictingCodes(codes, by, recovery)[0];
+  if (clash) return { errors: { ways: SIGN_IN_CLASH[clash] }, values };
   const email = emailSignInPossible(app);
   const usesEmail = codes.includes("email") || by.includes("email") || (by.includes("username") && recovery === "email");
   if (usesEmail && !email) return { errors: { ways: emailSignInNote(app) ?? "This app signs in by phone." }, values };

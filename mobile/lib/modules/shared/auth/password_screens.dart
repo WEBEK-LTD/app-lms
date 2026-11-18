@@ -124,9 +124,13 @@ class _PasswordHeader extends StatelessWidget {
 /// 118 "Forgot password": the email address or phone number of the
 /// account, then a code (`purpose: reset`) and a new password.
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
-  const ForgotPasswordScreen({super.key, this.from});
+  const ForgotPasswordScreen({super.key, this.from, this.channel});
 
   final String? from;
+
+  /// 160 The channel of the way the person was signing in with (a code by
+  /// email, or on WhatsApp for the phone number); null: the first one.
+  final SignInMethod? channel;
 
   @override
   ConsumerState<ForgotPasswordScreen> createState() =>
@@ -158,7 +162,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     super.initState();
     final config = ref.read(appConfigProvider);
     _dialCode = normalizeDialCode(config.auth.defaultCountryCode) ?? '+1';
-    _channel = _channels.first;
+    final asked = widget.channel;
+    final channels = _channels;
+    _channel = asked != null && channels.contains(asked)
+        ? asked
+        : channels.first;
   }
 
   @override
@@ -220,6 +228,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       color: p.text,
     );
     return Scaffold(
+      key: const ValueKey('forgot-password-screen'),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),

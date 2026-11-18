@@ -1026,7 +1026,11 @@ async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Pr
     return ok({ reset_token: resetToken, expires_in_seconds: SIGNUP_TTL_SECONDS });
   }
   // 118 Where a code doesn't sign in (passwords only), an account signs in with its password; the store review number still does.
+  // 160 A password is mandatory there: an account made with a code before has none yet, and sets it with "Forgot password".
   if (user && passwords && !challenge.review && !passwords.codes.includes(channel)) {
+    if (!(await ctx.store.getHostedUserPassword(ctx.app.id, user.id))) {
+      return error(409, "use_password", "You already have an account. Set your password with “Forgot password”, then sign in with it.");
+    }
     return error(409, "use_password", "You already have an account. Sign in with your password, or reset it if you forgot it.");
   }
   if (user) return session(ctx, user, record(body.device));
@@ -1118,6 +1122,8 @@ async function register(ctx: HostedContext, body: Record<string, unknown>): Prom
  * 118 What a sign-up after a code asks besides the owner's fields: a password
  * where the channel doesn't sign in with a code, and a username where people
  * sign in with one (on the channel username accounts are verified on).
+ * 160 The password is mandatory on a password's channel: `passwordSignIn`
+ * keeps no code there, so every account made there sets one.
  */
 function passwordFields(app: App, channel: "phone" | "email"): ("username" | "password")[] {
   const passwords = passwordSignIn(app);

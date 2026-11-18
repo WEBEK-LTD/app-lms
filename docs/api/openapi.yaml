@@ -1094,7 +1094,8 @@ paths:
                     is a `reset_token` for `POST /auth/password/reset` (404 `no_account` when
                     the address has none). Missing means `sign_in`. Where the channel isn't in
                     `password_sign_in.codes`, a code doesn't sign an existing account in:
-                    409 `use_password`.
+                    409 `use_password` (roadmap 160: also for an account made with a code
+                    before that has no password yet, which sets one with `purpose: reset`).
       responses:
         '200':
           description: Verified
@@ -12717,7 +12718,10 @@ components:
                 Roadmap 118. A Yallapp Studio app on the hosted API that signs in with a
                 password: `by` lists what is typed with it (`POST /auth/password`), `codes`
                 the channels where a code still signs in (empty: passwords only), and
-                `recovery` the channel username accounts are verified and reset on. A new
+                `recovery` the channel username accounts are verified and reset on.
+                Roadmap 160: a password is mandatory on its channel, so `codes` never has
+                one `by` has, nor `recovery` with `username`: there a code only verifies a
+                new account (which then sets its password) and resets a forgotten one. A new
                 account proves its email or phone with a code first, then registers with a
                 `password` (and a `username`) as `SignupRequired.fields` says; "Forgot
                 password" is a code with `purpose: reset`, then `POST /auth/password/reset`.

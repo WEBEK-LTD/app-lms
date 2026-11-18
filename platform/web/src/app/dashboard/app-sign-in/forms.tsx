@@ -22,6 +22,7 @@ import { Icon } from "@/components/icon";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { MAIL_PRESETS, SECURITY_LABELS, mailPreset, type MailSecurity } from "@/lib/email/app-mail-presets";
 import { initialFormState } from "@/lib/forms";
+import { studioRecoveryAfter, studioWaysAfter, type StudioWayName, type StudioWays } from "@/lib/hosted/studio-ways";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
 import { LANG_INFO } from "@/i18n/config";
@@ -184,7 +185,7 @@ const METHODS: readonly { value: "phone" | "email" | "both"; label: DashKey; hin
 ];
 
 /** 118 Yallapp Studio apps: the ways people sign in, each on or off. */
-const STUDIO_WAYS: readonly { name: string; label: DashKey; hint: DashKey; email: boolean }[] = [
+const STUDIO_WAYS: readonly { name: StudioWayName; label: DashKey; hint: DashKey; email: boolean }[] = [
   { name: "code_phone", label: "signin.wayPhoneCode", hint: "signin.wayPhoneCodeHint", email: false },
   { name: "code_email", label: "signin.wayEmailCode", hint: "signin.wayEmailCodeHint", email: true },
   { name: "password_email", label: "signin.wayEmailPassword", hint: "signin.wayEmailPasswordHint", email: true },
@@ -197,7 +198,14 @@ export function StudioSignInForm({ current, emailPossible, note = null }: { curr
   const t = useDashT();
   const [state, action] = useActionState(saveStudioSignInAction, initialFormState);
   const values = state.values ?? current;
-  const [username, setUsername] = useState(values.password_username === "on");
+  const [on, setOn] = useState<StudioWays>(() => Object.fromEntries(STUDIO_WAYS.map((w) => [w.name, values[w.name] === "on"])));
+  const [recovery, setRecovery] = useState<"email" | "phone">(() => (values.recovery === "phone" || values.recovery === "email" ? values.recovery : emailPossible ? "email" : "phone"));
+  const username = Boolean(on.password_username);
+  const toggle = (name: StudioWayName, checked: boolean) => {
+    const next = studioWaysAfter(on, recovery, name, checked, emailPossible);
+    setOn(next.on);
+    setRecovery(next.recovery);
+  };
   const error = state.errors?.ways;
   return (
     <form action={action} noValidate className="flex flex-col gap-4" key={JSON.stringify(values)}>
@@ -212,9 +220,9 @@ export function StudioSignInForm({ current, emailPossible, note = null }: { curr
               <input
                 type="checkbox"
                 name={w.name}
-                defaultChecked={values[w.name] === "on"}
+                checked={Boolean(on[w.name]) && !disabled}
                 disabled={disabled}
-                onChange={w.name === "password_username" ? (e) => setUsername(e.currentTarget.checked) : undefined}
+                onChange={(e) => toggle(w.name, e.currentTarget.checked)}
                 className="mt-1 h-4 w-4 accent-midnight"
               />
               <span className="flex flex-col">
@@ -235,8 +243,13 @@ export function StudioSignInForm({ current, emailPossible, note = null }: { curr
                 type="radio"
                 name="recovery"
                 value={r}
-                defaultChecked={(values.recovery ?? (emailPossible ? "email" : "phone")) === r}
+                checked={recovery === r}
                 disabled={r === "email" && !emailPossible}
+                onChange={() => {
+                  // 160 Usernames checked by a channel make it a password's: its code way goes off.
+                  setRecovery(r);
+                  setOn((o) => studioRecoveryAfter(o, r));
+                }}
                 className="mt-1 h-4 w-4 accent-midnight"
               />
               <span className="font-semibold">{t(r === "email" ? "signin.recoveryEmail" : "signin.recoveryPhone")}</span>
