@@ -155,6 +155,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const textStyleCount = useMemo(() => textStyleUse(layout), [layout]);
   const [slug, setSlug] = useState(() => layout.pages.find((p) => p.slug === props.startSlug)?.slug ?? layout.pages.find((p) => p.studio)?.slug ?? layout.pages[0]?.slug ?? "");
   const [selectedId, setSelectedId] = useState<string | null>(() => props.startSelect ?? null);
+  // 181 A story's ring picked on the canvas, or its fields in the inspector.
+  const [storyPicked, setStoryPicked] = useState<{ id: string; index: number } | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [device, setDevice] = useState<Device>("phone");
   const [lang, setLang] = useState<LanguageCode>(layout.languages.default);
@@ -1196,6 +1198,13 @@ export function StudioEditor(props: StudioEditorProps) {
     drop,
     onSelect: (id) => {
       setSelectedId(id);
+      setStoryPicked(null);
+      setPagesOpen(false);
+    },
+    part: storyPicked && storyPicked.id === selectedId ? storyPicked : null,
+    onSelectPart: (id, index) => {
+      setSelectedId(id);
+      setStoryPicked({ id, index });
       setPagesOpen(false);
     },
     onHover: setHoveredId,
@@ -1687,6 +1696,9 @@ export function StudioEditor(props: StudioEditorProps) {
             }
             page={studio}
             node={selected && device === "tablet" ? forTablet(selected) : selected}
+            // 181 The story whose ring was picked on the canvas; a story's fields used pick its ring there.
+            story={storyPicked && selected && storyPicked.id === selected.id ? storyPicked.index : null}
+            onStory={(index) => selected && setStoryPicked({ id: selected.id, index })}
             tablet={device === "tablet" && selected ? { changed: Boolean(selected.tablet), onReset: () => changePage((p) => updateNode(p, selected.id, { tablet: undefined })) } : undefined}
             headerSelected={selectedId === "header"}
             tabsSelected={selectedId === "tabs"}

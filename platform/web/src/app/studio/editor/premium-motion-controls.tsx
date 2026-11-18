@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useDashT } from "@/components/dashboard-i18n";
 import { MediaPicker } from "@/components/media-picker";
 import { IconPicker } from "@/app/dashboard/pages/controls";
@@ -389,17 +389,30 @@ export function BeforeAfterControls({ node, onChange, lang, defaultLang }: Premi
 }
 
 /** 129.2 The stories: each one's photo, title, line and link; the rings' size and each story's time. */
-export function StoriesControls({ node, onChange, lang, defaultLang, link, shop }: PremiumControlsProps) {
+export function StoriesControls({ node, onChange, lang, defaultLang, link, shop, story: picked = null, onStory }: PremiumControlsProps & { story?: number | null; onStory?: (index: number) => void }) {
   const t = useDashT();
   const P = STUDIO_PREMIUM_LIMITS;
   const stories = node.slides ?? [];
   const set = (slides: NonNullable<StudioNode["slides"]>) => onChange({ slides });
+  // 181 The story whose ring was picked on the canvas: its fields scrolled into sight and marked.
+  const list = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (picked == null || !list.current) return;
+    list.current.querySelector<HTMLElement>(`[data-studio-story-entry="${picked}"]`)?.scrollIntoView?.({ block: "nearest" });
+  }, [picked]);
   return (
-    <div className="flex flex-col gap-2" data-studio-premium="stories">
+    <div ref={list} className="flex flex-col gap-2" data-studio-premium="stories">
       <RangeField label={t("studio.pmRingSize")} value={node.stories?.size ?? 68} min={P.ringMin} max={P.ringMax} step={2} unit="px" fallback={68} onChange={(size) => onChange({ stories: size === 68 ? undefined : { size } })} />
       <RangeField label={t("studio.pmStoryTime")} value={node.interval_ms ?? 5000} scale={1000} min={2} max={15} unit={t("studio.unitSeconds")} fallback={5000} onChange={(interval_ms) => onChange({ interval_ms })} />
       {stories.map((story, i) => (
-        <div key={i} className="flex flex-col gap-1.5 rounded-lg p-2" style={box}>
+        <div
+          key={i}
+          data-studio-story-entry={i}
+          data-studio-story-picked={picked === i ? "" : undefined}
+          onFocusCapture={onStory && picked !== i ? () => onStory(i) : undefined}
+          className="flex flex-col gap-1.5 rounded-lg p-2"
+          style={picked === i ? { ...box, outline: "2px solid #3D63FF", outlineOffset: 1 } : box}
+        >
           <div className="flex items-center justify-between gap-2 font-bold">
             {t("studio.pmStory", { number: String(i + 1) })}
             <EntryTools index={i} count={stories.length} onMove={(by) => set(moved(stories, i, by))} onRemove={() => set(stories.filter((_, j) => j !== i))} />

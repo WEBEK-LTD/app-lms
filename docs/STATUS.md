@@ -251,6 +251,22 @@ older servers leave it out and the app shows the lines and the total as
 before. Needs the next app build (no `CLIENT_APP_RELEASE` change here) and
 plugin 0.4.51 released; not yet tried on a phone (ROADMAP 173.6).
 
+Roadmap 181 (what 157 to 163 left open for Leqaa and Kech Flora): under a
+premium header that folds as the page scrolls, a quick fling now ends at
+the page's end on Android and the iPhone (it could stop up to about 10
+points short on a page a little longer than the screen, as the fold moved
+the end; 158.3). Settings' plain choice sheet (the language in an app
+without a premium look, an academy's video quality and speed) scrolls to
+its last choice above the phone's bar (158.8). In Studio's canvas a row of
+more than 6 story rings scrolls as the app's does, and a click on any ring
+picks its story, marked there and in the inspector (the dashboard's rings
+once the owner saved Dashboard › Stories, 165, with its note). Studio ›
+Screens says under each Arabic and Turkish text whether the app shows the
+owner's own translation, Yallapp's or the owner's main text, as the page
+inspector does. No migration; the app's part comes with the next app build
+(no `CLIENT_APP_RELEASE` change here); not yet tried on a phone (ROADMAP
+181.5, 181.6).
+
 Roadmap 156 (what the owner publishes in Studio is what the app shows, in
 every language): a template's translations of its own words stop applying
 once the owner changes the text, so the app shows the owner's text in
