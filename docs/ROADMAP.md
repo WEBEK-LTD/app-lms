@@ -4374,3 +4374,12 @@ The owner's word (18 November, very urgent), on Kech Flora and Leqaa: "keep the 
 | [x] | 193.5 `CLIENT_APP_RELEASE` 13 (12 is the release 12 integration's, #473), the preview rebuilt | `publish-for-all.test.ts`, CI "App preview is up to date" |
 | [x] | 193.7 The owner, on the first look: "why the big space between the name and the price?" The shop's grid went row by row (each row as tall as its fullest card, the cards of a row the same height); a card's name keeps its two lines with the price right under it, level across the row, Add to cart at the card's foot. Before, every cell was one fixed height made for the fullest card, the price pushed to its foot, leaving a band between the name and the price | `phase193_add_to_cart_test.dart`, screenshots |
 | [ ] | 193.6 A flash sale's own cards (`flash_sale`) keep their look without the button; on Kech Flora's phone, Add to cart on the Bouquets tab and the home | — |
+
+## Phase 197: "Added to cart" goes away by itself
+
+The owner's report (19 November, Kech Flora): adding a product to the cart, "Added to cart" stayed on the screen until the customer closed it. Since Flutter 3.29 a message with an action (its View cart) stays until it is closed, unless it says otherwise.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 197.1 The message goes away by itself like any other (`persist: false`), its View cart kept: Add to cart under a card (`quick_add.dart`), a product's page, and a class's "See plans" (the event's "See tickets" did so already) | `phase193_add_to_cart`: gone after a few seconds, untouched; fails without the change |
+| [x] | 197.2 `CLIENT_APP_RELEASE` 14: every client's app is built again with it; the preview rebuilt | `flutter test` (2872), `build_preview.sh --check` |

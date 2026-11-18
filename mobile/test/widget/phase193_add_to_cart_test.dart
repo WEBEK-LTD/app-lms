@@ -110,6 +110,12 @@ void main() {
     expect(cart.single.quantity, 1);
     expect(find.text('Added to cart'), findsOneWidget);
     expect(find.text('View cart'), findsOneWidget);
+    // 197 It goes away by itself, as any message: with its View cart it
+    // stayed until the customer closed it.
+    for (var i = 0; i < 12; i++) {
+      await tester.pump(const Duration(seconds: 1));
+    }
+    expect(find.text('Added to cart'), findsNothing);
     await close(tester, app);
   });
 
