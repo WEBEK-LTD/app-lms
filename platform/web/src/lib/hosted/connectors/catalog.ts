@@ -1,4 +1,5 @@
 import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf, orderTimesJson } from "../../catalog/fulfilment";
+import { categoryNameIn } from "../../catalog/category-names";
 import { LOYALTY_HISTORY, loyaltyConfigJson, loyaltyOf, orderPointsJson, pointsAccountJson, usablePoints } from "../../catalog/loyalty";
 import { taxCents, taxLabel, taxOf } from "../../catalog/tax";
 import { attributesJson, sellableVariants, servedPrice, variantLabel, variantMax, variantPrices, variantsOf, variationAttributes } from "../../catalog/variants";
@@ -151,6 +152,8 @@ export class CatalogConnector implements Connector {
   /** 131 The shop's flash sales (loaded once a request), and the request's time they're on at. */
   private flash: StoreFlashSale[] = [];
   private now: Date = new Date();
+  /** 175 The language the app asks in, for the categories' names. */
+  private lang: string | null = null;
 
   async config() {
     return {
@@ -176,6 +179,8 @@ export class CatalogConnector implements Connector {
     const route = `${request.method} /${request.path.join("/")}`;
     // 131 The flash sales on now price the products below.
     this.now = request.now;
+    // 175 The categories' names in the app's language.
+    this.lang = request.lang ?? null;
     // 149 Never in a currency the owner left out of the app's, nor with the switch off (the hosted API sends none then too).
     const display = request.display && customerCurrencyAllowed(customerCurrencyRule(this.settings), request.display.currency) ? request.display : null;
     this.shown = Shown.for(this.settings.currency, display);
@@ -293,7 +298,8 @@ export class CatalogConnector implements Connector {
   /** 112.4 A category's picture: its first product's that has one. */
   private category(c: CatalogCategory, count: number, products: CatalogProduct[] = []) {
     const pictured = products.find((p) => p.categoryIds.includes(c.id) && p.imageAssetIds[0]);
-    return { id: c.id, name: c.name, count, parent_id: null, image_url: pictured ? this.deps.assetUrl(pictured.imageAssetIds[0]!) : null };
+    // 175 In the app's language when the owner named it so.
+    return { id: c.id, name: categoryNameIn(c, this.lang), count, parent_id: null, image_url: pictured ? this.deps.assetUrl(pictured.imageAssetIds[0]!) : null };
   }
 
   // Catalog

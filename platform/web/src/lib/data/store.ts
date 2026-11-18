@@ -42,6 +42,7 @@ import type {
   Build,
   BuildStatus,
   CatalogCategory,
+  LangText,
   CatalogOrder,
   CatalogOrderPatch,
   CatalogOrderStatus,
@@ -819,8 +820,10 @@ export interface DataStore {
   // Catalog (apps without a website)
   listCatalogCategories(appId: string): Promise<CatalogCategory[]>;
   /** 110.2 `sample`: a category made with the sample products. */
-  createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory>;
+  createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null }): Promise<CatalogCategory>;
   renameCatalogCategory(appId: string, id: number, name: string): Promise<void>;
+  /** 175 Its names in the app's other languages; null: none. */
+  setCatalogCategoryNames(appId: string, id: number, names: LangText | null): Promise<void>;
   /** 132.12 The categories in this order (their `position`); ids of other apps or missing ones are skipped, the rest keep their place after these. */
   reorderCatalogCategories(appId: string, ids: number[]): Promise<void>;
   /** Also removes the category from its products. */

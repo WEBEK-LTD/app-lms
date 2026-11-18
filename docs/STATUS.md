@@ -25,7 +25,11 @@ Africa/Casablanca); Studio's gift checkout sample is drawn in the shop's
 currency, country and city, dated from today. The products list shows the
 price the app serves; the shop's pages and Yallapp Business write amounts
 in the viewer's language (د.م. in Arabic, Latin digits), and amounts typed
-with Arabic-Indic digits are read. No migration. Yallapp Business is not released from this
+with Arabic-Indic digits are read. Categories refuse a duplicate name and
+have optional Arabic and Turkish names, served in the app's language;
+Products › Settings is in Studio's breadcrumb. Migration
+`0143_catalog_category_names` (another branch adds its own 0143,
+`0143_app_stories`: one of them is renumbered at merge). Yallapp Business is not released from this
 branch.
 
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the

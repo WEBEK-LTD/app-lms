@@ -13,6 +13,7 @@ import { changeOrderStatus, inKitchen } from "@/lib/catalog/order-status";
 import { parseStageInput, setOrderStage } from "@/lib/catalog/order-stages";
 import { markStageRefunded, type StageRefundDeps } from "@/lib/catalog/stage-refunds";
 import { cancelNeedsChoice, cancelOrder, readRefundChoice } from "@/lib/catalog/cancel";
+import { duplicateCategory, readCategoryNames } from "@/lib/catalog/category-names";
 import type { GuestMailer } from "@/lib/hosted/auto-notifications";
 import { headers } from "next/headers";
 import { ipFromHeaders } from "@/lib/http";
@@ -104,20 +105,28 @@ function refresh() {
 export async function addCategoryAction(_: FormState, formData: FormData): Promise<FormState> {
   const { app } = await requireCatalogApp();
   const name = str(formData, "name");
-  if (!name) return { errors: { name: "Enter a name." } };
-  if (name.length > 80) return { errors: { name: "Use at most 80 characters." }, values: { name } };
+  const values = { name, name_ar: str(formData, "name_ar"), name_tr: str(formData, "name_tr") };
+  if (!name) return { errors: { name: "Enter a name." }, values };
+  if (name.length > 80) return { errors: { name: "Use at most 80 characters." }, values };
   const store = await getStore();
-  if ((await store.listCatalogCategories(app.id)).length >= 50) return { message: "You can have up to 50 categories." };
-  await store.createCatalogCategory({ appId: app.id, name, now: new Date() });
+  const categories = await store.listCatalogCategories(app.id);
+  if (categories.length >= 50) return { message: "You can have up to 50 categories.", values };
+  // 175 Two categories of one name read as one in the app.
+  if (duplicateCategory(categories, name)) return { errors: { name: "You already have a category with this name. Choose another, or use that one." }, values };
+  await store.createCatalogCategory({ appId: app.id, name, now: new Date(), names: readCategoryNames((f) => str(formData, f)) });
   refresh();
   return { ok: true, message: `Added “${name}”.` };
 }
 
+/** Renames a category, and 175 its Arabic and Turkish names; a name another category has is left as it was (the list warns). */
 export async function renameCategoryAction(formData: FormData): Promise<void> {
   const { app } = await requireCatalogApp();
   const name = str(formData, "name").slice(0, 80);
   const id = Number(formData.get("id"));
-  if (name && Number.isSafeInteger(id)) await (await getStore()).renameCatalogCategory(app.id, id, name);
+  if (!Number.isSafeInteger(id)) return refresh();
+  const store = await getStore();
+  if (name && !duplicateCategory(await store.listCatalogCategories(app.id), name, id)) await store.renameCatalogCategory(app.id, id, name);
+  if (formData.has("name_ar") || formData.has("name_tr")) await store.setCatalogCategoryNames(app.id, id, readCategoryNames((f) => str(formData, f)));
   refresh();
 }
 

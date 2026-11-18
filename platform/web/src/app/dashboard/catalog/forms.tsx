@@ -714,6 +714,11 @@ export function AddCategoryForm() {
           {t("common.add")}
         </SubmitButton>
       </div>
+      {/* 175 Its names in the app's other languages (optional), served to customers in theirs. */}
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Field label={t("shop.categoryNameAr")} name="name_ar" dir="rtl" maxLength={80} defaultValue={state.ok ? "" : state.values?.name_ar} small />
+        <Field label={t("shop.categoryNameTr")} name="name_tr" maxLength={80} defaultValue={state.ok ? "" : state.values?.name_tr} small />
+      </div>
     </form>
   );
 }

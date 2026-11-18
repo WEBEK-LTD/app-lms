@@ -160,7 +160,20 @@ export async function StudioConsole({ context, text, children, notice }: { conte
           <header className="sc-bar">
             {/* Phones: the project on the frame, above the canvas. */}
             {switcher ? <div className="sc-mswitch">{switcher}</div> : null}
-            <ConsoleCrumbs label={t("studioPage.breadcrumb")} groups={groups} more={more} root={{ href: project ? "/studio/project" : "/studio", label: name }} />
+            <ConsoleCrumbs
+              label={t("studioPage.breadcrumb")}
+              groups={groups}
+              more={more}
+              root={{ href: project ? "/studio/project" : "/studio", label: name }}
+              // 175 Products' own pages under it (Products › Settings, not Products alone).
+              subpages={[
+                { href: "/studio/project/catalog/categories", label: t("shop.categories") },
+                { href: "/studio/project/catalog/coupons", label: t("shop.coupons") },
+                { href: "/studio/project/catalog/delivery", label: t("shop.pickupDelivery") },
+                { href: "/studio/project/catalog/settings", label: t("manage.settings") },
+                { href: "/studio/project/catalog/import", label: t("imports.title") },
+              ]}
+            />
             {project ? (
               <>
                 <Link href="/studio/project/preview" className="sc-gb" title={t("studio.previewOnPhone")}>

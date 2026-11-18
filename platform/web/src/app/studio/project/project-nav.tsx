@@ -356,11 +356,22 @@ export function ProjectNav({
  * 132.150 The console bar's way back: the project, the group of the page
  * open and the page (the project's link is the way back to its overview).
  */
-export function ConsoleCrumbs({ label, groups, more, root }: { label: string; groups: ProjectNavGroup[]; more: PaletteItem[]; root: { href: string; label: string } }) {
+/**
+ * 175 The page under a menu entry (Products › Settings): the sub-page whose
+ * address is the deepest one the page is at, below the entry's own; null at
+ * the entry itself.
+ */
+export function subpageOf(subpages: { href: string; label: string }[], entryHref: string, path: string): { href: string; label: string } | null {
+  const below = subpages.filter((s) => s.href.length > entryHref.length && s.href.startsWith(`${entryHref}/`) && (path === s.href || path.startsWith(`${s.href}/`)));
+  return below.sort((a, b) => b.href.length - a.href.length)[0] ?? null;
+}
+
+export function ConsoleCrumbs({ label, groups, more, root, subpages = [] }: { label: string; groups: ProjectNavGroup[]; more: PaletteItem[]; root: { href: string; label: string }; subpages?: { href: string; label: string }[] }) {
   const path = usePathname();
   const step = useSearchParams().get("step");
   const here = currentOf(groups, path, step) ?? currentOf([{ id: "more", items: more }], path, step);
   const atRoot = here?.item.href === root.href;
+  const sub = here && !atRoot ? subpageOf(subpages, here.item.href.split("?")[0]!, path) : null;
   const chevron = <span aria-hidden="true" className="material-symbols-rounded icon-flip">chevron_right</span>;
   return (
     <nav aria-label={label} className="sc-crumbs min-w-0 flex-1">
@@ -385,7 +396,19 @@ export function ConsoleCrumbs({ label, groups, more, root }: { label: string; gr
         {here && !atRoot ? (
           <li>
             {chevron}
-            <span aria-current="page">{here.item.label}</span>
+            {sub ? (
+              <Link href={here.item.href} dir="auto">
+                {here.item.label}
+              </Link>
+            ) : (
+              <span aria-current="page">{here.item.label}</span>
+            )}
+          </li>
+        ) : null}
+        {sub ? (
+          <li>
+            {chevron}
+            <span aria-current="page">{sub.label}</span>
           </li>
         ) : null}
       </ol>

@@ -65,6 +65,7 @@ import type {
   HostedDevice,
   HostedNotification,
   CatalogCategory,
+  LangText,
   CatalogOrder,
   CatalogOrderPatch,
   CatalogOrderStatus,
@@ -1156,9 +1157,9 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
-  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory> {
+  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null }): Promise<CatalogCategory> {
     const position = Math.max(0, ...[...this.catalogCategories.values()].filter((c) => c.appId === input.appId).map((c) => c.position + 1));
-    const category: CatalogCategory = { id: this.nextCatalogId++, appId: input.appId, name: input.name, position, ...(input.sample ? { sample: true } : {}), createdAt: input.now };
+    const category: CatalogCategory = { id: this.nextCatalogId++, appId: input.appId, name: input.name, position, ...(input.sample ? { sample: true } : {}), createdAt: input.now, ...(input.names ? { names: { ...input.names } } : {}) };
     this.catalogCategories.set(category.id, clone(category));
     return category;
   }
@@ -1166,6 +1167,11 @@ export class MemoryStore implements DataStore {
   async renameCatalogCategory(appId: string, id: number, name: string): Promise<void> {
     const category = this.catalogCategories.get(id);
     if (category && category.appId === appId) category.name = name;
+  }
+
+  async setCatalogCategoryNames(appId: string, id: number, names: LangText | null): Promise<void> {
+    const category = this.catalogCategories.get(id);
+    if (category && category.appId === appId) category.names = names ? { ...names } : null;
   }
 
   async reorderCatalogCategories(appId: string, ids: number[]): Promise<void> {

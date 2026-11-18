@@ -230,6 +230,7 @@ import type {
   BuildVariant,
   BuildStatus,
   CatalogCategory,
+  LangText,
   CatalogOrder,
   CatalogOrderPatch,
   CatalogOrderStatus,
@@ -1340,16 +1341,25 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory> {
+  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null }): Promise<CatalogCategory> {
     const rows = await this.run((db) =>
       db
         .select({ next: sql<number | null>`max(${schema.catalogCategories.position}) + 1` })
         .from(schema.catalogCategories)
         .where(eq(schema.catalogCategories.appId, input.appId)),
     );
-    const values = { appId: input.appId, name: input.name, position: Number(rows[0]?.next ?? 0), sample: input.sample === true, createdAt: input.now };
+    const values = { appId: input.appId, name: input.name, position: Number(rows[0]?.next ?? 0), sample: input.sample === true, createdAt: input.now, names: input.names ?? null };
     const [result] = await this.run((db) => db.insert(schema.catalogCategories).values(values));
     return { id: Number(result.insertId), ...values };
+  }
+
+  async setCatalogCategoryNames(appId: string, id: number, names: LangText | null): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.catalogCategories)
+        .set({ names })
+        .where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
+    );
   }
 
   async renameCatalogCategory(appId: string, id: number, name: string): Promise<void> {
