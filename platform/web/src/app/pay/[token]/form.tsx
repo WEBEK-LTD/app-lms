@@ -10,6 +10,10 @@ import { initialFormState } from "@/lib/forms";
 import { IyzicoCard } from "./iyzico-card";
 import { KashierCard } from "./kashier-card";
 import { StripeCard } from "./stripe-card";
+import type { PayWords } from "@/lib/catalog/pay-words";
+
+/** `{name}` in a text with its value (lib/catalog/pay-words.ts `fill`, without its server imports). */
+const fill = (text: string, values: Record<string, string>) => text.replace(/\{([a-z]+)\}/g, (all, name: string) => values[name] ?? all);
 
 /** 153 The provider's own page, the same payment, when its form can't show in ours. */
 function PayOnProvider({ note, href, label, color, textColor }: { note: string; href: string; label: string; color: string; textColor: string }) {
@@ -47,8 +51,12 @@ export function PayForm({
   color,
   textColor,
   defaults,
+  cityOptional = false,
+  words: w,
 }: {
   token: string;
+  /** 168 The page's words in the customer's language. */
+  words: PayWords;
   /** The card provider's name; null when the shop takes no cards. */
   card: string | null;
   /** 96.2 Bank transfer and the owner's own method. */
@@ -57,12 +65,14 @@ export function PayForm({
   color: string;
   textColor: string;
   defaults?: Partial<CatalogCustomer>;
+  /** 168 The order already says where it goes (lib/catalog/payment.ts cityOptionalFor). */
+  cityOptional?: boolean;
 }) {
   const [state, action] = useActionState<PayState, FormData>(payAction.bind(null, token), initialFormState);
   // 144 Stripe's form didn't load: its own page instead, with the same details. 153 iyzico's or Kashier's: their page, the same payment.
   const [hosted, setHosted] = useState(false);
   const value = (name: keyof CatalogCustomer) => state.values?.[name] ?? defaults?.[name] ?? "";
-  const methods = [...(card ? [{ method: "card", name: "Card", instructions: "" }] : []), ...manual];
+  const methods = [...(card ? [{ method: "card", name: w.card, instructions: "" }] : []), ...manual];
   // The choice lives outside the form, which React resets after each submit.
   const [method, setMethod] = useState(methods[0]?.method ?? "card");
   const chosen = methods.find((m) => m.method === method);
@@ -72,21 +82,21 @@ export function PayForm({
     return (
       <div className="flex flex-col gap-4" data-pay-step="card">
         <div className="flex flex-col gap-1">
-          <h2 className="m-0 text-[18px] font-bold">Your card</h2>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">Enter your card to pay {total}. It goes straight to {provider}: the shop never sees its number.</p>
+          <h2 className="m-0 text-[18px] font-bold">{w.yourCard}</h2>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{fill(w.cardIntro, { total, provider })}</p>
         </div>
         {state.stripe ? (
           hosted ? (
             <form action={action} className="flex flex-col gap-3">
               <p role="alert" className="m-0 rounded-xl bg-sand px-4 py-3 text-[15px]">
-                The card form didn&apos;t load here. Pay on Stripe&apos;s secure page instead.
+                {w.stripeNotLoaded}
               </p>
               <input type="hidden" name="method" value="card" />
               <input type="hidden" name="hosted" value="1" />
               {(["name", "phone", "email", "city", "address"] as const).map((name) => (
                 <input key={name} type="hidden" name={name} value={value(name)} />
               ))}
-              <PayButton label={`Pay ${total} on Stripe`} busy="Opening the payment…" color={color} textColor={textColor} />
+              <PayButton label={fill(w.payOn, { total, provider: "Stripe" })} busy={w.opening} color={color} textColor={textColor} />
             </form>
           ) : (
             <StripeCard clientSecret={state.stripe.clientSecret} publishableKey={state.stripe.publishableKey} jsUrl={state.stripe.jsUrl} onFailed={() => setHosted(true)} />
@@ -94,7 +104,7 @@ export function PayForm({
         ) : null}
         {state.iyzico ? (
           hosted ? (
-            <PayOnProvider note="The card form didn't load here. Pay on iyzico's secure page instead." href={state.iyzico.pageUrl} label={`Pay ${total} on iyzico`} color={color} textColor={textColor} />
+            <PayOnProvider note={w.iyzicoNotLoaded} href={state.iyzico.pageUrl} label={fill(w.payOn, { total, provider: "iyzico" })} color={color} textColor={textColor} />
           ) : (
             <IyzicoCard formContent={state.iyzico.formContent} onFailed={() => setHosted(true)} />
           )
@@ -103,11 +113,11 @@ export function PayForm({
           <>
             <KashierCard frameUrl={state.kashier.frameUrl} returnUrl={state.kashier.returnUrl} onTrouble={() => setHosted(true)} />
             {/* The form stays: it may only be slow to say it's there. */}
-            {hosted ? <PayOnProvider note="Card form not showing? Pay on Kashier's secure page instead." href={state.kashier.pageUrl} label={`Pay ${total} on Kashier`} color={color} textColor={textColor} /> : null}
+            {hosted ? <PayOnProvider note={w.kashierNotShowing} href={state.kashier.pageUrl} label={fill(w.payOn, { total, provider: "Kashier" })} color={color} textColor={textColor} /> : null}
           </>
         ) : null}
         <button type="button" onClick={() => window.location.reload()} className="cursor-pointer self-start border-0 bg-transparent p-0 text-[15px] font-semibold underline">
-          Change your details
+          {w.changeDetails}
         </button>
       </div>
     );
@@ -116,7 +126,7 @@ export function PayForm({
     <div className="flex flex-col gap-4">
       {methods.length > 1 ? (
         <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-          <legend className="mb-2 p-0 text-sm font-semibold">How would you like to pay?</legend>
+          <legend className="mb-2 p-0 text-sm font-semibold">{w.howPay}</legend>
           {methods.map((m) => (
             <label key={m.method} className="flex cursor-pointer items-center gap-3 rounded-xl border border-line px-4 py-3 text-[15px] has-[:checked]:border-ink">
               <input type="radio" name="pay-method" checked={method === m.method} onChange={() => setMethod(m.method)} className="size-4" />
@@ -129,19 +139,19 @@ export function PayForm({
         <div role="note" className="flex flex-col gap-1 rounded-xl bg-sand px-4 py-3 text-[15px]">
           <span className="font-semibold">{chosen.name}</span>
           <span className="whitespace-pre-line text-ink-4">{chosen.instructions}</span>
-          <span className="text-[13px] text-muted">Place your order, then pay {total} this way. The shop confirms your order once the payment arrives.</span>
+          <span className="text-[13px] text-muted">{fill(w.manualNote, { total })}</span>
         </div>
       ) : null}
       <form action={action} noValidate className="flex flex-col gap-4">
         <input type="hidden" name="method" value={method} />
         <FormMessage message={state.message} ok={state.ok} />
-        <Field label="Full name" name="name" autoComplete="name" required defaultValue={value("name")} error={state.errors?.name} />
-        <Field label="Mobile number" name="phone" type="tel" autoComplete="tel" required defaultValue={value("phone")} error={state.errors?.phone} />
-        <Field label="Email" name="email" type="email" autoComplete="email" required defaultValue={value("email")} error={state.errors?.email} />
-        <Field label="City" name="city" autoComplete="address-level2" required defaultValue={value("city")} error={state.errors?.city} />
+        <Field label={w.fullName} name="name" autoComplete="name" required defaultValue={value("name")} error={state.errors?.name} />
+        <Field label={w.mobile} name="phone" type="tel" autoComplete="tel" required defaultValue={value("phone")} error={state.errors?.phone} />
+        <Field label={w.email} name="email" type="email" autoComplete="email" required defaultValue={value("email")} error={state.errors?.email} />
+        <Field label={cityOptional ? w.cityOptional : w.city} name="city" autoComplete="address-level2" required={!cityOptional} defaultValue={value("city")} error={state.errors?.city} />
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-address" className="text-sm font-semibold">
-            Address
+            {w.address}
           </label>
           <textarea
             id="f-address"
@@ -157,9 +167,9 @@ export function PayForm({
           <FieldError id="f-address-error" error={state.errors?.address} />
         </div>
         {method === "card" ? (
-          <PayButton label={`Pay ${total}`} busy="Opening the payment…" color={color} textColor={textColor} />
+          <PayButton label={fill(w.pay, { total })} busy={w.opening} color={color} textColor={textColor} />
         ) : (
-          <PayButton label={`Place order · ${total}`} busy="Placing your order…" color={color} textColor={textColor} />
+          <PayButton label={fill(w.placeOrder, { total })} busy={w.placing} color={color} textColor={textColor} />
         )}
       </form>
     </div>

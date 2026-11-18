@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/api/api_exception.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/gate/app_gate.dart';
@@ -24,6 +23,7 @@ import '../../../core/widgets/common.dart';
 import '../../lms/data/lms_providers.dart';
 import 'account_scaffold.dart';
 import 'currency_picker.dart';
+import 'sign_out.dart';
 // 130.21 The language in the project's premium look.
 import '../../../core/widgets/premium_chrome.dart';
 import 'premium/premium_choice_sheet.dart';
@@ -88,22 +88,9 @@ class SettingsScreen extends ConsumerWidget {
     if (picked != null) onPicked(picked);
   }
 
-  Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
-    final ok = await confirmAction(
-      context,
-      title: context.l10n.deleteAccountTitle,
-      message: context.l10n.deleteAccountMessage,
-      confirmLabel: context.l10n.deleteAccount,
-      destructive: true,
-    );
-    if (!ok || !context.mounted) return;
-    try {
-      await ref.read(authControllerProvider.notifier).deleteAccount();
-      if (context.mounted) showMessage(context, context.l10n.accountDeleted);
-    } on ApiException catch (e) {
-      if (context.mounted) showMessage(context, e.message);
-    }
-  }
+  // 167 Asked first (sign_out.dart).
+  Future<void> _deleteAccount(BuildContext context, WidgetRef ref) =>
+      confirmDeleteAccount(context, ref);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -448,6 +435,7 @@ class SettingsScreen extends ConsumerWidget {
                 onTap: () => context.push(Paths.devices),
               ),
               SettingsTile(
+                key: const ValueKey('account-delete'),
                 icon: AppIcons.delete,
                 title: l10n.deleteAccount,
                 destructive: true,

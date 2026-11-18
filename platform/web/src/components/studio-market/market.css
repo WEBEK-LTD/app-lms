@@ -833,6 +833,35 @@
   }
 
   /* The dark band of A (and B's own night), for one collection */
+  /* 106.12 Discounts: the sale pill, a countdown's colour, and the market's flash strip (warm in A, an ember glow in B). */
+  .mk-pill-sale {
+    background: #c2410c;
+    color: #fff;
+  }
+  .mk-pill-sale {
+    @variant in-dark {
+      background: #ff5a1f;
+      color: #0e0d24;
+    }
+  }
+  .mk-sale-time {
+    color: var(--mk-accent);
+  }
+  .mk-flash {
+    background:
+      radial-gradient(60% 80% at 0% 0%, rgba(255, 154, 110, 0.3), transparent 70%),
+      linear-gradient(180deg, #fff4ea, #fbe9dc);
+    border-block: 1px solid rgba(194, 65, 12, 0.18);
+  }
+  .mk-flash {
+    @variant in-dark {
+      background:
+        radial-gradient(50% 90% at 10% 0%, rgba(255, 90, 31, 0.2), transparent 70%),
+        rgba(255, 255, 255, 0.02);
+      border-block-color: rgba(255, 154, 110, 0.22);
+    }
+  }
+
   .mk-band {
     background:
       radial-gradient(70% 60% at 50% 0%, rgba(255, 237, 214, 0.07), transparent 70%),

@@ -8,6 +8,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
 import '../data/travel_providers.dart';
+import '../../../core/format/text_case.dart';
 
 /// 126 The travel screens' look, as the approved designs have it: ink on a
 /// warm page by day and deep ink by night, gold for what matters, sea for
@@ -968,7 +969,7 @@ class Eyebrow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(
-    text.toUpperCase(),
+    text.toUpperCaseIn(context),
     style: TextStyle(
       fontSize: 11.5,
       fontWeight: FontWeight.w800,

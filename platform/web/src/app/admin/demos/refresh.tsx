@@ -21,6 +21,13 @@ export interface DemoToRefresh {
 
 type Step = { state: "waiting" | "running" | "done" | "failed"; created?: boolean; error?: string };
 
+/**
+ * 156 Refreshing a demo app publishes the demo's own pages and Studio ›
+ * Screens again (lib/demo/setup.ts), so anything changed on it in Studio
+ * (Leqaa's edits) is gone: the team is asked first. The admin is in English.
+ */
+export const REFRESH_DEMO_CONFIRM = "This puts back the demo's own design and removes any changes made to it in Studio (its pages and Studio › Screens). Continue?";
+
 /** A request that never answered (it ran out of time, or the connection dropped). */
 const NO_ANSWER = "The request didn't finish: it may have taken too long, or the connection dropped. What it saved so far is kept; refresh this demo again.";
 
@@ -71,7 +78,7 @@ function stepText(step: Step | undefined): string {
 }
 
 /** "Refresh all": every demo of the tab, one after another, with each one's outcome. */
-export function RefreshAllDemos({ demos, label, doneText }: { demos: readonly DemoToRefresh[]; label: string; doneText: string }) {
+export function RefreshAllDemos({ demos, label, doneText, confirm = false }: { demos: readonly DemoToRefresh[]; label: string; doneText: string; confirm?: boolean }) {
   const { steps, running, run } = useDemoRefresh(demos);
   const started = Object.keys(steps).length > 0;
   const finished = demos.filter((d) => steps[d.type]?.state === "done" || steps[d.type]?.state === "failed").length;
@@ -80,7 +87,7 @@ export function RefreshAllDemos({ demos, label, doneText }: { demos: readonly De
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-3">
-        <button type="button" onClick={() => void run()} disabled={running} className={`${btn.primary} h-11`}>
+        <button type="button" onClick={() => (!confirm || window.confirm(REFRESH_DEMO_CONFIRM)) && void run()} disabled={running} className={`${btn.primary} h-11`}>
           <Icon name={running ? "progress_activity" : "refresh"} size={20} className={running ? "animate-spin" : ""} />
           {running ? "Working through the demo apps…" : label}
         </button>
@@ -122,7 +129,7 @@ export function RefreshDemoButton({ demo }: { demo: DemoToRefresh }) {
   const step = steps[demo.type];
   return (
     <span className="flex flex-col gap-1">
-      <button type="button" onClick={() => void run()} disabled={running} className={`${btn.secondary} h-10 px-4 text-sm`}>
+      <button type="button" onClick={() => window.confirm(REFRESH_DEMO_CONFIRM) && void run()} disabled={running} className={`${btn.secondary} h-10 px-4 text-sm`}>
         {running ? (
           <>
             <Icon name="progress_activity" size={20} className="animate-spin" />

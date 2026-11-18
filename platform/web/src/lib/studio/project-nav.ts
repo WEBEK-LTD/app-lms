@@ -141,6 +141,8 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
       items: [
         item("/dashboard", t("studio.overview"), "space_dashboard"),
         item("/dashboard/pages", t("studio.navEditor"), "draw"),
+        // 165 The app's stories: the home's full-screen stories and rings, from the dashboard.
+        item("/dashboard/stories", t("stories.nav"), "auto_stories"),
         // 17 The app on a phone in the browser.
         item("/dashboard/preview", t("studio.navPreview"), "play_arrow"),
       ],

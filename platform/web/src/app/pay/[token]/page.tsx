@@ -7,7 +7,7 @@ import { formatCents } from "@/lib/catalog/money";
 import { rateText } from "@/lib/money/rates";
 import { fulfilmentOf } from "@/lib/catalog/fulfilment";
 import { optionsText } from "@/lib/catalog/options";
-import { scheduledText } from "@/lib/catalog/payment";
+import { cityOptionalFor, scheduledText } from "@/lib/catalog/payment";
 import { checkoutAccount, orderNumber, payLinkExpired } from "@/lib/catalog/settings";
 import { manualChoices } from "@/lib/catalog/manual";
 import { sha256Hex } from "@/lib/crypto/tokens";
@@ -21,6 +21,7 @@ import { RatesAttribution } from "@/components/rates-attribution";
 import { PayForm } from "./form";
 import { PayShell, textOn } from "./shell";
 import { holdEnded } from "@/lib/events/holds";
+import { fill, payLangOf, payWords } from "@/lib/catalog/pay-words";
 
 export const metadata: Metadata = { title: "Checkout", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -39,31 +40,34 @@ export default async function PayPage({
   const order = await store.getCatalogOrderByToken(sha256Hex(token));
   const found = order ? await store.getAppById(order.appId) : null;
   const app = found ? await withDemoChecked(store, found) : null;
-  const note =(title: string, text: string) => (
-    <PayShell app={app}>
+  // 168 The customer's language: the app's when they checked out.
+  const lang = payLangOf(order);
+  const w = payWords(lang);
+  const note = (title: string, text: string) => (
+    <PayShell app={app} lang={lang}>
       <h1 className="m-0 text-[24px] font-extrabold">{title}</h1>
       <p className="m-0 text-[16px] leading-relaxed text-ink-4">{text}</p>
     </PayShell>
   );
-  if (!order || !app) return note("Link not valid", "This payment link isn't valid. Go back to the app and check out again.");
+  if (!order || !app) return note(w.linkInvalidTitle, w.linkInvalidText);
   // 134 A connected store's payment in the app: its platform's order, made once it's paid.
   const platformOrder = await store.getStorePlatformOrder(app.id, order.id);
   if (order.status === "processing" || order.status === "completed") {
     redirect(`/pay/${token}/order-received${platformOrder ? `?shop_order=${platformOrder.status === "placed" ? "placed" : "confirming"}` : ""}`);
   }
-  if (order.status !== "pending") return note("Order closed", "This order is closed. Go back to the app and check out again.");
+  if (order.status !== "pending") return note(w.orderClosedTitle, w.orderClosedText);
   // 96.2 Waiting for a bank transfer or the owner's own method: its details are on the order's page.
   if (order.manualPayment) redirect(`/pay/${token}/order-received`);
-  if (payLinkExpired(order, new Date())) return note("Link expired", "This payment link has expired. Go back to the app and check out again.");
+  if (payLinkExpired(order, new Date())) return note(w.linkExpiredTitle, w.linkExpiredText);
   // 49 Tickets: the places held for this order were released (the provider's page ended without a payment).
   if (app.connector?.kind === "events" && holdEnded(await store.listTickets({ appId: app.id, orderId: order.id }), new Date())) {
-    return note("Places released", "The places held for this order were released. Go back to the app and get your tickets again.");
+    return note(w.placesReleasedTitle, w.placesReleasedText);
   }
   // 16 A demo app never takes a payment: the order goes through with one tap.
   const checkout = app.demo ? null : await checkoutAccount(store, app, encryptionKey());
   // 96.2 Bank transfer and the owner's own method, besides the card or instead of it.
   const manual = app.demo || platformOrder ? [] : manualChoices(app.catalogSettings?.manualPayments);
-  if (!app.demo && !checkout && manual.length === 0) return note("Payments are off", "This shop can't take payments right now. Please try again later.");
+  if (!app.demo && !checkout && manual.length === 0) return note(w.paymentsOffTitle, w.paymentsOffText);
 
   const money = (cents: number) => formatCents(cents, order.currency);
   // 149 The converted total only while the app still shows that currency (one charged in it is what the card pays).
@@ -71,29 +75,29 @@ export default async function PayPage({
   const cc = saved && (saved.charged || customerCurrencyAllowed(customerCurrencyRule(app.catalogSettings), saved.currency)) ? saved : null;
   const color = app.primaryColor;
   return (
-    <PayShell app={app}>
-      <h1 className="m-0 text-[24px] font-extrabold">Checkout</h1>
+    <PayShell app={app} lang={lang}>
+      <h1 className="m-0 text-[24px] font-extrabold">{w.checkout}</h1>
       {app.demo ? (
         <p role="note" className="m-0 flex gap-2.5 rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
           <Icon name="info" size={20} className="mt-0.5" />
           <span>
-            <b>Demo.</b> This is a demo app: no card is asked for and nothing is charged. In your own app, customers pay here by card.
+            <b>{w.demoBold}</b> {w.demoText}
           </span>
         </p>
       ) : null}
       {payment === "failed" ? (
         <p role="alert" className="m-0 rounded-xl bg-danger-bg px-4 py-3 text-[15px] font-semibold text-danger">
-          The payment didn&apos;t go through. Check your card details and try again.
+          {w.payFailed}
         </p>
       ) : null}
       {payment === "pending" ? (
         <p role="status" className="m-0 rounded-xl bg-peach-soft px-4 py-3 text-[15px] font-semibold">
-          Your payment isn&apos;t confirmed yet. If you paid, your order is confirmed within a few minutes; otherwise, try again.
+          {w.payPending}
         </p>
       ) : null}
       <section aria-labelledby="h-order" className="flex flex-col gap-2 rounded-xl border border-line p-4">
         <h2 id="h-order" className="m-0 text-[15px] font-bold">
-          Order {orderNumber(order)}
+          {fill(w.order, { number: orderNumber(order) })}
         </h2>
         <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
           {order.lines.map((line, i) => (
@@ -108,14 +112,14 @@ export default async function PayPage({
           {/* 91.1 The coupon applied. */}
           {order.discountCents ? (
             <li className="flex justify-between gap-3 text-[15px]">
-              <span>Coupon {order.couponCode}</span>
+              <span>{fill(w.coupon, { code: order.couponCode ?? "" })}</span>
               <span>-{money(order.discountCents)}</span>
             </li>
           ) : null}
           {/* 91.4 The loyalty points used. */}
           {order.points?.discountCents ? (
             <li className="flex justify-between gap-3 text-[15px]">
-              <span>Loyalty points ({order.points.used})</span>
+              <span>{fill(w.points, { count: order.points.used })}</span>
               <span>-{money(order.points.discountCents)}</span>
             </li>
           ) : null}
@@ -124,20 +128,20 @@ export default async function PayPage({
             <>
               {order.delivery?.feeCents ? (
                 <li className="flex justify-between gap-3 text-[15px]">
-                  <span>Delivery time</span>
+                  <span>{w.deliveryTime}</span>
                   <span>{money(order.delivery.feeCents)}</span>
                 </li>
               ) : null}
               {platformOrder.quote && order.shippingCents - (order.delivery?.feeCents ?? 0) > 0 ? (
                 <li className="flex justify-between gap-3 text-[15px]">
-                  <span>Shipping</span>
+                  <span>{w.shipping}</span>
                   <span>{money(order.shippingCents - (order.delivery?.feeCents ?? 0))}</span>
                 </li>
               ) : null}
             </>
           ) : order.shippingCents > 0 ? (
             <li className="flex justify-between gap-3 text-[15px]">
-              <span>{order.fulfilment ? "Delivery fee" : "Shipping"}</span>
+              <span>{order.fulfilment ? w.deliveryFee : w.shipping}</span>
               <span>{money(order.shippingCents)}</span>
             </li>
           ) : null}
@@ -150,21 +154,21 @@ export default async function PayPage({
           ) : null}
         </ul>
         <p className="m-0 flex justify-between border-t border-line-soft pt-2 text-[16px] font-bold">
-          <span>Total</span>
+          <span>{w.total}</span>
           <span>{money(order.totalCents)}</span>
         </p>
         {/* 134 The platform prices shipping and tax for the address before the payment. */}
         {platformOrder && !platformOrder.quote ? (
           <p className="m-0 text-[13px] text-ink-4" data-pay-quote="">
-            Shipping and tax for your address are added before you pay.
+            {w.quoteNote}
           </p>
         ) : null}
         {/* 135.7 The customer's own currency: charged in it, or shown as approximate (the shop's currency charged). */}
         {cc ? (
           <p className="m-0 text-right text-[14px] text-ink-4" data-pay-customer-currency="">
             {cc.charged
-              ? `Charged in ${cc.currency}: ${formatCents(cc.totalCents, cc.currency)} (${rateText(cc.rate, order.currency, cc.currency)}, rates of ${cc.rateDate})`
-              : `≈ ${formatCents(cc.totalCents, cc.currency)} · you pay ${money(order.totalCents)}`}
+              ? fill(w.chargedIn, { currency: cc.currency, amount: formatCents(cc.totalCents, cc.currency), rate: rateText(cc.rate, order.currency, cc.currency), date: cc.rateDate })
+              : fill(w.approx, { amount: formatCents(cc.totalCents, cc.currency), total: money(order.totalCents) })}
           </p>
         ) : null}
         {/* 135.10 The rates' source, as its terms ask where the rates are used; its site opens in a new tab. */}
@@ -176,25 +180,25 @@ export default async function PayPage({
         {/* 91.5 A tax inside the prices. */}
         {order.tax?.included ? (
           <p className="m-0 text-right text-[13px] text-ink-4">
-            Includes {money(order.tax.cents)} {taxLabel(order.tax)}
+            {fill(w.includes, { amount: money(order.tax.cents), tax: taxLabel(order.tax) })}
           </p>
         ) : null}
         {order.fulfilment ? (
           <p className="m-0 border-t border-line-soft pt-2 text-[15px] text-ink-4">
-            {order.fulfilment.type === "delivery" ? "Delivery" : "Pickup"}{" "}
-            {order.fulfilment.scheduledFor ? scheduledText(order.fulfilment.scheduledFor, fulfilmentOf(app)?.timezone ?? "Europe/Istanbul") : "as soon as possible"}
+            {order.fulfilment.type === "delivery" ? w.delivery : w.pickup}{" "}
+            {order.fulfilment.scheduledFor ? scheduledText(order.fulfilment.scheduledFor, fulfilmentOf(app)?.timezone ?? "Europe/Istanbul") : w.asap}
             {order.fulfilment.address
-              ? ` to ${[order.fulfilment.address.address, order.fulfilment.address.district].filter(Boolean).join(", ")}`
+              ? fill(w.toPlace, { place: [order.fulfilment.address.address, order.fulfilment.address.district].filter(Boolean).join(", ") })
               : fulfilmentOf(app)?.pickupAddress
-                ? ` at ${fulfilmentOf(app)!.pickupAddress}`
+                ? fill(w.atPlace, { place: fulfilmentOf(app)!.pickupAddress! })
                 : ""}
           </p>
         ) : null}
         {/* 131 The delivery day and slot, and who receives it. */}
         {order.delivery && (order.delivery.date || order.delivery.recipient) ? (
           <p className="m-0 border-t border-line-soft pt-2 text-[15px] text-ink-4" data-pay-delivery="">
-            {order.delivery.date ? `Delivery ${deliveryDayLabel(order.delivery.date, "en")}${order.delivery.slot ? `, ${order.delivery.slot.start}–${order.delivery.slot.end}` : ""}` : "Delivery"}
-            {order.delivery.recipient ? ` to ${order.delivery.recipient.name}` : ""}
+            {order.delivery.date ? `${fill(w.deliveryOn, { day: deliveryDayLabel(order.delivery.date, lang) })}${order.delivery.slot ? `${lang === "ar" ? "، " : ", "}${order.delivery.slot.start}–${order.delivery.slot.end}` : ""}` : w.delivery}
+            {order.delivery.recipient ? fill(w.toName, { name: order.delivery.recipient.name }) : ""}
           </p>
         ) : null}
       </section>
@@ -205,13 +209,15 @@ export default async function PayPage({
             className="h-12 w-full cursor-pointer rounded-xl border-0 text-[16px] font-bold"
             style={{ backgroundColor: color, color: textOn(color) }}
           >
-            Place demo order
+            {w.placeDemo}
           </button>
         </form>
       ) : (
         <>
           <PayForm
             token={token}
+            words={w}
+            cityOptional={cityOptionalFor(order)}
             card={checkout ? PROVIDER_NAME[checkout.account.provider] : null}
             manual={manual}
             total={cc?.charged ? formatCents(cc.totalCents, cc.currency) : money(order.totalCents)}
@@ -231,7 +237,7 @@ export default async function PayPage({
                   : undefined)
             }
           />
-          {checkout ? <p className="m-0 text-center text-[13px] text-muted">Card payments are processed securely by {PROVIDER_NAME[checkout.account.provider]}.</p> : null}
+          {checkout ? <p className="m-0 text-center text-[13px] text-muted">{fill(w.securedBy, { provider: PROVIDER_NAME[checkout.account.provider] })}</p> : null}
         </>
       )}
     </PayShell>

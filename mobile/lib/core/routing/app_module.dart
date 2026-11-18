@@ -110,8 +110,12 @@ class AppModule {
   /// Counts shown on tabs, by tab path (for example the cart).
   final Map<String, int> Function(WidgetRef ref)? badges;
 
+  /// Whether a tab of [path] shows it in its place, with the bar: one of
+  /// [screens], 171 one of every app type's own ([Paths.sharedTabPaths]),
+  /// a page or a web page.
   bool isTabPath(String path) =>
       tabPaths.contains(path) ||
+      Paths.sharedTabPaths.contains(path) ||
       path.startsWith(Paths.pagePrefix) ||
       path.startsWith(Paths.webTabPrefix);
 }

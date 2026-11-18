@@ -802,9 +802,47 @@
     },
     "studio": {
      "body": {
-      "id": "demo-26",
+      "id": "demo-27",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "demo-26",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account"
     },
@@ -825,7 +863,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-27",
+      "id": "demo-28",
       "type": "column",
       "children": []
      },
@@ -867,7 +905,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-28",
+      "id": "demo-29",
       "type": "column",
       "children": []
      },
@@ -909,7 +947,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-29",
+      "id": "demo-30",
       "type": "column",
       "children": []
      },
@@ -951,7 +989,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-30",
+      "id": "demo-31",
       "type": "column",
       "children": []
      },
@@ -985,7 +1023,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-31",
+      "id": "demo-32",
       "type": "column",
       "children": []
      },
@@ -1000,7 +1038,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-32",
+      "id": "demo-33",
       "type": "column",
       "children": []
      },
@@ -1015,7 +1053,7 @@
     "title": "Parent",
     "studio": {
      "body": {
-      "id": "demo-33",
+      "id": "demo-34",
       "type": "column",
       "children": []
      },
@@ -1038,7 +1076,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-34",
+      "id": "demo-35",
       "type": "column",
       "children": []
      },
@@ -1080,7 +1118,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-35",
+      "id": "demo-36",
       "type": "column",
       "children": []
      },
@@ -1122,7 +1160,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-36",
+      "id": "demo-37",
       "type": "column",
       "children": []
      },
@@ -1164,7 +1202,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-37",
+      "id": "demo-38",
       "type": "column",
       "children": []
      },
@@ -1206,7 +1244,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-38",
+      "id": "demo-39",
       "type": "column",
       "children": []
      },
@@ -1248,7 +1286,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-39",
+      "id": "demo-40",
       "type": "column",
       "children": []
      },
@@ -1290,7 +1328,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-40",
+      "id": "demo-41",
       "type": "column",
       "children": []
      },
@@ -1332,7 +1370,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-41",
+      "id": "demo-42",
       "type": "column",
       "children": []
      },
@@ -1374,7 +1412,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-42",
+      "id": "demo-43",
       "type": "column",
       "children": []
      },
@@ -1416,7 +1454,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-43",
+      "id": "demo-44",
       "type": "column",
       "children": []
      },
@@ -1458,7 +1496,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-44",
+      "id": "demo-45",
       "type": "column",
       "children": []
      },
@@ -1500,7 +1538,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-45",
+      "id": "demo-46",
       "type": "column",
       "children": []
      },
@@ -1542,7 +1580,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-46",
+      "id": "demo-47",
       "type": "column",
       "children": []
      },
@@ -1584,7 +1622,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-47",
+      "id": "demo-48",
       "type": "column",
       "children": []
      },
@@ -1626,7 +1664,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-48",
+      "id": "demo-49",
       "type": "column",
       "children": []
      },
@@ -1668,7 +1706,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-49",
+      "id": "demo-50",
       "type": "column",
       "children": []
      },
@@ -1702,7 +1740,7 @@
     "title": "A library book",
     "studio": {
      "body": {
-      "id": "demo-50",
+      "id": "demo-51",
       "type": "column",
       "children": []
      },
@@ -1725,7 +1763,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-51",
+      "id": "demo-52",
       "type": "column",
       "children": []
      },
@@ -1767,7 +1805,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-52",
+      "id": "demo-53",
       "type": "column",
       "children": []
      },
@@ -1809,7 +1847,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-53",
+      "id": "demo-54",
       "type": "column",
       "children": []
      },
@@ -1851,7 +1889,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-54",
+      "id": "demo-55",
       "type": "column",
       "children": []
      },
@@ -1893,7 +1931,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-55",
+      "id": "demo-56",
       "type": "column",
       "children": []
      },
@@ -1935,7 +1973,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-56",
+      "id": "demo-57",
       "type": "column",
       "children": []
      },
@@ -1977,7 +2015,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-57",
+      "id": "demo-58",
       "type": "column",
       "children": []
      },
@@ -2019,7 +2057,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-58",
+      "id": "demo-59",
       "type": "column",
       "children": []
      },
@@ -2061,7 +2099,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-59",
+      "id": "demo-60",
       "type": "column",
       "children": []
      },

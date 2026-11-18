@@ -148,7 +148,9 @@ void main() {
       expect(
         find.descendant(
           of: flash,
-          matching: find.text(arabic ? '−25٪' : '−25%'),
+          // 161 In Arabic its sign, number and percent kept left to right
+          // (a left-to-right isolate), so it never reads "25٪−".
+          matching: find.text(arabic ? '\u2066−25٪\u2069' : '−25%'),
         ),
         findsOneWidget,
       );
@@ -182,7 +184,11 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Chocolates'), findsOneWidget);
-      expect(find.text('+₺25.00'), findsOneWidget);
+      // 161 In Arabic the plus kept before the amount (a left-to-right isolate).
+      expect(
+        find.text(arabic ? '\u2066+₺25.00\u2069' : '+₺25.00'),
+        findsOneWidget,
+      );
       await tester.ensureVisible(find.byKey(const ValueKey('addon-31')));
       await tester.tap(find.byKey(const ValueKey('addon-31')));
       await TestApp.settle(tester);

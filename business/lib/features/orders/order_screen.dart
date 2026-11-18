@@ -479,9 +479,21 @@ class OrderLines extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lines = order.lines;
-    final items = lines.where((l) => l.addonOf == null).toList();
     final placed = <OrderLine>{};
     final rows = <Widget>[];
+    // 162 Each bouquet the customer built, as one: its stems, its flowers,
+    // its wrap and its card, the card's words.
+    final bouquets = <String, List<OrderLine>>{};
+    for (final l in lines) {
+      if (l.bouquet case final b?) (bouquets[b.id] ??= []).add(l);
+    }
+    for (final group in bouquets.values) {
+      rows.add(_BouquetRows(lines: group));
+      placed.addAll(group);
+    }
+    final items = lines
+        .where((l) => l.addonOf == null && !placed.contains(l))
+        .toList();
     for (final item in items) {
       rows.add(_LineRow(line: item));
       placed.add(item);
@@ -503,8 +515,88 @@ class OrderLines extends StatelessWidget {
   }
 }
 
+/// 162 A bouquet the customer built: a heading with its stems, then its
+/// flowers, its wrap and its card indented under it, and the card's words.
+class _BouquetRows extends StatelessWidget {
+  const _BouquetRows({required this.lines});
+
+  final List<OrderLine> lines;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final c = context.yb;
+    final theme = Theme.of(context);
+    const order = {'flower': 0, 'wrap': 1, 'card': 2};
+    final sorted = [...lines]
+      ..sort(
+        (a, b) => (order[a.bouquet!.part] ?? 3) - (order[b.bouquet!.part] ?? 3),
+      );
+    final stems = lines
+        .where((l) => l.bouquet!.part == 'flower')
+        .fold(0, (sum, l) => sum + l.quantity);
+    final message = lines
+        .map((l) => l.bouquet!.message)
+        .whereType<String>()
+        .firstOrNull;
+    return Padding(
+      key: const ValueKey('order-bouquet'),
+      padding: const EdgeInsets.only(top: 6, bottom: 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(AppIcons.bouquet, size: 18, color: c.accentText),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  l10n.bouquetGroup(stems),
+                  style: theme.textTheme.titleSmall,
+                ),
+              ),
+            ],
+          ),
+          for (final l in sorted)
+            _LineRow(
+              line: l,
+              addon: false,
+              indent: true,
+              part: switch (l.bouquet!.part) {
+                'wrap' => l10n.bouquetWrap,
+                'card' => l10n.bouquetCard,
+                _ => null,
+              },
+            ),
+          if (message != null)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 22, bottom: 6),
+              child: Text(
+                l10n.bouquetMessage(message),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontStyle: FontStyle.italic,
+                  color: c.ink2,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _LineRow extends StatelessWidget {
-  const _LineRow({required this.line, this.addon = false});
+  const _LineRow({
+    required this.line,
+    this.addon = false,
+    this.indent = false,
+    this.part,
+  });
+
+  /// 162 Under a bouquet's heading; [part], a wrap's or card's word.
+  final bool indent;
+  final String? part;
 
   final OrderLine line;
   final bool addon;
@@ -524,7 +616,7 @@ class _LineRow extends StatelessWidget {
       padding: EdgeInsetsDirectional.only(
         top: 6,
         bottom: 6,
-        start: addon ? 22 : 0,
+        start: addon || indent ? 22 : 0,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -545,9 +637,9 @@ class _LineRow extends StatelessWidget {
                 Text(line.name, style: theme.textTheme.bodyLarge),
                 if (details.isNotEmpty)
                   Text(details.join(', '), style: theme.textTheme.bodySmall),
-                if (addon)
+                if (addon || part != null)
                   Text(
-                    l10n.addonLine,
+                    part ?? l10n.addonLine,
                     style: TextStyle(fontSize: 12, color: c.ink2),
                   ),
                 if (sale != null)

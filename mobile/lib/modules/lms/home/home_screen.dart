@@ -297,7 +297,8 @@ class _ClassicHome extends ConsumerWidget {
         20,
         MediaQuery.paddingOf(context).top + 24,
         20,
-        24,
+        // 158 Its end clear of a tab bar over the screen.
+        endRoom(context, 24),
       ),
       children: [
         Row(
@@ -551,7 +552,8 @@ class _MinimalHomeState extends ConsumerState<_MinimalHome> {
         24,
         MediaQuery.paddingOf(context).top + 28,
         24,
-        24,
+        // 158 Its end clear of a tab bar over the screen.
+        endRoom(context, 24),
       ),
       children: [
         Row(

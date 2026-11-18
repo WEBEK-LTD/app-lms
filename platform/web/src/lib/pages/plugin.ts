@@ -8,7 +8,7 @@ import { withLanguageList } from "../i18n/packs";
 import { withBuiltInTexts } from "./builtin";
 import { servedAppearance, shownAppearance } from "../fonts/look";
 import { isSamplePlace } from "./designs/build";
-import { appDefaults } from "./layout";
+import { appDefaults, withFreshTranslations } from "./layout";
 import { layoutForPlan } from "./plan";
 import type { Layout } from "./types";
 
@@ -52,9 +52,11 @@ export async function pluginLayout(store: DataStore, site: SiteInfo, ifNoneMatch
   // for the plugin's Config.languages; the interface strings themselves stay on the platform.
   // 97.3 The Figma look stays on the platform: the plugin gets the look shown.
   const own = await store.listOwnFonts(app.id);
+  // 156 Without the template's translations of the texts the owner changed: the plugin applies the rest as before.
+  const fresh = withFreshTranslations(published, app);
   const { look_mode: _mode, figma_look: _figma, ...shown } = {
-    ...published,
-    appearance: shownAppearance(published, (id) => `${platformUrl}/api/v1/assets/${id}`, own.map((f) => f.family)),
+    ...fresh,
+    appearance: shownAppearance(fresh, (id) => `${platformUrl}/api/v1/assets/${id}`, own.map((f) => f.family)),
   };
   void _mode;
   void _figma;

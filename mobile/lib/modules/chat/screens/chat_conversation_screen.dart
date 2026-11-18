@@ -355,21 +355,24 @@ class _ChatConversationScreenState
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final (source, icon, label) in [
-              (ChatPickSource.gallery, AppIcons.gallery, l10n.chatGallery),
-              (ChatPickSource.camera, AppIcons.photo, l10n.chatTakePhoto),
-              (ChatPickSource.video, AppIcons.video, l10n.chatRecordVideo),
-              (ChatPickSource.file, AppIcons.file, l10n.chatChooseFile),
-            ])
-              ListTile(
-                leading: AppIcon(icon),
-                title: Text(label),
-                onTap: () => Navigator.of(context).pop(source),
-              ),
-          ],
+        child: SingleChildScrollView(
+          // 158 Every choice in reach on a short phone or with a large font.
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final (source, icon, label) in [
+                (ChatPickSource.gallery, AppIcons.gallery, l10n.chatGallery),
+                (ChatPickSource.camera, AppIcons.photo, l10n.chatTakePhoto),
+                (ChatPickSource.video, AppIcons.video, l10n.chatRecordVideo),
+                (ChatPickSource.file, AppIcons.file, l10n.chatChooseFile),
+              ])
+                ListTile(
+                  leading: AppIcon(icon),
+                  title: Text(label),
+                  onTap: () => Navigator.of(context).pop(source),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -437,28 +440,31 @@ class _ChatConversationScreenState
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (m.mine)
-              ListTile(
-                leading: const AppIcon(AppIcons.delete),
-                title: Text(l10n.chatDeleteMessage),
-                onTap: () => Navigator.of(context).pop('delete'),
-              )
-            else
-              ListTile(
-                leading: const AppIcon(AppIcons.flag),
-                title: Text(l10n.chatReport),
-                onTap: () => Navigator.of(context).pop('report'),
-              ),
-            if (canBlock)
-              ListTile(
-                leading: const AppIcon(AppIcons.unavailable),
-                title: Text(l10n.chatBlockPerson(m.sender.name)),
-                onTap: () => Navigator.of(context).pop('block'),
-              ),
-          ],
+        child: SingleChildScrollView(
+          // 158 Every choice in reach on a short phone or with a large font.
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (m.mine)
+                ListTile(
+                  leading: const AppIcon(AppIcons.delete),
+                  title: Text(l10n.chatDeleteMessage),
+                  onTap: () => Navigator.of(context).pop('delete'),
+                )
+              else
+                ListTile(
+                  leading: const AppIcon(AppIcons.flag),
+                  title: Text(l10n.chatReport),
+                  onTap: () => Navigator.of(context).pop('report'),
+                ),
+              if (canBlock)
+                ListTile(
+                  leading: const AppIcon(AppIcons.unavailable),
+                  title: Text(l10n.chatBlockPerson(m.sender.name)),
+                  onTap: () => Navigator.of(context).pop('block'),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -511,31 +517,34 @@ class _ChatConversationScreenState
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-              child: Text(
-                l10n.chatReportTitle,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
+        child: SingleChildScrollView(
+          // 158 Every choice in reach on a short phone or with a large font.
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: Text(
+                  l10n.chatReportTitle,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-            ),
-            for (final (reason, label) in [
-              (ChatReportReason.spam, l10n.chatReportSpam),
-              (ChatReportReason.abuse, l10n.chatReportAbuse),
-              (ChatReportReason.inappropriate, l10n.chatReportInappropriate),
-              (ChatReportReason.other, l10n.chatReportOther),
-            ])
-              ListTile(
-                title: Text(label),
-                onTap: () => Navigator.of(context).pop(reason),
-              ),
-          ],
+              for (final (reason, label) in [
+                (ChatReportReason.spam, l10n.chatReportSpam),
+                (ChatReportReason.abuse, l10n.chatReportAbuse),
+                (ChatReportReason.inappropriate, l10n.chatReportInappropriate),
+                (ChatReportReason.other, l10n.chatReportOther),
+              ])
+                ListTile(
+                  title: Text(label),
+                  onTap: () => Navigator.of(context).pop(reason),
+                ),
+            ],
+          ),
         ),
       ),
     );

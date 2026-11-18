@@ -16,6 +16,9 @@ abstract final class Paths {
   static const shop = '/shop';
   static const cart = '/cart';
 
+  /// 162 Build your bouquet (a store whose shop has it set up).
+  static const bouquet = '/bouquet';
+
   // Bookings apps.
   static const services = '/services';
   static const appointments = '/appointments';
@@ -209,6 +212,12 @@ abstract final class Paths {
   static String chatConversation(String id) =>
       '$chat/${Uri.encodeComponent(id)}';
 
+  /// 171 The screens every app type has that a published tab can show in
+  /// its place, the bar under them, as well as open on top (from Account,
+  /// a page's button): the orders, the notifications, the settings and the
+  /// chat. A tab of one of these used to push it, without the bar.
+  static const sharedTabPaths = {orders, notifications, settings, chat};
+
   /// 48 One of the site's own pages opened the app: asks the site what it
   /// is, then opens that screen or the page in the in-app browser.
   static const openLink = '/open';
@@ -238,6 +247,10 @@ abstract final class Paths {
   static String liveSession(int id) => '/live/$id';
   static String question(int id) => '/question/$id';
   static String product(int id) => '/product/$id';
+
+  /// 152 A product a Studio element links to: the shop instead when the shop
+  /// no longer has it (`or=shop`).
+  static String linkedProduct(int id) => '/product/$id?or=shop';
 
   /// 26 One order, for following it.
   static String order(int id) => '$orders/$id';

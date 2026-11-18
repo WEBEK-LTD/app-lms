@@ -1,14 +1,16 @@
 import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf, orderTimesJson } from "../../catalog/fulfilment";
+import { serverMessage } from "../../i18n/builtin";
 import { LOYALTY_HISTORY, loyaltyConfigJson, loyaltyOf, orderPointsJson, pointsAccountJson, usablePoints } from "../../catalog/loyalty";
 import { taxCents, taxLabel, taxOf } from "../../catalog/tax";
 import { attributesJson, sellableVariants, variantLabel, variantMax, variantPrices, variantsOf, variationAttributes } from "../../catalog/variants";
 import { canReturn, parseReturnInput, requestReturn, returnDays, returnJson } from "../../catalog/returns";
 import { couponDiscount, normalizeCouponCode } from "../../catalog/coupons";
+import { ownCategoryIds, shownCategories } from "../../catalog/categories";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import { checkOptions, optionGroupsJson, optionGroupsOf, type ChosenOption } from "../../catalog/options";
 import { awaitingManualPayment } from "../../catalog/manual";
 import { catalogSettings, isOwnPayment, ORDER_STATUS_LABELS, orderNumber, PAY_LINK_MINUTES, paymentsSetUp, shippingFor } from "../../catalog/settings";
-import { customerCurrencyAllowed, customerCurrencyRule, Shown } from "../../money/display";
+import { addDisplayPricesWith, customerCurrencyAllowed, customerCurrencyRule, Shown } from "../../money/display";
 import { providerTakes } from "../../payments/provider";
 import { shipmentJson } from "../../catalog/shipping";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
@@ -22,9 +24,12 @@ import { orderReceiptUrl } from "../../receipts/links";
 import type { StoreFlashSale } from "../../data/types";
 import { bestSale, unitsLeft, withSale } from "../../selling/flash-sales";
 import { orderDeliveryJson } from "../../selling/gifts";
+import { orderAmountsJson } from "../../catalog/order-amounts";
 import { needsPlace, shippingRulesOf } from "../../selling/shipping";
 import { checkStoreCheckout, handleStoreExtras, quoteDeliveryJson, storeExtrasConfig, storeMap, storeMapRoute } from "../../selling/store";
 import { ADDON_NEEDS_ITEM, checkAddonLines, offeredWith, ownAddonsFor } from "../../selling/addons";
+// 162 Build your bouquet: its lines together, checked against the shop's settings.
+import { bouquetOf, bouquetOffers, bouquetPartJson, checkBouquetLines, onceEach } from "../../selling/bouquet";
 import { appStageJson } from "../../catalog/stage-json";
 
 /**
@@ -194,6 +199,11 @@ export class CatalogConnector implements Connector {
           const list = ids.length ? ids.map((id) => all.find((p) => p.id === id)).filter((p): p is CatalogProduct => Boolean(p)) : all.filter((p) => categoryId !== null && p.categoryIds.includes(categoryId));
           return list.map((p) => this.summary(p, request.now));
         },
+        // 162 A bouquet's wraps and cards: the shop's gift add-ons too, by their IDs.
+        extras: async (ids) => {
+          const all = await this.active();
+          return ids.map((id) => all.find((p) => p.id === id)).filter((p): p is CatalogProduct => Boolean(p)).map((p) => this.summary(p, request.now));
+        },
       },
       request,
     );
@@ -337,11 +347,11 @@ export class CatalogConnector implements Connector {
     return { status: 200, body: { items: list.map((p) => this.summary(p)) } };
   }
 
+  /** The categories with products; 157 once the owner has their own, the demo's (an app started from one) left out. */
   private async categories() {
     const [categories, products] = await Promise.all([this.deps.store.listCatalogCategories(this.deps.app.id), this.listed()]);
-    return categories
-      .map((c) => this.category(c, products.filter((p) => p.categoryIds.includes(c.id)).length, products))
-      .filter((c) => c.count > 0);
+    const listed = categories.map((c) => this.category(c, products.filter((p) => p.categoryIds.includes(c.id)).length, products)).filter((c) => c.count > 0);
+    return shownCategories(listed, ownCategoryIds(categories, products));
   }
 
   private sorted(products: CatalogProduct[], orderby: OrderBy): CatalogProduct[] {
@@ -486,8 +496,11 @@ export class CatalogConnector implements Connector {
 
   // Cart and checkout
 
-  private async priced(lines: CartLineInput[], now: Date = this.now) {
+  private async priced(input: CartLineInput[], now: Date = this.now) {
     const byId = new Map((await this.active()).map((p) => [p.id, p]));
+    // 162 A bouquet's card message once.
+    const lines = onceEach(input);
+    const bouquet = bouquetOf(this.deps.app);
     let subtotal = 0;
     let count = 0;
     const out = lines.map((line) => {
@@ -509,6 +522,7 @@ export class CatalogConnector implements Connector {
             problem: product && variants && line.variation_id === null ? "Choose the options first." : "This product is no longer available.",
             max_quantity: null,
             digital: false,
+            ...(line.bouquet ? { bouquet: bouquetPartJson(line.bouquet) } : {}),
           },
           product: null,
           variant: undefined,
@@ -541,6 +555,10 @@ export class CatalogConnector implements Connector {
           image_url: product.imageAssetIds[0] ? this.deps.assetUrl(product.imageAssetIds[0]) : null,
           unit_price: this.money(unit),
           line_total: this.money(unit * quantity),
+          // 161 Their amounts and currency: the hosted API adds them in the customer's (`display`).
+          currency: this.settings.currency,
+          unit_price_amount: centsToDecimal(unit, this.settings.currency),
+          line_total_amount: centsToDecimal(unit * quantity, this.settings.currency),
           available,
           problem: !options.ok
             ? options.problem
@@ -554,6 +572,8 @@ export class CatalogConnector implements Connector {
           ...(chosen.length > 0 ? { options: chosen.map((o) => ({ id: o.id, name: o.name, group: o.group })) } : {}),
           // 131 A gift add-on, and the product of the line it goes with.
           ...(product.addon ? { addon: true, addon_of: line.addon_of ?? null } : {}),
+          // 162 The bouquet it is part of, as sent.
+          ...(line.bouquet ? { bouquet: bouquetPartJson(line.bouquet) } : {}),
         },
         product,
         variant,
@@ -568,10 +588,18 @@ export class CatalogConnector implements Connector {
       out.map((o, i) => ({ productId: lines[i]!.product_id, addonOf: lines[i]!.addon_of ?? null, addon: Boolean(o.product?.addon) })),
       (i, mainId) => {
         const main = byId.get(mainId);
-        return main ? offeredWith(out[i]!.product?.addonFor, main) : false;
+        const product = out[i]!.product;
+        // 162 A bouquet's wrap and card go with its flowers: the owner chose them for it.
+        if (main && product && bouquetOffers(bouquet, lines[i]!, product)) return true;
+        return main ? offeredWith(product?.addonFor, main) : false;
       },
     );
-    for (const [i, problem] of addons.problems) {
+    // 162 Each bouquet as the shop builds them: its flowers, at most one wrap and one card, its stems.
+    const bouquets = checkBouquetLines(
+      lines.map((l, i) => ({ productId: l.product_id, quantity: out[i]!.line.quantity, bouquet: l.bouquet ?? null, categoryIds: out[i]!.product?.categoryIds ?? [] })),
+      bouquet,
+    );
+    for (const [i, problem] of [...addons.problems, ...bouquets]) {
       const line = out[i]!.line as { available: boolean; problem: string | null };
       line.available = false;
       line.problem = problem;
@@ -633,6 +661,10 @@ export class CatalogConnector implements Connector {
         usable_value: usable.points > 0 ? this.money(usable.valueCents) : null,
         applied,
         discount: applied ? this.money(usable.valueCents) : null,
+        // 161 The amounts, for the same in the customer's currency (`display`).
+        currency: this.settings.currency,
+        usable_value_amount: usable.points > 0 ? centsToDecimal(usable.valueCents, this.settings.currency) : null,
+        discount_amount: applied ? centsToDecimal(usable.valueCents, this.settings.currency) : null,
       },
       used: applied ? usable.points : 0,
       discountCents: applied ? usable.valueCents : 0,
@@ -648,7 +680,9 @@ export class CatalogConnector implements Connector {
     const physical = priced.out.some((o) => o.line.available && !o.line.digital);
     // 131 The delivery day's slot fee and shipping by place and weight, once the app sends them.
     const delivery = this.fulfilment ? null : await this.deliveryOf(request, priced.subtotal, physical, priced.weightGrams, false);
-    const placed = delivery?.ok ? delivery : null;
+    // 168 A day without its time yet (or one that's closed) still has its place priced: the quote
+    // keeps the shipping to the pin while the day waits, instead of a total without it.
+    const placed = delivery?.ok ? delivery : delivery ? await this.placeOnly(request, priced.subtotal, physical, priced.weightGrams) : null;
     // 91.1 The real total: a restaurant's delivery fee depends on how the order is collected, chosen at checkout.
     // 131 Shipping priced by place waits for the place.
     const byPlace = needsPlace(shippingRulesOf(this.settings));
@@ -675,6 +709,11 @@ export class CatalogConnector implements Connector {
         shipping: shipping === null ? null : this.money(shipping),
         tax: tax && !tax.included ? this.money(tax.cents) : null,
         tax_included: tax?.included ? this.money(tax.cents) : null,
+        // 161 Their amounts: the hosted API adds each in the customer's currency (`display`), as the subtotal and total.
+        discount_amount: coupon.discountCents > 0 ? centsToDecimal(coupon.discountCents, this.settings.currency) : null,
+        shipping_amount: shipping === null ? null : centsToDecimal(shipping, this.settings.currency),
+        tax_amount: tax && !tax.included ? centsToDecimal(tax.cents, this.settings.currency) : null,
+        tax_included_amount: tax?.included ? centsToDecimal(tax.cents, this.settings.currency) : null,
         tax_label: tax ? taxLabel(tax) : null,
         total: this.money(total),
         total_amount: centsToDecimal(total, this.settings.currency),
@@ -682,8 +721,9 @@ export class CatalogConnector implements Connector {
         // 135.7 What the card is charged, and in which currency.
         charge: this.chargeJson(total),
         // 131 The slot's fee, where it goes and what made up its shipping; why the delivery doesn't work yet.
-        ...quoteDeliveryJson(placed?.delivery ?? null, this.settings.currency),
-        delivery_problem: delivery && !delivery.ok ? { code: delivery.code, message: delivery.message } : null,
+        ...quoteDeliveryJson(placed?.delivery ?? null, this.settings.currency, request.lang),
+        // 168 In the customer's language, as an error's message is (lib/i18n/builtin localizedError).
+        delivery_problem: delivery && !delivery.ok ? { code: delivery.code, message: (request.lang ? serverMessage(delivery.message, request.lang) : null) ?? delivery.message } : null,
       },
     };
   }
@@ -700,6 +740,15 @@ export class CatalogConnector implements Connector {
       requirePlace: final && needsPlace(shippingRulesOf(this.settings)) && physical,
       weightGrams,
     });
+  }
+
+  /** 168 The quote's place alone (the day and its slot left out), when the day isn't settled yet; null when the place fails too. */
+  private async placeOnly(request: ConnectorRequest, subtotalCents: number, physical: boolean, weightGrams: number) {
+    const body = { ...((request.body ?? {}) as Record<string, unknown>) };
+    delete body.delivery_date;
+    delete body.delivery_slot;
+    const checked = await this.deliveryOf({ ...request, body }, subtotalCents, physical, weightGrams, false);
+    return checked.ok ? checked : null;
   }
 
   private async checkoutLink(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -736,6 +785,8 @@ export class CatalogConnector implements Connector {
       ...(weightGrams > 0 ? { weightGrams } : {}),
       // 131 A gift add-on: the line it goes with.
       ...(product!.addon && "addon_of" in line && line.addon_of ? { addonOf: line.addon_of } : {}),
+      // 162 Part of a bouquet the customer built.
+      ...("bouquet" in line && line.bouquet ? { bouquet: line.bouquet } : {}),
     }));
     // 26 A restaurant's order: pickup or delivery at a time its kitchen takes it; the delivery fee is its shipping.
     let fulfilment: CatalogOrder["fulfilment"] = null;
@@ -825,9 +876,30 @@ export class CatalogConnector implements Connector {
     }
   }
 
+  /**
+   * 161 An order as the app gets it, its money also in the customer's
+   * currency (`display` on it, its lines, its delivery and its points): in
+   * the one it was placed in, at that day's rate, when the customer still
+   * shows prices in it (what the card was charged, or shown, then); else
+   * the hosted API adds today's (lib/hosted/service.ts).
+   */
   private orderJson(order: CatalogOrder, now: Date, lang?: string | null) {
+    const json = this.plainOrderJson(order, now, lang);
+    const cc = order.customerCurrency;
+    if (!cc || !this.shown || this.shown.currency !== cc.currency) return json;
+    const atOrder = Shown.at(order.currency, cc.currency, cc.rate, cc.rateDate);
+    return addDisplayPricesWith(json, (base) => (base === order.currency ? atOrder : null));
+  }
+
+  private plainOrderJson(order: CatalogOrder, now: Date, lang?: string | null) {
+    // 161 Each amount beside its text, in the order's currency: for the same in the customer's.
+    const amount = (cents: number) => centsToDecimal(cents, order.currency);
+    const points = orderPointsJson(order.points, order.currency);
+    const delivery = orderDeliveryJson(order.delivery, order.delivery?.feeCents ? formatCents(order.delivery.feeCents, order.currency) : null);
     return {
       id: order.id,
+      currency: order.currency,
+      total_amount: amount(order.totalCents),
       number: orderNumber(order),
       status: order.status,
       // 80.4 A shipped order in progress reads "Shipped".
@@ -841,11 +913,14 @@ export class CatalogConnector implements Connector {
       return_request: returnJson(order.returnRequest),
       can_return: canReturn(order, this.settings, now),
       // 91.4 The points used on it and earned by it.
-      points: orderPointsJson(order.points, order.currency),
+      points: points ? { ...points, currency: order.currency, discount_amount: order.points?.discountCents ? amount(order.points.discountCents) : null } : null,
+      // 173 What the total is made of: the coupon, the delivery, the slot's fee, the tax.
+      amounts: orderAmountsJson(order),
       // 131 The delivery day and slot, who sends and receives it and the card.
-      delivery: orderDeliveryJson(order.delivery, order.delivery?.feeCents ? formatCents(order.delivery.feeCents, order.currency) : null),
+      delivery: delivery ? { ...delivery, currency: order.currency, fee_amount: order.delivery?.feeCents ? amount(order.delivery.feeCents) : null } : null,
       // 47 What the shop refunded of it; all of it: the status is "refunded".
       refunded_total: order.refundedCents ? formatCents(order.refundedCents, order.currency) : null,
+      refunded_total_amount: order.refundedCents ? amount(order.refundedCents) : null,
       // 71 The receipt as a PDF, from a signed link.
       receipt_url: order.paidAt ? this.receiptUrl(order) : null,
       // 96.2 Waiting for a bank transfer or the shop's own method: how to pay it.
@@ -862,8 +937,12 @@ export class CatalogConnector implements Connector {
         ...(l.options?.length ? { options: l.options.map((o) => o.name) } : {}),
         // 131 A gift add-on: the product it went with.
         ...(l.addonOf ? { addon_of: l.addonOf } : {}),
+        // 162 Part of a bouquet the customer built.
+        ...(l.bouquet ? { bouquet: bouquetPartJson(l.bouquet) } : {}),
         // 110 What the line comes to.
         total: formatCents(l.unitCents * l.quantity, order.currency),
+        currency: order.currency,
+        total_amount: amount(l.unitCents * l.quantity),
       })),
       // 132 Where a store order's delivery is: the stage, the new day, a short reason and what's next.
       stage: appStageJson(order, lang),
@@ -876,6 +955,8 @@ export class CatalogConnector implements Connector {
               scheduled_for: order.fulfilment.scheduledFor,
               delivery_address: order.fulfilment.address,
               delivery_fee: order.shippingCents > 0 ? formatCents(order.shippingCents, order.currency) : null,
+              currency: order.currency,
+              delivery_fee_amount: order.shippingCents > 0 ? amount(order.shippingCents) : null,
             },
             // 96.2 Followed once paid: an order waiting for a bank transfer or the shop's own method isn't in the kitchen yet.
             fulfilment_status: order.status === "pending" ? null : (order.fulfilmentStatus ?? null),

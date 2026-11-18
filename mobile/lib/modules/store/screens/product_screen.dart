@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/format/money.dart';
 import '../../../core/gate/app_gate.dart';
@@ -15,6 +16,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../lms/courses/community_widgets.dart' show StarRow;
 import '../../lms/lesson/content/html_content.dart';
+import '../../shared/pages/page_actions.dart' show openShop;
 import '../../shared/pages/recently_viewed.dart';
 import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
@@ -27,18 +29,29 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/services/share_links.dart';
 import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/config/build_config_data.dart';
+import '../../../core/format/text_case.dart';
 
 /// A product: images, price, options, quantity and Add to cart.
 class ProductScreen extends ConsumerWidget {
-  const ProductScreen({super.key, required this.productId});
+  const ProductScreen({
+    super.key,
+    required this.productId,
+    this.orShop = false,
+  });
 
   final int productId;
+
+  /// 152 Opened from a Studio element the owner linked to this product (a
+  /// bouquet's size, "Choose this bouquet"): when the shop no longer has it,
+  /// the shop opens instead of "not found".
+  final bool orShop;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final product = ref.watch(productProvider(productId));
     return switch (product) {
       AsyncData(:final value) => _ProductView(product: value),
+      AsyncError(:final error) when orShop && _gone(error) => const _ToShop(),
       AsyncError(:final error) => Scaffold(
         appBar: AppBar(leading: const AppBarBackButton()),
         body: ErrorView(
@@ -52,6 +65,35 @@ class ProductScreen extends ConsumerWidget {
       ),
     };
   }
+}
+
+/// 152 Whether [error] says the shop has no such product (anymore).
+bool _gone(Object error) =>
+    error is ApiException &&
+    (error.statusCode == 404 || error.code == 'not_found');
+
+/// 152 A linked product the shop no longer has: the shop opens in its place.
+class _ToShop extends ConsumerStatefulWidget {
+  const _ToShop();
+
+  @override
+  ConsumerState<_ToShop> createState() => _ToShopState();
+}
+
+class _ToShopState extends ConsumerState<_ToShop> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) openShop(context, ref, instead: true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(leading: const AppBarBackButton()),
+    body: SkeletonDetail(label: context.l10n.loadingProduct),
+  );
 }
 
 class _ProductView extends ConsumerStatefulWidget {
@@ -139,6 +181,15 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             optionNames: [for (final o in choice.options) o.name],
             imageUrl: _variation?.imageUrl ?? _product.summary.imageUrl,
             price: formatMoney(unit, price.currency),
+            // 161 And in the customer's currency, converted as the server does.
+            shownPrice: switch (price.display) {
+              final d? => customerPrice(
+                formatMoney(unit, price.currency),
+                formatMoney(convertCents(unit, d.rate, d.currency), d.currency),
+              ),
+              null => null,
+            },
+            shownCurrency: price.display?.currency,
             maxQuantity: _maxQuantity,
           ),
         );
@@ -157,7 +208,10 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             quantity: 1,
             name: a.name,
             imageUrl: a.imageUrl,
-            price: a.sale?.nowFormatted ?? a.price.formatted,
+            price: a.sale?.shopNowFormatted ?? a.price.formatted,
+            // 161 And in the customer's currency.
+            shownPrice: a.sale?.nowFormatted ?? a.price.shown,
+            shownCurrency: a.price.display?.currency,
           ),
           _product.id,
           true,
@@ -212,6 +266,10 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             },
             imageUrl: variation?.imageUrl ?? _product.summary.imageUrl,
             price: (variation?.price ?? _product.summary.price).formatted,
+            // 161 And in the customer's currency.
+            shownPrice: (variation?.price ?? _product.summary.price).shown,
+            shownCurrency:
+                (variation?.price ?? _product.summary.price).display?.currency,
             maxQuantity: _maxQuantity,
           ),
         );
@@ -489,7 +547,12 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                   SectionHeader(title: context.l10n.youMayAlsoLike),
                   const SizedBox(height: 10),
                   SizedBox(
-                    height: 160 + productCardTextHeight(context),
+                    height:
+                        160 +
+                        productCardTextHeight(
+                          context,
+                          twoPrices: customerPricesShown(ref),
+                        ),
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: product.related.length,
@@ -560,7 +623,9 @@ class _ProductViewState extends ConsumerState<_ProductView> {
     if (missing.isEmpty || !missing.every(fitsLanguage(context))) {
       return context.l10n.optionsLower;
     }
-    return missing.map((n) => n.toLowerCase()).join(context.l10n.listAnd);
+    return missing
+        .map((n) => n.toLowerCaseIn(context))
+        .join(context.l10n.listAnd);
   }
 }
 

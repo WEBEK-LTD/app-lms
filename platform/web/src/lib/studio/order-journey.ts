@@ -63,6 +63,27 @@ export function latestOrderOnItsWay<T extends JourneyOrder>(orders: readonly T[]
   return latest;
 }
 
+/** 168 How long a delivered order stays on its journey (3 days): "Delivered" ticked, not the drawn steps back at the start. */
+export const DELIVERED_JOURNEY_KEPT_MS = 3 * 24 * 60 * 60 * 1000;
+
+/**
+ * 168 The order the journey follows: the newest still on its way, else the
+ * newest delivered in the last three days (all its steps done); null for
+ * none. The app's `orderToFollow` is the same.
+ */
+export function orderToFollow<T extends JourneyOrder>(orders: readonly T[], now: Date): T | null {
+  const open = latestOrderOnItsWay(orders);
+  if (open) return open;
+  let delivered: T | null = null;
+  for (const o of orders) {
+    if (o.status !== "completed" || orderJourneyStep(o) !== "delivered") continue;
+    const at = Date.parse(o.created_at ?? "");
+    if (!Number.isFinite(at) || now.getTime() - at > DELIVERED_JOURNEY_KEPT_MS) continue;
+    if (!delivered || at > Date.parse(delivered.created_at ?? "")) delivered = o;
+  }
+  return delivered;
+}
+
 /** The entry to make active for `step` among `count` entries; -1 for none. */
 export function journeyEntryIndex(step: OrderJourneyStep, count: number): number {
   if (count <= 0) return -1;

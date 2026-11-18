@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 6;
+export const CLIENT_APP_RELEASE = 9;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -46,6 +46,47 @@ export const CLIENT_APP_RELEASE = 6;
  *    the owner's switch off the app hides Settings › Currency and sends no
  *    `X-Currency`; with the owner's list, the picker shows only those and
  *    a region's currency outside it isn't sent.
+ * 7  152 Our bouquet's chips and button open the product the owner links:
+ *    a store's product link with no product chosen opens the shop, and so
+ *    does one whose product the shop no longer has (in place of "not
+ *    found").
+ * 8  163 Studio pages on a Samsung's settings (larger text, display zoom,
+ *    its navigation bar): Arabic text never under a 1.5 line, so its
+ *    letters don't draw over the next card; a cover grows with what is on
+ *    it; a row's last text that shows something gives way; a
+ *    testimonial's quote mark isn't cut; the flash sale's title wraps; the
+ *    folding header no longer redraws during layout.
+ * 9  The urgent app fixes, in one release: 157 a template's rings, chips
+ *    and tiles of the shop's categories open the shop filtered to the
+ *    category they show (`Action.category_id`); 158 every page scrolls to
+ *    its end, above a tab bar floating over it and the phone's own bar;
+ *    159 a cover's top bar at its automatic size: across the cover, its
+ *    wordmark between the buttons, unless sized by hand in Studio (Kech
+ *    Flora's bag at the edge); a round button without words says what it
+ *    opens to a screen reader; 160 sign-in as the owner's ways say (a code
+ *    every time, or the password), and Forgot password for the way in use;
+ *    161 the whole app in the customer's currency, and a story's Open opens
+ *    its link or the shop, never nothing; 162 Build your bouquet (`flow:
+ *    bouquet`): the flowers by the stem, the wrap and the card, one bouquet
+ *    in the cart; 163.11–163.12 occasion ring names and Kech Flora's
+ *    price-list names show whole at large text sizes; 164 a list's title
+ *    hides with its list; 165 Dashboard › Stories: the story viewer shows
+ *    each story's small line, title, line, button words and video, and a
+ *    story's button opens the shop on its category (`Action.category_id`);
+ *    older apps show the ring's name, Open and the photo, and open the
+ *    shop; 167 Sign out always there for a signed-in person; 168 the gift
+ *    checkout end to end: shipping kept while the day waits, the breakdown
+ *    in the customer's language, no city asked twice, the owner's pin,
+ *    sized products on a flash sale, the sale's own name, a step bar that
+ *    keeps up and fits short screens, and a readable night price; 169 words
+ *    that fit the app's kind (a shop's notifications, not lessons), Turkish
+ *    capitals with their dotted İ, and the gift card's ready messages in
+ *    the customer's language; 171 a tab of the orders, notifications,
+ *    settings, chat or teachers shows its screen in its place, the bar
+ *    under it, and a journey that follows the person's order shows nothing
+ *    without one; and 173 an order's screen shows its delivery day and
+ *    time, the recipient and address, the card message and sender, and
+ *    lines that add up to the total (subtotal, coupon, delivery, time fee).
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */

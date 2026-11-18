@@ -17,8 +17,10 @@ import '../support/test_app.dart';
 /// the order's notification arriving while the app is open (or tapped), and
 /// the app coming back to the front, ask for the orders again; the stage
 /// shows on every order still on its way, whatever its status; and "How
-/// your flowers travel" follows the person's newest order on its way, its
-/// steps as drawn without one, signed out, and on a source it doesn't know.
+/// your flowers travel" follows the person's newest order on its way (171
+/// else their newest delivered one), nothing without one and signed out
+/// (171; its steps as drawn before), its steps as drawn on a source it
+/// doesn't know.
 
 class _Push implements PushService {
   final received = StreamController<Map<String, dynamic>>.broadcast();
@@ -331,25 +333,118 @@ void main() {
       expect(api.count('getOrder'), greaterThan(0));
     });
 
-    testWidgets('no order on its way: the steps as drawn', (tester) async {
-      final api = _api()..orders = [_order(status: 'completed')];
+    // 171 Only a delivered order: its last step (the steps as drawn
+    // before, "Order placed" lit). 168 Delivered within three days.
+    testWidgets('only a delivered order: its last step', (tester) async {
+      final recently = DateTime.now()
+          .toUtc()
+          .subtract(const Duration(hours: 1))
+          .toIso8601String();
+      final api = _api()
+        ..orders = [_order(status: 'completed', created: recently)];
       await _open(tester, api);
       expect(
-        find.bySemanticsLabel(RegExp('Step 1 of 4, Current step')),
+        find.bySemanticsLabel(RegExp('Step 4 of 4, Current step')),
         findsOneWidget,
       );
+      expect(find.byKey(const ValueKey('order-journey-track')), findsOneWidget);
+    });
+
+    // 168 Completed more than three days ago: let go. 171 And with no
+    // order to follow, no journey (before, the steps as drawn).
+    testWidgets('no order on its way, one delivered long ago: nothing', (
+      tester,
+    ) async {
+      final api = _api()
+        ..orders = [
+          _order(status: 'completed', created: '2026-10-01T10:00:00Z'),
+        ];
+      await _open(tester, api);
+      expect(find.bySemanticsLabel(RegExp('Current step')), findsNothing);
       expect(find.byKey(const ValueKey('order-journey-track')), findsNothing);
     });
 
-    testWidgets('signed out: the steps as drawn, no orders asked', (
-      tester,
-    ) async {
-      final api = _api()..orders = [_order(stage: _shipped)];
-      await _open(tester, api, signedIn: false, guest: true);
+    // 168 Delivered just now: all four steps done on the order, not the
+    // drawn steps back at "Order placed" (docs/qa/2026-11-18-gift-checkout).
+    testWidgets('just delivered: its number, every step done', (tester) async {
+      final recently = DateTime.now()
+          .toUtc()
+          .subtract(const Duration(hours: 1))
+          .toIso8601String();
+      final api = _api()
+        ..orders = [
+          _order(
+            id: 1037,
+            status: 'completed',
+            stage: {'code': 'delivered', 'label': 'Delivered'},
+            created: recently,
+          ),
+        ];
+      await _open(tester, api);
+      expect(find.text('Order #1037'), findsOneWidget);
       expect(
-        find.bySemanticsLabel(RegExp('Step 1 of 4, Current step')),
+        find.bySemanticsLabel(RegExp('Step 4 of 4, Current step')),
         findsOneWidget,
       );
+      expect(
+        find.bySemanticsLabel(RegExp('Step 1 of 4, Current step')),
+        findsNothing,
+      );
+    });
+
+    test('168 the order the journey follows', () {
+      Order order(Map<String, dynamic> json) => Order.fromJson(json);
+      final now = DateTime.utc(2026, 11, 18, 12);
+      final delivered = order(
+        _order(
+          id: 7,
+          status: 'completed',
+          stage: {'code': 'delivered', 'label': 'Delivered'},
+          created: '2026-11-18T05:30:00Z',
+        ),
+      );
+      final open = order(_order(id: 8, created: '2026-11-17T09:00:00Z'));
+      expect(orderToFollow([delivered], now)?.id, 7);
+      // One still on its way comes first.
+      expect(orderToFollow([delivered, open], now)?.id, 8);
+      // Older than three days, or cancelled: none.
+      expect(
+        orderToFollow([
+          order(_order(status: 'completed', created: '2026-11-14T11:00:00Z')),
+        ], now),
+        isNull,
+      );
+      expect(
+        orderToFollow([
+          order(_order(status: 'cancelled', created: '2026-11-18T05:00:00Z')),
+        ], now),
+        isNull,
+      );
+      expect(orderToFollow(const [], now), isNull);
+    });
+
+    // 171 No order at all: no journey (it showed its steps as drawn).
+    testWidgets('no order: nothing', (tester) async {
+      final api = _api()..orders = [];
+      await _open(tester, api);
+      expect(find.bySemanticsLabel(RegExp('Current step')), findsNothing);
+      expect(find.byType(OrderJourneyTimeline), findsNothing);
+    });
+
+    // 171 Signed out: no journey (it showed its steps as drawn).
+    testWidgets('signed out: nothing, no orders asked', (tester) async {
+      final api = _api()..orders = [_order(stage: _shipped)];
+      await _open(tester, api, signedIn: false, guest: true);
+      expect(find.bySemanticsLabel(RegExp('Current step')), findsNothing);
+      expect(find.byType(OrderJourneyTimeline), findsNothing);
+      expect(api.count('listOrders'), 0);
+    });
+
+    // 168 Signed out, no orders asked (171: and no journey).
+    testWidgets('168 signed out: no orders asked', (tester) async {
+      final api = _api()..orders = [_order(stage: _shipped)];
+      await _open(tester, api, signedIn: false, guest: true);
+      expect(find.bySemanticsLabel(RegExp('Step 1 of 4')), findsNothing);
       expect(api.count('listOrders'), 0);
     });
 

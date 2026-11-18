@@ -4796,6 +4796,14 @@ components:
                 type: array
                 items: { type: string }
               addon_of: { type: integer, description: "131 A gift add-on's line: the product it went with (another line's `product_id`). Missing: not an add-on." }
+              bouquet:
+                type: object
+                description: "162 A line of a bouquet the customer built in the app (Build your bouquet): every line of one bouquet has the same `id`, its `part` (a flower, the wrap or the card) and, on one of them, the card's `message`. Shown as one bouquet. Missing: not part of one."
+                required: [id, part]
+                properties:
+                  id: { type: string }
+                  part: { type: string, enum: [flower, wrap, card] }
+                  message: { type: string, maxLength: 500 }
               product_id: { type: integer, description: 132 Missing on older servers. }
               total: { $ref: '#/components/schemas/Money' }
               variant: { type: [string, 'null'], example: 'Red, Large' }

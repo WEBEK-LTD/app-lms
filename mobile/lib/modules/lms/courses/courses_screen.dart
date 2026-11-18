@@ -344,7 +344,9 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
     }
     return [
       SliverPadding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+        // 158 Its end, and the next page's spinner, clear of a tab bar over
+        // the screen.
+        padding: EdgeInsets.fromLTRB(20, 0, 20, endRoom(context, 24)),
         sliver: SliverList.separated(
           itemCount: items.length + 1,
           separatorBuilder: (_, _) => const SizedBox(height: 12),

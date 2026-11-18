@@ -45,6 +45,8 @@ export function loyaltyConfigJson(l: LoyaltySettings | null, currency: CatalogCu
   if (!l) return null;
   return {
     enabled: true,
+    // 161 The currency of its amounts: the hosted API adds them in the customer's (`display`).
+    currency,
     spend_per_point: centsToDecimal(l.spendPerPointCents),
     spend_per_point_formatted: formatCents(l.spendPerPointCents, currency),
     point_value: centsToDecimal(l.pointValueCents),
@@ -77,6 +79,9 @@ export function pointsAccountJson(l: LoyaltySettings, balance: number, entries: 
   return {
     balance,
     value: formatCents(balance * l.pointValueCents, currency),
+    // 161 Its amount and currency: the hosted API adds it in the customer's (`display.value`).
+    currency,
+    value_amount: centsToDecimal(balance * l.pointValueCents, currency),
     entries: entries.map((e) => ({
       points: e.points,
       reason: e.reason,

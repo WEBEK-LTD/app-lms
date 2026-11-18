@@ -1,6 +1,8 @@
 import type { App } from "../data/types";
 import { yallappSignsIn } from "../hosted/sign-in-methods";
 import { ICON_NAME } from "../pages/icons";
+import { withoutStaleScreenTexts, type WordForms } from "../pages/template-translations";
+import { isLanguageCode } from "../i18n/locales";
 // 130.21 The system screens' premium look.
 import { parseSystemLook, type SystemScreensLook } from "./premium-chrome";
 // 130.52 Studio's course screens.
@@ -474,9 +476,18 @@ export function studioScreensOn(app: Pick<App, "section" | "backend"> & { hosted
   return app.section === "studio" && (app.backend === "hosted" || app.backend === "wordpress" || yallappSignsIn(app));
 }
 
-/** 118.3 `Config.screens`, or nothing when the owner hasn't designed them. */
-export function screensConfig(app: Pick<App, "section" | "backend"> & { hostedSettings?: App["hostedSettings"] }): { screens?: StudioScreens } {
-  const saved = app.hostedSettings?.studioScreens;
+/**
+ * 118.3 `Config.screens`, or nothing when the owner hasn't designed them.
+ * 156 With the app's main language (`language`), without the template's
+ * words in other languages for a text the owner changed in it
+ * (lib/pages/template-translations.ts).
+ */
+export function screensConfig(
+  app: Pick<App, "section" | "backend"> & { hostedSettings?: App["hostedSettings"]; appName?: string | null },
+  options: { language?: string | null; words?: readonly WordForms[] } = {},
+): { screens?: StudioScreens } {
+  const stored = app.hostedSettings?.studioScreens;
+  const saved = stored ? withoutStaleScreenTexts(stored, options.language, isLanguageCode, { appName: app.appName, more: options.words }) : stored;
   if (!saved || !studioScreensOn(app)) return {};
   const screens: StudioScreens = {};
   if (saved.sign_in) screens.sign_in = saved.sign_in;

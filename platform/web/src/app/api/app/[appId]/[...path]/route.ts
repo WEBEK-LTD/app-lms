@@ -133,6 +133,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
       now,
       ip: ipFromHeaders(request.headers),
       country: countryFromHeaders(request.headers),
+      // 160.8 The app's default country code after the shop's.
+      ownerCountry: client?.country ?? null,
       preview: preview?.ok ? { draft: preview.grant.draft } : null,
       secret: hmacSha256(signingSecret(), "hosted-api"),
       // 34 Own API apps Yallapp signs people in to: ES256 tokens with the app's own keys.

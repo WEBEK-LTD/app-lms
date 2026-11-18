@@ -29,6 +29,7 @@ import '../widgets/gift_checkout.dart';
 import '../widgets/gift_checkout_look.dart';
 import '../widgets/in_app_payment.dart';
 import '../widgets/product_widgets.dart';
+import '../../../core/l10n/currency.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/services/review_prompt.dart';
@@ -452,6 +453,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     // 131 The gift checkout (the store's, or the look Studio set) and the look.
     final look = ref.watch(appConfigProvider).screens?.checkout;
     final gift = store.giftCheckout || (look?.gift ?? false);
+    final feeLabel = gift
+        ? context.l10n.deliveryFee
+        : context.l10n.cartShipping;
     final needsDate =
         (rules.enabled && rules.required || gift) && _deliveryDate == null;
     final needsSlot =
@@ -508,8 +512,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         ? fulfilment!.deliveryFeeFormatted
         : null;
     // 110 The total on the bar; with a restaurant's delivery fee (not in
-    // the shop's total), the subtotal, as the summary shows it.
-    final barTotal = deliveryFee == null ? value?.total : null;
+    // the shop's total), the subtotal, as the summary shows it. 161 In the
+    // customer's currency when the shop priced it in it.
+    final barTotal = deliveryFee == null ? value?.shownTotal : null;
     final ready =
         value != null &&
         !quote.isLoading &&
@@ -555,6 +560,21 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                     key: _list,
                     padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                     children: [
+                      // 162 Each bouquet the customer built, as one.
+                      for (final g in bouquetGroups(
+                        items,
+                        (CartItem i) => i.bouquet,
+                      ).where((g) => g.isBouquet)) ...[
+                        _BouquetCard(
+                          id: g.bouquetId!,
+                          items: [for (final i in g.indexes) items[i]],
+                          lines: [
+                            for (final i in g.indexes)
+                              i < lines.length ? lines[i] : null,
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                       // 131 Each item with its gift add-ons under it.
                       for (final i in cartDisplayOrder(items)) ...[
                         _LineCard(
@@ -574,7 +594,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         const SizedBox(height: 10),
                       ],
                       // 131 "Add a little more" with the first item.
-                      if (items.where((i) => !i.isAddon).firstOrNull
+                      if (items
+                              .where((i) => !i.isAddon && i.bouquet == null)
+                              .firstOrNull
                           case final main?) ...[
                         _CartAddons(
                           main: main,
@@ -768,7 +790,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   ),
                                 ),
                                 Text(
-                                  value?.subtotal ?? '…',
+                                  value?.shownSubtotal ?? '…',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w800,
@@ -849,23 +871,27 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               ),
                             // 91.1 The coupon's discount, shipping, taxes and
                             // the total, when the shop knows them.
-                            if (value?.discount case final discount?)
+                            // 161 Each in the customer's currency when the
+                            // shop priced it in it.
+                            if (value?.shownDiscount case final discount?)
                               _SumRow(
                                 label: context.l10n.cartDiscount,
-                                value: '−$discount',
+                                value: takenOffPrice(discount),
                                 color: p.success,
                               ),
                             if (value?.points?.discount case final points?)
                               _SumRow(
                                 label: context.l10n.cartPointsDiscount,
-                                value: '−$points',
+                                value: takenOffPrice(points),
                                 color: p.success,
                               ),
-                            if (value?.shipping case final shipping?)
+                            if (value?.shownShipping case final shipping?)
                               _SumRow(
+                                // 169 A gift's delivery (a flower shop's), not
+                                // shipping ("Kargo" in Turkish).
                                 label: value!.deliveryZone == null
-                                    ? context.l10n.cartShipping
-                                    : '${context.l10n.cartShipping} · ${value.deliveryZone}',
+                                    ? feeLabel
+                                    : '$feeLabel · ${value.deliveryZone}',
                                 value: shipping,
                               ),
                             // 131 What made up the shipping (the city, the km,
@@ -908,13 +934,13 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   ),
                                 ),
                               ),
-                            if (value?.tax case final tax?)
+                            if (value?.shownTax case final tax?)
                               _SumRow(
                                 label:
                                     value!.taxLabel ?? context.l10n.cartTaxes,
                                 value: tax,
                               ),
-                            if (value?.total case final total?
+                            if (value?.shownTotal case final total?
                                 when value!.discount != null ||
                                     value.points?.discount != null ||
                                     value.shipping != null ||
@@ -926,7 +952,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                 strong: true,
                               ),
                             // 91.5 The tax already inside the prices.
-                            if (value?.taxIncluded case final included?)
+                            if (value?.shownTaxIncluded case final included?)
                               Padding(
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
@@ -1029,7 +1055,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         fit: BoxFit.scaleDown,
                         alignment: AlignmentDirectional.centerStart,
                         child: Text(
-                          barTotal ?? value?.subtotal ?? '…',
+                          barTotal ?? value?.shownSubtotal ?? '…',
                           maxLines: 1,
                           style: TextStyle(
                             fontSize: 20,
@@ -1059,23 +1085,198 @@ class _CartScreenState extends ConsumerState<CartScreen> {
 }
 
 /// 131 The cart's lines in the order shown: each item, then the gift
-/// add-ons linked to it; add-ons whose item is gone last.
+/// add-ons linked to it; add-ons whose item is gone last. 162 A bouquet's
+/// lines are shown together as the bouquet ([bouquetGroups]), not here.
 List<int> cartDisplayOrder(List<CartItem> items) {
   final out = <int>[];
   final placed = <int>{};
   for (var i = 0; i < items.length; i++) {
     final item = items[i];
-    if (item.isAddon) continue;
+    if (item.isAddon || item.bouquet != null) continue;
     out.add(i);
     if (!placed.add(item.productId)) continue;
     for (var j = 0; j < items.length; j++) {
-      if (items[j].addonOf == item.productId) out.add(j);
+      if (items[j].addonOf == item.productId && items[j].bouquet == null) {
+        out.add(j);
+      }
     }
   }
   for (var j = 0; j < items.length; j++) {
-    if (!out.contains(j)) out.add(j);
+    if (!out.contains(j) && items[j].bouquet == null) out.add(j);
   }
   return out;
+}
+
+/// 162 A bouquet the customer built, as one: its photo, its stems, each of
+/// its flowers, its wrap and its card as the shop priced them, the card's
+/// words, and one button that takes the whole bouquet out.
+class _BouquetCard extends ConsumerWidget {
+  const _BouquetCard({
+    required this.id,
+    required this.items,
+    required this.lines,
+  });
+
+  final String id;
+
+  /// Its lines, the flowers first, and the shop's view of each once priced.
+  final List<CartItem> items;
+  final List<CartQuoteLine?> lines;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final flowers = [
+      for (final i in items)
+        if (i.bouquet?.part == BouquetPartKind.flower) i,
+    ];
+    final stems = flowers.fold(0, (sum, i) => sum + i.quantity);
+    final message = items
+        .map((i) => i.bouquet?.message)
+        .whereType<String>()
+        .firstOrNull;
+    // A quote still being made again (the cart just changed) may not be
+    // this line's yet: the shop's view only for the same product.
+    CartQuoteLine? quoted(int n) =>
+        lines[n]?.productId == items[n].productId ? lines[n] : null;
+    final problems = {
+      for (var n = 0; n < items.length; n++) ?quoted(n)?.problem,
+    };
+    String label(CartItem item, CartQuoteLine? line) {
+      final name = line?.name ?? item.name;
+      return switch (item.bouquet?.part) {
+        BouquetPartKind.wrap => l10n.bouquetWrapPart(name),
+        BouquetPartKind.card => l10n.bouquetCardPart(name),
+        _ => l10n.lineQuantity(name, item.quantity),
+      };
+    }
+
+    return AppCard(
+      key: ValueKey('cart-bouquet-$id'),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              AppNetworkImage(
+                url: flowers.firstOrNull?.imageUrl,
+                seed: flowers.firstOrNull?.productId ?? 0,
+                width: 64,
+                height: 64,
+                radius: 32,
+                placeholderIcon: AppIcons.florist,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        AppIcon(
+                          AppIcons.florist,
+                          size: 16,
+                          color: p.primary,
+                          filled: true,
+                        ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            l10n.bouquetHeader,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: p.text,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      l10n.bouquetStems(stems),
+                      style: TextStyle(fontSize: 13, color: p.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              SquareIconButton(
+                key: ValueKey('cart-bouquet-remove-$id'),
+                icon: AppIcons.delete,
+                label: l10n.bouquetRemove,
+                size: 36,
+                iconSize: 18,
+                bordered: false,
+                onPressed: () =>
+                    ref.read(cartProvider.notifier).removeBouquet(id),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          for (final (n, item) in items.indexed)
+            Padding(
+              key: ValueKey(
+                'cart-bouquet-line-${item.bouquet?.part.name}-${item.productId}',
+              ),
+              padding: const EdgeInsetsDirectional.only(
+                start: 8,
+                top: 3,
+                bottom: 3,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      label(item, quoted(n)),
+                      style: TextStyle(fontSize: 14, color: p.text),
+                    ),
+                  ),
+                  if (quoted(n) case final line? when line.available) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      line.lineTotal,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: p.text,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          if (message != null)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 8, top: 6),
+              child: Text(
+                l10n.bouquetMessage(message),
+                key: ValueKey('cart-bouquet-message-$id'),
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.35,
+                  fontStyle: FontStyle.italic,
+                  color: p.textSecondary,
+                ),
+              ),
+            ),
+          for (final problem in problems)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                problem,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: p.danger,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 /// 131 "Add a little more" in the cart: the add-ons offered with [main],
@@ -1116,7 +1317,10 @@ class _CartAddons extends ConsumerWidget {
                 quantity: 1,
                 name: a.name,
                 imageUrl: a.imageUrl,
-                price: a.sale?.nowFormatted ?? a.price.formatted,
+                price: a.sale?.shopNowFormatted ?? a.price.formatted,
+                // 161 And in the customer's currency.
+                shownPrice: a.sale?.nowFormatted ?? a.price.shown,
+                shownCurrency: a.price.display?.currency,
               ),
               main.productId,
               on,
@@ -1208,7 +1412,11 @@ class _LineCard extends ConsumerWidget {
                     style: TextStyle(fontSize: 13, color: p.text),
                   ),
                 Text(
-                  quoted?.unitPrice ?? item.price ?? '',
+                  // 161 In the customer's currency (the shop's line, else
+                  // as it was added while they still choose it).
+                  quoted?.unitPrice ??
+                      item.priceIn(ref.watch(appCurrencyProvider)) ??
+                      '',
                   style: TextStyle(fontSize: 13, color: p.textSecondary),
                 ),
                 if (quoted?.problem != null) ...[

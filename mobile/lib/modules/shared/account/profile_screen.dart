@@ -19,7 +19,6 @@ import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../chat/data/chat_providers.dart';
 import '../../courier_hub/data/courier_hub.dart';
-import '../../courier_hub/screens/companies_screen.dart' show deleteHubAccount;
 import '../../delivery/data/delivery_providers.dart';
 import '../../food/data/food_providers.dart';
 import '../../lms/teachers/teachers_providers.dart';
@@ -27,6 +26,7 @@ import '../../rides/data/rides_providers.dart';
 import '../../vendor/data/vendor_providers.dart';
 import '../staff_app.dart';
 import 'account_looks.dart';
+import 'sign_out.dart';
 // 130.21 The account in the project's premium look.
 import '../../../core/widgets/premium_chrome.dart';
 import 'premium/premium_account.dart';
@@ -37,22 +37,9 @@ import '../../lms/downloads/download_widgets.dart';
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
-  Future<void> _signOut(BuildContext context, WidgetRef ref) async {
-    // 104.8.4 In Yallapp Courier, signing out ends every company's session.
-    final hub = ref.read(courierHubLinkProvider);
-    final ok = await confirmAction(
-      context,
-      title: context.l10n.logOutTitle,
-      message: hub != null
-          ? context.l10n.hubSignOutMessage
-          : context.l10n.logOutMessage,
-      confirmLabel: context.l10n.logOut,
-      destructive: true,
-    );
-    if (!ok) return;
-    if (hub != null) return hub.signOut();
-    await ref.read(authControllerProvider.notifier).signOut();
-  }
+  // 167 Asked first, then signed out (sign_out.dart).
+  Future<void> _signOut(BuildContext context, WidgetRef ref) =>
+      confirmSignOut(context, ref);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -362,7 +349,8 @@ class ProfileScreen extends ConsumerWidget {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+          // 167 Its end past a tab bar floating over it, so Sign out shows.
+          padding: EdgeInsets.fromLTRB(20, 24, 20, accountListEnd(context, 24)),
           children: [
             Container(
               key: onCard ? const ValueKey('account-card') : null,
@@ -674,6 +662,7 @@ class ProfileScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   SettingsTile(
+                    key: const ValueKey('account-sign-out'),
                     icon: AppIcons.logout,
                     title: context.l10n.logOut,
                     destructive: true,
@@ -686,7 +675,7 @@ class ProfileScreen extends ConsumerWidget {
                       icon: AppIcons.delete,
                       title: context.l10n.hubDeleteAccount,
                       destructive: true,
-                      onTap: () => deleteHubAccount(context, hub.deleteAccount),
+                      onTap: () => confirmDeleteAccount(context, ref),
                     ),
                 ],
               ),

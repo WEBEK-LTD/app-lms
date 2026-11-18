@@ -383,6 +383,22 @@ void openLocation(BuildContext context, String location) {
   }
 }
 
+/// 152 Like [openLocation], in place of the screen on top: a tab's screen
+/// is gone to (the screens over it closed), another takes the top one's
+/// place, so going back doesn't return to it.
+void replaceLocation(BuildContext context, String location) {
+  final tabs = ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(shellTabsProvider);
+  final path = Uri.parse(location).path;
+  if (tabs.any((t) => t.path == path)) {
+    GoRouter.of(context).go(location);
+  } else {
+    GoRouter.of(context).pushReplacement(location);
+  }
+}
+
 /// Where the app starts: 104.6 the courier's screen in a courier app, 105.2
 /// the driver's in a drivers' app.
 String _startAt(Ref ref) => ref.read(courierAppProvider)
@@ -403,6 +419,48 @@ String _startAt(Ref ref) => ref.read(courierAppProvider)
     : ref.read(isSchoolStaffOnlyProvider)
     ? Paths.staff
     : Paths.home;
+
+/// 160 Closes the sign-in screens pushed over the app once someone is
+/// signed in, then [open]s what sign-in was opened for (`from`), unless it
+/// is the screen under them.
+///
+/// A sign-in opened over the app (a page header's bell: `/notifications`
+/// needs an account, so `/sign-in?from=/notifications`; "Sign in" from the
+/// cart, a course, a booking) is a pushed route, and go_router's redirect
+/// reads the location under it, so [redirectFor] never saw it: once signed
+/// in, the sign-in screens stayed (a new password's screen fell back to
+/// sign-in itself), and a tap on "Forgot password" there, now signed in,
+/// was sent to `from`: Leqaa's and Kech Flora's Notifications. A sign-in
+/// that is the app's place itself is left by [redirectFor], as before.
+void leaveSignInScreens(
+  GoRouter router, {
+  required void Function(String location) open,
+}) {
+  var list = router.routerDelegate.currentConfiguration;
+  if (list.isEmpty || !Paths.isSignIn(list.last.matchedLocation)) return;
+  final from = router.state.uri.queryParameters['from'];
+  var removed = false;
+  while (list.matches.isNotEmpty) {
+    final top = list.matches.last;
+    if (top is! ImperativeRouteMatch || !Paths.isSignIn(top.matchedLocation)) {
+      break;
+    }
+    if (!top.completer.isCompleted) top.complete();
+    list = list.remove(top);
+    removed = true;
+  }
+  // Sign-in is the place itself: the redirect leaves it.
+  if (!removed || list.isEmpty || Paths.isSignIn(list.last.matchedLocation)) {
+    return;
+  }
+  router.restore(list);
+  if (from != null &&
+      from.startsWith('/') &&
+      !Paths.isSignIn(from) &&
+      Uri.parse(from).path != list.last.matchedLocation) {
+    open(from);
+  }
+}
 
 /// 132.7 Where "Not now" on the sign-in screen goes: the app's start, as a
 /// guest; null when the app has nothing for a guest (a courier's, a
@@ -455,7 +513,31 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: tabbedRoutes(module: module, tabs: ref.read(shellTabsProvider)),
     errorBuilder: (context, state) => const NotFoundScreen(),
   );
+  // 160 Signed in: the sign-in screens opened over the app close, and what
+  // sign-in was opened for opens (`from`).
+  var disposed = false;
+  ref.listen(authControllerProvider.select((state) => state.isSignedIn), (
+    was,
+    now,
+  ) {
+    if (was != false || !now) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (disposed) return;
+      leaveSignInScreens(
+        router,
+        open: (location) {
+          final tabs = ref.read(shellTabsProvider);
+          if (tabs.any((t) => t.path == Uri.parse(location).path)) {
+            router.go(location);
+          } else {
+            router.push(location);
+          }
+        },
+      );
+    });
+  });
   ref.onDispose(() {
+    disposed = true;
     // The old router may still be on screen until the next frame.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router.dispose();

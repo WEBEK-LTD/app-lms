@@ -7,6 +7,11 @@ abstract final class AppIcons {
 
   /// 131.21 The petal chrome's floral line, Leqaa's flower.
   static const florist = Symbols.local_florist_rounded;
+
+  // 162 Build your bouquet: its wrap, its card, and leaving one out.
+  static const bouquetWrap = Symbols.featured_seasonal_and_gifts_rounded;
+  static const bouquetCard = Symbols.mail_rounded;
+  static const bouquetNone = Symbols.block_rounded;
   static const sideMenu = Symbols.menu_rounded;
   static const courses = Symbols.menu_book_rounded;
   static const myCourses = Symbols.play_circle_rounded;

@@ -159,6 +159,8 @@ export const AR_MARKETING: MarketingTranslation = {
     "Academy with many teachers": "أكاديمية بمدرّسين كثيرين",
     "Premium academy": "الأكاديمية المميزة",
     "Flower shop": "متجر الزهور",
+    // 154 The travel kind, as Studio names it (i18n/dashboard/studio.ts kindTravel).
+    "Travel: hotels and flights": "سفر: فنادق وطيران",
   },
   solutions: {
     food: {

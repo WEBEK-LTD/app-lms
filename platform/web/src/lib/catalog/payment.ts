@@ -30,14 +30,27 @@ import type { Lang } from "@/i18n/config";
 import { optionsText } from "./options";
 import { catalogSettings, orderNumber, type CheckoutAccount } from "./settings";
 import { stripeKeysProblem } from "../payments/stripe-keys";
+import { ensureWalletDomain } from "../payments/wallets";
 import { emailTemplate, renderTemplate } from "../email/templates";
 import { checkTicketHold, holdForPayment, noticeRefundDue, providerPageExpiry } from "../events/holds";
 import { noteAppError } from "../watch/app-errors";
+
+/**
+ * 168 Whether the payment page may leave the city empty: the order already
+ * says where it goes (a gift's recipient with an address, or a pin on the
+ * map), and the app never asked for a city (a shop priced by distance).
+ */
+export function cityOptionalFor(order: Pick<CatalogOrder, "delivery">): boolean {
+  const d = order.delivery;
+  if (!d || d.place?.city) return false;
+  return Boolean((d.place && d.place.lat !== null && d.place.lng !== null) || d.recipient?.address);
+}
 
 /** What the payment page asks for, checked; or the errors per field. */
 export function readCustomer(
   app: App,
   input: Record<string, unknown>,
+  opts: { cityOptional?: boolean } = {},
 ): { ok: true; customer: CatalogCustomer } | { ok: false; errors: Record<string, string> } {
   const text = (name: string, max: number) => (typeof input[name] === "string" ? (input[name] as string).trim().slice(0, max) : "");
   const errors: Record<string, string> = {};
@@ -48,7 +61,8 @@ export function readCustomer(
   const email = text("email", 191);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Enter a valid email address.";
   const city = text("city", 60);
-  if (city.length < 2) errors.city = "Enter your city.";
+  // 168 An order already going to a place (the gift's recipient, a pin on the map) needs no city typed again.
+  if (city.length < 2 && !(opts.cityOptional && city === "")) errors.city = "Enter your city.";
   const address = text("address", 300);
   if (address.length < 8) errors.address = "Enter your full address.";
   if (Object.keys(errors).length > 0) return { ok: false, errors };
@@ -122,6 +136,8 @@ export async function startPayment(
     /** Where the provider sends the customer back, and posts its webhook (lib/payments/routes.ts). */
     callbackUrls: { returnUrl: string; webhookUrl: string | null };
     hosted?: boolean;
+    /** 155 The payment page's domain, registered for Apple Pay and Google Pay in the shop's Stripe account before its form (lib/payments/wallets.ts); null: none. */
+    walletDomain?: string | null;
   },
 ): Promise<StartedPayment> {
   const { order, customer } = deps;
@@ -180,12 +196,19 @@ export async function startPayment(
   );
   let started;
   if (publishableKey) {
+    // 155 The domain registered for Apple Pay and Google Pay once, alongside the session; it never throws or stops the payment.
+    const wallets =
+      account.provider === "stripe"
+        ? ensureWalletDomain({ store: deps.store, app: deps.app, keys: account.keys, domain: deps.walletDomain ?? null, fetcher: deps.fetcher, baseUrl: deps.urls?.stripe, now: deps.now })
+        : null;
     try {
       started = await start(true);
     } catch (e) {
       // 144 Stripe's own page when it won't embed its form (an older account, a setting): the payment still starts.
       if (!(e instanceof PaymentError)) throw e;
       started = await start(false);
+    } finally {
+      await wallets;
     }
   } else {
     started = await start(false);

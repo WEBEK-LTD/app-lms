@@ -79,7 +79,8 @@ describe("123 the premium academy template", () => {
       const page = layout.pages.find((p) => p.slug === id)!.studio!;
       expect(page.screen).toBeTruthy();
       expect(page.header).toBeUndefined();
-      expect(page.body.children).toEqual([]);
+      // 167 The account's only element its Sign out, which the app draws as the account's own, last.
+      expect(page.body.children).toEqual(id === "account" ? [expect.objectContaining({ type: "button", action: { type: "sign_out" } })] : []);
     }
     // And the screens a button opens: a course, the cart, settings.
     const screens = layout.pages.map((p) => p.studio?.screen).filter(Boolean);

@@ -63,7 +63,8 @@ class _Home extends ConsumerWidget {
     return ListView(
       padding: EdgeInsets.only(
         top: MediaQuery.paddingOf(context).top,
-        bottom: 24,
+        // 158 Its end clear of a tab bar over the screen.
+        bottom: endRoom(context, 24),
       ),
       children: [
         Padding(

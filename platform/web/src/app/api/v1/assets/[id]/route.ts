@@ -1,5 +1,6 @@
 import { getBlobStore } from "@/lib/blobs";
 import { getStore } from "@/lib/data";
+import { isPrivateAsset } from "@/lib/data/types";
 import { errorResponse } from "@/lib/http";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -15,8 +16,8 @@ export async function GET(_request: Request, { params }: RouteContext<"/api/v1/a
   const { id } = await params;
   if (!UUID.test(id)) return errorResponse(404, "not_found", "Not found.");
   const asset = await (await getStore()).getAsset(id);
-  // 105.2 A driver's papers are the company's only (Dashboard › Drivers); 113.12 a salary's receipt the school's (Salaries).
-  if (!asset || asset.kind === "driver_document" || asset.kind === "salary_receipt") return errorResponse(404, "not_found", "Not found.");
+  // 105.2 A driver's papers are the company's only (Dashboard › Drivers); 113.12 a salary's receipt the school's (Salaries); 106.11 a designer's ID the team's.
+  if (!asset || isPrivateAsset(asset.kind)) return errorResponse(404, "not_found", "Not found.");
   const file = await getBlobStore().get(asset.blobKey);
   if (!file) return errorResponse(404, "not_found", "Not found.");
   return new Response(new Uint8Array(file.data), {

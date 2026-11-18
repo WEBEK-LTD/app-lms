@@ -9,6 +9,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../navigation.dart';
+import '../../../core/format/text_case.dart';
 
 /// 130.18 Two generic options of the student's cards (`learning`), as the
 /// Signature looks of Ufuq Academy draw them: the week's days under a
@@ -241,7 +242,7 @@ class RingContinueCard extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             Text(
-              l10n.continueLearning.toUpperCase(),
+              l10n.continueLearning.toUpperCaseIn(context),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,

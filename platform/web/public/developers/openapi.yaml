@@ -1094,7 +1094,8 @@ paths:
                     is a `reset_token` for `POST /auth/password/reset` (404 `no_account` when
                     the address has none). Missing means `sign_in`. Where the channel isn't in
                     `password_sign_in.codes`, a code doesn't sign an existing account in:
-                    409 `use_password`.
+                    409 `use_password` (roadmap 160: also for an account made with a code
+                    before that has no password yet, which sets one with `purpose: reset`).
       responses:
         '200':
           description: Verified
@@ -4260,6 +4261,35 @@ paths:
                     type: array
                     maxItems: 20
                     items: { $ref: '#/components/schemas/PublicCoupon' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /store/bouquet:
+    get:
+      tags: [Store]
+      operationId: getBouquetBuilder
+      summary: Build your bouquet
+      description: |
+        Roadmap 162. What the app's Build your bouquet chooses from, when the
+        store has it set up (`StoreConfig.bouquet`): the flowers (the
+        products of the category the owner set, chosen by the stem with
+        quantities), the wraps (gift add-ons the owner chose, or a category's
+        products) and the cards (gift add-ons the owner chose; none: the card
+        is its message alone), each a `ProductSummary` with its photo and
+        price, and the rules. The app puts the bouquet in the cart as lines
+        that share one `bouquet` (`CartInput.lines[].bouquet`); the server
+        prices them as any line. Yallapp's own products and connected
+        platforms; 404 when the store hasn't set it up.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/DisplayCurrency'
+        - $ref: '#/components/parameters/DisplayCurrencyHeader'
+      responses:
+        '200':
+          description: The builder's flowers, wraps and cards
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BouquetBuilder' }
         '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
@@ -12684,7 +12714,7 @@ components:
             signup_fields:
               type: array
               items: { type: string, enum: [name, email, city] }
-            default_country_code: { type: string, example: '+90' }
+            default_country_code: { type: string, example: '+212', description: "The code the phone number field starts with. Roadmap 160 (the hosted API): the owner's choice, else the shop's country (where it delivers, else its currency's), else the owner's account's country, then +90." }
             methods:
               type: array
               minItems: 1
@@ -12717,7 +12747,10 @@ components:
                 Roadmap 118. A Yallapp Studio app on the hosted API that signs in with a
                 password: `by` lists what is typed with it (`POST /auth/password`), `codes`
                 the channels where a code still signs in (empty: passwords only), and
-                `recovery` the channel username accounts are verified and reset on. A new
+                `recovery` the channel username accounts are verified and reset on.
+                Roadmap 160: a password is mandatory on its channel, so `codes` never has
+                one `by` has, nor `recovery` with `username`: there a code only verifies a
+                new account (which then sets its password) and resets a forgotten one. A new
                 account proves its email or phone with a code first, then registers with a
                 `password` (and a `username`) as `SignupRequired.fields` says; "Forgot
                 password" is a code with `purpose: reset`, then `POST /auth/password/reset`.
@@ -14681,6 +14714,9 @@ components:
       properties:
         balance: { type: integer, minimum: 0, example: 250 }
         value: { type: string, description: "Formatted: what the balance takes off an order.", example: ₺25.00 }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `value`." }
+        value_amount: { type: string, example: '25.00' }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         entries:
           type: array
           description: The latest 50 changes, newest first.
@@ -14710,6 +14746,15 @@ components:
       type: object
       required: [id, number, status, status_label, total, created_at, items]
       properties:
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The order's currency (Yallapp's own orders), of `total_amount` and `refunded_total_amount`." }
+        total_amount: { type: string, example: '450.00' }
+        refunded_total_amount: { type: [string, 'null'] }
+        display:
+          $ref: '#/components/schemas/DisplayMoney'
+          description: >-
+            161 Its money in the customer's currency: at the rate of the day it was placed
+            when it was placed in the currency the app asks for now (`customer_currency`),
+            else at today's. Its lines, delivery and points have theirs.
         customer_currency: { $ref: '#/components/schemas/OrderCustomerCurrency' }
         delivery: { $ref: '#/components/schemas/OrderDelivery' }
         return_request:
@@ -14728,6 +14773,66 @@ components:
             used: { type: integer, minimum: 0 }
             discount: { type: [string, 'null'], description: "Formatted: what the points used took off.", example: ₺25.00 }
             earned: { type: integer, minimum: 0, description: "Points credited for it; 0 until it is completed, and again 0 when they were taken back." }
+            currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `discount_amount`." }
+            discount_amount: { type: [string, 'null'] }
+            display: { $ref: '#/components/schemas/DisplayMoney' }
+        amounts:
+          type: [object, 'null']
+          description: |
+            173 What the total is made of, each amount formatted like `total`,
+            so the lines add up: `subtotal` (the items) less `discount` (the
+            coupon) and `points`, plus `shipping` (the delivery, without the
+            slot's fee), `slot_fee` (the delivery time's, also in
+            `delivery.fee`), each of `fees` and an added `tax`, is `total`. A
+            tax inside the prices (`tax.included`) is part of the other lines
+            and only said. Null or missing on older servers: the app then
+            shows the items and the total as before. On WordPress (plugin
+            0.4.51), from the WooCommerce order's lines: its subtotal, the
+            coupons' codes and discount, its shipping (the method's name as
+            `zone`), the delivery time's fee line, its other fee lines and its
+            taxes, as the shop displays prices (with or without tax).
+          required: [subtotal, discount, points, shipping, slot_fee, fees, tax, total]
+          properties:
+            subtotal: { type: string, example: MAD 480.00 }
+            discount:
+              type: [object, 'null']
+              description: The coupon and what it took off; null without one.
+              required: [code, amount]
+              properties:
+                code: { type: [string, 'null'], description: "The coupon's code (several joined with \", \"); null when the discount has none.", example: LEQAA10 }
+                amount: { type: string, example: MAD 48.00 }
+            points:
+              type: [object, 'null']
+              description: The loyalty points used on it (as `points.used` and `points.discount`); null without any.
+              required: [used, amount]
+              properties:
+                used: { type: integer, minimum: 1 }
+                amount: { type: string, example: MAD 5.00 }
+            shipping:
+              type: [object, 'null']
+              description: "The delivery or shipping, without the slot's fee; a restaurant's delivery fee. Null when there is none."
+              required: [amount]
+              properties:
+                zone: { type: [string, 'null'], description: "Where it was priced for: the shop's zone or city (\"Marrakech\", \"4.2 km\"), or WooCommerce's shipping method.", example: Marrakech }
+                amount: { type: string, example: MAD 30.00 }
+            slot_fee: { type: [string, 'null'], description: "The chosen delivery time's fee; null when it has none.", example: MAD 20.00 }
+            fees:
+              type: array
+              description: Any other fee on the order, with the shop's name for it. Empty for none.
+              items:
+                type: object
+                required: [label, amount]
+                properties:
+                  label: { type: string, example: Gift wrap }
+                  amount: { type: string, example: MAD 15.00 }
+            tax:
+              type: [object, 'null']
+              required: [label, included, amount]
+              properties:
+                label: { type: string, example: VAT 20% }
+                included: { type: boolean, description: "True: inside the other amounts, only said; false: a line of its own, added." }
+                amount: { type: string }
+            total: { type: string, description: The same as the order's `total`., example: MAD 482.00 }
         id: { type: integer }
         number: { type: string, description: "The order number the site shows, e.g. on receipts.", example: '1042' }
         status: { type: string, enum: [pending, processing, on_hold, completed, cancelled, refunded, failed] }
@@ -14785,10 +14890,14 @@ components:
                 description: The options chosen for this line (a dish's size or extras), as their names. Missing or empty for none.
                 items: { type: string }
               addon_of: { type: [integer, 'null'], description: "131 A gift add-on: the product it went with. Missing: not an add-on." }
+              bouquet: { $ref: '#/components/schemas/BouquetPart' }
               total:
                 type: [string, 'null']
                 description: "Roadmap 110. What the line comes to (its price with its options, times its quantity), formatted. Null or missing on older servers."
                 example: ₺1,300.00
+              currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The line's currency." }
+              total_amount: { type: string }
+              display: { $ref: '#/components/schemas/DisplayMoney' }
         fulfilment_status:
           type: [string, 'null']
           enum: [received, preparing, ready, out_for_delivery, completed, cancelled, null]
@@ -14871,6 +14980,9 @@ components:
             scheduled_for: { type: [string, 'null'], format: date-time, description: Null for "as soon as possible". }
             delivery_address: { $ref: '#/components/schemas/DeliveryAddress' }
             delivery_fee: { type: [string, 'null'], description: "Formatted; null when there is none.", example: ₺30.00 }
+            currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `delivery_fee_amount`." }
+            delivery_fee_amount: { type: [string, 'null'] }
+            display: { $ref: '#/components/schemas/DisplayMoney' }
 
     Person:
       type: object
@@ -14985,6 +15097,50 @@ components:
               type: array
               items: { $ref: '#/components/schemas/QuestionAnswer' }
 
+    BouquetRules:
+      type: object
+      description: 162 Build your bouquet's rules (`StoreConfig.bouquet`).
+      required: [flowers_category_id, wraps_from, wrap_optional, card_optional, has_cards, min_stems, max_stems, max_message]
+      properties:
+        flowers_category_id: { type: integer, description: The category whose products are the flowers. }
+        wraps_from: { type: string, enum: [addons, category], description: "The wraps are gift add-ons the owner chose, or a category's products." }
+        wrap_optional: { type: boolean, description: 'The customer may choose "No wrap".' }
+        card_optional: { type: boolean, description: The customer may leave out the card (and its message). }
+        has_cards: { type: boolean, description: "The shop has cards to choose from; false: the card is its message alone." }
+        min_stems: { type: integer, minimum: 1, maximum: 99, description: Stems in one bouquet at least. }
+        max_stems: { type: integer, minimum: 1, maximum: 99, description: Stems in one bouquet at most. }
+        max_message: { type: integer, example: 500, description: The card message's most characters. }
+
+    BouquetBuilder:
+      description: 162 `GET /store/bouquet`. The rules and what to choose from, in the owner's order.
+      allOf:
+        - { $ref: '#/components/schemas/BouquetRules' }
+        - type: object
+          required: [flowers, wraps, cards]
+          properties:
+            flowers: { type: array, maxItems: 60, items: { $ref: '#/components/schemas/ProductSummary' } }
+            wraps: { type: array, maxItems: 24, items: { $ref: '#/components/schemas/ProductSummary' } }
+            cards: { type: array, maxItems: 12, items: { $ref: '#/components/schemas/ProductSummary' } }
+
+    BouquetPart:
+      type: [object, 'null']
+      description: |
+        162 A line of a bouquet the customer built: every line of one
+        bouquet has the same `id`, its `part` (a flower, the wrap or the
+        card) and, on one of them (the card's when it has one), the card's
+        `message`. The cart, the order, the dashboard and Yallapp Business
+        show the bouquet as one. A wrap or card that is a gift add-on also
+        has `addon_of` (a flower's product) and goes with the bouquet
+        whatever its own "Offer with" says. Yallapp's own products check
+        each bouquet against the shop's rules (its flowers from the flowers'
+        category, at most one wrap and one card, its stems); a line that
+        breaks one is `available: false` with its `problem`.
+      required: [id, part]
+      properties:
+        id: { type: string, pattern: '^[A-Za-z0-9_-]{1,40}$', example: b-1731940000-4f2a }
+        part: { type: string, enum: [flower, wrap, card] }
+        message: { type: string, maxLength: 500, example: 'Happy birthday, Mama.' }
+
     StoreConfig:
       type: object
       description: Present when WooCommerce is active. Settings for Store apps.
@@ -15030,6 +15186,16 @@ components:
             addons: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 }, example: { en: Make it extra special, ar: أضف لمسة أخرى } }
             gift_card: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
             delivery: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
+        bouquet:
+          description: |
+            162 Build your bouquet, when the store has it set up: an action
+            with `flow: bouquet` (Leqaa's Start) opens it, and the app reads
+            what to choose from at `GET /store/bouquet`. Null or missing
+            (not set up, older servers, WordPress): the action's screen, the
+            shop.
+          oneOf:
+            - { $ref: '#/components/schemas/BouquetRules' }
+            - { type: 'null' }
         delivery_date:
           type: object
           description: |
@@ -15068,6 +15234,14 @@ components:
               maxItems: 6
               description: "131 Beginnings the owner wrote, which the customer taps to start the card; the card messages by occasion are `GET /store/gift-messages`."
               items: { type: string, maxLength: 80 }
+            starters_by_language:
+              type: [object, 'null']
+              description: "169 The same beginnings in the app's other languages (language code → lines), as the owner wrote them. The app shows the customer's language's, else `starters` (the main language's). Null or missing: only `starters`."
+              additionalProperties:
+                type: array
+                maxItems: 6
+                items: { type: string, maxLength: 80 }
+              example: { ar: ['عيد ميلاد سعيد!', 'مع كلِّ حبّي'], tr: ['Doğum günün kutlu olsun!', 'Tüm sevgimle'] }
             recipient: { type: boolean, description: "131 The customer can give the recipient's name and phone (someone else than the buyer). Missing: false." }
             anonymous: { type: boolean, description: "131 The customer can send it anonymously. Missing: false." }
         shipping: { $ref: '#/components/schemas/StoreShipping' }
@@ -15096,6 +15270,8 @@ components:
             point_value: { type: string, example: '0.10' }
             point_value_formatted: { type: string, example: ₺0.10 }
             min_points: { type: integer, minimum: 1, description: "The fewest points used at once.", example: 100 }
+            currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of its amounts." }
+            display: { $ref: '#/components/schemas/DisplayMoney' }
 
     FulfilmentConfig:
       type: object
@@ -15113,6 +15289,8 @@ components:
         min_order_formatted: { type: [string, 'null'], example: ₺150.00 }
         delivery_fee: { type: [string, 'null'], description: "Added to deliveries, as an amount; null when free.", example: '30.00' }
         delivery_fee_formatted: { type: [string, 'null'], example: ₺30.00 }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of its amounts." }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         delivery_areas:
           type: array
           description: Districts or postcodes the shop delivers to; the customer picks one. Empty when any address is fine.
@@ -15254,6 +15432,8 @@ components:
         fee: { type: [string, 'null'], description: "Added to the order where the server checks out (Yallapp's own products, WooCommerce); null when free or when a connected platform's checkout charges its own.", example: '25.00' }
         fee_formatted: { type: [string, 'null'], example: ₺25.00 }
         capacity: { type: [integer, 'null'], minimum: 1, description: "Orders it takes a day; null for no limit." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The fee's currency." }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     DeliverySlots:
       type: object
@@ -15301,6 +15481,8 @@ components:
         charged: { type: boolean }
         free_over: { type: [string, 'null'], example: '1000.00' }
         free_over_formatted: { type: [string, 'null'] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `free_over`." }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         max_km: { type: [number, 'null'] }
         map:
           type: object
@@ -15327,7 +15509,8 @@ components:
         sale end; null when the source gives none) and the units left at this
         price (null without a limit). Null or missing when it isn't on sale.
         A Yallapp flash sale over a connected platform's product changes the
-        price the app shows; its `flash_sale_id` says which.
+        price the app shows; its `flash_sale_id` says which, and 168 `title`
+        its name. A product with sizes (a range) has its cheapest size's.
       required: [was, was_formatted, now, now_formatted, percent_off, ends_at, remaining]
       properties:
         was: { type: string, example: '500.00' }
@@ -15340,6 +15523,10 @@ components:
         remaining: { type: [integer, 'null'], minimum: 0, example: 12 }
         total: { type: [integer, 'null'], minimum: 1, description: "All the units of the sale, for the stock bar." }
         flash_sale_id: { type: [integer, 'null'] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `was` and `now`.", example: TRY }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
+        title: { type: string, description: "168 A flash sale's name as the owner wrote it; missing for the source's own sale.", example: Eid roses }
+        titles: { type: [object, 'null'], description: "168 Its name in the app's other languages, as the owner wrote them.", additionalProperties: { type: string, maxLength: 40 } }
 
     FlashSale:
       type: object
@@ -15373,6 +15560,8 @@ components:
         starts_at: { type: [string, 'null'], format: date-time }
         ends_at: { type: [string, 'null'], format: date-time }
         remaining: { type: [integer, 'null'], description: "Uses left; null for no limit." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of its amounts." }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     GiftMessages:
       type: object
@@ -15409,6 +15598,9 @@ components:
             end: { type: string }
             label: { type: string }
         fee: { type: [string, 'null'], description: "The slot's fee, formatted (in the order's shipping)." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `fee_amount`." }
+        fee_amount: { type: [string, 'null'] }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         sender: { $ref: '#/components/schemas/GiftSender' }
         recipient: { $ref: '#/components/schemas/GiftRecipient' }
         gift_message: { type: [string, 'null'] }
@@ -15687,6 +15879,8 @@ components:
               name: { type: string, example: Large }
               price_delta: { type: string, description: "Added to the unit price, as an amount (0.00 for none).", example: '20.00' }
               price_delta_formatted: { type: [string, 'null'], description: "Formatted, null when free.", example: +₺20.00 }
+              currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `price_delta`." }
+              display: { $ref: '#/components/schemas/DisplayMoney' }
 
     ProductVariation:
       type: object
@@ -15731,6 +15925,7 @@ components:
               addon_of:
                 type: [integer, 'null']
                 description: "131 A gift add-on's line: the `product_id` of the line it goes with (removing that line removes it). A cart of add-ons only fails with `addon_needs_item` (400); an add-on whose line is missing or that doesn't go with it is `available: false` with its `problem`."
+              bouquet: { $ref: '#/components/schemas/BouquetPart' }
         coupon:
           type: [string, 'null']
           maxLength: 50
@@ -15761,12 +15956,17 @@ components:
               image_url: { type: [string, 'null'], format: uri }
               unit_price: { type: string, example: ₺450.00 }
               line_total: { type: string, example: ₺900.00 }
+              currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of the line's amounts." }
+              unit_price_amount: { type: string, example: '450.00' }
+              line_total_amount: { type: string, example: '900.00' }
+              display: { $ref: '#/components/schemas/DisplayMoney' }
               available: { type: boolean }
               problem: { type: [string, 'null'], description: "Why the line can't be bought as it is, for the customer.", example: Only 2 left in stock. }
               max_quantity: { type: [integer, 'null'] }
               digital: { type: boolean }
               addon: { type: boolean, description: "131 A gift add-on's line. Missing: false." }
               addon_of: { type: [integer, 'null'], description: "131 The product of the line this add-on goes with, as sent." }
+              bouquet: { $ref: '#/components/schemas/BouquetPart' }
               options:
                 type: array
                 description: The chosen options, as priced (their prices are in `unit_price`).
@@ -15810,6 +16010,11 @@ components:
           example: KDV 20%
         total: { type: string, description: "Roadmap 91.1. Formatted: the subtotal less the discount, plus shipping and taxes when known. Missing on older servers.", example: ₺845.00 }
         total_amount: { type: string, example: '845.00' }
+        discount_amount: { type: [string, 'null'], description: "161 The amounts of `discount`, `shipping`, `tax`, `tax_included` and `delivery_fee`, for the same in the customer's currency (`display`)." }
+        shipping_amount: { type: [string, 'null'] }
+        tax_amount: { type: [string, 'null'] }
+        tax_included_amount: { type: [string, 'null'] }
+        delivery_fee_amount: { type: [string, 'null'] }
         display: { $ref: '#/components/schemas/DisplayMoney' }
         charge: { $ref: '#/components/schemas/CartCharge' }
         total_final:
@@ -15831,6 +16036,8 @@ components:
               rule: { type: [string, 'null'], enum: [city, flat, distance, other_city, weight, minimum, free, slot, null] }
               amount: { type: string, example: '42.00' }
               formatted: { type: string, example: ₺42.00 }
+              currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 Its currency." }
+              display: { $ref: '#/components/schemas/DisplayMoney' }
         delivery_problem:
           type: [object, 'null']
           description: "131 Why the delivery chosen so far doesn't work (show `message`): the day, the slot or the place; null when it does."
@@ -15852,6 +16059,10 @@ components:
             usable_value: { type: [string, 'null'], description: "Formatted: what the usable points take off.", example: ₺25.00 }
             applied: { type: boolean, description: "`use_points` was asked and some points apply." }
             discount: { type: [string, 'null'], description: "Formatted: what the points take off `total`; null when not applied.", example: ₺25.00 }
+            currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of its amounts." }
+            usable_value_amount: { type: [string, 'null'] }
+            discount_amount: { type: [string, 'null'] }
+            display: { $ref: '#/components/schemas/DisplayMoney' }
 
     BookingsConfig:
       type: object
@@ -16276,7 +16487,7 @@ components:
       type: object
       required: [version, tabs, pages]
       properties:
-        version: { type: string, description: Changes on every publish., example: '2026-10-13T18:00:00Z.4' }
+        version: { type: string, description: "Changes on every publish. 157 On hosted apps also when the shop's categories that a page's template lists of them show change (`Action.category_id`).", example: '2026-10-13T18:00:00Z.4' }
         tabs:
           type: array
           minItems: 2
@@ -16581,7 +16792,7 @@ components:
         type:
           type: string
           enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale]
-        name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
+        name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app. 159 What a screen reader says for an element that opens something without words of its own (a round search or bag); without it, what it opens, in the app's language." }
         children:
           type: array
           maxItems: 60
@@ -16649,6 +16860,25 @@ components:
               color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$', description: "Without a photo, the circle's colour." }
               label: { type: string, maxLength: 3, description: "Without a photo, the letters in the circle (initials)." }
               icon: { type: string, description: "Without a photo or `label`, a Material Symbols name in the circle. A story without a photo that has an `action` opens it instead of the stories." }
+              kicker: { type: string, maxLength: 40, description: "165 From Dashboard › Stories (`stories_source` dashboard): the small line over its title in the full-screen viewer. Apps before release 9 don't show it." }
+              title: { type: string, maxLength: 80, description: "165 From Dashboard › Stories: its title in the viewer (`heading` is then the ring's name). Apps before release 9 show `heading`." }
+              line: { type: string, maxLength: 160, description: "165 From Dashboard › Stories: its line under the title in the viewer." }
+              button_label: { type: string, maxLength: 30, description: "165 From Dashboard › Stories: its button's words (apps before release 9: their own \"Open\")." }
+              video_url: { type: string, format: uri, description: "165 From Dashboard › Stories: its video, played muted in the viewer over `image_url` (its first picture). Apps before release 9 show the photo." }
+        stories_source:
+          type: string
+          enum: [dashboard, studio]
+          description: |
+            165 For `stories`, a `slider` of story slides and a `row` of story
+            chips: `dashboard`, the server serves Dashboard › Stories into it
+            in the language asked for (each story a ring, or a copy of the
+            n-th designed slide or chip with the story's photo or video, words,
+            icon and button; left out while none is shown); `studio`, as
+            designed. Missing: as designed, except the flower shop's occasions.
+        story_part:
+          type: string
+          enum: [kicker, title, line, ring, icon, button]
+          description: "165 In a story slide or chip: what of each story this part shows. Served already filled; the app draws it as any element."
         images:
           type: array
           maxItems: 30
@@ -16725,6 +16955,7 @@ components:
         style: { type: string, enum: [chips, tiles, pictures, circles], default: chips, description: "112.4 For `categories`: chips in a row, tiles with their counts, `pictures` in a grid of `columns` with the name over them, or `circles`, round pictures with the name under them in a row that scrolls. A category without a picture shows a colour." }
         code: { type: [string, 'null'], minLength: 1, maxLength: 40, description: "112.4 For `coupon`: the code (letters, numbers, - and _), copied to the phone's clipboard when tapped." }
         recent: { type: boolean, default: false, description: "112.4 For `items` of products: the products this person opened lately on this phone, newest first, kept by the app; sent with no `items`. The app leaves it out until there is one." }
+        heads: { type: string, description: "164 Sent by the servers only: this element is the title of its sibling `items` with this ID (a section's title and its \"Shop all\"). The app hides it while that list is hidden; the servers leave it out with a list they leave out." }
         scroll: { type: boolean, default: false, description: "107.2 For `row`: its children keep their own widths and the row scrolls sideways when they don't fit (a child sized `fill` hugs its content)." }
         source: { $ref: '#/components/schemas/ItemSource' }
         layout: { type: string, enum: [list, grid, carousel], default: grid, description: "For `items`." }
@@ -16844,6 +17075,29 @@ components:
             font: { $ref: '#/components/schemas/StudioFont' }
             text_align: { type: string, enum: [start, center, end] }
           additionalProperties: false
+        manual_size:
+          type: [object, 'null']
+          description: |
+            159 Its size was changed by hand in Studio, after Studio asked:
+            `width` and `height` are the owner's. It holds the automatic sizes
+            they replaced (null: none of its own), which Studio's "Back to
+            automatic" puts back. Missing, its size is automatic: as its
+            template or the layout designs it. A cover's top bar (a `row` on a
+            `stack`'s later layer, not on a `place` and not scrolling, holding
+            two or more elements that open something) without it spans the
+            cover whatever `width` it has, and when nothing in it fills, its
+            one `text` without it fills the room between; the servers send
+            them so, and an app reading a page from elsewhere draws them so.
+          properties:
+            width:
+              oneOf:
+                - { $ref: '#/components/schemas/StudioSize' }
+                - { type: 'null' }
+            height:
+              oneOf:
+                - { $ref: '#/components/schemas/StudioSize' }
+                - { type: 'null' }
+          additionalProperties: false
 
     StudioEntry:
       type: object
@@ -16872,6 +17126,15 @@ components:
         value: { type: [number, 'null'], minimum: -1000000000, maximum: 1000000000 }
         price: { type: [integer, 'null'], minimum: 0, maximum: 10000000000 }
         price_yearly: { type: [integer, 'null'], minimum: 0, maximum: 10000000000 }
+        display:
+          type: object
+          description: "161 A plan's `price` and `price_yearly` in the customer's currency, formatted (null when not set), the rate and its day; missing without one."
+          properties:
+            currency: { type: string, pattern: '^[A-Z]{3}$' }
+            price: { type: [string, 'null'] }
+            price_yearly: { type: [string, 'null'] }
+            rate: { type: number }
+            rate_date: { type: [string, 'null'] }
         prefix: { type: [string, 'null'], maxLength: 8 }
         suffix: { type: [string, 'null'], maxLength: 8 }
         highlight: { type: boolean, default: false }
@@ -17415,16 +17678,40 @@ components:
       description: What happens on tap. The app ignores actions it does not know.
       required: [type]
       properties:
-        type: { type: string, enum: [page, screen, course, item, url, more], description: "109 `more`, only on the More tab (`Navigation.tabs`): opens the list of `Navigation.more`." }
+        type: { type: string, enum: [page, screen, course, item, url, more, sign_out], description: "109 `more`, only on the More tab (`Navigation.tabs`): opens the list of `Navigation.more`. 167 `sign_out`: Studio's Sign out element; the app asks first, then signs the person out, and shows it to a signed-in person only." }
         page_slug: { type: [string, 'null'], description: For `page`. }
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
           enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, market, market_orders, vendor, complaints, wallet, club, ride, my_rides, driver, teachers, teacher, school, classroom, explore, stays, flights, trips, saved, price_alerts, null]
+        category_id:
+          type: [string, 'null']
+          description: |
+            157 For `screen` `search` in a Store app (a whole number, `^[1-9][0-9]{0,14}$`): the shop opens filtered
+            to this category (a `ProductCategory` id), as the owner picks it
+            in Studio for a tile, a ring or a chip. Hosted `GET /pages` also
+            sends it on a template's lists of the shop's categories (Leqaa's
+            occasion rings, chips and ticker, its collections' bento, arches
+            and cards) left as the template made them, which follow the
+            shop's categories once the owner has their own, and on an element
+            that opens the shop named like one of its categories; one the
+            shop no longer lists is sent as the shop. Apps that don't know it
+            open the shop.
+            165 With `screen` `courses` (a store's shop, `^[A-Za-z0-9_.:-]{1,64}$`):
+            the shop opened on this category or collection, saved with a
+            story's button in Dashboard › Stories. Apps before release 9 open
+            the shop.
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
         open_in: { type: string, enum: [in_app, browser], default: in_app }
+        flow:
+          type: string
+          enum: [bouquet]
+          description: |
+            162 A store's `screen` action (`search`, the shop) that opens Build
+            your bouquet when the store has it set up (`StoreConfig.bouquet`);
+            otherwise, and in apps that don't know it, its `screen`.
         web:
           type: [object, 'null']
           description: |
@@ -17450,11 +17737,11 @@ components:
 
     ItemRef:
       type: [object, 'null']
-      description: For `item`, an entry from a list source.
+      description: For `item`, an entry from a list source. 152 In a Store app, a `products` entry a Studio element links to (a bouquet's size, "Choose this bouquet") with no `id` yet opens the shop, as does one the shop no longer has (its product page answers 404); hosted `GET /pages` sends both as the `search` screen.
       required: [source, id]
       properties:
         source: { $ref: '#/components/schemas/ItemSource' }
-        id: { type: string }
+        id: { type: string, description: "152 Empty for a store's product not chosen yet." }
 
     ItemSource:
       type: string
@@ -17471,12 +17758,33 @@ components:
         title: { type: string }
         subtitle: { type: [string, 'null'], example: 'Maadi · 185 m²' }
         image_url: { type: [string, 'null'], format: uri }
-        price_label: { type: [string, 'null'], description: Display text only. Never a purchase button on iOS., example: 'EGP 4,250,000' }
+        price_label: { type: [string, 'null'], description: Display text only. Never a purchase button on iOS. In the shop's currency (161 kept for older apps; `price` has it in the customer's)., example: 'EGP 4,250,000' }
+        price: { $ref: '#/components/schemas/ItemPrice' }
         badge: { type: [string, 'null'], example: Negotiable }
         rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "128.8 A course's average rating, for a card's `rating` element; null or missing without one.", example: 4.9 }
         sale: { $ref: '#/components/schemas/ProductSale' }
         favorited: { type: boolean }
         action: { $ref: '#/components/schemas/Action' }
+
+    ItemPrice:
+      type: object
+      description: >-
+        161 A card's price as amounts and a currency, the shop's (`price_label` says it
+        in words: "From ₺150", "₺1,200 / month"), with the same in the customer's
+        currency (`display`, its words as `display.label`) for Yallapp's own prices
+        when the app asks for one. A range's dearest end in `max_amount`. Missing for a
+        card without a price, or from older servers.
+      required: [amount, currency, formatted]
+      properties:
+        amount: { type: string, example: '250.00' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', example: MAD }
+        formatted: { type: string, example: MAD 250.00 }
+        range: { type: boolean }
+        max_amount: { type: string, example: '480.00' }
+        regular_amount: { type: string }
+        regular_formatted: { type: string }
+        on_sale: { type: boolean }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     Block:
       oneOf:

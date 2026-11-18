@@ -2,6 +2,8 @@ import 'commerce_models.dart';
 import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
+import 'money_models.dart';
+import 'store_models.dart';
 import 'studio_live_models.dart';
 import 'studio_premium_models.dart';
 
@@ -380,7 +382,8 @@ class BlockLook {
 }
 
 /// 109 `more`: the More tab, which opens the tabs past the fourth.
-enum PageActionType { page, screen, course, item, url, more }
+/// 167 `sign_out`: Studio's Sign out element, asked first, then signed out.
+enum PageActionType { page, screen, course, item, url, more, signOut }
 
 /// Built-in screens a tab, button or card can open.
 enum BuiltInScreen {
@@ -450,17 +453,22 @@ enum BuiltInScreen {
 
 enum OpenIn { inApp, browser }
 
+/// 162 `Action.flow`: Build your bouquet over a store's shop.
+enum ActionFlow { bouquet }
+
 /// What happens on tap (the contract's `Action`).
 class PageAction {
   const PageAction({
     required this.type,
     this.pageSlug,
     this.screen,
+    this.categoryId,
     this.courseId,
     this.item,
     this.url,
     this.openIn = OpenIn.inApp,
     this.web,
+    this.flow,
   });
 
   /// Null for a missing action or one whose type this app doesn't know.
@@ -473,19 +481,31 @@ class PageAction {
       type: type,
       pageSlug: optString(json, 'page_slug'),
       screen: _screenFrom(json['screen']),
+      categoryId: _categoryIdFrom(json['category_id']),
       courseId: optInt(json, 'course_id'),
       item: ItemRef.tryParse(json['item']),
       url: optString(json, 'url'),
       openIn: enumFromSnake(OpenIn.values, json['open_in'], OpenIn.inApp),
       web: WebPageLook.tryParse(json['web']),
+      flow: enumOrNull(ActionFlow.values, json['flow']),
     );
   }
+
+  /// 162 What a store's shop action opens first when the shop has it set
+  /// up: Build your bouquet; null: its screen.
+  final ActionFlow? flow;
 
   final PageActionType type;
   final String? pageSlug;
 
   /// Null when the screen is missing or unknown to this app.
   final BuiltInScreen? screen;
+
+  /// 157 For [screen] (the shop's search): the category of the shop it
+  /// opens filtered to (a template's rings, chips and tiles); null for the
+  /// whole screen. 165 With the shop's screen (`courses`) too: the shop
+  /// opened on this category (a story's button in Dashboard › Stories).
+  final int? categoryId;
   final int? courseId;
   final ItemRef? item;
   final String? url;
@@ -493,6 +513,13 @@ class PageAction {
 
   /// 122 How a web page opened in the app shows; null, as it is.
   final WebPageLook? web;
+}
+
+/// 157 `Action.category_id`: a positive whole number, as a string or a
+/// number; null for anything else.
+int? _categoryIdFrom(Object? value) {
+  final id = value is int ? value : int.tryParse('${value ?? ''}'.trim());
+  return id != null && id > 0 ? id : null;
 }
 
 /// 122 `Action.web`: a web page in the app with its site's header and
@@ -623,6 +650,7 @@ class PageItem {
     this.favorited = false,
     this.action,
     this.sale,
+    this.price,
   });
 
   factory PageItem.fromJson(Json json) => PageItem(
@@ -640,10 +668,43 @@ class PageItem {
     favorited: boolOr(json, 'favorited', false),
     action: PageAction.tryParse(json['action']),
     sale: ProductSale.tryParse(json['sale']),
+    price: _itemPrice(json['price']),
   );
 
-  /// 131 A product's sale; null when it isn't on sale.
+  static ProductPrice? _itemPrice(Object? raw) {
+    if (raw is! Map) return null;
+    try {
+      return ProductPrice.fromJson(asJson(raw));
+    } on FormatException {
+      return null;
+    }
+  }
+
+  /// 131 A product's sale; null when it isn't on sale. 161 Its prices in
+  /// the customer's currency when the server sent them.
   final ProductSale? sale;
+
+  /// 161 The price as amounts and a currency (`ItemPrice`), with the same
+  /// in the customer's currency (`display`, its words as `display.label`);
+  /// null from an older server, or for a card without a price.
+  final ProductPrice? price;
+
+  /// 161 The price as the customer sees it: on sale, the sale's price now;
+  /// else in their currency when the server sent it ("≈ \$12.40", a range
+  /// "≈ \$12.40 – \$18.60", "≈ From \$3.00"), else the shop's words. A
+  /// free card ("Free") as it is.
+  String? get shownPrice => sale?.nowFormatted ?? shownLabel;
+
+  /// 161 [priceLabel] as the customer sees it, whatever the sale.
+  String? get shownLabel {
+    final label = priceLabel;
+    final p = price;
+    if (label == null || p == null || (double.tryParse(p.amount) ?? 0) == 0) {
+      return label;
+    }
+    final shown = p.display;
+    return customerPrice(label, shown?['label'] ?? shown?.formatted);
+  }
 
   /// Null for a source added to the contract later.
   final ItemSource? source;
@@ -2308,6 +2369,11 @@ class StudioStoryEntry {
     this.color,
     this.label,
     this.icon,
+    this.kicker,
+    this.title,
+    this.line,
+    this.buttonLabel,
+    this.videoUrl,
   });
 
   /// Null with nothing to show.
@@ -2326,8 +2392,17 @@ class StudioStoryEntry {
       color: optString(json, 'color'),
       label: optString(json, 'label'),
       icon: optString(json, 'icon'),
+      kicker: optString(json, 'kicker'),
+      title: optString(json, 'title'),
+      line: optString(json, 'line'),
+      buttonLabel: optString(json, 'button_label'),
+      videoUrl: optString(json, 'video_url'),
     );
-    return (story.imageUrl ?? story.heading ?? story.label ?? story.icon) ==
+    return (story.imageUrl ??
+                story.videoUrl ??
+                story.heading ??
+                story.label ??
+                story.icon) ==
             null
         ? null
         : story;
@@ -2344,6 +2419,30 @@ class StudioStoryEntry {
 
   /// A Material Symbols name.
   final String? icon;
+
+  // 165 From Dashboard › Stories (the ring's name is [heading]).
+
+  /// The small line over the story's title in the viewer.
+  final String? kicker;
+
+  /// Its title in the viewer; null: [heading].
+  final String? title;
+
+  /// Its line under the title; null: [subheading].
+  final String? line;
+
+  /// Its button's words; null: "Open".
+  final String? buttonLabel;
+
+  /// Its video, played muted over its photo in the viewer.
+  final String? videoUrl;
+
+  /// What the viewer shows as its title and line.
+  String? get viewerTitle => title ?? heading;
+  String? get viewerLine => line ?? subheading;
+
+  /// Whether it has something to show full screen: a photo or a video.
+  bool get hasMedia => imageUrl != null || videoUrl != null;
 }
 
 /// 129.5 A photo of a premium element; in a gallery, with a link a tap
@@ -2616,6 +2715,7 @@ class StudioNode {
   const StudioNode({
     required this.id,
     required this.type,
+    this.name,
     this.children = const [],
     this.width,
     this.height,
@@ -2667,6 +2767,7 @@ class StudioNode {
     this.categoriesStyle = CategoriesStyle.chips,
     this.code,
     this.recent = false,
+    this.heads,
     this.scroll = false,
     this.source,
     this.layout = ItemsLayout.grid,
@@ -2744,12 +2845,17 @@ class StudioNode {
       if (type == null) return null;
       double n(String key, double fallback, double min, double max) =>
           (optDouble(json, key) ?? fallback).clamp(min, max).toDouble();
-      final rawChildren = json['children'];
+      // 159 A layer's top bar at its automatic size, as Studio draws it.
+      final rawChildren =
+          type == StudioNodeType.stack && json['children'] is List
+          ? _autoSizedLayers(json['children'] as List)
+          : json['children'];
       final rawPlatforms = json['platforms'];
       final mapJson = json['map'];
       return StudioNode(
         id: id,
         type: type,
+        name: optString(json, 'name'),
         children: [
           for (final child in rawChildren is List ? rawChildren : const [])
             ?StudioNode.tryParse(child, depth: depth + 1, tablet: tablet),
@@ -2820,6 +2926,7 @@ class StudioNode {
         ),
         code: optString(json, 'code'),
         recent: boolOr(json, 'recent', false),
+        heads: optString(json, 'heads'),
         scroll: boolOr(json, 'scroll', false),
         source: enumOrNull(ItemSource.values, json['source']),
         layout: enumFrom(ItemsLayout.values, json['layout'], ItemsLayout.grid),
@@ -2967,6 +3074,82 @@ class StudioNode {
     return (optDouble(asJson(o), key) ?? fallback).clamp(min, max).toDouble();
   }
 
+  /// 159 A stack's layers at their automatic sizes (Studio's
+  /// lib/studio/auto-size.ts `autoSized`, which the hosted API serves too):
+  /// a cover's top bar (a row over the first layer holding two or more
+  /// elements that open something: Leqaa's search, wordmark and bag) spans
+  /// the cover unless its size was set by hand (`manual_size`), and when
+  /// nothing in it fills, its one text takes the room between its buttons,
+  /// so the bag sits at the edge whatever width the bar was given before
+  /// Studio asked (Kech Flora's, from a corner drag, put it three quarters
+  /// of the way across). Everything else as it is.
+  static List<Object?> _autoSizedLayers(List<Object?> layers) {
+    final out = <Object?>[];
+    var first = true;
+    for (final layer in layers) {
+      if (!_shown(layer)) {
+        out.add(layer);
+      } else if (first) {
+        first = false;
+        out.add(layer);
+      } else {
+        final json = layer as Map;
+        out.add(_coverBar(json) ? _autoBar(asJson(json)) : json);
+      }
+    }
+    return out;
+  }
+
+  static bool _shown(Object? json) => json is Map && json['hidden'] != true;
+
+  static bool _byHand(Map<dynamic, dynamic> json) => json['manual_size'] is Map;
+
+  static bool _coverBar(Map<dynamic, dynamic> json) {
+    if (json['type'] != 'row' ||
+        json['scroll'] == true ||
+        json['place'] is Map ||
+        json['children'] is! List) {
+      return false;
+    }
+    final opening = (json['children'] as List).where(
+      (k) =>
+          _shown(k) && ((k as Map)['type'] == 'button' || k['action'] is Map),
+    );
+    return opening.length >= 2;
+  }
+
+  static Map<String, dynamic> _autoBar(Map<String, dynamic> bar) {
+    final out = _byHand(bar) ? bar : _filling(bar);
+    final shown = [
+      for (final k in out['children'] as List)
+        if (_shown(k)) k as Map,
+    ];
+    if (shown.any((k) => k['width'] == 'fill')) return out;
+    final texts = [
+      for (final k in shown)
+        if (k['type'] == 'text') k,
+    ];
+    if (texts.length != 1 || _byHand(texts.single)) return out;
+    final word = texts.single;
+    return {
+      ...out,
+      'children': [
+        for (final k in out['children'] as List)
+          identical(k, word) ? _filling(asJson(k)) : k,
+      ],
+    };
+  }
+
+  /// Across all the room it has, on phones and tablets.
+  static Map<String, dynamic> _filling(Map<String, dynamic> json) {
+    final tablet = json['tablet'];
+    return {
+      ...json,
+      'width': 'fill',
+      if (tablet is Map) 'tablet': {...asJson(tablet)}..remove('width'),
+    };
+  }
+
   /// Editor audit 3.3: the element with its tablet changes (`tablet`) put
   /// over it; its font's fields one by one.
   static Map<String, dynamic> _onTablet(Map<String, dynamic> json) {
@@ -2985,6 +3168,12 @@ class StudioNode {
 
   final String id;
   final StudioNodeType type;
+
+  /// The element's name in Studio's layers. 159 What a screen reader says
+  /// for an element that opens something without words of its own. 171 A
+  /// heading of the same name just before a timeline that follows the
+  /// person's order is its title, left out with it when there is no order.
+  final String? name;
   final List<StudioNode> children;
   final StudioSize? width;
   final StudioSize? height;
@@ -3073,6 +3262,10 @@ class StudioNode {
   /// 112.4 For a list of products: the ones this person opened lately on
   /// this phone, filled by the app.
   final bool recent;
+
+  /// 164 The title of the sibling list with this ID: hidden with it (a
+  /// list with nothing to show leaves no title over nothing).
+  final String? heads;
 
   /// 107.2 For a row: it scrolls sideways, its children keeping their widths.
   final bool scroll;

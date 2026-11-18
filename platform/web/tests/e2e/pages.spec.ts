@@ -632,6 +632,13 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await phone.getByText("Hello Studio").click();
   const corner = phone.locator('[data-studio-resize="bottom-right"]').first();
   const at = (await corner.boundingBox())!;
+  // 159 Its size is automatic: once dragged, Studio asks first; then it is dragged.
+  await own.mouse.move(at.x + at.width / 2, at.y + at.height / 2);
+  await own.mouse.down();
+  await own.mouse.move(at.x + at.width / 2 - 12, at.y + at.height / 2);
+  await own.mouse.up();
+  await own.getByRole("alertdialog", { name: "Change this element's size by hand?" }).getByRole("button", { name: "Change by hand" }).click();
+  await expect(own.getByRole("alertdialog")).toHaveCount(0);
   await own.mouse.move(at.x + at.width / 2, at.y + at.height / 2);
   await own.mouse.down();
   for (let i = 1; i <= 5; i += 1) await own.mouse.move(at.x + at.width / 2 - 20 * i, at.y + at.height / 2 + 4 * i);

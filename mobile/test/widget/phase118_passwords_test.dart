@@ -201,24 +201,30 @@ void main() {
     expect(app.container.read(authControllerProvider).isSignedIn, isTrue);
   });
 
-  testWidgets('offers a code too where the owner kept codes', (tester) async {
+  testWidgets('offers a code where the owner kept one, on another channel', (
+    tester,
+  ) async {
+    // 160 A code on the password's own channel never signs in (the password
+    // is mandatory there); a code by email beside the phone's password does.
     final app = TestApp(
       api: FakeApi(
         config: studioConfig(
           by: ['phone'],
-          codes: ['phone'],
-          methods: ['phone'],
+          codes: ['phone', 'email'],
+          methods: ['phone', 'email'],
         ),
       ),
     );
     await app.pump(tester);
 
-    expect(find.text('Email'), findsNothing, reason: 'one way: no switch');
-    await tester.tap(find.text('Sign in with a code instead'));
+    expect(find.text('Sign in with a code instead'), findsNothing);
+    await tester.tap(find.text('Email'));
     await TestApp.settle(tester);
     expect(find.text('Send code'), findsOneWidget);
-    await tester.tap(find.text('Sign in with your password'));
+    expect(find.text('Password'), findsNothing);
+    await tester.tap(find.text('Phone'));
     await TestApp.settle(tester);
+    expect(find.text('Send code'), findsNothing);
     await tester.enterText(find.byType(TextField).at(0), '5321234567');
     await tester.enterText(find.byType(TextField).at(1), 'Nile-river-2026');
     await tester.pump();

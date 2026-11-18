@@ -1009,9 +1009,47 @@
     },
     "studio": {
      "body": {
-      "id": "sig-50",
+      "id": "sig-51",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "sig-50",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account",
      "background": "#F4EFE6",
@@ -1034,7 +1072,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-51",
+      "id": "sig-52",
       "type": "column",
       "children": []
      },
@@ -1076,7 +1114,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-52",
+      "id": "sig-53",
       "type": "column",
       "children": []
      },
@@ -1118,7 +1156,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-53",
+      "id": "sig-54",
       "type": "column",
       "children": []
      },
@@ -1160,7 +1198,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-54",
+      "id": "sig-55",
       "type": "column",
       "children": []
      },
@@ -1202,7 +1240,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-55",
+      "id": "sig-56",
       "type": "column",
       "children": []
      },
@@ -1236,7 +1274,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-56",
+      "id": "sig-57",
       "type": "column",
       "children": []
      },
@@ -1253,7 +1291,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-57",
+      "id": "sig-58",
       "type": "column",
       "children": []
      },
@@ -1270,7 +1308,7 @@
     "title": "A hotel's page",
     "studio": {
      "body": {
-      "id": "sig-58",
+      "id": "sig-59",
       "type": "column",
       "children": []
      },
@@ -1287,7 +1325,7 @@
     "title": "Hotels found",
     "studio": {
      "body": {
-      "id": "sig-59",
+      "id": "sig-60",
       "type": "column",
       "children": []
      },
@@ -1304,7 +1342,7 @@
     "title": "Hotels on the map",
     "studio": {
      "body": {
-      "id": "sig-60",
+      "id": "sig-61",
       "type": "column",
       "children": []
      },
@@ -1321,7 +1359,7 @@
     "title": "A hotel's rooms",
     "studio": {
      "body": {
-      "id": "sig-61",
+      "id": "sig-62",
       "type": "column",
       "children": []
      },
@@ -1338,7 +1376,7 @@
     "title": "Booking a stay",
     "studio": {
      "body": {
-      "id": "sig-62",
+      "id": "sig-63",
       "type": "column",
       "children": []
      },
@@ -1355,7 +1393,7 @@
     "title": "Flights found",
     "studio": {
      "body": {
-      "id": "sig-63",
+      "id": "sig-64",
       "type": "column",
       "children": []
      },
@@ -1372,7 +1410,7 @@
     "title": "A flight's fares",
     "studio": {
      "body": {
-      "id": "sig-64",
+      "id": "sig-65",
       "type": "column",
       "children": []
      },
@@ -1389,7 +1427,7 @@
     "title": "Prices by date",
     "studio": {
      "body": {
-      "id": "sig-65",
+      "id": "sig-66",
       "type": "column",
       "children": []
      },
@@ -1406,7 +1444,7 @@
     "title": "Choosing seats",
     "studio": {
      "body": {
-      "id": "sig-66",
+      "id": "sig-67",
       "type": "column",
       "children": []
      },
@@ -1423,7 +1461,7 @@
     "title": "Bags and meals",
     "studio": {
      "body": {
-      "id": "sig-67",
+      "id": "sig-68",
       "type": "column",
       "children": []
      },
@@ -1440,7 +1478,7 @@
     "title": "Stay + Flight",
     "studio": {
      "body": {
-      "id": "sig-68",
+      "id": "sig-69",
       "type": "column",
       "children": []
      },
@@ -1457,7 +1495,7 @@
     "title": "Booking a trip",
     "studio": {
      "body": {
-      "id": "sig-69",
+      "id": "sig-70",
       "type": "column",
       "children": []
      },
@@ -1474,7 +1512,7 @@
     "title": "A trip",
     "studio": {
      "body": {
-      "id": "sig-70",
+      "id": "sig-71",
       "type": "column",
       "children": []
      },
@@ -1491,7 +1529,7 @@
     "title": "Boarding passes",
     "studio": {
      "body": {
-      "id": "sig-71",
+      "id": "sig-72",
       "type": "column",
       "children": []
      },
@@ -1508,7 +1546,7 @@
     "title": "Changing a booking",
     "studio": {
      "body": {
-      "id": "sig-72",
+      "id": "sig-73",
       "type": "column",
       "children": []
      },
@@ -1525,7 +1563,7 @@
     "title": "Reviewing a stay",
     "studio": {
      "body": {
-      "id": "sig-73",
+      "id": "sig-74",
       "type": "column",
       "children": []
      },

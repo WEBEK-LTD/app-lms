@@ -354,7 +354,17 @@ Map<String, dynamic> _storeExtras(String lang) => {
   'gift_message': {
     'enabled': true,
     'max_length': 300,
-    'starters': <String>[],
+    // 169 Yallapp's beginnings (platform/web/src/lib/selling/gift-starters.ts
+    // `GIFT_BEGINNINGS`), in each of the shop's languages.
+    'starters': ['Happy birthday!', 'With all my love', 'Eid Mubarak!'],
+    'starters_by_language': {
+      'ar': ['عيد ميلاد سعيد!', 'مع كلِّ حبّي', 'عيد مبارك!'],
+      'tr': [
+        'Doğum günün kutlu olsun!',
+        'Tüm sevgimle',
+        'Bayramın mübarek olsun!',
+      ],
+    },
     'recipient': true,
     'anonymous': true,
   },
@@ -546,3 +556,72 @@ StudioDemo get leqaaDemo => StudioDemo.file('leqaa_demo.json');
 /// Whether the photos are there (public/flower-photos).
 bool get leqaaPhotosReady =>
     File('../platform/web/public/flower-photos/blush-bouquet.jpg').existsSync();
+
+/// 162 Build your bouquet on Leqaa (lib/demo/flowers.ts `FLOWER_BOUQUET`):
+/// the loose stems, the two papers and the greeting card, with the shop's
+/// photos; 3 to 36 stems, the wrap always, the card may be left out.
+Map<String, dynamic> leqaaBouquetBuilder(String base, {String lang = 'en'}) {
+  Map<String, dynamic> item(
+    int id,
+    (String, String, String) name,
+    int pounds,
+    String? photo, {
+    bool addon = false,
+  }) => {
+    'id': id,
+    'name': _pick(name, lang),
+    'type': 'simple',
+    'image_url': photo == null ? null : '$base/flower-photos/$photo.jpg',
+    'price': _money(pounds, lang),
+    'rating': null,
+    'rating_count': 0,
+    'stock_status': 'in_stock',
+    'purchasable': true,
+    'digital': false,
+    'addon': addon,
+  };
+  return {
+    'flowers_category_id': 9,
+    'wraps_from': 'addons',
+    'wrap_optional': false,
+    'card_optional': true,
+    'has_cards': true,
+    'min_stems': 3,
+    'max_stems': 36,
+    'max_message': 300,
+    'flowers': [
+      item(301, ('Red Rose', 'وردة حمراء', 'Kırmızı Gül'), 45, 'red-rose'),
+      item(
+        302,
+        ('Blush Ranunculus', 'حوذان وردي', 'Pembe Düğünçiçeği'),
+        55,
+        'ranunculus',
+      ),
+      item(
+        303,
+        ('White Lily', 'زنبقة بيضاء', 'Beyaz Zambak'),
+        60,
+        'white-lilies',
+      ),
+      item(304, ('Sunflower', 'دوّار الشمس', 'Ayçiçeği'), 40, 'sunflowers'),
+      item(305, ("Baby's Breath", 'نفس الطفل', 'Cipsofila'), 25, 'baby-breath'),
+    ],
+    'wraps': [
+      item(
+        401,
+        ('Kraft Paper Wrap', 'تغليف ورق كرافت', 'Kraft Kağıt Ambalaj'),
+        60,
+        'stems',
+        addon: true,
+      ),
+      item(
+        402,
+        ('Blush Paper Wrap', 'تغليف ورق وردي', 'Pembe Kağıt Ambalaj'),
+        90,
+        'tulips',
+        addon: true,
+      ),
+    ],
+    'cards': [item(203, _names[203]!, 60, null, addon: true)],
+  };
+}

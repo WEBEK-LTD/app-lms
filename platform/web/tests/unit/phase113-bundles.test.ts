@@ -297,6 +297,8 @@ describe("113.1 bundles in the stores and on pages", () => {
         subtitle: "3 دورات",
         image_url: null,
         price_label: expect.stringContaining("450"),
+        // 161 Its amount and currency, for the same in the customer's.
+        price: { amount: "450.00", currency: "EGP", formatted: expect.stringContaining("450") },
         badge: expect.stringContaining("600"),
         action: { type: "item", item: { source: "bundles", id: "50" } },
       },

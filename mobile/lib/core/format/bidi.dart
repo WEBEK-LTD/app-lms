@@ -24,6 +24,15 @@ String isolate(String text) =>
 String ltrRun(String text) =>
     appIsRtl && text.isNotEmpty ? '\u2066$text\u2069' : text;
 
+/// 161 A sale's or a coupon's share off ("20% off", "خصم 20%", "%20
+/// indirim", an owner's own "−20%") with its number, its sign and its
+/// percent kept together left to right, so in Arabic it never reads "20%-"
+/// or "%20". Unchanged in a left-to-right app.
+String percentText(String text) =>
+    text.replaceAllMapped(_signedPercent, (m) => ltrRun(m[0]!));
+
+final _signedPercent = RegExp(r'(?:[-−+]\s?)?(?:\d+\s?[%٪]|[%٪]\s?\d+)');
+
 /// The direction [text] is written in, from its first letter: for a line
 /// cut short, so the "…" goes at its end.
 TextDirection directionOfText(String text, {TextDirection? fallback}) {

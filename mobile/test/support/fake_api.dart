@@ -1066,9 +1066,24 @@ class FakeApi implements YallappApi {
 
   Map<String, dynamic> product = productDetailJson();
 
+  /// 152 Products the shop no longer has: `GET /store/products/{id}` answers 404.
+  final missingProducts = <int>{};
+
+  /// The products asked for, in order.
+  final productsAsked = <int>[];
+
   @override
-  Future<ProductDetail> getProduct(int productId) =>
-      _answer('getProduct', () => ProductDetail.fromJson(product));
+  Future<ProductDetail> getProduct(int productId) => _answer('getProduct', () {
+    productsAsked.add(productId);
+    if (missingProducts.contains(productId)) {
+      throw const ApiException(
+        code: 'not_found',
+        message: 'Product not found.',
+        statusCode: 404,
+      );
+    }
+    return ProductDetail.fromJson(product);
+  });
 
   @override
   Future<ReviewPage> listProductReviews(int productId, {int page = 1}) =>
@@ -1169,6 +1184,22 @@ class FakeApi implements YallappApi {
         ProductSummary.fromJson(a),
     ],
   );
+
+  /// 162 `GET /store/bouquet`; null: the shop hasn't set it up (404).
+  Map<String, dynamic>? bouquet;
+
+  @override
+  Future<BouquetBuilderData> getBouquet() => _answer('getBouquet', () {
+    final b = bouquet;
+    if (b == null) {
+      throw const ApiException(
+        statusCode: 404,
+        code: 'not_found',
+        message: "This shop doesn't build bouquets in the app.",
+      );
+    }
+    return BouquetBuilderData.fromJson(b);
+  });
 
   /// 26 How the last restaurant checkout wanted the order.
   ({

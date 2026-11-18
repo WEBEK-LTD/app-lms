@@ -10,6 +10,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../data/lms_providers.dart';
 import 'course_look_kit.dart';
+import '../../../core/format/text_case.dart';
 
 /// 130.52 A course in the lists in the course screens' look (`Config.
 /// screens.courses.card`): `poster` the photo whole under a scrim with the
@@ -619,7 +620,7 @@ class _GlassCard extends StatelessWidget {
                 children: [
                   if (badge != null)
                     CourseTag(
-                      badge.toUpperCase(),
+                      badge.toUpperCaseIn(context),
                       background: colors.look.look == CourseLook.onAir
                           ? colors.live
                           : colors.accent,
@@ -765,7 +766,7 @@ class _Row extends StatelessWidget {
               children: [
                 if (badge != null) ...[
                   Text(
-                    badge.toUpperCase(),
+                    badge.toUpperCaseIn(context),
                     style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w800,

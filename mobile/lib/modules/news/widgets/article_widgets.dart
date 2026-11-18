@@ -17,6 +17,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/news_providers.dart';
 import '../../../core/services/share_links.dart';
+import '../../../core/format/text_case.dart';
 
 /// "Ayla Demir · 13 Oct 2026", as the owner's settings allow.
 String articleMeta(BuildContext context, ArticleSummary a, NewsConfig config) {
@@ -100,7 +101,7 @@ class ArticleCard extends ConsumerWidget {
                   children: [
                     if (section != null) ...[
                       Text(
-                        section.toUpperCase(),
+                        section.toUpperCaseIn(context),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(

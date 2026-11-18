@@ -65,21 +65,24 @@ class _ListingsSearchScreenState extends ConsumerState<ListingsSearchScreen> {
       backgroundColor: p.surface,
       showDragHandle: true,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final sort in ListingSort.values)
-              ListTile(
-                title: Text(
-                  sortLabel(l10n, sort),
-                  style: TextStyle(color: p.text),
+        child: SingleChildScrollView(
+          // 158 Every choice in reach on a short phone or with a large font.
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final sort in ListingSort.values)
+                ListTile(
+                  title: Text(
+                    sortLabel(l10n, sort),
+                    style: TextStyle(color: p.text),
+                  ),
+                  trailing: sort == _query.sort
+                      ? AppIcon(AppIcons.check, color: p.text)
+                      : null,
+                  onTap: () => Navigator.of(context).pop(sort),
                 ),
-                trailing: sort == _query.sort
-                    ? AppIcon(AppIcons.check, color: p.text)
-                    : null,
-                onTap: () => Navigator.of(context).pop(sort),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -247,6 +250,9 @@ class _ListingsSearchScreenState extends ConsumerState<ListingsSearchScreen> {
       );
     }
     return ListingGrid(
+      // 158 Its end, and the next page's spinner, clear of a tab bar over
+      // the screen.
+      padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
       listings: state.items,
       loadingMore: state.hasMore && error == null,
       onNearEnd: controller.loadMore,

@@ -156,8 +156,14 @@ Future<void> _fillGift(WidgetTester tester, String language) async {
   await type('gift-sender-email', 'omar@example.com');
   await type('gift-recipient-name', ar ? 'سلمى عادل' : 'Salma Adel');
   await type('gift-recipient-phone', '+20 122 555 0187');
-  await tap('gift-city');
-  await tester.tap(find.text(ar ? 'القاهرة' : 'Cairo').last);
+  await tap('gift-city-EG');
+  await tester.tap(
+    find.text(switch (language) {
+      'ar' => 'القاهرة',
+      'tr' => 'Kahire',
+      _ => 'Cairo',
+    }).last,
+  );
   await tester.pump(const Duration(milliseconds: 600));
   await type(
     'gift-recipient-address',
@@ -209,13 +215,17 @@ List<Shot> get _website => [
   ),
 ];
 
-/// The owner's gallery: each look's pages by day, by night and in Arabic.
+/// The owner's gallery: each look's pages by day, by night, in Arabic (by
+/// day and by night) and 169 in Turkish.
 List<Shot> get _galleryShots => [
   for (final look in ['a', 'b'])
     for (final (mode, dark, language) in [
       ('light', false, 'en'),
       ('dark', true, 'en'),
       ('ar', false, 'ar'),
+      // 169 Right to left by night, and Turkish.
+      ('ar-dark', true, 'ar'),
+      ('tr', false, 'tr'),
     ])
       for (final (page, location, scroll) in [
         ('home', null, 0.0),
@@ -279,6 +289,9 @@ List<Shot> get _galleryShots => [
       ('light', false, 'en'),
       ('dark', true, 'en'),
       ('ar', false, 'ar'),
+      // 169 Right to left by night, and Turkish.
+      ('ar-dark', true, 'ar'),
+      ('tr', false, 'tr'),
     ]) ...[
       for (final (step, key) in [
         ('checkout', 'gift-card-preview'),
