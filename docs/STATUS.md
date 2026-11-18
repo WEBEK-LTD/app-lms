@@ -8,18 +8,33 @@ Last updated: 18 November 2026.
 
 ## Current release
 
-Roadmap 155 (Apple Pay and Google Pay in Stripe's form): the payment page
-(`/pay/…`) lets the page and Stripe's frames use the Payment Request API
-(`payment=(self "https://js.stripe.com" "https://checkout.stripe.com")`, as
-Stripe's Google Pay guide gives it); every other page keeps `payment=()`.
-The page's domain is registered in each shop's own Stripe account with its
-own key (Payment Method Domains), when its Stripe keys are saved or tested
-and once before Stripe's form if it isn't yet; the answer is kept on the
-shop's payment settings, and a failure never stops a card payment (noted
-for the team). Payments says "Apple Pay and Google Pay: ready" or why not
-yet. The wallets are expected in Safari and Chrome, not inside the apps'
-web views (ROADMAP 155.6). Not yet tried with a real Stripe account on real
-devices (ROADMAP 155.7).
+Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
+payout of the 1st covers the sales paid up to the end of the month before,
+cut off at midnight Istanbul time; a sale paid on the 1st or later waits for
+the next 1st. Earnings says "Next payout · 1 December" with the sales it
+includes and what counts toward the 1st after; Admin › Studio Market ›
+Payouts shows that month's run from the 1st and prepares only the balance
+before the cut-off; the daily job alerts the team on the 1st (Admin ›
+Watching, emailed once). The privacy policy (en/ar/tr) and the designer
+terms say what's kept for payouts and when it's paid (the owner's approved
+text).
+
+Roadmap 106.11 (Studio Market, the designer's money): each paid template
+sale is written once in the designer's ledger with its split (the sale,
+Yallapp's 25%, their exact 75%, in whole cents). The designer area's
+Earnings shows the balance available, pending and paid out, each sale's
+split and the payouts with their receipts (a page and a PDF, in the
+designer's language). Before the first payout (not before publishing) the
+designer sends their ID with a photo of it and their bank for SWIFT; the ID
+number and the account are encrypted with the platform's key and shown
+masked except to the new `market.payouts` permission (owners and admins).
+Admin › Studio Market › Payout checks approves them or asks for a fix;
+Payouts lists the month's due (USD 250 or more, checks approved, monthly;
+below that the balance carries over), prepares the bank file (CSV), and
+records each transfer the team sends from Yallapp's bank with Mark as sent
+(the designer emailed a receipt). Nothing is sent by the platform.
+Migration `0142_studio_market_money`; the first real payout is to be
+checked by hand (LAUNCH-CHECKLIST, Phase 106.11).
 
 The plugin's end-to-end job (WordPress + Tutor LMS) no longer loses a check
 about a minute into its run (main #449 and #450, PR #454): the dev site runs
@@ -43,6 +58,19 @@ chosen, or whose product the shop no longer has, opens the shop: hosted
 it, and the app does the same from `CLIENT_APP_RELEASE` 7 (WooCommerce
 stores' pages too). Not yet tried on a phone (ROADMAP 152.7).
 
+Roadmap 155 (Apple Pay and Google Pay in Stripe's form): the payment page
+(`/pay/…`) lets the page and Stripe's frames use the Payment Request API
+(`payment=(self "https://js.stripe.com" "https://checkout.stripe.com")`, as
+Stripe's Google Pay guide gives it); every other page keeps `payment=()`.
+The page's domain is registered in each shop's own Stripe account with its
+own key (Payment Method Domains), when its Stripe keys are saved or tested
+and once before Stripe's form if it isn't yet; the answer is kept on the
+shop's payment settings, and a failure never stops a card payment (noted
+for the team). Payments says "Apple Pay and Google Pay: ready" or why not
+yet. The wallets are expected in Safari and Chrome, not inside the apps'
+web views (ROADMAP 155.6). Not yet tried with a real Stripe account on real
+devices (ROADMAP 155.7).
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build
@@ -52,6 +80,19 @@ problem on our side and offers iPhone only; the admin shows the technical
 cause and the team gets one alert per build. Nothing retries it. Every
 iPhone failure now says its cause in plain words with where to fix it,
 and the iPhone app's build output is for the admin only.
+
+Roadmap 163 (Studio pages on a Samsung's settings): Leqaa's signature
+template, every page of both looks, is drawn by the real app in tests at
+font scales 1.0 to 1.5, display zoom (360, 384, 412 points) and both
+navigation bars, Arabic and English, light and dark. Arabic text in Studio
+pages is never under a 1.5 line, so the Orders title no longer draws over
+the journey's card; a photo cover grows with its words; a row's last text
+gives way (one that shows something, so a long price with no sale
+shrinks); a testimonial's quote mark isn't cut; the flash sale's title
+wraps; the folding header no longer redraws during layout.
+`CLIENT_APP_RELEASE` is 8 (after 152's 7). Lists whose last items stay under the tab bar (Account, Bouquets, Picks) and the Orders empty
+state under the phone's bar are `wip-page-scroll`'s (ROADMAP 163.7). The
+journey's card offset in right-to-left wasn't reproduced (163.8).
 
 Roadmap 153 (the card inside the payment page for iyzico and Kashier): as
 with Stripe (144), Yallapp's payment page shows the gateway's own card form
@@ -698,6 +739,14 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
 | 100.6 | Sales in Analytics and the Owner API, the guide, the terms | unit, e2e (analytics, owner API, public pages) |
 | 100.7 | Apps on their own API, Teachable and Thinkific schools | unit, MariaDB store suites, e2e of the dashboard |
 
+Roadmap 154 (the pricing page in its Day and night look): /pricing in the
+design the owner chose, the app by day and Studio by night: a night hero
+with the two products and their fanned phones, the period picker floating
+over its edge with each period's saving, compact cards with the rest
+folded, Studio's plans on a night band, every kind of app each product
+makes, a few questions and a closing band in the night. Only the plans for
+sale show, with their prices from Admin › Plans.
+
 ## To verify against real services before release
 
 - 138 The App Store Connect calls of the App Review submission
@@ -762,21 +811,8 @@ test environment:
   shop with taxes added at checkout, HPOS and a shop with shipping zones
   by postcode are still to try.
 
-- 155 Stripe's Payment Method Domains (`/v1/payment_method_domains`, its
-  list by `domain_name`, `…/validate`, `apple_pay.status_details`) against
-  a real Stripe account, and Apple Pay and Google Pay showing in Embedded
-  Checkout in Safari and Chrome (LAUNCH-CHECKLIST Phase 155). Stripe's docs
-  couldn't be fetched from the work environment; they were read through
-  search summaries.
-
 ## Known gaps
 
-- 155 Apple Pay inside the iPhone app's web view and Google Pay inside the
-  Android app's aren't expected: WebKit allows Apple Pay only in a
-  WKWebView without injected scripts (the app's web view adds its
-  JavaScript channels as user scripts), and Android's WebView keeps the
-  Payment Request API off unless the app turns it on, with each app's
-  Google Pay approval (ROADMAP 155.6). The card form works there as before.
 - 138 An account's limit can be passed by one or two apps when several
   new apps are given accounts in the same instant (each app still gets
   exactly one account, written once). Assignment reads the settings
