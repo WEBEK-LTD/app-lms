@@ -6,6 +6,7 @@ import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import type { CoverView, DesignerCard, DesignerChip, TemplateCard } from "@/lib/studio-market/catalog";
 import { formatUsd, ltr, type PriceTag } from "@/lib/studio-market/plans";
+import { Countdown } from "./countdown";
 import { TemplatePhone } from "./phone";
 import "./market.css";
 
@@ -40,15 +41,33 @@ export function FreePrice({ big = false }: { big?: boolean }) {
   return <span className={`font-extrabold whitespace-nowrap text-success ${big ? "text-lg" : "text-[15px]"}`}>{t("studioMarket.free")}</span>;
 }
 
-/** 106.2 A template's price on its card: "Free", "From $4/mo" or "$149 once". */
-export function PriceTagView({ price, big = false }: { price: PriceTag; big?: boolean }) {
+/** 106.2 A template's price on its card: "Free", "From $4/mo" or "$149 once"; 106.12 the price before its discounts struck through beside it. */
+export function PriceTagView({ price, big = false, wasCents = null }: { price: PriceTag; big?: boolean; wasCents?: number | null }) {
   const t = useDashT();
   const lang = useDashLang();
   if (price.kind === "free") return <FreePrice big={big} />;
-  return (
+  const tag = (
     <span data-price={price.kind} className={`font-extrabold whitespace-nowrap text-[var(--mk-ink)] ${big ? "text-lg" : "text-[15px]"}`}>
       {t(price.kind === "from" ? "studioMarket.fromPrice" : "studioMarket.oncePrice", { price: ltr(formatUsd(price.cents), lang) })}
     </span>
+  );
+  if (!wasCents) return tag;
+  return (
+    <span className="inline-flex flex-wrap items-baseline gap-x-1.5">
+      {tag}
+      <WasPrice text={price.kind === "from" ? t("studioMarket.perMonth", { price: ltr(formatUsd(wasCents), lang) }) : ltr(formatUsd(wasCents), lang)} />
+    </span>
+  );
+}
+
+/** 106.12 A price before its discount, struck through (read out as "Before: $8/mo"). */
+export function WasPrice({ text, className = "" }: { text: string; className?: string }) {
+  const t = useDashT();
+  return (
+    <s data-was className={`mk-muted text-[13px] font-semibold whitespace-nowrap ${className}`}>
+      <span className="sr-only">{t("marketDiscounts.wasPrice", { price: text })}</span>
+      <span aria-hidden="true">{text}</span>
+    </s>
   );
 }
 
@@ -77,6 +96,18 @@ export function TemplateCardView({ card, rank, phone = 170, height, pool }: { ca
           <span className="mk-card-tags">
             {card.free ? <span className="mk-pill mk-pill-free">{t("studioMarket.free")}</span> : null}
             {rank ? <span className="mk-pill mk-pill-ink">{t("studioMarket.rank", { rank })}</span> : null}
+            {/* 106.12 A flash sale or a price drop on it now. */}
+            {card.flashEndsAt ? (
+              <span className="mk-pill mk-pill-sale">
+                <Icon name="bolt" size={15} filled />
+                {t("marketDiscounts.flashPill")}
+              </span>
+            ) : card.wasCents ? (
+              <span className="mk-pill mk-pill-sale">
+                <Icon name="sell" size={15} />
+                {t("marketDiscounts.salePill")}
+              </span>
+            ) : null}
           </span>
           <div className="mk-card-phone">
             <TemplatePhone view={card.cover} width={phone} />
@@ -107,9 +138,10 @@ export function TemplateCardView({ card, rank, phone = 170, height, pool }: { ca
           ) : null}
         </span>
         <div className="mk-card-foot">
-          <PriceTagView price={card.price} />
+          <PriceTagView price={card.price} wasCents={card.wasCents} />
           <Icon name="arrow_forward" size={18} className="mk-muted" />
         </div>
+        {card.flashEndsAt ? <Countdown endsAt={card.flashEndsAt} className="mk-sale-time text-[12.5px]" size={15} /> : null}
       </div>
     </article>
   );

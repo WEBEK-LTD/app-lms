@@ -14,8 +14,10 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { encryptionKey } from "@/lib/env";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { yallappBilling, yallappPlanAccount } from "@/lib/settings/platform";
-import { coverView } from "@/lib/studio-market/catalog";
+import { automaticDiscounts, coverView } from "@/lib/studio-market/catalog";
 import { appProblem, chargeFor, CHECKOUT_MESSAGES, renewable } from "@/lib/studio-market/checkout";
+import { CODE_PROBLEM_MESSAGES, couponProblem, normalizeCode, quotePlan } from "@/lib/studio-market/discounts";
+import type { MarketDiscount } from "@/lib/data/types";
 import { formatList } from "@/i18n";
 import { formatUsd, ltr, offeredPlans, perMonthCents, periodEnd } from "@/lib/studio-market/plans";
 import { templateText } from "@/lib/studio-market/templates";
@@ -30,7 +32,11 @@ export const dynamic = "force-dynamic";
 /**
  * 106.2 Checkout (screen 3), in the market's look (A in light, B in dark):
  * a paid template's plan and the app it goes on, or a renewal's plan, then
- * Pay on the gateway's page. Only the account's owner pays.
+ * Pay on the gateway's page. Only the account's owner pays. 106.12 Each
+ * plan at its price now: the better of its automatic price (a price drop or
+ * a flash sale) or the code in the address (`?code=`, applied from the
+ * page), with the original price, the discount and the total; the payment
+ * works it out again on the server.
  */
 export default async function CheckoutPage({ params, searchParams }: PageProps<"/dashboard/studio-market/checkout/[slug]">) {
   const context = await requireClient("billing");
@@ -56,25 +62,76 @@ export default async function CheckoutPage({ params, searchParams }: PageProps<"
 
   // A renewal extends from the end date while the plan runs, from today once it ended.
   const start = renew && renew.status === "active" && renew.endsAt && renew.endsAt.getTime() > now.getTime() ? renew.endsAt : now;
-  const perMonth = plans.flatMap((p) => {
-    const cents = perMonthCents(p);
-    return cents === null ? [] : [{ period: p.period, cents }];
+
+  // 106.12 The automatic discounts and the buyer's code: each plan's price now, the better of the two.
+  const automatic = (await automaticDiscounts(store, [template.id], now)).get(template.id) ?? [];
+  const typed = one("code").trim().slice(0, 40);
+  const code = typed ? normalizeCode(typed) : "";
+  let coupon: MarketDiscount | null = null;
+  let codeProblem: string | null = null;
+  if (code) {
+    const found = await store.findMarketCoupon(template.id, code);
+    const uses = found?.usageLimit != null ? ((await store.countMarketDiscountUses([found.id]))[found.id] ?? 0) : 0;
+    const problem = couponProblem(found, uses, now);
+    if (problem) codeProblem = CODE_PROBLEM_MESSAGES[problem];
+    else coupon = found;
+  }
+  const usd = (cents: number) => ltr(formatUsd(cents), lang);
+  const planName = (period: string) => t(`studioMarket.plan_${period as (typeof plans)[number]["period"]}`);
+  const quotes = plans.map((p) => quotePlan(p, automatic, coupon, now));
+  const perMonth = quotes.flatMap((q) => {
+    const cents = perMonthCents({ period: q.period, cents: q.cents });
+    return cents === null ? [] : [{ period: q.period, cents }];
   });
   const best = perMonth.length > 1 ? perMonth.reduce((a, b) => (b.cents < a.cents ? b : a)).period : null;
-  const rows: CheckoutPlan[] = plans.map((p) => {
-    const charge = account ? chargeFor(p.cents, account.provider, billing.egpPerUsd) : null;
-    const month = perMonthCents(p);
-    const end = periodEnd(start, p.period);
+  const rows: CheckoutPlan[] = quotes.map((q) => {
+    const charge = account ? chargeFor(q.cents, account.provider, billing.egpPerUsd) : null;
+    const month = perMonthCents({ period: q.period, cents: q.cents });
+    const end = periodEnd(start, q.period);
+    const won = q.wins === "code" ? q.code : q.wins === "auto" ? q.auto : null;
+    const note: CheckoutPlan["codeNote"] = !coupon
+      ? null
+      : q.wrongPlan
+        ? { tone: "warn", text: t("marketDiscounts.codeWrongPlan", { plan: planName(q.period) }) }
+        : q.wins === "code"
+          ? { tone: "good", text: t("marketDiscounts.codeWins") }
+          : q.code && q.auto
+            ? { tone: "info", text: t(q.code.cents === q.auto.cents ? "marketDiscounts.autoTies" : "marketDiscounts.autoWins") }
+            : null;
     return {
-      period: p.period,
-      name: t(`studioMarket.plan_${p.period}`),
-      price: ltr(formatUsd(p.cents), lang),
-      sub: month === null ? t("studioMarket.lifeHint") : t("studioMarket.perMonth", { price: ltr(formatUsd(month), lang) }),
+      period: q.period,
+      name: planName(q.period),
+      cents: q.cents,
+      price: usd(q.cents),
+      list: q.cents < q.listCents ? usd(q.listCents) : null,
+      discount: won
+        ? {
+            label: won.discount.kind === "coupon" ? t("marketDiscounts.lineCode", { code: won.discount.code ?? "" }) : t(won.discount.kind === "flash" ? "marketDiscounts.lineFlash" : "marketDiscounts.lineDrop"),
+            amount: `−${usd(q.listCents - q.cents)}`,
+            kind: won.discount.kind,
+          }
+        : null,
+      flashEndsAt: q.wins === "auto" && q.auto?.discount.kind === "flash" ? (q.auto.discount.endsAt?.toISOString() ?? null) : null,
+      codeNote: note,
+      sub: month === null ? t("studioMarket.lifeHint") : t("studioMarket.perMonth", { price: usd(month) }),
       charged: charge && charge.currency !== "USD" ? ltr(formatAmount(charge.cents, charge.currency), lang) : null,
       ends: end ? formatDate(end, lang) : null,
-      best: p.period === best,
+      best: q.period === best,
     };
   });
+  const off = coupon ? (coupon.offType === "percent" ? ltr(`${coupon.offValue}%`, lang) : usd(coupon.offValue)) : "";
+  const codeState = code
+    ? {
+        value: code,
+        applied: Boolean(coupon),
+        problem: codeProblem,
+        summary: coupon
+          ? coupon.plans === null
+            ? t("marketDiscounts.codeAppliedAll", { code, off })
+            : t("marketDiscounts.codeAppliedSome", { code, off, plans: formatList(lang, coupon.plans.map(planName)) })
+          : null,
+      }
+    : null;
 
   const kinds = formatList(lang, templateKinds(template).map((x) => k(x.name)), "disjunction");
   const licences = await store.listTemplateLicences({ clientId: context.client.id, templateId: template.id });
@@ -121,6 +178,8 @@ export default async function CheckoutPage({ params, searchParams }: PageProps<"
           afterEnd={template.afterEnd}
           provider={account ? PROVIDER_NAME[account.provider] : "Kashier"}
           unavailable={unavailable}
+          code={codeState}
+          sale={quotes.some((q) => q.auto !== null) || Boolean(coupon)}
         />
       </div>
     </MarketPhones>

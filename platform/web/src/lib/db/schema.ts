@@ -100,6 +100,7 @@ import type { MailAudience, MailCampaignStatus, MailContactSource, MailContents,
 import type { Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
 // 106 Studio Market
 import type { MarketPlanPrice, MarketTemplate, MarketTemplateCover } from "../data/types";
+import type { MarketDiscountKind, MarketPlanPeriod } from "../data/types";
 import type { AdminRole } from "../admin/permissions";
 import type { DemoId } from "../demo/constants";
 import type { ReviewRating } from "../reviews/types";
@@ -5840,6 +5841,12 @@ export const studioMarketOrders = mysqlTable(
     applyError: varchar("apply_error", { length: 191 }),
     createdAt: time("created_at").notNull(),
     paidAt: time("paid_at"),
+    // 106.12 The discount it was bought with: the plan's price before it and what came off (gross_cents is after it).
+    discountId: id("discount_id"),
+    discountKind: varchar("discount_kind", { length: 8 }).$type<MarketDiscountKind>(),
+    discountCode: varchar("discount_code", { length: 24 }),
+    listCents: bigint("list_cents", { mode: "number", unsigned: true }),
+    discountCents: bigint("discount_cents", { mode: "number", unsigned: true }),
   },
   (t) => [
     uniqueIndex("studio_market_orders_token_idx").on(t.tokenHash),
@@ -5847,6 +5854,8 @@ export const studioMarketOrders = mysqlTable(
     index("studio_market_orders_designer_idx").on(t.designerId, t.status, t.paidAt),
     index("studio_market_orders_template_idx").on(t.templateId, t.createdAt),
     index("studio_market_orders_licence_idx").on(t.licenceId),
+    // 106.12 A coupon's uses: its paid orders, and those still being paid.
+    index("studio_market_orders_discount_idx").on(t.discountId, t.status, t.createdAt),
   ],
 );
 
@@ -5871,6 +5880,40 @@ export const studioMarketApplications = mysqlTable(
     foreignKey({ name: "studio_market_applications_licence_fk", columns: [t.licenceId], foreignColumns: [studioMarketLicences.id] }).onDelete("cascade"),
     index("studio_market_applications_app_idx").on(t.appId, t.endedAt),
     index("studio_market_applications_licence_idx").on(t.licenceId, t.appliedAt),
+  ],
+);
+
+/**
+ * 106.12 A designer's discounts on their templates: price drops and flash
+ * sales (automatic) and coupon codes, each an amount or a percentage off
+ * some or all plans, from a start to an end; a coupon's code is unique on
+ * its template, in upper case, with an optional usage limit (its paid
+ * orders, studio_market_orders.discount_id).
+ */
+export const studioMarketDiscounts = mysqlTable(
+  "studio_market_discounts",
+  {
+    id: id("id").primaryKey(),
+    templateId: id("template_id").notNull(),
+    designerId: id("designer_id").notNull(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<MarketDiscountKind>(),
+    code: varchar("code", { length: 24 }),
+    offType: varchar("off_type", { length: 8 }).notNull().$type<"percent" | "amount">(),
+    offValue: int("off_value").notNull(),
+    plans: jsonText<MarketPlanPeriod[] | null>("plans"),
+    startsAt: time("starts_at"),
+    endsAt: time("ends_at"),
+    usageLimit: int("usage_limit"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    // Named here: drizzle's own name for it is longer than MariaDB's 64 characters.
+    foreignKey({ name: "studio_market_discounts_template_fk", columns: [t.templateId], foreignColumns: [studioMarketTemplates.id] }).onDelete("cascade"),
+    // Drops and flash sales have no code: NULLs don't collide.
+    uniqueIndex("studio_market_discounts_code_idx").on(t.templateId, t.code),
+    index("studio_market_discounts_template_idx").on(t.templateId, t.kind, t.endsAt),
+    index("studio_market_discounts_designer_idx").on(t.designerId, t.createdAt),
   ],
 );
 

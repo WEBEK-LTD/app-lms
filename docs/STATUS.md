@@ -36,6 +36,19 @@ records each transfer the team sends from Yallapp's bank with Mark as sent
 Migration `0142_studio_market_money`; the first real payout is to be
 checked by hand (LAUNCH-CHECKLIST, Phase 106.11).
 
+Roadmap 106.12 (Studio Market's discounts): designers make price drops,
+flash sales and coupon codes on their paid templates (Designer area ›
+Discounts), each an amount or a percentage off some or all plans, lifetime
+too, from a start to an end in their time zone; a code has an optional
+usage limit, counted on paid orders. The market's cards show the
+discounted "From $X/mo" with the old price struck through, a new flash
+strip lists the templates on a flash sale now with a live countdown, and
+checkout takes a code (any case) with the original price, the discount and
+the total. Nothing stacks: the buyer gets the better of the automatic
+price or the code. The server works the price out again at Pay; the
+order's gross is the price paid, so the 75/25 split is of it. A discount
+never takes a plan below $1 (100% off is $1). Migration 0143.
+
 The plugin's end-to-end job (WordPress + Tutor LMS) no longer loses a check
 about a minute into its run (main #449 and #450, PR #454): the dev site runs
 no WP-Cron of its own (`DISABLE_WP_CRON`). WP-CLI took WordPress's cron lock
@@ -973,5 +986,7 @@ test environment:
   moving and going back to the previous design) is built, in the look the
   owner chose ("Gallery" in light, "Night showroom" in dark); stage 2 (paid
   plans, checkout with Kashier, renewing, the reminders and the end of a
-  plan) too. The designers' money, and discounts with the public
-  `/templates` page follow (see `docs/ROADMAP.md`).
+  plan) too, stage 3 (the designers' money: the ledger, the checks before
+  the first payout and the monthly payouts, 106.11) and stage 4's discounts
+  (price drops, flash sales and coupon codes, 106.12). The public
+  `/templates` page (106.13) follows (see `docs/ROADMAP.md`).

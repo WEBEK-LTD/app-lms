@@ -22,6 +22,8 @@ import type {
   DesignerPayoutStatus,
   PayoutDetailsStatus,
 } from "./types";
+// 106.12 Studio Market discounts
+import type { MarketDiscount, MarketDiscountKind } from "./types";
 import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
@@ -9026,6 +9028,8 @@ export class MemoryStore implements DataStore {
     this.marketTemplates.delete(id);
     for (const [key, v] of this.marketVersions) if (v.templateId === id) this.marketVersions.delete(key);
     this.marketReviews = this.marketReviews.filter((r) => r.templateId !== id);
+    // 106.12 Its discounts go with it, as the database's foreign key does.
+    for (const [key, d] of this.marketDiscounts) if (d.templateId === id) this.marketDiscounts.delete(key);
     return true;
   }
 
@@ -9219,6 +9223,71 @@ export class MemoryStore implements DataStore {
     if (!found || found.endedAt) return false;
     this.templateApplications.set(id, { ...found, ...clone(patch) });
     return true;
+  }
+
+  // ——— 106.12 Studio Market discounts ———
+
+  private marketDiscounts = new Map<string, MarketDiscount>();
+
+  async createMarketDiscount(discount: MarketDiscount): Promise<MarketDiscount | null> {
+    if (discount.code !== null && [...this.marketDiscounts.values()].some((d) => d.templateId === discount.templateId && d.code === discount.code)) return null;
+    this.marketDiscounts.set(discount.id, clone(discount));
+    return clone(discount);
+  }
+
+  async getMarketDiscount(id: string): Promise<MarketDiscount | null> {
+    const found = this.marketDiscounts.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async listMarketDiscounts(filter: { templateIds?: readonly string[]; designerId?: string; kinds?: readonly MarketDiscountKind[]; notEndedAt?: Date }): Promise<MarketDiscount[]> {
+    if (filter.templateIds && !filter.templateIds.length) return [];
+    return [...this.marketDiscounts.values()]
+      .filter(
+        (d) =>
+          (!filter.templateIds || filter.templateIds.includes(d.templateId)) &&
+          (!filter.designerId || d.designerId === filter.designerId) &&
+          (!filter.kinds || filter.kinds.includes(d.kind)) &&
+          (!filter.notEndedAt || d.endsAt === null || d.endsAt.getTime() > filter.notEndedAt.getTime()),
+      )
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+      .map(clone);
+  }
+
+  async findMarketCoupon(templateId: string, code: string): Promise<MarketDiscount | null> {
+    const found = [...this.marketDiscounts.values()].find((d) => d.templateId === templateId && d.kind === "coupon" && d.code === code);
+    return found ? clone(found) : null;
+  }
+
+  async endMarketDiscount(id: string, now: Date): Promise<boolean> {
+    const found = this.marketDiscounts.get(id);
+    if (!found || (found.endsAt && found.endsAt.getTime() <= now.getTime())) return false;
+    const startsAt = found.startsAt && found.startsAt.getTime() > now.getTime() ? new Date(now) : found.startsAt;
+    this.marketDiscounts.set(id, { ...found, startsAt, endsAt: new Date(now), updatedAt: now });
+    return true;
+  }
+
+  async deleteMarketDiscount(id: string): Promise<boolean> {
+    return this.marketDiscounts.delete(id);
+  }
+
+  async countMarketDiscountUses(ids: readonly string[]): Promise<Record<string, number>> {
+    const out: Record<string, number> = {};
+    for (const o of this.templateOrders.values()) if (o.status === "paid" && o.discount && ids.includes(o.discount.id)) out[o.discount.id] = (out[o.discount.id] ?? 0) + 1;
+    return out;
+  }
+
+  async createTemplateOrderWithCoupon(order: TemplateOrder, limit: number, holdSince: Date): Promise<"ok" | "used_up" | "held" | "gone"> {
+    // One step, nothing awaited in between: two buyers at once can't both take the last use.
+    const id = order.discount?.id;
+    if (!id || !this.marketDiscounts.has(id)) return "gone";
+    const mine = [...this.templateOrders.values()].filter((o) => o.discount?.id === id);
+    const paid = mine.filter((o) => o.status === "paid").length;
+    if (paid >= limit) return "used_up";
+    const held = mine.filter((o) => o.status === "pending" && o.createdAt.getTime() >= holdSince.getTime() && o.clientId !== order.clientId).length;
+    if (paid + held >= limit) return "held";
+    this.templateOrders.set(order.id, clone(order));
+    return "ok";
   }
 
   // ——— 106.11 The designer's money ———
