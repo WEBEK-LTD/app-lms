@@ -267,7 +267,7 @@ test("an owner buys the 3-month plan for one of their apps: paid in pounds on Ka
   await own.getByRole("link", { name: "Apply to my app · $24" }).click();
 
   // Checkout: the plan, the app (the café greyed out with why), Kashier's charge in pounds.
-  await expect(own).toHaveURL(/\/studio-market\/checkout\/[\w-]+\?plan=3m$/);
+  await expect(own).toHaveURL(/\/studio\/market\/checkout\/[\w-]+\?plan=3m$/);
   await expect(own.getByRole("heading", { name: "Checkout.", level: 1 })).toBeVisible();
   const cafe = own.locator('label[data-app]').filter({ hasText: "Zeynep Café" });
   await expect(cafe).toContainText("Made for Store apps only.");

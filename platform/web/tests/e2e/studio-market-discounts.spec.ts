@@ -318,7 +318,7 @@ test("the market shows the template in its flash strip, with a live countdown an
   await expect(own.locator('button[data-plan="life"]')).toContainText("$119.20");
   await expect(own.getByRole("timer").first().locator("time")).toHaveText(/^Ends in \d\d:\d\d:\d\d$/);
   await own.getByRole("link", { name: "Apply to my app · $19.20" }).click();
-  await expect(own).toHaveURL(/\/studio-market\/checkout\/[\w-]+\?plan=3m$/);
+  await expect(own).toHaveURL(/\/studio\/market\/checkout\/[\w-]+\?plan=3m$/);
 });
 
 test("at checkout the code gives the better price, refused when unknown, ended or for another plan; paid on Kashier", async () => {

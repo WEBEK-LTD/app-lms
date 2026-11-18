@@ -335,7 +335,8 @@ test("the designer can't get their own template, and the market's pages read in 
     await expect(own.locator("html")).toHaveAttribute("dir", "rtl", { timeout: 5_000 });
   }).toPass({ timeout: 30_000 });
   await expect(own.getByRole("heading", { name: "تصميمات تستاهل تتفتح." })).toBeVisible();
-  await expect(own.getByRole("link", { name: /ماركت Studio/ }).first()).toBeVisible();
+  // 191 Studio's menu has the market, in Arabic.
+  await expect(own.getByRole("link", { name: "تصفّح التمبلتات" }).first()).toHaveAttribute("href", "/studio/market");
   await own.getByRole("button", { name: "English" }).first().click();
   expect(problems).toEqual([]);
 });
