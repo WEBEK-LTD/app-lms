@@ -21,6 +21,14 @@ on phones keep Stripe's form in the page. 170's browser sheet is dormant.
 Needs the apps' next build; not yet built for Android or iOS here, nor tried
 on real phones (ROADMAP 188.6 to 188.9).
 
+Roadmap 187 (no paid plan, no app and no publishing request): an app
+without a paid plan running now (never paid, or its plan ended) can't
+download its files (APK, AAB, IPA, store files; the Android upload key stays
+the owner's), and its "Publish it for me" reaches nobody on our team: the
+dashboard says the request goes out once the app has a plan, Admin ›
+Publishing keeps such requests under "Waiting for a plan", and the team is
+emailed when the plan is paid. Builds already needed the plan.
+
 Roadmap 186 (the payment page back inside the app): on the owner's word,
 Yallapp's payment page opens inside the app again, in the app's own web
 view, not the phone's browser sheet (170). Done on the platform, so the apps

@@ -93,6 +93,11 @@ export function formatDuration(from: Date | null, to: Date | null): string | nul
 }
 
 /** Why a file of the latest successful build can't be downloaded; null when it can. */
+/** 187 The files that are the app itself (and its store files): downloaded only while the app has a paid plan. The upload key is the owner's either way. */
+export function planNeededFor(kind: string): boolean {
+  return kind === "apk" || kind === "aab" || kind === "ipa" || kind === "store_assets";
+}
+
 export function fileUnavailableReason(input: {
   kind: ArtifactKind;
   /** The latest ready build, or null. */
@@ -103,8 +108,12 @@ export function fileUnavailableReason(input: {
   iosOnPlan?: boolean;
   /** Set when the file exists but links can't be signed. */
   linkProblem: string | null;
+  /** 187 The app has a paid plan running now (lib/license/status.ts appPlanActive); left out: as before. */
+  planActive?: boolean;
 }): string | null {
   const { kind, build } = input;
+  // 187 No plan, no app to download: the app's files wait for its plan (the upload key stays the owner's).
+  if (input.planActive === false && planNeededFor(kind)) return "Choose a plan for this app to download it";
   if (!build) return "Available after your first successful build";
   if (!build.artifacts.some((a) => a.kind === kind)) {
     if (kind === "ipa") {
