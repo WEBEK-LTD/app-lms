@@ -25,6 +25,7 @@ import type { sendPush } from "@/lib/hosted/push";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import { expectContract } from "./contract";
 import { KEY, NOW, setupClient } from "./helpers";
+import { payToken } from "./pay-token";
 
 /** 26 Restaurants and cafés: a dish's options, pickup and delivery, opening hours and the kitchen. */
 
@@ -409,7 +410,7 @@ describe("a restaurant on the hosted API", () => {
 
     const link = await checkout({ fulfilment: "delivery", delivery_address: { address: "Moda Cd. 12, flat 3", district: "Moda", notes: null } }, token);
     expect(link.status).toBe(200);
-    const order = (await store.getCatalogOrderByToken(sha256Hex((link.body as { url: string }).url.split("/").pop()!)))!;
+    const order = (await store.getCatalogOrderByToken(sha256Hex(payToken((link.body as { url: string }).url))))!;
     expect(order).toMatchObject({
       userId: user.id,
       subtotalCents: 57000,
@@ -448,7 +449,7 @@ describe("a restaurant on the hosted API", () => {
       token,
       body: { lines: [{ product_id: burger, quantity: 1, options: ["small"] }], fulfilment: "pickup" },
     });
-    const pending = (await store.getCatalogOrderByToken(sha256Hex((link.body as { url: string }).url.split("/").pop()!)))!;
+    const pending = (await store.getCatalogOrderByToken(sha256Hex(payToken((link.body as { url: string }).url))))!;
     // Not listed before it's paid.
     expect((await call("GET", "/me/orders/{order_id}", { params: [String(pending.id)], token })).status).toBe(404);
     await store.payCatalogOrder(app.id, pending.id, "pay-1", now);
@@ -499,7 +500,7 @@ describe("a restaurant on the hosted API", () => {
   it("cancels an order that hasn't left the kitchen", async () => {
     const { access_token: token } = await signUp();
     const link = await call("POST", "/store/checkout-link", { query: { platform: "android" }, token, body: { lines: [{ product_id: water, quantity: 8 }], fulfilment: "pickup" } });
-    const order = (await store.getCatalogOrderByToken(sha256Hex((link.body as { url: string }).url.split("/").pop()!)))!;
+    const order = (await store.getCatalogOrderByToken(sha256Hex(payToken((link.body as { url: string }).url))))!;
     // An unpaid order isn't the kitchen's yet.
     expect(await moveOrder({ store, app, order, to: "preparing", account: null, now })).toMatchObject({ moved: false });
     await store.payCatalogOrder(app.id, order.id, "pay-2", now);

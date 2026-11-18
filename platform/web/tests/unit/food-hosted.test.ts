@@ -400,7 +400,7 @@ describe("105.1 food delivery apps on the hosted API", () => {
     const customer = await signUp("1001112222", "Karim Hassan");
     const placed = (await place(customer.access_token, { payment: "card" })).body as { order: { id: number; status: string }; pay_url: string };
     expect(placed.order.status).toBe("awaiting_payment");
-    expect(placed.pay_url).toMatch(/^https:\/\/yallapp\.test\/pay\/[A-Za-z0-9_-]{32}$/);
+    expect(placed.pay_url).toMatch(/^https:\/\/yallapp\.test\/pay\/[A-Za-z0-9_-]{32}\/in-app$/);
     // Not the kitchen's until it is paid.
     expect(((await call("GET", "/restaurant/orders", { token: chef.access_token, query: { scope: "new" } })).body as { total: number }).total).toBe(0);
     expect((await call("GET", "/restaurant/orders/{order_id}", { params: [String(placed.order.id)], token: chef.access_token })).status).toBe(404);
