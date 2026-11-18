@@ -17543,11 +17543,11 @@ components:
 
     ItemRef:
       type: [object, 'null']
-      description: For `item`, an entry from a list source.
+      description: For `item`, an entry from a list source. 152 In a Store app, a `products` entry a Studio element links to (a bouquet's size, "Choose this bouquet") with no `id` yet opens the shop, as does one the shop no longer has (its product page answers 404); hosted `GET /pages` sends both as the `search` screen.
       required: [source, id]
       properties:
         source: { $ref: '#/components/schemas/ItemSource' }
-        id: { type: string }
+        id: { type: string, description: "152 Empty for a store's product not chosen yet." }
 
     ItemSource:
       type: string

@@ -55,8 +55,14 @@ export function MarketingPage({
   aside,
   children,
   trail,
+  hero,
+  closing = "band",
   lang = DEFAULT_LANG,
 }: {
+  /** 154 The page's own opening in place of the title band (it then has the page's h1), under a header in the night's colours. */
+  hero?: ReactNode;
+  /** 154 The closing band's look: the usual one, or centred in the night with a glow (`ContactBand` `look`). */
+  closing?: "band" | "glow";
   /** The page's place below the home page for search results; by default the one step from `current`, false for none. */
   trail?: { name: string; path: string }[] | false;
   /** 55 The page's language: its header, closing band and footer follow it. */
@@ -73,8 +79,9 @@ export function MarketingPage({
   return (
     <div className="bg-white">
       {steps ? <JsonLdScript data={breadcrumbLd(siteUrl(), steps, lang === "en" ? undefined : lang)} /> : null}
-      <SiteHeader current={current} lang={lang} />
+      <SiteHeader current={current} lang={lang} night={Boolean(hero)} />
       <main>
+        {hero ?? (
         <section className="bg-ivory">
           <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-10 px-4 py-14 sm:px-6 sm:py-20">
             <div className="flex min-w-0 flex-[1_1_480px] flex-col gap-5">
@@ -87,8 +94,9 @@ export function MarketingPage({
             {aside ? <div className="flex min-w-0 flex-[1_1_300px] justify-center">{aside}</div> : null}
           </div>
         </section>
+        )}
         {children}
-        <ContactBand lang={lang} />
+        <ContactBand lang={lang} look={closing} />
       </main>
       <SiteFooter full lang={lang} />
     </div>
@@ -137,11 +145,30 @@ export function MoreLink({ href, children }: { href: string; children: string })
   );
 }
 
-/** The closing call to action on every marketing page. */
-export async function ContactBand({ lang = DEFAULT_LANG }: { lang?: Lang }) {
+/** The closing call to action on every marketing page; 154 `glow`: centred in the night with an ember glow, WhatsApp first (the pricing page). */
+export async function ContactBand({ lang = DEFAULT_LANG, look = "band" }: { lang?: Lang; look?: "band" | "glow" }) {
   const contact = await getContact();
   const text = await getSiteContent("contact-band", lang);
   const m = messagesFor(lang).common;
+  if (look === "glow") {
+    return (
+      <section className="contact-glow on-dark" data-contact-band="glow">
+        <div className="relative mx-auto flex max-w-[1160px] flex-col items-center px-4 text-center sm:px-6">
+          <h2 className="m-0 max-w-[680px] text-balance">{text.title}</h2>
+          <p className="m-0 mt-2.5 text-night-text">{text.text}</p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <WhatsAppLink lines={contact.lines} className="contact-glow-wa flex h-[46px] items-center gap-2 rounded-xl px-[18px] text-[15px] font-bold no-underline">
+              <WhatsAppMark size={19} />
+              {m.talkWhatsApp}
+            </WhatsAppLink>
+            <AccountLink href={localePath(lang, "/sign-up")} signedIn={m.goToDashboard} className="contact-glow-account flex h-[46px] items-center rounded-xl px-[18px] text-[15px] font-bold no-underline">
+              {m.createAccount}
+            </AccountLink>
+          </div>
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="on-dark bg-night-2 text-white">
       <div className="mx-auto flex max-w-[1160px] flex-wrap items-center justify-between gap-8 px-4 py-14 sm:px-6 sm:py-16">
