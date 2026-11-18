@@ -151,14 +151,19 @@ export async function listMediaAction(input: { kind: MediaKind; library?: boolea
   const context = await mediaContext(["media", "catalog", "settings"]);
   const storage = getMediaStorage();
   const store = await getStore();
-  const files = await store.listMediaFiles(context.app.id, { kind: input.kind, status: "ready", limit: 300 });
+  const forPages = input.kind === "image" && input.library === true;
+  // 192 The app's files, the draft's Figma look and the shop's products read at once (the picker opens on all three).
+  const [files, layout, catalog] = await Promise.all([
+    store.listMediaFiles(context.app.id, { kind: input.kind, status: "ready", limit: 300 }),
+    forPages ? store.getAppLayout(context.app.id) : null,
+    forPages && context.app.appType === "store" ? store.listCatalogProducts(context.app.id) : [],
+  ]);
   // 84.2 Yallapp's pictures for the designs, for pictures on pages.
-  const library = input.kind === "image" && input.library ? pictureLibrary(appUrl()) : [];
+  const library = forPages ? pictureLibrary(appUrl()) : [];
   // 97.3 The pictures of the draft's Figma look, for pictures on pages.
-  const figmaLook = input.kind === "image" && input.library ? (await store.getAppLayout(context.app.id))?.draft.figma_look : undefined;
-  const figma = (figmaLook?.pictures ?? []).map((p) => ({ name: p.name, url: `${appUrl()}/api/v1/assets/${p.asset_id}` }));
+  const figma = (layout?.draft.figma_look?.pictures ?? []).map((p) => ({ name: p.name, url: `${appUrl()}/api/v1/assets/${p.asset_id}` }));
   // 174 The photos of the shop's own products (kept in Yallapp), for pictures on pages.
-  const products = input.kind === "image" && input.library && context.app.appType === "store" ? (await store.listCatalogProducts(context.app.id)).flatMap((p) => p.imageAssetIds.map((id, i) => ({ name: p.imageAssetIds.length > 1 ? `${p.name} · ${i + 1}` : p.name, url: `${appUrl()}/api/v1/assets/${id}` }))).slice(0, 120) : [];
+  const products = catalog.flatMap((p) => p.imageAssetIds.map((id, i) => ({ name: p.imageAssetIds.length > 1 ? `${p.name} · ${i + 1}` : p.name, url: `${appUrl()}/api/v1/assets/${id}` }))).slice(0, 120);
   return { items: files.map((f) => pickable(f, storage)), available: storage !== null, library, figma, products };
 }
 
