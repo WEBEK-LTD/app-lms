@@ -151,3 +151,18 @@ needs them. A tile is wider only where its word needs it.
 
 No release bump and no preview rebuild here, as the coordinator asked;
 `tool/build_preview.sh --check` will need a rebuild once this lands.
+
+## Look B's price list (Leqaa's tester: Kech Flora's "Blush Ga…" at 390 px)
+
+Cause: the template's price-list card (`leqaa-signature.ts`, look B,
+`items` `layout: list`) sets the product's name to one line (Outfit 21)
+beside a 64-point photo and its price. The renderer drew it as set
+(`studio_page.dart`, the text node's `maxLines: node.maxLines`), so a name
+was cut wherever the row was narrower than it. Fix: in the card of a
+`list` layout (`StudioScope.inListRow`, set by `_CustomCards`), a name
+bound to one line takes a second before it is cut. Grids and carousels,
+whose cards line up side by side, keep their one line.
+
+| Run | Result |
+|---|---|
+| `--plain-name 163.12` (en and ar × 360, 390, 412 points × 100% and 130%) | 12 passed; on the previous code 7 failed (all at 130%, and Arabic at 360 at 100%) |

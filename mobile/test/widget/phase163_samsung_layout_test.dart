@@ -279,6 +279,67 @@ void main() {
     }
   });
 
+  // 163.12 Look B's price list (Kech Flora's: "Blush Ga…" at 390 points):
+  // a product's name takes a second line before it is cut.
+  group("163.12 the price list's names aren't cut", () {
+    for (final language in ['en', 'ar']) {
+      for (final width in [360.0, 390.0, 412.0]) {
+        for (final scale in [1.0, 1.3]) {
+          final phone = PhoneSettings(
+            width: width,
+            height: width * 2.17,
+            density: 1080 / width,
+            fontScale: scale,
+            bottom: 48,
+          );
+          testWidgets('$language, ${width.round()} pt, '
+              '${(scale * 100).round()}%', (tester) async {
+            await openLeqaaPage(
+              tester,
+              look: 'b',
+              slug: 'home',
+              phone: phone,
+              problems: LayoutProblems(),
+              language: language,
+            );
+            final list = find.byKey(const ValueKey('studio-node-sig-89'));
+            await tester.scrollUntilVisible(list, 300, scrollable: _page);
+            await tester.pump(const Duration(milliseconds: 600));
+            final names = find
+                .descendant(
+                  of: list,
+                  matching: find.byWidgetPredicate(
+                    (w) =>
+                        w is KeyedSubtree &&
+                        '${w.key}'.contains('studio-node-sig-93'),
+                  ),
+                )
+                .evaluate()
+                .toList();
+            expect(names, isNotEmpty);
+            for (final name in names) {
+              final paragraph =
+                  find
+                          .descendant(
+                            of: find.byElementPredicate((e) => e == name),
+                            matching: find.byType(RichText),
+                          )
+                          .evaluate()
+                          .first
+                          .renderObject!
+                      as RenderParagraph;
+              expect(
+                paragraph.didExceedMaxLines,
+                isFalse,
+                reason: paragraph.text.toPlainText(),
+              );
+            }
+          });
+        }
+      }
+    }
+  });
+
   group('163.5 the rules', () {
     test('Arabic is never under 1.5; Latin and unset as designed', () {
       expect(studioLineHeight(1.04, 'رحلة زهورك إليهم'), 1.5);

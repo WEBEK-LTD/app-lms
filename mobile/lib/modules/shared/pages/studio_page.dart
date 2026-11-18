@@ -440,6 +440,7 @@ class StudioScope {
     this.bleedId,
     this.topInset = 0,
     this.inCover = false,
+    this.inListRow = false,
   });
 
   final String pageSlug;
@@ -458,15 +459,21 @@ class StudioScope {
   /// element without a picture is its see-through background there.
   final bool inCover;
 
-  StudioScope withEntry(PageItem entry) => StudioScope(
-    pageSlug: pageSlug,
-    dark: dark,
-    entry: entry,
-    uppercase: uppercase,
-    bleedId: bleedId,
-    topInset: topInset,
-    inCover: inCover,
-  );
+  /// 163 In the card of a list's entry, one under another (its height
+  /// free): an entry's name cut to one line may take a second first.
+  final bool inListRow;
+
+  StudioScope withEntry(PageItem entry, {bool inListRow = false}) =>
+      StudioScope(
+        pageSlug: pageSlug,
+        dark: dark,
+        entry: entry,
+        uppercase: uppercase,
+        bleedId: bleedId,
+        topInset: topInset,
+        inCover: inCover,
+        inListRow: inListRow,
+      );
 
   StudioScope inCapitals() => StudioScope(
     pageSlug: pageSlug,
@@ -476,6 +483,7 @@ class StudioScope {
     bleedId: bleedId,
     topInset: topInset,
     inCover: inCover,
+    inListRow: inListRow,
   );
 
   /// 128.10 What a cover holds.
@@ -487,6 +495,7 @@ class StudioScope {
     bleedId: bleedId,
     topInset: topInset,
     inCover: true,
+    inListRow: inListRow,
   );
 }
 
@@ -1436,12 +1445,20 @@ class StudioNodeView extends ConsumerWidget {
         }
         final text = _text();
         if (text == null || text.isEmpty) return const SizedBox.shrink();
+        // 163 A product's name in a list's row takes a second line before
+        // it is cut (Kech Flora's price list: "Blush Ga…" at 390 points).
+        final lines =
+            scope.inListRow &&
+                node.bind == StudioBind.title &&
+                node.maxLines == 1
+            ? 2
+            : node.maxLines;
         // 128 A rating's ★ (a restaurant's badge) as the star icon.
         return StarText(
           text,
           textAlign: align,
-          maxLines: node.maxLines,
-          overflow: node.maxLines == null ? null : TextOverflow.ellipsis,
+          maxLines: lines,
+          overflow: lines == null ? null : TextOverflow.ellipsis,
         );
       case StudioNodeType.button:
         final label = _text() ?? '';
@@ -2196,7 +2213,7 @@ class _CustomCards extends ConsumerWidget {
     Widget cardOf(PageItem entry) => StudioNodeView(
       key: ValueKey('studio-card-${node.id}-${entry.id}'),
       node: card,
-      scope: scope.withEntry(entry),
+      scope: scope.withEntry(entry, inListRow: node.layout == ItemsLayout.list),
       parent: null,
     );
     final gap = node.gap > 0 ? node.gap : 10.0;
