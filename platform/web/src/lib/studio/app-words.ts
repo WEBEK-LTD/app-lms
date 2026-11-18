@@ -490,7 +490,7 @@ export const en = {
   sofDesserts: "Sweets",
   sofEgyptian: "Egyptian",
   sofEgyptianLine: "Koshary, ful and ta'meya",
-  sofTicker: "Koshary\nMixed grill\nMargherita\nShish tawook",
+  sofTicker: "Koshary\nMixed grill\nMargherita pizza\nShish tawook",
   sofNearYou: "Restaurants near you",
   zadOfferKicker: "Offer of the week",
   zadOffer1Big: "15%",

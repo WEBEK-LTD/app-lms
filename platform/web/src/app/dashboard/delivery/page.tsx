@@ -80,7 +80,7 @@ export default async function DeliverySettingsPage({ searchParams }: { searchPar
   const { t } = await dashboardText();
   if (!isDelivery(app)) return <NotDelivery title={t("delivery.settings")} t={t} />;
   const store = await getStore();
-  const [saved, services, plan] = await Promise.all([store.getDeliverySettings(app.id), store.listDeliveryServices(app.id), appPlan(store, license, new Date())]);
+  const [saved, services, plan, builds] = await Promise.all([store.getDeliverySettings(app.id), store.listDeliveryServices(app.id), appPlan(store, license, new Date()), store.listBuildsByApp(app.id, 1)]);
   const settings = deliverySettingsOf(saved);
   const money = (cents: number) => (cents > 0 ? centsToDecimal(cents) : "");
   const bundleAllowed = hasFeature(plan, "courier_app");
@@ -140,7 +140,7 @@ export default async function DeliverySettingsPage({ searchParams }: { searchPar
             currencies={CATALOG_CURRENCIES}
             bundleAllowed={bundleAllowed}
             bundleOff={richText(t("delivery.courierBundleOff"), { link: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}
-            before={workedInCustomersApp(settings)}
+            before={workedInCustomersApp(settings, builds.length > 0)}
             settings={{
               currency: settings.currency,
               pricing: settings.pricing,

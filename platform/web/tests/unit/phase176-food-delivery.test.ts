@@ -8,6 +8,11 @@ import { registerClient } from "@/lib/auth/accounts";
 import { demoKind, type StudioDemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoLayout } from "@/lib/demo/setup";
+import { workedInCustomersApp } from "@/lib/delivery/courier-app";
+import { twoAppsOf } from "@/lib/delivery/two-apps";
+import { DEFAULT_DELIVERY_SETTINGS } from "@/lib/delivery/settings";
+import { randomUUID } from "node:crypto";
+import type { Build } from "@/lib/data/types";
 import { MemoryStore } from "@/lib/data/memory";
 import type { App } from "@/lib/data/types";
 import { CatalogConnector } from "@/lib/hosted/connectors/catalog";
@@ -157,5 +162,23 @@ describe("176.3 Sofra's address row without the customer's area", () => {
     const demo: App = { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, section: "studio", backend: "hosted", appName: DEMO_BRANDS.food.appName, brandingDoneAt: NOW };
     const layout = await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, demo, "banner-asset");
     expect(texts(layout.pages.find((p) => p.slug === "home")!.studio)).toEqual(expect.arrayContaining(["Deliver to", "Home · Zamalek"]));
+  });
+});
+
+describe("176.4 a new food or delivery company isn't told its couriers worked in its customers' app", () => {
+  it("\"same\" is every new company's setting: the notice only once the customers' app was built", async () => {
+    expect(workedInCustomersApp(DEFAULT_DELIVERY_SETTINGS, false)).toBe(false);
+    expect(workedInCustomersApp(DEFAULT_DELIVERY_SETTINGS, true)).toBe(true);
+    expect(workedInCustomersApp({ courierApp: "bundle" }, true)).toBe(false);
+    const app = await business("food", "food_signature_a", "food");
+    expect((await store.getDeliverySettings(app.id))?.courierApp ?? DEFAULT_DELIVERY_SETTINGS.courierApp).toBe("same");
+    expect((await twoAppsOf(store, app, PLAN_INFO.studio_1))?.before).toBe(false);
+    await store.createBuild({
+      id: randomUUID(), clientId: app.clientId, appId: app.id, versionName: "1.0.0", status: "ready",
+      stages: { queued: "done", android: "done", ios: "skipped", upload_play: "skipped", upload_testflight: "skipped" },
+      config: {} as Build["config"], storeListing: { storeTitle: "", shortDescription: "", fullDescription: "", supportEmail: "", privacyUrl: "" },
+      autoPublish: false, artifacts: [], message: null, logUrl: null, createdAt: NOW, startedAt: NOW, finishedAt: NOW, updatedAt: NOW,
+    } as Omit<Build, "number" | "versionCode">);
+    expect((await twoAppsOf(store, app, PLAN_INFO.studio_1))?.before).toBe(true);
   });
 });
