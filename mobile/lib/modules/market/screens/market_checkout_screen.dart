@@ -24,6 +24,7 @@ import '../data/market_basket.dart';
 import '../data/market_models.dart';
 import '../data/market_place.dart';
 import '../data/market_providers.dart';
+import '../widgets/market_address.dart';
 import 'market_orders_screen.dart' show marketOrdersProvider;
 import '../../../core/widgets/studio_screen_scope.dart';
 
@@ -202,6 +203,13 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
       return;
     }
     _requote(now: true);
+  }
+
+  /// 177 The address on the map (a pin, the map's address search) or the
+  /// phone's position; only the position before.
+  Future<void> _choosePlace() async {
+    await chooseMarketPlace(context, ref);
+    if (mounted) _requote(now: true);
   }
 
   Future<void> _place(List<api.MarketPayMethod> methods) async {
@@ -395,11 +403,27 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
                       Icon(Symbols.location_on_rounded, color: p.primary),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: Text(
-                          place?.address ?? l10n.marketChooseAddress,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: place == null ? p.textSecondary : p.text,
+                        child: Semantics(
+                          button: true,
+                          child: InkWell(
+                            onTap: _choosePlace,
+                            borderRadius: BorderRadius.circular(10),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                place?.address ??
+                                    (place == null
+                                        ? l10n.marketChooseAddress
+                                        : l10n.deliveryPinSet),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: place == null ? p.primary : p.text,
+                                  decoration: place == null
+                                      ? TextDecoration.underline
+                                      : null,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -688,30 +712,42 @@ class _BasketRow extends StatelessWidget {
           if (shop)
             Row(
               children: [
-                Text(
-                  l10n.marketIfMissing,
-                  style: TextStyle(fontSize: 12.5, color: p.textSecondary),
+                Flexible(
+                  child: Text(
+                    l10n.marketIfMissing,
+                    style: TextStyle(fontSize: 12.5, color: p.textSecondary),
+                  ),
                 ),
                 const SizedBox(width: 8),
-                DropdownButton<api.MarketIfMissing>(
-                  value: line.ifMissing == api.MarketIfMissing.chosen
-                      ? api.MarketIfMissing.similar
-                      : line.ifMissing,
-                  isDense: true,
-                  underline: const SizedBox.shrink(),
-                  items: [
-                    DropdownMenuItem(
-                      value: api.MarketIfMissing.similar,
-                      child: Text(l10n.marketIfMissingSimilar),
-                    ),
-                    DropdownMenuItem(
-                      value: api.MarketIfMissing.remove,
-                      child: Text(l10n.marketIfMissingRemove),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    if (v != null) onIfMissing(v);
-                  },
+                // 177 The room left in the row: at 1.3 it ran 97 points past it.
+                Expanded(
+                  child: DropdownButton<api.MarketIfMissing>(
+                    value: line.ifMissing == api.MarketIfMissing.chosen
+                        ? api.MarketIfMissing.similar
+                        : line.ifMissing,
+                    isDense: true,
+                    isExpanded: true,
+                    underline: const SizedBox.shrink(),
+                    items: [
+                      DropdownMenuItem(
+                        value: api.MarketIfMissing.similar,
+                        child: Text(
+                          l10n.marketIfMissingSimilar,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: api.MarketIfMissing.remove,
+                        child: Text(
+                          l10n.marketIfMissingRemove,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                    onChanged: (v) {
+                      if (v != null) onIfMissing(v);
+                    },
+                  ),
                 ),
               ],
             ),

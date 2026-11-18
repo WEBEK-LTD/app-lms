@@ -217,6 +217,25 @@ describe("177.3 the marketplace's checkout and orders in the customer's language
     expect((placed.body as { order: { price: { label: string }[] } }).order.price.map((l) => l.label)).toEqual(["المنتجات", "الخصومات", "الإجمالي"]);
   });
 
+  it("177.10 a delivery to the address pinned on the map: priced inside the place's area, refused outside it, in the customer's language", async () => {
+    await store.saveDeliverySettings(app.id, { ...DEFAULT_DELIVERY_SETTINGS, currency: "EGP", cash: true, fixedCents: 25_00, timezone: "Africa/Cairo", marketApp: { ...DEFAULT_MARKET_SETTINGS, requirePhotos: false } }, NOW);
+    const token = await customer();
+    const lines = [{ product_id: apples, quantity: 1 }];
+    // Pinned 2 km away (Zamalek), as the app's map sends it, with the street the map named and the flat typed.
+    const near = await call("POST", "/market/quote", { token, body: { vendor_id: grocery, lines, fulfilment: "delivery", dropoff: { address: "26 July Street, Zamalek", details: "Flat 4", lat: 30.0626, lng: 31.2197 } } });
+    expect(near.status, JSON.stringify(near.body)).toBe(200);
+    expect((near.body as { price: { kind: string; amount: { amount: string } }[] }).price.find((l) => l.kind === "delivery")?.amount.amount).toBe("25.00");
+    // Pinned 40 km away: outside the place's area (10 km), in Arabic.
+    const far = await call("POST", "/market/quote", { token, lang: "ar", body: { vendor_id: grocery, lines, fulfilment: "delivery", dropoff: { address: "Ain Sokhna road", lat: 29.9, lng: 31.6 } } });
+    expect(far.status, JSON.stringify(far.body)).toBe(400);
+    expect((far.body as { code: string }).code).toBe("outside_delivery_area");
+    expect((far.body as { message: string }).message).toMatch(/^يوصّل هذا المكان حتى 10 كم\. أنت على بعد [\d.]+ كم\.$/);
+    // Typed words with no place on the map: the map is asked for, in Turkish.
+    const typed = await call("POST", "/market/quote", { token, lang: "tr", body: { vendor_id: grocery, lines, fulfilment: "delivery", dropoff: { address: "26 July Street, Zamalek" } } });
+    expect(typed.status, JSON.stringify(typed.body)).toBeGreaterThanOrEqual(400);
+    expect((typed.body as { message: string }).message).toBe("Adresinizi haritada belirleyin.");
+  });
+
   it("a refusal in Turkish: under the place's smallest order", async () => {
     const token = await customer();
     const small = await call("POST", "/market/quote", { token, lang: "tr", body: { vendor_id: grocery, lines: [{ product_id: apples, quantity: 0.5 }], fulfilment: "pickup" } });

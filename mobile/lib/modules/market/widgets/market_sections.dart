@@ -15,10 +15,9 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../data/market_models.dart';
-import '../../delivery/data/delivery_providers.dart' show LocateProblem;
-import '../data/market_place.dart';
 import '../data/market_providers.dart';
 import '../screens/market_orders_screen.dart' show orderAgain;
+import 'market_address.dart';
 import 'market_compact.dart';
 // 130 The places as a deck of photo cards.
 import 'market_deck.dart';
@@ -271,18 +270,8 @@ class _AddressButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => GestureDetector(
     behavior: HitTestBehavior.opaque,
-    onTap: () async {
-      final l10n = context.l10n;
-      final problem = await ref
-          .read(marketPlaceProvider.notifier)
-          .useMyLocation();
-      if (problem == null || !context.mounted) return;
-      showMessage(context, switch (problem) {
-        LocateProblem.off => l10n.locateOff,
-        LocateProblem.denied => l10n.locateDenied,
-        _ => l10n.locateFailed,
-      });
-    },
+    // 177 The map's pin or the phone's position (only the position before).
+    onTap: () => chooseMarketPlace(context, ref),
     child: child,
   );
 }

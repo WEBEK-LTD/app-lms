@@ -1293,4 +1293,8 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "Add a little more to reach this place's smallest order.": "Bu işletmenin en düşük sipariş tutarına ulaşmak için biraz daha ekleyin.",
   "This place doesn't do pick-up.": "Bu işletmede gel al yok.",
   "Set your address on the map.": "Adresinizi haritada belirleyin.",
+  // 177 Where a marketplace delivers (lib/market/areas.ts), for the address the customer pins.
+  "This place delivers up to {km} km. You are {away} km away.": "Bu işletme {km} km'ye kadar teslimat yapıyor. {away} km uzaktasınız.",
+  "The app doesn't deliver to your address yet.": "Uygulama henüz adresinize teslimat yapmıyor.",
+  "This place delivers to {areas} only.": "Bu işletme yalnızca şuralara teslimat yapıyor: {areas}.",
 };
