@@ -93,7 +93,7 @@ test("a heading renamed in Studio and published reaches the app in English, Arab
   await expect(own.locator("[data-main-language]")).toHaveText("Main language: English");
 
   await phone.getByText("Kind words", { exact: true }).first().click();
-  const text = inspector.getByLabel("Text", { exact: true });
+  const text = inspector.getByRole("textbox", { name: "Text", exact: true });
   await expect(text).toHaveValue("Kind words");
   // The template's own translations, while the heading is still its word.
   const inApp = inspector.locator('[data-text-in-app="text"]');
@@ -123,7 +123,7 @@ test("the Arabic translation the owner writes by hand is the one the Arabic app 
   await own.getByRole("group", { name: "Language of the texts" }).getByRole("button", { name: "عربي" }).click();
   await expect(own.locator("[data-main-language]")).toContainText("a translation of your English texts");
   await phone.getByText("What our customers say", { exact: true }).first().click();
-  await inspector.getByLabel("Text", { exact: true }).fill("آراء عملائنا");
+  await inspector.getByRole("textbox", { name: "Text", exact: true }).fill("آراء عملائنا");
   await expect(inspector.locator('[data-text-in-app="text"] [data-language="ar"]')).toHaveAttribute("data-state", "own");
   await own.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(own.getByText("Published. The app shows it the next time it opens.")).toBeVisible();

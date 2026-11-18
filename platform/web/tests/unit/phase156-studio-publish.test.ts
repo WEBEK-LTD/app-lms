@@ -115,7 +115,12 @@ describe("156 an edit in Studio reaches the app, in every language", () => {
     nodes.find((n) => n.id === ids.word)!.text = "Kech Flora";
     nodes.find((n) => n.id === ids.heading)!.text = "What our customers say";
     const quotes = nodes.find((n) => n.id === ids.quotes)!;
-    quotes.entries![0] = { ...quotes.entries![0]!, text: "The fact that every question was answered to.", title: "Jakeer" };
+    // The Leqaa tester's review: its words, the name and the city.
+    quotes.entries![0] = { ...quotes.entries![0]!, text: "The fact that every question was answered to.", title: "Khadija B.", subtitle: "Casablanca" };
+    // And the hero's headline in English, then in Arabic in the owner's own words; Turkish left as it was.
+    const hero = nodes.find((n) => n.type === "text" && n.text === "Say it with roses.")!;
+    hero.text = "Flowers for every story.";
+    hero.translations = { ...hero.translations, ar: { text: "زهور لكل حكاية." } };
     // Before: the template's translations of the old texts.
     expect(translationState(nodes.find((n) => n.id === ids.heading)!, "text", "ar")).toBe("stale");
     expect(translationState(quotes.entries![0]!, "text", "ar")).toBe("stale");
@@ -128,10 +133,12 @@ describe("156 an edit in Studio reaches the app, in every language", () => {
       expect(served.find((n) => n.id === ids.word), lang).toMatchObject({ width: "fill", color: "#00A86B", text: "Kech Flora" });
       expect(served.find((n) => n.id === ids.heading)!.text, lang).toBe("What our customers say");
       const entries = served.find((n) => n.id === ids.quotes)!.entries!;
-      expect(entries[0], lang).toMatchObject({ text: "The fact that every question was answered to.", title: "Jakeer" });
-      // The review the owner hasn't written yet (the template's "[Another customer's words]") waits for them; theirs has no "[What they sent]".
+      // The name and the city too, not only the words.
+      expect(entries[0], lang).toMatchObject({ text: "The fact that every question was answered to.", title: "Khadija B.", subtitle: "Casablanca" });
+      // The review the owner hasn't written yet (the template's "[Another customer's words]") waits for them.
       expect(entries, lang).toHaveLength(1);
-      expect(entries[0], lang).not.toHaveProperty("subtitle");
+      // Turkish shows the owner's English, not the template's "Güllerle söyleyin."; Arabic their own words.
+      expect(served.find((n) => n.id === hero.id)!.text, lang).toBe(lang === "ar" ? "زهور لكل حكاية." : "Flowers for every story.");
       expect(JSON.stringify(served), lang).not.toMatch(/\[(Another customer's words|كلمات عميل آخر|Başka bir müşterinin sözleri|What they sent|ما أرسله|Ne gönderdi)\]/);
     }
     // The saved draft holds no translation that would say something else.
