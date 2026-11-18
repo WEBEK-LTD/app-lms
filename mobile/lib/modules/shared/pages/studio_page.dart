@@ -11,6 +11,7 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/format/bidi.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
@@ -1371,7 +1372,8 @@ class StudioNodeView extends ConsumerWidget {
         StudioBind.rating => entry.rating?.toStringAsFixed(1),
         // 131 The share off and the price before it; nothing when not on sale.
         StudioBind.sale => switch (entry.sale) {
-          final sale? => currentL10n.saleOff(sale.percentOff),
+          // 161 Its number and percent the right way round in Arabic.
+          final sale? => percentText(currentL10n.saleOff(sale.percentOff)),
           null => '',
         },
         StudioBind.wasPrice => entry.sale?.wasFormatted ?? '',

@@ -8,6 +8,7 @@ import { appOpensScreen, itemSourcesFor, sameScreenAs } from "../../pages/source
 import { moreTab, splitTabs } from "../../pages/tab-bar";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
 import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, type Action, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type Translations, type StudioPage } from "../../pages/types";
+import { centsToDecimal, formatCents } from "../../catalog/money";
 import { addDisplayPrices, DISPLAY_CONNECTORS, Shown, type DisplayCurrency } from "../../money/display";
 import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
@@ -448,6 +449,12 @@ export function itemPrice(price: unknown): { price?: Record<string, unknown> } {
   return { price: Object.fromEntries(keep.filter((k) => p[k] !== undefined && p[k] !== null).map((k) => [k, p[k]])) };
 }
 
+/** 161 A free card's price: 0 in its currency, when the source says which; nothing otherwise. */
+function freePrice(price: unknown): { price?: Record<string, unknown> } {
+  const currency = (price as { currency?: unknown } | null | undefined)?.currency;
+  return typeof currency === "string" && /^[A-Z]{3}$/.test(currency) ? { price: { amount: centsToDecimal(0, currency), currency, formatted: formatCents(0, currency) } } : {};
+}
+
 /**
  * 161 A list's cards with their prices also in the customer's currency:
  * the platform's own lists (listings, events, hotels, bundles) converted
@@ -471,10 +478,11 @@ const list = (body: Record<string, unknown> | null): Record<string, unknown>[] =
   Array.isArray(body?.items) ? (body.items as Record<string, unknown>[]).filter((i) => i && typeof i === "object") : [];
 
 async function listItems(pc: PageContext, source: ItemSource, query: ItemsQuery): Promise<Item[] | null> {
-  // 161 The connector's own lists come converted when they are Yallapp's (`withDisplay`).
-  if (source === "courses") return shownItems(await listCourses(pc, query), pc.display, false);
-  if (source === "products") return shownItems(await listProducts(pc, query), pc.display, false);
-  if (source === "services") return shownItems(await listServices(pc, query), pc.display, false);
+  // 161 The connector's own lists come converted when they are Yallapp's (`withDisplay`); a free card's 0 too.
+  const own = DISPLAY_CONNECTORS.has(pc.ctx.app.connector?.kind ?? "");
+  if (source === "courses") return shownItems(await listCourses(pc, query), pc.display, own);
+  if (source === "products") return shownItems(await listProducts(pc, query), pc.display, own);
+  if (source === "services") return shownItems(await listServices(pc, query), pc.display, own);
   if (source === "articles") return listArticles(pc, query);
   const resolver = itemResolver(source);
   if (!resolver) return null;
@@ -501,8 +509,8 @@ export function courseItem(course: Record<string, unknown>, lang: LanguageCode):
     // Display text only: there's never a purchase action in a list.
     // 38 In the app's language, like every word on a card.
     price_label: price.is_free ? itemWords(lang).free : str(price.formatted),
-    // 161 As amounts and a currency, also in the customer's.
-    ...(price.is_free ? {} : itemPrice(price)),
+    // 161 As amounts and a currency, also in the customer's (a free one: 0, its words "Free").
+    ...(price.is_free ? freePrice(price) : itemPrice(price)),
     badge: null,
     // 128.8 Its rating, for a card's `rating` element.
     rating: typeof course.rating === "number" && course.rating > 0 ? Math.round(course.rating * 10) / 10 : null,
