@@ -1901,7 +1901,7 @@ class StudioNodeView extends ConsumerWidget {
       default:
         // A column; its height is set when it's fixed, so children can fill it.
         final bounded = node.height?.fixed != null;
-        return Column(
+        final column = Column(
           mainAxisSize: bounded ? MainAxisSize.max : MainAxisSize.min,
           mainAxisAlignment: _main(node.align),
           crossAxisAlignment: _cross(node.cross),
@@ -1913,6 +1913,15 @@ class StudioNodeView extends ConsumerWidget {
                 _selfAlign(child, view(child), Axis.horizontal),
           ], horizontal: false),
         );
+        // 174.3 Stretching its elements across needs a width: in a row (or
+        // anything else of unbounded width) a column left on Auto or Hug is
+        // as wide as what it holds, as Studio's canvas draws it (a flex
+        // item's own width). Without this a double-clicked corner, which
+        // puts a column back on Auto, made the whole row disappear in the
+        // app (Leqaa's "Collections" heading and its "Shop all").
+        return node.cross == StudioCross.stretch
+            ? _BoundedWidth(child: column)
+            : column;
     }
   }
 
