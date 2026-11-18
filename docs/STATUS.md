@@ -18,8 +18,9 @@ Session that could be paid too, and settles it only once read back from
 Stripe (the status the app reads, and the webhook's
 `payment_intent.succeeded`). A browser, the app preview and the apps already
 on phones keep Stripe's form in the page. 170's browser sheet is dormant.
-Needs the apps' next build; not yet built for Android or iOS here, nor tried
-on real phones (ROADMAP 188.6 to 188.9).
+It reaches the apps with app release 11 (`CLIENT_APP_RELEASE` 11, the
+preview rebuilt); not yet built for Android or iOS here, nor tried on real
+phones (ROADMAP 188.6 to 188.9).
 
 Roadmap 187 (no paid plan, no app and no publishing request): an app
 without a paid plan running now (never paid, or its plan ended) can't

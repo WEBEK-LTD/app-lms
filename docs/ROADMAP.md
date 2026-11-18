@@ -4273,3 +4273,4 @@ The owner's request (18 November, urgent): Google Pay and Apple Pay through a ga
 | [ ] | 188.7 On a real Android phone: the card and Google Pay in the sheet (test keys first), the order opening after; cancel, then pay again; nothing charged twice | — |
 | [ ] | 188.8 On a real iPhone: the card in the sheet; with the owner's merchant ID linked to the App ID and Stripe's Apple Pay certificate, Apple Pay in it | — |
 | [ ] | 188.9 The owner's Apple Pay set-up per app (merchant ID, its link to the App ID, Stripe's certificate) | — |
+| [x] | 188.10 App release 11 on its own: `CLIENT_APP_RELEASE` 11 with its release line (`lib/builds/app-release.ts`), and the app preview rebuilt with Flutter 3.47.5 (`mobile/tool/build_preview.sh`; flutter_stripe compiles for the web, where the app never makes the sheet, so the preview keeps Stripe's form in the page) | `publish-for-all.test.ts`, `build_preview.sh --check` |
