@@ -42,6 +42,7 @@ import { accountOf, readOwnKeys } from "@/lib/payments/owner-keys";
 import { checkAccount, isPaymentProvider, PROVIDER_NAME } from "@/lib/payments/provider";
 import { stripeWebhookUrl } from "@/lib/payments/stripe-keys";
 import { webhookReceipt } from "@/lib/payments/webhooks";
+import { checkWalletDomain, noteWalletProblem, walletDomain } from "@/lib/payments/wallets";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { serviceAccountOf } from "@/lib/hosted/notify";
@@ -557,7 +558,14 @@ export async function savePaymentKeysAction(_: FormState, formData: FormData): P
   const payment = encryptOwnPayment(app.id, read.input, encryptionKey());
   // 132.33 The same gateway's last webhook stays known (the page says whether it works).
   const receipt = isOwnPayment(before) && before.provider === provider ? webhookReceipt(before) : null;
-  await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: receipt ? ({ ...payment, webhook: receipt } as OwnPayment) : payment } }, now);
+  // 155 Stripe: the payment page's domain registered for Apple Pay and Google Pay with these keys (never stops the save).
+  const store = await getStore();
+  const urls = paymentApiUrls();
+  const domain = read.input.provider === "stripe" ? walletDomain(appUrl(), Boolean(urls.stripe)) : null;
+  const wallets = read.input.provider === "stripe" && domain ? await checkWalletDomain(read.input, domain, { baseUrl: urls.stripe, now }) : null;
+  const kept = { ...payment, ...(receipt ? { webhook: receipt } : {}), ...(wallets ? { wallets } : {}) } as OwnPayment;
+  await store.updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: kept } }, now);
+  if (wallets) await noteWalletProblem(store, app, wallets, now);
   await recordStaffChange(context, `Saved the shop's own ${name} keys (${read.input.sandbox ? "test" : "live"})`);
   refresh();
   return {
@@ -586,26 +594,40 @@ export async function testPaymentKeysAction(_: PaymentTestState, formData: FormD
   const read = readOwnKeys(provider, (name) => String(formData.get(name) ?? ""), sandbox, saved, { lenient: true });
   if (!read.ok) return { ok: false, report: missingKeysReport(provider, now, sandbox) };
   const payment = catalogSettings(app).payment;
-  const report = await testConnection(
+  const urls = paymentApiUrls();
+  const { wallets, ...report } = await testConnection(
     {
       input: read.input,
       currency: str(formData, "currency") || catalogSettings(app).currency,
       stripeWebhookUrl: stripeWebhookUrl(appUrl(), app.id),
       receipt: isOwnPayment(payment) && payment.provider === provider ? webhookReceipt(payment) : null,
       testPayment: formData.get("testPayment") === "on",
+      // 155 Stripe: the payment page's domain registered for Apple Pay and Google Pay with the keys tested.
+      walletDomain: read.input.provider === "stripe" ? walletDomain(appUrl(), Boolean(urls.stripe)) : null,
       now,
     },
-    { urls: paymentApiUrls() },
+    { urls },
   );
   // 134 A pass on the saved keys themselves is what paying inside the app needs (new keys need a new test).
   const tested = report.ok ? testedOnSaved(app, read.input, saved, now) : null;
   // 132.120 Kept for the Payments page's summary: which gateway, when, whether it all worked (nothing of the keys).
   const fresh = (await store.getAppById(app.id)) ?? app;
+  const freshPayment = catalogSettings(fresh).payment;
+  // 155 What Stripe said of the domain is kept when the keys tested are the saved ones.
+  const keepWallets = wallets && isOwnPayment(freshPayment) && freshPayment.provider === "stripe" && saved?.provider === "stripe" && read.input.provider === "stripe" && read.input.secretKey === saved.secretKey && read.input.sandbox === saved.sandbox;
   await store.updateApp(
     app.id,
-    { catalogSettings: { ...catalogSettings(fresh), gatewayTest: { provider, at: report.at, ok: report.ok, mode: report.mode }, ...(tested ? { gatewayTested: tested } : {}) } },
+    {
+      catalogSettings: {
+        ...catalogSettings(fresh),
+        ...(keepWallets ? { payment: { ...freshPayment, wallets } } : {}),
+        gatewayTest: { provider, at: report.at, ok: report.ok, mode: report.mode },
+        ...(tested ? { gatewayTested: tested } : {}),
+      },
+    },
     now,
   );
+  if (wallets && keepWallets) await noteWalletProblem(store, app, wallets, now);
   refresh();
   return { ok: report.ok, report };
 }

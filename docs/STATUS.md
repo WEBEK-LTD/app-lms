@@ -28,13 +28,223 @@ in the viewer's language (د.م. in Arabic, Latin digits), and amounts typed
 with Arabic-Indic digits are read. Categories refuse a duplicate name and
 have optional Arabic and Turkish names, served in the app's language;
 Products › Settings is in Studio's breadcrumb. Migration
-`0143_catalog_category_names` (another branch adds its own 0143,
-`0143_app_stories`: one of them is renumbered at merge). Yallapp Business
+`0145_catalog_category_names` (after main's 0143 and 0144). Yallapp Business
 places add-ons under their own size, says when a signed card has no name,
 offers Postpone and Retry days from the shop's today, and the server
 refuses a full or closed time. Nothing is released from this branch, and
 `mobile/` is unchanged. Yallapp Business is not released from this
 branch.
+
+Roadmap 157 (the template's categories are the shop's): Leqaa's occasion
+rings, chips and ticker and its collections' bento, arches and cards were
+the template's own words, opening the whole shop, whatever categories the
+owner added. Hosted `GET /pages` now serves such a list, left as the
+template made it, as the shop's categories: once the owner has their own,
+one entry per category with its name as the shop has it in every
+language, its photo and a tap that opens the shop filtered to it; until
+then the template's. On any Studio page, an element that opens the shop
+and is named like one of its categories opens that category (the demo's
+own on an app started from it), and Studio's "When the customer taps"
+lets the owner pick the category of any tile, ring or chip. Made at
+serving time, so apps already made from the template have it with no
+change to their pages. The shop's list leaves the demo's categories out
+once the owner has one (a renamed demo category is theirs); the pages'
+version follows the categories, so an open app asks for its pages again;
+Studio's canvas draws the lists as the app does. `CLIENT_APP_RELEASE` 9:
+the app opens the category (an older app the whole shop) and asks for the
+shop's chips again when it comes back on screen.
+
+Roadmap 158 (every page scrolls to its end, on every phone): the app's own
+screens under a tab bar that floats over them (Leqaa's and Kech Flora's
+petal, the floating pill, the dock, glass off the edges) end their lists
+above it, as Studio pages did: the shop's grid, the Account screens' lists
+and the other tabs' paginated lists, with one shared space (`endRoom`,
+MediaQuery's bottom padding), so their last rows no longer stay under the
+bar on a short phone. Studio pages over the tabs end above the phone's own
+bar (home indicator, Android's navigation bar) and above what is pinned at
+their foot (a sticky "Send flowers"). The sort and choice sheets scroll
+to their last choice on a short phone or with a large font, and the shop's
+next-page spinner lies across the grid, in its middle. The shop's filters
+that are on stay first in their row, in sight, and "No products found" has
+Clear filters. It reaches the stores with the release the urgent fixes
+share. Not yet tried on a phone. Still open: on a page a little longer
+than the screen under a folding premium header, a quick drag can stop a
+few points short of the end, the last row still in sight (ROADMAP 158.3);
+the staff's and second apps' tabs still to take the same space (158.7).
+
+Roadmap 159 (sizes automatic, by hand only when asked): Kech Flora's bag
+sat about three quarters of the way across the phone because the bar over
+the stories had a width in points from a corner drag on Studio's phone
+(a drag never became Fill there: the corner measured an empty wrapper), and
+the app keeps a width in points. A cover's top bar is now at its automatic
+size, across the cover with its wordmark between the buttons, in Studio's
+canvas, in what the hosted API serves (so apps already on phones draw it at
+once) and in the app (with the next `CLIENT_APP_RELEASE`), whatever width it had, unless
+it was sized by hand. Every element's size is automatic until the owner
+changes it: the size fields and the canvas corners ask first, "Back to
+automatic" (or a double click on a corner) puts the template's size back,
+and a corner dragged up to the edge becomes Fill again. WordPress apps keep
+a size by hand with the next plugin release. With the next app release a round button
+without words (the search, the bag) tells a screen reader what it opens
+("Search", "Cart") in the app's language, or the owner's name for it, not
+just "button". Not yet seen on Kech Flora's phone.
+
+Roadmap 160 (sign-in as the owner's four ways say, and Forgot password): a
+phone number or an email address signs in with a code every time ("…and a
+code": no password anywhere) or with its password ("…and password": the
+code only checks a new account once, which must set a password, and resets
+a forgotten one), never both: the hosted API reads a choice saved with both
+as the password, and App sign-in turns the other off and refuses both on a
+channel. The app shows each way in once with what it signs in with; "Sign
+in with a code instead" is gone. A sign-in opened over the app (the page
+headers' bell, the cart) closes once signed in and opens what it was
+opened for: its screens stayed before, and "Forgot password" tapped there
+opened Notifications. Forgot password opens the reset for the way in use,
+in every sign-in look. The code the phone number starts with follows the
+app: the owner's choice, else the shop's country (where it delivers, else
+its currency), else the owner's, then +90 (a MAD shop delivering to Morocco
+opened on +90). The app's part reaches the stores with
+`CLIENT_APP_RELEASE` 9. Not yet tried on a phone (ROADMAP 160.7).
+
+Roadmap 161 (the whole app in the customer's currency, and a story's
+Open): the hosted API sends every price of Yallapp's own with its amount,
+currency and `display` in the customer's currency, the home's Studio lists
+too (`GET /pages`, each card's `price`, its sale, the flash sale, the
+coupon, plans), and the cart's lines and sums, fees, slots, points, options
+and orders; the app shows each in the customer's currency ("≈", as the
+shop's products), the owner's switch and list respected, what is charged
+unchanged. A story's Open opens its link, or in a shop the shop, never
+nothing (which left the customer on Home); a shop's story with a link that
+opens nothing is served opening the shop, so older apps follow. Studio says
+what a story's Open opens. `CLIENT_APP_RELEASE` is 9: apps get a build.
+Prices a template wrote into its own words stay as written (ROADMAP 161.8).
+Not yet tried on Kech Flora (ROADMAP 161.10). No migration.
+
+Roadmap 162 (Build your bouquet): a store's owner sets it up in Store ›
+Delivery & offers › Build your bouquet (the flowers' category, the wraps
+from gift add-ons or a category, the cards, whether the wrap and the card
+may be left out, the least and most stems). Leqaa's Build your bouquet
+sections then open it from their Start (`Action.flow: bouquet`): the
+flowers by the stem with the live total, one wrap, the card and its words
+with the occasions' ready messages, the summary, and the bouquet goes in
+the cart as one group of lines (`bouquet` on each line), priced by the
+server as any cart, kept on the order and shown as one in the cart, the
+customer's order, the dashboard and Yallapp Business. A shop that hasn't
+set it up, an older app and WordPress keep today's Start: the shop.
+Leqaa's demo has it on. `CLIENT_APP_RELEASE` is 9 (after 152's 7 and 163's 8).
+
+Roadmap 164 (a bound list of products is never an empty section): Leqaa's
+"Picked for you" was bound to featured products, which a real shop may not
+have, so the served page dropped the list and kept its title and "Shop all"
+over nothing. Served now with the shop's best sellers, else its newest, when
+what a list is bound to has nothing (featured, a category, picks, a
+template's sample products); a list with nothing at all goes with its title,
+in the served page and in the app (`heads`, `CLIENT_APP_RELEASE` 9). The apps
+already made from the template are right without any edit. Studio's
+inspector chooses what such a list shows: featured, a category, a
+collection, best sellers or newest. The "Our bouquet" page no longer shows
+the template's sample "Blush Garden": it is one of the shop's products, the
+one the owner picks, else the best seller, else the newest, and goes when
+the shop has none; apps made before are served the same.
+
+Roadmap 165 (Dashboard › Stories): the full-screen stories and story rings
+of an app's home are the app's own data (`app_stories`, migration 0144),
+managed in Dashboard › Stories (and in a Studio project's frame): added,
+changed, switched off, scheduled, reordered and removed, each with its
+photo or video, its words in the main language with Arabic and Turkish
+beside it, the ring's name and icon, its button and what it opens, and its
+category, with a live preview. `GET /pages/{slug}` serves them into the
+Studio elements whose source is the dashboard (Leqaa's hero slides, rings
+and look B's chips by default), in the language asked for, so the apps in
+the stores show the changes without a build; a button with nothing chosen
+opens the shop. An app made from the template has its Studio stories
+copied there once, the first time they're needed, nothing it shows
+changing. Studio says where the stories come from, switches the source and
+draws them. `CLIENT_APP_RELEASE` 9: the viewer shows each story's words,
+button and video, and a button opens the shop on a category; older apps
+show the ring's name and photo and open the shop. Not yet checked on
+Leqaa's and Kech Flora's real projects (ROADMAP 165.10).
+
+Roadmap 167 (Sign out always there, whatever draws the Account): Leqaa's
+and Kech Flora's Account had Sign out under the floating petal bar, where
+it couldn't be reached. Every Account look now ends above a bar that floats
+over it, Sign out asks first and signs out, a Studio page on the Account tab
+without the account screen ends with Sign out and Delete account, and
+Studio has a Sign out element, which every template's account page has.
+Delete account stays in Settings, which every look lists. `CLIENT_APP_RELEASE`
+8 rebuilds the apps; to check on a phone (ROADMAP 167.8).
+
+Roadmap 168 (the gift checkout end to end): a flower shop made from Leqaa,
+in dirhams and priced by distance, walked from the product to the
+delivered order in English and Arabic. Fixed: the cart's total no longer
+loses the delivery while the chosen day waits for its time; the shipping
+breakdown is in the customer's language; the payment page takes a gift
+without a city the order never had; the owner opens the customer's pin on
+a map; and "How your flowers travel" stays on an order just delivered
+instead of going back to "Order placed". `CLIENT_APP_RELEASE` 7. Still
+open (ROADMAP 168.6–168.10): the pin without the platform's map, the
+payment page in Arabic, and the dashboard's times in UTC. The notes:
+docs/qa/2026-11-18-gift-checkout/NOTES.md.
+
+Roadmap 169 (the flower apps in Arabic and Turkish): a shop's, a flower
+shop's and every other kind's shared screens say their own words, not an
+academy's (the notifications' empty state, updating the app, deleting the
+account, "contact the academy", course files), in English, Arabic and
+Turkish. Capitals follow the language (Turkish "AŞK İÇİN", not "AŞK
+IÇIN") through one helper, in Studio's capitals, kickers, labels and
+initials. The card's "Beginnings to tap" have a field per app language in
+Delivery & offers › Gifts, sent by language in `StoreConfig` and shown in
+the customer's; saved ones stay the main language's. Every screen of both
+looks was walked in Arabic (day and night) and Turkish: a gift's delivery
+in the cart's summary is "Delivery fee", not "Shipping". Not yet in a rebuilt
+app (ROADMAP 169.6); the plugin's stay one field (169.5).
+
+Roadmap 171 (the Orders tab keeps the tab bar): in Leqaa's app (both
+looks, the petal bar), the Orders tab opened Orders on top, without the bar,
+because a store's orders live under Account (`/account/orders`), not among
+its tab places. Now a tab of the orders, the notifications, the settings,
+the chat or an academy's teachers (Rawaq Academy's Teachers tab) shows its
+screen in its place with the bar under it, in every app type; an order
+opened from there covers the bar and Back returns to the tab. And "How your
+flowers travel" with no order showed a sample journey, "Order placed" lit:
+now it, its card and its heading show only with an order, at that order's
+own step. From `CLIENT_APP_RELEASE` 9. Not yet tried on a phone (ROADMAP
+171.7).
+
+Roadmap 173 (an order shows its delivery, its card and its amounts): in
+Leqaa's app an order showed its lines and its total only (360 + 120 against
+482). The order screen now shows the delivery (the day and the time, in the
+shop's time, the recipient and the address), the gift card (its message and
+who sends it, only when there is one) and the totals that add up: the
+subtotal, the coupon with its code, the points, the delivery for its zone,
+the delivery time's fee, other fees and the tax, then the total. The
+contract's new `Order.amounts` comes from hosted shops (`GET /me/orders`)
+and from WordPress with plugin 0.4.51 (WooCommerce's coupon, shipping, fee
+and tax lines); `delivery.recipient` adds the city. Older apps ignore it;
+older servers leave it out and the app shows the lines and the total as
+before. Needs the next app build (no `CLIENT_APP_RELEASE` change here) and
+plugin 0.4.51 released; not yet tried on a phone (ROADMAP 173.6).
+
+Roadmap 156 (what the owner publishes in Studio is what the app shows, in
+every language): a template's translations of its own words stop applying
+once the owner changes the text, so the app shows the owner's text in
+every language (Kech Flora's review in English no longer shows the
+template's Arabic placeholders on an Arabic phone); a template's
+[placeholder] gives way to the owner's words in another language;
+translations the owner wrote stay. Applied when serving (hosted
+`GET /pages`, the plugin's layout, `Config.screens` for Studio › Screens'
+texts, with a new version so apps and plugins fetch it again) and when
+saving; Studio says what each language shows and which is the main one.
+No template [placeholder] reaches a customer either: the same-day cut-off
+fills Leqaa's "Order before [your cut-off time]", and an element or a
+review whose words are still a placeholder waits for the owner's (Studio
+says so under the field); a project started from a demo no longer shows
+the demo's facts (Leqaa's "anywhere in Cairo" in a shop in Morocco).
+The path itself (Publish, the published layout, `GET /pages`, its ETag,
+the app's reload) was checked end to end and carries every edit. Admin ›
+Demo apps asks before Refresh, which puts back a demo's own design over
+any Studio edit. No migration, no app build. Not yet seen on a phone
+(ROADMAP 156.10).
 
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
 payout of the 1st covers the sales paid up to the end of the month before,
@@ -64,6 +274,19 @@ records each transfer the team sends from Yallapp's bank with Mark as sent
 Migration `0142_studio_market_money`; the first real payout is to be
 checked by hand (LAUNCH-CHECKLIST, Phase 106.11).
 
+Roadmap 106.12 (Studio Market's discounts): designers make price drops,
+flash sales and coupon codes on their paid templates (Designer area ›
+Discounts), each an amount or a percentage off some or all plans, lifetime
+too, from a start to an end in their time zone; a code has an optional
+usage limit, counted on paid orders. The market's cards show the
+discounted "From $X/mo" with the old price struck through, a new flash
+strip lists the templates on a flash sale now with a live countdown, and
+checkout takes a code (any case) with the original price, the discount and
+the total. Nothing stacks: the buyer gets the better of the automatic
+price or the code. The server works the price out again at Pay; the
+order's gross is the price paid, so the 75/25 split is of it. A discount
+never takes a plan below $1 (100% off is $1). Migration 0143.
+
 The plugin's end-to-end job (WordPress + Tutor LMS) no longer loses a check
 about a minute into its run (main #449 and #450, PR #454): the dev site runs
 no WP-Cron of its own (`DISABLE_WP_CRON`). WP-CLI took WordPress's cron lock
@@ -86,6 +309,34 @@ chosen, or whose product the shop no longer has, opens the shop: hosted
 it, and the app does the same from `CLIENT_APP_RELEASE` 7 (WooCommerce
 stores' pages too). Not yet tried on a phone (ROADMAP 152.7).
 
+Roadmap 155 (Apple Pay and Google Pay in Stripe's form): the payment page
+(`/pay/…`) lets the page and Stripe's frames use the Payment Request API
+(`payment=(self "https://js.stripe.com" "https://checkout.stripe.com")`, as
+Stripe's Google Pay guide gives it); every other page keeps `payment=()`.
+The page's domain is registered in each shop's own Stripe account with its
+own key (Payment Method Domains), when its Stripe keys are saved or tested
+and once before Stripe's form if it isn't yet; the answer is kept on the
+shop's payment settings, and a failure never stops a card payment (noted
+for the team). Payments says "Apple Pay and Google Pay: ready" or why not
+yet. The wallets are expected in Safari and Chrome, not inside the apps'
+web views (ROADMAP 155.6). Not yet tried with a real Stripe account on real
+devices (ROADMAP 155.7).
+
+Roadmap 172 (a saved legal page that lacks the default's new text): Admin ›
+Website content notices when the team's saved version of the privacy
+policy, terms or refund policy, in any language, lacks sentences Yallapp's
+default text added since the version it was based on: a badge in the list
+and, on the page, "Yallapp's default text for this page was updated on …".
+"Review the changes" lists each new or changed paragraph with the new
+sentences highlighted; "Add the new text" puts them into the team's text
+at the places the default has them (or between two ==== lines for the team
+to place, which a save refuses), and nothing is published until Save. A
+save keeps the default's version it was based on with the page's fields
+(no migration); versions saved before are taken as based on the default
+before 18 November 2026. The default's earlier versions come from git
+(`scripts/legal-history.mjs` writes `src/content/legal-history.ts`; run it
+after changing a legal page's default, a unit test says so).
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build
@@ -95,6 +346,19 @@ problem on our side and offers iPhone only; the admin shows the technical
 cause and the team gets one alert per build. Nothing retries it. Every
 iPhone failure now says its cause in plain words with where to fix it,
 and the iPhone app's build output is for the admin only.
+
+Roadmap 163 (Studio pages on a Samsung's settings): Leqaa's signature
+template, every page of both looks, is drawn by the real app in tests at
+font scales 1.0 to 1.5, display zoom (360, 384, 412 points) and both
+navigation bars, Arabic and English, light and dark. Arabic text in Studio
+pages is never under a 1.5 line, so the Orders title no longer draws over
+the journey's card; a photo cover grows with its words; a row's last text
+gives way (one that shows something, so a long price with no sale
+shrinks); a testimonial's quote mark isn't cut; the flash sale's title
+wraps; the folding header no longer redraws during layout.
+`CLIENT_APP_RELEASE` is 8 (after 152's 7). Lists whose last items stay under the tab bar (Account, Bouquets, Picks) and the Orders empty
+state under the phone's bar are `wip-page-scroll`'s (ROADMAP 163.7). The
+journey's card offset in right-to-left wasn't reproduced (163.8).
 
 Roadmap 153 (the card inside the payment page for iyzico and Kashier): as
 with Stripe (144), Yallapp's payment page shows the gateway's own card form
@@ -960,5 +1224,7 @@ test environment:
   moving and going back to the previous design) is built, in the look the
   owner chose ("Gallery" in light, "Night showroom" in dark); stage 2 (paid
   plans, checkout with Kashier, renewing, the reminders and the end of a
-  plan) too. The designers' money, and discounts with the public
-  `/templates` page follow (see `docs/ROADMAP.md`).
+  plan) too, stage 3 (the designers' money: the ledger, the checks before
+  the first payout and the monthly payouts, 106.11) and stage 4's discounts
+  (price drops, flash sales and coupon codes, 106.12). The public
+  `/templates` page (106.13) follows (see `docs/ROADMAP.md`).

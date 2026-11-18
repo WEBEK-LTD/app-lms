@@ -58,6 +58,8 @@ export default async function DesignerLayout({ children }: { children: React.Rea
           icon: "payments",
           ...(detailsFix ? { badge: { count: 1, label: t("marketMoney.navFix") } } : {}),
         },
+        // 106.12 Price drops, flash sales and coupon codes.
+        { href: "/designer/discounts", label: t("marketDiscounts.nav"), icon: "sell" },
       ],
     },
     {

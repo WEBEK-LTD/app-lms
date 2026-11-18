@@ -105,6 +105,8 @@ export function slotJson(slot: DeliverySlot, currency: string, fees: boolean) {
     label: slotLabel(slot),
     fee: fee !== null ? centsToDecimal(fee) : null,
     fee_formatted: fee !== null ? money(fee, currency) : null,
+    // 161 The fee's currency: the hosted API adds it in the customer's (`display`).
+    currency,
     capacity: slot.capacity,
   };
 }

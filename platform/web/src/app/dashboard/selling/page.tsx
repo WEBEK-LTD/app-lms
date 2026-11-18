@@ -22,17 +22,18 @@ import { richText } from "@/i18n/rich";
 import { localePath } from "@/i18n/paths";
 import { assetUrl } from "@/lib/assets";
 import { platformDefinition } from "@/lib/hosted/connectors/platforms";
-import { DEFAULT_DELIVERY, DELIVERY_LIMITS, slotLabel } from "@/lib/selling/delivery";
+import { DEFAULT_DELIVERY, DELIVERY_LIMITS, deliveryOf, slotLabel } from "@/lib/selling/delivery";
 import { saleOn, unitsLeft } from "@/lib/selling/flash-sales";
 import { giftOccasionsOf } from "@/lib/selling/gift-messages";
-import { checkoutModeOf, giftsOf } from "@/lib/selling/gifts";
+import { checkoutModeOf, giftFormValues, giftsOf } from "@/lib/selling/gifts";
+import { giftBeginningsIn } from "@/lib/selling/gift-starters";
 import { countryChoices, countryNameIn } from "@/lib/selling/countries";
 import { sameCity, STARTER_CITIES } from "@/lib/selling/shipping";
 import { appLanguagesOf, platformCarriesDetails } from "@/lib/selling/store";
 import { localInput, shopZone } from "@/lib/selling/zone";
 import { checkoutLookOf } from "@/lib/studio/checkout-look";
 import { CouponForm } from "../catalog/forms";
-import { AddonsForm, AreasForm, CheckoutModeForm, DeliveryForm, FlashSaleForm, GiftsForm, TitlesForm } from "./forms";
+import { AddonsForm, AreasForm, BouquetForm, CheckoutModeForm, DeliveryForm, FlashSaleForm, GiftsForm, TitlesForm } from "./forms";
 import type { AreasStart } from "./pickers";
 import { SellingTabs } from "./tabs";
 
@@ -99,8 +100,26 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
     offerProductIds: (addonSettings?.offerWith.productIds ?? []).join(", "),
   };
   const ownAddons = source.kind === "catalog" ? products.filter((p) => p.addon) : [];
+  // 162 Build your bouquet as saved (its form's values).
+  const bq = settings.bouquet ?? null;
+  const bouquetValues: Record<string, string> = bq
+    ? {
+        bouquet: "on",
+        flowersCategoryId: String(bq.flowersCategoryId),
+        wrapsFrom: bq.wraps.from,
+        wrapIds: bq.wraps.from === "addons" ? bq.wraps.productIds.join(", ") : "",
+        wrapsCategoryId: bq.wraps.from === "category" ? String(bq.wraps.categoryId) : "",
+        cardIds: bq.cardProductIds.join(", "),
+        wrapOptional: bq.wrapOptional ? "on" : "",
+        cardOptional: bq.cardOptional ? "on" : "",
+        minStems: bq.minStems !== null ? String(bq.minStems) : "",
+        maxStems: bq.maxStems !== null ? String(bq.maxStems) : "",
+      }
+    : {};
   const weekdays = Array.from({ length: 7 }, (_, d) => new Intl.DateTimeFormat(lang === "ar" ? "ar-EG" : lang, { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 10, 15 + d))));
-  const delivery = settings.delivery ?? DEFAULT_DELIVERY;
+  // 168 What the customers get: the gift checkout (the owner's choice or the look's, as Leqaa's) always asks a day
+  // and a time (lib/selling/delivery.ts deliveryOf), so the page shows that, not the saved switches left off.
+  const delivery = (mode === "gift" ? deliveryOf(app, true) : null) ?? settings.delivery ?? DEFAULT_DELIVERY;
   const deliveryValues: Record<string, string> = {
     enabled: delivery.enabled ? "on" : "",
     required: delivery.required ? "on" : "",
@@ -189,6 +208,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
     ...(hosted ? [{ id: "areas", label: t("manage.areasTab") }] : []),
     { id: "gifts", label: t("manage.giftsTab") },
     ...(titled ? [{ id: "addons", label: t("selling.addonsTitle") }] : []),
+    ...(hosted ? [{ id: "bouquet", label: t("selling.bouquetTitle") }] : []),
     ...(offers ? [{ id: "flash", label: t("manage.offersTab"), count: sales.length }] : []),
     ...(platform ? [{ id: "deliveries", label: t("selling.deliveriesTitle"), count: deliveries.length }] : []),
   ];
@@ -522,7 +542,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
             {hosted ? (
               <KitSection titleId="h-checkout" title={t("selling.checkoutTitle")} description={t("selling.checkoutIntro")}>
                 {look?.mode === "gift" ? <KitCallout icon="info">{t("selling.lookGift")}</KitCallout> : null}
-                <CheckoutModeForm mode={gifts.checkout === "gift" ? "gift" : "standard"} />
+                <CheckoutModeForm mode={mode} />
               </KitSection>
             ) : null}
             {titled ? (
@@ -562,7 +582,9 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
           {hosted ? (
             <KitSection titleId="h-gifts" title={t("selling.giftsTitle")} description={t("selling.giftsIntro")}>
               <GiftsForm
-                values={{ message: gifts.message ? "on" : "", maxLength: String(gifts.maxLength), starters: gifts.starters.join("\n"), recipient: gifts.recipient ? "on" : "", anonymous: gifts.anonymous ? "on" : "" }}
+                values={giftFormValues(gifts, otherLangs.map((l) => l.code))}
+                languages={otherLangs}
+                examples={Object.fromEntries([["main", giftBeginningsIn(languages.default).join("\n")], ...otherLangs.map((l) => [l.code, giftBeginningsIn(l.code).join("\n")])])}
               />
             </KitSection>
           ) : null}
@@ -602,6 +624,24 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
                   <AddonsForm values={addonValues} tags={app.connector?.kind === "shopify"} platform={platform} />
                 </>
               ) : null}
+            </KitSection>
+          </KitTabPanel>
+        ) : null}
+        {hosted ? (
+          <KitTabPanel tab="bouquet">
+            {/* 162 Build your bouquet: the flowers, the wraps, the cards and the rules. */}
+            <KitSection titleId="h-bouquet" title={t("selling.bouquetTitle")} description={t("selling.bouquetIntro")}>
+              {platform ? (
+                <KitCallout tone="warn" icon="warning">
+                  {t("selling.srcPlatform", { platform })}
+                </KitCallout>
+              ) : null}
+              <BouquetForm
+                values={bouquetValues}
+                platform={platform}
+                categories={source.kind === "catalog" ? categories.map((c) => ({ id: c.id, name: c.name })) : null}
+                addons={source.kind === "catalog" ? ownAddons.map((p) => ({ id: p.id, name: p.name, image: pictureOf(p), price: money(p.salePriceCents ?? p.priceCents) })) : null}
+              />
             </KitSection>
           </KitTabPanel>
         ) : null}

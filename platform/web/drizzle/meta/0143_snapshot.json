@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "6d4ed1b2-52ff-4f3c-9004-0f9ec1be43e2",
+  "id": "bda5a75d-4ab0-4ed9-b73d-16e0d06689c3",
   "prevId": "91ea754e-a931-4bfb-b4c8-0ac454685215",
   "tables": {
     "account_deletion_requests": {
@@ -4760,13 +4760,6 @@
           "type": "datetime(3)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "names": {
-          "name": "names",
-          "type": "longtext",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         }
       },
@@ -26970,6 +26963,154 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "studio_market_discounts": {
+      "name": "studio_market_discounts",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "template_id": {
+          "name": "template_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "designer_id": {
+          "name": "designer_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "off_type": {
+          "name": "off_type",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "off_value": {
+          "name": "off_value",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "plans": {
+          "name": "plans",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "starts_at": {
+          "name": "starts_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "ends_at": {
+          "name": "ends_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "usage_limit": {
+          "name": "usage_limit",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "studio_market_discounts_code_idx": {
+          "name": "studio_market_discounts_code_idx",
+          "columns": [
+            "template_id",
+            "code"
+          ],
+          "isUnique": true
+        },
+        "studio_market_discounts_template_idx": {
+          "name": "studio_market_discounts_template_idx",
+          "columns": [
+            "template_id",
+            "kind",
+            "ends_at"
+          ],
+          "isUnique": false
+        },
+        "studio_market_discounts_designer_idx": {
+          "name": "studio_market_discounts_designer_idx",
+          "columns": [
+            "designer_id",
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "studio_market_discounts_template_fk": {
+          "name": "studio_market_discounts_template_fk",
+          "tableFrom": "studio_market_discounts",
+          "tableTo": "studio_market_templates",
+          "columnsFrom": [
+            "template_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "studio_market_discounts_id": {
+          "name": "studio_market_discounts_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "studio_market_ledger": {
       "name": "studio_market_ledger",
       "columns": {
@@ -27547,6 +27688,41 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "discount_id": {
+          "name": "discount_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "discount_kind": {
+          "name": "discount_kind",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "discount_code": {
+          "name": "discount_code",
+          "type": "varchar(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "list_cents": {
+          "name": "list_cents",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "discount_cents": {
+          "name": "discount_cents",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -27586,6 +27762,15 @@
           "name": "studio_market_orders_licence_idx",
           "columns": [
             "licence_id"
+          ],
+          "isUnique": false
+        },
+        "studio_market_orders_discount_idx": {
+          "name": "studio_market_orders_discount_idx",
+          "columns": [
+            "discount_id",
+            "status",
+            "created_at"
           ],
           "isUnique": false
         }

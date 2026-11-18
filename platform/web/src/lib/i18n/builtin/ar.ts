@@ -584,6 +584,7 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "There is no account with this email address.": "لا يوجد حساب بهذا البريد الإلكتروني.",
   "There is no account with this number.": "لا يوجد حساب بهذا الرقم.",
   "You already have an account. Sign in with your password, or reset it if you forgot it.": "لديك حساب بالفعل. سجّل الدخول بكلمة المرور، أو أعد تعيينها إذا نسيتها.",
+  "You already have an account. Set your password with “Forgot password”, then sign in with it.": "لديك حساب بالفعل. اضبط كلمة المرور من «نسيت كلمة المرور»، ثم سجّل الدخول بها.",
   "Please choose a username of 3 to 30 letters, digits, dots or underscores, starting with a letter.": "يُرجى اختيار اسم مستخدم من 3 إلى 30 حرفًا أو رقمًا أو نقطة أو شرطة سفلية، يبدأ بحرف.",
   "This username is taken. Please choose another one.": "اسم المستخدم هذا مستخدَم. يُرجى اختيار اسم آخر.",
   "Your password needs at least 8 characters.": "تحتاج كلمة المرور إلى 8 أحرف على الأقل.",

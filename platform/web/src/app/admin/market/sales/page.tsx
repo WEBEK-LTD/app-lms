@@ -20,6 +20,8 @@ const PLAN: Record<string, string> = { "1m": "1 month", "3m": "3 months", "6m": 
  * Yallapp's 25%) and what the gateway charged; the buyer's licence and its
  * end, which the team can move (`clients.license`). 106.11 Each paid sale
  * is in the designer's ledger, paid out from Admin › Studio Market › Payouts.
+ * 106.12 A sale bought with a discount is the price paid, with the discount
+ * (a code, a flash sale or a price drop) under it.
  */
 export default async function MarketSalesPage({ searchParams }: PageProps<"/admin/market/sales">) {
   await requireAdmin("view");
@@ -99,7 +101,15 @@ export default async function MarketSalesPage({ searchParams }: PageProps<"/admi
                       {PLAN[o.plan] ?? o.plan}
                       <span className="block text-xs text-muted">{o.kind === "renew" ? "Renewal" : "Purchase"}</span>
                     </td>
-                    <td className="px-3.5 py-3 font-semibold">{formatUsd(o.grossCents)}</td>
+                    <td className="px-3.5 py-3 font-semibold">
+                      {formatUsd(o.grossCents)}
+                      {/* 106.12 The discount it was bought with: the sale (and its split) is the price paid. */}
+                      {o.discount ? (
+                        <span data-discount className="block text-xs font-normal whitespace-nowrap text-muted">
+                          {o.discount.kind === "coupon" ? `Code ${o.discount.code}` : o.discount.kind === "flash" ? "Flash sale" : "Price drop"} · {formatUsd(o.discount.listCents)} − {formatUsd(o.discount.offCents)}
+                        </span>
+                      ) : null}
+                    </td>
                     <td className="px-3.5 py-3">{formatUsd(o.designerCents)}</td>
                     <td className="px-3.5 py-3">{formatUsd(o.yallappCents)}</td>
                     <td className="px-3.5 py-3 whitespace-nowrap">

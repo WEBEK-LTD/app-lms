@@ -741,6 +741,10 @@ abstract class YallappApi {
   /// without one, those offered with every product.
   Future<List<ProductSummary>> getAddons({int? productId});
 
+  /// 162 Build your bouquet: the flowers, the wraps and the cards to choose
+  /// from, and the rules (`GET /store/bouquet`).
+  Future<BouquetBuilderData> getBouquet();
+
   /// 91.4 The customer's loyalty points and their latest changes.
   Future<PointsAccount> getMyPoints();
 
@@ -2656,6 +2660,10 @@ class HttpYallappApi implements YallappApi {
     (json) => listOf(json, 'items', ProductSummary.fromJson),
     query: {'product_id': ?productId},
   );
+
+  @override
+  Future<BouquetBuilderData> getBouquet() =>
+      _get('/store/bouquet', _public, BouquetBuilderData.fromJson);
 
   @override
   Future<OrderTimes> getOrderTimes() =>

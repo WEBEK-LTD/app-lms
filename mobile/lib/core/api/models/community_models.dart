@@ -1,3 +1,4 @@
+import 'bouquet_models.dart';
 import 'commerce_models.dart';
 import 'catalog_models.dart';
 import 'json.dart';
@@ -243,6 +244,7 @@ class OrderLine {
     this.imageUrl,
     this.options = const [],
     this.total,
+    this.bouquet,
   });
 
   factory OrderLine.fromJson(Json json) => OrderLine(
@@ -252,8 +254,13 @@ class OrderLine {
     quantity: intOr(json, 'quantity', 1),
     imageUrl: optString(json, 'image_url'),
     options: stringList(json, 'options'),
-    total: optString(json, 'total'),
+    // 161 In the customer's currency when the server sent it.
+    total: customerText(json, 'total'),
+    bouquet: BouquetPart.tryParse(json['bouquet']),
   );
+
+  /// 162 Part of a bouquet the customer built: shown as one bouquet.
+  final BouquetPart? bouquet;
 
   final String name;
   final int? courseId;
@@ -308,8 +315,10 @@ class Order {
     this.canReturn = false,
     this.points,
     this.delivery,
+    this.amounts,
     this.stage,
     this.customerCurrency,
+    this.display,
   });
 
   factory Order.fromJson(Json json) => Order(
@@ -326,7 +335,8 @@ class Order {
     items: reqListOf(json, 'items', OrderLine.fromJson),
     fulfilmentStatus: fulfilmentStatusFrom(json['fulfilment_status']),
     fulfilment: optObject(json, 'fulfilment', OrderFulfilment.fromJson),
-    refundedTotal: optString(json, 'refunded_total'),
+    // 161 In the customer's currency when the server sent it.
+    refundedTotal: customerText(json, 'refunded_total'),
     receiptUrl: optString(json, 'receipt_url'),
     payOutside: optObject(json, 'pay_outside', PayOutside.fromJson),
     shipment: optObject(json, 'shipment', OrderShipment.fromJson),
@@ -334,9 +344,26 @@ class Order {
     canReturn: boolOr(json, 'can_return', false),
     points: optObject(json, 'points', OrderPoints.fromJson),
     delivery: OrderDelivery.tryParse(json['delivery']),
+    amounts: OrderAmounts.tryParse(json['amounts']),
     stage: OrderStage.tryParse(json['stage']),
     customerCurrency: OrderCustomerCurrency.tryParse(json['customer_currency']),
+    display: DisplayMoney.tryParse(json['display']),
   );
+
+  /// 161 Its money in the customer's currency: in the one it was placed in,
+  /// at that day's rate, or today's; null when none.
+  final DisplayMoney? display;
+
+  /// 161 The total as the customer sees it: exact when the card was charged
+  /// in their currency, else approximate ("≈ \$13.40"); the shop's
+  /// without one. [total] stays the shop's (what a bank transfer pays).
+  String get shownTotal {
+    final shown = display?.total;
+    final cc = customerCurrency;
+    final charged =
+        cc != null && cc.charged && cc.currency == display?.currency;
+    return customerPrice(total, charged ? cc.total : shown, exact: charged);
+  }
 
   /// 132 Where a store order's delivery is; null before its first stage,
   /// on older servers, and for a stage this app doesn't know (the order
@@ -348,6 +375,9 @@ class Order {
 
   /// 131 The delivery day and slot, who receives it and the card.
   final OrderDelivery? delivery;
+
+  /// 173 What the total is made of; null on older servers.
+  final OrderAmounts? amounts;
 
   final int id;
   final String number;
@@ -398,7 +428,13 @@ class Order {
 
   /// Whether the order opens its own screen: to follow it, or for its return.
   bool get opensScreen =>
-      trackable || stage != null || canReturn || returnRequest != null;
+      trackable ||
+      stage != null ||
+      canReturn ||
+      returnRequest != null ||
+      amounts != null ||
+      (delivery?.hasDelivery ?? false) ||
+      (delivery?.hasGift ?? false);
 }
 
 /// 132 Where a store order's delivery is, as the shop set it: the new day
@@ -475,7 +511,8 @@ class OrderPoints {
 
   factory OrderPoints.fromJson(Json json) => OrderPoints(
     used: reqInt(json, 'used'),
-    discount: optString(json, 'discount'),
+    // 161 In the customer's currency when the server sent it.
+    discount: customerText(json, 'discount'),
     earned: reqInt(json, 'earned'),
   );
 

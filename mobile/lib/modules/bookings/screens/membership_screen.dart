@@ -228,7 +228,8 @@ class _MembershipScreenState extends ConsumerState<MembershipScreen> {
               ..invalidate(myMembershipsProvider);
           },
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            // 158 Its end clear of a tab bar over the screen.
+            padding: EdgeInsets.fromLTRB(20, 16, 20, endRoom(context, 24)),
             children: children,
           ),
         ),

@@ -22,6 +22,8 @@ import type {
   DesignerPayoutStatus,
   PayoutDetailsStatus,
 } from "./types";
+// 106.12 Studio Market discounts
+import type { MarketDiscount, MarketDiscountKind } from "./types";
 import { and, asc, count, desc, eq, getTableColumns, getTableName, gt, gte, inArray, is, isNotNull, isNull, like, lt, lte, ne, not, or, sql, type SQL } from "drizzle-orm";
 import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import { getTableConfig, MySqlTable as MySqlTableClass, type AnyMySqlColumn, type MySqlTable } from "drizzle-orm/mysql-core";
@@ -106,7 +108,7 @@ import type {
 import { holdsOf, holdsOn } from "../travel/holds";
 import { alertData, bookingColumns, bookingData, flightData, hotelData, reviewData, roomData, type TravelAlertData, type TravelBookingData, type TravelFlightData, type TravelHotelData, type TravelReviewData, type TravelRoomData } from "../travel/rows";
 import type { AppDeletion, AppDeletionStatus, AppMoveRequest, AppMoveStatus, KeptBillingRecord } from "./types";
-import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
+import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
 import { firebaseAppOrder } from "../firebase/order";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
@@ -121,6 +123,7 @@ import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, Reke
 import { candidatesIn, needsRekey } from "../crypto/rekey";
 import { assetIdsIn } from "./asset-ids";
 import { categoryOrder } from "../catalog/bulk";
+import { storyOrder } from "../stories/order";
 import type { PushAudience } from "./types";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack, ReviewsRow } from "./types";
@@ -1366,7 +1369,8 @@ export class MysqlStore implements DataStore {
     await this.run((db) =>
       db
         .update(schema.catalogCategories)
-        .set({ name })
+        // 157 Renamed in the dashboard, a demo's category is the owner's.
+        .set({ name, sample: false })
         .where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
     );
   }
@@ -1680,6 +1684,89 @@ export class MysqlStore implements DataStore {
   async deleteGiftOccasion(appId: string, id: number): Promise<void> {
     const t = schema.storeGiftOccasions;
     await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  private appStoryOf(row: typeof schema.appStories.$inferSelect): AppStory {
+    const { data, ...rest } = row;
+    return { ...rest, media: data.media, texts: data.texts, icon: data.icon ?? null, action: data.action ?? null };
+  }
+
+  async listAppStories(appId: string): Promise<AppStory[]> {
+    const t = schema.appStories;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.position), asc(t.id)));
+    return rows.map((r) => this.appStoryOf(r));
+  }
+
+  async getAppStory(appId: string, id: number): Promise<AppStory | null> {
+    const t = schema.appStories;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ? this.appStoryOf(row) : null;
+  }
+
+  async createAppStory(input: Omit<AppStory, "id">): Promise<AppStory | null> {
+    const { media, texts, icon, action, ...rest } = input;
+    try {
+      const [result] = await this.run((db) => db.insert(schema.appStories).values({ ...rest, data: { media, texts, icon, action } }));
+      if (input.importKey === null) await this.storiesSaved(input.appId, input.updatedAt);
+      return { ...input, id: Number(result.insertId) };
+    } catch (error) {
+      // A story copied from Studio is copied once (app_stories_import_unique).
+      if (errorCode(error) === "ER_DUP_ENTRY") return null;
+      throw error;
+    }
+  }
+
+  async updateAppStory(appId: string, id: number, patch: Partial<Omit<AppStory, "id" | "appId" | "createdAt" | "importKey">>): Promise<boolean> {
+    const current = await this.getAppStory(appId, id);
+    if (!current) return false;
+    const next = { ...current, ...patch };
+    const t = schema.appStories;
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({
+          position: next.position,
+          enabled: next.enabled,
+          startsAt: next.startsAt,
+          endsAt: next.endsAt,
+          categoryId: next.categoryId,
+          updatedAt: next.updatedAt,
+          data: { media: next.media, texts: next.texts, icon: next.icon, action: next.action },
+        })
+        .where(and(eq(t.appId, appId), eq(t.id, id))),
+    );
+    await this.storiesSaved(appId, patch.updatedAt ?? new Date());
+    return true;
+  }
+
+  async deleteAppStory(appId: string, id: number): Promise<boolean> {
+    const t = schema.appStories;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+    if (result.affectedRows === 0) return false;
+    await this.storiesSaved(appId, new Date());
+    return true;
+  }
+
+  /** 165 The owner saved the app's stories in Dashboard › Stories (`apps.stories_saved_at`); the app's own time stays as it was. */
+  private async storiesSaved(appId: string, now: Date): Promise<void> {
+    await this.run((db) => db.update(schema.apps).set({ storiesSavedAt: now }).where(eq(schema.apps.id, appId)));
+  }
+
+  async reorderAppStories(appId: string, ids: number[], now: Date): Promise<void> {
+    const t = schema.appStories;
+    const current = await this.listAppStories(appId);
+    for (const [position, id] of storyOrder(current, ids).entries()) {
+      if (current.find((s) => s.id === id)?.position === position) continue;
+      await this.run((db) => db.update(t).set({ position, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+    }
+    await this.storiesSaved(appId, now);
+  }
+
+  async markStoriesSeeded(appId: string, now: Date): Promise<boolean> {
+    const t = schema.apps;
+    // Only while it isn't set, in the same statement; the app's own time stays as it was.
+    const [result] = await this.run((db) => db.update(t).set({ storiesSeededAt: now }).where(and(eq(t.id, appId), isNull(t.storiesSeededAt))));
+    return result.affectedRows === 1;
   }
 
   async createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder> {
@@ -11136,11 +11223,31 @@ export class MysqlStore implements DataStore {
   }
 
   private orderRow(row: typeof schema.studioMarketOrders.$inferSelect): TemplateOrder {
-    return { ...row, plan: row.plan as TemplateOrder["plan"], kind: row.kind === "renew" ? "renew" : "buy", status: row.status === "paid" ? "paid" : row.status === "failed" ? "failed" : "pending" };
+    const { discountId, discountKind, discountCode, listCents, discountCents, ...rest } = row;
+    return {
+      ...rest,
+      plan: row.plan as TemplateOrder["plan"],
+      kind: row.kind === "renew" ? "renew" : "buy",
+      status: row.status === "paid" ? "paid" : row.status === "failed" ? "failed" : "pending",
+      // 106.12 The discount it was bought with.
+      discount: discountId && discountKind ? { id: discountId, kind: discountKind, code: discountCode, listCents: listCents ?? row.grossCents, offCents: discountCents ?? 0 } : null,
+    };
+  }
+
+  /** 106.12 An order's columns: its discount in its own. */
+  private orderValues({ discount, ...order }: TemplateOrder): typeof schema.studioMarketOrders.$inferInsert {
+    return {
+      ...order,
+      discountId: discount?.id ?? null,
+      discountKind: discount?.kind ?? null,
+      discountCode: discount?.code ?? null,
+      listCents: discount?.listCents ?? null,
+      discountCents: discount?.offCents ?? null,
+    };
   }
 
   async createTemplateOrder(order: TemplateOrder): Promise<void> {
-    await this.run((db) => db.insert(schema.studioMarketOrders).values(order));
+    await this.run((db) => db.insert(schema.studioMarketOrders).values(this.orderValues(order)));
   }
 
   async getTemplateOrder(id: string): Promise<TemplateOrder | null> {
@@ -11182,7 +11289,12 @@ export class MysqlStore implements DataStore {
 
   async updateTemplateOrder(id: string, patch: TemplateOrderPatch): Promise<boolean> {
     const t = schema.studioMarketOrders;
-    const [result] = await this.run((db) => db.update(t).set({ ...patch, ...(patch.applyError ? { applyError: patch.applyError.slice(0, 191) } : {}) }).where(eq(t.id, id)));
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ ...patch, ...(patch.applyError ? { applyError: patch.applyError.slice(0, 191) } : {}), ...(patch.providerRef ? { providerRef: patch.providerRef.slice(0, 191) } : {}) })
+        .where(eq(t.id, id)),
+    );
     return result.affectedRows > 0;
   }
 
@@ -11221,6 +11333,112 @@ export class MysqlStore implements DataStore {
     const t = schema.studioMarketApplications;
     const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.id, id), isNull(t.endedAt))));
     return result.affectedRows > 0;
+  }
+
+  // ——— 106.12 Studio Market discounts ———
+
+  private discountRow(row: typeof schema.studioMarketDiscounts.$inferSelect): MarketDiscount {
+    return { ...row, kind: row.kind === "flash" ? "flash" : row.kind === "coupon" ? "coupon" : "drop", offType: row.offType === "amount" ? "amount" : "percent", plans: row.plans ?? null };
+  }
+
+  async createMarketDiscount(discount: MarketDiscount): Promise<MarketDiscount | null> {
+    try {
+      await this.run((db) => db.insert(schema.studioMarketDiscounts).values(discount));
+      return discount;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return null;
+      throw error;
+    }
+  }
+
+  async getMarketDiscount(id: string): Promise<MarketDiscount | null> {
+    const t = schema.studioMarketDiscounts;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.id, id)).limit(1));
+    return row ? this.discountRow(row) : null;
+  }
+
+  async listMarketDiscounts(filter: { templateIds?: readonly string[]; designerId?: string; kinds?: readonly MarketDiscountKind[]; notEndedAt?: Date }): Promise<MarketDiscount[]> {
+    if ((filter.templateIds && !filter.templateIds.length) || (filter.kinds && !filter.kinds.length)) return [];
+    const t = schema.studioMarketDiscounts;
+    const where = and(
+      filter.templateIds ? inArray(t.templateId, [...filter.templateIds]) : undefined,
+      filter.designerId ? eq(t.designerId, filter.designerId) : undefined,
+      filter.kinds ? inArray(t.kind, [...filter.kinds]) : undefined,
+      filter.notEndedAt ? or(isNull(t.endsAt), gt(t.endsAt, filter.notEndedAt)) : undefined,
+    );
+    const rows = await this.run((db) => db.select().from(t).where(where).orderBy(asc(t.createdAt), asc(t.id)));
+    return rows.map((r) => this.discountRow(r));
+  }
+
+  async findMarketCoupon(templateId: string, code: string): Promise<MarketDiscount | null> {
+    const t = schema.studioMarketDiscounts;
+    const [row] = await this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.templateId, templateId), eq(t.kind, "coupon"), eq(t.code, code)))
+        .limit(1),
+    );
+    // Codes are kept in upper case; the column's collation would also match other cases.
+    return row && row.code === code ? this.discountRow(row) : null;
+  }
+
+  async endMarketDiscount(id: string, now: Date): Promise<boolean> {
+    const t = schema.studioMarketDiscounts;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        // A start still to come moves to now, so it never ends before it starts.
+        .set({ endsAt: now, startsAt: sql`CASE WHEN ${gt(t.startsAt, now)} THEN ${sql.param(now, t.startsAt)} ELSE ${t.startsAt} END`, updatedAt: now })
+        .where(and(eq(t.id, id), or(isNull(t.endsAt), gt(t.endsAt, now)))),
+    );
+    return result.affectedRows > 0;
+  }
+
+  async deleteMarketDiscount(id: string): Promise<boolean> {
+    const t = schema.studioMarketDiscounts;
+    const [result] = await this.run((db) => db.delete(t).where(eq(t.id, id)));
+    return result.affectedRows > 0;
+  }
+
+  async countMarketDiscountUses(ids: readonly string[]): Promise<Record<string, number>> {
+    if (!ids.length) return {};
+    const t = schema.studioMarketOrders;
+    const rows = await this.run((db) =>
+      db
+        .select({ id: t.discountId, n: count() })
+        .from(t)
+        .where(and(inArray(t.discountId, [...ids]), eq(t.status, "paid")))
+        .groupBy(t.discountId),
+    );
+    return Object.fromEntries(rows.flatMap((r) => (r.id ? [[r.id, Number(r.n)]] : [])));
+  }
+
+  async createTemplateOrderWithCoupon(order: TemplateOrder, limit: number, holdSince: Date): Promise<"ok" | "used_up" | "held" | "gone"> {
+    const id = order.discount?.id;
+    if (!id) return "gone";
+    const o = schema.studioMarketOrders;
+    const values = this.orderValues(order);
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        // The coupon's row, locked: two buyers at once count its uses one after the other.
+        const [coupon] = await tx.select({ id: schema.studioMarketDiscounts.id }).from(schema.studioMarketDiscounts).where(eq(schema.studioMarketDiscounts.id, id)).for("update");
+        if (!coupon) return "gone" as const;
+        const [uses] = await tx
+          .select({
+            paid: sql<number>`COALESCE(SUM(CASE WHEN ${eq(o.status, "paid")} THEN 1 ELSE 0 END), 0)`,
+            held: sql<number>`COALESCE(SUM(CASE WHEN ${and(eq(o.status, "pending"), gte(o.createdAt, holdSince), ne(o.clientId, order.clientId))} THEN 1 ELSE 0 END), 0)`,
+          })
+          .from(o)
+          .where(eq(o.discountId, id));
+        const paid = Number(uses?.paid ?? 0);
+        const held = Number(uses?.held ?? 0);
+        if (paid >= limit) return "used_up" as const;
+        if (paid + held >= limit) return "held" as const;
+        await tx.insert(o).values(values);
+        return "ok" as const;
+      }),
+    );
   }
 
   // ——— 106.11 The designer's money ———

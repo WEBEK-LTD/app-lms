@@ -486,6 +486,8 @@ describe("listings on the hosted API", () => {
       subtitle: "Dokki · 45 m²",
       image_url: null,
       price_label: "EGP 9,000 / month",
+      // 161 Its amount and currency, for the same in the customer's.
+      price: { amount: "9000.00", currency: "EGP", formatted: "EGP 9,000" },
       badge: "For rent",
       favorited: true,
       action: { type: "item", item: { source: "listings", id: String(ids.studio) } },

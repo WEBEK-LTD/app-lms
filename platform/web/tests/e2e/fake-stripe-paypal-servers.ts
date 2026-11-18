@@ -1,5 +1,5 @@
 import { createServer, type IncomingMessage, type Server } from "node:http";
-import { fakePaypal, fakeStripe, type FakeRequest, type StripeEndpoint } from "../unit/fake-stripe-paypal";
+import { fakePaypal, fakeStripe, type FakeRequest, type StripeDomain, type StripeEndpoint } from "../unit/fake-stripe-paypal";
 
 /**
  * 96.1 The fake Stripe and PayPal of the unit tests behind a local server,
@@ -16,6 +16,8 @@ export interface FakeServer {
   endpoints?: StripeEndpoint[];
   /** Stripe: the Checkout Sessions it made, by ID. */
   sessions?: Map<string, { id: string; client_reference_id: string | null }>;
+  /** 155 Stripe: the payment method domains registered (POST /v1/payment_method_domains), for Apple Pay and Google Pay. */
+  domains?: StripeDomain[];
 }
 
 function readBody(request: IncomingMessage): Promise<string> {
@@ -90,7 +92,7 @@ export async function startFakeStripe(port: number, options: { accountName?: str
     }
     return { html: page("Stripe Checkout", (session.amount_total / 100).toFixed(2), `/pay/${session.id}/done`) };
   });
-  return { ...served, endpoints: stripe.endpoints, sessions: stripe.sessions };
+  return { ...served, endpoints: stripe.endpoints, sessions: stripe.sessions, domains: stripe.domains };
 }
 
 export async function startFakePaypal(port: number): Promise<FakeServer> {

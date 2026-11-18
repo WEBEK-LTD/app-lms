@@ -3,11 +3,15 @@ import { expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
 import type { DataStore } from "@/lib/data/store";
-import type { App, DesignerLedgerEntry, DesignerPayout, DesignerPayoutDetails, MarketTemplate, MarketTemplateVersion, TemplateApplication, TemplateDesigner, TemplateLicence, TemplateOrder } from "@/lib/data/types";
+import type { App, DesignerLedgerEntry, DesignerPayout, DesignerPayoutDetails, MarketDiscount, MarketTemplate, MarketTemplateVersion, TemplateApplication, TemplateDesigner, TemplateLicence, TemplateOrder } from "@/lib/data/types";
 import { days, NOW } from "./helpers";
 
-/** 106.1 Studio Market's data, the same on every store (the memory store and MySQL or MariaDB). */
-export function studioMarketStoreSuite(store: () => DataStore) {
+/**
+ * 106.1 Studio Market's data, the same on every store (the memory store and
+ * MySQL or MariaDB). `elsewhere`: the same data from another server (on
+ * MySQL another pool, so two servers' requests really meet in the database).
+ */
+export function studioMarketStoreSuite(store: () => DataStore, elsewhere: (s: DataStore) => DataStore = (s) => s) {
   async function account(s: DataStore, name: string) {
     const suffix = randomUUID().slice(0, 8);
     const { client } = await registerClient(s, { name, email: `${name.toLowerCase().replace(/\W+/g, "-")}-${suffix}@market.test`, whatsapp: "+905446731947", siteUrl: "", password: null }, NOW);
@@ -256,6 +260,154 @@ export function studioMarketStoreSuite(store: () => DataStore) {
     // Bought again after it ended: active again from the new period.
     expect(await s.extendTemplateLicence(licence.id, days(456), { plan: "3m", endsAt: days(550), afterEnd: "keep" }, days(460))).toBe(true);
     expect(await s.getTemplateLicence(licence.id)).toMatchObject({ status: "active", endedAt: null, endsAt: days(550) });
+  });
+
+  it("106.12 keeps the discounts, a coupon's code once per template, the orders' discounts, and a coupon's last use for one buyer", async () => {
+    const s = store();
+    const seller = await account(s, "Lale");
+    const designer = (await s.createTemplateDesigner(designerOf(seller.client.id, `lale-${seller.suffix}`)))!;
+    const template = (await s.createMarketTemplate({ ...templateOf(designer, seller.app.id, `peony-${seller.suffix}`), free: false, plans: [{ period: "3m", cents: 2400 }, { period: "life", cents: 14900 }] }))!;
+    const other = (await s.createMarketTemplate({ ...templateOf(designer, seller.app.id, `tulip-${seller.suffix}`), free: false, plans: [{ period: "1m", cents: 900 }] }))!;
+    const discountOf = (over: Partial<MarketDiscount>): MarketDiscount => ({
+      id: randomUUID(),
+      templateId: template.id,
+      designerId: designer.id,
+      kind: "drop",
+      code: null,
+      offType: "percent",
+      offValue: 20,
+      plans: null,
+      startsAt: null,
+      endsAt: null,
+      usageLimit: null,
+      createdAt: NOW,
+      updatedAt: NOW,
+      ...over,
+    });
+    const drop = discountOf({ offType: "amount", offValue: 400, plans: ["3m"] });
+    const flash = discountOf({ kind: "flash", startsAt: NOW, endsAt: days(1), createdAt: days(0.1) });
+    const coupon = discountOf({ kind: "coupon", code: "LALE30", offValue: 30, plans: ["3m", "life"], usageLimit: 2, endsAt: days(30), createdAt: days(0.2) });
+    expect(await s.createMarketDiscount(drop)).toEqual(drop);
+    expect(await s.createMarketDiscount(flash)).toEqual(flash);
+    expect(await s.createMarketDiscount(coupon)).toEqual(coupon);
+    // Drops have no code: two of them are fine. A code twice on one template isn't; on another template it is.
+    const second = discountOf({ offValue: 5, createdAt: days(0.3) });
+    expect(await s.createMarketDiscount(second)).toEqual(second);
+    expect(await s.createMarketDiscount(discountOf({ kind: "coupon", code: "LALE30" }))).toBeNull();
+    const elsewhereCode = discountOf({ templateId: other.id, kind: "coupon", code: "LALE30", createdAt: days(0.4) });
+    expect(await s.createMarketDiscount(elsewhereCode)).toEqual(elsewhereCode);
+    expect(await s.getMarketDiscount(coupon.id)).toEqual(coupon);
+    expect(await s.getMarketDiscount(drop.id)).toMatchObject({ plans: ["3m"], offType: "amount", offValue: 400, startsAt: null, endsAt: null });
+    expect((await s.getMarketDiscount(flash.id))?.plans).toBeNull();
+    expect((await s.listMarketDiscounts({ templateIds: [template.id] })).map((d) => d.id)).toEqual([drop.id, flash.id, coupon.id, second.id]);
+    expect((await s.listMarketDiscounts({ templateIds: [template.id], kinds: ["drop", "flash"] })).map((d) => d.id)).toEqual([drop.id, flash.id, second.id]);
+    expect((await s.listMarketDiscounts({ designerId: designer.id, kinds: ["coupon"] })).map((d) => d.id)).toEqual([coupon.id, elsewhereCode.id]);
+    // Not ended at an instant: an end exactly then has ended.
+    expect((await s.listMarketDiscounts({ templateIds: [template.id], notEndedAt: days(1) })).map((d) => d.id)).toEqual([drop.id, coupon.id, second.id]);
+    expect((await s.listMarketDiscounts({ templateIds: [template.id], notEndedAt: days(0.999) })).map((d) => d.id)).toEqual([drop.id, flash.id, coupon.id, second.id]);
+    expect(await s.listMarketDiscounts({ templateIds: [] })).toEqual([]);
+    expect((await s.findMarketCoupon(template.id, "LALE30"))?.id).toBe(coupon.id);
+    expect((await s.findMarketCoupon(other.id, "LALE30"))?.id).toBe(elsewhereCode.id);
+    expect(await s.findMarketCoupon(template.id, "lale30")).toBeNull();
+    expect(await s.findMarketCoupon(template.id, "NOPE")).toBeNull();
+
+    // Ended now, once; a start still to come moves to now.
+    const scheduled = discountOf({ startsAt: days(5), createdAt: days(0.5) });
+    await s.createMarketDiscount(scheduled);
+    expect(await s.endMarketDiscount(scheduled.id, days(1))).toBe(true);
+    expect(await s.getMarketDiscount(scheduled.id)).toMatchObject({ startsAt: days(1), endsAt: days(1), updatedAt: days(1) });
+    expect(await s.endMarketDiscount(scheduled.id, days(2))).toBe(false);
+    expect(await s.endMarketDiscount(second.id, days(1))).toBe(true);
+    expect(await s.getMarketDiscount(second.id)).toMatchObject({ startsAt: null, endsAt: days(1) });
+    expect(await s.endMarketDiscount(flash.id, days(2))).toBe(false);
+    expect(await s.deleteMarketDiscount(second.id)).toBe(true);
+    expect(await s.deleteMarketDiscount(second.id)).toBe(false);
+
+    // An order keeps its discount; one without has none.
+    const buyers = await Promise.all(["A", "B", "C", "D", "E"].map((x) => account(s, `Buyer ${x}`)));
+    const orderOf = (clientId: string, over: Partial<TemplateOrder> = {}): TemplateOrder => ({
+      id: randomUUID(),
+      templateId: template.id,
+      designerId: designer.id,
+      clientId,
+      kind: "buy",
+      licenceId: null,
+      plan: "3m",
+      appId: null,
+      grossCents: 1680,
+      designerCents: 1260,
+      yallappCents: 420,
+      amountCents: 84000,
+      currency: "EGP",
+      egpPerUsd: 50,
+      status: "pending",
+      tokenHash: randomUUID().replace(/-/g, "").padEnd(64, "0"),
+      paymentProvider: "kashier",
+      providerRef: null,
+      paymentId: null,
+      consentAt: NOW,
+      startsAt: null,
+      endsAt: null,
+      appliedAt: null,
+      applyError: null,
+      createdAt: NOW,
+      paidAt: null,
+      discount: { id: coupon.id, kind: "coupon", code: "LALE30", listCents: 2400, offCents: 720 },
+      ...over,
+    });
+    const plain = orderOf(buyers[0]!.client.id, { grossCents: 2400, designerCents: 1800, yallappCents: 600, discount: null });
+    await s.createTemplateOrder(plain);
+    expect((await s.getTemplateOrder(plain.id))?.discount).toBeNull();
+    const flashOrder = orderOf(buyers[0]!.client.id, { grossCents: 1920, discount: { id: flash.id, kind: "flash", code: null, listCents: 2400, offCents: 480 } });
+    await s.createTemplateOrder(flashOrder);
+    expect((await s.getTemplateOrder(flashOrder.id))?.discount).toEqual({ id: flash.id, kind: "flash", code: null, listCents: 2400, offCents: 480 });
+    expect(await s.updateTemplateOrder(flashOrder.id, { providerRef: "66f00009aa" })).toBe(true);
+    expect((await s.getTemplateOrderByToken(flashOrder.tokenHash))?.providerRef).toBe("66f00009aa");
+
+    // A coupon with 2 uses and 5 buyers at once, from two servers: two get it.
+    const hold = days(-1 / 12);
+    const tries = buyers.map((b) => orderOf(b.client.id));
+    const results = await Promise.all(tries.map((o, i) => (i % 2 ? elsewhere(s) : s).createTemplateOrderWithCoupon(o, 2, hold)));
+    expect(results.filter((r) => r === "ok")).toHaveLength(2);
+    expect(results.filter((r) => r === "held")).toHaveLength(3);
+    const taken = tries.filter((_, i) => results[i] === "ok");
+    const waiting = tries.filter((_, i) => results[i] !== "ok");
+    expect((await s.getTemplateOrder(taken[0]!.id))?.discount).toEqual({ id: coupon.id, kind: "coupon", code: "LALE30", listCents: 2400, offCents: 720 });
+    expect(await s.getTemplateOrder(waiting[0]!.id)).toBeNull();
+    // Only paid orders are uses.
+    expect(await s.countMarketDiscountUses([coupon.id])).toEqual({});
+    // A buyer trying again isn't held up by their own page.
+    const retry = orderOf(taken[0]!.clientId);
+    expect(await s.createTemplateOrderWithCoupon(retry, 2, hold)).toBe("ok");
+    await s.failTemplateOrder(retry.id);
+    // One fails: its use is free for the next.
+    expect(await s.failTemplateOrder(taken[1]!.id)).toBe(true);
+    const next = orderOf(waiting[0]!.clientId);
+    expect(await s.createTemplateOrderWithCoupon(next, 2, hold)).toBe("ok");
+    expect(await s.payTemplateOrder(taken[0]!.id, "TX-1", NOW)).toBe(true);
+    expect(await s.countMarketDiscountUses([coupon.id, flash.id, "none"])).toEqual({ [coupon.id]: 1 });
+    // One paid, one being paid.
+    expect(await s.createTemplateOrderWithCoupon(orderOf(waiting[1]!.clientId), 2, hold)).toBe("held");
+    // A page older than the hold holds nothing.
+    expect(await s.createTemplateOrderWithCoupon(orderOf(waiting[1]!.clientId), 2, days(1))).toBe("ok");
+    expect(await s.payTemplateOrder(next.id, "TX-2", NOW)).toBe(true);
+    expect(await s.countMarketDiscountUses([coupon.id])).toEqual({ [coupon.id]: 2 });
+    expect(await s.createTemplateOrderWithCoupon(orderOf(waiting[2]!.clientId), 2, days(1))).toBe("used_up");
+    // The flash sale's paid order is its own.
+    await s.payTemplateOrder(flashOrder.id, "TX-3", NOW);
+    expect(await s.countMarketDiscountUses([flash.id])).toEqual({ [flash.id]: 1 });
+    // A coupon deleted meanwhile.
+    await s.deleteMarketDiscount(coupon.id);
+    expect(await s.createTemplateOrderWithCoupon(orderOf(waiting[2]!.clientId), 2, hold)).toBe("gone");
+    // The orders keep what they got.
+    expect((await s.getTemplateOrder(next.id))?.discount).toMatchObject({ id: coupon.id, code: "LALE30" });
+
+    // A draft deleted takes its discounts with it.
+    const draft = (await s.createMarketTemplate({ ...templateOf(designer, seller.app.id, `draft-${seller.suffix}`), free: false, plans: [{ period: "1m", cents: 900 }] }))!;
+    const onDraft = discountOf({ templateId: draft.id });
+    await s.createMarketDiscount(onDraft);
+    expect(await s.deleteMarketTemplate(draft.id)).toBe(true);
+    expect(await s.getMarketDiscount(onDraft.id)).toBeNull();
   });
 
   // ——— 106.11 The designer's money ———

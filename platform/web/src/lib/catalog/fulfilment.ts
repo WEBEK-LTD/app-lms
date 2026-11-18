@@ -44,6 +44,8 @@ export function fulfilmentConfigJson(f: FulfilmentSettings, currency: CatalogCur
     pickup: f.pickup,
     delivery: f.delivery,
     pickup_address: f.pickupAddress,
+    // 161 The currency of its amounts: the hosted API adds them in the customer's (`display`).
+    currency,
     min_order: f.minOrderCents !== null ? centsToDecimal(f.minOrderCents) : null,
     min_order_formatted: f.minOrderCents !== null ? formatCents(f.minOrderCents, currency) : null,
     delivery_fee: f.deliveryFeeCents > 0 ? centsToDecimal(f.deliveryFeeCents) : null,

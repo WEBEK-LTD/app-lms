@@ -191,10 +191,15 @@ void main() {
         expect(find.text(r'≈ $12.37'), findsOneWidget);
         expect(find.text('E£600.00'), findsOneWidget);
       }
-      // On a card, only the converted price fits.
+      // 161 On a card too, the shop's under it: what is charged (the Leqaa
+      // tester: the charged price was only in the screen reader's words).
       await tester.pumpWidget(wrapForTest(ProductPriceLabel(price, size: 14)));
       expect(find.text(r'≈ $12.37'), findsOneWidget);
-      expect(find.text('E£600.00'), findsNothing);
+      expect(find.text('E£600.00'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('E£600.00')).dy,
+        greaterThan(tester.getTopLeft(find.text(r'≈ $12.37')).dy),
+      );
     },
   );
 

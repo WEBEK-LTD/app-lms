@@ -263,6 +263,26 @@ export const COPIERS: { tables: string[]; copy: Copier }[] = [
     },
   },
   {
+    // 165 Dashboard › Stories, in their order; a category's, the copy's (a connected store's stay as they are).
+    tables: ["app_stories"],
+    copy: async (ctx) => {
+      for (const s of await ctx.store.listAppStories(ctx.from.id)) {
+        // A copied category or product is the copy's; a connected store's keeps its id.
+        const mapped = (table: string, id: string | null | undefined) => (id && /^\d+$/.test(id) ? idIn(ctx, table, Number(id)) : null);
+        const categoryId = String(mapped("catalog_categories", s.categoryId) ?? s.categoryId ?? "") || null;
+        const a = s.action;
+        const action = !a
+          ? null
+          : a.category_id
+            ? { ...a, category_id: String(mapped("catalog_categories", a.category_id) ?? a.category_id) }
+            : a.type === "item" && a.item?.source === "products"
+              ? { ...a, item: { ...a.item, id: String(mapped("catalog_products", a.item.id) ?? a.item.id) } }
+              : a;
+        if (await ctx.store.createAppStory(u(ctx, { ...omit(s, "id"), appId: ctx.to.id, categoryId, action, createdAt: ctx.now, updatedAt: ctx.now }))) count(ctx, "app_stories");
+      }
+    },
+  },
+  {
     tables: ["listings", "listing_settings"],
     copy: async (ctx) => {
       for (const l of oldestFirst(await ctx.store.listListings(ctx.from.id))) {

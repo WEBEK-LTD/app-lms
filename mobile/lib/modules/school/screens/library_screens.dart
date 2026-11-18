@@ -256,22 +256,25 @@ class _LibraryBookScreenState extends ConsumerState<LibraryBookScreen> {
       person = await showModalBottomSheet<LibraryPerson>(
         context: context,
         builder: (context) => SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text(
-                  l10n.libraryReserveFor,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-              for (final b in free)
+          child: SingleChildScrollView(
+            // 158 Every choice in reach on a short phone or with a large font.
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 ListTile(
-                  key: ValueKey('reserve-for-${b.id}'),
-                  title: Text(b.name),
-                  onTap: () => Navigator.of(context).pop(b),
+                  title: Text(
+                    l10n.libraryReserveFor,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
-            ],
+                for (final b in free)
+                  ListTile(
+                    key: ValueKey('reserve-for-${b.id}'),
+                    title: Text(b.name),
+                    onTap: () => Navigator.of(context).pop(b),
+                  ),
+              ],
+            ),
           ),
         ),
       );

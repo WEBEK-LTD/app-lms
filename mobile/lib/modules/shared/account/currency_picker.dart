@@ -12,6 +12,7 @@ import '../../../core/storage/local_settings.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/rates_attribution.dart';
+import '../../../core/format/text_case.dart';
 
 /// 135.5 The currencies prices can be shown in (`GET /currencies`), named
 /// in the app's language; reloaded when it changes.
@@ -33,12 +34,14 @@ List<({String group, List<CurrencyChoice> items})> currencyGroups(
   required String query,
   required AppLocalizations l10n,
 }) {
-  final q = query.trim().toLowerCase();
+  // 169 Small letters as the language writes them (Turkish ı and i).
+  String lower(String text) => lowerIn(text, l10n.localeName);
+  final q = lower(query.trim());
   bool matches(CurrencyChoice c) =>
       q.isEmpty ||
-      c.code.toLowerCase().contains(q) ||
-      c.name.toLowerCase().contains(q) ||
-      c.symbol.toLowerCase() == q;
+      lower(c.code).contains(q) ||
+      lower(c.name).contains(q) ||
+      lower(c.symbol) == q;
   final shown = all.where(matches).toList();
   final shopItems = shown.where((c) => c.code == shop).toList();
   final regionItems = shown

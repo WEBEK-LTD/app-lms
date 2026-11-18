@@ -102,6 +102,64 @@ Order? latestOrderOnItsWay(Iterable<Order> orders) {
   return latest;
 }
 
+/// 168 How long a delivered order stays on its journey: the customer sees
+/// "Delivered" ticked, not the drawn steps back at "Order placed".
+const deliveredJourneyKept = Duration(days: 3);
+
+/// 168 The order the journey follows: the newest still on its way, else the
+/// newest delivered in the last [deliveredJourneyKept] (all its steps done);
+/// null for none. Mirrors `orderToFollow` in
+/// platform/web/src/lib/studio/order-journey.ts.
+Order? orderToFollow(Iterable<Order> orders, DateTime now) {
+  final open = latestOrderOnItsWay(orders);
+  if (open != null) return open;
+  Order? delivered;
+  for (final o in orders) {
+    if (orderJourneyStep(o) != OrderJourneyStep.delivered) continue;
+    if (o.status != OrderStatus.completed) continue;
+    if (now.difference(o.createdAt) > deliveredJourneyKept) continue;
+    if (delivered == null || o.createdAt.isAfter(delivered.createdAt)) {
+      delivered = o;
+    }
+  }
+  return delivered;
+}
+
+/// 171 The order the journey follows ([orderToFollow], 168: the newest
+/// still on its way, else one just delivered); null without one (an order
+/// cancelled, refunded or failed doesn't travel).
+Order? journeyOrder(Iterable<Order> orders) =>
+    orderToFollow(orders, DateTime.now());
+
+/// 171 The signed-in person's order the journey follows, or null: signed
+/// out, while the orders load, or without one.
+Order? journeyOrderOf(WidgetRef ref) {
+  final signedIn = ref.watch(
+    authControllerProvider.select((s) => s.isSignedIn),
+  );
+  if (!signedIn) return null;
+  return journeyOrder(ref.watch(ordersProvider.select((s) => s.items)));
+}
+
+/// 171 Whether a timeline that follows the person's order
+/// (`timeline.source: latest_order`) shows: only with an order to follow.
+/// Without one it showed its steps as drawn, the first lit, as if an order
+/// had been placed; now it, its card and its heading are left out, and the
+/// Orders page shows its own "No orders yet".
+bool orderJourneyShows(WidgetRef ref) => journeyOrderOf(ref) != null;
+
+/// Whether [heading] is [timeline]'s own title, drawn just before it: a
+/// timeline that follows the person's order and an element of the same
+/// name (Leqaa's "How your flowers travel" over its steps).
+bool isJourneyHeading(StudioNode heading, StudioNode? timeline) =>
+    timeline != null &&
+    timeline.type == StudioNodeType.timeline &&
+    (timeline.premium?.followsLatestOrder ?? false) &&
+    heading.type != StudioNodeType.timeline &&
+    timeline.name != null &&
+    timeline.name!.trim().isNotEmpty &&
+    heading.name == timeline.name;
+
 /// The entry to make active for [step] among [count] entries: the journey's
 /// four steps spread over the entries the owner drew.
 int journeyEntryIndex(OrderJourneyStep step, int count) {
@@ -112,9 +170,10 @@ int journeyEntryIndex(OrderJourneyStep step, int count) {
 }
 
 /// 132.160 A timeline that follows the signed-in person's newest order still
-/// on its way (`timeline.source: latest_order`): its order number over the
-/// steps, the step it is at active, and a tap opens the order. Signed out,
-/// with no order on its way, or while the orders load: the steps as drawn.
+/// on its way (`timeline.source: latest_order`), 168 or just delivered: its
+/// order number over the steps, the step it is at active, and a tap opens
+/// the order. 171 Signed out, without such an order, or while the orders
+/// load: nothing (it isn't shown, [orderJourneyShows]).
 class OrderJourneyTimeline extends ConsumerWidget {
   const OrderJourneyTimeline({
     super.key,
@@ -127,14 +186,8 @@ class OrderJourneyTimeline extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final signedIn = ref.watch(
-      authControllerProvider.select((s) => s.isSignedIn),
-    );
-    final orders = signedIn
-        ? ref.watch(ordersProvider.select((s) => s.items))
-        : const <Order>[];
-    final order = latestOrderOnItsWay(orders);
-    if (order == null) return PremiumTimeline(node: node, dark: dark);
+    final order = journeyOrderOf(ref);
+    if (order == null) return const SizedBox.shrink();
     final tones = PremiumTones.of(context, dark: dark);
     final active = journeyEntryIndex(
       orderJourneyStep(order),

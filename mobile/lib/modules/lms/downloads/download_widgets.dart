@@ -91,51 +91,54 @@ class LessonDownloadButton extends ConsumerWidget {
       context: context,
       showDragHandle: true,
       builder: (sheet) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: Text(lesson.title),
-              subtitle: Text(savedLessonStatus(sheet, saved)),
-            ),
-            if (saved.active)
+        child: SingleChildScrollView(
+          // 158 Every choice in reach on a short phone or with a large font.
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               ListTile(
-                leading: const AppIcon(AppIcons.pause),
-                title: Text(l10n.downloadPause),
+                title: Text(lesson.title),
+                subtitle: Text(savedLessonStatus(sheet, saved)),
+              ),
+              if (saved.active)
+                ListTile(
+                  leading: const AppIcon(AppIcons.pause),
+                  title: Text(l10n.downloadPause),
+                  onTap: () {
+                    Navigator.of(sheet).pop();
+                    manager.pause(lesson.id);
+                  },
+                ),
+              if (saved.status == SavedStatus.paused)
+                ListTile(
+                  leading: const AppIcon(AppIcons.play),
+                  title: Text(l10n.downloadResume),
+                  onTap: () {
+                    Navigator.of(sheet).pop();
+                    manager.resume(lesson.id);
+                  },
+                ),
+              ListTile(
+                leading: AppIcon(AppIcons.delete, color: sheet.palette.danger),
+                title: Text(
+                  saved.done ? l10n.downloadDelete : l10n.downloadCancel,
+                  style: TextStyle(color: sheet.palette.danger),
+                ),
                 onTap: () {
                   Navigator.of(sheet).pop();
-                  manager.pause(lesson.id);
+                  manager.delete(lesson.id);
                 },
               ),
-            if (saved.status == SavedStatus.paused)
               ListTile(
-                leading: const AppIcon(AppIcons.play),
-                title: Text(l10n.downloadResume),
+                leading: const AppIcon(AppIcons.downloads),
+                title: Text(l10n.downloads),
                 onTap: () {
                   Navigator.of(sheet).pop();
-                  manager.resume(lesson.id);
+                  context.push(Paths.downloads);
                 },
               ),
-            ListTile(
-              leading: AppIcon(AppIcons.delete, color: sheet.palette.danger),
-              title: Text(
-                saved.done ? l10n.downloadDelete : l10n.downloadCancel,
-                style: TextStyle(color: sheet.palette.danger),
-              ),
-              onTap: () {
-                Navigator.of(sheet).pop();
-                manager.delete(lesson.id);
-              },
-            ),
-            ListTile(
-              leading: const AppIcon(AppIcons.downloads),
-              title: Text(l10n.downloads),
-              onTap: () {
-                Navigator.of(sheet).pop();
-                context.push(Paths.downloads);
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

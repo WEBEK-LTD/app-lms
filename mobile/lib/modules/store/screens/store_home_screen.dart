@@ -71,7 +71,8 @@ class _Sections extends ConsumerWidget {
         if (s.type != StoreSectionType.unknown) s,
     ];
     return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
+      // 158 Its end clear of a tab bar over the screen.
+      padding: EdgeInsets.only(bottom: endRoom(context, 24)),
       children: [
         switch (template) {
           AppTemplate.classic => _ClassicHeader(site: site),
@@ -88,7 +89,8 @@ class _Sections extends ConsumerWidget {
               compact: true,
             ),
           ),
-        for (final s in known) _section(context, s, template),
+        for (final s in known)
+          _section(context, s, template, twoPrices: customerPricesShown(ref)),
       ],
     );
   }
@@ -96,8 +98,9 @@ class _Sections extends ConsumerWidget {
   Widget _section(
     BuildContext context,
     StoreHomeSection s,
-    AppTemplate template,
-  ) {
+    AppTemplate template, {
+    bool twoPrices = false,
+  }) {
     switch (s.type) {
       case StoreSectionType.banner:
         final banner = s.banner;
@@ -175,7 +178,8 @@ class _Sections extends ConsumerWidget {
             _ => Paths.shop,
           }),
           child: SizedBox(
-            height: width + productCardTextHeight(context),
+            height:
+                width + productCardTextHeight(context, twoPrices: twoPrices),
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),

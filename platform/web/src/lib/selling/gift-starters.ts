@@ -38,6 +38,24 @@ export const GIFT_OCCASIONS: Record<GiftOccasionKey, { icon: string; name: Words
   mothers_day: { icon: "family_restroom", name: { en: "Mother's Day", ar: "عيد الأم", tr: "Anneler Günü" } },
 };
 
+/**
+ * 169 Yallapp's own beginnings to tap (Delivery & offers › Gifts), in each
+ * language: the Leqaa demo's, and the placeholder of each language's field.
+ */
+export const GIFT_BEGINNINGS: readonly Words[] = [
+  { en: "Happy birthday!", ar: "عيد ميلاد سعيد!", tr: "Doğum günün kutlu olsun!" },
+  { en: "With all my love", ar: "مع كلِّ حبّي", tr: "Tüm sevgimle" },
+  { en: "Congratulations!", ar: "تهانينا!", tr: "Tebrikler!" },
+  { en: "Get well soon", ar: "أتمنى لك الشفاء العاجل", tr: "Geçmiş olsun, çabuk iyileş" },
+  { en: "Eid Mubarak!", ar: "عيد مبارك!", tr: "Bayramın mübarek olsun!" },
+  { en: "Thank you", ar: "شكرًا لك", tr: "Teşekkür ederim" },
+];
+
+/** 169 Yallapp's beginnings in a language (English for one it doesn't have). */
+export function giftBeginningsIn(lang: string): string[] {
+  return GIFT_BEGINNINGS.map((w) => (w as Record<string, string>)[lang] ?? w.en);
+}
+
 /** The starting messages: two or three per occasion. */
 export const GIFT_STARTERS: Record<GiftOccasionKey, Words[]> = {
   love: [

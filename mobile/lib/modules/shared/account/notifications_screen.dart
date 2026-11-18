@@ -128,7 +128,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       body = MessageView(
         icon: AppIcons.notifications,
         title: context.l10n.noNotificationsTitle,
-        message: context.l10n.noNotificationsMessage,
+        // 169 In the app's kind's words (a flower shop's orders, not lessons).
+        message: context.words.noNotificationsMessage,
         // 110 Every empty list leads somewhere.
         actionLabel: context.l10n.goHome,
         onAction: () => context.go(Paths.home),
@@ -142,7 +143,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             return false;
           },
           child: ListView.separated(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            // 158 Its end clear of a bar over the screen.
+            padding: EdgeInsets.fromLTRB(20, 8, 20, endRoom(context, 20)),
             itemCount: state.items.length,
             separatorBuilder: (_, _) => const SizedBox(height: 10),
             itemBuilder: (_, i) => _NotificationTile(
@@ -315,7 +317,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
             return false;
           },
           child: ListView.separated(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            // 158 Its end clear of a bar over the screen.
+            padding: EdgeInsets.fromLTRB(20, 8, 20, endRoom(context, 20)),
             itemCount: state.items.length,
             separatorBuilder: (_, _) => const SizedBox(height: 10),
             itemBuilder: (_, i) =>
@@ -412,7 +415,8 @@ class _OrderCard extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                order.total,
+                // 161 In the customer's currency when the shop sent it in it.
+                order.shownTotal,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,

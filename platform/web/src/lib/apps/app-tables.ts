@@ -102,6 +102,8 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   studio_market_ledger: "account",
   studio_market_payout_details: "account",
   studio_market_payouts: "account",
+  // 106.12 A designer's discounts on their templates: the template's, never an app's.
+  studio_market_discounts: "account",
 
   apps: "app",
 
@@ -137,6 +139,8 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   catalog_coupons: "content",
   store_flash_sales: "content",
   store_gift_occasions: "content",
+  // 165 Dashboard › Stories
+  app_stories: "content",
   listings: "content",
   listing_settings: "content",
   article_categories: "content",

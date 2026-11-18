@@ -4001,6 +4001,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get primeWeeklyHelp => 'A summary by email every Monday';
 
   @override
+  String get bouquetWrap => 'Wrap';
+
+  @override
+  String get bouquetCard => 'Card';
+
+  @override
+  String bouquetMessage(String message) {
+    return 'Card message: $message';
+  }
+
+  @override
   String get cancelPaidText =>
       'The customer is told, and its items go back in stock. Choose what happens to the payment.';
 
@@ -4560,5 +4571,16 @@ class AppLocalizationsEn extends AppLocalizations {
       one: '1 order waiting for its payment',
     );
     return '$_temp0';
+  }
+
+  @override
+  String bouquetGroup(int stems) {
+    String _temp0 = intl.Intl.pluralLogic(
+      stems,
+      locale: localeName,
+      other: '$stems stems',
+      one: '1 stem',
+    );
+    return 'Bouquet · $_temp0';
   }
 }

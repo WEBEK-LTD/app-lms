@@ -27,6 +27,8 @@ export interface PremiumControlsProps {
   defaultLang: LanguageCode;
   /** The inspector's own link picker (a page, a screen, an entry or an address). */
   link: (id: string, action: Action | null, onChange: (action: Action | null) => void) => ReactNode;
+  /** 161 A shop's app: a story whose Open opens nothing here opens the shop. */
+  shop?: boolean;
 }
 
 const box = { border: "1px solid var(--sf-line)" } as const;
@@ -387,7 +389,7 @@ export function BeforeAfterControls({ node, onChange, lang, defaultLang }: Premi
 }
 
 /** 129.2 The stories: each one's photo, title, line and link; the rings' size and each story's time. */
-export function StoriesControls({ node, onChange, lang, defaultLang, link }: PremiumControlsProps) {
+export function StoriesControls({ node, onChange, lang, defaultLang, link, shop }: PremiumControlsProps) {
   const t = useDashT();
   const P = STUDIO_PREMIUM_LIMITS;
   const stories = node.slides ?? [];
@@ -411,7 +413,17 @@ export function StoriesControls({ node, onChange, lang, defaultLang, link }: Pre
           </div>
           <input aria-label={t("studio.pmStoryTitle")} placeholder={t("studio.pmStoryTitle")} maxLength={P.storyTitle} value={textOf(story, "heading", lang, defaultLang)} onChange={(e) => set(stories.map((s, j) => (j === i ? withText(s, "heading", e.target.value, lang, defaultLang) : s)))} className="h-8 rounded-md px-2" style={box} />
           <input aria-label={t("studio.pmStoryLine")} placeholder={t("studio.pmStoryLine")} maxLength={P.storyLine} value={textOf(story, "subheading", lang, defaultLang)} onChange={(e) => set(stories.map((s, j) => (j === i ? withText(s, "subheading", e.target.value, lang, defaultLang) : s)))} className="h-8 rounded-md px-2" style={box} />
+          {/* 161 What the story's Open opens: a page, a screen, a product, an address; the shop without one. */}
+          <span className="text-xs font-bold" style={{ color: "var(--sf-muted)" }}>
+            {t("studio.pmStoryOpens")}
+          </span>
           {link(`story-${node.id}-${i}`, story.action ?? null, (action) => set(stories.map((s, j) => (j === i ? { ...s, action } : s))))}
+          {shop && story.image_url ? (
+            <p data-story-open-hint className="m-0 flex items-start gap-1.5 text-xs" style={{ color: "var(--sf-muted)" }}>
+              <Glyph name="storefront" size={16} />
+              <span>{t("studio.pmStoryOpensShop")}</span>
+            </p>
+          ) : null}
           <Choice label={t("studio.pmRing")} value={story.ring ?? "auto"} onChange={(ring) => set(stories.map((s, j) => (j === i ? { ...s, ring: ring === "auto" ? undefined : ring } : s)))} options={STUDIO_STORY_RINGS.map((value) => ({ value, label: t(`studio.pmRing_${value}` as DashKey) }))} />
           <div className="flex flex-wrap items-center gap-3">
             <ColorPick label={t("studio.pmRingColor")} value={story.ring_color} onChange={(ring_color) => set(stories.map((s, j) => (j === i ? { ...s, ring_color } : s)))} />

@@ -11,6 +11,7 @@ import { requireAdmin } from "@/lib/auth/session";
 import { getContact } from "@/lib/contact";
 import { contentPage, contentWith } from "@/lib/content/site";
 import { langContentKey, translatedDefaults } from "@/lib/content/site-lang";
+import { BASE_FIELD, isLegalKey, legalDefault, legalHash, legalUpdateFor } from "@/lib/content/legal-updates";
 import { getStore } from "@/lib/data";
 import { isPrefixedLang, LANG_INFO, LANGS } from "@/i18n/config";
 import { localePath } from "@/i18n/paths";
@@ -34,6 +35,11 @@ export default async function EditContentPage({ params, searchParams }: PageProp
   // A translation's form starts from the team's edit in that language, else the built-in translation; empty fields show the English.
   const values = lang ? { ...translatedDefaults(page, lang), ...(saved?.fields ?? {}) } : englishTexts;
   const path = localePath(lang ?? "en", page.path);
+  // 172 A legal page's saved version that lacks changes made to Yallapp's default since, and the base a save records.
+  const update = legalUpdateFor(page.key, lang ?? "en", edit);
+  const legal = isLegalKey(page.key)
+    ? { base: update ? (edit?.fields[BASE_FIELD] ?? "") : legalHash(legalDefault(page.key, lang ?? "en")), update }
+    : undefined;
   return (
     <ReadOnly when={!can(adminRole, "settings.edit")} what="change the website's texts">
       <div className="flex flex-col gap-1.5">
@@ -98,6 +104,7 @@ export default async function EditContentPage({ params, searchParams }: PageProp
           values={values}
           lang={lang ?? undefined}
           placeholders={lang ? englishTexts : {}}
+          legal={legal}
           previewValues={{
             contact_email: contact.email,
             contact_whatsapp: contact.lines.international.display,

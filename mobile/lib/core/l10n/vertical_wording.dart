@@ -22,12 +22,71 @@ final appVerticalProvider = Provider<AppVertical?>((ref) {
   );
 });
 
+/// 169 What the app is, for the words its shared screens use (empty
+/// states, notices): an academy's lessons, a shop's orders, a flower shop's
+/// deliveries. From the app type, the kind of business and, for a shop, its
+/// gift checkout (a flower shop's).
+enum AppKind {
+  courses,
+  school,
+  store,
+  flowers,
+  food,
+  bookings,
+  listings,
+  news,
+  events,
+  donations,
+  delivery,
+  rides,
+  travel,
+}
+
+/// 169 The app's kind: its type, its kind of business ([appVerticalOf]) and,
+/// for a store, whether its checkout is the gift one (the store's setting
+/// or the look Studio gave it).
+AppKind appKindOf(BuildConfigData build, AppConfig? config) {
+  final vertical = appVerticalOf(build, config);
+  return switch (build.appType) {
+    AppType.lms => AppKind.courses,
+    AppType.school => AppKind.school,
+    AppType.store when vertical == AppVertical.restaurant => AppKind.food,
+    AppType.store
+        when (config?.store?.giftCheckout ?? false) ||
+            (config?.screens?.checkout?.gift ?? false) =>
+      AppKind.flowers,
+    AppType.store => AppKind.store,
+    AppType.booking => AppKind.bookings,
+    AppType.realEstate => AppKind.listings,
+    AppType.news => AppKind.news,
+    AppType.events => AppKind.events,
+    AppType.donations => AppKind.donations,
+    AppType.delivery => AppKind.delivery,
+    AppType.food => AppKind.food,
+    AppType.rides => AppKind.rides,
+    AppType.travel => AppKind.travel,
+  };
+}
+
+/// 169 The app's kind, from the config once it is loaded.
+final appKindProvider = Provider<AppKind>((ref) {
+  final gate = ref.watch(appGateProvider);
+  return appKindOf(
+    ref.watch(appEnvironmentProvider).build,
+    gate is GateReady ? gate.config : null,
+  );
+});
+
 extension VerticalWordingContext on BuildContext {
   /// The words of the app's kind of business, in the language in use.
-  VerticalWording get words => VerticalWording(
-    l10n,
-    ProviderScope.containerOf(this, listen: false).read(appVerticalProvider),
-  );
+  VerticalWording get words {
+    final container = ProviderScope.containerOf(this, listen: false);
+    return VerticalWording(
+      l10n,
+      container.read(appVerticalProvider),
+      kind: container.read(appKindProvider),
+    );
+  }
 }
 
 /// Words that change with the kind of business (a clinic's patients,
@@ -35,10 +94,20 @@ extension VerticalWordingContext on BuildContext {
 /// and classes). Kinds without words of their own use the default
 /// words; a kind's own words go in the ARB files and in the getters below.
 class VerticalWording {
-  const VerticalWording(this.l10n, this.vertical);
+  const VerticalWording(
+    this.l10n,
+    this.vertical, {
+    this.kind = AppKind.courses,
+  });
 
   final AppLocalizations l10n;
   final AppVertical? vertical;
+
+  /// 169 What the app is; an academy's words when not given.
+  final AppKind kind;
+
+  /// 169 An academy or a school: the words of lessons and courses.
+  bool get isLearning => kind == AppKind.courses || kind == AppKind.school;
 
   /// 21 A clinic: doctors, patients and visits on the bookings screens.
   bool get isClinic => vertical == AppVertical.clinic;
@@ -130,4 +199,46 @@ class VerticalWording {
   String get noProductsMessage =>
       _food(l10n.menuEmptyMessage, l10n.noProductsMessage);
   String get loadingProducts => _food(l10n.menuLoading, l10n.loadingProducts);
+
+  // 169 Shared screens, in the app's kind's words.
+
+  /// The notifications' empty state: an academy's new lessons, a shop's
+  /// orders, a flower shop's deliveries.
+  String get noNotificationsMessage => switch (kind) {
+    AppKind.courses => l10n.noNotificationsMessage,
+    AppKind.school => l10n.noNotificationsMessageSchool,
+    AppKind.store => l10n.noNotificationsMessageStore,
+    AppKind.flowers => l10n.noNotificationsMessageFlowers,
+    AppKind.food => l10n.noNotificationsMessageFood,
+    AppKind.bookings => l10n.noNotificationsMessageBookings,
+    AppKind.listings => l10n.noNotificationsMessageListings,
+    AppKind.news => l10n.noNotificationsMessageNews,
+    AppKind.events => l10n.noNotificationsMessageEvents,
+    AppKind.donations => l10n.noNotificationsMessageDonations,
+    AppKind.delivery => l10n.noNotificationsMessageDelivery,
+    AppKind.rides => l10n.noNotificationsMessageRides,
+    AppKind.travel => l10n.noNotificationsMessageTravel,
+  };
+
+  /// "Update the app to keep learning", or to keep using it.
+  String updateRequiredMessage(String name) => isLearning
+      ? l10n.updateRequiredMessage(name)
+      : l10n.updateRequiredMessageApp(name);
+
+  /// Deleting the account: an academy's progress and enrollments, or the
+  /// account and its details.
+  String get deleteAccountMessage =>
+      isLearning ? l10n.deleteAccountMessage : l10n.deleteAccountMessageApp;
+
+  /// No account with the phone number: contact the academy, the school, or
+  /// the business ("us").
+  String get noAccountForNumber => switch (kind) {
+    AppKind.courses => l10n.noAccountForNumber,
+    AppKind.school => l10n.noAccountForNumberSchool,
+    _ => l10n.noAccountForNumberApp,
+  };
+
+  /// A file the app can't show: an academy's course files, or any file.
+  String get fileInAppOnlyMessage =>
+      isLearning ? l10n.fileInAppOnlyMessage : l10n.fileInAppOnlyMessageApp;
 }

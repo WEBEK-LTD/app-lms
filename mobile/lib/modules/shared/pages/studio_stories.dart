@@ -2,9 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/services/data_saver.dart';
 import '../../../core/storage/local_settings.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
@@ -63,26 +66,39 @@ class _StudioStoriesRowState extends ConsumerState<StudioStoriesRow> {
                 key: ValueKey('studio-story-${node.id}-$i'),
                 behavior: HitTestBehavior.opaque,
                 onTap: () async {
-                  // 129.2 A tile without a photo (all of them) opens its link.
+                  // 129.2 A tile without a photo (all of them) opens its
+                  // link; 161 the shop when it opens nothing here.
                   final link = story.action;
-                  if (story.imageUrl == null && link != null) {
-                    if (canOpenAction(ref, link)) {
-                      runPageAction(context, ref, link);
-                    }
+                  if (!story.hasMedia && link != null) {
+                    openStoryLink(
+                      context,
+                      ref,
+                      link,
+                      from: GoRouter.maybeOf(context)?.state.uri.toString(),
+                    );
                     return;
                   }
-                  final action = await StudioStoryViewer.open(
+                  // 161 The story's Open follows its link from the
+                  // stories themselves (StudioStoryViewer), not from here:
+                  // this row may be built again meanwhile (the page asked
+                  // again), and its link was then lost, leaving the person
+                  // on Home.
+                  await StudioStoryViewer.open(
                     context,
                     node,
                     studioViewableStories(node).indexOf(story),
                   );
                   if (!context.mounted) return;
                   setState(() {});
-                  // A story's link opens once the stories have closed.
-                  if (action != null) runPageAction(context, ref, action);
                 },
                 child: SizedBox(
-                  width: size + 8,
+                  // 163 As wide as its ring, or as its name's longest word
+                  // at the phone's text size, so a word is never cut
+                  // ("Sympat…" at 130%).
+                  width: math.max(
+                    size + 8,
+                    _longestWord(context, story.heading ?? ''),
+                  ),
                   child: Column(
                     children: [
                       _Ring(
@@ -106,13 +122,12 @@ class _StudioStoriesRowState extends ConsumerState<StudioStoriesRow> {
                       ExcludeSemantics(
                         child: Text(
                           story.heading ?? '',
-                          maxLines: 1,
+                          // 163 On two lines when it needs them ("New
+                          // baby" at a larger text size).
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: _label,
                         ),
                       ),
                     ],
@@ -127,11 +142,33 @@ class _StudioStoriesRowState extends ConsumerState<StudioStoriesRow> {
   }
 }
 
+/// A story's name under its ring.
+const _label = TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
+
+/// 163 How wide the longest word of [label] is, drawn as the row draws it
+/// (its text style, the phone's text size).
+double _longestWord(BuildContext context, String label) {
+  final style = DefaultTextStyle.of(context).style.merge(_label);
+  var widest = 0.0;
+  for (final word in label.split(RegExp(r'\s+'))) {
+    if (word.isEmpty) continue;
+    final painter = TextPainter(
+      text: TextSpan(text: word, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    widest = math.max(widest, painter.width);
+    painter.dispose();
+  }
+  return widest.ceilToDouble() + 2;
+}
+
 /// The stories a row opens full screen: those with a photo, and those
 /// without a link.
 List<StudioStoryEntry> studioViewableStories(StudioNode node) => [
   for (final s in node.slides)
-    if (s.imageUrl != null || s.action == null) s,
+    if (s.hasMedia || s.action == null) s,
 ];
 
 /// What a story's circle shows: its photo, else its colour with its
@@ -270,16 +307,19 @@ class StudioStoryViewer extends ConsumerStatefulWidget {
   final StudioNode node;
   final int initial;
 
-  /// Opens the stories at [i]; the link of the story whose button was
-  /// tapped, to open once they have closed.
+  /// Opens the stories at [i]; done when they have closed. 161 A story's
+  /// Open closes them and opens its link (else the shop), from the
+  /// router's own navigator, whatever happened to the page meanwhile.
   static Future<PageAction?> open(
     BuildContext context,
     StudioNode node,
     int i,
   ) {
     final still = MediaQuery.disableAnimationsOf(context);
+    final from = GoRouter.maybeOf(context)?.state.uri.toString();
     return Navigator.of(context, rootNavigator: true).push<PageAction?>(
       PageRouteBuilder<PageAction?>(
+        settings: RouteSettings(arguments: from),
         opaque: true,
         transitionDuration: still
             ? Duration.zero
@@ -404,12 +444,23 @@ class _StudioStoryViewerState extends ConsumerState<StudioStoryViewer>
               Semantics(
                 label: [
                   l10n.studioStoryOf(_index + 1, _stories.length),
-                  story.heading ?? '',
+                  story.viewerTitle ?? '',
                 ].where((t) => t.isNotEmpty).join(', '),
-                child: AppNetworkImage(
-                  key: ValueKey('studio-story-photo-$_index'),
-                  url: story.imageUrl,
-                  seed: widget.node.id.hashCode + _index,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    AppNetworkImage(
+                      key: ValueKey('studio-story-photo-$_index'),
+                      url: story.imageUrl,
+                      seed: widget.node.id.hashCode + _index,
+                    ),
+                    // 165 A story's video, muted over its photo.
+                    if (story.videoUrl case final video?)
+                      StudioStoryVideo(
+                        key: ValueKey('studio-story-video-$_index'),
+                        url: video,
+                      ),
+                  ],
                 ),
               ),
               const IgnorePointer(
@@ -476,9 +527,23 @@ class _StudioStoryViewerState extends ConsumerState<StudioStoryViewer>
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if ((story.heading ?? '').isNotEmpty)
+                    // 165 The small line over the title (Dashboard › Stories).
+                    if ((story.kicker ?? '').isNotEmpty) ...[
                       Text(
-                        story.heading!,
+                        story.kicker!.toUpperCase(),
+                        key: const ValueKey('studio-story-kicker'),
+                        style: const TextStyle(
+                          color: Color(0xFFFFD9C2),
+                          fontSize: 12,
+                          letterSpacing: 1.6,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                    ],
+                    if ((story.viewerTitle ?? '').isNotEmpty)
+                      Text(
+                        story.viewerTitle!,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 26,
@@ -486,10 +551,10 @@ class _StudioStoryViewerState extends ConsumerState<StudioStoryViewer>
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                    if ((story.subheading ?? '').isNotEmpty) ...[
+                    if ((story.viewerLine ?? '').isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Text(
-                        story.subheading!,
+                        story.viewerLine!,
                         style: const TextStyle(
                           color: Color(0xE6FFFFFF),
                           fontSize: 15,
@@ -497,7 +562,8 @@ class _StudioStoryViewerState extends ConsumerState<StudioStoryViewer>
                         ),
                       ),
                     ],
-                    if (action != null && canOpenAction(ref, action)) ...[
+                    // 161 Its link, or the shop when it has none here.
+                    if (storyOpens(ref, action)) ...[
                       const SizedBox(height: 16),
                       FilledButton(
                         key: const ValueKey('studio-story-open'),
@@ -515,9 +581,21 @@ class _StudioStoryViewerState extends ConsumerState<StudioStoryViewer>
                         ),
                         onPressed: () {
                           _time.stop();
-                          Navigator.of(context).pop(action);
+                          final navigator = Navigator.of(context);
+                          final from = ModalRoute.of(context)
+                              ?.settings
+                              .arguments;
+                          navigator.pop(action);
+                          // 161 From the navigator, always there: the
+                          // story's link, or the shop; never nothing.
+                          openStoryLink(
+                            navigator.context,
+                            ref,
+                            action,
+                            from: from is String ? from : null,
+                          );
                         },
-                        child: Text(l10n.studioStoryOpen),
+                        child: Text(story.buttonLabel ?? l10n.studioStoryOpen),
                       ),
                     ],
                   ],
@@ -555,4 +633,67 @@ class _Bar extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// 165 A story's video in the viewer: muted and looping over its photo,
+/// once it can play (not while the phone saves data or asks for less motion,
+/// when the photo stays).
+class StudioStoryVideo extends ConsumerStatefulWidget {
+  const StudioStoryVideo({super.key, required this.url});
+
+  final String url;
+
+  @override
+  ConsumerState<StudioStoryVideo> createState() => _StudioStoryVideoState();
+}
+
+class _StudioStoryVideoState extends ConsumerState<StudioStoryVideo> {
+  VideoPlayerController? _controller;
+  bool _ready = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_controller != null) return;
+    final uri = Uri.tryParse(widget.url);
+    final saver = ref.read(dataSaverProvider).value ?? true;
+    if (uri == null || saver || MediaQuery.disableAnimationsOf(context)) {
+      return;
+    }
+    final controller = VideoPlayerController.networkUrl(
+      uri,
+      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+    );
+    _controller = controller;
+    controller
+        .initialize()
+        .then((_) async {
+          await controller.setLooping(true);
+          await controller.setVolume(0);
+          await controller.play();
+          if (mounted) setState(() => _ready = true);
+        })
+        .catchError((Object _) {});
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = _controller;
+    if (controller == null || !_ready) return const SizedBox.shrink();
+    return FittedBox(
+      fit: BoxFit.cover,
+      clipBehavior: Clip.hardEdge,
+      child: SizedBox(
+        width: controller.value.size.width,
+        height: controller.value.size.height,
+        child: VideoPlayer(controller),
+      ),
+    );
+  }
 }

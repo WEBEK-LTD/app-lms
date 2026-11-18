@@ -952,9 +952,47 @@
     },
     "studio": {
      "body": {
-      "id": "sig-45",
+      "id": "sig-46",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "sig-45",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account",
      "background": "#F7F9FC",
@@ -977,7 +1015,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-46",
+      "id": "sig-47",
       "type": "column",
       "children": []
      },
@@ -1019,7 +1057,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-47",
+      "id": "sig-48",
       "type": "column",
       "children": []
      },
@@ -1061,7 +1099,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-48",
+      "id": "sig-49",
       "type": "column",
       "children": []
      },
@@ -1103,7 +1141,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-49",
+      "id": "sig-50",
       "type": "column",
       "children": []
      },
@@ -1137,7 +1175,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-50",
+      "id": "sig-51",
       "type": "column",
       "children": []
      },
@@ -1154,7 +1192,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-51",
+      "id": "sig-52",
       "type": "column",
       "children": []
      },
@@ -1171,7 +1209,7 @@
     "title": "A shipment",
     "studio": {
      "body": {
-      "id": "sig-52",
+      "id": "sig-53",
       "type": "column",
       "children": []
      },

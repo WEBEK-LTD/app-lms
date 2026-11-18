@@ -2,6 +2,7 @@ import { DOCS, type DocDefault } from "@/content/docs";
 import { PRIVACY, REFUND, TERMS, type LegalDefault } from "@/content/legal";
 import { ALL_SOLUTIONS, FAQ, INTEGRATION_COUNTS, numberWord, SOLUTIONS, STEPS } from "../marketing";
 import { inlineText, parseMarkdown, type Block, type Inline } from "./markdown";
+import { hasUnplacedBlock } from "./legal-diff";
 
 /**
  * yallapp.com.tr's texts the team edits in the admin (Website content). Each
@@ -508,6 +509,10 @@ export function readContentForm(
   }
   if (!errors.entries && page.key === "faq" && fields.entries !== undefined && parseFaq(fields.entries).length === 0) {
     errors.entries = "Add at least one ## group with a ### question.";
+  }
+  // 172 New text from the default that "Add the new text" couldn't place is between two ==== lines until the team moves it.
+  if (!errors.body && page.group === "Legal pages" && fields.body !== undefined && hasUnplacedBlock(fields.body)) {
+    errors.body = "Move the new text between the ==== lines to its place, then delete the two ==== lines.";
   }
   if (!errors.body && page.group === "Guides" && fields.body !== undefined && parseGuide(fields.body).steps.length === 0) {
     errors.body = "Add at least one ## section.";

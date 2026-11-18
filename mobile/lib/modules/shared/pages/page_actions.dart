@@ -10,43 +10,33 @@ import '../../../core/routing/app_router.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/web/web_page_screen.dart';
+import '../../../core/auth/auth_controller.dart';
 import '../../travel/travel_paths.dart';
+import '../account/sign_out.dart';
 import 'more_tabs.dart';
 import 'screen_page.dart';
 
 /// Runs a tab's, button's or card's action. Actions this app type can't
-/// follow (a product in an Academy app, a post) do nothing.
-void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
-  if (action == null) return;
+/// follow (a product in an Academy app, a post) do nothing. 161 Whether it
+/// opened something: false for one that opens nothing here.
+bool runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
+  if (action == null) return false;
   final appType = ref.read(appEnvironmentProvider).build.appType;
   switch (action.type) {
     case PageActionType.page:
-      final slug = action.pageSlug;
-      if (slug == null || slug.isEmpty) return;
-      // 120 A page drawn around one of the app's screens opens the screen,
-      // which shows the page (its tab when it is one).
-      final around = screenOfPage(ref, slug);
-      if (around != null) {
-        return runPageAction(
-          context,
-          ref,
-          PageAction(type: PageActionType.screen, screen: around),
-        );
-      }
-      openLocation(context, Paths.page(slug));
     case PageActionType.screen:
-      final screen = action.screen;
-      if (screen == null) return;
-      final gate = ref.read(appGateProvider);
-      final location = ref
-          .read(appModuleProvider)
-          .screenLocation(screen, gate is GateReady ? gate.config : null);
-      if (location != null) openLocation(context, location);
+      // 162 Build your bouquet, when the shop has it set up; else its shop.
+      if (opensBouquet(ref, action)) {
+        context.push(Paths.bouquet);
+        return true;
+      }
+      final location = actionLocation(ref, action);
+      if (location == null) return false;
+      openLocation(context, location);
     case PageActionType.course:
       final id = action.courseId;
-      if (id != null && appType == AppType.lms) {
-        context.push(Paths.course(id));
-      }
+      if (id == null || appType != AppType.lms) return false;
+      context.push(Paths.course(id));
     case PageActionType.item:
       final item = action.item;
       // 152 A store's product the owner linked opens it; none chosen opens
@@ -54,16 +44,20 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
       // the person there).
       if (_linksProduct(item, appType)) {
         final id = int.tryParse(item?.id.trim() ?? '');
-        if (id == null || id < 1) return openShop(context, ref);
-        context.push(Paths.linkedProduct(id));
-        return;
+        if (id == null || id < 1) {
+          openShop(context, ref);
+        } else {
+          context.push(Paths.linkedProduct(id));
+        }
+        return true;
       }
       final location = item == null ? null : itemLocation(item, appType);
-      if (location != null) context.push(location);
+      if (location == null) return false;
+      context.push(location);
     case PageActionType.url:
       final url = action.url;
       final uri = _linkOf(url);
-      if (uri == null) return;
+      if (uri == null) return false;
       if (action.openIn == OpenIn.browser ||
           !(uri.scheme == 'https' || uri.scheme == 'http')) {
         openExternal(url!);
@@ -86,8 +80,90 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
           .read(shellTabsProvider)
           .where((t) => t.isMore)
           .firstOrNull;
-      if (more != null) showMoreTabs(context, ref, more.more);
+      if (more == null) return false;
+      showMoreTabs(context, ref, more.more);
+    // 167 Studio's Sign out: asked first, then signed out.
+    case PageActionType.signOut:
+      confirmSignOut(context, ref);
   }
+  return true;
+}
+
+/// 161 Where a page's or a screen's [action] opens in this app (120 a page
+/// drawn around one of the app's screens opens the screen, which shows the
+/// page: its tab when it is one); null for another kind of action, or one
+/// that opens nothing here.
+String? actionLocation(WidgetRef ref, PageAction action) {
+  switch (action.type) {
+    case PageActionType.page:
+      final slug = action.pageSlug;
+      if (slug == null || slug.isEmpty) return null;
+      final around = screenOfPage(ref, slug);
+      if (around != null) {
+        return actionLocation(
+          ref,
+          PageAction(type: PageActionType.screen, screen: around),
+        );
+      }
+      return Paths.page(slug);
+    case PageActionType.screen:
+      final screen = action.screen;
+      if (screen == null) return null;
+      final gate = ref.read(appGateProvider);
+      final config = gate is GateReady ? gate.config : null;
+      // 157 One of the shop's categories (a template's rings, chips and
+      // tiles): the shop filtered to it.
+      final appType = ref.read(appEnvironmentProvider).build.appType;
+      final category = actionCategoryLocation(action, appType, config);
+      if (category != null) return category;
+      // 165 The shop on one of its categories (a story's button in
+      // Dashboard › Stories); apps without one open the shop.
+      final storyCategory = action.categoryId;
+      if (screen == BuiltInScreen.courses && storyCategory != null) {
+        final filtered = categoryLocation(
+          appType == AppType.lms ? ItemSource.courses : ItemSource.products,
+          appType,
+          storyCategory,
+        );
+        if (filtered != null) return filtered;
+      }
+      return ref.read(appModuleProvider).screenLocation(screen, config);
+    case PageActionType.course ||
+        PageActionType.item ||
+        PageActionType.url ||
+        PageActionType.more ||
+        PageActionType.signOut:
+      return null;
+  }
+}
+
+/// 157 Where a screen action with a category opens: a store's shop
+/// (its search) filtered to that category; null for any other action, and
+/// for a restaurant, whose shop is its menu.
+String? actionCategoryLocation(
+  PageAction action,
+  AppType appType,
+  AppConfig? config,
+) {
+  final id = action.categoryId;
+  if (id == null ||
+      action.type != PageActionType.screen ||
+      action.screen != BuiltInScreen.search ||
+      config?.vertical == AppVertical.restaurant) {
+    return null;
+  }
+  return categoryLocation(ItemSource.products, appType, id);
+}
+
+/// 162 Whether [action] opens Build your bouquet: a store's action with
+/// `flow: bouquet` in an app whose shop has it set up (`StoreConfig.bouquet`).
+bool opensBouquet(WidgetRef ref, PageAction action) {
+  if (action.flow != ActionFlow.bouquet) return false;
+  if (ref.read(appEnvironmentProvider).build.appType != AppType.store) {
+    return false;
+  }
+  final gate = ref.read(appGateProvider);
+  return gate is GateReady && gate.config.store?.bouquet != null;
 }
 
 /// 152 Whether [item] is one of a store's products, linked or not: a Studio
@@ -97,18 +173,26 @@ bool _linksProduct(ItemRef? item, AppType appType) =>
     appType == AppType.store &&
     (item == null || item.source == ItemSource.products);
 
-/// 152 Opens the shop, as the templates' "shop" taps do (the shop's search,
-/// or a restaurant's menu): where a product link with no product, or one
-/// the shop no longer has, goes. [instead]: in place of the screen on top
-/// (the product page that found no product).
-void openShop(BuildContext context, WidgetRef ref, {bool instead = false}) {
+/// 161 Where the shop is: the app's catalog, as the templates' "shop" taps
+/// open it (a store's search, a restaurant's menu, an academy's courses);
+/// null for an app without one.
+String? shopLocation(WidgetRef ref) {
   final gate = ref.read(appGateProvider);
-  final location = ref
+  return ref
       .read(appModuleProvider)
       .screenLocation(
         BuiltInScreen.search,
         gate is GateReady ? gate.config : null,
       );
+}
+
+/// 152 Opens the shop, as the templates' "shop" taps do (the shop's search,
+/// or a restaurant's menu): where a product link with no product, or one
+/// the shop no longer has, goes (161 and a story's Open whose link opens
+/// nothing). [instead]: in place of the screen on top (the product page
+/// that found no product).
+void openShop(BuildContext context, WidgetRef ref, {bool instead = false}) {
+  final location = shopLocation(ref);
   if (location == null) return;
   if (instead) {
     replaceLocation(context, location);
@@ -116,6 +200,37 @@ void openShop(BuildContext context, WidgetRef ref, {bool instead = false}) {
     openLocation(context, location);
   }
 }
+
+/// 161 What a story's Open opens (and a tap on a story without a photo):
+/// the story's own link, from Studio or the dashboard, when it opens
+/// something here other than the screen the story is on; else the shop,
+/// never nothing, which left the person where they were: on Home. [from]
+/// the screen the story is shown on (the router's place before the
+/// stories opened).
+void openStoryLink(
+  BuildContext context,
+  WidgetRef ref,
+  PageAction? action, {
+  String? from,
+}) {
+  final link = action != null && canOpenAction(ref, action) ? action : null;
+  final at = link == null ? null : actionLocation(ref, link);
+  final staysPut =
+      at != null && from != null && Uri.parse(at).path == Uri.parse(from).path;
+  if (link != null && !staysPut && runPageAction(context, ref, link)) return;
+  if (_storiesOpenShop(ref)) openShop(context, ref);
+}
+
+/// 161 Whether a story's Open has something to open: its link, or in a
+/// shop's app the shop.
+bool storyOpens(WidgetRef ref, PageAction? action) =>
+    (action != null && canOpenAction(ref, action)) || _storiesOpenShop(ref);
+
+/// 161 A story with nothing to open here opens the shop in a shop's app (a
+/// store or a restaurant's menu); elsewhere it has no Open, as before.
+bool _storiesOpenShop(WidgetRef ref) =>
+    ref.read(appEnvironmentProvider).build.appType == AppType.store &&
+    shopLocation(ref) != null;
 
 /// 30 Whether this app type can follow [action]: an Academy app's course in a
 /// Store app (a site whose plugins don't match the app's type) can't, and
@@ -132,7 +247,9 @@ bool canFollowAction(PageAction action, AppType appType) =>
       // A page without its name, or a link without an address, opens nothing.
       PageActionType.page => (action.pageSlug ?? '').isNotEmpty,
       PageActionType.url => _linkOf(action.url) != null,
-      PageActionType.screen || PageActionType.more => true,
+      PageActionType.screen ||
+      PageActionType.more ||
+      PageActionType.signOut => true,
     };
 
 /// The address a link action opens; null for a missing or broken one.
@@ -169,6 +286,9 @@ bool canOpenAction(WidgetRef ref, PageAction action) {
       // error; unknown until the pages load.
       final pages = ref.watch(navigationProvider)?.pages;
       return pages == null || pages.isEmpty || pages.any((p) => p.slug == slug);
+    // 167 Sign out only for someone signed in.
+    case PageActionType.signOut:
+      return ref.watch(authControllerProvider).user != null;
     // 109 The More tab's list only when the bar has a More tab.
     case PageActionType.more:
       return ref.watch(shellTabsProvider).any((t) => t.isMore);

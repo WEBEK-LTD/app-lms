@@ -39,9 +39,29 @@ export function giftConfigJson(g: GiftSettings, mode: CheckoutMode) {
     enabled: g.message || gift,
     max_length: Math.max(1, Math.min(GIFT_LIMITS.message, g.maxLength)),
     starters: g.starters.slice(0, GIFT_LIMITS.starters),
+    // 169 The beginnings in the app's other languages (code → lines); the app shows the
+    // customer's, else `starters` (the main language's). Null: only the main language's.
+    starters_by_language: startersByLanguageJson(g.starterTexts),
     recipient: g.recipient || gift,
     anonymous: g.anonymous || gift,
   };
+}
+
+/** 169 The beginnings per language as the contract sends them: only languages with some; null for none. */
+export function startersByLanguageJson(texts: GiftSettings["starterTexts"]): Record<string, string[]> | null {
+  const out: Record<string, string[]> = {};
+  for (const [lang, lines] of Object.entries(texts ?? {})) {
+    if (!/^[a-z]{2,3}$/.test(lang) || !Array.isArray(lines)) continue;
+    const kept = lines.filter((line): line is string => typeof line === "string" && line.trim() !== "").slice(0, GIFT_LIMITS.starters);
+    if (kept.length) out[lang] = kept;
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+/** 169 The beginnings a customer sees in [lang]: that language's when the owner wrote some, else the main language's. */
+export function startersIn(g: Pick<GiftSettings, "starters" | "starterTexts">, lang: string | null | undefined): string[] {
+  const own = lang ? startersByLanguageJson(g.starterTexts)?.[lang] : undefined;
+  return (own ?? g.starters).slice(0, GIFT_LIMITS.starters);
 }
 
 const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
@@ -142,24 +162,62 @@ export function checkGift(g: GiftSettings, mode: CheckoutMode, body: unknown): G
 
 type Parsed<T> = { ok: true; value: T } | { ok: false; errors: Record<string, string> };
 
-/** The dashboard's Gifts form: the switches, the length and one beginning per line. */
-export function parseGiftForm(v: Record<string, string>): Parsed<GiftSettings> {
+/** One beginning per line, cleaned; the error when there are too many or one is too long. */
+function starterLines(text: string | undefined): { lines: string[]; error: string | null } {
+  const lines = (text ?? "")
+    .split(/\r?\n/)
+    .map((line) => cleanLine(line, GIFT_LIMITS.starter))
+    .filter((line): line is string => line !== null);
+  if (lines.length > GIFT_LIMITS.starters) return { lines, error: `Write at most ${GIFT_LIMITS.starters} beginnings, one per line.` };
+  if (lines.some((line) => length(line) > GIFT_LIMITS.starter)) return { lines, error: `Each beginning can be at most ${GIFT_LIMITS.starter} characters.` };
+  return { lines, error: null };
+}
+
+/**
+ * The dashboard's Gifts form: the switches, the length and one beginning per
+ * line, in the app's main language (`starters`) and, 169, in each of its
+ * [otherLanguages] (`starters_<code>`; empty: the main language's).
+ */
+export function parseGiftForm(v: Record<string, string>, otherLanguages: readonly string[] = []): Parsed<GiftSettings> {
   const errors: Record<string, string> = {};
   const on = (name: string) => v[name] === "on";
   const maxText = (v.maxLength ?? "").trim();
   const maxLength = maxText === "" ? GIFT_LIMITS.message : Number(maxText);
   if (!Number.isInteger(maxLength) || maxLength < 20 || maxLength > GIFT_LIMITS.message) errors.maxLength = `Enter a length from 20 to ${GIFT_LIMITS.message} characters.`;
-  const lines = (v.starters ?? "")
-    .split(/\r?\n/)
-    .map((line) => cleanLine(line, GIFT_LIMITS.starter))
-    .filter((line): line is string => line !== null);
-  if (lines.length > GIFT_LIMITS.starters) errors.starters = `Write at most ${GIFT_LIMITS.starters} beginnings, one per line.`;
-  else if (lines.some((line) => length(line) > GIFT_LIMITS.starter)) errors.starters = `Each beginning can be at most ${GIFT_LIMITS.starter} characters.`;
+  const main = starterLines(v.starters);
+  if (main.error) errors.starters = main.error;
+  const starterTexts: Record<string, string[]> = {};
+  for (const lang of otherLanguages) {
+    const own = starterLines(v[`starters_${lang}`]);
+    if (own.error) errors[`starters_${lang}`] = own.error;
+    else if (own.lines.length) starterTexts[lang] = own.lines;
+  }
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
     ok: true,
-    value: { checkout: v.checkout === "gift" ? "gift" : "standard", message: on("message"), maxLength, starters: lines, recipient: on("recipient"), anonymous: on("anonymous") },
+    value: {
+      checkout: v.checkout === "gift" ? "gift" : "standard",
+      message: on("message"),
+      maxLength,
+      starters: main.lines,
+      ...(Object.keys(starterTexts).length ? { starterTexts } : {}),
+      recipient: on("recipient"),
+      anonymous: on("anonymous"),
+    },
   };
+}
+
+/** 169 The Gifts form's values: the main language's beginnings and each other language's, one a line. */
+export function giftFormValues(g: GiftSettings, otherLanguages: readonly string[]): Record<string, string> {
+  const values: Record<string, string> = {
+    message: g.message ? "on" : "",
+    maxLength: String(g.maxLength),
+    starters: g.starters.join("\n"),
+    recipient: g.recipient ? "on" : "",
+    anonymous: g.anonymous ? "on" : "",
+  };
+  for (const lang of otherLanguages) values[`starters_${lang}`] = (g.starterTexts?.[lang] ?? []).join("\n");
+  return values;
 }
 
 /**
@@ -208,7 +266,14 @@ export function orderDeliveryJson(d: OrderDelivery | null | undefined, fee: stri
     slot: d.slot ? { id: d.slot.id, start: d.slot.start, end: d.slot.end, label: `${d.slot.start}–${d.slot.end}` } : null,
     fee,
     sender: d.sender,
-    recipient: d.recipient,
+    // 173 With the city and country it goes to, when the checkout asked for the place.
+    recipient: d.recipient
+      ? {
+          ...d.recipient,
+          ...(d.place?.city ? { city: d.place.city } : {}),
+          ...(d.place?.country ? { country: d.place.country } : {}),
+        }
+      : null,
     gift_message: d.message,
     anonymous: d.anonymous,
   };

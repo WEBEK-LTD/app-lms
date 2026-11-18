@@ -102,6 +102,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         },
         { href: "/dashboard/setup", label: t("nav.setup"), icon: "tune", prefix: "/dashboard/app-type" },
         { href: "/dashboard/pages", label: t("nav.pages"), icon: "palette" },
+        // 165 The app's stories: the full-screen stories and story rings of its home.
+        ...(app ? [{ href: "/dashboard/stories", label: t("stories.nav"), icon: "auto_stories" as const }] : []),
         // 51 The app's videos, pictures and PDFs, kept by Yallapp.
         ...(app ? [{ href: "/dashboard/media", label: t("nav.media"), icon: "photo_library" as const }] : []),
         // 77 The people using the app write to the business (apps whose people Yallapp knows).

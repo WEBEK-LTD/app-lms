@@ -7138,6 +7138,24 @@ abstract class AppLocalizations {
   /// **'A summary by email every Monday'**
   String get primeWeeklyHelp;
 
+  /// No description provided for @bouquetWrap.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrap'**
+  String get bouquetWrap;
+
+  /// No description provided for @bouquetCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get bouquetCard;
+
+  /// No description provided for @bouquetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Card message: {message}'**
+  String bouquetMessage(String message);
+
   /// No description provided for @cancelPaidText.
   ///
   /// In en, this message translates to:
@@ -7485,6 +7503,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 order waiting for its payment} other{{count} orders waiting for their payment}}'**
   String needsAwaitingPayment(int count);
+
+  /// No description provided for @bouquetGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Bouquet · {stems, plural, =1{1 stem} other{{stems} stems}}'**
+  String bouquetGroup(int stems);
 }
 
 class _AppLocalizationsDelegate

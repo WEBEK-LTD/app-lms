@@ -30,6 +30,7 @@ import 'password_screens.dart';
 import '../../../core/widgets/premium_chrome.dart';
 import 'premium_auth_frame.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/format/text_case.dart';
 
 /// Sign in with a mobile number (design: Main), or by email when the app
 /// offers it (18: `Config.auth.methods`): a code by email, or the account's
@@ -110,6 +111,70 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         _method = _methods.first;
         _error = null;
       });
+
+  /// 160 The way being used: what the password goes with, or the channel
+  /// a code goes to.
+  PasswordWay get _currentWay =>
+      _passwordMode ? _way : PasswordWay.values.byName(_method.name);
+
+  /// 160 One of the app's ways in: a password where one is set for it (the
+  /// password form), a code where the owner chose a code (no password).
+  void _pickWay(PasswordSignIn passwords, PasswordWay way) => setState(() {
+    _error = null;
+    if (passwords.by.contains(way)) {
+      _passwordMode = true;
+      _way = way;
+    } else {
+      _passwordMode = false;
+      _method = SignInMethod.values.byName(way.name);
+    }
+  });
+
+  /// 160 Every way the app signs in, each once: the email address, the
+  /// phone number, the username. Each opens what it signs in with, so a
+  /// code is never asked where a password is expected, nor the reverse.
+  List<Widget> _waysControl(BuildContext context, PasswordSignIn passwords) {
+    final ways = passwords.signInWays;
+    if (_creating || ways.length < 2) return const [];
+    String wayLabel(PasswordWay way) => switch (way) {
+      PasswordWay.email => context.l10n.signInWithEmail,
+      PasswordWay.phone => context.l10n.signInWithPhone,
+      PasswordWay.username => context.l10n.signInWithUsername,
+    };
+    return [
+      Semantics(
+        label: context.l10n.signInMethodLabel,
+        container: true,
+        child: SegmentedButton<PasswordWay>(
+          key: const ValueKey('sign-in-ways'),
+          showSelectedIcon: false,
+          segments: [
+            for (final way in ways)
+              ButtonSegment(value: way, label: Text(wayLabel(way))),
+          ],
+          selected: {_currentWay},
+          onSelectionChanged: (selected) => _pickWay(passwords, selected.first),
+        ),
+      ),
+      const SizedBox(height: 24),
+    ];
+  }
+
+  /// 160 "Forgot password" for the way in use: a code by email for the
+  /// email address, on WhatsApp for the phone number, and on the username
+  /// accounts' own channel.
+  void _openForgot(PasswordSignIn passwords) {
+    final from = widget.from;
+    context.push(
+      Uri(
+        path: Paths.signInForgot,
+        queryParameters: {
+          'channel': passwords.resetChannelFor(_way).name,
+          'from': ?from,
+        },
+      ).toString(),
+    );
+  }
 
   static final _usernamePattern = RegExp(r'^[a-zA-Z][a-zA-Z0-9._]{2,29}$');
 
@@ -242,31 +307,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       fontWeight: FontWeight.w600,
       color: p.text,
     );
-    String wayLabel(PasswordWay way) => switch (way) {
-      PasswordWay.email => context.l10n.signInWithEmail,
-      PasswordWay.phone => context.l10n.signInWithPhone,
-      PasswordWay.username => context.l10n.signInWithUsername,
-    };
     return [
-      if (passwords.by.length > 1) ...[
-        Semantics(
-          label: context.l10n.signInMethodLabel,
-          container: true,
-          child: SegmentedButton<PasswordWay>(
-            showSelectedIcon: false,
-            segments: [
-              for (final way in passwords.by)
-                ButtonSegment(value: way, label: Text(wayLabel(way))),
-            ],
-            selected: {_way},
-            onSelectionChanged: (selected) => setState(() {
-              _way = selected.first;
-              _error = null;
-            }),
-          ),
-        ),
-        const SizedBox(height: 24),
-      ],
       switch (_way) {
         PasswordWay.email => Text(context.l10n.emailAddress, style: label),
         PasswordWay.phone => Text(context.l10n.mobileNumber, style: label),
@@ -317,17 +358,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       Align(
         alignment: AlignmentDirectional.centerEnd,
         child: TextButton(
-          onPressed: () {
-            final from = widget.from;
-            context.push(
-              from == null
-                  ? Paths.signInForgot
-                  : Uri(
-                      path: Paths.signInForgot,
-                      queryParameters: {'from': from},
-                    ).toString(),
-            );
-          },
+          key: const ValueKey('sign-in-forgot'),
+          onPressed: () => _openForgot(passwords),
           child: Text(context.l10n.forgotPassword),
         ),
       ),
@@ -562,10 +594,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     ];
     final fields = <Widget>[
       SizedBox(height: chrome != null ? 16 : 32),
+      // 160 The app's ways in, each with what it signs in with.
+      if (passwords != null) ..._waysControl(context, passwords),
       if (_passwordMode && passwords != null)
         ..._passwordFields(context, passwords)
       else ...[
-        if (methods.length > 1) ...[
+        if (methods.length > 1 && (passwords == null || _creating)) ...[
           Semantics(
             label: context.l10n.signInMethodLabel,
             container: true,
@@ -620,16 +654,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         loading: _sending,
         onPressed: _valid && !previewBlocked ? _submit : null,
       ),
-      // 118 With passwords: a code instead, creating an account, or back to the password.
+      // 118 With passwords: creating an account, or back to signing in.
+      // 160 A code instead of a password is never offered: the ways above
+      // are each what the owner chose for them.
       if (passwords != null) ...[
         const SizedBox(height: 12),
-        if (_passwordMode && passwords.codes.isNotEmpty)
+        if (_creating)
           TextButton(
-            onPressed: () => _switchTo(password: false),
-            child: Text(context.l10n.signInWithCodeInstead),
-          ),
-        if (!_passwordMode)
-          TextButton(
+            key: const ValueKey('sign-in-back'),
             onPressed: () => _switchTo(password: true),
             child: Text(context.l10n.signInWithPasswordInstead),
           ),
@@ -754,17 +786,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         ? l10n.signInIntroPassword
         : l10n.signInCodeNote;
 
-    // The other way in, beside a new account.
+    // The other way in, beside a new account. 160 With passwords, the ways
+    // are on the card (each with what it signs in with), not here.
     (String, IconData, VoidCallback)? other;
-    if (_passwordMode) {
-      if (passwords != null && passwords.codes.isNotEmpty) {
-        other = (
-          l10n.signInCodeShort,
-          Symbols.sms_rounded,
-          () => _switchTo(password: false),
-        );
-      }
-    } else if (methods.length > 1) {
+    if ((passwords == null || _creating) && methods.length > 1) {
       other = byEmail
           ? (
               l10n.signInWithPhone,
@@ -782,12 +807,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 _error = null;
               }),
             );
-    } else if (passwords != null) {
-      other = (
-        l10n.password,
-        Symbols.password_rounded,
-        () => _switchTo(password: true),
-      );
     }
     (String, IconData, VoidCallback)? account;
     if (_creating) {
@@ -882,6 +901,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             ),
           ],
           const SizedBox(height: 16),
+          if (passwords != null) ..._waysControl(context, passwords),
           if (_passwordMode && passwords != null)
             ..._passwordFields(context, passwords)
           else if (byEmail)
@@ -1483,7 +1503,7 @@ class SignInLogo extends StatelessWidget {
         .split(RegExp(r'\s+'))
         .where((w) => w.isNotEmpty)
         .take(2)
-        .map((w) => w.characters.first.toUpperCase())
+        .map((w) => w.characters.first.toUpperCaseIn(context))
         .join();
     return Container(
       width: 52,
@@ -1628,13 +1648,13 @@ class _CountrySheetState extends State<_CountrySheet> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final q = _query.trim().toLowerCase();
+    final q = _query.trim().toLowerCaseIn(context);
     final typed = normalizeDialCode(q);
     final items = countryCodes
         .where(
           (c) =>
               q.isEmpty ||
-              c.name(context.l10n).toLowerCase().contains(q) ||
+              c.name(context.l10n).toLowerCaseIn(context).contains(q) ||
               c.dialCode.contains(q.replaceAll('+', '')),
         )
         .toList();

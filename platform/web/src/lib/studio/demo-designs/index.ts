@@ -284,7 +284,8 @@ export function designedDemoPage<P extends { studio: StudioPage }>(ctx: SectionC
       ...(header ? { header } : {}),
       ...(look?.background ? { background: look.background } : {}),
       ...(look?.dark_background ? { dark_background: look.dark_background } : {}),
-      body: { ...page.studio.body, children: own ? own.map(translate) : page.studio.body.children },
+      // 167 The account's Sign out stays, after the look's own elements.
+      body: { ...page.studio.body, children: own ? [...own.map(translate), ...(page.studio.body.children ?? []).filter((n) => n.action?.type === "sign_out")] : page.studio.body.children },
     },
   };
 }

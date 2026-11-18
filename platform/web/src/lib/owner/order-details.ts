@@ -6,6 +6,7 @@ import type {
   StoreFlashSale,
 } from "../data/types";
 import { orderDeliveryJson } from "../selling/gifts";
+import { bouquetPartJson } from "../selling/bouquet";
 import type { Lang } from "@/i18n/config";
 import { money } from "./sales";
 
@@ -240,6 +241,8 @@ export function orderLinesJson(
       digital: l.digital,
       // 131 A gift add-on's line says the product it went with.
       ...(l.addonOf ? { addon_of: l.addonOf } : {}),
+      // 162 A line of a bouquet the customer built: the bouquet, its part, the card's message.
+      ...(l.bouquet ? { bouquet: bouquetPartJson(l.bouquet) } : {}),
       flash_sale: l.flashSaleId
         ? {
             id: l.flashSaleId,

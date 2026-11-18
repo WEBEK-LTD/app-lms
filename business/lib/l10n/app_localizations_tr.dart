@@ -4005,6 +4005,17 @@ class AppLocalizationsTr extends AppLocalizations {
   String get primeWeeklyHelp => 'Her pazartesi e-postayla özet';
 
   @override
+  String get bouquetWrap => 'Ambalaj';
+
+  @override
+  String get bouquetCard => 'Kart';
+
+  @override
+  String bouquetMessage(String message) {
+    return 'Kart mesajı: $message';
+  }
+
+  @override
   String get cancelPaidText =>
       'Müşteriye bildirilir ve ürünler stoğa geri döner. Ödemeye ne olacağını seçin.';
 
@@ -4484,5 +4495,15 @@ class AppLocalizationsTr extends AppLocalizations {
       one: 'Ödemesi beklenen 1 sipariş',
     );
     return '$_temp0';
+  }
+
+  @override
+  String bouquetGroup(int stems) {
+    String _temp0 = intl.Intl.pluralLogic(
+      stems,
+      locale: localeName,
+      other: '$stems dal',
+    );
+    return 'Buket · $_temp0';
   }
 }

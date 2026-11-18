@@ -429,6 +429,11 @@ class OverlayLocalizations extends AppLocalizations {
       base.updateRequiredMessage(name);
 
   @override
+  String updateRequiredMessageApp(String name) =>
+      overlay.format('updateRequiredMessageApp', {'name': name}) ??
+      base.updateRequiredMessageApp(name);
+
+  @override
   String get updateNow => overlay.text('updateNow') ?? base.updateNow;
 
   @override
@@ -713,6 +718,66 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('noNotificationsMessage') ?? base.noNotificationsMessage;
 
   @override
+  String get noNotificationsMessageStore =>
+      overlay.text('noNotificationsMessageStore') ??
+      base.noNotificationsMessageStore;
+
+  @override
+  String get noNotificationsMessageFlowers =>
+      overlay.text('noNotificationsMessageFlowers') ??
+      base.noNotificationsMessageFlowers;
+
+  @override
+  String get noNotificationsMessageFood =>
+      overlay.text('noNotificationsMessageFood') ??
+      base.noNotificationsMessageFood;
+
+  @override
+  String get noNotificationsMessageBookings =>
+      overlay.text('noNotificationsMessageBookings') ??
+      base.noNotificationsMessageBookings;
+
+  @override
+  String get noNotificationsMessageListings =>
+      overlay.text('noNotificationsMessageListings') ??
+      base.noNotificationsMessageListings;
+
+  @override
+  String get noNotificationsMessageNews =>
+      overlay.text('noNotificationsMessageNews') ??
+      base.noNotificationsMessageNews;
+
+  @override
+  String get noNotificationsMessageEvents =>
+      overlay.text('noNotificationsMessageEvents') ??
+      base.noNotificationsMessageEvents;
+
+  @override
+  String get noNotificationsMessageDonations =>
+      overlay.text('noNotificationsMessageDonations') ??
+      base.noNotificationsMessageDonations;
+
+  @override
+  String get noNotificationsMessageDelivery =>
+      overlay.text('noNotificationsMessageDelivery') ??
+      base.noNotificationsMessageDelivery;
+
+  @override
+  String get noNotificationsMessageRides =>
+      overlay.text('noNotificationsMessageRides') ??
+      base.noNotificationsMessageRides;
+
+  @override
+  String get noNotificationsMessageTravel =>
+      overlay.text('noNotificationsMessageTravel') ??
+      base.noNotificationsMessageTravel;
+
+  @override
+  String get noNotificationsMessageSchool =>
+      overlay.text('noNotificationsMessageSchool') ??
+      base.noNotificationsMessageSchool;
+
+  @override
   String get notifications =>
       overlay.text('notifications') ?? base.notifications;
 
@@ -819,6 +884,10 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get deleteAccountMessage =>
       overlay.text('deleteAccountMessage') ?? base.deleteAccountMessage;
+
+  @override
+  String get deleteAccountMessageApp =>
+      overlay.text('deleteAccountMessageApp') ?? base.deleteAccountMessageApp;
 
   @override
   String get deleteAccount =>
@@ -947,6 +1016,14 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get noAccountForNumber =>
       overlay.text('noAccountForNumber') ?? base.noAccountForNumber;
+
+  @override
+  String get noAccountForNumberApp =>
+      overlay.text('noAccountForNumberApp') ?? base.noAccountForNumberApp;
+
+  @override
+  String get noAccountForNumberSchool =>
+      overlay.text('noAccountForNumberSchool') ?? base.noAccountForNumberSchool;
 
   @override
   String get newCodeSent => overlay.text('newCodeSent') ?? base.newCodeSent;
@@ -3728,6 +3805,10 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get fileInAppOnlyMessage =>
       overlay.text('fileInAppOnlyMessage') ?? base.fileInAppOnlyMessage;
+
+  @override
+  String get fileInAppOnlyMessageApp =>
+      overlay.text('fileInAppOnlyMessageApp') ?? base.fileInAppOnlyMessageApp;
 
   @override
   String pageOf(int page, int total) =>
@@ -12642,6 +12723,18 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('deliveryPinChoose') ?? base.deliveryPinChoose;
 
   @override
+  String get deliveryPinNoMapTitle =>
+      overlay.text('deliveryPinNoMapTitle') ?? base.deliveryPinNoMapTitle;
+
+  @override
+  String get deliveryPinNoMapMessage =>
+      overlay.text('deliveryPinNoMapMessage') ?? base.deliveryPinNoMapMessage;
+
+  @override
+  String get deliveryPinUseHere =>
+      overlay.text('deliveryPinUseHere') ?? base.deliveryPinUseHere;
+
+  @override
   String get deliveryPinSet =>
       overlay.text('deliveryPinSet') ?? base.deliveryPinSet;
 
@@ -12814,4 +12907,204 @@ class OverlayLocalizations extends AppLocalizations {
   String orderPaidIn(String total) =>
       overlay.format('orderPaidIn', {'total': total}) ??
       base.orderPaidIn(total);
+
+  @override
+  String get orderDeliveryTitle =>
+      overlay.text('orderDeliveryTitle') ?? base.orderDeliveryTitle;
+
+  @override
+  String orderDeliverySlot(String slot) =>
+      overlay.format('orderDeliverySlot', {'slot': slot}) ??
+      base.orderDeliverySlot(slot);
+
+  @override
+  String get orderRecipientTitle =>
+      overlay.text('orderRecipientTitle') ?? base.orderRecipientTitle;
+
+  @override
+  String get orderAddressTitle =>
+      overlay.text('orderAddressTitle') ?? base.orderAddressTitle;
+
+  @override
+  String get orderGiftTitle =>
+      overlay.text('orderGiftTitle') ?? base.orderGiftTitle;
+
+  @override
+  String orderGiftFrom(String name) =>
+      overlay.format('orderGiftFrom', {'name': name}) ??
+      base.orderGiftFrom(name);
+
+  @override
+  String get orderGiftAnonymous =>
+      overlay.text('orderGiftAnonymous') ?? base.orderGiftAnonymous;
+
+  @override
+  String get orderSummaryTitle =>
+      overlay.text('orderSummaryTitle') ?? base.orderSummaryTitle;
+
+  @override
+  String orderCouponLine(String code) =>
+      overlay.format('orderCouponLine', {'code': code}) ??
+      base.orderCouponLine(code);
+
+  @override
+  String get orderDiscountLine =>
+      overlay.text('orderDiscountLine') ?? base.orderDiscountLine;
+
+  @override
+  String orderPointsLine(int points) =>
+      overlay.format('orderPointsLine', {'points': points}) ??
+      base.orderPointsLine(points);
+
+  @override
+  String orderShippingTo(String zone) =>
+      overlay.format('orderShippingTo', {'zone': zone}) ??
+      base.orderShippingTo(zone);
+
+  @override
+  String get orderSlotFee => overlay.text('orderSlotFee') ?? base.orderSlotFee;
+
+  @override
+  String orderTaxIncluded(String tax) =>
+      overlay.format('orderTaxIncluded', {'tax': tax}) ??
+      base.orderTaxIncluded(tax);
+
+  @override
+  String get bouquetTitle => overlay.text('bouquetTitle') ?? base.bouquetTitle;
+
+  @override
+  String get bouquetStepFlowers =>
+      overlay.text('bouquetStepFlowers') ?? base.bouquetStepFlowers;
+
+  @override
+  String get bouquetStepWrap =>
+      overlay.text('bouquetStepWrap') ?? base.bouquetStepWrap;
+
+  @override
+  String get bouquetStepCard =>
+      overlay.text('bouquetStepCard') ?? base.bouquetStepCard;
+
+  @override
+  String get bouquetStepSummary =>
+      overlay.text('bouquetStepSummary') ?? base.bouquetStepSummary;
+
+  @override
+  String bouquetStepOf(int step, int count) =>
+      overlay.format('bouquetStepOf', {'step': step, 'count': count}) ??
+      base.bouquetStepOf(step, count);
+
+  @override
+  String get bouquetFlowersLine =>
+      overlay.text('bouquetFlowersLine') ?? base.bouquetFlowersLine;
+
+  @override
+  String get bouquetWrapLine =>
+      overlay.text('bouquetWrapLine') ?? base.bouquetWrapLine;
+
+  @override
+  String get bouquetCardLine =>
+      overlay.text('bouquetCardLine') ?? base.bouquetCardLine;
+
+  @override
+  String get bouquetMessageOnlyLine =>
+      overlay.text('bouquetMessageOnlyLine') ?? base.bouquetMessageOnlyLine;
+
+  @override
+  String bouquetStems(int count) =>
+      overlay.format('bouquetStems', {'count': count}) ??
+      base.bouquetStems(count);
+
+  @override
+  String bouquetStemsRange(int min, int max) =>
+      overlay.format('bouquetStemsRange', {'min': min, 'max': max}) ??
+      base.bouquetStemsRange(min, max);
+
+  @override
+  String bouquetNeedStems(int min) =>
+      overlay.format('bouquetNeedStems', {'min': min}) ??
+      base.bouquetNeedStems(min);
+
+  @override
+  String bouquetMaxStems(int max) =>
+      overlay.format('bouquetMaxStems', {'max': max}) ??
+      base.bouquetMaxStems(max);
+
+  @override
+  String get bouquetNoWrap =>
+      overlay.text('bouquetNoWrap') ?? base.bouquetNoWrap;
+
+  @override
+  String get bouquetNoWrapLine =>
+      overlay.text('bouquetNoWrapLine') ?? base.bouquetNoWrapLine;
+
+  @override
+  String get bouquetChooseWrap =>
+      overlay.text('bouquetChooseWrap') ?? base.bouquetChooseWrap;
+
+  @override
+  String get bouquetNoCard =>
+      overlay.text('bouquetNoCard') ?? base.bouquetNoCard;
+
+  @override
+  String get bouquetChooseCard =>
+      overlay.text('bouquetChooseCard') ?? base.bouquetChooseCard;
+
+  @override
+  String get bouquetWriteMessage =>
+      overlay.text('bouquetWriteMessage') ?? base.bouquetWriteMessage;
+
+  @override
+  String get bouquetSkipCard =>
+      overlay.text('bouquetSkipCard') ?? base.bouquetSkipCard;
+
+  @override
+  String get bouquetTotal => overlay.text('bouquetTotal') ?? base.bouquetTotal;
+
+  @override
+  String get bouquetTotalNote =>
+      overlay.text('bouquetTotalNote') ?? base.bouquetTotalNote;
+
+  @override
+  String get bouquetSendFlowers =>
+      overlay.text('bouquetSendFlowers') ?? base.bouquetSendFlowers;
+
+  @override
+  String bouquetChange(String part) =>
+      overlay.format('bouquetChange', {'part': part}) ??
+      base.bouquetChange(part);
+
+  @override
+  String get bouquetUnavailable =>
+      overlay.text('bouquetUnavailable') ?? base.bouquetUnavailable;
+
+  @override
+  String get bouquetShopInstead =>
+      overlay.text('bouquetShopInstead') ?? base.bouquetShopInstead;
+
+  @override
+  String get bouquetInCart =>
+      overlay.text('bouquetInCart') ?? base.bouquetInCart;
+
+  @override
+  String get bouquetHeader =>
+      overlay.text('bouquetHeader') ?? base.bouquetHeader;
+
+  @override
+  String bouquetWrapPart(String name) =>
+      overlay.format('bouquetWrapPart', {'name': name}) ??
+      base.bouquetWrapPart(name);
+
+  @override
+  String bouquetCardPart(String name) =>
+      overlay.format('bouquetCardPart', {'name': name}) ??
+      base.bouquetCardPart(name);
+
+  @override
+  String bouquetMessage(String message) =>
+      overlay.format('bouquetMessage', {'message': message}) ??
+      base.bouquetMessage(message);
+
+  @override
+  String get bouquetRemove =>
+      overlay.text('bouquetRemove') ?? base.bouquetRemove;
 }

@@ -27,6 +27,7 @@ import '../../travel/travel_paths.dart';
 import '../../travel/widgets/travel_words.dart' show boardName;
 // 130 The live cards' premium looks.
 import 'studio_live_looks.dart';
+import '../../../core/format/text_case.dart';
 
 part 'studio_live_more.dart';
 
@@ -327,7 +328,7 @@ class _Live extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      live.title.toUpperCase(),
+                      live.title.toUpperCaseIn(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(

@@ -6,12 +6,16 @@ import type { ItemSource } from "../../pages/types";
 import { offeredTypes } from "../../rides/settings";
 import { connectorFor } from "../connectors";
 import { itemResolver } from "./items";
+import { itemSourcesFor } from "../../pages/sources";
+import type { ShopCategories } from "../../studio/shop-categories";
+import { readShopCategories } from "./shop-categories";
 import "./sources";
 import type { Connector } from "../connectors/types";
 import { catalogSettings } from "../../catalog/settings";
 import { listedSales, unitsLeft } from "../../selling/flash-sales";
 import { giftMessagesJson, giftOccasionsOf } from "../../selling/gift-messages";
 import { appLanguagesOf, couponShown, publicCouponJson } from "../../selling/store";
+import { bouquetOf } from "../../selling/bouquet";
 
 /** An entry as the app's list card shows it: its picture, its line under the title, its price and its badge (`Item`). */
 export interface PickableEntry {
@@ -33,6 +37,8 @@ export interface PickableCommerce {
   coupons: { code: string; percentOff: number | null; amountOff: string | null; minOrder: string | null; endsAt: string | null }[];
   /** `GET /store/gift-messages` in each of the app's languages: the gift checkout's occasions and messages. */
   giftMessages: Record<string, ReturnType<typeof giftMessagesJson>>;
+  /** 162 Whether Build your bouquet is set up (Store › Delivery & offers): a Start that opens it says so in the inspector. */
+  bouquet?: boolean;
 }
 
 /** Entries and categories the page editor offers to pick from. */
@@ -43,6 +49,12 @@ export interface Pickable {
   samples?: Partial<Record<string, Partial<Record<ItemSource, PickableEntry[]>>>>;
   /** 131 A store's flash sales, coupons and card messages. */
   commerce?: PickableCommerce;
+  /** 157 The shop's categories a template's lists of them show (lib/studio/shop-categories.ts), as the app gets them. */
+  shopCategories?: ShopCategories;
+  /** 165 Dashboard › Stories, for Studio's canvas (the story elements whose source is the dashboard). */
+  stories?: import("../../stories/view").StoryView[];
+  /** 165 Whether the owner has saved them in Dashboard › Stories: until then the story elements follow this design (and stay editable here). */
+  storiesSaved?: boolean;
 }
 
 /** 110 The cards the app shows for a source the platform fills (lib/hosted/pages/sources.ts), by entry. */
@@ -108,6 +120,7 @@ export async function pickableCommerce(store: DataStore, app: App, now: Date): P
         return { code: j.code, percentOff: j.percent_off, amountOff: j.amount_off_formatted, minOrder: j.min_order_formatted, endsAt: j.ends_at };
       }),
     giftMessages: Object.fromEntries(languages.available.map((lang) => [lang, giftMessagesJson(occasions, lang, languages.default)])),
+    bouquet: bouquetOf(app) !== null,
   };
 }
 
@@ -142,7 +155,16 @@ export async function pickableContent(
   const content = await pickableOwn(app, deps, now);
   // 131 A store's flash sales, coupons shown in the app and card messages (Yallapp keeps them for every source).
   const commerce = await pickableCommerce(deps.store, app, now).catch(() => undefined);
-  return commerce ? { ...content, commerce } : content;
+  // 157 The shop's categories for the template's lists of them, so the canvas draws them as the app does.
+  const shopCategories = await pickableShopCategories(app, deps, now).catch(() => null);
+  return { ...content, ...(commerce ? { commerce } : {}), ...(shopCategories ? { shopCategories } : {}) };
+}
+
+/** 157 The shop's categories as hosted `GET /pages` gives the template's lists of them; none for an app whose pages its own site serves. */
+async function pickableShopCategories(app: App, deps: { store: DataStore; key: Buffer; assetUrl: (id: string) => string; platformUrl: string }, now: Date): Promise<ShopCategories | null> {
+  if (app.backend !== "hosted" || !itemSourcesFor(app).includes("products")) return null;
+  const connector = connectorFor(app, deps.key, { store: deps.store, assetUrl: deps.assetUrl, platformUrl: deps.platformUrl });
+  return connector ? readShopCategories(app, deps.store, connector, { platform: "android", now }) : null;
 }
 
 async function pickableOwn(

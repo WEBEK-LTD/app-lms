@@ -125,6 +125,8 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
         {may ? (
           <RefreshAllDemos
             demos={rows.map((r) => ({ type: r.type, name: DEMO_BRANDS[r.type].appName }))}
+            // 156 Apps already there lose what was changed on them in Studio: asked first.
+            confirm={rows.some((r) => r.app)}
             label={
               family === "studio"
                 ? rows.some((r) => r.app)

@@ -1,5 +1,6 @@
 import { addDays, localToUtc, utcToLocal } from "../bookings/time";
 import { catalogSettings } from "../catalog/settings";
+import { unchanged } from "./rows";
 import type { DataStore } from "../data/store";
 import type {
   App,
@@ -59,7 +60,7 @@ import {
   type DemoStaff,
 } from "./content";
 import type { DemoPicture, PictureSize } from "./picture-assets";
-import { FLOWER_CATEGORIES, FLOWER_COUPON, FLOWER_CURRENCY, FLOWER_FLASH_SALE, FLOWER_PRODUCTS, flowerVariants } from "./flowers";
+import { FLOWER_BOUQUET, FLOWER_CATEGORIES, type FlowerProduct, FLOWER_COUPON, FLOWER_CURRENCY, FLOWER_FLASH_SALE, FLOWER_PRODUCTS, flowerVariants } from "./flowers";
 import { seedGiftOccasions } from "../selling/gift-messages";
 import { UFUQ_COURSES } from "./ufuq-courses";
 import { ACADEMY_CATEGORIES, ACADEMY_COURSES, TEACHERS_CURRENCY } from "./teachers";
@@ -168,6 +169,13 @@ export async function demoFlowerProducts(deps: EntryDeps, app: App): Promise<voi
   }
   if (!deps.sample) for (const c of categories) if (!FLOWER_CATEGORIES.includes(c.name)) await store.deleteCatalogCategory(app.id, c.id, now);
   const products = await store.listCatalogProducts(app.id);
+  // 162 Each photo saved once, however many products show it (a stem and its bouquet).
+  const photos = new Map<string, Promise<string>>();
+  const photo = (name: NonNullable<FlowerProduct["photo"]>) => {
+    if (!photos.has(name)) photos.set(name, deps.picture(name, "product"));
+    return photos.get(name)!;
+  };
+  const idBySku = new Map<string, number>();
   // Created last to first, so the newest-first lists show them in the demo's order.
   for (const [i, seed] of [...FLOWER_PRODUCTS].reverse().entries()) {
     const priceCents = money(seed.priceCents);
@@ -179,7 +187,7 @@ export async function demoFlowerProducts(deps: EntryDeps, app: App): Promise<voi
       priceCents,
       salePriceCents: sale !== null && sale < priceCents ? sale : null,
       categoryIds: [seed.collection, ...seed.occasions].map((name) => categoryIds.get(name)!),
-      imageAssetIds: seed.photo ? [await deps.picture(seed.photo, "product")] : [],
+      imageAssetIds: seed.photo ? [await photo(seed.photo)] : [],
       stock: null,
       digital: false,
       featured: seed.featured,
@@ -188,9 +196,9 @@ export async function demoFlowerProducts(deps: EntryDeps, app: App): Promise<voi
       // A bouquet's sizes are its variations, each priced in the app's currency.
       variants: flowerVariants(seed, money),
       optionGroups: null,
-      // 131 The vase, the chocolates and the card: add-ons offered with every bouquet.
+      // 131 The vase, the chocolates and the card: add-ons offered with every bouquet; 162 a wrap with the loose stems only.
       addon: seed.addon === true,
-      addonFor: null,
+      addonFor: seed.addonWith ? { offerWith: "categories" as const, categoryIds: [categoryIds.get(seed.addonWith)!], productIds: [] } : null,
       ...marked(deps),
     };
     if (deps.sample) {
@@ -198,12 +206,32 @@ export async function demoFlowerProducts(deps: EntryDeps, app: App): Promise<voi
       continue;
     }
     const found = products.find((p) => p.sku === seed.sku);
-    if (found) await store.updateCatalogProduct(app.id, found.id, input, now);
-    else await store.createCatalogProduct(input, now);
+    // A refresh leaves alone a product already as the demo has it.
+    if (found && !unchanged(found, input)) await store.updateCatalogProduct(app.id, found.id, input, now);
+    idBySku.set(seed.sku, found ? found.id : (await store.createCatalogProduct(input, now)).id);
   }
   if (deps.sample) return;
   const skus = new Set(FLOWER_PRODUCTS.map((p) => p.sku));
   for (const p of products) if (!p.sku || !skus.has(p.sku)) await store.deleteCatalogProduct(app.id, p.id);
+  await demoFlowerBouquet(store, app, categoryIds, idBySku, now);
+}
+
+/**
+ * 162 Build your bouquet on the demo, by name and SKU: the loose stems as
+ * its flowers, the two papers as its wraps and the greeting card as its
+ * card (lib/demo/flowers.ts `FLOWER_BOUQUET`), from the categories and
+ * products just saved; written only when it isn't so already (setup.ts
+ * keeps it through a refresh).
+ */
+async function demoFlowerBouquet(store: DataStore, app: App, categoryIds: Map<string, number>, idBySku: Map<string, number>, now: Date): Promise<void> {
+  const flowers = categoryIds.get(FLOWER_BOUQUET.flowers);
+  const bySku = (skus: readonly string[]) => skus.map((sku) => idBySku.get(sku)).filter((id): id is number => id !== undefined);
+  const wraps = bySku(FLOWER_BOUQUET.wraps);
+  if (flowers === undefined || !wraps.length) return;
+  const bouquet = { flowersCategoryId: flowers, wraps: { from: "addons" as const, productIds: wraps }, cardProductIds: bySku(FLOWER_BOUQUET.cards), wrapOptional: FLOWER_BOUQUET.wrapOptional, cardOptional: FLOWER_BOUQUET.cardOptional, minStems: FLOWER_BOUQUET.minStems, maxStems: FLOWER_BOUQUET.maxStems };
+  const settings = catalogSettings(app);
+  if (settings.bouquet && unchanged(settings.bouquet, bouquet)) return;
+  await store.updateApp(app.id, { catalogSettings: { ...settings, bouquet } }, now);
 }
 
 /**
@@ -221,6 +249,7 @@ export async function demoFlowerCommerce(deps: EntryDeps, app: App): Promise<voi
   }
   await seedGiftOccasions(store, (await store.getAppById(app.id))!, now);
 }
+
 
 /**
  * 131 Leqaa's flash sale from now, for a little over a day (made again by

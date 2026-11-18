@@ -3984,6 +3984,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get primeWeeklyHelp => 'ملخص بالبريد كل يوم اثنين';
 
   @override
+  String get bouquetWrap => 'التغليف';
+
+  @override
+  String get bouquetCard => 'البطاقة';
+
+  @override
+  String bouquetMessage(String message) {
+    return 'رسالة البطاقة: $message';
+  }
+
+  @override
   String get cancelPaidText =>
       'سيتم إبلاغ العميل، وتعود المنتجات إلى المخزون. اختر ما يحدث للمبلغ المدفوع.';
 
@@ -4702,5 +4713,20 @@ class AppLocalizationsAr extends AppLocalizations {
       one: 'طلب واحد بانتظار الدفع',
     );
     return '$_temp0';
+  }
+
+  @override
+  String bouquetGroup(int stems) {
+    String _temp0 = intl.Intl.pluralLogic(
+      stems,
+      locale: localeName,
+      other: '$stems ساق',
+      many: '$stems ساقًا',
+      few: '$stems سيقان',
+      two: 'ساقان',
+      one: 'ساق واحدة',
+      zero: 'بلا سيقان',
+    );
+    return 'باقة · $_temp0';
   }
 }

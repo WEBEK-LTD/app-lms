@@ -267,7 +267,18 @@ void main() {
     final fake = api(distance(tiles: false));
     final locator = _Locator();
     await open(tester, fake, locator: locator);
+    // 168 Said first: no map, so where the phone is; a step back takes nothing.
     await tester.tap(find.byKey(const ValueKey('gift-location')));
+    await TestApp.settle(tester);
+    expect(find.text('This shop has no map yet'), findsOneWidget);
+    expect(find.textContaining('where your phone is now'), findsOneWidget);
+    expect(locator.reads, 0);
+    await tester.tap(find.text('Cancel'));
+    await TestApp.settle(tester);
+    expect(locator.reads, 0);
+    await tester.tap(find.byKey(const ValueKey('gift-location')));
+    await TestApp.settle(tester);
+    await tester.tap(find.text('Use where I am'));
     await TestApp.settle(tester);
     expect(find.byKey(const ValueKey('delivery-pin-map')), findsNothing);
     expect(locator.reads, 1);

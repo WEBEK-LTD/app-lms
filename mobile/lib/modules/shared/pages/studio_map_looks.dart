@@ -11,6 +11,7 @@ import '../../../core/widgets/common.dart';
 import '../../rides/data/rides_providers.dart';
 import '../../taxi/data/taxi_providers.dart';
 import 'studio_live.dart';
+import '../../../core/format/text_case.dart';
 
 /// 129.21–129.24 The drawn map's premium looks (platform/web/src/lib/
 /// studio/map-looks.ts has the same numbers; Studio's canvas draws them in
@@ -1370,7 +1371,7 @@ Widget _label({
   top: at.dy,
   child: FractionalTranslation(
     translation: Offset(rtl ? -1 : 0, -0.5),
-    child: Text(text.toUpperCase(), maxLines: 1, softWrap: false, style: style),
+    child: Text(upperIn(text), maxLines: 1, softWrap: false, style: style),
   ),
 );
 

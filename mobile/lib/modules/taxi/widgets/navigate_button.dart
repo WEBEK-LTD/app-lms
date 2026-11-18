@@ -47,34 +47,37 @@ class NavigateButton extends ConsumerWidget {
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-              child: Text(
-                l10n.navigateWith,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
-                  color: context.palette.text,
+        child: SingleChildScrollView(
+          // 158 Every choice in reach on a short phone or with a large font.
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                child: Text(
+                  l10n.navigateWith,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: context.palette.text,
+                  ),
                 ),
               ),
-            ),
-            for (final (app, name) in [
-              (NavigationApp.google, 'Google Maps'),
-              if (ios) (NavigationApp.apple, 'Apple Maps'),
-              (NavigationApp.waze, 'Waze'),
-            ])
-              ListTile(
-                key: ValueKey('navigate-${app.name}'),
-                leading: const AppIcon(AppIcons.navigate),
-                title: Text(name),
-                onTap: () => Navigator.of(context).pop(app),
-              ),
-            const SizedBox(height: 8),
-          ],
+              for (final (app, name) in [
+                (NavigationApp.google, 'Google Maps'),
+                if (ios) (NavigationApp.apple, 'Apple Maps'),
+                (NavigationApp.waze, 'Waze'),
+              ])
+                ListTile(
+                  key: ValueKey('navigate-${app.name}'),
+                  leading: const AppIcon(AppIcons.navigate),
+                  title: Text(name),
+                  onTap: () => Navigator.of(context).pop(app),
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
