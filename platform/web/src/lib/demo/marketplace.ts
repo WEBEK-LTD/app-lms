@@ -779,7 +779,7 @@ async function allProducts(store: DataStore, appId: string, vendorId: number) {
   for (let page = 1; ; page++) {
     const found = await store.listMarketProducts({ appId, vendorId, page, perPage: 200 });
     items.push(...found.items);
-    if (items.length >= found.total || found.items.length === 0) return items;
+    if (found.items.length < 200) return items;
   }
 }
 
@@ -1124,7 +1124,7 @@ async function allOrders(store: DataStore, appId: string): Promise<MarketOrder[]
   for (let offset = 0; ; offset += 200) {
     const found = await store.listMarketOrders({ appId, order: "oldest", limit: 200, offset });
     items.push(...found.items);
-    if (items.length >= found.total || found.items.length === 0) return items;
+    if (found.items.length < 200) return items;
   }
 }
 

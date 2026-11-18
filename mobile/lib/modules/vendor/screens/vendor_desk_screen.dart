@@ -536,7 +536,9 @@ class _DeskHead extends ConsumerWidget {
               const SizedBox(width: 8),
               VendorRoundButton(
                 key: const ValueKey('vendor-sound'),
-                icon: sound ? Symbols.volume_up_rounded : Symbols.volume_off_rounded,
+                icon: sound
+                    ? Symbols.volume_up_rounded
+                    : Symbols.volume_off_rounded,
                 label: sound ? l10n.vendorSoundOn : l10n.vendorSoundOff,
                 size: 36,
                 onTap: onSound,
@@ -1037,11 +1039,20 @@ class _NewOrderCardState extends ConsumerState<VendorNewOrderCard> {
       runSpacing: 6,
       children: [
         if (o.pickup)
-          VendorMeta(icon: Symbols.storefront_rounded, label: l10n.vendorPickupTag)
+          VendorMeta(
+            icon: Symbols.storefront_rounded,
+            label: l10n.vendorPickupTag,
+          )
         else if (ownDriver)
-          VendorMeta(icon: Symbols.two_wheeler_rounded, label: l10n.vendorByOwnDriver)
+          VendorMeta(
+            icon: Symbols.two_wheeler_rounded,
+            label: l10n.vendorByOwnDriver,
+          )
         else
-          VendorMeta(icon: Symbols.two_wheeler_rounded, label: l10n.vendorByAppCourier),
+          VendorMeta(
+            icon: Symbols.two_wheeler_rounded,
+            label: l10n.vendorByAppCourier,
+          ),
         VendorMeta(
           icon: o.payMethod == MarketPayMethod.cash
               ? Symbols.payments_rounded
@@ -1051,7 +1062,10 @@ class _NewOrderCardState extends ConsumerState<VendorNewOrderCard> {
           label: payText(l10n, o.payMethod),
         ),
         if (open && weighed > 0)
-          VendorMeta(icon: Symbols.scale_rounded, label: l10n.vendorByWeight(weighed)),
+          VendorMeta(
+            icon: Symbols.scale_rounded,
+            label: l10n.vendorByWeight(weighed),
+          ),
         VendorMeta(
           icon: Symbols.shopping_basket_rounded,
           label: l10n.vendorItemCount(o.lines.length),

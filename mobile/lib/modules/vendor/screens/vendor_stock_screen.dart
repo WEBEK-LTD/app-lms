@@ -13,6 +13,8 @@ import '../../../core/providers.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../market/data/market_providers.dart';
+import '../../market/screens/market_scanner_screen.dart'
+    show MarketScannerScreen, marketScannerCameraProvider;
 import '../../real_estate/widgets/listing_widgets.dart' show TabHeader;
 import '../data/vendor_providers.dart';
 import '../widgets/vendor_widgets.dart';
@@ -30,11 +32,20 @@ final vendorStockProvider = FutureProvider.autoDispose
           ),
     );
 
-/// 115.72 A camera scanner, when the app has one: it reads a barcode, or
-/// null when the person closes it. Without one (as today), the barcode is
-/// typed or pasted.
+/// 115.72 The camera scanner on phones (the customers' app's, 115.40): it
+/// reads a barcode, or null when the person closes it. Without a camera
+/// (the web, tests), the barcode is typed or pasted.
 final vendorBarcodeScannerProvider =
-    Provider<Future<String?> Function(BuildContext context)?>((ref) => null);
+    Provider<Future<String?> Function(BuildContext context)?>((ref) {
+      if (!ref.watch(marketScannerCameraProvider)) return null;
+      final store = ref.watch(vendorDeskProvider).value?.name ?? '';
+      return (context) => Navigator.of(context).push<String>(
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (_) => MarketScannerScreen(storeName: store),
+        ),
+      );
+    });
 
 /// 115.72 Stock's filters (design 10).
 enum StockView { all, out, weight, offers }
@@ -200,7 +211,11 @@ class _VendorStockScreenState extends ConsumerState<VendorStockScreen> {
       StockView.weight: loaded.where((i) => i.byWeight).length,
       StockView.offers: loaded.where((i) => i.onOffer).length,
     };
-    final mayEdit = desk?.answers ?? false;
+    // The price is the place's owner's and managers' (order takers only put
+    // items in and out of stock).
+    final mayEdit =
+        desk != null &&
+        (desk.role == VendorRole.owner || desk.role == VendorRole.manager);
     final mayAdd =
         desk != null && desk.canEditPlace && desk.kind != VendorKind.restaurant;
     // The orders already placed with each product: a new price never
@@ -591,7 +606,11 @@ class _StockRow extends StatelessWidget {
     final stock = !on
         ? l10n.vendorLineOut
         : item.stock != null
-        ? l10n.vendorInStockLeft(item.stock!)
+        ? l10n.vendorInStockLeft(
+            product.unit == ProductUnit.item
+                ? item.stock!.round().toString()
+                : amountText(l10n, item.stock!, product.unit),
+          )
         : l10n.vendorInStock;
     return Container(
       key: ValueKey('vendor-stock-row-${item.id}'),
@@ -693,7 +712,11 @@ class _StockRow extends StatelessWidget {
                           ),
                         if (onPrice != null) ...[
                           const SizedBox(width: 4),
-                          Icon(Symbols.edit_rounded, size: 14, color: p.textSecondary),
+                          Icon(
+                            Symbols.edit_rounded,
+                            size: 14,
+                            color: p.textSecondary,
+                          ),
                         ],
                       ],
                     ),
@@ -978,7 +1001,11 @@ class _PriceEditorState extends ConsumerState<_PriceEditor> {
               children: [
                 WidgetSpan(
                   alignment: PlaceholderAlignment.middle,
-                  child: Icon(Symbols.info_rounded, size: 15, color: p.textSecondary),
+                  child: Icon(
+                    Symbols.info_rounded,
+                    size: 15,
+                    color: p.textSecondary,
+                  ),
                 ),
                 TextSpan(
                   text:

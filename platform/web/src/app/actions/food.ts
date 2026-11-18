@@ -100,6 +100,9 @@ export async function saveRestaurantAction(_: FormState, formData: FormData): Pr
   const area = isMarketplaceApp(app) ? parseVendorAreaForm(values, serviceAreasOf(settings)) : null;
   if (!parsed.ok || (area && !area.ok)) return { errors: { ...(parsed.ok ? {} : parsed.errors), ...(area && !area.ok ? { [area.field]: area.error } : {}) }, values };
   if (area?.ok) Object.assign(parsed.value, area.value);
+  // 115.24 A marketplace's place has a kind: a restaurant, a grocery or a shop.
+  const kind = values.kind;
+  if (isMarketplaceApp(app) && (kind === "restaurant" || kind === "grocery" || kind === "shop")) Object.assign(parsed.value, { kind });
   const all = await store.listRestaurants(app.id);
   if (!existing && all.length >= FOOD_LIMITS.restaurants) return { message: `You can have up to ${FOOD_LIMITS.restaurants} restaurants.`, values };
   const logo = await picture(context, formData.get("logo"), now);

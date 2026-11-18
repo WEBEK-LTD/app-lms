@@ -271,6 +271,9 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   market_complaints: "orders",
   market_coupon_uses: "orders",
   wallet_entries: "orders",
+  // 115.24 The stock-moves ledger and the places' catalog changes: history.
+  market_stock_moves: "activity",
+  market_catalog_changes: "activity",
   food_orders: "orders",
   rides: "orders",
   store_purchases: "orders",

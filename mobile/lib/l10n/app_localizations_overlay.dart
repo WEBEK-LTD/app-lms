@@ -13506,7 +13506,7 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('vendorInStock') ?? base.vendorInStock;
 
   @override
-  String vendorInStockLeft(int n) =>
+  String vendorInStockLeft(String n) =>
       overlay.format('vendorInStockLeft', {'n': n}) ??
       base.vendorInStockLeft(n);
 
@@ -13788,4 +13788,409 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get vendorOffersOwners =>
       overlay.text('vendorOffersOwners') ?? base.vendorOffersOwners;
+
+  @override
+  String marketSearchStore(String name) =>
+      overlay.format('marketSearchStore', {'name': name}) ??
+      base.marketSearchStore(name);
+
+  @override
+  String get marketScanBarcode =>
+      overlay.text('marketScanBarcode') ?? base.marketScanBarcode;
+
+  @override
+  String get marketDepartments =>
+      overlay.text('marketDepartments') ?? base.marketDepartments;
+
+  @override
+  String marketSeeAllCount(int count) =>
+      overlay.format('marketSeeAllCount', {'count': count}) ??
+      base.marketSeeAllCount(count);
+
+  @override
+  String get marketBuyAgain =>
+      overlay.text('marketBuyAgain') ?? base.marketBuyAgain;
+
+  @override
+  String marketFromYourOrders(int count) =>
+      overlay.format('marketFromYourOrders', {'count': count}) ??
+      base.marketFromYourOrders(count);
+
+  @override
+  String marketEstimatedAmount(String amount) =>
+      overlay.format('marketEstimatedAmount', {'amount': amount}) ??
+      base.marketEstimatedAmount(amount);
+
+  @override
+  String get marketGoCheckout =>
+      overlay.text('marketGoCheckout') ?? base.marketGoCheckout;
+
+  @override
+  String get marketOfferLabel =>
+      overlay.text('marketOfferLabel') ?? base.marketOfferLabel;
+
+  @override
+  String get marketThisWeek =>
+      overlay.text('marketThisWeek') ?? base.marketThisWeek;
+
+  @override
+  String marketProductCount(int count) =>
+      overlay.format('marketProductCount', {'count': count}) ??
+      base.marketProductCount(count);
+
+  @override
+  String marketAisleCount(int count) =>
+      overlay.format('marketAisleCount', {'count': count}) ??
+      base.marketAisleCount(count);
+
+  @override
+  String get marketAll => overlay.text('marketAll') ?? base.marketAll;
+
+  @override
+  String get marketSortPopular =>
+      overlay.text('marketSortPopular') ?? base.marketSortPopular;
+
+  @override
+  String get marketFilterOffers =>
+      overlay.text('marketFilterOffers') ?? base.marketFilterOffers;
+
+  @override
+  String get marketByWeight =>
+      overlay.text('marketByWeight') ?? base.marketByWeight;
+
+  @override
+  String get marketFilterInStock =>
+      overlay.text('marketFilterInStock') ?? base.marketFilterInStock;
+
+  @override
+  String marketShownOf(int shown, int total) =>
+      overlay.format('marketShownOf', {'shown': shown, 'total': total}) ??
+      base.marketShownOf(shown, total);
+
+  @override
+  String get marketLoadingMore =>
+      overlay.text('marketLoadingMore') ?? base.marketLoadingMore;
+
+  @override
+  String get marketNothingHere =>
+      overlay.text('marketNothingHere') ?? base.marketNothingHere;
+
+  @override
+  String marketFreeDeliveryLeft(String amount) =>
+      overlay.format('marketFreeDeliveryLeft', {'amount': amount}) ??
+      base.marketFreeDeliveryLeft(amount);
+
+  @override
+  String get marketFreeDeliveryReached =>
+      overlay.text('marketFreeDeliveryReached') ??
+      base.marketFreeDeliveryReached;
+
+  @override
+  String marketResultsFor(String query) =>
+      overlay.format('marketResultsFor', {'query': query}) ??
+      base.marketResultsFor(query);
+
+  @override
+  String get marketSoldByWeight =>
+      overlay.text('marketSoldByWeight') ?? base.marketSoldByWeight;
+
+  @override
+  String marketPer100g(String amount) =>
+      overlay.format('marketPer100g', {'amount': amount}) ??
+      base.marketPer100g(amount);
+
+  @override
+  String marketInSteps(String amount) =>
+      overlay.format('marketInSteps', {'amount': amount}) ??
+      base.marketInSteps(amount);
+
+  @override
+  String get marketEstimatedPrice =>
+      overlay.text('marketEstimatedPrice') ?? base.marketEstimatedPrice;
+
+  @override
+  String get marketAtMostAfterWeighing =>
+      overlay.text('marketAtMostAfterWeighing') ??
+      base.marketAtMostAfterWeighing;
+
+  @override
+  String get marketWeighFinal =>
+      overlay.text('marketWeighFinal') ?? base.marketWeighFinal;
+
+  @override
+  String get marketWeighCard =>
+      overlay.text('marketWeighCard') ?? base.marketWeighCard;
+
+  @override
+  String marketWeighCash(String amount) =>
+      overlay.format('marketWeighCash', {'amount': amount}) ??
+      base.marketWeighCash(amount);
+
+  @override
+  String get marketByCard => overlay.text('marketByCard') ?? base.marketByCard;
+
+  @override
+  String get marketPickerSliced =>
+      overlay.text('marketPickerSliced') ?? base.marketPickerSliced;
+
+  @override
+  String get marketPickerOnePiece =>
+      overlay.text('marketPickerOnePiece') ?? base.marketPickerOnePiece;
+
+  @override
+  String get marketPickerNote =>
+      overlay.text('marketPickerNote') ?? base.marketPickerNote;
+
+  @override
+  String get marketPickerNoteHint =>
+      overlay.text('marketPickerNoteHint') ?? base.marketPickerNoteHint;
+
+  @override
+  String marketAddWeighed(String amount, String price) =>
+      overlay.format('marketAddWeighed', {'amount': amount, 'price': price}) ??
+      base.marketAddWeighed(amount, price);
+
+  @override
+  String marketAddUnits(String count, String price) =>
+      overlay.format('marketAddUnits', {'count': count, 'price': price}) ??
+      base.marketAddUnits(count, price);
+
+  @override
+  String marketUpdateCart(String price) =>
+      overlay.format('marketUpdateCart', {'price': price}) ??
+      base.marketUpdateCart(price);
+
+  @override
+  String marketAmountG(String amount) =>
+      overlay.format('marketAmountG', {'amount': amount}) ??
+      base.marketAmountG(amount);
+
+  @override
+  String marketAmountKg(String amount) =>
+      overlay.format('marketAmountKg', {'amount': amount}) ??
+      base.marketAmountKg(amount);
+
+  @override
+  String marketAmountL(String amount) =>
+      overlay.format('marketAmountL', {'amount': amount}) ??
+      base.marketAmountL(amount);
+
+  @override
+  String get marketIfMissingTitle =>
+      overlay.text('marketIfMissingTitle') ?? base.marketIfMissingTitle;
+
+  @override
+  String get marketIfMissingSub =>
+      overlay.text('marketIfMissingSub') ?? base.marketIfMissingSub;
+
+  @override
+  String get marketMissingSimilar =>
+      overlay.text('marketMissingSimilar') ?? base.marketMissingSimilar;
+
+  @override
+  String get marketMissingChosen =>
+      overlay.text('marketMissingChosen') ?? base.marketMissingChosen;
+
+  @override
+  String get marketMissingRemove =>
+      overlay.text('marketMissingRemove') ?? base.marketMissingRemove;
+
+  @override
+  String marketInstead(String name) =>
+      overlay.format('marketInstead', {'name': name}) ??
+      base.marketInstead(name);
+
+  @override
+  String get marketChooseInstead =>
+      overlay.text('marketChooseInstead') ?? base.marketChooseInstead;
+
+  @override
+  String marketEachPrice(String price) =>
+      overlay.format('marketEachPrice', {'price': price}) ??
+      base.marketEachPrice(price);
+
+  @override
+  String get marketItemsEstimated =>
+      overlay.text('marketItemsEstimated') ?? base.marketItemsEstimated;
+
+  @override
+  String get marketEstimatedTotal =>
+      overlay.text('marketEstimatedTotal') ?? base.marketEstimatedTotal;
+
+  @override
+  String marketAtMostAfter(String amount) =>
+      overlay.format('marketAtMostAfter', {'amount': amount}) ??
+      base.marketAtMostAfter(amount);
+
+  @override
+  String get marketPickedCount =>
+      overlay.text('marketPickedCount') ?? base.marketPickedCount;
+
+  @override
+  String get marketBeingPickedTitle =>
+      overlay.text('marketBeingPickedTitle') ?? base.marketBeingPickedTitle;
+
+  @override
+  String get marketYourAnswer =>
+      overlay.text('marketYourAnswer') ?? base.marketYourAnswer;
+
+  @override
+  String marketOutTakeInstead(String name) =>
+      overlay.format('marketOutTakeInstead', {'name': name}) ??
+      base.marketOutTakeInstead(name);
+
+  @override
+  String get marketOutLabel =>
+      overlay.text('marketOutLabel') ?? base.marketOutLabel;
+
+  @override
+  String get marketSimilarLabel =>
+      overlay.text('marketSimilarLabel') ?? base.marketSimilarLabel;
+
+  @override
+  String get marketAccept => overlay.text('marketAccept') ?? base.marketAccept;
+
+  @override
+  String get marketNoAnswerSimilar =>
+      overlay.text('marketNoAnswerSimilar') ?? base.marketNoAnswerSimilar;
+
+  @override
+  String get marketNoAnswerRemove =>
+      overlay.text('marketNoAnswerRemove') ?? base.marketNoAnswerRemove;
+
+  @override
+  String marketWeighedAt(String amount, String price) =>
+      overlay.format('marketWeighedAt', {'amount': amount, 'price': price}) ??
+      base.marketWeighedAt(amount, price);
+
+  @override
+  String marketChoiceFor(String name) =>
+      overlay.format('marketChoiceFor', {'name': name}) ??
+      base.marketChoiceFor(name);
+
+  @override
+  String marketAcceptedFor(String name) =>
+      overlay.format('marketAcceptedFor', {'name': name}) ??
+      base.marketAcceptedFor(name);
+
+  @override
+  String get marketLeftOut =>
+      overlay.text('marketLeftOut') ?? base.marketLeftOut;
+
+  @override
+  String get marketWaitingPick =>
+      overlay.text('marketWaitingPick') ?? base.marketWaitingPick;
+
+  @override
+  String get marketWeighedFinal =>
+      overlay.text('marketWeighedFinal') ?? base.marketWeighedFinal;
+
+  @override
+  String marketWithinPercent(String percent) =>
+      overlay.format('marketWithinPercent', {'percent': percent}) ??
+      base.marketWithinPercent(percent);
+
+  @override
+  String get marketYouWereTold =>
+      overlay.text('marketYouWereTold') ?? base.marketYouWereTold;
+
+  @override
+  String get marketFinalPrice =>
+      overlay.text('marketFinalPrice') ?? base.marketFinalPrice;
+
+  @override
+  String marketWeighedOfLimit(String amount, String limit) =>
+      overlay.format('marketWeighedOfLimit', {
+        'amount': amount,
+        'limit': limit,
+      }) ??
+      base.marketWeighedOfLimit(amount, limit);
+
+  @override
+  String marketNotAmount(String amount) =>
+      overlay.format('marketNotAmount', {'amount': amount}) ??
+      base.marketNotAmount(amount);
+
+  @override
+  String marketSubAccepted(String name) =>
+      overlay.format('marketSubAccepted', {'name': name}) ??
+      base.marketSubAccepted(name);
+
+  @override
+  String marketSubChosen(String name) =>
+      overlay.format('marketSubChosen', {'name': name}) ??
+      base.marketSubChosen(name);
+
+  @override
+  String marketCardRefunded(String amount) =>
+      overlay.format('marketCardRefunded', {'amount': amount}) ??
+      base.marketCardRefunded(amount);
+
+  @override
+  String get marketCashFinal =>
+      overlay.text('marketCashFinal') ?? base.marketCashFinal;
+
+  @override
+  String marketBringingIt(String name) =>
+      overlay.format('marketBringingIt', {'name': name}) ??
+      base.marketBringingIt(name);
+
+  @override
+  String get marketCallCourier =>
+      overlay.text('marketCallCourier') ?? base.marketCallCourier;
+
+  @override
+  String get marketScanTitle =>
+      overlay.text('marketScanTitle') ?? base.marketScanTitle;
+
+  @override
+  String marketScanHint(String vendor) =>
+      overlay.format('marketScanHint', {'vendor': vendor}) ??
+      base.marketScanHint(vendor);
+
+  @override
+  String get marketScanWhy =>
+      overlay.text('marketScanWhy') ?? base.marketScanWhy;
+
+  @override
+  String get marketTypeBarcode =>
+      overlay.text('marketTypeBarcode') ?? base.marketTypeBarcode;
+
+  @override
+  String get marketBarcodeHint =>
+      overlay.text('marketBarcodeHint') ?? base.marketBarcodeHint;
+
+  @override
+  String get marketFind => overlay.text('marketFind') ?? base.marketFind;
+
+  @override
+  String marketBarcodeNotFound(String vendor) =>
+      overlay.format('marketBarcodeNotFound', {'vendor': vendor}) ??
+      base.marketBarcodeNotFound(vendor);
+
+  @override
+  String get marketCameraOff =>
+      overlay.text('marketCameraOff') ?? base.marketCameraOff;
+
+  @override
+  String get marketProposalClosed =>
+      overlay.text('marketProposalClosed') ?? base.marketProposalClosed;
+
+  @override
+  String marketShownCount(int count) =>
+      overlay.format('marketShownCount', {'count': count}) ??
+      base.marketShownCount(count);
+
+  @override
+  String vendorProposalYes(String name) =>
+      overlay.format('vendorProposalYes', {'name': name}) ??
+      base.vendorProposalYes(name);
+
+  @override
+  String get vendorProposalNo =>
+      overlay.text('vendorProposalNo') ?? base.vendorProposalNo;
+
+  @override
+  String get vendorBringIt =>
+      overlay.text('vendorBringIt') ?? base.vendorBringIt;
 }

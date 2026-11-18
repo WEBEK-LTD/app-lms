@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
+import 'package:yallapp/modules/market/screens/market_scanner_screen.dart'
+    show marketScannerCameraProvider;
 
 import 'fake_api.dart';
 import 'fixtures.dart';
@@ -166,29 +168,13 @@ Map<String, dynamic> zadPickOrder({String pay = 'card', bool proposal = true}) {
         aisle: cheese,
       ),
       zadLine(
-          id: 32,
-          name: 'Egyptian rice, 1 kg',
-          quantity: 2,
-          unitPrice: '38.00',
-          photo: 'egyptian-rice',
-          aisle: rice,
-        )
-        ..['proposal'] = proposal
-            ? {
-                'product': {
-                  'id': 77,
-                  'name': 'Short-grain rice, 1 kg',
-                  'image_url': zadPhoto('vermicelli-rice'),
-                },
-                'quantity': 2,
-                'price': egp('36.00'),
-                'expires_at': DateTime.now()
-                    .toUtc()
-                    .add(const Duration(minutes: 4, seconds: 32))
-                    .toIso8601String(),
-                'status': 'waiting',
-              }
-            : null,
+        id: 32,
+        name: 'Egyptian rice, 1 kg',
+        quantity: 2,
+        unitPrice: '38.00',
+        photo: 'egyptian-rice',
+        aisle: rice,
+      )..['proposal'] = proposal ? zadProposal() : null,
       zadLine(
         id: 33,
         name: 'Bananas',
@@ -346,6 +332,8 @@ TestApp zadVendorApp(
 }) => TestApp(
   api: api,
   wrap: wrap,
+  // The barcode typed, as on a phone without a camera.
+  overrides: [marketScannerCameraProvider.overrideWithValue(false)],
   appType: AppType.food,
   build: (b) => b.copyWith(role: AppRole.vendor, appName: 'Zad Partner'),
   signedIn: true,
@@ -355,3 +343,23 @@ TestApp zadVendorApp(
     ...preferences,
   },
 );
+
+/// The short-grain rice offered for the Egyptian rice, waiting (or
+/// [answer]ed).
+Map<String, dynamic> zadProposal({String? answer}) {
+  final now = DateTime.now().toUtc();
+  return {
+    'product_id': 77,
+    'name': 'Short-grain rice, 1 kg',
+    'image_url': zadPhoto('vermicelli-rice'),
+    'quantity': 2,
+    'total': egp('72.00'),
+    'difference': egp('-4.00'),
+    'proposed_at': now.subtract(const Duration(seconds: 28)).toIso8601String(),
+    'expires_at': now
+        .add(const Duration(minutes: 4, seconds: 32))
+        .toIso8601String(),
+    'answer': answer,
+    'answered_by': answer == null ? null : 'customer',
+  };
+}

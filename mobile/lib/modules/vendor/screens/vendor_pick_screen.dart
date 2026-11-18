@@ -41,11 +41,13 @@ const vendorProposalRefresh = Duration(seconds: 5);
 /// Where a line stands in the picking.
 enum PickState { open, waiting, done }
 
-/// 115.71 A line's place in the picking: done (picked, out or swapped, and
-/// no question waiting), waiting for the customer's answer, or still to do.
+/// 115.71 A line's place in the picking: done (picked, out or swapped),
+/// waiting for the customer's answer, or still to do (with the customer's
+/// answer to bring or leave out, once they gave it).
 PickState pickStateOf(VendorOrder o, MarketOrderLine l, DateTime now) {
-  if (o.proposals[l.id]?.waitingAt(now) ?? false) return PickState.waiting;
-  return l.outcome == null ? PickState.open : PickState.done;
+  if (l.outcome != null) return PickState.done;
+  if (l.proposal?.waiting(now) ?? false) return PickState.waiting;
+  return PickState.open;
 }
 
 /// 115.71 Whether the order can be marked ready: every line done, no
@@ -92,12 +94,7 @@ class _VendorPickScreenState extends ConsumerState<VendorPickScreen> {
       final o = _latest;
       if (!mounted || o == null) return;
       // The customer's answer, or the order's choice once the time is up.
-      if (o.proposals.isNotEmpty &&
-          o.lines.any(
-            (l) =>
-                pickStateOf(o, l, _now) == PickState.waiting ||
-                (o.proposals[l.id] != null && l.outcome == null),
-          )) {
+      if (o.lines.any((l) => pickStateOf(o, l, _now) == PickState.waiting)) {
         ref.invalidate(vendorOrderProvider(widget.orderId));
       }
     });
@@ -421,6 +418,7 @@ class _VendorPickScreenState extends ConsumerState<VendorPickScreen> {
                           onOpen: () => setState(() => _openId = l.id),
                           onOut: () => _pick(o, l, PickOutcome.missing),
                           onSwap: () => _swap(o, l),
+                          onBring: () => _pick(o, l, PickOutcome.substituted),
                           onPicked: (q) =>
                               _pick(o, l, PickOutcome.picked, quantity: q),
                         ),
@@ -457,7 +455,9 @@ class _VendorPickScreenState extends ConsumerState<VendorPickScreen> {
                         disabledForegroundColor: p.onAccent,
                       ),
                       icon: Icon(
-                        o.pickup ? Symbols.storefront_rounded : Symbols.two_wheeler_rounded,
+                        o.pickup
+                            ? Symbols.storefront_rounded
+                            : Symbols.two_wheeler_rounded,
                         fill: 1,
                       ),
                       label: Text(
@@ -541,6 +541,7 @@ class _PickCard extends StatelessWidget {
     required this.onOut,
     required this.onSwap,
     required this.onPicked,
+    required this.onBring,
   });
 
   final VendorOrder order;
@@ -556,6 +557,7 @@ class _PickCard extends StatelessWidget {
   final VoidCallback onOut;
   final VoidCallback onSwap;
   final ValueChanged<double?> onPicked;
+  final VoidCallback onBring;
 
   @override
   Widget build(BuildContext context) {
@@ -565,7 +567,7 @@ class _PickCard extends StatelessWidget {
     final weighed = l.unit != ProductUnit.item;
     final done = state == PickState.done;
     final waiting = state == PickState.waiting;
-    final proposal = order.proposals[l.id];
+    final proposal = l.proposal;
     final pay = order.payMethod;
     final choice = switch (l.ifMissing) {
       MarketIfMissing.similar => (
@@ -736,7 +738,7 @@ class _PickCard extends StatelessWidget {
     );
     final body = <Widget>[head];
     if (waiting && proposal != null) {
-      final left = proposal.expiresAt?.difference(now);
+      final left = proposal.expiresAt.difference(now);
       body.add(
         Container(
           key: ValueKey('vendor-pick-${l.id}-waiting'),
@@ -773,9 +775,7 @@ class _PickCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      l10n.vendorAskedCustomer(
-                        minutesSeconds(left ?? Duration.zero),
-                      ),
+                      l10n.vendorAskedCustomer(minutesSeconds(left)),
                       style: TextStyle(fontSize: 12.5, color: p.textSecondary),
                     ),
                   ],
@@ -786,7 +786,64 @@ class _PickCard extends StatelessWidget {
         ),
       );
     }
-    if (open && !done && !waiting) {
+    // 115.71 The customer answered: bring what they took, or leave it out
+    // (another item can be offered after a no).
+    final answer = !done && !waiting ? proposal?.answer : null;
+    if (answer != null) {
+      body.add(
+        Container(
+          key: ValueKey('vendor-pick-${l.id}-answer'),
+          margin: const EdgeInsets.only(top: 9),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: answer == 'accepted' ? vendorTint(p) : p.surfaceMuted,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Text(
+            answer == 'accepted'
+                ? l10n.vendorProposalYes(proposal!.name)
+                : l10n.vendorProposalNo,
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              color: answer == 'accepted' ? vendorTintInk(p) : p.text,
+            ),
+          ),
+        ),
+      );
+    }
+    if (open && answer == 'accepted') {
+      body.addAll([
+        const SizedBox(height: 9),
+        Row(
+          children: [
+            Expanded(
+              flex: 10,
+              child: _PickButton(
+                key: ValueKey('vendor-pick-${l.id}-missing'),
+                icon: Symbols.remove_shopping_cart_rounded,
+                label: l10n.vendorOut,
+                background: p.danger.withValues(alpha: p.isDark ? 0.16 : 0.12),
+                foreground: p.danger,
+                onTap: busy ? null : onOut,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              flex: 14,
+              child: _PickButton(
+                key: ValueKey('vendor-pick-${l.id}-bring'),
+                icon: Symbols.check_rounded,
+                label: l10n.vendorBringIt,
+                background: p.primary,
+                foreground: p.onPrimary,
+                onTap: busy ? null : onBring,
+              ),
+            ),
+          ],
+        ),
+      ]);
+    } else if (open && !done && !waiting) {
       final typedNum = int.tryParse(typed);
       final quantity = weighed && typedNum != null
           ? keypadToQuantity(typedNum, l.unit)
@@ -1180,7 +1237,10 @@ class _Keypad extends StatelessWidget {
           Row(
             children: [
               for (final k in ['7', '8', '9', '0']) key(k),
-              key('⌫', child: Icon(Symbols.backspace_rounded, size: 18, color: p.text)),
+              key(
+                '⌫',
+                child: Icon(Symbols.backspace_rounded, size: 18, color: p.text),
+              ),
               key(
                 'scale',
                 onTap: onScale,

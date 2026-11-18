@@ -1,0 +1,2 @@
+/* 115.40 Why the app asks for the camera, in the app's three languages. */
+"NSCameraUsageDescription" = "Kamera, sohbette gönderdiğiniz fotoğraf ve videoları çeker, bir ürünün barkodunu okuyarak onu mağazada bulur, uygulamada açtığınız ve bunu isteyen sayfalarda (görüntülü görüşme veya kimlik doğrulama gibi) sizi gösterir ve bu sayfalara yüklediğiniz fotoğrafları çeker.";

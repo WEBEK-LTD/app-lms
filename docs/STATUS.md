@@ -86,6 +86,28 @@ and the order, and shows them in the basket, the checkout and the order.
 No migration and no contract change. Still to check on a real phone: the
 pushes arriving (customer app, vendor app, the Vendor tab) and each tap
 opening its screen, and the dish sheet on a small screen.
+Roadmap 115.40–115.47 (the supermarket in the customer app, the audit's
+Stage 3; on `wip-market-app`, not released yet): Zad Market's home has
+its own search with a barcode button, its offers, its departments as
+arches and "Buy again"; a department pages its products by the server's
+cursor with aisle chips and filters; a product sold by weight has a
+stepper in its own steps between its least and most, the estimate, the
+most a cash order comes to and the card's "You pay the estimate now; if
+it weighs less, we refund the difference"; the basket's checkout sets "If
+something is missing" once for the order and per item (a similar item, my
+choice, leave it out); the order being picked asks for a similar item
+live, with 5 minutes to accept it or leave it out before the order's
+choice applies, then shows the weighed final price against the estimate
+line by line, and the courier by first name with a masked call when the
+app has a call relay (none yet: `courier.call` is null). Contract:
+`if_missing` on the cart and the order, `MarketOrderLine.proposal`, the
+vendor's proposal and the customer's answer routes,
+`MarketTracking.courier.call`; lib/market/substitutes.ts; migration 0145
+(drizzle-kit, `market_orders.if_missing`). The app reads Stage 1's catalog
+fields (`sold_by`, `sku`, `barcode`, `stock`, `estimated_total`,
+`weighed_total`, `estimated`, `next_cursor`) when the server sends them.
+`mobile_scanner` 7.5.0 is new. `CLIENT_APP_RELEASE` is unchanged (the
+integration branch sets it).
 
 Roadmap 157 (the template's categories are the shop's): Leqaa's occasion
 rings, chips and ticker and its collections' bento, arches and cards were
@@ -1065,6 +1087,46 @@ folded, Studio's plans on a night band, every kind of app each product
 makes, a few questions and a closing band in the night. Only the plans for
 sale show, with their prices from Admin › Plans.
 
+Roadmap 115.24–115.28 (the marketplace's catalog: stock, editing, search
+at scale): a grocery's or shop's counted stock goes down when an order is
+placed, all of its lines or none, never below 0 (the store locks each
+product's row in a transaction on MySQL and MariaDB: two customers ordering
+the last one get one order between them, the other "out of stock"), and
+comes back once on a cancel, a refusal, a line picked as missing or swapped
+(the substitute's stock is taken instead), or an online payment left
+unfinished for 30 minutes (the order cancelled, "Payment not completed",
+its coupon's use freed). Out of stock is gone from customers' lists and
+search at once, and back once stocked. Every change, the place's and
+the owner's and an import's too, is in the `market_stock_moves` ledger
+(who, why, which order and line, before and after); the panel shows each
+product's history, with Undo for the last hand change. At 0 a product is
+sold out by itself and back once stocked; `stock` null isn't counted (D9);
+items sold by weight count their steps (10 kg at 0.25 kg is 40), and the
+pages, the vendor routes and imports read and write kilos. The place's
+owner and managers add, change and delete products (names in en/ar/tr,
+price, by the unit or by weight with its step, least and most, SKU,
+barcode, stock, department and aisle, on or off), departments and aisles
+(their order by drag or arrows) from the partner panel's Menu & stock and
+from the vendor routes (`POST/PATCH/DELETE /vendor/products`,
+`/vendor/departments`, `/vendor/aisles`, their `order`); order takers
+only stock. Each change a place makes is in `market_catalog_changes`
+(before and after), on the owner's new Products page of the place
+(Restaurants › the place › Open the products) with Undo; the owner edits
+any place's catalog there too, each change in the team's audit. The owner's
+place form has its kind (restaurant, grocery, shop). Search reads a
+normalized `search_name` (lower case, Arabic alef forms, taa marbuta, yaa
+and hamza, Turkish i and ı, accents, Arabic-Indic and Persian digits),
+from the start of the name with an index, then from a word's start; lists
+page by a keyset `cursor` (nothing counted) and page numbers count up to
+10,000; `/market/search` reads every shop's products in one query. Imports
+read Arabic-Indic digits and marks. `MarketProduct` has `names`, `sku`,
+`barcode`, `stock` (customers see it only when 10 or fewer are left),
+`sold_by` and its department and aisle; order lines `estimated_total` and
+`weighed_total`, the order `estimated`. Migration `0145_market_catalog`
+(renumbered at merge after the other branches' 0145). Checked on memory and
+on MariaDB 10.11 with a 50,000-product catalog (each page, search and code
+lookup under 400 ms).
+
 ## To verify against real services before release
 
 - **115.70–115.74 The vendor app on a real phone.** The ringing (system
@@ -1153,6 +1215,24 @@ test environment:
   JavaScript channels as user scripts), and Android's WebView keeps the
   Payment Request API off unless the app turns it on, with each app's
   Google Pay approval (ROADMAP 155.6). The card form works there as before.
+
+- 115.24 Unpaid online orders are expired by the frequent job (every 5
+  minutes): an abandoned payment holds its stock for 30 to 35 minutes.
+- 115.24 Products saved before the search name get it the first time
+  their place's catalog is searched, 500 at a time: a big catalog finds
+  everything after a few searches (or a one-off backfill).
+- 115.24 A weighed line's stock is taken as ordered; a different picked
+  weight doesn't change it. A restaurant's menu is still edited by the
+  app's owner only (Stage 6).
+
+- 115.47 No call relay: `MarketTracking.courier.call` is always null, so
+  the app shows no call button for the app's courier yet.
+- 115.40 Picking still caps a substitute's price at the line's own
+  (`pickMarketOrder`, lib/market/flow.ts), also when the customer accepted
+  a dearer similar item at its own price; the final price then shows less
+  than the proposal said. To lift in Stage 1's or Stage 4's flow work.
+- 115.46 The barcode camera (`mobile_scanner`) is tested only typed by
+  hand; the camera itself needs a real phone.
 - 138 An account's limit can be passed by one or two apps when several
   new apps are given accounts in the same instant (each app still gets
   exactly one account, written once). Assignment reads the settings

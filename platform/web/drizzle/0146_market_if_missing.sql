@@ -1,0 +1,1 @@
+ALTER TABLE `market_orders` ADD `if_missing` varchar(8);

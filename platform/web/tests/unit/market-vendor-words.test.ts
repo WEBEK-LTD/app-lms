@@ -38,7 +38,7 @@ const VENDOR_APP_WORDS: Record<string, keyof PanelWords> = {
   vendorPayCash: "payCash",
   vendorPayCard: "payCard",
   vendorPayWallet: "payWallet",
-  vendorByWeight: "byWeight",
+  vendorByWeight: "byWeightCount",
   vendorItemCount: "items",
   vendorWeighTag: "weighTag",
   vendorMoreItems: "moreItems",
@@ -93,7 +93,7 @@ const VENDOR_APP_WORDS: Record<string, keyof PanelWords> = {
   vendorSwapAsked: "swapAsked",
   vendorBringTheirPick: "bringTheirPick",
   vendorStockSummary: "stockSummary",
-  vendorStockHint: "stockHint",
+  vendorStockHint: "stockSearchHint",
   vendorFilterAll: "filterAll",
   vendorFilterOut: "outOfStock",
   vendorFilterWeight: "filterWeight",
@@ -161,6 +161,9 @@ const VENDOR_APP_WORDS: Record<string, keyof PanelWords> = {
   vendorTabPicking: "pickTab",
   vendorPickingEmpty: "pickingEmpty",
   vendorOffersOwners: "offersOwners",
+  vendorProposalYes: "proposalYes",
+  vendorProposalNo: "proposalNo",
+  vendorBringIt: "bringIt",
 };
 
 const ARB_DIR = join(__dirname, "../../../../mobile/lib/l10n");

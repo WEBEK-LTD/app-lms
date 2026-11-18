@@ -1263,4 +1263,10 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "This order's delivery can't move to that stage.": "Bu siparişin teslimatı o aşamaya geçemez.",
   "The request isn't valid.": "İstek geçerli değil.",
   "This order doesn't need a refund.": "Bu sipariş iade gerektirmiyor.",
+  // 115.24 The catalog's editing and stock.
+  "Restaurants have a menu, not products.": "Restoranların ürünleri değil menüsü vardır.",
+  "Restaurants have a menu, not departments.": "Restoranların reyonları değil menüsü vardır.",
+  "Enter the stock as a number.": "Stoğu sayı olarak girin.",
+  "{0} is no longer available.": "{0} artık mevcut değil.",
+  "Order at least {0} of {1}.": "{1} ürününden en az {0} sipariş edin.",
 };

@@ -172,7 +172,7 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
     final unpicked =
         picks &&
         (o.lines.any((l) => l.outcome == null) ||
-            o.proposals.values.any((p) => p.waitingAt(now)));
+            o.lines.any((l) => l.proposal?.waiting(now) ?? false));
     return switch (o.status) {
       MarketOrderStatus.placed => [
         PrimaryButton(

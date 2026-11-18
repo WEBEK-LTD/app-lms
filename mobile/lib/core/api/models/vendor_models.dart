@@ -202,23 +202,18 @@ class VendorOrder {
     this.courierName,
     this.timeline = const [],
     this.aisles = const {},
-    this.proposals = const {},
   });
 
   factory VendorOrder.fromJson(Json json) {
     final payment = asJson(json['payment'], 'payment');
-    // 115.71 Each line's aisle (one order's own read) and its live
-    // substitute, by line id, read beside the line itself.
+    // 115.71 Each line's aisle (one order's own read), by line id, read
+    // beside the line itself.
     final aisles = <int, VendorAisle>{};
-    final proposals = <int, VendorProposal>{};
     for (final raw in listOf(json, 'lines', (j) => j)) {
       final id = optInt(raw, 'id');
       if (id == null) continue;
       if (optObject(raw, 'aisle', VendorAisle.fromJson) case final a?) {
         aisles[id] = a;
-      }
-      if (optObject(raw, 'proposal', VendorProposal.fromJson) case final p?) {
-        proposals[id] = p;
       }
     }
     final customer = optObject(json, 'customer', (j) => j) ?? const {};
@@ -266,7 +261,6 @@ class VendorOrder {
             ),
       ],
       aisles: aisles,
-      proposals: proposals,
     );
   }
 
@@ -297,9 +291,6 @@ class VendorOrder {
 
   /// 115.71 Each line's aisle by line id (one order's own read only).
   final Map<int, VendorAisle> aisles;
-
-  /// 115.71 The substitute offered to the customer for a line, by line id.
-  final Map<int, VendorProposal> proposals;
 
   bool get pickup => fulfilment == MarketFulfilment.pickup;
 
@@ -335,81 +326,25 @@ class VendorAisle {
   final int position;
 }
 
-/// 115.71 (D2) A substitute the picker offered and the customer answers
-/// within 5 minutes (`MarketOrderLine.proposal`): the item, how many, its
-/// price and when the question ends.
-class VendorProposal {
-  const VendorProposal({
-    required this.name,
-    required this.quantity,
-    this.productId,
-    this.imageUrl,
-    this.price,
-    this.expiresAt,
-    this.status,
-  });
-
-  factory VendorProposal.fromJson(Json json) {
-    final product = optObject(json, 'product', (j) => j) ?? const {};
-    return VendorProposal(
-      productId: optInt(product, 'id') ?? optInt(json, 'product_id'),
-      name: optString(product, 'name') ?? optString(json, 'name') ?? '',
-      imageUrl: optString(product, 'image_url'),
-      quantity: optDouble(json, 'quantity') ?? 1,
-      price: optObject(json, 'price', MarketMoney.fromJson),
-      expiresAt: optDate(json, 'expires_at'),
-      status: optString(json, 'status'),
-    );
-  }
-
-  final int? productId;
-  final String name;
-  final String? imageUrl;
-  final double quantity;
-  final MarketMoney? price;
-  final DateTime? expiresAt;
-
-  /// waiting, accepted, declined or expired, when the server says.
-  final String? status;
-
-  /// Still waiting for the customer's answer at [now].
-  bool waitingAt(DateTime now) =>
-      (status == null || status == 'waiting' || status == 'pending') &&
-      (expiresAt == null || expiresAt!.isAfter(now));
-}
-
 /// 115.72 A product as the place's staff see it in Stock: the product,
 /// with its own codes and counted stock (`MarketProduct.sku`, `barcode`,
 /// `stock`, `sold_by`, shown to the vendor only).
 class VendorStockItem {
-  const VendorStockItem({
-    required this.product,
-    this.sku,
-    this.barcode,
-    this.stock,
-    this.soldBy,
-  });
+  const VendorStockItem({required this.product});
 
-  factory VendorStockItem.fromJson(Json json) => VendorStockItem(
-    product: MarketProduct.fromJson(json),
-    sku: optString(json, 'sku'),
-    barcode: optString(json, 'barcode'),
-    stock: optInt(json, 'stock'),
-    soldBy: optString(json, 'sold_by'),
-  );
+  factory VendorStockItem.fromJson(Json json) =>
+      VendorStockItem(product: MarketProduct.fromJson(json));
 
   final MarketProduct product;
-  final String? sku;
-  final String? barcode;
 
-  /// Counted stock; null when not counted (D9).
-  final int? stock;
+  String? get sku => product.sku;
+  String? get barcode => product.barcode;
 
-  /// `unit` or `weight` when the server says; else by the product's unit.
-  final String? soldBy;
+  /// Counted stock in the product's unit; null when not counted (D9).
+  double? get stock => product.stock;
 
   int get id => product.id;
-  bool get byWeight => soldBy == null ? product.byWeight : soldBy == 'weight';
+  bool get byWeight => product.byWeight;
   bool get onOffer => product.wasPrice != null;
 }
 

@@ -12712,7 +12712,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vendorInStock => 'In stock';
 
   @override
-  String vendorInStockLeft(int n) {
+  String vendorInStockLeft(String n) {
     return 'In stock · $n left';
   }
 
@@ -12957,4 +12957,379 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get vendorOffersOwners =>
       'Offers are for the place\'s owner and managers.';
+
+  @override
+  String marketSearchStore(String name) {
+    return 'Search $name';
+  }
+
+  @override
+  String get marketScanBarcode => 'Scan a barcode';
+
+  @override
+  String get marketDepartments => 'Departments';
+
+  @override
+  String marketSeeAllCount(int count) {
+    return 'All $count';
+  }
+
+  @override
+  String get marketBuyAgain => 'Buy again';
+
+  @override
+  String marketFromYourOrders(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'From your $count orders',
+      one: 'From your last order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketEstimatedAmount(String amount) {
+    return 'Estimated $amount';
+  }
+
+  @override
+  String get marketGoCheckout => 'Checkout';
+
+  @override
+  String get marketOfferLabel => 'Offer';
+
+  @override
+  String get marketThisWeek => 'This week';
+
+  @override
+  String marketProductCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products',
+      one: '1 product',
+      zero: 'No products',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketAisleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count aisles',
+      one: '1 aisle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get marketAll => 'All';
+
+  @override
+  String get marketSortPopular => 'Popular';
+
+  @override
+  String get marketFilterOffers => 'Offers';
+
+  @override
+  String get marketByWeight => 'By weight';
+
+  @override
+  String get marketFilterInStock => 'In stock';
+
+  @override
+  String marketShownOf(int shown, int total) {
+    return '$shown of $total shown';
+  }
+
+  @override
+  String get marketLoadingMore => 'Loading more…';
+
+  @override
+  String get marketNothingHere => 'Nothing here yet';
+
+  @override
+  String marketFreeDeliveryLeft(String amount) {
+    return 'Add $amount for free delivery';
+  }
+
+  @override
+  String get marketFreeDeliveryReached => 'Free delivery on this order';
+
+  @override
+  String marketResultsFor(String query) {
+    return 'Results for “$query”';
+  }
+
+  @override
+  String get marketSoldByWeight => 'Sold by weight';
+
+  @override
+  String marketPer100g(String amount) {
+    return '$amount / 100 g';
+  }
+
+  @override
+  String marketInSteps(String amount) {
+    return 'in steps of $amount';
+  }
+
+  @override
+  String get marketEstimatedPrice => 'Estimated price';
+
+  @override
+  String get marketAtMostAfterWeighing => 'At most, after weighing';
+
+  @override
+  String get marketWeighFinal => 'The final price comes after weighing.';
+
+  @override
+  String get marketWeighCard =>
+      'You pay the estimate now; if it weighs less, we refund the difference.';
+
+  @override
+  String marketWeighCash(String amount) {
+    return 'Cash: you pay what the scale reads, at most $amount.';
+  }
+
+  @override
+  String get marketByCard => 'By card';
+
+  @override
+  String get marketPickerSliced => 'Sliced';
+
+  @override
+  String get marketPickerOnePiece => 'One piece';
+
+  @override
+  String get marketPickerNote => 'Note';
+
+  @override
+  String get marketPickerNoteHint => 'A note for the picker';
+
+  @override
+  String marketAddWeighed(String amount, String price) {
+    return 'Add $amount · about $price';
+  }
+
+  @override
+  String marketAddUnits(String count, String price) {
+    return 'Add $count · $price';
+  }
+
+  @override
+  String marketUpdateCart(String price) {
+    return 'Update cart · $price';
+  }
+
+  @override
+  String marketAmountG(String amount) {
+    return '$amount g';
+  }
+
+  @override
+  String marketAmountKg(String amount) {
+    return '$amount kg';
+  }
+
+  @override
+  String marketAmountL(String amount) {
+    return '$amount L';
+  }
+
+  @override
+  String get marketIfMissingTitle => 'If something is missing';
+
+  @override
+  String get marketIfMissingSub =>
+      'For the whole order. Change any item below.';
+
+  @override
+  String get marketMissingSimilar => 'Similar item';
+
+  @override
+  String get marketMissingChosen => 'My choice';
+
+  @override
+  String get marketMissingRemove => 'Leave it out';
+
+  @override
+  String marketInstead(String name) {
+    return 'Instead: $name';
+  }
+
+  @override
+  String get marketChooseInstead => 'Choose what to bring instead';
+
+  @override
+  String marketEachPrice(String price) {
+    return '$price each';
+  }
+
+  @override
+  String get marketItemsEstimated => 'Items, estimated';
+
+  @override
+  String get marketEstimatedTotal => 'Estimated total';
+
+  @override
+  String marketAtMostAfter(String amount) {
+    return 'At most $amount after weighing';
+  }
+
+  @override
+  String get marketPickedCount => 'picked';
+
+  @override
+  String get marketBeingPickedTitle => 'Your order is being picked';
+
+  @override
+  String get marketYourAnswer => 'Your answer, please';
+
+  @override
+  String marketOutTakeInstead(String name) {
+    return '$name is out. Take this instead?';
+  }
+
+  @override
+  String get marketOutLabel => 'Out';
+
+  @override
+  String get marketSimilarLabel => 'Similar';
+
+  @override
+  String get marketAccept => 'Accept';
+
+  @override
+  String get marketNoAnswerSimilar =>
+      'No answer in time? We follow your choice: a similar item.';
+
+  @override
+  String get marketNoAnswerRemove =>
+      'No answer in time? We follow your choice: leave it out.';
+
+  @override
+  String marketWeighedAt(String amount, String price) {
+    return 'Weighed $amount · $price';
+  }
+
+  @override
+  String marketChoiceFor(String name) {
+    return 'Your choice, for $name';
+  }
+
+  @override
+  String marketAcceptedFor(String name) {
+    return 'You accepted it, for $name';
+  }
+
+  @override
+  String get marketLeftOut => 'Left out';
+
+  @override
+  String get marketWaitingPick => 'Waiting to be picked';
+
+  @override
+  String get marketWeighedFinal => 'Weighed and final';
+
+  @override
+  String marketWithinPercent(String percent) {
+    return 'Within $percent%';
+  }
+
+  @override
+  String get marketYouWereTold => 'You were told';
+
+  @override
+  String get marketFinalPrice => 'Final price';
+
+  @override
+  String marketWeighedOfLimit(String amount, String limit) {
+    return 'Weighed items came to $amount of the limit of $limit';
+  }
+
+  @override
+  String marketNotAmount(String amount) {
+    return 'not $amount';
+  }
+
+  @override
+  String marketSubAccepted(String name) {
+    return '$name, you accepted';
+  }
+
+  @override
+  String marketSubChosen(String name) {
+    return '$name, your choice';
+  }
+
+  @override
+  String marketCardRefunded(String amount) {
+    return 'You paid the estimate by card; the difference of $amount comes back to your card.';
+  }
+
+  @override
+  String get marketCashFinal =>
+      'You pay the final price in cash when it arrives.';
+
+  @override
+  String marketBringingIt(String name) {
+    return '$name is bringing it';
+  }
+
+  @override
+  String get marketCallCourier => 'Call the courier';
+
+  @override
+  String get marketScanTitle => 'Scan a barcode';
+
+  @override
+  String marketScanHint(String vendor) {
+    return 'Point the camera at the barcode. It looks in $vendor only.';
+  }
+
+  @override
+  String get marketScanWhy =>
+      'The camera reads barcodes to find products in this shop. Nothing is recorded.';
+
+  @override
+  String get marketTypeBarcode => 'Type the code';
+
+  @override
+  String get marketBarcodeHint => 'The numbers under the barcode';
+
+  @override
+  String get marketFind => 'Find';
+
+  @override
+  String marketBarcodeNotFound(String vendor) {
+    return '$vendor has nothing with this barcode.';
+  }
+
+  @override
+  String get marketCameraOff =>
+      'The camera is off for this app. Type the code instead.';
+
+  @override
+  String get marketProposalClosed =>
+      'The time to answer has passed, so your order\'s choice was used.';
+
+  @override
+  String marketShownCount(int count) {
+    return '$count shown';
+  }
+
+  @override
+  String vendorProposalYes(String name) {
+    return '$name: the customer said yes';
+  }
+
+  @override
+  String get vendorProposalNo => 'The customer said to leave it out';
+
+  @override
+  String get vendorBringIt => 'Bring it';
 }

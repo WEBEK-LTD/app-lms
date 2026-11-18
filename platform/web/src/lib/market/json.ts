@@ -8,6 +8,7 @@ import type {
   MarketCoupon,
   MarketOrder,
   MarketOrderLine,
+  MarketNames,
   MarketProduct,
   Restaurant,
   RestaurantMenu,
@@ -18,6 +19,7 @@ import { restaurantRating } from "../food/service";
 import { currencyDecimals, formatMinor, fromMinor } from "./currency";
 import { vendorDelivery } from "./delivery";
 import { productPhotos } from "./photos";
+import { stockAmount } from "./stock";
 import type { OrderMoney, PriceLineKind } from "./money";
 import type { Statement } from "./statement";
 import { activeDelay, delayJson, mayEditPlace, upcomingClosedDates } from "./vendor-controls";
@@ -108,10 +110,16 @@ export function vendorSummaryJson(v: Restaurant, near: VendorNear, currency: str
 
 const TAGS = new Set(["spicy", "vegetarian", "vegan", "new", "popular", "organic", "frozen", "age_restricted"]);
 
-export function productJson(p: MarketProduct, currency: string, assetUrl: AssetUrl) {
+/** 115.24 Customers see a counted product's stock only when few are left; the vendor always. */
+export const LOW_STOCK = 10;
+
+export function productJson(p: MarketProduct, currency: string, assetUrl: AssetUrl, options: { lang?: string | null; vendor?: boolean } = {}) {
+  const stock = p.stock === null ? null : stockAmount(p, p.stock);
+  const lang = options.lang?.slice(0, 2) as keyof MarketNames | undefined;
   return {
     id: p.id,
-    name: p.name,
+    // 115.24 In the customer's language when the place gave one.
+    name: (lang && p.names?.[lang]) || p.name,
     description: p.description,
     // 115 Uploaded photos only: a picture link from an import is fetched into a photo first (lib/market/photos.ts).
     image_url: p.imageAssetId ? assetUrl(p.imageAssetId) : null,
@@ -125,6 +133,14 @@ export function productJson(p: MarketProduct, currency: string, assetUrl: AssetU
     in_stock: p.inStock && (p.stock === null || p.stock > 0),
     choices: [],
     tags: p.tags.filter((t) => TAGS.has(t)),
+    // 115.24
+    names: p.names ?? {},
+    sku: p.sku,
+    barcode: p.barcode,
+    stock: options.vendor || (stock !== null && p.stock! <= LOW_STOCK) ? stock : null,
+    sold_by: { kind: p.unit === "item" ? "unit" : "weight", unit: p.unit, step: p.step, min: p.minQuantity ?? p.step, max: p.maxQuantity },
+    department_id: p.departmentId,
+    aisle_id: p.aisleId,
   };
 }
 
@@ -223,10 +239,29 @@ export function orderLineJson(l: MarketOrderLine, currency: string) {
     unit_price: money(l.unitPrice, currency),
     before_discount: l.wasUnitPrice !== null && l.wasUnitPrice > l.unitPrice ? money(Math.round(l.wasUnitPrice * l.quantity), currency) : null,
     total: money(l.total, currency),
+    // 115.24 The price as ordered, and for items sold by weight the weighed one once picked.
+    estimated_total: money(Math.round(l.unitPrice * l.quantity + 1e-9), currency),
+    weighed_total: l.unit !== "item" && l.outcome === "picked" ? money(l.total, currency) : null,
     if_missing: l.ifMissing,
     outcome: l.outcome,
     picked_quantity: l.pickedQuantity,
     substitute: l.substitute ? { product_id: l.substitute.productId, name: l.substitute.name, quantity: l.substitute.quantity, total: money(l.substitute.total, currency) } : null,
+    // 115.40 The picker's proposed item, while it's asked and after it's answered.
+    proposal: l.proposal
+      ? {
+          product_id: l.proposal.productId,
+          name: l.proposal.name,
+          image_url: l.proposal.imageUrl,
+          quantity: l.proposal.quantity,
+          total: money(l.proposal.total, currency),
+          // Against the line as ordered, so it stays the same once picked.
+          difference: money(l.proposal.total - Math.round(l.unitPrice * l.quantity + 1e-9), currency),
+          proposed_at: l.proposal.proposedAt,
+          expires_at: l.proposal.expiresAt,
+          answer: l.proposal.answer,
+          answered_by: l.proposal.answeredBy,
+        }
+      : null,
   };
 }
 
@@ -255,8 +290,13 @@ export function customerOrderJson(
     fulfilment: o.fulfilment,
     scheduled_for: o.scheduledFor ? o.scheduledFor.toISOString() : null,
     lines: o.lines.map((l) => orderLineJson(l, c)),
+    if_missing: o.ifMissing ?? null,
     price: priceLinesJson(o.money, c, input.taxLabel),
     total: money(o.money.total, c),
+    // 115.24 Why it was cancelled or turned down, in words for the customer ("Payment not completed").
+    status_note: o.status === "cancelled" || o.status === "rejected" ? (o.rejection?.note ?? null) : null,
+    // 115.24 True while items sold by weight aren't weighed yet: the total is an estimate until then.
+    estimated: o.lines.some((l) => l.unit !== "item" && l.outcome === null),
     payment: { method: o.paymentMethod, status: o.paymentStatus, wallet_used: o.money.wallet > 0 ? money(o.money.wallet, c) : null },
     delivery_by: o.fulfilment === "pickup" ? null : o.deliveryBy,
     ready_at: o.readyAt ? o.readyAt.toISOString() : null,
@@ -265,7 +305,8 @@ export function customerOrderJson(
     tracking: input.tracking
       ? {
           mode: input.tracking.mode,
-          courier: input.tracking.courier ? { name: input.tracking.courier.name, photo_url: input.tracking.courier.photoUrl, vehicle: input.tracking.courier.vehicle } : null,
+          // 115.40 `call`: a masked line to the app's courier; null until the app has a call relay.
+          courier: input.tracking.courier ? { name: input.tracking.courier.name, photo_url: input.tracking.courier.photoUrl, vehicle: input.tracking.courier.vehicle, call: null } : null,
           position: input.tracking.position,
           updated_at: input.tracking.updatedAt ? input.tracking.updatedAt.toISOString() : null,
           route: [],

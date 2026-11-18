@@ -13110,7 +13110,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vendorInStock => 'متوفر';
 
   @override
-  String vendorInStockLeft(int n) {
+  String vendorInStockLeft(String n) {
     return 'متوفر · بقي $n';
   }
 
@@ -13356,4 +13356,382 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get vendorOffersOwners => 'العروض لمالك المكان ومديريه.';
+
+  @override
+  String marketSearchStore(String name) {
+    return 'ابحث في $name';
+  }
+
+  @override
+  String get marketScanBarcode => 'امسح الباركود';
+
+  @override
+  String get marketDepartments => 'الأقسام';
+
+  @override
+  String marketSeeAllCount(int count) {
+    return 'الكل ($count)';
+  }
+
+  @override
+  String get marketBuyAgain => 'اشترِ مجددًا';
+
+  @override
+  String marketFromYourOrders(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'من طلباتك الـ$count',
+      few: 'من طلباتك الـ$count',
+      two: 'من طلبيك السابقين',
+      one: 'من طلبك السابق',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketEstimatedAmount(String amount) {
+    return 'تقديريًا $amount';
+  }
+
+  @override
+  String get marketGoCheckout => 'الدفع';
+
+  @override
+  String get marketOfferLabel => 'عرض';
+
+  @override
+  String get marketThisWeek => 'هذا الأسبوع';
+
+  @override
+  String marketProductCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count منتج',
+      few: '$count منتجات',
+      two: 'منتجان',
+      one: 'منتج واحد',
+      zero: 'لا منتجات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketAisleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ممرًا',
+      few: '$count ممرات',
+      two: 'ممران',
+      one: 'ممر واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get marketAll => 'الكل';
+
+  @override
+  String get marketSortPopular => 'الأكثر طلبًا';
+
+  @override
+  String get marketFilterOffers => 'العروض';
+
+  @override
+  String get marketByWeight => 'بالوزن';
+
+  @override
+  String get marketFilterInStock => 'متوفر';
+
+  @override
+  String marketShownOf(int shown, int total) {
+    return 'ظاهر $shown من $total';
+  }
+
+  @override
+  String get marketLoadingMore => 'جارٍ تحميل المزيد…';
+
+  @override
+  String get marketNothingHere => 'لا شيء هنا بعد';
+
+  @override
+  String marketFreeDeliveryLeft(String amount) {
+    return 'أضف $amount لتوصيل مجاني';
+  }
+
+  @override
+  String get marketFreeDeliveryReached => 'التوصيل مجاني لهذا الطلب';
+
+  @override
+  String marketResultsFor(String query) {
+    return 'نتائج «$query»';
+  }
+
+  @override
+  String get marketSoldByWeight => 'يُباع بالوزن';
+
+  @override
+  String marketPer100g(String amount) {
+    return '$amount / 100 جم';
+  }
+
+  @override
+  String marketInSteps(String amount) {
+    return 'بخطوات $amount';
+  }
+
+  @override
+  String get marketEstimatedPrice => 'السعر التقديري';
+
+  @override
+  String get marketAtMostAfterWeighing => 'الحد الأقصى بعد الوزن';
+
+  @override
+  String get marketWeighFinal => 'يُحدَّد السعر النهائي بعد الوزن.';
+
+  @override
+  String get marketWeighCard =>
+      'تدفع السعر التقديري الآن؛ وإذا جاء الوزن أقل، نردّ إليك الفرق.';
+
+  @override
+  String marketWeighCash(String amount) {
+    return 'نقدًا: تدفع ما يقرؤه الميزان، بحد أقصى $amount.';
+  }
+
+  @override
+  String get marketByCard => 'بالبطاقة';
+
+  @override
+  String get marketPickerSliced => 'شرائح';
+
+  @override
+  String get marketPickerOnePiece => 'قطعة واحدة';
+
+  @override
+  String get marketPickerNote => 'ملاحظة';
+
+  @override
+  String get marketPickerNoteHint => 'ملاحظة لمن يجهّز طلبك';
+
+  @override
+  String marketAddWeighed(String amount, String price) {
+    return 'أضف $amount · نحو $price';
+  }
+
+  @override
+  String marketAddUnits(String count, String price) {
+    return 'أضف $count · $price';
+  }
+
+  @override
+  String marketUpdateCart(String price) {
+    return 'حدّث السلة · $price';
+  }
+
+  @override
+  String marketAmountG(String amount) {
+    return '$amount جم';
+  }
+
+  @override
+  String marketAmountKg(String amount) {
+    return '$amount كجم';
+  }
+
+  @override
+  String marketAmountL(String amount) {
+    return '$amount لتر';
+  }
+
+  @override
+  String get marketIfMissingTitle => 'إذا نفد صنف';
+
+  @override
+  String get marketIfMissingSub => 'للطلب كله. يمكنك تغييره لأي صنف أدناه.';
+
+  @override
+  String get marketMissingSimilar => 'صنف مشابه';
+
+  @override
+  String get marketMissingChosen => 'أختاره أنا';
+
+  @override
+  String get marketMissingRemove => 'استبعده';
+
+  @override
+  String marketInstead(String name) {
+    return 'بدلًا منه: $name';
+  }
+
+  @override
+  String get marketChooseInstead => 'اختر ما نحضره بدلًا منه';
+
+  @override
+  String marketEachPrice(String price) {
+    return '$price للواحدة';
+  }
+
+  @override
+  String get marketItemsEstimated => 'الأصناف، تقديريًا';
+
+  @override
+  String get marketEstimatedTotal => 'الإجمالي التقديري';
+
+  @override
+  String marketAtMostAfter(String amount) {
+    return 'بحد أقصى $amount بعد الوزن';
+  }
+
+  @override
+  String get marketPickedCount => 'جاهزة';
+
+  @override
+  String get marketBeingPickedTitle => 'يجري تجهيز طلبك';
+
+  @override
+  String get marketYourAnswer => 'ننتظر ردّك';
+
+  @override
+  String marketOutTakeInstead(String name) {
+    return 'نفد $name. هل تقبل هذا بدلًا منه؟';
+  }
+
+  @override
+  String get marketOutLabel => 'نفد';
+
+  @override
+  String get marketSimilarLabel => 'مشابه';
+
+  @override
+  String get marketAccept => 'أقبل';
+
+  @override
+  String get marketNoAnswerSimilar =>
+      'لم تردّ في الوقت؟ نتّبع اختيارك: صنف مشابه.';
+
+  @override
+  String get marketNoAnswerRemove =>
+      'لم تردّ في الوقت؟ نتّبع اختيارك: نستبعده.';
+
+  @override
+  String marketWeighedAt(String amount, String price) {
+    return 'الوزن $amount · $price';
+  }
+
+  @override
+  String marketChoiceFor(String name) {
+    return 'اختيارك بدلًا من $name';
+  }
+
+  @override
+  String marketAcceptedFor(String name) {
+    return 'بموافقتك، بدلًا من $name';
+  }
+
+  @override
+  String get marketLeftOut => 'استُبعد';
+
+  @override
+  String get marketWaitingPick => 'بانتظار التجهيز';
+
+  @override
+  String get marketWeighedFinal => 'بعد الوزن: السعر النهائي';
+
+  @override
+  String marketWithinPercent(String percent) {
+    return 'ضمن $percent%';
+  }
+
+  @override
+  String get marketYouWereTold => 'السعر التقديري';
+
+  @override
+  String get marketFinalPrice => 'السعر النهائي';
+
+  @override
+  String marketWeighedOfLimit(String amount, String limit) {
+    return 'بلغت الأصناف الموزونة $amount من حدّ $limit';
+  }
+
+  @override
+  String marketNotAmount(String amount) {
+    return 'بدل $amount';
+  }
+
+  @override
+  String marketSubAccepted(String name) {
+    return '$name، بموافقتك';
+  }
+
+  @override
+  String marketSubChosen(String name) {
+    return '$name، اختيارك';
+  }
+
+  @override
+  String marketCardRefunded(String amount) {
+    return 'دفعت السعر التقديري بالبطاقة؛ ويعود إليك الفرق $amount على بطاقتك.';
+  }
+
+  @override
+  String get marketCashFinal => 'تدفع السعر النهائي نقدًا عند الاستلام.';
+
+  @override
+  String marketBringingIt(String name) {
+    return '$name في الطريق إليك';
+  }
+
+  @override
+  String get marketCallCourier => 'اتصل بالمندوب';
+
+  @override
+  String get marketScanTitle => 'امسح الباركود';
+
+  @override
+  String marketScanHint(String vendor) {
+    return 'وجّه الكاميرا نحو الباركود. نبحث في $vendor فقط.';
+  }
+
+  @override
+  String get marketScanWhy =>
+      'تقرأ الكاميرا الباركود لتجد المنتجات في هذا المتجر. لا يُسجَّل شيء.';
+
+  @override
+  String get marketTypeBarcode => 'اكتب الرمز';
+
+  @override
+  String get marketBarcodeHint => 'الأرقام تحت الباركود';
+
+  @override
+  String get marketFind => 'ابحث';
+
+  @override
+  String marketBarcodeNotFound(String vendor) {
+    return 'لا يوجد لدى $vendor منتج بهذا الباركود.';
+  }
+
+  @override
+  String get marketCameraOff =>
+      'الكاميرا متوقفة لهذا التطبيق. اكتب الرمز بدلًا من ذلك.';
+
+  @override
+  String get marketProposalClosed => 'انتهى وقت الرد، فطُبّق اختيار طلبك.';
+
+  @override
+  String marketShownCount(int count) {
+    return 'ظاهر $count';
+  }
+
+  @override
+  String vendorProposalYes(String name) {
+    return '$name: وافق العميل';
+  }
+
+  @override
+  String get vendorProposalNo => 'طلب العميل حذفه';
+
+  @override
+  String get vendorBringIt => 'أحضِره';
 }

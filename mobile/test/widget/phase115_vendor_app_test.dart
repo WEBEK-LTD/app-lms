@@ -319,19 +319,25 @@ void main() {
         find.text('1 line left: Egyptian rice, 1 kg waiting for the customer'),
         findsOneWidget,
       );
-      // Mona takes it: the line is done, Ready turns on.
+      // Mona takes it: the picker brings it, then Ready turns on.
       final rice = (order['lines'] as List).cast<Map<String, dynamic>>()[1];
-      rice
-        ..['outcome'] = 'substituted'
-        ..['substitute'] = {
-          'product_id': 77,
-          'name': 'Short-grain rice, 1 kg',
-          'quantity': 2,
-          'total': egp('72.00'),
-        }
-        ..['proposal'] = {...rice['proposal'] as Map, 'status': 'accepted'};
+      rice['proposal'] = {...rice['proposal'] as Map, 'answer': 'accepted'};
       await tester.pump(vendorProposalRefresh);
       await TestApp.settle(tester, 20);
+      expect(
+        find.text('Short-grain rice, 1 kg: the customer said yes'),
+        findsOneWidget,
+      );
+      expect(ready().onPressed, isNull);
+      rice['substitute'] = {
+        'product_id': 77,
+        'name': 'Short-grain rice, 1 kg',
+        'quantity': 2,
+        'total': egp('72.00'),
+      };
+      await tester.tap(find.byKey(const ValueKey('vendor-pick-32-bring')));
+      await TestApp.settle(tester, 20);
+      expect(api.vendorCalls, contains('pick 4821 32:substituted::'));
       expect(find.text('Instead of Egyptian rice, 1 kg'), findsOneWidget);
       expect(ready().onPressed, isNotNull);
       await tester.tap(find.byKey(const ValueKey('vendor-pick-ready')));
