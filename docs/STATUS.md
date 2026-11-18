@@ -4,9 +4,22 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 17 November 2026.
+Last updated: 18 November 2026.
 
 ## Current release
+
+Roadmap 106.12 (Studio Market's discounts): designers make price drops,
+flash sales and coupon codes on their paid templates (Designer area ›
+Discounts), each an amount or a percentage off some or all plans, lifetime
+too, from a start to an end in their time zone; a code has an optional
+usage limit, counted on paid orders. The market's cards show the
+discounted "From $X/mo" with the old price struck through, a new flash
+strip lists the templates on a flash sale now with a live countdown, and
+checkout takes a code (any case) with the original price, the discount and
+the total. Nothing stacks: the buyer gets the better of the automatic
+price or the code. The server works the price out again at Pay; the
+order's gross is the price paid, so the 75/25 split is of it. A discount
+never takes a plan below $1 (100% off is $1). Migration 0143.
 
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its
@@ -855,5 +868,6 @@ test environment:
   moving and going back to the previous design) is built, in the look the
   owner chose ("Gallery" in light, "Night showroom" in dark); stage 2 (paid
   plans, checkout with Kashier, renewing, the reminders and the end of a
-  plan) too. The designers' money, and discounts with the public
-  `/templates` page follow (see `docs/ROADMAP.md`).
+  plan) too, and stage 4's discounts (price drops, flash sales and coupon
+  codes, 106.12). The designers' money (106.11) and the public
+  `/templates` page (106.13) follow (see `docs/ROADMAP.md`).
