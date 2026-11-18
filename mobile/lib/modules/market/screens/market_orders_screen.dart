@@ -9,6 +9,7 @@ import '../../../core/api/models/market_api_models.dart' as api;
 import '../../../core/api/models/models.dart' show Paged;
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
+import '../../../core/routing/app_router.dart' show openLocation;
 import '../../../core/routing/paths.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
@@ -118,7 +119,7 @@ Future<void> orderAgain(
   if (lines.isEmpty || lines.length < order.lines.length) {
     unawaited(context.push(Paths.marketVendor(vendor.id)));
   } else {
-    unawaited(context.push(Paths.marketCheckout));
+    openLocation(context, Paths.marketCheckout);
   }
 }
 

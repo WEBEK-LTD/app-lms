@@ -3,8 +3,6 @@ import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import 'package:go_router/go_router.dart';
-
 import '../../../core/format/bidi.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/gate/app_gate.dart';
@@ -232,7 +230,7 @@ class _VendorPageViewState extends ConsumerState<_VendorPageView> {
                   widget.page.currency,
                   widget.page.decimals,
                 ),
-                onTap: () => context.push(Paths.marketCheckout),
+                onTap: () => openLocation(context, Paths.marketCheckout),
               ),
             ),
         ],
