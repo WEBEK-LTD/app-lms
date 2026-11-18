@@ -75,9 +75,9 @@ mount(`
 
     <div class="est">
       <div class="box hi"><span class="small" style="opacity:.8">${t("Estimated price", "السعر التقديري")}</span><b>${money(120)}</b></div>
-      <div class="box"><span class="small muted">${t("Paying cash: at most", "عند الدفع نقدًا: بحد أقصى")}</span><b>${money(132)}</b></div>
+      <div class="box"><span class="small muted">${t("Cash: at most", "نقدًا: بحد أقصى")}</span><b>${money(132)}</b></div>
     </div>
-    <div class="note">${icon("info", "f")}<span>${t("The final price comes after weighing. By card or wallet, you pay the estimate now; if it weighs less, we refund the difference. In cash, you pay what the scale reads, never more than 10% over.", "يُحدَّد السعر النهائي بعد الوزن. بالبطاقة أو المحفظة تدفع السعر التقديري الآن، وإذا جاء الوزن أقل نردّ إليك الفرق. ونقدًا تدفع ما يقرؤه الميزان، دون أن يزيد عن التقدير بأكثر من 10%.")}</span></div>
+    <div class="note">${icon("info", "f")}<span>${AR ? `<b>بالبطاقة أو المحفظة:</b> تدفع السعر التقديري الآن. وإذا جاء الوزن أقل، نردّ إليك الفرق.<br><b>نقدًا:</b> تقديريًا ${money(120)} · بحد أقصى ${money(132)}، حسب ما يقرؤه الميزان.` : `<b>Card or wallet:</b> You pay the estimate now. If it weighs less, we refund the difference.<br><b>Cash:</b> estimated ${money(120)} · at most ${money(132)}, as the scale reads.`}</span></div>
     <div class="opts">
       <span class="chip on">${icon("check", "", "font-size:16px")}${t("Sliced", "شرائح")}</span>
       <span class="chip">${t("One piece", "قطعة واحدة")}</span>

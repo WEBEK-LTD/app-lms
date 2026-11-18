@@ -68,22 +68,24 @@ dashboard at 1440×1024, all at twice the pixels.
 
 ## The owner's decisions (approved 18 November 2026)
 
-Screens 1–5 were approved on 18 November and are to be built exactly. The
+All twelve screens were approved on 18 November (1–5, then 6–12) and are to be built exactly. The
 owner's decisions, which every screen now follows:
 
 **Weighed items**
 
-1. **Paid by card or wallet:** the customer pays the estimate at checkout.
-   If the weighed total is lower, the difference is refunded automatically
-   (to the payment, the wallet as fallback). A card or wallet order never
-   charges more than was paid: a heavier weight costs the customer nothing
-   more (screen 5b, the cheese). Copy: "You pay the estimate now; if it
-   weighs less, we refund the difference."
-2. **Paid in cash:** the customer pays what the scale reads, never more than
-   10% over the estimate ("at most", `weightTolerancePercent`). The picker's
-   app refuses a weight above it.
-3. Later, for Stripe only: a hold of the estimate + 10%, captured at the
-   weighed price.
+1. **Paid by card or wallet:** the customer is charged the estimate at
+   checkout. If the weighed total is lower, the difference is refunded
+   automatically, to the card, or to the wallet if the card refund fails.
+   They are never charged more than they paid: the picker's app caps each
+   weighed line at the weight asked (screen 9: "Card order: up to 750 g").
+   Copy: "You pay the estimate now. If it weighs less, we refund the
+   difference." (screens 3 and 4; the refund shows on 5a, 5b and 12).
+2. **Paid in cash:** the customer sees "Estimated … · at most …", the
+   ceiling being the estimate + 10% (`weightTolerancePercent`), and pays
+   what the scale reads within it; the picker's app caps a cash line at
+   that ceiling.
+3. A Stripe hold (estimate + 10%, captured at the weighed price) comes
+   later and isn't shown in these screens.
 4. Weights step by the product's own step (250 g for cheese, 500 g for fruit
    in the demo), with quick weights up to 2 kg and an optional note for the
    picker.

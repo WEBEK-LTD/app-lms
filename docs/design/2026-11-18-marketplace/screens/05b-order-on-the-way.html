@@ -82,11 +82,11 @@ mount(`
       <div class="row"><span class="i f" style="color:var(--accent)">scale</span><div class="grow" style="font-weight:800;font-size:14.5px">${t("Weighed and final", "تم الوزن والسعر نهائي")}</div><span class="pill ok" style="height:24px;font-size:11px">${icon("verified", "f")}${t("Never more than you paid", "لا يزيد عما دفعت")}</span></div>
       <div class="cmp">
         <div class="b"><span>${t("You paid", "دفعت")}</span><b style="color:var(--muted)">${money(396)}</b></div>
-        <div class="b f"><span>${t("Final price", "السعر النهائي")}</span><b>${money(389.25)}</b></div>
+        <div class="b f"><span>${t("Final price", "السعر النهائي")}</span><b>${money(387.65)}</b></div>
       </div>
-      <div class="refund">${icon("undo", "f")}<span><b>${money(6.75)}</b> ${t("is on its way back to card •• 4242, by itself.", "في طريقه إلى البطاقة •• 4242 تلقائيًا.")}</span></div>
+      <div class="refund">${icon("undo", "f")}<span><b>${money(8.35)}</b> ${t("is on its way back to card •• 4242, by itself (to your wallet if the card refund fails).", "في طريقه إلى البطاقة •• 4242 تلقائيًا (وإلى محفظتك إن تعذّر الردّ إلى البطاقة).")}</span></div>
       <div style="margin-top:6px">
-        <div class="ln"><span>${t("White cheese", "جبنة بيضاء")} · ${grams(780)} <span class="faint">${t("not", "بدل")} ${grams(750)}</span></span><b>${t("You pay the estimate", "تدفع التقدير")}</b></div>
+        <div class="ln"><span>${t("White cheese", "جبنة بيضاء")} · ${grams(740)} <span class="faint">${t("not", "بدل")} ${grams(750)}</span></span><b class="dn">−${money(1.6)}</b></div>
         <div class="ln"><span>${t("Bananas", "موز")} · ${grams(950)} <span class="faint">${t("not", "بدل")} ${grams(1000)}</span></span><b class="dn">−${money(1.75)}</b></div>
         <div class="ln"><span>${t("Short-grain rice ×2, you accepted", "أرز قصير الحبة ×2، بموافقتك")}</span><b>${t("Same price", "السعر نفسه")}</b></div>
         <div class="ln"><span>${t("Eggs, 15 ×2, your choice", "بيض 15 ×2، باختيارك")}</span><b class="dn">−${money(5)}</b></div>
