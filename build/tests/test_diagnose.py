@@ -25,6 +25,11 @@ class DiagnoseTest(unittest.TestCase):
         self.assertEqual("play_permission", self.code("Google Api Error: The caller does not have permission"))
         self.assertEqual("infrastructure", self.code("curl: (6) Could not resolve host: files.yallapp.com.tr"))
         self.assertEqual("unknown", self.code("e: something nobody has seen before"))
+        # 151 The iPhone app's usual causes.
+        self.assertEqual("ios_bundle_id_taken", self.code("[!] An attribute value is invalid. - An App ID with Identifier 'com.rose.shop' is not available. Please enter a different string."))
+        self.assertEqual("ios_certificates_full", self.code("[!] Could not create another Distribution certificate, reached the maximum number of available Distribution certificates."))
+        self.assertEqual("ios_app_missing", self.code("[!] Could not find app with app identifier 'com.rose.shop' in your App Store Connect account"))
+        self.assertEqual("ios_app_missing", self.code("ERROR ITMS-90000: No suitable application records were found. Verify your bundle identifier 'com.rose.shop' is correct."))
 
     def test_the_newest_cause_wins(self):
         # An early retry that recovered doesn't decide it; the last error does.
