@@ -78,6 +78,16 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      # 185 Gradle's downloaded dependencies and wrapper for the debug APKs (build-apps.yml keeps its own).
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.gradle/caches/modules-2
+            ~/.gradle/wrapper/dists
+          key: gradle-deps-ci-${{ runner.os }}-${{ hashFiles('mobile/android/**/*.gradle*', 'mobile/android/gradle/wrapper/gradle-wrapper.properties', 'mobile/pubspec.lock') }}
+          restore-keys: |
+            gradle-deps-ci-${{ runner.os }}-
+
       - name: Android SDK (own runners)
         if: runner.environment == 'self-hosted'
         uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3

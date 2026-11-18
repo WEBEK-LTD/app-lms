@@ -26,10 +26,25 @@ Yallapp designer takes them off. The e2e case wasn't run here.
 
 Roadmap 191 (Studio Market lives in Studio): the market's pages are in
 Studio's own frame (/studio/market, a template, My templates, checkout), in
-Studio's menu (Browse templates, My templates, Sell your designs) and on
+Studio's menu (Browse templates, My templates) and on
 Studio's bar; the regular dashboard has none of it, its old addresses open
-the same page in Studio. The website's header has Studio Market on its bar;
+the same page in Studio. The website's header has Studio Market on its bar on wide screens;
 the footer and Studio's list had it already.
+
+Roadmap 185 (client Android builds survive a busy Maven Central): the
+client builds in `build-apps.yml` keep Gradle's downloaded dependencies
+and wrapper in a cache shared by every client (`~/.gradle/caches/modules-2`
+and `~/.gradle/wrapper/dists` only: no build outputs, nothing of a client's
+config or keys), so three builds at once no longer each fetch them from
+Maven Central and the Gradle Plugin Portal, which answered 429 Too Many
+Requests on 18 November and failed a client's store build. When a build
+still fails on a download (429, a 5xx, a timeout), `flutter build apk` and
+`flutter build appbundle` run again after 30 s, 90 s and 180 s
+(`build/scripts/network_retry.py`), each retry said in the build log; any
+other failure fails at once as before. The iPhone build uses Swift Package
+Manager, not CocoaPods, and is unchanged; mobile CI's debug APKs keep their
+own Gradle cache. Signing, uploads and AUTO_PUBLISH are unchanged. Not yet
+run on the runners (ROADMAP 185.5).
 
 Roadmap 189 (the hero's slides, plain to find in Studio): with a slider,
 one of its slides or anything on one selected, the right side lists its

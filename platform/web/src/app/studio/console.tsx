@@ -74,14 +74,14 @@ export async function StudioConsole({ context, text, children, notice }: { conte
   const contact = await getVisitorContact();
   const can = (permission: Parameters<typeof contextCan>[1]) => contextCan(context, permission);
   const nav = project ? { app: project, text: { t, k }, can, supportUrl: contact.whatsappUrl } : null;
-  // 191 Studio Market, Studio's own (never the regular apps' dashboard's): templates to browse, the account's, and selling its own designs.
+  // 191 Studio Market, Studio's own (never the regular apps' dashboard's): templates to browse and the account's (selling designs is the designer's area, from the market's page).
   const market: ProjectNavGroup = {
     id: "market",
     label: t("studioMarket.nav"),
     icon: "storefront",
     items: [
       ...(can("settings") ? [{ href: "/studio/market", label: t("studioMarket.navBrowse"), icon: "storefront" }] : []),
-      ...(can("billing") ? [{ href: "/studio/market/mine", label: t("studioMarket.navMine"), icon: "dashboard_customize" }, { href: "/designer", label: t("studioMarket.navSell"), icon: "draw" }] : []),
+      ...(can("billing") ? [{ href: "/studio/market/mine", label: t("studioMarket.navMine"), icon: "dashboard_customize" }] : []),
     ],
   };
   const base: ProjectNavGroup[] = nav
