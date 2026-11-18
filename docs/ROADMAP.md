@@ -4360,3 +4360,14 @@ The owner's word (18 November, urgent): Studio Market (106) didn't open from Stu
 | [x] | 191.2 Studio's menu has a "Studio Market" group (Browse templates, My templates; the same permissions as before, `STUDIO_PATHS` in `lib/team/permissions.ts`), in a project and on the account's pages. Selling designs is the designer's own area (`/designer`), from the market's page: every link of Studio's menu stays in Studio's frame | `studio-market.test.ts`, `studio-market.spec.ts` |
 | [x] | 191.3 None of it in the regular dashboard: its menu group and the dark bar's third switch are gone; its old addresses (`/dashboard/studio-market/…`, emails sent before, bookmarks) open the same page in Studio, the query kept | `team-permissions.test.ts`, `studio-market.spec.ts` |
 | [x] | 191.4 The website's header has "Studio Market" on its bar from the widest screens (1536 px; a 1280 px laptop's bar is full), marked on its page; in Studio's list and the footer at every size | `website-seo.test.ts`, `studio-market-public.spec.ts` |
+
+## Phase 192: Client Android release builds past Stripe's private dependency
+
+The owner's report (18 November, urgent): a client's Android build failed after release 11. Its release build ran lint's vital pass, which resolves the lint checks of every library; flutter_stripe (188) brings `com.stripe:stripe-android-issuing-push-provisioning:1.3.0`, which needs Google's `com.google.android.gms:play-services-tapandpay:18.8.0`, an artifact on no public repository (`:stripe_android:lintVitalAnalyzeRelease`). CI built only debug APKs, which never run that pass. No app or platform code changes.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 192.1 The app's release builds skip lint (`lint { checkReleaseBuilds = false }` in `mobile/android/app/build.gradle.kts`): lint checks code, the app builds the same | CI "Build release APK (debug key)" |
+| [x] | 192.2 `play-services-tapandpay` left out of every library's lint-check configurations (`mobile/android/build.gradle.kts`), so nothing asks the repositories for it (the apps don't issue cards to wallets) | CI "Build release APK (debug key)" |
+| [x] | 192.3 CI's Flutter job builds a release APK too (the debug key, never uploaded), as client builds do; and the iOS job a release build for a real iPhone (unsigned), so neither store's release build is first tried on a client's app | `mobile.yml` |
+| [ ] | 192.4 The failed client's build run again, and passing | — |
