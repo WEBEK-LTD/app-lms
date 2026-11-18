@@ -54,6 +54,9 @@ export const en = {
     storyFlowersText: "Delivery slots, card messages and flash sales",
     studioDemo: "Studio demo",
     studioDemoText: "Try Studio's apps on your phone",
+    // 106.13 Studio Market's public page, in the Studio menu and the footer.
+    market: "Studio Market",
+    marketText: "Ready app designs by designers",
     signIn: "Sign in",
     getStarted: "Get started",
     dashboard: "Dashboard",
