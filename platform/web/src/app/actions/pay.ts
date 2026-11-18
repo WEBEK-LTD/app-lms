@@ -39,17 +39,24 @@ export async function demoPayAction(token: string): Promise<void> {
   redirect(`/pay/${token}/order-received`);
 }
 
-/** 144 The payment page's state: with Stripe's card form to mount in the page, once the details are in. */
+/**
+ * 144 The payment page's state: with Stripe's card form to mount in the
+ * page, once the details are in; 153 or iyzico's (its Checkout Form's
+ * script) or Kashier's (its session's page, in a frame), with the
+ * provider's own page for when it can't load, and Kashier's way back.
+ */
 export interface PayState extends FormState {
   stripe?: { clientSecret: string; publishableKey: string; jsUrl: string };
+  iyzico?: { formContent: string; pageUrl: string };
+  kashier?: { frameUrl: string; pageUrl: string; returnUrl: string };
 }
 
 /**
  * The payment page's form: saves the customer's details and sends them to
  * the provider's page (37 iyzico, Kashier, Fawaterk, Stripe or PayPal), 144
- * or with Stripe shows its card form in the page, or 96.2 places the order
- * to pay by bank transfer or the owner's own method. `hosted` (the form
- * couldn't load) asks for Stripe's own page.
+ * or with Stripe (153 iyzico, Kashier) shows its card form in the page, or
+ * 96.2 places the order to pay by bank transfer or the owner's own method.
+ * `hosted` (Stripe's form couldn't load) asks for Stripe's own page.
  */
 export async function payAction(token: string, _: PayState, formData: FormData): Promise<PayState> {
   const values = Object.fromEntries(["name", "phone", "email", "city", "address"].map((k) => [k, String(formData.get(k) ?? "")]));
@@ -111,6 +118,7 @@ export async function payAction(token: string, _: PayState, formData: FormData):
       return { message: `With the shipping and tax for your address, the total is ${formatCents(fresh.totalCents, fresh.currency)}. Check it, then tap Pay.`, values };
     }
   }
+  const urls = callbackUrls(appUrl(), "order", account.account.provider, token);
   let started;
   const urls = paymentApiUrls();
   try {
@@ -123,7 +131,7 @@ export async function payAction(token: string, _: PayState, formData: FormData):
       order: payable,
       customer: checked.customer,
       ip: ipFromHeaders(await headers()),
-      callbackUrls: callbackUrls(appUrl(), "order", account.account.provider, token),
+      callbackUrls: urls,
       hosted: formData.get("hosted") === "1",
       // 155 This page's domain, for Apple Pay and Google Pay in Stripe's form.
       walletDomain: walletDomain(appUrl(), Boolean(urls.stripe)),
@@ -139,5 +147,8 @@ export async function payAction(token: string, _: PayState, formData: FormData):
   }
   // 144 Stripe's card form, in this page.
   if (started.stripe) return { values, stripe: { ...started.stripe, jsUrl: stripeJsUrl() } };
+  // 153 iyzico's or Kashier's, in this page too; their own page if it can't load.
+  if (started.embed?.provider === "iyzico") return { values, iyzico: { formContent: started.embed.formContent, pageUrl: started.url } };
+  if (started.embed?.provider === "kashier") return { values, kashier: { frameUrl: started.embed.frameUrl, pageUrl: started.url, returnUrl: urls.returnUrl } };
   redirect(started.url);
 }

@@ -7,6 +7,8 @@ import { PaymentError } from "./errors";
  * Yallapp's account a shop can be a sub-merchant (iyzico marketplace): each
  * basket item names the shop and its share, and iyzico pays the shop once
  * the item is approved. Requests are signed with iyzico's IYZWSv2 scheme.
+ * 153 The same form can also go inside our own payment page (its
+ * `checkoutFormContent`), with the same token and callback.
  */
 
 export interface IyzicoKeys {
@@ -108,12 +110,24 @@ export interface CheckoutFormRequest {
   }[];
 }
 
-/** Starts a payment; returns the page to send the customer to. */
+/**
+ * 153 iyzico's own form for our page (`checkoutFormContent`): the script that
+ * loads its Checkout Form into the div `iyzipay-checkout-form`, as iyzico's
+ * plugins put it in the shop's page. Some of iyzico's answers give it in
+ * Base64. Null when there is none, or it isn't a script.
+ */
+export function iyzicoFormContent(value: unknown): string | null {
+  if (typeof value !== "string" || !value.trim()) return null;
+  const html = value.includes("<") ? value : Buffer.from(value.trim(), "base64").toString("utf8");
+  return /<script\b/i.test(html) ? html : null;
+}
+
+/** Starts a payment; returns the page to send the customer to, and 153 iyzico's form to put in our page instead. */
 export async function initializeCheckoutForm(
   keys: IyzicoKeys,
   request: CheckoutFormRequest,
   options: { fetcher?: Fetch; baseUrl?: string | null } = {},
-): Promise<{ token: string; paymentPageUrl: string; tokenExpireSeconds: number | null }> {
+): Promise<{ token: string; paymentPageUrl: string; tokenExpireSeconds: number | null; formContent: string | null }> {
   const result = await post(
     keys,
     "/payment/iyzipos/checkoutform/initialize/auth/ecom",
@@ -125,7 +139,12 @@ export async function initializeCheckoutForm(
   }
   // 49 How long the page takes the payment (iyzico says 1800 seconds).
   const seconds = Number((result as { tokenExpireTime?: unknown }).tokenExpireTime);
-  return { token: result.token, paymentPageUrl: result.paymentPageUrl, tokenExpireSeconds: Number.isFinite(seconds) && seconds > 0 ? seconds : null };
+  return {
+    token: result.token,
+    paymentPageUrl: result.paymentPageUrl,
+    tokenExpireSeconds: Number.isFinite(seconds) && seconds > 0 ? seconds : null,
+    formContent: iyzicoFormContent(result.checkoutFormContent),
+  };
 }
 
 export interface CheckoutFormResult {

@@ -71,6 +71,9 @@ async function buyTwo(page: Page, request: import("@playwright/test").APIRequest
     await expect(page.getByText(`Enter your card to pay ${total}. It goes straight to Stripe: the shop never sees its number.`)).toBeVisible();
     await expect(page.locator("[data-stripe-embedded] [data-fake-stripe]")).toHaveAttribute("data-fake-stripe", /^pk_test_/);
     await expect(page).toHaveURL(/\/pay\/[\w-]+$/);
+  } else {
+    // 153 PayPal keeps its own page (its buttons would open PayPal's window, which the apps' web views can't).
+    await expect(page).toHaveURL(new RegExp(`^http://localhost:${E2E.paypalPort}/`));
   }
   await page.getByRole("button", { name: "Pay with test card" }).click();
   await expect(page).toHaveURL(/\/pay\/[\w-]+\/order-received$/);
