@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/api_exception.dart';
+import 'package:yallapp/core/l10n/l10n.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/modules/travel/data/travel_providers.dart';
 import 'package:yallapp/modules/travel/travel_paths.dart';
@@ -9,6 +11,7 @@ import 'package:yallapp/modules/travel/travel_paths.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:yallapp/modules/travel/widgets/travel_ui.dart';
 
+import '../screenshots/support/shot.dart' show loadAppFonts;
 import '../support/test_app.dart';
 import '../support/travel_fixtures.dart';
 import 'phase126_travel_booking_test.dart'
@@ -16,6 +19,7 @@ import 'phase126_travel_booking_test.dart'
 
 /// 180 The travel template's QA (docs/qa/2026-11-18-travel-bookings/NOTES.md).
 void main() {
+  setUpAll(loadAppFonts);
   String path(TestApp app) =>
       app.container.read(appRouterProvider).state.uri.path;
 
@@ -267,5 +271,28 @@ void main() {
       findsNothing,
     );
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('180.20 the flights\' search in Arabic at a larger text size: '
+      'the travellers keep their words whole', (tester) async {
+    const ratio = 3.0;
+    tester.view
+      ..devicePixelRatio = ratio
+      ..physicalSize = const Size(360, 800) * ratio;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final app = travelApp(lang: 'ar');
+    await app.pump(tester);
+    await open(app, tester, TravelPaths.flights);
+    final l = tester.element(find.byType(Scaffold).first).l10n;
+    final adults = app.container.read(flightSearchProvider).adults;
+    final travellers = find.text(l.travelAdultsEconomy(adults));
+    expect(travellers, findsOneWidget);
+    final paragraph = tester.renderObject<RenderParagraph>(
+      find.descendant(of: travellers, matching: find.byType(RichText)),
+    );
+    // Three lines at most (it took five, a word broken across two).
+    expect(paragraph.size.height, lessThan(100));
   });
 }

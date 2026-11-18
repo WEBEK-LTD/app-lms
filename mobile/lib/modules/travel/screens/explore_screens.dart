@@ -1260,12 +1260,19 @@ class FlightsHomeScreen extends ConsumerWidget {
                                   ],
                                 ),
                               ),
-                              Text(
-                                l.travelDirectOnly,
-                                style: t.ui(
-                                  12,
-                                  weight: FontWeight.w700,
-                                  color: const Color(0xFFC7CAD5),
+                              // 180.20 At most half the row, on two lines if it must: at
+                              // a larger text size in Arabic it left the travellers a
+                              // column a word wide ("السياحي/ة").
+                              Flexible(
+                                child: Text(
+                                  l.travelDirectOnly,
+                                  maxLines: 2,
+                                  textAlign: TextAlign.end,
+                                  style: t.ui(
+                                    12,
+                                    weight: FontWeight.w700,
+                                    color: const Color(0xFFC7CAD5),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 8),
