@@ -196,4 +196,30 @@ void main() {
     );
     expect(line.size.height, lessThan(14 * 1.3 * 1.6));
   });
+
+  testWidgets('180.21 the default account in Turkish at a larger text size: '
+      'the phone number on one line', (tester) async {
+    const ratio = 3.0;
+    tester.view
+      ..devicePixelRatio = ratio
+      ..physicalSize = const Size(360, 800) * ratio;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final app = TestApp(
+      api: FakeApi(config: configJson(languages: languagesJson())),
+      appType: AppType.booking,
+      signedIn: true,
+      preferences: {'settings.language': 'tr'},
+    );
+    await app.pump(tester);
+    app.container.read(appRouterProvider).go('/account');
+    await TestApp.settle(tester, 20);
+    final phone = find.byKey(const ValueKey('account-phone'));
+    expect(phone, findsOneWidget);
+    final line = tester.renderObject<RenderParagraph>(
+      find.descendant(of: phone, matching: find.byType(RichText)),
+    );
+    expect(line.size.height, lessThan(14 * 1.3 * 1.6));
+  });
 }

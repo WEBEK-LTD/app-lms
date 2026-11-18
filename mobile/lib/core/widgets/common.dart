@@ -1497,3 +1497,20 @@ String formatClock(Duration d) {
 
 /// Course thumbnails tint by course id so lists don't look uniform.
 int seedFor(CourseSummary course) => course.id;
+
+/// 180.21 A phone number on one line, a little smaller if it must (at a
+/// larger text size beside an Edit button its last digits went to a second
+/// line): every account look's.
+class OnePhoneLine extends StatelessWidget {
+  const OnePhoneLine(this.phone, {super.key, this.style});
+
+  final String phone;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    alignment: AlignmentDirectional.centerStart,
+    child: Text(phone, maxLines: 1, style: style),
+  );
+}
