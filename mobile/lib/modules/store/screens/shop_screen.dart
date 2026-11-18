@@ -58,6 +58,9 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   late ProductQuery _query;
   final _search = TextEditingController();
   final _focus = FocusNode();
+
+  /// 158 The filters' row, back at its start when a filter changes.
+  final _filtersRow = ScrollController();
   Timer? _debounce;
 
   @override
@@ -92,6 +95,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     _debounce?.cancel();
     _search.dispose();
     _focus.dispose();
+    _filtersRow.dispose();
     super.dispose();
   }
 
@@ -135,10 +139,86 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     }
   }
 
+  /// Whether a filter is on (a category, On sale or words searched).
+  bool get _filtered =>
+      _query.category != null ||
+      _query.onSale ||
+      (_query.search ?? '').trim().isNotEmpty;
+
+  /// 158 Every filter off, the order kept.
+  void _clearFilters() {
+    _debounce?.cancel();
+    _search.clear();
+    _filter(_query.copyWith(clearCategory: true, onSale: false, search: ''));
+  }
+
+  /// 158 A filter changed: the row goes back to its start, where the
+  /// filters that are on now are.
+  void _filter(ProductQuery query) {
+    setState(() => _query = query);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_filtersRow.hasClients) return;
+      if (MediaQuery.disableAnimationsOf(context)) {
+        _filtersRow.jumpTo(0);
+      } else {
+        _filtersRow.animateTo(
+          0,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  (bool, Widget) _allChip(BuildContext context) {
+    final on = _query.category == null && !_query.onSale;
+    return (
+      on,
+      PillChip(
+        key: const ValueKey('shop-filter-all'),
+        label: context.l10n.filterAll,
+        selected: on,
+        onTap: () =>
+            _filter(_query.copyWith(clearCategory: true, onSale: false)),
+      ),
+    );
+  }
+
+  /// On sale and the categories, each with whether it is on.
+  List<(bool, Widget)> _chips(
+    BuildContext context,
+    List<ProductCategory> categories,
+  ) => [
+    (
+      _query.onSale,
+      PillChip(
+        key: const ValueKey('shop-filter-sale'),
+        label: context.l10n.onSale,
+        selected: _query.onSale,
+        onTap: () => _filter(_query.copyWith(onSale: !_query.onSale)),
+      ),
+    ),
+    for (final c in categories)
+      (
+        _query.category == c.id,
+        PillChip(
+          key: ValueKey('shop-filter-category-${c.id}'),
+          label: c.name,
+          selected: _query.category == c.id,
+          onTap: () => _filter(
+            _query.category == c.id
+                ? _query.copyWith(clearCategory: true)
+                : _query.copyWith(category: c.id),
+          ),
+        ),
+      ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     final categories = ref.watch(productCategoriesProvider).value ?? const [];
+    final filters = _chips(context, categories);
     final state = ref.watch(productsProvider(_query));
     final controller = ref.read(productsProvider(_query).notifier);
 
@@ -186,39 +266,19 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             SizedBox(
               height: chipRowHeight(context),
               child: ListView(
+                key: const ValueKey('shop-filters'),
+                controller: _filtersRow,
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
+                // 158 The filters that are on come first, after All, so
+                // they stay in sight: "On sale" stayed on, scrolled out of
+                // view, and a category then showed no products.
                 children: [
-                  PillChip(
-                    label: context.l10n.filterAll,
-                    selected: _query.category == null && !_query.onSale,
-                    onTap: () => setState(
-                      () => _query = _query.copyWith(
-                        clearCategory: true,
-                        onSale: false,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  PillChip(
-                    label: context.l10n.onSale,
-                    selected: _query.onSale,
-                    onTap: () => setState(
-                      () => _query = _query.copyWith(onSale: !_query.onSale),
-                    ),
-                  ),
-                  for (final c in categories) ...[
-                    const SizedBox(width: 8),
-                    PillChip(
-                      label: c.name,
-                      selected: _query.category == c.id,
-                      onTap: () => setState(
-                        () => _query = _query.category == c.id
-                            ? _query.copyWith(clearCategory: true)
-                            : _query.copyWith(category: c.id),
-                      ),
-                    ),
-                  ],
+                  for (final (i, chip) in [
+                    _allChip(context),
+                    ...filters.where((c) => c.$1),
+                    ...filters.where((c) => !c.$1),
+                  ].indexed) ...[if (i > 0) const SizedBox(width: 8), chip.$2],
                 ],
               ),
             ),
@@ -270,6 +330,9 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
               icon: AppIcons.search,
               title: context.words.noProductsTitle,
               message: context.words.noProductsMessage,
+              // 158 Nothing with these filters: take them off in one tap.
+              actionLabel: _filtered ? context.l10n.clearFilters : null,
+              onAction: _filtered ? _clearFilters : null,
             ),
           ),
         ],

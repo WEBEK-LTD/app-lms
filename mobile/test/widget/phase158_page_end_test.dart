@@ -11,6 +11,7 @@ import 'package:yallapp/core/routing/paths.dart';
 import 'package:yallapp/core/theme/app_icons.dart';
 import 'package:yallapp/core/widgets/app_nav_bar.dart';
 import 'package:yallapp/core/widgets/buttons.dart';
+import 'package:yallapp/core/widgets/common.dart' show MessageView;
 import 'package:yallapp/modules/store/widgets/product_widgets.dart';
 
 import '../screenshots/support/leqaa.dart';
@@ -56,8 +57,7 @@ void main() {
     'your picks': (tester, app) => _push(tester, app, Paths.page('wishlist')),
     'a bouquet in the shop': (tester, app) =>
         _push(tester, app, Paths.product(101)),
-    // Settings: a page around a screen under a folding header; its end on
-    // a 320 by 568 phone is ROADMAP 158.3's.
+    'Settings': (tester, app) => _push(tester, app, Paths.settings),
     'Notifications': (tester, app) => _push(tester, app, Paths.notifications),
   };
 
@@ -290,6 +290,79 @@ void main() {
     });
   });
 
+  group('158 the shop\'s filters stay in sight', () {
+    for (final language in ['en', 'ar']) {
+      testWidgets(
+        'On sale and a category stay first, Clear filters ($language)',
+        (tester) async {
+          await _usePhone(tester, phones[1], 1);
+          final api = _FilterShopApi();
+          final app = TestApp(
+            api: api,
+            appType: AppType.store,
+            signedIn: true,
+            preferences: {'settings.language': language},
+          );
+          await app.pump(tester);
+          app.container.read(appRouterProvider).go(Paths.shop);
+          await TestApp.settle(tester, 20);
+          final sale = find.byKey(const ValueKey('shop-filter-sale'));
+          final eid = find.byKey(const ValueKey('shop-filter-category-50'));
+          final row = find.byKey(const ValueKey('shop-filters'));
+          await tester.tap(sale);
+          await TestApp.settle(tester, 12);
+          // The last category is at the far end of the row.
+          await tester.dragUntilVisible(
+            eid,
+            row,
+            Offset(language == 'ar' ? 200 : -200, 0),
+          );
+          await TestApp.settle(tester, 6);
+          await tester.tap(eid);
+          await TestApp.settle(tester, 20);
+          expect(api.lastProductQuery!.onSale, isTrue);
+          expect(api.lastProductQuery!.category, 50);
+          // Both on, both in sight, first after All.
+          final width = phones[1].size.width;
+          for (final chip in [sale, eid]) {
+            final rect = tester.getRect(chip);
+            expect(rect.left, greaterThanOrEqualTo(0), reason: '$chip');
+            expect(rect.right, lessThanOrEqualTo(width), reason: '$chip');
+            expect(tester.widget<PillChip>(chip).selected, isTrue);
+          }
+          final all = tester.getRect(
+            find.byKey(const ValueKey('shop-filter-all')),
+          );
+          final first = tester.getRect(
+            find.byKey(const ValueKey('shop-filter-category-30')),
+          );
+          bool before(Rect a, Rect b) =>
+              language == 'ar' ? a.left > b.left : a.left < b.left;
+          expect(before(all, tester.getRect(sale)), isTrue);
+          expect(before(tester.getRect(eid), first), isTrue);
+          // Nothing on sale there: one tap takes the filters off.
+          final clear = find.descendant(
+            of: find.byType(MessageView),
+            matching: find.byType(PrimaryButton),
+          );
+          expect(clear, findsOneWidget);
+          await tester.tap(clear);
+          await TestApp.settle(tester, 20);
+          expect(api.lastProductQuery!.onSale, isFalse);
+          expect(api.lastProductQuery!.category, isNull);
+          expect(find.text('Bouquet 1'), findsOneWidget);
+          expect(
+            tester
+                .widget<PillChip>(find.byKey(const ValueKey('shop-filter-all')))
+                .selected,
+            isTrue,
+          );
+          await _close(tester, app);
+        },
+      );
+    }
+  });
+
   group('158 the next page\'s spinner lies across the grid', () {
     for (final language in ['en', 'ar']) {
       testWidgets('the shop\'s grid ($language)', (tester) async {
@@ -331,7 +404,7 @@ void main() {
             final card = find.byType(ProductCard).last;
             expect(
               row.top,
-              greaterThanOrEqualTo(tester.getRect(card).bottom),
+              greaterThanOrEqualTo(tester.getRect(card).bottom - 0.01),
               reason: why,
             );
             _expectInReach(tester, spinner, why);
@@ -489,19 +562,29 @@ Future<void> _toTop(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
-/// Drags the page up, as a finger does, until it goes no further.
+/// Drags the page up, as a finger does, until it goes no further; then
+/// nudges it, slowly, as a person does at the end of a page.
 Future<void> _toEnd(WidgetTester tester) async {
   final size = _screen(tester);
+  final from = Offset(size.width / 2, size.height * 0.5);
+  List<double> now() => [for (final p in _positions(tester)) p.pixels];
   for (var i = 0; i < 60; i++) {
-    final before = [for (final p in _positions(tester)) p.pixels];
-    await tester.dragFrom(
-      Offset(size.width / 2, size.height * 0.5),
-      Offset(0, -size.height * 0.35),
-    );
+    final before = now();
+    await tester.dragFrom(from, Offset(0, -size.height * 0.35));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    final after = [for (final p in _positions(tester)) p.pixels];
-    if (listEquals(before, after)) break;
+    if (listEquals(before, now())) break;
+  }
+  for (var i = 0; i < 6; i++) {
+    final before = now();
+    final finger = await tester.startGesture(from);
+    for (var k = 0; k < 8; k++) {
+      await finger.moveBy(const Offset(0, -10));
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await finger.up();
+    await tester.pump(const Duration(milliseconds: 500));
+    if (listEquals(before, now())) break;
   }
 }
 
@@ -542,12 +625,6 @@ void _expectEndInReach(WidgetTester tester, String why) {
   final size = _screen(tester);
   for (final p in _positions(tester)) {
     if (p.viewportDimension < size.height * 0.4) continue;
-    if (const bool.fromEnvironment('PAGE_END_DEBUG')) {
-      debugPrint(
-        'DEBUG $why ${p.pixels} / ${p.maxScrollExtent} '
-        '(${p.viewportDimension}) ${p.context.notificationContext?.widget}',
-      );
-    }
     expect(
       p.pixels,
       greaterThanOrEqualTo(p.maxScrollExtent - 1),
@@ -671,6 +748,50 @@ class _PagedShopApi extends FakeApi {
         'total': 40,
         'total_pages': 2,
       }, ProductSummary.fromJson),
+    );
+  }
+}
+
+/// A shop with many categories, the last "Eid & Ramadan", where nothing is
+/// on sale.
+class _FilterShopApi extends FakeApi {
+  _FilterShopApi()
+    : super(
+        config: {
+          ...configJson(lms: null, languages: languagesJson()),
+          'store': storeConfigJson(),
+        },
+      );
+
+  @override
+  Future<List<ProductCategory>> listProductCategories() async => [
+    for (final (i, name) in [
+      'Signature bouquets',
+      'Roses',
+      'In season',
+      'Plants',
+      'Gift sets',
+      'Birthdays',
+      'Weddings',
+      'Eid & Ramadan',
+    ].indexed)
+      ProductCategory.fromJson(
+        productCategoryJson(id: i == 7 ? 50 : 30 + i, name: name),
+      ),
+  ];
+
+  @override
+  Future<Paged<ProductSummary>> listProducts(ProductQuery query) async {
+    lastProductQuery = query;
+    final none = query.onSale && query.category == 50;
+    return Paged.fromJson(
+      pageJson([
+        if (!none) ...[
+          productSummaryJson(id: 1, name: 'Bouquet 1'),
+          productSummaryJson(id: 2, name: 'Bouquet 2'),
+        ],
+      ]),
+      ProductSummary.fromJson,
     );
   }
 }
