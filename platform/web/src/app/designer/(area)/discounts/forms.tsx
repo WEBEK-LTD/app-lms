@@ -64,7 +64,7 @@ export function NewDiscount({ templateId, kind, plans, zone }: { templateId: str
       </div>
     );
   return (
-    <form action={action} aria-label={label} className="mk-tile flex flex-col gap-4 rounded-[18px] p-4 sm:p-5">
+    <form action={action} aria-label={label} className="flex flex-col gap-4 rounded-[18px] border border-[var(--mk-hair)] bg-[var(--mk-mat)] p-4 sm:p-5">
       <input type="hidden" name="template" value={templateId} />
       <input type="hidden" name="kind" value={kind} />
       <DiscountFields key={round} kind={kind} plans={plans} zone={zone} state={state.ok ? initialFormState : state} onCancel={() => setOpen(false)} />

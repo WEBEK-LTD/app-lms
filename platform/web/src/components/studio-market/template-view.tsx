@@ -11,7 +11,6 @@ import { btn } from "@/components/ui";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { initialFormState } from "@/lib/forms";
 import type { CoverView } from "@/lib/studio-market/catalog";
-import { Countdown } from "./countdown";
 import { Board, WasPrice } from "./parts";
 import { MarketPhones, TemplatePhone } from "./phone";
 
@@ -369,8 +368,6 @@ export interface PlanChoice {
   best: boolean;
   /** 106.12 The plan's own price, struck through, when a price drop or a flash sale lowers it ("$24"); else null. */
   was: string | null;
-  /** 106.12 When the flash sale that gives it its price ends (ISO); null without one. */
-  flashEndsAt: string | null;
 }
 
 /**
@@ -399,13 +396,7 @@ export function PlanPicker({ slug, plans, initial }: { slug: string; plans: Plan
           </button>
         ))}
       </div>
-      {chosen.flashEndsAt ? (
-        <p className="mk-sale-time m-0 flex flex-wrap items-center gap-x-2 text-[13px] font-bold">
-          <Icon name="bolt" size={17} filled />
-          {t("marketDiscounts.flashPill")}
-          <Countdown endsAt={chosen.flashEndsAt} />
-        </p>
-      ) : null}
+
       <Link href={`/dashboard/studio-market/checkout/${slug}?plan=${chosen.period}`} className="mk-btn mk-btn-ember mk-btn-lg w-full">
         <Icon name="format_paint" size={22} />
         {t("studioMarket.applyPaid", { price: chosen.price })}

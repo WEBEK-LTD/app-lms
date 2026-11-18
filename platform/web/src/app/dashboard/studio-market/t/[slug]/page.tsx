@@ -89,7 +89,6 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
       sub: month === null ? t("studioMarket.lifeHint") : t("studioMarket.perMonth", { price: ltr(formatUsd(month), lang) }),
       best: p.period === bestPlan,
       was: p.cents < p.list ? ltr(formatUsd(p.list), lang) : null,
-      flashEndsAt: p.flashEndsAt,
     };
   });
   const tagText = tag.kind === "free" ? t("studioMarket.free") : tag.kind === "from" ? t("studioMarket.perMonth", { price: ltr(formatUsd(tag.cents), lang) }) : t("studioMarket.oncePrice", { price: ltr(formatUsd(tag.cents), lang) });
