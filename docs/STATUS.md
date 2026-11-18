@@ -16,6 +16,15 @@ dashboard says the request goes out once the app has a plan, Admin ›
 Publishing keeps such requests under "Waiting for a plan", and the team is
 emailed when the plan is paid. Builds already needed the plan.
 
+Roadmap 186 (the payment page back inside the app): on the owner's word,
+Yallapp's payment page opens inside the app again, in the app's own web
+view, not the phone's browser sheet (170). Done on the platform, so the apps
+already on phones take it with no new build: the apps are handed the page's
+`/pay/<token>/in-app`, which goes on to the page, and release 10's apps open
+only the page itself in the sheet. Apple Pay and Google Pay don't show
+inside the app's view; the card and the other ways to pay work as before
+170. Not yet tried on real phones (ROADMAP 186.2).
+
 Roadmap 170 (paying in the app in the phone's browser sheet, closing
 155.6): inside the apps, Yallapp's payment page opens in the phone's browser
 sheet over the app (SFSafariViewController on iPhone, Chrome Custom Tabs on
