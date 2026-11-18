@@ -4,7 +4,7 @@ import { decideReturn } from "@/lib/catalog/returns";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
-import { recordOrderStatus, recordRefund } from "@/lib/team/activity";
+import { recordOrderStatus, recordRefund, recordTeamActivity } from "@/lib/team/activity";
 import type { TeamPermission } from "@/lib/team/permissions";
 import { getBlobStore } from "@/lib/blobs";
 import { parseCoupon } from "@/lib/catalog/coupons";
@@ -31,7 +31,9 @@ import { newId } from "@/lib/crypto/tokens";
 import { imageType } from "@/lib/images";
 import { chosenPictures } from "@/lib/media/pictures";
 import { getStore } from "@/lib/data";
-import type { App, CatalogCurrency, CatalogProductInput, CatalogTax, OwnPayment } from "@/lib/data/types";
+import type { App, CatalogCurrency, CatalogProductInput, CatalogSettings, CatalogTax, OwnPayment } from "@/lib/data/types";
+import { conversionOf, convertShopRecords, currencyChangeLine, settingsAt } from "@/lib/catalog/currency-change";
+import { currentRates } from "@/lib/money/rates";
 import { appUrl, encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { missingKeysReport, testConnection, type PaymentTestState } from "@/lib/payments/connection";
@@ -313,8 +315,12 @@ export async function setProductFeaturedAction(_: FormState, formData: FormData)
 // Shop settings
 
 export async function saveShopSettingsAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { app } = await requireCatalogApp();
+  const context = await requireCatalogApp();
+  const { app } = context;
+  const store = await getStore();
+  const before = catalogSettings(app);
   const values = {
+    prices: str(formData, "prices"),
     currency: str(formData, "currency"),
     shipping: str(formData, "shipping"),
     freeOver: str(formData, "freeOver"),
@@ -325,10 +331,19 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
   };
   const errors: Record<string, string> = {};
   if (!CATALOG_CURRENCIES.includes(values.currency as CatalogCurrency)) errors.currency = "Choose a currency.";
-  // 135.2 In the currency chosen, with its digits (1.250 KWD, ¥1250).
-  const shipping = values.shipping ? parsePrice(values.shipping, values.currency) : 0;
+  // 175 A new currency: the owner chooses to convert every price at the day's rate, or to keep the numbers.
+  const changing = !errors.currency && values.currency !== before.currency;
+  let conversion: ReturnType<typeof conversionOf> = null;
+  if (changing && values.prices !== "convert" && values.prices !== "keep") errors.prices = "Choose what happens to your prices.";
+  if (changing && values.prices === "convert") {
+    conversion = conversionOf(await currentRates(store), before.currency, values.currency);
+    if (!conversion) errors.prices = "There's no rate between these currencies today. Keep the numbers, or try again tomorrow.";
+  }
+  // 135.2 In the currency chosen, with its digits (1.250 KWD, ¥1250); 175 converted: the amounts typed are still in the old one.
+  const typedIn = conversion ? before.currency : values.currency;
+  const shipping = values.shipping ? parsePrice(values.shipping, typedIn) : 0;
   if (shipping === null) errors.shipping = "Enter an amount, or leave it empty for free shipping.";
-  const freeOver = values.freeOver ? parsePrice(values.freeOver, values.currency) : null;
+  const freeOver = values.freeOver ? parsePrice(values.freeOver, typedIn) : null;
   if (values.freeOver && freeOver === null) errors.freeOver = "Enter an amount, or leave it empty.";
   // 91.3 Returns asked for in the app: days after an order is completed; empty for none.
   const returnDays = values.returnDays.trim() === "" ? null : Number(values.returnDays.trim());
@@ -345,24 +360,26 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
   }
   if (Object.keys(errors).length > 0) return { errors, values };
   const now = new Date();
-  const settings = catalogSettings(app);
-  await (await getStore()).updateApp(
-    app.id,
-    {
-      catalogSettings: {
-        ...settings,
-        currency: values.currency as CatalogCurrency,
-        shippingCents: shipping!,
-        freeShippingOverCents: freeOver,
-        // 26 A restaurant's form has no shipping fields, nor returns: kept as they were.
-        ...(formData.has("returnDays") ? { returnDays } : {}),
-        ...(formData.has("taxRate") ? { tax } : {}),
-      },
-    },
-    now,
-  );
+  const saved: CatalogSettings = {
+    ...before,
+    shippingCents: shipping!,
+    freeShippingOverCents: freeOver,
+    // 26 A restaurant's form has no shipping fields, nor returns: kept as they were.
+    ...(formData.has("returnDays") ? { returnDays } : {}),
+    ...(formData.has("taxRate") ? { tax } : {}),
+  };
+  // 175 Converted: the settings' amounts with the new currency, then the products, coupons and flash sales.
+  const next = conversion ? settingsAt(saved, conversion.rate, values.currency) : saved;
+  await store.updateApp(app.id, { catalogSettings: { ...next, currency: values.currency as CatalogCurrency } }, now);
+  if (conversion) await convertShopRecords(store, app, conversion.rate, values.currency, now);
+  if (changing) {
+    const line = currencyChangeLine(before.currency, values.currency, conversion);
+    await recordTeamActivity(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), action: "shop.currency", target: { type: "app", id: app.id }, summary: line }, now);
+    await recordStaffChange(context, line);
+  }
   refresh();
-  return { ok: true, message: "Shop settings saved.", values };
+  const message = !changing ? "Shop settings saved." : conversion ? "Shop settings saved. Your prices were converted." : "Shop settings saved. Your prices kept their numbers: check them.";
+  return { ok: true, message, values: { ...values, prices: "" } };
 }
 
 /**

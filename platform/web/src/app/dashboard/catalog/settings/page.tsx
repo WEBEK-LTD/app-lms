@@ -8,6 +8,7 @@ import { centsToDecimal } from "@/lib/catalog/money";
 import { fulfilmentOf } from "@/lib/catalog/fulfilment";
 import { catalogSettings, isOwnPayment } from "@/lib/catalog/settings";
 import { currentRates } from "@/lib/money/rates";
+import { conversionOf } from "@/lib/catalog/currency-change";
 import { PROVIDER_CURRENCIES, PROVIDER_NAME } from "@/lib/payments/provider";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
@@ -48,6 +49,10 @@ export default async function CatalogSettingsPage() {
         <Section titleId="h-shop" title={fulfilment ? t("shop.currency") : t("shop.shopSettings")}>
           <ShopSettingsForm
             currency={settings.currency}
+            conversions={Object.fromEntries(Object.keys(rates.perDollar).flatMap((code) => {
+              const conversion = conversionOf(rates, settings.currency, code);
+              return conversion ? [[code, conversion.text]] : [];
+            }))}
             gateway={gateway}
             shipping={settings.shippingCents ? centsToDecimal(settings.shippingCents, settings.currency) : ""}
             freeOver={settings.freeShippingOverCents !== null ? centsToDecimal(settings.freeShippingOverCents, settings.currency) : ""}

@@ -17,8 +17,9 @@ by email), and the order leaves the paid orders and Analytics' revenue. The
 Owner API takes the choice as `refund` (an older Business without it keeps
 132's rule). A guest customer is now emailed at every stage the order
 drawer promises (shipped, postponed, couldn't be delivered, delivered) and
-when the order is cancelled, in the language they checked out in. No
-migration. Yallapp Business is not released from this
+when the order is cancelled, in the language they checked out in. A new
+store currency asks to convert every price at the day's rate or keep the
+numbers, and the Team page logs the change. No migration. Yallapp Business is not released from this
 branch.
 
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
