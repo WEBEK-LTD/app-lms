@@ -7463,6 +7463,8 @@ export class MemoryStore implements DataStore {
     if (!this.users.has(userId)) return false;
     const clientIds = [...this.clients.values()].filter((c) => c.userId === userId).map((c) => c.id);
     for (const clientId of clientIds) {
+      // 106.11 A designer's checks (their ID and bank) go with their profile, as `on delete cascade` does.
+      for (const designer of this.templateDesigners.values()) if (designer.clientId === clientId) this.payoutDetails.delete(designer.id);
       for (const app of [...this.apps.values(), ...this.deletedApps.values()]) if (app.clientId === clientId) this.cascadeApp(app.id);
       for (const license of this.licenses.values()) if (license.clientId === clientId) this.activations.delete(license.id);
       // Their payments go with the client, as `on delete cascade` does: the caller keeps them first.
@@ -8074,7 +8076,8 @@ export class MemoryStore implements DataStore {
 
   /** Every table holding rows, but the records that outlive what they name (no foreign keys in MySQL). */
   private tables(): { rows(): Record<string, unknown>[]; remove(match: (row: Record<string, unknown>) => boolean): void }[] {
-    const kept = new Set<unknown>([this.appDeletions, this.keptBilling, this.accountDeletions, this.auditEntries, this.deletedApps, this.apps, this.platformSettings]);
+    // 106.11 The designers' ledger and payouts are kept like sales (no foreign key in MySQL either), whoever's account goes.
+    const kept = new Set<unknown>([this.appDeletions, this.keptBilling, this.accountDeletions, this.auditEntries, this.deletedApps, this.apps, this.platformSettings, this.designerLedger, this.designerPayouts]);
     const tables: { rows(): Record<string, unknown>[]; remove(match: (row: Record<string, unknown>) => boolean): void }[] = [];
     const isRow = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !(value instanceof Map) && !(value instanceof Set);
     for (const key of Object.keys(this) as (keyof this)[]) {
@@ -9237,9 +9240,10 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
-  async designerEarnings(): Promise<Record<string, { cents: number; sales: number }>> {
+  async designerEarnings(before?: Date): Promise<Record<string, { cents: number; sales: number }>> {
     const out: Record<string, { cents: number; sales: number }> = {};
     for (const e of this.designerLedger.values()) {
+      if (before && e.earnedAt.getTime() >= before.getTime()) continue;
       const sum = (out[e.designerId] ??= { cents: 0, sales: 0 });
       sum.cents += e.designerCents;
       sum.sales += 1;
@@ -9270,17 +9274,17 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
-  /** The designer's balance: their sales less their payouts not cancelled. */
-  private designerBalance(designerId: string): number {
+  /** The designer's balance before a cut-off: their sales paid before it less their payouts not cancelled. */
+  private designerBalance(designerId: string, before: Date): number {
     let cents = 0;
-    for (const e of this.designerLedger.values()) if (e.designerId === designerId) cents += e.designerCents;
+    for (const e of this.designerLedger.values()) if (e.designerId === designerId && e.earnedAt.getTime() < before.getTime()) cents += e.designerCents;
     for (const p of this.designerPayouts.values()) if (p.designerId === designerId && p.status !== "cancelled") cents -= p.amountCents;
     return cents;
   }
 
-  async createDesignerPayout(payout: DesignerPayout, expectedCents: number): Promise<"created" | "exists" | "changed"> {
+  async createDesignerPayout(payout: DesignerPayout, check: { before: Date; expectedCents: number }): Promise<"created" | "exists" | "changed"> {
     if ([...this.designerPayouts.values()].some((p) => p.id === payout.id || (p.designerId === payout.designerId && p.period === payout.period && p.status !== "cancelled"))) return "exists";
-    if (this.designerBalance(payout.designerId) !== expectedCents) return "changed";
+    if (this.designerBalance(payout.designerId, check.before) !== check.expectedCents) return "changed";
     this.designerPayouts.set(payout.id, clone(payout));
     return "created";
   }

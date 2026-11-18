@@ -1901,20 +1901,28 @@ Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
 - [ ] Admin › Team: Studio Market payouts (`market.payouts`) is the owners'
       and admins'. Support still reviews templates but sees designers' ID
       numbers and accounts masked and can't open their IDs.
-- [ ] Update the privacy page and the designer terms: for payouts we keep a
-      designer's ID (its number and a photo or PDF of it) and their bank
-      details, encrypted, seen only by the team that pays designers.
+- [ ] The privacy page and the designer terms have the owner's approved
+      wording (privacy sections 2, 6 and 8 in English, Arabic and Turkish;
+      the designer terms' last line on joining). If Admin › Website content
+      has an edited privacy page saved, its text replaces the new default:
+      add the three sentences there too.
 - [ ] Match the bank file to Yallapp's bank: download it once (Payouts ›
       Download the bank file) and check its columns against the bank's bulk
       SWIFT import, or keep it for typing each transfer by hand.
+- [ ] The 1st of the first month with a designer due: Admin › Watching shows
+      "Studio Market payouts of 1 … are ready to prepare" (and the team got
+      it by email); it closes by itself once they're prepared. Check that a
+      sale paid on the 1st after midnight Istanbul time is under "Toward"
+      the next 1st, not in the run.
 - [ ] The first real payout, checked by hand before and after:
       - In Payout checks, open the designer's ID and compare it with the
         name, the country and the account's holder; check the IBAN's country
         and the SWIFT/BIC against the bank; approve.
-      - In Payouts, the designer shows under "Due" with USD 250 or more;
-        Prepare the bank file and compare the CSV row's amount with their
-        Earnings (Balance available, then Pending) and with Sales (75% of
-        their sales less what was paid before).
+      - From the 1st, in Payouts, the designer shows under "Due on 1 …" with
+        USD 250 or more; Prepare the bank file and compare the CSV row's
+        amount with their Earnings ("Next payout", then Pending) and with
+        Sales (75% of their sales paid before the 1st, midnight Istanbul
+        time, less what was paid before).
       - Send the transfer from Yallapp's bank in US dollars for exactly that
         amount, Yallapp paying every fee (SWIFT "OUR": the designer gets the
         whole 75%).

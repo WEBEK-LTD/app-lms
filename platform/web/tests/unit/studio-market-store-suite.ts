@@ -324,6 +324,10 @@ export function studioMarketStoreSuite(store: () => DataStore) {
     const earnings = await s.designerEarnings();
     expect(earnings[nur.id]).toEqual({ cents: 751_800, sales: 2 });
     expect(earnings[lale.id]).toEqual({ cents: 76, sales: 1 });
+    // Before a cut-off: only the sales paid before it (a sale paid at the cut-off itself is the next run's).
+    const before = await s.designerEarnings(days(2));
+    expect(before[nur.id]).toEqual({ cents: 1800, sales: 1 });
+    expect(before[lale.id]).toBeUndefined();
   });
 
   it("106.11 keeps the checks before the first payout; the team's answer goes only on the checks it looked at", async () => {
@@ -380,11 +384,13 @@ export function studioMarketStoreSuite(store: () => DataStore) {
     await s.recordDesignerSale(saleOf(nur, templateId, buyer.client.id, 40_000, 30_000, days(1)));
     const december = payoutOf(nur, "2026-12", 30_000, days(2));
     // The balance is $300: a payout at another amount is refused, at $300 it's made.
-    expect(await s.createDesignerPayout({ ...december, id: randomUUID(), amountCents: 29_999 }, 29_999)).toBe("changed");
-    expect(await s.createDesignerPayout(december, 30_000)).toBe("created");
+    expect(await s.createDesignerPayout({ ...december, id: randomUUID(), amountCents: 29_999 }, { before: days(2), expectedCents: 29_999 })).toBe("changed");
+    // A sale after the cut-off isn't in the run's balance: before day 1, nothing.
+    expect(await s.createDesignerPayout({ ...december, id: randomUUID() }, { before: days(1), expectedCents: 30_000 })).toBe("changed");
+    expect(await s.createDesignerPayout(december, { before: days(2), expectedCents: 30_000 })).toBe("created");
     // One a month: another for December is refused, whatever the balance.
     await s.recordDesignerSale(saleOf(nur, templateId, buyer.client.id, 40_000, 30_000, days(3)));
-    expect(await s.createDesignerPayout({ ...payoutOf(nur, "2026-12", 30_000, days(3)) }, 30_000)).toBe("exists");
+    expect(await s.createDesignerPayout({ ...payoutOf(nur, "2026-12", 30_000, days(3)) }, { before: days(4), expectedCents: 30_000 })).toBe("exists");
     expect(await s.getDesignerPayout(december.id)).toEqual(december);
     // Sent once, with the bank's reference.
     const sent = { bankReference: "SWIFT-20261203-0042", sentOn: "2026-12-03", sentAt: days(4), sentBy: "deniz@yallapp.test" };
@@ -395,7 +401,7 @@ export function studioMarketStoreSuite(store: () => DataStore) {
     expect(await s.getDesignerPayout(december.id)).toMatchObject({ status: "sent", ...sent, emailedAt: days(4) });
     // January: the balance left ($300) is paid; a cancelled one frees its month for another.
     const january = payoutOf(nur, "2027-01", 30_000, days(30));
-    expect(await s.createDesignerPayout(january, 30_000)).toBe("created");
+    expect(await s.createDesignerPayout(january, { before: days(30), expectedCents: 30_000 })).toBe("created");
     expect(await s.cancelDesignerPayout(january.id, { cancelledAt: days(31), cancelledBy: "deniz@yallapp.test", cancelNote: "The bank returned it: wrong IBAN." })).toBe(true);
     expect(await s.cancelDesignerPayout(january.id, { cancelledAt: days(31), cancelledBy: "deniz@yallapp.test", cancelNote: "Again." })).toBe(false);
     expect(await s.markDesignerPayoutSent(january.id, sent)).toBe(false);
@@ -403,12 +409,56 @@ export function studioMarketStoreSuite(store: () => DataStore) {
     // Two team members preparing January at once: one payout.
     const again = payoutOf(nur, "2027-01", 30_000, days(32));
     const twin = payoutOf(nur, "2027-01", 30_000, days(32));
-    expect((await Promise.all([s.createDesignerPayout(again, 30_000), s.createDesignerPayout(twin, 30_000)])).sort()).toEqual(["created", "exists"]);
+    const check = { before: days(30), expectedCents: 30_000 };
+    expect((await Promise.all([s.createDesignerPayout(again, check), s.createDesignerPayout(twin, check)])).sort()).toEqual(["created", "exists"]);
     const made = (await s.getDesignerPayout(again.id)) ? again : twin;
     expect(await s.getDesignerPayout(made === again ? twin.id : again.id)).toBeNull();
     expect((await s.listDesignerPayouts({ designerId: nur.id })).map((p) => p.id)).toEqual([made.id, january.id, december.id]);
     expect((await s.listDesignerPayouts({ designerId: nur.id, period: "2027-01", statuses: ["processing"] })).map((p) => p.id)).toEqual([made.id]);
     expect((await s.listDesignerPayouts({ designerId: nur.id, statuses: ["sent", "cancelled"] })).map((p) => p.id)).toEqual([january.id, december.id]);
     expect(await s.listDesignerPayouts({ designerId: nur.id, statuses: [] })).toEqual([]);
+  });
+
+  it("106.11 an account deleted: a designer's checks go with it, the ledger and the payouts stay", async () => {
+    const s = store();
+    const seller = await account(s, "Nur");
+    const buyer = await account(s, "Tulip");
+    const nur = (await s.createTemplateDesigner(designerOf(seller.client.id, `nur-gone-${seller.suffix}`)))!;
+    const sale = saleOf(nur, randomUUID(), buyer.client.id, 40_000, 30_000, days(1));
+    await s.recordDesignerSale(sale);
+    await s.saveDesignerPayoutDetails({
+      designerId: nur.id,
+      legalName: "Nur Yılmaz",
+      country: "TR",
+      idType: "passport",
+      idNumberEncrypted: "v2.k.id.sealed",
+      idDocumentAssetId: null,
+      holderName: "Nur Yılmaz",
+      accountKind: "iban",
+      accountEncrypted: "v2.k.iban.sealed",
+      swift: "TCZBTR2A",
+      bankCode: null,
+      bankName: "Ziraat Bankası",
+      bankCountry: "TR",
+      address: "Moda Cd. 12, Kadıköy, 34710 İstanbul",
+      status: "approved",
+      reviewNote: null,
+      submittedAt: days(1),
+      reviewedAt: days(2),
+      reviewedBy: "deniz@yallapp.test",
+      createdAt: days(1),
+      updatedAt: days(2),
+    });
+    const payout = payoutOf(nur, "2026-11", 30_000, days(20));
+    expect(await s.createDesignerPayout(payout, { before: days(19), expectedCents: 30_000 })).toBe("created");
+    // The buyer goes: the designer's sale stays in their ledger.
+    expect(await s.deleteUserAccount(buyer.client.userId)).toBe(true);
+    expect((await s.listDesignerLedger({ designerId: nur.id })).map((e) => e.id)).toEqual([sale.id]);
+    // The designer goes: their checks go too; their ledger and payouts stay, for the accounts.
+    expect(await s.deleteUserAccount(seller.client.userId)).toBe(true);
+    expect(await s.getTemplateDesigner(nur.id)).toBeNull();
+    expect(await s.getDesignerPayoutDetails(nur.id)).toBeNull();
+    expect((await s.listDesignerLedger({ designerId: nur.id })).map((e) => e.id)).toEqual([sale.id]);
+    expect((await s.listDesignerPayouts({ designerId: nur.id })).map((p) => [p.id, p.amountCents])).toEqual([[payout.id, 30_000]]);
   });
 }

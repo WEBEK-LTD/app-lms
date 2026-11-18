@@ -9,14 +9,16 @@ import { encryptionKey } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { cancelPayout, markPayoutSent, preparePayouts } from "@/lib/studio-market/money";
 import { reviewPayoutDetails } from "@/lib/studio-market/payout-details";
+import { payoutNow } from "@/lib/studio-market/payout-clock";
 import { sendDetailsDecision, sendPayoutReceipt } from "@/lib/studio-market/payout-mail";
 import { formatUsd } from "@/lib/studio-market/plans";
 
 /**
  * 106.11 Admin › Studio Market › Payouts and Payout checks: the team's side
  * of the designer's money, permission `market.payouts` (owners and admins).
- * Approve a designer's checks or ask for a fix with a note; prepare the
- * month's bank file (each due designer's balance fixed); mark a payout sent
+ * Approve a designer's checks or ask for a fix with a note; from the 1st,
+ * prepare the month's bank file (each due designer's balance of the sales
+ * paid before the cut-off, fixed); mark a payout sent
  * with the bank's reference and date (the designer is emailed a receipt in
  * their language), or cancel one the bank didn't send. Each one is in the
  * audit log, never with an ID number or an account in it. Nothing here
@@ -61,7 +63,7 @@ export async function reviewPayoutDetailsAction(_: FormState, formData: FormData
 export async function preparePayoutsAction(): Promise<void> {
   const admin = await requireAdmin("market.payouts");
   const store = await getStore();
-  const now = new Date();
+  const now = payoutNow();
   const { prepared, skipped } = await preparePayouts({ store, key: encryptionKey(), now, by: admin.email });
   if (prepared.length) {
     const total = prepared.reduce((n, p) => n + p.amountCents, 0);
@@ -80,7 +82,7 @@ export async function preparePayoutsAction(): Promise<void> {
 export async function markPayoutSentAction(_: FormState, formData: FormData): Promise<FormState> {
   const admin = await requireAdmin("market.payouts");
   const store = await getStore();
-  const now = new Date();
+  const now = payoutNow();
   const values = { reference: String(formData.get("reference") ?? ""), sentOn: String(formData.get("sentOn") ?? "") };
   const payout = await store.getDesignerPayout(String(formData.get("payout") ?? ""));
   if (!payout) return { message: "This payout isn't there any more. Reload the page.", values };
@@ -104,7 +106,7 @@ export async function markPayoutSentAction(_: FormState, formData: FormData): Pr
 export async function cancelPayoutAction(_: FormState, formData: FormData): Promise<FormState> {
   const admin = await requireAdmin("market.payouts");
   const store = await getStore();
-  const now = new Date();
+  const now = payoutNow();
   const values = { note: String(formData.get("note") ?? "") };
   const payout = await store.getDesignerPayout(String(formData.get("payout") ?? ""));
   if (!payout) return { message: "This payout isn't there any more. Reload the page.", values };

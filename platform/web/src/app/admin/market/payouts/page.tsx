@@ -11,7 +11,8 @@ import type { DesignerPayout } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import { PAYOUT_MIN_CENTS, payoutRun, type RunRow } from "@/lib/studio-market/money";
 import { detailsView } from "@/lib/studio-market/payout-details";
-import { payoutMonth } from "@/lib/studio-market/payout-receipt";
+import { lastSalesDayOf, nextPeriod, payoutDayOf } from "@/lib/studio-market/payout-calendar";
+import { payoutNow } from "@/lib/studio-market/payout-clock";
 import { formatUsd } from "@/lib/studio-market/plans";
 import { CancelPayoutForm, MarkSentForm } from "./forms";
 
@@ -19,9 +20,11 @@ export const metadata: Metadata = { title: "Studio Market payouts" };
 export const dynamic = "force-dynamic";
 
 /**
- * 106.11 Admin › Studio Market › Payouts: the month's payouts to designers,
- * monthly by SWIFT from USD 250 (below that the balance carries over), only
- * once their checks are approved. "Prepare the bank file" fixes each due
+ * 106.11 Admin › Studio Market › Payouts: the run of the 1st, by SWIFT from
+ * USD 250 (below that the balance carries over to the next 1st), only once
+ * a designer's checks are approved: from the 1st onwards it shows what's due
+ * for the sales paid before its cut-off (00:00 in Istanbul); later sales
+ * wait for the next 1st. "Prepare the bank file" fixes each due
  * designer's balance as a payout; the CSV has each one's bank details in
  * full for Yallapp's bank; the team sends the transfers there, then marks
  * each payout sent with the bank's reference and date (the designer is
@@ -32,11 +35,14 @@ export default async function MarketPayoutsPage({ searchParams }: PageProps<"/ad
   await requireAdmin("view");
   const mayPay = await adminCan("market.payouts");
   const store = await getStore();
-  const now = new Date();
+  const now = payoutNow();
   const params = await searchParams;
   const run = await payoutRun(store, now);
   const key = encryptionKey();
-  const month = payoutMonth(run.period, "en");
+  // The run of the 1st: the sales paid before its cut-off (00:00 in Istanbul), the later ones wait for the next 1st.
+  const day = payoutDayOf(run.period, "en");
+  const lastDay = lastSalesDayOf(run.period, "en");
+  const following = payoutDayOf(nextPeriod(run.period), "en");
   const by = (state: RunRow["state"]) => run.rows.filter((r) => r.state === state);
   const due = by("due");
   const waiting = by("checks");
@@ -86,7 +92,7 @@ export default async function MarketPayoutsPage({ searchParams }: PageProps<"/ad
       <MarketHeader
         eyebrow="Studio Market"
         title="Payouts"
-        lead="Monthly, by SWIFT, in US dollars, from USD 250; below that the balance carries over. Designers get exactly 75% of each sale: Yallapp's 25% covers taxes, the gateway's fees and the SWIFT and intermediary banks' fees. Nothing is sent from here: the team sends the transfers from Yallapp's bank and records them."
+        lead="On the 1st of every month, by SWIFT, in US dollars: the sales paid up to the end of the month before (midnight Istanbul time), from USD 250; below that the balance carries over to the next 1st. Designers get exactly 75% of each sale: Yallapp's 25% covers taxes, the gateway's fees and the SWIFT and intermediary banks' fees. Nothing is sent from here: the team sends the transfers from Yallapp's bank and records them."
         actions={
           <Link href="/admin/market/payouts/checks" className="mk-btn mk-btn-ghost mk-btn-sm">
             <Icon name="verified_user" size={18} />
@@ -102,10 +108,10 @@ export default async function MarketPayoutsPage({ searchParams }: PageProps<"/ad
       <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4 lg:gap-4">
         {(
           [
-            ["due", `Due in ${month}`, `${formatUsd(sum(due.map((r) => r.money.availableCents)))}`, due.length === 1 ? "1 designer" : `${due.length} designers`],
+            ["due", `Due on ${day}`, formatUsd(sum(due.map((r) => r.dueCents))), due.length === 1 ? "1 designer" : `${due.length} designers`],
             ["processing", "To send", formatUsd(sum(processing.map((p) => p.amountCents))), processing.length === 1 ? "1 payout prepared" : `${processing.length} payouts prepared`],
             ["checks", "Waiting for checks", String(waiting.length), `${formatUsd(PAYOUT_MIN_CENTS)} or more, checks not approved`],
-            ["below", "Below USD 250", formatUsd(sum(below.map((r) => r.money.availableCents))), "Carried over to next month"],
+            ["later", `Toward ${following}`, formatUsd(sum(run.rows.map((r) => r.laterCents))), `Sales paid from ${day}`],
           ] as const
         ).map(([k, label, value, hint]) => (
           <div key={k} data-kpi={k} className="mk-panel flex flex-col gap-1.5 px-[18px] py-4">
@@ -120,9 +126,11 @@ export default async function MarketPayoutsPage({ searchParams }: PageProps<"/ad
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="flex flex-col gap-0.5">
             <h2 id="due-title" className="m-0 text-lg font-bold">
-              Due in {month}
+              Due on {day}
             </h2>
-            <span className="text-sm text-muted">USD 250 or more, checks approved, no payout yet this month. Preparing fixes each balance as a payout, with the bank details as approved now.</span>
+            <span className="text-sm text-muted" data-cutoff={run.cutoff.toISOString()}>
+              The sales paid up to {lastDay} (midnight Istanbul time): USD 250 or more, checks approved, no payout yet this month. Preparing fixes each of these balances as a payout, with the bank details as approved now; sales paid from {day} go in the payout of {following}.
+            </span>
           </div>
           {mayPay && due.length ? (
             <form action={preparePayoutsAction}>
@@ -138,7 +146,7 @@ export default async function MarketPayoutsPage({ searchParams }: PageProps<"/ad
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
-                  {["Designer", "Balance", "Bank", "Earned in all", "Paid out"].map((h) => (
+                  {["Designer", `Due on ${day}`, "Bank", `Toward ${following}`, "Paid out"].map((h) => (
                     <th key={h} className={th}>
                       {h}
                     </th>
@@ -149,14 +157,14 @@ export default async function MarketPayoutsPage({ searchParams }: PageProps<"/ad
                 {due.map((r) => (
                   <tr key={r.designer.id} data-due={r.designer.id} className="border-t border-[var(--mk-hair2)]">
                     {designerCell(r)}
-                    <td className={`${td} font-bold`}>{formatUsd(r.money.availableCents)}</td>
+                    <td className={`${td} font-bold`}>{formatUsd(r.dueCents)}</td>
                     <td className={td}>
                       <span dir="auto">{r.details?.bankName}</span>
                       <span className="block text-xs text-muted">
                         <bdi dir="ltr">{masked(r)}</bdi>
                       </span>
                     </td>
-                    <td className={td}>{formatUsd(r.money.earnedCents)}</td>
+                    <td className={td}>{formatUsd(r.laterCents)}</td>
                     <td className={td}>{formatUsd(r.money.paidCents)}</td>
                   </tr>
                 ))}
@@ -164,7 +172,7 @@ export default async function MarketPayoutsPage({ searchParams }: PageProps<"/ad
             </table>
           </div>
         ) : (
-          <div className="mk-panel px-5 py-6 text-center text-muted">Nothing due this month.</div>
+          <div className="mk-panel px-5 py-6 text-center text-muted">Nothing due on {day}.</div>
         )}
       </section>
 
@@ -234,7 +242,7 @@ export default async function MarketPayoutsPage({ searchParams }: PageProps<"/ad
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
-                  {["Designer", "Balance", "Checks"].map((h) => (
+                  {["Designer", `Due on ${day}`, "Checks"].map((h) => (
                     <th key={h} className={th}>
                       {h}
                     </th>
@@ -245,7 +253,7 @@ export default async function MarketPayoutsPage({ searchParams }: PageProps<"/ad
                 {waiting.map((r) => (
                   <tr key={r.designer.id} data-waiting={r.designer.id} className="border-t border-[var(--mk-hair2)]">
                     {designerCell(r)}
-                    <td className={`${td} font-bold`}>{formatUsd(r.money.availableCents)}</td>
+                    <td className={`${td} font-bold`}>{formatUsd(r.dueCents)}</td>
                     <td className={td}>
                       {r.details ? (
                         <Link href={`/admin/market/payouts/checks?id=${r.designer.id}`}>{r.details.status === "submitted" ? "Sent, to review" : "Fix asked for"}</Link>
@@ -305,13 +313,13 @@ export default async function MarketPayoutsPage({ searchParams }: PageProps<"/ad
       {below.length ? (
         <section aria-labelledby="below-title" className="flex flex-col gap-3">
           <h2 id="below-title" className="m-0 text-lg font-bold">
-            Below USD 250: carried over
+            Below USD 250 on {day}: carried over to {following}
           </h2>
           <div className="mk-panel overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
-                  {["Designer", "Balance", "Earned in all", "Paid out"].map((h) => (
+                  {["Designer", `Before ${day}`, `Toward ${following}`, "Earned in all", "Paid out"].map((h) => (
                     <th key={h} className={th}>
                       {h}
                     </th>
@@ -322,7 +330,8 @@ export default async function MarketPayoutsPage({ searchParams }: PageProps<"/ad
                 {below.map((r) => (
                   <tr key={r.designer.id} data-below={r.designer.id} className="border-t border-[var(--mk-hair2)]">
                     {designerCell(r)}
-                    <td className={`${td} font-bold`}>{formatUsd(r.money.availableCents)}</td>
+                    <td className={`${td} font-bold`}>{formatUsd(r.dueCents)}</td>
+                    <td className={td}>{formatUsd(r.laterCents)}</td>
                     <td className={td}>{formatUsd(r.money.earnedCents)}</td>
                     <td className={td}>{formatUsd(r.money.paidCents)}</td>
                   </tr>

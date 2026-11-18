@@ -10,7 +10,10 @@ import { getStore } from "@/lib/data";
 import type { DesignerPayout, DesignerPayoutDetails, PayoutDetailsStatus } from "@/lib/data/types";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { encryptionKey } from "@/lib/env";
-import { designerMoney, PAYOUT_MIN_CENTS, payoutPeriod } from "@/lib/studio-market/money";
+import { designerMoney, nextPeriod, saleState, type SaleState } from "@/lib/studio-market/money";
+import { formatDate as formatIn } from "@/i18n/format";
+import { lastSalesDayOf, PAYOUT_ZONE, payoutDayOf } from "@/lib/studio-market/payout-calendar";
+import { payoutNow } from "@/lib/studio-market/payout-clock";
 import { detailsView } from "@/lib/studio-market/payout-details";
 import { payoutMonth } from "@/lib/studio-market/payout-receipt";
 import { formatUsd, ltr } from "@/lib/studio-market/plans";
@@ -22,30 +25,36 @@ export async function generateMetadata(): Promise<Metadata> {
 export const dynamic = "force-dynamic";
 
 /**
- * 106.11 The designer's earnings, in the designer area: the balance
- * available, pending (payouts on their way) and paid out; where their next
- * payout is (their checks, USD 250, this month's); each sale with its split
- * (the sale, Yallapp's 25%, their 75%); and their payouts with receipts.
+ * 106.11 The designer's earnings, in the designer area: their next payout
+ * (the 1st, for the sales paid up to the end of the month before, midnight
+ * Istanbul time) and what counts toward the one after, pending (a payout on
+ * its way) and paid out; where their next payout is (their checks, USD
+ * 250); each sale with its split (the sale, Yallapp's 25%, their 75%) and
+ * the payout it goes in; and their payouts with receipts.
  */
 export default async function DesignerMoneyPage({ searchParams }: PageProps<"/designer/money">) {
   const context = await requireClient("billing");
   const { t, lang } = await dashboardText();
   const store = await getStore();
-  const now = new Date();
+  // The payouts' clock: which 1st is next and its cut-off.
+  const now = payoutNow();
   const designer = await store.getTemplateDesignerByClient(context.client.id);
   if (!designer) redirect("/designer/join");
   const params = await searchParams;
-  const [{ money, sales, payouts }, details] = await Promise.all([designerMoney(store, designer.id, now), store.getDesignerPayoutDetails(designer.id)]);
+  const [{ money, sales, payouts, next }, details] = await Promise.all([designerMoney(store, designer.id, now), store.getDesignerPayoutDetails(designer.id)]);
   const templates = new Map((await store.listMarketTemplates({ ids: [...new Set(sales.map((s) => s.templateId))] })).map((x) => [x.id, x]));
   const usd = (cents: number) => <bdi dir="ltr">{formatUsd(cents)}</bdi>;
   const onWay = payouts.find((p) => p.status === "processing") ?? null;
-  const thisMonth = payouts.find((p) => p.period === payoutPeriod(now) && p.status !== "cancelled") ?? null;
+  // The next 1st, the last day whose sales go in it, and the 1st after it.
+  const nextDay = payoutDayOf(next.period, lang);
+  const lastDay = lastSalesDayOf(next.period, lang);
+  const following = payoutDayOf(nextPeriod(next.period), lang);
 
   const tiles: [string, string, number, string, IconName][] = [
-    ["available", t("marketMoney.available"), money.availableCents, t("marketMoney.availableHint"), "payments"],
+    ["next", t("marketMoney.nextOn", { date: nextDay }), next.includedCents, next.belowMin ? t("marketMoney.nextBelow") : t("marketMoney.nextHint", { day: lastDay }), "payments"],
+    ["later", t("marketMoney.laterOn", { date: following }), next.laterCents, t("marketMoney.laterHint", { day: nextDay }), "calendar_month"],
     ["pending", t("marketMoney.pending"), money.pendingCents, t("marketMoney.pendingHint"), "schedule"],
     ["paid", t("marketMoney.paid"), money.paidCents, t("marketMoney.paidHint"), "task_alt"],
-    ["earned", t("marketMoney.earned"), money.earnedCents, t("marketMoney.earnedHint", { count: money.sales }), "trending_up"],
   ];
 
   const checks: Record<PayoutDetailsStatus | "none", [string, IconName, string]> = {
@@ -64,9 +73,18 @@ export default async function DesignerMoneyPage({ searchParams }: PageProps<"/de
     if (!d) return t("marketMoney.stateNone");
     if (d.status === "submitted") return t("marketMoney.stateSubmitted");
     if (d.status === "changes_requested") return t("marketMoney.stateFix");
-    if (money.availableCents < PAYOUT_MIN_CENTS) return t("marketMoney.stateBelow", { amount: amount(money.availableCents), left: amount(PAYOUT_MIN_CENTS - money.availableCents) });
-    if (!thisMonth) return t("marketMoney.stateDue", { amount: amount(money.availableCents), bank: d.bankName, account: ltr(detailsView(d, encryptionKey(), false).account, lang) });
-    return t("marketMoney.stateNextMonth", { amount: amount(money.availableCents) });
+    if (next.belowMin) return t("marketMoney.stateBelow", { date: nextDay, day: lastDay, amount: amount(next.includedCents) });
+    return t("marketMoney.stateDue", { date: nextDay, day: lastDay, amount: amount(next.includedCents), bank: d.bankName, account: ltr(detailsView(d, encryptionKey(), false).account, lang) });
+  };
+  /** A sale's day as the cut-off counts it: in Istanbul. */
+  const saleDay = (at: Date) => formatIn(lang, at, { day: "numeric", month: "short", year: "numeric", timeZone: PAYOUT_ZONE });
+  /** The payout a sale goes in. */
+  const saleChip: Record<SaleState, [string, string]> = {
+    paid: ["bg-success-bg text-success", t("marketMoney.salePaid")],
+    on_way: ["bg-warn-bg text-warn", t("marketMoney.saleOnWay")],
+    next: ["bg-peach text-accent", t("marketMoney.saleNext", { date: nextDay })],
+    carried: ["bg-line-soft text-muted", t("marketMoney.saleCarried")],
+    later: ["bg-line-soft text-muted", t("marketMoney.saleLater", { date: following })],
   };
 
   const th = "border-b border-[var(--mk-hair2)] bg-[var(--mk-mat)] px-4 py-3 text-start text-[13px] font-semibold whitespace-nowrap text-muted";
@@ -114,6 +132,11 @@ export default async function DesignerMoneyPage({ searchParams }: PageProps<"/de
         <p data-next-payout className="m-0 text-[15px] font-semibold text-ink-2">
           {nextLine(details)}
         </p>
+        {next.laterCents > 0 ? (
+          <p data-later-payout className="m-0 text-sm text-muted">
+            {t("marketMoney.stateLater", { day: nextDay, date: following })}
+          </p>
+        ) : null}
         {details?.status === "changes_requested" && details.reviewNote ? (
           <p className="m-0 rounded-xl bg-danger-bg px-4 py-3 text-sm whitespace-pre-line text-ink-2" dir="auto">
             {details.reviewNote}
@@ -132,11 +155,13 @@ export default async function DesignerMoneyPage({ searchParams }: PageProps<"/de
           <h2 id="sales-title" className="m-0 text-lg font-bold">
             {t("marketMoney.salesTitle")}
           </h2>
-          <span className="text-sm text-muted">{t("marketMoney.salesHint")}</span>
+          <span className="text-sm text-muted">
+            {t("marketMoney.salesHint")} {t("marketMoney.earned")}: <bdi dir="ltr">{formatUsd(money.earnedCents)}</bdi> · {t("marketMoney.earnedHint", { count: money.sales })}
+          </span>
         </div>
         {sales.length ? (
           <div className="mk-panel overflow-x-auto">
-            <table className="w-full min-w-[720px] border-collapse text-sm">
+            <table className="w-full min-w-[820px] border-collapse text-sm">
               <thead>
                 <tr>
                   <th className={th}>{t("marketMoney.colWhen")}</th>
@@ -145,15 +170,17 @@ export default async function DesignerMoneyPage({ searchParams }: PageProps<"/de
                   <th className={`${th} text-end`}>{t("marketMoney.colSale")}</th>
                   <th className={`${th} text-end`}>{t("marketMoney.colYallapp")}</th>
                   <th className={`${th} text-end`}>{t("marketMoney.colYou")}</th>
+                  <th className={th}>{t("marketMoney.colPayout")}</th>
                 </tr>
               </thead>
               <tbody>
                 {sales.map((s, i) => {
                   const template = templates.get(s.templateId);
                   const line = i ? "border-t border-line-soft" : "";
+                  const goes = saleState(s, payouts, next);
                   return (
                     <tr key={s.id} data-sale={s.id}>
-                      <td className={`px-4 py-3 whitespace-nowrap ${line}`}>{formatDate(s.earnedAt, lang)}</td>
+                      <td className={`px-4 py-3 whitespace-nowrap ${line}`}>{saleDay(s.earnedAt)}</td>
                       <td className={`px-4 py-3 ${line}`}>
                         <b dir="auto">{template ? templateText(template, lang).title : t("marketMoney.templateGone")}</b>
                       </td>
@@ -165,6 +192,11 @@ export default async function DesignerMoneyPage({ searchParams }: PageProps<"/de
                       <td className={`px-4 py-3 text-end text-muted tabular-nums ${line}`}>{usd(s.yallappCents)}</td>
                       <td className={`px-4 py-3 text-end font-bold tabular-nums ${line}`} data-you={s.designerCents}>
                         {usd(s.designerCents)}
+                      </td>
+                      <td className={`px-4 py-3 ${line}`}>
+                        <span data-sale-payout={goes} className={`inline-flex rounded-xl px-2.5 py-1 text-xs font-bold whitespace-nowrap ${saleChip[goes][0]}`}>
+                          {saleChip[goes][1]}
+                        </span>
                       </td>
                     </tr>
                   );

@@ -11202,10 +11202,16 @@ export class MysqlStore implements DataStore {
     return rows.map((r) => this.ledgerRow(r));
   }
 
-  async designerEarnings(): Promise<Record<string, { cents: number; sales: number }>> {
+  async designerEarnings(before?: Date): Promise<Record<string, { cents: number; sales: number }>> {
     const t = schema.studioMarketLedger;
     // SUM of a bigint comes back as a DECIMAL (a string): read as a whole number of cents.
-    const rows = await this.run((db) => db.select({ designerId: t.designerId, cents: sql<string>`coalesce(sum(${t.designerCents}), 0)`, sales: count() }).from(t).groupBy(t.designerId));
+    const rows = await this.run((db) =>
+      db
+        .select({ designerId: t.designerId, cents: sql<string>`coalesce(sum(${t.designerCents}), 0)`, sales: count() })
+        .from(t)
+        .where(before ? lt(t.earnedAt, before) : undefined)
+        .groupBy(t.designerId),
+    );
     return Object.fromEntries(rows.map((r) => [r.designerId, { cents: Number(r.cents), sales: Number(r.sales) }]));
   }
 
@@ -11265,7 +11271,7 @@ export class MysqlStore implements DataStore {
     };
   }
 
-  async createDesignerPayout(payout: DesignerPayout, expectedCents: number): Promise<"created" | "exists" | "changed"> {
+  async createDesignerPayout(payout: DesignerPayout, check: { before: Date; expectedCents: number }): Promise<"created" | "exists" | "changed"> {
     try {
       return await this.run((db) =>
         db.transaction(async (tx) => {
@@ -11278,12 +11284,16 @@ export class MysqlStore implements DataStore {
             .from(p)
             .where(and(eq(p.designerId, payout.designerId), eq(p.period, payout.period), ne(p.status, "cancelled")));
           if (Number(taken?.n ?? 0) > 0) return "exists" as const;
-          const [earned] = await tx.select({ cents: sql<string>`coalesce(sum(${l.designerCents}), 0)` }).from(l).where(eq(l.designerId, payout.designerId));
+          // The run's sales only: those paid before its cut-off.
+          const [earned] = await tx
+            .select({ cents: sql<string>`coalesce(sum(${l.designerCents}), 0)` })
+            .from(l)
+            .where(and(eq(l.designerId, payout.designerId), lt(l.earnedAt, check.before)));
           const [paid] = await tx
             .select({ cents: sql<string>`coalesce(sum(${p.amountCents}), 0)` })
             .from(p)
             .where(and(eq(p.designerId, payout.designerId), ne(p.status, "cancelled")));
-          if (Number(earned?.cents ?? 0) - Number(paid?.cents ?? 0) !== expectedCents) return "changed" as const;
+          if (Number(earned?.cents ?? 0) - Number(paid?.cents ?? 0) !== check.expectedCents) return "changed" as const;
           await tx.insert(p).values({ ...payout, monthSlot: `${payout.designerId}|${payout.period}` });
           return "created" as const;
         }),

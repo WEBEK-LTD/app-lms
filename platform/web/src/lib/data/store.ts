@@ -2591,8 +2591,8 @@ export interface DataStore {
   recordDesignerSale(entry: DesignerLedgerEntry): Promise<boolean>;
   /** Newest first; a designer's, or every designer's. */
   listDesignerLedger(filter: { designerId?: string }): Promise<DesignerLedgerEntry[]>;
-  /** What each designer earned (their 75%s added up) and how many sales: by designer id. */
-  designerEarnings(): Promise<Record<string, { cents: number; sales: number }>>;
+  /** What each designer earned (their 75%s added up) and how many sales, those paid before `before` only when given: by designer id. */
+  designerEarnings(before?: Date): Promise<Record<string, { cents: number; sales: number }>>;
   getDesignerPayoutDetails(designerId: string): Promise<DesignerPayoutDetails | null>;
   /** Adds or replaces the designer's checks (sent to the team again). */
   saveDesignerPayoutDetails(details: DesignerPayoutDetails): Promise<void>;
@@ -2606,10 +2606,11 @@ export interface DataStore {
   /**
    * Prepares a payout, kept by the database: only while the designer has no
    * other payout (not cancelled) for its month (`exists`), and only while
-   * their balance (sales less payouts not cancelled) is still `expectedCents`
-   * (`changed`: another payout or a sale came in between).
+   * their balance before the run's cut-off (the sales paid before `before`,
+   * less every payout not cancelled) is still `expectedCents` (`changed`:
+   * another payout or a sale came in between).
    */
-  createDesignerPayout(payout: DesignerPayout, expectedCents: number): Promise<"created" | "exists" | "changed">;
+  createDesignerPayout(payout: DesignerPayout, check: { before: Date; expectedCents: number }): Promise<"created" | "exists" | "changed">;
   getDesignerPayout(id: string): Promise<DesignerPayout | null>;
   /** Newest prepared first; by designer, month or status. */
   listDesignerPayouts(filter: { designerId?: string; period?: string; statuses?: readonly DesignerPayoutStatus[] }): Promise<DesignerPayout[]>;

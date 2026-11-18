@@ -31,14 +31,17 @@ import {
   MONEY_MESSAGES,
   PAYOUT_MIN_CENTS,
   payoutAccount,
+  nextPeriod,
   payoutPeriod,
   payoutRun,
   payoutsCsv,
   payoutsToDo,
   preparePayouts,
+  periodCutoff,
   readSent,
   recordSale,
   saleEntry,
+  saleState,
   syncLedger,
 } from "@/lib/studio-market/money";
 import {
@@ -56,6 +59,8 @@ import {
   type DetailsInput,
 } from "@/lib/studio-market/payout-details";
 import { payoutAmount, payoutMonth, payoutReceipt } from "@/lib/studio-market/payout-receipt";
+import { lastSalesDayOf, payoutDayOf, salePeriod } from "@/lib/studio-market/payout-calendar";
+import { payoutsAlertKey, runStudioMarketDaily } from "@/lib/studio-market/daily";
 import { splitSale } from "@/lib/studio-market/plans";
 import { decideReview } from "@/lib/studio-market/review";
 import { sendForReview, startTemplate } from "@/lib/studio-market/templates";
@@ -91,6 +96,10 @@ const KEY = Buffer.alloc(32, 9);
 const NOW = new Date("2026-11-15T10:00:00Z");
 const DAY = 86_400_000;
 const at = (days: number) => new Date(NOW.getTime() + days * DAY);
+/** Days of the next months, at 09:00 UTC (noon in Istanbul): after their 1st's cut-off. */
+const DEC = (day: number) => new Date(Date.UTC(2026, 11, day, 9));
+const JAN = (day: number) => new Date(Date.UTC(2027, 0, day, 9));
+const FEB = (day: number) => new Date(Date.UTC(2027, 1, day, 9));
 const BASE = "https://yallapp.com.tr";
 const BLANK = TEMPLATES.find((t) => t.id === "blank")!;
 const words = (name: string) => (word: SectionWord) => String(appEn[word]).replaceAll("{app}", name);
@@ -314,47 +323,47 @@ describe("106.11 the ledger", () => {
 });
 
 describe("106.11 USD 250 and the carry-over", () => {
-  it("carries a balance under $250 over, pays the whole balance once it's $250, one payout a month", async () => {
-    // $100 for three months: $75 the designer's each time.
+  it("carries a balance under $250 over to the next 1st, pays what's before the cut-off once it's $250, one payout a month", async () => {
+    // $100 for three months: $75 the designer's each time, in November.
     const { template, designer } = await paidTemplate(10_000);
     const kashier = fakeKashier();
     await checks(designer);
     for (let i = 0; i < 3; i++) await sell(template, kashier, at(i));
-    let run = await payoutRun(store, at(3));
-    expect(run.rows.find((r) => r.designer.id === designer.id)).toMatchObject({ state: "below", money: { availableCents: 22_500 } });
-    expect((await preparePayouts(team(at(3)))).prepared).toEqual([]);
-    expect(await payoutsToDo(store, at(3))).toBe(0);
-    // A $34 sale more ($25.50 theirs): $250.00 exactly is due.
-    await store.updateMarketTemplate(template.id, { plans: [{ period: "3m", cents: 3400 }] }, at(4));
-    await sell(template, kashier, at(4));
-    run = await payoutRun(store, at(5));
-    expect(run.rows.find((r) => r.designer.id === designer.id)).toMatchObject({ state: "due", money: { availableCents: 25_050 } });
-    expect(await payoutsToDo(store, at(5))).toBe(1);
-    const { prepared } = await preparePayouts(team(at(5)));
+    // A $34 sale ($25.50 theirs) on 1 December: after December's cut-off.
+    await store.updateMarketTemplate(template.id, { plans: [{ period: "3m", cents: 3400 }] }, at(3));
+    await sell(template, kashier, DEC(1));
+    let run = await payoutRun(store, DEC(2));
+    expect(run.period).toBe("2026-12");
+    expect(run.rows.find((r) => r.designer.id === designer.id)).toMatchObject({ state: "below", dueCents: 22_500, laterCents: 2550, money: { availableCents: 25_050 } });
+    expect((await preparePayouts(team(DEC(2)))).prepared).toEqual([]);
+    expect(await payoutsToDo(store, DEC(2))).toBe(0);
+    // 1 January: November's $225 carried over with December's sale, $250.50 in all.
+    run = await payoutRun(store, JAN(2));
+    expect(run.rows.find((r) => r.designer.id === designer.id)).toMatchObject({ state: "due", dueCents: 25_050, laterCents: 0 });
+    expect(await payoutsToDo(store, JAN(2))).toBe(1);
+    const { prepared } = await preparePayouts(team(JAN(2)));
     expect(prepared).toHaveLength(1);
-    expect(prepared[0]).toMatchObject({ designerId: designer.id, period: "2026-11", amountCents: 25_050, status: "processing", currency: "USD" });
+    expect(prepared[0]).toMatchObject({ designerId: designer.id, period: "2027-01", amountCents: 25_050, status: "processing", currency: "USD" });
     // Pending now: on its way, out of the balance available.
-    let { money } = await designerMoney(store, designer.id, at(5));
+    let { money } = await designerMoney(store, designer.id, JAN(2));
     expect(money).toMatchObject({ earnedCents: 25_050, availableCents: 0, pendingCents: 25_050, paidCents: 0 });
     // Preparing again the same month makes nothing more.
-    expect((await preparePayouts(team(at(5)))).prepared).toEqual([]);
-    const sent = await markPayoutSent(team(at(6)), prepared[0]!, { reference: "SWIFT-20261121-0042", sentOn: "2026-11-21" });
+    expect((await preparePayouts(team(JAN(2)))).prepared).toEqual([]);
+    const sent = await markPayoutSent(team(JAN(3)), prepared[0]!, { reference: "SWIFT-20270103-0042", sentOn: "2027-01-03" });
     expect(sent.ok).toBe(true);
-    ({ money } = await designerMoney(store, designer.id, at(6)));
+    ({ money } = await designerMoney(store, designer.id, JAN(3)));
     expect(money).toMatchObject({ availableCents: 0, pendingCents: 0, paidCents: 25_050 });
 
-    // More sales the same month, $300 theirs: this month's payout went out, so it waits for December.
-    await store.updateMarketTemplate(template.id, { plans: [{ period: "3m", cents: 40_000 }] }, at(7));
-    await sell(template, kashier, at(7));
-    run = await payoutRun(store, at(8));
-    expect(run.rows.find((r) => r.designer.id === designer.id)).toMatchObject({ state: "sent", money: { availableCents: 30_000 } });
-    expect((await preparePayouts(team(at(8)))).prepared).toEqual([]);
-    // December: due, the whole balance carried over.
-    const december = at(20);
-    expect(payoutPeriod(december)).toBe("2026-12");
-    run = await payoutRun(store, december);
-    expect(run.rows.find((r) => r.designer.id === designer.id)).toMatchObject({ state: "due", money: { availableCents: 30_000, paidCents: 25_050 } });
-    expect((await preparePayouts(team(december))).prepared.map((p) => p.amountCents)).toEqual([30_000]);
+    // A sale in January, $300 theirs: January's payout went out, so it waits for 1 February.
+    await store.updateMarketTemplate(template.id, { plans: [{ period: "3m", cents: 40_000 }] }, JAN(4));
+    await sell(template, kashier, JAN(5));
+    run = await payoutRun(store, JAN(6));
+    expect(run.rows.find((r) => r.designer.id === designer.id)).toMatchObject({ state: "sent", dueCents: 0, laterCents: 30_000 });
+    expect((await preparePayouts(team(JAN(6)))).prepared).toEqual([]);
+    // 1 February: due, its balance before the cut-off.
+    run = await payoutRun(store, FEB(2));
+    expect(run.rows.find((r) => r.designer.id === designer.id)).toMatchObject({ state: "due", dueCents: 30_000, money: { availableCents: 30_000, paidCents: 25_050 } });
+    expect((await preparePayouts(team(FEB(2)))).prepared.map((p) => [p.period, p.amountCents])).toEqual([["2027-02", 30_000]]);
   });
 
   it("is due from $250.00 exactly, not at $249.99", async () => {
@@ -362,24 +371,29 @@ describe("106.11 USD 250 and the carry-over", () => {
     await checks(designer);
     const entry = (id: string, designerCents: number) => ({ id, designerId: designer.id, templateId: template.id, clientId: designer.clientId, kind: "buy" as const, plan: "3m" as const, grossCents: designerCents * 2, designerCents, yallappCents: designerCents, earnedAt: NOW, createdAt: NOW });
     await store.recordDesignerSale(entry("a0000000-0000-4000-8000-000000000001", 24_999));
-    const state = async () => (await payoutRun(store, at(1))).rows.find((r) => r.designer.id === designer.id)!;
-    expect(await state()).toMatchObject({ state: "below", money: { availableCents: PAYOUT_MIN_CENTS - 1 } });
+    const state = async () => (await payoutRun(store, DEC(2))).rows.find((r) => r.designer.id === designer.id)!;
+    expect(await state()).toMatchObject({ state: "below", dueCents: PAYOUT_MIN_CENTS - 1 });
     await store.recordDesignerSale(entry("a0000000-0000-4000-8000-000000000002", 1));
-    expect(await state()).toMatchObject({ state: "due", money: { availableCents: PAYOUT_MIN_CENTS } });
+    expect(await state()).toMatchObject({ state: "due", dueCents: PAYOUT_MIN_CENTS });
   });
 
-  it("doesn't pay a balance that changed between reading it and writing the payout", async () => {
+  it("doesn't pay a balance that changed between reading it and writing the payout, nor a sale after the cut-off", async () => {
     const { template, designer } = await paidTemplate(40_000);
     await checks(designer);
     await sell(template, fakeKashier());
-    const row = (await payoutRun(store, at(1))).rows.find((r) => r.designer.id === designer.id)!;
-    expect(row.money.availableCents).toBe(30_000);
-    // Another sale lands between reading the balance ($300) and writing the payout.
-    await store.recordDesignerSale({ id: "d00d0000-0000-4000-8000-000000000004", designerId: designer.id, templateId: template.id, clientId: designer.clientId, kind: "buy", plan: "3m", grossCents: 100, designerCents: 75, yallappCents: 25, earnedAt: at(1), createdAt: at(1) });
-    const stale = { ...(await preparePayouts(team(at(1)))).prepared[0]!, id: "e0000000-0000-4000-8000-000000000005", period: "2026-12" };
-    expect(await store.createDesignerPayout(stale, 30_000)).toBe("changed");
-    // Prepared again, it reads the balance again and pays all of it ($300.75).
+    const run = await payoutRun(store, DEC(2));
+    const row = run.rows.find((r) => r.designer.id === designer.id)!;
+    expect(row.dueCents).toBe(30_000);
+    // A sale after the cut-off changes nothing in December's run.
+    const sale = (id: string, earnedAt: Date) => ({ id, designerId: designer.id, templateId: template.id, clientId: designer.clientId, kind: "buy" as const, plan: "3m" as const, grossCents: 100, designerCents: 75, yallappCents: 25, earnedAt, createdAt: DEC(2) });
+    await store.recordDesignerSale(sale("d00d0000-0000-4000-8000-000000000003", DEC(1)));
+    // A late one before it (a delivery cut short) lands between reading the balance ($300) and writing the payout.
+    await store.recordDesignerSale(sale("d00d0000-0000-4000-8000-000000000004", at(1)));
+    const stale = { ...(await preparePayouts(team(DEC(2)))).prepared[0]!, id: "e0000000-0000-4000-8000-000000000005", period: "2026-11" };
+    expect(await store.createDesignerPayout(stale, { before: run.cutoff, expectedCents: 30_000 })).toBe("changed");
+    // Prepared again, it reads the balance again and pays what's before the cut-off ($300.75), never the 1 December sale.
     expect(stale.amountCents).toBe(30_075);
+    expect((await designerMoney(store, designer.id, DEC(2))).money).toMatchObject({ pendingCents: 30_075, availableCents: 75 });
   });
 });
 
@@ -387,14 +401,14 @@ describe("106.11 the checks before the first payout", () => {
   it("keeps the payouts back until the team approves the checks, and again after a change", async () => {
     const { template, designer } = await paidTemplate(40_000);
     await sell(template, fakeKashier());
-    const state = async (now = at(1)) => (await payoutRun(store, now)).rows.find((r) => r.designer.id === designer.id)!.state;
+    const state = async (now = DEC(2)) => (await payoutRun(store, now)).rows.find((r) => r.designer.id === designer.id)!.state;
     // $300 earned, no checks yet: waiting for them (the template was published without them).
     expect(template.status).toBe("published");
     expect(await state()).toBe("checks");
     const sent = await checks(designer, false, at(1));
     expect(sent.status).toBe("submitted");
     expect(await state()).toBe("checks");
-    expect((await preparePayouts(team(at(1)))).prepared).toEqual([]);
+    expect((await preparePayouts(team(DEC(2)))).prepared).toEqual([]);
     // A fix needs a note, then the designer is sent back.
     expect(await reviewPayoutDetails(store, sent, { decision: "fix", note: " ", seen: sent.submittedAt }, "deniz@yallapp.test", at(1))).toEqual({ ok: false, errors: { note: DETAILS_MESSAGES.note } });
     const fix = await reviewPayoutDetails(store, sent, { decision: "fix", note: "The account holder's name doesn't match your ID.", seen: sent.submittedAt }, "deniz@yallapp.test", at(1));
@@ -405,11 +419,11 @@ describe("106.11 the checks before the first payout", () => {
     // The team approves what it opened before the change: refused, the new checks are looked at again.
     expect(await reviewPayoutDetails(store, again, { decision: "approve", note: "", seen: sent.submittedAt }, "deniz@yallapp.test", at(2))).toEqual({ ok: false, errors: { form: DETAILS_MESSAGES.changed } });
     expect((await reviewPayoutDetails(store, again, { decision: "approve", note: "", seen: again.submittedAt }, "deniz@yallapp.test", at(2))).ok).toBe(true);
-    expect(await state(at(2))).toBe("due");
+    expect(await state(DEC(2))).toBe("due");
     // A change of bank after the approval: checked again before the next payout.
     await checks(designer, false, at(3));
-    expect(await state(at(3))).toBe("checks");
-    expect((await preparePayouts(team(at(3)))).prepared).toEqual([]);
+    expect(await state(DEC(3))).toBe("checks");
+    expect((await preparePayouts(team(DEC(3)))).prepared).toEqual([]);
   });
 
   it("reads the checks: the ID, an IBAN by its check digits, SWIFT/BIC, the bank's country and the address", () => {
@@ -486,7 +500,7 @@ describe("106.11 encrypted at rest, masked when shown", () => {
     // A payout keeps the account sealed again, bound to it, and its hint masked.
     await store.updateMarketTemplate(template.id, { plans: [{ period: "3m", cents: 40_000 }] }, NOW);
     await sell(template, fakeKashier());
-    const [payout] = (await preparePayouts(team(at(1)))).prepared;
+    const [payout] = (await preparePayouts(team(DEC(2)))).prepared;
     expect(payout!.accountEncrypted).not.toContain(IBAN);
     expect(payout!.accountEncrypted).not.toBe(stored.accountEncrypted);
     expect(payout!.accountHint).toBe("TR33 •••• 1326");
@@ -505,10 +519,10 @@ describe("106.11 encrypted at rest, masked when shown", () => {
     const { designer, template } = await paidTemplate(40_000);
     await checks(designer);
     await sell(template, fakeKashier());
-    const [payout] = (await preparePayouts(team(at(1)))).prepared;
+    const [payout] = (await preparePayouts(team(DEC(2)))).prepared;
     // A new platform key, the old one kept to open what it sealed until the job moved it.
     const next = withOldKeys(Buffer.alloc(32, 4), [KEY]);
-    const state = await runRekey(store, next, { clock: () => at(2) });
+    const state = await runRekey(store, next, { clock: () => DEC(3) });
     expect(state).toMatchObject({ done: true, failed: 0 });
     expect(state!.moved).toBeGreaterThanOrEqual(3);
     const details = (await store.getDesignerPayoutDetails(designer.id))!;
@@ -533,7 +547,7 @@ describe("106.11 the bank's file", () => {
     await checks(designer);
     await sell(template, fakeKashier());
     await store.updateTemplateDesigner(designer.id, { name: "=HYPERLINK(\"x\"), Studio" }, NOW);
-    const [payout] = (await preparePayouts(team(at(1)))).prepared;
+    const [payout] = (await preparePayouts(team(DEC(2)))).prepared;
     expect(payout!.amountCents).toBe(30_100);
     const designers = new Map((await store.listTemplateDesigners([designer.id])).map((d) => [d.id, d]));
     const csv = payoutsCsv([payout!, { ...payout!, id: "sent-one", status: "sent" }], designers, KEY);
@@ -545,7 +559,7 @@ describe("106.11 the bank's file", () => {
     const row = lines[1]!;
     expect(row.startsWith(`${payout!.id},`)).toBe(true);
     expect(row).toContain(`"'=HYPERLINK(""x""), Studio (${designer.slug})"`);
-    expect(row).toContain(`,IBAN,${IBAN},${SWIFT},,Ziraat Bankası,TR,301.00,USD,Yallapp Studio Market 2026-11 ${payout!.id.slice(0, 8).toUpperCase()}`);
+    expect(row).toContain(`,IBAN,${IBAN},${SWIFT},,Ziraat Bankası,TR,301.00,USD,Yallapp Studio Market 2026-12 ${payout!.id.slice(0, 8).toUpperCase()}`);
     expect(row).toContain('"Moda Cd. 12, Kadıköy, 34710 İstanbul"');
     expect(row).not.toContain("•");
     expect(csv).not.toContain("sent-one");
@@ -559,37 +573,37 @@ describe("106.11 Mark as sent", () => {
     const { template, designer } = await paidTemplate(40_000);
     await checks(designer);
     await sell(template, fakeKashier());
-    const [payout] = (await preparePayouts(team(at(1)))).prepared;
+    const [payout] = (await preparePayouts(team(DEC(2)))).prepared;
     return { designer, payout: payout! };
   }
 
   it("records the bank's reference and day once, and moves the amount from pending to paid out", async () => {
     const { designer, payout } = await prepared();
-    expect(readSent({ reference: "x", sentOn: "2026-11-17" }, payout, at(2))).toEqual({ ok: false, errors: { reference: MONEY_MESSAGES.reference } });
-    // Not before it was prepared (16 Nov), nor after today, nor a day that doesn't exist.
-    for (const sentOn of ["2026-11-15", "2026-11-18", "2026-02-30", "16/11/2026"]) expect(readSent({ reference: "SWIFT-1", sentOn }, payout, at(2))).toEqual({ ok: false, errors: { sentOn: MONEY_MESSAGES.sentOn } });
-    const done = await markPayoutSent(team(at(2)), payout, { reference: "  SWIFT-20261117-0042 ", sentOn: "2026-11-17" });
-    expect(done).toMatchObject({ ok: true, payout: { status: "sent", bankReference: "SWIFT-20261117-0042", sentOn: "2026-11-17", sentAt: at(2), sentBy: "deniz@yallapp.test" } });
-    expect(await markPayoutSent(team(at(2)), payout, { reference: "SWIFT-AGAIN", sentOn: "2026-11-17" })).toEqual({ ok: false, errors: { form: MONEY_MESSAGES.notProcessing } });
-    expect(await markPayoutSent(team(at(2)), (await store.getDesignerPayout(payout.id))!, { reference: "SWIFT-AGAIN", sentOn: "2026-11-17" })).toEqual({ ok: false, errors: { form: MONEY_MESSAGES.notProcessing } });
-    expect(await cancelPayout(team(at(2)), (await store.getDesignerPayout(payout.id))!, "Too late.")).toEqual({ ok: false, errors: { form: MONEY_MESSAGES.notProcessing } });
-    const { money, payouts } = await designerMoney(store, designer.id, at(2));
+    expect(readSent({ reference: "x", sentOn: "2026-12-03" }, payout, DEC(3))).toEqual({ ok: false, errors: { reference: MONEY_MESSAGES.reference } });
+    // Not before it was prepared (2 Dec), nor after today, nor a day that doesn't exist.
+    for (const sentOn of ["2026-12-01", "2026-12-04", "2026-02-30", "03/12/2026"]) expect(readSent({ reference: "SWIFT-1", sentOn }, payout, DEC(3))).toEqual({ ok: false, errors: { sentOn: MONEY_MESSAGES.sentOn } });
+    const done = await markPayoutSent(team(DEC(3)), payout, { reference: "  SWIFT-20261203-0042 ", sentOn: "2026-12-03" });
+    expect(done).toMatchObject({ ok: true, payout: { status: "sent", bankReference: "SWIFT-20261203-0042", sentOn: "2026-12-03", sentAt: DEC(3), sentBy: "deniz@yallapp.test" } });
+    expect(await markPayoutSent(team(DEC(3)), payout, { reference: "SWIFT-AGAIN", sentOn: "2026-12-03" })).toEqual({ ok: false, errors: { form: MONEY_MESSAGES.notProcessing } });
+    expect(await markPayoutSent(team(DEC(3)), (await store.getDesignerPayout(payout.id))!, { reference: "SWIFT-AGAIN", sentOn: "2026-12-03" })).toEqual({ ok: false, errors: { form: MONEY_MESSAGES.notProcessing } });
+    expect(await cancelPayout(team(DEC(3)), (await store.getDesignerPayout(payout.id))!, "Too late.")).toEqual({ ok: false, errors: { form: MONEY_MESSAGES.notProcessing } });
+    const { money, payouts } = await designerMoney(store, designer.id, DEC(3));
     expect(money).toMatchObject({ earnedCents: 30_000, availableCents: 0, pendingCents: 0, paidCents: 30_000 });
-    expect(payouts.map((p) => [p.status, p.bankReference])).toEqual([["sent", "SWIFT-20261117-0042"]]);
-    expect(await payoutsToDo(store, at(2))).toBe(0);
+    expect(payouts.map((p) => [p.status, p.bankReference])).toEqual([["sent", "SWIFT-20261203-0042"]]);
+    expect(await payoutsToDo(store, DEC(3))).toBe(0);
   });
 
   it("cancels a payout the bank didn't send, with why: the amount is back and the month can be prepared again", async () => {
     const { designer, payout } = await prepared();
-    expect(await cancelPayout(team(at(2)), payout, "no")).toEqual({ ok: false, errors: { note: MONEY_MESSAGES.note } });
-    expect(await cancelPayout(team(at(2)), payout, "The bank returned it: the IBAN was closed.")).toEqual({ ok: true });
-    expect((await designerMoney(store, designer.id, at(2))).money).toMatchObject({ availableCents: 30_000, pendingCents: 0, paidCents: 0 });
-    expect((await preparePayouts(team(at(3)))).prepared.map((p) => p.amountCents)).toEqual([30_000]);
+    expect(await cancelPayout(team(DEC(3)), payout, "no")).toEqual({ ok: false, errors: { note: MONEY_MESSAGES.note } });
+    expect(await cancelPayout(team(DEC(3)), payout, "The bank returned it: the IBAN was closed.")).toEqual({ ok: true });
+    expect((await designerMoney(store, designer.id, DEC(3))).money).toMatchObject({ availableCents: 30_000, pendingCents: 0, paidCents: 0 });
+    expect((await preparePayouts(team(DEC(4)))).prepared.map((p) => p.amountCents)).toEqual([30_000]);
   });
 
   it("writes the receipt in the designer's language, as a PDF and in the email", async () => {
     const { designer, payout } = await prepared();
-    const done = await markPayoutSent(team(at(2)), payout, { reference: "SWIFT-20261117-0042", sentOn: "2026-11-17" });
+    const done = await markPayoutSent(team(DEC(3)), payout, { reference: "SWIFT-20261117-0042", sentOn: "2026-12-03" });
     if (!done.ok) throw new Error("sent");
     for (const lang of ["en", "ar", "tr"] as const) {
       const document = payoutReceipt({ lang, payout: done.payout, designer, contact: DEFAULT_CONTACT, invoiceLines: [] });
@@ -614,6 +628,112 @@ describe("106.11 Mark as sent", () => {
     expect(en.text).toContain("It's exactly 75% of your sales");
     expect(en.text).not.toContain(IBAN);
     clearPlatformSettingsCache();
+  });
+});
+
+describe("106.11 the payout of the 1st: the cut-off at midnight Istanbul time", () => {
+  /** A designer with approved checks and their own sales in the ledger, at those times and amounts (their 75%). */
+  async function designerWith(sales: [Date, number][]) {
+    const { template, designer } = await paidTemplate();
+    await checks(designer);
+    for (const [i, [earnedAt, cents]] of sales.entries()) {
+      await store.recordDesignerSale({ id: `5a1e0000-0000-4000-8000-${String(i).padStart(12, "0")}`, designerId: designer.id, templateId: template.id, clientId: designer.clientId, kind: "buy", plan: "3m", grossCents: cents * 2, designerCents: cents, yallappCents: cents, earnedAt, createdAt: earnedAt });
+    }
+    return designer;
+  }
+  const rowOf = async (designer: TemplateDesigner, now: Date) => (await payoutRun(store, now)).rows.find((r) => r.designer.id === designer.id)!;
+
+  it("cuts off at 00:00 on the 1st in Istanbul (21:00 UTC the day before): 23:59 is in, 00:01 waits for the next 1st", async () => {
+    expect(periodCutoff("2026-12")).toEqual(new Date("2026-11-30T21:00:00.000Z"));
+    // 30 November 23:59 in Istanbul, and 1 December 00:01.
+    const lastMinute = new Date("2026-11-30T20:59:00.000Z");
+    const firstMinute = new Date("2026-11-30T21:01:00.000Z");
+    expect([salePeriod(lastMinute), salePeriod(firstMinute)]).toEqual(["2026-12", "2027-01"]);
+    const designer = await designerWith([
+      [lastMinute, 30_000],
+      [firstMinute, 20_000],
+    ]);
+    // On the 1st, when the daily job runs (06:10 UTC): December's run pays the 23:59 sale only.
+    const run = await payoutRun(store, new Date("2026-12-01T06:10:00.000Z"));
+    expect(run.period).toBe("2026-12");
+    expect(run.cutoff).toEqual(periodCutoff("2026-12"));
+    expect(await rowOf(designer, new Date("2026-12-01T06:10:00.000Z"))).toMatchObject({ state: "due", dueCents: 30_000, laterCents: 20_000 });
+    const [payout] = (await preparePayouts(team(new Date("2026-12-01T06:10:00.000Z")))).prepared;
+    expect(payout).toMatchObject({ period: "2026-12", amountCents: 30_000 });
+    // The 00:01 sale is in January's run (under $250 then: it carries over).
+    expect(await rowOf(designer, JAN(2))).toMatchObject({ state: "below", dueCents: 20_000 });
+  });
+
+  it("counts the month in Istanbul, not in UTC", () => {
+    // 30 November 22:00 UTC is already 1 December 01:00 in Istanbul: December's run, a sale toward January.
+    const late = new Date("2026-11-30T22:00:00.000Z");
+    expect(late.toISOString().slice(0, 7)).toBe("2026-11");
+    expect(payoutPeriod(late)).toBe("2026-12");
+    expect(salePeriod(late)).toBe("2027-01");
+    // 1 December 20:59 UTC is still 1 December (23:59) in Istanbul.
+    expect(payoutPeriod(new Date("2026-12-01T20:59:00.000Z"))).toBe("2026-12");
+    expect(payoutPeriod(new Date("2026-11-30T20:59:59.999Z"))).toBe("2026-11");
+  });
+
+  it("goes over the year's end: 31 December 23:59 is January's run, 00:01 on 1 January is February's", async () => {
+    expect(nextPeriod("2026-12")).toBe("2027-01");
+    expect(periodCutoff("2027-01")).toEqual(new Date("2026-12-31T21:00:00.000Z"));
+    const lastMinute = new Date("2026-12-31T20:59:00.000Z");
+    const firstMinute = new Date("2026-12-31T21:01:00.000Z");
+    expect([payoutPeriod(lastMinute), payoutPeriod(firstMinute)]).toEqual(["2026-12", "2027-01"]);
+    expect([salePeriod(lastMinute), salePeriod(firstMinute)]).toEqual(["2027-01", "2027-02"]);
+    const designer = await designerWith([
+      [lastMinute, 26_000],
+      [firstMinute, 26_000],
+    ]);
+    const newYear = new Date("2027-01-01T06:10:00.000Z");
+    expect(await rowOf(designer, newYear)).toMatchObject({ state: "due", dueCents: 26_000, laterCents: 26_000 });
+    expect((await preparePayouts(team(newYear))).prepared.map((p) => [p.period, p.amountCents])).toEqual([["2027-01", 26_000]]);
+    expect(await rowOf(designer, FEB(1))).toMatchObject({ state: "due", dueCents: 26_000 });
+  });
+
+  it("tells the designer their next payout and which sales it has, the others toward the 1st after it", async () => {
+    const designer = await designerWith([
+      [new Date("2026-11-20T10:00:00.000Z"), 30_000],
+      [new Date("2026-11-30T21:01:00.000Z"), 5_000],
+    ]);
+    // 30 November: the next payout is 1 December, with the 20 November sale; the 1 December one counts toward 1 January.
+    let { next, sales, payouts } = await designerMoney(store, designer.id, new Date("2026-11-30T12:00:00.000Z"));
+    expect(next).toMatchObject({ period: "2026-12", includedCents: 30_000, laterCents: 5_000, belowMin: false });
+    expect(payoutDayOf(next.period, "en")).toBe("1 December 2026");
+    expect(lastSalesDayOf(next.period, "en")).toBe("30 November 2026");
+    expect(payoutDayOf(next.period, "ar")).toBe("1 ديسمبر 2026");
+    expect(payoutDayOf(next.period, "tr")).toBe("1 Aralık 2026");
+    expect(sales.map((e) => saleState(e, payouts, next)).sort()).toEqual(["later", "next"]);
+    // Prepared on 2 December, then sent: the next one is 1 January, under $250 so far.
+    const [payout] = (await preparePayouts(team(DEC(2)))).prepared;
+    ({ next, sales, payouts } = await designerMoney(store, designer.id, DEC(2)));
+    expect(next).toMatchObject({ period: "2027-01", includedCents: 5_000, belowMin: true });
+    expect(Object.fromEntries(sales.map((e) => [e.designerCents, saleState(e, payouts, next)]))).toEqual({ 30000: "on_way", 5000: "carried" });
+    await markPayoutSent(team(DEC(3)), payout!, { reference: "SWIFT-20261203-0001", sentOn: "2026-12-03" });
+    ({ next, sales, payouts } = await designerMoney(store, designer.id, DEC(3)));
+    expect(Object.fromEntries(sales.map((e) => [e.designerCents, saleState(e, payouts, next)]))).toEqual({ 30000: "paid", 5000: "carried" });
+  });
+
+  it("alerts the team on the 1st that the month's payouts are ready to prepare, once, and closes when they are", async () => {
+    await designerWith([[new Date("2026-11-20T10:00:00.000Z"), 30_000]]);
+    const alerts: string[] = [];
+    const daily = (now: Date) =>
+      runStudioMarketDaily({ store, blobs, now, baseUrl: BASE, mail: async () => undefined, planOf: async () => null, alertMail: async (alert) => void alerts.push(alert.title) });
+    // 30 November: nothing to prepare yet.
+    expect((await daily(new Date("2026-11-30T06:10:00.000Z"))).payoutsDue).toBe(0);
+    expect(await store.listTeamAlerts({ open: true, limit: 10 })).toEqual([]);
+    // The 1st: one alert, emailed once, counted the next day.
+    expect((await daily(new Date("2026-12-01T06:10:00.000Z"))).payoutsDue).toBe(1);
+    await daily(new Date("2026-12-02T06:10:00.000Z"));
+    const [alert] = await store.listTeamAlerts({ open: true, limit: 10 });
+    expect(alert).toMatchObject({ kind: "market_payouts", key: payoutsAlertKey("2026-12"), link: "/admin/market/payouts", count: 2 });
+    expect(alert!.detail).toContain("1 designer is due, $300 in all, for the sales paid up to 30 November 2026 (midnight Istanbul time).");
+    expect(alerts).toEqual(["Studio Market payouts of 1 December 2026 are ready to prepare"]);
+    // Prepared: it closes by itself.
+    await preparePayouts(team(DEC(2)));
+    await daily(new Date("2026-12-03T06:10:00.000Z"));
+    expect(await store.listTeamAlerts({ open: true, limit: 10 })).toEqual([]);
   });
 });
 

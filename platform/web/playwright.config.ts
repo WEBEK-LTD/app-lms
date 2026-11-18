@@ -152,6 +152,8 @@ export const E2E = {
   marketAdminEmail: "market-admin@yallapp.test",
   /** 106.11 The super admin of tests/e2e/studio-market-money.spec.ts (the designers' payouts). */
   marketMoneyAdminEmail: "market-money-admin@yallapp.test",
+  /** 106.11 Days the payouts' clock runs ahead (STUDIO_MARKET_PAYOUT_TEST_DAYS): a sale paid during the run is before a 1st's cut-off. */
+  payoutTestDays: 31,
   /** 133 The super admin of tests/e2e/plans-addons.spec.ts. */
   plansAddonsAdminEmail: "plans-addons-admin@yallapp.test",
   /** 139 The super admin of tests/e2e/auto-screenshots.spec.ts. */
@@ -253,6 +255,8 @@ export default defineConfig({
       GOOGLE_PUSH_SERVICE_ACCOUNT: E2E.pushAccount,
       GOOGLE_FIREBASE_APPS_SERVICE_ACCOUNT: E2E.appsAccount,
       GOOGLE_API_TEST_URL: `http://localhost:${E2E.googlePort}`,
+      // 106.11 Studio Market's payouts on the 1st: their clock a month ahead, so a sale made in a test is due (refused on Netlify).
+      STUDIO_MARKET_PAYOUT_TEST_DAYS: String(E2E.payoutTestDays),
     },
   },
 });

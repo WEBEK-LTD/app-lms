@@ -8,9 +8,11 @@ import { solidPng } from "./png";
 /**
  * 106.11 The designer's money, end to end: a designer sells a template's
  * lifetime plan at $400 through (a fake) Kashier; they see the sale with its
- * split ($100 Yallapp's, $300 theirs) and their balance, and enter their
- * checks (their ID and its photo, their bank for SWIFT) in the designer
- * area; the team approves them, sees the payout due, prepares and downloads
+ * split ($100 Yallapp's, $300 theirs) and their next payout (the 1st after
+ * the sale's month, for the sales paid before its cut-off at midnight
+ * Istanbul time: the payouts' clock runs a month ahead in the test), and
+ * enter their checks (their ID and its photo, their bank for SWIFT) in the
+ * designer area; the team approves them, sees the payout due on that 1st, prepares and downloads
  * the bank file and marks the payout sent with the bank's reference; the
  * designer, now in Arabic, sees it paid out with its receipt (the page,
  * its PDF and the email in Arabic).
@@ -29,7 +31,17 @@ let kashier: FakeGateway;
 let admin: Page;
 let dz: Page;
 let own: Page;
-const month = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date());
+/**
+ * The payouts' clock runs E2E.payoutTestDays ahead (STUDIO_MARKET_PAYOUT_TEST_DAYS), so the sale paid
+ * now is before a 1st's cut-off: that 1st's run (its month in Istanbul) is the one the team prepares.
+ */
+const payoutClock = () => new Date(Date.now() + E2E.payoutTestDays * 86_400_000);
+const runMonth = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "Europe/Istanbul" }).format(payoutClock());
+const runDay = `1 ${runMonth}`;
+const runPeriod = (() => {
+  const parts = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", timeZone: "Europe/Istanbul" }).formatToParts(payoutClock());
+  return `${parts.find((p) => p.type === "year")!.value}-${parts.find((p) => p.type === "month")!.value}`;
+})();
 
 interface SentMail {
   to: string;
@@ -198,16 +210,20 @@ test("the designer sees the sale with its split and their balance, and enters th
   await dz.getByRole("link", { name: "Earnings" }).click();
   await expect(dz).toHaveURL(/\/designer\/money$/);
   await expect(dz.getByRole("heading", { name: "Earnings", level: 1 })).toBeVisible();
-  await expect(dz.locator('[data-money="available"] [data-cents]')).toHaveText("$300");
+  // The next payout is the 1st after the sale's month, with the sale in it; nothing counts toward the one after yet.
+  await expect(dz.locator('[data-money="next"]')).toContainText(`Next payout · ${runDay}`);
+  await expect(dz.locator('[data-money="next"] [data-cents]')).toHaveText("$300");
+  await expect(dz.locator('[data-money="later"] [data-cents]')).toHaveText("$0");
   await expect(dz.locator('[data-money="pending"] [data-cents]')).toHaveText("$0");
   await expect(dz.locator('[data-money="paid"] [data-cents]')).toHaveText("$0");
-  await expect(dz.locator('[data-money="earned"]')).toContainText("From 1 sale");
+  await expect(dz.getByText("From 1 sale")).toBeVisible();
   const sale = dz.locator("tr[data-sale]").filter({ hasText: title });
   await expect(sale).toContainText("Lifetime");
   await expect(sale).toContainText("Purchase");
   await expect(sale.locator("td").nth(3)).toHaveText("$400");
   await expect(sale.locator("td").nth(4)).toHaveText("$100");
   await expect(sale.locator("[data-you]")).toHaveText("$300");
+  await expect(sale.locator('[data-sale-payout="next"]')).toHaveText(runDay);
   await expect(dz.locator("[data-checks]")).toContainText("Details needed");
   await expect(dz.locator("[data-next-payout]")).toContainText("Before your first payout, add your ID and bank details.");
   await expect(dz.getByText("No payouts yet.")).toBeVisible();
@@ -285,10 +301,12 @@ test("the designer switches to Arabic; the team prepares the bank file, download
   await expect(dz.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(dz.getByRole("heading", { name: "أرباحك", level: 1 })).toBeVisible();
   await expect(dz.locator("[data-checks]")).toContainText("البيانات اتراجعت");
-  await expect(dz.locator("[data-next-payout]")).toContainText("هيتحوّل في تحويل الشهر ده");
+  await expect(dz.locator("[data-next-payout]")).toContainText("التحويل الجاي:");
+  await expect(dz.locator("[data-next-payout]")).toContainText("عن مبيعاتك المدفوعة لحد");
 
   await admin.goto("/admin/market/payouts");
-  await expect(admin.getByRole("heading", { name: `Due in ${month}`, level: 2 })).toBeVisible();
+  await expect(admin.getByRole("heading", { name: `Due on ${runDay}`, level: 2 })).toBeVisible();
+  await expect(admin.getByText(/midnight Istanbul time\): USD 250 or more, checks approved/)).toBeVisible();
   const due = admin.locator("tr[data-due]").filter({ hasText: studio });
   await expect(due).toContainText("$300");
   await expect(due).toContainText("TR33 •••• 1326");
@@ -299,7 +317,8 @@ test("the designer switches to Arabic; the team prepares the bank file, download
   // The designer's balance is on its way.
   await dz.reload();
   await expect(dz.locator('[data-money="pending"] [data-cents]')).toHaveText("$300");
-  await expect(dz.locator('[data-money="available"] [data-cents]')).toHaveText("$0");
+  await expect(dz.locator('[data-money="next"] [data-cents]')).toHaveText("$0");
+  await expect(dz.locator("tr[data-sale] [data-sale-payout]")).toHaveText("في الطريق");
 
   // The bank's file: the account in full, the amount with its cents.
   const [download] = await Promise.all([admin.waitForEvent("download"), admin.getByRole("link", { name: "Download the bank file (CSV)" }).click()]);
@@ -323,14 +342,15 @@ test("the designer switches to Arabic; the team prepares the bank file, download
   await expect(admin.locator("tr[data-processing]").filter({ hasText: studio })).toHaveCount(0);
   await admin.goto("/admin/audit");
   await expect(admin.getByText(/Downloaded the bank file: \d+ payouts?/).first()).toBeVisible();
-  await expect(admin.getByText(`Marked the $300 payout to “${studio}” for ${new Date().toISOString().slice(0, 7)} sent (bank reference SWIFT-${suffix}, ${new Date().toISOString().slice(0, 10)})`)).toBeVisible();
+  await expect(admin.getByText(`Marked the $300 payout to “${studio}” for ${runPeriod} sent (bank reference SWIFT-${suffix}, ${payoutClock().toISOString().slice(0, 10)})`)).toBeVisible();
 });
 
 test("the designer, in Arabic, sees it paid out and its receipt: the page, the PDF and the email", async () => {
   await dz.goto("/designer/money");
   await expect(dz.locator('[data-money="paid"] [data-cents]')).toHaveText("$300");
   await expect(dz.locator('[data-money="pending"] [data-cents]')).toHaveText("$0");
-  await expect(dz.locator('[data-money="available"] [data-cents]')).toHaveText("$0");
+  await expect(dz.locator('[data-money="next"] [data-cents]')).toHaveText("$0");
+  await expect(dz.locator("tr[data-sale] [data-sale-payout]")).toHaveText("اتحوّل");
   const payout = dz.locator("tr[data-payout]");
   await expect(payout).toHaveCount(1);
   await expect(payout).toContainText("اتبعت");

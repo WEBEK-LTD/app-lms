@@ -10,6 +10,7 @@ import type { DesignerPayoutDetails, PayoutDetailsStatus } from "@/lib/data/type
 import { encryptionKey } from "@/lib/env";
 import { idDocumentLink } from "@/lib/studio-market/id-document";
 import { designerMoney } from "@/lib/studio-market/money";
+import { payoutNow } from "@/lib/studio-market/payout-clock";
 import { detailsView } from "@/lib/studio-market/payout-details";
 import { formatUsd } from "@/lib/studio-market/plans";
 import { DetailsDecisionForm } from "../forms";
@@ -45,7 +46,7 @@ export default async function PayoutChecksPage({ searchParams }: PageProps<"/adm
   const designer = selected ? (designers.get(selected.designerId) ?? null) : null;
   const view = selected ? detailsView(selected, encryptionKey(), reveal) : null;
   const document = selected?.idDocumentAssetId ? await store.getAsset(selected.idDocumentAssetId) : null;
-  const money = designer ? (await designerMoney(store, designer.id, now)).money : null;
+  const money = designer ? (await designerMoney(store, designer.id, payoutNow())).money : null;
   const waiting = list.filter((d) => d.status === "submitted").length;
   const notice = params.done === "approved" ? "Approved. Their payouts can go out; they were emailed." : params.done === "fix" ? "Sent back to the designer with your note; they were emailed." : null;
 

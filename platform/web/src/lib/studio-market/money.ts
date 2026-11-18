@@ -3,6 +3,7 @@ import { newId } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { DesignerLedgerEntry, DesignerPayout, DesignerPayoutDetails, TemplateDesigner, TemplateOrder } from "../data/types";
 import { csvCell } from "../mailing/contacts";
+import { nextPeriod, payoutPeriod, periodCutoff } from "./payout-calendar";
 import { detailsAccount, maskAccount } from "./payout-details";
 
 /**
@@ -14,13 +15,16 @@ import { detailsAccount, maskAccount } from "./payout-details";
  *   banks' fees, so nothing comes off the designer's 75%. No refunds (the
  *   owner's decision): a paid order can't be taken back by anyone, so the
  *   ledger has sales and payouts only.
- * - **Payouts.** Monthly, by SWIFT to the designer's bank, in US dollars,
- *   from USD 250: below that the balance carries over to the next month.
+ * - **Payouts.** On the 1st of every month (the owner's decision, 18
+ *   November 2026), by SWIFT to the designer's bank, in US dollars, for the
+ *   sales paid up to the end of the month before, cut off at midnight
+ *   Istanbul time (lib/studio-market/payout-calendar.ts); from USD 250:
+ *   below that the balance carries over to the next 1st.
  *   Only once the designer's checks (ID, name and country, the bank) are
  *   approved, which happens before the first payout, never before
- *   publishing. Yallapp's team prepares the month's bank file (each due
- *   designer's whole balance, fixed then, with the bank details as approved
- *   then), sends the transfers from its bank, and marks each one sent with
+ *   publishing. From the 1st, Yallapp's team prepares the month's bank
+ *   file (each due designer's balance before the cut-off, fixed then, with
+ *   the bank details as approved then), sends the transfers from its bank, and marks each one sent with
  *   the bank's reference and date: the designer gets a receipt. Nothing here
  *   moves money: the platform only records what the team did.
  *
@@ -120,18 +124,59 @@ export function moneyOf(earned: { cents: number; sales: number } | undefined, pa
   return { earnedCents, sales: earned?.sales ?? 0, availableCents: earnedCents - pendingCents - paidCents, pendingCents, paidCents };
 }
 
-/** A designer's money, their sales in the ledger first. */
-export async function designerMoney(store: DataStore, designerId: string, now: Date): Promise<{ money: DesignerMoney; sales: DesignerLedgerEntry[]; payouts: DesignerPayout[] }> {
+/** Before the cut-off: what a run can pay a designer (their sales paid before it, less every payout prepared or sent). */
+export function dueOf(earnedBefore: { cents: number } | undefined, money: Pick<DesignerMoney, "pendingCents" | "paidCents">): number {
+  return Math.max(0, (earnedBefore?.cents ?? 0) - money.pendingCents - money.paidCents);
+}
+
+/**
+ * The designer's next payout: this month's run while it has USD 250 or more
+ * for them and isn't prepared yet (from the 1st, for the sales paid before
+ * it), else the next 1st. What it
+ * includes, what counts toward the run after it, and whether it's under
+ * USD 250 (then it carries over to the next 1st).
+ */
+export interface NextPayout {
+  period: string;
+  cutoff: Date;
+  includedCents: number;
+  laterCents: number;
+  belowMin: boolean;
+}
+
+/** Where a sale is: paid out, in a payout on its way, in the next payout (or carried over under USD 250), or toward the one after. */
+export type SaleState = "paid" | "on_way" | "next" | "carried" | "later";
+
+export function nextPayout(money: DesignerMoney, sales: readonly DesignerLedgerEntry[], payouts: readonly DesignerPayout[], now: Date): NextPayout {
+  const earnedBefore = (cutoff: Date) => ({ cents: sales.reduce((n, e) => (e.earnedAt.getTime() < cutoff.getTime() ? n + e.designerCents : n), 0) });
+  // This month's run while it still has something for them (USD 250 or more, not prepared yet); else the next 1st.
+  const current = payoutPeriod(now);
+  const preparedNow = payouts.some((p) => p.period === current && p.status !== "cancelled");
+  const period = !preparedNow && dueOf(earnedBefore(periodCutoff(current)), money) >= PAYOUT_MIN_CENTS ? current : nextPeriod(current);
+  const cutoff = periodCutoff(period);
+  const includedCents = dueOf(earnedBefore(cutoff), money);
+  return { period, cutoff, includedCents, laterCents: Math.max(0, money.availableCents - includedCents), belowMin: includedCents < PAYOUT_MIN_CENTS };
+}
+
+/** A sale is in a payout when it was paid before its cut-off and was in the ledger when the payout was prepared (each payout pays the whole balance before its cut-off). */
+export function saleState(sale: Pick<DesignerLedgerEntry, "earnedAt" | "createdAt">, payouts: readonly DesignerPayout[], next: NextPayout): SaleState {
+  const covered = (p: DesignerPayout) => sale.earnedAt.getTime() < periodCutoff(p.period).getTime() && sale.createdAt.getTime() <= p.preparedAt.getTime();
+  if (payouts.some((p) => p.status === "sent" && covered(p))) return "paid";
+  if (payouts.some((p) => p.status === "processing" && covered(p))) return "on_way";
+  if (sale.earnedAt.getTime() < next.cutoff.getTime()) return next.belowMin ? "carried" : "next";
+  return "later";
+}
+
+/** A designer's money, their sales in the ledger first, and their next payout. */
+export async function designerMoney(store: DataStore, designerId: string, now: Date): Promise<{ money: DesignerMoney; sales: DesignerLedgerEntry[]; payouts: DesignerPayout[]; next: NextPayout }> {
   await syncLedger(store, now, designerId);
   const [sales, payouts] = await Promise.all([store.listDesignerLedger({ designerId }), store.listDesignerPayouts({ designerId })]);
   const earned = { cents: sales.reduce((n, e) => n + e.designerCents, 0), sales: sales.length };
-  return { money: moneyOf(earned, payouts), sales, payouts };
+  const money = moneyOf(earned, payouts);
+  return { money, sales, payouts, next: nextPayout(money, sales, payouts, now) };
 }
 
-/** The month a payout is for: "2026-12" (UTC). */
-export function payoutPeriod(now: Date): string {
-  return now.toISOString().slice(0, 7);
-}
+export { nextPeriod, payoutPeriod, periodCutoff } from "./payout-calendar";
 
 /** "300.00": cents as dollars for the bank's file, without floating point. */
 export function centsDecimal(value: number): string {
@@ -142,8 +187,9 @@ export function centsDecimal(value: number): string {
 // ——— The month's payouts ———
 
 /**
- * Where a designer is in the month's payouts: due (USD 250 or more, checks
- * approved), waiting for their checks, below USD 250 (it carries over),
+ * Where a designer is in the month's run (the payout of the 1st): due (USD
+ * 250 or more of sales paid before the cut-off, checks approved), waiting
+ * for their checks, below USD 250 (it carries over to the next 1st),
  * prepared (in the bank's file, to send) or sent this month.
  */
 export type RunState = "due" | "checks" | "below" | "processing" | "sent";
@@ -151,6 +197,10 @@ export type RunState = "due" | "checks" | "below" | "processing" | "sent";
 export interface RunRow {
   designer: TemplateDesigner;
   money: DesignerMoney;
+  /** What this run can pay: the sales paid before its cut-off, less every payout prepared or sent. */
+  dueCents: number;
+  /** Sales after the cut-off: they wait for the next 1st. */
+  laterCents: number;
   details: DesignerPayoutDetails | null;
   /** This month's payout, prepared or sent. */
   payout: DesignerPayout | null;
@@ -158,15 +208,19 @@ export interface RunRow {
 }
 
 export interface PayoutRun {
+  /** "2026-12": the run of 1 December 2026. */
   period: string;
+  /** Its cut-off: 1 December 00:00 in Istanbul. */
+  cutoff: Date;
   rows: RunRow[];
 }
 
-/** The month's payouts: every designer who earned something, the due first, then those waiting, the prepared, the sent and those below USD 250. */
+/** This month's run: every designer who earned something, the due first, then those waiting, the prepared, the sent and those below USD 250. */
 export async function payoutRun(store: DataStore, now: Date): Promise<PayoutRun> {
   await syncLedger(store, now);
   const period = payoutPeriod(now);
-  const [earnings, payouts, details] = await Promise.all([store.designerEarnings(), store.listDesignerPayouts({}), store.listDesignerPayoutDetails()]);
+  const cutoff = periodCutoff(period);
+  const [earnings, before, payouts, details] = await Promise.all([store.designerEarnings(), store.designerEarnings(cutoff), store.listDesignerPayouts({}), store.listDesignerPayoutDetails()]);
   const ids = [...new Set([...Object.keys(earnings), ...payouts.map((p) => p.designerId)])];
   const designers = await store.listTemplateDesigners(ids);
   const detailsOf = new Map(details.map((d) => [d.designerId, d]));
@@ -174,24 +228,25 @@ export async function payoutRun(store: DataStore, now: Date): Promise<PayoutRun>
   const rows = designers.map((designer): RunRow => {
     const own = payouts.filter((p) => p.designerId === designer.id);
     const money = moneyOf(earnings[designer.id], own);
+    const dueCents = dueOf(before[designer.id], money);
     const payout = own.find((p) => p.period === period && p.status !== "cancelled") ?? null;
     const d = detailsOf.get(designer.id) ?? null;
-    const state: RunState = payout ? (payout.status === "sent" ? "sent" : "processing") : money.availableCents < PAYOUT_MIN_CENTS ? "below" : d?.status === "approved" ? "due" : "checks";
-    return { designer, money, details: d, payout, state };
+    const state: RunState = payout ? (payout.status === "sent" ? "sent" : "processing") : dueCents < PAYOUT_MIN_CENTS ? "below" : d?.status === "approved" ? "due" : "checks";
+    return { designer, money, dueCents, laterCents: Math.max(0, money.availableCents - dueCents), details: d, payout, state };
   });
-  rows.sort((a, b) => order[a.state] - order[b.state] || b.money.availableCents - a.money.availableCents || a.designer.name.localeCompare(b.designer.name));
-  return { period, rows };
+  rows.sort((a, b) => order[a.state] - order[b.state] || b.dueCents - a.dueCents || a.designer.name.localeCompare(b.designer.name));
+  return { period, cutoff, rows };
 }
 
-/** The admin menu's count, without writing anything: the payouts due this month and those prepared, still to send. */
+/** The admin menu's count, without writing anything: this month's payouts due and those prepared, still to send. */
 export async function payoutsToDo(store: DataStore, now: Date): Promise<number> {
   const period = payoutPeriod(now);
-  const [earnings, payouts, approved] = await Promise.all([store.designerEarnings(), store.listDesignerPayouts({ statuses: ["processing", "sent"] }), store.listDesignerPayoutDetails(["approved"])]);
+  const [before, payouts, approved] = await Promise.all([store.designerEarnings(periodCutoff(period)), store.listDesignerPayouts({ statuses: ["processing", "sent"] }), store.listDesignerPayoutDetails(["approved"])]);
   let n = payouts.filter((p) => p.status === "processing").length;
   for (const d of approved) {
     const own = payouts.filter((p) => p.designerId === d.designerId);
     if (own.some((p) => p.period === period)) continue;
-    if (moneyOf(earnings[d.designerId], own).availableCents >= PAYOUT_MIN_CENTS) n++;
+    if (dueOf(before[d.designerId], moneyOf(undefined, own)) >= PAYOUT_MIN_CENTS) n++;
   }
   return n;
 }
@@ -209,10 +264,12 @@ export interface MoneyDeps {
 export const payoutAccountContext = (payoutId: string) => `studio_market_payouts.account:${payoutId}`;
 
 /**
- * Prepares the month's bank file: each due designer's whole balance becomes
- * a payout, its amount fixed now with the bank details as approved (the
- * account encrypted again for the payout). A designer whose balance or
- * month changed meanwhile is left for the next try. Returns the payouts made.
+ * Prepares this month's bank file: each due designer's balance before the
+ * cut-off (their sales paid before the 1st at 00:00 in Istanbul, less what
+ * was paid) becomes a payout, its amount fixed now with the bank details as
+ * approved (the account encrypted again for the payout). A sale after the
+ * cut-off never goes in it. A designer whose balance or month changed
+ * meanwhile is left for the next try. Returns the payouts made.
  */
 export async function preparePayouts(deps: MoneyDeps): Promise<{ prepared: DesignerPayout[]; skipped: number }> {
   const run = await payoutRun(deps.store, deps.now);
@@ -220,8 +277,8 @@ export async function preparePayouts(deps: MoneyDeps): Promise<{ prepared: Desig
   let skipped = 0;
   for (const row of run.rows) {
     if (row.state !== "due" || !row.details) continue;
-    const payout = newPayout(deps, row.designer, row.details, row.money.availableCents, run.period);
-    const outcome = await deps.store.createDesignerPayout(payout, row.money.availableCents);
+    const payout = newPayout(deps, row.designer, row.details, row.dueCents, run.period);
+    const outcome = await deps.store.createDesignerPayout(payout, { before: run.cutoff, expectedCents: row.dueCents });
     if (outcome === "created") prepared.push(payout);
     else skipped++;
   }

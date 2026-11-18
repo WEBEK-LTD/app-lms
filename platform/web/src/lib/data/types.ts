@@ -6414,7 +6414,7 @@ export interface JobRun {
 }
 
 /** 151 `build_no_mac`: GitHub had no Mac for a build's iOS job (one per build). */
-export type TeamAlertKind = "build_waiting" | "build_stalled" | "build_no_mac" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow" | "firebase" | "publishing_full";
+export type TeamAlertKind = "build_waiting" | "build_stalled" | "build_no_mac" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow" | "firebase" | "publishing_full" | "market_payouts";
 
 /**
  * 78.3 Something the team should look at (lib/watch), in the admin's bell

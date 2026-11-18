@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
 import { payoutPeriod, payoutsCsv } from "@/lib/studio-market/money";
+import { payoutNow } from "@/lib/studio-market/payout-clock";
 import { formatUsd } from "@/lib/studio-market/plans";
 
 /**
@@ -30,7 +31,7 @@ export async function GET(): Promise<Response> {
   return new Response(csv, {
     headers: {
       "content-type": "text/csv; charset=utf-8",
-      "content-disposition": `attachment; filename="yallapp-studio-market-payouts-${payoutPeriod(new Date())}.csv"`,
+      "content-disposition": `attachment; filename="yallapp-studio-market-payouts-${payoutPeriod(payoutNow())}.csv"`,
       "cache-control": "no-store",
       "x-robots-tag": "noindex",
     },
