@@ -11948,6 +11948,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get deliveryPinChoose => 'Teslimat yerini haritada işaretleyin';
 
   @override
+  String get deliveryPinNoMapTitle => 'Bu mağazanın henüz haritası yok';
+
+  @override
+  String get deliveryPinNoMapMessage =>
+      'Teslimat yeri, telefonunuzun şu anki konumu olacak. Yalnızca siparişin gideceği yerdeyseniz kullanın ya da mağazadan adresinize teslim etmesini isteyin.';
+
+  @override
+  String get deliveryPinUseHere => 'Bulunduğum yeri kullan';
+
+  @override
   String get deliveryPinSet => 'Haritada işaretlendi';
 
   @override

@@ -238,5 +238,54 @@ test("the payment page takes the gift without a city the order never had, and th
   await expect(order).toContainText("16:00–20:00");
   await expect(order.locator("[data-order-pin]")).toHaveAttribute("href", `https://www.google.com/maps/search/?api=1&query=${MEDINA.lat},${MEDINA.lng}`);
   await expect(order.locator("[data-order-pin]")).toHaveText("The pin on the map");
+  // 168 Its time in the shop's time zone (Africa/Casablanca), not UTC.
+  await expect(order.getByText(/^Paid .* GMT(\+\d+)?$/)).toBeVisible();
+  await expect(order).not.toContainText(" UTC");
   expect(problems).toEqual([]);
+});
+
+test("168 the payment page in the customer's language: Arabic right to left, and Turkish", async ({ browser, request }) => {
+  const gift = (lang: string) =>
+    request.post(`${api}/store/checkout-link?platform=android`, {
+      headers: { "accept-language": lang },
+      data: {
+        lines: [{ product_id: rosesId, quantity: 1 }],
+        delivery_date: tomorrow(),
+        delivery_slot: "s1",
+        sender: { name: "سلمى بناني", phone: "+212600000168", email: "salma@example.com" },
+        recipient: { name: "أمينة الإدريسي", phone: "+212611223344", address: "رياض العروس، درب سيدي بولوكات 12، المدينة", ...MEDINA },
+      },
+    });
+  const page = await browser.newPage({ viewport: { width: 360, height: 800 } });
+  const ar = await gift("ar");
+  expect(ar.status(), await ar.text()).toBe(200);
+  await page.goto(((await ar.json()) as { url: string }).url);
+  const main = page.locator("main");
+  await expect(main).toHaveAttribute("lang", "ar");
+  await expect(main).toHaveAttribute("dir", "rtl");
+  await expect(page.getByRole("heading", { level: 1, name: "إتمام الطلب" })).toBeVisible();
+  await expect(page.getByLabel("الاسم الكامل")).toHaveValue("سلمى بناني");
+  await expect(page.getByLabel("المدينة (اختياري)")).toHaveValue("");
+  // A check fails in Arabic too.
+  await page.getByLabel("البريد الإلكتروني").fill("not-an-email");
+  await page.getByRole("button", { name: /^ادفع / }).click();
+  await expect(page.getByText("أدخل بريدًا إلكترونيًا صحيحًا.")).toBeVisible();
+  await page.getByLabel("البريد الإلكتروني").fill("salma@example.com");
+  await page.getByRole("button", { name: /^ادفع / }).click();
+  await expect(page.getByRole("heading", { name: "بطاقتك" })).toBeVisible();
+  await page.getByRole("button", { name: "Pay with test card" }).click();
+  await expect(page).toHaveURL(/\/order-received$/);
+  await expect(page.getByRole("heading", { name: "شكرًا لك!" })).toBeVisible();
+  await expect(page.locator("main")).toHaveAttribute("dir", "rtl");
+  // Nothing runs past the phone's width.
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+
+  const tr = await gift("tr");
+  await page.goto(((await tr.json()) as { url: string }).url);
+  await expect(page.locator("main")).toHaveAttribute("dir", "ltr");
+  await expect(page.getByRole("heading", { level: 1, name: "Ödeme" })).toBeVisible();
+  await expect(page.getByLabel("Ad soyad")).toBeVisible();
+  await expect(page.getByLabel("Şehir (isteğe bağlı)")).toBeVisible();
+  await expect(page.getByRole("button", { name: /öde$/ })).toBeVisible();
+  await page.close();
 });

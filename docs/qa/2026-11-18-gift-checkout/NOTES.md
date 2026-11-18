@@ -199,3 +199,39 @@ The coordinating session passed these on from the Leqaa QA tester. I didn't find
 - 168.13 was not re-run with the dashboard change reverted (a rebuild each time).
 - The release bump and the preview rebuild for these app changes are left to the integration branch, as the coordinator asked. Until then `tool/build_preview.sh --check` reports the preview out of date.
 - Projects made before 168.15 keep the old cart note: stale template words (156).
+
+## Third round: the open items closed (168.6–168.9)
+
+The coordinating session asked for these, in this order.
+
+| # | Was | Now |
+|---|---|---|
+| 168.7 | The payment page was in English only, left to right | In the order's app language (`CatalogOrder.lang`): English, Arabic (Modern Standard, right to left) or Turkish. This covers the details, the card step, the thank-you page, and the form's checks and messages. All the words are in `src/lib/catalog/pay-words.ts`, and English is unchanged |
+| 168.8 | `delivery_problem` was in English | It uses the hosted API's Arabic and Turkish, as errors do (`serverMessage`) |
+| 168.9 | Order times were in UTC | Shown in the shop's time zone with its offset (`formatDateTime(date, lang, zone)`, used only on the orders page) |
+| 168.6 | Without a map, the phone's location was used silently | The app first says "This shop has no map yet…" and uses the location only after "Use where I am". Three new strings in en, ar and tr |
+
+**Results:**
+
+- **Unit tests:** `phase168-gift-checkout.test.ts` passed 11 of 11. The new cases cover:
+  - every payment-page word in Arabic and Turkish, with the same placeholders
+  - the form's checks in Arabic and Turkish
+  - `delivery_problem` in Arabic and Turkish
+  - order times in the shop's time zone
+- **End to end:** `gift-checkout.spec.ts` passed 5 of 5. Its new cases:
+  - the payment page in Arabic at 360×800: `dir=rtl`, a check failing in Arabic, the payment through the fake Stripe, and "شكرًا لك!" at the end
+  - the payment page in Turkish
+  - the owner's order time in GMT+offset, not UTC
+- **Every other spec that goes through the payment page passed, 68 tests in all:** `catalog`, `connected-pay`, `demo-apps`, `donations-hosted`, `egypt-payments`, `events-hosted`, `fitness-hosted`, `manual-payments`, `owner-api`, `refunds`, `restaurant-hosted`, `stripe-paypal`, `team-members` and `world-currencies`.
+- **Flutter:** `phase131_place_test.dart` passed 8 of 8, with the notice, Cancel, and "Use where I am". The full `flutter test` passed 2153, with 776 skipped. `flutter analyze` is clean.
+- **Unit tests, the full suite:** 1 test failed at first: `phase62.test.ts`, because the 3 new app strings' dashboard notes were missing. I added them to `app-string-notes.ts` in en, ar and tr, and the test then passed 14 of 14. The rest of the suite: 4693 passed, 171 skipped.
+
+**Checks the coordinator asked for:**
+
+- **Turkish:** covered by the payment page's e2e test and the word tests.
+- **Dark mode:** the payment page has no dark look (a white page, as before). The app's no-map notice is a standard dialog in the app's theme. It was not checked in the preview.
+
+**Left as they were:**
+
+- The dashboard still offers "By distance" without a platform map.
+- The release number and the preview are left to the integration branch.

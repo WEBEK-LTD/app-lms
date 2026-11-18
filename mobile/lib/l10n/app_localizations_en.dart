@@ -12035,6 +12035,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deliveryPinChoose => 'Pin the delivery place on the map';
 
   @override
+  String get deliveryPinNoMapTitle => 'This shop has no map yet';
+
+  @override
+  String get deliveryPinNoMapMessage =>
+      'The delivery place will be where your phone is now. Use it only if you\'re at the place the order goes, or ask the shop to deliver to your address.';
+
+  @override
+  String get deliveryPinUseHere => 'Use where I am';
+
+  @override
   String get deliveryPinSet => 'Pinned on the map';
 
   @override

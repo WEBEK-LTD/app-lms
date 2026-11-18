@@ -5026,6 +5026,21 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "جزء الدفع العادي للبلد والمدينة والمكان على الخريطة، علشان شحن المتجر.",
     tr: "Standart ödemenin ülke, şehir ve haritadaki yer bölümü, mağazanın kargosu için.",
   },
+  "168 Title of the notice when the shop prices delivery by distance but the platform has no map to pin on.": {
+    en: "Title of the notice when the shop prices delivery by distance but there's no map to pin the place on.",
+    ar: "عنوان التنبيه لما المتجر بيحسب التوصيل حسب المسافة ومفيش خريطة لتحديد المكان.",
+    tr: "Mağaza teslimatı mesafeye göre fiyatlandırdığında ama yeri işaretleyecek harita olmadığında çıkan uyarının başlığı.",
+  },
+  "168 Why the phone's own location is used when there is no map: a gift's recipient is usually elsewhere.": {
+    en: "Why the phone's own location is used when there's no map: a gift's recipient is usually somewhere else.",
+    ar: "ليه بنستخدم مكان الموبايل لما مفيش خريطة: مستلم الهدية غالبًا في مكان تاني.",
+    tr: "Harita yokken neden telefonun konumunun kullanıldığı: hediyenin alıcısı genellikle başka bir yerdedir.",
+  },
+  "168 Uses the phone's location as the delivery place when there is no map.": {
+    en: "Uses the phone's location as the delivery place when there's no map.",
+    ar: "بيستخدم مكان الموبايل كمكان التوصيل لما مفيش خريطة.",
+    tr: "Harita yokken telefonun konumunu teslimat yeri olarak kullanır.",
+  },
   "131 Opens the map to pin where the order goes, for shipping priced by distance.": {
     en: "Opens the map to pin where the order goes, for shipping priced by distance.",
     ar: "بيفتح الخريطة علشان تحدّد مكان الطلب، للشحن حسب المسافة.",
