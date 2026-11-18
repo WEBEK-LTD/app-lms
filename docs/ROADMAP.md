@@ -4221,6 +4221,7 @@ QA (18 November) on Leqaa's app: a real order (#1057) opened from Orders showed 
 | [x] | 173.4 The app's order screen: a Delivery card (the day, the time "in the shop's time", the recipient with their phone, the address and city) and a Gift card (the message in the direction it was written, "From" the sender or "Sent anonymously"), each only with something to show; under the lines, the subtotal, "Coupon LEQAA10" (or "Discount"), the points, "Delivery to Marrakech" (or "Delivery fee"), "Delivery time fee", other fees, an added tax, the total, and a tax inside the prices said under it. Without `amounts` (older servers), the lines and the total as before. An order with its details opens from the list before its first stage | `phase173_order_details_test.dart` |
 | [x] | 173.5 The look of Leqaa's order screens (the system screen's soft cards), light and dark, English, Arabic (right to left: the times, codes and amounts kept left to right, the address one run) and Turkish; Material Symbols Rounded; the new words in English, Modern Standard Arabic and Turkish | `phase173_order_details_test.dart` |
 | [ ] | 173.6 For QA: on a phone, order #1057 (and an order without a card or a coupon) in Leqaa's and Kech Flora's apps, once the platform is deployed and the app rebuilt; a WordPress shop's order once plugin 0.4.51 is released | — |
+
 ## Phase 174: Studio's QA on Leqaa's flower shop, fixed at the root
 
 The Studio QA of 18 November (`docs/qa/2026-11-18-studio/REPORT.md` on `wip-qa-studio`), on Leqaa's flower-shop template (looks A · Rose hour and B · Botanical press; the apps Leqaa and Kech Flora), and the dashboard QA's report #2 (`docs/qa/2026-11-18-dashboard/REPORT.md`). The parts that belong to other phases stay there: categories (157), build your bouquet (162), the customer's currency (161), stale translations (156), sign-in (160), auto size and the cover's top row (159).
@@ -4259,6 +4260,36 @@ The QA pass of 18 November (`docs/qa/2026-11-18-dashboard/REPORT.md` on `wip-qa-
 | [x] | 175.14 Yallapp Business (report #11): an order's add-ons go under the line they were chosen with (the order keeps an add-on after its item: with two sizes of one bouquet each goes under the size before it, `addonOwners`), not all under the first; a signed card with no sender's and no customer's name says "Signed, with no name given", never "Signed by " alone; Postpone and Retry offer days from the shop's today (its time zone, the server's `delivery-slots` day), not the phone's clock; and the server refuses a time that is full that day (this order's own place aside) or closed by the shop that day, as the app greys them out, with its own words in English, Egyptian Arabic and Turkish | `phase175_business_test.dart`, `phase175-cancel.test.ts` |
 | [ ] | 175.15 Not done here: Yallapp Business still has no client for `PUT …/orders/{id}/shipment` (report #11, not in this task); the Business app isn't released from this branch, and `mobile/` isn't changed (no `CLIENT_APP_RELEASE` bump, no preview rebuilt) | — |
 | [ ] | 175.16 For the owner: try the cancel dialog (refund and no refund) on a real card payment, a guest's stage emails, and a currency change with real rates | — |
+
+## Phase 183: `brand`'s Start now opens the app's main screen
+
+The template guard (166, `docs/qa/2026-11-18-guard/NOTES.md`) found that `brand`, the template for every kind of project, served its hero's "Start now" with `action: null`: the button opened nothing. The kinds' own templates name a screen; `brand` named none, and no helper mapped a kind to its main screen. The owner's rule is that every app comes out with no dead buttons. Now each kind has a main screen, `brand` opens it when a project is made, and the hosted API gives it to a page's button that names nothing, so projects made before are fixed too. The owner's own link always wins. `brand`'s look and words are unchanged; no migration, no contract change, no `CLIENT_APP_RELEASE` change (the app already opens these screens).
+
+| Kind | Opens (`screen`) |
+|---|---|
+| store, marketplace | the shop, `search` (the Shop and Search tabs) |
+| restaurant | the menu, `search` (its Menu tab) |
+| food | `restaurants`: a food delivery company's menus are its restaurants'; its app has no menu screen of its own |
+| academy, instructors | `courses` |
+| bookings, clinic, services | `services` |
+| fitness | `classes`, a gym's booking list (its first tab) |
+| events | `events` |
+| real_estate | `courses`, "All listings" |
+| news | `articles` |
+| charity | `campaigns` |
+| travel | `explore` |
+| rides, taxi | `ride`, the ride request on the home map |
+| school | `school`: there is no Today screen, so its first tab, which shows the day |
+| delivery | `send_parcel` |
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 183.1 `mainScreenOf(kind)` and `mainScreenOfApp(app)` (`lib/app/kinds.ts`): the table above, all `screen` actions (ACTION_TYPES) with screens in the contract's `ScreenName` that each kind's app opens. A kind with no entry: its first tab that isn't Home, else the screen of Home's first list, else its engine's first screen; never null | `phase183-brand-start.test.ts` |
+| [x] | 183.2 Making a project from `brand` (`makeStudioProject`, and Studio's editor when it adds the template): "Start now" opens the kind's main screen (`SectionContext.main`) | `phase183-brand-start.test.ts` (every kind) |
+| [x] | 183.3 Hosted `GET /pages/{slug}`: a button on a Studio page with no action (`brand`'s "Start now" in a project made before) is served with the app's main screen (`lib/studio/main-screen.ts`), next to 152's and 161's served fixes. A list's card's buttons are left as they are (the card opens its entry); a button with the owner's own link keeps it | `phase183-brand-start.test.ts` (every kind, the owner's link) |
+| [x] | 183.4 Studio's inspector: for such a button, "When the customer taps" shows "Opens: <the main screen>" (the tab's name when a tab opens it: "Shop", "Menu"), with a line saying the owner can choose another, in English, Egyptian Arabic and Turkish | tsc, eslint, next build |
+| [x] | 183.5 The guard (`wip-template-guard`'s tests, run on a local merge): `brand on a store project` passes all 11 checks, the tap check included (10 of 11 before) | `template-guard.test.ts` |
+| [ ] | 183.6 For the guard's branch: regenerate its fixtures (`mobile/tool/template_guard_fixtures.sh`) once this is merged, since `brand.json` now has "Start now" opening the shop; until then its fixtures check reports `brand.json` as stale | `template-guard-fixtures.test.ts` |
 
 ## Phase 185: Client Android builds survive a busy Maven Central
 
@@ -4308,6 +4339,7 @@ The owner's request (18 November, urgent): Google Pay and Apple Pay through a ga
 | [ ] | 188.8 On a real iPhone: the card in the sheet; with the owner's merchant ID linked to the App ID and Stripe's Apple Pay certificate, Apple Pay in it | — |
 | [ ] | 188.9 The owner's Apple Pay set-up per app (merchant ID, its link to the App ID, Stripe's certificate) | — |
 | [x] | 188.10 App release 11 on its own: `CLIENT_APP_RELEASE` 11 with its release line (`lib/builds/app-release.ts`), and the app preview rebuilt with Flutter 3.47.5 (`mobile/tool/build_preview.sh`; flutter_stripe compiles for the web, where the app never makes the sheet, so the preview keeps Stripe's form in the page) | `publish-for-all.test.ts`, `build_preview.sh --check` |
+
 ## Phase 189: The hero's slides, plain to find in Studio
 
 The owner's report (18 November, urgent): on Kech Flora's home, the five full-screen slides (a picture, a small line, the title, the words and a button each, "01/05" over them) couldn't be found to change. They are the app's stories (165, `stories_source: "dashboard"`), changed in Dashboard › Stories, but Studio only said so with the slider itself selected, and a click on the hero selects the words or the picture on a slide, never the slider; and the canvas showed one slide, the others only by scrolling sideways. Studio's editor only: nothing changes in the app, no app build, no migration. Then the owner's word (same day): the slides are edited from the layers on the left, as they should be; they must be on the right too; and whatever is picked on slide 2 or 3 (its picture or its words) must be the slide the phone shows, which it wasn't: the canvas kept slide 1. Until the owner saves in Dashboard › Stories the app shows the slides as designed in Studio, edits included (165), so Studio speaks of Stories only once they're saved.
