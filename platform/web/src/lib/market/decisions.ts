@@ -1,6 +1,7 @@
 import type { DataStore } from "../data/store";
 import type { App, MarketOrder } from "../data/types";
 import { ownPaymentAccount } from "../catalog/settings";
+import { paymentApiUrls } from "../env";
 import { notifyDeps } from "../delivery/flow";
 import { tellComplaint } from "./notify";
 import type { DecisionDeps } from "./complaints";
@@ -23,7 +24,7 @@ export function complaintDecisionDeps(store: DataStore, app: App, key: Buffer, i
       const earlier = (await store.listMarketComplaints({ appId: app.id, orderId: order.id, limit: 100, offset: 0 })).items
         .filter((c) => c.id !== complaintId && c.decision?.to === "payment")
         .reduce((sum, c) => sum + (c.decision?.amount ?? 0), 0) + (order.money.settlement?.toCard ?? 0);
-      const done = await refundMarketPayment(account, order, { cents: amount, refundedBefore: earlier, paymentId: order.paymentRef, note: `Complaint ${complaintId}`, ip: input.ip, now: input.now });
+      const done = await refundMarketPayment(account, order, { cents: amount, refundedBefore: earlier, paymentId: order.paymentRef, note: `Complaint ${complaintId}`, ip: input.ip, now: input.now }, { urls: paymentApiUrls() });
       return done.ok ? { ok: true } : { ok: false, error: done.error };
     },
     makeCoupon: async (order: MarketOrder, amount: number, complaintId: number) => {

@@ -1,6 +1,7 @@
 import type { DataStore } from "../data/store";
 import type { App, MarketOrder } from "../data/types";
 import { ownPaymentAccount } from "../catalog/settings";
+import { paymentApiUrls } from "../env";
 import { formatMinor } from "./currency";
 import { marketOrderReference } from "./json";
 import type { OrderMoney, Settlement } from "./money";
@@ -58,7 +59,7 @@ export function gatewayRefund(store: DataStore, app: App, key: Buffer, ip: strin
   return async (order, cents) => {
     const charged = chargedOf(order);
     // Against what the card paid, not the lower total after picking.
-    const done = await refundMarketPayment(account, { ...order, money: { ...order.money, payNow: charged.payNow } }, { cents, refundedBefore: 0, paymentId: order.paymentRef, note: `Weighed ${marketOrderReference(order)}`, ip, now });
+    const done = await refundMarketPayment(account, { ...order, money: { ...order.money, payNow: charged.payNow } }, { cents, refundedBefore: 0, paymentId: order.paymentRef, note: `Weighed ${marketOrderReference(order)}`, ip, now }, { urls: paymentApiUrls() });
     return done.ok ? { ok: true } : { ok: false, error: done.error };
   };
 }
