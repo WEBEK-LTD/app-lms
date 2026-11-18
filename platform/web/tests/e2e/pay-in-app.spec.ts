@@ -9,6 +9,9 @@ import { solidPng } from "./png";
  * give "Back to the app" on the app's own address (by itself once paid), and
  * /pay/<token>/status says how it stands. The same pages in a browser (or an
  * app's web view, as apps already in the stores open them) are as before.
+ * 186 The apps are handed the page's /in-app, which goes on to the page in
+ * the app's own view: release 10's apps open only the page itself in the
+ * sheet, so the payment is back inside the app.
  *
  * A shop taking bank transfers: the order is placed with no card gateway, the
  * owner marks it paid or cancels it, so each page is reached for real.
@@ -31,11 +34,18 @@ async function signIn(page: Page, email: string, password: string) {
   await page.waitForURL((url) => url.pathname !== "/sign-in");
 }
 
-/** A new order's payment page, as the app gets it from the checkout. */
-async function payLink(request: APIRequestContext): Promise<string> {
+/** 186 A new order's link, as the app gets it from the checkout: the payment page's /in-app. */
+async function handedLink(request: APIRequestContext): Promise<string> {
   const products = await (await request.get(`${api}/store/products`)).json();
   const checkout = await request.post(`${api}/store/checkout-link?platform=ios`, { data: { lines: [{ product_id: products.items[0].id, quantity: 1 }] } });
-  return ((await checkout.json()) as { url: string }).url;
+  const link = ((await checkout.json()) as { url: string }).url;
+  expect(link).toMatch(/\/pay\/[\w-]+\/in-app$/);
+  return link;
+}
+
+/** A new order's payment page (where the link the app gets goes on to). */
+async function payLink(request: APIRequestContext): Promise<string> {
+  return (await handedLink(request)).replace(/\/in-app$/, "");
 }
 
 async function fillAndPlace(page: Page) {
@@ -116,6 +126,20 @@ test("a shop that takes bank transfers", async ({ page }) => {
   const link = (await page.getByRole("link", { name: /\/shop\// }).textContent())!;
   appId = /\/shop\/([0-9a-f-]{36})\//.exec(link)![1]!;
   api = `${E2E.baseURL}/api/app/${appId}`;
+});
+
+test("186 the link the app is handed opens the payment page in the app's own view", async ({ browser, request }) => {
+  const handed = await handedLink(request);
+  const view = await fresh(browser);
+  const opened = await view.goto(handed);
+  expect(opened?.url()).toBe(handed.replace(/\/in-app$/, ""));
+  await expect(view.getByRole("button", { name: /^Place order/ })).toBeVisible();
+  // Nothing marks it as the browser sheet's: no way back to an app, as in any browser.
+  expect((await view.context().cookies()).find((c) => c.name === "yallapp_app_pay")).toBeUndefined();
+  await expect(backLink(view)).toHaveCount(0);
+  const refused = await request.get("/pay/nope/in-app", { maxRedirects: 0 });
+  expect(refused.status()).toBe(404);
+  await view.context().close();
 });
 
 test("in a browser (and an app's web view): the pages as before, no way back to an app", async ({ browser, request }) => {

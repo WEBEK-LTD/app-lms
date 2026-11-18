@@ -5,6 +5,7 @@ import { CopyButton } from "@/components/copy-button";
 import { Icon } from "@/components/icon";
 import { Badge, formatDate, formatDateTime } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
+import { appPlanActive } from "@/lib/license/status";
 import { appTypeName } from "@/lib/app/kinds";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -53,6 +54,8 @@ const STORE_SHORT: Record<PublishingStore, string> = { android: "Play", ios: "Ap
 const TABS = [
   { id: "open", label: "In progress" },
   { id: "live", label: "Live everywhere" },
+  // 187 Asked while the app had no paid plan: not ours to start until it is paid.
+  { id: "unpaid", label: "Waiting for a plan" },
   { id: "all", label: "All" },
 ] as const;
 
@@ -75,7 +78,12 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
   ]);
   const appsPerAccount = accountCounts(everyApp);
   const accountOf = (app: App | null) => (app ? (accounts.find((a) => a.id === appAccountId(app)) ?? null) : null);
-  const requests = all.filter((r) => (tab === "all" ? true : tab === "live" ? isLiveEverywhere(r) : !isLiveEverywhere(r)));
+  // 187 Which requests' apps have a paid plan running now; the others wait for it, apart from the queue.
+  const now = new Date();
+  const paidApps = new Set((await Promise.all(all.map(async (r) => ((await appPlanActive(store, { id: r.appId, clientId: r.clientId }, now)) ? r.appId : null)))).filter((id): id is string => id !== null));
+  const waiting = (r: PublishingRequest) => !paidApps.has(r.appId) && !isLiveEverywhere(r);
+  const inProgress = (r: PublishingRequest) => !isLiveEverywhere(r) && !waiting(r);
+  const requests = all.filter((r) => (tab === "all" ? true : tab === "live" ? isLiveEverywhere(r) : tab === "unpaid" ? waiting(r) : inProgress(r)));
   const rows = await Promise.all(
     requests.map(async (request) => {
       const [client, app, events] = await Promise.all([
@@ -100,9 +108,9 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
     const text = search.toString();
     return text ? `/admin/publishing?${text}` : "/admin/publishing";
   };
-  const counts = { open: all.filter((r) => !isLiveEverywhere(r)).length, live: all.filter(isLiveEverywhere).length, all: all.length };
+  const counts = { open: all.filter(inProgress).length, live: all.filter(isLiveEverywhere).length, unpaid: all.filter(waiting).length, all: all.length };
   // Where the open requests' stores stand, at a glance.
-  const tracks = all.filter((r) => !isLiveEverywhere(r)).flatMap((r) => requestStores(r).map((which) => trackOf(r, which).status));
+  const tracks = all.filter(inProgress).flatMap((r) => requestStores(r).map((which) => trackOf(r, which).status));
   const glance = PUBLISHING_STATUSES.map((id) => ({ id, label: PUBLISHING_STATUS_LABEL[id], count: tracks.filter((t) => t === id).length }));
 
   return (
@@ -175,6 +183,7 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
                           Account: <bdi dir="ltr">{account?.email ?? teamEmail}</bdi>
                         </span>
                         {request.teamEmailFailedAt ? <Badge tone="danger">Email to the team failed</Badge> : null}
+                        {waiting(request) ? <Badge tone="warn">No paid plan</Badge> : null}
                       </div>
                     </td>
                     <td className="px-4 py-3.5">

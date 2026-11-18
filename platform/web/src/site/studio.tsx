@@ -27,6 +27,7 @@ import { localePath } from "@/i18n/paths";
 import { storyCopyFor } from "@/content/stories";
 import { storyLinks } from "@/site/story/links";
 import { lookCaption, lookScreen, type LookShotKey } from "@/site/studio-looks";
+import { templatesText } from "./templates-text";
 
 export function studioMetadata(lang: Lang): Metadata {
   const m = messagesFor(lang).studio;
@@ -288,6 +289,8 @@ export async function StudioDemoPage({ lang, download }: { lang: Lang; download?
         <div className="flex flex-wrap gap-x-8 gap-y-3">
           <MoreLink href={lp("/yallapp-studio")}>{m.homeLink}</MoreLink>
           <MoreLink href={lp("/demo")}>{m.regularDemos}</MoreLink>
+          {/* 106.13 Whole designs by designers, on Studio Market. */}
+          <MoreLink href={lp("/templates")}>{templatesText(lang).demoLink}</MoreLink>
         </div>
       </Section>
     </MarketingPage>

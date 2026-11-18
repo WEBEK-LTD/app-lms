@@ -11,6 +11,7 @@ import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import { expectContract } from "./contract";
 import { KEY, NOW, setupClient } from "./helpers";
+import { payToken } from "./pay-token";
 
 const DEVICE = { id: "install-1", platform: "android", name: "Pixel 8", app_version: "1.0.0" };
 
@@ -253,7 +254,7 @@ describe("courses on the hosted API", () => {
     const link = await call("POST", "/auth/checkout-link", { query: { platform: "android" }, token, body: { course_id: 20 } });
     const url = (link.body as { url: string }).url;
     expect(url).toMatch(/^https:\/\/yallapp\.test\/pay\//);
-    const order = (await store.getCatalogOrderByToken(sha256Hex(url.split("/").pop()!)))!;
+    const order = (await store.getCatalogOrderByToken(sha256Hex(payToken(url))))!;
     expect(order).toMatchObject({ userId: user.id, totalCents: 45000, lines: [{ productId: 20, name: "Business English", digital: true }] });
 
     await store.payCatalogOrder(app.id, order.id, "pay-1", now);

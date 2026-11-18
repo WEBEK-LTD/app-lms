@@ -194,13 +194,15 @@ describe("the API check when the owner saves their own API", () => {
 });
 
 describe("“Publish it for me”", () => {
-  async function managedSetup() {
+  /** 187 With its plan paid (the team's activation), unless `paid` is false. */
+  async function managedSetup(paid = true) {
     const store = await getStore();
     const email = `pub-${Date.now()}-${Math.random().toString(36).slice(2)}@academy.test`;
     const { user, client } = await registerClient(store, { name: "Ada", email, whatsapp: "+905446731942", siteUrl: "https://a.test", password: null }, NOW);
     const app: App = { ...newApp(client.id, "https://a.test", NOW), appName: "Ada Academy" };
     await store.createApp(app);
-    return { store, user, client, app };
+    if (paid) await activateClient(store, { clientId: client.id, appId: app.id, plan: "pro", activeUntil: days(30), paymentNote: "" }, KEY, NOW);
+    return { store, user, client: (await store.getClientById(client.id))!, app: (await store.getAppById(app.id))! };
   }
 
   async function withMailDir<T>(run: (mails: () => Promise<{ to: string; subject: string; text: string }[]>) => Promise<T>): Promise<T> {
@@ -248,6 +250,47 @@ describe("“Publish it for me”", () => {
       // Choosing the same again changes nothing.
       await choosePublishingMode(store, { ...context, app: (await store.getAppById(app.id))! }, "managed", days(6));
       expect(await store.listPublishingEvents(app.id)).toHaveLength(3);
+    });
+  });
+
+  it("187 an app without a paid plan: the request waits, and reaches the team once the plan is paid", async () => {
+    await withMailDir(async (mails) => {
+      const subjects = async () => (await mails()).map((m) => m.subject);
+      const { store, user, client, app } = await managedSetup(false);
+      const context = { user, staff: null, client, app };
+      // Asked with no plan: saved for the client (the setup goes on), but nobody on the team hears of it.
+      expect(await choosePublishingMode(store, context, "managed", NOW)).toMatchObject({ mode: "managed", requestedAt: NOW });
+      expect((await store.getAppById(app.id))!.publishingMode).toBe("managed");
+      expect(await subjects()).toEqual([]);
+      // Back to "myself" and again "for me" while unpaid: still nothing.
+      await choosePublishingMode(store, { ...context, app: (await store.getAppById(app.id))! }, "self", days(1));
+      await choosePublishingMode(store, { ...context, app: (await store.getAppById(app.id))! }, "managed", days(2));
+      expect(await subjects()).toEqual([]);
+
+      // The plan is paid: the team hears of the request now, once.
+      await activateClient(store, { clientId: client.id, appId: app.id, plan: "pro", activeUntil: days(33), paymentNote: "" }, KEY, days(3));
+      expect(await subjects()).toEqual(["Publishing: Ada asked us to publish their app (its plan is paid now)"]);
+      // A renewal of a running plan doesn't tell them again.
+      await activateClient(store, { clientId: client.id, appId: app.id, plan: "pro", activeUntil: days(63), paymentNote: "" }, KEY, days(4));
+      expect(await subjects()).toHaveLength(1);
+    });
+  });
+
+  it("187 a plan that ended: a new request waits too, and goes out with the renewal", async () => {
+    await withMailDir(async (mails) => {
+      const { store, user, client, app } = await managedSetup();
+      // The plan (to day 30) has ended by day 40.
+      await choosePublishingMode(store, { user, staff: null, client, app }, "managed", days(40));
+      expect(await mails()).toEqual([]);
+      await activateClient(store, { clientId: client.id, appId: app.id, plan: "pro", activeUntil: days(70), paymentNote: "" }, KEY, days(41));
+      expect((await mails()).map((m) => m.subject)).toEqual(["Publishing: Ada asked us to publish their app (its plan is paid now)"]);
+    });
+  });
+
+  it("187 activating an app that asked nothing tells the publishing team nothing", async () => {
+    await withMailDir(async (mails) => {
+      await managedSetup();
+      expect(await mails()).toEqual([]);
     });
   });
 

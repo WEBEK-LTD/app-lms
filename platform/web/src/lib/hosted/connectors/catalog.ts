@@ -12,6 +12,7 @@ import { checkOptions, optionGroupsJson, optionGroupsOf, type ChosenOption } fro
 import { awaitingManualPayment } from "../../catalog/manual";
 import { catalogSettings, isOwnPayment, ORDER_STATUS_LABELS, orderNumber, PAY_LINK_MINUTES, paymentsSetUp, shippingFor } from "../../catalog/settings";
 import { addDisplayPricesWith, customerCurrencyAllowed, customerCurrencyRule, Shown } from "../../money/display";
+import { payLinkForApps } from "../../payments/pay-link";
 import { providerTakes } from "../../payments/provider";
 import { shipmentJson } from "../../catalog/shipping";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
@@ -69,8 +70,9 @@ export function productUrl(platformUrl: string, appId: string, productId: number
   return `${platformUrl.replace(/\/+$/, "")}/shop/${appId}/${productId}`;
 }
 
+/** 186 The link the app opens: in its own view, on to the payment page. */
 export function payUrl(platformUrl: string, token: string): string {
-  return `${platformUrl.replace(/\/+$/, "")}/pay/${token}`;
+  return payLinkForApps(platformUrl, token);
 }
 
 /** Paragraphs of plain text as HTML. */

@@ -3,6 +3,7 @@ import { newId } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { App, Client, License } from "../data/types";
 import { generateLicenseKey, hashLicenseKey } from "../license/key";
+import { appIsActive } from "../license/status";
 import type { Plan } from "../plans";
 import { appLabel } from "../app/label";
 
@@ -93,6 +94,8 @@ export async function activateClient(
     : client.paymentNote;
 
   let license = await store.getLicenseForApp(client.id, app?.id ?? null);
+  // 187 Whether the app had a plan running before this one.
+  const hadPlan = appIsActive(license, client, now);
   let licenseKey: string;
   let created = false;
   if (license) {
@@ -126,6 +129,11 @@ export async function activateClient(
     { status: "active", paymentNote, activatedAt: client.activatedAt ?? now },
     now,
   );
+  // 187 A request to publish the app that waited for its plan reaches our team now.
+  if (app && !hadPlan && input.activeUntil.getTime() > now.getTime()) {
+    const { publishingPlanPaid } = await import("../publishing/service");
+    await publishingPlanPaid(store, (await store.getAppById(app.id)) ?? app);
+  }
   return { license, licenseKey, created, app };
 }
 

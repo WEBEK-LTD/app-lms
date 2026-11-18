@@ -104,9 +104,10 @@ describe("website content pages", () => {
     expect(groups.map((g) => g.title)).toEqual(FAQ.map((g) => g.title));
     expect(groups.map((g) => g.items.map((i) => i.question))).toEqual(FAQ.map((g) => g.items.map((i) => i.q)));
     expect(groups.map((g) => g.items.map((i) => i.answer))).toEqual(FAQ.map((g) => g.items.map((i) => parseMarkdown(i.a))));
-    // Eleven topics, from getting started and (103R) Yallapp Studio to support.
-    expect(groups).toHaveLength(11);
+    // Twelve topics, from getting started, (103R) Yallapp Studio and (106.13) Studio Market to support.
+    expect(groups).toHaveLength(12);
     expect(groups[1]!.title).toBe("Yallapp Studio");
+    expect(groups[2]!.title).toBe("Studio Market");
     expect(groups.flatMap((g) => g.items).length).toBeGreaterThanOrEqual(40);
   });
 

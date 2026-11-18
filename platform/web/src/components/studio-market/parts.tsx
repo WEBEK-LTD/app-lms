@@ -85,7 +85,8 @@ export function Board({ children, className = "", style }: { children: React.Rea
  * `.mk-card`): a framed print on the wall in light, a glass case with a light
  * pool in dark. Lifts and tilts its phone on hover; "View template" fades in.
  */
-export function TemplateCardView({ card, rank, phone = 170, height, pool }: { card: TemplateCard; rank?: number; phone?: number; height?: number; pool?: string }) {
+/** `base`: where a card opens its template (106.13: the website's /templates, in its language). */
+export function TemplateCardView({ card, rank, phone = 170, height, pool, base = "/dashboard/studio-market/t" }: { card: TemplateCard; rank?: number; phone?: number; height?: number; pool?: string; base?: string }) {
   const t = useDashT();
   const known = useKnownText();
   const kind = card.kinds[0];
@@ -120,7 +121,7 @@ export function TemplateCardView({ card, rank, phone = 170, height, pool }: { ca
       </div>
       <div className="mk-card-cap">
         <div className="flex items-baseline justify-between gap-2">
-          <Link href={`/dashboard/studio-market/t/${card.slug}`} dir="auto" className="mk-card-name min-w-0 truncate after:absolute after:inset-0">
+          <Link href={`${base}/${card.slug}`} dir="auto" className="mk-card-name min-w-0 truncate after:absolute after:inset-0">
             {card.title}
           </Link>
           <span className="mk-muted flex-none text-[13px] font-semibold whitespace-nowrap">{t("studioMarket.applies", { count: card.applies })}</span>

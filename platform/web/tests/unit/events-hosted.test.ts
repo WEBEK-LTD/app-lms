@@ -281,7 +281,7 @@ describe("28 events and tickets on the hosted API", () => {
   it("sells paid tickets on the payment page and issues them only once the payment is confirmed", async () => {
     const link = await call("POST", "/events/checkout-link", { query: { platform: "ios" }, body: { event_id: jazz.id, ticket_type_id: standard.id, quantity: 2, attendee_names: ["Mona", "Ali"] } });
     expect(link.status).toBe(200);
-    expect((link.body as { url: string; open_in: string }).url).toMatch(/^https:\/\/yallapp\.test\/pay\/[\w-]+$/);
+    expect((link.body as { url: string; open_in: string }).url).toMatch(/^https:\/\/yallapp\.test\/pay\/[\w-]+\/in-app$/);
     const { items } = await store.listCatalogOrders({ appId: app.id, offset: 0, limit: 5 });
     const order = items[0]!;
     expect(order).toMatchObject({ status: "pending", userId: user.id, totalCents: 70000, currency: "TRY" });

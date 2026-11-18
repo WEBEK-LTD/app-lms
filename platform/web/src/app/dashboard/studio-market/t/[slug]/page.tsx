@@ -19,11 +19,11 @@ import { appUrl, encryptionKey } from "@/lib/env";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { formatList } from "@/i18n";
 import { automaticDiscounts, designerChip, coverView } from "@/lib/studio-market/catalog";
-import { bestAutomatic, marketPrice } from "@/lib/studio-market/discounts";
+import { marketPrice } from "@/lib/studio-market/discounts";
+import { bestValuePlan, knowLines, planChoices, planPrices, priceWords, soonestFlashEnd } from "@/lib/studio-market/listing";
 import { templateFits, templateKinds } from "@/lib/studio-market/kinds";
 import { versionDesign } from "@/lib/studio-market/snapshot";
 import { templateText } from "@/lib/studio-market/templates";
-import { formatUsd, ltr, offeredPlans, perMonthCents } from "@/lib/studio-market/plans";
 import { sampleEntries } from "@/lib/studio/sample-entries";
 
 export async function generateMetadata({ params }: PageProps<"/dashboard/studio-market/t/[slug]">): Promise<Metadata> {
@@ -69,30 +69,14 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
   // 106.2 Paid plans: each one's billed price and per month; a licence bought to apply later is applied here.
   // 106.12 At the automatic discounts' prices (a price drop or a flash sale), the plan's own struck through.
   const discounts = (await automaticDiscounts(store, [template.id], now)).get(template.id) ?? [];
-  const paid = offeredPlans(template).map((p) => {
-    const deal = bestAutomatic(p, discounts, now);
-    return { ...p, list: p.cents, cents: deal?.cents ?? p.cents, flashEndsAt: deal?.discount.kind === "flash" ? (deal.discount.endsAt?.toISOString() ?? null) : null };
-  });
+  const paid = planPrices(template, discounts, now);
   const { tag, wasCents } = marketPrice(template, discounts, now);
   const bought = licences.find((l) => l.status === "active" && !l.appId) ?? null;
-  const monthly = paid.flatMap((p) => {
-    const cents = perMonthCents(p);
-    return cents === null ? [] : [{ period: p.period, cents }];
-  });
-  const bestPlan = monthly.length > 1 ? monthly.reduce((a, b) => (b.cents < a.cents ? b : a)).period : null;
-  const planRows: PlanChoice[] = paid.map((p) => {
-    const month = perMonthCents(p);
-    return {
-      period: p.period,
-      name: t(`studioMarket.plan_${p.period}`),
-      price: ltr(formatUsd(p.cents), lang),
-      sub: month === null ? t("studioMarket.lifeHint") : t("studioMarket.perMonth", { price: ltr(formatUsd(month), lang) }),
-      best: p.period === bestPlan,
-      was: p.cents < p.list ? ltr(formatUsd(p.list), lang) : null,
-    };
-  });
-  const tagText = tag.kind === "free" ? t("studioMarket.free") : tag.kind === "from" ? t("studioMarket.perMonth", { price: ltr(formatUsd(tag.cents), lang) }) : t("studioMarket.oncePrice", { price: ltr(formatUsd(tag.cents), lang) });
-  const wasText = wasCents ? (tag.kind === "from" ? t("studioMarket.perMonth", { price: ltr(formatUsd(wasCents), lang) }) : ltr(formatUsd(wasCents), lang)) : null;
+  const bestPlan = bestValuePlan(paid);
+  const planRows: PlanChoice[] = planChoices(paid, t, lang);
+  const words = priceWords(tag, wasCents, t, lang);
+  const tagText = words.tag;
+  const wasText = words.was;
   const designerTemplates = (await store.listMarketTemplates({ designerId: designer.id, statuses: ["published"] })).filter((x) => x.currentVersionId);
   const chip = designerChip(designer);
 
@@ -257,19 +241,7 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
   }
 
   // 106.2 A paid template: no automatic renewal, what happens at the end (the designer's choice), moving, no refunds.
-  const know: [IconName, string][] = paid.length
-    ? [
-        [template.afterEnd === "restore" ? "undo" : "history", t(template.afterEnd === "restore" ? "studioMarket.knowEndRestore" : "studioMarket.knowEndKeep")],
-        ["event", t("studioMarket.knowRenew")],
-        ["compare", t("studioMarket.knowMove")],
-        ["block", t("studioMarket.knowRefund")],
-      ]
-    : [
-        ["new_releases", t("studioMarket.knowFree")],
-        ["history", t("studioMarket.knowKeep")],
-        ["compare", t("studioMarket.knowMove")],
-        ["verified", t("studioMarket.knowReview")],
-      ];
+  const know: [IconName, string][] = knowLines(template, paid.length > 0).map(([icon, key]) => [icon, t(key)]);
   const panel = (
     <aside id="apply" aria-label={t("studioMarket.planLabel")} className="mk-panel flex scroll-mt-6 flex-col gap-[22px] rounded-[28px] px-5 py-6 md:p-[30px]">
       <div className="flex flex-col gap-1">
@@ -284,7 +256,7 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
           <span className="mk-sale-time flex flex-wrap items-center gap-x-2 text-[13px] font-bold">
             <Icon name="bolt" size={17} filled />
             {t("marketDiscounts.flashPill")}
-            <Countdown endsAt={paid.flatMap((p) => (p.flashEndsAt ? [p.flashEndsAt] : [])).sort()[0]!} />
+            <Countdown endsAt={soonestFlashEnd(paid)!} />
           </span>
         ) : null}
       </div>
@@ -373,7 +345,7 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
   );
 
   return (
-    <TemplateDemo pages={pages} languages={languages.length ? languages : [file.languages.default]} samples={{ items: {}, categories: {}, samples: sampleEntries(now) }} mine={mine} startOpen={query.demo === "1"} title={text.title}>
+    <TemplateDemo pages={pages} languages={languages.length ? languages : [file.languages.default]} samples={{ items: {}, categories: {}, samples: sampleEntries(now) }} mine={mine} startOpen={query.demo === "1" || query.demo === "mine"} startMine={query.demo === "mine"} title={text.title}>
       <div className="mk mk-bare">
         <section className="mk-wall mk-sec relative overflow-hidden pt-5 md:pt-7">
           <div className="mk-atmos" aria-hidden="true">
@@ -401,7 +373,7 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
         {owner && !own && apps.length ? (
           <div className="mk-buybar sticky bottom-0 z-30 flex items-center gap-3 px-5 py-3.5 lg:hidden">
             <span className="flex min-w-0 flex-1 flex-col">
-              <b className="text-lg leading-tight">{tag.kind === "free" ? t("studioMarket.free") : tag.kind === "from" ? t("studioMarket.fromPrice", { price: ltr(formatUsd(tag.cents), lang) }) : t("studioMarket.oncePrice", { price: ltr(formatUsd(tag.cents), lang) })}</b>
+              <b className="text-lg leading-tight">{words.short}</b>
               {wasText ? <WasPrice text={wasText} className="text-xs" /> : null}
               <span className="mk-muted truncate text-xs">{t("studioMarket.knowReview")}</span>
             </span>

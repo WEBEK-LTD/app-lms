@@ -1,4 +1,5 @@
 import { randomToken, sha256Hex } from "../crypto/tokens";
+import { payLinkForApps } from "../payments/pay-link";
 import { PAY_LINK_MINUTES } from "../catalog/settings";
 import type { DataStore } from "../data/store";
 import type { App, CatalogOrder, Shipment } from "../data/types";
@@ -12,8 +13,9 @@ import { shipmentReference, stage } from "./service";
  * Paying it sends the shipment to the couriers.
  */
 
+/** 186 The link the app opens: in its own view, on to the payment page. */
 export function payUrlFor(platformUrl: string, token: string): string {
-  return `${platformUrl.replace(/\/+$/, "")}/pay/${token}`;
+  return payLinkForApps(platformUrl, token);
 }
 
 /** A new order and payment link for the shipment, good for an hour. */
