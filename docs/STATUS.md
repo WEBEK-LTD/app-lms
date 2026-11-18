@@ -45,6 +45,10 @@ sign-in and the screens in its look draw their buttons in the app's main
 colour, in the app and in Studio › Screens, not the second colour's gold
 that looked the same in every app.
 
+Roadmap 132.188: Studio's menu and crumbs come to life with its frame, so
+a page opened from the bar's account menu right after the overview no
+longer throws React's hydration error #418 (main's MariaDB e2e job).
+
 Roadmap 147 (a search opens with its keyboard closed): the shop's, the
 academy's, real estate's, events' and news' searches no longer focus their
 field when they open, so Leqaa's and Kech Flora's Bouquets tab doesn't bring
