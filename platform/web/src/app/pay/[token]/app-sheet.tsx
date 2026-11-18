@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { PayWords } from "@/lib/catalog/pay-words";
 
@@ -56,6 +57,7 @@ export function AppSheet({
   onUnavailable: () => void;
 }) {
   const [phase, setPhase] = useState<"opening" | "canceled" | "failed">("opening");
+  const router = useRouter();
   const unavailable = useRef(onUnavailable);
   useEffect(() => {
     unavailable.current = onUnavailable;
@@ -81,13 +83,13 @@ export function AppSheet({
       if (message.result === "canceled") setPhase("canceled");
       else if (message.result === "failed") setPhase("failed");
       else if (message.result === "unavailable") unavailable.current();
-      else if (message.result === "pending") window.location.assign(`/pay/${encodeURIComponent(token)}?payment=pending`);
+      else if (message.result === "pending") router.replace(`/pay/${encodeURIComponent(token)}?payment=pending`);
     };
     window.YallappPay?.postMessage(JSON.stringify({ type: SHEET_MESSAGE }));
     return () => {
       window.yallappReceive = before;
     };
-  }, [token]);
+  }, [token, router]);
 
   return (
     <div className="flex flex-col gap-3" data-pay-step="app-sheet">

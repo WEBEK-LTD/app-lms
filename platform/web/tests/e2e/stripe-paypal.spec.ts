@@ -135,6 +135,8 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   expect(webhookUrl).toMatch(new RegExp(`^${E2E.baseURL}/api/pay/stripe/webhook/[0-9a-f-]{36}$`));
   await expect(payments.getByText("checkout.session.completed", { exact: true })).toBeVisible();
   await expect(payments.getByText("checkout.session.async_payment_succeeded", { exact: true })).toBeVisible();
+  // 188 And the PaymentIntent the app's PaymentSheet pays.
+  await expect(payments.getByText("payment_intent.succeeded", { exact: true })).toBeVisible();
   await payments.getByLabel("Secret key").fill("pk_test_publishable123456");
   await payments.getByRole("button", { name: "Save keys" }).click();
   await expect(payments.getByText("Paste your Stripe secret key: it starts with sk_live_ or sk_test_.")).toBeVisible();
@@ -271,4 +273,100 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await expect(orders).toHaveCount(2);
   await expect(orders.first()).toContainText("$25.00");
   await expect(orders.first()).toContainText("Harbour Mug × 2");
+});
+
+/**
+ * 188 Inside the app's web view (its `YallappPay` channel), a Stripe payment
+ * is handed to the app's own PaymentSheet: the page saves the details and
+ * asks the app; the app (here, this test) gets the PaymentIntent with the
+ * payment's token and, once Stripe has it paid, the status says so. Cancel:
+ * the page offers it again. The app can't take it: Stripe's form in the page.
+ */
+test("188 a Stripe payment in the app goes to the app's PaymentSheet", async ({ page, request }) => {
+  const customer = await page.context().browser()!.newPage({ extraHTTPHeaders });
+  // The app's web view: the channel the page posts to, and what the app sends back (window.yallappReceive).
+  await customer.addInitScript(() => {
+    const asks: string[] = [];
+    Object.assign(window, { __sheetAsks: asks, YallappPay: { postMessage: (text: string) => asks.push(text) } });
+  });
+  const asks = () => customer.evaluate(() => (window as unknown as { __sheetAsks: string[] }).__sheetAsks.length);
+  const tell = (result: string) => customer.evaluate((r) => window.yallappReceive?.(JSON.stringify({ type: "stripe_sheet", result: r })), result);
+  const fillDetails = async () => {
+    await customer.getByLabel("Full name").fill("Ada Lovelace");
+    await customer.getByLabel("Mobile number").fill("+90 532 111 22 33");
+    await customer.getByLabel("Email").fill("ada@example.com");
+    await customer.getByLabel("City").fill("London");
+    await customer.getByLabel("Address").fill("1 Baker Street");
+  };
+  const checkout = async () => {
+    const products = await (await request.get(`${api}/store/products`)).json();
+    const link = await request.post(`${api}/store/checkout-link?platform=android`, { data: { lines: [{ product_id: products.items[0].id, quantity: 2 }] } });
+    const { url } = (await link.json()) as { url: string };
+    expect(url).toMatch(/\/pay\/[\w-]+\/in-app$/);
+    await customer.goto(url);
+    return /\/pay\/([\w-]+)$/.exec(new URL(customer.url()).pathname)![1]!;
+  };
+
+  const token = await checkout();
+  await fillDetails();
+  await customer.getByRole("button", { name: "Pay $25.00" }).click();
+  await expect(customer.getByRole("heading", { name: "Pay in the app" })).toBeVisible();
+  await expect(customer.getByText("Pay $25.00 by card, Apple Pay or Google Pay in the app's secure Stripe sheet.")).toBeVisible();
+  // No Stripe form in the page, and the app was asked once.
+  await expect(customer.locator("[data-stripe-embedded]")).toHaveCount(0);
+  await expect.poll(asks).toBe(1);
+
+  // The app: the PaymentIntent, by the payment's token.
+  const before = stripe.intents!.length;
+  const sheet = await request.post(`/pay/${token}/sheet`);
+  expect(sheet.status()).toBe(200);
+  const ready = await sheet.json();
+  expect(ready).toMatchObject({ state: "ready", publishable_key: "pk_test_51HarbourMugsKey", currency: "USD", amount_cents: 2500, merchant_name: expect.any(String), test_mode: true, merchant_country: "AE" });
+  expect(JSON.stringify(ready)).not.toContain("sk_test_");
+  const intent = stripe.intents![before]!;
+  expect(ready.client_secret).toBe(`${intent.id}_secret_fake`);
+  expect(intent.form.get("automatic_payment_methods[allow_redirects]")).toBe("never");
+  // Asked again: the same PaymentIntent.
+  expect((await (await request.post(`/pay/${token}/sheet`)).json()).client_secret).toBe(ready.client_secret);
+  expect(stripe.intents!.length).toBe(before + 1);
+
+  // Cancelled in the sheet: the page offers it again, nothing paid.
+  await tell("canceled");
+  await expect(customer.getByText("The payment wasn't completed. Nothing was charged.")).toBeVisible();
+  expect((await (await request.get(`/pay/${token}/status`)).json()).state).toBe("started");
+  await customer.getByRole("button", { name: "Pay $25.00" }).click();
+  await expect.poll(asks).toBe(2);
+
+  // Paid in the sheet: the status the app reads says so (read back from Stripe), and the order is paid once.
+  stripe.payIntent!(intent.id);
+  expect(await (await request.get(`/pay/${token}/status`)).json()).toEqual({ state: "paid" });
+  await customer.goto(`/pay/${token}`);
+  await expect(customer).toHaveURL(new RegExp(`/pay/${token}/order-received$`));
+  expect((await (await request.post(`/pay/${token}/sheet`)).json()).state).toBe("paid");
+
+  // An app that can't take it: Stripe's own form in the page, with the same details.
+  const other = await checkout();
+  await fillDetails();
+  await customer.getByRole("button", { name: "Pay $25.00" }).click();
+  await expect(customer.getByRole("heading", { name: "Pay in the app" })).toBeVisible();
+  await tell("unavailable");
+  await expect(customer.getByRole("heading", { name: "Your card" })).toBeVisible();
+  await expect(customer.locator("[data-stripe-embedded] [data-fake-stripe]")).toHaveAttribute("data-fake-stripe", /^pk_test_/);
+  await customer.getByRole("button", { name: "Pay with test card" }).click();
+  await expect(customer).toHaveURL(new RegExp(`/pay/${other}/order-received$`));
+  await customer.close();
+
+  // In a browser (no channel): Stripe's form, as before.
+  const browser = await page.context().browser()!.newPage({ extraHTTPHeaders });
+  const products = await (await request.get(`${api}/store/products`)).json();
+  const link = await request.post(`${api}/store/checkout-link?platform=android`, { data: { lines: [{ product_id: products.items[0].id, quantity: 2 }] } });
+  await browser.goto(((await link.json()) as { url: string }).url);
+  await browser.getByLabel("Full name").fill("Ada Lovelace");
+  await browser.getByLabel("Mobile number").fill("+90 532 111 22 33");
+  await browser.getByLabel("Email").fill("ada@example.com");
+  await browser.getByLabel("City").fill("London");
+  await browser.getByLabel("Address").fill("1 Baker Street");
+  await browser.getByRole("button", { name: "Pay $25.00" }).click();
+  await expect(browser.getByRole("heading", { name: "Your card" })).toBeVisible();
+  await browser.close();
 });

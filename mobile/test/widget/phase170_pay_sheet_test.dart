@@ -7,6 +7,7 @@ import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/app_environment.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/preview/preview.dart';
+import 'package:yallapp/core/providers.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
 import 'package:yallapp/core/web/pay_sheet.dart';
@@ -204,6 +205,11 @@ void main() {
         signedIn: true,
         build: appIdInBuild ? withAppId : null,
         overrides: [
+          // 188 Dormant by default: this build turns the sheet back on.
+          opensInPaySheetProvider.overrideWith((ref) {
+            final env = ref.watch(appEnvironmentProvider);
+            return (url) => opensInPaySheet(url, env);
+          }),
           paySheetLauncherProvider.overrideWithValue(sheet),
           payReturnsProvider.overrideWithValue(returns.stream),
           payStatusReaderProvider.overrideWithValue((page) async {
@@ -373,6 +379,11 @@ void main() {
         signedIn: true,
         build: withAppId,
         overrides: [
+          // 188 Dormant by default: this build turns the sheet back on.
+          opensInPaySheetProvider.overrideWith((ref) {
+            final env = ref.watch(appEnvironmentProvider);
+            return (url) => opensInPaySheet(url, env);
+          }),
           paySheetLauncherProvider.overrideWithValue(sheet),
           payReturnsProvider.overrideWithValue(returns.stream),
           payStatusReaderProvider.overrideWithValue(
