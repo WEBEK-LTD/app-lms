@@ -55,7 +55,6 @@ describe("107.2 more style in Studio's pages", () => {
   it("refuses what is out of range", () => {
     for (const bad of [
       { rotation: 200 },
-      { corners: { top_start: 900 } },
       { overlay: { color: "black", opacity: 0.5 } },
       { overlay: { color: "#000000", opacity: 2 } },
     ]) {
@@ -64,6 +63,8 @@ describe("107.2 more style in Studio's pages", () => {
     }
     // No colour strength: no colour over the picture.
     expect(node(parse([{ id: "t", type: "text", text: "x", overlay: { color: "#000000", opacity: 0 } }]), "t")).not.toHaveProperty("overlay");
+    // 174.1 Corners above the limit are a pill: brought down to the limit, not refused.
+    expect(node(parse([{ id: "t", type: "text", text: "x", corners: { top_start: 900 } }]), "t").corners).toEqual({ top_start: 500 });
   });
 });
 

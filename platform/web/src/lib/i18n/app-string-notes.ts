@@ -5344,6 +5344,76 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "شاشة الطلب: ضريبة جوه الأسعار، زي ضريبة القيمة المضافة 20%.",
     tr: "Sipariş ekranı: fiyatlara dahil bir vergi, örneğin %20 KDV.",
   },
+  "170 Under the phone's browser sheet with the payment page (where Apple Pay and Google Pay show), while the customer pays there.": {
+    en: "Under the phone's browser window with the payment page (where Apple Pay and Google Pay show), while the customer pays there.",
+    ar: "تحت نافذة المتصفح اللي فيها صفحة الدفع (اللي بيظهر فيها Apple Pay وGoogle Pay)، والعميل بيدفع فيها.",
+    tr: "Ödeme sayfasının açık olduğu telefon tarayıcı penceresinin altında (Apple Pay ve Google Pay orada görünür), müşteri orada öderken.",
+  },
+  "170 Under the title while the payment page is open in the browser sheet.": {
+    en: "Under the title while the payment page is open in the browser window.",
+    ar: "تحت العنوان وصفحة الدفع مفتوحة في نافذة المتصفح.",
+    tr: "Ödeme sayfası tarayıcı penceresinde açıkken başlığın altında.",
+  },
+  "170 While the app asks the platform how the payment stands, after the browser sheet.": {
+    en: "While the app checks how the payment stands, after the browser window.",
+    ar: "والتطبيق بيتأكد الدفع وصل لفين، بعد نافذة المتصفح.",
+    tr: "Tarayıcı penceresinden sonra, uygulama ödemenin durumunu kontrol ederken.",
+  },
+  "170 The payment was started but isn't confirmed yet (it may still be).": {
+    en: "The payment was started but isn't confirmed yet (it may still be).",
+    ar: "الدفع بدأ بس لسه ما اتأكدش (ممكن يتأكد بعدين).",
+    tr: "Ödeme başlatıldı ama henüz onaylanmadı (yine de onaylanabilir).",
+  },
+  "170 Under the title when the payment isn't confirmed yet: never says it failed.": {
+    en: "Under the title when the payment isn't confirmed yet: it never says it failed.",
+    ar: "تحت العنوان لما الدفع لسه ما اتأكدش: عمره ما بيقول إنه فشل.",
+    tr: "Ödeme henüz onaylanmadığında başlığın altında: asla başarısız olduğunu söylemez.",
+  },
+  "170 The browser sheet was closed and no payment was made for the order.": {
+    en: "The browser window was closed and no payment was made for the order.",
+    ar: "نافذة المتصفح اتقفلت ومافيش دفع اتعمل للطلب.",
+    tr: "Tarayıcı penceresi kapatıldı ve sipariş için ödeme yapılmadı.",
+  },
+  "170 Under the title when no payment was started for the order.": {
+    en: "Under the title when no payment was started for the order.",
+    ar: "تحت العنوان لما مافيش دفع بدأ للطلب.",
+    tr: "Sipariş için ödeme başlatılmadığında başlığın altında.",
+  },
+  "170 Under the title when the payment page said the payment didn't go through and the order isn't paid.": {
+    en: "Under the title when the payment page said the payment didn't go through and the order isn't paid.",
+    ar: "تحت العنوان لما صفحة الدفع قالت إن الدفع ما تمش والطلب مش مدفوع.",
+    tr: "Ödeme sayfası ödemenin gerçekleşmediğini söylediğinde ve sipariş ödenmemişken başlığın altında.",
+  },
+  "170 The order was cancelled or closed meanwhile.": {
+    en: "The order was cancelled or closed in the meantime.",
+    ar: "الطلب اتلغى أو اتقفل في الوقت ده.",
+    tr: "Sipariş bu arada iptal edildi veya kapatıldı.",
+  },
+  "170 Under the title when the order is closed.": {
+    en: "Under the title when the order is closed.",
+    ar: "تحت العنوان لما الطلب يكون مقفول.",
+    tr: "Sipariş kapalıyken başlığın altında.",
+  },
+  "170 The platform couldn't be reached to read the payment's state.": {
+    en: "The payment's state couldn't be read: the connection failed.",
+    ar: "ما قدرناش نقرا حالة الدفع: الاتصال ما نجحش.",
+    tr: "Ödemenin durumu okunamadı: bağlantı kurulamadı.",
+  },
+  "170 Under the title when the payment's state couldn't be read.": {
+    en: "Under the title when the payment's state couldn't be read.",
+    ar: "تحت العنوان لما ما نقدرش نقرا حالة الدفع.",
+    tr: "Ödemenin durumu okunamadığında başlığın altında.",
+  },
+  "170 Button: ask the platform again how the payment stands.": {
+    en: "Button: check again how the payment stands.",
+    ar: "زرار: يتأكد تاني الدفع وصل لفين.",
+    tr: "Düğme: ödemenin durumunu yeniden kontrol eder.",
+  },
+  "170 Button: open the payment page in the browser sheet again.": {
+    en: "Button: open the payment page in the browser window again.",
+    ar: "زرار: يفتح صفحة الدفع في نافذة المتصفح تاني.",
+    tr: "Düğme: ödeme sayfasını tarayıcı penceresinde yeniden açar.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */
