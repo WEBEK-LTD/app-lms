@@ -11,6 +11,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/sale_widgets.dart';
 import '../../../core/l10n/l10n.dart';
+import 'quick_add.dart';
 
 /// The price as the shop shows it, with the regular price struck through
 /// when on sale. 135.5 With the customer's currency: the price in it first
@@ -147,6 +148,22 @@ bool customerPricesShown(WidgetRef ref) {
 Widget _fillOr(bool fill, Widget child) =>
     fill ? Expanded(child: child) : child;
 
+/// 193 Two lines of a card's name in [style], at the phone's text size.
+double _nameHeight(BuildContext context, TextStyle style) {
+  final painter = TextPainter(
+    text: TextSpan(
+      text: 'Ag\nAg',
+      style: DefaultTextStyle.of(context).style.merge(style),
+    ),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+    maxLines: 2,
+  )..layout();
+  final height = painter.height;
+  painter.dispose();
+  return height;
+}
+
 /// A product in the shop grid and the home rows.
 class ProductCard extends StatelessWidget {
   const ProductCard({
@@ -156,9 +173,14 @@ class ProductCard extends StatelessWidget {
     this.width,
     this.plain = false,
     this.fill = false,
+    this.quickAdd = false,
   });
 
   final ProductSummary product;
+
+  /// 193 With its own Add to cart under it ([quickAddShown]); a fixed-height
+  /// cell makes room for it with [quickAddHeight].
+  final bool quickAdd;
   final VoidCallback onTap;
   final double? width;
 
@@ -177,6 +199,12 @@ class ProductCard extends StatelessWidget {
       seed: product.id,
       placeholderIcon: AppIcons.shop,
       radius: plain ? context.shapes.card : 0,
+    );
+    final nameStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      height: 1.35,
+      color: p.text,
     );
     final content = ExcludeSemantics(
       child: Column(
@@ -220,20 +248,19 @@ class ProductCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    product.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      height: 1.35,
-                      color: p.text,
+                  // 193 In a grid's cell the name keeps its two lines, the
+                  // price right under them: the prices of a row level, no
+                  // empty band between the name and the price.
+                  SizedBox(
+                    height: fill ? _nameHeight(context, nameStyle) : null,
+                    child: Text(
+                      product.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: nameStyle,
                     ),
                   ),
                   const SizedBox(height: 6),
-                  // 161 The price at the card's foot in a grid's cell.
-                  if (fill) const Spacer(),
                   ProductPriceLabel(product.price, size: 14),
                   // 131 A flash sale (one with an end): its countdown, live.
                   if (product.sale case final sale?
@@ -275,6 +302,21 @@ class ProductCard extends StatelessWidget {
         ],
       ),
     );
+    // 193 Add to cart under the card's words, read out on its own.
+    final body = !quickAdd
+        ? content
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              fill ? Expanded(child: content) : content,
+              Padding(
+                padding: plain
+                    ? const EdgeInsets.fromLTRB(2, 0, 2, 8)
+                    : const EdgeInsets.fromLTRB(10, 0, 10, 12),
+                child: QuickAddButton(productId: product.id, summary: product),
+              ),
+            ],
+          );
     final card = plain
         ? Semantics(
             button: true,
@@ -282,10 +324,10 @@ class ProductCard extends StatelessWidget {
             child: InkWell(
               onTap: onTap,
               borderRadius: BorderRadius.circular(context.shapes.card),
-              child: content,
+              child: body,
             ),
           )
-        : AppCard(onTap: onTap, semanticLabel: _a11y(product), child: content);
+        : AppCard(onTap: onTap, semanticLabel: _a11y(product), child: body);
     return width == null ? card : SizedBox(width: width, child: card);
   }
 }

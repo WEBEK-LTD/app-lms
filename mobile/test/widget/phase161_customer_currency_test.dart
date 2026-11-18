@@ -14,6 +14,7 @@ import 'package:yallapp/modules/shared/pages/recently_viewed.dart';
 import 'package:yallapp/modules/store/data/cart_controller.dart';
 import 'package:yallapp/modules/store/screens/cart_screen.dart';
 import 'package:yallapp/modules/store/widgets/product_widgets.dart';
+import 'package:yallapp/modules/store/widgets/quick_add.dart';
 
 import '../screenshots/support/demo_api.dart';
 import '../screenshots/support/shot.dart' show loadAppFonts, usePhone;
@@ -291,9 +292,19 @@ void main() {
           matching: find.text(_mad(18000), skipOffstage: false),
         );
         expect(shopPrice, findsOneWidget);
-        // At the card's foot: no empty band under the prices.
+        // At the card's foot: no empty band under the prices (193 the
+        // card's Add to cart right under them).
+        final add = find.descendant(
+          of: card,
+          matching: find.byType(QuickAddButton, skipOffstage: false),
+        );
+        expect(add, findsOneWidget);
         expect(
-          tester.getRect(card).bottom - tester.getRect(shopPrice).bottom,
+          tester.getRect(add).top - tester.getRect(shopPrice).bottom,
+          lessThan(16),
+        );
+        expect(
+          tester.getRect(card).bottom - tester.getRect(add).bottom,
           lessThan(16),
         );
         // The shop's dirhams only as that second line (a range's both ends).
