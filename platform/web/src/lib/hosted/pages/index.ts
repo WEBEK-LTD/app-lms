@@ -12,7 +12,7 @@ import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
 import { itemResolver, type Item } from "./items";
-import { listHeadings, productFallbacks, withListHeadings } from "./lists";
+import { listHeadings, productFallbacks, withListHeadings, withSampleProduct } from "./lists";
 import "./sources";
 
 /**
@@ -78,8 +78,10 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
  * categories element like the categories block, without their queries, and
  * left out when their source can't be served.
  */
-async function servedStudio(pc: PageContext, studio: StudioPage): Promise<StudioPage> {
+async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPage> {
   const def = pc.layout.languages.default;
+  // 164 The template's sample bouquet in an app made before: one of the shop's products.
+  const studio: StudioPage = { ...page, body: withSampleProduct(page.body) };
   const body = await mapTreeAsync(studio.body, async (node) => {
     // 107.2 A hidden element stays in the editor only.
     if (node.hidden) return null;

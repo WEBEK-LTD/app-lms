@@ -1,4 +1,6 @@
 import type { ItemsQuery, StudioNode } from "../../pages/types";
+import { APP_WORDS } from "../../studio/app-words";
+import { DEMO_FACTS } from "../../studio/demo-templates";
 
 /**
  * 164 A Studio list of the shop's products is never an empty section in the
@@ -87,4 +89,64 @@ export function withListHeadings(root: StudioNode, headings: Map<string, string>
     return { ...node, children };
   };
   return walk(root) ?? root;
+}
+
+/** The template's words for its sample bouquet ("Blush Garden" and its brackets), in Studio's three languages. */
+function sampleWords(word: "lqBouquetTitle" | "lqBouquetLine"): Set<string> {
+  const demo = DEMO_FACTS.flowers?.[word];
+  return new Set([...(["en", "ar", "tr"] as const).map((l) => APP_WORDS[l][word]), ...(demo ? Object.values(demo) : [])]);
+}
+const SAMPLE_TITLES = sampleWords("lqBouquetTitle");
+const SAMPLE_LINES = sampleWords("lqBouquetLine");
+
+/**
+ * 164 Apps made from Leqaa's template before it bound its signature bouquet
+ * to a product: the photos (a gallery) and the words of the template's
+ * sample bouquet ("Blush Garden") showed whatever the shop had. Served as the
+ * template makes it now: one of the shop's products, the words' column its
+ * card, its name and price in place of the sample's, its photo in the
+ * gallery's place; so it follows the lists' rules (best seller, else newest,
+ * left out with none). Owners' own words are left as they are.
+ */
+export function withSampleProduct(root: StudioNode): StudioNode {
+  const sample = (n: StudioNode) => n.type === "text" && !n.bind && typeof n.text === "string" && SAMPLE_TITLES.has(n.text);
+  const walk = (node: StudioNode): StudioNode => {
+    if (!node.children) return node;
+    const kids = node.children;
+    const out: StudioNode[] = [];
+    kids.forEach((child, i) => {
+      const words = child.type === "column" && (child.children ?? []).some(sample) ? child : null;
+      if (child.type === "gallery" && kids[i + 1]?.type === "column" && (kids[i + 1]!.children ?? []).some(sample)) return;
+      if (!words) {
+        out.push(walk(child));
+        return;
+      }
+      const gallery = kids[i - 1]?.type === "gallery" ? kids[i - 1]! : null;
+      const bound = (n: StudioNode, bind: "title" | "price"): StudioNode => {
+        const { text: _t, translations: _tr, ...rest } = n;
+        void _t;
+        void _tr;
+        return { ...rest, bind };
+      };
+      out.push({
+        id: words.id,
+        type: "items",
+        ...((gallery?.name ?? words.name) ? { name: gallery?.name ?? words.name } : {}),
+        source: "products",
+        layout: "list",
+        ...(gallery?.padding ? { padding: gallery.padding } : {}),
+        query: { limit: 1, category_id: null, featured: false, sort: "popular", ids: [] },
+        card: {
+          ...(({ padding: _p, ...own }) => (void _p, own))(words),
+          id: `${words.id}-card`,
+          children: [
+            { id: `${words.id}-photo`, type: "image", bind: "image", width: "fill", height: typeof gallery?.height === "number" ? gallery.height : 380, radius: gallery?.gallery?.radius ?? 28, fit: "cover" },
+            ...words.children!.map((n) => (sample(n) ? bound(n, "title") : n.type === "text" && typeof n.text === "string" && SAMPLE_LINES.has(n.text) ? bound(n, "price") : n)),
+          ],
+        },
+      });
+    });
+    return { ...node, children: out };
+  };
+  return walk(root);
 }

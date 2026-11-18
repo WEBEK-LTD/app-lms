@@ -36,7 +36,10 @@ template's sample products); a list with nothing at all goes with its title,
 in the served page and in the app (`heads`, `CLIENT_APP_RELEASE` 7). The apps
 already made from the template are right without any edit. Studio's
 inspector chooses what such a list shows: featured, a category, a
-collection, best sellers or newest.
+collection, best sellers or newest. The "Our bouquet" page no longer shows
+the template's sample "Blush Garden": it is one of the shop's products, the
+one the owner picks, else the best seller, else the newest, and goes when
+the shop has none; apps made before are served the same.
 
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its

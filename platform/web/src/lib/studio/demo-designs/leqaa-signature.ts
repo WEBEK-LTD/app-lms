@@ -762,6 +762,35 @@ function leqaaPages(k: SignatureInk, family: string, look: "a" | "b") {
 }
 
 /**
+ * 164 The signature bouquet: one of the shop's products (the owner's pick in
+ * Studio, else its best seller, else its newest; left out when it has none),
+ * its photo, the look's line over its name and its price; a tap opens it.
+ */
+export function bouquetProduct(ctx: SectionContext, k: SignatureInk, family: string): StudioNode {
+  const id = idOf(ctx);
+  return {
+    id: id(),
+    type: "items",
+    name: ctx.w("lqBouquetKicker"),
+    source: "products",
+    layout: "list",
+    padding: sides(8, 16, 4, 16),
+    query: { limit: 1, category_id: null, featured: false, sort: "popular", ids: [] },
+    card: {
+      id: id(),
+      type: "column",
+      gap: 6,
+      children: [
+        { id: id(), type: "image", bind: "image", width: "fill", height: 380, radius: 28, fit: "cover" },
+        { ...say(ctx, k, "lqBouquetKicker", { size: 11, weight: 700, letter_spacing: 2, uppercase: true }, { accent: true }), margin: sides(12, 2, 0, 2) },
+        { id: id(), type: "text", bind: "title", max_lines: 2, color: k.ink, dark_color: k.darkInk, font: display(family, 34, { weight: 500 }), margin: sides(0, 2, 0, 2) },
+        { id: id(), type: "text", bind: "price", max_lines: 1, color: k.accent, dark_color: k.darkAccent, font: { size: 16, weight: 700 }, margin: sides(0, 2, 0, 2) },
+      ],
+    },
+  };
+}
+
+/**
  * The signature bouquet as the look draws a product's page: its photos as a
  * gallery, the sizes to choose from, the add-ons, when it arrives (the
  * delivery days) and the card (a preview of the words), and the button
@@ -787,10 +816,6 @@ function bouquetPage(ctx: SectionContext, k: SignatureInk, family: string, look:
       { id: id(), type: "text", text: ctx.w(stems), font: { size: 11.5 }, color: lit ? k.onFill : k.muted, dark_color: lit ? k.darkOnFill : k.darkMuted, opacity: lit ? 0.85 : 1 },
     ],
   });
-  const photos = (look === "a" ? ["blush-bouquet", "red-rose", "ranunculus", "atelier"] : ["ranunculus", "blush-bouquet", "baby-breath", "atelier"])
-    .map((name) => sigPhoto(ctx, P(name)))
-    .filter((url): url is string => url !== null)
-    .map((image_url) => ({ image_url, caption: null }));
   const card: StudioNode = {
     id: id(),
     type: "column",
@@ -820,18 +845,7 @@ function bouquetPage(ctx: SectionContext, k: SignatureInk, family: string, look:
       type: "column",
       padding: sides(0, 0, 110, 0),
       children: [
-        photos.length ? { id: id(), type: "gallery", name: ctx.w("lqBouquetKicker"), gallery: { layout: "filmstrip", radius: 28, captions: false }, height: 380, images: photos, padding: sides(8, 16, 0, 16) } : floralRule(ctx, k, sides(12, 0, 0, 0)),
-        {
-          id: id(),
-          type: "column",
-          gap: 6,
-          padding: sides(18, 18, 4, 18),
-          children: [
-            say(ctx, k, "lqBouquetKicker", { size: 11, weight: 700, letter_spacing: 2, uppercase: true }, { accent: true }),
-            say(ctx, k, "lqBouquetTitle", display(family, 34, { weight: 500 }), { max_lines: 2 }),
-            say(ctx, k, "lqBouquetLine", { size: 14, line_height: 1.45 }, { muted: true, max_lines: 3 }),
-          ],
-        },
+        bouquetProduct(ctx, k, family),
         headOf(ctx, k, family, "lqSizes", null, sides(16, 18, 10, 18)),
         { id: id(), type: "row", name: ctx.w("lqSizes"), gap: 10, padding: sides(0, 16, 0, 16), children: [size("lqSizeClassic", "lqStems12", false), size("lqSizeDeluxe", "lqStems24", true), size("lqSizeGrand", "lqStems36", false)] },
         headOf(ctx, k, family, "lqSendToday", null, sides(16, 18, 6, 18)),

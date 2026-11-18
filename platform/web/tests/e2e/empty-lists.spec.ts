@@ -102,6 +102,10 @@ test("the template's sample products removed, as a real shop does: the lists go 
   const home = all(await served(request, "home"));
   expect(home.filter((n) => n.type === "items" && !n.recent)).toEqual([]);
   expect(home.some((n) => n.type === "row" && n.name === "Loved most")).toBe(false);
+  // 164 The bouquet page: no sample bouquet ("Blush Garden") and, with no products, no bouquet.
+  const bouquet = await served(request, "bouquet");
+  expect(all(bouquet).filter((n) => n.type === "items")).toEqual([]);
+  expect(JSON.stringify(bouquet)).not.toContain("Blush Garden");
 });
 
 test("with products, none featured: every list of products is served with them, its title kept", async ({ request }) => {
@@ -117,7 +121,7 @@ test("with products, none featured: every list of products is served with them, 
   const ids = products.items.filter((p) => names.includes(p.name)).map((p) => String(p.id));
   expect(ids).toHaveLength(3);
 
-  for (const slug of ["wishlist", "home"]) {
+  for (const slug of ["wishlist", "home", "bouquet"]) {
     const body = await served(request, slug);
     const lists = all(body).filter((n) => n.type === "items" && !n.recent);
     expect(lists.length, slug).toBeGreaterThan(0);
@@ -130,4 +134,8 @@ test("with products, none featured: every list of products is served with them, 
   const picked = wishlist.find((n) => n.type === "items" && n.name === "Picked for you")!;
   expect(picked.items!.map((i) => i.title).sort()).toEqual([...names].sort());
   expect(wishlist.find((n) => n.heads === picked.id)).toMatchObject({ type: "row", name: "Picked for you" });
+  // 164 The bouquet page: one of the shop's own products, never the template's Blush Garden.
+  const bouquet = await served(request, "bouquet");
+  expect(all(bouquet).filter((n) => n.type === "items").map((n) => n.items!.length)).toEqual([1]);
+  expect(JSON.stringify(bouquet)).not.toContain("Blush Garden");
 });

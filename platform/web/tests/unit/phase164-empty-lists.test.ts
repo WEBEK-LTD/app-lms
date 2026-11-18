@@ -5,7 +5,7 @@ import { DEFAULT_CATALOG_SETTINGS, type App, type CatalogProductInput } from "@/
 import { appUrl } from "@/lib/env";
 import { CatalogConnector } from "@/lib/hosted/connectors/catalog";
 import { LogSender } from "@/lib/hosted/otp-sender";
-import { listHeadings, productFallbacks, withListHeadings } from "@/lib/hosted/pages/lists";
+import { listHeadings, productFallbacks, withListHeadings, withSampleProduct } from "@/lib/hosted/pages/lists";
 import { handleHosted, type HostedContext } from "@/lib/hosted/service";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { publishLayout } from "@/lib/pages/layout";
@@ -142,7 +142,7 @@ describe("164 the Leqaa template's lists in a real shop: no featured products, n
       await addProducts();
       const layout = await publish(look);
       const bound = layout.pages.filter((p) => p.studio && allNodes(p.studio).some((n) => n.type === "items" && !n.recent));
-      expect(bound.map((p) => p.slug).sort()).toEqual(["home", "wishlist"]);
+      expect(bound.map((p) => p.slug).sort()).toEqual(["bouquet", "home", "wishlist"]);
       for (const page of bound) {
         const studio = await served(page.slug);
         const shown = lists(studio).filter((n) => !n.recent);
@@ -184,5 +184,67 @@ describe("164 the Leqaa template's lists in a real shop: no featured products, n
       expect(lists(home).filter((n) => !n.recent), look).toEqual([]);
       for (const title of ["Loved most", "The price list"]) expect(allNodes(home).some((n) => n.type === "row" && n.name === title), `${look} ${title}`).toBe(false);
     }
+  });
+  it("the bouquet page: the shop's best seller, else its newest, never the template's Blush Garden", async () => {
+    await addProducts();
+    for (const look of ["a", "b"] as const) {
+      await publish(look);
+      const studio = await served("bouquet");
+      const bouquet = lists(studio);
+      expect(bouquet.map((n) => n.items!.map((i) => i.id)), look).toEqual([[String(ids[2])]]);
+      expect(JSON.stringify(studio), look).not.toContain("Blush Garden");
+      expect(JSON.stringify(studio), look).not.toContain("Your signature bouquet");
+    }
+  });
+
+  it("the bouquet page: the product the owner picked in Studio", async () => {
+    await addProducts();
+    const layout = await publish("a");
+    const page = layout.pages.find((p) => p.slug === "bouquet")!;
+    const node = allNodes(page.studio!).find((n) => n.type === "items")!;
+    node.query = { ...node.query!, ids: [String(ids[0])] };
+    const published = await publishLayout(store, app, layout, "owner@kechflora.test", NOW);
+    expect(published.ok ? [] : published.errors).toEqual([]);
+    expect(lists(await served("bouquet"))[0]!.items!.map((i) => i.id)).toEqual([String(ids[0])]);
+  });
+
+  it("an app made before: the sample bouquet's photos and words are served as one of the shop's products, the owner's own words kept", async () => {
+    await addProducts();
+    const layout = await publish("a");
+    const page = layout.pages.find((p) => p.slug === "bouquet")!;
+    const sample: StudioNode[] = [
+      { id: "old-photos", type: "gallery", name: "The signature bouquet", gallery: { layout: "filmstrip", radius: 28, captions: false }, height: 380, images: [{ image_url: "https://yallapp.test/flower-photos/blush-bouquet.jpg", caption: null }] },
+      {
+        id: "old-words",
+        type: "column",
+        gap: 6,
+        children: [
+          { id: "old-kicker", type: "text", text: "The signature bouquet" },
+          { id: "old-title", type: "text", text: "Blush Garden", translations: { ar: { text: "حديقة الورد" }, tr: { text: "Pembe Bahçe" } } },
+          { id: "old-line", type: "text", text: "Blush roses, lisianthus and eucalyptus, made on the day it is delivered." },
+        ],
+      },
+    ];
+    const rest = page.studio!.body.children!.filter((n) => n.type !== "items");
+    page.studio = { ...page.studio!, body: { ...page.studio!.body, children: [...sample, ...rest] } };
+    const published = await publishLayout(store, app, layout, "owner@kechflora.test", NOW);
+    expect(published.ok ? [] : published.errors).toEqual([]);
+    const studio = await served("bouquet");
+    expect(JSON.stringify(studio)).not.toContain("Blush Garden");
+    expect(studio.body.children!.some((n) => n.type === "gallery")).toBe(false);
+    const [bouquet] = lists(studio);
+    expect(bouquet).toMatchObject({ id: "old-words", name: "The signature bouquet", items: [{ id: String(ids[2]) }] });
+    const card = allNodes({ body: bouquet!.card! });
+    expect(card.map((n) => n.bind ?? n.text)).toEqual([undefined, "image", "The signature bouquet", "title", "price"]);
+
+    // An owner's own words are theirs: nothing changes.
+    expect(withSampleProduct({ id: "r", type: "column", children: [sample[0]!, { ...sample[1]!, children: [{ id: "t", type: "text", text: "Our Nile bouquet" }] }] }).children!.map((n) => n.type)).toEqual(["gallery", "column"]);
+  });
+
+  it("the bouquet page in a shop with no products: no bouquet at all", async () => {
+    await publish("b");
+    const studio = await served("bouquet");
+    expect(lists(studio)).toEqual([]);
+    expect(JSON.stringify(studio)).not.toContain("Blush Garden");
   });
 });

@@ -1332,7 +1332,7 @@ function DataTab(props: Props & { node: StudioNode }) {
             <select value={shows} onChange={(e) => showAs(e.target.value as ListShows)} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
               {LIST_SHOWS.map((v) => (
                 <option key={v} value={v} disabled={(v === "category" && !cats.length) || (v === "collection" && !picks.length)}>
-                  {t(`studio.listShows_${v}` as DashKey)}
+                  {t(v === "collection" && q.limit === 1 ? "studio.listShows_product" : (`studio.listShows_${v}` as DashKey))}
                 </option>
               ))}
             </select>
@@ -1341,7 +1341,7 @@ function DataTab(props: Props & { node: StudioNode }) {
         {products && shows === "collection" ? (
           <div className="flex flex-col gap-1">
             {picks.map((e) => (
-              <Check key={e.id} label={e.title} checked={q.ids.includes(e.id)} onChange={(on) => onChange({ query: { ...q, ids: on ? [...q.ids, e.id].slice(0, 30) : q.ids.filter((i) => i !== e.id) } })} />
+              <Check key={e.id} label={e.title} checked={q.ids.includes(e.id)} onChange={(on) => onChange({ query: { ...q, ids: on ? (q.limit === 1 ? [e.id] : [...q.ids, e.id].slice(0, 30)) : q.ids.filter((i) => i !== e.id) } })} />
             ))}
           </div>
         ) : null}
