@@ -4,8 +4,9 @@ import { E2E } from "../../playwright.config";
 /**
  * 164 A bound list of products is never an empty section (roadmap 164): a
  * flower shop starts from Leqaa's Rose hour template, whose "Picked for you"
- * and price list were bound to featured products. With no products, the
- * served pages leave those lists out with their titles; once the shop adds
+ * and price list were bound to featured products. Its sample products
+ * removed, as a real shop does, the served pages leave those lists out with
+ * their titles; once the shop adds
  * products (none featured, none of the template's), every list of products
  * on every page is served with them, its title kept and marked (`heads`).
  */
@@ -85,7 +86,16 @@ async function served(request: APIRequestContext, slug: string): Promise<Node> {
   return body.studio!.body;
 }
 
-test("a shop with no products: the lists go with their titles, what was seen lately stays for the phone", async ({ request }) => {
+test("the template's sample products removed, as a real shop does: the lists go with their titles, what was seen lately stays for the phone", async ({ request }) => {
+  // The project starts with the demo's sample flowers (110.2); a real shop removes them for its own.
+  await own.goto("/studio/project/catalog");
+  const samples = own.locator("[data-samples]").getByRole("button", { name: "Remove all samples" });
+  if (await samples.count()) {
+    await samples.click();
+    await expect(own.getByRole("status").filter({ hasText: /Removed \d+ sample/ })).toBeVisible();
+  }
+  const left = (await (await request.get(`${api}/store/products?platform=android`, { headers })).json()) as { items: unknown[] };
+  expect(left.items).toEqual([]);
   const wishlist = all(await served(request, "wishlist"));
   expect(wishlist.filter((n) => n.type === "items").map((n) => n.recent ?? false)).toEqual([true]);
   expect(wishlist.some((n) => n.name === "Picked for you")).toBe(false);
@@ -103,7 +113,7 @@ test("with products, none featured: every list of products is served with them, 
     await own.getByRole("button", { name: "Add product" }).click();
     await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText(`Saved “${name}”.`);
   }
-  const products = (await (await request.get(`${api}/store/products?platform=android`)).json()) as { items: { id: number; name: string }[] };
+  const products = (await (await request.get(`${api}/store/products?platform=android`, { headers })).json()) as { items: { id: number; name: string }[] };
   const ids = products.items.filter((p) => names.includes(p.name)).map((p) => String(p.id));
   expect(ids).toHaveLength(3);
 
