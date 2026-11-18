@@ -1027,8 +1027,30 @@ export interface Build {
   updatedAt: Date;
 }
 
-/** 87.2 docs/api/pipeline.yaml FailureCode. */
-export const FAILURE_CODES = ["icon", "firebase_android", "firebase_ios", "android_signing", "ios_signing", "apple_key", "apple_agreement", "version_used", "play_permission", "play_app_missing", "infrastructure", "unknown"] as const;
+/**
+ * 87.2 docs/api/pipeline.yaml FailureCode. 151 The iPhone app's: a bundle ID
+ * another Apple account has, the account's distribution certificates all
+ * used, no app in App Store Connect yet, and `ios_no_mac_runner`: GitHub had
+ * no Mac for the iOS job (our side, not the app's; nothing retries it).
+ */
+export const FAILURE_CODES = [
+  "icon",
+  "firebase_android",
+  "firebase_ios",
+  "android_signing",
+  "ios_signing",
+  "apple_key",
+  "apple_agreement",
+  "version_used",
+  "play_permission",
+  "play_app_missing",
+  "infrastructure",
+  "ios_bundle_id_taken",
+  "ios_certificates_full",
+  "ios_app_missing",
+  "ios_no_mac_runner",
+  "unknown",
+] as const;
 export type FailureCode = (typeof FAILURE_CODES)[number];
 
 export interface BuildFailure {
@@ -6374,7 +6396,8 @@ export interface JobRun {
   error: string | null;
 }
 
-export type TeamAlertKind = "build_waiting" | "build_stalled" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow" | "firebase" | "publishing_full";
+/** 151 `build_no_mac`: GitHub had no Mac for a build's iOS job (one per build). */
+export type TeamAlertKind = "build_waiting" | "build_stalled" | "build_no_mac" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow" | "firebase" | "publishing_full";
 
 /**
  * 78.3 Something the team should look at (lib/watch), in the admin's bell

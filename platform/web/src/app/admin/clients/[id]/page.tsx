@@ -15,6 +15,7 @@ import {
 } from "@/app/actions/admin";
 import { deleteAppUserAction, rerunBuildAction, resendLicenseEmailAction, sendPasswordLinkAction, signOutAppUserAction } from "@/app/actions/admin-clients";
 import { BuildBadge } from "@/components/build-status";
+import { BuildCause } from "@/app/admin/builds/build-cause";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, Notice, btn, formatDate, formatDateTime } from "@/components/ui";
@@ -867,6 +868,7 @@ async function AppEntry({
                               <td className="px-3 py-2.5">
                                 <BuildBadge status={build.status} />
                                 {build.message ? <span className="mt-1 block text-xs text-muted">{build.message}</span> : null}
+                                <BuildCause build={build} />
                               </td>
                               <td className="px-3 py-2.5">
                                 {links.length === 0 ? (
