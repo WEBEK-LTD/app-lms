@@ -3,9 +3,10 @@
 The owner's request: the stories of the Leqaa app are managed from the
 dashboard (add, remove, reorder, the category, the button…), not only in
 the editor. Branch `wip-stories-dashboard`. **Migration number: 0143**
-(`drizzle/0143_app_stories.sql`): it was 0142 on its branch, renumbered
-(with `drizzle-kit generate`) after main's `0142_studio_market_money`, so
-the journal stays in order.
+(`drizzle/0143_app_stories.sql`). It was 0142 until main took
+`0142_studio_market_money` (#452); after merging main it was dropped and
+made again with `drizzle-kit generate` on top of 0142. Studio Market stage 4
+(`wip-market-discounts`) renumbers after this one.
 
 ## What the owner now sees
 
@@ -38,7 +39,7 @@ the journal stays in order.
 - **In the app** (no new build needed): the hero's slides, the rings and
   look B's chips are the dashboard's stories, in order, only those on and
   between their dates, in the phone's language (else the main language).
-  Apps built with release 7 also show each story's label, title, line,
+  Apps built with release 12 also show each story's label, title, line,
   button words and video in the full-screen viewer and open the shop on
   the chosen category; older builds show the ring's name and photo with
   "Open" and open the shop.
@@ -107,7 +108,7 @@ App (`mobile/lib`)
 - The shop on a category: `mobile/lib/modules/shared/pages/page_actions.dart:40`.
 - Viewer: button words `mobile/lib/modules/shared/pages/studio_stories.dart:547`,
   video `mobile/lib/modules/shared/pages/studio_stories.dart:590`.
-- `CLIENT_APP_RELEASE` 7: `platform/web/src/lib/builds/app-release.ts:26`
+- `CLIENT_APP_RELEASE` 12: `platform/web/src/lib/builds/app-release.ts:26`
   (with its line in the list of releases); preview rebuilt
   (`platform/web/public/preview-app`).
 
@@ -177,4 +178,24 @@ redrawn here.
 - Nothing was run against production; Leqaa's and Kech Flora's stories are
   copied by the code the first time they're needed after deploy
   (LAUNCH-CHECKLIST Phase 165).
-- A video story plays in the viewer only from release 7.
+- A video story plays in the viewer only from release 12.
+
+## After merging main (#451, #452, #453, #455)
+
+Main took `0142_studio_market_money`, so this migration was dropped and made
+again on top of it: **0143_app_stories**. `CLIENT_APP_RELEASE` is 12 (main's
+152 is 7; 8–11 are kept for the branches before this one), with its line in
+the releases' list. Main's 152 (`linkedProduct`, a product link with none
+chosen or one the shop no longer has opens the shop) also applies to a
+dashboard story's button. Run again after the merge:
+
+| What | Result |
+|---|---|
+| `next typegen` + `tsc --noEmit` | no errors |
+| ESLint on the files changed against main | 0 errors (20 warnings, `mysql.ts`, as on main) |
+| Related vitest files (the 14 above and `phase152*`) | 383 passed, 7 skipped |
+| Migrations as CI runs them, on a fresh MariaDB 10.11 database: twice, then the half-applied resume | 143 applied; up to date; "4 of 4 statements were already there"; up to date |
+| `drizzle-kit generate --name ci-check` | no changes |
+| `app-stories-mysql.test.ts` on MariaDB | 4 passed |
+| e2e `dashboard-stories.spec.ts` on a new production build | 3 passed |
+| Flutter: `phase165_dashboard_stories_test.dart` and the premium motion tests; `dart format`; `flutter analyze`; preview rebuilt and `build_preview.sh --check` | 50 passed; 0 changed; no issues; up to date |

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "b23623e4-4d47-4900-94a5-2971b17eaf89",
+  "id": "98f08654-ab5b-42ba-8827-6a9ea1041663",
   "prevId": "91ea754e-a931-4bfb-b4c8-0ac454685215",
   "tables": {
     "account_deletion_requests": {

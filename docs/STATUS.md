@@ -115,7 +115,7 @@ the stores show the changes without a build; a button with nothing chosen
 opens the shop. An app made from the template has its Studio stories
 copied there once, the first time they're needed, nothing it shows
 changing. Studio says where the stories come from, switches the source and
-draws them. `CLIENT_APP_RELEASE` 8: the viewer shows each story's words,
+draws them. `CLIENT_APP_RELEASE` 12: the viewer shows each story's words,
 button and video, and a button opens the shop on a category; older apps
 show the ring's name and photo and open the shop. Not yet checked on
 Leqaa's and Kech Flora's real projects (ROADMAP 165.10).

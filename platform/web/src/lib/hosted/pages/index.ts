@@ -107,7 +107,8 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
   const dashboardStories = async () => {
     if (stories) return stories;
     await ensureStoriesSeeded(pc.ctx.store, pc.ctx.app, pc.ctx.now);
-    stories = servedStories(await pc.ctx.store.listAppStories(pc.ctx.app.id), pc.lang, def, pc.ctx.now);
+    // 152 A story's button linked to a product, as every tap: no product chosen (or one the shop no longer has), the shop.
+    stories = servedStories(await pc.ctx.store.listAppStories(pc.ctx.app.id), pc.lang, def, pc.ctx.now).map((s) => ({ ...s, action: linkedProduct(pc, s.action, gone) }));
     return stories;
   };
   const body = await mapTreeAsync(listed, async (node) => {
