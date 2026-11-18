@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 11;
+export const CLIENT_APP_RELEASE = 12;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -103,6 +103,28 @@ export const CLIENT_APP_RELEASE = 11;
  *    Pay on iPhone (with the owner's Apple Pay merchant ID); the app reads
  *    `/pay/<token>/status` before it opens the order. 170's browser sheet
  *    is dormant. The preview keeps Stripe's form in the page.
+ * 12 The templates walked through by hand, in one release: 115.21–115.23
+ *    a marketplace dish's choices picked before it goes in the basket and
+ *    shown in the basket, the checkout and the order, and the
+ *    marketplace's notifications opening their screens; 177 in a Zad
+ *    project the Cart, Orders and Account tabs open their own screens, the
+ *    vendor page's aisles, search, share and heart work, a line on sale
+ *    shows its old price, the delivery address chosen on the map, one big
+ *    word ("15%") shrinks at a larger text size, a slider of words grows
+ *    with it (kept as it was while off the screen, 177.17), and the
+ *    Material Symbols are rounded; 178 the drivers' app preview reads its
+ *    role, My rides and the drivers' lists end above a floating bar, the
+ *    glass bar fits at 1.3, Lamha's cream headers show their buttons, and
+ *    the ride card and map follow a ride on its way; 179 the academy's and
+ *    the school's tabs end above the floating tab bars, and a row of
+ *    buttons wraps at a large text; 180 a stays booking without an old
+ *    flight, Track on the flights found, the real estate office's pushes
+ *    opening their screens, the bookings' states, property types and
+ *    flight amenities in the app's words, Arabic digits in the price filter
+ *    and donations, and the flights' arrows right to left; and 181 a quick
+ *    fling ends at the page's end under a folding header, and Settings'
+ *    plain choice sheet scrolls to its last choice (158.3, 158.8). 176 has
+ *    no app change.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */
