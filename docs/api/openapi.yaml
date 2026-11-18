@@ -14681,6 +14681,9 @@ components:
       properties:
         balance: { type: integer, minimum: 0, example: 250 }
         value: { type: string, description: "Formatted: what the balance takes off an order.", example: ₺25.00 }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `value`." }
+        value_amount: { type: string, example: '25.00' }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         entries:
           type: array
           description: The latest 50 changes, newest first.
@@ -14710,6 +14713,15 @@ components:
       type: object
       required: [id, number, status, status_label, total, created_at, items]
       properties:
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The order's currency (Yallapp's own orders), of `total_amount` and `refunded_total_amount`." }
+        total_amount: { type: string, example: '450.00' }
+        refunded_total_amount: { type: [string, 'null'] }
+        display:
+          $ref: '#/components/schemas/DisplayMoney'
+          description: >-
+            161 Its money in the customer's currency: at the rate of the day it was placed
+            when it was placed in the currency the app asks for now (`customer_currency`),
+            else at today's. Its lines, delivery and points have theirs.
         customer_currency: { $ref: '#/components/schemas/OrderCustomerCurrency' }
         delivery: { $ref: '#/components/schemas/OrderDelivery' }
         return_request:
@@ -14728,6 +14740,9 @@ components:
             used: { type: integer, minimum: 0 }
             discount: { type: [string, 'null'], description: "Formatted: what the points used took off.", example: ₺25.00 }
             earned: { type: integer, minimum: 0, description: "Points credited for it; 0 until it is completed, and again 0 when they were taken back." }
+            currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `discount_amount`." }
+            discount_amount: { type: [string, 'null'] }
+            display: { $ref: '#/components/schemas/DisplayMoney' }
         id: { type: integer }
         number: { type: string, description: "The order number the site shows, e.g. on receipts.", example: '1042' }
         status: { type: string, enum: [pending, processing, on_hold, completed, cancelled, refunded, failed] }
@@ -14789,6 +14804,9 @@ components:
                 type: [string, 'null']
                 description: "Roadmap 110. What the line comes to (its price with its options, times its quantity), formatted. Null or missing on older servers."
                 example: ₺1,300.00
+              currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The line's currency." }
+              total_amount: { type: string }
+              display: { $ref: '#/components/schemas/DisplayMoney' }
         fulfilment_status:
           type: [string, 'null']
           enum: [received, preparing, ready, out_for_delivery, completed, cancelled, null]
@@ -14871,6 +14889,9 @@ components:
             scheduled_for: { type: [string, 'null'], format: date-time, description: Null for "as soon as possible". }
             delivery_address: { $ref: '#/components/schemas/DeliveryAddress' }
             delivery_fee: { type: [string, 'null'], description: "Formatted; null when there is none.", example: ₺30.00 }
+            currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `delivery_fee_amount`." }
+            delivery_fee_amount: { type: [string, 'null'] }
+            display: { $ref: '#/components/schemas/DisplayMoney' }
 
     Person:
       type: object
@@ -15096,6 +15117,8 @@ components:
             point_value: { type: string, example: '0.10' }
             point_value_formatted: { type: string, example: ₺0.10 }
             min_points: { type: integer, minimum: 1, description: "The fewest points used at once.", example: 100 }
+            currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of its amounts." }
+            display: { $ref: '#/components/schemas/DisplayMoney' }
 
     FulfilmentConfig:
       type: object
@@ -15113,6 +15136,8 @@ components:
         min_order_formatted: { type: [string, 'null'], example: ₺150.00 }
         delivery_fee: { type: [string, 'null'], description: "Added to deliveries, as an amount; null when free.", example: '30.00' }
         delivery_fee_formatted: { type: [string, 'null'], example: ₺30.00 }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of its amounts." }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         delivery_areas:
           type: array
           description: Districts or postcodes the shop delivers to; the customer picks one. Empty when any address is fine.
@@ -15254,6 +15279,8 @@ components:
         fee: { type: [string, 'null'], description: "Added to the order where the server checks out (Yallapp's own products, WooCommerce); null when free or when a connected platform's checkout charges its own.", example: '25.00' }
         fee_formatted: { type: [string, 'null'], example: ₺25.00 }
         capacity: { type: [integer, 'null'], minimum: 1, description: "Orders it takes a day; null for no limit." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The fee's currency." }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     DeliverySlots:
       type: object
@@ -15301,6 +15328,8 @@ components:
         charged: { type: boolean }
         free_over: { type: [string, 'null'], example: '1000.00' }
         free_over_formatted: { type: [string, 'null'] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `free_over`." }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         max_km: { type: [number, 'null'] }
         map:
           type: object
@@ -15340,6 +15369,8 @@ components:
         remaining: { type: [integer, 'null'], minimum: 0, example: 12 }
         total: { type: [integer, 'null'], minimum: 1, description: "All the units of the sale, for the stock bar." }
         flash_sale_id: { type: [integer, 'null'] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `was` and `now`.", example: TRY }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     FlashSale:
       type: object
@@ -15373,6 +15404,8 @@ components:
         starts_at: { type: [string, 'null'], format: date-time }
         ends_at: { type: [string, 'null'], format: date-time }
         remaining: { type: [integer, 'null'], description: "Uses left; null for no limit." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of its amounts." }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     GiftMessages:
       type: object
@@ -15409,6 +15442,9 @@ components:
             end: { type: string }
             label: { type: string }
         fee: { type: [string, 'null'], description: "The slot's fee, formatted (in the order's shipping)." }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `fee_amount`." }
+        fee_amount: { type: [string, 'null'] }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         sender: { $ref: '#/components/schemas/GiftSender' }
         recipient: { $ref: '#/components/schemas/GiftRecipient' }
         gift_message: { type: [string, 'null'] }
@@ -15687,6 +15723,8 @@ components:
               name: { type: string, example: Large }
               price_delta: { type: string, description: "Added to the unit price, as an amount (0.00 for none).", example: '20.00' }
               price_delta_formatted: { type: [string, 'null'], description: "Formatted, null when free.", example: +₺20.00 }
+              currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `price_delta`." }
+              display: { $ref: '#/components/schemas/DisplayMoney' }
 
     ProductVariation:
       type: object
@@ -15761,6 +15799,10 @@ components:
               image_url: { type: [string, 'null'], format: uri }
               unit_price: { type: string, example: ₺450.00 }
               line_total: { type: string, example: ₺900.00 }
+              currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of the line's amounts." }
+              unit_price_amount: { type: string, example: '450.00' }
+              line_total_amount: { type: string, example: '900.00' }
+              display: { $ref: '#/components/schemas/DisplayMoney' }
               available: { type: boolean }
               problem: { type: [string, 'null'], description: "Why the line can't be bought as it is, for the customer.", example: Only 2 left in stock. }
               max_quantity: { type: [integer, 'null'] }
@@ -15810,6 +15852,11 @@ components:
           example: KDV 20%
         total: { type: string, description: "Roadmap 91.1. Formatted: the subtotal less the discount, plus shipping and taxes when known. Missing on older servers.", example: ₺845.00 }
         total_amount: { type: string, example: '845.00' }
+        discount_amount: { type: [string, 'null'], description: "161 The amounts of `discount`, `shipping`, `tax`, `tax_included` and `delivery_fee`, for the same in the customer's currency (`display`)." }
+        shipping_amount: { type: [string, 'null'] }
+        tax_amount: { type: [string, 'null'] }
+        tax_included_amount: { type: [string, 'null'] }
+        delivery_fee_amount: { type: [string, 'null'] }
         display: { $ref: '#/components/schemas/DisplayMoney' }
         charge: { $ref: '#/components/schemas/CartCharge' }
         total_final:
@@ -15831,6 +15878,8 @@ components:
               rule: { type: [string, 'null'], enum: [city, flat, distance, other_city, weight, minimum, free, slot, null] }
               amount: { type: string, example: '42.00' }
               formatted: { type: string, example: ₺42.00 }
+              currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 Its currency." }
+              display: { $ref: '#/components/schemas/DisplayMoney' }
         delivery_problem:
           type: [object, 'null']
           description: "131 Why the delivery chosen so far doesn't work (show `message`): the day, the slot or the place; null when it does."
@@ -15852,6 +15901,10 @@ components:
             usable_value: { type: [string, 'null'], description: "Formatted: what the usable points take off.", example: ₺25.00 }
             applied: { type: boolean, description: "`use_points` was asked and some points apply." }
             discount: { type: [string, 'null'], description: "Formatted: what the points take off `total`; null when not applied.", example: ₺25.00 }
+            currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of its amounts." }
+            usable_value_amount: { type: [string, 'null'] }
+            discount_amount: { type: [string, 'null'] }
+            display: { $ref: '#/components/schemas/DisplayMoney' }
 
     BookingsConfig:
       type: object
@@ -16872,6 +16925,15 @@ components:
         value: { type: [number, 'null'], minimum: -1000000000, maximum: 1000000000 }
         price: { type: [integer, 'null'], minimum: 0, maximum: 10000000000 }
         price_yearly: { type: [integer, 'null'], minimum: 0, maximum: 10000000000 }
+        display:
+          type: object
+          description: "161 A plan's `price` and `price_yearly` in the customer's currency, formatted (null when not set), the rate and its day; missing without one."
+          properties:
+            currency: { type: string, pattern: '^[A-Z]{3}$' }
+            price: { type: [string, 'null'] }
+            price_yearly: { type: [string, 'null'] }
+            rate: { type: number }
+            rate_date: { type: [string, 'null'] }
         prefix: { type: [string, 'null'], maxLength: 8 }
         suffix: { type: [string, 'null'], maxLength: 8 }
         highlight: { type: boolean, default: false }
@@ -17471,12 +17533,33 @@ components:
         title: { type: string }
         subtitle: { type: [string, 'null'], example: 'Maadi · 185 m²' }
         image_url: { type: [string, 'null'], format: uri }
-        price_label: { type: [string, 'null'], description: Display text only. Never a purchase button on iOS., example: 'EGP 4,250,000' }
+        price_label: { type: [string, 'null'], description: Display text only. Never a purchase button on iOS. In the shop's currency (161 kept for older apps; `price` has it in the customer's)., example: 'EGP 4,250,000' }
+        price: { $ref: '#/components/schemas/ItemPrice' }
         badge: { type: [string, 'null'], example: Negotiable }
         rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "128.8 A course's average rating, for a card's `rating` element; null or missing without one.", example: 4.9 }
         sale: { $ref: '#/components/schemas/ProductSale' }
         favorited: { type: boolean }
         action: { $ref: '#/components/schemas/Action' }
+
+    ItemPrice:
+      type: object
+      description: >-
+        161 A card's price as amounts and a currency, the shop's (`price_label` says it
+        in words: "From ₺150", "₺1,200 / month"), with the same in the customer's
+        currency (`display`, its words as `display.label`) for Yallapp's own prices
+        when the app asks for one. A range's dearest end in `max_amount`. Missing for a
+        card without a price, or from older servers.
+      required: [amount, currency, formatted]
+      properties:
+        amount: { type: string, example: '250.00' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', example: MAD }
+        formatted: { type: string, example: MAD 250.00 }
+        range: { type: boolean }
+        max_amount: { type: string, example: '480.00' }
+        regular_amount: { type: string }
+        regular_formatted: { type: string }
+        on_sale: { type: boolean }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     Block:
       oneOf:

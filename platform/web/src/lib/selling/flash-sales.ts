@@ -58,6 +58,8 @@ const money = (cents: number, currency: string) => formatCents(cents, currency a
 /** `ProductSale` in the contract: was, now, the share off, when it ends and how many are left. */
 export function saleJson(input: { wasCents: number; nowCents: number; currency: string; endsAt: Date | null; startsAt?: Date | null; remaining: number | null; total: number | null; flashSaleId: number | null }) {
   return {
+    // 161 Its currency: the hosted API adds `display`, its prices in the customer's (lib/money/display.ts).
+    currency: input.currency,
     was: centsToDecimal(input.wasCents),
     was_formatted: money(input.wasCents, input.currency),
     now: centsToDecimal(input.nowCents),

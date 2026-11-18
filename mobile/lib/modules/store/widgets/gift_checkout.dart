@@ -367,7 +367,8 @@ class DeliveryPicker extends ConsumerWidget {
                   detail: s.full
                       ? l10n.deliverySlotFull
                       : s.fee != null
-                      ? '+${s.fee}'
+                      // 161 In the customer's currency when the shop sent it.
+                      ? addedPrice(s.fee!)
                       : null,
                   selected: slot == s.id,
                   onTap: answer.hasValue && s.available && open

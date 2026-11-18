@@ -58,6 +58,8 @@ export function storeExtrasConfig(app: App, currency: string, opts: { fees: bool
             countries: rules.areas.map((a) => ({ code: a.country, names: countryNames(a.country), cities: a.cities })),
             needs_location: rules.mode === "distance",
             charged: opts.fees,
+            // 161 The currency of its amount: the hosted API adds it in the customer's (`display`).
+            currency,
             free_over: rules.freeOverCents !== null ? centsToDecimal(rules.freeOverCents) : null,
             free_over_formatted: rules.freeOverCents !== null ? formatCents(rules.freeOverCents, currency as CatalogCurrency) : null,
             max_km: rules.mode === "distance" ? (rules.distance?.maxKm ?? null) : null,
@@ -86,6 +88,8 @@ export function publicCouponJson(c: CatalogCoupon, currency: string) {
   return {
     code: c.code,
     kind: c.kind,
+    // 161 The currency of its amounts: the hosted API adds them in the customer's (`display`).
+    currency,
     percent_off: c.kind === "percent" ? c.value : null,
     amount_off: c.kind === "amount" ? centsToDecimal(c.value) : null,
     amount_off_formatted: c.kind === "amount" ? money(c.value) : null,
@@ -211,6 +215,8 @@ export function quoteDeliveryJson(delivery: OrderDelivery | null, currency: stri
   const money = (cents: number) => formatCents(cents, currency as CatalogCurrency);
   return {
     delivery_fee: delivery && delivery.feeCents > 0 ? money(delivery.feeCents) : null,
+    // 161 Its amount: the hosted API adds it in the customer's currency (`display.delivery_fee`).
+    delivery_fee_amount: delivery && delivery.feeCents > 0 ? centsToDecimal(delivery.feeCents, currency) : null,
     delivery_zone: delivery?.shipping?.zone ?? null,
     shipping_breakdown:
       delivery?.shipping || (delivery && delivery.feeCents > 0)

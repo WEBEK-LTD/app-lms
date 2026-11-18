@@ -1362,8 +1362,9 @@ class StudioNodeView extends ConsumerWidget {
       return switch (node.bind!) {
         StudioBind.title => entry.title,
         StudioBind.subtitle => entry.subtitle,
-        // 131 A product on sale: its sale price.
-        StudioBind.price => entry.sale?.nowFormatted ?? entry.priceLabel,
+        // 131 A product on sale: its sale price. 161 In the customer's
+        // currency when the server sent it (a range's both ends, "From").
+        StudioBind.price => entry.shownPrice,
         StudioBind.badge => entry.badge,
         StudioBind.image => null,
         // 128.8 Drawn with its star by [_StudioRating]; none, nothing.

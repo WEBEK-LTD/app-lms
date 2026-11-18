@@ -90,8 +90,13 @@ class LoyaltyRules {
   });
 
   factory LoyaltyRules.fromJson(Json json) => LoyaltyRules(
-    spendPerPoint: reqString(json, 'spend_per_point_formatted'),
-    pointValue: reqString(json, 'point_value_formatted'),
+    // 161 In the customer's currency when the server sent it.
+    spendPerPoint:
+        customerText(json, 'spend_per_point_formatted') ??
+        reqString(json, 'spend_per_point_formatted'),
+    pointValue:
+        customerText(json, 'point_value_formatted') ??
+        reqString(json, 'point_value_formatted'),
     minPoints: reqInt(json, 'min_points'),
   );
 
@@ -116,9 +121,10 @@ class CartPoints {
   factory CartPoints.fromJson(Json json) => CartPoints(
     balance: reqInt(json, 'balance'),
     usable: reqInt(json, 'usable'),
-    usableValue: optString(json, 'usable_value'),
+    // 161 In the customer's currency when the server sent it.
+    usableValue: customerText(json, 'usable_value'),
     applied: reqBool(json, 'applied'),
-    discount: optString(json, 'discount'),
+    discount: customerText(json, 'discount'),
   );
 
   final int balance;
@@ -144,7 +150,8 @@ class PointsAccount {
 
   factory PointsAccount.fromJson(Json json) => PointsAccount(
     balance: reqInt(json, 'balance'),
-    value: reqString(json, 'value'),
+    // 161 In the customer's currency when the server sent it.
+    value: customerText(json, 'value') ?? reqString(json, 'value'),
     entries: reqListOf(json, 'entries', PointsEntry.fromJson),
   );
 
@@ -382,6 +389,14 @@ class ProductPrice {
 
   /// 135.5 The price in the customer's currency; null when none.
   final DisplayMoney? display;
+
+  /// 161 The price as the customer sees it: "≈ \$12.40" in their currency,
+  /// else the shop's [formatted].
+  String get shown => customerPrice(formatted, display?.formatted);
+
+  /// 161 The regular price (struck through while on sale) in the
+  /// customer's currency when there is one, else the shop's.
+  String? get shownRegular => display?.regularFormatted ?? regularFormatted;
 }
 
 enum ProductType { simple, variable, grouped, external, other }
@@ -751,7 +766,11 @@ class CartQuote {
         if (line is Map &&
             line['label'] is String &&
             line['formatted'] is String)
-          (label: line['label'] as String, amount: line['formatted'] as String),
+          (
+            label: line['label'] as String,
+            // 161 In the customer's currency when the server sent it.
+            amount: customerText(asJson(line), 'formatted')!,
+          ),
     ],
     deliveryProblem: json['delivery_problem'] is Map
         ? optString(asJson(json['delivery_problem']), 'message')
@@ -761,7 +780,19 @@ class CartQuote {
   );
 
   /// 135.5 The subtotal and total in the customer's currency; null when none.
+  /// 161 And the discount, shipping, taxes and the slot's fee.
   final DisplayMoney? display;
+
+  /// 161 The sums as the customer sees them: in their currency when the
+  /// server sent it ("≈ \$13.40"), else the shop's. The shop's own texts
+  /// ([subtotal], [total]...) stay for what is charged ([charge]).
+  String get shownSubtotal => customerPrice(subtotal, display?.subtotal);
+  String? get shownTotal => customerPriceOr(total, display?.total);
+  String? get shownDiscount => customerPriceOr(discount, display?['discount']);
+  String? get shownShipping => customerPriceOr(shipping, display?['shipping']);
+  String? get shownTax => customerPriceOr(tax, display?['tax']);
+  String? get shownTaxIncluded =>
+      customerPriceOr(taxIncluded, display?['tax_included']);
 
   /// 135.7 What the card is charged, and in which currency.
   final CartCharge? charge;
@@ -856,8 +887,11 @@ class CartQuoteLine {
     quantity: reqInt(json, 'quantity'),
     name: reqString(json, 'name'),
     imageUrl: optString(json, 'image_url'),
-    unitPrice: reqString(json, 'unit_price'),
-    lineTotal: reqString(json, 'line_total'),
+    // 161 In the customer's currency when the server sent it.
+    unitPrice:
+        customerText(json, 'unit_price') ?? reqString(json, 'unit_price'),
+    lineTotal:
+        customerText(json, 'line_total') ?? reqString(json, 'line_total'),
     available: reqBool(json, 'available'),
     problem: optString(json, 'problem'),
     maxQuantity: optInt(json, 'max_quantity'),

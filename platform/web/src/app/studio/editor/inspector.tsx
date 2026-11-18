@@ -1182,6 +1182,8 @@ function premiumProps(props: Props, node: StudioNode): PremiumControlsProps {
     lang: props.lang,
     defaultLang: props.defaultLang,
     link: (id, action, onChange) => <TapAction id={id} action={action} onChange={onChange} pages={props.pages} sources={props.sources} screens={props.screens} pickable={props.pickable} />,
+    // 161 A shop's stories open the shop without a link.
+    shop: props.sources.includes("products"),
   };
 }
 

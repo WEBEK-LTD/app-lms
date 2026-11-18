@@ -2,6 +2,8 @@ import 'commerce_models.dart';
 import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
+import 'money_models.dart';
+import 'store_models.dart';
 import 'studio_live_models.dart';
 import 'studio_premium_models.dart';
 
@@ -623,6 +625,7 @@ class PageItem {
     this.favorited = false,
     this.action,
     this.sale,
+    this.price,
   });
 
   factory PageItem.fromJson(Json json) => PageItem(
@@ -640,10 +643,43 @@ class PageItem {
     favorited: boolOr(json, 'favorited', false),
     action: PageAction.tryParse(json['action']),
     sale: ProductSale.tryParse(json['sale']),
+    price: _itemPrice(json['price']),
   );
 
-  /// 131 A product's sale; null when it isn't on sale.
+  static ProductPrice? _itemPrice(Object? raw) {
+    if (raw is! Map) return null;
+    try {
+      return ProductPrice.fromJson(asJson(raw));
+    } on FormatException {
+      return null;
+    }
+  }
+
+  /// 131 A product's sale; null when it isn't on sale. 161 Its prices in
+  /// the customer's currency when the server sent them.
   final ProductSale? sale;
+
+  /// 161 The price as amounts and a currency (`ItemPrice`), with the same
+  /// in the customer's currency (`display`, its words as `display.label`);
+  /// null from an older server, or for a card without a price.
+  final ProductPrice? price;
+
+  /// 161 The price as the customer sees it: on sale, the sale's price now;
+  /// else in their currency when the server sent it ("≈ \$12.40", a range
+  /// "≈ \$12.40 – \$18.60", "≈ From \$3.00"), else the shop's words. A
+  /// free card ("Free") as it is.
+  String? get shownPrice => sale?.nowFormatted ?? shownLabel;
+
+  /// 161 [priceLabel] as the customer sees it, whatever the sale.
+  String? get shownLabel {
+    final label = priceLabel;
+    final p = price;
+    if (label == null || p == null || (double.tryParse(p.amount) ?? 0) == 0) {
+      return label;
+    }
+    final shown = p.display;
+    return customerPrice(label, shown?['label'] ?? shown?.formatted);
+  }
 
   /// Null for a source added to the contract later.
   final ItemSource? source;

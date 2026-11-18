@@ -8,6 +8,20 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 161 (the whole app in the customer's currency, and a story's
+Open): the hosted API sends every price of Yallapp's own with its amount,
+currency and `display` in the customer's currency, the home's Studio lists
+too (`GET /pages`, each card's `price`, its sale, the flash sale, the
+coupon, plans), and the cart's lines and sums, fees, slots, points, options
+and orders; the app shows each in the customer's currency ("≈", as the
+shop's products), the owner's switch and list respected, what is charged
+unchanged. A story's Open opens its link, or in a shop the shop, never
+nothing (which left the customer on Home); a shop's story with a link that
+opens nothing is served opening the shop, so older apps follow. Studio says
+what a story's Open opens. `CLIENT_APP_RELEASE` is 7: apps get a build.
+Prices a template wrote into its own words stay as written (ROADMAP 161.8).
+Not yet tried on Kech Flora (ROADMAP 161.10). No migration.
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build

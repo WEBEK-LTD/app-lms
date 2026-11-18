@@ -26,6 +26,8 @@ class CartItem {
     this.options = const [],
     this.optionNames = const [],
     this.addonOf,
+    this.shownPrice,
+    this.shownCurrency,
   });
 
   factory CartItem.fromJson(Json json) => CartItem(
@@ -50,7 +52,22 @@ class CartItem {
         if (o is String) o,
     ],
     addonOf: optInt(json, 'addon_of'),
+    shownPrice: optString(json, 'shown_price'),
+    shownCurrency: optString(json, 'shown_currency'),
   );
+
+  /// 161 The price in the customer's currency when it was added
+  /// ("≈ \$12.40") and that currency: shown until the shop prices the cart,
+  /// while the customer still chooses it.
+  final String? shownPrice;
+  final String? shownCurrency;
+
+  /// 161 The price to show before the shop prices the cart, in [currency]
+  /// (the customer's now) when it was added in it, else the shop's.
+  String? priceIn(String? currency) =>
+      shownPrice != null && shownCurrency != null && shownCurrency == currency
+      ? shownPrice
+      : price;
 
   /// 131 A gift add-on: the product of the line it goes with (removed with
   /// it); null for an ordinary line.
@@ -100,6 +117,8 @@ class CartItem {
     options: options,
     optionNames: optionNames,
     addonOf: addonOf,
+    shownPrice: shownPrice,
+    shownCurrency: shownCurrency,
   );
 
   CartLineInput toInput() => CartLineInput(
@@ -123,6 +142,8 @@ class CartItem {
     if (options.isNotEmpty) 'options': options,
     if (optionNames.isNotEmpty) 'option_names': optionNames,
     if (addonOf != null) 'addon_of': addonOf,
+    if (shownPrice != null) 'shown_price': shownPrice,
+    if (shownCurrency != null) 'shown_currency': shownCurrency,
   };
 }
 

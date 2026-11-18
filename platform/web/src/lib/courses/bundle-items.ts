@@ -1,5 +1,5 @@
 import { assetUrl as publicAssetUrl } from "../assets";
-import { formatCents } from "../catalog/money";
+import { centsToDecimal, formatCents } from "../catalog/money";
 import type { DataStore } from "../data/store";
 import type { Item } from "../hosted/pages/items";
 import { itemWords } from "../hosted/pages/item-words";
@@ -34,6 +34,8 @@ export async function bundlePageItems(appId: string, query: ItemsQuery, deps: { 
       subtitle: words.courses(courses.length),
       image_url: b.imageAssetId ? assetUrl(b.imageAssetId) : null,
       price_label: formatCents(b.priceCents, setup.currency),
+      // 161 As an amount and a currency: the hosted API adds it in the customer's.
+      price: { amount: centsToDecimal(b.priceCents, setup.currency), currency: setup.currency, formatted: formatCents(b.priceCents, setup.currency) },
       badge: compare > b.priceCents ? words.instead(formatCents(compare, setup.currency)) : null,
       action: { type: "item", item: { source: "bundles", id: String(b.id) } },
     };

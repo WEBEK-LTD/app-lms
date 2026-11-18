@@ -412,7 +412,8 @@ class _OrderCard extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                order.total,
+                // 161 In the customer's currency when the shop sent it in it.
+                order.shownTotal,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,

@@ -29,6 +29,7 @@ import '../widgets/gift_checkout.dart';
 import '../widgets/gift_checkout_look.dart';
 import '../widgets/in_app_payment.dart';
 import '../widgets/product_widgets.dart';
+import '../../../core/l10n/currency.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/services/review_prompt.dart';
@@ -508,8 +509,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         ? fulfilment!.deliveryFeeFormatted
         : null;
     // 110 The total on the bar; with a restaurant's delivery fee (not in
-    // the shop's total), the subtotal, as the summary shows it.
-    final barTotal = deliveryFee == null ? value?.total : null;
+    // the shop's total), the subtotal, as the summary shows it. 161 In the
+    // customer's currency when the shop priced it in it.
+    final barTotal = deliveryFee == null ? value?.shownTotal : null;
     final ready =
         value != null &&
         !quote.isLoading &&
@@ -768,7 +770,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   ),
                                 ),
                                 Text(
-                                  value?.subtotal ?? '…',
+                                  value?.shownSubtotal ?? '…',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w800,
@@ -849,19 +851,21 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               ),
                             // 91.1 The coupon's discount, shipping, taxes and
                             // the total, when the shop knows them.
-                            if (value?.discount case final discount?)
+                            // 161 Each in the customer's currency when the
+                            // shop priced it in it.
+                            if (value?.shownDiscount case final discount?)
                               _SumRow(
                                 label: context.l10n.cartDiscount,
-                                value: '−$discount',
+                                value: takenOffPrice(discount),
                                 color: p.success,
                               ),
                             if (value?.points?.discount case final points?)
                               _SumRow(
                                 label: context.l10n.cartPointsDiscount,
-                                value: '−$points',
+                                value: takenOffPrice(points),
                                 color: p.success,
                               ),
-                            if (value?.shipping case final shipping?)
+                            if (value?.shownShipping case final shipping?)
                               _SumRow(
                                 label: value!.deliveryZone == null
                                     ? context.l10n.cartShipping
@@ -908,13 +912,13 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                   ),
                                 ),
                               ),
-                            if (value?.tax case final tax?)
+                            if (value?.shownTax case final tax?)
                               _SumRow(
                                 label:
                                     value!.taxLabel ?? context.l10n.cartTaxes,
                                 value: tax,
                               ),
-                            if (value?.total case final total?
+                            if (value?.shownTotal case final total?
                                 when value!.discount != null ||
                                     value.points?.discount != null ||
                                     value.shipping != null ||
@@ -926,7 +930,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                 strong: true,
                               ),
                             // 91.5 The tax already inside the prices.
-                            if (value?.taxIncluded case final included?)
+                            if (value?.shownTaxIncluded case final included?)
                               Padding(
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
@@ -1029,7 +1033,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         fit: BoxFit.scaleDown,
                         alignment: AlignmentDirectional.centerStart,
                         child: Text(
-                          barTotal ?? value?.subtotal ?? '…',
+                          barTotal ?? value?.shownSubtotal ?? '…',
                           maxLines: 1,
                           style: TextStyle(
                             fontSize: 20,
@@ -1116,7 +1120,10 @@ class _CartAddons extends ConsumerWidget {
                 quantity: 1,
                 name: a.name,
                 imageUrl: a.imageUrl,
-                price: a.sale?.nowFormatted ?? a.price.formatted,
+                price: a.sale?.shopNowFormatted ?? a.price.formatted,
+                // 161 And in the customer's currency.
+                shownPrice: a.sale?.nowFormatted ?? a.price.shown,
+                shownCurrency: a.price.display?.currency,
               ),
               main.productId,
               on,
@@ -1208,7 +1215,11 @@ class _LineCard extends ConsumerWidget {
                     style: TextStyle(fontSize: 13, color: p.text),
                   ),
                 Text(
-                  quoted?.unitPrice ?? item.price ?? '',
+                  // 161 In the customer's currency (the shop's line, else
+                  // as it was added while they still choose it).
+                  quoted?.unitPrice ??
+                      item.priceIn(ref.watch(appCurrencyProvider)) ??
+                      '',
                   style: TextStyle(fontSize: 13, color: p.textSecondary),
                 ),
                 if (quoted?.problem != null) ...[

@@ -213,13 +213,26 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
               ),
             if (f?.deliveryFee != null)
               _AmountRow(label: l10n.deliveryFee, value: f!.deliveryFee!),
+            // 161 In the customer's currency when the shop sent it in it.
             _AmountRow(
               label: l10n.orderTotal,
-              value: order.total,
+              value: order.shownTotal,
               strong: true,
             ),
-            // 135.7 In the customer's currency, on the day it was placed.
-            if (order.customerCurrency case final cc?)
+            // 161 Approximate: the shop's total, what was charged, under it.
+            if (order.display != null &&
+                order.customerCurrency?.charged != true &&
+                order.shownTotal != order.total)
+              Text(
+                order.total,
+                key: const Key('order-shop-total'),
+                textAlign: TextAlign.end,
+                style: TextStyle(fontSize: 13, color: p.textSecondary),
+              ),
+            // 135.7 In the customer's currency, on the day it was placed
+            // (161 unless the total above is already in it).
+            if (order.customerCurrency case final cc?
+                when order.display == null || cc.charged)
               Text(
                 cc.charged
                     ? l10n.orderPaidIn(cc.total)

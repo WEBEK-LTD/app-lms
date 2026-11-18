@@ -252,7 +252,8 @@ class OrderLine {
     quantity: intOr(json, 'quantity', 1),
     imageUrl: optString(json, 'image_url'),
     options: stringList(json, 'options'),
-    total: optString(json, 'total'),
+    // 161 In the customer's currency when the server sent it.
+    total: customerText(json, 'total'),
   );
 
   final String name;
@@ -310,6 +311,7 @@ class Order {
     this.delivery,
     this.stage,
     this.customerCurrency,
+    this.display,
   });
 
   factory Order.fromJson(Json json) => Order(
@@ -326,7 +328,8 @@ class Order {
     items: reqListOf(json, 'items', OrderLine.fromJson),
     fulfilmentStatus: fulfilmentStatusFrom(json['fulfilment_status']),
     fulfilment: optObject(json, 'fulfilment', OrderFulfilment.fromJson),
-    refundedTotal: optString(json, 'refunded_total'),
+    // 161 In the customer's currency when the server sent it.
+    refundedTotal: customerText(json, 'refunded_total'),
     receiptUrl: optString(json, 'receipt_url'),
     payOutside: optObject(json, 'pay_outside', PayOutside.fromJson),
     shipment: optObject(json, 'shipment', OrderShipment.fromJson),
@@ -336,7 +339,23 @@ class Order {
     delivery: OrderDelivery.tryParse(json['delivery']),
     stage: OrderStage.tryParse(json['stage']),
     customerCurrency: OrderCustomerCurrency.tryParse(json['customer_currency']),
+    display: DisplayMoney.tryParse(json['display']),
   );
+
+  /// 161 Its money in the customer's currency: in the one it was placed in,
+  /// at that day's rate, or today's; null when none.
+  final DisplayMoney? display;
+
+  /// 161 The total as the customer sees it: exact when the card was charged
+  /// in their currency, else approximate ("≈ \$13.40"); the shop's
+  /// without one. [total] stays the shop's (what a bank transfer pays).
+  String get shownTotal {
+    final shown = display?.total;
+    final cc = customerCurrency;
+    final charged =
+        cc != null && cc.charged && cc.currency == display?.currency;
+    return customerPrice(total, charged ? cc.total : shown, exact: charged);
+  }
 
   /// 132 Where a store order's delivery is; null before its first stage,
   /// on older servers, and for a stage this app doesn't know (the order
@@ -475,7 +494,8 @@ class OrderPoints {
 
   factory OrderPoints.fromJson(Json json) => OrderPoints(
     used: reqInt(json, 'used'),
-    discount: optString(json, 'discount'),
+    // 161 In the customer's currency when the server sent it.
+    discount: customerText(json, 'discount'),
     earned: reqInt(json, 'earned'),
   );
 

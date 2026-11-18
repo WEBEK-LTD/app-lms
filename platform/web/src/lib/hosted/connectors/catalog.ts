@@ -8,7 +8,7 @@ import { centsToDecimal, formatCents } from "../../catalog/money";
 import { checkOptions, optionGroupsJson, optionGroupsOf, type ChosenOption } from "../../catalog/options";
 import { awaitingManualPayment } from "../../catalog/manual";
 import { catalogSettings, isOwnPayment, ORDER_STATUS_LABELS, orderNumber, PAY_LINK_MINUTES, paymentsSetUp, shippingFor } from "../../catalog/settings";
-import { customerCurrencyAllowed, customerCurrencyRule, Shown } from "../../money/display";
+import { addDisplayPricesWith, customerCurrencyAllowed, customerCurrencyRule, Shown } from "../../money/display";
 import { providerTakes } from "../../payments/provider";
 import { shipmentJson } from "../../catalog/shipping";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
@@ -541,6 +541,10 @@ export class CatalogConnector implements Connector {
           image_url: product.imageAssetIds[0] ? this.deps.assetUrl(product.imageAssetIds[0]) : null,
           unit_price: this.money(unit),
           line_total: this.money(unit * quantity),
+          // 161 Their amounts and currency: the hosted API adds them in the customer's (`display`).
+          currency: this.settings.currency,
+          unit_price_amount: centsToDecimal(unit, this.settings.currency),
+          line_total_amount: centsToDecimal(unit * quantity, this.settings.currency),
           available,
           problem: !options.ok
             ? options.problem
@@ -633,6 +637,10 @@ export class CatalogConnector implements Connector {
         usable_value: usable.points > 0 ? this.money(usable.valueCents) : null,
         applied,
         discount: applied ? this.money(usable.valueCents) : null,
+        // 161 The amounts, for the same in the customer's currency (`display`).
+        currency: this.settings.currency,
+        usable_value_amount: usable.points > 0 ? centsToDecimal(usable.valueCents, this.settings.currency) : null,
+        discount_amount: applied ? centsToDecimal(usable.valueCents, this.settings.currency) : null,
       },
       used: applied ? usable.points : 0,
       discountCents: applied ? usable.valueCents : 0,
@@ -675,6 +683,11 @@ export class CatalogConnector implements Connector {
         shipping: shipping === null ? null : this.money(shipping),
         tax: tax && !tax.included ? this.money(tax.cents) : null,
         tax_included: tax?.included ? this.money(tax.cents) : null,
+        // 161 Their amounts: the hosted API adds each in the customer's currency (`display`), as the subtotal and total.
+        discount_amount: coupon.discountCents > 0 ? centsToDecimal(coupon.discountCents, this.settings.currency) : null,
+        shipping_amount: shipping === null ? null : centsToDecimal(shipping, this.settings.currency),
+        tax_amount: tax && !tax.included ? centsToDecimal(tax.cents, this.settings.currency) : null,
+        tax_included_amount: tax?.included ? centsToDecimal(tax.cents, this.settings.currency) : null,
         tax_label: tax ? taxLabel(tax) : null,
         total: this.money(total),
         total_amount: centsToDecimal(total, this.settings.currency),
@@ -825,9 +838,30 @@ export class CatalogConnector implements Connector {
     }
   }
 
+  /**
+   * 161 An order as the app gets it, its money also in the customer's
+   * currency (`display` on it, its lines, its delivery and its points): in
+   * the one it was placed in, at that day's rate, when the customer still
+   * shows prices in it (what the card was charged, or shown, then); else
+   * the hosted API adds today's (lib/hosted/service.ts).
+   */
   private orderJson(order: CatalogOrder, now: Date, lang?: string | null) {
+    const json = this.plainOrderJson(order, now, lang);
+    const cc = order.customerCurrency;
+    if (!cc || !this.shown || this.shown.currency !== cc.currency) return json;
+    const atOrder = Shown.at(order.currency, cc.currency, cc.rate, cc.rateDate);
+    return addDisplayPricesWith(json, (base) => (base === order.currency ? atOrder : null));
+  }
+
+  private plainOrderJson(order: CatalogOrder, now: Date, lang?: string | null) {
+    // 161 Each amount beside its text, in the order's currency: for the same in the customer's.
+    const amount = (cents: number) => centsToDecimal(cents, order.currency);
+    const points = orderPointsJson(order.points, order.currency);
+    const delivery = orderDeliveryJson(order.delivery, order.delivery?.feeCents ? formatCents(order.delivery.feeCents, order.currency) : null);
     return {
       id: order.id,
+      currency: order.currency,
+      total_amount: amount(order.totalCents),
       number: orderNumber(order),
       status: order.status,
       // 80.4 A shipped order in progress reads "Shipped".
@@ -841,11 +875,12 @@ export class CatalogConnector implements Connector {
       return_request: returnJson(order.returnRequest),
       can_return: canReturn(order, this.settings, now),
       // 91.4 The points used on it and earned by it.
-      points: orderPointsJson(order.points, order.currency),
+      points: points ? { ...points, currency: order.currency, discount_amount: order.points?.discountCents ? amount(order.points.discountCents) : null } : null,
       // 131 The delivery day and slot, who sends and receives it and the card.
-      delivery: orderDeliveryJson(order.delivery, order.delivery?.feeCents ? formatCents(order.delivery.feeCents, order.currency) : null),
+      delivery: delivery ? { ...delivery, currency: order.currency, fee_amount: order.delivery?.feeCents ? amount(order.delivery.feeCents) : null } : null,
       // 47 What the shop refunded of it; all of it: the status is "refunded".
       refunded_total: order.refundedCents ? formatCents(order.refundedCents, order.currency) : null,
+      refunded_total_amount: order.refundedCents ? amount(order.refundedCents) : null,
       // 71 The receipt as a PDF, from a signed link.
       receipt_url: order.paidAt ? this.receiptUrl(order) : null,
       // 96.2 Waiting for a bank transfer or the shop's own method: how to pay it.
@@ -864,6 +899,8 @@ export class CatalogConnector implements Connector {
         ...(l.addonOf ? { addon_of: l.addonOf } : {}),
         // 110 What the line comes to.
         total: formatCents(l.unitCents * l.quantity, order.currency),
+        currency: order.currency,
+        total_amount: amount(l.unitCents * l.quantity),
       })),
       // 132 Where a store order's delivery is: the stage, the new day, a short reason and what's next.
       stage: appStageJson(order, lang),
@@ -876,6 +913,8 @@ export class CatalogConnector implements Connector {
               scheduled_for: order.fulfilment.scheduledFor,
               delivery_address: order.fulfilment.address,
               delivery_fee: order.shippingCents > 0 ? formatCents(order.shippingCents, order.currency) : null,
+              currency: order.currency,
+              delivery_fee_amount: order.shippingCents > 0 ? amount(order.shippingCents) : null,
             },
             // 96.2 Followed once paid: an order waiting for a bank transfer or the shop's own method isn't in the kitchen yet.
             fulfilment_status: order.status === "pending" ? null : (order.fulfilmentStatus ?? null),

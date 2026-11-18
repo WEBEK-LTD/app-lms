@@ -1,5 +1,6 @@
 import 'addon_models.dart';
 import 'json.dart';
+import 'money_models.dart';
 
 /// 131 The flower shop's commerce in the app API: a product's sale, the
 /// delivery slots of a day, the card messages by occasion, the coupons the
@@ -20,17 +21,27 @@ class ProductSale {
     this.remaining,
     this.total,
     this.flashSaleId,
-  });
+    String? shopNowFormatted,
+  }) : shopNowFormatted = shopNowFormatted ?? nowFormatted;
 
   static ProductSale? tryParse(Object? value) {
     if (value is! Map) return null;
     try {
       final json = asJson(value);
+      // 161 Its prices in the customer's currency when the server sent
+      // them (`display`): the price now approximate ("≈ \$9.80"), the one
+      // before as it is, struck through.
+      final shown = DisplayMoney.tryParse(json['display']);
       return ProductSale(
         was: reqString(json, 'was'),
-        wasFormatted: reqString(json, 'was_formatted'),
+        wasFormatted:
+            shown?['was_formatted'] ?? reqString(json, 'was_formatted'),
         now: reqString(json, 'now'),
-        nowFormatted: reqString(json, 'now_formatted'),
+        nowFormatted: customerPrice(
+          reqString(json, 'now_formatted'),
+          shown?['now_formatted'],
+        ),
+        shopNowFormatted: reqString(json, 'now_formatted'),
         percentOff: intOr(json, 'percent_off', 0).clamp(0, 100),
         startsAt: optDate(json, 'starts_at'),
         endsAt: optDate(json, 'ends_at'),
@@ -44,9 +55,18 @@ class ProductSale {
   }
 
   final String was;
+
+  /// The price before the sale, in the customer's currency when the server
+  /// sent it (161), else the shop's.
   final String wasFormatted;
   final String now;
+
+  /// The price now as the customer sees it (161): "≈ \$9.80" in their
+  /// currency, else the shop's.
   final String nowFormatted;
+
+  /// The price now in the shop's currency (read out after the customer's).
+  final String shopNowFormatted;
   final int percentOff;
   final DateTime? startsAt;
   final DateTime? endsAt;
@@ -187,8 +207,9 @@ class PublicCoupon {
     return PublicCoupon(
       code: code,
       percentOff: optInt(json, 'percent_off'),
-      amountOff: optString(json, 'amount_off_formatted'),
-      minOrder: optString(json, 'min_order_formatted'),
+      // 161 In the customer's currency when the server sent it.
+      amountOff: customerText(json, 'amount_off_formatted'),
+      minOrder: customerText(json, 'min_order_formatted'),
       endsAt: optDate(json, 'ends_at'),
     );
   }
@@ -265,7 +286,8 @@ class DeliverySlot {
     start: reqString(json, 'start'),
     end: reqString(json, 'end'),
     label: optString(json, 'label') ?? '',
-    fee: optString(json, 'fee_formatted'),
+    // 161 In the customer's currency when the server sent it.
+    fee: customerText(json, 'fee_formatted'),
     capacity: optInt(json, 'capacity'),
     available: boolOr(json, 'available', true),
     full: boolOr(json, 'full', false),
@@ -385,7 +407,8 @@ class StoreShippingRules {
       ],
       needsLocation: boolOr(json, 'needs_location', false),
       charged: boolOr(json, 'charged', true),
-      freeOver: optString(json, 'free_over_formatted'),
+      // 161 In the customer's currency when the server sent it.
+      freeOver: customerText(json, 'free_over_formatted'),
       mapTilesUrl: json['map'] is Map
           ? optString(asJson(json['map']), 'tiles_url')
           : null,

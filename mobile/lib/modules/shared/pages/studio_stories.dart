@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/l10n/l10n.dart';
@@ -63,23 +64,30 @@ class _StudioStoriesRowState extends ConsumerState<StudioStoriesRow> {
                 key: ValueKey('studio-story-${node.id}-$i'),
                 behavior: HitTestBehavior.opaque,
                 onTap: () async {
-                  // 129.2 A tile without a photo (all of them) opens its link.
+                  // 129.2 A tile without a photo (all of them) opens its
+                  // link; 161 the shop when it opens nothing here.
                   final link = story.action;
                   if (story.imageUrl == null && link != null) {
-                    if (canOpenAction(ref, link)) {
-                      runPageAction(context, ref, link);
-                    }
+                    openStoryLink(
+                      context,
+                      ref,
+                      link,
+                      from: GoRouter.maybeOf(context)?.state.uri.toString(),
+                    );
                     return;
                   }
-                  final action = await StudioStoryViewer.open(
+                  // 161 The story's Open follows its link from the
+                  // stories themselves (StudioStoryViewer), not from here:
+                  // this row may be built again meanwhile (the page asked
+                  // again), and its link was then lost, leaving the person
+                  // on Home.
+                  await StudioStoryViewer.open(
                     context,
                     node,
                     studioViewableStories(node).indexOf(story),
                   );
                   if (!context.mounted) return;
                   setState(() {});
-                  // A story's link opens once the stories have closed.
-                  if (action != null) runPageAction(context, ref, action);
                 },
                 child: SizedBox(
                   width: size + 8,
@@ -270,16 +278,19 @@ class StudioStoryViewer extends ConsumerStatefulWidget {
   final StudioNode node;
   final int initial;
 
-  /// Opens the stories at [i]; the link of the story whose button was
-  /// tapped, to open once they have closed.
+  /// Opens the stories at [i]; done when they have closed. 161 A story's
+  /// Open closes them and opens its link (else the shop), from the
+  /// router's own navigator, whatever happened to the page meanwhile.
   static Future<PageAction?> open(
     BuildContext context,
     StudioNode node,
     int i,
   ) {
     final still = MediaQuery.disableAnimationsOf(context);
+    final from = GoRouter.maybeOf(context)?.state.uri.toString();
     return Navigator.of(context, rootNavigator: true).push<PageAction?>(
       PageRouteBuilder<PageAction?>(
+        settings: RouteSettings(arguments: from),
         opaque: true,
         transitionDuration: still
             ? Duration.zero
@@ -497,7 +508,8 @@ class _StudioStoryViewerState extends ConsumerState<StudioStoryViewer>
                         ),
                       ),
                     ],
-                    if (action != null && canOpenAction(ref, action)) ...[
+                    // 161 Its link, or the shop when it has none here.
+                    if (storyOpens(ref, action)) ...[
                       const SizedBox(height: 16),
                       FilledButton(
                         key: const ValueKey('studio-story-open'),
@@ -515,7 +527,19 @@ class _StudioStoryViewerState extends ConsumerState<StudioStoryViewer>
                         ),
                         onPressed: () {
                           _time.stop();
-                          Navigator.of(context).pop(action);
+                          final navigator = Navigator.of(context);
+                          final from = ModalRoute.of(context)
+                              ?.settings
+                              .arguments;
+                          navigator.pop(action);
+                          // 161 From the navigator, always there: the
+                          // story's link, or the shop; never nothing.
+                          openStoryLink(
+                            navigator.context,
+                            ref,
+                            action,
+                            from: from is String ? from : null,
+                          );
                         },
                         child: Text(l10n.studioStoryOpen),
                       ),
