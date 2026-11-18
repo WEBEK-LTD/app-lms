@@ -653,6 +653,8 @@ export const hostedDevices = mysqlTable(
     appRole: varchar("app_role", { length: 8 }).$type<HostedAppRole>(),
     // 104.8.2 The Yallapp Courier device that opened it; it ends with that device.
     courierDeviceId: id("courier_device_id").references((): AnyMySqlColumn => courierDevices.id, { onDelete: "cascade" }),
+    // 184.6 An iPhone's PushKit token, for app calls.
+    voipToken: varchar("voip_token", { length: 200 }),
     createdAt: time("created_at").notNull(),
     lastSeenAt: time("last_seen_at").notNull(),
   },
@@ -6100,6 +6102,9 @@ export const contactCalls = mysqlTable(
     providerSid: varchar("provider_sid", { length: 64 }),
     problem: varchar("problem", { length: 32 }),
     durationSeconds: int("duration_seconds"),
+    // 184.6 An app call's offer and answer, cleared when it ends.
+    offerSdp: text("offer_sdp"),
+    answerSdp: text("answer_sdp"),
     createdAt: time("created_at").notNull(),
     answeredAt: time("answered_at"),
     endedAt: time("ended_at"),

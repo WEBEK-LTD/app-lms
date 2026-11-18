@@ -53,14 +53,15 @@ describe("184 the chat's rules", () => {
     expect(threadWindow(again).opensAt).toEqual(at(25));
   });
 
-  it("signals the ways: chat on by default and only while open, calls never before they're built", () => {
+  it("signals the ways: chat on by default and only while open, calls only as switched on and set up", () => {
     const settings = contactSettingsOf("app-1", null);
     expect(settings).toMatchObject({ chat: true, appCall: false, phoneCall: false });
     const assigned = job({ status: "on_the_way", courierId: 7, timeline: [{ status: "assigned", at: NOW.toISOString() }] });
     expect(contactWaysJson(settings, null, NOW)).toBeNull();
     expect(contactWaysJson(settings, job({}), NOW)).toBeNull();
     expect(contactWaysJson(settings, assigned, at(1))).toEqual({ chat: true, app_call: false, phone_call: false, chat_until: null });
-    expect(contactWaysJson({ ...settings, chat: false, appCall: true, phoneCall: true }, assigned, at(1))).toEqual({ chat: false, app_call: false, phone_call: false, chat_until: null });
+    // 184.6 App calls as switched on; 184.5 phone calls only with an account that passed its test.
+    expect(contactWaysJson({ ...settings, chat: false, appCall: true, phoneCall: true }, assigned, at(1))).toEqual({ chat: false, app_call: true, phone_call: false, chat_until: null });
     const delivered = job({ status: "delivered", courierId: 7, timeline: [{ status: "assigned", at: NOW.toISOString() }, { status: "delivered", at: at(30).toISOString() }] });
     expect(contactWaysJson(settings, delivered, at(31))).toEqual({ chat: true, app_call: false, phone_call: false, chat_until: at(150).toISOString() });
     expect(contactWaysJson(settings, delivered, at(151))).toMatchObject({ chat: false });

@@ -66,6 +66,13 @@ export interface PushMessage {
   image?: string | null;
   /** 136.40 Android only delivers it to this app's package (`android.restricted_package_name`): a shared project's other apps never get it. */
   restrictedPackage?: string | null;
+  /**
+   * 184.6 A call ringing: data only and at once (Android's high priority, kept no longer than
+   * `ttlSeconds`), so the app itself shows the full-screen call. For Android's own tokens; iPhones
+   * get calls through PushKit (lib/hosted/apns.ts `voip`).
+   */
+  dataOnly?: boolean;
+  ttlSeconds?: number;
 }
 
 export interface PushResult {
@@ -218,10 +225,14 @@ export async function sendPush(
       body: JSON.stringify({
         message: {
           token: deviceToken,
-          notification: { title: message.title, body: message.body, ...(message.image ? { image: message.image } : {}) },
-          data: message.data,
-          android: { priority: "high", ...(message.restrictedPackage ? { restricted_package_name: message.restrictedPackage } : {}) },
-          apns: { payload: { aps: { sound: "default" } } },
+          ...(message.dataOnly ? {} : { notification: { title: message.title, body: message.body, ...(message.image ? { image: message.image } : {}) } }),
+          data: message.dataOnly ? { ...message.data, title: message.title, body: message.body } : message.data,
+          android: {
+            priority: "high",
+            ...(message.ttlSeconds !== undefined ? { ttl: `${message.ttlSeconds}s` } : {}),
+            ...(message.restrictedPackage ? { restricted_package_name: message.restrictedPackage } : {}),
+          },
+          ...(message.dataOnly ? {} : { apns: { payload: { aps: { sound: "default" } } } }),
         },
       }),
       signal: AbortSignal.timeout(10_000),

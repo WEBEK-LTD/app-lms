@@ -11650,7 +11650,7 @@ export class MysqlStore implements DataStore {
     return { ...input, id: Number(result.insertId) };
   }
 
-  async updateContactCall(appId: string, id: number, patch: Partial<Pick<ContactCall, "status" | "providerSid" | "problem" | "durationSeconds" | "answeredAt" | "endedAt">>): Promise<boolean> {
+  async updateContactCall(appId: string, id: number, patch: Partial<Pick<ContactCall, "status" | "providerSid" | "problem" | "durationSeconds" | "answeredAt" | "endedAt" | "offerSdp" | "answerSdp">>): Promise<boolean> {
     const t = schema.contactCalls;
     if (Object.keys(patch).length === 0) return (await this.getContactCall(appId, id)) !== null;
     const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));

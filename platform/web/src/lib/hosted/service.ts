@@ -1516,6 +1516,9 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
   // 112.3 Which of the company's apps this is (the build's role): each gets its own pushes. Apps built before send none.
   if (body.role !== undefined && !(HOSTED_APP_ROLES as readonly unknown[]).includes(body.role)) return badRequest("The app's role must be customer, courier, driver, vendor or staff.");
   const appRole = body.role as HostedAppRole | undefined;
+  // 184.6 An iPhone's PushKit token, for app calls that ring with the app closed (null forgets it; missing keeps it).
+  const voip = body.voip_token;
+  if (voip !== undefined && voip !== null && (typeof voip !== "string" || !/^[0-9a-fA-F]{64,200}$/.test(voip))) return badRequest("voip_token is the iPhone's PushKit token, in hex.");
   // A token moves with the install: forget it on any other device first.
   await ctx.store.clearHostedPushToken(ctx.app.id, token);
   await ctx.store.updateHostedDevice(ctx.app.id, s.device.id, {
@@ -1525,6 +1528,7 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
     ...(language ? { language } : {}),
     ...(ctx.country ? { country: ctx.country } : {}),
     ...(appRole ? { appRole } : {}),
+    ...(voip !== undefined ? { voipToken: voip === null ? null : (voip as string).toLowerCase() } : {}),
   });
   return noContent;
 }

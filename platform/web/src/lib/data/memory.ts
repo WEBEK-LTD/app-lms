@@ -9504,7 +9504,7 @@ export class MemoryStore implements DataStore {
     return clone(call);
   }
 
-  async updateContactCall(appId: string, id: number, patch: Partial<Pick<ContactCall, "status" | "providerSid" | "problem" | "durationSeconds" | "answeredAt" | "endedAt">>): Promise<boolean> {
+  async updateContactCall(appId: string, id: number, patch: Partial<Pick<ContactCall, "status" | "providerSid" | "problem" | "durationSeconds" | "answeredAt" | "endedAt" | "offerSdp" | "answerSdp">>): Promise<boolean> {
     const found = this.contactCalls.find((c) => c.appId === appId && c.id === id);
     if (!found) return false;
     Object.assign(found, clone(patch));

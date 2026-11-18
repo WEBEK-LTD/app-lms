@@ -7,6 +7,7 @@ import { shipmentReference } from "../delivery/service";
 import { hitRateLimit, type RateLimitRule } from "../rate-limit";
 import type { Connector, ConnectorRequest, ConnectorResult } from "../hosted/connectors/types";
 import { error } from "../hosted/connectors/common";
+import { answer, end, signal, startAppCall, type AppCallDeps } from "./app-call";
 import { callJson, startPhoneCall, type CallDeps } from "./phone-call";
 import { QUICK_REPLIES, isQuickReply, quickWords } from "./quick";
 import { contactSettingsOf, contactWaysJson, courierThread, customerThread, firstName, isOpen, type CustomerOrder, type Found, type Thread } from "./thread";
@@ -31,6 +32,8 @@ export interface ChatDeps {
   notify?: (now: Date) => DeliveryNotifyDeps;
   /** 184.5 What a masked phone call needs (the key, Twilio's fetch, the callbacks' address); no calls when left out. */
   calls?: Omit<CallDeps, "store" | "app">;
+  /** 184.6 What an app call needs (the key and Twilio's fetch for the owner's relay); no app calls when left out. */
+  appCalls?: Pick<AppCallDeps, "key" | "fetcher" | "sendVoip">;
 }
 
 /** How often the open screen asks for new messages. */
@@ -63,8 +66,11 @@ export async function handleContact(deps: ChatDeps, request: ConnectorRequest): 
   const parsed = contactPath(request.path);
   if (!parsed) return null;
   const route = `${request.method} /${parsed.rest.join("/")}`;
-  const callId = parsed.rest[0] === "calls" && parsed.rest.length === 2 && /^\d{1,15}$/.test(parsed.rest[1]!) ? Number(parsed.rest[1]) : null;
-  const calling = route === "POST /phone-call" || (request.method === "GET" && callId !== null);
+  const callId = parsed.rest[0] === "calls" && (parsed.rest.length === 2 || parsed.rest.length === 3) && /^\d{1,15}$/.test(parsed.rest[1]!) ? Number(parsed.rest[1]) : null;
+  // 184.6 An app call's signalling: GET …/calls/{id}/signal, POST …/calls/{id}/answer and …/end.
+  const step = callId !== null ? `${request.method} ${parsed.rest[2] ?? ""}` : null;
+  const calling =
+    route === "POST /phone-call" || route === "POST /app-call" || step === "GET " || step === "GET signal" || step === "POST answer" || step === "POST end";
   if (!calling && !["GET /", "GET /messages", "POST /messages", "POST /read"].includes(route)) return fail(404, "not_found", "Not found.");
   const settings = contactSettingsOf(deps.app.id, await deps.store.getContactSettings(deps.app.id));
   if (!calling && !settings.chat) return fail(403, "contact_off", "Chat isn't available in this app.");
@@ -78,10 +84,19 @@ export async function handleContact(deps: ChatDeps, request: ConnectorRequest): 
     if (!deps.calls) return fail(409, "phone_call_unavailable", "Phone calls aren't available right now. Write in the chat instead.");
     return startPhoneCall({ ...deps.calls, store: deps.store, app: deps.app }, thread, settings, request.now, request.lang);
   }
+  const appDeps = deps.appCalls ? { ...deps.appCalls, store: deps.store, app: deps.app, notify: deps.notify } : null;
+  if (route === "POST /app-call") {
+    if (!appDeps) return fail(409, "app_call_unavailable", "Calls in the app aren't available right now. Write in the chat instead.");
+    return startAppCall(appDeps, thread, settings, request.body, request.now);
+  }
   if (callId !== null) {
     const call = await deps.store.getContactCall(deps.app.id, callId);
     if (!call || call.shipmentId !== thread.job.id || call.courierId !== thread.courier.id) return fail(404, "not_found", "Call not found.");
-    return { status: 200, body: callJson(call, settings) };
+    if (step === "GET ") return { status: 200, body: callJson(call, settings) };
+    if (!appDeps) return fail(404, "not_found", "Call not found.");
+    if (step === "GET signal") return signal(appDeps, thread, settings, call, request.now);
+    if (step === "POST answer") return answer(appDeps, thread, call, request.body, request.now);
+    return end(appDeps, thread, call, request.body, request.now);
   }
   if (route === "GET /") return { status: 200, body: await threadJson(deps, thread, settings, request.now) };
   if (route === "GET /messages") return messages(deps, thread, request);

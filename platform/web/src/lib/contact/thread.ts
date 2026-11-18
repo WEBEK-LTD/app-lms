@@ -63,8 +63,8 @@ export function contactWaysJson(settings: ContactSettings, job: Pick<Shipment, "
   const live = onItsWay(job);
   return {
     chat: settings.chat && open,
-    // The app call comes with 184.6: never offered before.
-    app_call: false,
+    // 184.6 Switched on, while the order is on its way.
+    app_call: live && settings.appCall,
     // 184.5 Switched on, an account that passed its test and isn't paused, while the order is on its way.
     phone_call: live && settings.phoneCall && Boolean(settings.twilio) && settings.twilioCheck?.ok === true && !settings.phonePausedAt,
     chat_until: window.closesAt ? window.closesAt.toISOString() : null,

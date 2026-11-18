@@ -304,6 +304,16 @@ export function apnsPayload(message: PushMessage, messageId: string): Record<str
   };
 }
 
+/** 184.6 A ringing call is no use later: PushKit keeps it 30 seconds. */
+const VOIP_KEEP_SECONDS = 30;
+
+/** 184.6 PushKit's payload: the call's data for CallKit (who's calling, the call), no alert. */
+export function voipPayload(message: PushMessage): Record<string, unknown> {
+  const data: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(message.data)) if (key !== "aps") data[key] = value;
+  return { ...data, title: message.title, body: message.body, aps: {} };
+}
+
 function topicOf(credentials: ApnsCredentials, role: string | null | undefined): string {
   return (role && credentials.roleBundleIds?.[role]) || credentials.bundleId;
 }
@@ -319,7 +329,8 @@ export async function sendApnsPush(
   credentials: ApnsCredentials,
   targets: ApnsTarget[],
   message: PushMessage,
-  options: { transport?: ApnsTransport; now?: Date } = {},
+  /** 184.6 `voip`: a call for PushKit (push type `voip`, the app's `.voip` topic, kept 30 seconds), which the app reports to CallKit at once. */
+  options: { transport?: ApnsTransport; now?: Date; voip?: boolean } = {},
 ): Promise<PushResult & { failed: number; keyRefused: boolean }> {
   const result = { sent: 0, invalidTokens: [] as string[], failed: 0, keyRefused: false };
   const transport = options.transport ?? http2Transport;
@@ -338,15 +349,15 @@ export async function sendApnsPush(
   };
   let token = cachedProviderToken(credentials, now);
   let renewed = false;
-  const expiration = String(Math.floor(now.getTime() / 1000) + KEEP_SECONDS);
+  const expiration = String(Math.floor(now.getTime() / 1000) + (options.voip ? VOIP_KEEP_SECONDS : KEEP_SECONDS));
   const request = (target: ApnsTarget): ApnsRequest => {
-    const payload = apnsPayload(message, randomUUID());
+    const payload = options.voip ? voipPayload(message) : apnsPayload(message, randomUUID());
     return {
       path: `/3/device/${target.token.toLowerCase()}`,
       headers: {
         authorization: `bearer ${token}`,
-        "apns-topic": topicOf(credentials, target.role),
-        "apns-push-type": "alert",
+        "apns-topic": options.voip ? `${topicOf(credentials, target.role)}.voip` : topicOf(credentials, target.role),
+        "apns-push-type": options.voip ? "voip" : "alert",
         "apns-priority": "10",
         "apns-expiration": expiration,
       },

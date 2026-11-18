@@ -1175,6 +1175,8 @@ export interface HostedDevice {
    * Firebase project, and it ends with that device. Null for the company's own apps.
    */
   courierDeviceId?: string | null;
+  /** 184.6 An iPhone's PushKit token (hex), for app calls that ring with the app closed; sent with the push token. */
+  voipToken?: string | null;
   createdAt: Date;
   lastSeenAt: Date;
 }
@@ -7920,6 +7922,9 @@ export interface ContactCall {
   providerSid: string | null;
   problem: string | null;
   durationSeconds: number | null;
+  /** 184.6 An app call's WebRTC offer and answer (SDP, with each side's network addresses), kept only until it ends. */
+  offerSdp?: string | null;
+  answerSdp?: string | null;
   createdAt: Date;
   answeredAt: Date | null;
   endedAt: Date | null;

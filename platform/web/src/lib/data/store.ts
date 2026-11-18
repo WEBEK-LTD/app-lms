@@ -329,7 +329,7 @@ export class DuplicateEmailError extends Error {
 }
 
 /** A device of a hosted-API customer: what the API may change. */
-export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt" | "language" | "country" | "appRole" | "courierDeviceId">>;
+export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt" | "language" | "country" | "appRole" | "courierDeviceId" | "voipToken">>;
 
 export type ClaimResult = { ok: true; activation: Activation } | { ok: false; existing: Activation };
 
@@ -2680,7 +2680,7 @@ export interface DataStore {
   /** 184.5 A call between a job's customer and its courier. */
   createContactCall(input: Omit<ContactCall, "id">): Promise<ContactCall>;
   /** False when the app has no such call. */
-  updateContactCall(appId: string, id: number, patch: Partial<Pick<ContactCall, "status" | "providerSid" | "problem" | "durationSeconds" | "answeredAt" | "endedAt">>): Promise<boolean>;
+  updateContactCall(appId: string, id: number, patch: Partial<Pick<ContactCall, "status" | "providerSid" | "problem" | "durationSeconds" | "answeredAt" | "endedAt" | "offerSdp" | "answerSdp">>): Promise<boolean>;
   getContactCall(appId: string, id: number): Promise<ContactCall | null>;
   /** A job's calls, newest first. */
   listContactCalls(appId: string, shipmentId: number, limit: number): Promise<ContactCall[]>;

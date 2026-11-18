@@ -133,7 +133,7 @@ function sourceConnector(app: App, key: Buffer, deps: Parameters<typeof connecto
   // 184.3 The chat between a job's customer and its courier, in front of both.
   // 184.5 The masked phone call: the owner's Twilio secret is opened with the platform's key; Twilio's callbacks are signed.
   const calls = { key, fetcher, platformUrl: deps.platformUrl, secret: callbackSecret() };
-  const chat = { store: deps.store, app, notify: (now: Date) => notifyDeps({ store: deps.store, app, now }), ...(calls.secret ? { calls: calls as typeof calls & { secret: string } } : {}) };
+  const chat = { store: deps.store, app, notify: (now: Date) => notifyDeps({ store: deps.store, app, now }), ...(calls.secret ? { calls: calls as typeof calls & { secret: string } } : {}), appCalls: { key, fetcher } };
   if (app.connector?.kind === "deliveries") return withContact(new DeliveryConnector({ ...deps, app, fetcher }), { ...chat, enabled: deps.delivery !== false });
   if (app.connector?.kind === "restaurants") return withContact(new FoodConnector({ ...deps, app, fetcher }), { ...chat, enabled: deps.food !== false });
   if (app.connector?.kind === "rides") {

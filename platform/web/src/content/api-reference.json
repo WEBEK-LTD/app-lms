@@ -1493,6 +1493,118 @@
           "summary": "How a call went",
           "description": "184.5 For the call screen to say \"No answer\" or offer chat. Only this side's job and courier's calls.",
           "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/market-orders/{order_id}/contact/app-call",
+          "summary": "Call the courier in the app",
+          "description": "184.6 A call over the internet, like a WhatsApp call, with no phone numbers: WebRTC audio, one to one. Send the offer once its ICE candidates are gathered (no trickle); the courier's phone rings, even with the app closed (`contact_call`: a PushKit VoIP push on iPhone, a high-priority data message on Android). Then ask `…/calls/{call_id}/signal` every `poll_after_ms` for the answer. Unanswered after 45 seconds it's `no_answer`. Only while `ContactWays.app_call` is true: `app_call_unavailable` (409) otherwise; `rate_limited` (429) past 10 calls in 10 minutes.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/market-orders/{order_id}/contact/calls/{call_id}/signal",
+          "summary": "An app call's signal",
+          "description": "184.6 The offer (to the one called, while it rings), the answer (to the caller, once connected), the call's state and this call's ICE servers.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/market-orders/{order_id}/contact/calls/{call_id}/answer",
+          "summary": "Answer an app call",
+          "description": "184.6 The one called only; `call_ended` (409) once it was cancelled or missed.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/market-orders/{order_id}/contact/calls/{call_id}/end",
+          "summary": "End an app call",
+          "description": "184.6 `hangup` (either side: `completed` once connected, `cancelled` while ringing), `decline` (the one called: `busy`) or `failed` (it couldn't connect: the app says so and offers chat). The offer and the answer are deleted with it. The other side's Android phone stops ringing (`contact_call_end`); an iPhone learns it from the signal.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/food-orders/{order_id}/contact/app-call",
+          "summary": "Call the courier in the app",
+          "description": "184.6 A call over the internet, like a WhatsApp call, with no phone numbers: WebRTC audio, one to one. Send the offer once its ICE candidates are gathered (no trickle); the courier's phone rings, even with the app closed (`contact_call`: a PushKit VoIP push on iPhone, a high-priority data message on Android). Then ask `…/calls/{call_id}/signal` every `poll_after_ms` for the answer. Unanswered after 45 seconds it's `no_answer`. Only while `ContactWays.app_call` is true: `app_call_unavailable` (409) otherwise; `rate_limited` (429) past 10 calls in 10 minutes.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/food-orders/{order_id}/contact/calls/{call_id}/signal",
+          "summary": "An app call's signal",
+          "description": "184.6 The offer (to the one called, while it rings), the answer (to the caller, once connected), the call's state and this call's ICE servers.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/food-orders/{order_id}/contact/calls/{call_id}/answer",
+          "summary": "Answer an app call",
+          "description": "184.6 The one called only; `call_ended` (409) once it was cancelled or missed.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/food-orders/{order_id}/contact/calls/{call_id}/end",
+          "summary": "End an app call",
+          "description": "184.6 `hangup` (either side: `completed` once connected, `cancelled` while ringing), `decline` (the one called: `busy`) or `failed` (it couldn't connect: the app says so and offers chat). The offer and the answer are deleted with it. The other side's Android phone stops ringing (`contact_call_end`); an iPhone learns it from the signal.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/shipments/{shipment_id}/contact/app-call",
+          "summary": "Call the courier in the app",
+          "description": "184.6 A call over the internet, like a WhatsApp call, with no phone numbers: WebRTC audio, one to one. Send the offer once its ICE candidates are gathered (no trickle); the courier's phone rings, even with the app closed (`contact_call`: a PushKit VoIP push on iPhone, a high-priority data message on Android). Then ask `…/calls/{call_id}/signal` every `poll_after_ms` for the answer. Unanswered after 45 seconds it's `no_answer`. Only while `ContactWays.app_call` is true: `app_call_unavailable` (409) otherwise; `rate_limited` (429) past 10 calls in 10 minutes.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/shipments/{shipment_id}/contact/calls/{call_id}/signal",
+          "summary": "An app call's signal",
+          "description": "184.6 The offer (to the one called, while it rings), the answer (to the caller, once connected), the call's state and this call's ICE servers.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/shipments/{shipment_id}/contact/calls/{call_id}/answer",
+          "summary": "Answer an app call",
+          "description": "184.6 The one called only; `call_ended` (409) once it was cancelled or missed.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/shipments/{shipment_id}/contact/calls/{call_id}/end",
+          "summary": "End an app call",
+          "description": "184.6 `hangup` (either side: `completed` once connected, `cancelled` while ringing), `decline` (the one called: `busy`) or `failed` (it couldn't connect: the app says so and offers chat). The offer and the answer are deleted with it. The other side's Android phone stops ringing (`contact_call_end`); an iPhone learns it from the signal.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/courier/jobs/{shipment_id}/contact/app-call",
+          "summary": "Call the customer in the app",
+          "description": "184.6 A call over the internet, like a WhatsApp call, with no phone numbers: WebRTC audio, one to one. Send the offer once its ICE candidates are gathered (no trickle); the customer's phone rings, even with the app closed (`contact_call`: a PushKit VoIP push on iPhone, a high-priority data message on Android). Then ask `…/calls/{call_id}/signal` every `poll_after_ms` for the answer. Unanswered after 45 seconds it's `no_answer`. Only while `ContactWays.app_call` is true: `app_call_unavailable` (409) otherwise; `rate_limited` (429) past 10 calls in 10 minutes.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/courier/jobs/{shipment_id}/contact/calls/{call_id}/signal",
+          "summary": "An app call's signal",
+          "description": "184.6 The offer (to the one called, while it rings), the answer (to the caller, once connected), the call's state and this call's ICE servers.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/courier/jobs/{shipment_id}/contact/calls/{call_id}/answer",
+          "summary": "Answer an app call",
+          "description": "184.6 The one called only; `call_ended` (409) once it was cancelled or missed.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/courier/jobs/{shipment_id}/contact/calls/{call_id}/end",
+          "summary": "End an app call",
+          "description": "184.6 `hangup` (either side: `completed` once connected, `cancelled` while ringing), `decline` (the one called: `busy`) or `failed` (it couldn't connect: the app says so and offers chat). The offer and the answer are deleted with it. The other side's Android phone stops ringing (`contact_call_end`); an iPhone learns it from the signal.",
+          "access": "signed-in"
         }
       ]
     },

@@ -1702,6 +1702,14 @@ paths:
                     `teacher_course`, `teacher_question`, a staff member's library loans, a family's
                     message to a teacher) go only to its phones when the project has it. Servers that
                     don't need it ignore it.
+                voip_token:
+                  type: [string, 'null']
+                  pattern: '^[0-9a-fA-F]{64,200}$'
+                  description: >-
+                    Roadmap 184.6: an iPhone's PushKit token (hex), so an app call rings with the app
+                    closed (the `contact_call` push, sent as a VoIP push through the app's own APNs key;
+                    the app reports it to CallKit at once). Null forgets it; left out, the saved one stays.
+                    Servers that don't need it ignore it.
       responses:
         '204': { description: Saved }
         '400': { $ref: '#/components/responses/BadRequest' }
@@ -7233,6 +7241,526 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ContactCall' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/market-orders/{order_id}/contact/app-call:
+    post:
+      tags: [Contact]
+      operationId: startMarketAppCall
+      summary: Call the courier in the app
+      description: |
+        184.6 A call over the internet, like a WhatsApp call, with no phone
+        numbers: WebRTC audio, one to one. Send the offer once its ICE
+        candidates are gathered (no trickle); the courier's phone rings,
+        even with the app closed (`contact_call`: a PushKit VoIP push on
+        iPhone, a high-priority data message on Android). Then ask
+        `…/calls/{call_id}/signal` every `poll_after_ms` for the answer.
+        Unanswered after 45 seconds it's `no_answer`. Only while
+        `ContactWays.app_call` is true: `app_call_unavailable` (409)
+        otherwise; `rate_limited` (429) past 10 calls in 10 minutes.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [offer]
+              properties:
+                offer: { type: string, maxLength: 20000, description: 'The SDP offer, starting `v=0`.' }
+      responses:
+        '201':
+          description: Ringing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactAppCallStart' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /me/market-orders/{order_id}/contact/calls/{call_id}/signal:
+    get:
+      tags: [Contact]
+      operationId: getMarketAppCallSignal
+      summary: An app call's signal
+      description: 184.6 The offer (to the one called, while it rings), the answer (to the caller, once connected), the call's state and this call's ICE servers.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+        - $ref: '#/components/parameters/ContactCallId'
+      responses:
+        '200':
+          description: The signal
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCallSignal' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/market-orders/{order_id}/contact/calls/{call_id}/answer:
+    post:
+      tags: [Contact]
+      operationId: answerMarketAppCall
+      summary: Answer an app call
+      description: 184.6 The one called only; `call_ended` (409) once it was cancelled or missed.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+        - $ref: '#/components/parameters/ContactCallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answer]
+              properties:
+                answer: { type: string, maxLength: 20000, description: 'The SDP answer, starting `v=0`.' }
+      responses:
+        '200':
+          description: Connected
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [call]
+                properties:
+                  call: { $ref: '#/components/schemas/ContactCall' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/market-orders/{order_id}/contact/calls/{call_id}/end:
+    post:
+      tags: [Contact]
+      operationId: endMarketAppCall
+      summary: End an app call
+      description: |
+        184.6 `hangup` (either side: `completed` once connected, `cancelled`
+        while ringing), `decline` (the one called: `busy`) or `failed` (it
+        couldn't connect: the app says so and offers chat). The offer and the
+        answer are deleted with it. The other side's Android phone stops
+        ringing (`contact_call_end`); an iPhone learns it from the signal.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+        - $ref: '#/components/parameters/ContactCallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, enum: [hangup, decline, failed] }
+      responses:
+        '200':
+          description: Ended
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [call]
+                properties:
+                  call: { $ref: '#/components/schemas/ContactCall' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/food-orders/{order_id}/contact/app-call:
+    post:
+      tags: [Contact]
+      operationId: startFoodAppCall
+      summary: Call the courier in the app
+      description: |
+        184.6 A call over the internet, like a WhatsApp call, with no phone
+        numbers: WebRTC audio, one to one. Send the offer once its ICE
+        candidates are gathered (no trickle); the courier's phone rings,
+        even with the app closed (`contact_call`: a PushKit VoIP push on
+        iPhone, a high-priority data message on Android). Then ask
+        `…/calls/{call_id}/signal` every `poll_after_ms` for the answer.
+        Unanswered after 45 seconds it's `no_answer`. Only while
+        `ContactWays.app_call` is true: `app_call_unavailable` (409)
+        otherwise; `rate_limited` (429) past 10 calls in 10 minutes.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [offer]
+              properties:
+                offer: { type: string, maxLength: 20000, description: 'The SDP offer, starting `v=0`.' }
+      responses:
+        '201':
+          description: Ringing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactAppCallStart' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /me/food-orders/{order_id}/contact/calls/{call_id}/signal:
+    get:
+      tags: [Contact]
+      operationId: getFoodAppCallSignal
+      summary: An app call's signal
+      description: 184.6 The offer (to the one called, while it rings), the answer (to the caller, once connected), the call's state and this call's ICE servers.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+        - $ref: '#/components/parameters/ContactCallId'
+      responses:
+        '200':
+          description: The signal
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCallSignal' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/food-orders/{order_id}/contact/calls/{call_id}/answer:
+    post:
+      tags: [Contact]
+      operationId: answerFoodAppCall
+      summary: Answer an app call
+      description: 184.6 The one called only; `call_ended` (409) once it was cancelled or missed.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+        - $ref: '#/components/parameters/ContactCallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answer]
+              properties:
+                answer: { type: string, maxLength: 20000, description: 'The SDP answer, starting `v=0`.' }
+      responses:
+        '200':
+          description: Connected
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [call]
+                properties:
+                  call: { $ref: '#/components/schemas/ContactCall' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/food-orders/{order_id}/contact/calls/{call_id}/end:
+    post:
+      tags: [Contact]
+      operationId: endFoodAppCall
+      summary: End an app call
+      description: |
+        184.6 `hangup` (either side: `completed` once connected, `cancelled`
+        while ringing), `decline` (the one called: `busy`) or `failed` (it
+        couldn't connect: the app says so and offers chat). The offer and the
+        answer are deleted with it. The other side's Android phone stops
+        ringing (`contact_call_end`); an iPhone learns it from the signal.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+        - $ref: '#/components/parameters/ContactCallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, enum: [hangup, decline, failed] }
+      responses:
+        '200':
+          description: Ended
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [call]
+                properties:
+                  call: { $ref: '#/components/schemas/ContactCall' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/shipments/{shipment_id}/contact/app-call:
+    post:
+      tags: [Contact]
+      operationId: startShipmentAppCall
+      summary: Call the courier in the app
+      description: |
+        184.6 A call over the internet, like a WhatsApp call, with no phone
+        numbers: WebRTC audio, one to one. Send the offer once its ICE
+        candidates are gathered (no trickle); the courier's phone rings,
+        even with the app closed (`contact_call`: a PushKit VoIP push on
+        iPhone, a high-priority data message on Android). Then ask
+        `…/calls/{call_id}/signal` every `poll_after_ms` for the answer.
+        Unanswered after 45 seconds it's `no_answer`. Only while
+        `ContactWays.app_call` is true: `app_call_unavailable` (409)
+        otherwise; `rate_limited` (429) past 10 calls in 10 minutes.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [offer]
+              properties:
+                offer: { type: string, maxLength: 20000, description: 'The SDP offer, starting `v=0`.' }
+      responses:
+        '201':
+          description: Ringing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactAppCallStart' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /me/shipments/{shipment_id}/contact/calls/{call_id}/signal:
+    get:
+      tags: [Contact]
+      operationId: getShipmentAppCallSignal
+      summary: An app call's signal
+      description: 184.6 The offer (to the one called, while it rings), the answer (to the caller, once connected), the call's state and this call's ICE servers.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+        - $ref: '#/components/parameters/ContactCallId'
+      responses:
+        '200':
+          description: The signal
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCallSignal' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/shipments/{shipment_id}/contact/calls/{call_id}/answer:
+    post:
+      tags: [Contact]
+      operationId: answerShipmentAppCall
+      summary: Answer an app call
+      description: 184.6 The one called only; `call_ended` (409) once it was cancelled or missed.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+        - $ref: '#/components/parameters/ContactCallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answer]
+              properties:
+                answer: { type: string, maxLength: 20000, description: 'The SDP answer, starting `v=0`.' }
+      responses:
+        '200':
+          description: Connected
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [call]
+                properties:
+                  call: { $ref: '#/components/schemas/ContactCall' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/shipments/{shipment_id}/contact/calls/{call_id}/end:
+    post:
+      tags: [Contact]
+      operationId: endShipmentAppCall
+      summary: End an app call
+      description: |
+        184.6 `hangup` (either side: `completed` once connected, `cancelled`
+        while ringing), `decline` (the one called: `busy`) or `failed` (it
+        couldn't connect: the app says so and offers chat). The offer and the
+        answer are deleted with it. The other side's Android phone stops
+        ringing (`contact_call_end`); an iPhone learns it from the signal.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+        - $ref: '#/components/parameters/ContactCallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, enum: [hangup, decline, failed] }
+      responses:
+        '200':
+          description: Ended
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [call]
+                properties:
+                  call: { $ref: '#/components/schemas/ContactCall' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /courier/jobs/{shipment_id}/contact/app-call:
+    post:
+      tags: [Contact]
+      operationId: startCourierJobAppCall
+      summary: Call the customer in the app
+      description: |
+        184.6 A call over the internet, like a WhatsApp call, with no phone
+        numbers: WebRTC audio, one to one. Send the offer once its ICE
+        candidates are gathered (no trickle); the customer's phone rings,
+        even with the app closed (`contact_call`: a PushKit VoIP push on
+        iPhone, a high-priority data message on Android). Then ask
+        `…/calls/{call_id}/signal` every `poll_after_ms` for the answer.
+        Unanswered after 45 seconds it's `no_answer`. Only while
+        `ContactWays.app_call` is true: `app_call_unavailable` (409)
+        otherwise; `rate_limited` (429) past 10 calls in 10 minutes.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [offer]
+              properties:
+                offer: { type: string, maxLength: 20000, description: 'The SDP offer, starting `v=0`.' }
+      responses:
+        '201':
+          description: Ringing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactAppCallStart' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /courier/jobs/{shipment_id}/contact/calls/{call_id}/signal:
+    get:
+      tags: [Contact]
+      operationId: getCourierJobAppCallSignal
+      summary: An app call's signal
+      description: 184.6 The offer (to the one called, while it rings), the answer (to the caller, once connected), the call's state and this call's ICE servers.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+        - $ref: '#/components/parameters/ContactCallId'
+      responses:
+        '200':
+          description: The signal
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCallSignal' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /courier/jobs/{shipment_id}/contact/calls/{call_id}/answer:
+    post:
+      tags: [Contact]
+      operationId: answerCourierJobAppCall
+      summary: Answer an app call
+      description: 184.6 The one called only; `call_ended` (409) once it was cancelled or missed.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+        - $ref: '#/components/parameters/ContactCallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answer]
+              properties:
+                answer: { type: string, maxLength: 20000, description: 'The SDP answer, starting `v=0`.' }
+      responses:
+        '200':
+          description: Connected
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [call]
+                properties:
+                  call: { $ref: '#/components/schemas/ContactCall' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /courier/jobs/{shipment_id}/contact/calls/{call_id}/end:
+    post:
+      tags: [Contact]
+      operationId: endCourierJobAppCall
+      summary: End an app call
+      description: |
+        184.6 `hangup` (either side: `completed` once connected, `cancelled`
+        while ringing), `decline` (the one called: `busy`) or `failed` (it
+        couldn't connect: the app says so and offers chat). The offer and the
+        answer are deleted with it. The other side's Android phone stops
+        ringing (`contact_call_end`); an iPhone learns it from the signal.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+        - $ref: '#/components/parameters/ContactCallId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, enum: [hangup, decline, failed] }
+      responses:
+        '200':
+          description: Ended
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [call]
+                properties:
+                  call: { $ref: '#/components/schemas/ContactCall' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -20656,8 +21184,8 @@ components:
       required: [chat, app_call, phone_call, chat_until]
       properties:
         chat: { type: boolean, description: 'The chat is open: from when a courier is given the job until 2 hours after it ends.' }
-        app_call: { type: boolean, description: 'A call over the internet in the app (184.6); only while the order is on its way. False until it is built.' }
-        phone_call: { type: boolean, description: "A masked phone call through the owner's own Twilio number (184.5); only while the order is on its way. False until it is built." }
+        app_call: { type: boolean, description: 'A call over the internet in the app (184.6), switched on by the owner; only while the order is on its way.' }
+        phone_call: { type: boolean, description: "A masked phone call through the owner's own Twilio number (184.5), switched on and its account tested; only while the order is on its way." }
         chat_until: { type: [string, 'null'], format: date-time, description: 'When the chat closes: 2 hours after the job ended; null while it is on its way.' }
 
     ContactMessage:
@@ -20737,6 +21265,45 @@ components:
         duration_seconds: { type: [integer, 'null'], description: 'How long the two talked, once it ended.' }
         created_at: { type: string, format: date-time }
         ended_at: { type: [string, 'null'], format: date-time }
+        mine: { type: boolean, description: '184.6 An app call: this side made it.' }
+        rings_until: { type: string, format: date-time, description: '184.6 An app call still ringing: when it is missed.' }
+
+    ContactIceServer:
+      type: object
+      required: [urls]
+      description: For `RTCPeerConnection`'s `iceServers`. TURN servers (with a username and credential) come only from the app owner's own Twilio account and last about an hour.
+      properties:
+        urls:
+          oneOf:
+            - type: string
+            - type: array
+              items: { type: string }
+        username: { type: string }
+        credential: { type: string }
+
+    ContactAppCallStart:
+      type: object
+      required: [call, ice_servers, relay, ringing_phones]
+      properties:
+        call: { $ref: '#/components/schemas/ContactCall' }
+        ice_servers:
+          type: array
+          items: { $ref: '#/components/schemas/ContactIceServer' }
+        relay: { type: boolean, description: "TURN through the owner's Twilio is in `ice_servers`; false: direct only." }
+        ringing_phones: { type: integer, description: "The other side's phones the ring reached (0: the app can say they may not hear it)." }
+
+    ContactCallSignal:
+      type: object
+      required: [call, offer, answer, ice_servers, relay, poll_after_ms]
+      properties:
+        call: { $ref: '#/components/schemas/ContactCall' }
+        offer: { type: [string, 'null'], description: 'To the one called, while it rings.' }
+        answer: { type: [string, 'null'], description: 'To the caller, once connected.' }
+        ice_servers:
+          type: array
+          items: { $ref: '#/components/schemas/ContactIceServer' }
+        relay: { type: boolean }
+        poll_after_ms: { type: [integer, 'null'], description: 'Ask again after this long while it rings or is connected; null once it ended.' }
 
     ContactThread:
       description: An order's conversation between its customer and its courier.
