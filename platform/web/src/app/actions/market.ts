@@ -7,7 +7,7 @@ import { clientFor, mayUseDashboard, requestIp, type ClientContext } from "@/lib
 import { getStore } from "@/lib/data";
 import type { App, ComplaintDecision, ComplaintStatus } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
-import { decideComplaint, supportReply, teamNote } from "@/lib/market/complaints";
+import { agentFirstName, decideComplaint, supportReply, takeComplaint, teamNote } from "@/lib/market/complaints";
 import { complaintDecisionDeps } from "@/lib/market/decisions";
 import { complaintReference } from "@/lib/market/json";
 import { currencyDecimals, toMinor } from "@/lib/market/currency";
@@ -43,6 +43,12 @@ function whoOf(context: ClientContext): string {
   return (context.member ?? context.staff ?? context.user).email;
 }
 
+/** 115.51 The first name the customer reads with "<App> support". */
+function nameOf(context: ClientContext): string | null {
+  const person = context.member ?? context.staff ?? context.user;
+  return agentFirstName(person.name, person.email);
+}
+
 async function complaintOf(context: ClientContext & { app: App }, formData: FormData) {
   const id = Number(formData.get("id"));
   if (!Number.isInteger(id) || id <= 0) return null;
@@ -61,7 +67,7 @@ export async function replyComplaintAction(formData: FormData): Promise<void> {
   const context = await requireMarketApp();
   const c = await complaintOf(context, formData);
   if (!c) redirect("/dashboard/market/complaints");
-  const patch = supportReply(c, text(formData, "text"), whoOf(context), new Date());
+  const patch = supportReply(c, text(formData, "text"), whoOf(context), new Date(), nameOf(context));
   if (patch) {
     await (await getStore()).updateMarketComplaint(context.app.id, c.id, { ...patch, assignee: c.assignee ?? whoOf(context) });
     await recordStaffChange(context, `Answered complaint ${complaintReference(c)}`);
@@ -82,7 +88,7 @@ export async function takeComplaintAction(formData: FormData): Promise<void> {
   const context = await requireMarketApp();
   const c = await complaintOf(context, formData);
   if (!c) redirect("/dashboard/market/complaints");
-  await (await getStore()).updateMarketComplaint(context.app.id, c.id, { assignee: whoOf(context), ...(c.status === "open" ? { status: "in_review" } : {}), updatedAt: new Date() });
+  await (await getStore()).updateMarketComplaint(context.app.id, c.id, takeComplaint(c, whoOf(context), nameOf(context), new Date()));
   back(c.id);
 }
 
@@ -134,6 +140,7 @@ export async function decideComplaintAction(formData: FormData): Promise<void> {
     },
     whoOf(context),
     now,
+    nameOf(context),
   );
   if (!done.ok) back(c.id, done.error);
   await recordStaffChange(context, `Decided complaint ${complaintReference(c)}: ${outcome}`);

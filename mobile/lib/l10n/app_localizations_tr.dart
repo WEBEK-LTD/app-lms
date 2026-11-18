@@ -12321,4 +12321,331 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get paySheetOpenAgain => 'Ödeme sayfasını aç';
+
+  @override
+  String mcArrivedAt(String time) {
+    return 'teslim $time';
+  }
+
+  @override
+  String mcHoursLeft(int hours) {
+    return '$hours sa kaldı';
+  }
+
+  @override
+  String mcMinutesLeft(int minutes) {
+    return '$minutes dk kaldı';
+  }
+
+  @override
+  String get mcWhatWentWrong => 'Sorun neydi?';
+
+  @override
+  String get mcReasonLate => 'Geç geldi';
+
+  @override
+  String get mcReasonMissing => 'Eksik ürün';
+
+  @override
+  String get mcReasonWrong => 'Yanlış ürün';
+
+  @override
+  String get mcReasonQuality => 'Kalite';
+
+  @override
+  String get mcReasonDamaged => 'Hasarlı';
+
+  @override
+  String get mcReasonNotDelivered => 'Gelmedi';
+
+  @override
+  String get mcReasonCharged => 'Yanlış ücret';
+
+  @override
+  String get mcReasonCourier => 'Kurye';
+
+  @override
+  String get mcReasonOther => 'Başka bir şey';
+
+  @override
+  String get mcWholeOrder => 'Ya da siparişin tamamı';
+
+  @override
+  String get mcPhotos => 'Fotoğraflar';
+
+  @override
+  String mcPhotosOf(int count) {
+    return '$count / 5';
+  }
+
+  @override
+  String get mcAdd => 'Ekle';
+
+  @override
+  String get mcRemovePhoto => 'Fotoğrafı kaldır';
+
+  @override
+  String get mcTellUsMore => 'Biraz daha anlatın';
+
+  @override
+  String mcCharCount(int count) {
+    return '$count / 2.000';
+  }
+
+  @override
+  String mcPrivacy(String app) {
+    return '$app destek burada, uygulamada yanıtlar. Mağaza telefonunuzu asla görmez.';
+  }
+
+  @override
+  String mcSupportName(String app) {
+    return '$app destek';
+  }
+
+  @override
+  String mcAnswering(String name) {
+    return '$name yanıtlıyor · genelde 15 dk içinde';
+  }
+
+  @override
+  String get mcAnsweringNobody => 'Burada yanıtlanır · genelde 15 dk içinde';
+
+  @override
+  String mcComplaintReason(String reference, String reason) {
+    return 'Şikâyet $reference · $reason';
+  }
+
+  @override
+  String mcOrderRef(String reference) {
+    return 'Sipariş $reference';
+  }
+
+  @override
+  String mcItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ürün',
+      zero: 'Siparişin tamamı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mcToday => 'Bugün';
+
+  @override
+  String mcTook(String name, String app) {
+    return 'Şikâyetinizi $app destekten $name üstlendi';
+  }
+
+  @override
+  String mcAgentSupport(String name, String app) {
+    return '$name · $app destek';
+  }
+
+  @override
+  String get mcQuickThanks => 'Teşekkürler';
+
+  @override
+  String get mcQuickOkay => 'Tamam';
+
+  @override
+  String get mcWriteToSupport => 'Desteğe yazın…';
+
+  @override
+  String get mcSend => 'Gönder';
+
+  @override
+  String get mcPillInReview => 'İnceleniyor';
+
+  @override
+  String get mcPillResolved => 'Çözüldü';
+
+  @override
+  String get mcPillClosed => 'Kapandı';
+
+  @override
+  String mcVendorOrder(String vendor, String reference) {
+    return '$vendor · Sipariş $reference';
+  }
+
+  @override
+  String get mcCardTitle => 'Kartınıza iade ediyoruz';
+
+  @override
+  String mcCardBodyItems(String items) {
+    return '$items için. İade bugün çıkar; bankanız 5–10 iş günü içinde gösterir.';
+  }
+
+  @override
+  String get mcCardBody =>
+      'Siparişin tamamı için. İade bugün çıkar; bankanız 5–10 iş günü içinde gösterir.';
+
+  @override
+  String get mcTo => 'Nereye';
+
+  @override
+  String get mcOrderTotalNow => 'Sipariş toplamı şimdi';
+
+  @override
+  String get mcWalletTitle => 'Cüzdanınızda';
+
+  @override
+  String mcWalletBodyItems(String items, String app) {
+    return '$items için; $app içindeki her yerde bir sonraki siparişinizde hemen kullanılabilir.';
+  }
+
+  @override
+  String mcWalletBody(String app) {
+    return 'Siparişin tamamı için; $app içindeki her yerde bir sonraki siparişinizde hemen kullanılabilir.';
+  }
+
+  @override
+  String mcWalletBodyApology(String app) {
+    return 'Özür olarak; $app içindeki her yerde bir sonraki siparişinizde hemen kullanılabilir.';
+  }
+
+  @override
+  String get mcWalletBalance => 'Cüzdan bakiyesi';
+
+  @override
+  String get mcAdded => 'Eklendi';
+
+  @override
+  String get mcCouponTitle => 'Bir sonraki siparişiniz için kupon';
+
+  @override
+  String mcCouponBody(String vendor) {
+    return '$vendor üzerinden bir sonraki siparişinizde, en az tutar olmadan. Kuponlarınızda hazır.';
+  }
+
+  @override
+  String get mcCouponHint => 'Ödemede girin';
+
+  @override
+  String get mcCopy => 'Kopyala';
+
+  @override
+  String get mcCopied => 'Kod kopyalandı';
+
+  @override
+  String get mcValidUntil => 'Son gün';
+
+  @override
+  String get mcUse => 'Kullanım';
+
+  @override
+  String get mcOnce => 'Bir kez';
+
+  @override
+  String get mcDeclinedTitle => 'Bunu iade edemedik';
+
+  @override
+  String get mcWhy => 'Neden';
+
+  @override
+  String get mcDecidedBy => 'Karar veren';
+
+  @override
+  String mcDecidedByName(String name, String app) {
+    return '$name, $app destek';
+  }
+
+  @override
+  String get mcWhen => 'Ne zaman';
+
+  @override
+  String mcTodayAt(String time) {
+    return 'Bugün $time';
+  }
+
+  @override
+  String get mcYouOpened => 'Siz açtınız';
+
+  @override
+  String mcPhotosN(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fotoğraf',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mcAnswered(String name) {
+    return '$name yanıtladı';
+  }
+
+  @override
+  String get mcSupportAnswered => 'Destek yanıtladı';
+
+  @override
+  String mcAnsweredDetail(int count, int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count mesaj',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes dakikada',
+    );
+    return '$_temp0 · ilki $_temp1';
+  }
+
+  @override
+  String mcStepCard(String amount) {
+    return 'Karta iade · $amount';
+  }
+
+  @override
+  String mcStepWallet(String amount) {
+    return 'Cüzdana iade · $amount';
+  }
+
+  @override
+  String mcStepCoupon(String amount) {
+    return 'Kupon · $amount';
+  }
+
+  @override
+  String mcStepCompensation(String amount) {
+    return 'Tazminat · $amount';
+  }
+
+  @override
+  String get mcStepDeclined => 'İade yok, nedeniyle';
+
+  @override
+  String get mcOneMore =>
+      'Bu siparişte başka bir sorun mu var? Bir yeni şikâyet açabilirsiniz.';
+
+  @override
+  String get mcReply => 'Yanıtla';
+
+  @override
+  String get mcDone => 'Tamam';
+
+  @override
+  String get mcOpenWallet => 'Cüzdanı aç';
+
+  @override
+  String get mcShopNow => 'Alışverişe başla';
+
+  @override
+  String get mcClose => 'Kapat';
+
+  @override
+  String get mcReplyToSupport => 'Desteğe yanıt ver';
+
+  @override
+  String get mcChatSection => 'Şikâyetleriniz';
+
+  @override
+  String mcAnd(String first, String second) {
+    return '$first ve $second';
+  }
 }

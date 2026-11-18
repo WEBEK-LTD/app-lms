@@ -13666,5 +13666,502 @@
   "paySheetOpenAgain": "Open the payment page",
   "@paySheetOpenAgain": {
     "description": "170 Button: open the payment page in the browser sheet again."
+  },
+  "mcArrivedAt": "arrived {time}",
+  "@mcArrivedAt": {
+    "description": "115.54 Complaints (designs 06a–06c): the order's arrival time in the header.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mcHoursLeft": "{hours} h left",
+  "@mcHoursLeft": {
+    "description": "115.54 Complaints (designs 06a–06c): how long a complaint can still be opened.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "mcMinutesLeft": "{minutes} min left",
+  "@mcMinutesLeft": {
+    "description": "115.54 Complaints (designs 06a–06c): how long a complaint can still be opened, under an hour.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "mcWhatWentWrong": "What went wrong?",
+  "@mcWhatWentWrong": {
+    "description": "115.54 Complaints (designs 06a–06c): the reasons' heading."
+  },
+  "mcReasonLate": "Late",
+  "@mcReasonLate": {
+    "description": "115.54 Complaints (designs 06a–06c): a reason tile."
+  },
+  "mcReasonMissing": "Missing items",
+  "@mcReasonMissing": {
+    "description": "115.54 Complaints (designs 06a–06c): a reason tile."
+  },
+  "mcReasonWrong": "Wrong items",
+  "@mcReasonWrong": {
+    "description": "115.54 Complaints (designs 06a–06c): a reason tile."
+  },
+  "mcReasonQuality": "Quality",
+  "@mcReasonQuality": {
+    "description": "115.54 Complaints (designs 06a–06c): a reason tile."
+  },
+  "mcReasonDamaged": "Damaged",
+  "@mcReasonDamaged": {
+    "description": "115.54 Complaints (designs 06a–06c): a reason tile."
+  },
+  "mcReasonNotDelivered": "Not delivered",
+  "@mcReasonNotDelivered": {
+    "description": "115.54 Complaints (designs 06a–06c): a reason tile, for an order that hasn't arrived."
+  },
+  "mcReasonCharged": "Charged wrong",
+  "@mcReasonCharged": {
+    "description": "115.54 Complaints (designs 06a–06c): a reason tile."
+  },
+  "mcReasonCourier": "The courier",
+  "@mcReasonCourier": {
+    "description": "115.54 Complaints (designs 06a–06c): a reason tile."
+  },
+  "mcReasonOther": "Something else",
+  "@mcReasonOther": {
+    "description": "115.54 Complaints (designs 06a–06c): a reason tile."
+  },
+  "mcWholeOrder": "Or the whole order",
+  "@mcWholeOrder": {
+    "description": "115.54 Complaints (designs 06a–06c): chooses the whole order instead of items."
+  },
+  "mcPhotos": "Photos",
+  "@mcPhotos": {
+    "description": "115.54 Complaints (designs 06a–06c): the photos' heading."
+  },
+  "mcPhotosOf": "{count} of 5",
+  "@mcPhotosOf": {
+    "description": "115.54 Complaints (designs 06a–06c): photos added out of five.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mcAdd": "Add",
+  "@mcAdd": {
+    "description": "115.54 Complaints (designs 06a–06c): adds a photo."
+  },
+  "mcRemovePhoto": "Remove photo",
+  "@mcRemovePhoto": {
+    "description": "115.54 Complaints (designs 06a–06c): removes a photo (screen readers)."
+  },
+  "mcTellUsMore": "Tell us more",
+  "@mcTellUsMore": {
+    "description": "115.54 Complaints (designs 06a–06c): the words' heading."
+  },
+  "mcCharCount": "{count} / 2,000",
+  "@mcCharCount": {
+    "description": "115.54 Complaints (designs 06a–06c): characters written.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mcPrivacy": "{app} support answers here in the app. The store never sees your phone.",
+  "@mcPrivacy": {
+    "description": "115.54 Complaints (designs 06a–06c): who answers, and the phone kept from the store.",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "mcSupportName": "{app} support",
+  "@mcSupportName": {
+    "description": "115.54 Complaints (designs 06a–06c): the support conversation's name.",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "mcAnswering": "{name} is answering · usually within 15 min",
+  "@mcAnswering": {
+    "description": "115.54 Complaints (designs 06a–06c): who answers on support.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mcAnsweringNobody": "Answers here · usually within 15 min",
+  "@mcAnsweringNobody": {
+    "description": "115.54 Complaints (designs 06a–06c): support before anyone took it."
+  },
+  "mcComplaintReason": "Complaint {reference} · {reason}",
+  "@mcComplaintReason": {
+    "description": "115.54 Complaints (designs 06a–06c): the ticket card's title.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "mcOrderRef": "Order {reference}",
+  "@mcOrderRef": {
+    "description": "115.54 Complaints (designs 06a–06c): the order of a complaint.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "mcItemsCount": "{count, plural, =0{The whole order} =1{1 item} other{{count} items}}",
+  "@mcItemsCount": {
+    "description": "115.54 Complaints (designs 06a–06c): how many items a complaint is about.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mcToday": "Today",
+  "@mcToday": {
+    "description": "115.54 Complaints (designs 06a–06c): the day over the conversation."
+  },
+  "mcTook": "{name} from {app} support took your complaint",
+  "@mcTook": {
+    "description": "115.54 Complaints (designs 06a–06c): someone on support took the complaint.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "mcAgentSupport": "{name} · {app} support",
+  "@mcAgentSupport": {
+    "description": "115.54 Complaints (designs 06a–06c): who wrote a support message.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "mcQuickThanks": "Thank you",
+  "@mcQuickThanks": {
+    "description": "115.54 Complaints (designs 06a–06c): a quick reply put into the box."
+  },
+  "mcQuickOkay": "Okay",
+  "@mcQuickOkay": {
+    "description": "115.54 Complaints (designs 06a–06c): a quick reply put into the box."
+  },
+  "mcWriteToSupport": "Write to support…",
+  "@mcWriteToSupport": {
+    "description": "115.54 Complaints (designs 06a–06c): the message box."
+  },
+  "mcSend": "Send",
+  "@mcSend": {
+    "description": "115.54 Complaints (designs 06a–06c): sends a message (screen readers)."
+  },
+  "mcPillInReview": "In review",
+  "@mcPillInReview": {
+    "description": "115.54 Complaints (designs 06a–06c): the status pill."
+  },
+  "mcPillResolved": "Resolved",
+  "@mcPillResolved": {
+    "description": "115.54 Complaints (designs 06a–06c): the status pill after a refund or coupon."
+  },
+  "mcPillClosed": "Closed",
+  "@mcPillClosed": {
+    "description": "115.54 Complaints (designs 06a–06c): the status pill after no refund."
+  },
+  "mcVendorOrder": "{vendor} · Order {reference}",
+  "@mcVendorOrder": {
+    "description": "115.54 Complaints (designs 06a–06c): the complaint's place and order.",
+    "placeholders": {
+      "vendor": {
+        "type": "String"
+      },
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "mcCardTitle": "We’re refunding your card",
+  "@mcCardTitle": {
+    "description": "115.54 Complaints (designs 06a–06c): a refund to the card."
+  },
+  "mcCardBodyItems": "For {items}. The refund leaves today; your bank shows it in 5 to 10 working days.",
+  "@mcCardBodyItems": {
+    "description": "115.54 Complaints (designs 06a–06c): a refund to the card, for some items.",
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "mcCardBody": "For the whole order. The refund leaves today; your bank shows it in 5 to 10 working days.",
+  "@mcCardBody": {
+    "description": "115.54 Complaints (designs 06a–06c): a refund to the card, for the whole order."
+  },
+  "mcTo": "To",
+  "@mcTo": {
+    "description": "115.54 Complaints (designs 06a–06c): where the refund goes."
+  },
+  "mcOrderTotalNow": "Order total now",
+  "@mcOrderTotalNow": {
+    "description": "115.54 Complaints (designs 06a–06c): the order's total after the refund."
+  },
+  "mcWalletTitle": "It’s in your wallet",
+  "@mcWalletTitle": {
+    "description": "115.54 Complaints (designs 06a–06c): a refund or credit to the wallet."
+  },
+  "mcWalletBodyItems": "For {items}, ready now for your next order at any place in {app}.",
+  "@mcWalletBodyItems": {
+    "description": "115.54 Complaints (designs 06a–06c): a wallet refund, for some items.",
+    "placeholders": {
+      "items": {
+        "type": "String"
+      },
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "mcWalletBody": "For the whole order, ready now for your next order at any place in {app}.",
+  "@mcWalletBody": {
+    "description": "115.54 Complaints (designs 06a–06c): a wallet refund, for the whole order.",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "mcWalletBodyApology": "As an apology, ready now for your next order at any place in {app}.",
+  "@mcWalletBodyApology": {
+    "description": "115.54 Complaints (designs 06a–06c): a compensation to the wallet.",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "mcWalletBalance": "Wallet balance",
+  "@mcWalletBalance": {
+    "description": "115.54 Complaints (designs 06a–06c): the wallet's balance."
+  },
+  "mcAdded": "Added",
+  "@mcAdded": {
+    "description": "115.54 Complaints (designs 06a–06c): when the money was added."
+  },
+  "mcCouponTitle": "A coupon for your next order",
+  "@mcCouponTitle": {
+    "description": "115.54 Complaints (designs 06a–06c): a coupon decision."
+  },
+  "mcCouponBody": "Off your next order at {vendor}, with no smallest order. It's already in your coupons.",
+  "@mcCouponBody": {
+    "description": "115.54 Complaints (designs 06a–06c): what the coupon takes off.",
+    "placeholders": {
+      "vendor": {
+        "type": "String"
+      }
+    }
+  },
+  "mcCouponHint": "Enter it at checkout",
+  "@mcCouponHint": {
+    "description": "115.54 Complaints (designs 06a–06c): how the coupon is used."
+  },
+  "mcCopy": "Copy",
+  "@mcCopy": {
+    "description": "115.54 Complaints (designs 06a–06c): copies the coupon's code."
+  },
+  "mcCopied": "Code copied",
+  "@mcCopied": {
+    "description": "115.54 Complaints (designs 06a–06c): the code was copied."
+  },
+  "mcValidUntil": "Valid until",
+  "@mcValidUntil": {
+    "description": "115.54 Complaints (designs 06a–06c): the coupon's last day."
+  },
+  "mcUse": "Use",
+  "@mcUse": {
+    "description": "115.54 Complaints (designs 06a–06c): how many times the coupon can be used."
+  },
+  "mcOnce": "Once",
+  "@mcOnce": {
+    "description": "115.54 Complaints (designs 06a–06c): the coupon can be used once."
+  },
+  "mcDeclinedTitle": "We couldn’t refund this one",
+  "@mcDeclinedTitle": {
+    "description": "115.54 Complaints (designs 06a–06c): no refund."
+  },
+  "mcWhy": "Why",
+  "@mcWhy": {
+    "description": "115.54 Complaints (designs 06a–06c): support's reason."
+  },
+  "mcDecidedBy": "Decided by",
+  "@mcDecidedBy": {
+    "description": "115.54 Complaints (designs 06a–06c): who decided."
+  },
+  "mcDecidedByName": "{name}, {app} support",
+  "@mcDecidedByName": {
+    "description": "115.54 Complaints (designs 06a–06c): who decided.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "mcWhen": "When",
+  "@mcWhen": {
+    "description": "115.54 Complaints (designs 06a–06c): when it was decided."
+  },
+  "mcTodayAt": "Today {time}",
+  "@mcTodayAt": {
+    "description": "115.54 Complaints (designs 06a–06c): a time today.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mcYouOpened": "You opened it",
+  "@mcYouOpened": {
+    "description": "115.54 Complaints (designs 06a–06c): the timeline's first step."
+  },
+  "mcPhotosN": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "@mcPhotosN": {
+    "description": "115.54 Complaints (designs 06a–06c): how many photos.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mcAnswered": "{name} answered",
+  "@mcAnswered": {
+    "description": "115.54 Complaints (designs 06a–06c): the timeline's support step.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mcSupportAnswered": "Support answered",
+  "@mcSupportAnswered": {
+    "description": "115.54 Complaints (designs 06a–06c): the timeline's support step, no name."
+  },
+  "mcAnsweredDetail": "{count, plural, =1{1 message} other{{count} messages}} · first in {minutes, plural, =1{1 minute} other{{minutes} minutes}}",
+  "@mcAnsweredDetail": {
+    "description": "115.54 Complaints (designs 06a–06c): support's messages and first answer.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "mcStepCard": "Refund to card · {amount}",
+  "@mcStepCard": {
+    "description": "115.54 Complaints (designs 06a–06c): the decision step.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mcStepWallet": "Refund to wallet · {amount}",
+  "@mcStepWallet": {
+    "description": "115.54 Complaints (designs 06a–06c): the decision step.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mcStepCoupon": "Coupon · {amount}",
+  "@mcStepCoupon": {
+    "description": "115.54 Complaints (designs 06a–06c): the decision step.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mcStepCompensation": "Compensation · {amount}",
+  "@mcStepCompensation": {
+    "description": "115.54 Complaints (designs 06a–06c): the decision step.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mcStepDeclined": "No refund, with the reason",
+  "@mcStepDeclined": {
+    "description": "115.54 Complaints (designs 06a–06c): the decision step."
+  },
+  "mcOneMore": "Something else wrong with this order? You can open one new complaint on it.",
+  "@mcOneMore": {
+    "description": "115.54 Complaints (designs 06a–06c): one more complaint can be opened."
+  },
+  "mcReply": "Reply",
+  "@mcReply": {
+    "description": "115.54 Complaints (designs 06a–06c): opens the conversation."
+  },
+  "mcDone": "Done",
+  "@mcDone": {
+    "description": "115.54 Complaints (designs 06a–06c): closes the decision."
+  },
+  "mcOpenWallet": "Open wallet",
+  "@mcOpenWallet": {
+    "description": "115.54 Complaints (designs 06a–06c): opens the wallet."
+  },
+  "mcShopNow": "Shop now",
+  "@mcShopNow": {
+    "description": "115.54 Complaints (designs 06a–06c): opens the place."
+  },
+  "mcClose": "Close",
+  "@mcClose": {
+    "description": "115.54 Complaints (designs 06a–06c): closes the decision."
+  },
+  "mcReplyToSupport": "Reply to support",
+  "@mcReplyToSupport": {
+    "description": "115.54 Complaints (designs 06a–06c): opens the conversation."
+  },
+  "mcChatSection": "Your complaints",
+  "@mcChatSection": {
+    "description": "115.54 Complaints (designs 06a–06c): the complaints shown in the Chat tab."
+  },
+  "mcAnd": "{first} and {second}",
+  "@mcAnd": {
+    "description": "115.54 Complaints (designs 06a–06c): two item names joined.",
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      }
+    }
   }
 }

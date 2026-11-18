@@ -12809,4 +12809,347 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get paySheetOpenAgain => 'افتح صفحة الدفع';
+
+  @override
+  String mcArrivedAt(String time) {
+    return 'وصل $time';
+  }
+
+  @override
+  String mcHoursLeft(int hours) {
+    return 'متبقٍ $hours ساعة';
+  }
+
+  @override
+  String mcMinutesLeft(int minutes) {
+    return 'متبقٍ $minutes دقيقة';
+  }
+
+  @override
+  String get mcWhatWentWrong => 'ما المشكلة؟';
+
+  @override
+  String get mcReasonLate => 'تأخر';
+
+  @override
+  String get mcReasonMissing => 'أصناف ناقصة';
+
+  @override
+  String get mcReasonWrong => 'أصناف خاطئة';
+
+  @override
+  String get mcReasonQuality => 'الجودة';
+
+  @override
+  String get mcReasonDamaged => 'تالف';
+
+  @override
+  String get mcReasonNotDelivered => 'لم يصل';
+
+  @override
+  String get mcReasonCharged => 'خطأ في المبلغ';
+
+  @override
+  String get mcReasonCourier => 'المندوب';
+
+  @override
+  String get mcReasonOther => 'سبب آخر';
+
+  @override
+  String get mcWholeOrder => 'أو الطلب كله';
+
+  @override
+  String get mcPhotos => 'الصور';
+
+  @override
+  String mcPhotosOf(int count) {
+    return '$count من 5';
+  }
+
+  @override
+  String get mcAdd => 'إضافة';
+
+  @override
+  String get mcRemovePhoto => 'إزالة الصورة';
+
+  @override
+  String get mcTellUsMore => 'أخبرنا بالمزيد';
+
+  @override
+  String mcCharCount(int count) {
+    return '$count / 2,000';
+  }
+
+  @override
+  String mcPrivacy(String app) {
+    return 'يرد عليك دعم $app هنا في التطبيق، ولا يرى المتجر رقم هاتفك.';
+  }
+
+  @override
+  String mcSupportName(String app) {
+    return 'دعم $app';
+  }
+
+  @override
+  String mcAnswering(String name) {
+    return 'الرد من $name · عادةً خلال 15 دقيقة';
+  }
+
+  @override
+  String get mcAnsweringNobody => 'الرد هنا · عادةً خلال 15 دقيقة';
+
+  @override
+  String mcComplaintReason(String reference, String reason) {
+    return 'الشكوى $reference · $reason';
+  }
+
+  @override
+  String mcOrderRef(String reference) {
+    return 'الطلب $reference';
+  }
+
+  @override
+  String mcItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صنف',
+      many: '$count صنفًا',
+      few: '$count أصناف',
+      two: 'صنفان',
+      one: 'صنف واحد',
+      zero: 'الطلب كله',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mcToday => 'اليوم';
+
+  @override
+  String mcTook(String name, String app) {
+    return 'شكواك الآن لدى $name من دعم $app';
+  }
+
+  @override
+  String mcAgentSupport(String name, String app) {
+    return '$name · دعم $app';
+  }
+
+  @override
+  String get mcQuickThanks => 'شكرًا لك';
+
+  @override
+  String get mcQuickOkay => 'حسنًا';
+
+  @override
+  String get mcWriteToSupport => 'اكتب إلى الدعم…';
+
+  @override
+  String get mcSend => 'إرسال';
+
+  @override
+  String get mcPillInReview => 'قيد المراجعة';
+
+  @override
+  String get mcPillResolved => 'تمت معالجتها';
+
+  @override
+  String get mcPillClosed => 'مغلقة';
+
+  @override
+  String mcVendorOrder(String vendor, String reference) {
+    return '$vendor · الطلب $reference';
+  }
+
+  @override
+  String get mcCardTitle => 'سنردّ المبلغ إلى بطاقتك';
+
+  @override
+  String mcCardBodyItems(String items) {
+    return 'عن $items. يُرسَل المبلغ اليوم، ويظهر في حسابك خلال 5 إلى 10 أيام عمل حسب مصرفك.';
+  }
+
+  @override
+  String get mcCardBody =>
+      'عن الطلب كله. يُرسَل المبلغ اليوم، ويظهر في حسابك خلال 5 إلى 10 أيام عمل حسب مصرفك.';
+
+  @override
+  String get mcTo => 'إلى';
+
+  @override
+  String get mcOrderTotalNow => 'إجمالي الطلب الآن';
+
+  @override
+  String get mcWalletTitle => 'أُضيف المبلغ إلى محفظتك';
+
+  @override
+  String mcWalletBodyItems(String items, String app) {
+    return 'عن $items، وهو متاح الآن لطلبك القادم من أي متجر في $app.';
+  }
+
+  @override
+  String mcWalletBody(String app) {
+    return 'عن الطلب كله، وهو متاح الآن لطلبك القادم من أي متجر في $app.';
+  }
+
+  @override
+  String mcWalletBodyApology(String app) {
+    return 'اعتذارًا منا، وهو متاح الآن لطلبك القادم من أي متجر في $app.';
+  }
+
+  @override
+  String get mcWalletBalance => 'رصيد المحفظة';
+
+  @override
+  String get mcAdded => 'أُضيف';
+
+  @override
+  String get mcCouponTitle => 'قسيمة لطلبك القادم';
+
+  @override
+  String mcCouponBody(String vendor) {
+    return 'خصم على طلبك القادم من $vendor دون حد أدنى للطلب، وقد أُضيفت إلى قسائمك.';
+  }
+
+  @override
+  String get mcCouponHint => 'أدخلها عند الدفع';
+
+  @override
+  String get mcCopy => 'نسخ';
+
+  @override
+  String get mcCopied => 'نُسخ الرمز';
+
+  @override
+  String get mcValidUntil => 'صالحة حتى';
+
+  @override
+  String get mcUse => 'الاستخدام';
+
+  @override
+  String get mcOnce => 'مرة واحدة';
+
+  @override
+  String get mcDeclinedTitle => 'تعذّر علينا ردّ المبلغ هذه المرة';
+
+  @override
+  String get mcWhy => 'السبب';
+
+  @override
+  String get mcDecidedBy => 'اتخذ القرار';
+
+  @override
+  String mcDecidedByName(String name, String app) {
+    return '$name، دعم $app';
+  }
+
+  @override
+  String get mcWhen => 'الوقت';
+
+  @override
+  String mcTodayAt(String time) {
+    return 'اليوم $time';
+  }
+
+  @override
+  String get mcYouOpened => 'فتحت الشكوى';
+
+  @override
+  String mcPhotosN(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صورة',
+      many: '$count صورة',
+      few: '$count صور',
+      two: 'صورتان',
+      one: 'صورة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mcAnswered(String name) {
+    return 'ردّ الدعم ($name)';
+  }
+
+  @override
+  String get mcSupportAnswered => 'ردّ الدعم';
+
+  @override
+  String mcAnsweredDetail(int count, int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count رسالة',
+      many: '$count رسالة',
+      few: '$count رسائل',
+      two: 'رسالتان',
+      one: 'رسالة واحدة',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes دقيقة',
+      many: '$minutes دقيقة',
+      few: '$minutes دقائق',
+      two: 'دقيقتين',
+      one: 'دقيقة',
+    );
+    return '$_temp0 · أول رد خلال $_temp1';
+  }
+
+  @override
+  String mcStepCard(String amount) {
+    return 'استرداد إلى البطاقة · $amount';
+  }
+
+  @override
+  String mcStepWallet(String amount) {
+    return 'استرداد إلى المحفظة · $amount';
+  }
+
+  @override
+  String mcStepCoupon(String amount) {
+    return 'قسيمة · $amount';
+  }
+
+  @override
+  String mcStepCompensation(String amount) {
+    return 'تعويض · $amount';
+  }
+
+  @override
+  String get mcStepDeclined => 'دون استرداد، مع السبب';
+
+  @override
+  String get mcOneMore =>
+      'مشكلة أخرى في هذا الطلب؟ يمكنك فتح شكوى جديدة واحدة عليه.';
+
+  @override
+  String get mcReply => 'رد';
+
+  @override
+  String get mcDone => 'تم';
+
+  @override
+  String get mcOpenWallet => 'فتح المحفظة';
+
+  @override
+  String get mcShopNow => 'تسوّق الآن';
+
+  @override
+  String get mcClose => 'إغلاق';
+
+  @override
+  String get mcReplyToSupport => 'الرد على الدعم';
+
+  @override
+  String get mcChatSection => 'شكاواك';
+
+  @override
+  String mcAnd(String first, String second) {
+    return '$first و$second';
+  }
 }

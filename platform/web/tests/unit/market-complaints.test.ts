@@ -46,13 +46,14 @@ async function setup(patch: Partial<MarketOrderInput> = {}) {
 }
 
 describe("115.9 complaints", () => {
-  it("open from when the order is placed to 48 hours after it arrives, turned down or cancelled", () => {
-    const base = { completedAt: NOW, timeline: [], updatedAt: NOW };
+  it("open from when the order is placed to 48 hours after it arrives, turned down or cancelled", async () => {
+    const { order } = await setup();
+    const base = { ...order, completedAt: NOW, timeline: [], updatedAt: NOW, createdAt: NOW };
     expect(complaintWindow({ ...base, status: "awaiting_payment", completedAt: null }, NOW).open).toBe(false);
-    expect(complaintWindow({ ...base, status: "on_the_way", completedAt: null }, NOW)).toEqual({ open: true, until: null });
+    expect(complaintWindow({ ...base, status: "on_the_way", completedAt: null }, NOW)).toEqual({ open: true, until: null, stuck: false, closed: null });
     expect(complaintWindow({ ...base, status: "delivered" }, hours(47.9))).toMatchObject({ open: true, until: hours(48) });
     expect(complaintWindow({ ...base, status: "delivered" }, hours(48)).open).toBe(false);
-    const rejected = { status: "rejected" as const, completedAt: null, updatedAt: hours(5), timeline: [{ status: "rejected" as const, at: hours(1).toISOString(), by: "vendor" as const }] };
+    const rejected = { ...base, status: "rejected" as const, completedAt: null, updatedAt: hours(5), timeline: [{ status: "rejected" as const, at: hours(1).toISOString(), by: "vendor" as const }] };
     expect(complaintWindow(rejected, hours(48.5))).toMatchObject({ open: true, until: hours(49) });
   });
 
@@ -60,7 +61,6 @@ describe("115.9 complaints", () => {
     const { store, order } = await setup();
     expect(await openComplaint(store, order, 8, { reason: "late", text: "", lineIds: [], photoAssetIds: [] }, NOW)).toMatchObject({ ok: false, code: "invalid" });
     expect(await openComplaint(store, order, 7, { reason: "nonsense", text: "", lineIds: [], photoAssetIds: [] }, NOW)).toMatchObject({ ok: false, field: "reason" });
-    expect(await openComplaint(store, order, 7, { reason: "missing_items", text: "", lineIds: [], photoAssetIds: [] }, NOW)).toMatchObject({ ok: false, field: "line_ids" });
     expect(await openComplaint(store, order, 7, { reason: "missing_items", text: "", lineIds: [9], photoAssetIds: [] }, NOW)).toMatchObject({ ok: false, field: "line_ids" });
     expect(await openComplaint(store, order, 7, { reason: "damaged", text: "", lineIds: [1], photoAssetIds: ["a", "b", "c", "d", "e", "f"] }, NOW)).toMatchObject({ ok: false, field: "photos" });
     expect(await openComplaint(store, order, 7, { reason: "other", text: "  ", lineIds: [], photoAssetIds: [] }, NOW)).toMatchObject({ ok: false, field: "text" });
@@ -130,7 +130,7 @@ describe("115.9 complaints", () => {
     if (!made.ok) throw new Error();
     expect(await decideComplaint(store, { refundToPayment: async () => ({ ok: true }) }, made.complaint, order, { outcome: "partial_refund", amount: 1000, to: "payment", funder: "owner", reason: null }, "x", hours(2))).toMatchObject({ ok: false, field: "to" });
     expect(await decideComplaint(store, {}, made.complaint, order, { outcome: "no_refund", funder: "owner", reason: "  " }, "x", hours(2))).toMatchObject({ ok: false, field: "reason" });
-    const coupon = await decideComplaint(store, { makeCoupon: async () => "SORRY-7Q2" }, made.complaint, order, { outcome: "compensation", amount: 2500, to: "coupon", funder: "owner", reason: null }, "x", hours(2));
+    const coupon = await decideComplaint(store, { makeCoupon: async () => ({ code: "SORRY-7Q2", endsAt: hours(720) }) }, made.complaint, order, { outcome: "compensation", amount: 2500, to: "coupon", funder: "owner", reason: null }, "x", hours(2));
     expect(coupon).toMatchObject({ ok: true, complaint: { decision: { outcome: "compensation", couponCode: "SORRY-7Q2", to: "coupon" } } });
     if (coupon.ok) expect(coupon.complaint.messages.at(-1)!.text).toContain("SORRY-7Q2");
     // Another order: turned down with the reason.

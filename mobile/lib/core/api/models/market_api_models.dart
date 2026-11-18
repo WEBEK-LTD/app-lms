@@ -885,6 +885,7 @@ class MarketOrder {
     this.canCancel = false,
     this.canComplain = false,
     this.complaintId,
+    this.complaintUntil,
     this.timeline = const [],
   });
 
@@ -925,6 +926,7 @@ class MarketOrder {
       canCancel: boolOr(json, 'can_cancel', false),
       canComplain: boolOr(json, 'can_complain', false),
       complaintId: optInt(json, 'complaint_id'),
+      complaintUntil: optDate(json, 'complaint_until'),
       createdAt: reqDate(json, 'created_at'),
       timeline: listOf(
         json,
@@ -966,6 +968,10 @@ class MarketOrder {
   final bool canCancel;
   final bool canComplain;
   final int? complaintId;
+
+  /// 115.50 Until when a complaint can be opened; null while it moves, or
+  /// on older servers.
+  final DateTime? complaintUntil;
   final DateTime createdAt;
   final List<({MarketOrderStatus status, DateTime at})> timeline;
 
@@ -1091,6 +1097,9 @@ class MarketComplaint {
     this.photos = const [],
     this.messages = const [],
     this.decision,
+    this.supportAgent,
+    this.windowEndsAt,
+    this.canOpenAnother = false,
   });
 
   factory MarketComplaint.fromJson(Json json) => MarketComplaint(
@@ -1120,9 +1129,14 @@ class MarketComplaint {
         fromSupport: j['from'] == 'support',
         text: reqString(j, 'text'),
         at: reqDate(j, 'at'),
+        taken: j['kind'] == 'taken',
+        agent: optString(j, 'agent'),
       ),
     ),
     decision: optObject(json, 'decision', ComplaintDecision.fromJson),
+    supportAgent: optString(json, 'support_agent'),
+    windowEndsAt: optDate(json, 'window_ends_at'),
+    canOpenAnother: boolOr(json, 'can_open_another', false),
     createdAt: reqDate(json, 'created_at'),
   );
 
@@ -1134,8 +1148,23 @@ class MarketComplaint {
   final String text;
   final List<int> lineIds;
   final List<String> photos;
-  final List<({bool fromSupport, String text, DateTime at})> messages;
+
+  /// 115.51 `taken`: someone on support took it (no text); `agent`: their
+  /// first name on support's messages.
+  final List<
+    ({bool fromSupport, String text, DateTime at, bool taken, String? agent})
+  >
+  messages;
   final ComplaintDecision? decision;
+
+  /// 115.51 The first name of the support person answering.
+  final String? supportAgent;
+
+  /// 115.50 Until when its order still takes a complaint.
+  final DateTime? windowEndsAt;
+
+  /// 115.50 After its decision, one more complaint can be opened on the order.
+  final bool canOpenAnother;
   final DateTime createdAt;
 
   bool get closed =>
@@ -1150,6 +1179,9 @@ class ComplaintDecision {
     this.to,
     this.couponCode,
     this.reason,
+    this.couponEndsAt,
+    this.agent,
+    this.at,
   });
 
   factory ComplaintDecision.fromJson(Json json) => ComplaintDecision(
@@ -1158,6 +1190,9 @@ class ComplaintDecision {
     to: optString(json, 'to'),
     couponCode: optString(json, 'coupon_code'),
     reason: optString(json, 'reason'),
+    couponEndsAt: optDate(json, 'coupon_ends_at'),
+    agent: optString(json, 'agent'),
+    at: optDate(json, 'at'),
   );
 
   /// refund, partial_refund, compensation or no_refund.
@@ -1168,6 +1203,13 @@ class ComplaintDecision {
   final String? to;
   final String? couponCode;
   final String? reason;
+
+  /// 115.52 A coupon's last day.
+  final DateTime? couponEndsAt;
+
+  /// 115.52 The first name of who decided.
+  final String? agent;
+  final DateTime? at;
 }
 
 /// `Wallet`: the customer's balance and its history (refunds, credit from

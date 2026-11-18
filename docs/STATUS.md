@@ -8,6 +8,32 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 115.50–115.54 (marketplace complaints, the owner's decisions D3 and
+D4 of 18 November): a complaint can be opened from placing the order until
+48 hours after it arrives, counted for the app's couriers from the courier
+job's own delivered time; an order with no new stage for 6 hours from then,
+until 48 hours after its last stage; a turned-down or cancelled order only
+when money was taken; one ticket at a time and one more after a decision.
+Support's conversation is the ticket's own thread, shown in the app's
+Support (the Chat tab) as "<App name> support" with the person's first
+name; after a decision it stays open without reopening the decision. The
+decisions are a refund to the card (47's refunds, never more than was paid
+online), to the wallet (at once, once), a 30-day coupon at the place (it
+may be worth more than the refund, never more than the order), or declined
+with the reason. A complaint's coupon is listed only to its customer in
+`/market/offers` (before, every signed-in customer saw every active
+coupon). The dashboard's queue and complaint page are in the approved
+design (stats, both timers, amber and red at the owner's minutes, 15 and
+60 unless set, ready replies into the box only, Export, assignment to the
+team), and so are the app's screens 06a–06c (in `mobile/`, for the next app
+build; `CLIENT_APP_RELEASE` unchanged). Contract: `MarketOrder.complaint_until`
+and `Complaint.window_ends_at`, `can_open_another`, `support_agent`,
+`messages[].kind` and `agent`, `decision.coupon_ends_at` and `agent`;
+409 `complaint_limit`. No migration (the new fields live in the
+complaint's JSON columns and the marketplace settings). Still to come: the
+`complaint_update` push to the customer (with the marketplace's
+notifications), and a look on real phones.
+
 Roadmap 170 (paying in the app in the phone's browser sheet, closing
 155.6): inside the apps, Yallapp's payment page opens in the phone's browser
 sheet over the app (SFSafariViewController on iPhone, Chrome Custom Tabs on
@@ -1023,6 +1049,12 @@ makes, a few questions and a closing band in the night. Only the plans for
 sale show, with their prices from Admin › Plans.
 
 ## To verify against real services before release
+
+- Marketplace complaints (115.50–115.54) on real phones: opening one with
+  photos from the gallery (iPhone and Android), the Chat tab's complaints,
+  the decision screens in Arabic with the phone's own fonts and large text,
+  copying a coupon's code; a card refund through a real gateway's refund
+  (only fake gateways in the tests); the queue's timers over a working day.
 
 - 138 The App Store Connect calls of the App Review submission
   (`lib/publishing/app-review-submit.ts`): `builds` by version and

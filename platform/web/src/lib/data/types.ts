@@ -4541,6 +4541,8 @@ export interface MarketAppSettings {
    * place's own area decides.
    */
   serviceAreas?: MarketServiceArea[];
+  /** 115.53 The complaints queue's "since last reply": amber from `amberMinutes`, red from `redMinutes` (15 and 60 unless set). */
+  supportReply?: { amberMinutes: number; redMinutes: number };
 }
 
 /** 115 A named area the marketplace serves: within `km` of its centre. */
@@ -5184,6 +5186,13 @@ export interface ComplaintDecision {
   /** Support's words to the customer. */
   reason: string | null;
   by: string;
+  /** 115.52 The first name the customer reads ("Nour, Zad support"). */
+  byName?: string | null;
+  /** 115.52 Of the amount, what went back to the card (a full refund gives a wallet-paid part back to the wallet). */
+  cardAmount?: number | null;
+  /** 115.52 A coupon's last day (ISO). */
+  couponEndsAt?: string | null;
+  /** A date, or its ISO string as the JSON column reads it back. */
   at: Date;
 }
 
@@ -5203,7 +5212,8 @@ export interface MarketComplaint {
   assignee: string | null;
   /** The vendor may read it (and the decision). */
   sharedWithVendor: boolean;
-  messages: { id: number; from: "customer" | "support"; text: string; by: string | null; at: string }[];
+  /** 115.51 `name`: the support person's first name the customer reads; `kind` "taken": they took the ticket (no text). */
+  messages: { id: number; from: "customer" | "support"; text: string; by: string | null; name?: string | null; kind?: "taken"; at: string }[];
   /** The team's own notes, never shown to the customer or the vendor. */
   notes: { text: string; by: string; at: string }[];
   decision: ComplaintDecision | null;

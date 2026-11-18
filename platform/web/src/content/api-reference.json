@@ -1414,7 +1414,7 @@
           "method": "POST",
           "path": "/me/market-orders/{order_id}/complaints",
           "summary": "Open a complaint on an order",
-          "description": "From when the order is placed until 48 hours after it was delivered or picked up (`complaint_closed` (409) after that); one open complaint per order at a time (`complaint_open` (409)). Photos are added next with `POST /me/complaints/{complaint_id}/photos`.",
+          "description": "From when the order is placed until 48 hours after it was delivered or picked up (`complaint_closed` (409) after that). An app courier's order counts from the courier job's delivered time. An order with no new stage for 6 hours (stuck) takes complaints at once, until 48 hours after its last stage. A turned-down or cancelled order takes one only when money was taken (paid online, or part from the wallet). One complaint per order at a time (`complaint_open` (409)), and one more once the first has its decision (`complaint_limit` (409) after that). Items are optional: none is the whole order. Photos are added next with `POST /me/complaints/{complaint_id}/photos`.",
           "access": "signed-in"
         },
         {
@@ -1435,7 +1435,7 @@
           "method": "POST",
           "path": "/me/complaints/{complaint_id}/messages",
           "summary": "Write to support on a complaint",
-          "description": "Until it is closed (`complaint_closed` (409)).",
+          "description": "Also after support's decision, in the same thread; the decision stays as it is (115.51).",
           "access": "signed-in"
         },
         {

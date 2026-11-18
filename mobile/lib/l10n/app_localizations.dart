@@ -19885,6 +19885,498 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open the payment page'**
   String get paySheetOpenAgain;
+
+  /// 115.54 Complaints (designs 06a–06c): the order's arrival time in the header.
+  ///
+  /// In en, this message translates to:
+  /// **'arrived {time}'**
+  String mcArrivedAt(String time);
+
+  /// 115.54 Complaints (designs 06a–06c): how long a complaint can still be opened.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h left'**
+  String mcHoursLeft(int hours);
+
+  /// 115.54 Complaints (designs 06a–06c): how long a complaint can still be opened, under an hour.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min left'**
+  String mcMinutesLeft(int minutes);
+
+  /// 115.54 Complaints (designs 06a–06c): the reasons' heading.
+  ///
+  /// In en, this message translates to:
+  /// **'What went wrong?'**
+  String get mcWhatWentWrong;
+
+  /// 115.54 Complaints (designs 06a–06c): a reason tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get mcReasonLate;
+
+  /// 115.54 Complaints (designs 06a–06c): a reason tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing items'**
+  String get mcReasonMissing;
+
+  /// 115.54 Complaints (designs 06a–06c): a reason tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong items'**
+  String get mcReasonWrong;
+
+  /// 115.54 Complaints (designs 06a–06c): a reason tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality'**
+  String get mcReasonQuality;
+
+  /// 115.54 Complaints (designs 06a–06c): a reason tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Damaged'**
+  String get mcReasonDamaged;
+
+  /// 115.54 Complaints (designs 06a–06c): a reason tile, for an order that hasn't arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered'**
+  String get mcReasonNotDelivered;
+
+  /// 115.54 Complaints (designs 06a–06c): a reason tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Charged wrong'**
+  String get mcReasonCharged;
+
+  /// 115.54 Complaints (designs 06a–06c): a reason tile.
+  ///
+  /// In en, this message translates to:
+  /// **'The courier'**
+  String get mcReasonCourier;
+
+  /// 115.54 Complaints (designs 06a–06c): a reason tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get mcReasonOther;
+
+  /// 115.54 Complaints (designs 06a–06c): chooses the whole order instead of items.
+  ///
+  /// In en, this message translates to:
+  /// **'Or the whole order'**
+  String get mcWholeOrder;
+
+  /// 115.54 Complaints (designs 06a–06c): the photos' heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get mcPhotos;
+
+  /// 115.54 Complaints (designs 06a–06c): photos added out of five.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of 5'**
+  String mcPhotosOf(int count);
+
+  /// 115.54 Complaints (designs 06a–06c): adds a photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get mcAdd;
+
+  /// 115.54 Complaints (designs 06a–06c): removes a photo (screen readers).
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get mcRemovePhoto;
+
+  /// 115.54 Complaints (designs 06a–06c): the words' heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us more'**
+  String get mcTellUsMore;
+
+  /// 115.54 Complaints (designs 06a–06c): characters written.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} / 2,000'**
+  String mcCharCount(int count);
+
+  /// 115.54 Complaints (designs 06a–06c): who answers, and the phone kept from the store.
+  ///
+  /// In en, this message translates to:
+  /// **'{app} support answers here in the app. The store never sees your phone.'**
+  String mcPrivacy(String app);
+
+  /// 115.54 Complaints (designs 06a–06c): the support conversation's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{app} support'**
+  String mcSupportName(String app);
+
+  /// 115.54 Complaints (designs 06a–06c): who answers on support.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is answering · usually within 15 min'**
+  String mcAnswering(String name);
+
+  /// 115.54 Complaints (designs 06a–06c): support before anyone took it.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers here · usually within 15 min'**
+  String get mcAnsweringNobody;
+
+  /// 115.54 Complaints (designs 06a–06c): the ticket card's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaint {reference} · {reason}'**
+  String mcComplaintReason(String reference, String reason);
+
+  /// 115.54 Complaints (designs 06a–06c): the order of a complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {reference}'**
+  String mcOrderRef(String reference);
+
+  /// 115.54 Complaints (designs 06a–06c): how many items a complaint is about.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{The whole order} =1{1 item} other{{count} items}}'**
+  String mcItemsCount(int count);
+
+  /// 115.54 Complaints (designs 06a–06c): the day over the conversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get mcToday;
+
+  /// 115.54 Complaints (designs 06a–06c): someone on support took the complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} from {app} support took your complaint'**
+  String mcTook(String name, String app);
+
+  /// 115.54 Complaints (designs 06a–06c): who wrote a support message.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {app} support'**
+  String mcAgentSupport(String name, String app);
+
+  /// 115.54 Complaints (designs 06a–06c): a quick reply put into the box.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you'**
+  String get mcQuickThanks;
+
+  /// 115.54 Complaints (designs 06a–06c): a quick reply put into the box.
+  ///
+  /// In en, this message translates to:
+  /// **'Okay'**
+  String get mcQuickOkay;
+
+  /// 115.54 Complaints (designs 06a–06c): the message box.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to support…'**
+  String get mcWriteToSupport;
+
+  /// 115.54 Complaints (designs 06a–06c): sends a message (screen readers).
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get mcSend;
+
+  /// 115.54 Complaints (designs 06a–06c): the status pill.
+  ///
+  /// In en, this message translates to:
+  /// **'In review'**
+  String get mcPillInReview;
+
+  /// 115.54 Complaints (designs 06a–06c): the status pill after a refund or coupon.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get mcPillResolved;
+
+  /// 115.54 Complaints (designs 06a–06c): the status pill after no refund.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get mcPillClosed;
+
+  /// 115.54 Complaints (designs 06a–06c): the complaint's place and order.
+  ///
+  /// In en, this message translates to:
+  /// **'{vendor} · Order {reference}'**
+  String mcVendorOrder(String vendor, String reference);
+
+  /// 115.54 Complaints (designs 06a–06c): a refund to the card.
+  ///
+  /// In en, this message translates to:
+  /// **'We’re refunding your card'**
+  String get mcCardTitle;
+
+  /// 115.54 Complaints (designs 06a–06c): a refund to the card, for some items.
+  ///
+  /// In en, this message translates to:
+  /// **'For {items}. The refund leaves today; your bank shows it in 5 to 10 working days.'**
+  String mcCardBodyItems(String items);
+
+  /// 115.54 Complaints (designs 06a–06c): a refund to the card, for the whole order.
+  ///
+  /// In en, this message translates to:
+  /// **'For the whole order. The refund leaves today; your bank shows it in 5 to 10 working days.'**
+  String get mcCardBody;
+
+  /// 115.54 Complaints (designs 06a–06c): where the refund goes.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get mcTo;
+
+  /// 115.54 Complaints (designs 06a–06c): the order's total after the refund.
+  ///
+  /// In en, this message translates to:
+  /// **'Order total now'**
+  String get mcOrderTotalNow;
+
+  /// 115.54 Complaints (designs 06a–06c): a refund or credit to the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'It’s in your wallet'**
+  String get mcWalletTitle;
+
+  /// 115.54 Complaints (designs 06a–06c): a wallet refund, for some items.
+  ///
+  /// In en, this message translates to:
+  /// **'For {items}, ready now for your next order at any place in {app}.'**
+  String mcWalletBodyItems(String items, String app);
+
+  /// 115.54 Complaints (designs 06a–06c): a wallet refund, for the whole order.
+  ///
+  /// In en, this message translates to:
+  /// **'For the whole order, ready now for your next order at any place in {app}.'**
+  String mcWalletBody(String app);
+
+  /// 115.54 Complaints (designs 06a–06c): a compensation to the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'As an apology, ready now for your next order at any place in {app}.'**
+  String mcWalletBodyApology(String app);
+
+  /// 115.54 Complaints (designs 06a–06c): the wallet's balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet balance'**
+  String get mcWalletBalance;
+
+  /// 115.54 Complaints (designs 06a–06c): when the money was added.
+  ///
+  /// In en, this message translates to:
+  /// **'Added'**
+  String get mcAdded;
+
+  /// 115.54 Complaints (designs 06a–06c): a coupon decision.
+  ///
+  /// In en, this message translates to:
+  /// **'A coupon for your next order'**
+  String get mcCouponTitle;
+
+  /// 115.54 Complaints (designs 06a–06c): what the coupon takes off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off your next order at {vendor}, with no smallest order. It\'s already in your coupons.'**
+  String mcCouponBody(String vendor);
+
+  /// 115.54 Complaints (designs 06a–06c): how the coupon is used.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter it at checkout'**
+  String get mcCouponHint;
+
+  /// 115.54 Complaints (designs 06a–06c): copies the coupon's code.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get mcCopy;
+
+  /// 115.54 Complaints (designs 06a–06c): the code was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied'**
+  String get mcCopied;
+
+  /// 115.54 Complaints (designs 06a–06c): the coupon's last day.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid until'**
+  String get mcValidUntil;
+
+  /// 115.54 Complaints (designs 06a–06c): how many times the coupon can be used.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get mcUse;
+
+  /// 115.54 Complaints (designs 06a–06c): the coupon can be used once.
+  ///
+  /// In en, this message translates to:
+  /// **'Once'**
+  String get mcOnce;
+
+  /// 115.54 Complaints (designs 06a–06c): no refund.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t refund this one'**
+  String get mcDeclinedTitle;
+
+  /// 115.54 Complaints (designs 06a–06c): support's reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why'**
+  String get mcWhy;
+
+  /// 115.54 Complaints (designs 06a–06c): who decided.
+  ///
+  /// In en, this message translates to:
+  /// **'Decided by'**
+  String get mcDecidedBy;
+
+  /// 115.54 Complaints (designs 06a–06c): who decided.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {app} support'**
+  String mcDecidedByName(String name, String app);
+
+  /// 115.54 Complaints (designs 06a–06c): when it was decided.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get mcWhen;
+
+  /// 115.54 Complaints (designs 06a–06c): a time today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today {time}'**
+  String mcTodayAt(String time);
+
+  /// 115.54 Complaints (designs 06a–06c): the timeline's first step.
+  ///
+  /// In en, this message translates to:
+  /// **'You opened it'**
+  String get mcYouOpened;
+
+  /// 115.54 Complaints (designs 06a–06c): how many photos.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo} other{{count} photos}}'**
+  String mcPhotosN(int count);
+
+  /// 115.54 Complaints (designs 06a–06c): the timeline's support step.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} answered'**
+  String mcAnswered(String name);
+
+  /// 115.54 Complaints (designs 06a–06c): the timeline's support step, no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Support answered'**
+  String get mcSupportAnswered;
+
+  /// 115.54 Complaints (designs 06a–06c): support's messages and first answer.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 message} other{{count} messages}} · first in {minutes, plural, =1{1 minute} other{{minutes} minutes}}'**
+  String mcAnsweredDetail(int count, int minutes);
+
+  /// 115.54 Complaints (designs 06a–06c): the decision step.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund to card · {amount}'**
+  String mcStepCard(String amount);
+
+  /// 115.54 Complaints (designs 06a–06c): the decision step.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund to wallet · {amount}'**
+  String mcStepWallet(String amount);
+
+  /// 115.54 Complaints (designs 06a–06c): the decision step.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon · {amount}'**
+  String mcStepCoupon(String amount);
+
+  /// 115.54 Complaints (designs 06a–06c): the decision step.
+  ///
+  /// In en, this message translates to:
+  /// **'Compensation · {amount}'**
+  String mcStepCompensation(String amount);
+
+  /// 115.54 Complaints (designs 06a–06c): the decision step.
+  ///
+  /// In en, this message translates to:
+  /// **'No refund, with the reason'**
+  String get mcStepDeclined;
+
+  /// 115.54 Complaints (designs 06a–06c): one more complaint can be opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else wrong with this order? You can open one new complaint on it.'**
+  String get mcOneMore;
+
+  /// 115.54 Complaints (designs 06a–06c): opens the conversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get mcReply;
+
+  /// 115.54 Complaints (designs 06a–06c): closes the decision.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get mcDone;
+
+  /// 115.54 Complaints (designs 06a–06c): opens the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Open wallet'**
+  String get mcOpenWallet;
+
+  /// 115.54 Complaints (designs 06a–06c): opens the place.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop now'**
+  String get mcShopNow;
+
+  /// 115.54 Complaints (designs 06a–06c): closes the decision.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get mcClose;
+
+  /// 115.54 Complaints (designs 06a–06c): opens the conversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply to support'**
+  String get mcReplyToSupport;
+
+  /// 115.54 Complaints (designs 06a–06c): the complaints shown in the Chat tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Your complaints'**
+  String get mcChatSection;
+
+  /// 115.54 Complaints (designs 06a–06c): two item names joined.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {second}'**
+  String mcAnd(String first, String second);
 }
 
 class _AppLocalizationsDelegate

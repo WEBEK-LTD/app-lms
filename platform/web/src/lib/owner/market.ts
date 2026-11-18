@@ -4,7 +4,7 @@ import { localToUtc, utcToLocal } from "../bookings/time";
 import type { App, ComplaintDecision, MarketComplaint, MarketOrder, MarketOrderStatus } from "../data/types";
 import { deliverySettingsOf } from "../delivery/settings";
 import { restaurantState } from "../food/service";
-import { ACTIVE_COMPLAINT, decideComplaint, queueTimers, refundable, supportReply } from "../market/complaints";
+import { agentFirstName, decideComplaint, queueTimers, refundable, supportReply, threadMessages } from "../market/complaints";
 import { complaintDecisionDeps } from "../market/decisions";
 import { complaintReference, marketOrderReference } from "../market/json";
 import { marketTimezone } from "../market/settings";
@@ -112,6 +112,8 @@ export async function getMarketOrder(ctx: OwnerContext, params: Record<string, s
 
 /** Who did it, as the ticket shows it: the person's email (the dashboard's `whoOf`). */
 const whoOf = (ctx: OwnerContext) => ctx.user.email;
+/** 115.51 The first name the customer reads with "<App> support". */
+const nameOf = (ctx: OwnerContext) => agentFirstName(ctx.user.name, ctx.user.email);
 
 /** The queues the app names; 125's `waiting` is the dashboard's `open`, and `vendor` is the customer's queue (places never talk to customers). */
 function queueOfQuery(ctx: OwnerContext): Queue {
@@ -166,7 +168,7 @@ async function complaintDetail(ctx: OwnerContext, app: App, c: MarketComplaint) 
   const open = c.decision === null && order !== null;
   return {
     ...complaintJson(ctx, c, order, left),
-    messages: c.messages.map((m) => ({ from: m.from, name: m.from === "customer" ? (order?.customerName ?? "") : ctx.t("market.fromSupport"), text: m.text, at: m.at })),
+    messages: threadMessages(c).map((m) => ({ from: m.from, name: m.from === "customer" ? (order?.customerName ?? "") : m.name ? `${ctx.t("market.fromSupport")} · ${m.name}` : ctx.t("market.fromSupport"), text: m.text, at: m.at })),
     decisions: open
       ? [
           ...(left > 0 ? [{ decision: "refund" as const, label: ctx.t("market.o_refund"), amount: "fixed" as const, max: minorMoney(left, currency), to: refundTo }] : []),
@@ -231,8 +233,8 @@ export async function replyComplaint(ctx: OwnerContext, params: Record<string, s
   const text = bodyObject(ctx.req.body).text;
   if (typeof text !== "string" || !text.trim()) throw invalid({ text: "Write your answer." });
   if (text.trim().length > 2000) throw invalid({ text: "Keep it under 2000 characters." });
-  if (!ACTIVE_COMPLAINT.includes(complaint.status)) throw invalidStatus("This complaint is closed.");
-  const patch = supportReply(complaint, text, whoOf(ctx), ctx.deps.now);
+  // 115.51 After a decision the conversation goes on; the decision stays.
+  const patch = supportReply(complaint, text, whoOf(ctx), ctx.deps.now, nameOf(ctx));
   if (!patch) throw invalidStatus("This complaint is closed.");
   await ctx.deps.store.updateMarketComplaint(app.id, complaint.id, { ...patch, assignee: complaint.assignee ?? whoOf(ctx) });
   await recordStudio(ctx, app, "complaint.reply", { type: "complaint", id: complaint.id }, `Answered complaint ${complaintReference(complaint)}`);
@@ -264,6 +266,7 @@ export async function decideOneComplaint(ctx: OwnerContext, params: Record<strin
     { outcome, amount: typeof amount === "number" ? amount : null, to, funder: body.funder === "vendor" ? "vendor" : "owner", reason: note || null, shareWithVendor: body.share_with_vendor === true },
     whoOf(ctx),
     now,
+    nameOf(ctx),
   );
   if (!done.ok) {
     const field = done.field === "amount" ? "amount_cents" : done.field === "reason" ? "note" : done.field;

@@ -6586,9 +6586,15 @@ paths:
       summary: Open a complaint on an order
       description: |
         From when the order is placed until 48 hours after it was delivered
-        or picked up (`complaint_closed` (409) after that); one open
-        complaint per order at a time (`complaint_open` (409)). Photos are
-        added next with `POST /me/complaints/{complaint_id}/photos`.
+        or picked up (`complaint_closed` (409) after that). An app courier's
+        order counts from the courier job's delivered time. An order with no
+        new stage for 6 hours (stuck) takes complaints at once, until 48 hours
+        after its last stage. A turned-down or cancelled order takes one only
+        when money was taken (paid online, or part from the wallet). One
+        complaint per order at a time (`complaint_open` (409)), and one more
+        once the first has its decision (`complaint_limit` (409) after that).
+        Items are optional: none is the whole order. Photos are added next
+        with `POST /me/complaints/{complaint_id}/photos`.
       parameters:
         - $ref: '#/components/parameters/MarketOrderId'
       requestBody:
@@ -6656,7 +6662,7 @@ paths:
       tags: [Market]
       operationId: addComplaintMessage
       summary: Write to support on a complaint
-      description: Until it is closed (`complaint_closed` (409)).
+      description: Also after support's decision, in the same thread; the decision stays as it is (115.51).
       parameters:
         - $ref: '#/components/parameters/ComplaintId'
       requestBody:
@@ -19961,8 +19967,9 @@ components:
                 text: { type: string, maxLength: 2000 }
                 at: { type: string, format: date-time, description: 'When it was written, or last changed.' }
         can_cancel: { type: boolean }
-        can_complain: { type: boolean, description: 'From placing it until 48 hours after it arrived, with no complaint open.' }
+        can_complain: { type: boolean, description: 'From placing it until 48 hours after it arrived (the courier job''s delivered time for the app''s couriers; a stuck order after 6 hours), with no complaint open and one more after a decision.' }
         complaint_id: { type: [integer, 'null'], description: 'Its latest complaint.' }
+        complaint_until: { type: [string, 'null'], format: date-time, description: '115.50 Until when a complaint can be opened on it; null while it is still under way, or when it takes none. Missing on older servers.' }
         created_at: { type: string, format: date-time }
         timeline:
           type: array
@@ -20037,15 +20044,20 @@ components:
               url: { type: string, format: uri }
         messages:
           type: array
-          description: Between the customer and the app's support; the team's internal notes are never here.
+          description: Between the customer and the app's support ("<App name> support" with the person's first name); the team's internal notes and emails are never here. The place never takes part. It goes on after the decision.
           items:
             type: object
             required: [id, from, text, at]
             properties:
               id: { type: integer }
               from: { type: string, enum: [customer, support] }
+              kind: { type: string, enum: [message, taken], description: '115.51 `taken`: someone on support took the complaint (no text). Missing on older servers: a message.' }
               text: { type: string }
+              agent: { type: [string, 'null'], description: '115.51 The support person''s first name, for support''s messages. Missing on older servers.' }
               at: { type: string, format: date-time }
+        support_agent: { type: [string, 'null'], description: '115.51 The first name of the support person answering. Missing on older servers.' }
+        window_ends_at: { type: [string, 'null'], format: date-time, description: '115.50 Until when a complaint can still be opened on its order; null with no end yet or none allowed. Missing on older servers.' }
+        can_open_another: { type: boolean, description: '115.50 After its decision, one more complaint can be opened on the order, while its window is open. Missing on older servers: false.' }
         decision:
           type: [object, 'null']
           required: [outcome, amount, to, coupon_code, reason, at]
@@ -20054,7 +20066,9 @@ components:
             amount: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
             to: { type: [string, 'null'], enum: [payment, wallet, coupon, null], description: 'Where the refund or compensation went.' }
             coupon_code: { type: [string, 'null'] }
+            coupon_ends_at: { type: [string, 'null'], format: date-time, description: '115.52 A coupon''s last day (30 days, one use, at the order''s place). Missing on older servers.' }
             reason: { type: [string, 'null'], description: 'Support''s words to the customer.' }
+            agent: { type: [string, 'null'], description: '115.52 The first name of who decided. Missing on older servers.' }
             at: { type: string, format: date-time }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }

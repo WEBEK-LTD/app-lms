@@ -10,6 +10,8 @@ import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../../market/screens/market_complaint_screens.dart'
+    show MarketSupportComplaints;
 import '../../real_estate/widgets/listing_widgets.dart'
     show SignInPrompt, TabHeader;
 import '../data/chat_providers.dart';
@@ -34,6 +36,12 @@ class ChatListScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TabHeader(title: l10n.chatTitle),
+            // 115.51 The customer's complaints with the app's support (D4).
+            if (signedIn)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: MarketSupportComplaints(),
+              ),
             Expanded(
               child: chat == null
                   ? MessageView(

@@ -12415,4 +12415,335 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paySheetOpenAgain => 'Open the payment page';
+
+  @override
+  String mcArrivedAt(String time) {
+    return 'arrived $time';
+  }
+
+  @override
+  String mcHoursLeft(int hours) {
+    return '$hours h left';
+  }
+
+  @override
+  String mcMinutesLeft(int minutes) {
+    return '$minutes min left';
+  }
+
+  @override
+  String get mcWhatWentWrong => 'What went wrong?';
+
+  @override
+  String get mcReasonLate => 'Late';
+
+  @override
+  String get mcReasonMissing => 'Missing items';
+
+  @override
+  String get mcReasonWrong => 'Wrong items';
+
+  @override
+  String get mcReasonQuality => 'Quality';
+
+  @override
+  String get mcReasonDamaged => 'Damaged';
+
+  @override
+  String get mcReasonNotDelivered => 'Not delivered';
+
+  @override
+  String get mcReasonCharged => 'Charged wrong';
+
+  @override
+  String get mcReasonCourier => 'The courier';
+
+  @override
+  String get mcReasonOther => 'Something else';
+
+  @override
+  String get mcWholeOrder => 'Or the whole order';
+
+  @override
+  String get mcPhotos => 'Photos';
+
+  @override
+  String mcPhotosOf(int count) {
+    return '$count of 5';
+  }
+
+  @override
+  String get mcAdd => 'Add';
+
+  @override
+  String get mcRemovePhoto => 'Remove photo';
+
+  @override
+  String get mcTellUsMore => 'Tell us more';
+
+  @override
+  String mcCharCount(int count) {
+    return '$count / 2,000';
+  }
+
+  @override
+  String mcPrivacy(String app) {
+    return '$app support answers here in the app. The store never sees your phone.';
+  }
+
+  @override
+  String mcSupportName(String app) {
+    return '$app support';
+  }
+
+  @override
+  String mcAnswering(String name) {
+    return '$name is answering · usually within 15 min';
+  }
+
+  @override
+  String get mcAnsweringNobody => 'Answers here · usually within 15 min';
+
+  @override
+  String mcComplaintReason(String reference, String reason) {
+    return 'Complaint $reference · $reason';
+  }
+
+  @override
+  String mcOrderRef(String reference) {
+    return 'Order $reference';
+  }
+
+  @override
+  String mcItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+      zero: 'The whole order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mcToday => 'Today';
+
+  @override
+  String mcTook(String name, String app) {
+    return '$name from $app support took your complaint';
+  }
+
+  @override
+  String mcAgentSupport(String name, String app) {
+    return '$name · $app support';
+  }
+
+  @override
+  String get mcQuickThanks => 'Thank you';
+
+  @override
+  String get mcQuickOkay => 'Okay';
+
+  @override
+  String get mcWriteToSupport => 'Write to support…';
+
+  @override
+  String get mcSend => 'Send';
+
+  @override
+  String get mcPillInReview => 'In review';
+
+  @override
+  String get mcPillResolved => 'Resolved';
+
+  @override
+  String get mcPillClosed => 'Closed';
+
+  @override
+  String mcVendorOrder(String vendor, String reference) {
+    return '$vendor · Order $reference';
+  }
+
+  @override
+  String get mcCardTitle => 'We’re refunding your card';
+
+  @override
+  String mcCardBodyItems(String items) {
+    return 'For $items. The refund leaves today; your bank shows it in 5 to 10 working days.';
+  }
+
+  @override
+  String get mcCardBody =>
+      'For the whole order. The refund leaves today; your bank shows it in 5 to 10 working days.';
+
+  @override
+  String get mcTo => 'To';
+
+  @override
+  String get mcOrderTotalNow => 'Order total now';
+
+  @override
+  String get mcWalletTitle => 'It’s in your wallet';
+
+  @override
+  String mcWalletBodyItems(String items, String app) {
+    return 'For $items, ready now for your next order at any place in $app.';
+  }
+
+  @override
+  String mcWalletBody(String app) {
+    return 'For the whole order, ready now for your next order at any place in $app.';
+  }
+
+  @override
+  String mcWalletBodyApology(String app) {
+    return 'As an apology, ready now for your next order at any place in $app.';
+  }
+
+  @override
+  String get mcWalletBalance => 'Wallet balance';
+
+  @override
+  String get mcAdded => 'Added';
+
+  @override
+  String get mcCouponTitle => 'A coupon for your next order';
+
+  @override
+  String mcCouponBody(String vendor) {
+    return 'Off your next order at $vendor, with no smallest order. It\'s already in your coupons.';
+  }
+
+  @override
+  String get mcCouponHint => 'Enter it at checkout';
+
+  @override
+  String get mcCopy => 'Copy';
+
+  @override
+  String get mcCopied => 'Code copied';
+
+  @override
+  String get mcValidUntil => 'Valid until';
+
+  @override
+  String get mcUse => 'Use';
+
+  @override
+  String get mcOnce => 'Once';
+
+  @override
+  String get mcDeclinedTitle => 'We couldn’t refund this one';
+
+  @override
+  String get mcWhy => 'Why';
+
+  @override
+  String get mcDecidedBy => 'Decided by';
+
+  @override
+  String mcDecidedByName(String name, String app) {
+    return '$name, $app support';
+  }
+
+  @override
+  String get mcWhen => 'When';
+
+  @override
+  String mcTodayAt(String time) {
+    return 'Today $time';
+  }
+
+  @override
+  String get mcYouOpened => 'You opened it';
+
+  @override
+  String mcPhotosN(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos',
+      one: '1 photo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String mcAnswered(String name) {
+    return '$name answered';
+  }
+
+  @override
+  String get mcSupportAnswered => 'Support answered';
+
+  @override
+  String mcAnsweredDetail(int count, int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count messages',
+      one: '1 message',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '1 minute',
+    );
+    return '$_temp0 · first in $_temp1';
+  }
+
+  @override
+  String mcStepCard(String amount) {
+    return 'Refund to card · $amount';
+  }
+
+  @override
+  String mcStepWallet(String amount) {
+    return 'Refund to wallet · $amount';
+  }
+
+  @override
+  String mcStepCoupon(String amount) {
+    return 'Coupon · $amount';
+  }
+
+  @override
+  String mcStepCompensation(String amount) {
+    return 'Compensation · $amount';
+  }
+
+  @override
+  String get mcStepDeclined => 'No refund, with the reason';
+
+  @override
+  String get mcOneMore =>
+      'Something else wrong with this order? You can open one new complaint on it.';
+
+  @override
+  String get mcReply => 'Reply';
+
+  @override
+  String get mcDone => 'Done';
+
+  @override
+  String get mcOpenWallet => 'Open wallet';
+
+  @override
+  String get mcShopNow => 'Shop now';
+
+  @override
+  String get mcClose => 'Close';
+
+  @override
+  String get mcReplyToSupport => 'Reply to support';
+
+  @override
+  String get mcChatSection => 'Your complaints';
+
+  @override
+  String mcAnd(String first, String second) {
+    return '$first and $second';
+  }
 }

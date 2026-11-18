@@ -13163,4 +13163,332 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get paySheetOpenAgain =>
       overlay.text('paySheetOpenAgain') ?? base.paySheetOpenAgain;
+
+  @override
+  String mcArrivedAt(String time) =>
+      overlay.format('mcArrivedAt', {'time': time}) ?? base.mcArrivedAt(time);
+
+  @override
+  String mcHoursLeft(int hours) =>
+      overlay.format('mcHoursLeft', {'hours': hours}) ??
+      base.mcHoursLeft(hours);
+
+  @override
+  String mcMinutesLeft(int minutes) =>
+      overlay.format('mcMinutesLeft', {'minutes': minutes}) ??
+      base.mcMinutesLeft(minutes);
+
+  @override
+  String get mcWhatWentWrong =>
+      overlay.text('mcWhatWentWrong') ?? base.mcWhatWentWrong;
+
+  @override
+  String get mcReasonLate => overlay.text('mcReasonLate') ?? base.mcReasonLate;
+
+  @override
+  String get mcReasonMissing =>
+      overlay.text('mcReasonMissing') ?? base.mcReasonMissing;
+
+  @override
+  String get mcReasonWrong =>
+      overlay.text('mcReasonWrong') ?? base.mcReasonWrong;
+
+  @override
+  String get mcReasonQuality =>
+      overlay.text('mcReasonQuality') ?? base.mcReasonQuality;
+
+  @override
+  String get mcReasonDamaged =>
+      overlay.text('mcReasonDamaged') ?? base.mcReasonDamaged;
+
+  @override
+  String get mcReasonNotDelivered =>
+      overlay.text('mcReasonNotDelivered') ?? base.mcReasonNotDelivered;
+
+  @override
+  String get mcReasonCharged =>
+      overlay.text('mcReasonCharged') ?? base.mcReasonCharged;
+
+  @override
+  String get mcReasonCourier =>
+      overlay.text('mcReasonCourier') ?? base.mcReasonCourier;
+
+  @override
+  String get mcReasonOther =>
+      overlay.text('mcReasonOther') ?? base.mcReasonOther;
+
+  @override
+  String get mcWholeOrder => overlay.text('mcWholeOrder') ?? base.mcWholeOrder;
+
+  @override
+  String get mcPhotos => overlay.text('mcPhotos') ?? base.mcPhotos;
+
+  @override
+  String mcPhotosOf(int count) =>
+      overlay.format('mcPhotosOf', {'count': count}) ?? base.mcPhotosOf(count);
+
+  @override
+  String get mcAdd => overlay.text('mcAdd') ?? base.mcAdd;
+
+  @override
+  String get mcRemovePhoto =>
+      overlay.text('mcRemovePhoto') ?? base.mcRemovePhoto;
+
+  @override
+  String get mcTellUsMore => overlay.text('mcTellUsMore') ?? base.mcTellUsMore;
+
+  @override
+  String mcCharCount(int count) =>
+      overlay.format('mcCharCount', {'count': count}) ??
+      base.mcCharCount(count);
+
+  @override
+  String mcPrivacy(String app) =>
+      overlay.format('mcPrivacy', {'app': app}) ?? base.mcPrivacy(app);
+
+  @override
+  String mcSupportName(String app) =>
+      overlay.format('mcSupportName', {'app': app}) ?? base.mcSupportName(app);
+
+  @override
+  String mcAnswering(String name) =>
+      overlay.format('mcAnswering', {'name': name}) ?? base.mcAnswering(name);
+
+  @override
+  String get mcAnsweringNobody =>
+      overlay.text('mcAnsweringNobody') ?? base.mcAnsweringNobody;
+
+  @override
+  String mcComplaintReason(String reference, String reason) =>
+      overlay.format('mcComplaintReason', {
+        'reference': reference,
+        'reason': reason,
+      }) ??
+      base.mcComplaintReason(reference, reason);
+
+  @override
+  String mcOrderRef(String reference) =>
+      overlay.format('mcOrderRef', {'reference': reference}) ??
+      base.mcOrderRef(reference);
+
+  @override
+  String mcItemsCount(int count) =>
+      overlay.format('mcItemsCount', {'count': count}) ??
+      base.mcItemsCount(count);
+
+  @override
+  String get mcToday => overlay.text('mcToday') ?? base.mcToday;
+
+  @override
+  String mcTook(String name, String app) =>
+      overlay.format('mcTook', {'name': name, 'app': app}) ??
+      base.mcTook(name, app);
+
+  @override
+  String mcAgentSupport(String name, String app) =>
+      overlay.format('mcAgentSupport', {'name': name, 'app': app}) ??
+      base.mcAgentSupport(name, app);
+
+  @override
+  String get mcQuickThanks =>
+      overlay.text('mcQuickThanks') ?? base.mcQuickThanks;
+
+  @override
+  String get mcQuickOkay => overlay.text('mcQuickOkay') ?? base.mcQuickOkay;
+
+  @override
+  String get mcWriteToSupport =>
+      overlay.text('mcWriteToSupport') ?? base.mcWriteToSupport;
+
+  @override
+  String get mcSend => overlay.text('mcSend') ?? base.mcSend;
+
+  @override
+  String get mcPillInReview =>
+      overlay.text('mcPillInReview') ?? base.mcPillInReview;
+
+  @override
+  String get mcPillResolved =>
+      overlay.text('mcPillResolved') ?? base.mcPillResolved;
+
+  @override
+  String get mcPillClosed => overlay.text('mcPillClosed') ?? base.mcPillClosed;
+
+  @override
+  String mcVendorOrder(String vendor, String reference) =>
+      overlay.format('mcVendorOrder', {
+        'vendor': vendor,
+        'reference': reference,
+      }) ??
+      base.mcVendorOrder(vendor, reference);
+
+  @override
+  String get mcCardTitle => overlay.text('mcCardTitle') ?? base.mcCardTitle;
+
+  @override
+  String mcCardBodyItems(String items) =>
+      overlay.format('mcCardBodyItems', {'items': items}) ??
+      base.mcCardBodyItems(items);
+
+  @override
+  String get mcCardBody => overlay.text('mcCardBody') ?? base.mcCardBody;
+
+  @override
+  String get mcTo => overlay.text('mcTo') ?? base.mcTo;
+
+  @override
+  String get mcOrderTotalNow =>
+      overlay.text('mcOrderTotalNow') ?? base.mcOrderTotalNow;
+
+  @override
+  String get mcWalletTitle =>
+      overlay.text('mcWalletTitle') ?? base.mcWalletTitle;
+
+  @override
+  String mcWalletBodyItems(String items, String app) =>
+      overlay.format('mcWalletBodyItems', {'items': items, 'app': app}) ??
+      base.mcWalletBodyItems(items, app);
+
+  @override
+  String mcWalletBody(String app) =>
+      overlay.format('mcWalletBody', {'app': app}) ?? base.mcWalletBody(app);
+
+  @override
+  String mcWalletBodyApology(String app) =>
+      overlay.format('mcWalletBodyApology', {'app': app}) ??
+      base.mcWalletBodyApology(app);
+
+  @override
+  String get mcWalletBalance =>
+      overlay.text('mcWalletBalance') ?? base.mcWalletBalance;
+
+  @override
+  String get mcAdded => overlay.text('mcAdded') ?? base.mcAdded;
+
+  @override
+  String get mcCouponTitle =>
+      overlay.text('mcCouponTitle') ?? base.mcCouponTitle;
+
+  @override
+  String mcCouponBody(String vendor) =>
+      overlay.format('mcCouponBody', {'vendor': vendor}) ??
+      base.mcCouponBody(vendor);
+
+  @override
+  String get mcCouponHint => overlay.text('mcCouponHint') ?? base.mcCouponHint;
+
+  @override
+  String get mcCopy => overlay.text('mcCopy') ?? base.mcCopy;
+
+  @override
+  String get mcCopied => overlay.text('mcCopied') ?? base.mcCopied;
+
+  @override
+  String get mcValidUntil => overlay.text('mcValidUntil') ?? base.mcValidUntil;
+
+  @override
+  String get mcUse => overlay.text('mcUse') ?? base.mcUse;
+
+  @override
+  String get mcOnce => overlay.text('mcOnce') ?? base.mcOnce;
+
+  @override
+  String get mcDeclinedTitle =>
+      overlay.text('mcDeclinedTitle') ?? base.mcDeclinedTitle;
+
+  @override
+  String get mcWhy => overlay.text('mcWhy') ?? base.mcWhy;
+
+  @override
+  String get mcDecidedBy => overlay.text('mcDecidedBy') ?? base.mcDecidedBy;
+
+  @override
+  String mcDecidedByName(String name, String app) =>
+      overlay.format('mcDecidedByName', {'name': name, 'app': app}) ??
+      base.mcDecidedByName(name, app);
+
+  @override
+  String get mcWhen => overlay.text('mcWhen') ?? base.mcWhen;
+
+  @override
+  String mcTodayAt(String time) =>
+      overlay.format('mcTodayAt', {'time': time}) ?? base.mcTodayAt(time);
+
+  @override
+  String get mcYouOpened => overlay.text('mcYouOpened') ?? base.mcYouOpened;
+
+  @override
+  String mcPhotosN(int count) =>
+      overlay.format('mcPhotosN', {'count': count}) ?? base.mcPhotosN(count);
+
+  @override
+  String mcAnswered(String name) =>
+      overlay.format('mcAnswered', {'name': name}) ?? base.mcAnswered(name);
+
+  @override
+  String get mcSupportAnswered =>
+      overlay.text('mcSupportAnswered') ?? base.mcSupportAnswered;
+
+  @override
+  String mcAnsweredDetail(int count, int minutes) =>
+      overlay.format('mcAnsweredDetail', {
+        'count': count,
+        'minutes': minutes,
+      }) ??
+      base.mcAnsweredDetail(count, minutes);
+
+  @override
+  String mcStepCard(String amount) =>
+      overlay.format('mcStepCard', {'amount': amount}) ??
+      base.mcStepCard(amount);
+
+  @override
+  String mcStepWallet(String amount) =>
+      overlay.format('mcStepWallet', {'amount': amount}) ??
+      base.mcStepWallet(amount);
+
+  @override
+  String mcStepCoupon(String amount) =>
+      overlay.format('mcStepCoupon', {'amount': amount}) ??
+      base.mcStepCoupon(amount);
+
+  @override
+  String mcStepCompensation(String amount) =>
+      overlay.format('mcStepCompensation', {'amount': amount}) ??
+      base.mcStepCompensation(amount);
+
+  @override
+  String get mcStepDeclined =>
+      overlay.text('mcStepDeclined') ?? base.mcStepDeclined;
+
+  @override
+  String get mcOneMore => overlay.text('mcOneMore') ?? base.mcOneMore;
+
+  @override
+  String get mcReply => overlay.text('mcReply') ?? base.mcReply;
+
+  @override
+  String get mcDone => overlay.text('mcDone') ?? base.mcDone;
+
+  @override
+  String get mcOpenWallet => overlay.text('mcOpenWallet') ?? base.mcOpenWallet;
+
+  @override
+  String get mcShopNow => overlay.text('mcShopNow') ?? base.mcShopNow;
+
+  @override
+  String get mcClose => overlay.text('mcClose') ?? base.mcClose;
+
+  @override
+  String get mcReplyToSupport =>
+      overlay.text('mcReplyToSupport') ?? base.mcReplyToSupport;
+
+  @override
+  String get mcChatSection =>
+      overlay.text('mcChatSection') ?? base.mcChatSection;
+
+  @override
+  String mcAnd(String first, String second) =>
+      overlay.format('mcAnd', {'first': first, 'second': second}) ??
+      base.mcAnd(first, second);
 }

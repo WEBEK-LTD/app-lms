@@ -244,7 +244,7 @@ export interface Tracking {
 
 export function customerOrderJson(
   o: MarketOrder,
-  input: { vendor: ReturnType<typeof vendorSummaryJson>; taxLabel: string; tracking: Tracking | null; canCancel: boolean; canComplain: boolean; complaintId: number | null; eta: Date | null },
+  input: { vendor: ReturnType<typeof vendorSummaryJson>; taxLabel: string; tracking: Tracking | null; canCancel: boolean; canComplain: boolean; complaintId: number | null; complaintUntil?: Date | null; eta: Date | null },
 ) {
   const c = o.currency;
   return {
@@ -276,6 +276,7 @@ export function customerOrderJson(
     can_cancel: input.canCancel,
     can_complain: input.canComplain,
     complaint_id: input.complaintId,
+    complaint_until: input.complaintUntil ? input.complaintUntil.toISOString() : null,
     created_at: o.createdAt.toISOString(),
     timeline: o.timeline.map((s) => ({ status: s.status, at: s.at })),
   };
@@ -313,8 +314,9 @@ export function complaintReference(c: Pick<MarketComplaint, "id">): string {
   return `C-${100 + c.id}`;
 }
 
-/** A complaint as its customer sees it: never the team's notes, nor who on the team wrote. */
-export function complaintJson(c: MarketComplaint, currency: string, assetUrl: AssetUrl) {
+/** A complaint as its customer sees it: never the team's notes nor anyone's email; support's people by their first names only (115.51). */
+export function complaintJson(c: MarketComplaint, currency: string, assetUrl: AssetUrl, extra: { windowEndsAt?: Date | null; canOpenAnother?: boolean } = {}) {
+  const lastSupport = [...c.messages].reverse().find((m) => m.from === "support" && m.name && (!c.assignee || m.by === c.assignee));
   return {
     id: c.id,
     reference: complaintReference(c),
@@ -324,15 +326,20 @@ export function complaintJson(c: MarketComplaint, currency: string, assetUrl: As
     text: c.text,
     line_ids: c.lineIds,
     photos: c.photoAssetIds.map((id, i) => ({ id: i + 1, url: assetUrl(id) })),
-    messages: c.messages.map((m) => ({ id: m.id, from: m.from, text: m.text, at: m.at })),
+    messages: c.messages.map((m) => ({ id: m.id, from: m.from, kind: m.kind ?? "message", text: m.text, agent: m.from === "support" ? (m.name ?? null) : null, at: m.at })),
+    support_agent: lastSupport?.name ?? null,
+    window_ends_at: extra.windowEndsAt ? extra.windowEndsAt.toISOString() : null,
+    can_open_another: extra.canOpenAnother ?? false,
     decision: c.decision
       ? {
           outcome: c.decision.outcome,
           amount: moneyOrNull(c.decision.amount, currency),
           to: c.decision.to,
           coupon_code: c.decision.couponCode,
+          coupon_ends_at: c.decision.couponEndsAt ?? null,
           reason: c.decision.reason,
-          at: c.decision.at.toISOString(),
+          agent: c.decision.byName ?? null,
+          at: (c.decision.at instanceof Date ? c.decision.at : new Date(c.decision.at)).toISOString(),
         }
       : null,
     created_at: c.createdAt.toISOString(),
@@ -438,7 +445,7 @@ export function vendorComplaintJson(c: MarketComplaint, currency: string, assetU
     text: c.text,
     line_ids: c.lineIds,
     photos: c.photoAssetIds.map((id, i) => ({ id: i + 1, url: assetUrl(id) })),
-    decision: c.decision ? { outcome: c.decision.outcome, amount: moneyOrNull(c.decision.amount, currency), funder: c.decision.funder, at: c.decision.at.toISOString() } : null,
+    decision: c.decision ? { outcome: c.decision.outcome, amount: moneyOrNull(c.decision.amount, currency), funder: c.decision.funder, at: (c.decision.at instanceof Date ? c.decision.at : new Date(c.decision.at)).toISOString() } : null,
     created_at: c.createdAt.toISOString(),
   };
 }

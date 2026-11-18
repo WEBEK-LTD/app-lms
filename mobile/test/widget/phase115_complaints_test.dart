@@ -104,12 +104,14 @@ void main() {
     await tester.tap(report);
     await TestApp.settle(tester, 20);
 
-    await tester.tap(find.text('Items were missing'));
+    // 115.54 The design's tiles, the items (the whole order by default) and a photo.
+    await tester.tap(find.text('Missing items'));
     await tester.tap(find.text('Mixed grill'));
     await tester.enterText(find.byType(TextField), 'The grill was missing.');
-    await tester.tap(find.text('Add a photo'));
+    await tester.ensureVisible(find.text('Add'));
+    await tester.tap(find.text('Add'));
     await TestApp.settle(tester);
-    expect(find.text('juice.jpg'), findsOneWidget);
+    expect(find.text('1 of 5'), findsOneWidget);
     final send = find.text('Send to support');
     await tester.ensureVisible(send);
     await tester.tap(send);
@@ -119,7 +121,10 @@ void main() {
     expect(complaint['reason'], 'missing_items');
     expect(complaint['line_ids'], [10]);
     expect(api.complaintPhotos.single.complaint, complaint['id']);
-    expect(find.text('Complaint C-${complaint['id']}'), findsOneWidget);
+    expect(
+      find.textContaining('Complaint C-${complaint['id']} · Missing items'),
+      findsOneWidget,
+    );
     expect(find.text('Sent'), findsOneWidget);
   });
 
@@ -152,10 +157,14 @@ void main() {
     app.container.read(appRouterProvider).push(Paths.marketComplaint(310));
     await TestApp.settle(tester, 20);
 
-    expect(find.text('Partly refunded: EGP 55.00'), findsOneWidget);
-    expect(find.text('Added to your wallet'), findsOneWidget);
+    // 115.54 The decision first (06c), the conversation behind Reply.
+    expect(find.text('It’s in your wallet'), findsOneWidget);
+    expect(find.textContaining('EGP 55.00'), findsWidgets);
+    await tester.tap(find.text('Reply'));
+    await TestApp.settle(tester);
     expect(find.text('We refunded the juice.'), findsOneWidget);
-    expect(find.text('This complaint is closed.'), findsOneWidget);
+    // After the decision the customer can still write.
+    expect(find.byType(TextField), findsOneWidget);
 
     app.container.read(appRouterProvider).push(Paths.marketComplaint(311));
     await TestApp.settle(tester, 20);

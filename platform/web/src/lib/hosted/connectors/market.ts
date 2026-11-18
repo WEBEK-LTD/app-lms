@@ -8,12 +8,13 @@ import { isReviewCourier } from "../../delivery/review";
 import { demoCourierPosition } from "../../demo/courier";
 import { deliverySettingsOf } from "../../delivery/settings";
 import type { DataStore } from "../../data/store";
-import type { App, DeliverySettings, HostedUser, MarketOrder, MarketOrderStatus, Restaurant, RestaurantMenu, RestaurantPatch, RestaurantStaff, VendorRole } from "../../data/types";
+import type { App, DeliverySettings, HostedUser, MarketComplaint, MarketOrder, MarketOrderStatus, Restaurant, RestaurantMenu, RestaurantPatch, RestaurantStaff, VendorRole } from "../../data/types";
 import { EMPTY_MENU } from "../../food/menu";
 import { distanceFrom, restaurantState } from "../../food/service";
 import { platformSetting } from "../../settings/platform";
 import { QUOTE_MINUTES, priceMarketCart, quoteHolds, quoteIdOf, readCart, readOrderRequest, repriceFor } from "../../market/cart";
-import { ACTIVE_COMPLAINT, COMPLAINT_MAX_PHOTOS, complaintWindow, customerMessage, openComplaint } from "../../market/complaints";
+import { ACTIVE_COMPLAINT, COMPLAINT_MAX_PHOTOS, complaintWindow, customerMessage, openComplaint, ticketAllowed } from "../../market/complaints";
+import { isComplaintCoupon } from "../../market/decisions";
 import { checkDeliveryArea } from "../../market/areas";
 import { pickupCode, quoteMarketDelivery, vendorDelivery } from "../../market/delivery";
 import {
@@ -390,8 +391,15 @@ export class MarketConnector {
   private async offers(request: ConnectorRequest): Promise<ConnectorResult> {
     const currency = marketCurrency(await this.settings());
     const vendorId = Number(request.query.get("vendor_id"));
+    // 115.52 A complaint's coupon is its customer's alone: listed only to them.
+    const held = new Set<string>();
+    if (request.user) for (const c of (await this.deps.store.listMarketComplaints({ appId: this.deps.app.id, userId: request.user.id, limit: 200, offset: 0 })).items) if (c.decision?.couponCode) held.add(c.decision.couponCode);
     const list = (await this.deps.store.listMarketCoupons(this.deps.app.id, { active: true })).filter(
-      (c) => (!c.endsAt || c.endsAt > request.now) && (!c.startsAt || c.startsAt <= request.now) && (!Number.isInteger(vendorId) || vendorId <= 0 || !c.vendorIds.length || c.vendorIds.includes(vendorId)),
+      (c) =>
+        (!c.endsAt || c.endsAt > request.now) &&
+        (!c.startsAt || c.startsAt <= request.now) &&
+        (!Number.isInteger(vendorId) || vendorId <= 0 || !c.vendorIds.length || c.vendorIds.includes(vendorId)) &&
+        (!isComplaintCoupon(c) || (c.code !== null && held.has(c.code))),
     );
     return { status: 200, body: { items: list.map((c) => couponJson(c, currency)) } };
   }
@@ -564,18 +572,20 @@ export class MarketConnector {
         updatedAt: located ? courier!.locatedAt : demo ? now : null,
       };
     }
-    const complaints = await this.deps.store.listMarketComplaints({ appId: this.deps.app.id, orderId: o.id, limit: 1, offset: 0 });
+    const complaints = await this.deps.store.listMarketComplaints({ appId: this.deps.app.id, orderId: o.id, limit: 50, offset: 0 });
     const latest = complaints.items[0] ?? null;
-    const window = complaintWindow(o, now);
-    const openOne = latest && ["open", "in_review", "waiting_for_customer"].includes(latest.status);
+    // 115.50 The window from the courier job's own delivered time, a stuck order's, and one more ticket after a decision.
+    const window = complaintWindow(o, now, job);
+    const openOne = ticketAllowed(complaints.items) !== "ok";
     const eta = o.readyAt ? new Date(o.readyAt.getTime() + (o.fulfilment === "delivery" && o.distanceKm !== null ? Math.round(o.distanceKm * 3) : 0) * 60_000) : null;
     return customerOrderJson(o, {
       vendor: summary,
       taxLabel: marketSettingsOf(settings).tax.label,
       tracking,
       canCancel: CUSTOMER_CANCELLABLE.includes(o.status),
-      canComplain: window.open && !openOne && !["awaiting_payment", "cancelled"].includes(o.status),
+      canComplain: window.open && !openOne,
       complaintId: latest?.id ?? null,
+      complaintUntil: window.open ? window.until : null,
       eta,
     });
   }
@@ -650,14 +660,17 @@ export class MarketConnector {
     if (!o) return orderNotFound();
     const b = (request.body && typeof request.body === "object" ? request.body : {}) as Record<string, unknown>;
     const lineIds = Array.isArray(b.line_ids) ? b.line_ids.filter((x): x is number => typeof x === "number" && Number.isInteger(x)) : [];
-    const made = await openComplaint(this.deps.store, o, request.user.id, { reason: typeof b.reason === "string" ? b.reason : "", text: typeof b.text === "string" ? b.text : "", lineIds, photoAssetIds: [] }, request.now);
+    const job = o.shipmentId !== null ? await this.deps.store.getShipment(this.deps.app.id, o.shipmentId) : null;
+    const made = await openComplaint(this.deps.store, o, request.user.id, { reason: typeof b.reason === "string" ? b.reason : "", text: typeof b.text === "string" ? b.text : "", lineIds, photoAssetIds: [] }, request.now, job);
     if (!made.ok) {
       const status = made.code === "invalid" ? 400 : 409;
-      return { status, body: { code: made.code === "invalid" ? "invalid_request" : made.code, message: made.error, details: { field: made.field } } };
+      // The contract's codes (115.50).
+      const code = { invalid: "invalid_request", window_closed: "complaint_closed", already_open: "complaint_open", limit: "complaint_limit" }[made.code];
+      return { status, body: { code, message: made.error, details: { field: made.field } } };
     }
     // 125 The support team's phones on Yallapp Business.
     await pushOwnerSafely((d) => pushNewComplaint(d, this.deps.app, made.complaint, o), this.deps.store);
-    return { status: 201, body: complaintJson(made.complaint, o.currency, this.photoUrl) };
+    return { status: 201, body: await this.complaintBody(made.complaint, o.currency, request.now) };
   }
 
   private async myComplaints(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -666,7 +679,17 @@ export class MarketConnector {
     const perPage = intParam(request.query, "per_page", 20, 50);
     const found = await this.deps.store.listMarketComplaints({ appId: this.deps.app.id, userId: request.user.id, limit: perPage, offset: (page - 1) * perPage });
     const currency = marketCurrency(await this.settings());
-    return { status: 200, body: { page, per_page: perPage, total: found.total, total_pages: Math.max(1, Math.ceil(found.total / perPage)), items: found.items.map((c) => complaintJson(c, currency, this.photoUrl)) } };
+    return { status: 200, body: { page, per_page: perPage, total: found.total, total_pages: Math.max(1, Math.ceil(found.total / perPage)), items: await Promise.all(found.items.map((c) => this.complaintBody(c, currency, request.now))) } };
+  }
+
+  /** 115.50 The complaint for its customer, with how long its order still takes complaints and whether one more can be opened after its decision. */
+  private async complaintBody(c: MarketComplaint, currency: string, now: Date) {
+    const o = await this.deps.store.getMarketOrder(this.deps.app.id, c.orderId);
+    if (!o) return complaintJson(c, currency, this.photoUrl);
+    const job = o.shipmentId !== null ? await this.deps.store.getShipment(this.deps.app.id, o.shipmentId) : null;
+    const window = complaintWindow(o, now, job);
+    const tickets = (await this.deps.store.listMarketComplaints({ appId: this.deps.app.id, orderId: o.id, limit: 50, offset: 0 })).items.map((t) => (t.id === c.id ? c : t));
+    return complaintJson(c, currency, this.photoUrl, { windowEndsAt: window.open ? window.until : null, canOpenAnother: window.open && ticketAllowed(tickets) === "ok" });
   }
 
   private async ownComplaint(request: ConnectorRequest, id: number) {
@@ -677,7 +700,7 @@ export class MarketConnector {
   private async myComplaint(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
     if (!request.user) return signIn();
     const c = await this.ownComplaint(request, id);
-    return c ? { status: 200, body: complaintJson(c, marketCurrency(await this.settings()), this.photoUrl) } : complaintNotFound();
+    return c ? { status: 200, body: await this.complaintBody(c, marketCurrency(await this.settings()), request.now) } : complaintNotFound();
   }
 
   private async complaintMessage(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
@@ -690,7 +713,7 @@ export class MarketConnector {
     const patch = customerMessage(c, text, request.now);
     if (!patch) return error(409, "complaint_closed", "This complaint is closed. Open a new one from the order if you need to.");
     await this.deps.store.updateMarketComplaint(this.deps.app.id, c.id, patch);
-    return { status: 201, body: complaintJson({ ...c, ...patch }, marketCurrency(await this.settings()), this.photoUrl) };
+    return { status: 201, body: await this.complaintBody({ ...c, ...patch }, marketCurrency(await this.settings()), request.now) };
   }
 
   /** The complaint's photo URLs: Media library files (115.11) or assets. */
