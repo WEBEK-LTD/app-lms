@@ -90,3 +90,9 @@ Then `main`'s #452 (106.11 Studio Market money) was merged too. Its only conflic
 - the same vitest files: 77 passed;
 - preview `--check`: up to date;
 - the same e2e (a new build): 3 passed.
+
+Last, `main`'s #453 (154, the pricing page) was merged. It touches only the marketing pages; its only conflict was ROADMAP, where Phase 154 now comes before 164. Run again:
+- `tsc`: exit 0;
+- vitest `phase164-empty-lists`, `bouquet-links-152`, `pricing-studio`: 39 passed.
+
+The e2e was not run again after this last merge.
