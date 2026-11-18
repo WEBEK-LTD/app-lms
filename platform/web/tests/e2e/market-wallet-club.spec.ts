@@ -141,7 +141,7 @@ test("the club renews through the app's payment page, from the end of the period
   const renew = await request.post(api("/me/club/renew?platform=android"), { data: {}, headers: auth() });
   expect(renew.status(), await renew.text()).toBe(201);
   const { pay_url } = (await renew.json()) as { pay_url: string };
-  expect(pay_url).toMatch(/\/pay\/[\w-]+$/);
+  expect(pay_url).toMatch(/\/pay\/[\w-]+(\/|$)/);
   // Nothing is charged by itself: until the page is paid, the period is the same.
   expect((await club()).current_period_end).toBe(before.current_period_end);
 

@@ -143,8 +143,9 @@ export function marketWalletClubSuite(store: () => DataStore, others: () => Data
     const who = await person();
     await joinClub(s, monthly, who, "club-start", NOW);
     const url = await clubPayLink(s, { appId: app.id, platformUrl: "https://yallapp.test", userId: who, lang: "ar", plan: monthly }, days(28));
-    expect(url).toMatch(/^https:\/\/yallapp\.test\/pay\/[A-Za-z0-9_-]+$/);
-    const token = url.split("/").pop()!;
+    // The link the app is handed (lib/delivery/payment.ts payUrlFor), whatever follows the token.
+    expect(url).toMatch(/^https:\/\/yallapp\.test\/pay\/[A-Za-z0-9_-]+(\/|$)/);
+    const token = tokenOf(url);
     const pending = (await s.getCatalogOrderByToken(createHash("sha256").update(token).digest("hex")))!;
     expect(pending).toMatchObject({ status: "pending", totalCents: 49_00, userId: who });
     const paid = { ...pending, status: "processing" as const, paidAt: days(29) };
@@ -167,7 +168,7 @@ export function marketWalletClubSuite(store: () => DataStore, others: () => Data
     await joinClub(s, monthly, c, "club-c", days(2)); // ends 14 November
     const run = (at: Date, x: DataStore = s) => remindClubRenewals({ store: x, app, account: null, now: at }, at);
     const inbox = async (userId: number) => (await s.listHostedNotifications({ appId: app.id, userId, since: NOW, page: 1, perPage: 20 })).items;
-    const linked = async (n: { data?: Record<string, string> | null }) => s.getCatalogOrderByToken(createHash("sha256").update(String(n.data?.url).split("/pay/")[1] ?? "").digest("hex"));
+    const linked = async (n: { data?: Record<string, string> | null }) => s.getCatalogOrderByToken(createHash("sha256").update(tokenOf(String(n.data?.url))).digest("hex"));
     expect(await run(days(25))).toBe(0);
     // 9 November: 3 days before the end of a's period.
     expect(await run(new Date("2026-11-09T10:00:00Z"))).toBe(1);
@@ -232,6 +233,11 @@ export function marketWalletClubSuite(store: () => DataStore, others: () => Data
     expect(checkCoupon(c, { ...ctx, userId: null })).toMatchObject({ ok: false, refusal: "sign_in" });
     expect(checkCoupon(c, { ...ctx, member: true })).toMatchObject({ ok: true });
   });
+}
+
+/** The payment page's token in a pay link: `/pay/<token>`, with or without what follows it. */
+function tokenOf(url: string): string {
+  return /\/pay\/([A-Za-z0-9_-]+)/.exec(url)?.[1] ?? "";
 }
 
 function orderInput(appId: string, vendorId: number, vendorName: string, userId: number, patch: Partial<MarketOrderInput> = {}): MarketOrderInput {
