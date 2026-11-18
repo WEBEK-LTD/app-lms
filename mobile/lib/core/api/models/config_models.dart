@@ -56,6 +56,7 @@ class AppConfig {
     this.switches = const {},
     this.screens,
     this.fingerprint,
+    this.customerCurrency = CustomerCurrencyRule.any,
   });
 
   factory AppConfig.fromJson(Json json) => AppConfig(
@@ -90,6 +91,9 @@ class AppConfig {
     chat: _chat(json['chat']),
     storeBilling: _storeBilling(json['store_billing']),
     switches: _switches(json['switches']),
+    customerCurrency:
+        optObject(json, 'customer_currency', CustomerCurrencyRule.fromJson) ??
+        CustomerCurrencyRule.any,
   );
 
   /// The answer this config was read from, as text: two configs with the
@@ -166,6 +170,18 @@ class AppConfig {
 
   /// 83.3 The team's switches for the app's modules and new features.
   final Map<String, bool> switches;
+
+  /// 149 Prices in the customer's currency, as the owner set them for
+  /// this app; older servers and other apps: on, any currency.
+  final CustomerCurrencyRule customerCurrency;
+
+  /// 135.5 The shop's own currency (a shop, a menu, events or bookings);
+  /// null for an app that doesn't sell.
+  String? get shopCurrency =>
+      store?.currency ??
+      food?.currency ??
+      events?.currency ??
+      bookings?.currency;
 
   final SiteInfo site;
   final RemoteBranding branding;
@@ -971,4 +987,49 @@ class HomeBanner {
 
   final String? imageUrl;
   final int? linkCourseId;
+}
+
+/// 149 `Config.customer_currency`: whether prices also show in the
+/// customer's currency in this app, and only in which (empty: any with a
+/// rate). The shop's own is always allowed. The server applies the same
+/// rule to its answers, so an app that sends a currency it shouldn't just
+/// gets the shop's prices.
+class CustomerCurrencyRule {
+  const CustomerCurrencyRule({this.enabled = true, this.currencies = const []});
+
+  factory CustomerCurrencyRule.fromJson(Json json) => CustomerCurrencyRule(
+    enabled: boolOr(json, 'enabled', true),
+    currencies: [
+      for (final code in stringList(json, 'currencies'))
+        if (RegExp(r'^[A-Z]{3}$').hasMatch(code)) code,
+    ],
+  );
+
+  /// On, any currency: older servers, and apps the owner left as they were.
+  static const any = CustomerCurrencyRule();
+
+  final bool enabled;
+
+  /// Empty: any.
+  final List<String> currencies;
+
+  /// Whether prices may show in [code]: the shop's own always; else the
+  /// switch on and any currency, or one of the list.
+  bool allows(String code, {String? shop}) =>
+      code == shop ||
+      (enabled && (currencies.isEmpty || currencies.contains(code)));
+
+  /// Whether the customer has a choice at all (Settings › Currency): on,
+  /// and any currency or one besides the shop's.
+  bool offersChoice({String? shop}) =>
+      enabled && (currencies.isEmpty || currencies.any((c) => c != shop));
+
+  @override
+  bool operator ==(Object other) =>
+      other is CustomerCurrencyRule &&
+      other.enabled == enabled &&
+      other.currencies.join(',') == currencies.join(',');
+
+  @override
+  int get hashCode => Object.hash(enabled, currencies.join(','));
 }

@@ -3766,6 +3766,22 @@ The owner (17 November), on Leqaa and Kech Flora: the Bouquets page showed "Cour
 | [ ] | 145.11 On a phone: publish a change in Studio, switch away from the app and back, and see it; Kech Flora's Bouquets titled as in the editor | — |
 | [ ] | 145.12 Leqaa's live demo and Kech Flora still have the old "Courses" page saved: publish their layout once (or delete that page in Studio) so apps built before release 4 stop showing it; WordPress store apps get it with release 4 (the plugin still sends that page's screen) | — |
 
+## Phase 146: The pricing page: the app and Studio side by side
+
+The owner (17 November), on yallapp.com.tr/pricing: Studio didn't offer 1, 2 and 3 years and lifetime as the regular plans do, sat at the very bottom, with lifetime cut off on its own, and the page was long ("وفي … /pricing الاستيديو مش بيدعم سنه واتنين وتلات سنين ومدى الحياة + هو تحت خالص ومدى الحياه منفصل عنه + الصفحة طويله … عايز حاجه تبرز الاتنين … وريهم عينات من الاتنين وشرح مفصل و مقارنه بين الاتنين"). Admin › Plans › Yallapp Studio already priced every period (the same form as the regular plans, with suggested prices for the periods left unpriced), and a Studio project could already be paid for any of them; only the pricing page showed Studio's main price alone. No migration; every price still comes from Admin › Plans.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 146.1 The two products at the top, side by side and alike: "Yallapp app" (your website or store, turned into an app) and "Yallapp Studio" (design your app freely and run everything from Yallapp), each with a real screen of a demo app (`public/screens`), its lowest price for the period chosen ("From EGP 6,000 / year", or On request) and links to its plans and its explanation | `pricing-studio.spec.ts` |
+| [x] | 146.2 One billing period for both (`?period=`, `#plans`): every period either product has, lifetime among them, kept in sight on computers while both products' plans scroll by; the regular plans' cards and Studio's follow it. Studio's cards show the period's price, the price per month and the saving (`PlanPrice`, shared with the regular cards), or their own price and "Not sold for this period"; a row to swipe through on phones, as the regular cards | `pricing-studio.test.ts`, `pricing-studio.spec.ts`, `plans-addons.spec.ts` |
+| [x] | 146.3 Lifetime a choice of the same period, on both products' cards: a short dark band under the period (`#lifetime-offer`, `#lifetime`) with each product's lowest price for life, "See lifetime prices", and what lifetime covers once it's chosen; the separate lifetime cards are gone from the website (Dashboard › Plan keeps its own) | `pricing-studio.spec.ts`, `plans-addons.spec.ts` |
+| [x] | 146.4 Each product's plans right under the period (`#regular`, then `#studio`), never below a table; a Studio card folds the choices its plan doesn't include ("9 options not on this plan"), on every page that shows Studio's plans | `pricing-studio.test.ts`, `pages.spec.ts` |
+| [x] | 146.5 Each product in detail (`#about`, `#about-regular`, `#about-studio`): three real screens of apps made with it, what you get, how it works in three steps, who it suits, and links to How it works and the demos, or to Yallapp Studio and its demo; Studio's "Every Studio plan has" and "Chosen plan by plan" moved here | `pricing-studio.spec.ts` |
+| [x] | 146.6 How they differ (`#differences`, the same table, topic by topic on phones), then every feature of the app's plans folded (`#compare`, "Compare plans"), with the notes on app users, platforms, changing plans and the stores; the currency, WhatsApp, fees and refunds lines, /compare and the structured data kept | `pricing-studio.spec.ts`, `plans-limits.spec.ts`, `public.spec.ts` |
+| [x] | 146.7 The period chosen goes with a signed-in visitor to Dashboard › Plan (`/dashboard/license?period=…#change-plan`); a Studio project pays its Studio plan for 2 years on (a fake) Kashier | `pricing-studio.spec.ts`, `starter-flow.spec.ts` |
+| [x] | 146.8 The new words in English, Modern Standard Arabic and Turkish, right to left in Arabic, light and dark | `pricing-studio.test.ts`, screens for the owner (`PRICING_SHOTS_DIR`) |
+| [ ] | 146.9 For the owner: check Studio's prices for 1 year, 2 and 3 years and lifetime in Admin › Plans › Yallapp Studio (a period never priced shows its suggested price, worked out from the plan's own), and switch off any period Studio shouldn't be sold for | — |
+
 ## Phase 147: A search opens with its keyboard closed
 
 The owner (17 November), on Kech Flora and Leqaa: the Bouquets page brought the keyboard up by itself, from its "Search products" field ("متتفتحش غير لو الشخص ضغط بس"). The Bouquets tab is a page around the shop's search (`/shop?focus=1`), and the search focused its field when it opened, so the keyboard came up with the tab; Phase 141 only kept it from coming back. No migration.
@@ -3782,3 +3798,25 @@ Kech Flora's live test (17 November) of an order of MAD 1.00 (about USD 0.10) sa
 | Status | Item | Tests |
 |---|---|---|
 | [x] | 148.1 Stripe's `amount_too_small`, and our own check of a currency's least, mark the error (`StripeError.tooSmall`); the payment page then says the order is under the least a card can be charged, with Stripe's words, and to add to the order or pay another way; other refusals keep the message they had, and every one is still noted for the team and in Integrations | `stripe-too-small.test.ts` |
+
+## Phase 149: Prices in the customer's currency, per app
+
+The owner (17 November), on prices shown in the customer's currency (135.5, 135.7) in every app: "هل لي اعدادات اني اوقفو في ابلكيشن معين او اخليه يحولها بعملات معينه بس؟". Both, per app, with the shop's currency settings: a switch, on by default so every app keeps what it does, and a list of the customers' currencies allowed (empty: all). The server is the rule's source, so apps already in the stores follow it; `CLIENT_APP_RELEASE` 6 brings the app's own part. No migration: both are kept in the app's catalog settings (a JSON column).
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 149.1 The settings (`CatalogSettings.showInCustomerCurrency`, missing or true: on; `customerCurrencies`, ISO codes the platform knows, checked on saving): Products › Settings › Customers' currencies (the dashboard and Studio, one page) has "Show prices in the customer's currency" and "Only these currencies (leave empty for all)", the searchable currency picker with Add and the chosen ones as chips (× removes one), in Egyptian Arabic, English and Turkish. The list is kept while the switch is off; the shop's own currency is always allowed | `phase149-customer-currency.test.ts`, `world-currencies.spec.ts` |
+| [x] | 149.2 The hosted API (`displayOf`): with the switch off, or a currency outside the list (`X-Currency` or `?currency=`), the answer is exactly as for an app that asked for none: no `display` anywhere, and nothing charged in it (135.7, also refused by the catalog connector itself), the checkout link's `charge` and the order in the shop's currency, so the payment page shows no "≈ … · you pay …" either (nor for an order made before, unless it was charged in it) | `phase149-customer-currency.test.ts`, `world-currencies.spec.ts` |
+| [x] | 149.3 `GET /currencies`: with a list, the shop's currency first, then those with a rate; with the switch off, the shop's alone; as before otherwise | `phase149-customer-currency.test.ts`, `world-currencies.spec.ts` |
+| [x] | 149.4 `Config.customer_currency` (`enabled`, `currencies`) for apps selling what Yallapp prices itself; the contract (`docs/api/openapi.yaml`, both copies the same) and the API reference made again | `api-reference.test.ts`, `phase149-customer-currency.test.ts` |
+| [x] | 149.5 The app (`appCurrencyProvider`, `CustomerCurrencyRule`): the switch off hides Settings › Currency and sends no `X-Currency` (a pick made before stays saved); with a list, the picker shows the shop's and those only, and a region's or picked currency outside it isn't sent; the shop's own alone allowed: no choice offered. Older servers and other apps: as before. The preview rebuilt; `CLIENT_APP_RELEASE` 6 (after 5) | `phase149_customer_currency_test.dart`, `currency_test.dart`, `currency_picker_test.dart`, `publish-for-all.test.ts` |
+| [ ] | 149.6 Courses, events, bookings and food apps keep the default (on, any currency): their own settings pages don't have the form yet | — |
+| [ ] | 149.7 An order placed and set to be charged in the customer's currency just before the owner turns it off is still charged in it on its payment page (its link lasts `PAY_LINK_MINUTES`) | — |
+
+## Phase 150: Studio's canvas draws a cover's top row across it
+
+The owner (17 November), on Kech Flora's home in Studio: the row with the search, the wordmark and the bag was 404 wide, so the bag sat in the middle of the cover ("قولتلك لازم تتظبط"). A row placed at a layer's top (`self_align: start`, Leqaa's `roseTop`) shrank to its icons and words on the canvas, while the app's Row spans the layer; the canvas now draws it as the app does. No migration, no app build.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 150.1 On a stack's layer, a row with no width of its own or `fill` spans the layer whatever its own placement, which moves it up or down only; a row with a width, a column and anything else keep their placement across (`view.tsx`, as `studio_page.dart`'s `Align` around a `Row`) | `studio-canvas-layout.test.ts` |

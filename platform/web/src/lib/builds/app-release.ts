@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 5;
+export const CLIENT_APP_RELEASE = 6;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -42,6 +42,10 @@ export const CLIENT_APP_RELEASE = 5;
  *    show; delivery days in the shop's time; and pictures faster.
  * 5  147 A search opens with its keyboard closed (Leqaa's and Kech Flora's
  *    Bouquets tab brought it up by itself): it comes up only on a tap.
+ * 6  149 Prices in the customer's currency, per app: with
+ *    the owner's switch off the app hides Settings › Currency and sends no
+ *    `X-Currency`; with the owner's list, the picker shows only those and
+ *    a region's currency outside it isn't sent.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */
