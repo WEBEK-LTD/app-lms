@@ -1,13 +1,16 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
+import { usePathname, useRouter } from "next/navigation";
 import { checkoutTemplateAction } from "@/app/actions/studio-market";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { initialFormState } from "@/lib/forms";
 import type { CoverView } from "@/lib/studio-market/catalog";
+import { Countdown } from "./countdown";
+import { WasPrice } from "./parts";
 import { TemplatePhone } from "./phone";
 
 /**
@@ -16,14 +19,27 @@ import { TemplatePhone } from "./phone";
  * the gateway's own page, and the summary with the no-refunds consent next
  * to Pay. Or a renewal: only the plan, extending from the end date. Every
  * amount here is the server's, already formatted; the form sends only the
- * choices.
+ * choices, 106.12 the code the page applied and the total shown, which the
+ * server works out again (a total that isn't its own is refused, and the
+ * page asked again). A code is applied by asking the page again with it
+ * (`?code=`): each plan then shows the better of its sale price or the code.
  */
 
 export interface CheckoutPlan {
   period: string;
   name: string;
-  /** "$24". */
+  /** 106.12 What the buyer pays now, in US cents (sent with the payment, worked out again there). */
+  cents: number;
+  /** "$24": the price now (after a discount). */
   price: string;
+  /** 106.12 The plan's own price, struck through, when a discount lowers it; else null. */
+  list: string | null;
+  /** 106.12 The discount it gets: "Flash sale", "Price drop" or "Code LALE30", and "−$7.20". */
+  discount: { label: string; amount: string; kind: "drop" | "flash" | "coupon" } | null;
+  /** 106.12 The flash sale's end, when it gives the price (ISO). */
+  flashEndsAt: string | null;
+  /** 106.12 What the code does on this plan: better, not better than the sale, or not for this plan. */
+  codeNote: { tone: "good" | "info" | "warn"; text: string } | null;
   /** "$8/mo", or the lifetime line. */
   sub: string;
   /** "EGP 1,200", when the gateway charges another currency. */
@@ -60,6 +76,87 @@ export interface CheckoutProps {
   provider: string;
   /** Why card payments can't be taken now; null when they can. */
   unavailable: string | null;
+  /** 106.12 The code in the address: applied, or why not (a known message); null without one. */
+  code: { value: string; applied: boolean; problem: string | null; summary: string | null } | null;
+  /** 106.12 A discount runs or a code is applied: say they don't add up. */
+  sale: boolean;
+}
+
+/** 106.12 "Discount code" with Apply: the page is asked again with the code, keeping the plan and the app. */
+function CodeBox({ code, plan, app, renew, sale }: { code: CheckoutProps["code"]; plan: string; app: string; renew: string | null; sale: boolean }) {
+  const t = useDashT();
+  const known = useKnownText();
+  const router = useRouter();
+  const path = usePathname();
+  const [typed, setTyped] = useState(code?.value ?? "");
+  const [pending, start] = useTransition();
+  const go = (value: string) => {
+    const params = new URLSearchParams({ plan });
+    if (renew) params.set("renew", renew);
+    else params.set("app", app);
+    if (value.trim()) params.set("code", value.trim());
+    start(() => router.replace(`${path}?${params}`, { scroll: false }));
+  };
+  const applied = Boolean(code?.applied && typed.trim() && typed.trim().toUpperCase() === code.value);
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor="discount-code" className="text-[13px] font-bold">
+        {t("marketDiscounts.codeLabel")}
+      </label>
+      <div className="flex gap-2">
+        <input
+          id="discount-code"
+          value={typed}
+          onChange={(e) => setTyped(e.target.value)}
+          onKeyDown={(e) => {
+            // Enter applies the code; it never pays.
+            if (e.key === "Enter") {
+              e.preventDefault();
+              go(typed);
+            }
+          }}
+          placeholder={t("marketDiscounts.codePlaceholder")}
+          autoComplete="off"
+          autoCapitalize="characters"
+          spellCheck={false}
+          dir="ltr"
+          maxLength={40}
+          aria-describedby={code ? "code-message" : undefined}
+          className="input h-11 min-w-0 flex-1 uppercase"
+        />
+        {applied ? (
+          <button
+            type="button"
+            onClick={() => {
+              setTyped("");
+              go("");
+            }}
+            className="mk-btn mk-btn-ghost h-11 px-4 text-sm"
+            disabled={pending}
+          >
+            {t("marketDiscounts.codeRemove")}
+          </button>
+        ) : (
+          <button type="button" onClick={() => go(typed)} disabled={pending || !typed.trim()} className="mk-btn mk-btn-ink h-11 px-4 text-sm">
+            {pending ? <Icon name="progress_activity" size={18} className="animate-spin" /> : null}
+            {t("marketDiscounts.codeApply")}
+          </button>
+        )}
+      </div>
+      {code?.problem ? (
+        <p id="code-message" role="alert" data-code-message className="m-0 flex items-start gap-1.5 text-[13px] font-semibold text-danger">
+          <Icon name="error" size={17} className="mt-px flex-none" />
+          <span>{known(code.problem)}</span>
+        </p>
+      ) : code?.summary ? (
+        <p id="code-message" role="status" data-code-message className="m-0 flex items-start gap-1.5 text-[13px] font-semibold text-success">
+          <Icon name="check_circle" size={17} filled className="mt-px flex-none" />
+          <span>{code.summary}</span>
+        </p>
+      ) : null}
+      {sale ? <p className="mk-muted m-0 text-[12px] leading-normal">{t("marketDiscounts.noStack")}</p> : null}
+    </div>
+  );
 }
 
 function Pay({ label, disabled }: { label: string; disabled: boolean }) {
@@ -76,11 +173,17 @@ function Pay({ label, disabled }: { label: string; disabled: boolean }) {
 export function CheckoutForm(props: CheckoutProps) {
   const t = useDashT();
   const known = useKnownText();
+  const router = useRouter();
   const [state, action] = useActionState(checkoutTemplateAction, initialFormState);
   const [plan, setPlan] = useState(state.values?.plan || props.initialPlan);
   const [app, setApp] = useState(state.values?.app || props.initialApp);
   const [consent, setConsent] = useState(state.values?.consent === "on");
   const chosen = props.plans.find((p) => p.period === plan) ?? props.plans[0]!;
+  // 106.12 The price changed (a sale ended, a code was used up): the page is asked again for the prices now.
+  const stale = Boolean(state.errors?.price || state.errors?.code);
+  useEffect(() => {
+    if (stale) router.refresh();
+  }, [stale, state, router]);
   const appName = props.renew ? props.renew.app : app === "later" ? null : (props.apps.find((a) => a.id === app)?.name ?? null);
   const section = (n: string, title: string, children: React.ReactNode, aside?: React.ReactNode) => (
     <section className="flex flex-col gap-4 border-t border-[var(--mk-hair)] pt-8" aria-labelledby={`h-${n}`}>
@@ -98,6 +201,9 @@ export function CheckoutForm(props: CheckoutProps) {
     <form action={action} className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12">
       <input type="hidden" name="template" value={props.slug} />
       {props.renew ? <input type="hidden" name="renew" value={props.renew.licenceId} /> : null}
+      {/* 106.12 The code the page applied, and the total shown: the server works both out again. */}
+      {props.code?.applied ? <input type="hidden" name="code" value={props.code.value} /> : null}
+      <input type="hidden" name="total" value={chosen.cents} />
       <div className="flex min-w-0 flex-col gap-8">
         {section(
           "01",
@@ -115,7 +221,10 @@ export function CheckoutForm(props: CheckoutProps) {
                   <span className="mk-muted text-[13px]">{p.sub}</span>
                 </span>
                 <span className="flex flex-col items-end">
-                  <b className="text-[19px] tracking-[-0.02em]">{p.price}</b>
+                  <span className="flex flex-wrap items-baseline justify-end gap-x-1.5">
+                    {p.list ? <WasPrice text={p.list} /> : null}
+                    <b className="text-[19px] tracking-[-0.02em]">{p.price}</b>
+                  </span>
                   {p.charged ? <span className="mk-muted text-xs">{p.charged}</span> : null}
                 </span>
               </label>
@@ -203,11 +312,28 @@ export function CheckoutForm(props: CheckoutProps) {
           </h2>
           <span className="mk-muted text-[13px]">{[props.designer, chosen.name, appName ? t("studioMarket.forApp", { app: appName }) : null].filter(Boolean).join(" · ")}</span>
         </div>
+        <CodeBox code={props.code} plan={chosen.period} app={app} renew={props.renew?.licenceId ?? null} sale={props.sale} />
         <div className="flex flex-col gap-2 border-t border-[var(--mk-hair)] pt-4 text-sm">
           <span className="flex justify-between gap-3">
             <span>{t("studioMarket.planLine", { plan: chosen.name })}</span>
-            <span>{chosen.price}</span>
+            <span data-list>{chosen.list ?? chosen.price}</span>
           </span>
+          {chosen.discount ? (
+            <span data-discount={chosen.discount.kind} className="flex justify-between gap-3 font-semibold text-[var(--mk-accent)]">
+              <span className="flex items-center gap-1.5">
+                <Icon name={chosen.discount.kind === "coupon" ? "confirmation_number" : chosen.discount.kind === "flash" ? "bolt" : "sell"} size={17} />
+                {chosen.discount.label}
+              </span>
+              <span dir="ltr">{chosen.discount.amount}</span>
+            </span>
+          ) : null}
+          {chosen.flashEndsAt ? <Countdown endsAt={chosen.flashEndsAt} className="mk-sale-time text-[12.5px]" size={15} /> : null}
+          {chosen.codeNote ? (
+            <span data-code-note={chosen.codeNote.tone} className={`flex items-start gap-1.5 text-[12.5px] leading-normal ${chosen.codeNote.tone === "good" ? "text-success" : chosen.codeNote.tone === "warn" ? "text-warn" : "mk-muted"}`}>
+              <Icon name={chosen.codeNote.tone === "good" ? "check_circle" : chosen.codeNote.tone === "warn" ? "warning" : "info"} size={16} className="mt-px flex-none" />
+              <span>{chosen.codeNote.text}</span>
+            </span>
+          ) : null}
         </div>
         <div className="flex items-end justify-between gap-3 border-t border-[var(--mk-hair)] pt-4">
           <b className="text-[15px]">{t("studioMarket.totalToday")}</b>

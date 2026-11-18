@@ -16,6 +16,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { sellerTemplates, type SellerRow } from "@/lib/studio-market/catalog";
 import { latestNotes } from "@/lib/studio-market/review";
 import { stepsDone } from "@/lib/studio-market/templates";
+import { offeredPlans } from "@/lib/studio-market/plans";
 import { sampleEntries } from "@/lib/studio/sample-entries";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -93,6 +94,13 @@ export default async function DesignerTemplatesPage({ searchParams }: PageProps<
           <Icon name="edit" size={16} />
           {t("studioMarket.editTemplate")}
         </Link>
+        {/* 106.12 A paid template's discounts. */}
+        {offeredPlans(r.template).length ? (
+          <Link href={`/designer/discounts/${id}`} title={t("marketDiscounts.discountsOf", { title: r.title })} className={`${btn.ghost} h-[30px] rounded-lg px-2`}>
+            <Icon name="sell" size={16} />
+            <span className="sr-only">{t("marketDiscounts.discountsOf", { title: r.title })}</span>
+          </Link>
+        ) : null}
         <Link href={`/dashboard/studio-market/t/${r.template.slug}`} className={`${btn.ghost} h-[30px] rounded-lg px-2`}>
           <Icon name="open_in_new" size={16} />
           <span className="sr-only">{t("studioMarket.openPage")}</span>

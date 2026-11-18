@@ -133,13 +133,19 @@ export async function updateTemplateAction(formData: FormData): Promise<void> {
  * 106.2 Checkout: a plan of a paid template for one of the buyer's apps (or
  * to apply later), or a renewal of their licence; off to the gateway's page
  * (Yallapp's own account), the no-refunds consent required. The price comes
- * from the template here, never from the browser.
+ * from the template here, never from the browser: 106.12 the better of its
+ * automatic discount or the code applied on the page, worked out again, and
+ * the total the buyer saw must be that price.
  */
 export async function checkoutTemplateAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await owner();
   const store = await getStore();
   const now = new Date();
   const values = { plan: String(formData.get("plan") ?? ""), app: String(formData.get("app") ?? ""), consent: formData.get("consent") === "on" ? "on" : "" };
+  // 106.12 The code the page applied, and the total it showed (in cents): anything else isn't a price.
+  const code = String(formData.get("code") ?? "").slice(0, 40);
+  const total = String(formData.get("total") ?? "");
+  const expectedCents = /^\d{1,9}$/.test(total) ? Number(total) : Number.NaN;
   const template = await store.getMarketTemplateBySlug(String(formData.get("template") ?? ""));
   if (!template) return { message: APPLY_MESSAGES.notPublished, values };
   const renewId = String(formData.get("renew") ?? "");
@@ -163,6 +169,8 @@ export async function checkoutTemplateAction(_: FormState, formData: FormData): 
       city: context.client.country ? countryName(context.client.country, "en") : "",
       ip: await requestIp(),
       callbackUrls: (token) => callbackUrls(appUrl(), "template", account.provider, token),
+      code,
+      expectedCents,
     },
   );
   if (!started.ok) return { message: started.message, ...(started.field ? { errors: { [started.field]: started.message } } : {}), values };

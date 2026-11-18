@@ -49,6 +49,8 @@ export default async function DesignerLayout({ children }: { children: React.Rea
           ...(notes ? { badge: { count: notes, label: t("studioMarket.waitingNotes", { count: notes }) } } : {}),
         },
         { href: "/designer/publish", label: t("studioMarket.navPublish"), icon: "add_circle" },
+        // 106.12 Price drops, flash sales and coupon codes.
+        { href: "/designer/discounts", label: t("marketDiscounts.nav"), icon: "sell" },
       ],
     },
     {
