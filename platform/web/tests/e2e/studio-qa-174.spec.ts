@@ -45,6 +45,8 @@ test.beforeAll(async ({ browser }) => {
   await admin.waitForURL((url) => url.pathname.startsWith("/admin"));
   await admin.goto(`/admin?q=${encodeURIComponent(client.email)}`);
   await admin.getByRole("link", { name: `Activate ${client.name}` }).click();
+  // A Studio plan as it comes, without "Motion in the editor" (pages.spec.ts turns it on for studio_1 on this server).
+  await admin.getByRole("complementary").getByLabel("Plan", { exact: true }).selectOption("studio_2");
   await admin.getByRole("complementary").getByRole("button", { name: "Activate & send license" }).click();
   await expect(admin.getByRole("status")).toContainText("Activated");
   await admin.close();
