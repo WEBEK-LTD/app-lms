@@ -271,3 +271,63 @@ test("135.5–135.7 a customer in another currency: shown in it, charged in poun
   await expect(charged).toHaveText("Charged KWD 3.790 at 1 EGP = 0.006309 KWD");
   await expect(own.getByText("E£600.00").first()).toBeVisible();
 });
+
+test("149 per app: only some currencies, then none, set on the shop's settings", async ({ browser, request }) => {
+  test.setTimeout(180_000);
+  const products = async (currency: string) => ((await (await request.get(`${api}/store/products`, { headers: { "x-currency": currency } })).json()) as { items: { name: string; price: Record<string, unknown> }[] }).items.find((p) => p.name === "Basbousa tray")!.price;
+  const codes = async () => ((await (await request.get(`${api}/currencies`)).json()) as { items: { code: string }[] }).items.map((i) => i.code);
+  const config = async () => ((await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()) as { customer_currency: unknown }).customer_currency;
+  expect(await config()).toEqual({ enabled: true, currencies: [] });
+
+  // Only dollars: the dinars (still charged in when allowed) are answered as none.
+  await own.goto("/studio/project/catalog/settings");
+  const customers = own.getByRole("region", { name: "Customers' currencies" });
+  const show = customers.getByRole("checkbox", { name: "Show prices in the customer's currency" });
+  await expect(show).toBeChecked();
+  const only = customers.getByRole("group", { name: "Only these currencies (leave empty for all)" });
+  await expect(only).toContainText("All currencies");
+  await only.getByRole("searchbox", { name: "Find a currency to add" }).fill("dollar");
+  await only.getByLabel("Add a currency").selectOption("USD");
+  await only.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(only.locator("[data-currency-chip]")).toHaveText(["USD"]);
+  await customers.getByRole("button", { name: "Save" }).click();
+  await expect(customers.getByText("Customers' currencies saved.")).toBeVisible();
+  expect(await config()).toEqual({ enabled: true, currencies: ["USD"] });
+  expect(await products("USD")).toMatchObject({ display: { currency: "USD", formatted: "$12.37" } });
+  expect(await products("KWD")).not.toHaveProperty("display");
+  expect(await codes()).toEqual(["EGP", "USD"]);
+  const dinars = await checkout(request, "Basbousa tray", "KWD");
+  expect(dinars.cart).not.toHaveProperty("display");
+  expect(dinars.link.charge).toMatchObject({ currency: "EGP", total: "E£600.00", in_customer_currency: false, reason: null });
+  const customer = await browser.newPage({ extraHTTPHeaders });
+  await customer.goto(dinars.link.url);
+  await expect(customer.getByRole("button", { name: /^Pay E£600\.00$/ })).toBeVisible();
+  await expect(customer.locator("[data-pay-customer-currency]")).toHaveCount(0);
+
+  // Off: the shop's currency only, the list kept for later.
+  await own.reload();
+  await expect(only.locator("[data-currency-chip]")).toHaveText(["USD"]);
+  await show.uncheck();
+  await expect(only.getByRole("button", { name: "Remove USD" })).toBeDisabled();
+  await customers.getByRole("button", { name: "Save" }).click();
+  await expect(customers.getByText("Customers' currencies saved.")).toBeVisible();
+  expect(await config()).toEqual({ enabled: false, currencies: [] });
+  expect(await products("USD")).not.toHaveProperty("display");
+  expect(await codes()).toEqual(["EGP"]);
+  const dollars = await checkout(request, "Basbousa tray", "USD");
+  expect(dollars.link.charge).toMatchObject({ currency: "EGP", in_customer_currency: false });
+  await customer.goto(dollars.link.url);
+  await expect(customer.getByRole("button", { name: /^Pay E£600\.00$/ })).toBeVisible();
+  await expect(customer.locator("[data-pay-customer-currency]")).toHaveCount(0);
+  await customer.close();
+  await own.reload();
+  await expect(show).not.toBeChecked();
+  await expect(only.locator("[data-currency-chip]")).toHaveText(["USD"]);
+
+  // In Arabic, the same settings.
+  await own.context().addCookies([{ name: "yallapp_lang", value: "ar", url: E2E.baseURL }]);
+  await own.reload();
+  await expect(own.getByRole("checkbox", { name: "اعرض الأسعار بعملة العميل" })).not.toBeChecked();
+  await expect(own.getByRole("group", { name: "العملات دي بس (سيبها فاضية للكل)" })).toBeVisible();
+  await own.context().clearCookies({ name: "yallapp_lang" });
+});

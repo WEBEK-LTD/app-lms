@@ -8,6 +8,15 @@ Last updated: 17 November 2026.
 
 ## Current release
 
+Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
+starts with the two products side by side, each with a real screen and its
+"from" price; one billing period for both, lifetime among its choices;
+Studio's plans right under the regular ones with every period, the price
+per month and the saving; each product explained with real screens; how
+they differ; and every feature of the app's plans in a fold, so the page is
+shorter. Prices still come from Admin › Plans: the owner checks Studio's
+1, 2 and 3-year and lifetime prices there (ROADMAP 146.9).
+
 Roadmap 144 (the card typed inside the payment page): with Stripe (its
 publishable key saved), Yallapp's payment page (stores, food and
 deliveries, bookings, courses, events, connected stores paying in the app)
@@ -45,6 +54,10 @@ sign-in and the screens in its look draw their buttons in the app's main
 colour, in the app and in Studio › Screens, not the second colour's gold
 that looked the same in every app.
 
+Roadmap 150: Studio's canvas draws a cover's top row (the search, the
+wordmark and the bag) across the cover, as the app does; it shrank to its
+icons, which put Kech Flora's bag in the middle.
+
 Roadmap 147 (a search opens with its keyboard closed): the shop's, the
 academy's, real estate's, events' and news' searches no longer focus their
 field when they open, so Leqaa's and Kech Flora's Bouquets tab doesn't bring
@@ -64,6 +77,17 @@ media links kept by Netlify's cache for an hour. `CLIENT_APP_RELEASE` is 4,
 so every active app gets one build with it (4 an hour). Not yet tried on a
 phone. Leqaa's demo and Kech Flora still hold the old "Courses" page: one
 publish of their layout (or deleting that page) clears it for older builds.
+
+Roadmap 149 (prices in the customer's currency, per app): the shop's
+settings (Products › Settings › Customers' currencies, in the dashboard and
+Studio) have "Show prices in the customer's currency", on by default, and
+"Only these currencies (leave empty for all)". The hosted API applies them
+to every answer whatever the app sends (no `display`, nothing charged in
+that currency, `GET /currencies` limited, the shop's own always allowed),
+so apps already in the stores follow them; the config sends them as
+`customer_currency` and the app hides Settings › Currency or lists only
+those. `CLIENT_APP_RELEASE` is 6. Courses, events, bookings and food apps
+keep the default (no form there yet). No migration.
 
 Roadmap 79.5 (maintenance): Next.js is 16.4.5 (from 16.4.2, with
 `eslint-config-next`), the first release fixed for GHSA-mfr8-8qww-v76h,

@@ -151,8 +151,16 @@ class SettingsScreen extends ConsumerWidget {
     final orderUpdates = env.build.appType == AppType.store;
     final languages = ref.watch(availableLanguagesProvider);
     final language = ref.watch(appLanguageProvider);
-    // 135.5 Apps selling from Yallapp show prices in the customer's currency too.
-    final sells = shopCurrencyOf(ref.watch(appConfigProvider)) != null;
+    // 135.5 Apps selling from Yallapp show prices in the customer's currency
+    // too; 149 unless the owner turned it off for the app, or allowed only
+    // the shop's own.
+    final shopCurrency = shopCurrencyOf(ref.watch(appConfigProvider));
+    final sells =
+        shopCurrency != null &&
+        ref
+            .watch(appConfigProvider)
+            .customerCurrency
+            .offersChoice(shop: shopCurrency);
     final currency = ref.watch(appCurrencyProvider);
     final currencyPicked = settings.currency != null;
     // 100 Courses and memberships bought through Google Play or the App Store.

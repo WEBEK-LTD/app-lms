@@ -1240,6 +1240,18 @@ export interface CatalogSettings {
    * approximate.
    */
   chargeInCustomerCurrency?: boolean;
+  /**
+   * 149 Prices in the customer's currency on this app (135.5): missing or
+   * true shows them; false: the shop's currency only, and nothing charged
+   * in another (as for an app that asks for none).
+   */
+  showInCustomerCurrency?: boolean;
+  /**
+   * 149 Only these customers' currencies (ISO 4217 codes); missing or
+   * empty: any with a rate. A customer in another sees the shop's only;
+   * the shop's own `currency` is always allowed.
+   */
+  customerCurrencies?: string[];
   /** Flat shipping for orders with physical products. */
   shippingCents: number;
   /** Orders at or above this subtotal ship free; null means never. */
