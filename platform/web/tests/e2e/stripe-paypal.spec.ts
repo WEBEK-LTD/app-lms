@@ -182,7 +182,7 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await expect(payments.getByText("Saved: sk_test_…sKey. Leave it empty to keep it.")).toBeVisible();
 
   // 132.31 The endpoint added in Stripe, and its signing secret saved alone.
-  stripe.endpoints!.push({ url: webhookUrl, status: "enabled", enabled_events: ["checkout.session.completed", "checkout.session.async_payment_succeeded"] });
+  stripe.endpoints!.push({ url: webhookUrl, status: "enabled", enabled_events: ["checkout.session.completed", "checkout.session.async_payment_succeeded", "payment_intent.succeeded"] });
   await payments.getByLabel("Webhook signing secret").fill("not-a-secret");
   await payments.getByRole("button", { name: "Save keys" }).click();
   await expect(payments.getByText("Paste the webhook's signing secret: it starts with whsec_.")).toBeVisible();
@@ -283,6 +283,28 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
  * the page offers it again. The app can't take it: Stripe's form in the page.
  */
 test("188 a Stripe payment in the app goes to the app's PaymentSheet", async ({ page, request }) => {
+  // The shop takes Stripe again (the test before ended on PayPal), with 188's Apple Pay merchant ID.
+  await signIn(page, shop.email, shop.password);
+  await page.goto("/dashboard/payments");
+  const payments = page.getByRole("region", { name: "Card payments" });
+  await payments.getByRole("button", { name: "Edit" }).click();
+  await payments.locator('[data-gateway="stripe"]').click();
+  await payments.getByLabel("Publishable key").fill("pk_test_51HarbourMugsKey");
+  await payments.getByLabel("Secret key").fill("sk_test_51HarbourMugsKey");
+  await payments.getByLabel("Webhook signing secret").fill(SIGNING_SECRET);
+  await payments.getByLabel("Apple Pay merchant ID (optional)").fill("com.harbour.mugs");
+  await payments.getByRole("button", { name: "Save keys" }).click();
+  await expect(payments.getByText("Enter the Apple Pay merchant ID as Apple shows it: it starts with merchant., like merchant.com.yourshop.app.")).toBeVisible();
+  await payments.getByLabel("Publishable key").fill("pk_test_51HarbourMugsKey");
+  await payments.getByLabel("Secret key").fill("sk_test_51HarbourMugsKey");
+  await payments.getByLabel("Webhook signing secret").fill(SIGNING_SECRET);
+  await payments.getByLabel("Apple Pay merchant ID (optional)").fill("merchant.com.harbour.mugs");
+  await payments.getByRole("button", { name: "Save keys" }).click();
+  await expect(payments.getByText("Stripe keys saved. Your app can take payments.")).toBeVisible();
+  await page.reload();
+  await payments.getByRole("button", { name: "Edit" }).click();
+  await expect(payments.getByLabel("Apple Pay merchant ID (optional)")).toHaveValue("merchant.com.harbour.mugs");
+
   const customer = await page.context().browser()!.newPage({ extraHTTPHeaders });
   // The app's web view: the channel the page posts to, and what the app sends back (window.yallappReceive).
   await customer.addInitScript(() => {
