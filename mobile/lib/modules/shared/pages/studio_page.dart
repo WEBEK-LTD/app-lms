@@ -1357,28 +1357,7 @@ class StudioNodeView extends ConsumerWidget {
         : text;
   }
 
-  String? _ownText() {
-    final entry = scope.entry;
-    if (entry != null && node.bind != null) {
-      return switch (node.bind!) {
-        StudioBind.title => entry.title,
-        StudioBind.subtitle => entry.subtitle,
-        // 131 A product on sale: its sale price.
-        StudioBind.price => entry.sale?.nowFormatted ?? entry.priceLabel,
-        StudioBind.badge => entry.badge,
-        StudioBind.image => null,
-        // 128.8 Drawn with its star by [_StudioRating]; none, nothing.
-        StudioBind.rating => entry.rating?.toStringAsFixed(1),
-        // 131 The share off and the price before it; nothing when not on sale.
-        StudioBind.sale => switch (entry.sale) {
-          final sale? => currentL10n.saleOff(sale.percentOff),
-          null => '',
-        },
-        StudioBind.wasPrice => entry.sale?.wasFormatted ?? '',
-      };
-    }
-    return node.text;
-  }
+  String? _ownText() => studioOwnText(node, scope);
 
   Widget _content(BuildContext context, WidgetRef ref, Color? color) {
     final p = context.palette;
@@ -1872,7 +1851,12 @@ class StudioNodeView extends ConsumerWidget {
         final stretch =
             node.cross == StudioCross.stretch ||
             kids.any((k) => k.height?.fill == true);
-        final givesWay = studioTextGivingWay(kids);
+        // 163 Of the texts that show something here: a card's was-price
+        // with no sale draws nothing, and can't give way for its price.
+        final givesWay = studioTextGivingWay([
+          for (final k in kids)
+            if (!_boundEmpty(k)) k,
+        ]);
         final row = Row(
           mainAxisAlignment: _main(node.align),
           crossAxisAlignment: stretch
@@ -1916,6 +1900,15 @@ class StudioNodeView extends ConsumerWidget {
         );
     }
   }
+
+  /// Whether [child] is a text bound to what this card's entry hasn't (it
+  /// draws nothing).
+  bool _boundEmpty(StudioNode child) =>
+      scope.entry != null &&
+      child.type == StudioNodeType.text &&
+      child.bind != null &&
+      child.bind != StudioBind.image &&
+      (studioOwnText(child, scope) ?? '').trim().isEmpty;
 
   /// An element across its parent: its own alignment, else hugging its
   /// content when its size across says so.
@@ -2076,6 +2069,31 @@ AlignmentDirectional _stackAlign(StudioCross cross) => switch (cross) {
   StudioCross.end => AlignmentDirectional.bottomEnd,
   StudioCross.stretch => AlignmentDirectional.topStart,
 };
+
+/// The text [node] shows in [scope]: the entry's for an element bound to
+/// it in a card, else its own.
+String? studioOwnText(StudioNode node, StudioScope scope) {
+  final entry = scope.entry;
+  if (entry != null && node.bind != null) {
+    return switch (node.bind!) {
+      StudioBind.title => entry.title,
+      StudioBind.subtitle => entry.subtitle,
+      // 131 A product on sale: its sale price.
+      StudioBind.price => entry.sale?.nowFormatted ?? entry.priceLabel,
+      StudioBind.badge => entry.badge,
+      StudioBind.image => null,
+      // 128.8 Drawn with its star by [_StudioRating]; none, nothing.
+      StudioBind.rating => entry.rating?.toStringAsFixed(1),
+      // 131 The share off and the price before it; nothing when not on sale.
+      StudioBind.sale => switch (entry.sale) {
+        final sale? => currentL10n.saleOff(sale.percentOff),
+        null => '',
+      },
+      StudioBind.wasPrice => entry.sale?.wasFormatted ?? '',
+    };
+  }
+  return node.text;
+}
 
 /// 163 The line height [text] is drawn with: the one designed, but never
 /// under 1.5 for Arabic. The app's Arabic face (Readex Pro) gives its line

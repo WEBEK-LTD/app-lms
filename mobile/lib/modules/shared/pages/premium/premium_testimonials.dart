@@ -125,6 +125,9 @@ class _QuoteCard extends StatelessWidget {
         boxShadow: tones.shadow,
       ),
       child: Stack(
+        // 163 The quote mark sits in the card's padding, past the words'
+        // box: drawn whole, not cut 6 points at its top (a Stack clips).
+        clipBehavior: Clip.none,
         children: [
           PositionedDirectional(
             top: -6,

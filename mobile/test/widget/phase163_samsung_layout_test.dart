@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/modules/shared/pages/studio_page.dart';
 
@@ -190,9 +191,28 @@ void main() {
         problems: LayoutProblems(),
       );
       final cover = find.byKey(const ValueKey('studio-cover-sig-87'));
-      await tester.scrollUntilVisible(cover, 300);
+      await tester.scrollUntilVisible(cover, 300, scrollable: _page);
       expect(tester.getSize(cover).height, 300);
     });
+  });
+
+  testWidgets("163.6 a testimonial's quote mark is drawn whole", (
+    tester,
+  ) async {
+    await openLeqaaPage(
+      tester,
+      look: 'a',
+      slug: 'home',
+      phone: samsungCommon,
+      problems: LayoutProblems(),
+    );
+    final mark = find.byIcon(Symbols.format_quote_rounded);
+    await tester.scrollUntilVisible(mark.first, 300, scrollable: _page);
+    // Its Stack doesn't cut it where it reaches into the card's padding.
+    final stack = tester.widget<Stack>(
+      find.ancestor(of: mark.first, matching: find.byType(Stack)).first,
+    );
+    expect(stack.clipBehavior, Clip.none);
   });
 
   group('163.5 the rules', () {
@@ -220,3 +240,10 @@ void main() {
     });
   });
 }
+
+/// The page's own list (the first that scrolls down).
+final _page = find
+    .byWidgetPredicate(
+      (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+    )
+    .first;

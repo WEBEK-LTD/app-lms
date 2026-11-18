@@ -14,8 +14,9 @@ font scales 1.0 to 1.5, display zoom (360, 384, 412 points) and both
 navigation bars, Arabic and English, light and dark. Arabic text in Studio
 pages is never under a 1.5 line, so the Orders title no longer draws over
 the journey's card; a photo cover grows with its words; a row's last text
-gives way; the flash sale's title wraps; the folding header no longer
-redraws during layout. `CLIENT_APP_RELEASE` is 7. Lists whose last items
+gives way (one that shows something, so a long price with no sale
+shrinks); a testimonial's quote mark isn't cut; the flash sale's title
+wraps; the folding header no longer redraws during layout. `CLIENT_APP_RELEASE` is 7. Lists whose last items
 stay under the tab bar (Account, Bouquets, Picks) and the Orders empty
 state under the phone's bar are `wip-page-scroll`'s (ROADMAP 163.7). The
 journey's card offset in right-to-left wasn't reproduced (163.8).

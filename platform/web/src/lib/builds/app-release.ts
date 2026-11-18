@@ -49,9 +49,9 @@ export const CLIENT_APP_RELEASE = 7;
  * 7  163 Studio pages on a Samsung's settings (larger text, display zoom,
  *    its navigation bar): Arabic text never under a 1.5 line, so its
  *    letters don't draw over the next card; a cover grows with what is on
- *    it; a row's last text cut to its lines gives way; the flash sale's
- *    title wraps; an empty state clears the phone's bar; the folding
- *    header no longer redraws during layout.
+ *    it; a row's last text that shows something gives way; a
+ *    testimonial's quote mark isn't cut; the flash sale's title wraps; the
+ *    folding header no longer redraws during layout.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */

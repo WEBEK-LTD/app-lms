@@ -280,6 +280,71 @@ void main() {
       );
     });
 
+    // 163 A card's price and was-price: with no sale the was-price draws
+    // nothing, so the price (a long range) gives way, not the empty one.
+    testWidgets("a card's long price with no sale gives way in its row", (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      const range = '₺2,290.00 – ₺4,260.00';
+      await open(
+        tester,
+        api([
+          {
+            'id': 'loved',
+            'type': 'items',
+            'source': 'products',
+            'layout': 'carousel',
+            'items': [
+              {
+                'source': 'products',
+                'id': '24',
+                'title': 'Blush Garden',
+                'price_label': range,
+                'action': {
+                  'type': 'item',
+                  'item': {'source': 'products', 'id': '24'},
+                },
+              },
+            ],
+            'card': {
+              'id': 'card',
+              'type': 'column',
+              'width': 172,
+              'children': [
+                {
+                  'id': 'prices',
+                  'type': 'row',
+                  'gap': 8,
+                  'children': [
+                    {
+                      'id': 'price',
+                      'type': 'text',
+                      'bind': 'price',
+                      'max_lines': 1,
+                      'font': {'size': 14, 'weight': 700},
+                    },
+                    {
+                      'id': 'was',
+                      'type': 'text',
+                      'bind': 'was_price',
+                      'max_lines': 1,
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      );
+      expect(tester.takeException(), isNull);
+      expect(
+        find.ancestor(of: find.text(range), matching: find.byType(Flexible)),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('a row inside another row, and in a grid, lays out', (
       tester,
     ) async {
