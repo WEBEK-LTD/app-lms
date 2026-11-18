@@ -110,6 +110,7 @@ export function RetryBuildForm({
   vendor = false,
   staff = false,
   only = null,
+  iphoneOnly = false,
 }: {
   versionName: string;
   courier?: boolean;
@@ -117,6 +118,8 @@ export function RetryBuildForm({
   staff?: boolean;
   /** 142 The one app the build was started for: tried again alone. */
   only?: "android" | "ios" | null;
+  /** 151 Labelled "iPhone only": the iPhone app of a ready build, which GitHub had no Mac for, again alone. */
+  iphoneOnly?: boolean;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(retryBuildAction, initialFormState);
@@ -128,8 +131,8 @@ export function RetryBuildForm({
       {vendor ? <input type="hidden" name="variant" value="vendor" /> : null}
       {staff ? <input type="hidden" name="variant" value="staff" /> : null}
       <SubmitButton variant="secondary" className="h-[42px]" pendingText={t("builds.starting")}>
-        <Icon name="refresh" size={20} />
-        {t("builds.tryAgain")}
+        <Icon name={iphoneOnly ? "phone_iphone" : "refresh"} size={20} />
+        {t(iphoneOnly ? "builds.onlyIphone" : "builds.tryAgain")}
       </SubmitButton>
       <FormMessage message={state.message} ok={state.ok} />
     </form>

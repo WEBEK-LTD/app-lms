@@ -383,6 +383,22 @@ void openLocation(BuildContext context, String location) {
   }
 }
 
+/// 152 Like [openLocation], in place of the screen on top: a tab's screen
+/// is gone to (the screens over it closed), another takes the top one's
+/// place, so going back doesn't return to it.
+void replaceLocation(BuildContext context, String location) {
+  final tabs = ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(shellTabsProvider);
+  final path = Uri.parse(location).path;
+  if (tabs.any((t) => t.path == path)) {
+    GoRouter.of(context).go(location);
+  } else {
+    GoRouter.of(context).pushReplacement(location);
+  }
+}
+
 /// Where the app starts: 104.6 the courier's screen in a courier app, 105.2
 /// the driver's in a drivers' app.
 String _startAt(Ref ref) => ref.read(courierAppProvider)

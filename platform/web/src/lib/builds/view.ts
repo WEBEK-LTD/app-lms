@@ -1,4 +1,4 @@
-import { failureExplanation } from "./failures";
+import { failureExplanation, noMacRunner } from "./failures";
 import type { ArtifactKind, Build, BuildPlatform, BuildStatus, StageKey } from "../data/types";
 import { bumpPatch } from "../semver";
 
@@ -141,4 +141,15 @@ export function fileDescription(kind: ArtifactKind, autoPublish: boolean): strin
 export function buildOnly(build: Pick<Build, "release">): BuildPlatform | null {
   const only = build.release?.only;
   return only === "android" || only === "ios" ? only : null;
+}
+
+/**
+ * 151 Whether the notice of an iPhone app GitHub had no Mac for offers
+ * "iPhone only" on a ready build (the Android app was made): when a build
+ * can start now and the app can have its iPhone app. A build of the iPhone
+ * app alone that didn't finish has Try again, which makes it alone. Never
+ * started by itself: only the owner's press.
+ */
+export function iphoneOnlyAgain(build: Pick<Build, "status" | "failure">, input: { canStart: boolean; iosAvailable: boolean }): boolean {
+  return noMacRunner(build) && build.status === "ready" && input.canStart && input.iosAvailable;
 }

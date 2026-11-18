@@ -18,9 +18,10 @@ const PLAN: Record<string, string> = { "1m": "1 month", "3m": "3 months", "6m": 
  * 106.2 Admin › Studio Market › Sales: every payment for a template (a
  * purchase or a renewal), with the sale's split (the designer's 75%,
  * Yallapp's 25%) and what the gateway charged; the buyer's licence and its
- * end, which the team can move (`clients.license`). Stage 3's payouts read
- * the same sales. 106.12 A sale bought with a discount is the price paid,
- * with the discount (a code, a flash sale or a price drop) under it.
+ * end, which the team can move (`clients.license`). 106.11 Each paid sale
+ * is in the designer's ledger, paid out from Admin › Studio Market › Payouts.
+ * 106.12 A sale bought with a discount is the price paid, with the discount
+ * (a code, a flash sale or a price drop) under it.
  */
 export default async function MarketSalesPage({ searchParams }: PageProps<"/admin/market/sales">) {
   await requireAdmin("view");
@@ -50,7 +51,7 @@ export default async function MarketSalesPage({ searchParams }: PageProps<"/admi
       <MarketHeader
         eyebrow="Studio Market"
         title="Sales"
-        lead="Payments for templates, through Yallapp's own account. Each sale is split: 75% the designer's, 25% Yallapp's (taxes and the gateway's and transfers' fees included). Payouts come with stage 3."
+        lead="Payments for templates, through Yallapp's own account. Each sale is split: 75% the designer's, 25% Yallapp's (taxes and the gateway's and transfers' fees included). The designers' 75% goes into their ledger, paid out monthly from Payouts."
       />
       {notice ? (
         <p role={params.error ? "alert" : "status"} className={`m-0 rounded-xl px-4 py-3 text-[15px] font-semibold ${params.error ? "bg-danger-bg text-danger" : "bg-success-bg text-success"}`}>

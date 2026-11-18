@@ -2,7 +2,7 @@ import { afterAll, describe } from "vitest";
 import { createPool, MysqlStore } from "@/lib/data/mysql";
 import { studioMarketStoreSuite } from "./studio-market-store-suite";
 
-/** 106.1 Studio Market's data on MySQL or MariaDB (migrations 0130, 0135 and 0143). Runs only with YALLAPP_TEST_DATABASE_URL (a database with the migrations applied). */
+/** 106.1 Studio Market's data on MySQL or MariaDB (migrations 0130, 0135, 106.11's 0142 and 106.12's 0143). Runs only with YALLAPP_TEST_DATABASE_URL (a database with the migrations applied). */
 const url = process.env.YALLAPP_TEST_DATABASE_URL;
 
 describe.skipIf(!url)("106.1 Studio Market on MySQL", () => {

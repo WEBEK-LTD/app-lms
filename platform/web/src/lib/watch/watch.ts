@@ -1,6 +1,7 @@
 import type { DataStore } from "../data/store";
 import type { App, Build, WatchedJob } from "../data/types";
 import { isStalled } from "../builds/view";
+import { adminFailureDetail, noMacRunner } from "../builds/failures";
 import { closeAlerts, raiseAlert, type TeamMail } from "./alerts";
 import { JOB_LABEL, jobStates } from "./runs";
 
@@ -103,7 +104,46 @@ async function watchBuilds(deps: WatchDeps): Promise<WatchReport> {
     }
   }
   const stale = previous.filter((a) => (a.kind === "build_waiting" || a.kind === "build_stalled") && !open.includes(a.key)).map((a) => a.key);
+  // 151 An iOS job GitHub had no Mac for: its alert closes once a later build of the app made its iPhone app.
+  for (const alert of previous.filter((a) => a.kind === "build_no_mac")) {
+    const built = await store.getBuild(alert.key.slice(NO_MAC_ALERT.length));
+    if (!built) continue;
+    const later = await store.listBuildsByApp(built.appId, 10, built.variant ?? "app");
+    if (later.some((b) => b.createdAt > built.createdAt && b.stages.ios === "done")) stale.push(alert.key);
+  }
   return { alerts, closed: await closeAlerts(store, stale, now) };
+}
+
+/** 151 The key of a build's no-Mac alert: one per build. */
+export const NO_MAC_ALERT = "build_no_mac:";
+
+/**
+ * 151 GitHub had no Mac for a build's iOS job (cancelled in the queue before
+ * any step ran): one alert for the team per build, emailed once, with the
+ * run's link. Nothing retries it: the client was told to try again later
+ * with iPhone only; the alert closes once a later build made the iPhone app.
+ */
+export async function alertNoMac(store: DataStore, build: Build, now: Date, mail?: TeamMail | null): Promise<boolean> {
+  if (!noMacRunner(build)) return false;
+  const app = await store.getAppById(build.appId);
+  const name = `${app?.appName?.trim() || "An app"} #${build.number}`;
+  const androidReady = build.status === "ready" && build.stages.android === "done";
+  await raiseAlert(
+    store,
+    {
+      kind: "build_no_mac",
+      key: `${NO_MAC_ALERT}${build.id}`,
+      title: `Build ${name}: GitHub had no Mac for the iPhone app`,
+      detail:
+        `${adminFailureDetail(build)} ` +
+        (androidReady ? "The Android app of this build is ready. " : "") +
+        (build.logUrl ? `Run: ${build.logUrl}` : "The run's link wasn't reported."),
+      link: `/admin/clients/${build.clientId}#app-${build.appId}`,
+    },
+    now,
+    mail,
+  );
+  return true;
 }
 
 /** A job with no good run for longer than expected; closed when it runs again. */
