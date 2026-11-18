@@ -124,6 +124,8 @@ export function PreviewPanel({
           title={t("preview.frameTitle", { app: shown?.name ?? appName })}
           className="block h-full w-full border-0"
           referrerPolicy="no-referrer"
+          // 178 A ride or taxi app's "My location", as on a phone (the page's Permissions-Policy allows it here only).
+          allow="geolocation"
           data-testid="app-preview"
         />
       </PhoneFrame>
