@@ -1,5 +1,6 @@
 import { allNodes, mapTreeAsync } from "../../studio/tree";
 import { showsShopCategories, withShopCategoriesIn, type ShopCategories } from "../../studio/shop-categories";
+import { autoSized } from "../../studio/auto-size";
 import { ENGINES, isAppType } from "../../app/kinds";
 import type { App, HostedUser } from "../../data/types";
 import { isSamplePlace } from "../../pages/designs/build";
@@ -116,7 +117,9 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
     return shown as StudioNode;
   });
   const header = studio.header ? (({ translations: _h, ...rest }) => (void _h, rest))(translated(studio.header, pc.lang, def)) : studio.header;
-  return { ...studio, ...(header !== undefined ? { header } : {}), body: body ?? studio.body };
+  // 159 At their automatic sizes, as Studio's canvas draws them, so apps already on phones draw them so too (a cover's
+  // top bar across the cover, its bag at the edge, whatever width a corner drag gave it before the owner was asked).
+  return { ...studio, ...(header !== undefined ? { header } : {}), body: autoSized(body ?? studio.body) };
 }
 
 /**

@@ -1290,6 +1290,14 @@ class Block_Resolver {
 				$node[ $field ] = $size;
 			}
 		}
+		// 159 Its size changed by hand in Studio, with the automatic sizes it replaced: the app keeps the owner's
+		// size then (a cover's top bar without it spans the cover).
+		if ( is_array( $raw['manual_size'] ?? null ) ) {
+			$node['manual_size'] = array(
+				'width'  => self::studio_size( $raw['manual_size']['width'] ?? null ),
+				'height' => self::studio_size( $raw['manual_size']['height'] ?? null ),
+			);
+		}
 		$numbers = array(
 			'min_height'   => array( 0, 4000 ),
 			'aspect_ratio' => array( 0.1, 10 ),

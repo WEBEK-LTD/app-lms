@@ -1426,7 +1426,19 @@ export interface StudioNode {
   text_style?: StudioTextStyle;
   /** Editor audit 3.3: its sizes, spacing and text on tablets (a screen at least 600 wide on its short side); the font field by field. */
   tablet?: StudioTablet;
+  /**
+   * 159 Its size was changed by hand, after Studio asked (lib/studio/auto-size.ts): `width` and `height` are then the
+   * owner's. It holds the automatic sizes they replaced (null: none of its own, the layout's), which "Back to automatic"
+   * puts back. Missing, its size is automatic: as its template or the layout designs it (a cover's top bar spans the cover).
+   */
+  manual_size?: StudioManualSize | null;
   translations?: Translations;
+}
+
+/** 159 The automatic sizes a size set by hand replaced (`StudioNode.manual_size`); null, none of its own. */
+export interface StudioManualSize {
+  width?: StudioSize | null;
+  height?: StudioSize | null;
 }
 
 /** Editor audit 3.3: what can be different on tablets. */

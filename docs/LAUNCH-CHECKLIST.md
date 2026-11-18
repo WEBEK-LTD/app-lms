@@ -1964,3 +1964,23 @@ payment each.
       shows after 20 seconds, and the payment works there meanwhile.
 - [ ] **Fawaterk and PayPal:** unchanged, their own pages as before
       (ROADMAP 153.7, 153.8).
+
+## Phase 159: Sizes automatic, by hand only when asked
+
+No migration, no setting. The hosted API serves a cover's top bar across the
+cover as soon as the platform is deployed; `CLIENT_APP_RELEASE` 7 gives every
+active app one build with the same rule (4 an hour).
+
+- [ ] **Kech Flora on a phone:** after the deploy, open the app (or switch
+      away and back): the bag of the bar over the stories at the right edge,
+      the search at the left, "KechFlora" in the middle, on an iPhone and on
+      an Android phone, in English and in Arabic (the search on the right).
+      Nothing to change or publish in Studio.
+- [ ] **Studio:** on Kech Flora's home, select the bar (the wordmark, then
+      Select what holds it): Size and place says Automatic size and Width
+      Fill. Change the width: Studio asks first; Cancel changes nothing.
+      Change by hand, then Back to automatic: Fill again. Drag a corner of
+      another element up to the edge of the phone: its width becomes Fill.
+- [ ] **WordPress apps:** the plugin sends `manual_size` from its next
+      release; until then a WordPress app draws a cover's top bar across the
+      cover even when it was sized by hand in Studio.
