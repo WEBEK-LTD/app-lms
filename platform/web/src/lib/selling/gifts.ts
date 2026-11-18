@@ -266,7 +266,14 @@ export function orderDeliveryJson(d: OrderDelivery | null | undefined, fee: stri
     slot: d.slot ? { id: d.slot.id, start: d.slot.start, end: d.slot.end, label: `${d.slot.start}–${d.slot.end}` } : null,
     fee,
     sender: d.sender,
-    recipient: d.recipient,
+    // 173 With the city and country it goes to, when the checkout asked for the place.
+    recipient: d.recipient
+      ? {
+          ...d.recipient,
+          ...(d.place?.city ? { city: d.place.city } : {}),
+          ...(d.place?.country ? { country: d.place.country } : {}),
+        }
+      : null,
     gift_message: d.message,
     anonymous: d.anonymous,
   };

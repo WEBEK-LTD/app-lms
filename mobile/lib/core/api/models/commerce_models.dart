@@ -630,6 +630,9 @@ class OrderDelivery {
     this.date,
     this.slotLabel,
     this.recipientName,
+    this.recipientPhone,
+    this.recipientAddress,
+    this.recipientCity,
     this.senderName,
     this.message,
     this.anonymous = false,
@@ -641,26 +644,131 @@ class OrderDelivery {
     final slot = json['slot'];
     final recipient = json['recipient'];
     final sender = json['sender'];
+    String? text(Object? map, String key) {
+      if (map is! Map) return null;
+      final v = map[key];
+      return v is String && v.trim().isNotEmpty ? v.trim() : null;
+    }
+
     return OrderDelivery(
       date: optString(json, 'date'),
-      slotLabel: slot is Map && slot['label'] is String
-          ? slot['label'] as String
-          : null,
-      recipientName: recipient is Map && recipient['name'] is String
-          ? recipient['name'] as String
-          : null,
-      senderName: sender is Map && sender['name'] is String
-          ? sender['name'] as String
-          : null,
-      message: optString(json, 'gift_message'),
+      slotLabel: text(slot, 'label'),
+      recipientName: text(recipient, 'name'),
+      recipientPhone: text(recipient, 'phone'),
+      recipientAddress: text(recipient, 'address'),
+      recipientCity: text(recipient, 'city'),
+      senderName: text(sender, 'name'),
+      message: text(json, 'gift_message'),
       anonymous: boolOr(json, 'anonymous', false),
     );
   }
 
+  /// YYYY-MM-DD, the shop's day.
   final String? date;
+
+  /// "10:00–13:00", in the shop's time.
   final String? slotLabel;
   final String? recipientName;
+
+  /// 173 Who receives it: their phone, the street and the city.
+  final String? recipientPhone;
+  final String? recipientAddress;
+  final String? recipientCity;
   final String? senderName;
   final String? message;
   final bool anonymous;
+
+  /// 173 Whether there is a day, a slot, a recipient or an address to show.
+  bool get hasDelivery =>
+      date != null ||
+      slotLabel != null ||
+      recipientName != null ||
+      recipientAddress != null;
+
+  /// 173 Whether there is a card to show: its message, or who sends it.
+  bool get hasGift => message != null;
+}
+
+/// 173 `Order.amounts`: what the total is made of, each formatted like the
+/// total, so the lines add up: the subtotal, less the coupon and the points,
+/// plus the delivery, the delivery time's fee, the other fees and an added
+/// tax. Null on older servers.
+class OrderAmounts {
+  const OrderAmounts({
+    required this.subtotal,
+    required this.total,
+    this.discountCode,
+    this.discount,
+    this.pointsUsed = 0,
+    this.points,
+    this.shippingZone,
+    this.shipping,
+    this.slotFee,
+    this.fees = const [],
+    this.taxLabel,
+    this.tax,
+    this.taxIncluded = false,
+  });
+
+  static OrderAmounts? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final subtotal = json['subtotal'];
+    final total = json['total'];
+    if (subtotal is! String || total is! String) return null;
+    Json? obj(String key) => json[key] is Map ? asJson(json[key]) : null;
+    final discount = obj('discount');
+    final points = obj('points');
+    final shipping = obj('shipping');
+    final tax = obj('tax');
+    final fees = json['fees'];
+    return OrderAmounts(
+      subtotal: subtotal,
+      total: total,
+      discountCode: discount == null ? null : optString(discount, 'code'),
+      discount: discount == null ? null : optString(discount, 'amount'),
+      pointsUsed: points == null ? 0 : intOr(points, 'used', 0),
+      points: points == null ? null : optString(points, 'amount'),
+      shippingZone: shipping == null ? null : optString(shipping, 'zone'),
+      shipping: shipping == null ? null : optString(shipping, 'amount'),
+      slotFee: optString(json, 'slot_fee'),
+      fees: [
+        if (fees is List)
+          for (final f in fees)
+            if (f is Map && f['label'] is String && f['amount'] is String)
+              (label: f['label'] as String, amount: f['amount'] as String),
+      ],
+      taxLabel: tax == null ? null : optString(tax, 'label'),
+      tax: tax == null ? null : optString(tax, 'amount'),
+      taxIncluded: tax != null && boolOr(tax, 'included', false),
+    );
+  }
+
+  final String subtotal;
+  final String total;
+
+  /// The coupon's code; null when the discount has none.
+  final String? discountCode;
+
+  /// What the coupon took off; null without one.
+  final String? discount;
+  final int pointsUsed;
+
+  /// What the points took off; null without any.
+  final String? points;
+
+  /// Where the delivery was priced for ("Marrakech").
+  final String? shippingZone;
+
+  /// The delivery, without the slot's fee; null for none.
+  final String? shipping;
+
+  /// The delivery time's fee; null for none.
+  final String? slotFee;
+  final List<({String label, String amount})> fees;
+  final String? taxLabel;
+  final String? tax;
+
+  /// True: the tax is inside the other amounts, only said.
+  final bool taxIncluded;
 }

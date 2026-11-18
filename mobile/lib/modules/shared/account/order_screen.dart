@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
+import '../../../core/format/bidi.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
@@ -167,6 +168,16 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
               const SizedBox(height: 12),
               _ReturnButton(orderId: order.id),
             ],
+            // 173 The delivery day and time (the shop's), who receives it
+            // and where; the card's message and who sends it.
+            if (order.delivery case final d? when d.hasDelivery) ...[
+              const SizedBox(height: 12),
+              OrderDeliveryCard(delivery: d),
+            ],
+            if (order.delivery case final d? when d.hasGift) ...[
+              const SizedBox(height: 12),
+              OrderGiftCard(delivery: d),
+            ],
             const SizedBox(height: 24),
             SectionHeader(title: l10n.orderYourOrder),
             const SizedBox(height: 8),
@@ -184,24 +195,40 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
               else
                 _orderLine(context, order.items[g.indexes.first]),
             ],
-            if (f?.deliveryFee != null)
-              _AmountRow(label: l10n.deliveryFee, value: f!.deliveryFee!),
-            // 161 In the customer's currency when the shop sent it in it.
-            _AmountRow(
-              label: l10n.orderTotal,
-              value: order.shownTotal,
-              strong: true,
-            ),
-            // 161 Approximate: the shop's total, what was charged, under it.
-            if (order.display != null &&
-                order.customerCurrency?.charged != true &&
-                order.shownTotal != order.total)
-              Text(
-                order.total,
-                key: const Key('order-shop-total'),
-                textAlign: TextAlign.end,
-                style: TextStyle(fontSize: 13, color: p.textSecondary),
+            // 173 What the total is made of, so the lines add up to it (in
+            // the shop's currency, what is charged); 161 the customer's
+            // under it, approximate.
+            if (order.amounts case final a?) ...[
+              OrderAmountsList(amounts: a),
+              if (order.display != null &&
+                  order.customerCurrency?.charged != true &&
+                  order.shownTotal != order.total)
+                Text(
+                  order.shownTotal,
+                  key: const Key('order-customer-total'),
+                  textAlign: TextAlign.end,
+                  style: TextStyle(fontSize: 13, color: p.textSecondary),
+                ),
+            ] else ...[
+              if (f?.deliveryFee != null)
+                _AmountRow(label: l10n.deliveryFee, value: f!.deliveryFee!),
+              // 161 In the customer's currency when the shop sent it in it.
+              _AmountRow(
+                label: l10n.orderTotal,
+                value: order.shownTotal,
+                strong: true,
               ),
+              // 161 Approximate: the shop's total, what was charged, under it.
+              if (order.display != null &&
+                  order.customerCurrency?.charged != true &&
+                  order.shownTotal != order.total)
+                Text(
+                  order.total,
+                  key: const Key('order-shop-total'),
+                  textAlign: TextAlign.end,
+                  style: TextStyle(fontSize: 13, color: p.textSecondary),
+                ),
+            ],
             // 135.7 In the customer's currency, on the day it was placed
             // (161 unless the total above is already in it).
             if (order.customerCurrency case final cc?
@@ -214,9 +241,10 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                 textAlign: TextAlign.end,
                 style: TextStyle(fontSize: 13, color: p.textSecondary),
               ),
-            // 91.4 The loyalty points used on it, and those it earned.
+            // 91.4 The loyalty points used on it (173 a line of the
+            // amounts when the order has them), and those it earned.
             if (order.points case final points?) ...[
-              if (points.used > 0)
+              if (points.used > 0 && order.amounts == null)
                 Text(
                   l10n.orderPointsUsed(points.used, points.discount ?? ''),
                   style: TextStyle(fontSize: 14, color: p.textSecondary),
@@ -831,31 +859,321 @@ class _ReturnCard extends StatelessWidget {
 
 class _AmountRow extends StatelessWidget {
   const _AmountRow({
+    super.key,
     required this.label,
     required this.value,
     this.strong = false,
+    this.muted = false,
   });
 
   final String label;
   final String value;
   final bool strong;
 
+  /// 173 A line only said (a tax inside the prices).
+  final bool muted;
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     final style = TextStyle(
-      fontSize: strong ? 16 : 14,
+      fontSize: strong ? 16 : (muted ? 13 : 14),
       fontWeight: strong ? FontWeight.w800 : FontWeight.w400,
-      color: p.text,
+      color: muted ? p.textSecondary : p.text,
     );
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: Text(label, style: style)),
+          const SizedBox(width: 12),
           Text(value, style: style),
         ],
       ),
+    );
+  }
+}
+
+/// 173 The order's delivery: the day and the time chosen (both the shop's,
+/// as the checkout offered them), who receives it, and the address.
+class OrderDeliveryCard extends StatelessWidget {
+  const OrderDeliveryCard({super.key, required this.delivery});
+
+  final OrderDelivery delivery;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final d = delivery;
+    // One run in its own direction, so the commas stay in place in Arabic.
+    final street = [
+      d.recipientAddress,
+      d.recipientCity,
+    ].whereType<String>().join(', ');
+    final address = isolate(street);
+    return AppCard(
+      key: const ValueKey('order-delivery'),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _CardTitle(icon: AppIcons.shipping, title: l10n.orderDeliveryTitle),
+          if (d.date != null)
+            _DetailLine(
+              key: const ValueKey('order-delivery-day'),
+              icon: AppIcons.calendar,
+              text: isoDayLabel(d.date!),
+            ),
+          if (d.slotLabel != null)
+            _DetailLine(
+              key: const ValueKey('order-delivery-slot'),
+              icon: AppIcons.schedule,
+              text: l10n.orderDeliverySlot(ltrRun(d.slotLabel!)),
+            ),
+          if (d.recipientName != null)
+            _DetailLine(
+              key: const ValueKey('order-delivery-recipient'),
+              icon: AppIcons.account,
+              label: l10n.orderRecipientTitle,
+              text: isolate(d.recipientName!),
+              detail: d.recipientPhone == null
+                  ? null
+                  : ltrRun(d.recipientPhone!),
+            ),
+          if (street.isNotEmpty)
+            _DetailLine(
+              key: const ValueKey('order-delivery-address'),
+              icon: AppIcons.location,
+              label: l10n.orderAddressTitle,
+              text: address,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 173 The gift card: its message, and who sends it (or that it goes
+/// without a name). Only for an order with a card.
+class OrderGiftCard extends StatelessWidget {
+  const OrderGiftCard({super.key, required this.delivery});
+
+  final OrderDelivery delivery;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final d = delivery;
+    final from = d.anonymous
+        ? l10n.orderGiftAnonymous
+        : d.senderName == null
+        ? null
+        : l10n.orderGiftFrom(isolate(d.senderName!));
+    return AppCard(
+      key: const ValueKey('order-gift'),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _CardTitle(icon: AppIcons.gift, title: l10n.orderGiftTitle),
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: p.accentSoft,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            // The card in the direction it was written in.
+            child: Text(
+              d.message!,
+              key: const ValueKey('order-gift-message'),
+              textDirection: directionOfText(d.message!),
+              style: TextStyle(fontSize: 15, height: 1.45, color: p.text),
+            ),
+          ),
+          if (from != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              from,
+              key: const ValueKey('order-gift-from'),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: p.textSecondary,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// 173 A card's heading: its icon and title, as the order's other cards.
+class _CardTitle extends StatelessWidget {
+  const _CardTitle({required this.icon, required this.title});
+
+  final IconData icon;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Row(
+      children: [
+        AppIcon(icon, color: p.text),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: p.text,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 173 One detail of the delivery: its icon, what it is, and the detail.
+class _DetailLine extends StatelessWidget {
+  const _DetailLine({
+    super.key,
+    required this.icon,
+    required this.text,
+    this.label,
+    this.detail,
+  });
+
+  final IconData icon;
+  final String text;
+  final String? label;
+  final String? detail;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppIcon(icon, size: 20, color: p.textSecondary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (label != null)
+                  Text(
+                    label!,
+                    style: TextStyle(fontSize: 12, color: p.textSecondary),
+                  ),
+                Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: p.text,
+                  ),
+                ),
+                if (detail != null)
+                  Text(
+                    detail!,
+                    style: TextStyle(fontSize: 14, color: p.textSecondary),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 173 The order's totals, as the payment page and the receipt show them:
+/// the subtotal, the coupon (with its code) and the points taken off, the
+/// delivery (and where it was priced for), the delivery time's fee, the
+/// other fees, an added tax, then the total; a tax inside the prices is
+/// said under it.
+class OrderAmountsList extends StatelessWidget {
+  const OrderAmountsList({super.key, required this.amounts});
+
+  final OrderAmounts amounts;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final a = amounts;
+    String minus(String amount) => ltrRun('\u2212$amount');
+    return Column(
+      key: const ValueKey('order-amounts'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 4),
+        Divider(height: 16, color: p.border),
+        _AmountRow(
+          key: const ValueKey('order-amount-subtotal'),
+          label: l10n.subtotal,
+          value: a.subtotal,
+        ),
+        if (a.discount != null)
+          _AmountRow(
+            key: const ValueKey('order-amount-discount'),
+            label: a.discountCode == null
+                ? l10n.orderDiscountLine
+                : l10n.orderCouponLine(ltrRun(a.discountCode!)),
+            value: minus(a.discount!),
+          ),
+        if (a.points != null)
+          _AmountRow(
+            key: const ValueKey('order-amount-points'),
+            label: l10n.orderPointsLine(a.pointsUsed),
+            value: minus(a.points!),
+          ),
+        if (a.shipping != null)
+          _AmountRow(
+            key: const ValueKey('order-amount-shipping'),
+            label: a.shippingZone == null
+                ? l10n.deliveryFee
+                : l10n.orderShippingTo(isolate(a.shippingZone!)),
+            value: a.shipping!,
+          ),
+        if (a.slotFee != null)
+          _AmountRow(
+            key: const ValueKey('order-amount-slot'),
+            label: l10n.orderSlotFee,
+            value: a.slotFee!,
+          ),
+        for (final fee in a.fees)
+          _AmountRow(label: isolate(fee.label), value: fee.amount),
+        if (a.tax != null && !a.taxIncluded)
+          _AmountRow(
+            key: const ValueKey('order-amount-tax'),
+            label: isolate(a.taxLabel ?? ''),
+            value: a.tax!,
+          ),
+        Divider(height: 20, color: p.border),
+        _AmountRow(
+          key: const ValueKey('order-amount-total'),
+          label: l10n.orderTotal,
+          value: a.total,
+          strong: true,
+        ),
+        if (a.tax != null && a.taxIncluded)
+          _AmountRow(
+            label: l10n.orderTaxIncluded(isolate(a.taxLabel ?? '')),
+            value: a.tax!,
+            muted: true,
+          ),
+      ],
     );
   }
 }

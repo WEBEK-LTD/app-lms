@@ -19502,6 +19502,90 @@ abstract class AppLocalizations {
   /// **'Paid {total}'**
   String orderPaidIn(String total);
 
+  /// 173 The order screen: the heading over the delivery day, time, recipient and address.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get orderDeliveryTitle;
+
+  /// 173 The order screen: the delivery time chosen, in the shop's time zone, like 10:00–13:00.
+  ///
+  /// In en, this message translates to:
+  /// **'{slot}, the shop\'s time'**
+  String orderDeliverySlot(String slot);
+
+  /// 173 The order screen: who receives the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient'**
+  String get orderRecipientTitle;
+
+  /// 173 The order screen: where the order is delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get orderAddressTitle;
+
+  /// 173 The order screen: the heading over the card's message and who sends it.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift card'**
+  String get orderGiftTitle;
+
+  /// 173 The order screen: who signs the gift card.
+  ///
+  /// In en, this message translates to:
+  /// **'From {name}'**
+  String orderGiftFrom(String name);
+
+  /// 173 The order screen: the card doesn't show the sender's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent anonymously'**
+  String get orderGiftAnonymous;
+
+  /// 173 The order screen: the heading over the subtotal, discounts, fees and total.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment summary'**
+  String get orderSummaryTitle;
+
+  /// 173 The order screen: the coupon's line in the totals, with its code.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon {code}'**
+  String orderCouponLine(String code);
+
+  /// 173 The order screen: a discount without a coupon code.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get orderDiscountLine;
+
+  /// 173 The order screen: the loyalty points used, a line in the totals.
+  ///
+  /// In en, this message translates to:
+  /// **'Points ({points})'**
+  String orderPointsLine(int points);
+
+  /// 173 The order screen: the delivery fee and where it was priced for, like Marrakech.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery to {zone}'**
+  String orderShippingTo(String zone);
+
+  /// 173 The order screen: the chosen delivery time's fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery time fee'**
+  String get orderSlotFee;
+
+  /// 173 The order screen: a tax inside the prices, like VAT 20%.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes {tax}'**
+  String orderTaxIncluded(String tax);
+
   /// 162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.
   ///
   /// In en, this message translates to:

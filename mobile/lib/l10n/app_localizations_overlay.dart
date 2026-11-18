@@ -12897,6 +12897,67 @@ class OverlayLocalizations extends AppLocalizations {
       base.orderPaidIn(total);
 
   @override
+  String get orderDeliveryTitle =>
+      overlay.text('orderDeliveryTitle') ?? base.orderDeliveryTitle;
+
+  @override
+  String orderDeliverySlot(String slot) =>
+      overlay.format('orderDeliverySlot', {'slot': slot}) ??
+      base.orderDeliverySlot(slot);
+
+  @override
+  String get orderRecipientTitle =>
+      overlay.text('orderRecipientTitle') ?? base.orderRecipientTitle;
+
+  @override
+  String get orderAddressTitle =>
+      overlay.text('orderAddressTitle') ?? base.orderAddressTitle;
+
+  @override
+  String get orderGiftTitle =>
+      overlay.text('orderGiftTitle') ?? base.orderGiftTitle;
+
+  @override
+  String orderGiftFrom(String name) =>
+      overlay.format('orderGiftFrom', {'name': name}) ??
+      base.orderGiftFrom(name);
+
+  @override
+  String get orderGiftAnonymous =>
+      overlay.text('orderGiftAnonymous') ?? base.orderGiftAnonymous;
+
+  @override
+  String get orderSummaryTitle =>
+      overlay.text('orderSummaryTitle') ?? base.orderSummaryTitle;
+
+  @override
+  String orderCouponLine(String code) =>
+      overlay.format('orderCouponLine', {'code': code}) ??
+      base.orderCouponLine(code);
+
+  @override
+  String get orderDiscountLine =>
+      overlay.text('orderDiscountLine') ?? base.orderDiscountLine;
+
+  @override
+  String orderPointsLine(int points) =>
+      overlay.format('orderPointsLine', {'points': points}) ??
+      base.orderPointsLine(points);
+
+  @override
+  String orderShippingTo(String zone) =>
+      overlay.format('orderShippingTo', {'zone': zone}) ??
+      base.orderShippingTo(zone);
+
+  @override
+  String get orderSlotFee => overlay.text('orderSlotFee') ?? base.orderSlotFee;
+
+  @override
+  String orderTaxIncluded(String tax) =>
+      overlay.format('orderTaxIncluded', {'tax': tax}) ??
+      base.orderTaxIncluded(tax);
+
+  @override
   String get bouquetTitle => overlay.text('bouquetTitle') ?? base.bouquetTitle;
 
   @override

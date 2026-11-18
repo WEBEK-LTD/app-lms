@@ -159,6 +159,19 @@ open (ROADMAP 168.6–168.10): the pin without the platform's map, the
 payment page in Arabic, and the dashboard's times in UTC. The notes:
 docs/qa/2026-11-18-gift-checkout/NOTES.md.
 
+Roadmap 169 (the flower apps in Arabic and Turkish): a shop's, a flower
+shop's and every other kind's shared screens say their own words, not an
+academy's (the notifications' empty state, updating the app, deleting the
+account, "contact the academy", course files), in English, Arabic and
+Turkish. Capitals follow the language (Turkish "AŞK İÇİN", not "AŞK
+IÇIN") through one helper, in Studio's capitals, kickers, labels and
+initials. The card's "Beginnings to tap" have a field per app language in
+Delivery & offers › Gifts, sent by language in `StoreConfig` and shown in
+the customer's; saved ones stay the main language's. Every screen of both
+looks was walked in Arabic (day and night) and Turkish: a gift's delivery
+in the cart's summary is "Delivery fee", not "Shipping". Not yet in a rebuilt
+app (ROADMAP 169.6); the plugin's stay one field (169.5).
+
 Roadmap 171 (the Orders tab keeps the tab bar): in Leqaa's app (both
 looks, the petal bar), the Orders tab opened Orders on top, without the bar,
 because a store's orders live under Account (`/account/orders`), not among
@@ -170,6 +183,20 @@ flowers travel" with no order showed a sample journey, "Order placed" lit:
 now it, its card and its heading show only with an order, at that order's
 own step. From `CLIENT_APP_RELEASE` 9. Not yet tried on a phone (ROADMAP
 171.7).
+
+Roadmap 173 (an order shows its delivery, its card and its amounts): in
+Leqaa's app an order showed its lines and its total only (360 + 120 against
+482). The order screen now shows the delivery (the day and the time, in the
+shop's time, the recipient and the address), the gift card (its message and
+who sends it, only when there is one) and the totals that add up: the
+subtotal, the coupon with its code, the points, the delivery for its zone,
+the delivery time's fee, other fees and the tax, then the total. The
+contract's new `Order.amounts` comes from hosted shops (`GET /me/orders`)
+and from WordPress with plugin 0.4.51 (WooCommerce's coupon, shipping, fee
+and tax lines); `delivery.recipient` adds the city. Older apps ignore it;
+older servers leave it out and the app shows the lines and the total as
+before. Needs the next app build (no `CLIENT_APP_RELEASE` change here) and
+plugin 0.4.51 released; not yet tried on a phone (ROADMAP 173.6).
 
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
 payout of the 1st covers the sales paid up to the end of the month before,
@@ -209,19 +236,6 @@ HTTP), and the check waiting behind it timed out after 60 seconds. The suite
 now takes about a minute, so slower runners crossed that point. The checks
 call the cron jobs they test themselves, and the job shows the PHP log when
 it fails. Test only: the plugin stays 0.4.50.
-
-Roadmap 169 (the flower apps in Arabic and Turkish): a shop's, a flower
-shop's and every other kind's shared screens say their own words, not an
-academy's (the notifications' empty state, updating the app, deleting the
-account, "contact the academy", course files), in English, Arabic and
-Turkish. Capitals follow the language (Turkish "AŞK İÇİN", not "AŞK
-IÇIN") through one helper, in Studio's capitals, kickers, labels and
-initials. The card's "Beginnings to tap" have a field per app language in
-Delivery & offers › Gifts, sent by language in `StoreConfig` and shown in
-the customer's; saved ones stay the main language's. Every screen of both
-looks was walked in Arabic (day and night) and Turkish: a gift's delivery
-in the cart's summary is "Delivery fee", not "Shipping". Not yet in a rebuilt
-app (ROADMAP 169.6); the plugin's stay one field (169.5).
 
 Roadmap 152 (Our bouquet's chips and button open the product the owner
 links): in Leqaa's looks and the apps made from them (Kech Flora), the

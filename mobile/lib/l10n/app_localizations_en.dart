@@ -12181,6 +12181,60 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get orderDeliveryTitle => 'Delivery';
+
+  @override
+  String orderDeliverySlot(String slot) {
+    return '$slot, the shop\'s time';
+  }
+
+  @override
+  String get orderRecipientTitle => 'Recipient';
+
+  @override
+  String get orderAddressTitle => 'Address';
+
+  @override
+  String get orderGiftTitle => 'Gift card';
+
+  @override
+  String orderGiftFrom(String name) {
+    return 'From $name';
+  }
+
+  @override
+  String get orderGiftAnonymous => 'Sent anonymously';
+
+  @override
+  String get orderSummaryTitle => 'Payment summary';
+
+  @override
+  String orderCouponLine(String code) {
+    return 'Coupon $code';
+  }
+
+  @override
+  String get orderDiscountLine => 'Discount';
+
+  @override
+  String orderPointsLine(int points) {
+    return 'Points ($points)';
+  }
+
+  @override
+  String orderShippingTo(String zone) {
+    return 'Delivery to $zone';
+  }
+
+  @override
+  String get orderSlotFee => 'Delivery time fee';
+
+  @override
+  String orderTaxIncluded(String tax) {
+    return 'Includes $tax';
+  }
+
+  @override
   String get bouquetTitle => 'Build your bouquet';
 
   @override

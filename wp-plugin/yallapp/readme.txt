@@ -158,6 +158,7 @@ under the Apache License 2.0, included as inline SVG.
 
 = 0.4.51 =
 * Studio pages: an element you sized by hand in Studio keeps your size in the app (a cover's top bar otherwise spans the cover), and the name you gave an element in Studio is what a screen reader says for a round button without words.
+* Orders in the app show what the total is made of: the subtotal, the coupon with its code, the shipping, the delivery time's fee, any other fee and the taxes, from the WooCommerce order, so the lines add up to the total. Older apps keep showing the items and the total.
 
 = 0.4.50 =
 * Delivery days in your shop's time: the app counts today, tomorrow and your same-day cut-off in your store's time zone, wherever the customer's phone is, so a customer abroad sending flowers home is offered the days your shop really delivers.

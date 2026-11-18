@@ -14776,6 +14776,63 @@ components:
             currency: { type: string, pattern: '^[A-Z]{3}$', description: "161 The currency of `discount_amount`." }
             discount_amount: { type: [string, 'null'] }
             display: { $ref: '#/components/schemas/DisplayMoney' }
+        amounts:
+          type: [object, 'null']
+          description: |
+            173 What the total is made of, each amount formatted like `total`,
+            so the lines add up: `subtotal` (the items) less `discount` (the
+            coupon) and `points`, plus `shipping` (the delivery, without the
+            slot's fee), `slot_fee` (the delivery time's, also in
+            `delivery.fee`), each of `fees` and an added `tax`, is `total`. A
+            tax inside the prices (`tax.included`) is part of the other lines
+            and only said. Null or missing on older servers: the app then
+            shows the items and the total as before. On WordPress (plugin
+            0.4.51), from the WooCommerce order's lines: its subtotal, the
+            coupons' codes and discount, its shipping (the method's name as
+            `zone`), the delivery time's fee line, its other fee lines and its
+            taxes, as the shop displays prices (with or without tax).
+          required: [subtotal, discount, points, shipping, slot_fee, fees, tax, total]
+          properties:
+            subtotal: { type: string, example: MAD 480.00 }
+            discount:
+              type: [object, 'null']
+              description: The coupon and what it took off; null without one.
+              required: [code, amount]
+              properties:
+                code: { type: [string, 'null'], description: "The coupon's code (several joined with \", \"); null when the discount has none.", example: LEQAA10 }
+                amount: { type: string, example: MAD 48.00 }
+            points:
+              type: [object, 'null']
+              description: The loyalty points used on it (as `points.used` and `points.discount`); null without any.
+              required: [used, amount]
+              properties:
+                used: { type: integer, minimum: 1 }
+                amount: { type: string, example: MAD 5.00 }
+            shipping:
+              type: [object, 'null']
+              description: "The delivery or shipping, without the slot's fee; a restaurant's delivery fee. Null when there is none."
+              required: [amount]
+              properties:
+                zone: { type: [string, 'null'], description: "Where it was priced for: the shop's zone or city (\"Marrakech\", \"4.2 km\"), or WooCommerce's shipping method.", example: Marrakech }
+                amount: { type: string, example: MAD 30.00 }
+            slot_fee: { type: [string, 'null'], description: "The chosen delivery time's fee; null when it has none.", example: MAD 20.00 }
+            fees:
+              type: array
+              description: Any other fee on the order, with the shop's name for it. Empty for none.
+              items:
+                type: object
+                required: [label, amount]
+                properties:
+                  label: { type: string, example: Gift wrap }
+                  amount: { type: string, example: MAD 15.00 }
+            tax:
+              type: [object, 'null']
+              required: [label, included, amount]
+              properties:
+                label: { type: string, example: VAT 20% }
+                included: { type: boolean, description: "True: inside the other amounts, only said; false: a line of its own, added." }
+                amount: { type: string }
+            total: { type: string, description: The same as the order's `total`., example: MAD 482.00 }
         id: { type: integer }
         number: { type: string, description: "The order number the site shows, e.g. on receipts.", example: '1042' }
         status: { type: string, enum: [pending, processing, on_hold, completed, cancelled, refunded, failed] }
