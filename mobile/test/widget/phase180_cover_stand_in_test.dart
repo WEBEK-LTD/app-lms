@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/rendering.dart';
 import 'package:yallapp/core/config/build_config.dart';
+import 'package:yallapp/core/routing/app_router.dart';
 
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
@@ -160,5 +162,38 @@ void main() {
       await open(tester, titled('#F4D9A6'), true);
       expect(titleColour(tester), const Color(0xFFF4D9A6));
     });
+  });
+
+  testWidgets('180.21 the photo account in Turkish at a larger text size: '
+      'the phone number on one line', (tester) async {
+    const ratio = 3.0;
+    tester.view
+      ..devicePixelRatio = ratio
+      ..physicalSize = const Size(360, 800) * ratio;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final api = FakeApi(
+      config: {
+        ...configJson(languages: languagesJson()),
+        'screens': {
+          'system': {'look': 'photo'},
+        },
+      },
+    );
+    final app = TestApp(
+      api: api,
+      signedIn: true,
+      preferences: {'settings.language': 'tr'},
+    );
+    await app.pump(tester);
+    app.container.read(appRouterProvider).go('/account');
+    await TestApp.settle(tester, 20);
+    final phone = find.byKey(const ValueKey('chrome-account-phone'));
+    expect(phone, findsOneWidget);
+    final line = tester.renderObject<RenderParagraph>(
+      find.descendant(of: phone, matching: find.byType(RichText)),
+    );
+    expect(line.size.height, lessThan(14 * 1.3 * 1.6));
   });
 }
