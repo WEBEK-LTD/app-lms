@@ -8,6 +8,7 @@ import { ROLE_LABELS } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { openPublishingCount } from "@/lib/publishing/steps";
+import { payoutsToDo } from "@/lib/studio-market/money";
 import { AdminNav } from "./nav";
 
 export const metadata: Metadata = { title: { default: "Super admin", template: "%s · Yallapp admin" }, robots: { index: false } };
@@ -28,6 +29,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const openAlerts = await store.countOpenTeamAlerts();
   // 106 Studio Market templates waiting for their first review.
   const marketWaiting = (await store.listMarketTemplates({ statuses: ["in_review"] })).length;
+  // 106.11 Designers' payouts to prepare or send this month, and their checks to review.
+  const payoutsToSend = await payoutsToDo(store, new Date());
+  const checksWaiting = (await store.listDesignerPayoutDetails(["submitted"])).length;
   // 133 Add-on services the team hasn't finished.
   const addonTasks = (await store.listAppAddons({ taskStatus: ["new", "in_progress"], limit: 200 })).length;
   return (
@@ -58,6 +62,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 { href: "/admin/market", label: "Review queue", icon: "fact_check", exact: true, badge: { count: marketWaiting, label: marketWaiting === 1 ? "template waiting" : "templates waiting" } },
                 // 106.2 Template sales and the buyers' licences.
                 { href: "/admin/market/sales", label: "Sales", icon: "payments" },
+                // 106.11 The designers' monthly payouts by SWIFT, and the checks before the first one.
+                { href: "/admin/market/payouts", label: "Payouts", icon: "send", exact: true, badge: { count: payoutsToSend, label: payoutsToSend === 1 ? "payout to prepare or send" : "payouts to prepare or send" } },
+                { href: "/admin/market/payouts/checks", label: "Payout checks", icon: "verified_user", badge: { count: checksWaiting, label: checksWaiting === 1 ? "designer's checks to review" : "designers' checks to review" } },
               ],
             },
             {

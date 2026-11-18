@@ -183,6 +183,19 @@ export async function payoutRun(store: DataStore, now: Date): Promise<PayoutRun>
   return { period, rows };
 }
 
+/** The admin menu's count, without writing anything: the payouts due this month and those prepared, still to send. */
+export async function payoutsToDo(store: DataStore, now: Date): Promise<number> {
+  const period = payoutPeriod(now);
+  const [earnings, payouts, approved] = await Promise.all([store.designerEarnings(), store.listDesignerPayouts({ statuses: ["processing", "sent"] }), store.listDesignerPayoutDetails(["approved"])]);
+  let n = payouts.filter((p) => p.status === "processing").length;
+  for (const d of approved) {
+    const own = payouts.filter((p) => p.designerId === d.designerId);
+    if (own.some((p) => p.period === period)) continue;
+    if (moneyOf(earnings[d.designerId], own).availableCents >= PAYOUT_MIN_CENTS) n++;
+  }
+  return n;
+}
+
 export interface MoneyDeps {
   store: DataStore;
   /** The platform's encryption key (lib/env.ts › encryptionKey). */
