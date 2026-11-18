@@ -1,3 +1,5 @@
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import { MemoryStore } from "@/lib/data/memory";
 import type { App } from "@/lib/data/types";
@@ -167,5 +169,29 @@ describe("178 a drawn map's words in the customer's language", () => {
     await state.store.saveAppLayout({ ...layout, published: own });
     const ar = wordsOf(await home("ar"));
     expect(ar).toContain("Kadıköy");
+  });
+});
+
+const MOBILE_FIXTURE = path.resolve(__dirname, "../../../../mobile/test/support/phase178_masar_pages.json");
+
+describe("178 what the app draws", () => {
+  it("is the Flutter test's fixture (mobile/test/support/phase178_masar_pages.json)", async () => {
+    await start("rides", "a");
+    await ownTypes("TRY");
+    const served = {
+      navigation: await fetchApp("/pages"),
+      home: await fetchApp("/pages/home", "en"),
+      home_ar: await fetchApp("/pages/home", "ar"),
+      ride: await fetchApp("/pages/ride", "en"),
+      rides: await fetchApp("/pages/rides", "en"),
+    };
+    // The elements' IDs are made at random with the project: numbered in order instead, so the file stays the same.
+    const ids = new Map<string, string>();
+    const stable = (key: string, value: unknown) =>
+      key === "version" && typeof value === "string" ? "v178" : (key === "id" || key === "heads") && typeof value === "string" && /^n[0-9a-z]{1,8}(-[0-9a-z]+)*$/.test(value) ? (ids.get(value) ?? ids.set(value, `n${ids.size + 1}`).get(value)) : key === "updated_at" ? "2026-11-18T09:00:00.000Z" : value;
+    const json = `${JSON.stringify(served, stable, 1)}\n`;
+    // After a change: PHASE178_FIXTURE=1 npx vitest run tests/unit/phase178-rides-taxi.test.ts
+    if (process.env.PHASE178_FIXTURE === "1" || !existsSync(MOBILE_FIXTURE)) writeFileSync(MOBILE_FIXTURE, json);
+    expect(readFileSync(MOBILE_FIXTURE, "utf8"), "mobile/test/support/phase178_masar_pages.json is out of date").toBe(json);
   });
 });
