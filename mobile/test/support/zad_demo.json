@@ -1785,7 +1785,7 @@
              {
               "id": "demo-96",
               "type": "text",
-              "text": "Offer of the week",
+              "text": "Zad Market offer",
               "color": "#FFD27A",
               "font": {
                "size": 11,
@@ -1795,10 +1795,10 @@
               },
               "translations": {
                "ar": {
-                "text": "عرض الأسبوع"
+                "text": "عرض زاد ماركت"
                },
                "tr": {
-                "text": "Haftanın fırsatı"
+                "text": "Zad Market fırsatı"
                }
               }
              },
@@ -2011,7 +2011,7 @@
              {
               "id": "demo-108",
               "type": "text",
-              "text": "Our own code",
+              "text": "Zad's own code",
               "color": "#FFD27A",
               "font": {
                "size": 11,
@@ -2021,10 +2021,10 @@
               },
               "translations": {
                "ar": {
-                "text": "رمزنا الخاص"
+                "text": "رمز زاد"
                },
                "tr": {
-                "text": "Kendi kodumuz"
+                "text": "Zad'ın kodu"
                }
               }
              },
@@ -2237,7 +2237,7 @@
              {
               "id": "demo-120",
               "type": "text",
-              "text": "[One of your shops]",
+              "text": "Nile Pizza Co.",
               "color": "#FFD27A",
               "font": {
                "size": 11,
@@ -2247,10 +2247,10 @@
               },
               "translations": {
                "ar": {
-                "text": "[أحد متاجرك]"
+                "text": "نايل بيتزا"
                },
                "tr": {
-                "text": "[Mağazalarınızdan biri]"
+                "text": "Nile Pizza Co."
                }
               }
              },
