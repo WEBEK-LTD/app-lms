@@ -188,31 +188,11 @@
           "badge": {
            "style": "gradient"
           }
-         },
-         {
-          "id": "g9",
-          "type": "marquee",
-          "width": "fill",
-          "color": "#4D5B6C",
-          "dark_color": "#A2B0C1",
-          "font": {
-           "weight": 600,
-           "size": 13
-          },
-          "text": "[This week's news, a line each]\n[A trip, a holiday or an evening for parents]",
-          "marquee": {
-           "speed": 32,
-           "dot": true
-          },
-          "action": {
-           "type": "screen",
-           "screen": "school"
-          }
          }
         ]
        },
        {
-        "id": "g10",
+        "id": "g9",
         "type": "row",
         "name": "Today at school",
         "padding": {
@@ -224,7 +204,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g11",
+          "id": "g10",
           "type": "text",
           "width": "fill",
           "color": "#0E2238",
@@ -238,7 +218,7 @@
           "text": "Today at school"
          },
          {
-          "id": "g12",
+          "id": "g11",
           "type": "text",
           "color": "#1F4E79",
           "dark_color": "#9CC3EA",
@@ -255,7 +235,7 @@
         ]
        },
        {
-        "id": "g13",
+        "id": "g12",
         "type": "school",
         "margin": {
          "end": 16,
@@ -276,7 +256,7 @@
         "visibility": "signed_in"
        },
        {
-        "id": "g14",
+        "id": "g13",
         "type": "photo_hero",
         "name": "At school this week",
         "height": 150,
@@ -308,7 +288,7 @@
         "visibility": "signed_out",
         "children": [
          {
-          "id": "g15",
+          "id": "g14",
           "type": "text",
           "color": "#FFFFFF",
           "font": {
@@ -321,7 +301,7 @@
         ]
        },
        {
-        "id": "g16",
+        "id": "g15",
         "type": "cta_bar",
         "name": "Forms to sign\nTrips and permission slips from the school",
         "margin": {
@@ -361,7 +341,7 @@
     "screen": "parent",
     "studio": {
      "body": {
-      "id": "g17",
+      "id": "g16",
       "type": "column",
       "children": []
      },
@@ -372,11 +352,11 @@
     "screen": "school",
     "studio": {
      "body": {
-      "id": "g18",
+      "id": "g17",
       "type": "column",
       "children": [
        {
-        "id": "g19",
+        "id": "g18",
         "type": "photo_hero",
         "name": "News, the timetable and homework, in one place.",
         "height": 140,
@@ -409,7 +389,7 @@
         },
         "children": [
          {
-          "id": "g20",
+          "id": "g19",
           "type": "text",
           "color": "#FFFFFF",
           "font": {
@@ -446,9 +426,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g21",
+      "id": "g20",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g21",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "Sign out",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "screen": "account"
     }
@@ -582,31 +592,11 @@
           "badge": {
            "style": "gradient"
           }
-         },
-         {
-          "id": "g9",
-          "type": "marquee",
-          "width": "fill",
-          "color": "#4D5B6C",
-          "dark_color": "#A2B0C1",
-          "font": {
-           "weight": 600,
-           "size": 13
-          },
-          "text": "[أخبار هذا الأسبوع، كل خبر في سطر]\n[رحلة أو عطلة أو لقاء لأولياء الأمور]",
-          "marquee": {
-           "speed": 32,
-           "dot": true
-          },
-          "action": {
-           "type": "screen",
-           "screen": "school"
-          }
          }
         ]
        },
        {
-        "id": "g10",
+        "id": "g9",
         "type": "row",
         "name": "Today at school",
         "padding": {
@@ -618,7 +608,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g11",
+          "id": "g10",
           "type": "text",
           "width": "fill",
           "color": "#0E2238",
@@ -632,7 +622,7 @@
           "text": "اليوم في المدرسة"
          },
          {
-          "id": "g12",
+          "id": "g11",
           "type": "text",
           "color": "#1F4E79",
           "dark_color": "#9CC3EA",
@@ -649,7 +639,7 @@
         ]
        },
        {
-        "id": "g13",
+        "id": "g12",
         "type": "school",
         "margin": {
          "end": 16,
@@ -670,7 +660,7 @@
         "visibility": "signed_in"
        },
        {
-        "id": "g14",
+        "id": "g13",
         "type": "photo_hero",
         "name": "At school this week",
         "height": 150,
@@ -702,7 +692,7 @@
         "visibility": "signed_out",
         "children": [
          {
-          "id": "g15",
+          "id": "g14",
           "type": "text",
           "color": "#FFFFFF",
           "font": {
@@ -715,7 +705,7 @@
         ]
        },
        {
-        "id": "g16",
+        "id": "g15",
         "type": "cta_bar",
         "name": "Forms to sign\nTrips and permission slips from the school",
         "margin": {
@@ -755,7 +745,7 @@
     "screen": "parent",
     "studio": {
      "body": {
-      "id": "g17",
+      "id": "g16",
       "type": "column",
       "children": []
      },
@@ -766,11 +756,11 @@
     "screen": "school",
     "studio": {
      "body": {
-      "id": "g18",
+      "id": "g17",
       "type": "column",
       "children": [
        {
-        "id": "g19",
+        "id": "g18",
         "type": "photo_hero",
         "name": "News, the timetable and homework, in one place.",
         "height": 140,
@@ -803,7 +793,7 @@
         },
         "children": [
          {
-          "id": "g20",
+          "id": "g19",
           "type": "text",
           "color": "#FFFFFF",
           "font": {
@@ -840,9 +830,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g21",
+      "id": "g20",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g21",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "تسجيل الخروج",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "screen": "account"
     }

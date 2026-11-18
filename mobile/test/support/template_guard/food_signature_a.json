@@ -449,16 +449,6 @@
                   "children": [
                    {
                     "id": "g31",
-                    "type": "text",
-                    "color": "#FFFFFF",
-                    "font": {
-                     "weight": 700,
-                     "size": 15
-                    },
-                    "text": "[Your area]"
-                   },
-                   {
-                    "id": "g32",
                     "type": "icon",
                     "color": "#FFFFFF",
                     "icon": "expand_more",
@@ -469,7 +459,7 @@
                 ]
                },
                {
-                "id": "g33",
+                "id": "g32",
                 "type": "row",
                 "width": 44,
                 "height": 44,
@@ -492,7 +482,7 @@
                 },
                 "children": [
                  {
-                  "id": "g34",
+                  "id": "g33",
                   "type": "icon",
                   "color": "#FFFFFF",
                   "icon": "search",
@@ -501,7 +491,7 @@
                 ]
                },
                {
-                "id": "g35",
+                "id": "g34",
                 "type": "row",
                 "width": 44,
                 "height": 44,
@@ -524,7 +514,7 @@
                 },
                 "children": [
                  {
-                  "id": "g36",
+                  "id": "g35",
                   "type": "icon",
                   "color": "#FFFFFF",
                   "icon": "notifications",
@@ -539,7 +529,7 @@
           ]
          },
          {
-          "id": "g37",
+          "id": "g36",
           "type": "live_status",
           "name": "Your order on its way",
           "width": "fill",
@@ -574,7 +564,7 @@
         ]
        },
        {
-        "id": "g38",
+        "id": "g37",
         "type": "row",
         "name": "Open near you",
         "padding": {
@@ -587,7 +577,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g39",
+          "id": "g38",
           "type": "text",
           "width": "fill",
           "color": "#1F140E",
@@ -601,7 +591,7 @@
           "text": "Open near you"
          },
          {
-          "id": "g40",
+          "id": "g39",
           "type": "text",
           "color": "#B13F1A",
           "dark_color": "#FF9A6B",
@@ -615,10 +605,11 @@
            "screen": "restaurants"
           }
          }
-        ]
+        ],
+        "heads": "g40"
        },
        {
-        "id": "g41",
+        "id": "g40",
         "type": "items",
         "name": "Open near you",
         "padding": {
@@ -629,7 +620,7 @@
         "source": "restaurants",
         "layout": "carousel",
         "card": {
-         "id": "g42",
+         "id": "g41",
          "type": "stack",
          "width": 140,
          "height": 140,
@@ -638,7 +629,7 @@
          "shadow": "medium",
          "children": [
           {
-           "id": "g43",
+           "id": "g42",
            "type": "image",
            "width": 140,
            "height": 140,
@@ -652,7 +643,7 @@
            "bind": "image"
           },
           {
-           "id": "g44",
+           "id": "g43",
            "type": "column",
            "width": "fill",
            "padding": {
@@ -662,7 +653,7 @@
            },
            "children": [
             {
-             "id": "g45",
+             "id": "g44",
              "type": "text",
              "color": "#FFFFFF",
              "font": {
@@ -673,7 +664,7 @@
              "bind": "title"
             },
             {
-             "id": "g46",
+             "id": "g45",
              "type": "text",
              "color": "#FFFFFF",
              "opacity": 0.9,
@@ -739,7 +730,7 @@
         ]
        },
        {
-        "id": "g47",
+        "id": "g46",
         "type": "row",
         "name": "From the menus",
         "padding": {
@@ -752,7 +743,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g48",
+          "id": "g47",
           "type": "text",
           "width": "fill",
           "color": "#1F140E",
@@ -766,7 +757,7 @@
           "text": "From the menus"
          },
          {
-          "id": "g49",
+          "id": "g48",
           "type": "text",
           "color": "#66533F",
           "dark_color": "#C2AE9E",
@@ -779,7 +770,7 @@
         ]
        },
        {
-        "id": "g50",
+        "id": "g49",
         "type": "column",
         "name": "From the menus",
         "padding": {
@@ -788,7 +779,7 @@
         },
         "children": [
          {
-          "id": "g51",
+          "id": "g50",
           "type": "row",
           "name": "Margherita",
           "height": 48,
@@ -800,7 +791,7 @@
           },
           "children": [
            {
-            "id": "g52",
+            "id": "g51",
             "type": "image",
             "width": 32,
             "height": 32,
@@ -808,7 +799,7 @@
             "image_url": "http://localhost:3000/demo-photos/margherita.jpg"
            },
            {
-            "id": "g53",
+            "id": "g52",
             "type": "text",
             "color": "#1F140E",
             "dark_color": "#F6ECE2",
@@ -819,7 +810,7 @@
             "text": "Margherita"
            },
            {
-            "id": "g54",
+            "id": "g53",
             "type": "text",
             "width": "fill",
             "color": "#66533F",
@@ -831,7 +822,7 @@
             "max_lines": 1
            },
            {
-            "id": "g55",
+            "id": "g54",
             "type": "text",
             "color": "#1F140E",
             "dark_color": "#F6ECE2",
@@ -843,7 +834,7 @@
             "text": "EGP 140"
            },
            {
-            "id": "g56",
+            "id": "g55",
             "type": "icon",
             "color": "#B13F1A",
             "dark_color": "#FF9A6B",
@@ -853,14 +844,14 @@
           ]
          },
          {
-          "id": "g57",
+          "id": "g56",
           "type": "divider",
           "height": 1,
           "background": "#E3D6C5",
           "dark_background": "#2E221B"
          },
          {
-          "id": "g58",
+          "id": "g57",
           "type": "row",
           "name": "Shish tawook",
           "height": 48,
@@ -872,7 +863,7 @@
           },
           "children": [
            {
-            "id": "g59",
+            "id": "g58",
             "type": "image",
             "width": 32,
             "height": 32,
@@ -880,7 +871,7 @@
             "image_url": "http://localhost:3000/demo-photos/shish-tawook.jpg"
            },
            {
-            "id": "g60",
+            "id": "g59",
             "type": "text",
             "color": "#1F140E",
             "dark_color": "#F6ECE2",
@@ -891,7 +882,7 @@
             "text": "Shish tawook"
            },
            {
-            "id": "g61",
+            "id": "g60",
             "type": "text",
             "width": "fill",
             "color": "#66533F",
@@ -903,7 +894,7 @@
             "max_lines": 1
            },
            {
-            "id": "g62",
+            "id": "g61",
             "type": "text",
             "color": "#1F140E",
             "dark_color": "#F6ECE2",
@@ -915,7 +906,7 @@
             "text": "EGP 150"
            },
            {
-            "id": "g63",
+            "id": "g62",
             "type": "icon",
             "color": "#B13F1A",
             "dark_color": "#FF9A6B",
@@ -936,11 +927,11 @@
     "screen": "restaurants",
     "studio": {
      "body": {
-      "id": "g64",
+      "id": "g63",
       "type": "column",
       "children": [
        {
-        "id": "g65",
+        "id": "g64",
         "type": "photo_hero",
         "name": "Tonight at Sahara Grill",
         "height": 168,
@@ -974,7 +965,7 @@
         },
         "children": [
          {
-          "id": "g66",
+          "id": "g65",
           "type": "text",
           "color": "#FFFFFF",
           "font": {
@@ -986,7 +977,7 @@
           "text": "Tonight at Sahara Grill"
          },
          {
-          "id": "g67",
+          "id": "g66",
           "type": "text",
           "margin": {
            "top": 6
@@ -1002,7 +993,7 @@
           "text": "Mixed grill."
          },
          {
-          "id": "g68",
+          "id": "g67",
           "type": "text",
           "margin": {
            "top": 6
@@ -1040,11 +1031,11 @@
     "screen": "food_orders",
     "studio": {
      "body": {
-      "id": "g69",
+      "id": "g68",
       "type": "column",
       "children": [
        {
-        "id": "g70",
+        "id": "g69",
         "type": "live_status",
         "name": "Your order on its way",
         "width": "fill",
@@ -1101,9 +1092,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g71",
+      "id": "g70",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g71",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "Sign out",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#F6F0E6",
      "dark_background": "#110B08",
@@ -1501,16 +1522,6 @@
                   "children": [
                    {
                     "id": "g31",
-                    "type": "text",
-                    "color": "#FFFFFF",
-                    "font": {
-                     "weight": 700,
-                     "size": 15
-                    },
-                    "text": "[منطقتك]"
-                   },
-                   {
-                    "id": "g32",
                     "type": "icon",
                     "color": "#FFFFFF",
                     "icon": "expand_more",
@@ -1521,7 +1532,7 @@
                 ]
                },
                {
-                "id": "g33",
+                "id": "g32",
                 "type": "row",
                 "width": 44,
                 "height": 44,
@@ -1544,7 +1555,7 @@
                 },
                 "children": [
                  {
-                  "id": "g34",
+                  "id": "g33",
                   "type": "icon",
                   "color": "#FFFFFF",
                   "icon": "search",
@@ -1553,7 +1564,7 @@
                 ]
                },
                {
-                "id": "g35",
+                "id": "g34",
                 "type": "row",
                 "width": 44,
                 "height": 44,
@@ -1576,7 +1587,7 @@
                 },
                 "children": [
                  {
-                  "id": "g36",
+                  "id": "g35",
                   "type": "icon",
                   "color": "#FFFFFF",
                   "icon": "notifications",
@@ -1591,7 +1602,7 @@
           ]
          },
          {
-          "id": "g37",
+          "id": "g36",
           "type": "live_status",
           "name": "Your order on its way",
           "width": "fill",
@@ -1626,7 +1637,7 @@
         ]
        },
        {
-        "id": "g38",
+        "id": "g37",
         "type": "row",
         "name": "Open near you",
         "padding": {
@@ -1639,7 +1650,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g39",
+          "id": "g38",
           "type": "text",
           "width": "fill",
           "color": "#1F140E",
@@ -1653,7 +1664,7 @@
           "text": "مفتوح بالقرب منك"
          },
          {
-          "id": "g40",
+          "id": "g39",
           "type": "text",
           "color": "#B13F1A",
           "dark_color": "#FF9A6B",
@@ -1667,10 +1678,11 @@
            "screen": "restaurants"
           }
          }
-        ]
+        ],
+        "heads": "g40"
        },
        {
-        "id": "g41",
+        "id": "g40",
         "type": "items",
         "name": "Open near you",
         "padding": {
@@ -1681,7 +1693,7 @@
         "source": "restaurants",
         "layout": "carousel",
         "card": {
-         "id": "g42",
+         "id": "g41",
          "type": "stack",
          "width": 140,
          "height": 140,
@@ -1690,7 +1702,7 @@
          "shadow": "medium",
          "children": [
           {
-           "id": "g43",
+           "id": "g42",
            "type": "image",
            "width": 140,
            "height": 140,
@@ -1704,7 +1716,7 @@
            "bind": "image"
           },
           {
-           "id": "g44",
+           "id": "g43",
            "type": "column",
            "width": "fill",
            "padding": {
@@ -1714,7 +1726,7 @@
            },
            "children": [
             {
-             "id": "g45",
+             "id": "g44",
              "type": "text",
              "color": "#FFFFFF",
              "font": {
@@ -1725,7 +1737,7 @@
              "bind": "title"
             },
             {
-             "id": "g46",
+             "id": "g45",
              "type": "text",
              "color": "#FFFFFF",
              "opacity": 0.9,
@@ -1791,7 +1803,7 @@
         ]
        },
        {
-        "id": "g47",
+        "id": "g46",
         "type": "row",
         "name": "From the menus",
         "padding": {
@@ -1804,7 +1816,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g48",
+          "id": "g47",
           "type": "text",
           "width": "fill",
           "color": "#1F140E",
@@ -1818,7 +1830,7 @@
           "text": "من القوائم"
          },
          {
-          "id": "g49",
+          "id": "g48",
           "type": "text",
           "color": "#66533F",
           "dark_color": "#C2AE9E",
@@ -1831,7 +1843,7 @@
         ]
        },
        {
-        "id": "g50",
+        "id": "g49",
         "type": "column",
         "name": "From the menus",
         "padding": {
@@ -1840,7 +1852,7 @@
         },
         "children": [
          {
-          "id": "g51",
+          "id": "g50",
           "type": "row",
           "name": "Margherita",
           "height": 48,
@@ -1852,7 +1864,7 @@
           },
           "children": [
            {
-            "id": "g52",
+            "id": "g51",
             "type": "image",
             "width": 32,
             "height": 32,
@@ -1860,7 +1872,7 @@
             "image_url": "http://localhost:3000/demo-photos/margherita.jpg"
            },
            {
-            "id": "g53",
+            "id": "g52",
             "type": "text",
             "color": "#1F140E",
             "dark_color": "#F6ECE2",
@@ -1871,7 +1883,7 @@
             "text": "مارجريتا"
            },
            {
-            "id": "g54",
+            "id": "g53",
             "type": "text",
             "width": "fill",
             "color": "#66533F",
@@ -1883,7 +1895,7 @@
             "max_lines": 1
            },
            {
-            "id": "g55",
+            "id": "g54",
             "type": "text",
             "color": "#1F140E",
             "dark_color": "#F6ECE2",
@@ -1895,7 +1907,7 @@
             "text": "140 ج.م"
            },
            {
-            "id": "g56",
+            "id": "g55",
             "type": "icon",
             "color": "#B13F1A",
             "dark_color": "#FF9A6B",
@@ -1905,14 +1917,14 @@
           ]
          },
          {
-          "id": "g57",
+          "id": "g56",
           "type": "divider",
           "height": 1,
           "background": "#E3D6C5",
           "dark_background": "#2E221B"
          },
          {
-          "id": "g58",
+          "id": "g57",
           "type": "row",
           "name": "Shish tawook",
           "height": 48,
@@ -1924,7 +1936,7 @@
           },
           "children": [
            {
-            "id": "g59",
+            "id": "g58",
             "type": "image",
             "width": 32,
             "height": 32,
@@ -1932,7 +1944,7 @@
             "image_url": "http://localhost:3000/demo-photos/shish-tawook.jpg"
            },
            {
-            "id": "g60",
+            "id": "g59",
             "type": "text",
             "color": "#1F140E",
             "dark_color": "#F6ECE2",
@@ -1943,7 +1955,7 @@
             "text": "شيش طاووق"
            },
            {
-            "id": "g61",
+            "id": "g60",
             "type": "text",
             "width": "fill",
             "color": "#66533F",
@@ -1955,7 +1967,7 @@
             "max_lines": 1
            },
            {
-            "id": "g62",
+            "id": "g61",
             "type": "text",
             "color": "#1F140E",
             "dark_color": "#F6ECE2",
@@ -1967,7 +1979,7 @@
             "text": "150 ج.م"
            },
            {
-            "id": "g63",
+            "id": "g62",
             "type": "icon",
             "color": "#B13F1A",
             "dark_color": "#FF9A6B",
@@ -1988,11 +2000,11 @@
     "screen": "restaurants",
     "studio": {
      "body": {
-      "id": "g64",
+      "id": "g63",
       "type": "column",
       "children": [
        {
-        "id": "g65",
+        "id": "g64",
         "type": "photo_hero",
         "name": "Tonight at Sahara Grill",
         "height": 168,
@@ -2026,7 +2038,7 @@
         },
         "children": [
          {
-          "id": "g66",
+          "id": "g65",
           "type": "text",
           "color": "#FFFFFF",
           "font": {
@@ -2038,7 +2050,7 @@
           "text": "الليلة في صحارى جريل"
          },
          {
-          "id": "g67",
+          "id": "g66",
           "type": "text",
           "margin": {
            "top": 6
@@ -2054,7 +2066,7 @@
           "text": "Mixed grill."
          },
          {
-          "id": "g68",
+          "id": "g67",
           "type": "text",
           "margin": {
            "top": 6
@@ -2092,11 +2104,11 @@
     "screen": "food_orders",
     "studio": {
      "body": {
-      "id": "g69",
+      "id": "g68",
       "type": "column",
       "children": [
        {
-        "id": "g70",
+        "id": "g69",
         "type": "live_status",
         "name": "Your order on its way",
         "width": "fill",
@@ -2153,9 +2165,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g71",
+      "id": "g70",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g71",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "تسجيل الخروج",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#F6F0E6",
      "dark_background": "#110B08",

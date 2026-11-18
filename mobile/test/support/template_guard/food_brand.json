@@ -144,41 +144,10 @@
         "background": "#0E0D24",
         "color": "#F4EFE6",
         "radius": 16,
-        "children": [
-         {
-          "id": "g7",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[Number] customers"
-         },
-         {
-          "id": "g8",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[Number] years"
-         },
-         {
-          "id": "g9",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[Number] branches"
-         }
-        ]
+        "children": []
        },
        {
-        "id": "g10",
+        "id": "g7",
         "type": "column",
         "name": "Most popular",
         "padding": {
@@ -190,16 +159,17 @@
         "gap": 8,
         "children": [
          {
-          "id": "g11",
+          "id": "g8",
           "type": "text",
           "font": {
            "weight": 800,
            "size": 17
           },
-          "text": "Most popular"
+          "text": "Most popular",
+          "heads": "g9"
          },
          {
-          "id": "g12",
+          "id": "g9",
           "type": "items",
           "gap": 10,
           "source": "restaurants",
@@ -275,7 +245,7 @@
         ]
        },
        {
-        "id": "g13",
+        "id": "g10",
         "type": "column",
         "name": "How it works",
         "padding": {
@@ -297,13 +267,47 @@
         "shadow": "light",
         "children": [
          {
-          "id": "g14",
+          "id": "g11",
           "type": "text",
           "font": {
            "weight": 800,
            "size": 17
           },
           "text": "How it works"
+         },
+         {
+          "id": "g12",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g13",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "1"
+           },
+           {
+            "id": "g14",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "Pick a restaurant near you"
+           }
+          ]
          },
          {
           "id": "g15",
@@ -325,7 +329,7 @@
              "line_height": 2.1
             },
             "text_align": "center",
-            "text": "1"
+            "text": "2"
            },
            {
             "id": "g17",
@@ -335,7 +339,7 @@
              "weight": 600,
              "size": 14
             },
-            "text": "Pick a restaurant near you"
+            "text": "The restaurant prepares your order"
            }
           ]
          },
@@ -359,44 +363,10 @@
              "line_height": 2.1
             },
             "text_align": "center",
-            "text": "2"
-           },
-           {
-            "id": "g20",
-            "type": "text",
-            "width": "fill",
-            "font": {
-             "weight": 600,
-             "size": 14
-            },
-            "text": "The restaurant prepares your order"
-           }
-          ]
-         },
-         {
-          "id": "g21",
-          "type": "row",
-          "gap": 10,
-          "cross": "center",
-          "children": [
-           {
-            "id": "g22",
-            "type": "text",
-            "width": 30,
-            "height": 30,
-            "background": "#0E0D24",
-            "color": "#FFFFFF",
-            "radius": 15,
-            "font": {
-             "weight": 800,
-             "size": 14,
-             "line_height": 2.1
-            },
-            "text_align": "center",
             "text": "3"
            },
            {
-            "id": "g23",
+            "id": "g20",
             "type": "text",
             "width": "fill",
             "font": {
@@ -410,7 +380,7 @@
         ]
        },
        {
-        "id": "g24",
+        "id": "g21",
         "type": "column",
         "padding": {
          "top": 8,
@@ -421,7 +391,7 @@
         "gap": 8,
         "children": [
          {
-          "id": "g25",
+          "id": "g22",
           "type": "text",
           "font": {
            "weight": 800,
@@ -430,16 +400,7 @@
           "text": "Find us"
          },
          {
-          "id": "g26",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "size": 13
-          },
-          "text": "[Your address and opening hours]"
-         },
-         {
-          "id": "g27",
+          "id": "g23",
           "type": "map",
           "height": 170,
           "radius": 14,
@@ -557,41 +518,10 @@
         "background": "#0E0D24",
         "color": "#F4EFE6",
         "radius": 16,
-        "children": [
-         {
-          "id": "g7",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[رقم] عميل"
-         },
-         {
-          "id": "g8",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[رقم] سنة"
-         },
-         {
-          "id": "g9",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[رقم] فرع"
-         }
-        ]
+        "children": []
        },
        {
-        "id": "g10",
+        "id": "g7",
         "type": "column",
         "name": "Most popular",
         "padding": {
@@ -603,16 +533,17 @@
         "gap": 8,
         "children": [
          {
-          "id": "g11",
+          "id": "g8",
           "type": "text",
           "font": {
            "weight": 800,
            "size": 17
           },
-          "text": "الأكثر طلبًا"
+          "text": "الأكثر طلبًا",
+          "heads": "g9"
          },
          {
-          "id": "g12",
+          "id": "g9",
           "type": "items",
           "gap": 10,
           "source": "restaurants",
@@ -688,7 +619,7 @@
         ]
        },
        {
-        "id": "g13",
+        "id": "g10",
         "type": "column",
         "name": "How it works",
         "padding": {
@@ -710,13 +641,47 @@
         "shadow": "light",
         "children": [
          {
-          "id": "g14",
+          "id": "g11",
           "type": "text",
           "font": {
            "weight": 800,
            "size": 17
           },
           "text": "كيف تعمل الخدمة"
+         },
+         {
+          "id": "g12",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g13",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "1"
+           },
+           {
+            "id": "g14",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "اختر مطعمًا قريبًا منك"
+           }
+          ]
          },
          {
           "id": "g15",
@@ -738,7 +703,7 @@
              "line_height": 2.1
             },
             "text_align": "center",
-            "text": "1"
+            "text": "2"
            },
            {
             "id": "g17",
@@ -748,7 +713,7 @@
              "weight": 600,
              "size": 14
             },
-            "text": "اختر مطعمًا قريبًا منك"
+            "text": "يجهّز المطعم طلبك"
            }
           ]
          },
@@ -772,44 +737,10 @@
              "line_height": 2.1
             },
             "text_align": "center",
-            "text": "2"
-           },
-           {
-            "id": "g20",
-            "type": "text",
-            "width": "fill",
-            "font": {
-             "weight": 600,
-             "size": 14
-            },
-            "text": "يجهّز المطعم طلبك"
-           }
-          ]
-         },
-         {
-          "id": "g21",
-          "type": "row",
-          "gap": 10,
-          "cross": "center",
-          "children": [
-           {
-            "id": "g22",
-            "type": "text",
-            "width": 30,
-            "height": 30,
-            "background": "#0E0D24",
-            "color": "#FFFFFF",
-            "radius": 15,
-            "font": {
-             "weight": 800,
-             "size": 14,
-             "line_height": 2.1
-            },
-            "text_align": "center",
             "text": "3"
            },
            {
-            "id": "g23",
+            "id": "g20",
             "type": "text",
             "width": "fill",
             "font": {
@@ -823,7 +754,7 @@
         ]
        },
        {
-        "id": "g24",
+        "id": "g21",
         "type": "column",
         "padding": {
          "top": 8,
@@ -834,7 +765,7 @@
         "gap": 8,
         "children": [
          {
-          "id": "g25",
+          "id": "g22",
           "type": "text",
           "font": {
            "weight": 800,
@@ -843,16 +774,7 @@
           "text": "موقعنا"
          },
          {
-          "id": "g26",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "size": 13
-          },
-          "text": "[العنوان ومواعيد العمل]"
-         },
-         {
-          "id": "g27",
+          "id": "g23",
           "type": "map",
           "height": 170,
           "radius": 14,

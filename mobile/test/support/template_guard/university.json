@@ -173,7 +173,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "What's new"
+          "text": "What's new",
+          "heads": "g11"
          },
          {
           "id": "g11",
@@ -456,15 +457,6 @@
          },
          {
           "id": "g30",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "size": 13
-          },
-          "text": "[Your address and opening hours]"
-         },
-         {
-          "id": "g31",
           "type": "map",
           "height": 170,
           "radius": 14,
@@ -621,7 +613,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "الجديد"
+          "text": "الجديد",
+          "heads": "g11"
          },
          {
           "id": "g11",
@@ -904,15 +897,6 @@
          },
          {
           "id": "g30",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "size": 13
-          },
-          "text": "[العنوان ومواعيد العمل]"
-         },
-         {
-          "id": "g31",
           "type": "map",
           "height": 170,
           "radius": 14,

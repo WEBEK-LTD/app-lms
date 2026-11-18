@@ -121,16 +121,6 @@
                   "children": [
                    {
                     "id": "g9",
-                    "type": "text",
-                    "color": "#FFFFFF",
-                    "font": {
-                     "weight": 700,
-                     "size": 15
-                    },
-                    "text": "[Your area]"
-                   },
-                   {
-                    "id": "g10",
                     "type": "icon",
                     "color": "#FFFFFF",
                     "icon": "expand_more",
@@ -141,7 +131,7 @@
                 ]
                },
                {
-                "id": "g11",
+                "id": "g10",
                 "type": "stack",
                 "width": 40,
                 "height": 40,
@@ -152,7 +142,7 @@
                 },
                 "children": [
                  {
-                  "id": "g12",
+                  "id": "g11",
                   "type": "column",
                   "width": 40,
                   "height": 40,
@@ -162,7 +152,7 @@
                   "children": []
                  },
                  {
-                  "id": "g13",
+                  "id": "g12",
                   "type": "icon",
                   "color": "#FFFFFF",
                   "icon": "notifications",
@@ -173,12 +163,12 @@
               ]
              },
              {
-              "id": "g14",
+              "id": "g13",
               "type": "column",
               "gap": 6,
               "children": [
                {
-                "id": "g15",
+                "id": "g14",
                 "type": "text",
                 "color": "#FFC9AE",
                 "font": {
@@ -190,7 +180,7 @@
                 "text": "Guard Shop"
                },
                {
-                "id": "g16",
+                "id": "g15",
                 "type": "text",
                 "color": "#FFFFFF",
                 "font": {
@@ -208,7 +198,7 @@
           ]
          },
          {
-          "id": "g17",
+          "id": "g16",
           "type": "row",
           "name": "Dishes, restaurants or cuisines",
           "height": 54,
@@ -234,7 +224,7 @@
           },
           "children": [
            {
-            "id": "g18",
+            "id": "g17",
             "type": "icon",
             "color": "#6E5A50",
             "dark_color": "#C5B2A6",
@@ -242,7 +232,7 @@
             "icon_size": 22
            },
            {
-            "id": "g19",
+            "id": "g18",
             "type": "text",
             "width": "fill",
             "color": "#6E5A50",
@@ -258,7 +248,7 @@
         ]
        },
        {
-        "id": "g20",
+        "id": "g19",
         "type": "row",
         "name": "Grill",
         "padding": {
@@ -272,7 +262,7 @@
         "scroll": true,
         "children": [
          {
-          "id": "g21",
+          "id": "g20",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -282,7 +272,7 @@
           },
           "children": [
            {
-            "id": "g22",
+            "id": "g21",
             "type": "image",
             "width": 58,
             "height": 58,
@@ -292,7 +282,7 @@
             "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg"
            },
            {
-            "id": "g23",
+            "id": "g22",
             "type": "text",
             "color": "#2A1810",
             "dark_color": "#F7EDE6",
@@ -305,7 +295,7 @@
           ]
          },
          {
-          "id": "g24",
+          "id": "g23",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -315,7 +305,7 @@
           },
           "children": [
            {
-            "id": "g25",
+            "id": "g24",
             "type": "image",
             "width": 58,
             "height": 58,
@@ -323,7 +313,7 @@
             "image_url": "http://localhost:3000/demo-photos/margherita.jpg"
            },
            {
-            "id": "g26",
+            "id": "g25",
             "type": "text",
             "color": "#2A1810",
             "dark_color": "#F7EDE6",
@@ -336,7 +326,7 @@
           ]
          },
          {
-          "id": "g27",
+          "id": "g26",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -346,7 +336,7 @@
           },
           "children": [
            {
-            "id": "g28",
+            "id": "g27",
             "type": "image",
             "width": 58,
             "height": 58,
@@ -354,7 +344,7 @@
             "image_url": "http://localhost:3000/demo-photos/kofta.jpg"
            },
            {
-            "id": "g29",
+            "id": "g28",
             "type": "text",
             "color": "#2A1810",
             "dark_color": "#F7EDE6",
@@ -367,7 +357,7 @@
           ]
          },
          {
-          "id": "g30",
+          "id": "g29",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -377,7 +367,7 @@
           },
           "children": [
            {
-            "id": "g31",
+            "id": "g30",
             "type": "image",
             "width": 58,
             "height": 58,
@@ -385,7 +375,7 @@
             "image_url": "http://localhost:3000/demo-photos/shish-tawook.jpg"
            },
            {
-            "id": "g32",
+            "id": "g31",
             "type": "text",
             "color": "#2A1810",
             "dark_color": "#F7EDE6",
@@ -398,7 +388,7 @@
           ]
          },
          {
-          "id": "g33",
+          "id": "g32",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -408,7 +398,7 @@
           },
           "children": [
            {
-            "id": "g34",
+            "id": "g33",
             "type": "image",
             "width": 58,
             "height": 58,
@@ -416,7 +406,7 @@
             "image_url": "http://localhost:3000/demo-photos/chocolate-brownie.jpg"
            },
            {
-            "id": "g35",
+            "id": "g34",
             "type": "text",
             "color": "#2A1810",
             "dark_color": "#F7EDE6",
@@ -431,7 +421,7 @@
         ]
        },
        {
-        "id": "g36",
+        "id": "g35",
         "type": "live_status",
         "padding": {
          "top": 12,
@@ -453,7 +443,7 @@
         "visibility": "signed_in"
        },
        {
-        "id": "g37",
+        "id": "g36",
         "type": "row",
         "name": "Loved near you",
         "padding": {
@@ -465,7 +455,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g38",
+          "id": "g37",
           "type": "text",
           "width": "fill",
           "color": "#2A1810",
@@ -477,7 +467,7 @@
           "text": "Loved near you"
          },
          {
-          "id": "g39",
+          "id": "g38",
           "type": "text",
           "color": "#B8431D",
           "dark_color": "#FF9A72",
@@ -494,7 +484,7 @@
         ]
        },
        {
-        "id": "g40",
+        "id": "g39",
         "type": "items",
         "padding": {
          "end": 16,
@@ -504,7 +494,7 @@
         "source": "restaurants",
         "layout": "carousel",
         "card": {
-         "id": "g41",
+         "id": "g40",
          "type": "column",
          "width": 200,
          "background": "#FFFFFF",
@@ -515,14 +505,14 @@
          "border_width": 1,
          "children": [
           {
-           "id": "g42",
+           "id": "g41",
            "type": "image",
            "width": "fill",
            "height": 108,
            "bind": "image"
           },
           {
-           "id": "g43",
+           "id": "g42",
            "type": "column",
            "padding": {
             "top": 10,
@@ -533,7 +523,7 @@
            "gap": 2,
            "children": [
             {
-             "id": "g44",
+             "id": "g43",
              "type": "text",
              "color": "#2A1810",
              "dark_color": "#F7EDE6",
@@ -545,13 +535,13 @@
              "bind": "title"
             },
             {
-             "id": "g45",
+             "id": "g44",
              "type": "row",
              "gap": 6,
              "cross": "center",
              "children": [
               {
-               "id": "g46",
+               "id": "g45",
                "type": "text",
                "color": "#2A1810",
                "dark_color": "#F7EDE6",
@@ -562,7 +552,7 @@
                "bind": "badge"
               },
               {
-               "id": "g47",
+               "id": "g46",
                "type": "text",
                "width": "fill",
                "color": "#6E5A50",
@@ -757,16 +747,6 @@
                   "children": [
                    {
                     "id": "g9",
-                    "type": "text",
-                    "color": "#FFFFFF",
-                    "font": {
-                     "weight": 700,
-                     "size": 15
-                    },
-                    "text": "[منطقتك]"
-                   },
-                   {
-                    "id": "g10",
                     "type": "icon",
                     "color": "#FFFFFF",
                     "icon": "expand_more",
@@ -777,7 +757,7 @@
                 ]
                },
                {
-                "id": "g11",
+                "id": "g10",
                 "type": "stack",
                 "width": 40,
                 "height": 40,
@@ -788,7 +768,7 @@
                 },
                 "children": [
                  {
-                  "id": "g12",
+                  "id": "g11",
                   "type": "column",
                   "width": 40,
                   "height": 40,
@@ -798,7 +778,7 @@
                   "children": []
                  },
                  {
-                  "id": "g13",
+                  "id": "g12",
                   "type": "icon",
                   "color": "#FFFFFF",
                   "icon": "notifications",
@@ -809,12 +789,12 @@
               ]
              },
              {
-              "id": "g14",
+              "id": "g13",
               "type": "column",
               "gap": 6,
               "children": [
                {
-                "id": "g15",
+                "id": "g14",
                 "type": "text",
                 "color": "#FFC9AE",
                 "font": {
@@ -826,7 +806,7 @@
                 "text": "Guard Shop"
                },
                {
-                "id": "g16",
+                "id": "g15",
                 "type": "text",
                 "color": "#FFFFFF",
                 "font": {
@@ -844,7 +824,7 @@
           ]
          },
          {
-          "id": "g17",
+          "id": "g16",
           "type": "row",
           "name": "Dishes, restaurants or cuisines",
           "height": 54,
@@ -870,7 +850,7 @@
           },
           "children": [
            {
-            "id": "g18",
+            "id": "g17",
             "type": "icon",
             "color": "#6E5A50",
             "dark_color": "#C5B2A6",
@@ -878,7 +858,7 @@
             "icon_size": 22
            },
            {
-            "id": "g19",
+            "id": "g18",
             "type": "text",
             "width": "fill",
             "color": "#6E5A50",
@@ -894,7 +874,7 @@
         ]
        },
        {
-        "id": "g20",
+        "id": "g19",
         "type": "row",
         "name": "Grill",
         "padding": {
@@ -908,7 +888,7 @@
         "scroll": true,
         "children": [
          {
-          "id": "g21",
+          "id": "g20",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -918,7 +898,7 @@
           },
           "children": [
            {
-            "id": "g22",
+            "id": "g21",
             "type": "image",
             "width": 58,
             "height": 58,
@@ -928,7 +908,7 @@
             "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg"
            },
            {
-            "id": "g23",
+            "id": "g22",
             "type": "text",
             "color": "#2A1810",
             "dark_color": "#F7EDE6",
@@ -941,7 +921,7 @@
           ]
          },
          {
-          "id": "g24",
+          "id": "g23",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -951,7 +931,7 @@
           },
           "children": [
            {
-            "id": "g25",
+            "id": "g24",
             "type": "image",
             "width": 58,
             "height": 58,
@@ -959,7 +939,7 @@
             "image_url": "http://localhost:3000/demo-photos/margherita.jpg"
            },
            {
-            "id": "g26",
+            "id": "g25",
             "type": "text",
             "color": "#2A1810",
             "dark_color": "#F7EDE6",
@@ -972,7 +952,7 @@
           ]
          },
          {
-          "id": "g27",
+          "id": "g26",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -982,7 +962,7 @@
           },
           "children": [
            {
-            "id": "g28",
+            "id": "g27",
             "type": "image",
             "width": 58,
             "height": 58,
@@ -990,7 +970,7 @@
             "image_url": "http://localhost:3000/demo-photos/kofta.jpg"
            },
            {
-            "id": "g29",
+            "id": "g28",
             "type": "text",
             "color": "#2A1810",
             "dark_color": "#F7EDE6",
@@ -1003,7 +983,7 @@
           ]
          },
          {
-          "id": "g30",
+          "id": "g29",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -1013,7 +993,7 @@
           },
           "children": [
            {
-            "id": "g31",
+            "id": "g30",
             "type": "image",
             "width": 58,
             "height": 58,
@@ -1021,7 +1001,7 @@
             "image_url": "http://localhost:3000/demo-photos/shish-tawook.jpg"
            },
            {
-            "id": "g32",
+            "id": "g31",
             "type": "text",
             "color": "#2A1810",
             "dark_color": "#F7EDE6",
@@ -1034,7 +1014,7 @@
           ]
          },
          {
-          "id": "g33",
+          "id": "g32",
           "type": "column",
           "gap": 6,
           "cross": "center",
@@ -1044,7 +1024,7 @@
           },
           "children": [
            {
-            "id": "g34",
+            "id": "g33",
             "type": "image",
             "width": 58,
             "height": 58,
@@ -1052,7 +1032,7 @@
             "image_url": "http://localhost:3000/demo-photos/chocolate-brownie.jpg"
            },
            {
-            "id": "g35",
+            "id": "g34",
             "type": "text",
             "color": "#2A1810",
             "dark_color": "#F7EDE6",
@@ -1067,7 +1047,7 @@
         ]
        },
        {
-        "id": "g36",
+        "id": "g35",
         "type": "live_status",
         "padding": {
          "top": 12,
@@ -1089,7 +1069,7 @@
         "visibility": "signed_in"
        },
        {
-        "id": "g37",
+        "id": "g36",
         "type": "row",
         "name": "Loved near you",
         "padding": {
@@ -1101,7 +1081,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g38",
+          "id": "g37",
           "type": "text",
           "width": "fill",
           "color": "#2A1810",
@@ -1113,7 +1093,7 @@
           "text": "الأكثر طلبًا بالقرب منك"
          },
          {
-          "id": "g39",
+          "id": "g38",
           "type": "text",
           "color": "#B8431D",
           "dark_color": "#FF9A72",
@@ -1130,7 +1110,7 @@
         ]
        },
        {
-        "id": "g40",
+        "id": "g39",
         "type": "items",
         "padding": {
          "end": 16,
@@ -1140,7 +1120,7 @@
         "source": "restaurants",
         "layout": "carousel",
         "card": {
-         "id": "g41",
+         "id": "g40",
          "type": "column",
          "width": 200,
          "background": "#FFFFFF",
@@ -1151,14 +1131,14 @@
          "border_width": 1,
          "children": [
           {
-           "id": "g42",
+           "id": "g41",
            "type": "image",
            "width": "fill",
            "height": 108,
            "bind": "image"
           },
           {
-           "id": "g43",
+           "id": "g42",
            "type": "column",
            "padding": {
             "top": 10,
@@ -1169,7 +1149,7 @@
            "gap": 2,
            "children": [
             {
-             "id": "g44",
+             "id": "g43",
              "type": "text",
              "color": "#2A1810",
              "dark_color": "#F7EDE6",
@@ -1181,13 +1161,13 @@
              "bind": "title"
             },
             {
-             "id": "g45",
+             "id": "g44",
              "type": "row",
              "gap": 6,
              "cross": "center",
              "children": [
               {
-               "id": "g46",
+               "id": "g45",
                "type": "text",
                "color": "#2A1810",
                "dark_color": "#F7EDE6",
@@ -1198,7 +1178,7 @@
                "bind": "badge"
               },
               {
-               "id": "g47",
+               "id": "g46",
                "type": "text",
                "width": "fill",
                "color": "#6E5A50",

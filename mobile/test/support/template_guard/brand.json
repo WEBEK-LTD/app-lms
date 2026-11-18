@@ -140,41 +140,10 @@
         "background": "#0E0D24",
         "color": "#F4EFE6",
         "radius": 16,
-        "children": [
-         {
-          "id": "g7",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[Number] customers"
-         },
-         {
-          "id": "g8",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[Number] years"
-         },
-         {
-          "id": "g9",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[Number] branches"
-         }
-        ]
+        "children": []
        },
        {
-        "id": "g10",
+        "id": "g7",
         "type": "row",
         "padding": {
          "top": 8,
@@ -184,6 +153,43 @@
         },
         "gap": 8,
         "children": [
+         {
+          "id": "g8",
+          "type": "column",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 10,
+           "bottom": 12,
+           "start": 10
+          },
+          "gap": 4,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "text_align": "center",
+          "children": [
+           {
+            "id": "g9",
+            "type": "icon",
+            "color": "#0E0D24",
+            "icon": "bolt",
+            "icon_size": 26
+           },
+           {
+            "id": "g10",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "Fast"
+           }
+          ]
+         },
          {
           "id": "g11",
           "type": "column",
@@ -206,7 +212,7 @@
             "id": "g12",
             "type": "icon",
             "color": "#0E0D24",
-            "icon": "bolt",
+            "icon": "verified_user",
             "icon_size": 26
            },
            {
@@ -217,69 +223,12 @@
              "size": 13
             },
             "text_align": "center",
-            "text": "Fast"
-           },
-           {
-            "id": "g14",
-            "type": "text",
-            "opacity": 0.8,
-            "font": {
-             "size": 11
-            },
-            "text_align": "center",
-            "text": "[Why customers choose you]"
-           }
-          ]
-         },
-         {
-          "id": "g15",
-          "type": "column",
-          "width": "fill",
-          "padding": {
-           "top": 12,
-           "end": 10,
-           "bottom": 12,
-           "start": 10
-          },
-          "gap": 4,
-          "cross": "center",
-          "background": "#FFFFFF",
-          "dark_background": "#22203A",
-          "radius": 14,
-          "shadow": "light",
-          "text_align": "center",
-          "children": [
-           {
-            "id": "g16",
-            "type": "icon",
-            "color": "#0E0D24",
-            "icon": "verified_user",
-            "icon_size": 26
-           },
-           {
-            "id": "g17",
-            "type": "text",
-            "font": {
-             "weight": 800,
-             "size": 13
-            },
-            "text_align": "center",
             "text": "Safe"
-           },
-           {
-            "id": "g18",
-            "type": "text",
-            "opacity": 0.8,
-            "font": {
-             "size": 11
-            },
-            "text_align": "center",
-            "text": "[What you promise]"
            }
           ]
          },
          {
-          "id": "g19",
+          "id": "g14",
           "type": "column",
           "width": "fill",
           "padding": {
@@ -297,14 +246,14 @@
           "text_align": "center",
           "children": [
            {
-            "id": "g20",
+            "id": "g15",
             "type": "icon",
             "color": "#0E0D24",
             "icon": "support_agent",
             "icon_size": 26
            },
            {
-            "id": "g21",
+            "id": "g16",
             "type": "text",
             "font": {
              "weight": 800,
@@ -312,23 +261,13 @@
             },
             "text_align": "center",
             "text": "Help"
-           },
-           {
-            "id": "g22",
-            "type": "text",
-            "opacity": 0.8,
-            "font": {
-             "size": 11
-            },
-            "text_align": "center",
-            "text": "[How to reach you]"
            }
           ]
          }
         ]
        },
        {
-        "id": "g23",
+        "id": "g17",
         "type": "column",
         "padding": {
          "top": 14,
@@ -349,33 +288,14 @@
         "shadow": "light",
         "children": [
          {
-          "id": "g24",
+          "id": "g18",
           "type": "ratings",
           "rating": 5
-         },
-         {
-          "id": "g25",
-          "type": "text",
-          "font": {
-           "size": 14,
-           "italic": true
-          },
-          "text": "[What a customer says about you]"
-         },
-         {
-          "id": "g26",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "weight": 700,
-           "size": 12
-          },
-          "text": "[Customer name]"
          }
         ]
        },
        {
-        "id": "g27",
+        "id": "g19",
         "type": "column",
         "padding": {
          "top": 8,
@@ -386,7 +306,7 @@
         "gap": 8,
         "children": [
          {
-          "id": "g28",
+          "id": "g20",
           "type": "text",
           "font": {
            "weight": 800,
@@ -395,16 +315,7 @@
           "text": "Find us"
          },
          {
-          "id": "g29",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "size": 13
-          },
-          "text": "[Your address and opening hours]"
-         },
-         {
-          "id": "g30",
+          "id": "g21",
           "type": "map",
           "height": 170,
           "radius": 14,
@@ -518,41 +429,10 @@
         "background": "#0E0D24",
         "color": "#F4EFE6",
         "radius": 16,
-        "children": [
-         {
-          "id": "g7",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[رقم] عميل"
-         },
-         {
-          "id": "g8",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[رقم] سنة"
-         },
-         {
-          "id": "g9",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[رقم] فرع"
-         }
-        ]
+        "children": []
        },
        {
-        "id": "g10",
+        "id": "g7",
         "type": "row",
         "padding": {
          "top": 8,
@@ -562,6 +442,43 @@
         },
         "gap": 8,
         "children": [
+         {
+          "id": "g8",
+          "type": "column",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 10,
+           "bottom": 12,
+           "start": 10
+          },
+          "gap": 4,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "text_align": "center",
+          "children": [
+           {
+            "id": "g9",
+            "type": "icon",
+            "color": "#0E0D24",
+            "icon": "bolt",
+            "icon_size": 26
+           },
+           {
+            "id": "g10",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "سريع"
+           }
+          ]
+         },
          {
           "id": "g11",
           "type": "column",
@@ -584,7 +501,7 @@
             "id": "g12",
             "type": "icon",
             "color": "#0E0D24",
-            "icon": "bolt",
+            "icon": "verified_user",
             "icon_size": 26
            },
            {
@@ -595,69 +512,12 @@
              "size": 13
             },
             "text_align": "center",
-            "text": "سريع"
-           },
-           {
-            "id": "g14",
-            "type": "text",
-            "opacity": 0.8,
-            "font": {
-             "size": 11
-            },
-            "text_align": "center",
-            "text": "[لماذا يختارك العملاء]"
-           }
-          ]
-         },
-         {
-          "id": "g15",
-          "type": "column",
-          "width": "fill",
-          "padding": {
-           "top": 12,
-           "end": 10,
-           "bottom": 12,
-           "start": 10
-          },
-          "gap": 4,
-          "cross": "center",
-          "background": "#FFFFFF",
-          "dark_background": "#22203A",
-          "radius": 14,
-          "shadow": "light",
-          "text_align": "center",
-          "children": [
-           {
-            "id": "g16",
-            "type": "icon",
-            "color": "#0E0D24",
-            "icon": "verified_user",
-            "icon_size": 26
-           },
-           {
-            "id": "g17",
-            "type": "text",
-            "font": {
-             "weight": 800,
-             "size": 13
-            },
-            "text_align": "center",
             "text": "مضمون"
-           },
-           {
-            "id": "g18",
-            "type": "text",
-            "opacity": 0.8,
-            "font": {
-             "size": 11
-            },
-            "text_align": "center",
-            "text": "[ما تعد به عملاءك]"
            }
           ]
          },
          {
-          "id": "g19",
+          "id": "g14",
           "type": "column",
           "width": "fill",
           "padding": {
@@ -675,14 +535,14 @@
           "text_align": "center",
           "children": [
            {
-            "id": "g20",
+            "id": "g15",
             "type": "icon",
             "color": "#0E0D24",
             "icon": "support_agent",
             "icon_size": 26
            },
            {
-            "id": "g21",
+            "id": "g16",
             "type": "text",
             "font": {
              "weight": 800,
@@ -690,23 +550,13 @@
             },
             "text_align": "center",
             "text": "مساعدة"
-           },
-           {
-            "id": "g22",
-            "type": "text",
-            "opacity": 0.8,
-            "font": {
-             "size": 11
-            },
-            "text_align": "center",
-            "text": "[كيف يتواصلون معك]"
            }
           ]
          }
         ]
        },
        {
-        "id": "g23",
+        "id": "g17",
         "type": "column",
         "padding": {
          "top": 14,
@@ -727,33 +577,14 @@
         "shadow": "light",
         "children": [
          {
-          "id": "g24",
+          "id": "g18",
           "type": "ratings",
           "rating": 5
-         },
-         {
-          "id": "g25",
-          "type": "text",
-          "font": {
-           "size": 14,
-           "italic": true
-          },
-          "text": "[رأي أحد العملاء فيك]"
-         },
-         {
-          "id": "g26",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "weight": 700,
-           "size": 12
-          },
-          "text": "[اسم العميل]"
          }
         ]
        },
        {
-        "id": "g27",
+        "id": "g19",
         "type": "column",
         "padding": {
          "top": 8,
@@ -764,7 +595,7 @@
         "gap": 8,
         "children": [
          {
-          "id": "g28",
+          "id": "g20",
           "type": "text",
           "font": {
            "weight": 800,
@@ -773,16 +604,7 @@
           "text": "موقعنا"
          },
          {
-          "id": "g29",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "size": 13
-          },
-          "text": "[العنوان ومواعيد العمل]"
-         },
-         {
-          "id": "g30",
+          "id": "g21",
           "type": "map",
           "height": 170,
           "radius": 14,

@@ -112,6 +112,7 @@
          {
           "id": "g4",
           "type": "row",
+          "stories_source": "dashboard",
           "padding": {
            "end": 16,
            "start": 16
@@ -135,12 +136,14 @@
             "radius": 20,
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "9"
             },
             "children": [
              {
               "id": "g6",
               "type": "icon",
+              "story_part": "icon",
               "color": "#FFFFFF",
               "dark_color": "#0A120E",
               "icon": "favorite",
@@ -149,6 +152,7 @@
              {
               "id": "g7",
               "type": "text",
+              "story_part": "ring",
               "color": "#FFFFFF",
               "dark_color": "#0A120E",
               "font": {
@@ -178,12 +182,14 @@
             "border_width": 1,
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "10"
             },
             "children": [
              {
               "id": "g9",
               "type": "icon",
+              "story_part": "icon",
               "color": "#B5603F",
               "dark_color": "#F2B79E",
               "icon": "cake",
@@ -192,6 +198,7 @@
              {
               "id": "g10",
               "type": "text",
+              "story_part": "ring",
               "color": "#15241D",
               "dark_color": "#EDF3EE",
               "font": {
@@ -221,12 +228,14 @@
             "border_width": 1,
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "11"
             },
             "children": [
              {
               "id": "g12",
               "type": "icon",
+              "story_part": "icon",
               "color": "#B5603F",
               "dark_color": "#F2B79E",
               "icon": "spa",
@@ -235,6 +244,7 @@
              {
               "id": "g13",
               "type": "text",
+              "story_part": "ring",
               "color": "#15241D",
               "dark_color": "#EDF3EE",
               "font": {
@@ -264,12 +274,14 @@
             "border_width": 1,
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "12"
             },
             "children": [
              {
               "id": "g15",
               "type": "icon",
+              "story_part": "icon",
               "color": "#B5603F",
               "dark_color": "#F2B79E",
               "icon": "child_care",
@@ -278,6 +290,7 @@
              {
               "id": "g16",
               "type": "text",
+              "story_part": "ring",
               "color": "#15241D",
               "dark_color": "#EDF3EE",
               "font": {
@@ -307,12 +320,14 @@
             "border_width": 1,
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "13"
             },
             "children": [
              {
               "id": "g18",
               "type": "icon",
+              "story_part": "icon",
               "color": "#B5603F",
               "dark_color": "#F2B79E",
               "icon": "celebration",
@@ -321,6 +336,7 @@
              {
               "id": "g19",
               "type": "text",
+              "story_part": "ring",
               "color": "#15241D",
               "dark_color": "#EDF3EE",
               "font": {
@@ -383,7 +399,8 @@
           "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "3"
           },
           "children": [
            {
@@ -488,7 +505,8 @@
           "image_url": "http://localhost:3000/flower-photos/red-rose.jpg",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "2"
           },
           "children": [
            {
@@ -593,7 +611,8 @@
           "image_url": "http://localhost:3000/flower-photos/baby-breath.jpg",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "1"
           },
           "children": [
            {
@@ -751,25 +770,13 @@
                "letter_spacing": -0.6
               },
               "text": "Send today"
-             },
-             {
-              "id": "g50",
-              "type": "text",
-              "color": "#5F6F66",
-              "dark_color": "#A9BCB1",
-              "font": {
-               "size": 13.5,
-               "line_height": 1.4
-              },
-              "text": "Order before [your cut-off time] and it arrives today.",
-              "max_lines": 3
              }
             ]
            }
           ]
          },
          {
-          "id": "g51",
+          "id": "g50",
           "type": "row",
           "name": "Delivery days · today, tomorrow, a date",
           "width": "fill",
@@ -779,7 +786,7 @@
           "gap": 6,
           "children": [
            {
-            "id": "g52",
+            "id": "g51",
             "type": "row",
             "name": "Today",
             "width": "fill",
@@ -800,7 +807,7 @@
             },
             "children": [
              {
-              "id": "g53",
+              "id": "g52",
               "type": "icon",
               "color": "#FFFFFF",
               "dark_color": "#0A120E",
@@ -808,7 +815,7 @@
               "icon_size": 15
              },
              {
-              "id": "g54",
+              "id": "g53",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#0A120E",
@@ -822,7 +829,7 @@
             ]
            },
            {
-            "id": "g55",
+            "id": "g54",
             "type": "row",
             "name": "Tomorrow",
             "width": "fill",
@@ -844,7 +851,7 @@
             },
             "children": [
              {
-              "id": "g56",
+              "id": "g55",
               "type": "text",
               "color": "#15241D",
               "dark_color": "#EDF3EE",
@@ -858,7 +865,7 @@
             ]
            },
            {
-            "id": "g57",
+            "id": "g56",
             "type": "row",
             "name": "Pick a date",
             "width": "fill",
@@ -880,7 +887,7 @@
             },
             "children": [
              {
-              "id": "g58",
+              "id": "g57",
               "type": "text",
               "color": "#15241D",
               "dark_color": "#EDF3EE",
@@ -898,7 +905,7 @@
         ]
        },
        {
-        "id": "g59",
+        "id": "g58",
         "type": "row",
         "name": "Collections",
         "padding": {
@@ -911,13 +918,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g60",
+          "id": "g59",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g61",
+            "id": "g60",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -934,7 +941,7 @@
           ]
          },
          {
-          "id": "g62",
+          "id": "g61",
           "type": "text",
           "padding": {
            "bottom": 4
@@ -954,7 +961,7 @@
         ]
        },
        {
-        "id": "g63",
+        "id": "g62",
         "type": "row",
         "name": "Collections",
         "padding": {
@@ -966,7 +973,7 @@
         "scroll": true,
         "children": [
          {
-          "id": "g64",
+          "id": "g63",
           "type": "column",
           "name": "Roses",
           "width": 118,
@@ -974,11 +981,12 @@
           "cross": "center",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "2"
           },
           "children": [
            {
-            "id": "g65",
+            "id": "g64",
             "type": "image",
             "width": 118,
             "height": 156,
@@ -992,7 +1000,7 @@
             "image_url": "http://localhost:3000/flower-photos/red-rose.jpg"
            },
            {
-            "id": "g66",
+            "id": "g65",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -1008,7 +1016,7 @@
           ]
          },
          {
-          "id": "g67",
+          "id": "g66",
           "type": "column",
           "name": "Tulips",
           "width": 118,
@@ -1020,7 +1028,7 @@
           },
           "children": [
            {
-            "id": "g68",
+            "id": "g67",
             "type": "image",
             "width": 118,
             "height": 156,
@@ -1034,7 +1042,7 @@
             "image_url": "http://localhost:3000/flower-photos/tulips.jpg"
            },
            {
-            "id": "g69",
+            "id": "g68",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -1050,7 +1058,7 @@
           ]
          },
          {
-          "id": "g70",
+          "id": "g69",
           "type": "column",
           "name": "Plants",
           "width": 118,
@@ -1058,11 +1066,12 @@
           "cross": "center",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "4"
           },
           "children": [
            {
-            "id": "g71",
+            "id": "g70",
             "type": "image",
             "width": 118,
             "height": 156,
@@ -1076,7 +1085,7 @@
             "image_url": "http://localhost:3000/flower-photos/orchid.jpg"
            },
            {
-            "id": "g72",
+            "id": "g71",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -1092,7 +1101,7 @@
           ]
          },
          {
-          "id": "g73",
+          "id": "g72",
           "type": "column",
           "name": "Gift sets",
           "width": 118,
@@ -1100,11 +1109,12 @@
           "cross": "center",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "5"
           },
           "children": [
            {
-            "id": "g74",
+            "id": "g73",
             "type": "image",
             "width": 118,
             "height": 156,
@@ -1118,7 +1128,7 @@
             "image_url": "http://localhost:3000/flower-photos/garden-jug.jpg"
            },
            {
-            "id": "g75",
+            "id": "g74",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -1134,7 +1144,7 @@
           ]
          },
          {
-          "id": "g76",
+          "id": "g75",
           "type": "column",
           "name": "Signature bouquets",
           "width": 118,
@@ -1142,11 +1152,12 @@
           "cross": "center",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "1"
           },
           "children": [
            {
-            "id": "g77",
+            "id": "g76",
             "type": "image",
             "width": 118,
             "height": 156,
@@ -1160,7 +1171,7 @@
             "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg"
            },
            {
-            "id": "g78",
+            "id": "g77",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -1178,7 +1189,7 @@
         ]
        },
        {
-        "id": "g79",
+        "id": "g78",
         "type": "row",
         "name": "From the atelier",
         "padding": {
@@ -1191,13 +1202,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g80",
+          "id": "g79",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g81",
+            "id": "g80",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -1216,7 +1227,7 @@
         ]
        },
        {
-        "id": "g82",
+        "id": "g81",
         "type": "gallery",
         "name": "From the atelier",
         "height": 250,
@@ -1247,7 +1258,7 @@
         }
        },
        {
-        "id": "g83",
+        "id": "g82",
         "type": "row",
         "name": "The price list",
         "padding": {
@@ -1260,13 +1271,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g84",
+          "id": "g83",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g85",
+            "id": "g84",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -1283,7 +1294,7 @@
           ]
          },
          {
-          "id": "g86",
+          "id": "g85",
           "type": "text",
           "padding": {
            "bottom": 4
@@ -1300,10 +1311,11 @@
            "screen": "search"
           }
          }
-        ]
+        ],
+        "heads": "g86"
        },
        {
-        "id": "g87",
+        "id": "g86",
         "type": "items",
         "name": "The price list",
         "padding": {
@@ -1313,7 +1325,7 @@
         "source": "products",
         "layout": "list",
         "card": {
-         "id": "g88",
+         "id": "g87",
          "type": "row",
          "padding": {
           "top": 12,
@@ -1325,7 +1337,7 @@
          "cross": "center",
          "children": [
           {
-           "id": "g89",
+           "id": "g88",
            "type": "image",
            "width": 64,
            "height": 78,
@@ -1333,13 +1345,13 @@
            "bind": "image"
           },
           {
-           "id": "g90",
+           "id": "g89",
            "type": "column",
            "width": "fill",
            "gap": 2,
            "children": [
             {
-             "id": "g91",
+             "id": "g90",
              "type": "text",
              "color": "#15241D",
              "dark_color": "#EDF3EE",
@@ -1352,7 +1364,7 @@
              "bind": "title"
             },
             {
-             "id": "g92",
+             "id": "g91",
              "type": "text",
              "color": "#B5603F",
              "dark_color": "#F2B79E",
@@ -1366,7 +1378,7 @@
            ]
           },
           {
-           "id": "g93",
+           "id": "g92",
            "type": "text",
            "color": "#15241D",
            "dark_color": "#EDF3EE",
@@ -1383,11 +1395,156 @@
         "items": [
          {
           "source": "products",
-          "id": "24",
+          "id": "33",
           "title": "Blush Garden",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-1",
           "price_label": "₺2,290.00 – ₺4,260.00",
+          "price": {
+           "amount": "2290.00",
+           "currency": "TRY",
+           "formatted": "₺2,290.00 – ₺4,260.00",
+           "range": true,
+           "max_amount": "4260.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "66.96",
+            "formatted": "$66.96 – $124.56",
+            "max_amount": "124.56",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$66.96 – $124.56"
+           }
+          },
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "products",
+            "id": "33"
+           }
+          }
+         },
+         {
+          "source": "products",
+          "id": "32",
+          "title": "Velvet Red Roses",
+          "subtitle": null,
+          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+          "price_label": "₺2,510.00 – ₺5,190.00",
+          "price": {
+           "amount": "2510.00",
+           "currency": "TRY",
+           "formatted": "₺2,510.00 – ₺5,190.00",
+           "range": true,
+           "max_amount": "5190.00",
+           "on_sale": true,
+           "display": {
+            "currency": "USD",
+            "amount": "73.39",
+            "formatted": "$73.39 – $151.75",
+            "max_amount": "151.75",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$73.39 – $151.75"
+           }
+          },
+          "badge": "Sale",
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "products",
+            "id": "32"
+           }
+          }
+         },
+         {
+          "source": "products",
+          "id": "30",
+          "title": "Ranunculus Cloud",
+          "subtitle": null,
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "₺3,780.00 – ₺7,100.00",
+          "price": {
+           "amount": "3780.00",
+           "currency": "TRY",
+           "formatted": "₺3,780.00 – ₺7,100.00",
+           "range": true,
+           "max_amount": "7100.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "110.53",
+            "formatted": "$110.53 – $207.60",
+            "max_amount": "207.60",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$110.53 – $207.60"
+           }
+          },
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "products",
+            "id": "30"
+           }
+          }
+         },
+         {
+          "source": "products",
+          "id": "26",
+          "title": "Orchid Elegance",
+          "subtitle": null,
+          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+          "price_label": "₺3,470.00",
+          "price": {
+           "amount": "3470.00",
+           "currency": "TRY",
+           "formatted": "₺3,470.00",
+           "range": false,
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "101.46",
+            "formatted": "$101.46",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$101.46"
+           }
+          },
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "products",
+            "id": "26"
+           }
+          }
+         },
+         {
+          "source": "products",
+          "id": "24",
+          "title": "Garden Jug",
+          "subtitle": null,
+          "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+          "price_label": "₺4,570.00",
+          "price": {
+           "amount": "4570.00",
+           "currency": "TRY",
+           "formatted": "₺4,570.00",
+           "range": false,
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "133.63",
+            "formatted": "$133.63",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$133.63"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
@@ -1396,75 +1553,11 @@
             "id": "24"
            }
           }
-         },
-         {
-          "source": "products",
-          "id": "23",
-          "title": "Velvet Red Roses",
-          "subtitle": null,
-          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
-          "price_label": "₺2,510.00 – ₺5,190.00",
-          "badge": "Sale",
-          "action": {
-           "type": "item",
-           "item": {
-            "source": "products",
-            "id": "23"
-           }
-          }
-         },
-         {
-          "source": "products",
-          "id": "21",
-          "title": "Ranunculus Cloud",
-          "subtitle": null,
-          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
-          "price_label": "₺3,780.00 – ₺7,100.00",
-          "badge": null,
-          "action": {
-           "type": "item",
-           "item": {
-            "source": "products",
-            "id": "21"
-           }
-          }
-         },
-         {
-          "source": "products",
-          "id": "17",
-          "title": "Orchid Elegance",
-          "subtitle": null,
-          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
-          "price_label": "₺3,470.00",
-          "badge": null,
-          "action": {
-           "type": "item",
-           "item": {
-            "source": "products",
-            "id": "17"
-           }
-          }
-         },
-         {
-          "source": "products",
-          "id": "15",
-          "title": "Garden Jug",
-          "subtitle": null,
-          "image_url": "https://yallapp.test/api/v1/assets/asset-5",
-          "price_label": "₺4,570.00",
-          "badge": null,
-          "action": {
-           "type": "item",
-           "item": {
-            "source": "products",
-            "id": "15"
-           }
-          }
          }
         ]
        },
        {
-        "id": "g94",
+        "id": "g93",
         "type": "column",
         "name": "Build your bouquet",
         "padding": {
@@ -1486,7 +1579,8 @@
         "radius": 30,
         "action": {
          "type": "screen",
-         "screen": "search"
+         "screen": "search",
+         "flow": "bouquet"
         },
         "surface": {
          "soft": 3,
@@ -1495,7 +1589,7 @@
         },
         "children": [
          {
-          "id": "g95",
+          "id": "g94",
           "type": "text",
           "color": "#E8A486",
           "font": {
@@ -1507,7 +1601,7 @@
           "text": "Make it yours"
          },
          {
-          "id": "g96",
+          "id": "g95",
           "type": "text",
           "color": "#FFFFFF",
           "font": {
@@ -1521,7 +1615,7 @@
           "max_lines": 2
          },
          {
-          "id": "g97",
+          "id": "g96",
           "type": "text",
           "color": "#FFFFFF",
           "opacity": 0.9,
@@ -1533,7 +1627,7 @@
           "max_lines": 2
          },
          {
-          "id": "g98",
+          "id": "g97",
           "type": "row",
           "name": "Build your bouquet",
           "margin": {
@@ -1543,7 +1637,7 @@
           "scroll": true,
           "children": [
            {
-            "id": "g99",
+            "id": "g98",
             "type": "row",
             "height": 32,
             "padding": {
@@ -1562,7 +1656,7 @@
             },
             "children": [
              {
-              "id": "g100",
+              "id": "g99",
               "type": "row",
               "width": 22,
               "height": 22,
@@ -1573,7 +1667,7 @@
               "radius": 11,
               "children": [
                {
-                "id": "g101",
+                "id": "g100",
                 "type": "text",
                 "color": "#1E3B32",
                 "dark_color": "#1E3B32",
@@ -1588,7 +1682,7 @@
               ]
              },
              {
-              "id": "g102",
+              "id": "g101",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
@@ -1601,7 +1695,7 @@
             ]
            },
            {
-            "id": "g103",
+            "id": "g102",
             "type": "row",
             "height": 32,
             "padding": {
@@ -1620,7 +1714,7 @@
             },
             "children": [
              {
-              "id": "g104",
+              "id": "g103",
               "type": "row",
               "width": 22,
               "height": 22,
@@ -1631,7 +1725,7 @@
               "radius": 11,
               "children": [
                {
-                "id": "g105",
+                "id": "g104",
                 "type": "text",
                 "color": "#1E3B32",
                 "dark_color": "#1E3B32",
@@ -1646,7 +1740,7 @@
               ]
              },
              {
-              "id": "g106",
+              "id": "g105",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
@@ -1659,7 +1753,7 @@
             ]
            },
            {
-            "id": "g107",
+            "id": "g106",
             "type": "row",
             "height": 32,
             "padding": {
@@ -1678,7 +1772,7 @@
             },
             "children": [
              {
-              "id": "g108",
+              "id": "g107",
               "type": "row",
               "width": 22,
               "height": 22,
@@ -1689,7 +1783,7 @@
               "radius": 11,
               "children": [
                {
-                "id": "g109",
+                "id": "g108",
                 "type": "text",
                 "color": "#1E3B32",
                 "dark_color": "#1E3B32",
@@ -1704,7 +1798,7 @@
               ]
              },
              {
-              "id": "g110",
+              "id": "g109",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
@@ -1719,7 +1813,7 @@
           ]
          },
          {
-          "id": "g111",
+          "id": "g110",
           "type": "button",
           "name": "Start",
           "width": "hug",
@@ -1746,7 +1840,8 @@
           "icon": "arrow_forward",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "flow": "bouquet"
           },
           "motion": {
            "press": "shrink"
@@ -1755,7 +1850,7 @@
         ]
        },
        {
-        "id": "g112",
+        "id": "g111",
         "type": "marquee",
         "name": "Every occasion",
         "padding": {
@@ -1782,7 +1877,7 @@
         }
        },
        {
-        "id": "g113",
+        "id": "g112",
         "type": "row",
         "name": "Kind words",
         "padding": {
@@ -1795,13 +1890,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g114",
+          "id": "g113",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g115",
+            "id": "g114",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -1820,44 +1915,7 @@
         ]
        },
        {
-        "id": "g116",
-        "type": "testimonials",
-        "name": "Kind words",
-        "padding": {
-         "end": 18,
-         "start": 18
-        },
-        "gap": 12,
-        "background": "#FFFFFF",
-        "color": "#15241D",
-        "dark_background": "#121E18",
-        "dark_color": "#EDF3EE",
-        "border_color": "#DDE3D9",
-        "dark_border_color": "#22332A",
-        "radius": 26,
-        "border_width": 1,
-        "testimonials": {
-         "style": "stacked"
-        },
-        "entries": [
-         {
-          "title": "[Customer name]",
-          "subtitle": "[What they sent]",
-          "text": "[What a customer says about you]"
-         },
-         {
-          "title": "[Customer name]",
-          "subtitle": "[What they sent]",
-          "text": "[Another customer's words]"
-         }
-        ],
-        "motion": {
-         "enter": "slide_up",
-         "duration_ms": 500
-        }
-       },
-       {
-        "id": "g117",
+        "id": "g115",
         "type": "row",
         "name": "Floral rule",
         "padding": {
@@ -1871,7 +1929,7 @@
         "cross": "center",
         "children": [
          {
-          "id": "g118",
+          "id": "g116",
           "type": "row",
           "width": "fill",
           "height": 1,
@@ -1880,7 +1938,7 @@
           "children": []
          },
          {
-          "id": "g119",
+          "id": "g117",
           "type": "icon",
           "color": "#B5603F",
           "dark_color": "#F2B79E",
@@ -1888,7 +1946,7 @@
           "icon_size": 16
          },
          {
-          "id": "g120",
+          "id": "g118",
           "type": "row",
           "width": "fill",
           "height": 1,
@@ -1922,11 +1980,11 @@
     "screen": "search",
     "studio": {
      "body": {
-      "id": "g121",
+      "id": "g119",
       "type": "column",
       "children": [
        {
-        "id": "g122",
+        "id": "g120",
         "type": "photo_hero",
         "name": "Find the right flowers",
         "height": 190,
@@ -1957,7 +2015,7 @@
         "ken_burns": true,
         "children": [
          {
-          "id": "g123",
+          "id": "g121",
           "type": "text",
           "width": 220,
           "color": "#FFFFFF",
@@ -1972,7 +2030,7 @@
           "max_lines": 2
          },
          {
-          "id": "g124",
+          "id": "g122",
           "type": "text",
           "width": 220,
           "margin": {
@@ -1990,9 +2048,10 @@
         ]
        },
        {
-        "id": "g125",
+        "id": "g123",
         "type": "stories",
         "name": "Every occasion",
+        "stories_source": "dashboard",
         "padding": {
          "top": 10,
          "end": 12,
@@ -2007,7 +2066,8 @@
           "heading": "Love",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "9"
           },
           "ring": "highlight",
           "ring_color": "#E8A486"
@@ -2017,7 +2077,8 @@
           "heading": "Birthday",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "10"
           },
           "ring": "highlight",
           "ring_color": "#E8A486"
@@ -2027,7 +2088,8 @@
           "heading": "Sympathy",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "11"
           },
           "ring": "plain"
          },
@@ -2036,7 +2098,8 @@
           "heading": "New baby",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "12"
           },
           "ring": "plain"
          },
@@ -2045,7 +2108,8 @@
           "heading": "Congratulations",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "13"
           },
           "ring": "plain"
          }
@@ -2056,7 +2120,7 @@
         }
        },
        {
-        "id": "g126",
+        "id": "g124",
         "type": "row",
         "name": "The signature bouquet",
         "padding": {
@@ -2069,7 +2133,7 @@
         "scroll": true,
         "children": [
          {
-          "id": "g127",
+          "id": "g125",
           "type": "button",
           "name": "Our bouquet",
           "width": "hug",
@@ -2100,7 +2164,7 @@
           }
          },
          {
-          "id": "g128",
+          "id": "g126",
           "type": "button",
           "name": "Your picks",
           "width": "hug",
@@ -2158,13 +2222,13 @@
     "screen": "cart",
     "studio": {
      "body": {
-      "id": "g129",
+      "id": "g127",
       "type": "column",
       "children": [
        {
-        "id": "g130",
+        "id": "g128",
         "type": "row",
-        "name": "Pick the delivery day and write the card at checkout.",
+        "name": "Pick the delivery day and write the card below, then pay.",
         "padding": {
          "top": 14,
          "end": 14,
@@ -2187,7 +2251,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "g131",
+          "id": "g129",
           "type": "icon",
           "padding": {
            "top": 9,
@@ -2204,7 +2268,7 @@
           "icon_size": 22
          },
          {
-          "id": "g132",
+          "id": "g130",
           "type": "text",
           "width": "fill",
           "color": "#15241D",
@@ -2214,7 +2278,7 @@
            "size": 13.5,
            "line_height": 1.4
           },
-          "text": "Pick the delivery day and write the card at checkout.",
+          "text": "Pick the delivery day and write the card below, then pay.",
           "max_lines": 3
          }
         ]
@@ -2242,11 +2306,11 @@
     "screen": "orders",
     "studio": {
      "body": {
-      "id": "g133",
+      "id": "g131",
       "type": "column",
       "children": [
        {
-        "id": "g134",
+        "id": "g132",
         "type": "row",
         "name": "How your flowers travel",
         "padding": {
@@ -2259,13 +2323,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g135",
+          "id": "g133",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g136",
+            "id": "g134",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -2284,7 +2348,7 @@
         ]
        },
        {
-        "id": "g137",
+        "id": "g135",
         "type": "timeline",
         "name": "How your flowers travel",
         "padding": {
@@ -2352,9 +2416,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g138",
+      "id": "g136",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g137",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "Sign out",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#F3F1EA",
      "dark_background": "#0A120E",
@@ -2405,6 +2499,7 @@
          {
           "id": "g4",
           "type": "row",
+          "stories_source": "dashboard",
           "padding": {
            "end": 16,
            "start": 16
@@ -2428,12 +2523,14 @@
             "radius": 20,
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "9"
             },
             "children": [
              {
               "id": "g6",
               "type": "icon",
+              "story_part": "icon",
               "color": "#FFFFFF",
               "dark_color": "#0A120E",
               "icon": "favorite",
@@ -2442,6 +2539,7 @@
              {
               "id": "g7",
               "type": "text",
+              "story_part": "ring",
               "color": "#FFFFFF",
               "dark_color": "#0A120E",
               "font": {
@@ -2471,12 +2569,14 @@
             "border_width": 1,
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "10"
             },
             "children": [
              {
               "id": "g9",
               "type": "icon",
+              "story_part": "icon",
               "color": "#B5603F",
               "dark_color": "#F2B79E",
               "icon": "cake",
@@ -2485,6 +2585,7 @@
              {
               "id": "g10",
               "type": "text",
+              "story_part": "ring",
               "color": "#15241D",
               "dark_color": "#EDF3EE",
               "font": {
@@ -2514,12 +2615,14 @@
             "border_width": 1,
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "11"
             },
             "children": [
              {
               "id": "g12",
               "type": "icon",
+              "story_part": "icon",
               "color": "#B5603F",
               "dark_color": "#F2B79E",
               "icon": "spa",
@@ -2528,6 +2631,7 @@
              {
               "id": "g13",
               "type": "text",
+              "story_part": "ring",
               "color": "#15241D",
               "dark_color": "#EDF3EE",
               "font": {
@@ -2557,12 +2661,14 @@
             "border_width": 1,
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "12"
             },
             "children": [
              {
               "id": "g15",
               "type": "icon",
+              "story_part": "icon",
               "color": "#B5603F",
               "dark_color": "#F2B79E",
               "icon": "child_care",
@@ -2571,6 +2677,7 @@
              {
               "id": "g16",
               "type": "text",
+              "story_part": "ring",
               "color": "#15241D",
               "dark_color": "#EDF3EE",
               "font": {
@@ -2600,12 +2707,14 @@
             "border_width": 1,
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "13"
             },
             "children": [
              {
               "id": "g18",
               "type": "icon",
+              "story_part": "icon",
               "color": "#B5603F",
               "dark_color": "#F2B79E",
               "icon": "celebration",
@@ -2614,6 +2723,7 @@
              {
               "id": "g19",
               "type": "text",
+              "story_part": "ring",
               "color": "#15241D",
               "dark_color": "#EDF3EE",
               "font": {
@@ -2676,7 +2786,8 @@
           "image_url": "http://localhost:3000/flower-photos/ranunculus.jpg",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "3"
           },
           "children": [
            {
@@ -2781,7 +2892,8 @@
           "image_url": "http://localhost:3000/flower-photos/red-rose.jpg",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "2"
           },
           "children": [
            {
@@ -2886,7 +2998,8 @@
           "image_url": "http://localhost:3000/flower-photos/baby-breath.jpg",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "1"
           },
           "children": [
            {
@@ -3044,25 +3157,13 @@
                "letter_spacing": -0.6
               },
               "text": "أرسل اليوم"
-             },
-             {
-              "id": "g50",
-              "type": "text",
-              "color": "#5F6F66",
-              "dark_color": "#A9BCB1",
-              "font": {
-               "size": 13.5,
-               "line_height": 1.4
-              },
-              "text": "اطلب قبل [آخر موعد للطلب] ويصل اليوم.",
-              "max_lines": 3
              }
             ]
            }
           ]
          },
          {
-          "id": "g51",
+          "id": "g50",
           "type": "row",
           "name": "Delivery days · today, tomorrow, a date",
           "width": "fill",
@@ -3072,7 +3173,7 @@
           "gap": 6,
           "children": [
            {
-            "id": "g52",
+            "id": "g51",
             "type": "row",
             "name": "Today",
             "width": "fill",
@@ -3093,7 +3194,7 @@
             },
             "children": [
              {
-              "id": "g53",
+              "id": "g52",
               "type": "icon",
               "color": "#FFFFFF",
               "dark_color": "#0A120E",
@@ -3101,7 +3202,7 @@
               "icon_size": 15
              },
              {
-              "id": "g54",
+              "id": "g53",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#0A120E",
@@ -3115,7 +3216,7 @@
             ]
            },
            {
-            "id": "g55",
+            "id": "g54",
             "type": "row",
             "name": "Tomorrow",
             "width": "fill",
@@ -3137,7 +3238,7 @@
             },
             "children": [
              {
-              "id": "g56",
+              "id": "g55",
               "type": "text",
               "color": "#15241D",
               "dark_color": "#EDF3EE",
@@ -3151,7 +3252,7 @@
             ]
            },
            {
-            "id": "g57",
+            "id": "g56",
             "type": "row",
             "name": "Pick a date",
             "width": "fill",
@@ -3173,7 +3274,7 @@
             },
             "children": [
              {
-              "id": "g58",
+              "id": "g57",
               "type": "text",
               "color": "#15241D",
               "dark_color": "#EDF3EE",
@@ -3191,7 +3292,7 @@
         ]
        },
        {
-        "id": "g59",
+        "id": "g58",
         "type": "row",
         "name": "Collections",
         "padding": {
@@ -3204,13 +3305,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g60",
+          "id": "g59",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g61",
+            "id": "g60",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -3227,7 +3328,7 @@
           ]
          },
          {
-          "id": "g62",
+          "id": "g61",
           "type": "text",
           "padding": {
            "bottom": 4
@@ -3247,7 +3348,7 @@
         ]
        },
        {
-        "id": "g63",
+        "id": "g62",
         "type": "row",
         "name": "Collections",
         "padding": {
@@ -3259,7 +3360,7 @@
         "scroll": true,
         "children": [
          {
-          "id": "g64",
+          "id": "g63",
           "type": "column",
           "name": "Roses",
           "width": 118,
@@ -3267,11 +3368,12 @@
           "cross": "center",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "2"
           },
           "children": [
            {
-            "id": "g65",
+            "id": "g64",
             "type": "image",
             "width": 118,
             "height": 156,
@@ -3285,7 +3387,7 @@
             "image_url": "http://localhost:3000/flower-photos/red-rose.jpg"
            },
            {
-            "id": "g66",
+            "id": "g65",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -3301,7 +3403,7 @@
           ]
          },
          {
-          "id": "g67",
+          "id": "g66",
           "type": "column",
           "name": "Tulips",
           "width": 118,
@@ -3313,7 +3415,7 @@
           },
           "children": [
            {
-            "id": "g68",
+            "id": "g67",
             "type": "image",
             "width": 118,
             "height": 156,
@@ -3327,7 +3429,7 @@
             "image_url": "http://localhost:3000/flower-photos/tulips.jpg"
            },
            {
-            "id": "g69",
+            "id": "g68",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -3343,7 +3445,7 @@
           ]
          },
          {
-          "id": "g70",
+          "id": "g69",
           "type": "column",
           "name": "Plants",
           "width": 118,
@@ -3351,11 +3453,12 @@
           "cross": "center",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "4"
           },
           "children": [
            {
-            "id": "g71",
+            "id": "g70",
             "type": "image",
             "width": 118,
             "height": 156,
@@ -3369,7 +3472,7 @@
             "image_url": "http://localhost:3000/flower-photos/orchid.jpg"
            },
            {
-            "id": "g72",
+            "id": "g71",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -3385,7 +3488,7 @@
           ]
          },
          {
-          "id": "g73",
+          "id": "g72",
           "type": "column",
           "name": "Gift sets",
           "width": 118,
@@ -3393,11 +3496,12 @@
           "cross": "center",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "5"
           },
           "children": [
            {
-            "id": "g74",
+            "id": "g73",
             "type": "image",
             "width": 118,
             "height": 156,
@@ -3411,7 +3515,7 @@
             "image_url": "http://localhost:3000/flower-photos/garden-jug.jpg"
            },
            {
-            "id": "g75",
+            "id": "g74",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -3427,7 +3531,7 @@
           ]
          },
          {
-          "id": "g76",
+          "id": "g75",
           "type": "column",
           "name": "Signature bouquets",
           "width": 118,
@@ -3435,11 +3539,12 @@
           "cross": "center",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "1"
           },
           "children": [
            {
-            "id": "g77",
+            "id": "g76",
             "type": "image",
             "width": 118,
             "height": 156,
@@ -3453,7 +3558,7 @@
             "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg"
            },
            {
-            "id": "g78",
+            "id": "g77",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -3471,7 +3576,7 @@
         ]
        },
        {
-        "id": "g79",
+        "id": "g78",
         "type": "row",
         "name": "From the atelier",
         "padding": {
@@ -3484,13 +3589,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g80",
+          "id": "g79",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g81",
+            "id": "g80",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -3509,7 +3614,7 @@
         ]
        },
        {
-        "id": "g82",
+        "id": "g81",
         "type": "gallery",
         "name": "From the atelier",
         "height": 250,
@@ -3540,7 +3645,7 @@
         }
        },
        {
-        "id": "g83",
+        "id": "g82",
         "type": "row",
         "name": "The price list",
         "padding": {
@@ -3553,13 +3658,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g84",
+          "id": "g83",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g85",
+            "id": "g84",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -3576,7 +3681,7 @@
           ]
          },
          {
-          "id": "g86",
+          "id": "g85",
           "type": "text",
           "padding": {
            "bottom": 4
@@ -3593,10 +3698,11 @@
            "screen": "search"
           }
          }
-        ]
+        ],
+        "heads": "g86"
        },
        {
-        "id": "g87",
+        "id": "g86",
         "type": "items",
         "name": "The price list",
         "padding": {
@@ -3606,7 +3712,7 @@
         "source": "products",
         "layout": "list",
         "card": {
-         "id": "g88",
+         "id": "g87",
          "type": "row",
          "padding": {
           "top": 12,
@@ -3618,7 +3724,7 @@
          "cross": "center",
          "children": [
           {
-           "id": "g89",
+           "id": "g88",
            "type": "image",
            "width": 64,
            "height": 78,
@@ -3626,13 +3732,13 @@
            "bind": "image"
           },
           {
-           "id": "g90",
+           "id": "g89",
            "type": "column",
            "width": "fill",
            "gap": 2,
            "children": [
             {
-             "id": "g91",
+             "id": "g90",
              "type": "text",
              "color": "#15241D",
              "dark_color": "#EDF3EE",
@@ -3645,7 +3751,7 @@
              "bind": "title"
             },
             {
-             "id": "g92",
+             "id": "g91",
              "type": "text",
              "color": "#B5603F",
              "dark_color": "#F2B79E",
@@ -3659,7 +3765,7 @@
            ]
           },
           {
-           "id": "g93",
+           "id": "g92",
            "type": "text",
            "color": "#15241D",
            "dark_color": "#EDF3EE",
@@ -3676,11 +3782,156 @@
         "items": [
          {
           "source": "products",
-          "id": "24",
+          "id": "33",
           "title": "Blush Garden",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-1",
           "price_label": "₺2,290.00 – ₺4,260.00",
+          "price": {
+           "amount": "2290.00",
+           "currency": "TRY",
+           "formatted": "₺2,290.00 – ₺4,260.00",
+           "range": true,
+           "max_amount": "4260.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "66.96",
+            "formatted": "$66.96 – $124.56",
+            "max_amount": "124.56",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$66.96 – $124.56"
+           }
+          },
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "products",
+            "id": "33"
+           }
+          }
+         },
+         {
+          "source": "products",
+          "id": "32",
+          "title": "Velvet Red Roses",
+          "subtitle": null,
+          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+          "price_label": "₺2,510.00 – ₺5,190.00",
+          "price": {
+           "amount": "2510.00",
+           "currency": "TRY",
+           "formatted": "₺2,510.00 – ₺5,190.00",
+           "range": true,
+           "max_amount": "5190.00",
+           "on_sale": true,
+           "display": {
+            "currency": "USD",
+            "amount": "73.39",
+            "formatted": "$73.39 – $151.75",
+            "max_amount": "151.75",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$73.39 – $151.75"
+           }
+          },
+          "badge": "تخفيض",
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "products",
+            "id": "32"
+           }
+          }
+         },
+         {
+          "source": "products",
+          "id": "30",
+          "title": "Ranunculus Cloud",
+          "subtitle": null,
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "₺3,780.00 – ₺7,100.00",
+          "price": {
+           "amount": "3780.00",
+           "currency": "TRY",
+           "formatted": "₺3,780.00 – ₺7,100.00",
+           "range": true,
+           "max_amount": "7100.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "110.53",
+            "formatted": "$110.53 – $207.60",
+            "max_amount": "207.60",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$110.53 – $207.60"
+           }
+          },
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "products",
+            "id": "30"
+           }
+          }
+         },
+         {
+          "source": "products",
+          "id": "26",
+          "title": "Orchid Elegance",
+          "subtitle": null,
+          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+          "price_label": "₺3,470.00",
+          "price": {
+           "amount": "3470.00",
+           "currency": "TRY",
+           "formatted": "₺3,470.00",
+           "range": false,
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "101.46",
+            "formatted": "$101.46",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$101.46"
+           }
+          },
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "products",
+            "id": "26"
+           }
+          }
+         },
+         {
+          "source": "products",
+          "id": "24",
+          "title": "Garden Jug",
+          "subtitle": null,
+          "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+          "price_label": "₺4,570.00",
+          "price": {
+           "amount": "4570.00",
+           "currency": "TRY",
+           "formatted": "₺4,570.00",
+           "range": false,
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "133.63",
+            "formatted": "$133.63",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$133.63"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
@@ -3689,75 +3940,11 @@
             "id": "24"
            }
           }
-         },
-         {
-          "source": "products",
-          "id": "23",
-          "title": "Velvet Red Roses",
-          "subtitle": null,
-          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
-          "price_label": "₺2,510.00 – ₺5,190.00",
-          "badge": "تخفيض",
-          "action": {
-           "type": "item",
-           "item": {
-            "source": "products",
-            "id": "23"
-           }
-          }
-         },
-         {
-          "source": "products",
-          "id": "21",
-          "title": "Ranunculus Cloud",
-          "subtitle": null,
-          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
-          "price_label": "₺3,780.00 – ₺7,100.00",
-          "badge": null,
-          "action": {
-           "type": "item",
-           "item": {
-            "source": "products",
-            "id": "21"
-           }
-          }
-         },
-         {
-          "source": "products",
-          "id": "17",
-          "title": "Orchid Elegance",
-          "subtitle": null,
-          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
-          "price_label": "₺3,470.00",
-          "badge": null,
-          "action": {
-           "type": "item",
-           "item": {
-            "source": "products",
-            "id": "17"
-           }
-          }
-         },
-         {
-          "source": "products",
-          "id": "15",
-          "title": "Garden Jug",
-          "subtitle": null,
-          "image_url": "https://yallapp.test/api/v1/assets/asset-5",
-          "price_label": "₺4,570.00",
-          "badge": null,
-          "action": {
-           "type": "item",
-           "item": {
-            "source": "products",
-            "id": "15"
-           }
-          }
          }
         ]
        },
        {
-        "id": "g94",
+        "id": "g93",
         "type": "column",
         "name": "Build your bouquet",
         "padding": {
@@ -3779,7 +3966,8 @@
         "radius": 30,
         "action": {
          "type": "screen",
-         "screen": "search"
+         "screen": "search",
+         "flow": "bouquet"
         },
         "surface": {
          "soft": 3,
@@ -3788,7 +3976,7 @@
         },
         "children": [
          {
-          "id": "g95",
+          "id": "g94",
           "type": "text",
           "color": "#E8A486",
           "font": {
@@ -3800,7 +3988,7 @@
           "text": "اصنعها بذوقك"
          },
          {
-          "id": "g96",
+          "id": "g95",
           "type": "text",
           "color": "#FFFFFF",
           "font": {
@@ -3814,7 +4002,7 @@
           "max_lines": 2
          },
          {
-          "id": "g97",
+          "id": "g96",
           "type": "text",
           "color": "#FFFFFF",
           "opacity": 0.9,
@@ -3826,7 +4014,7 @@
           "max_lines": 2
          },
          {
-          "id": "g98",
+          "id": "g97",
           "type": "row",
           "name": "Build your bouquet",
           "margin": {
@@ -3836,7 +4024,7 @@
           "scroll": true,
           "children": [
            {
-            "id": "g99",
+            "id": "g98",
             "type": "row",
             "height": 32,
             "padding": {
@@ -3855,7 +4043,7 @@
             },
             "children": [
              {
-              "id": "g100",
+              "id": "g99",
               "type": "row",
               "width": 22,
               "height": 22,
@@ -3866,7 +4054,7 @@
               "radius": 11,
               "children": [
                {
-                "id": "g101",
+                "id": "g100",
                 "type": "text",
                 "color": "#1E3B32",
                 "dark_color": "#1E3B32",
@@ -3881,7 +4069,7 @@
               ]
              },
              {
-              "id": "g102",
+              "id": "g101",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
@@ -3894,7 +4082,7 @@
             ]
            },
            {
-            "id": "g103",
+            "id": "g102",
             "type": "row",
             "height": 32,
             "padding": {
@@ -3913,7 +4101,7 @@
             },
             "children": [
              {
-              "id": "g104",
+              "id": "g103",
               "type": "row",
               "width": 22,
               "height": 22,
@@ -3924,7 +4112,7 @@
               "radius": 11,
               "children": [
                {
-                "id": "g105",
+                "id": "g104",
                 "type": "text",
                 "color": "#1E3B32",
                 "dark_color": "#1E3B32",
@@ -3939,7 +4127,7 @@
               ]
              },
              {
-              "id": "g106",
+              "id": "g105",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
@@ -3952,7 +4140,7 @@
             ]
            },
            {
-            "id": "g107",
+            "id": "g106",
             "type": "row",
             "height": 32,
             "padding": {
@@ -3971,7 +4159,7 @@
             },
             "children": [
              {
-              "id": "g108",
+              "id": "g107",
               "type": "row",
               "width": 22,
               "height": 22,
@@ -3982,7 +4170,7 @@
               "radius": 11,
               "children": [
                {
-                "id": "g109",
+                "id": "g108",
                 "type": "text",
                 "color": "#1E3B32",
                 "dark_color": "#1E3B32",
@@ -3997,7 +4185,7 @@
               ]
              },
              {
-              "id": "g110",
+              "id": "g109",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
@@ -4012,7 +4200,7 @@
           ]
          },
          {
-          "id": "g111",
+          "id": "g110",
           "type": "button",
           "name": "Start",
           "width": "hug",
@@ -4039,7 +4227,8 @@
           "icon": "arrow_forward",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "flow": "bouquet"
           },
           "motion": {
            "press": "shrink"
@@ -4048,7 +4237,7 @@
         ]
        },
        {
-        "id": "g112",
+        "id": "g111",
         "type": "marquee",
         "name": "Every occasion",
         "padding": {
@@ -4075,7 +4264,7 @@
         }
        },
        {
-        "id": "g113",
+        "id": "g112",
         "type": "row",
         "name": "Kind words",
         "padding": {
@@ -4088,13 +4277,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g114",
+          "id": "g113",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g115",
+            "id": "g114",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -4113,44 +4302,7 @@
         ]
        },
        {
-        "id": "g116",
-        "type": "testimonials",
-        "name": "Kind words",
-        "padding": {
-         "end": 18,
-         "start": 18
-        },
-        "gap": 12,
-        "background": "#FFFFFF",
-        "color": "#15241D",
-        "dark_background": "#121E18",
-        "dark_color": "#EDF3EE",
-        "border_color": "#DDE3D9",
-        "dark_border_color": "#22332A",
-        "radius": 26,
-        "border_width": 1,
-        "testimonials": {
-         "style": "stacked"
-        },
-        "entries": [
-         {
-          "title": "[اسم العميل]",
-          "subtitle": "[ما أرسله]",
-          "text": "[رأي أحد العملاء فيك]"
-         },
-         {
-          "title": "[اسم العميل]",
-          "subtitle": "[ما أرسله]",
-          "text": "[كلمات عميل آخر]"
-         }
-        ],
-        "motion": {
-         "enter": "slide_up",
-         "duration_ms": 500
-        }
-       },
-       {
-        "id": "g117",
+        "id": "g115",
         "type": "row",
         "name": "Floral rule",
         "padding": {
@@ -4164,7 +4316,7 @@
         "cross": "center",
         "children": [
          {
-          "id": "g118",
+          "id": "g116",
           "type": "row",
           "width": "fill",
           "height": 1,
@@ -4173,7 +4325,7 @@
           "children": []
          },
          {
-          "id": "g119",
+          "id": "g117",
           "type": "icon",
           "color": "#B5603F",
           "dark_color": "#F2B79E",
@@ -4181,7 +4333,7 @@
           "icon_size": 16
          },
          {
-          "id": "g120",
+          "id": "g118",
           "type": "row",
           "width": "fill",
           "height": 1,
@@ -4215,11 +4367,11 @@
     "screen": "search",
     "studio": {
      "body": {
-      "id": "g121",
+      "id": "g119",
       "type": "column",
       "children": [
        {
-        "id": "g122",
+        "id": "g120",
         "type": "photo_hero",
         "name": "Find the right flowers",
         "height": 190,
@@ -4250,7 +4402,7 @@
         "ken_burns": true,
         "children": [
          {
-          "id": "g123",
+          "id": "g121",
           "type": "text",
           "width": 220,
           "color": "#FFFFFF",
@@ -4265,7 +4417,7 @@
           "max_lines": 2
          },
          {
-          "id": "g124",
+          "id": "g122",
           "type": "text",
           "width": 220,
           "margin": {
@@ -4283,9 +4435,10 @@
         ]
        },
        {
-        "id": "g125",
+        "id": "g123",
         "type": "stories",
         "name": "Every occasion",
+        "stories_source": "dashboard",
         "padding": {
          "top": 10,
          "end": 12,
@@ -4300,7 +4453,8 @@
           "heading": "حب",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "9"
           },
           "ring": "highlight",
           "ring_color": "#E8A486"
@@ -4310,7 +4464,8 @@
           "heading": "عيد ميلاد",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "10"
           },
           "ring": "highlight",
           "ring_color": "#E8A486"
@@ -4320,7 +4475,8 @@
           "heading": "مواساة",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "11"
           },
           "ring": "plain"
          },
@@ -4329,7 +4485,8 @@
           "heading": "مولود جديد",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "12"
           },
           "ring": "plain"
          },
@@ -4338,7 +4495,8 @@
           "heading": "تهنئة",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "13"
           },
           "ring": "plain"
          }
@@ -4349,7 +4507,7 @@
         }
        },
        {
-        "id": "g126",
+        "id": "g124",
         "type": "row",
         "name": "The signature bouquet",
         "padding": {
@@ -4362,7 +4520,7 @@
         "scroll": true,
         "children": [
          {
-          "id": "g127",
+          "id": "g125",
           "type": "button",
           "name": "Our bouquet",
           "width": "hug",
@@ -4393,7 +4551,7 @@
           }
          },
          {
-          "id": "g128",
+          "id": "g126",
           "type": "button",
           "name": "Your picks",
           "width": "hug",
@@ -4451,13 +4609,13 @@
     "screen": "cart",
     "studio": {
      "body": {
-      "id": "g129",
+      "id": "g127",
       "type": "column",
       "children": [
        {
-        "id": "g130",
+        "id": "g128",
         "type": "row",
-        "name": "Pick the delivery day and write the card at checkout.",
+        "name": "Pick the delivery day and write the card below, then pay.",
         "padding": {
          "top": 14,
          "end": 14,
@@ -4480,7 +4638,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "g131",
+          "id": "g129",
           "type": "icon",
           "padding": {
            "top": 9,
@@ -4497,7 +4655,7 @@
           "icon_size": 22
          },
          {
-          "id": "g132",
+          "id": "g130",
           "type": "text",
           "width": "fill",
           "color": "#15241D",
@@ -4507,7 +4665,7 @@
            "size": 13.5,
            "line_height": 1.4
           },
-          "text": "اختر يوم التوصيل واكتب البطاقة عند إتمام الطلب.",
+          "text": "اختر يوم التوصيل واكتب البطاقة في الأسفل، ثم ادفع.",
           "max_lines": 3
          }
         ]
@@ -4535,11 +4693,11 @@
     "screen": "orders",
     "studio": {
      "body": {
-      "id": "g133",
+      "id": "g131",
       "type": "column",
       "children": [
        {
-        "id": "g134",
+        "id": "g132",
         "type": "row",
         "name": "How your flowers travel",
         "padding": {
@@ -4552,13 +4710,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g135",
+          "id": "g133",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g136",
+            "id": "g134",
             "type": "text",
             "color": "#15241D",
             "dark_color": "#EDF3EE",
@@ -4577,7 +4735,7 @@
         ]
        },
        {
-        "id": "g137",
+        "id": "g135",
         "type": "timeline",
         "name": "How your flowers travel",
         "padding": {
@@ -4645,9 +4803,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g138",
+      "id": "g136",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g137",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "تسجيل الخروج",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#F3F1EA",
      "dark_background": "#0A120E",

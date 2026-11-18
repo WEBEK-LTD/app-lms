@@ -317,7 +317,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "Most popular"
+          "text": "Most popular",
+          "heads": "g22"
          },
          {
           "id": "g22",
@@ -401,15 +402,6 @@
          },
          {
           "id": "g25",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "size": 13
-          },
-          "text": "[Your address and opening hours]"
-         },
-         {
-          "id": "g26",
           "type": "map",
           "height": 170,
           "radius": 14,
@@ -701,7 +693,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "الأكثر طلبًا"
+          "text": "الأكثر طلبًا",
+          "heads": "g22"
          },
          {
           "id": "g22",
@@ -785,15 +778,6 @@
          },
          {
           "id": "g25",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "size": 13
-          },
-          "text": "[العنوان ومواعيد العمل]"
-         },
-         {
-          "id": "g26",
           "type": "map",
           "height": 170,
           "radius": 14,

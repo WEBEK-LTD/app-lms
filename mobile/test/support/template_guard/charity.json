@@ -144,41 +144,10 @@
         "background": "#0E0D24",
         "color": "#F4EFE6",
         "radius": 16,
-        "children": [
-         {
-          "id": "g7",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[Number] customers"
-         },
-         {
-          "id": "g8",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[Number] years"
-         },
-         {
-          "id": "g9",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[Number] branches"
-         }
-        ]
+        "children": []
        },
        {
-        "id": "g10",
+        "id": "g7",
         "type": "column",
         "name": "Most popular",
         "padding": {
@@ -190,16 +159,17 @@
         "gap": 8,
         "children": [
          {
-          "id": "g11",
+          "id": "g8",
           "type": "text",
           "font": {
            "weight": 800,
            "size": 17
           },
-          "text": "Most popular"
+          "text": "Most popular",
+          "heads": "g9"
          },
          {
-          "id": "g12",
+          "id": "g9",
           "type": "items",
           "gap": 10,
           "source": "campaigns",
@@ -275,7 +245,7 @@
         ]
        },
        {
-        "id": "g13",
+        "id": "g10",
         "type": "column",
         "padding": {
          "top": 14,
@@ -296,28 +266,9 @@
         "shadow": "light",
         "children": [
          {
-          "id": "g14",
+          "id": "g11",
           "type": "ratings",
           "rating": 5
-         },
-         {
-          "id": "g15",
-          "type": "text",
-          "font": {
-           "size": 14,
-           "italic": true
-          },
-          "text": "[What a customer says about you]"
-         },
-         {
-          "id": "g16",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "weight": 700,
-           "size": 12
-          },
-          "text": "[Customer name]"
          }
         ]
        }
@@ -428,41 +379,10 @@
         "background": "#0E0D24",
         "color": "#F4EFE6",
         "radius": 16,
-        "children": [
-         {
-          "id": "g7",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[رقم] عميل"
-         },
-         {
-          "id": "g8",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[رقم] سنة"
-         },
-         {
-          "id": "g9",
-          "type": "text",
-          "font": {
-           "weight": 700,
-           "size": 13
-          },
-          "text_align": "center",
-          "text": "[رقم] فرع"
-         }
-        ]
+        "children": []
        },
        {
-        "id": "g10",
+        "id": "g7",
         "type": "column",
         "name": "Most popular",
         "padding": {
@@ -474,16 +394,17 @@
         "gap": 8,
         "children": [
          {
-          "id": "g11",
+          "id": "g8",
           "type": "text",
           "font": {
            "weight": 800,
            "size": 17
           },
-          "text": "الأكثر طلبًا"
+          "text": "الأكثر طلبًا",
+          "heads": "g9"
          },
          {
-          "id": "g12",
+          "id": "g9",
           "type": "items",
           "gap": 10,
           "source": "campaigns",
@@ -559,7 +480,7 @@
         ]
        },
        {
-        "id": "g13",
+        "id": "g10",
         "type": "column",
         "padding": {
          "top": 14,
@@ -580,28 +501,9 @@
         "shadow": "light",
         "children": [
          {
-          "id": "g14",
+          "id": "g11",
           "type": "ratings",
           "rating": 5
-         },
-         {
-          "id": "g15",
-          "type": "text",
-          "font": {
-           "size": 14,
-           "italic": true
-          },
-          "text": "[رأي أحد العملاء فيك]"
-         },
-         {
-          "id": "g16",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "weight": 700,
-           "size": 12
-          },
-          "text": "[اسم العميل]"
          }
         ]
        }

@@ -166,7 +166,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "Most popular"
+          "text": "Most popular",
+          "heads": "g9"
          },
          {
           "id": "g9",
@@ -183,6 +184,19 @@
             "subtitle": "Zamalek · 185 m²",
             "image_url": "http://localhost:3000/api/v1/assets/asset-1",
             "price_label": "TRY 22,900,000",
+            "price": {
+             "amount": "22900000.00",
+             "currency": "TRY",
+             "formatted": "TRY 22,900,000",
+             "display": {
+              "currency": "USD",
+              "amount": "669590.64",
+              "formatted": "$669,590.64",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$669,590.64"
+             }
+            },
             "badge": "Negotiable",
             "favorited": false,
             "action": {
@@ -200,6 +214,19 @@
             "subtitle": "Maadi · 360 m²",
             "image_url": "http://localhost:3000/api/v1/assets/asset-2",
             "price_label": "TRY 50,500,000",
+            "price": {
+             "amount": "50500000.00",
+             "currency": "TRY",
+             "formatted": "TRY 50,500,000",
+             "display": {
+              "currency": "USD",
+              "amount": "1476608.19",
+              "formatted": "$1,476,608.19",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$1,476,608.19"
+             }
+            },
             "badge": "For sale",
             "favorited": false,
             "action": {
@@ -217,6 +244,19 @@
             "subtitle": "New Cairo · 120 m²",
             "image_url": "http://localhost:3000/api/v1/assets/asset-3",
             "price_label": "TRY 50,500 / month",
+            "price": {
+             "amount": "50500.00",
+             "currency": "TRY",
+             "formatted": "TRY 50,500",
+             "display": {
+              "currency": "USD",
+              "amount": "1476.61",
+              "formatted": "$1,476.61",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$1,476.61 / month"
+             }
+            },
             "badge": "For rent",
             "favorited": false,
             "action": {
@@ -234,6 +274,19 @@
             "subtitle": "Sheikh Zayed · 55 m²",
             "image_url": "http://localhost:3000/api/v1/assets/asset-4",
             "price_label": "TRY 22,900 / month",
+            "price": {
+             "amount": "22900.00",
+             "currency": "TRY",
+             "formatted": "TRY 22,900",
+             "display": {
+              "currency": "USD",
+              "amount": "669.59",
+              "formatted": "$669.59",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$669.59 / month"
+             }
+            },
             "badge": "For rent",
             "favorited": false,
             "action": {
@@ -270,15 +323,6 @@
          },
          {
           "id": "g12",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "size": 13
-          },
-          "text": "[Your address and opening hours]"
-         },
-         {
-          "id": "g13",
           "type": "map",
           "height": 170,
           "radius": 14,
@@ -410,7 +454,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "الأكثر طلبًا"
+          "text": "الأكثر طلبًا",
+          "heads": "g9"
          },
          {
           "id": "g9",
@@ -427,6 +472,19 @@
             "subtitle": "Zamalek · 185 m²",
             "image_url": "http://localhost:3000/api/v1/assets/asset-1",
             "price_label": "TRY 22,900,000",
+            "price": {
+             "amount": "22900000.00",
+             "currency": "TRY",
+             "formatted": "TRY 22,900,000",
+             "display": {
+              "currency": "USD",
+              "amount": "669590.64",
+              "formatted": "$669,590.64",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$669,590.64"
+             }
+            },
             "badge": "قابل للتفاوض",
             "favorited": false,
             "action": {
@@ -444,6 +502,19 @@
             "subtitle": "Maadi · 360 m²",
             "image_url": "http://localhost:3000/api/v1/assets/asset-2",
             "price_label": "TRY 50,500,000",
+            "price": {
+             "amount": "50500000.00",
+             "currency": "TRY",
+             "formatted": "TRY 50,500,000",
+             "display": {
+              "currency": "USD",
+              "amount": "1476608.19",
+              "formatted": "$1,476,608.19",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$1,476,608.19"
+             }
+            },
             "badge": "للبيع",
             "favorited": false,
             "action": {
@@ -461,6 +532,19 @@
             "subtitle": "New Cairo · 120 m²",
             "image_url": "http://localhost:3000/api/v1/assets/asset-3",
             "price_label": "⁦TRY 50,500⁩ / شهريًا",
+            "price": {
+             "amount": "50500.00",
+             "currency": "TRY",
+             "formatted": "TRY 50,500",
+             "display": {
+              "currency": "USD",
+              "amount": "1476.61",
+              "formatted": "$1,476.61",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "⁦$1,476.61⁩ / شهريًا"
+             }
+            },
             "badge": "للإيجار",
             "favorited": false,
             "action": {
@@ -478,6 +562,19 @@
             "subtitle": "Sheikh Zayed · 55 m²",
             "image_url": "http://localhost:3000/api/v1/assets/asset-4",
             "price_label": "⁦TRY 22,900⁩ / شهريًا",
+            "price": {
+             "amount": "22900.00",
+             "currency": "TRY",
+             "formatted": "TRY 22,900",
+             "display": {
+              "currency": "USD",
+              "amount": "669.59",
+              "formatted": "$669.59",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "⁦$669.59⁩ / شهريًا"
+             }
+            },
             "badge": "للإيجار",
             "favorited": false,
             "action": {
@@ -514,15 +611,6 @@
          },
          {
           "id": "g12",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "size": 13
-          },
-          "text": "[العنوان ومواعيد العمل]"
-         },
-         {
-          "id": "g13",
           "type": "map",
           "height": 170,
           "radius": 14,

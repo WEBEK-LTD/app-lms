@@ -155,6 +155,9 @@ function tapProblems(p: GuardProject, app: ServedApp, store: Pickable): string[]
       case "url":
         if (!action.url || !/^(https?:\/\/[^\s/]+\.[^\s]+|tel:\+?\d+|mailto:\S+@\S+|sms:\+?\d+|whatsapp:\S+)$/.test(action.url)) problems.push(`${where}: opens the address ${JSON.stringify(action.url)}, which isn't one`);
         break;
+      // 167 Studio's Sign out element: the app asks, then signs the person out (docs/api/openapi.yaml Action).
+      case "sign_out":
+        break;
       case "more":
         if (!where.startsWith("GET /pages tab")) problems.push(`${where}: a More action outside the tabs opens nothing`);
         break;

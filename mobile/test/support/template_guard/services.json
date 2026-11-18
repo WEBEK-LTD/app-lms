@@ -170,21 +170,11 @@
             },
             "text_align": "center",
             "text": "Fast"
-           },
-           {
-            "id": "g10",
-            "type": "text",
-            "opacity": 0.8,
-            "font": {
-             "size": 11
-            },
-            "text_align": "center",
-            "text": "[Why customers choose you]"
            }
           ]
          },
          {
-          "id": "g11",
+          "id": "g10",
           "type": "column",
           "width": "fill",
           "padding": {
@@ -202,14 +192,14 @@
           "text_align": "center",
           "children": [
            {
-            "id": "g12",
+            "id": "g11",
             "type": "icon",
             "color": "#0E0D24",
             "icon": "verified_user",
             "icon_size": 26
            },
            {
-            "id": "g13",
+            "id": "g12",
             "type": "text",
             "font": {
              "weight": 800,
@@ -217,21 +207,11 @@
             },
             "text_align": "center",
             "text": "Safe"
-           },
-           {
-            "id": "g14",
-            "type": "text",
-            "opacity": 0.8,
-            "font": {
-             "size": 11
-            },
-            "text_align": "center",
-            "text": "[What you promise]"
            }
           ]
          },
          {
-          "id": "g15",
+          "id": "g13",
           "type": "column",
           "width": "fill",
           "padding": {
@@ -249,14 +229,14 @@
           "text_align": "center",
           "children": [
            {
-            "id": "g16",
+            "id": "g14",
             "type": "icon",
             "color": "#0E0D24",
             "icon": "support_agent",
             "icon_size": 26
            },
            {
-            "id": "g17",
+            "id": "g15",
             "type": "text",
             "font": {
              "weight": 800,
@@ -264,23 +244,13 @@
             },
             "text_align": "center",
             "text": "Help"
-           },
-           {
-            "id": "g18",
-            "type": "text",
-            "opacity": 0.8,
-            "font": {
-             "size": 11
-            },
-            "text_align": "center",
-            "text": "[How to reach you]"
            }
           ]
          }
         ]
        },
        {
-        "id": "g19",
+        "id": "g16",
         "type": "column",
         "name": "Most popular",
         "padding": {
@@ -292,16 +262,17 @@
         "gap": 8,
         "children": [
          {
-          "id": "g20",
+          "id": "g17",
           "type": "text",
           "font": {
            "weight": 800,
            "size": 17
           },
-          "text": "Most popular"
+          "text": "Most popular",
+          "heads": "g18"
          },
          {
-          "id": "g21",
+          "id": "g18",
           "type": "items",
           "gap": 10,
           "source": "services",
@@ -315,6 +286,19 @@
             "subtitle": "1 h",
             "image_url": "https://yallapp.test/api/v1/assets/asset-1",
             "price_label": "₺850.00",
+            "price": {
+             "amount": "850.00",
+             "currency": "TRY",
+             "formatted": "₺850.00",
+             "display": {
+              "currency": "USD",
+              "amount": "24.85",
+              "formatted": "$24.85",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$24.85"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -331,6 +315,19 @@
             "subtitle": "2 h",
             "image_url": "https://yallapp.test/api/v1/assets/asset-2",
             "price_label": "₺1,900.00",
+            "price": {
+             "amount": "1900.00",
+             "currency": "TRY",
+             "formatted": "₺1,900.00",
+             "display": {
+              "currency": "USD",
+              "amount": "55.56",
+              "formatted": "$55.56",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$55.56"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -347,6 +344,19 @@
             "subtitle": "1 h",
             "image_url": "https://yallapp.test/api/v1/assets/asset-3",
             "price_label": "₺1,200.00",
+            "price": {
+             "amount": "1200.00",
+             "currency": "TRY",
+             "formatted": "₺1,200.00",
+             "display": {
+              "currency": "USD",
+              "amount": "35.09",
+              "formatted": "$35.09",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$35.09"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -363,6 +373,19 @@
             "subtitle": "45 min",
             "image_url": "https://yallapp.test/api/v1/assets/asset-4",
             "price_label": "₺950.00",
+            "price": {
+             "amount": "950.00",
+             "currency": "TRY",
+             "formatted": "₺950.00",
+             "display": {
+              "currency": "USD",
+              "amount": "27.78",
+              "formatted": "$27.78",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$27.78"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -377,7 +400,7 @@
         ]
        },
        {
-        "id": "g22",
+        "id": "g19",
         "type": "column",
         "padding": {
          "top": 14,
@@ -398,28 +421,9 @@
         "shadow": "light",
         "children": [
          {
-          "id": "g23",
+          "id": "g20",
           "type": "ratings",
           "rating": 5
-         },
-         {
-          "id": "g24",
-          "type": "text",
-          "font": {
-           "size": 14,
-           "italic": true
-          },
-          "text": "[What a customer says about you]"
-         },
-         {
-          "id": "g25",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "weight": 700,
-           "size": 12
-          },
-          "text": "[Customer name]"
          }
         ]
        }
@@ -556,21 +560,11 @@
             },
             "text_align": "center",
             "text": "سريع"
-           },
-           {
-            "id": "g10",
-            "type": "text",
-            "opacity": 0.8,
-            "font": {
-             "size": 11
-            },
-            "text_align": "center",
-            "text": "[لماذا يختارك العملاء]"
            }
           ]
          },
          {
-          "id": "g11",
+          "id": "g10",
           "type": "column",
           "width": "fill",
           "padding": {
@@ -588,14 +582,14 @@
           "text_align": "center",
           "children": [
            {
-            "id": "g12",
+            "id": "g11",
             "type": "icon",
             "color": "#0E0D24",
             "icon": "verified_user",
             "icon_size": 26
            },
            {
-            "id": "g13",
+            "id": "g12",
             "type": "text",
             "font": {
              "weight": 800,
@@ -603,21 +597,11 @@
             },
             "text_align": "center",
             "text": "مضمون"
-           },
-           {
-            "id": "g14",
-            "type": "text",
-            "opacity": 0.8,
-            "font": {
-             "size": 11
-            },
-            "text_align": "center",
-            "text": "[ما تعد به عملاءك]"
            }
           ]
          },
          {
-          "id": "g15",
+          "id": "g13",
           "type": "column",
           "width": "fill",
           "padding": {
@@ -635,14 +619,14 @@
           "text_align": "center",
           "children": [
            {
-            "id": "g16",
+            "id": "g14",
             "type": "icon",
             "color": "#0E0D24",
             "icon": "support_agent",
             "icon_size": 26
            },
            {
-            "id": "g17",
+            "id": "g15",
             "type": "text",
             "font": {
              "weight": 800,
@@ -650,23 +634,13 @@
             },
             "text_align": "center",
             "text": "مساعدة"
-           },
-           {
-            "id": "g18",
-            "type": "text",
-            "opacity": 0.8,
-            "font": {
-             "size": 11
-            },
-            "text_align": "center",
-            "text": "[كيف يتواصلون معك]"
            }
           ]
          }
         ]
        },
        {
-        "id": "g19",
+        "id": "g16",
         "type": "column",
         "name": "Most popular",
         "padding": {
@@ -678,16 +652,17 @@
         "gap": 8,
         "children": [
          {
-          "id": "g20",
+          "id": "g17",
           "type": "text",
           "font": {
            "weight": 800,
            "size": 17
           },
-          "text": "الأكثر طلبًا"
+          "text": "الأكثر طلبًا",
+          "heads": "g18"
          },
          {
-          "id": "g21",
+          "id": "g18",
           "type": "items",
           "gap": 10,
           "source": "services",
@@ -701,6 +676,19 @@
             "subtitle": "1 س",
             "image_url": "https://yallapp.test/api/v1/assets/asset-1",
             "price_label": "₺850.00",
+            "price": {
+             "amount": "850.00",
+             "currency": "TRY",
+             "formatted": "₺850.00",
+             "display": {
+              "currency": "USD",
+              "amount": "24.85",
+              "formatted": "$24.85",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$24.85"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -717,6 +705,19 @@
             "subtitle": "2 س",
             "image_url": "https://yallapp.test/api/v1/assets/asset-2",
             "price_label": "₺1,900.00",
+            "price": {
+             "amount": "1900.00",
+             "currency": "TRY",
+             "formatted": "₺1,900.00",
+             "display": {
+              "currency": "USD",
+              "amount": "55.56",
+              "formatted": "$55.56",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$55.56"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -733,6 +734,19 @@
             "subtitle": "1 س",
             "image_url": "https://yallapp.test/api/v1/assets/asset-3",
             "price_label": "₺1,200.00",
+            "price": {
+             "amount": "1200.00",
+             "currency": "TRY",
+             "formatted": "₺1,200.00",
+             "display": {
+              "currency": "USD",
+              "amount": "35.09",
+              "formatted": "$35.09",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$35.09"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -749,6 +763,19 @@
             "subtitle": "45 د",
             "image_url": "https://yallapp.test/api/v1/assets/asset-4",
             "price_label": "₺950.00",
+            "price": {
+             "amount": "950.00",
+             "currency": "TRY",
+             "formatted": "₺950.00",
+             "display": {
+              "currency": "USD",
+              "amount": "27.78",
+              "formatted": "$27.78",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$27.78"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -763,7 +790,7 @@
         ]
        },
        {
-        "id": "g22",
+        "id": "g19",
         "type": "column",
         "padding": {
          "top": 14,
@@ -784,28 +811,9 @@
         "shadow": "light",
         "children": [
          {
-          "id": "g23",
+          "id": "g20",
           "type": "ratings",
           "rating": 5
-         },
-         {
-          "id": "g24",
-          "type": "text",
-          "font": {
-           "size": 14,
-           "italic": true
-          },
-          "text": "[رأي أحد العملاء فيك]"
-         },
-         {
-          "id": "g25",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "weight": 700,
-           "size": 12
-          },
-          "text": "[اسم العميل]"
          }
         ]
        }

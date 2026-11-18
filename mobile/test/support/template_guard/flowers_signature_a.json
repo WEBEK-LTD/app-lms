@@ -92,6 +92,7 @@
           "id": "g3",
           "type": "slider",
           "name": "Every occasion",
+          "stories_source": "dashboard",
           "height": 520,
           "autoplay": true,
           "interval_ms": 5500,
@@ -149,6 +150,7 @@
                {
                 "id": "g7",
                 "type": "icon",
+                "story_part": "icon",
                 "color": "#FFD9C2",
                 "icon": "favorite",
                 "icon_size": 15
@@ -156,6 +158,7 @@
                {
                 "id": "g8",
                 "type": "text",
+                "story_part": "kicker",
                 "color": "#FFFFFF",
                 "font": {
                  "weight": 700,
@@ -170,6 +173,7 @@
              {
               "id": "g9",
               "type": "text",
+              "story_part": "title",
               "margin": {
                "top": 14
               },
@@ -187,6 +191,7 @@
              {
               "id": "g10",
               "type": "text",
+              "story_part": "line",
               "margin": {
                "top": 10
               },
@@ -203,6 +208,7 @@
               "id": "g11",
               "type": "button",
               "name": "Send flowers",
+              "story_part": "button",
               "width": "hug",
               "height": 48,
               "padding": {
@@ -280,6 +286,7 @@
                {
                 "id": "g15",
                 "type": "icon",
+                "story_part": "icon",
                 "color": "#FFD9C2",
                 "icon": "cake",
                 "icon_size": 15
@@ -287,6 +294,7 @@
                {
                 "id": "g16",
                 "type": "text",
+                "story_part": "kicker",
                 "color": "#FFFFFF",
                 "font": {
                  "weight": 700,
@@ -301,6 +309,7 @@
              {
               "id": "g17",
               "type": "text",
+              "story_part": "title",
               "margin": {
                "top": 14
               },
@@ -318,6 +327,7 @@
              {
               "id": "g18",
               "type": "text",
+              "story_part": "line",
               "margin": {
                "top": 10
               },
@@ -334,6 +344,7 @@
               "id": "g19",
               "type": "button",
               "name": "Send flowers",
+              "story_part": "button",
               "width": "hug",
               "height": 48,
               "padding": {
@@ -411,6 +422,7 @@
                {
                 "id": "g23",
                 "type": "icon",
+                "story_part": "icon",
                 "color": "#FFD9C2",
                 "icon": "spa",
                 "icon_size": 15
@@ -418,6 +430,7 @@
                {
                 "id": "g24",
                 "type": "text",
+                "story_part": "kicker",
                 "color": "#FFFFFF",
                 "font": {
                  "weight": 700,
@@ -432,6 +445,7 @@
              {
               "id": "g25",
               "type": "text",
+              "story_part": "title",
               "margin": {
                "top": 14
               },
@@ -449,6 +463,7 @@
              {
               "id": "g26",
               "type": "text",
+              "story_part": "line",
               "margin": {
                "top": 10
               },
@@ -465,6 +480,7 @@
               "id": "g27",
               "type": "button",
               "name": "Send flowers",
+              "story_part": "button",
               "width": "hug",
               "height": 48,
               "padding": {
@@ -542,6 +558,7 @@
                {
                 "id": "g31",
                 "type": "icon",
+                "story_part": "icon",
                 "color": "#FFD9C2",
                 "icon": "child_care",
                 "icon_size": 15
@@ -549,6 +566,7 @@
                {
                 "id": "g32",
                 "type": "text",
+                "story_part": "kicker",
                 "color": "#FFFFFF",
                 "font": {
                  "weight": 700,
@@ -563,6 +581,7 @@
              {
               "id": "g33",
               "type": "text",
+              "story_part": "title",
               "margin": {
                "top": 14
               },
@@ -580,6 +599,7 @@
              {
               "id": "g34",
               "type": "text",
+              "story_part": "line",
               "margin": {
                "top": 10
               },
@@ -596,6 +616,7 @@
               "id": "g35",
               "type": "button",
               "name": "Send flowers",
+              "story_part": "button",
               "width": "hug",
               "height": 48,
               "padding": {
@@ -673,6 +694,7 @@
                {
                 "id": "g39",
                 "type": "icon",
+                "story_part": "icon",
                 "color": "#FFD9C2",
                 "icon": "celebration",
                 "icon_size": 15
@@ -680,6 +702,7 @@
                {
                 "id": "g40",
                 "type": "text",
+                "story_part": "kicker",
                 "color": "#FFFFFF",
                 "font": {
                  "weight": 700,
@@ -694,6 +717,7 @@
              {
               "id": "g41",
               "type": "text",
+              "story_part": "title",
               "margin": {
                "top": 14
               },
@@ -711,6 +735,7 @@
              {
               "id": "g42",
               "type": "text",
+              "story_part": "line",
               "margin": {
                "top": 10
               },
@@ -727,6 +752,7 @@
               "id": "g43",
               "type": "button",
               "name": "Send flowers",
+              "story_part": "button",
               "width": "hug",
               "height": 48,
               "padding": {
@@ -886,6 +912,7 @@
           "id": "g51",
           "type": "stories",
           "name": "Every occasion",
+          "stories_source": "dashboard",
           "color": "#2A121C",
           "dark_color": "#F8EAEE",
           "slides": [
@@ -894,7 +921,8 @@
             "heading": "Love",
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "9"
             },
             "ring": "highlight",
             "ring_color": "#C89B6D"
@@ -904,7 +932,8 @@
             "heading": "Birthday",
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "10"
             },
             "ring": "highlight",
             "ring_color": "#C89B6D"
@@ -914,7 +943,8 @@
             "heading": "Sympathy",
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "11"
             },
             "ring": "plain"
            },
@@ -923,7 +953,8 @@
             "heading": "New baby",
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "12"
             },
             "ring": "plain"
            },
@@ -932,7 +963,8 @@
             "heading": "Congratulations",
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "13"
             },
             "ring": "plain"
            }
@@ -1015,32 +1047,20 @@
                "letter_spacing": -0.5
               },
               "text": "Send today"
-             },
-             {
-              "id": "g57",
-              "type": "text",
-              "color": "#7B5E67",
-              "dark_color": "#C9AEB6",
-              "font": {
-               "size": 13.5,
-               "line_height": 1.4
-              },
-              "text": "Order before [your cut-off time] and it arrives today.",
-              "max_lines": 3
              }
             ]
            }
           ]
          },
          {
-          "id": "g58",
+          "id": "g57",
           "type": "row",
           "name": "Delivery days · today, tomorrow, a date",
           "width": "fill",
           "gap": 6,
           "children": [
            {
-            "id": "g59",
+            "id": "g58",
             "type": "row",
             "name": "Today",
             "width": "fill",
@@ -1061,7 +1081,7 @@
             },
             "children": [
              {
-              "id": "g60",
+              "id": "g59",
               "type": "icon",
               "color": "#FFFFFF",
               "dark_color": "#2A121C",
@@ -1069,7 +1089,7 @@
               "icon_size": 15
              },
              {
-              "id": "g61",
+              "id": "g60",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#2A121C",
@@ -1083,7 +1103,7 @@
             ]
            },
            {
-            "id": "g62",
+            "id": "g61",
             "type": "row",
             "name": "Tomorrow",
             "width": "fill",
@@ -1105,7 +1125,7 @@
             },
             "children": [
              {
-              "id": "g63",
+              "id": "g62",
               "type": "text",
               "color": "#2A121C",
               "dark_color": "#F8EAEE",
@@ -1119,7 +1139,7 @@
             ]
            },
            {
-            "id": "g64",
+            "id": "g63",
             "type": "row",
             "name": "Pick a date",
             "width": "fill",
@@ -1141,7 +1161,7 @@
             },
             "children": [
              {
-              "id": "g65",
+              "id": "g64",
               "type": "text",
               "color": "#2A121C",
               "dark_color": "#F8EAEE",
@@ -1159,7 +1179,7 @@
         ]
        },
        {
-        "id": "g66",
+        "id": "g65",
         "type": "row",
         "name": "Collections",
         "padding": {
@@ -1172,13 +1192,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g67",
+          "id": "g66",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g68",
+            "id": "g67",
             "type": "text",
             "color": "#A8325A",
             "dark_color": "#F3A9C0",
@@ -1191,7 +1211,7 @@
             "text": "Every occasion"
            },
            {
-            "id": "g69",
+            "id": "g68",
             "type": "text",
             "color": "#2A121C",
             "dark_color": "#F8EAEE",
@@ -1208,7 +1228,7 @@
           ]
          },
          {
-          "id": "g70",
+          "id": "g69",
           "type": "text",
           "padding": {
            "bottom": 4
@@ -1228,7 +1248,7 @@
         ]
        },
        {
-        "id": "g71",
+        "id": "g70",
         "type": "bento",
         "name": "Collections",
         "margin": {
@@ -1251,7 +1271,8 @@
           "size": "large",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "1"
           }
          },
          {
@@ -1260,7 +1281,8 @@
           "icon": "local_florist",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "2"
           }
          },
          {
@@ -1269,7 +1291,8 @@
           "icon": "local_florist",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "3"
           }
          },
          {
@@ -1279,7 +1302,8 @@
           "size": "wide",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "4"
           }
          },
          {
@@ -1289,7 +1313,8 @@
           "size": "wide",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "5"
           }
          }
         ],
@@ -1299,7 +1324,7 @@
         }
        },
        {
-        "id": "g72",
+        "id": "g71",
         "type": "row",
         "name": "Loved most",
         "padding": {
@@ -1312,13 +1337,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g73",
+          "id": "g72",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g74",
+            "id": "g73",
             "type": "text",
             "color": "#2A121C",
             "dark_color": "#F8EAEE",
@@ -1335,7 +1360,7 @@
           ]
          },
          {
-          "id": "g75",
+          "id": "g74",
           "type": "text",
           "padding": {
            "bottom": 4
@@ -1352,10 +1377,11 @@
            "screen": "search"
           }
          }
-        ]
+        ],
+        "heads": "g75"
        },
        {
-        "id": "g76",
+        "id": "g75",
         "type": "items",
         "name": "Loved most",
         "padding": {
@@ -1366,19 +1392,19 @@
         "source": "products",
         "layout": "carousel",
         "card": {
-         "id": "g77",
+         "id": "g76",
          "type": "column",
          "width": 172,
          "gap": 8,
          "children": [
           {
-           "id": "g78",
+           "id": "g77",
            "type": "stack",
            "width": 172,
            "height": 214,
            "children": [
             {
-             "id": "g79",
+             "id": "g78",
              "type": "image",
              "width": 172,
              "height": 214,
@@ -1392,7 +1418,7 @@
              "bind": "image"
             },
             {
-             "id": "g80",
+             "id": "g79",
              "type": "text",
              "padding": {
               "top": 4,
@@ -1418,7 +1444,7 @@
            ]
           },
           {
-           "id": "g81",
+           "id": "g80",
            "type": "text",
            "color": "#2A121C",
            "dark_color": "#F8EAEE",
@@ -1433,13 +1459,13 @@
            "bind": "title"
           },
           {
-           "id": "g82",
+           "id": "g81",
            "type": "row",
            "gap": 8,
            "cross": "center",
            "children": [
             {
-             "id": "g83",
+             "id": "g82",
              "type": "text",
              "color": "#A8325A",
              "dark_color": "#F3A9C0",
@@ -1451,7 +1477,7 @@
              "bind": "price"
             },
             {
-             "id": "g84",
+             "id": "g83",
              "type": "text",
              "color": "#7B5E67",
              "dark_color": "#C9AEB6",
@@ -1468,136 +1494,270 @@
         "items": [
          {
           "source": "products",
-          "id": "24",
+          "id": "33",
           "title": "Blush Garden",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-1",
           "price_label": "₺2,290.00 – ₺4,260.00",
+          "price": {
+           "amount": "2290.00",
+           "currency": "TRY",
+           "formatted": "₺2,290.00 – ₺4,260.00",
+           "range": true,
+           "max_amount": "4260.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "66.96",
+            "formatted": "$66.96 – $124.56",
+            "max_amount": "124.56",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$66.96 – $124.56"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "24"
+            "id": "33"
            }
           }
          },
          {
           "source": "products",
-          "id": "23",
+          "id": "32",
           "title": "Velvet Red Roses",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-2",
           "price_label": "₺2,510.00 – ₺5,190.00",
+          "price": {
+           "amount": "2510.00",
+           "currency": "TRY",
+           "formatted": "₺2,510.00 – ₺5,190.00",
+           "range": true,
+           "max_amount": "5190.00",
+           "on_sale": true,
+           "display": {
+            "currency": "USD",
+            "amount": "73.39",
+            "formatted": "$73.39 – $151.75",
+            "max_amount": "151.75",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$73.39 – $151.75"
+           }
+          },
           "badge": "Sale",
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "23"
+            "id": "32"
            }
           }
          },
          {
           "source": "products",
-          "id": "22",
+          "id": "31",
           "title": "Morning Tulips",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-3",
           "price_label": "₺1,730.00 – ₺3,230.00",
+          "price": {
+           "amount": "1730.00",
+           "currency": "TRY",
+           "formatted": "₺1,730.00 – ₺3,230.00",
+           "range": true,
+           "max_amount": "3230.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "50.58",
+            "formatted": "$50.58 – $94.44",
+            "max_amount": "94.44",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$50.58 – $94.44"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "22"
+            "id": "31"
            }
           }
          },
          {
           "source": "products",
-          "id": "21",
+          "id": "30",
           "title": "Ranunculus Cloud",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-4",
           "price_label": "₺3,780.00 – ₺7,100.00",
+          "price": {
+           "amount": "3780.00",
+           "currency": "TRY",
+           "formatted": "₺3,780.00 – ₺7,100.00",
+           "range": true,
+           "max_amount": "7100.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "110.53",
+            "formatted": "$110.53 – $207.60",
+            "max_amount": "207.60",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$110.53 – $207.60"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "21"
+            "id": "30"
            }
           }
          },
          {
           "source": "products",
-          "id": "20",
+          "id": "29",
           "title": "White Serenity",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-5",
           "price_label": "₺2,600.00 – ₺4,650.00",
+          "price": {
+           "amount": "2600.00",
+           "currency": "TRY",
+           "formatted": "₺2,600.00 – ₺4,650.00",
+           "range": true,
+           "max_amount": "4650.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "76.02",
+            "formatted": "$76.02 – $135.96",
+            "max_amount": "135.96",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$76.02 – $135.96"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "20"
+            "id": "29"
            }
           }
          },
          {
           "source": "products",
-          "id": "19",
+          "id": "28",
           "title": "Little Sunshine",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-6",
           "price_label": "₺1,500.00 – ₺2,760.00",
+          "price": {
+           "amount": "1500.00",
+           "currency": "TRY",
+           "formatted": "₺1,500.00 – ₺2,760.00",
+           "range": true,
+           "max_amount": "2760.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "43.86",
+            "formatted": "$43.86 – $80.70",
+            "max_amount": "80.70",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$43.86 – $80.70"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "19"
+            "id": "28"
            }
           }
          },
          {
           "source": "products",
-          "id": "18",
+          "id": "27",
           "title": "Blue Cloud",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-7",
           "price_label": "₺2,760.00 – ₺4,970.00",
+          "price": {
+           "amount": "2760.00",
+           "currency": "TRY",
+           "formatted": "₺2,760.00 – ₺4,970.00",
+           "range": true,
+           "max_amount": "4970.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "80.70",
+            "formatted": "$80.70 – $145.32",
+            "max_amount": "145.32",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$80.70 – $145.32"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "18"
+            "id": "27"
            }
           }
          },
          {
           "source": "products",
-          "id": "17",
+          "id": "26",
           "title": "Orchid Elegance",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-8",
           "price_label": "₺3,470.00",
+          "price": {
+           "amount": "3470.00",
+           "currency": "TRY",
+           "formatted": "₺3,470.00",
+           "range": false,
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "101.46",
+            "formatted": "$101.46",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$101.46"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "17"
+            "id": "26"
            }
           }
          }
         ]
        },
        {
-        "id": "g85",
+        "id": "g84",
         "type": "photo_hero",
         "name": "Build your bouquet",
         "height": 300,
@@ -1628,11 +1788,12 @@
         "ken_burns": true,
         "action": {
          "type": "screen",
-         "screen": "search"
+         "screen": "search",
+         "flow": "bouquet"
         },
         "children": [
          {
-          "id": "g86",
+          "id": "g85",
           "type": "text",
           "color": "#FFD9C2",
           "font": {
@@ -1644,7 +1805,7 @@
           "text": "Make it yours"
          },
          {
-          "id": "g87",
+          "id": "g86",
           "type": "text",
           "width": 230,
           "margin": {
@@ -1662,7 +1823,7 @@
           "max_lines": 2
          },
          {
-          "id": "g88",
+          "id": "g87",
           "type": "text",
           "width": 230,
           "margin": {
@@ -1678,7 +1839,7 @@
           "max_lines": 3
          },
          {
-          "id": "g89",
+          "id": "g88",
           "type": "row",
           "name": "Build your bouquet",
           "margin": {
@@ -1688,7 +1849,7 @@
           "scroll": true,
           "children": [
            {
-            "id": "g90",
+            "id": "g89",
             "type": "row",
             "height": 32,
             "padding": {
@@ -1707,7 +1868,7 @@
             },
             "children": [
              {
-              "id": "g91",
+              "id": "g90",
               "type": "row",
               "width": 22,
               "height": 22,
@@ -1718,7 +1879,7 @@
               "radius": 11,
               "children": [
                {
-                "id": "g92",
+                "id": "g91",
                 "type": "text",
                 "color": "#2A0C17",
                 "dark_color": "#2A0C17",
@@ -1733,7 +1894,7 @@
               ]
              },
              {
-              "id": "g93",
+              "id": "g92",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
@@ -1746,7 +1907,7 @@
             ]
            },
            {
-            "id": "g94",
+            "id": "g93",
             "type": "row",
             "height": 32,
             "padding": {
@@ -1765,7 +1926,7 @@
             },
             "children": [
              {
-              "id": "g95",
+              "id": "g94",
               "type": "row",
               "width": 22,
               "height": 22,
@@ -1776,7 +1937,7 @@
               "radius": 11,
               "children": [
                {
-                "id": "g96",
+                "id": "g95",
                 "type": "text",
                 "color": "#2A0C17",
                 "dark_color": "#2A0C17",
@@ -1791,7 +1952,7 @@
               ]
              },
              {
-              "id": "g97",
+              "id": "g96",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
@@ -1804,7 +1965,7 @@
             ]
            },
            {
-            "id": "g98",
+            "id": "g97",
             "type": "row",
             "height": 32,
             "padding": {
@@ -1823,7 +1984,7 @@
             },
             "children": [
              {
-              "id": "g99",
+              "id": "g98",
               "type": "row",
               "width": 22,
               "height": 22,
@@ -1834,7 +1995,7 @@
               "radius": 11,
               "children": [
                {
-                "id": "g100",
+                "id": "g99",
                 "type": "text",
                 "color": "#2A0C17",
                 "dark_color": "#2A0C17",
@@ -1849,7 +2010,7 @@
               ]
              },
              {
-              "id": "g101",
+              "id": "g100",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
@@ -1864,7 +2025,7 @@
           ]
          },
          {
-          "id": "g102",
+          "id": "g101",
           "type": "button",
           "name": "Start",
           "width": "hug",
@@ -1891,7 +2052,8 @@
           "icon": "arrow_forward",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "flow": "bouquet"
           },
           "motion": {
            "press": "shrink"
@@ -1900,7 +2062,7 @@
         ]
        },
        {
-        "id": "g103",
+        "id": "g102",
         "type": "marquee",
         "name": "Every occasion",
         "padding": {
@@ -1927,7 +2089,7 @@
         }
        },
        {
-        "id": "g104",
+        "id": "g103",
         "type": "row",
         "name": "Kind words",
         "padding": {
@@ -1940,13 +2102,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g105",
+          "id": "g104",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g106",
+            "id": "g105",
             "type": "text",
             "color": "#2A121C",
             "dark_color": "#F8EAEE",
@@ -1965,41 +2127,7 @@
         ]
        },
        {
-        "id": "g107",
-        "type": "testimonials",
-        "name": "Kind words",
-        "padding": {
-         "end": 18,
-         "start": 18
-        },
-        "gap": 12,
-        "background": "#FFFFFF",
-        "color": "#2A121C",
-        "dark_background": "#21121A",
-        "dark_color": "#F8EAEE",
-        "border_color": "#F0DDD9",
-        "dark_border_color": "#3A2530",
-        "radius": 26,
-        "border_width": 1,
-        "entries": [
-         {
-          "title": "[Customer name]",
-          "subtitle": "[What they sent]",
-          "text": "[What a customer says about you]"
-         },
-         {
-          "title": "[Customer name]",
-          "subtitle": "[What they sent]",
-          "text": "[Another customer's words]"
-         }
-        ],
-        "motion": {
-         "enter": "slide_up",
-         "duration_ms": 500
-        }
-       },
-       {
-        "id": "g108",
+        "id": "g106",
         "type": "row",
         "name": "Floral rule",
         "padding": {
@@ -2013,7 +2141,7 @@
         "cross": "center",
         "children": [
          {
-          "id": "g109",
+          "id": "g107",
           "type": "row",
           "width": "fill",
           "height": 1,
@@ -2022,7 +2150,7 @@
           "children": []
          },
          {
-          "id": "g110",
+          "id": "g108",
           "type": "icon",
           "color": "#A8325A",
           "dark_color": "#F3A9C0",
@@ -2030,7 +2158,7 @@
           "icon_size": 16
          },
          {
-          "id": "g111",
+          "id": "g109",
           "type": "row",
           "width": "fill",
           "height": 1,
@@ -2050,11 +2178,11 @@
     "screen": "search",
     "studio": {
      "body": {
-      "id": "g112",
+      "id": "g110",
       "type": "column",
       "children": [
        {
-        "id": "g113",
+        "id": "g111",
         "type": "photo_hero",
         "name": "Find the right flowers",
         "height": 190,
@@ -2085,7 +2213,7 @@
         "ken_burns": true,
         "children": [
          {
-          "id": "g114",
+          "id": "g112",
           "type": "text",
           "width": 220,
           "color": "#FFFFFF",
@@ -2100,7 +2228,7 @@
           "max_lines": 2
          },
          {
-          "id": "g115",
+          "id": "g113",
           "type": "text",
           "width": 220,
           "margin": {
@@ -2118,9 +2246,10 @@
         ]
        },
        {
-        "id": "g116",
+        "id": "g114",
         "type": "stories",
         "name": "Every occasion",
+        "stories_source": "dashboard",
         "padding": {
          "top": 10,
          "end": 12,
@@ -2135,7 +2264,8 @@
           "heading": "Love",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "9"
           },
           "ring": "highlight",
           "ring_color": "#C89B6D"
@@ -2145,7 +2275,8 @@
           "heading": "Birthday",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "10"
           },
           "ring": "highlight",
           "ring_color": "#C89B6D"
@@ -2155,7 +2286,8 @@
           "heading": "Sympathy",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "11"
           },
           "ring": "plain"
          },
@@ -2164,7 +2296,8 @@
           "heading": "New baby",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "12"
           },
           "ring": "plain"
          },
@@ -2173,7 +2306,8 @@
           "heading": "Congratulations",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "13"
           },
           "ring": "plain"
          }
@@ -2184,7 +2318,7 @@
         }
        },
        {
-        "id": "g117",
+        "id": "g115",
         "type": "row",
         "name": "The signature bouquet",
         "padding": {
@@ -2197,7 +2331,7 @@
         "scroll": true,
         "children": [
          {
-          "id": "g118",
+          "id": "g116",
           "type": "button",
           "name": "Our bouquet",
           "width": "hug",
@@ -2228,7 +2362,7 @@
           }
          },
          {
-          "id": "g119",
+          "id": "g117",
           "type": "button",
           "name": "Your picks",
           "width": "hug",
@@ -2286,13 +2420,13 @@
     "screen": "cart",
     "studio": {
      "body": {
-      "id": "g120",
+      "id": "g118",
       "type": "column",
       "children": [
        {
-        "id": "g121",
+        "id": "g119",
         "type": "row",
-        "name": "Pick the delivery day and write the card at checkout.",
+        "name": "Pick the delivery day and write the card below, then pay.",
         "padding": {
          "top": 14,
          "end": 14,
@@ -2315,7 +2449,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "g122",
+          "id": "g120",
           "type": "icon",
           "padding": {
            "top": 9,
@@ -2332,7 +2466,7 @@
           "icon_size": 22
          },
          {
-          "id": "g123",
+          "id": "g121",
           "type": "text",
           "width": "fill",
           "color": "#2A121C",
@@ -2342,7 +2476,7 @@
            "size": 13.5,
            "line_height": 1.4
           },
-          "text": "Pick the delivery day and write the card at checkout.",
+          "text": "Pick the delivery day and write the card below, then pay.",
           "max_lines": 3
          }
         ]
@@ -2370,11 +2504,11 @@
     "screen": "orders",
     "studio": {
      "body": {
-      "id": "g124",
+      "id": "g122",
       "type": "column",
       "children": [
        {
-        "id": "g125",
+        "id": "g123",
         "type": "row",
         "name": "How your flowers travel",
         "padding": {
@@ -2387,13 +2521,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g126",
+          "id": "g124",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g127",
+            "id": "g125",
             "type": "text",
             "color": "#2A121C",
             "dark_color": "#F8EAEE",
@@ -2412,7 +2546,7 @@
         ]
        },
        {
-        "id": "g128",
+        "id": "g126",
         "type": "timeline",
         "name": "How your flowers travel",
         "padding": {
@@ -2480,9 +2614,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g129",
+      "id": "g127",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g128",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "Sign out",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#FBF3F0",
      "dark_background": "#140A0F",
@@ -2512,6 +2676,7 @@
           "id": "g3",
           "type": "slider",
           "name": "Every occasion",
+          "stories_source": "dashboard",
           "height": 520,
           "autoplay": true,
           "interval_ms": 5500,
@@ -2569,6 +2734,7 @@
                {
                 "id": "g7",
                 "type": "icon",
+                "story_part": "icon",
                 "color": "#FFD9C2",
                 "icon": "favorite",
                 "icon_size": 15
@@ -2576,6 +2742,7 @@
                {
                 "id": "g8",
                 "type": "text",
+                "story_part": "kicker",
                 "color": "#FFFFFF",
                 "font": {
                  "weight": 700,
@@ -2590,6 +2757,7 @@
              {
               "id": "g9",
               "type": "text",
+              "story_part": "title",
               "margin": {
                "top": 14
               },
@@ -2607,6 +2775,7 @@
              {
               "id": "g10",
               "type": "text",
+              "story_part": "line",
               "margin": {
                "top": 10
               },
@@ -2623,6 +2792,7 @@
               "id": "g11",
               "type": "button",
               "name": "Send flowers",
+              "story_part": "button",
               "width": "hug",
               "height": 48,
               "padding": {
@@ -2700,6 +2870,7 @@
                {
                 "id": "g15",
                 "type": "icon",
+                "story_part": "icon",
                 "color": "#FFD9C2",
                 "icon": "cake",
                 "icon_size": 15
@@ -2707,6 +2878,7 @@
                {
                 "id": "g16",
                 "type": "text",
+                "story_part": "kicker",
                 "color": "#FFFFFF",
                 "font": {
                  "weight": 700,
@@ -2721,6 +2893,7 @@
              {
               "id": "g17",
               "type": "text",
+              "story_part": "title",
               "margin": {
                "top": 14
               },
@@ -2738,6 +2911,7 @@
              {
               "id": "g18",
               "type": "text",
+              "story_part": "line",
               "margin": {
                "top": 10
               },
@@ -2754,6 +2928,7 @@
               "id": "g19",
               "type": "button",
               "name": "Send flowers",
+              "story_part": "button",
               "width": "hug",
               "height": 48,
               "padding": {
@@ -2831,6 +3006,7 @@
                {
                 "id": "g23",
                 "type": "icon",
+                "story_part": "icon",
                 "color": "#FFD9C2",
                 "icon": "spa",
                 "icon_size": 15
@@ -2838,6 +3014,7 @@
                {
                 "id": "g24",
                 "type": "text",
+                "story_part": "kicker",
                 "color": "#FFFFFF",
                 "font": {
                  "weight": 700,
@@ -2852,6 +3029,7 @@
              {
               "id": "g25",
               "type": "text",
+              "story_part": "title",
               "margin": {
                "top": 14
               },
@@ -2869,6 +3047,7 @@
              {
               "id": "g26",
               "type": "text",
+              "story_part": "line",
               "margin": {
                "top": 10
               },
@@ -2885,6 +3064,7 @@
               "id": "g27",
               "type": "button",
               "name": "Send flowers",
+              "story_part": "button",
               "width": "hug",
               "height": 48,
               "padding": {
@@ -2962,6 +3142,7 @@
                {
                 "id": "g31",
                 "type": "icon",
+                "story_part": "icon",
                 "color": "#FFD9C2",
                 "icon": "child_care",
                 "icon_size": 15
@@ -2969,6 +3150,7 @@
                {
                 "id": "g32",
                 "type": "text",
+                "story_part": "kicker",
                 "color": "#FFFFFF",
                 "font": {
                  "weight": 700,
@@ -2983,6 +3165,7 @@
              {
               "id": "g33",
               "type": "text",
+              "story_part": "title",
               "margin": {
                "top": 14
               },
@@ -3000,6 +3183,7 @@
              {
               "id": "g34",
               "type": "text",
+              "story_part": "line",
               "margin": {
                "top": 10
               },
@@ -3016,6 +3200,7 @@
               "id": "g35",
               "type": "button",
               "name": "Send flowers",
+              "story_part": "button",
               "width": "hug",
               "height": 48,
               "padding": {
@@ -3093,6 +3278,7 @@
                {
                 "id": "g39",
                 "type": "icon",
+                "story_part": "icon",
                 "color": "#FFD9C2",
                 "icon": "celebration",
                 "icon_size": 15
@@ -3100,6 +3286,7 @@
                {
                 "id": "g40",
                 "type": "text",
+                "story_part": "kicker",
                 "color": "#FFFFFF",
                 "font": {
                  "weight": 700,
@@ -3114,6 +3301,7 @@
              {
               "id": "g41",
               "type": "text",
+              "story_part": "title",
               "margin": {
                "top": 14
               },
@@ -3131,6 +3319,7 @@
              {
               "id": "g42",
               "type": "text",
+              "story_part": "line",
               "margin": {
                "top": 10
               },
@@ -3147,6 +3336,7 @@
               "id": "g43",
               "type": "button",
               "name": "Send flowers",
+              "story_part": "button",
               "width": "hug",
               "height": 48,
               "padding": {
@@ -3306,6 +3496,7 @@
           "id": "g51",
           "type": "stories",
           "name": "Every occasion",
+          "stories_source": "dashboard",
           "color": "#2A121C",
           "dark_color": "#F8EAEE",
           "slides": [
@@ -3314,7 +3505,8 @@
             "heading": "حب",
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "9"
             },
             "ring": "highlight",
             "ring_color": "#C89B6D"
@@ -3324,7 +3516,8 @@
             "heading": "عيد ميلاد",
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "10"
             },
             "ring": "highlight",
             "ring_color": "#C89B6D"
@@ -3334,7 +3527,8 @@
             "heading": "مواساة",
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "11"
             },
             "ring": "plain"
            },
@@ -3343,7 +3537,8 @@
             "heading": "مولود جديد",
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "12"
             },
             "ring": "plain"
            },
@@ -3352,7 +3547,8 @@
             "heading": "تهنئة",
             "action": {
              "type": "screen",
-             "screen": "search"
+             "screen": "search",
+             "category_id": "13"
             },
             "ring": "plain"
            }
@@ -3435,32 +3631,20 @@
                "letter_spacing": -0.5
               },
               "text": "أرسل اليوم"
-             },
-             {
-              "id": "g57",
-              "type": "text",
-              "color": "#7B5E67",
-              "dark_color": "#C9AEB6",
-              "font": {
-               "size": 13.5,
-               "line_height": 1.4
-              },
-              "text": "اطلب قبل [آخر موعد للطلب] ويصل اليوم.",
-              "max_lines": 3
              }
             ]
            }
           ]
          },
          {
-          "id": "g58",
+          "id": "g57",
           "type": "row",
           "name": "Delivery days · today, tomorrow, a date",
           "width": "fill",
           "gap": 6,
           "children": [
            {
-            "id": "g59",
+            "id": "g58",
             "type": "row",
             "name": "Today",
             "width": "fill",
@@ -3481,7 +3665,7 @@
             },
             "children": [
              {
-              "id": "g60",
+              "id": "g59",
               "type": "icon",
               "color": "#FFFFFF",
               "dark_color": "#2A121C",
@@ -3489,7 +3673,7 @@
               "icon_size": 15
              },
              {
-              "id": "g61",
+              "id": "g60",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#2A121C",
@@ -3503,7 +3687,7 @@
             ]
            },
            {
-            "id": "g62",
+            "id": "g61",
             "type": "row",
             "name": "Tomorrow",
             "width": "fill",
@@ -3525,7 +3709,7 @@
             },
             "children": [
              {
-              "id": "g63",
+              "id": "g62",
               "type": "text",
               "color": "#2A121C",
               "dark_color": "#F8EAEE",
@@ -3539,7 +3723,7 @@
             ]
            },
            {
-            "id": "g64",
+            "id": "g63",
             "type": "row",
             "name": "Pick a date",
             "width": "fill",
@@ -3561,7 +3745,7 @@
             },
             "children": [
              {
-              "id": "g65",
+              "id": "g64",
               "type": "text",
               "color": "#2A121C",
               "dark_color": "#F8EAEE",
@@ -3579,7 +3763,7 @@
         ]
        },
        {
-        "id": "g66",
+        "id": "g65",
         "type": "row",
         "name": "Collections",
         "padding": {
@@ -3592,13 +3776,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g67",
+          "id": "g66",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g68",
+            "id": "g67",
             "type": "text",
             "color": "#A8325A",
             "dark_color": "#F3A9C0",
@@ -3611,7 +3795,7 @@
             "text": "لكل مناسبة"
            },
            {
-            "id": "g69",
+            "id": "g68",
             "type": "text",
             "color": "#2A121C",
             "dark_color": "#F8EAEE",
@@ -3628,7 +3812,7 @@
           ]
          },
          {
-          "id": "g70",
+          "id": "g69",
           "type": "text",
           "padding": {
            "bottom": 4
@@ -3648,7 +3832,7 @@
         ]
        },
        {
-        "id": "g71",
+        "id": "g70",
         "type": "bento",
         "name": "Collections",
         "margin": {
@@ -3671,7 +3855,8 @@
           "size": "large",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "1"
           }
          },
          {
@@ -3680,7 +3865,8 @@
           "icon": "local_florist",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "2"
           }
          },
          {
@@ -3689,7 +3875,8 @@
           "icon": "local_florist",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "3"
           }
          },
          {
@@ -3699,7 +3886,8 @@
           "size": "wide",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "4"
           }
          },
          {
@@ -3709,7 +3897,8 @@
           "size": "wide",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "5"
           }
          }
         ],
@@ -3719,7 +3908,7 @@
         }
        },
        {
-        "id": "g72",
+        "id": "g71",
         "type": "row",
         "name": "Loved most",
         "padding": {
@@ -3732,13 +3921,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g73",
+          "id": "g72",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g74",
+            "id": "g73",
             "type": "text",
             "color": "#2A121C",
             "dark_color": "#F8EAEE",
@@ -3755,7 +3944,7 @@
           ]
          },
          {
-          "id": "g75",
+          "id": "g74",
           "type": "text",
           "padding": {
            "bottom": 4
@@ -3772,10 +3961,11 @@
            "screen": "search"
           }
          }
-        ]
+        ],
+        "heads": "g75"
        },
        {
-        "id": "g76",
+        "id": "g75",
         "type": "items",
         "name": "Loved most",
         "padding": {
@@ -3786,19 +3976,19 @@
         "source": "products",
         "layout": "carousel",
         "card": {
-         "id": "g77",
+         "id": "g76",
          "type": "column",
          "width": 172,
          "gap": 8,
          "children": [
           {
-           "id": "g78",
+           "id": "g77",
            "type": "stack",
            "width": 172,
            "height": 214,
            "children": [
             {
-             "id": "g79",
+             "id": "g78",
              "type": "image",
              "width": 172,
              "height": 214,
@@ -3812,7 +4002,7 @@
              "bind": "image"
             },
             {
-             "id": "g80",
+             "id": "g79",
              "type": "text",
              "padding": {
               "top": 4,
@@ -3838,7 +4028,7 @@
            ]
           },
           {
-           "id": "g81",
+           "id": "g80",
            "type": "text",
            "color": "#2A121C",
            "dark_color": "#F8EAEE",
@@ -3853,13 +4043,13 @@
            "bind": "title"
           },
           {
-           "id": "g82",
+           "id": "g81",
            "type": "row",
            "gap": 8,
            "cross": "center",
            "children": [
             {
-             "id": "g83",
+             "id": "g82",
              "type": "text",
              "color": "#A8325A",
              "dark_color": "#F3A9C0",
@@ -3871,7 +4061,7 @@
              "bind": "price"
             },
             {
-             "id": "g84",
+             "id": "g83",
              "type": "text",
              "color": "#7B5E67",
              "dark_color": "#C9AEB6",
@@ -3888,136 +4078,270 @@
         "items": [
          {
           "source": "products",
-          "id": "24",
+          "id": "33",
           "title": "Blush Garden",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-1",
           "price_label": "₺2,290.00 – ₺4,260.00",
+          "price": {
+           "amount": "2290.00",
+           "currency": "TRY",
+           "formatted": "₺2,290.00 – ₺4,260.00",
+           "range": true,
+           "max_amount": "4260.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "66.96",
+            "formatted": "$66.96 – $124.56",
+            "max_amount": "124.56",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$66.96 – $124.56"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "24"
+            "id": "33"
            }
           }
          },
          {
           "source": "products",
-          "id": "23",
+          "id": "32",
           "title": "Velvet Red Roses",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-2",
           "price_label": "₺2,510.00 – ₺5,190.00",
+          "price": {
+           "amount": "2510.00",
+           "currency": "TRY",
+           "formatted": "₺2,510.00 – ₺5,190.00",
+           "range": true,
+           "max_amount": "5190.00",
+           "on_sale": true,
+           "display": {
+            "currency": "USD",
+            "amount": "73.39",
+            "formatted": "$73.39 – $151.75",
+            "max_amount": "151.75",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$73.39 – $151.75"
+           }
+          },
           "badge": "تخفيض",
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "23"
+            "id": "32"
            }
           }
          },
          {
           "source": "products",
-          "id": "22",
+          "id": "31",
           "title": "Morning Tulips",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-3",
           "price_label": "₺1,730.00 – ₺3,230.00",
+          "price": {
+           "amount": "1730.00",
+           "currency": "TRY",
+           "formatted": "₺1,730.00 – ₺3,230.00",
+           "range": true,
+           "max_amount": "3230.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "50.58",
+            "formatted": "$50.58 – $94.44",
+            "max_amount": "94.44",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$50.58 – $94.44"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "22"
+            "id": "31"
            }
           }
          },
          {
           "source": "products",
-          "id": "21",
+          "id": "30",
           "title": "Ranunculus Cloud",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-4",
           "price_label": "₺3,780.00 – ₺7,100.00",
+          "price": {
+           "amount": "3780.00",
+           "currency": "TRY",
+           "formatted": "₺3,780.00 – ₺7,100.00",
+           "range": true,
+           "max_amount": "7100.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "110.53",
+            "formatted": "$110.53 – $207.60",
+            "max_amount": "207.60",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$110.53 – $207.60"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "21"
+            "id": "30"
            }
           }
          },
          {
           "source": "products",
-          "id": "20",
+          "id": "29",
           "title": "White Serenity",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-5",
           "price_label": "₺2,600.00 – ₺4,650.00",
+          "price": {
+           "amount": "2600.00",
+           "currency": "TRY",
+           "formatted": "₺2,600.00 – ₺4,650.00",
+           "range": true,
+           "max_amount": "4650.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "76.02",
+            "formatted": "$76.02 – $135.96",
+            "max_amount": "135.96",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$76.02 – $135.96"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "20"
+            "id": "29"
            }
           }
          },
          {
           "source": "products",
-          "id": "19",
+          "id": "28",
           "title": "Little Sunshine",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-6",
           "price_label": "₺1,500.00 – ₺2,760.00",
+          "price": {
+           "amount": "1500.00",
+           "currency": "TRY",
+           "formatted": "₺1,500.00 – ₺2,760.00",
+           "range": true,
+           "max_amount": "2760.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "43.86",
+            "formatted": "$43.86 – $80.70",
+            "max_amount": "80.70",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$43.86 – $80.70"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "19"
+            "id": "28"
            }
           }
          },
          {
           "source": "products",
-          "id": "18",
+          "id": "27",
           "title": "Blue Cloud",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-7",
           "price_label": "₺2,760.00 – ₺4,970.00",
+          "price": {
+           "amount": "2760.00",
+           "currency": "TRY",
+           "formatted": "₺2,760.00 – ₺4,970.00",
+           "range": true,
+           "max_amount": "4970.00",
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "80.70",
+            "formatted": "$80.70 – $145.32",
+            "max_amount": "145.32",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$80.70 – $145.32"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "18"
+            "id": "27"
            }
           }
          },
          {
           "source": "products",
-          "id": "17",
+          "id": "26",
           "title": "Orchid Elegance",
           "subtitle": null,
           "image_url": "https://yallapp.test/api/v1/assets/asset-8",
           "price_label": "₺3,470.00",
+          "price": {
+           "amount": "3470.00",
+           "currency": "TRY",
+           "formatted": "₺3,470.00",
+           "range": false,
+           "on_sale": false,
+           "display": {
+            "currency": "USD",
+            "amount": "101.46",
+            "formatted": "$101.46",
+            "rate": 0.029239766081871343,
+            "rate_date": "2026-11-18",
+            "label": "$101.46"
+           }
+          },
           "badge": null,
           "action": {
            "type": "item",
            "item": {
             "source": "products",
-            "id": "17"
+            "id": "26"
            }
           }
          }
         ]
        },
        {
-        "id": "g85",
+        "id": "g84",
         "type": "photo_hero",
         "name": "Build your bouquet",
         "height": 300,
@@ -4048,11 +4372,12 @@
         "ken_burns": true,
         "action": {
          "type": "screen",
-         "screen": "search"
+         "screen": "search",
+         "flow": "bouquet"
         },
         "children": [
          {
-          "id": "g86",
+          "id": "g85",
           "type": "text",
           "color": "#FFD9C2",
           "font": {
@@ -4064,7 +4389,7 @@
           "text": "اصنعها بذوقك"
          },
          {
-          "id": "g87",
+          "id": "g86",
           "type": "text",
           "width": 230,
           "margin": {
@@ -4082,7 +4407,7 @@
           "max_lines": 2
          },
          {
-          "id": "g88",
+          "id": "g87",
           "type": "text",
           "width": 230,
           "margin": {
@@ -4098,7 +4423,7 @@
           "max_lines": 3
          },
          {
-          "id": "g89",
+          "id": "g88",
           "type": "row",
           "name": "Build your bouquet",
           "margin": {
@@ -4108,7 +4433,7 @@
           "scroll": true,
           "children": [
            {
-            "id": "g90",
+            "id": "g89",
             "type": "row",
             "height": 32,
             "padding": {
@@ -4127,7 +4452,7 @@
             },
             "children": [
              {
-              "id": "g91",
+              "id": "g90",
               "type": "row",
               "width": 22,
               "height": 22,
@@ -4138,7 +4463,7 @@
               "radius": 11,
               "children": [
                {
-                "id": "g92",
+                "id": "g91",
                 "type": "text",
                 "color": "#2A0C17",
                 "dark_color": "#2A0C17",
@@ -4153,7 +4478,7 @@
               ]
              },
              {
-              "id": "g93",
+              "id": "g92",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
@@ -4166,7 +4491,7 @@
             ]
            },
            {
-            "id": "g94",
+            "id": "g93",
             "type": "row",
             "height": 32,
             "padding": {
@@ -4185,7 +4510,7 @@
             },
             "children": [
              {
-              "id": "g95",
+              "id": "g94",
               "type": "row",
               "width": 22,
               "height": 22,
@@ -4196,7 +4521,7 @@
               "radius": 11,
               "children": [
                {
-                "id": "g96",
+                "id": "g95",
                 "type": "text",
                 "color": "#2A0C17",
                 "dark_color": "#2A0C17",
@@ -4211,7 +4536,7 @@
               ]
              },
              {
-              "id": "g97",
+              "id": "g96",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
@@ -4224,7 +4549,7 @@
             ]
            },
            {
-            "id": "g98",
+            "id": "g97",
             "type": "row",
             "height": 32,
             "padding": {
@@ -4243,7 +4568,7 @@
             },
             "children": [
              {
-              "id": "g99",
+              "id": "g98",
               "type": "row",
               "width": 22,
               "height": 22,
@@ -4254,7 +4579,7 @@
               "radius": 11,
               "children": [
                {
-                "id": "g100",
+                "id": "g99",
                 "type": "text",
                 "color": "#2A0C17",
                 "dark_color": "#2A0C17",
@@ -4269,7 +4594,7 @@
               ]
              },
              {
-              "id": "g101",
+              "id": "g100",
               "type": "text",
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
@@ -4284,7 +4609,7 @@
           ]
          },
          {
-          "id": "g102",
+          "id": "g101",
           "type": "button",
           "name": "Start",
           "width": "hug",
@@ -4311,7 +4636,8 @@
           "icon": "arrow_forward",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "flow": "bouquet"
           },
           "motion": {
            "press": "shrink"
@@ -4320,7 +4646,7 @@
         ]
        },
        {
-        "id": "g103",
+        "id": "g102",
         "type": "marquee",
         "name": "Every occasion",
         "padding": {
@@ -4347,7 +4673,7 @@
         }
        },
        {
-        "id": "g104",
+        "id": "g103",
         "type": "row",
         "name": "Kind words",
         "padding": {
@@ -4360,13 +4686,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g105",
+          "id": "g104",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g106",
+            "id": "g105",
             "type": "text",
             "color": "#2A121C",
             "dark_color": "#F8EAEE",
@@ -4385,41 +4711,7 @@
         ]
        },
        {
-        "id": "g107",
-        "type": "testimonials",
-        "name": "Kind words",
-        "padding": {
-         "end": 18,
-         "start": 18
-        },
-        "gap": 12,
-        "background": "#FFFFFF",
-        "color": "#2A121C",
-        "dark_background": "#21121A",
-        "dark_color": "#F8EAEE",
-        "border_color": "#F0DDD9",
-        "dark_border_color": "#3A2530",
-        "radius": 26,
-        "border_width": 1,
-        "entries": [
-         {
-          "title": "[اسم العميل]",
-          "subtitle": "[ما أرسله]",
-          "text": "[رأي أحد العملاء فيك]"
-         },
-         {
-          "title": "[اسم العميل]",
-          "subtitle": "[ما أرسله]",
-          "text": "[كلمات عميل آخر]"
-         }
-        ],
-        "motion": {
-         "enter": "slide_up",
-         "duration_ms": 500
-        }
-       },
-       {
-        "id": "g108",
+        "id": "g106",
         "type": "row",
         "name": "Floral rule",
         "padding": {
@@ -4433,7 +4725,7 @@
         "cross": "center",
         "children": [
          {
-          "id": "g109",
+          "id": "g107",
           "type": "row",
           "width": "fill",
           "height": 1,
@@ -4442,7 +4734,7 @@
           "children": []
          },
          {
-          "id": "g110",
+          "id": "g108",
           "type": "icon",
           "color": "#A8325A",
           "dark_color": "#F3A9C0",
@@ -4450,7 +4742,7 @@
           "icon_size": 16
          },
          {
-          "id": "g111",
+          "id": "g109",
           "type": "row",
           "width": "fill",
           "height": 1,
@@ -4470,11 +4762,11 @@
     "screen": "search",
     "studio": {
      "body": {
-      "id": "g112",
+      "id": "g110",
       "type": "column",
       "children": [
        {
-        "id": "g113",
+        "id": "g111",
         "type": "photo_hero",
         "name": "Find the right flowers",
         "height": 190,
@@ -4505,7 +4797,7 @@
         "ken_burns": true,
         "children": [
          {
-          "id": "g114",
+          "id": "g112",
           "type": "text",
           "width": 220,
           "color": "#FFFFFF",
@@ -4520,7 +4812,7 @@
           "max_lines": 2
          },
          {
-          "id": "g115",
+          "id": "g113",
           "type": "text",
           "width": 220,
           "margin": {
@@ -4538,9 +4830,10 @@
         ]
        },
        {
-        "id": "g116",
+        "id": "g114",
         "type": "stories",
         "name": "Every occasion",
+        "stories_source": "dashboard",
         "padding": {
          "top": 10,
          "end": 12,
@@ -4555,7 +4848,8 @@
           "heading": "حب",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "9"
           },
           "ring": "highlight",
           "ring_color": "#C89B6D"
@@ -4565,7 +4859,8 @@
           "heading": "عيد ميلاد",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "10"
           },
           "ring": "highlight",
           "ring_color": "#C89B6D"
@@ -4575,7 +4870,8 @@
           "heading": "مواساة",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "11"
           },
           "ring": "plain"
          },
@@ -4584,7 +4880,8 @@
           "heading": "مولود جديد",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "12"
           },
           "ring": "plain"
          },
@@ -4593,7 +4890,8 @@
           "heading": "تهنئة",
           "action": {
            "type": "screen",
-           "screen": "search"
+           "screen": "search",
+           "category_id": "13"
           },
           "ring": "plain"
          }
@@ -4604,7 +4902,7 @@
         }
        },
        {
-        "id": "g117",
+        "id": "g115",
         "type": "row",
         "name": "The signature bouquet",
         "padding": {
@@ -4617,7 +4915,7 @@
         "scroll": true,
         "children": [
          {
-          "id": "g118",
+          "id": "g116",
           "type": "button",
           "name": "Our bouquet",
           "width": "hug",
@@ -4648,7 +4946,7 @@
           }
          },
          {
-          "id": "g119",
+          "id": "g117",
           "type": "button",
           "name": "Your picks",
           "width": "hug",
@@ -4706,13 +5004,13 @@
     "screen": "cart",
     "studio": {
      "body": {
-      "id": "g120",
+      "id": "g118",
       "type": "column",
       "children": [
        {
-        "id": "g121",
+        "id": "g119",
         "type": "row",
-        "name": "Pick the delivery day and write the card at checkout.",
+        "name": "Pick the delivery day and write the card below, then pay.",
         "padding": {
          "top": 14,
          "end": 14,
@@ -4735,7 +5033,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "g122",
+          "id": "g120",
           "type": "icon",
           "padding": {
            "top": 9,
@@ -4752,7 +5050,7 @@
           "icon_size": 22
          },
          {
-          "id": "g123",
+          "id": "g121",
           "type": "text",
           "width": "fill",
           "color": "#2A121C",
@@ -4762,7 +5060,7 @@
            "size": 13.5,
            "line_height": 1.4
           },
-          "text": "اختر يوم التوصيل واكتب البطاقة عند إتمام الطلب.",
+          "text": "اختر يوم التوصيل واكتب البطاقة في الأسفل، ثم ادفع.",
           "max_lines": 3
          }
         ]
@@ -4790,11 +5088,11 @@
     "screen": "orders",
     "studio": {
      "body": {
-      "id": "g124",
+      "id": "g122",
       "type": "column",
       "children": [
        {
-        "id": "g125",
+        "id": "g123",
         "type": "row",
         "name": "How your flowers travel",
         "padding": {
@@ -4807,13 +5105,13 @@
         "cross": "end",
         "children": [
          {
-          "id": "g126",
+          "id": "g124",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "g127",
+            "id": "g125",
             "type": "text",
             "color": "#2A121C",
             "dark_color": "#F8EAEE",
@@ -4832,7 +5130,7 @@
         ]
        },
        {
-        "id": "g128",
+        "id": "g126",
         "type": "timeline",
         "name": "How your flowers travel",
         "padding": {
@@ -4900,9 +5198,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g129",
+      "id": "g127",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g128",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "تسجيل الخروج",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#FBF3F0",
      "dark_background": "#140A0F",

@@ -14,15 +14,13 @@ and read it the way a phone reads the hosted `GET /pages`, in English,
 Arabic and Turkish (`template-guard.test.ts`). They also draw each
 template's main pages through the app's renderer, on two phone widths, at
 two text sizes and in both directions (`template_guard_test.dart`, from
-fixtures the platform writes and checks). On main they find templates'
-bracketed sample words served to customers (31 templates), owners' edits not
-reaching Arabic and Turkish (every template with words), list prices with
-no amount or currency the app can convert (30 templates), a hero button
-with no action (`brand`), and overflows or cut-off elements on 60 pages
-(34 templates). Bound lists, categories, the contract and scrolling to the
-last element pass. The failures wait for 156, 161 and 163, or are new; each
-is listed in `docs/qa/2026-11-18-guard/NOTES.md`. The phase is merged
-after those fixes.
+fixtures the platform writes and checks). After app release 9, the
+placeholders, stale translations and list prices are gone, and the Leqaa
+looks, `contact` and `blank` pass every check. Still failing: `brand`'s hero
+button opens nothing (what it should open is a product decision); 8 food,
+delivery and marketplace templates write EGP prices in their own words;
+and 44 pages of 24 other templates overflow or cut off elements on the
+phone. Each is listed by QA session in `docs/qa/2026-11-18-guard/NOTES.md`.
 
 Roadmap 157 (the template's categories are the shop's): Leqaa's occasion
 rings, chips and ticker and its collections' bento, arches and cards were

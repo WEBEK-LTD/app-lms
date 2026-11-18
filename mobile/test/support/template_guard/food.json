@@ -182,7 +182,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "Most popular"
+          "text": "Most popular",
+          "heads": "g11"
          },
          {
           "id": "g11",
@@ -571,7 +572,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "الأكثر طلبًا"
+          "text": "الأكثر طلبًا",
+          "heads": "g11"
          },
          {
           "id": "g11",

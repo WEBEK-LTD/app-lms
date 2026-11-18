@@ -182,7 +182,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "Most popular"
+          "text": "Most popular",
+          "heads": "g11"
          },
          {
           "id": "g11",
@@ -199,6 +200,19 @@
             "subtitle": "Deniz Kaya",
             "image_url": "https://yallapp.test/api/v1/assets/asset-1",
             "price_label": "₺1,450.00",
+            "price": {
+             "amount": "1450.00",
+             "currency": "TRY",
+             "formatted": "₺1,450.00",
+             "display": {
+              "currency": "USD",
+              "amount": "42.40",
+              "formatted": "$42.40",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$42.40"
+             }
+            },
             "badge": null,
             "rating": null,
             "action": {
@@ -213,6 +227,19 @@
             "subtitle": "Emre Aydın",
             "image_url": "https://yallapp.test/api/v1/assets/asset-2",
             "price_label": "₺890.00",
+            "price": {
+             "amount": "890.00",
+             "currency": "TRY",
+             "formatted": "₺890.00",
+             "display": {
+              "currency": "USD",
+              "amount": "26.02",
+              "formatted": "$26.02",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$26.02"
+             }
+            },
             "badge": null,
             "rating": null,
             "action": {
@@ -227,6 +254,18 @@
             "subtitle": "Omar Farouk",
             "image_url": "https://yallapp.test/api/v1/assets/asset-3",
             "price_label": "Free",
+            "price": {
+             "amount": "0.00",
+             "currency": "TRY",
+             "formatted": "₺0.00",
+             "display": {
+              "currency": "USD",
+              "amount": "0.00",
+              "formatted": "$0.00",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
+            },
             "badge": null,
             "rating": null,
             "action": {
@@ -241,6 +280,19 @@
             "subtitle": "Yasmin Adel",
             "image_url": "https://yallapp.test/api/v1/assets/asset-4",
             "price_label": "₺1,100.00",
+            "price": {
+             "amount": "1100.00",
+             "currency": "TRY",
+             "formatted": "₺1,100.00",
+             "display": {
+              "currency": "USD",
+              "amount": "32.16",
+              "formatted": "$32.16",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$32.16"
+             }
+            },
             "badge": null,
             "rating": null,
             "action": {
@@ -563,7 +615,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "الأكثر طلبًا"
+          "text": "الأكثر طلبًا",
+          "heads": "g11"
          },
          {
           "id": "g11",
@@ -580,6 +633,19 @@
             "subtitle": "Deniz Kaya",
             "image_url": "https://yallapp.test/api/v1/assets/asset-1",
             "price_label": "₺1,450.00",
+            "price": {
+             "amount": "1450.00",
+             "currency": "TRY",
+             "formatted": "₺1,450.00",
+             "display": {
+              "currency": "USD",
+              "amount": "42.40",
+              "formatted": "$42.40",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$42.40"
+             }
+            },
             "badge": null,
             "rating": null,
             "action": {
@@ -594,6 +660,19 @@
             "subtitle": "Emre Aydın",
             "image_url": "https://yallapp.test/api/v1/assets/asset-2",
             "price_label": "₺890.00",
+            "price": {
+             "amount": "890.00",
+             "currency": "TRY",
+             "formatted": "₺890.00",
+             "display": {
+              "currency": "USD",
+              "amount": "26.02",
+              "formatted": "$26.02",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$26.02"
+             }
+            },
             "badge": null,
             "rating": null,
             "action": {
@@ -608,6 +687,18 @@
             "subtitle": "Omar Farouk",
             "image_url": "https://yallapp.test/api/v1/assets/asset-3",
             "price_label": "مجاني",
+            "price": {
+             "amount": "0.00",
+             "currency": "TRY",
+             "formatted": "₺0.00",
+             "display": {
+              "currency": "USD",
+              "amount": "0.00",
+              "formatted": "$0.00",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
+            },
             "badge": null,
             "rating": null,
             "action": {
@@ -622,6 +713,19 @@
             "subtitle": "Yasmin Adel",
             "image_url": "https://yallapp.test/api/v1/assets/asset-4",
             "price_label": "₺1,100.00",
+            "price": {
+             "amount": "1100.00",
+             "currency": "TRY",
+             "formatted": "₺1,100.00",
+             "display": {
+              "currency": "USD",
+              "amount": "32.16",
+              "formatted": "$32.16",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$32.16"
+             }
+            },
             "badge": null,
             "rating": null,
             "action": {

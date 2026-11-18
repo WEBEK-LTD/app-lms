@@ -96,23 +96,13 @@
              "size": 12
             },
             "text": "This week's offer"
-           },
-           {
-            "id": "g5",
-            "type": "text",
-            "font": {
-             "weight": 800,
-             "size": 20,
-             "line_height": 1.3
-            },
-            "text": "[Your offer here]"
            }
           ]
          }
         ]
        },
        {
-        "id": "g6",
+        "id": "g5",
         "type": "column",
         "name": "Most popular",
         "padding": {
@@ -124,16 +114,17 @@
         "gap": 8,
         "children": [
          {
-          "id": "g7",
+          "id": "g6",
           "type": "text",
           "font": {
            "weight": 800,
            "size": 17
           },
-          "text": "Most popular"
+          "text": "Most popular",
+          "heads": "g7"
          },
          {
-          "id": "g8",
+          "id": "g7",
           "type": "items",
           "gap": 10,
           "source": "vehicle_types",
@@ -193,7 +184,7 @@
         ]
        },
        {
-        "id": "g9",
+        "id": "g8",
         "type": "column",
         "padding": {
          "top": 14,
@@ -214,33 +205,14 @@
         "shadow": "light",
         "children": [
          {
-          "id": "g10",
+          "id": "g9",
           "type": "ratings",
           "rating": 5
-         },
-         {
-          "id": "g11",
-          "type": "text",
-          "font": {
-           "size": 14,
-           "italic": true
-          },
-          "text": "[What a customer says about you]"
-         },
-         {
-          "id": "g12",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "weight": 700,
-           "size": 12
-          },
-          "text": "[Customer name]"
          }
         ]
        },
        {
-        "id": "g13",
+        "id": "g10",
         "type": "button",
         "width": "fill",
         "height": 46,
@@ -328,23 +300,13 @@
              "size": 12
             },
             "text": "عرض الأسبوع"
-           },
-           {
-            "id": "g5",
-            "type": "text",
-            "font": {
-             "weight": 800,
-             "size": 20,
-             "line_height": 1.3
-            },
-            "text": "[اكتب عرضك]"
            }
           ]
          }
         ]
        },
        {
-        "id": "g6",
+        "id": "g5",
         "type": "column",
         "name": "Most popular",
         "padding": {
@@ -356,16 +318,17 @@
         "gap": 8,
         "children": [
          {
-          "id": "g7",
+          "id": "g6",
           "type": "text",
           "font": {
            "weight": 800,
            "size": 17
           },
-          "text": "الأكثر طلبًا"
+          "text": "الأكثر طلبًا",
+          "heads": "g7"
          },
          {
-          "id": "g8",
+          "id": "g7",
           "type": "items",
           "gap": 10,
           "source": "vehicle_types",
@@ -425,7 +388,7 @@
         ]
        },
        {
-        "id": "g9",
+        "id": "g8",
         "type": "column",
         "padding": {
          "top": 14,
@@ -446,33 +409,14 @@
         "shadow": "light",
         "children": [
          {
-          "id": "g10",
+          "id": "g9",
           "type": "ratings",
           "rating": 5
-         },
-         {
-          "id": "g11",
-          "type": "text",
-          "font": {
-           "size": 14,
-           "italic": true
-          },
-          "text": "[رأي أحد العملاء فيك]"
-         },
-         {
-          "id": "g12",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "weight": 700,
-           "size": 12
-          },
-          "text": "[اسم العميل]"
          }
         ]
        },
        {
-        "id": "g13",
+        "id": "g10",
         "type": "button",
         "width": "fill",
         "height": 46,

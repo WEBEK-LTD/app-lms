@@ -503,6 +503,11 @@
           "subtitle": "Seminyak, Bali",
           "image_url": "http://localhost:3000/api/v1/assets/asset-1",
           "price_label": "$168.00",
+          "price": {
+           "amount": "168.00",
+           "currency": "USD",
+           "formatted": "$168.00"
+          },
           "badge": "Only with us",
           "action": {
            "type": "item",
@@ -519,6 +524,11 @@
           "subtitle": "Downtown, Dubai",
           "image_url": "http://localhost:3000/api/v1/assets/asset-2",
           "price_label": "$134.00",
+          "price": {
+           "amount": "134.00",
+           "currency": "USD",
+           "formatted": "$134.00"
+          },
           "badge": null,
           "action": {
            "type": "item",
@@ -535,6 +545,11 @@
           "subtitle": "Sultanahmet, Istanbul",
           "image_url": "http://localhost:3000/api/v1/assets/asset-3",
           "price_label": "$96.00",
+          "price": {
+           "amount": "96.00",
+           "currency": "USD",
+           "formatted": "$96.00"
+          },
           "badge": null,
           "action": {
            "type": "item",
@@ -551,6 +566,11 @@
           "subtitle": "Oia, Santorini",
           "image_url": "http://localhost:3000/api/v1/assets/asset-4",
           "price_label": "$262.00",
+          "price": {
+           "amount": "262.00",
+           "currency": "USD",
+           "formatted": "$262.00"
+          },
           "badge": null,
           "action": {
            "type": "item",
@@ -1038,7 +1058,37 @@
      "body": {
       "id": "g62",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g63",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "Sign out",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A",
@@ -1481,6 +1531,11 @@
           "subtitle": "Seminyak, Bali",
           "image_url": "http://localhost:3000/api/v1/assets/asset-1",
           "price_label": "$168.00",
+          "price": {
+           "amount": "168.00",
+           "currency": "USD",
+           "formatted": "$168.00"
+          },
           "badge": "Only with us",
           "action": {
            "type": "item",
@@ -1497,6 +1552,11 @@
           "subtitle": "Downtown, Dubai",
           "image_url": "http://localhost:3000/api/v1/assets/asset-2",
           "price_label": "$134.00",
+          "price": {
+           "amount": "134.00",
+           "currency": "USD",
+           "formatted": "$134.00"
+          },
           "badge": null,
           "action": {
            "type": "item",
@@ -1513,6 +1573,11 @@
           "subtitle": "Sultanahmet, Istanbul",
           "image_url": "http://localhost:3000/api/v1/assets/asset-3",
           "price_label": "$96.00",
+          "price": {
+           "amount": "96.00",
+           "currency": "USD",
+           "formatted": "$96.00"
+          },
           "badge": null,
           "action": {
            "type": "item",
@@ -1529,6 +1594,11 @@
           "subtitle": "Oia, Santorini",
           "image_url": "http://localhost:3000/api/v1/assets/asset-4",
           "price_label": "$262.00",
+          "price": {
+           "amount": "262.00",
+           "currency": "USD",
+           "formatted": "$262.00"
+          },
           "badge": null,
           "action": {
            "type": "item",
@@ -2016,7 +2086,37 @@
      "body": {
       "id": "g62",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g63",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "تسجيل الخروج",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#F7F3EC",
      "dark_background": "#0B0F1A",

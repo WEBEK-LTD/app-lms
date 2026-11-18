@@ -138,18 +138,6 @@
            {
             "id": "g5",
             "type": "text",
-            "color": "#FFFFFF",
-            "font": {
-             "weight": 700,
-             "size": 11,
-             "letter_spacing": 2.4,
-             "uppercase": true
-            },
-            "text": "[Your shop · your area]"
-           },
-           {
-            "id": "g6",
-            "type": "text",
             "margin": {
              "top": 10
             },
@@ -164,13 +152,13 @@
             "text": "The week’s shop,"
            },
            {
-            "id": "g7",
+            "id": "g6",
             "type": "row",
             "gap": 10,
             "cross": "end",
             "children": [
              {
-              "id": "g8",
+              "id": "g7",
               "type": "text",
               "color": "#F2A93B",
               "font": {
@@ -183,7 +171,7 @@
               "text": "25"
              },
              {
-              "id": "g9",
+              "id": "g8",
               "type": "column",
               "padding": {
                "bottom": 10
@@ -191,7 +179,7 @@
               "cross": "start",
               "children": [
                {
-                "id": "g10",
+                "id": "g9",
                 "type": "text",
                 "color": "#FFFFFF",
                 "font": {
@@ -201,17 +189,6 @@
                  "line_height": 1
                 },
                 "text": "min"
-               },
-               {
-                "id": "g11",
-                "type": "text",
-                "color": "#FFFFFF",
-                "opacity": 0.9,
-                "font": {
-                 "size": 14
-                },
-                "text": "[to your area]",
-                "max_lines": 1
                }
               ]
              }
@@ -220,7 +197,7 @@
           ]
          },
          {
-          "id": "g12",
+          "id": "g10",
           "type": "column",
           "name": "Search products and shops",
           "width": "fill",
@@ -247,7 +224,7 @@
           },
           "children": [
            {
-            "id": "g13",
+            "id": "g11",
             "type": "row",
             "name": "Search products and shops",
             "height": 50,
@@ -266,7 +243,7 @@
             },
             "children": [
              {
-              "id": "g14",
+              "id": "g12",
               "type": "icon",
               "color": "#526159",
               "dark_color": "#A3B5AB",
@@ -274,7 +251,7 @@
               "icon_size": 22
              },
              {
-              "id": "g15",
+              "id": "g13",
               "type": "text",
               "width": "fill",
               "color": "#526159",
@@ -286,7 +263,7 @@
               "max_lines": 1
              },
              {
-              "id": "g16",
+              "id": "g14",
               "type": "icon",
               "color": "#1B644C",
               "dark_color": "#8FDDB9",
@@ -296,7 +273,7 @@
             ]
            },
            {
-            "id": "g17",
+            "id": "g15",
             "type": "stories",
             "name": "Departments",
             "padding": {
@@ -364,7 +341,7 @@
         ]
        },
        {
-        "id": "g18",
+        "id": "g16",
         "type": "market",
         "name": "Places near you",
         "margin": {
@@ -388,14 +365,14 @@
     "screen": null,
     "studio": {
      "body": {
-      "id": "g19",
+      "id": "g17",
       "type": "column",
       "padding": {
        "bottom": 24
       },
       "children": [
        {
-        "id": "g20",
+        "id": "g18",
         "type": "market",
         "margin": {
          "top": 8
@@ -405,7 +382,7 @@
         }
        },
        {
-        "id": "g21",
+        "id": "g19",
         "type": "market",
         "margin": {
          "top": 22
@@ -418,7 +395,7 @@
         }
        },
        {
-        "id": "g22",
+        "id": "g20",
         "type": "market",
         "margin": {
          "top": 10
@@ -452,7 +429,7 @@
     "screen": "cart",
     "studio": {
      "body": {
-      "id": "g23",
+      "id": "g21",
       "type": "column",
       "children": []
      },
@@ -477,11 +454,11 @@
     "screen": "food_orders",
     "studio": {
      "body": {
-      "id": "g24",
+      "id": "g22",
       "type": "column",
       "children": [
        {
-        "id": "g25",
+        "id": "g23",
         "type": "live_status",
         "name": "Your order on its way",
         "width": "fill",
@@ -532,9 +509,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g26",
+      "id": "g24",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g25",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "Sign out",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#EEF1EC",
      "dark_background": "#070D0A",
@@ -611,18 +618,6 @@
            {
             "id": "g5",
             "type": "text",
-            "color": "#FFFFFF",
-            "font": {
-             "weight": 700,
-             "size": 11,
-             "letter_spacing": 2.4,
-             "uppercase": true
-            },
-            "text": "[متجرك · منطقتك]"
-           },
-           {
-            "id": "g6",
-            "type": "text",
             "margin": {
              "top": 10
             },
@@ -637,13 +632,13 @@
             "text": "تسوّق الأسبوع،"
            },
            {
-            "id": "g7",
+            "id": "g6",
             "type": "row",
             "gap": 10,
             "cross": "end",
             "children": [
              {
-              "id": "g8",
+              "id": "g7",
               "type": "text",
               "color": "#F2A93B",
               "font": {
@@ -656,7 +651,7 @@
               "text": "25"
              },
              {
-              "id": "g9",
+              "id": "g8",
               "type": "column",
               "padding": {
                "bottom": 10
@@ -664,7 +659,7 @@
               "cross": "start",
               "children": [
                {
-                "id": "g10",
+                "id": "g9",
                 "type": "text",
                 "color": "#FFFFFF",
                 "font": {
@@ -674,17 +669,6 @@
                  "line_height": 1
                 },
                 "text": "دقيقة"
-               },
-               {
-                "id": "g11",
-                "type": "text",
-                "color": "#FFFFFF",
-                "opacity": 0.9,
-                "font": {
-                 "size": 14
-                },
-                "text": "[إلى منطقتك]",
-                "max_lines": 1
                }
               ]
              }
@@ -693,7 +677,7 @@
           ]
          },
          {
-          "id": "g12",
+          "id": "g10",
           "type": "column",
           "name": "Search products and shops",
           "width": "fill",
@@ -720,7 +704,7 @@
           },
           "children": [
            {
-            "id": "g13",
+            "id": "g11",
             "type": "row",
             "name": "Search products and shops",
             "height": 50,
@@ -739,7 +723,7 @@
             },
             "children": [
              {
-              "id": "g14",
+              "id": "g12",
               "type": "icon",
               "color": "#526159",
               "dark_color": "#A3B5AB",
@@ -747,7 +731,7 @@
               "icon_size": 22
              },
              {
-              "id": "g15",
+              "id": "g13",
               "type": "text",
               "width": "fill",
               "color": "#526159",
@@ -759,7 +743,7 @@
               "max_lines": 1
              },
              {
-              "id": "g16",
+              "id": "g14",
               "type": "icon",
               "color": "#1B644C",
               "dark_color": "#8FDDB9",
@@ -769,7 +753,7 @@
             ]
            },
            {
-            "id": "g17",
+            "id": "g15",
             "type": "stories",
             "name": "Departments",
             "padding": {
@@ -837,7 +821,7 @@
         ]
        },
        {
-        "id": "g18",
+        "id": "g16",
         "type": "market",
         "name": "Places near you",
         "margin": {
@@ -861,14 +845,14 @@
     "screen": null,
     "studio": {
      "body": {
-      "id": "g19",
+      "id": "g17",
       "type": "column",
       "padding": {
        "bottom": 24
       },
       "children": [
        {
-        "id": "g20",
+        "id": "g18",
         "type": "market",
         "margin": {
          "top": 8
@@ -878,7 +862,7 @@
         }
        },
        {
-        "id": "g21",
+        "id": "g19",
         "type": "market",
         "margin": {
          "top": 22
@@ -891,7 +875,7 @@
         }
        },
        {
-        "id": "g22",
+        "id": "g20",
         "type": "market",
         "margin": {
          "top": 10
@@ -925,7 +909,7 @@
     "screen": "cart",
     "studio": {
      "body": {
-      "id": "g23",
+      "id": "g21",
       "type": "column",
       "children": []
      },
@@ -950,11 +934,11 @@
     "screen": "food_orders",
     "studio": {
      "body": {
-      "id": "g24",
+      "id": "g22",
       "type": "column",
       "children": [
        {
-        "id": "g25",
+        "id": "g23",
         "type": "live_status",
         "name": "Your order on its way",
         "width": "fill",
@@ -1005,9 +989,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g26",
+      "id": "g24",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g25",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "تسجيل الخروج",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#EEF1EC",
      "dark_background": "#070D0A",

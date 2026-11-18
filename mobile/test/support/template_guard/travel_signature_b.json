@@ -204,51 +204,6 @@
        },
        {
         "id": "g11",
-        "type": "bento",
-        "name": "Stays with us",
-        "margin": {
-         "end": 16,
-         "start": 16
-        },
-        "gap": 10,
-        "radius": 22,
-        "bento": {
-         "row": 92
-        },
-        "entries": [
-         {
-          "title": "[One of your stays]",
-          "subtitle": "Santorini",
-          "text": "[What makes it special · its price a night]",
-          "image_url": "http://localhost:3000/travel-photos/oia.jpg",
-          "size": "tall",
-          "action": {
-           "type": "screen",
-           "screen": "stays"
-          }
-         },
-         {
-          "title": "[Your second stay]",
-          "text": "[The second one's price a night]",
-          "image_url": "http://localhost:3000/travel-photos/skyline.jpg",
-          "action": {
-           "type": "screen",
-           "screen": "stays"
-          }
-         },
-         {
-          "title": "[Your third stay]",
-          "text": "[The third one's price a night]",
-          "image_url": "http://localhost:3000/travel-photos/city.jpg",
-          "action": {
-           "type": "screen",
-           "screen": "stays"
-          }
-         }
-        ]
-       },
-       {
-        "id": "g12",
         "type": "row",
         "name": "Stay + flight, one price",
         "height": 60,
@@ -275,7 +230,7 @@
         },
         "children": [
          {
-          "id": "g13",
+          "id": "g12",
           "type": "row",
           "width": 40,
           "height": 40,
@@ -286,7 +241,7 @@
           "radius": 20,
           "children": [
            {
-            "id": "g14",
+            "id": "g13",
             "type": "icon",
             "color": "#E6C58C",
             "dark_color": "#E6C58C",
@@ -296,13 +251,13 @@
           ]
          },
          {
-          "id": "g15",
+          "id": "g14",
           "type": "column",
           "width": "fill",
           "gap": 1,
           "children": [
            {
-            "id": "g16",
+            "id": "g15",
             "type": "text",
             "color": "#0E1424",
             "dark_color": "#F3EEE4",
@@ -313,7 +268,7 @@
             "text": "Stay + flight, one price"
            },
            {
-            "id": "g17",
+            "id": "g16",
             "type": "text",
             "color": "#5A5F6E",
             "dark_color": "#AEB2BF",
@@ -327,7 +282,7 @@
           ]
          },
          {
-          "id": "g18",
+          "id": "g17",
           "type": "icon",
           "color": "#5A5F6E",
           "dark_color": "#AEB2BF",
@@ -337,7 +292,7 @@
         ]
        },
        {
-        "id": "g19",
+        "id": "g18",
         "type": "row",
         "padding": {
          "top": 18,
@@ -348,7 +303,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g20",
+          "id": "g19",
           "type": "text",
           "width": "fill",
           "color": "#0E1424",
@@ -360,7 +315,7 @@
           "text": "Departures from Cairo"
          },
          {
-          "id": "g21",
+          "id": "g20",
           "type": "text",
           "color": "#7A5C24",
           "dark_color": "#D8B57A",
@@ -376,7 +331,7 @@
         ]
        },
        {
-        "id": "g22",
+        "id": "g21",
         "type": "column",
         "name": "Departures from Cairo",
         "padding": {
@@ -385,7 +340,7 @@
         },
         "children": [
          {
-          "id": "g23",
+          "id": "g22",
           "type": "row",
           "height": 38,
           "padding": {
@@ -400,7 +355,7 @@
           },
           "children": [
            {
-            "id": "g24",
+            "id": "g23",
             "type": "text",
             "width": 58,
             "color": "#5A5F6E",
@@ -413,7 +368,7 @@
             "text": "SFR 251"
            },
            {
-            "id": "g25",
+            "id": "g24",
             "type": "text",
             "width": 38,
             "color": "#0E1424",
@@ -426,13 +381,13 @@
             "text": "IST"
            },
            {
-            "id": "g26",
+            "id": "g25",
             "type": "row",
             "width": "fill",
             "gap": 4,
             "children": [
              {
-              "id": "g27",
+              "id": "g26",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -443,7 +398,7 @@
               "text": "Istanbul"
              },
              {
-              "id": "g28",
+              "id": "g27",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -453,7 +408,7 @@
               "text": "·"
              },
              {
-              "id": "g29",
+              "id": "g28",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -466,7 +421,7 @@
             ]
            },
            {
-            "id": "g30",
+            "id": "g29",
             "type": "text",
             "color": "#0E1424",
             "dark_color": "#F3EEE4",
@@ -480,7 +435,7 @@
           ]
          },
          {
-          "id": "g31",
+          "id": "g30",
           "type": "row",
           "height": 38,
           "padding": {
@@ -495,7 +450,7 @@
           },
           "children": [
            {
-            "id": "g32",
+            "id": "g31",
             "type": "text",
             "width": 58,
             "color": "#5A5F6E",
@@ -508,7 +463,7 @@
             "text": "SFR 361"
            },
            {
-            "id": "g33",
+            "id": "g32",
             "type": "text",
             "width": 38,
             "color": "#0E1424",
@@ -521,13 +476,13 @@
             "text": "JTR"
            },
            {
-            "id": "g34",
+            "id": "g33",
             "type": "row",
             "width": "fill",
             "gap": 4,
             "children": [
              {
-              "id": "g35",
+              "id": "g34",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -538,7 +493,7 @@
               "text": "Santorini"
              },
              {
-              "id": "g36",
+              "id": "g35",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -548,7 +503,7 @@
               "text": "·"
              },
              {
-              "id": "g37",
+              "id": "g36",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -561,7 +516,7 @@
             ]
            },
            {
-            "id": "g38",
+            "id": "g37",
             "type": "text",
             "color": "#0E1424",
             "dark_color": "#F3EEE4",
@@ -575,7 +530,7 @@
           ]
          },
          {
-          "id": "g39",
+          "id": "g38",
           "type": "row",
           "height": 38,
           "padding": {
@@ -590,7 +545,7 @@
           },
           "children": [
            {
-            "id": "g40",
+            "id": "g39",
             "type": "text",
             "width": 58,
             "color": "#5A5F6E",
@@ -603,7 +558,7 @@
             "text": "SFR 141"
            },
            {
-            "id": "g41",
+            "id": "g40",
             "type": "text",
             "width": 38,
             "color": "#0E1424",
@@ -616,13 +571,13 @@
             "text": "DXB"
            },
            {
-            "id": "g42",
+            "id": "g41",
             "type": "row",
             "width": "fill",
             "gap": 4,
             "children": [
              {
-              "id": "g43",
+              "id": "g42",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -633,7 +588,7 @@
               "text": "Dubai"
              },
              {
-              "id": "g44",
+              "id": "g43",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -643,7 +598,7 @@
               "text": "·"
              },
              {
-              "id": "g45",
+              "id": "g44",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -656,7 +611,7 @@
             ]
            },
            {
-            "id": "g46",
+            "id": "g45",
             "type": "text",
             "color": "#0E1424",
             "dark_color": "#F3EEE4",
@@ -681,11 +636,11 @@
     "screen": "trips",
     "studio": {
      "body": {
-      "id": "g47",
+      "id": "g46",
       "type": "column",
       "children": [
        {
-        "id": "g48",
+        "id": "g47",
         "type": "tracking",
         "padding": {
          "top": 16,
@@ -732,7 +687,7 @@
     "screen": "flights",
     "studio": {
      "body": {
-      "id": "g49",
+      "id": "g48",
       "type": "column",
       "children": []
      },
@@ -757,9 +712,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g50",
+      "id": "g49",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g50",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "Sign out",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#F4EFE6",
      "dark_background": "#0B0F1A",
@@ -912,51 +897,6 @@
        },
        {
         "id": "g11",
-        "type": "bento",
-        "name": "Stays with us",
-        "margin": {
-         "end": 16,
-         "start": 16
-        },
-        "gap": 10,
-        "radius": 22,
-        "bento": {
-         "row": 92
-        },
-        "entries": [
-         {
-          "title": "[إحدى إقاماتك]",
-          "subtitle": "سانتوريني",
-          "text": "[ما يميّزها · سعر الليلة]",
-          "image_url": "http://localhost:3000/travel-photos/oia.jpg",
-          "size": "tall",
-          "action": {
-           "type": "screen",
-           "screen": "stays"
-          }
-         },
-         {
-          "title": "[إقامتك الثانية]",
-          "text": "[سعر ليلة فيها]",
-          "image_url": "http://localhost:3000/travel-photos/skyline.jpg",
-          "action": {
-           "type": "screen",
-           "screen": "stays"
-          }
-         },
-         {
-          "title": "[إقامتك الثالثة]",
-          "text": "[سعر ليلتها]",
-          "image_url": "http://localhost:3000/travel-photos/city.jpg",
-          "action": {
-           "type": "screen",
-           "screen": "stays"
-          }
-         }
-        ]
-       },
-       {
-        "id": "g12",
         "type": "row",
         "name": "Stay + flight, one price",
         "height": 60,
@@ -983,7 +923,7 @@
         },
         "children": [
          {
-          "id": "g13",
+          "id": "g12",
           "type": "row",
           "width": 40,
           "height": 40,
@@ -994,7 +934,7 @@
           "radius": 20,
           "children": [
            {
-            "id": "g14",
+            "id": "g13",
             "type": "icon",
             "color": "#E6C58C",
             "dark_color": "#E6C58C",
@@ -1004,13 +944,13 @@
           ]
          },
          {
-          "id": "g15",
+          "id": "g14",
           "type": "column",
           "width": "fill",
           "gap": 1,
           "children": [
            {
-            "id": "g16",
+            "id": "g15",
             "type": "text",
             "color": "#0E1424",
             "dark_color": "#F3EEE4",
@@ -1021,7 +961,7 @@
             "text": "إقامة + طيران بسعر واحد"
            },
            {
-            "id": "g17",
+            "id": "g16",
             "type": "text",
             "color": "#5A5F6E",
             "dark_color": "#AEB2BF",
@@ -1035,7 +975,7 @@
           ]
          },
          {
-          "id": "g18",
+          "id": "g17",
           "type": "icon",
           "color": "#5A5F6E",
           "dark_color": "#AEB2BF",
@@ -1045,7 +985,7 @@
         ]
        },
        {
-        "id": "g19",
+        "id": "g18",
         "type": "row",
         "padding": {
          "top": 18,
@@ -1056,7 +996,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g20",
+          "id": "g19",
           "type": "text",
           "width": "fill",
           "color": "#0E1424",
@@ -1068,7 +1008,7 @@
           "text": "الرحلات من القاهرة"
          },
          {
-          "id": "g21",
+          "id": "g20",
           "type": "text",
           "color": "#7A5C24",
           "dark_color": "#D8B57A",
@@ -1084,7 +1024,7 @@
         ]
        },
        {
-        "id": "g22",
+        "id": "g21",
         "type": "column",
         "name": "Departures from Cairo",
         "padding": {
@@ -1093,7 +1033,7 @@
         },
         "children": [
          {
-          "id": "g23",
+          "id": "g22",
           "type": "row",
           "height": 38,
           "padding": {
@@ -1108,7 +1048,7 @@
           },
           "children": [
            {
-            "id": "g24",
+            "id": "g23",
             "type": "text",
             "width": 58,
             "color": "#5A5F6E",
@@ -1121,7 +1061,7 @@
             "text": "SFR 251"
            },
            {
-            "id": "g25",
+            "id": "g24",
             "type": "text",
             "width": 38,
             "color": "#0E1424",
@@ -1134,13 +1074,13 @@
             "text": "IST"
            },
            {
-            "id": "g26",
+            "id": "g25",
             "type": "row",
             "width": "fill",
             "gap": 4,
             "children": [
              {
-              "id": "g27",
+              "id": "g26",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -1151,7 +1091,7 @@
               "text": "إسطنبول"
              },
              {
-              "id": "g28",
+              "id": "g27",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -1161,7 +1101,7 @@
               "text": "·"
              },
              {
-              "id": "g29",
+              "id": "g28",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -1174,7 +1114,7 @@
             ]
            },
            {
-            "id": "g30",
+            "id": "g29",
             "type": "text",
             "color": "#0E1424",
             "dark_color": "#F3EEE4",
@@ -1188,7 +1128,7 @@
           ]
          },
          {
-          "id": "g31",
+          "id": "g30",
           "type": "row",
           "height": 38,
           "padding": {
@@ -1203,7 +1143,7 @@
           },
           "children": [
            {
-            "id": "g32",
+            "id": "g31",
             "type": "text",
             "width": 58,
             "color": "#5A5F6E",
@@ -1216,7 +1156,7 @@
             "text": "SFR 361"
            },
            {
-            "id": "g33",
+            "id": "g32",
             "type": "text",
             "width": 38,
             "color": "#0E1424",
@@ -1229,13 +1169,13 @@
             "text": "JTR"
            },
            {
-            "id": "g34",
+            "id": "g33",
             "type": "row",
             "width": "fill",
             "gap": 4,
             "children": [
              {
-              "id": "g35",
+              "id": "g34",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -1246,7 +1186,7 @@
               "text": "سانتوريني"
              },
              {
-              "id": "g36",
+              "id": "g35",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -1256,7 +1196,7 @@
               "text": "·"
              },
              {
-              "id": "g37",
+              "id": "g36",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -1269,7 +1209,7 @@
             ]
            },
            {
-            "id": "g38",
+            "id": "g37",
             "type": "text",
             "color": "#0E1424",
             "dark_color": "#F3EEE4",
@@ -1283,7 +1223,7 @@
           ]
          },
          {
-          "id": "g39",
+          "id": "g38",
           "type": "row",
           "height": 38,
           "padding": {
@@ -1298,7 +1238,7 @@
           },
           "children": [
            {
-            "id": "g40",
+            "id": "g39",
             "type": "text",
             "width": 58,
             "color": "#5A5F6E",
@@ -1311,7 +1251,7 @@
             "text": "SFR 141"
            },
            {
-            "id": "g41",
+            "id": "g40",
             "type": "text",
             "width": 38,
             "color": "#0E1424",
@@ -1324,13 +1264,13 @@
             "text": "DXB"
            },
            {
-            "id": "g42",
+            "id": "g41",
             "type": "row",
             "width": "fill",
             "gap": 4,
             "children": [
              {
-              "id": "g43",
+              "id": "g42",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -1341,7 +1281,7 @@
               "text": "دبي"
              },
              {
-              "id": "g44",
+              "id": "g43",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -1351,7 +1291,7 @@
               "text": "·"
              },
              {
-              "id": "g45",
+              "id": "g44",
               "type": "text",
               "color": "#5A5F6E",
               "dark_color": "#AEB2BF",
@@ -1364,7 +1304,7 @@
             ]
            },
            {
-            "id": "g46",
+            "id": "g45",
             "type": "text",
             "color": "#0E1424",
             "dark_color": "#F3EEE4",
@@ -1389,11 +1329,11 @@
     "screen": "trips",
     "studio": {
      "body": {
-      "id": "g47",
+      "id": "g46",
       "type": "column",
       "children": [
        {
-        "id": "g48",
+        "id": "g47",
         "type": "tracking",
         "padding": {
          "top": 16,
@@ -1440,7 +1380,7 @@
     "screen": "flights",
     "studio": {
      "body": {
-      "id": "g49",
+      "id": "g48",
       "type": "column",
       "children": []
      },
@@ -1465,9 +1405,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g50",
+      "id": "g49",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g50",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "تسجيل الخروج",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#F4EFE6",
      "dark_background": "#0B0F1A",

@@ -144,7 +144,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "Most popular"
+          "text": "Most popular",
+          "heads": "g8"
          },
          {
           "id": "g8",
@@ -161,6 +162,18 @@
             "subtitle": "Sat 21 Nov, 15:00 · Kuzey Culture Centre, Studio 2",
             "image_url": "http://localhost:3000/api/v1/assets/asset-1",
             "price_label": "Free",
+            "price": {
+             "amount": "0.00",
+             "currency": "TRY",
+             "formatted": "₺0.00",
+             "display": {
+              "currency": "USD",
+              "amount": "0.00",
+              "formatted": "$0.00",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -177,6 +190,19 @@
             "subtitle": "Tue 24 Nov, 20:30 · Kuzey Culture Centre, Main Hall",
             "image_url": "http://localhost:3000/api/v1/assets/asset-2",
             "price_label": "From ₺350.00",
+            "price": {
+             "amount": "350.00",
+             "currency": "TRY",
+             "formatted": "₺350.00",
+             "display": {
+              "currency": "USD",
+              "amount": "10.23",
+              "formatted": "$10.23",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "From $10.23"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -193,6 +219,18 @@
             "subtitle": "Thu 26 Nov, 19:00 · Online",
             "image_url": "http://localhost:3000/api/v1/assets/asset-3",
             "price_label": "Free",
+            "price": {
+             "amount": "0.00",
+             "currency": "TRY",
+             "formatted": "₺0.00",
+             "display": {
+              "currency": "USD",
+              "amount": "0.00",
+              "formatted": "$0.00",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -209,6 +247,19 @@
             "subtitle": "Sat 28 Nov, 11:00 · Kuzey Culture Centre, Studio 2",
             "image_url": "http://localhost:3000/api/v1/assets/asset-4",
             "price_label": "₺450.00",
+            "price": {
+             "amount": "450.00",
+             "currency": "TRY",
+             "formatted": "₺450.00",
+             "display": {
+              "currency": "USD",
+              "amount": "13.16",
+              "formatted": "$13.16",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$13.16"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -360,7 +411,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "الأكثر طلبًا"
+          "text": "الأكثر طلبًا",
+          "heads": "g8"
          },
          {
           "id": "g8",
@@ -377,6 +429,18 @@
             "subtitle": "السبت، 21 نوفمبر, 15:00 · Kuzey Culture Centre, Studio 2",
             "image_url": "http://localhost:3000/api/v1/assets/asset-1",
             "price_label": "مجاني",
+            "price": {
+             "amount": "0.00",
+             "currency": "TRY",
+             "formatted": "₺0.00",
+             "display": {
+              "currency": "USD",
+              "amount": "0.00",
+              "formatted": "$0.00",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -393,6 +457,19 @@
             "subtitle": "الثلاثاء، 24 نوفمبر, 20:30 · Kuzey Culture Centre, Main Hall",
             "image_url": "http://localhost:3000/api/v1/assets/asset-2",
             "price_label": "ابتداءً من ⁦₺350.00⁩",
+            "price": {
+             "amount": "350.00",
+             "currency": "TRY",
+             "formatted": "₺350.00",
+             "display": {
+              "currency": "USD",
+              "amount": "10.23",
+              "formatted": "$10.23",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "ابتداءً من ⁦$10.23⁩"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -409,6 +486,18 @@
             "subtitle": "الخميس، 26 نوفمبر, 19:00 · عبر الإنترنت",
             "image_url": "http://localhost:3000/api/v1/assets/asset-3",
             "price_label": "مجاني",
+            "price": {
+             "amount": "0.00",
+             "currency": "TRY",
+             "formatted": "₺0.00",
+             "display": {
+              "currency": "USD",
+              "amount": "0.00",
+              "formatted": "$0.00",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -425,6 +514,19 @@
             "subtitle": "السبت، 28 نوفمبر, 11:00 · Kuzey Culture Centre, Studio 2",
             "image_url": "http://localhost:3000/api/v1/assets/asset-4",
             "price_label": "₺450.00",
+            "price": {
+             "amount": "450.00",
+             "currency": "TRY",
+             "formatted": "₺450.00",
+             "display": {
+              "currency": "USD",
+              "amount": "13.16",
+              "formatted": "$13.16",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$13.16"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",

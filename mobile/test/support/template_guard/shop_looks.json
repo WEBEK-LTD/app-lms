@@ -221,7 +221,8 @@
            "weight": 800,
            "size": 18
           },
-          "text": "New arrivals"
+          "text": "New arrivals",
+          "heads": "g14"
          },
          {
           "id": "g14",
@@ -237,6 +238,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-1",
             "price_label": "₺1,290.00",
+            "price": {
+             "amount": "1290.00",
+             "currency": "TRY",
+             "formatted": "₺1,290.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "37.72",
+              "formatted": "$37.72",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$37.72"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -253,6 +269,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-2",
             "price_label": "₺1,850.00",
+            "price": {
+             "amount": "1850.00",
+             "currency": "TRY",
+             "formatted": "₺1,850.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "54.09",
+              "formatted": "$54.09",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$54.09"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -269,8 +300,28 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-3",
             "price_label": "₺590.00",
+            "price": {
+             "amount": "590.00",
+             "currency": "TRY",
+             "formatted": "₺590.00",
+             "range": false,
+             "regular_amount": "690.00",
+             "regular_formatted": "₺690.00",
+             "on_sale": true,
+             "display": {
+              "currency": "USD",
+              "amount": "17.25",
+              "formatted": "$17.25",
+              "regular_amount": "20.18",
+              "regular_formatted": "$20.18",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$17.25"
+             }
+            },
             "badge": "Sale",
             "sale": {
+             "currency": "TRY",
              "was": "690.00",
              "was_formatted": "₺690.00",
              "now": "590.00",
@@ -280,7 +331,16 @@
              "ends_at": null,
              "remaining": null,
              "total": null,
-             "flash_sale_id": null
+             "flash_sale_id": null,
+             "display": {
+              "currency": "USD",
+              "was": "20.18",
+              "was_formatted": "$20.18",
+              "now": "17.25",
+              "now_formatted": "$17.25",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
             },
             "action": {
              "type": "item",
@@ -297,6 +357,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-4",
             "price_label": "₺1,450.00",
+            "price": {
+             "amount": "1450.00",
+             "currency": "TRY",
+             "formatted": "₺1,450.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "42.40",
+              "formatted": "$42.40",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$42.40"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -313,6 +388,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-5",
             "price_label": "₺940.00",
+            "price": {
+             "amount": "940.00",
+             "currency": "TRY",
+             "formatted": "₺940.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "27.49",
+              "formatted": "$27.49",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$27.49"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -329,8 +419,28 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-6",
             "price_label": "₺420.00",
+            "price": {
+             "amount": "420.00",
+             "currency": "TRY",
+             "formatted": "₺420.00",
+             "range": false,
+             "regular_amount": "520.00",
+             "regular_formatted": "₺520.00",
+             "on_sale": true,
+             "display": {
+              "currency": "USD",
+              "amount": "12.28",
+              "formatted": "$12.28",
+              "regular_amount": "15.20",
+              "regular_formatted": "$15.20",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$12.28"
+             }
+            },
             "badge": "Sale",
             "sale": {
+             "currency": "TRY",
              "was": "520.00",
              "was_formatted": "₺520.00",
              "now": "420.00",
@@ -340,7 +450,16 @@
              "ends_at": null,
              "remaining": null,
              "total": null,
-             "flash_sale_id": null
+             "flash_sale_id": null,
+             "display": {
+              "currency": "USD",
+              "was": "15.20",
+              "was_formatted": "$15.20",
+              "now": "12.28",
+              "now_formatted": "$12.28",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
             },
             "action": {
              "type": "item",
@@ -357,6 +476,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-7",
             "price_label": "₺280.00",
+            "price": {
+             "amount": "280.00",
+             "currency": "TRY",
+             "formatted": "₺280.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "8.19",
+              "formatted": "$8.19",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$8.19"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -373,6 +507,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-8",
             "price_label": "₺560.00",
+            "price": {
+             "amount": "560.00",
+             "currency": "TRY",
+             "formatted": "₺560.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "16.37",
+              "formatted": "$16.37",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$16.37"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -515,6 +664,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-1",
             "price_label": "₺1,290.00",
+            "price": {
+             "amount": "1290.00",
+             "currency": "TRY",
+             "formatted": "₺1,290.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "37.72",
+              "formatted": "$37.72",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$37.72"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -531,6 +695,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-2",
             "price_label": "₺1,850.00",
+            "price": {
+             "amount": "1850.00",
+             "currency": "TRY",
+             "formatted": "₺1,850.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "54.09",
+              "formatted": "$54.09",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$54.09"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -547,8 +726,28 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-3",
             "price_label": "₺590.00",
+            "price": {
+             "amount": "590.00",
+             "currency": "TRY",
+             "formatted": "₺590.00",
+             "range": false,
+             "regular_amount": "690.00",
+             "regular_formatted": "₺690.00",
+             "on_sale": true,
+             "display": {
+              "currency": "USD",
+              "amount": "17.25",
+              "formatted": "$17.25",
+              "regular_amount": "20.18",
+              "regular_formatted": "$20.18",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$17.25"
+             }
+            },
             "badge": "Sale",
             "sale": {
+             "currency": "TRY",
              "was": "690.00",
              "was_formatted": "₺690.00",
              "now": "590.00",
@@ -558,7 +757,16 @@
              "ends_at": null,
              "remaining": null,
              "total": null,
-             "flash_sale_id": null
+             "flash_sale_id": null,
+             "display": {
+              "currency": "USD",
+              "was": "20.18",
+              "was_formatted": "$20.18",
+              "now": "17.25",
+              "now_formatted": "$17.25",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
             },
             "action": {
              "type": "item",
@@ -575,6 +783,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-4",
             "price_label": "₺1,450.00",
+            "price": {
+             "amount": "1450.00",
+             "currency": "TRY",
+             "formatted": "₺1,450.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "42.40",
+              "formatted": "$42.40",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$42.40"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -591,6 +814,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-5",
             "price_label": "₺940.00",
+            "price": {
+             "amount": "940.00",
+             "currency": "TRY",
+             "formatted": "₺940.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "27.49",
+              "formatted": "$27.49",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$27.49"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -607,8 +845,28 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-6",
             "price_label": "₺420.00",
+            "price": {
+             "amount": "420.00",
+             "currency": "TRY",
+             "formatted": "₺420.00",
+             "range": false,
+             "regular_amount": "520.00",
+             "regular_formatted": "₺520.00",
+             "on_sale": true,
+             "display": {
+              "currency": "USD",
+              "amount": "12.28",
+              "formatted": "$12.28",
+              "regular_amount": "15.20",
+              "regular_formatted": "$15.20",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$12.28"
+             }
+            },
             "badge": "Sale",
             "sale": {
+             "currency": "TRY",
              "was": "520.00",
              "was_formatted": "₺520.00",
              "now": "420.00",
@@ -618,7 +876,16 @@
              "ends_at": null,
              "remaining": null,
              "total": null,
-             "flash_sale_id": null
+             "flash_sale_id": null,
+             "display": {
+              "currency": "USD",
+              "was": "15.20",
+              "was_formatted": "$15.20",
+              "now": "12.28",
+              "now_formatted": "$12.28",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
             },
             "action": {
              "type": "item",
@@ -1107,7 +1374,8 @@
            "weight": 800,
            "size": 18
           },
-          "text": "Best sellers"
+          "text": "Best sellers",
+          "heads": "g59"
          },
          {
           "id": "g59",
@@ -1123,6 +1391,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-1",
             "price_label": "₺1,290.00",
+            "price": {
+             "amount": "1290.00",
+             "currency": "TRY",
+             "formatted": "₺1,290.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "37.72",
+              "formatted": "$37.72",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$37.72"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1139,6 +1422,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-2",
             "price_label": "₺1,850.00",
+            "price": {
+             "amount": "1850.00",
+             "currency": "TRY",
+             "formatted": "₺1,850.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "54.09",
+              "formatted": "$54.09",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$54.09"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1155,8 +1453,28 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-3",
             "price_label": "₺590.00",
+            "price": {
+             "amount": "590.00",
+             "currency": "TRY",
+             "formatted": "₺590.00",
+             "range": false,
+             "regular_amount": "690.00",
+             "regular_formatted": "₺690.00",
+             "on_sale": true,
+             "display": {
+              "currency": "USD",
+              "amount": "17.25",
+              "formatted": "$17.25",
+              "regular_amount": "20.18",
+              "regular_formatted": "$20.18",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$17.25"
+             }
+            },
             "badge": "Sale",
             "sale": {
+             "currency": "TRY",
              "was": "690.00",
              "was_formatted": "₺690.00",
              "now": "590.00",
@@ -1166,7 +1484,16 @@
              "ends_at": null,
              "remaining": null,
              "total": null,
-             "flash_sale_id": null
+             "flash_sale_id": null,
+             "display": {
+              "currency": "USD",
+              "was": "20.18",
+              "was_formatted": "$20.18",
+              "now": "17.25",
+              "now_formatted": "$17.25",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
             },
             "action": {
              "type": "item",
@@ -1183,6 +1510,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-4",
             "price_label": "₺1,450.00",
+            "price": {
+             "amount": "1450.00",
+             "currency": "TRY",
+             "formatted": "₺1,450.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "42.40",
+              "formatted": "$42.40",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$42.40"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1199,6 +1541,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-5",
             "price_label": "₺940.00",
+            "price": {
+             "amount": "940.00",
+             "currency": "TRY",
+             "formatted": "₺940.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "27.49",
+              "formatted": "$27.49",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$27.49"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1215,8 +1572,28 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-6",
             "price_label": "₺420.00",
+            "price": {
+             "amount": "420.00",
+             "currency": "TRY",
+             "formatted": "₺420.00",
+             "range": false,
+             "regular_amount": "520.00",
+             "regular_formatted": "₺520.00",
+             "on_sale": true,
+             "display": {
+              "currency": "USD",
+              "amount": "12.28",
+              "formatted": "$12.28",
+              "regular_amount": "15.20",
+              "regular_formatted": "$15.20",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$12.28"
+             }
+            },
             "badge": "Sale",
             "sale": {
+             "currency": "TRY",
              "was": "520.00",
              "was_formatted": "₺520.00",
              "now": "420.00",
@@ -1226,7 +1603,16 @@
              "ends_at": null,
              "remaining": null,
              "total": null,
-             "flash_sale_id": null
+             "flash_sale_id": null,
+             "display": {
+              "currency": "USD",
+              "was": "15.20",
+              "was_formatted": "$15.20",
+              "now": "12.28",
+              "now_formatted": "$12.28",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
             },
             "action": {
              "type": "item",
@@ -1243,6 +1629,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-7",
             "price_label": "₺280.00",
+            "price": {
+             "amount": "280.00",
+             "currency": "TRY",
+             "formatted": "₺280.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "8.19",
+              "formatted": "$8.19",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$8.19"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1259,6 +1660,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-8",
             "price_label": "₺560.00",
+            "price": {
+             "amount": "560.00",
+             "currency": "TRY",
+             "formatted": "₺560.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "16.37",
+              "formatted": "$16.37",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$16.37"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1474,7 +1890,8 @@
            "weight": 800,
            "size": 18
           },
-          "text": "وصل حديثًا"
+          "text": "وصل حديثًا",
+          "heads": "g14"
          },
          {
           "id": "g14",
@@ -1490,6 +1907,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-1",
             "price_label": "₺1,290.00",
+            "price": {
+             "amount": "1290.00",
+             "currency": "TRY",
+             "formatted": "₺1,290.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "37.72",
+              "formatted": "$37.72",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$37.72"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1506,6 +1938,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-2",
             "price_label": "₺1,850.00",
+            "price": {
+             "amount": "1850.00",
+             "currency": "TRY",
+             "formatted": "₺1,850.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "54.09",
+              "formatted": "$54.09",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$54.09"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1522,8 +1969,28 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-3",
             "price_label": "₺590.00",
+            "price": {
+             "amount": "590.00",
+             "currency": "TRY",
+             "formatted": "₺590.00",
+             "range": false,
+             "regular_amount": "690.00",
+             "regular_formatted": "₺690.00",
+             "on_sale": true,
+             "display": {
+              "currency": "USD",
+              "amount": "17.25",
+              "formatted": "$17.25",
+              "regular_amount": "20.18",
+              "regular_formatted": "$20.18",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$17.25"
+             }
+            },
             "badge": "تخفيض",
             "sale": {
+             "currency": "TRY",
              "was": "690.00",
              "was_formatted": "₺690.00",
              "now": "590.00",
@@ -1533,7 +2000,16 @@
              "ends_at": null,
              "remaining": null,
              "total": null,
-             "flash_sale_id": null
+             "flash_sale_id": null,
+             "display": {
+              "currency": "USD",
+              "was": "20.18",
+              "was_formatted": "$20.18",
+              "now": "17.25",
+              "now_formatted": "$17.25",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
             },
             "action": {
              "type": "item",
@@ -1550,6 +2026,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-4",
             "price_label": "₺1,450.00",
+            "price": {
+             "amount": "1450.00",
+             "currency": "TRY",
+             "formatted": "₺1,450.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "42.40",
+              "formatted": "$42.40",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$42.40"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1566,6 +2057,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-5",
             "price_label": "₺940.00",
+            "price": {
+             "amount": "940.00",
+             "currency": "TRY",
+             "formatted": "₺940.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "27.49",
+              "formatted": "$27.49",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$27.49"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1582,8 +2088,28 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-6",
             "price_label": "₺420.00",
+            "price": {
+             "amount": "420.00",
+             "currency": "TRY",
+             "formatted": "₺420.00",
+             "range": false,
+             "regular_amount": "520.00",
+             "regular_formatted": "₺520.00",
+             "on_sale": true,
+             "display": {
+              "currency": "USD",
+              "amount": "12.28",
+              "formatted": "$12.28",
+              "regular_amount": "15.20",
+              "regular_formatted": "$15.20",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$12.28"
+             }
+            },
             "badge": "تخفيض",
             "sale": {
+             "currency": "TRY",
              "was": "520.00",
              "was_formatted": "₺520.00",
              "now": "420.00",
@@ -1593,7 +2119,16 @@
              "ends_at": null,
              "remaining": null,
              "total": null,
-             "flash_sale_id": null
+             "flash_sale_id": null,
+             "display": {
+              "currency": "USD",
+              "was": "15.20",
+              "was_formatted": "$15.20",
+              "now": "12.28",
+              "now_formatted": "$12.28",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
             },
             "action": {
              "type": "item",
@@ -1610,6 +2145,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-7",
             "price_label": "₺280.00",
+            "price": {
+             "amount": "280.00",
+             "currency": "TRY",
+             "formatted": "₺280.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "8.19",
+              "formatted": "$8.19",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$8.19"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1626,6 +2176,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-8",
             "price_label": "₺560.00",
+            "price": {
+             "amount": "560.00",
+             "currency": "TRY",
+             "formatted": "₺560.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "16.37",
+              "formatted": "$16.37",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$16.37"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1768,6 +2333,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-1",
             "price_label": "₺1,290.00",
+            "price": {
+             "amount": "1290.00",
+             "currency": "TRY",
+             "formatted": "₺1,290.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "37.72",
+              "formatted": "$37.72",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$37.72"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1784,6 +2364,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-2",
             "price_label": "₺1,850.00",
+            "price": {
+             "amount": "1850.00",
+             "currency": "TRY",
+             "formatted": "₺1,850.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "54.09",
+              "formatted": "$54.09",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$54.09"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1800,8 +2395,28 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-3",
             "price_label": "₺590.00",
+            "price": {
+             "amount": "590.00",
+             "currency": "TRY",
+             "formatted": "₺590.00",
+             "range": false,
+             "regular_amount": "690.00",
+             "regular_formatted": "₺690.00",
+             "on_sale": true,
+             "display": {
+              "currency": "USD",
+              "amount": "17.25",
+              "formatted": "$17.25",
+              "regular_amount": "20.18",
+              "regular_formatted": "$20.18",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$17.25"
+             }
+            },
             "badge": "تخفيض",
             "sale": {
+             "currency": "TRY",
              "was": "690.00",
              "was_formatted": "₺690.00",
              "now": "590.00",
@@ -1811,7 +2426,16 @@
              "ends_at": null,
              "remaining": null,
              "total": null,
-             "flash_sale_id": null
+             "flash_sale_id": null,
+             "display": {
+              "currency": "USD",
+              "was": "20.18",
+              "was_formatted": "$20.18",
+              "now": "17.25",
+              "now_formatted": "$17.25",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
             },
             "action": {
              "type": "item",
@@ -1828,6 +2452,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-4",
             "price_label": "₺1,450.00",
+            "price": {
+             "amount": "1450.00",
+             "currency": "TRY",
+             "formatted": "₺1,450.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "42.40",
+              "formatted": "$42.40",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$42.40"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1844,6 +2483,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-5",
             "price_label": "₺940.00",
+            "price": {
+             "amount": "940.00",
+             "currency": "TRY",
+             "formatted": "₺940.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "27.49",
+              "formatted": "$27.49",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$27.49"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -1860,8 +2514,28 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-6",
             "price_label": "₺420.00",
+            "price": {
+             "amount": "420.00",
+             "currency": "TRY",
+             "formatted": "₺420.00",
+             "range": false,
+             "regular_amount": "520.00",
+             "regular_formatted": "₺520.00",
+             "on_sale": true,
+             "display": {
+              "currency": "USD",
+              "amount": "12.28",
+              "formatted": "$12.28",
+              "regular_amount": "15.20",
+              "regular_formatted": "$15.20",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$12.28"
+             }
+            },
             "badge": "تخفيض",
             "sale": {
+             "currency": "TRY",
              "was": "520.00",
              "was_formatted": "₺520.00",
              "now": "420.00",
@@ -1871,7 +2545,16 @@
              "ends_at": null,
              "remaining": null,
              "total": null,
-             "flash_sale_id": null
+             "flash_sale_id": null,
+             "display": {
+              "currency": "USD",
+              "was": "15.20",
+              "was_formatted": "$15.20",
+              "now": "12.28",
+              "now_formatted": "$12.28",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
             },
             "action": {
              "type": "item",
@@ -2360,7 +3043,8 @@
            "weight": 800,
            "size": 18
           },
-          "text": "الأكثر مبيعًا"
+          "text": "الأكثر مبيعًا",
+          "heads": "g59"
          },
          {
           "id": "g59",
@@ -2376,6 +3060,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-1",
             "price_label": "₺1,290.00",
+            "price": {
+             "amount": "1290.00",
+             "currency": "TRY",
+             "formatted": "₺1,290.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "37.72",
+              "formatted": "$37.72",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$37.72"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -2392,6 +3091,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-2",
             "price_label": "₺1,850.00",
+            "price": {
+             "amount": "1850.00",
+             "currency": "TRY",
+             "formatted": "₺1,850.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "54.09",
+              "formatted": "$54.09",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$54.09"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -2408,8 +3122,28 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-3",
             "price_label": "₺590.00",
+            "price": {
+             "amount": "590.00",
+             "currency": "TRY",
+             "formatted": "₺590.00",
+             "range": false,
+             "regular_amount": "690.00",
+             "regular_formatted": "₺690.00",
+             "on_sale": true,
+             "display": {
+              "currency": "USD",
+              "amount": "17.25",
+              "formatted": "$17.25",
+              "regular_amount": "20.18",
+              "regular_formatted": "$20.18",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$17.25"
+             }
+            },
             "badge": "تخفيض",
             "sale": {
+             "currency": "TRY",
              "was": "690.00",
              "was_formatted": "₺690.00",
              "now": "590.00",
@@ -2419,7 +3153,16 @@
              "ends_at": null,
              "remaining": null,
              "total": null,
-             "flash_sale_id": null
+             "flash_sale_id": null,
+             "display": {
+              "currency": "USD",
+              "was": "20.18",
+              "was_formatted": "$20.18",
+              "now": "17.25",
+              "now_formatted": "$17.25",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
             },
             "action": {
              "type": "item",
@@ -2436,6 +3179,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-4",
             "price_label": "₺1,450.00",
+            "price": {
+             "amount": "1450.00",
+             "currency": "TRY",
+             "formatted": "₺1,450.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "42.40",
+              "formatted": "$42.40",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$42.40"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -2452,6 +3210,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-5",
             "price_label": "₺940.00",
+            "price": {
+             "amount": "940.00",
+             "currency": "TRY",
+             "formatted": "₺940.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "27.49",
+              "formatted": "$27.49",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$27.49"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -2468,8 +3241,28 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-6",
             "price_label": "₺420.00",
+            "price": {
+             "amount": "420.00",
+             "currency": "TRY",
+             "formatted": "₺420.00",
+             "range": false,
+             "regular_amount": "520.00",
+             "regular_formatted": "₺520.00",
+             "on_sale": true,
+             "display": {
+              "currency": "USD",
+              "amount": "12.28",
+              "formatted": "$12.28",
+              "regular_amount": "15.20",
+              "regular_formatted": "$15.20",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$12.28"
+             }
+            },
             "badge": "تخفيض",
             "sale": {
+             "currency": "TRY",
              "was": "520.00",
              "was_formatted": "₺520.00",
              "now": "420.00",
@@ -2479,7 +3272,16 @@
              "ends_at": null,
              "remaining": null,
              "total": null,
-             "flash_sale_id": null
+             "flash_sale_id": null,
+             "display": {
+              "currency": "USD",
+              "was": "15.20",
+              "was_formatted": "$15.20",
+              "now": "12.28",
+              "now_formatted": "$12.28",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18"
+             }
             },
             "action": {
              "type": "item",
@@ -2496,6 +3298,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-7",
             "price_label": "₺280.00",
+            "price": {
+             "amount": "280.00",
+             "currency": "TRY",
+             "formatted": "₺280.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "8.19",
+              "formatted": "$8.19",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$8.19"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -2512,6 +3329,21 @@
             "subtitle": null,
             "image_url": "https://yallapp.test/api/v1/assets/asset-8",
             "price_label": "₺560.00",
+            "price": {
+             "amount": "560.00",
+             "currency": "TRY",
+             "formatted": "₺560.00",
+             "range": false,
+             "on_sale": false,
+             "display": {
+              "currency": "USD",
+              "amount": "16.37",
+              "formatted": "$16.37",
+              "rate": 0.029239766081871343,
+              "rate_date": "2026-11-18",
+              "label": "$16.37"
+             }
+            },
             "badge": null,
             "action": {
              "type": "item",

@@ -135,7 +135,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "What's new"
+          "text": "What's new",
+          "heads": "g8"
          },
          {
           "id": "g8",
@@ -286,30 +287,11 @@
           "id": "g15",
           "type": "ratings",
           "rating": 5
-         },
-         {
-          "id": "g16",
-          "type": "text",
-          "font": {
-           "size": 14,
-           "italic": true
-          },
-          "text": "[What a customer says about you]"
-         },
-         {
-          "id": "g17",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "weight": 700,
-           "size": 12
-          },
-          "text": "[Customer name]"
          }
         ]
        },
        {
-        "id": "g18",
+        "id": "g16",
         "type": "column",
         "padding": {
          "top": 8,
@@ -320,7 +302,7 @@
         "gap": 8,
         "children": [
          {
-          "id": "g19",
+          "id": "g17",
           "type": "text",
           "font": {
            "weight": 800,
@@ -329,16 +311,7 @@
           "text": "Find us"
          },
          {
-          "id": "g20",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "size": 13
-          },
-          "text": "[Your address and opening hours]"
-         },
-         {
-          "id": "g21",
+          "id": "g18",
           "type": "map",
           "height": 170,
           "radius": 14,
@@ -456,7 +429,8 @@
            "weight": 800,
            "size": 17
           },
-          "text": "الجديد"
+          "text": "الجديد",
+          "heads": "g8"
          },
          {
           "id": "g8",
@@ -607,30 +581,11 @@
           "id": "g15",
           "type": "ratings",
           "rating": 5
-         },
-         {
-          "id": "g16",
-          "type": "text",
-          "font": {
-           "size": 14,
-           "italic": true
-          },
-          "text": "[رأي أحد العملاء فيك]"
-         },
-         {
-          "id": "g17",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "weight": 700,
-           "size": 12
-          },
-          "text": "[اسم العميل]"
          }
         ]
        },
        {
-        "id": "g18",
+        "id": "g16",
         "type": "column",
         "padding": {
          "top": 8,
@@ -641,7 +596,7 @@
         "gap": 8,
         "children": [
          {
-          "id": "g19",
+          "id": "g17",
           "type": "text",
           "font": {
            "weight": 800,
@@ -650,16 +605,7 @@
           "text": "موقعنا"
          },
          {
-          "id": "g20",
-          "type": "text",
-          "opacity": 0.8,
-          "font": {
-           "size": 13
-          },
-          "text": "[العنوان ومواعيد العمل]"
-         },
-         {
-          "id": "g21",
+          "id": "g18",
           "type": "map",
           "height": 170,
           "radius": 14,

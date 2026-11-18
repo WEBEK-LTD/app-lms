@@ -233,26 +233,13 @@
                  "size": 14
                 },
                 "text": "Pickup ·"
-               },
-               {
-                "id": "g16",
-                "type": "text",
-                "width": "fill",
-                "color": "#0F1E2E",
-                "dark_color": "#EAF1F8",
-                "font": {
-                 "weight": 800,
-                 "size": 14
-                },
-                "text": "[Street name]",
-                "max_lines": 1
                }
               ]
              }
             ]
            },
            {
-            "id": "g17",
+            "id": "g16",
             "type": "row",
             "width": 2,
             "height": 12,
@@ -264,20 +251,20 @@
             "children": []
            },
            {
-            "id": "g18",
+            "id": "g17",
             "type": "row",
             "gap": 10,
             "cross": "center",
             "children": [
              {
-              "id": "g19",
+              "id": "g18",
               "type": "icon",
               "color": "#F2B544",
               "icon": "location_on",
               "icon_size": 18
              },
              {
-              "id": "g20",
+              "id": "g19",
               "type": "text",
               "width": "fill",
               "color": "#566475",
@@ -290,7 +277,7 @@
             ]
            },
            {
-            "id": "g21",
+            "id": "g20",
             "type": "button",
             "width": "fill",
             "height": 50,
@@ -321,7 +308,7 @@
         ]
        },
        {
-        "id": "g22",
+        "id": "g21",
         "type": "tracking",
         "padding": {
          "top": 14,
@@ -345,7 +332,7 @@
         "visibility": "signed_in"
        },
        {
-        "id": "g23",
+        "id": "g22",
         "type": "grid",
         "padding": {
          "top": 14,
@@ -356,7 +343,7 @@
         "columns": 2,
         "children": [
          {
-          "id": "g24",
+          "id": "g23",
           "type": "photo_hero",
           "name": "Same day",
           "height": 120,
@@ -383,7 +370,7 @@
           },
           "children": [
            {
-            "id": "g25",
+            "id": "g24",
             "type": "text",
             "color": "#FFFFFF",
             "font": {
@@ -393,7 +380,7 @@
             "text": "Same day"
            },
            {
-            "id": "g26",
+            "id": "g25",
             "type": "text",
             "color": "#FFFFFF",
             "font": {
@@ -404,7 +391,7 @@
           ]
          },
          {
-          "id": "g27",
+          "id": "g26",
           "type": "photo_hero",
           "name": "Express",
           "height": 120,
@@ -431,7 +418,7 @@
           },
           "children": [
            {
-            "id": "g28",
+            "id": "g27",
             "type": "text",
             "color": "#FFFFFF",
             "font": {
@@ -441,7 +428,7 @@
             "text": "Express"
            },
            {
-            "id": "g29",
+            "id": "g28",
             "type": "text",
             "color": "#FFFFFF",
             "font": {
@@ -644,26 +631,13 @@
                  "size": 14
                 },
                 "text": "الاستلام ·"
-               },
-               {
-                "id": "g16",
-                "type": "text",
-                "width": "fill",
-                "color": "#0F1E2E",
-                "dark_color": "#EAF1F8",
-                "font": {
-                 "weight": 800,
-                 "size": 14
-                },
-                "text": "[اسم الشارع]",
-                "max_lines": 1
                }
               ]
              }
             ]
            },
            {
-            "id": "g17",
+            "id": "g16",
             "type": "row",
             "width": 2,
             "height": 12,
@@ -675,20 +649,20 @@
             "children": []
            },
            {
-            "id": "g18",
+            "id": "g17",
             "type": "row",
             "gap": 10,
             "cross": "center",
             "children": [
              {
-              "id": "g19",
+              "id": "g18",
               "type": "icon",
               "color": "#F2B544",
               "icon": "location_on",
               "icon_size": 18
              },
              {
-              "id": "g20",
+              "id": "g19",
               "type": "text",
               "width": "fill",
               "color": "#566475",
@@ -701,7 +675,7 @@
             ]
            },
            {
-            "id": "g21",
+            "id": "g20",
             "type": "button",
             "width": "fill",
             "height": 50,
@@ -732,7 +706,7 @@
         ]
        },
        {
-        "id": "g22",
+        "id": "g21",
         "type": "tracking",
         "padding": {
          "top": 14,
@@ -756,7 +730,7 @@
         "visibility": "signed_in"
        },
        {
-        "id": "g23",
+        "id": "g22",
         "type": "grid",
         "padding": {
          "top": 14,
@@ -767,7 +741,7 @@
         "columns": 2,
         "children": [
          {
-          "id": "g24",
+          "id": "g23",
           "type": "photo_hero",
           "name": "Same day",
           "height": 120,
@@ -794,7 +768,7 @@
           },
           "children": [
            {
-            "id": "g25",
+            "id": "g24",
             "type": "text",
             "color": "#FFFFFF",
             "font": {
@@ -804,7 +778,7 @@
             "text": "في اليوم نفسه"
            },
            {
-            "id": "g26",
+            "id": "g25",
             "type": "text",
             "color": "#FFFFFF",
             "font": {
@@ -815,7 +789,7 @@
           ]
          },
          {
-          "id": "g27",
+          "id": "g26",
           "type": "photo_hero",
           "name": "Express",
           "height": 120,
@@ -842,7 +816,7 @@
           },
           "children": [
            {
-            "id": "g28",
+            "id": "g27",
             "type": "text",
             "color": "#FFFFFF",
             "font": {
@@ -852,7 +826,7 @@
             "text": "سريع"
            },
            {
-            "id": "g29",
+            "id": "g28",
             "type": "text",
             "color": "#FFFFFF",
             "font": {

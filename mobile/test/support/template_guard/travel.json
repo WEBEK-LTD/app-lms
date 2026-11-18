@@ -196,7 +196,8 @@
            "weight": 800,
            "size": 19
           },
-          "text": "Featured stays"
+          "text": "Featured stays",
+          "heads": "g11"
          },
          {
           "id": "g11",
@@ -212,6 +213,11 @@
             "subtitle": "Seminyak, Bali",
             "image_url": "http://localhost:3000/api/v1/assets/asset-1",
             "price_label": "$168.00",
+            "price": {
+             "amount": "168.00",
+             "currency": "USD",
+             "formatted": "$168.00"
+            },
             "badge": "Only with us",
             "action": {
              "type": "item",
@@ -228,6 +234,11 @@
             "subtitle": "Downtown, Dubai",
             "image_url": "http://localhost:3000/api/v1/assets/asset-2",
             "price_label": "$134.00",
+            "price": {
+             "amount": "134.00",
+             "currency": "USD",
+             "formatted": "$134.00"
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -244,6 +255,11 @@
             "subtitle": "Sultanahmet, Istanbul",
             "image_url": "http://localhost:3000/api/v1/assets/asset-3",
             "price_label": "$96.00",
+            "price": {
+             "amount": "96.00",
+             "currency": "USD",
+             "formatted": "$96.00"
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -260,6 +276,11 @@
             "subtitle": "Oia, Santorini",
             "image_url": "http://localhost:3000/api/v1/assets/asset-4",
             "price_label": "$262.00",
+            "price": {
+             "amount": "262.00",
+             "currency": "USD",
+             "formatted": "$262.00"
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -428,7 +449,8 @@
            "weight": 800,
            "size": 19
           },
-          "text": "إقامات مختارة"
+          "text": "إقامات مختارة",
+          "heads": "g11"
          },
          {
           "id": "g11",
@@ -444,6 +466,11 @@
             "subtitle": "Seminyak, Bali",
             "image_url": "http://localhost:3000/api/v1/assets/asset-1",
             "price_label": "$168.00",
+            "price": {
+             "amount": "168.00",
+             "currency": "USD",
+             "formatted": "$168.00"
+            },
             "badge": "Only with us",
             "action": {
              "type": "item",
@@ -460,6 +487,11 @@
             "subtitle": "Downtown, Dubai",
             "image_url": "http://localhost:3000/api/v1/assets/asset-2",
             "price_label": "$134.00",
+            "price": {
+             "amount": "134.00",
+             "currency": "USD",
+             "formatted": "$134.00"
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -476,6 +508,11 @@
             "subtitle": "Sultanahmet, Istanbul",
             "image_url": "http://localhost:3000/api/v1/assets/asset-3",
             "price_label": "$96.00",
+            "price": {
+             "amount": "96.00",
+             "currency": "USD",
+             "formatted": "$96.00"
+            },
             "badge": null,
             "action": {
              "type": "item",
@@ -492,6 +529,11 @@
             "subtitle": "Oia, Santorini",
             "image_url": "http://localhost:3000/api/v1/assets/asset-4",
             "price_label": "$262.00",
+            "price": {
+             "amount": "262.00",
+             "currency": "USD",
+             "formatted": "$262.00"
+            },
             "badge": null,
             "action": {
              "type": "item",

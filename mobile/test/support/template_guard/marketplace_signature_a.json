@@ -488,18 +488,6 @@
              {
               "id": "g30",
               "type": "text",
-              "color": "#FFD27A",
-              "font": {
-               "weight": 800,
-               "size": 11,
-               "letter_spacing": 1.8,
-               "uppercase": true
-              },
-              "text": "[One of your shops]"
-             },
-             {
-              "id": "g31",
-              "type": "text",
               "margin": {
                "top": 6
               },
@@ -515,7 +503,7 @@
               "max_lines": 1
              },
              {
-              "id": "g32",
+              "id": "g31",
               "type": "text",
               "margin": {
                "top": 4
@@ -532,13 +520,13 @@
             ]
            },
            {
-            "id": "g33",
+            "id": "g32",
             "type": "stack",
             "width": 124,
             "height": 192,
             "children": [
              {
-              "id": "g34",
+              "id": "g33",
               "type": "image",
               "width": 124,
               "height": 192,
@@ -552,7 +540,7 @@
               "ken_burns": true
              },
              {
-              "id": "g35",
+              "id": "g34",
               "type": "row",
               "width": 44,
               "height": 44,
@@ -571,7 +559,7 @@
               },
               "children": [
                {
-                "id": "g36",
+                "id": "g35",
                 "type": "icon",
                 "color": "#134A36",
                 "icon": "arrow_forward",
@@ -586,7 +574,7 @@
         ]
        },
        {
-        "id": "g37",
+        "id": "g36",
         "type": "row",
         "name": "Departments",
         "padding": {
@@ -599,7 +587,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g38",
+          "id": "g37",
           "type": "text",
           "width": "fill",
           "color": "#12211A",
@@ -613,7 +601,7 @@
           "text": "Departments"
          },
          {
-          "id": "g39",
+          "id": "g38",
           "type": "text",
           "color": "#1B644C",
           "dark_color": "#8FDDB9",
@@ -630,7 +618,7 @@
         ]
        },
        {
-        "id": "g40",
+        "id": "g39",
         "type": "row",
         "name": "Departments",
         "padding": {
@@ -642,7 +630,7 @@
         "scroll": true,
         "children": [
          {
-          "id": "g41",
+          "id": "g40",
           "type": "column",
           "name": "Fruit & veg",
           "width": 80,
@@ -654,7 +642,7 @@
           },
           "children": [
            {
-            "id": "g42",
+            "id": "g41",
             "type": "image",
             "width": 80,
             "height": 104,
@@ -668,7 +656,7 @@
             "image_url": "http://localhost:3000/demo-photos/vegetables.jpg"
            },
            {
-            "id": "g43",
+            "id": "g42",
             "type": "text",
             "color": "#12211A",
             "dark_color": "#EAF3EE",
@@ -684,7 +672,7 @@
           ]
          },
          {
-          "id": "g44",
+          "id": "g43",
           "type": "column",
           "name": "Dairy & eggs",
           "width": 80,
@@ -696,7 +684,7 @@
           },
           "children": [
            {
-            "id": "g45",
+            "id": "g44",
             "type": "image",
             "width": 80,
             "height": 104,
@@ -710,7 +698,7 @@
             "image_url": "http://localhost:3000/demo-photos/dairy.jpg"
            },
            {
-            "id": "g46",
+            "id": "g45",
             "type": "text",
             "color": "#12211A",
             "dark_color": "#EAF3EE",
@@ -726,7 +714,7 @@
           ]
          },
          {
-          "id": "g47",
+          "id": "g46",
           "type": "column",
           "name": "Bakery",
           "width": 80,
@@ -738,7 +726,7 @@
           },
           "children": [
            {
-            "id": "g48",
+            "id": "g47",
             "type": "image",
             "width": 80,
             "height": 104,
@@ -752,7 +740,7 @@
             "image_url": "http://localhost:3000/demo-photos/bakery.jpg"
            },
            {
-            "id": "g49",
+            "id": "g48",
             "type": "text",
             "color": "#12211A",
             "dark_color": "#EAF3EE",
@@ -768,7 +756,7 @@
           ]
          },
          {
-          "id": "g50",
+          "id": "g49",
           "type": "column",
           "name": "Pantry",
           "width": 80,
@@ -780,7 +768,7 @@
           },
           "children": [
            {
-            "id": "g51",
+            "id": "g50",
             "type": "column",
             "width": 80,
             "height": 104,
@@ -800,7 +788,7 @@
             },
             "children": [
              {
-              "id": "g52",
+              "id": "g51",
               "type": "text",
               "color": "#1B644C",
               "dark_color": "#8FDDB9",
@@ -815,7 +803,7 @@
             ]
            },
            {
-            "id": "g53",
+            "id": "g52",
             "type": "text",
             "color": "#12211A",
             "dark_color": "#EAF3EE",
@@ -833,7 +821,7 @@
         ]
        },
        {
-        "id": "g54",
+        "id": "g53",
         "type": "row",
         "name": "Places near you",
         "padding": {
@@ -846,7 +834,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g55",
+          "id": "g54",
           "type": "text",
           "width": "fill",
           "color": "#12211A",
@@ -860,7 +848,7 @@
           "text": "Places near you"
          },
          {
-          "id": "g56",
+          "id": "g55",
           "type": "text",
           "color": "#1B644C",
           "dark_color": "#8FDDB9",
@@ -877,7 +865,7 @@
         ]
        },
        {
-        "id": "g57",
+        "id": "g56",
         "type": "market",
         "name": "Places near you",
         "market": {
@@ -897,14 +885,14 @@
     "screen": null,
     "studio": {
      "body": {
-      "id": "g58",
+      "id": "g57",
       "type": "column",
       "padding": {
        "bottom": 24
       },
       "children": [
        {
-        "id": "g59",
+        "id": "g58",
         "type": "market",
         "margin": {
          "top": 8
@@ -914,7 +902,7 @@
         }
        },
        {
-        "id": "g60",
+        "id": "g59",
         "type": "market",
         "margin": {
          "top": 22
@@ -927,7 +915,7 @@
         }
        },
        {
-        "id": "g61",
+        "id": "g60",
         "type": "market",
         "margin": {
          "top": 10
@@ -961,7 +949,7 @@
     "screen": "cart",
     "studio": {
      "body": {
-      "id": "g62",
+      "id": "g61",
       "type": "column",
       "children": []
      },
@@ -986,11 +974,11 @@
     "screen": "food_orders",
     "studio": {
      "body": {
-      "id": "g63",
+      "id": "g62",
       "type": "column",
       "children": [
        {
-        "id": "g64",
+        "id": "g63",
         "type": "live_status",
         "name": "Your order on its way",
         "width": "fill",
@@ -1047,9 +1035,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g65",
+      "id": "g64",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g65",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "Sign out",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#F5F2EA",
      "dark_background": "#09130E",
@@ -1477,18 +1495,6 @@
              {
               "id": "g30",
               "type": "text",
-              "color": "#FFD27A",
-              "font": {
-               "weight": 800,
-               "size": 11,
-               "letter_spacing": 1.8,
-               "uppercase": true
-              },
-              "text": "[أحد متاجرك]"
-             },
-             {
-              "id": "g31",
-              "type": "text",
               "margin": {
                "top": 6
               },
@@ -1504,7 +1510,7 @@
               "max_lines": 1
              },
              {
-              "id": "g32",
+              "id": "g31",
               "type": "text",
               "margin": {
                "top": 4
@@ -1521,13 +1527,13 @@
             ]
            },
            {
-            "id": "g33",
+            "id": "g32",
             "type": "stack",
             "width": 124,
             "height": 192,
             "children": [
              {
-              "id": "g34",
+              "id": "g33",
               "type": "image",
               "width": 124,
               "height": 192,
@@ -1541,7 +1547,7 @@
               "ken_burns": true
              },
              {
-              "id": "g35",
+              "id": "g34",
               "type": "row",
               "width": 44,
               "height": 44,
@@ -1560,7 +1566,7 @@
               },
               "children": [
                {
-                "id": "g36",
+                "id": "g35",
                 "type": "icon",
                 "color": "#134A36",
                 "icon": "arrow_forward",
@@ -1575,7 +1581,7 @@
         ]
        },
        {
-        "id": "g37",
+        "id": "g36",
         "type": "row",
         "name": "Departments",
         "padding": {
@@ -1588,7 +1594,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g38",
+          "id": "g37",
           "type": "text",
           "width": "fill",
           "color": "#12211A",
@@ -1602,7 +1608,7 @@
           "text": "الأقسام"
          },
          {
-          "id": "g39",
+          "id": "g38",
           "type": "text",
           "color": "#1B644C",
           "dark_color": "#8FDDB9",
@@ -1619,7 +1625,7 @@
         ]
        },
        {
-        "id": "g40",
+        "id": "g39",
         "type": "row",
         "name": "Departments",
         "padding": {
@@ -1631,7 +1637,7 @@
         "scroll": true,
         "children": [
          {
-          "id": "g41",
+          "id": "g40",
           "type": "column",
           "name": "Fruit & veg",
           "width": 80,
@@ -1643,7 +1649,7 @@
           },
           "children": [
            {
-            "id": "g42",
+            "id": "g41",
             "type": "image",
             "width": 80,
             "height": 104,
@@ -1657,7 +1663,7 @@
             "image_url": "http://localhost:3000/demo-photos/vegetables.jpg"
            },
            {
-            "id": "g43",
+            "id": "g42",
             "type": "text",
             "color": "#12211A",
             "dark_color": "#EAF3EE",
@@ -1673,7 +1679,7 @@
           ]
          },
          {
-          "id": "g44",
+          "id": "g43",
           "type": "column",
           "name": "Dairy & eggs",
           "width": 80,
@@ -1685,7 +1691,7 @@
           },
           "children": [
            {
-            "id": "g45",
+            "id": "g44",
             "type": "image",
             "width": 80,
             "height": 104,
@@ -1699,7 +1705,7 @@
             "image_url": "http://localhost:3000/demo-photos/dairy.jpg"
            },
            {
-            "id": "g46",
+            "id": "g45",
             "type": "text",
             "color": "#12211A",
             "dark_color": "#EAF3EE",
@@ -1715,7 +1721,7 @@
           ]
          },
          {
-          "id": "g47",
+          "id": "g46",
           "type": "column",
           "name": "Bakery",
           "width": 80,
@@ -1727,7 +1733,7 @@
           },
           "children": [
            {
-            "id": "g48",
+            "id": "g47",
             "type": "image",
             "width": 80,
             "height": 104,
@@ -1741,7 +1747,7 @@
             "image_url": "http://localhost:3000/demo-photos/bakery.jpg"
            },
            {
-            "id": "g49",
+            "id": "g48",
             "type": "text",
             "color": "#12211A",
             "dark_color": "#EAF3EE",
@@ -1757,7 +1763,7 @@
           ]
          },
          {
-          "id": "g50",
+          "id": "g49",
           "type": "column",
           "name": "Pantry",
           "width": 80,
@@ -1769,7 +1775,7 @@
           },
           "children": [
            {
-            "id": "g51",
+            "id": "g50",
             "type": "column",
             "width": 80,
             "height": 104,
@@ -1789,7 +1795,7 @@
             },
             "children": [
              {
-              "id": "g52",
+              "id": "g51",
               "type": "text",
               "color": "#1B644C",
               "dark_color": "#8FDDB9",
@@ -1804,7 +1810,7 @@
             ]
            },
            {
-            "id": "g53",
+            "id": "g52",
             "type": "text",
             "color": "#12211A",
             "dark_color": "#EAF3EE",
@@ -1822,7 +1828,7 @@
         ]
        },
        {
-        "id": "g54",
+        "id": "g53",
         "type": "row",
         "name": "Places near you",
         "padding": {
@@ -1835,7 +1841,7 @@
         "cross": "end",
         "children": [
          {
-          "id": "g55",
+          "id": "g54",
           "type": "text",
           "width": "fill",
           "color": "#12211A",
@@ -1849,7 +1855,7 @@
           "text": "أماكن قريبة منك"
          },
          {
-          "id": "g56",
+          "id": "g55",
           "type": "text",
           "color": "#1B644C",
           "dark_color": "#8FDDB9",
@@ -1866,7 +1872,7 @@
         ]
        },
        {
-        "id": "g57",
+        "id": "g56",
         "type": "market",
         "name": "Places near you",
         "market": {
@@ -1886,14 +1892,14 @@
     "screen": null,
     "studio": {
      "body": {
-      "id": "g58",
+      "id": "g57",
       "type": "column",
       "padding": {
        "bottom": 24
       },
       "children": [
        {
-        "id": "g59",
+        "id": "g58",
         "type": "market",
         "margin": {
          "top": 8
@@ -1903,7 +1909,7 @@
         }
        },
        {
-        "id": "g60",
+        "id": "g59",
         "type": "market",
         "margin": {
          "top": 22
@@ -1916,7 +1922,7 @@
         }
        },
        {
-        "id": "g61",
+        "id": "g60",
         "type": "market",
         "margin": {
          "top": 10
@@ -1950,7 +1956,7 @@
     "screen": "cart",
     "studio": {
      "body": {
-      "id": "g62",
+      "id": "g61",
       "type": "column",
       "children": []
      },
@@ -1975,11 +1981,11 @@
     "screen": "food_orders",
     "studio": {
      "body": {
-      "id": "g63",
+      "id": "g62",
       "type": "column",
       "children": [
        {
-        "id": "g64",
+        "id": "g63",
         "type": "live_status",
         "name": "Your order on its way",
         "width": "fill",
@@ -2036,9 +2042,39 @@
     "screen": "account",
     "studio": {
      "body": {
-      "id": "g65",
+      "id": "g64",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "g65",
+        "type": "button",
+        "name": "Sign out",
+        "width": "fill",
+        "height": 48,
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "radius": 14,
+        "border_width": 1.5,
+        "font": {
+         "weight": 700,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "تسجيل الخروج",
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in"
+       }
+      ]
      },
      "background": "#F5F2EA",
      "dark_background": "#09130E",
