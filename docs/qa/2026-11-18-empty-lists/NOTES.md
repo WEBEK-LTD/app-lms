@@ -25,6 +25,23 @@ The owner's report: on "اختياراتك" (Your picks), "شاهدتها مؤخ
 
 Not covered: WordPress apps' own `/pages` (the wp-plugin) still keep an empty list's title (ROADMAP 164.7). Leqaa's template is for hosted stores.
 
+## Second report, the same day: "Our bouquet" always shows "Blush Garden"
+
+The Leqaa QA tester, through the coordinating session.
+
+**Cause.** The bouquet page wasn't bound to any product. The template drew fixed photos as a gallery and the template's sample words:
+- the gallery is at `platform/web/src/lib/studio/demo-designs/leqaa-signature.ts:823` on `main`;
+- the title is `say(ctx, k, "lqBouquetTitle", …)` at `:831` on `main`;
+- the demo fills that title with "Blush Garden" (`platform/web/src/lib/studio/demo-templates.ts:301`).
+
+So every shop showed the sample bouquet, whatever it sold.
+
+**Fix.**
+- **The template** (`bouquetProduct`, `leqaa-signature.ts:769`) now makes the bouquet a list of one of the shop's products: its photo, the look's line, its name and its price; a tap opens it. It follows the list rules above: the product the owner picks in Studio ("A product you pick"), else the best seller, else the newest. It is left out when the shop has no products.
+- **Apps made before** are served the same way (`withSampleProduct`, applied in `platform/web/src/lib/hosted/pages/index.ts:84`). When a page still has the sample's words, the gallery and the column of words become that list; the column becomes its card, so the owner's styling is kept. A page whose words the owner changed is left as it is. This needs no app update: the app already draws such a card, and tapping it opens the product.
+- **Not covered:** the first product in a bouquets category isn't tried. The template has no category ID for it, so the fallback goes straight to the best seller.
+- **The mobile screenshots' stored project** (`mobile/test/support/leqaa_demo.json`) has been written again. The pictures kept in the repo show the product screen, not this page.
+
 ## Tests and their real results
 
 All of these were run in this session on branch `wip-empty-lists`.
@@ -32,15 +49,18 @@ All of these were run in this session on branch `wip-empty-lists`.
 | What | Command | Result |
 |---|---|---|
 | Serving fallbacks and titles, Leqaa looks A and B in a real shop (no featured flags, none of the template's IDs), shop with no products | `npx vitest run tests/unit/phase164-empty-lists.test.ts` | 9 passed. Against the old `index.ts`: 4 failed (both looks, "Picked for you", the empty shop), 5 passed (the pure helpers) |
+| After the bouquet fix: the same file with the bouquet tests (new apps in looks A and B, the owner's pick, an app made before, no products) | same | 13 passed. Without the serve-time rewrite, "an app made before" fails (1 failed, 12 passed) |
+| Related vitest after the bouquet fix | `leqaa-flowers`, `studio-store`, `studio-templates`, `studio-project-templates`, `studio-demo-templates`, `phase132-prime`, `story-pages`, `demo-apps`, `dashboard-i18n` (with `phase164-empty-lists`) | 218 passed, 1 failed: the stored demo project (`leqaa_demo.json`) was out of date. Written again with `YALLAPP_WRITE_LEQAA=1`; `leqaa-flowers` then 16 passed |
+| Leqaa screenshot tests | `flutter test test/screenshots/leqaa_screenshots_test.dart` | 145 skipped (they run only with their `--dart-define` settings and photos), so nothing was checked |
 | Related vitest | `studio-store`, `leqaa-flowers`, `dashboard-i18n`, `studio-templates`, `studio-project-templates`, `demo-apps`, `phase138-mysql`, `publish-for-all` and the files that read `/pages/home` | 13 files passed, 1 skipped; 152 tests passed, 4 skipped (MySQL: no database here) |
 | Contract and API reference, release, i18n | `api-reference`, `publish-for-all`, `dashboard-i18n` | 27 passed |
-| e2e: sign up, create the app from the Rose hour template, remove its sample products, check the served page JSON, add three unfeatured products, check again | `npx playwright test tests/e2e/empty-lists.spec.ts` (production build, memory mode) | 2 passed. Run only against the fixed build; the old code wasn't rebuilt for e2e |
+| e2e: sign up, create the app from the Rose hour template, remove its sample products, check the served page JSON, add three unfeatured products, check again | `npx playwright test tests/e2e/empty-lists.spec.ts` (production build, memory mode) | 2 passed. Run again after the bouquet fix, which added the bouquet page (none with no products; one of the shop's products, never "Blush Garden", with them): 2 passed. Run only against the fixed builds; the old code wasn't rebuilt for e2e |
 | Flutter widget test: empty list hides with its title; a title whose list was left out hides; "Recently viewed" title; with products it shows | `flutter test test/widget/phase164_empty_lists_test.dart` | 5 passed. Without the `studio_page.dart` change: 3 failed |
 | Existing Studio widget tests | `phase112_store`, `phase115_market`, `phase128_10_review_fixes`, `phase130_market_deck`, `zad_demo_home`, `studio_element_settings`, `phase129_studio_premium_motion` | 96 passed |
 | `flutter analyze` | (Flutter 3.47.5, installed for this run) | No issues found |
 | `dart format` (changed files) | | 0 changed |
 | Preview | `mobile/tool/build_preview.sh`, then `--check` | Built; "The app preview is up to date." |
-| Types | `npx next typegen` and `tsc --noEmit` | Both exit 0 (`tsc` needed `NODE_OPTIONS=--max-old-space-size=8192`; it ran out of memory with the default heap) |
+| Types | `npx next typegen` and `tsc --noEmit` (run again after the bouquet fix) | Both exit 0 (`tsc` needed `NODE_OPTIONS=--max-old-space-size=8192`; it ran out of memory with the default heap) |
 | ESLint (changed files) | `npx eslint …` | Exit 0, no findings |
 
 Running the e2e here used a local Playwright config, not committed, that only pointed at the pre-installed Chromium (`/opt/pw-browsers/chromium`). The project's Playwright version expects another browser build. The spec has its own super admin (`emptyListsAdminEmail` in `playwright.config.ts`).
