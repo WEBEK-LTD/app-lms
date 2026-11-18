@@ -107,6 +107,116 @@ class ReportTest(unittest.TestCase):
         self.assertIn(report.NO_IOS, workflow)
 
 
+
+def job(build_id, **extra):
+    """A job of the run as GitHub's API lists it."""
+    base = {"name": f"iOS {build_id}", "status": "completed", "conclusion": "success", "runner_name": "GitHub Actions 1000031694", "steps": [{"name": "Set up job"}], "labels": ["macos-15"], "created_at": "2026-11-17T19:10:34Z", "completed_at": "2026-11-17T19:25:34Z"}
+    base.update(extra)
+    return base
+
+
+# 151 How GitHub lists an iOS job it had no Mac for (run 44155680266, 17 November): cancelled after 15 minutes, no runner, no steps.
+NO_MAC_JOB = {"conclusion": "cancelled", "runner_name": "", "runner_id": 0, "steps": []}
+
+TECHNICAL = ("GitHub", "Mac", "runner", "pipeline", "workflow", "Xcode", "fastlane")
+
+
+class NoMacTest(unittest.TestCase):
+    """151 An iOS job GitHub had no Mac for: its own reason, read from the run's jobs; the Android app as before."""
+
+    def results(self, only="", jobs=(), write=()):
+        with tempfile.TemporaryDirectory() as tmp:
+            for platform, data in write:
+                folder = Path(tmp) / f"result-b1-{platform}"
+                folder.mkdir()
+                (folder / "result.json").write_text(json.dumps(data))
+            return report.results_for(tmp, "b1", only, jobs=lambda: None if jobs is None else list(jobs))
+
+    def test_a_job_that_never_got_a_mac_is_its_own_reason(self):
+        apk = {"kind": "apk", "url": "https://f/a.apk"}
+        android, ios = self.results(jobs=[job("b2"), job("b1", **NO_MAC_JOB)], write=[("android", result({"android": "done", "upload_play": "done"}, [apk], "On Google Play."))])
+        self.assertEqual("ios_no_mac_runner", ios["failure"]["code"])
+        self.assertEqual("ios", ios["failure"]["stage"])
+        self.assertIn("macos-15", ios["failure"]["log"])
+        self.assertIn("15 minutes", ios["failure"]["log"])
+        out = report.summarize(android, ios)
+        # The Android app as before: the build is ready with its files and its own words.
+        self.assertEqual("ready", out["status"])
+        self.assertEqual([apk], out["artifacts"])
+        self.assertEqual("done", out["stages"]["upload_play"])
+        self.assertEqual("failed", out["stages"]["ios"])
+        self.assertEqual("On Google Play.", out["message"])
+        self.assertEqual("ios_no_mac_runner", out["failure"]["code"])
+        # The other iOS stages stay as they were: an automatic build doesn't read a store newly connected.
+        self.assertNotIn("upload_testflight", out["stages"])
+
+    def test_an_iphone_only_build_says_it_in_plain_words(self):
+        android, ios = self.results(only="ios", jobs=[job("b1", **NO_MAC_JOB)])
+        out = report.summarize(android, ios, "ios")
+        self.assertEqual("failed", out["status"])
+        self.assertEqual("ios_no_mac_runner", out["failure"]["code"])
+        self.assertEqual(report.NO_MAC, out["message"])
+        for word in TECHNICAL:
+            self.assertNotIn(word, report.NO_MAC)
+        self.assertIn("iPhone only", report.NO_MAC)
+
+    def test_a_real_failure_stays_a_failure(self):
+        # The job ran (a runner, steps) and wrote no result: the iOS app couldn't be built, as before.
+        android, ios = self.results(jobs=[job("b1", conclusion="failure")], write=[("android", result({"android": "done"}))])
+        self.assertEqual(report.FAILED["ios"], ios)
+        self.assertIn("the iOS app couldn't be built", report.summarize(android, ios)["message"])
+        # Cancelled after it had a Mac (a timeout): not this case either.
+        _, ios = self.results(jobs=[job("b1", conclusion="cancelled")])
+        self.assertEqual(report.FAILED["ios"], ios)
+        # The run's jobs can't be read, or don't list it: as before.
+        _, ios = self.results(jobs=None)
+        self.assertEqual(report.FAILED["ios"], ios)
+        _, ios = self.results(jobs=[job("b2", **NO_MAC_JOB)])
+        self.assertEqual(report.FAILED["ios"], ios)
+
+    def test_a_result_the_job_wrote_wins(self):
+        asked = []
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp) / "result-b1-ios"
+            folder.mkdir()
+            (folder / "result.json").write_text(json.dumps(result({"ios": "done"})))
+            _, ios = report.results_for(tmp, "b1", "", jobs=lambda: asked.append(1) or [job("b1", **NO_MAC_JOB)])
+        self.assertEqual("done", ios["stages"]["ios"])
+        self.assertEqual([], asked)
+
+    def test_a_failed_android_app_decides_the_build(self):
+        android, ios = self.results(jobs=[job("b1", **NO_MAC_JOB)], write=[("android", result({"android": "failed"}, message="The Android app couldn't be built."))])
+        out = report.summarize(android, ios)
+        self.assertEqual("failed", out["status"])
+        self.assertNotIn("failure", out)
+        self.assertIn(report.NO_MAC, out["message"])
+
+    def test_the_report_job_reads_the_run_with_a_read_only_token(self):
+        workflow = (ROOT / ".github" / "workflows" / "build-apps.yml").read_text()
+        report_job = workflow[workflow.index("  report:"):]
+        self.assertIn("actions: read", report_job)
+        self.assertIn("contents: read", report_job)
+        self.assertIn("GITHUB_TOKEN: ${{ github.token }}", report_job)
+        self.assertNotIn("actions: write", workflow)
+        # No automatic retry: no job builds the iPhone app again by itself.
+        self.assertNotIn("rerun", workflow)
+
+    def test_a_testflight_upload_says_its_known_cause(self):
+        """151 The guess "create the app first" only when the upload's output says nothing known."""
+        ios = (ROOT / "build" / "scripts" / "ios.sh").read_text()
+        self.assertIn('diagnose.py" "$LOG" upload_testflight > "$OUT/failure.json"', ios)
+        self.assertIn('if [ "$CAUSE" = "unknown" ]; then', ios)
+        self.assertIn('MESSAGE="Your iOS app is ready, but the upload to TestFlight didn\'t work."', ios)
+
+    def test_no_runner_reads_githubs_job(self):
+        self.assertTrue(report.no_runner(job("b1", **NO_MAC_JOB)))
+        self.assertTrue(report.no_runner(job("b1", conclusion="failure", runner_name=None, steps=[])))
+        self.assertFalse(report.no_runner(job("b1", **{**NO_MAC_JOB, "status": "queued", "conclusion": None})))
+        self.assertFalse(report.no_runner(job("b1", conclusion="cancelled")))
+        self.assertFalse(report.no_runner(job("b1", **{**NO_MAC_JOB, "conclusion": "skipped"})))
+        self.assertEqual(15, report.waited_minutes(job("b1")))
+        self.assertIsNone(report.waited_minutes({"created_at": None}))
+
 @unittest.skipUnless(shutil.which("python3"), "python3 missing")
 class IconsTest(unittest.TestCase):
     def test_writes_android_and_ios_icons(self):

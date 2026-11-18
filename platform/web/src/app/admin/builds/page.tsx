@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { markBuildFailedAction } from "@/app/actions/admin-builds";
 import { BuildBadge } from "@/components/build-status";
+import { BuildCause } from "@/app/admin/builds/build-cause";
 import { SubmitButton } from "@/components/form";
 import { Notice, formatDateTime } from "@/components/ui";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
@@ -109,6 +110,8 @@ export default async function BuildQueuePage({ searchParams }: PageProps<"/admin
                       ) : build.message ? (
                         <span className="mt-1 block max-w-[280px] text-xs text-muted">{build.message}</span>
                       ) : null}
+                      {/* 151 The technical cause: the reason code, what it means, the build's output. */}
+                      <BuildCause build={build} />
                       {build.logUrl ? (
                         <a href={build.logUrl} className="mt-1 block text-xs">
                           Build log

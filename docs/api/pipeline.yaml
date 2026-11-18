@@ -502,7 +502,18 @@ components:
         accept; a version the store already has; Google Play's permissions,
         or an app not created in Google Play yet; the build machine
         (network, disk); or `unknown`.
-      enum: [icon, firebase_android, firebase_ios, android_signing, ios_signing, apple_key, apple_agreement, version_used, play_permission, play_app_missing, infrastructure, unknown]
+
+        151 The iPhone app's: `ios_bundle_id_taken` (Apple has the bundle ID
+        in another developer account), `ios_certificates_full` (the account
+        has the most distribution certificates Apple allows), `ios_app_missing`
+        (no app with the bundle ID in App Store Connect yet), and
+        `ios_no_mac_runner`: GitHub had no macOS runner for the iOS job (it
+        waited in the queue and was cancelled before any step ran, so the
+        report job reads it from the run's jobs). That one isn't a build
+        failure: the client is told it's a temporary problem on our side and
+        tries again with iPhone only when they choose (nothing retries it),
+        and the team gets one alert for the build.
+      enum: [icon, firebase_android, firebase_ios, android_signing, ios_signing, apple_key, apple_agreement, version_used, play_permission, play_app_missing, infrastructure, ios_bundle_id_taken, ios_certificates_full, ios_app_missing, ios_no_mac_runner, unknown]
 
     StatusReport:
       type: object
@@ -540,6 +551,10 @@ components:
             output: a `code` the dashboard explains in the client's language,
             with what to do and where, and `log`, the end of the output with
             every secret, token and path removed, which the client may read.
+            151 The iPhone app's `log` (Xcode's and fastlane's words) is shown
+            to the team only, in the admin; the client gets the cause in plain
+            words. For `ios_no_mac_runner` it says what GitHub did (the
+            runner's labels, how long the job waited).
           properties:
             code: { $ref: '#/components/schemas/FailureCode' }
             stage: { type: string, enum: [android, ios, upload_play, upload_testflight, upload_galaxy, upload_appgallery, upload_xiaomi] }
