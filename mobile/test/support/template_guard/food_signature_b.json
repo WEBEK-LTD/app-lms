@@ -1,0 +1,1224 @@
+{
+ "template": "food_signature_b",
+ "look": "b",
+ "kind": "food",
+ "app_type": "food",
+ "vertical": null,
+ "primary_color": "#875800",
+ "appearance": {
+  "template": "bold",
+  "font": "Manrope"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "restaurants",
+   "label": "Restaurants",
+   "icon": "restaurant",
+   "target": {
+    "type": "screen",
+    "screen": "restaurants"
+   }
+  },
+  {
+   "id": "orders",
+   "label": "My orders",
+   "icon": "receipt_long",
+   "target": {
+    "type": "screen",
+    "screen": "food_orders"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": {
+  "design": "float",
+  "background": "#15110E",
+  "dark_background": "#28221E",
+  "active": "#F4B63F",
+  "inactive": "#D9D2CA",
+  "dark_active": "#F4B63F",
+  "dark_inactive": "#C9C0B7",
+  "radius": 30,
+  "margin": 14,
+  "labels": "active"
+ },
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "row",
+        "name": "What’s for dinner?",
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 8,
+        "cross": "center",
+        "children": [
+         {
+          "id": "g3",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "g4",
+            "type": "greeting",
+            "color": "#5F5750",
+            "dark_color": "#B5ACA3",
+            "font": {
+             "weight": 600,
+             "size": 13
+            }
+           },
+           {
+            "id": "g5",
+            "type": "text",
+            "color": "#15110E",
+            "dark_color": "#F4EEE8",
+            "font": {
+             "family": "Outfit",
+             "weight": 700,
+             "size": 26,
+             "line_height": 1.1,
+             "letter_spacing": -0.7
+            },
+            "text": "What’s for dinner?"
+           }
+          ]
+         },
+         {
+          "id": "g6",
+          "type": "row",
+          "width": 44,
+          "height": 44,
+          "align": "center",
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#181412",
+          "border_color": "#E3DED6",
+          "dark_border_color": "#2A2420",
+          "radius": 22,
+          "border_width": 1,
+          "shadow": "light",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g7",
+            "type": "icon",
+            "color": "#15110E",
+            "dark_color": "#F4EEE8",
+            "icon": "search",
+            "icon_size": 22
+           }
+          ]
+         },
+         {
+          "id": "g8",
+          "type": "row",
+          "width": 44,
+          "height": 44,
+          "align": "center",
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#181412",
+          "border_color": "#E3DED6",
+          "dark_border_color": "#2A2420",
+          "radius": 22,
+          "border_width": 1,
+          "shadow": "light",
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "g9",
+            "type": "icon",
+            "color": "#15110E",
+            "dark_color": "#F4EEE8",
+            "icon": "person",
+            "icon_size": 22
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "live_status",
+        "name": "Your order on its way",
+        "width": "fill",
+        "padding": {
+         "top": 18,
+         "end": 18,
+         "bottom": 18,
+         "start": 16
+        },
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "start": 16
+        },
+        "background": "#2A1A10",
+        "color": "#FFFFFF",
+        "image_background_url": "http://localhost:3000/demo-photos/kofta.jpg",
+        "radius": 26,
+        "scrim": {
+         "color": "#120A06",
+         "from": 0.82,
+         "to": 0.86,
+         "middle": 0.68,
+         "angle": 90
+        },
+        "shadow": "strong",
+        "live_status": {
+         "source": "food_order",
+         "style": "ring",
+         "accent": "#F4B63F",
+         "dark_accent": "#F4B63F"
+        },
+        "image_url": "http://localhost:3000/demo-photos/kofta.jpg",
+        "visibility": "signed_in"
+       },
+       {
+        "id": "g11",
+        "type": "bento",
+        "name": "Grill",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 8,
+        "radius": 22,
+        "bento": {
+         "caption": "glass",
+         "row": 92
+        },
+        "entries": [
+         {
+          "title": "Grill",
+          "subtitle": "Mixed grill · EGP 240",
+          "text": "Sahara Grill",
+          "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg",
+          "size": "large",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         },
+         {
+          "title": "Pizza",
+          "image_url": "http://localhost:3000/demo-photos/cover-pizza.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         },
+         {
+          "title": "Sweets",
+          "image_url": "http://localhost:3000/demo-photos/chocolate-brownie.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         },
+         {
+          "title": "Egyptian",
+          "text": "Bayt El Koshary · Koshary EGP 55",
+          "image_url": "http://localhost:3000/demo-screens/sofra-mezze.jpg",
+          "size": "full",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g12",
+        "type": "marquee",
+        "name": "From the menus",
+        "height": 34,
+        "margin": {
+         "top": 22
+        },
+        "gap": 18,
+        "background": "#15110E",
+        "color": "#F4B63F",
+        "dark_background": "#F4B63F",
+        "dark_color": "#1C1307",
+        "font": {
+         "family": "Outfit",
+         "weight": 700,
+         "size": 13,
+         "letter_spacing": 1,
+         "uppercase": true
+        },
+        "text": "Koshary EGP 55\nMixed grill EGP 240\nMargherita EGP 140\nShish tawook EGP 150",
+        "marquee": {
+         "speed": 36,
+         "tilt": -2,
+         "dot": true
+        }
+       },
+       {
+        "id": "g13",
+        "type": "row",
+        "name": "Restaurants near you",
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "gap": 12,
+        "cross": "end",
+        "children": [
+         {
+          "id": "g14",
+          "type": "text",
+          "width": "fill",
+          "color": "#15110E",
+          "dark_color": "#F4EEE8",
+          "font": {
+           "family": "Outfit",
+           "weight": 700,
+           "size": 20,
+           "letter_spacing": -0.4
+          },
+          "text": "Restaurants near you"
+         },
+         {
+          "id": "g15",
+          "type": "text",
+          "color": "#875800",
+          "dark_color": "#F4B63F",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "See all",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g16",
+        "type": "items",
+        "name": "Restaurants near you",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 10,
+        "source": "restaurants",
+        "layout": "carousel",
+        "card": {
+         "id": "g17",
+         "type": "row",
+         "width": 262,
+         "height": 96,
+         "background": "#FFFFFF",
+         "dark_background": "#181412",
+         "border_color": "#E3DED6",
+         "dark_border_color": "#2A2420",
+         "radius": 22,
+         "border_width": 1,
+         "shadow": "medium",
+         "children": [
+          {
+           "id": "g18",
+           "type": "image",
+           "width": 96,
+           "height": 96,
+           "bind": "image"
+          },
+          {
+           "id": "g19",
+           "type": "column",
+           "width": "fill",
+           "padding": {
+            "top": 12,
+            "end": 14,
+            "bottom": 12,
+            "start": 14
+           },
+           "gap": 2,
+           "align": "center",
+           "children": [
+            {
+             "id": "g20",
+             "type": "text",
+             "color": "#15110E",
+             "dark_color": "#F4EEE8",
+             "font": {
+              "weight": 800,
+              "size": 16
+             },
+             "max_lines": 1,
+             "bind": "title"
+            },
+            {
+             "id": "g21",
+             "type": "text",
+             "color": "#5F5750",
+             "dark_color": "#B5ACA3",
+             "font": {
+              "size": 12
+             },
+             "max_lines": 1,
+             "bind": "subtitle"
+            },
+            {
+             "id": "g22",
+             "type": "text",
+             "margin": {
+              "top": 6
+             },
+             "color": "#875800",
+             "dark_color": "#F4B63F",
+             "font": {
+              "weight": 700,
+              "size": 12
+             },
+             "bind": "badge"
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "restaurants",
+          "id": "1",
+          "title": "Sahara Grill",
+          "subtitle": "Grill",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "1"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "2",
+          "title": "Forno Zamalek",
+          "subtitle": "Pizza · Desserts",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "2"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "3",
+          "title": "Bayt El Koshary",
+          "subtitle": "Egyptian · Desserts",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "3"
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    }
+   },
+   "restaurants": {
+    "screen": "restaurants",
+    "studio": {
+     "body": {
+      "id": "g23",
+      "type": "column",
+      "children": [
+       {
+        "id": "g24",
+        "type": "bento",
+        "name": "Grill",
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "gap": 8,
+        "radius": 22,
+        "bento": {
+         "caption": "glass",
+         "row": 92
+        },
+        "entries": [
+         {
+          "title": "Grill",
+          "subtitle": "Mixed grill · EGP 240",
+          "text": "Sahara Grill",
+          "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg",
+          "size": "large",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         },
+         {
+          "title": "Pizza",
+          "image_url": "http://localhost:3000/demo-photos/cover-pizza.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         },
+         {
+          "title": "Sweets",
+          "image_url": "http://localhost:3000/demo-photos/chocolate-brownie.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         },
+         {
+          "title": "Egyptian",
+          "text": "Bayt El Koshary · Koshary EGP 55",
+          "image_url": "http://localhost:3000/demo-screens/sofra-mezze.jpg",
+          "size": "full",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Restaurants",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F2EFEA",
+      "color": "#15110E",
+      "dark_background": "#0C0A09",
+      "dark_color": "#F4EEE8",
+      "style": "glass"
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09",
+     "screen": "restaurants"
+    }
+   },
+   "orders": {
+    "screen": "food_orders",
+    "studio": {
+     "body": {
+      "id": "g25",
+      "type": "column",
+      "children": [
+       {
+        "id": "g26",
+        "type": "live_status",
+        "name": "Your order on its way",
+        "width": "fill",
+        "padding": {
+         "top": 18,
+         "end": 18,
+         "bottom": 18,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#2A1A10",
+        "color": "#FFFFFF",
+        "image_background_url": "http://localhost:3000/demo-photos/kofta.jpg",
+        "radius": 26,
+        "scrim": {
+         "color": "#120A06",
+         "from": 0.82,
+         "to": 0.86,
+         "middle": 0.68,
+         "angle": 90
+        },
+        "shadow": "strong",
+        "live_status": {
+         "source": "food_order",
+         "style": "ring",
+         "accent": "#F4B63F",
+         "dark_accent": "#F4B63F"
+        },
+        "image_url": "http://localhost:3000/demo-photos/kofta.jpg",
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "My orders",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F2EFEA",
+      "color": "#15110E",
+      "dark_background": "#0C0A09",
+      "dark_color": "#F4EEE8",
+      "style": "glass"
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09",
+     "screen": "food_orders"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g27",
+      "type": "column",
+      "children": []
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09",
+     "screen": "account"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "row",
+        "name": "What’s for dinner?",
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 8,
+        "cross": "center",
+        "children": [
+         {
+          "id": "g3",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "g4",
+            "type": "greeting",
+            "color": "#5F5750",
+            "dark_color": "#B5ACA3",
+            "font": {
+             "weight": 600,
+             "size": 13
+            }
+           },
+           {
+            "id": "g5",
+            "type": "text",
+            "color": "#15110E",
+            "dark_color": "#F4EEE8",
+            "font": {
+             "family": "Outfit",
+             "weight": 700,
+             "size": 26,
+             "line_height": 1.1,
+             "letter_spacing": -0.7
+            },
+            "text": "ماذا على العشاء؟"
+           }
+          ]
+         },
+         {
+          "id": "g6",
+          "type": "row",
+          "width": 44,
+          "height": 44,
+          "align": "center",
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#181412",
+          "border_color": "#E3DED6",
+          "dark_border_color": "#2A2420",
+          "radius": 22,
+          "border_width": 1,
+          "shadow": "light",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g7",
+            "type": "icon",
+            "color": "#15110E",
+            "dark_color": "#F4EEE8",
+            "icon": "search",
+            "icon_size": 22
+           }
+          ]
+         },
+         {
+          "id": "g8",
+          "type": "row",
+          "width": 44,
+          "height": 44,
+          "align": "center",
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#181412",
+          "border_color": "#E3DED6",
+          "dark_border_color": "#2A2420",
+          "radius": 22,
+          "border_width": 1,
+          "shadow": "light",
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "g9",
+            "type": "icon",
+            "color": "#15110E",
+            "dark_color": "#F4EEE8",
+            "icon": "person",
+            "icon_size": 22
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "live_status",
+        "name": "Your order on its way",
+        "width": "fill",
+        "padding": {
+         "top": 18,
+         "end": 18,
+         "bottom": 18,
+         "start": 16
+        },
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "start": 16
+        },
+        "background": "#2A1A10",
+        "color": "#FFFFFF",
+        "image_background_url": "http://localhost:3000/demo-photos/kofta.jpg",
+        "radius": 26,
+        "scrim": {
+         "color": "#120A06",
+         "from": 0.82,
+         "to": 0.86,
+         "middle": 0.68,
+         "angle": 90
+        },
+        "shadow": "strong",
+        "live_status": {
+         "source": "food_order",
+         "style": "ring",
+         "accent": "#F4B63F",
+         "dark_accent": "#F4B63F"
+        },
+        "image_url": "http://localhost:3000/demo-photos/kofta.jpg",
+        "visibility": "signed_in"
+       },
+       {
+        "id": "g11",
+        "type": "bento",
+        "name": "Grill",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 8,
+        "radius": 22,
+        "bento": {
+         "caption": "glass",
+         "row": 92
+        },
+        "entries": [
+         {
+          "title": "مشويات",
+          "subtitle": "مشويات مشكّلة · 240 ج.م",
+          "text": "صحارى جريل",
+          "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg",
+          "size": "large",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         },
+         {
+          "title": "بيتزا",
+          "image_url": "http://localhost:3000/demo-photos/cover-pizza.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         },
+         {
+          "title": "حلويات",
+          "image_url": "http://localhost:3000/demo-photos/chocolate-brownie.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         },
+         {
+          "title": "مصري",
+          "text": "بيت الكشري · كشري 55 ج.م",
+          "image_url": "http://localhost:3000/demo-screens/sofra-mezze.jpg",
+          "size": "full",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g12",
+        "type": "marquee",
+        "name": "From the menus",
+        "height": 34,
+        "margin": {
+         "top": 22
+        },
+        "gap": 18,
+        "background": "#15110E",
+        "color": "#F4B63F",
+        "dark_background": "#F4B63F",
+        "dark_color": "#1C1307",
+        "font": {
+         "family": "Outfit",
+         "weight": 700,
+         "size": 13,
+         "letter_spacing": 1,
+         "uppercase": true
+        },
+        "text": "كشري 55 ج.م\nمشويات مشكّلة 240 ج.م\nمارجريتا 140 ج.م\nشيش طاووق 150 ج.م",
+        "marquee": {
+         "speed": 36,
+         "tilt": -2,
+         "dot": true
+        }
+       },
+       {
+        "id": "g13",
+        "type": "row",
+        "name": "Restaurants near you",
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "gap": 12,
+        "cross": "end",
+        "children": [
+         {
+          "id": "g14",
+          "type": "text",
+          "width": "fill",
+          "color": "#15110E",
+          "dark_color": "#F4EEE8",
+          "font": {
+           "family": "Outfit",
+           "weight": 700,
+           "size": 20,
+           "letter_spacing": -0.4
+          },
+          "text": "مطاعم بالقرب منك"
+         },
+         {
+          "id": "g15",
+          "type": "text",
+          "color": "#875800",
+          "dark_color": "#F4B63F",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "عرض الكل",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g16",
+        "type": "items",
+        "name": "Restaurants near you",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 10,
+        "source": "restaurants",
+        "layout": "carousel",
+        "card": {
+         "id": "g17",
+         "type": "row",
+         "width": 262,
+         "height": 96,
+         "background": "#FFFFFF",
+         "dark_background": "#181412",
+         "border_color": "#E3DED6",
+         "dark_border_color": "#2A2420",
+         "radius": 22,
+         "border_width": 1,
+         "shadow": "medium",
+         "children": [
+          {
+           "id": "g18",
+           "type": "image",
+           "width": 96,
+           "height": 96,
+           "bind": "image"
+          },
+          {
+           "id": "g19",
+           "type": "column",
+           "width": "fill",
+           "padding": {
+            "top": 12,
+            "end": 14,
+            "bottom": 12,
+            "start": 14
+           },
+           "gap": 2,
+           "align": "center",
+           "children": [
+            {
+             "id": "g20",
+             "type": "text",
+             "color": "#15110E",
+             "dark_color": "#F4EEE8",
+             "font": {
+              "weight": 800,
+              "size": 16
+             },
+             "max_lines": 1,
+             "bind": "title"
+            },
+            {
+             "id": "g21",
+             "type": "text",
+             "color": "#5F5750",
+             "dark_color": "#B5ACA3",
+             "font": {
+              "size": 12
+             },
+             "max_lines": 1,
+             "bind": "subtitle"
+            },
+            {
+             "id": "g22",
+             "type": "text",
+             "margin": {
+              "top": 6
+             },
+             "color": "#875800",
+             "dark_color": "#F4B63F",
+             "font": {
+              "weight": 700,
+              "size": 12
+             },
+             "bind": "badge"
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "restaurants",
+          "id": "1",
+          "title": "Sahara Grill",
+          "subtitle": "Grill",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "1"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "2",
+          "title": "Forno Zamalek",
+          "subtitle": "Pizza · Desserts",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "2"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "3",
+          "title": "Bayt El Koshary",
+          "subtitle": "Egyptian · Desserts",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "3"
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09"
+    }
+   },
+   "restaurants": {
+    "screen": "restaurants",
+    "studio": {
+     "body": {
+      "id": "g23",
+      "type": "column",
+      "children": [
+       {
+        "id": "g24",
+        "type": "bento",
+        "name": "Grill",
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "gap": 8,
+        "radius": 22,
+        "bento": {
+         "caption": "glass",
+         "row": 92
+        },
+        "entries": [
+         {
+          "title": "مشويات",
+          "subtitle": "مشويات مشكّلة · 240 ج.م",
+          "text": "صحارى جريل",
+          "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg",
+          "size": "large",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         },
+         {
+          "title": "بيتزا",
+          "image_url": "http://localhost:3000/demo-photos/cover-pizza.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         },
+         {
+          "title": "حلويات",
+          "image_url": "http://localhost:3000/demo-photos/chocolate-brownie.jpg",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         },
+         {
+          "title": "مصري",
+          "text": "بيت الكشري · كشري 55 ج.م",
+          "image_url": "http://localhost:3000/demo-screens/sofra-mezze.jpg",
+          "size": "full",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "المطاعم",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F2EFEA",
+      "color": "#15110E",
+      "dark_background": "#0C0A09",
+      "dark_color": "#F4EEE8",
+      "style": "glass"
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09",
+     "screen": "restaurants"
+    }
+   },
+   "orders": {
+    "screen": "food_orders",
+    "studio": {
+     "body": {
+      "id": "g25",
+      "type": "column",
+      "children": [
+       {
+        "id": "g26",
+        "type": "live_status",
+        "name": "Your order on its way",
+        "width": "fill",
+        "padding": {
+         "top": 18,
+         "end": 18,
+         "bottom": 18,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#2A1A10",
+        "color": "#FFFFFF",
+        "image_background_url": "http://localhost:3000/demo-photos/kofta.jpg",
+        "radius": 26,
+        "scrim": {
+         "color": "#120A06",
+         "from": 0.82,
+         "to": 0.86,
+         "middle": 0.68,
+         "angle": 90
+        },
+        "shadow": "strong",
+        "live_status": {
+         "source": "food_order",
+         "style": "ring",
+         "accent": "#F4B63F",
+         "dark_accent": "#F4B63F"
+        },
+        "image_url": "http://localhost:3000/demo-photos/kofta.jpg",
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "طلباتي",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F2EFEA",
+      "color": "#15110E",
+      "dark_background": "#0C0A09",
+      "dark_color": "#F4EEE8",
+      "style": "glass"
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09",
+     "screen": "food_orders"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g27",
+      "type": "column",
+      "children": []
+     },
+     "background": "#F2EFEA",
+     "dark_background": "#0C0A09",
+     "screen": "account"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,387 @@
+{
+ "template": "news",
+ "look": null,
+ "kind": "news",
+ "app_type": "news",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "articles",
+   "label": "Latest",
+   "icon": "newspaper",
+   "target": {
+    "type": "screen",
+    "screen": "articles"
+   }
+  },
+  {
+   "id": "saved",
+   "label": "Saved",
+   "icon": "bookmark",
+   "target": {
+    "type": "screen",
+    "screen": "bookmarks"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "search",
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 12
+       },
+       {
+        "id": "g3",
+        "type": "categories",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "source": "articles",
+        "categories": [
+         {
+          "id": 1,
+          "name": "City",
+          "count": 3
+         },
+         {
+          "id": 2,
+          "name": "Business",
+          "count": 1
+         },
+         {
+          "id": 3,
+          "name": "Culture",
+          "count": 2
+         },
+         {
+          "id": 4,
+          "name": "Sport",
+          "count": 2
+         }
+        ]
+       },
+       {
+        "id": "g4",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g5",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Most popular"
+         },
+         {
+          "id": "g6",
+          "type": "items",
+          "gap": 10,
+          "source": "articles",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "articles",
+            "id": "8",
+            "title": "Night ferries return to the harbour from Monday",
+            "subtitle": "City",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "articles",
+              "id": "8"
+             }
+            }
+           },
+           {
+            "source": "articles",
+            "id": "7",
+            "title": "Old market hall reopens with forty stalls",
+            "subtitle": "City",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "articles",
+              "id": "7"
+             }
+            }
+           },
+           {
+            "source": "articles",
+            "id": "6",
+            "title": "Harbour United sign a new coach before the derby",
+            "subtitle": "Sport",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "articles",
+              "id": "6"
+             }
+            }
+           },
+           {
+            "source": "articles",
+            "id": "5",
+            "title": "Tram line 3 extends to the university next spring",
+            "subtitle": "City",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "articles",
+              "id": "5"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_center",
+      "buttons": [
+       "menu",
+       "notifications"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "search",
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 12
+       },
+       {
+        "id": "g3",
+        "type": "categories",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "source": "articles",
+        "categories": [
+         {
+          "id": 1,
+          "name": "City",
+          "count": 3
+         },
+         {
+          "id": 2,
+          "name": "Business",
+          "count": 1
+         },
+         {
+          "id": 3,
+          "name": "Culture",
+          "count": 2
+         },
+         {
+          "id": 4,
+          "name": "Sport",
+          "count": 2
+         }
+        ]
+       },
+       {
+        "id": "g4",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g5",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "الأكثر طلبًا"
+         },
+         {
+          "id": "g6",
+          "type": "items",
+          "gap": 10,
+          "source": "articles",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "articles",
+            "id": "8",
+            "title": "Night ferries return to the harbour from Monday",
+            "subtitle": "City",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "articles",
+              "id": "8"
+             }
+            }
+           },
+           {
+            "source": "articles",
+            "id": "7",
+            "title": "Old market hall reopens with forty stalls",
+            "subtitle": "City",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "articles",
+              "id": "7"
+             }
+            }
+           },
+           {
+            "source": "articles",
+            "id": "6",
+            "title": "Harbour United sign a new coach before the derby",
+            "subtitle": "Sport",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "articles",
+              "id": "6"
+             }
+            }
+           },
+           {
+            "source": "articles",
+            "id": "5",
+            "title": "Tram line 3 extends to the university next spring",
+            "subtitle": "City",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "articles",
+              "id": "5"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_center",
+      "buttons": [
+       "menu",
+       "notifications"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

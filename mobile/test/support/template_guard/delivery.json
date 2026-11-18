@@ -1,0 +1,821 @@
+{
+ "template": "delivery",
+ "look": null,
+ "kind": "delivery",
+ "app_type": "delivery",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "send",
+   "label": "Send",
+   "icon": "local_shipping",
+   "target": {
+    "type": "screen",
+    "screen": "send_parcel"
+   }
+  },
+  {
+   "id": "shipments",
+   "label": "My shipments",
+   "icon": "package_2",
+   "target": {
+    "type": "screen",
+    "screen": "shipments"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Send a parcel with Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "icon",
+          "color": "#FFFFFF",
+          "icon": "local_shipping",
+          "icon_size": 34
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "Send a parcel with Guard Shop"
+         },
+         {
+          "id": "g5",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "We pick it up and bring it to the door. Follow it on the way."
+         },
+         {
+          "id": "g6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "g7",
+            "type": "button",
+            "width": "hug",
+            "height": 42,
+            "padding": {
+             "end": 18,
+             "start": 18
+            },
+            "background": "#FFFFFF",
+            "color": "#0E0D24",
+            "radius": 12,
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "text": "Send now",
+            "action": {
+             "type": "screen",
+             "screen": "send_parcel"
+            },
+            "motion": {
+             "press": "shrink"
+            }
+           },
+           {
+            "id": "g8",
+            "type": "button",
+            "width": "hug",
+            "height": 42,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "color": "#FFFFFF",
+            "radius": 12,
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "text": "My shipments",
+            "action": {
+             "type": "screen",
+             "screen": "shipments"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "column",
+        "name": "How it works",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g10",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "How it works"
+         },
+         {
+          "id": "g11",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g12",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "1"
+           },
+           {
+            "id": "g13",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "Tell us where from and where to"
+           }
+          ]
+         },
+         {
+          "id": "g14",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g15",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "2"
+           },
+           {
+            "id": "g16",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "A courier picks it up"
+           }
+          ]
+         },
+         {
+          "id": "g17",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g18",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "3"
+           },
+           {
+            "id": "g19",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "Follow it to the door"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g20",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g21",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Most popular"
+         },
+         {
+          "id": "g22",
+          "type": "items",
+          "gap": 10,
+          "source": "delivery_services",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "delivery_services",
+            "id": "1",
+            "title": "Same day",
+            "subtitle": "2 to 4 hours",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "delivery_services",
+              "id": "1"
+             }
+            }
+           },
+           {
+            "source": "delivery_services",
+            "id": "2",
+            "title": "Express",
+            "subtitle": "Within the hour",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+            "price_label": null,
+            "badge": "+E£45.00",
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "delivery_services",
+              "id": "2"
+             }
+            }
+           },
+           {
+            "source": "delivery_services",
+            "id": "3",
+            "title": "Documents",
+            "subtitle": "Within 4 hours",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+            "price_label": null,
+            "badge": "+E£15.00",
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "delivery_services",
+              "id": "3"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g23",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g24",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Find us"
+         },
+         {
+          "id": "g25",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "[Your address and opening hours]"
+         },
+         {
+          "id": "g26",
+          "type": "map",
+          "height": 170,
+          "radius": 14,
+          "map": {
+           "lat": 30.0444,
+           "lng": 31.2357
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Send a parcel with Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "icon",
+          "color": "#FFFFFF",
+          "icon": "local_shipping",
+          "icon_size": 34
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "أرسل شحنتك مع Guard Shop"
+         },
+         {
+          "id": "g5",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "نستلمها منك ونوصلها إلى الباب، وتتابعها وهي في الطريق."
+         },
+         {
+          "id": "g6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "g7",
+            "type": "button",
+            "width": "hug",
+            "height": 42,
+            "padding": {
+             "end": 18,
+             "start": 18
+            },
+            "background": "#FFFFFF",
+            "color": "#0E0D24",
+            "radius": 12,
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "text": "أرسل الآن",
+            "action": {
+             "type": "screen",
+             "screen": "send_parcel"
+            },
+            "motion": {
+             "press": "shrink"
+            }
+           },
+           {
+            "id": "g8",
+            "type": "button",
+            "width": "hug",
+            "height": 42,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "color": "#FFFFFF",
+            "radius": 12,
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "text": "شحناتي",
+            "action": {
+             "type": "screen",
+             "screen": "shipments"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "column",
+        "name": "How it works",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g10",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "كيف تعمل الخدمة"
+         },
+         {
+          "id": "g11",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g12",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "1"
+           },
+           {
+            "id": "g13",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "أخبرنا من أين وإلى أين"
+           }
+          ]
+         },
+         {
+          "id": "g14",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g15",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "2"
+           },
+           {
+            "id": "g16",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "يستلمها مندوب"
+           }
+          ]
+         },
+         {
+          "id": "g17",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g18",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "3"
+           },
+           {
+            "id": "g19",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "تابعها حتى الباب"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g20",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g21",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "الأكثر طلبًا"
+         },
+         {
+          "id": "g22",
+          "type": "items",
+          "gap": 10,
+          "source": "delivery_services",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "delivery_services",
+            "id": "1",
+            "title": "Same day",
+            "subtitle": "2 to 4 hours",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "delivery_services",
+              "id": "1"
+             }
+            }
+           },
+           {
+            "source": "delivery_services",
+            "id": "2",
+            "title": "Express",
+            "subtitle": "Within the hour",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+            "price_label": null,
+            "badge": "+E£45.00",
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "delivery_services",
+              "id": "2"
+             }
+            }
+           },
+           {
+            "source": "delivery_services",
+            "id": "3",
+            "title": "Documents",
+            "subtitle": "Within 4 hours",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+            "price_label": null,
+            "badge": "+E£15.00",
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "delivery_services",
+              "id": "3"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g23",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g24",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "موقعنا"
+         },
+         {
+          "id": "g25",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "[العنوان ومواعيد العمل]"
+         },
+         {
+          "id": "g26",
+          "type": "map",
+          "height": 170,
+          "radius": 14,
+          "map": {
+           "lat": 30.0444,
+           "lng": 31.2357
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

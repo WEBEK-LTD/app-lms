@@ -1,0 +1,485 @@
+{
+ "template": "events",
+ "look": null,
+ "kind": "events",
+ "app_type": "events",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "events",
+   "label": "Events",
+   "icon": "event",
+   "target": {
+    "type": "screen",
+    "screen": "events"
+   }
+  },
+  {
+   "id": "tickets",
+   "label": "My tickets",
+   "icon": "confirmation_number",
+   "target": {
+    "type": "screen",
+    "screen": "tickets"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Welcome to Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "Welcome to Guard Shop"
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "Everything you need, a tap away."
+         },
+         {
+          "id": "g5",
+          "type": "button",
+          "width": "hug",
+          "height": 42,
+          "padding": {
+           "end": 18,
+           "start": 18
+          },
+          "background": "#FFFFFF",
+          "color": "#0E0D24",
+          "radius": 12,
+          "font": {
+           "weight": 800,
+           "size": 14
+          },
+          "text": "See what's on",
+          "action": {
+           "type": "screen",
+           "screen": "events"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Most popular"
+         },
+         {
+          "id": "g8",
+          "type": "items",
+          "gap": 10,
+          "source": "events",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "events",
+            "id": "2",
+            "title": "Film Club: harbour classics",
+            "subtitle": "Sat 21 Nov, 15:00 · Kuzey Culture Centre, Studio 2",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+            "price_label": "Free",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "events",
+              "id": "2"
+             }
+            }
+           },
+           {
+            "source": "events",
+            "id": "1",
+            "title": "Autumn Jazz Night",
+            "subtitle": "Tue 24 Nov, 20:30 · Kuzey Culture Centre, Main Hall",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+            "price_label": "From ₺350.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "events",
+              "id": "1"
+             }
+            }
+           },
+           {
+            "source": "events",
+            "id": "4",
+            "title": "Online talk: writing about your city",
+            "subtitle": "Thu 26 Nov, 19:00 · Online",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+            "price_label": "Free",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "events",
+              "id": "4"
+             }
+            }
+           },
+           {
+            "source": "events",
+            "id": "3",
+            "title": "Ceramics for beginners",
+            "subtitle": "Sat 28 Nov, 11:00 · Kuzey Culture Centre, Studio 2",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+            "price_label": "₺450.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "events",
+              "id": "3"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "button",
+        "width": "fill",
+        "height": 46,
+        "margin": {
+         "top": 10,
+         "end": 18,
+         "bottom": 10,
+         "start": 18
+        },
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 14,
+        "shadow": "medium",
+        "font": {
+         "weight": 800,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "See what's on",
+        "icon": "arrow_back",
+        "action": {
+         "type": "screen",
+         "screen": "events"
+        },
+        "motion": {
+         "press": "shrink"
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Welcome to Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "مرحبًا بك في Guard Shop"
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "كل ما تحتاج إليه بلمسة واحدة."
+         },
+         {
+          "id": "g5",
+          "type": "button",
+          "width": "hug",
+          "height": 42,
+          "padding": {
+           "end": 18,
+           "start": 18
+          },
+          "background": "#FFFFFF",
+          "color": "#0E0D24",
+          "radius": 12,
+          "font": {
+           "weight": 800,
+           "size": 14
+          },
+          "text": "تصفّح الفعاليات",
+          "action": {
+           "type": "screen",
+           "screen": "events"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "الأكثر طلبًا"
+         },
+         {
+          "id": "g8",
+          "type": "items",
+          "gap": 10,
+          "source": "events",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "events",
+            "id": "2",
+            "title": "Film Club: harbour classics",
+            "subtitle": "السبت، 21 نوفمبر, 15:00 · Kuzey Culture Centre, Studio 2",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+            "price_label": "مجاني",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "events",
+              "id": "2"
+             }
+            }
+           },
+           {
+            "source": "events",
+            "id": "1",
+            "title": "Autumn Jazz Night",
+            "subtitle": "الثلاثاء، 24 نوفمبر, 20:30 · Kuzey Culture Centre, Main Hall",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+            "price_label": "ابتداءً من ⁦₺350.00⁩",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "events",
+              "id": "1"
+             }
+            }
+           },
+           {
+            "source": "events",
+            "id": "4",
+            "title": "Online talk: writing about your city",
+            "subtitle": "الخميس، 26 نوفمبر, 19:00 · عبر الإنترنت",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+            "price_label": "مجاني",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "events",
+              "id": "4"
+             }
+            }
+           },
+           {
+            "source": "events",
+            "id": "3",
+            "title": "Ceramics for beginners",
+            "subtitle": "السبت، 28 نوفمبر, 11:00 · Kuzey Culture Centre, Studio 2",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+            "price_label": "₺450.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "events",
+              "id": "3"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "button",
+        "width": "fill",
+        "height": 46,
+        "margin": {
+         "top": 10,
+         "end": 18,
+         "bottom": 10,
+         "start": 18
+        },
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 14,
+        "shadow": "medium",
+        "font": {
+         "weight": 800,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "تصفّح الفعاليات",
+        "icon": "arrow_back",
+        "action": {
+         "type": "screen",
+         "screen": "events"
+        },
+        "motion": {
+         "press": "shrink"
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

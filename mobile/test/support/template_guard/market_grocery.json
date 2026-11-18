@@ -1,0 +1,296 @@
+{
+ "template": "market_grocery",
+ "look": null,
+ "kind": "marketplace",
+ "app_type": "food",
+ "vertical": "marketplace",
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "search",
+   "label": "Search",
+   "icon": "search",
+   "target": {
+    "type": "screen",
+    "screen": "search"
+   }
+  },
+  {
+   "id": "orders",
+   "label": "Orders",
+   "icon": "receipt_long",
+   "target": {
+    "type": "screen",
+    "screen": "food_orders"
+   }
+  },
+  {
+   "id": "club",
+   "label": "Club",
+   "icon": "workspace_premium",
+   "target": {
+    "type": "screen",
+    "screen": "club"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "market",
+        "margin": {
+         "top": 8,
+         "bottom": 8
+        },
+        "text": "Search restaurants, groceries and shops",
+        "market": {
+         "section": "address"
+        }
+       },
+       {
+        "id": "g3",
+        "type": "market",
+        "margin": {
+         "top": 10,
+         "bottom": 10
+        },
+        "title": "What would you like?",
+        "market": {
+         "section": "kinds"
+        }
+       },
+       {
+        "id": "g4",
+        "type": "market",
+        "margin": {
+         "top": 10,
+         "bottom": 10
+        },
+        "title": "Groceries and supermarkets",
+        "market": {
+         "section": "vendors",
+         "style": "spotlight",
+         "kind": "grocery"
+        }
+       },
+       {
+        "id": "g5",
+        "type": "market",
+        "margin": {
+         "top": 10,
+         "bottom": 10
+        },
+        "title": "Supermarket departments",
+        "market": {
+         "section": "cuisines",
+         "kind": "grocery"
+        }
+       },
+       {
+        "id": "g6",
+        "type": "market",
+        "margin": {
+         "top": 10,
+         "bottom": 10
+        },
+        "text": "Delivered in under 30 minutes",
+        "title": "Fastest to you",
+        "market": {
+         "section": "vendors",
+         "style": "list",
+         "sort": "fastest",
+         "limit": 6
+        }
+       },
+       {
+        "id": "g7",
+        "type": "market",
+        "margin": {
+         "top": 10,
+         "bottom": 10
+        },
+        "text": "From the places near you",
+        "title": "Today's offers",
+        "market": {
+         "section": "offers",
+         "style": "spotlight"
+        }
+       },
+       {
+        "id": "g8",
+        "type": "market",
+        "margin": {
+         "top": 10,
+         "bottom": 10
+        },
+        "title": "Order again",
+        "market": {
+         "section": "reorder"
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "title_search",
+      "buttons": [
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "market",
+        "margin": {
+         "top": 8,
+         "bottom": 8
+        },
+        "text": "ابحث في المطاعم والسوبرماركت والمتاجر",
+        "market": {
+         "section": "address"
+        }
+       },
+       {
+        "id": "g3",
+        "type": "market",
+        "margin": {
+         "top": 10,
+         "bottom": 10
+        },
+        "title": "ماذا تشتهي؟",
+        "market": {
+         "section": "kinds"
+        }
+       },
+       {
+        "id": "g4",
+        "type": "market",
+        "margin": {
+         "top": 10,
+         "bottom": 10
+        },
+        "title": "بقالة وسوبرماركت",
+        "market": {
+         "section": "vendors",
+         "style": "spotlight",
+         "kind": "grocery"
+        }
+       },
+       {
+        "id": "g5",
+        "type": "market",
+        "margin": {
+         "top": 10,
+         "bottom": 10
+        },
+        "title": "أقسام السوبرماركت",
+        "market": {
+         "section": "cuisines",
+         "kind": "grocery"
+        }
+       },
+       {
+        "id": "g6",
+        "type": "market",
+        "margin": {
+         "top": 10,
+         "bottom": 10
+        },
+        "text": "يصل في أقل من ٣٠ دقيقة",
+        "title": "الأسرع وصولًا إليك",
+        "market": {
+         "section": "vendors",
+         "style": "list",
+         "sort": "fastest",
+         "limit": 6
+        }
+       },
+       {
+        "id": "g7",
+        "type": "market",
+        "margin": {
+         "top": 10,
+         "bottom": 10
+        },
+        "text": "من الأماكن القريبة منك",
+        "title": "عروض اليوم",
+        "market": {
+         "section": "offers",
+         "style": "spotlight"
+        }
+       },
+       {
+        "id": "g8",
+        "type": "market",
+        "margin": {
+         "top": 10,
+         "bottom": 10
+        },
+        "title": "اطلب مرة أخرى",
+        "market": {
+         "section": "reorder"
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "title_search",
+      "buttons": [
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

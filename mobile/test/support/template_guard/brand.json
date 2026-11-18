@@ -1,0 +1,809 @@
+{
+ "template": "brand",
+ "look": null,
+ "kind": "store",
+ "app_type": "store",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "shop",
+   "label": "Shop",
+   "icon": "storefront",
+   "target": {
+    "type": "screen",
+    "screen": "search"
+   }
+  },
+  {
+   "id": "cart",
+   "label": "Cart",
+   "icon": "shopping_cart",
+   "target": {
+    "type": "screen",
+    "screen": "cart"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Welcome to Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "Welcome to Guard Shop"
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "Everything you need, a tap away."
+         },
+         {
+          "id": "g5",
+          "type": "button",
+          "width": "hug",
+          "height": 42,
+          "padding": {
+           "end": 18,
+           "start": 18
+          },
+          "background": "#FFFFFF",
+          "color": "#0E0D24",
+          "radius": 12,
+          "font": {
+           "weight": 800,
+           "size": 14
+          },
+          "text": "Start now"
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "row",
+        "padding": {
+         "top": 14,
+         "end": 10,
+         "bottom": 14,
+         "start": 10
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "align": "around",
+        "background": "#0E0D24",
+        "color": "#F4EFE6",
+        "radius": 16,
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text_align": "center",
+          "text": "[Number] customers"
+         },
+         {
+          "id": "g8",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text_align": "center",
+          "text": "[Number] years"
+         },
+         {
+          "id": "g9",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text_align": "center",
+          "text": "[Number] branches"
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "row",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g11",
+          "type": "column",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 10,
+           "bottom": 12,
+           "start": 10
+          },
+          "gap": 4,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "text_align": "center",
+          "children": [
+           {
+            "id": "g12",
+            "type": "icon",
+            "color": "#0E0D24",
+            "icon": "bolt",
+            "icon_size": 26
+           },
+           {
+            "id": "g13",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "Fast"
+           },
+           {
+            "id": "g14",
+            "type": "text",
+            "opacity": 0.8,
+            "font": {
+             "size": 11
+            },
+            "text_align": "center",
+            "text": "[Why customers choose you]"
+           }
+          ]
+         },
+         {
+          "id": "g15",
+          "type": "column",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 10,
+           "bottom": 12,
+           "start": 10
+          },
+          "gap": 4,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "text_align": "center",
+          "children": [
+           {
+            "id": "g16",
+            "type": "icon",
+            "color": "#0E0D24",
+            "icon": "verified_user",
+            "icon_size": 26
+           },
+           {
+            "id": "g17",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "Safe"
+           },
+           {
+            "id": "g18",
+            "type": "text",
+            "opacity": 0.8,
+            "font": {
+             "size": 11
+            },
+            "text_align": "center",
+            "text": "[What you promise]"
+           }
+          ]
+         },
+         {
+          "id": "g19",
+          "type": "column",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 10,
+           "bottom": 12,
+           "start": 10
+          },
+          "gap": 4,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "text_align": "center",
+          "children": [
+           {
+            "id": "g20",
+            "type": "icon",
+            "color": "#0E0D24",
+            "icon": "support_agent",
+            "icon_size": 26
+           },
+           {
+            "id": "g21",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "Help"
+           },
+           {
+            "id": "g22",
+            "type": "text",
+            "opacity": 0.8,
+            "font": {
+             "size": 11
+            },
+            "text_align": "center",
+            "text": "[How to reach you]"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g23",
+        "type": "column",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 6,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g24",
+          "type": "ratings",
+          "rating": 5
+         },
+         {
+          "id": "g25",
+          "type": "text",
+          "font": {
+           "size": 14,
+           "italic": true
+          },
+          "text": "[What a customer says about you]"
+         },
+         {
+          "id": "g26",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "weight": 700,
+           "size": 12
+          },
+          "text": "[Customer name]"
+         }
+        ]
+       },
+       {
+        "id": "g27",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g28",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Find us"
+         },
+         {
+          "id": "g29",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "[Your address and opening hours]"
+         },
+         {
+          "id": "g30",
+          "type": "map",
+          "height": 170,
+          "radius": 14,
+          "map": {
+           "lat": 30.0444,
+           "lng": 31.2357
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "transparent",
+      "buttons": [
+       "menu",
+       "account"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Welcome to Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "مرحبًا بك في Guard Shop"
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "كل ما تحتاج إليه بلمسة واحدة."
+         },
+         {
+          "id": "g5",
+          "type": "button",
+          "width": "hug",
+          "height": 42,
+          "padding": {
+           "end": 18,
+           "start": 18
+          },
+          "background": "#FFFFFF",
+          "color": "#0E0D24",
+          "radius": 12,
+          "font": {
+           "weight": 800,
+           "size": 14
+          },
+          "text": "ابدأ الآن"
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "row",
+        "padding": {
+         "top": 14,
+         "end": 10,
+         "bottom": 14,
+         "start": 10
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "align": "around",
+        "background": "#0E0D24",
+        "color": "#F4EFE6",
+        "radius": 16,
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text_align": "center",
+          "text": "[رقم] عميل"
+         },
+         {
+          "id": "g8",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text_align": "center",
+          "text": "[رقم] سنة"
+         },
+         {
+          "id": "g9",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text_align": "center",
+          "text": "[رقم] فرع"
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "row",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g11",
+          "type": "column",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 10,
+           "bottom": 12,
+           "start": 10
+          },
+          "gap": 4,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "text_align": "center",
+          "children": [
+           {
+            "id": "g12",
+            "type": "icon",
+            "color": "#0E0D24",
+            "icon": "bolt",
+            "icon_size": 26
+           },
+           {
+            "id": "g13",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "سريع"
+           },
+           {
+            "id": "g14",
+            "type": "text",
+            "opacity": 0.8,
+            "font": {
+             "size": 11
+            },
+            "text_align": "center",
+            "text": "[لماذا يختارك العملاء]"
+           }
+          ]
+         },
+         {
+          "id": "g15",
+          "type": "column",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 10,
+           "bottom": 12,
+           "start": 10
+          },
+          "gap": 4,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "text_align": "center",
+          "children": [
+           {
+            "id": "g16",
+            "type": "icon",
+            "color": "#0E0D24",
+            "icon": "verified_user",
+            "icon_size": 26
+           },
+           {
+            "id": "g17",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "مضمون"
+           },
+           {
+            "id": "g18",
+            "type": "text",
+            "opacity": 0.8,
+            "font": {
+             "size": 11
+            },
+            "text_align": "center",
+            "text": "[ما تعد به عملاءك]"
+           }
+          ]
+         },
+         {
+          "id": "g19",
+          "type": "column",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 10,
+           "bottom": 12,
+           "start": 10
+          },
+          "gap": 4,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "text_align": "center",
+          "children": [
+           {
+            "id": "g20",
+            "type": "icon",
+            "color": "#0E0D24",
+            "icon": "support_agent",
+            "icon_size": 26
+           },
+           {
+            "id": "g21",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "مساعدة"
+           },
+           {
+            "id": "g22",
+            "type": "text",
+            "opacity": 0.8,
+            "font": {
+             "size": 11
+            },
+            "text_align": "center",
+            "text": "[كيف يتواصلون معك]"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g23",
+        "type": "column",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 6,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g24",
+          "type": "ratings",
+          "rating": 5
+         },
+         {
+          "id": "g25",
+          "type": "text",
+          "font": {
+           "size": 14,
+           "italic": true
+          },
+          "text": "[رأي أحد العملاء فيك]"
+         },
+         {
+          "id": "g26",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "weight": 700,
+           "size": 12
+          },
+          "text": "[اسم العميل]"
+         }
+        ]
+       },
+       {
+        "id": "g27",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g28",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "موقعنا"
+         },
+         {
+          "id": "g29",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "[العنوان ومواعيد العمل]"
+         },
+         {
+          "id": "g30",
+          "type": "map",
+          "height": 170,
+          "radius": 14,
+          "map": {
+           "lat": 30.0444,
+           "lng": 31.2357
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "transparent",
+      "buttons": [
+       "menu",
+       "account"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

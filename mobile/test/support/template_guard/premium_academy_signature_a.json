@@ -1,0 +1,1049 @@
+{
+ "template": "premium_academy_signature_a",
+ "look": "a",
+ "kind": "academy",
+ "app_type": "lms",
+ "vertical": null,
+ "primary_color": "#1D2B4F",
+ "appearance": {
+  "template": "classic",
+  "font": "DM Sans"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "courses",
+   "label": "Explore",
+   "icon": "explore",
+   "target": {
+    "type": "screen",
+    "screen": "courses"
+   }
+  },
+  {
+   "id": "blog",
+   "label": "Blog",
+   "icon": "auto_stories",
+   "target": {
+    "type": "url",
+    "url": "https://owner.test/blog/",
+    "open_in": "in_app",
+    "web": {
+     "hide_header": true,
+     "hide_footer": true,
+     "links_inside": true
+    }
+   }
+  },
+  {
+   "id": "learning",
+   "label": "My courses",
+   "icon": "play_circle",
+   "target": {
+    "type": "screen",
+    "screen": "my_courses"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": {
+  "design": "float",
+  "background": "#1D2B4F",
+  "dark_background": "#15161D",
+  "active": "#E6C26E",
+  "inactive": "#B3BAD0",
+  "dark_active": "#E6C26E",
+  "dark_inactive": "#A9A3B4",
+  "radius": 30,
+  "margin": 14,
+  "labels": "active"
+ },
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "stack",
+        "name": "The course they're taking",
+        "height": 430,
+        "background": "#1D2B4F",
+        "corners": {
+         "bottom_end": 34,
+         "bottom_start": 34
+        },
+        "visibility": "signed_in",
+        "children": [
+         {
+          "id": "g3",
+          "type": "learning",
+          "height": 430,
+          "background": "#1D2B4F",
+          "color": "#FFFFFF",
+          "corners": {
+           "bottom_end": 34,
+           "bottom_start": 34
+          },
+          "learning": {
+           "section": "continue",
+           "style": "photo"
+          }
+         },
+         {
+          "id": "g4",
+          "type": "column",
+          "padding": {
+           "top": 64,
+           "end": 16,
+           "start": 16
+          },
+          "gap": 14,
+          "children": [
+           {
+            "id": "g5",
+            "type": "segments",
+            "gap": 4,
+            "color": "#E6C26E",
+            "segments": {
+             "source": "course"
+            }
+           },
+           {
+            "id": "g6",
+            "type": "greeting",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 700,
+             "size": 17
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g7",
+        "type": "photo_hero",
+        "name": "Learn from the best, at your own pace",
+        "height": 380,
+        "padding": {
+         "top": 20,
+         "end": 18,
+         "bottom": 20,
+         "start": 18
+        },
+        "gap": 12,
+        "align": "end",
+        "background": "#1D2B4F",
+        "corners": {
+         "bottom_end": 34,
+         "bottom_start": 34
+        },
+        "scrim": {
+         "color": "#0B0F1F",
+         "from": 0.35,
+         "to": 0.92,
+         "middle": 0.2,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/academy/academy-evening.jpg",
+        "ken_burns": true,
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "g8",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "weight": 800,
+           "size": 28,
+           "line_height": 1.1,
+           "letter_spacing": -0.6
+          },
+          "text": "Learn from the best, at your own pace"
+         },
+         {
+          "id": "g9",
+          "type": "button",
+          "width": "hug",
+          "height": 46,
+          "padding": {
+           "end": 20,
+           "start": 20
+          },
+          "background": "#E6C26E",
+          "color": "#1D2B4F",
+          "radius": 23,
+          "font": {
+           "weight": 800,
+           "size": 15
+          },
+          "text": "Browse courses",
+          "icon": "arrow_forward",
+          "action": {
+           "type": "screen",
+           "screen": "courses"
+          },
+          "motion": {
+           "press": "shrink"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "row",
+        "name": "Streak and live class",
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 10,
+        "visibility": "signed_in",
+        "children": [
+         {
+          "id": "g11",
+          "type": "learning",
+          "width": 158,
+          "background": "#FFFFFF",
+          "dark_background": "#15161D",
+          "border_color": "#EAE1CF",
+          "dark_border_color": "#262833",
+          "radius": 22,
+          "border_width": 1,
+          "shadow": "light",
+          "learning": {
+           "section": "streak",
+           "style": "photo",
+           "days": "letters"
+          }
+         },
+         {
+          "id": "g12",
+          "type": "learning",
+          "width": "fill",
+          "background": "#1D2B4F",
+          "color": "#FFFFFF",
+          "image_background_url": "http://localhost:3000/stories/academy/academy-live.jpg",
+          "radius": 22,
+          "overlay": {
+           "color": "#1D2B4F",
+           "opacity": 0.74
+          },
+          "learning": {
+           "section": "live",
+           "style": "photo"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g13",
+        "type": "row",
+        "name": "Picked for you",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g14",
+          "type": "text",
+          "width": "fill",
+          "color": "#15131A",
+          "dark_color": "#F4F1EA",
+          "font": {
+           "weight": 700,
+           "size": 20,
+           "letter_spacing": -0.3
+          },
+          "text": "Picked for you"
+         },
+         {
+          "id": "g15",
+          "type": "text",
+          "color": "#7A5C14",
+          "dark_color": "#E2BE74",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "See all",
+          "action": {
+           "type": "screen",
+           "screen": "courses"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g16",
+        "type": "items",
+        "name": "Picked for you",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 12,
+        "source": "courses",
+        "layout": "carousel",
+        "card": {
+         "id": "g17",
+         "type": "stack",
+         "width": 236,
+         "height": 150,
+         "background": "#1D2B4F",
+         "radius": 22,
+         "children": [
+          {
+           "id": "g18",
+           "type": "image",
+           "width": "fill",
+           "height": 150,
+           "radius": 22,
+           "scrim": {
+            "color": "#0B0F1F",
+            "from": 0.1,
+            "to": 0.88,
+            "middle": 0.15,
+            "at": 40
+           },
+           "bind": "image"
+          },
+          {
+           "id": "g19",
+           "type": "column",
+           "height": 150,
+           "padding": {
+            "top": 12,
+            "end": 12,
+            "bottom": 12,
+            "start": 12
+           },
+           "align": "between",
+           "children": [
+            {
+             "id": "g20",
+             "type": "text",
+             "padding": {
+              "top": 4,
+              "end": 10,
+              "bottom": 4,
+              "start": 10
+             },
+             "self_align": "start",
+             "background": "#E6C26E",
+             "color": "#2A1D05",
+             "radius": 12,
+             "font": {
+              "weight": 800,
+              "size": 11,
+              "letter_spacing": 1.2,
+              "uppercase": true
+             },
+             "bind": "badge"
+            },
+            {
+             "id": "g21",
+             "type": "column",
+             "children": [
+              {
+               "id": "g22",
+               "type": "text",
+               "color": "#FFFFFF",
+               "font": {
+                "weight": 800,
+                "size": 15,
+                "line_height": 1.2
+               },
+               "max_lines": 2,
+               "bind": "title"
+              },
+              {
+               "id": "g23",
+               "type": "row",
+               "margin": {
+                "top": 3
+               },
+               "gap": 4,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "g24",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "opacity": 0.9,
+                 "font": {
+                  "size": 12
+                 },
+                 "max_lines": 1,
+                 "bind": "subtitle"
+                },
+                {
+                 "id": "g25",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "opacity": 0.9,
+                 "font": {
+                  "size": 12
+                 },
+                 "text": "·",
+                 "bind": "rating"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "courses",
+          "id": "6",
+          "title": "Arabic Calligraphy for Beginners",
+          "subtitle": "Leila Haddad",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+          "price_label": "₺1,250.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 6
+          }
+         },
+         {
+          "source": "courses",
+          "id": "14",
+          "title": "UX Design Fundamentals",
+          "subtitle": "Deniz Kaya",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+          "price_label": "₺1,450.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 14
+          }
+         },
+         {
+          "source": "courses",
+          "id": "22",
+          "title": "Excel for Small Business Owners",
+          "subtitle": "Omar Farouk",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "Free",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 22
+          }
+         },
+         {
+          "source": "courses",
+          "id": "29",
+          "title": "Product Photography with Your Phone",
+          "subtitle": "Emre Aydın",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+          "price_label": "₺890.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 29
+          }
+         },
+         {
+          "source": "courses",
+          "id": "36",
+          "title": "Social Media Marketing That Sells",
+          "subtitle": "Yasmin Adel",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+          "price_label": "₺1,100.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 36
+          }
+         },
+         {
+          "source": "courses",
+          "id": "42",
+          "title": "Everyday English Conversation",
+          "subtitle": "Hannah Clarke",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "₺650.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 42
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "transparent",
+      "buttons": [
+       "search",
+       "notifications"
+      ]
+     },
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
+    }
+   },
+   "courses": {
+    "screen": "courses",
+    "studio": {
+     "body": {
+      "id": "g26",
+      "type": "column",
+      "children": []
+     },
+     "screen": "courses"
+    }
+   },
+   "learning": {
+    "screen": "my_courses",
+    "studio": {
+     "body": {
+      "id": "g27",
+      "type": "column",
+      "children": []
+     },
+     "screen": "my_courses"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g28",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "stack",
+        "name": "The course they're taking",
+        "height": 430,
+        "background": "#1D2B4F",
+        "corners": {
+         "bottom_end": 34,
+         "bottom_start": 34
+        },
+        "visibility": "signed_in",
+        "children": [
+         {
+          "id": "g3",
+          "type": "learning",
+          "height": 430,
+          "background": "#1D2B4F",
+          "color": "#FFFFFF",
+          "corners": {
+           "bottom_end": 34,
+           "bottom_start": 34
+          },
+          "learning": {
+           "section": "continue",
+           "style": "photo"
+          }
+         },
+         {
+          "id": "g4",
+          "type": "column",
+          "padding": {
+           "top": 64,
+           "end": 16,
+           "start": 16
+          },
+          "gap": 14,
+          "children": [
+           {
+            "id": "g5",
+            "type": "segments",
+            "gap": 4,
+            "color": "#E6C26E",
+            "segments": {
+             "source": "course"
+            }
+           },
+           {
+            "id": "g6",
+            "type": "greeting",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 700,
+             "size": 17
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g7",
+        "type": "photo_hero",
+        "name": "Learn from the best, at your own pace",
+        "height": 380,
+        "padding": {
+         "top": 20,
+         "end": 18,
+         "bottom": 20,
+         "start": 18
+        },
+        "gap": 12,
+        "align": "end",
+        "background": "#1D2B4F",
+        "corners": {
+         "bottom_end": 34,
+         "bottom_start": 34
+        },
+        "scrim": {
+         "color": "#0B0F1F",
+         "from": 0.35,
+         "to": 0.92,
+         "middle": 0.2,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/academy/academy-evening.jpg",
+        "ken_burns": true,
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "g8",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "weight": 800,
+           "size": 28,
+           "line_height": 1.1,
+           "letter_spacing": -0.6
+          },
+          "text": "تعلّم من الأفضل، في الوقت الذي يناسبك"
+         },
+         {
+          "id": "g9",
+          "type": "button",
+          "width": "hug",
+          "height": 46,
+          "padding": {
+           "end": 20,
+           "start": 20
+          },
+          "background": "#E6C26E",
+          "color": "#1D2B4F",
+          "radius": 23,
+          "font": {
+           "weight": 800,
+           "size": 15
+          },
+          "text": "تصفّح الدورات",
+          "icon": "arrow_forward",
+          "action": {
+           "type": "screen",
+           "screen": "courses"
+          },
+          "motion": {
+           "press": "shrink"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "row",
+        "name": "Streak and live class",
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 10,
+        "visibility": "signed_in",
+        "children": [
+         {
+          "id": "g11",
+          "type": "learning",
+          "width": 158,
+          "background": "#FFFFFF",
+          "dark_background": "#15161D",
+          "border_color": "#EAE1CF",
+          "dark_border_color": "#262833",
+          "radius": 22,
+          "border_width": 1,
+          "shadow": "light",
+          "learning": {
+           "section": "streak",
+           "style": "photo",
+           "days": "letters"
+          }
+         },
+         {
+          "id": "g12",
+          "type": "learning",
+          "width": "fill",
+          "background": "#1D2B4F",
+          "color": "#FFFFFF",
+          "image_background_url": "http://localhost:3000/stories/academy/academy-live.jpg",
+          "radius": 22,
+          "overlay": {
+           "color": "#1D2B4F",
+           "opacity": 0.74
+          },
+          "learning": {
+           "section": "live",
+           "style": "photo"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g13",
+        "type": "row",
+        "name": "Picked for you",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g14",
+          "type": "text",
+          "width": "fill",
+          "color": "#15131A",
+          "dark_color": "#F4F1EA",
+          "font": {
+           "weight": 700,
+           "size": 20,
+           "letter_spacing": -0.3
+          },
+          "text": "مختارة لك"
+         },
+         {
+          "id": "g15",
+          "type": "text",
+          "color": "#7A5C14",
+          "dark_color": "#E2BE74",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "عرض الكل",
+          "action": {
+           "type": "screen",
+           "screen": "courses"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g16",
+        "type": "items",
+        "name": "Picked for you",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 12,
+        "source": "courses",
+        "layout": "carousel",
+        "card": {
+         "id": "g17",
+         "type": "stack",
+         "width": 236,
+         "height": 150,
+         "background": "#1D2B4F",
+         "radius": 22,
+         "children": [
+          {
+           "id": "g18",
+           "type": "image",
+           "width": "fill",
+           "height": 150,
+           "radius": 22,
+           "scrim": {
+            "color": "#0B0F1F",
+            "from": 0.1,
+            "to": 0.88,
+            "middle": 0.15,
+            "at": 40
+           },
+           "bind": "image"
+          },
+          {
+           "id": "g19",
+           "type": "column",
+           "height": 150,
+           "padding": {
+            "top": 12,
+            "end": 12,
+            "bottom": 12,
+            "start": 12
+           },
+           "align": "between",
+           "children": [
+            {
+             "id": "g20",
+             "type": "text",
+             "padding": {
+              "top": 4,
+              "end": 10,
+              "bottom": 4,
+              "start": 10
+             },
+             "self_align": "start",
+             "background": "#E6C26E",
+             "color": "#2A1D05",
+             "radius": 12,
+             "font": {
+              "weight": 800,
+              "size": 11,
+              "letter_spacing": 1.2,
+              "uppercase": true
+             },
+             "bind": "badge"
+            },
+            {
+             "id": "g21",
+             "type": "column",
+             "children": [
+              {
+               "id": "g22",
+               "type": "text",
+               "color": "#FFFFFF",
+               "font": {
+                "weight": 800,
+                "size": 15,
+                "line_height": 1.2
+               },
+               "max_lines": 2,
+               "bind": "title"
+              },
+              {
+               "id": "g23",
+               "type": "row",
+               "margin": {
+                "top": 3
+               },
+               "gap": 4,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "g24",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "opacity": 0.9,
+                 "font": {
+                  "size": 12
+                 },
+                 "max_lines": 1,
+                 "bind": "subtitle"
+                },
+                {
+                 "id": "g25",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "opacity": 0.9,
+                 "font": {
+                  "size": 12
+                 },
+                 "text": "·",
+                 "bind": "rating"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "courses",
+          "id": "6",
+          "title": "Arabic Calligraphy for Beginners",
+          "subtitle": "Leila Haddad",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+          "price_label": "₺1,250.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 6
+          }
+         },
+         {
+          "source": "courses",
+          "id": "14",
+          "title": "UX Design Fundamentals",
+          "subtitle": "Deniz Kaya",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+          "price_label": "₺1,450.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 14
+          }
+         },
+         {
+          "source": "courses",
+          "id": "22",
+          "title": "Excel for Small Business Owners",
+          "subtitle": "Omar Farouk",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "مجاني",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 22
+          }
+         },
+         {
+          "source": "courses",
+          "id": "29",
+          "title": "Product Photography with Your Phone",
+          "subtitle": "Emre Aydın",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+          "price_label": "₺890.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 29
+          }
+         },
+         {
+          "source": "courses",
+          "id": "36",
+          "title": "Social Media Marketing That Sells",
+          "subtitle": "Yasmin Adel",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+          "price_label": "₺1,100.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 36
+          }
+         },
+         {
+          "source": "courses",
+          "id": "42",
+          "title": "Everyday English Conversation",
+          "subtitle": "Hannah Clarke",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "₺650.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 42
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "transparent",
+      "buttons": [
+       "search",
+       "notifications"
+      ]
+     },
+     "background": "#FAF7F1",
+     "dark_background": "#0A0B10"
+    }
+   },
+   "courses": {
+    "screen": "courses",
+    "studio": {
+     "body": {
+      "id": "g26",
+      "type": "column",
+      "children": []
+     },
+     "screen": "courses"
+    }
+   },
+   "learning": {
+    "screen": "my_courses",
+    "studio": {
+     "body": {
+      "id": "g27",
+      "type": "column",
+      "children": []
+     },
+     "screen": "my_courses"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g28",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    }
+   }
+  }
+ }
+}

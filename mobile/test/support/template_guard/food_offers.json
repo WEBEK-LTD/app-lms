@@ -1,0 +1,549 @@
+{
+ "template": "food_offers",
+ "look": null,
+ "kind": "food",
+ "app_type": "food",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "restaurants",
+   "label": "Restaurants",
+   "icon": "restaurant_menu",
+   "target": {
+    "type": "screen",
+    "screen": "restaurants"
+   }
+  },
+  {
+   "id": "orders",
+   "label": "My orders",
+   "icon": "receipt_long",
+   "target": {
+    "type": "screen",
+    "screen": "food_orders"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "stack",
+        "name": "This week's offer",
+        "height": 150,
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "background": "#E8B04B",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "column",
+          "height": 150,
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 14
+          },
+          "align": "end",
+          "color": "#14361F",
+          "children": [
+           {
+            "id": "g4",
+            "type": "text",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "This week's offer"
+           },
+           {
+            "id": "g5",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 20,
+             "line_height": 1.3
+            },
+            "text": "[Your offer here]"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Most popular"
+         },
+         {
+          "id": "g8",
+          "type": "items",
+          "gap": 10,
+          "source": "restaurants",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "restaurants",
+            "id": "1",
+            "title": "Sahara Grill",
+            "subtitle": "Egyptian · Desserts",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "1"
+             }
+            }
+           },
+           {
+            "source": "restaurants",
+            "id": "2",
+            "title": "Forno Zamalek",
+            "subtitle": "Grill",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "2"
+             }
+            }
+           },
+           {
+            "source": "restaurants",
+            "id": "3",
+            "title": "Bayt El Koshary",
+            "subtitle": "Pizza · Desserts",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "3"
+             }
+            }
+           },
+           {
+            "source": "restaurants",
+            "id": "4",
+            "title": "Corniche Café",
+            "subtitle": "Café · Desserts",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "4"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "column",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 6,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g10",
+          "type": "ratings",
+          "rating": 5
+         },
+         {
+          "id": "g11",
+          "type": "text",
+          "font": {
+           "size": 14,
+           "italic": true
+          },
+          "text": "[What a customer says about you]"
+         },
+         {
+          "id": "g12",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "weight": 700,
+           "size": 12
+          },
+          "text": "[Customer name]"
+         }
+        ]
+       },
+       {
+        "id": "g13",
+        "type": "button",
+        "width": "fill",
+        "height": 46,
+        "margin": {
+         "top": 10,
+         "end": 18,
+         "bottom": 10,
+         "start": 18
+        },
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 14,
+        "shadow": "medium",
+        "font": {
+         "weight": 800,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "See the restaurants",
+        "icon": "arrow_back",
+        "action": {
+         "type": "screen",
+         "screen": "restaurants"
+        },
+        "motion": {
+         "press": "shrink"
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_center",
+      "buttons": [
+       "menu",
+       "notifications"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "stack",
+        "name": "This week's offer",
+        "height": 150,
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "background": "#E8B04B",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "column",
+          "height": 150,
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 14
+          },
+          "align": "end",
+          "color": "#14361F",
+          "children": [
+           {
+            "id": "g4",
+            "type": "text",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "عرض الأسبوع"
+           },
+           {
+            "id": "g5",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 20,
+             "line_height": 1.3
+            },
+            "text": "[اكتب عرضك]"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "الأكثر طلبًا"
+         },
+         {
+          "id": "g8",
+          "type": "items",
+          "gap": 10,
+          "source": "restaurants",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "restaurants",
+            "id": "1",
+            "title": "Sahara Grill",
+            "subtitle": "Egyptian · Desserts",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "1"
+             }
+            }
+           },
+           {
+            "source": "restaurants",
+            "id": "2",
+            "title": "Forno Zamalek",
+            "subtitle": "Grill",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "2"
+             }
+            }
+           },
+           {
+            "source": "restaurants",
+            "id": "3",
+            "title": "Bayt El Koshary",
+            "subtitle": "Pizza · Desserts",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "3"
+             }
+            }
+           },
+           {
+            "source": "restaurants",
+            "id": "4",
+            "title": "Corniche Café",
+            "subtitle": "Café · Desserts",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "4"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "column",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 6,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g10",
+          "type": "ratings",
+          "rating": 5
+         },
+         {
+          "id": "g11",
+          "type": "text",
+          "font": {
+           "size": 14,
+           "italic": true
+          },
+          "text": "[رأي أحد العملاء فيك]"
+         },
+         {
+          "id": "g12",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "weight": 700,
+           "size": 12
+          },
+          "text": "[اسم العميل]"
+         }
+        ]
+       },
+       {
+        "id": "g13",
+        "type": "button",
+        "width": "fill",
+        "height": 46,
+        "margin": {
+         "top": 10,
+         "end": 18,
+         "bottom": 10,
+         "start": 18
+        },
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 14,
+        "shadow": "medium",
+        "font": {
+         "weight": 800,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "تصفّح المطاعم",
+        "icon": "arrow_back",
+        "action": {
+         "type": "screen",
+         "screen": "restaurants"
+        },
+        "motion": {
+         "press": "shrink"
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_center",
+      "buttons": [
+       "menu",
+       "notifications"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

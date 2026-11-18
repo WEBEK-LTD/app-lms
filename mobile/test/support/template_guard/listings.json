@@ -1,0 +1,550 @@
+{
+ "template": "listings",
+ "look": null,
+ "kind": "real_estate",
+ "app_type": "real_estate",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "search",
+   "label": "Search",
+   "icon": "search",
+   "target": {
+    "type": "screen",
+    "screen": "search"
+   }
+  },
+  {
+   "id": "favorites",
+   "label": "Favorites",
+   "icon": "favorite",
+   "target": {
+    "type": "screen",
+    "screen": "favorites"
+   }
+  },
+  {
+   "id": "messages",
+   "label": "Messages",
+   "icon": "chat",
+   "target": {
+    "type": "screen",
+    "screen": "messages"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "search",
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 12
+       },
+       {
+        "id": "g3",
+        "type": "column",
+        "name": "Welcome to Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g4",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "Welcome to Guard Shop"
+         },
+         {
+          "id": "g5",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "Everything you need, a tap away."
+         },
+         {
+          "id": "g6",
+          "type": "button",
+          "width": "hug",
+          "height": 42,
+          "padding": {
+           "end": 18,
+           "start": 18
+          },
+          "background": "#FFFFFF",
+          "color": "#0E0D24",
+          "radius": 12,
+          "font": {
+           "weight": 800,
+           "size": 14
+          },
+          "text": "Saved homes",
+          "action": {
+           "type": "screen",
+           "screen": "favorites"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g7",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g8",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Most popular"
+         },
+         {
+          "id": "g9",
+          "type": "items",
+          "gap": 10,
+          "source": "listings",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "listings",
+            "id": "7",
+            "title": "Bright 3-bedroom apartment with Nile view",
+            "subtitle": "Zamalek · 185 m²",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+            "price_label": "TRY 22,900,000",
+            "badge": "Negotiable",
+            "favorited": false,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "listings",
+              "id": "7"
+             }
+            }
+           },
+           {
+            "source": "listings",
+            "id": "6",
+            "title": "Family villa with garden in Maadi",
+            "subtitle": "Maadi · 360 m²",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+            "price_label": "TRY 50,500,000",
+            "badge": "For sale",
+            "favorited": false,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "listings",
+              "id": "6"
+             }
+            }
+           },
+           {
+            "source": "listings",
+            "id": "5",
+            "title": "Modern 2-bedroom apartment for rent in New Cairo",
+            "subtitle": "New Cairo · 120 m²",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+            "price_label": "TRY 50,500 / month",
+            "badge": "For rent",
+            "favorited": false,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "listings",
+              "id": "5"
+             }
+            }
+           },
+           {
+            "source": "listings",
+            "id": "4",
+            "title": "Studio near the university, Sheikh Zayed",
+            "subtitle": "Sheikh Zayed · 55 m²",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+            "price_label": "TRY 22,900 / month",
+            "badge": "For rent",
+            "favorited": false,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "listings",
+              "id": "4"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g11",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Find us"
+         },
+         {
+          "id": "g12",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "[Your address and opening hours]"
+         },
+         {
+          "id": "g13",
+          "type": "map",
+          "height": 170,
+          "radius": 14,
+          "map": {
+           "lat": 30.0444,
+           "lng": 31.2357
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "search",
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 12
+       },
+       {
+        "id": "g3",
+        "type": "column",
+        "name": "Welcome to Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g4",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "مرحبًا بك في Guard Shop"
+         },
+         {
+          "id": "g5",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "كل ما تحتاج إليه بلمسة واحدة."
+         },
+         {
+          "id": "g6",
+          "type": "button",
+          "width": "hug",
+          "height": 42,
+          "padding": {
+           "end": 18,
+           "start": 18
+          },
+          "background": "#FFFFFF",
+          "color": "#0E0D24",
+          "radius": 12,
+          "font": {
+           "weight": 800,
+           "size": 14
+          },
+          "text": "العقارات المحفوظة",
+          "action": {
+           "type": "screen",
+           "screen": "favorites"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g7",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g8",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "الأكثر طلبًا"
+         },
+         {
+          "id": "g9",
+          "type": "items",
+          "gap": 10,
+          "source": "listings",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "listings",
+            "id": "7",
+            "title": "Bright 3-bedroom apartment with Nile view",
+            "subtitle": "Zamalek · 185 m²",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+            "price_label": "TRY 22,900,000",
+            "badge": "قابل للتفاوض",
+            "favorited": false,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "listings",
+              "id": "7"
+             }
+            }
+           },
+           {
+            "source": "listings",
+            "id": "6",
+            "title": "Family villa with garden in Maadi",
+            "subtitle": "Maadi · 360 m²",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+            "price_label": "TRY 50,500,000",
+            "badge": "للبيع",
+            "favorited": false,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "listings",
+              "id": "6"
+             }
+            }
+           },
+           {
+            "source": "listings",
+            "id": "5",
+            "title": "Modern 2-bedroom apartment for rent in New Cairo",
+            "subtitle": "New Cairo · 120 m²",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+            "price_label": "⁦TRY 50,500⁩ / شهريًا",
+            "badge": "للإيجار",
+            "favorited": false,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "listings",
+              "id": "5"
+             }
+            }
+           },
+           {
+            "source": "listings",
+            "id": "4",
+            "title": "Studio near the university, Sheikh Zayed",
+            "subtitle": "Sheikh Zayed · 55 m²",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+            "price_label": "⁦TRY 22,900⁩ / شهريًا",
+            "badge": "للإيجار",
+            "favorited": false,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "listings",
+              "id": "4"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g11",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "موقعنا"
+         },
+         {
+          "id": "g12",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "[العنوان ومواعيد العمل]"
+         },
+         {
+          "id": "g13",
+          "type": "map",
+          "height": 170,
+          "radius": 14,
+          "map": {
+           "lat": 30.0444,
+           "lng": 31.2357
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,1868 @@
+{
+ "template": "demo_instructors",
+ "look": null,
+ "kind": "instructors",
+ "app_type": "lms",
+ "vertical": "instructors",
+ "primary_color": "#2E5E4E",
+ "appearance": {
+  "template": "classic",
+  "font": "DM Sans"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "teachers",
+   "label": "Teachers",
+   "icon": "co_present",
+   "target": {
+    "type": "screen",
+    "screen": "teachers"
+   }
+  },
+  {
+   "id": "learning",
+   "label": "My courses",
+   "icon": "menu_book",
+   "target": {
+    "type": "screen",
+    "screen": "my_courses"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": {
+  "design": "float",
+  "background": "#14201A",
+  "dark_background": "#1B2822",
+  "active": "#F2B544",
+  "inactive": "#B7C4BC",
+  "dark_active": "#F2B544",
+  "dark_inactive": "#A6B4AC",
+  "radius": 30,
+  "margin": 16,
+  "labels": "active"
+ },
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "photo_hero",
+        "name": "Learn from people who do it",
+        "height": 190,
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "align": "between",
+        "background": "#0E221B",
+        "scrim": {
+         "color": "#0E221B",
+         "from": 0.25,
+         "to": 0.82,
+         "middle": 0.1,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/demo-screens/rawaq-library.jpg",
+        "ken_burns": true,
+        "children": [
+         {
+          "id": "g3",
+          "type": "badge_text",
+          "self_align": "start",
+          "color": "#FFFFFF",
+          "font": {
+           "weight": 800,
+           "size": 11,
+           "letter_spacing": 1.6,
+           "uppercase": true
+          },
+          "text": "Learn from people who do it",
+          "badge": {
+           "style": "glass"
+          }
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Bricolage Grotesque",
+           "weight": 800,
+           "size": 40,
+           "line_height": 1,
+           "letter_spacing": -1.8
+          },
+          "text": "Real teachers."
+         }
+        ]
+       },
+       {
+        "id": "g5",
+        "type": "text",
+        "padding": {
+         "top": 2,
+         "end": 16,
+         "start": 16
+        },
+        "color": "#14201A",
+        "dark_color": "#EDF3EF",
+        "font": {
+         "family": "Bricolage Grotesque",
+         "weight": 800,
+         "size": 40,
+         "line_height": 1.1,
+         "letter_spacing": -1.8
+        },
+        "text": "Real skills."
+       },
+       {
+        "id": "g6",
+        "type": "row",
+        "name": "The faculty",
+        "padding": {
+         "top": 22,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "gap": 12,
+        "cross": "center",
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "color": "#56625B",
+          "dark_color": "#A6B4AC",
+          "font": {
+           "weight": 700,
+           "size": 12,
+           "letter_spacing": 2,
+           "uppercase": true
+          },
+          "text": "The faculty"
+         },
+         {
+          "id": "g8",
+          "type": "divider",
+          "width": "fill",
+          "color": "#DDD8CC",
+          "dark_color": "#22322A"
+         },
+         {
+          "id": "g9",
+          "type": "text",
+          "color": "#2E5E4E",
+          "dark_color": "#8FD1B6",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "All teachers",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "row",
+        "name": "Hannah Clarke",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "gap": 12,
+        "cross": "center",
+        "action": {
+         "type": "screen",
+         "screen": "teachers"
+        },
+        "children": [
+         {
+          "id": "g11",
+          "type": "row",
+          "width": 42,
+          "height": 42,
+          "align": "center",
+          "cross": "center",
+          "background": "#8A5A1F",
+          "radius": 21,
+          "children": [
+           {
+            "id": "g12",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text": "HC"
+           }
+          ]
+         },
+         {
+          "id": "g13",
+          "type": "column",
+          "width": "fill",
+          "children": [
+           {
+            "id": "g14",
+            "type": "text",
+            "color": "#14201A",
+            "dark_color": "#EDF3EF",
+            "font": {
+             "family": "Bricolage Grotesque",
+             "weight": 600,
+             "size": 19,
+             "letter_spacing": -0.3
+            },
+            "text": "Hannah Clarke",
+            "max_lines": 1
+           },
+           {
+            "id": "g15",
+            "type": "text",
+            "color": "#56625B",
+            "dark_color": "#A6B4AC",
+            "font": {
+             "size": 13
+            },
+            "text": "English · Speaking",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g16",
+          "type": "icon",
+          "color": "#56625B",
+          "dark_color": "#A6B4AC",
+          "icon": "north_east",
+          "icon_size": 22
+         }
+        ]
+       },
+       {
+        "id": "g17",
+        "type": "divider",
+        "margin": {
+         "end": 16,
+         "start": 16
+        },
+        "color": "#DDD8CC",
+        "dark_color": "#22322A"
+       },
+       {
+        "id": "g18",
+        "type": "row",
+        "name": "Deniz Kaya",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "gap": 12,
+        "cross": "center",
+        "action": {
+         "type": "screen",
+         "screen": "teachers"
+        },
+        "children": [
+         {
+          "id": "g19",
+          "type": "row",
+          "width": 42,
+          "height": 42,
+          "align": "center",
+          "cross": "center",
+          "background": "#2E5E4E",
+          "radius": 21,
+          "children": [
+           {
+            "id": "g20",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text": "DK"
+           }
+          ]
+         },
+         {
+          "id": "g21",
+          "type": "column",
+          "width": "fill",
+          "children": [
+           {
+            "id": "g22",
+            "type": "text",
+            "color": "#14201A",
+            "dark_color": "#EDF3EF",
+            "font": {
+             "family": "Bricolage Grotesque",
+             "weight": 600,
+             "size": 19,
+             "letter_spacing": -0.3
+            },
+            "text": "Deniz Kaya",
+            "max_lines": 1
+           },
+           {
+            "id": "g23",
+            "type": "text",
+            "color": "#56625B",
+            "dark_color": "#A6B4AC",
+            "font": {
+             "size": 13
+            },
+            "text": "UX design · Prototyping",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g24",
+          "type": "icon",
+          "color": "#56625B",
+          "dark_color": "#A6B4AC",
+          "icon": "north_east",
+          "icon_size": 22
+         }
+        ]
+       },
+       {
+        "id": "g25",
+        "type": "divider",
+        "margin": {
+         "end": 16,
+         "start": 16
+        },
+        "color": "#DDD8CC",
+        "dark_color": "#22322A"
+       },
+       {
+        "id": "g26",
+        "type": "row",
+        "name": "Salma Nasser",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "gap": 12,
+        "cross": "center",
+        "action": {
+         "type": "screen",
+         "screen": "teachers"
+        },
+        "children": [
+         {
+          "id": "g27",
+          "type": "row",
+          "width": 42,
+          "height": 42,
+          "align": "center",
+          "cross": "center",
+          "background": "#9E1F4A",
+          "border_color": "#E5484D",
+          "radius": 21,
+          "border_width": 2.5,
+          "children": [
+           {
+            "id": "g28",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text": "SN"
+           }
+          ]
+         },
+         {
+          "id": "g29",
+          "type": "column",
+          "width": "fill",
+          "children": [
+           {
+            "id": "g30",
+            "type": "text",
+            "color": "#14201A",
+            "dark_color": "#EDF3EF",
+            "font": {
+             "family": "Bricolage Grotesque",
+             "weight": 600,
+             "size": 19,
+             "letter_spacing": -0.3
+            },
+            "text": "Salma Nasser",
+            "max_lines": 1
+           },
+           {
+            "id": "g31",
+            "type": "text",
+            "color": "#56625B",
+            "dark_color": "#A6B4AC",
+            "font": {
+             "size": 13
+            },
+            "text": "Arabic · Beginners",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g32",
+          "type": "badge_text",
+          "color": "#B42318",
+          "dark_color": "#FF8A7A",
+          "font": {
+           "weight": 700,
+           "size": 12
+          },
+          "text": "Live classes",
+          "icon": "sensors",
+          "badge": {
+           "style": "pill"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g33",
+        "type": "divider",
+        "margin": {
+         "end": 16,
+         "start": 16
+        },
+        "color": "#DDD8CC",
+        "dark_color": "#22322A"
+       },
+       {
+        "id": "g34",
+        "type": "row",
+        "name": "Omar Farouk",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "gap": 12,
+        "cross": "center",
+        "action": {
+         "type": "screen",
+         "screen": "teachers"
+        },
+        "children": [
+         {
+          "id": "g35",
+          "type": "row",
+          "width": 42,
+          "height": 42,
+          "align": "center",
+          "cross": "center",
+          "background": "#34336B",
+          "radius": 21,
+          "children": [
+           {
+            "id": "g36",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text": "OF"
+           }
+          ]
+         },
+         {
+          "id": "g37",
+          "type": "column",
+          "width": "fill",
+          "children": [
+           {
+            "id": "g38",
+            "type": "text",
+            "color": "#14201A",
+            "dark_color": "#EDF3EF",
+            "font": {
+             "family": "Bricolage Grotesque",
+             "weight": 600,
+             "size": 19,
+             "letter_spacing": -0.3
+            },
+            "text": "Omar Farouk",
+            "max_lines": 1
+           },
+           {
+            "id": "g39",
+            "type": "text",
+            "color": "#56625B",
+            "dark_color": "#A6B4AC",
+            "font": {
+             "size": 13
+            },
+            "text": "Excel · Small business",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g40",
+          "type": "icon",
+          "color": "#56625B",
+          "dark_color": "#A6B4AC",
+          "icon": "north_east",
+          "icon_size": 22
+         }
+        ]
+       },
+       {
+        "id": "g41",
+        "type": "text",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "color": "#14201A",
+        "dark_color": "#EDF3EF",
+        "font": {
+         "family": "Bricolage Grotesque",
+         "weight": 700,
+         "size": 20,
+         "letter_spacing": -0.4
+        },
+        "text": "Popular this month"
+       },
+       {
+        "id": "g42",
+        "type": "items",
+        "name": "Popular this month",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 12,
+        "source": "courses",
+        "layout": "carousel",
+        "card": {
+         "id": "g43",
+         "type": "stack",
+         "width": 250,
+         "height": 136,
+         "background": "#0E221B",
+         "radius": 22,
+         "children": [
+          {
+           "id": "g44",
+           "type": "image",
+           "width": "fill",
+           "height": 136,
+           "radius": 22,
+           "scrim": {
+            "color": "#000000",
+            "from": 0.05,
+            "to": 0.65,
+            "middle": 0.1,
+            "at": 45
+           },
+           "bind": "image"
+          },
+          {
+           "id": "g45",
+           "type": "column",
+           "height": 136,
+           "padding": {
+            "top": 10,
+            "end": 10,
+            "bottom": 10,
+            "start": 10
+           },
+           "align": "between",
+           "children": [
+            {
+             "id": "g46",
+             "type": "text",
+             "padding": {
+              "top": 4,
+              "end": 10,
+              "bottom": 4,
+              "start": 10
+             },
+             "self_align": "start",
+             "background": "#F2B544",
+             "color": "#1E2E25",
+             "radius": 12,
+             "font": {
+              "weight": 800,
+              "size": 11,
+              "letter_spacing": 0.8,
+              "uppercase": true
+             },
+             "bind": "badge"
+            },
+            {
+             "id": "g47",
+             "type": "row",
+             "padding": {
+              "top": 8,
+              "end": 12,
+              "bottom": 8,
+              "start": 12
+             },
+             "gap": 8,
+             "cross": "center",
+             "radius": 16,
+             "surface": {
+              "glass": 16,
+              "tint": 0.22
+             },
+             "children": [
+              {
+               "id": "g48",
+               "type": "column",
+               "width": "fill",
+               "children": [
+                {
+                 "id": "g49",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 800,
+                  "size": 14
+                 },
+                 "max_lines": 1,
+                 "bind": "title"
+                },
+                {
+                 "id": "g50",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "opacity": 0.9,
+                 "font": {
+                  "size": 12
+                 },
+                 "max_lines": 1,
+                 "bind": "subtitle"
+                }
+               ]
+              },
+              {
+               "id": "g51",
+               "type": "text",
+               "color": "#F2B544",
+               "font": {
+                "weight": 800,
+                "size": 16
+               },
+               "bind": "price"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "courses",
+          "id": "5",
+          "title": "UX Design Fundamentals",
+          "subtitle": "Deniz Kaya",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+          "price_label": "₺1,450.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 5
+          }
+         },
+         {
+          "source": "courses",
+          "id": "13",
+          "title": "Product Photography with Your Phone",
+          "subtitle": "Emre Aydın",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+          "price_label": "₺890.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 13
+          }
+         },
+         {
+          "source": "courses",
+          "id": "20",
+          "title": "Excel for Small Business Owners",
+          "subtitle": "Omar Farouk",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "Free",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 20
+          }
+         },
+         {
+          "source": "courses",
+          "id": "27",
+          "title": "Social Media Marketing That Sells",
+          "subtitle": "Yasmin Adel",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+          "price_label": "₺1,100.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 27
+          }
+         },
+         {
+          "source": "courses",
+          "id": "33",
+          "title": "Everyday English Conversation",
+          "subtitle": "Hannah Clarke",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "₺645.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 33
+          }
+         },
+         {
+          "source": "courses",
+          "id": "40",
+          "title": "Python for Data Analysis",
+          "subtitle": "Mert Şahin",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+          "price_label": "₺1,590.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 40
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "search",
+       "notifications"
+      ],
+      "background": "#F4F1EA",
+      "color": "#14201A",
+      "dark_background": "#0A110E",
+      "dark_color": "#EDF3EF",
+      "style": "brand"
+     },
+     "background": "#F4F1EA",
+     "dark_background": "#0A110E"
+    }
+   },
+   "teachers": {
+    "screen": "teachers",
+    "studio": {
+     "body": {
+      "id": "g52",
+      "type": "column",
+      "children": [
+       {
+        "id": "g53",
+        "type": "photo_hero",
+        "name": "Follow a teacher to hear of their new courses first.",
+        "height": 132,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E221B",
+        "radius": 22,
+        "scrim": {
+         "color": "#0E221B",
+         "from": 0.1,
+         "to": 0.88,
+         "middle": 0.25,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/academy/academy-live.jpg",
+        "children": [
+         {
+          "id": "g54",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Bricolage Grotesque",
+           "weight": 700,
+           "size": 16,
+           "line_height": 1.3
+          },
+          "text": "Follow a teacher to hear of their new courses first.",
+          "max_lines": 2
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Teachers",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F4F1EA",
+      "color": "#14201A",
+      "dark_background": "#0A110E",
+      "dark_color": "#EDF3EF",
+      "style": "large"
+     },
+     "background": "#F4F1EA",
+     "dark_background": "#0A110E",
+     "screen": "teachers"
+    }
+   },
+   "learning": {
+    "screen": "my_courses",
+    "studio": {
+     "body": {
+      "id": "g55",
+      "type": "column",
+      "children": [
+       {
+        "id": "g56",
+        "type": "photo_hero",
+        "name": "Pick up where you left off.",
+        "height": 132,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E221B",
+        "radius": 22,
+        "scrim": {
+         "color": "#0E221B",
+         "from": 0.1,
+         "to": 0.88,
+         "middle": 0.25,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/academy/academy-desk.jpg",
+        "children": [
+         {
+          "id": "g57",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Bricolage Grotesque",
+           "weight": 700,
+           "size": 16,
+           "line_height": 1.3
+          },
+          "text": "Pick up where you left off.",
+          "max_lines": 2
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "My courses",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F4F1EA",
+      "color": "#14201A",
+      "dark_background": "#0A110E",
+      "dark_color": "#EDF3EF",
+      "style": "large"
+     },
+     "background": "#F4F1EA",
+     "dark_background": "#0A110E",
+     "screen": "my_courses"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g58",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "photo_hero",
+        "name": "Learn from people who do it",
+        "height": 190,
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "align": "between",
+        "background": "#0E221B",
+        "scrim": {
+         "color": "#0E221B",
+         "from": 0.25,
+         "to": 0.82,
+         "middle": 0.1,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/demo-screens/rawaq-library.jpg",
+        "ken_burns": true,
+        "children": [
+         {
+          "id": "g3",
+          "type": "badge_text",
+          "self_align": "start",
+          "color": "#FFFFFF",
+          "font": {
+           "weight": 800,
+           "size": 11,
+           "letter_spacing": 1.6,
+           "uppercase": true
+          },
+          "text": "تعلّم ممن يمارسونها",
+          "badge": {
+           "style": "glass"
+          }
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Bricolage Grotesque",
+           "weight": 800,
+           "size": 40,
+           "line_height": 1,
+           "letter_spacing": -1.8
+          },
+          "text": "معلمون حقيقيون."
+         }
+        ]
+       },
+       {
+        "id": "g5",
+        "type": "text",
+        "padding": {
+         "top": 2,
+         "end": 16,
+         "start": 16
+        },
+        "color": "#14201A",
+        "dark_color": "#EDF3EF",
+        "font": {
+         "family": "Bricolage Grotesque",
+         "weight": 800,
+         "size": 40,
+         "line_height": 1.1,
+         "letter_spacing": -1.8
+        },
+        "text": "مهارات حقيقية."
+       },
+       {
+        "id": "g6",
+        "type": "row",
+        "name": "The faculty",
+        "padding": {
+         "top": 22,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "gap": 12,
+        "cross": "center",
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "color": "#56625B",
+          "dark_color": "#A6B4AC",
+          "font": {
+           "weight": 700,
+           "size": 12,
+           "letter_spacing": 2,
+           "uppercase": true
+          },
+          "text": "هيئة التدريس"
+         },
+         {
+          "id": "g8",
+          "type": "divider",
+          "width": "fill",
+          "color": "#DDD8CC",
+          "dark_color": "#22322A"
+         },
+         {
+          "id": "g9",
+          "type": "text",
+          "color": "#2E5E4E",
+          "dark_color": "#8FD1B6",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "كل المعلمين",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "row",
+        "name": "Hannah Clarke",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "gap": 12,
+        "cross": "center",
+        "action": {
+         "type": "screen",
+         "screen": "teachers"
+        },
+        "children": [
+         {
+          "id": "g11",
+          "type": "row",
+          "width": 42,
+          "height": 42,
+          "align": "center",
+          "cross": "center",
+          "background": "#8A5A1F",
+          "radius": 21,
+          "children": [
+           {
+            "id": "g12",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text": "ه ك"
+           }
+          ]
+         },
+         {
+          "id": "g13",
+          "type": "column",
+          "width": "fill",
+          "children": [
+           {
+            "id": "g14",
+            "type": "text",
+            "color": "#14201A",
+            "dark_color": "#EDF3EF",
+            "font": {
+             "family": "Bricolage Grotesque",
+             "weight": 600,
+             "size": 19,
+             "letter_spacing": -0.3
+            },
+            "text": "هانا كلارك",
+            "max_lines": 1
+           },
+           {
+            "id": "g15",
+            "type": "text",
+            "color": "#56625B",
+            "dark_color": "#A6B4AC",
+            "font": {
+             "size": 13
+            },
+            "text": "الإنجليزية · المحادثة",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g16",
+          "type": "icon",
+          "color": "#56625B",
+          "dark_color": "#A6B4AC",
+          "icon": "north_east",
+          "icon_size": 22
+         }
+        ]
+       },
+       {
+        "id": "g17",
+        "type": "divider",
+        "margin": {
+         "end": 16,
+         "start": 16
+        },
+        "color": "#DDD8CC",
+        "dark_color": "#22322A"
+       },
+       {
+        "id": "g18",
+        "type": "row",
+        "name": "Deniz Kaya",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "gap": 12,
+        "cross": "center",
+        "action": {
+         "type": "screen",
+         "screen": "teachers"
+        },
+        "children": [
+         {
+          "id": "g19",
+          "type": "row",
+          "width": 42,
+          "height": 42,
+          "align": "center",
+          "cross": "center",
+          "background": "#2E5E4E",
+          "radius": 21,
+          "children": [
+           {
+            "id": "g20",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text": "د ك"
+           }
+          ]
+         },
+         {
+          "id": "g21",
+          "type": "column",
+          "width": "fill",
+          "children": [
+           {
+            "id": "g22",
+            "type": "text",
+            "color": "#14201A",
+            "dark_color": "#EDF3EF",
+            "font": {
+             "family": "Bricolage Grotesque",
+             "weight": 600,
+             "size": 19,
+             "letter_spacing": -0.3
+            },
+            "text": "دنيز كايا",
+            "max_lines": 1
+           },
+           {
+            "id": "g23",
+            "type": "text",
+            "color": "#56625B",
+            "dark_color": "#A6B4AC",
+            "font": {
+             "size": 13
+            },
+            "text": "تصميم تجربة المستخدم · النماذج الأولية",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g24",
+          "type": "icon",
+          "color": "#56625B",
+          "dark_color": "#A6B4AC",
+          "icon": "north_east",
+          "icon_size": 22
+         }
+        ]
+       },
+       {
+        "id": "g25",
+        "type": "divider",
+        "margin": {
+         "end": 16,
+         "start": 16
+        },
+        "color": "#DDD8CC",
+        "dark_color": "#22322A"
+       },
+       {
+        "id": "g26",
+        "type": "row",
+        "name": "Salma Nasser",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "gap": 12,
+        "cross": "center",
+        "action": {
+         "type": "screen",
+         "screen": "teachers"
+        },
+        "children": [
+         {
+          "id": "g27",
+          "type": "row",
+          "width": 42,
+          "height": 42,
+          "align": "center",
+          "cross": "center",
+          "background": "#9E1F4A",
+          "border_color": "#E5484D",
+          "radius": 21,
+          "border_width": 2.5,
+          "children": [
+           {
+            "id": "g28",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text": "س ن"
+           }
+          ]
+         },
+         {
+          "id": "g29",
+          "type": "column",
+          "width": "fill",
+          "children": [
+           {
+            "id": "g30",
+            "type": "text",
+            "color": "#14201A",
+            "dark_color": "#EDF3EF",
+            "font": {
+             "family": "Bricolage Grotesque",
+             "weight": 600,
+             "size": 19,
+             "letter_spacing": -0.3
+            },
+            "text": "سلمى ناصر",
+            "max_lines": 1
+           },
+           {
+            "id": "g31",
+            "type": "text",
+            "color": "#56625B",
+            "dark_color": "#A6B4AC",
+            "font": {
+             "size": 13
+            },
+            "text": "العربية · للمبتدئين",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g32",
+          "type": "badge_text",
+          "color": "#B42318",
+          "dark_color": "#FF8A7A",
+          "font": {
+           "weight": 700,
+           "size": 12
+          },
+          "text": "حصص مباشرة",
+          "icon": "sensors",
+          "badge": {
+           "style": "pill"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g33",
+        "type": "divider",
+        "margin": {
+         "end": 16,
+         "start": 16
+        },
+        "color": "#DDD8CC",
+        "dark_color": "#22322A"
+       },
+       {
+        "id": "g34",
+        "type": "row",
+        "name": "Omar Farouk",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "gap": 12,
+        "cross": "center",
+        "action": {
+         "type": "screen",
+         "screen": "teachers"
+        },
+        "children": [
+         {
+          "id": "g35",
+          "type": "row",
+          "width": 42,
+          "height": 42,
+          "align": "center",
+          "cross": "center",
+          "background": "#34336B",
+          "radius": 21,
+          "children": [
+           {
+            "id": "g36",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text": "ع ف"
+           }
+          ]
+         },
+         {
+          "id": "g37",
+          "type": "column",
+          "width": "fill",
+          "children": [
+           {
+            "id": "g38",
+            "type": "text",
+            "color": "#14201A",
+            "dark_color": "#EDF3EF",
+            "font": {
+             "family": "Bricolage Grotesque",
+             "weight": 600,
+             "size": 19,
+             "letter_spacing": -0.3
+            },
+            "text": "عمر فاروق",
+            "max_lines": 1
+           },
+           {
+            "id": "g39",
+            "type": "text",
+            "color": "#56625B",
+            "dark_color": "#A6B4AC",
+            "font": {
+             "size": 13
+            },
+            "text": "إكسل · المشروعات الصغيرة",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g40",
+          "type": "icon",
+          "color": "#56625B",
+          "dark_color": "#A6B4AC",
+          "icon": "north_east",
+          "icon_size": 22
+         }
+        ]
+       },
+       {
+        "id": "g41",
+        "type": "text",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "color": "#14201A",
+        "dark_color": "#EDF3EF",
+        "font": {
+         "family": "Bricolage Grotesque",
+         "weight": 700,
+         "size": 20,
+         "letter_spacing": -0.4
+        },
+        "text": "الأكثر طلبًا هذا الشهر"
+       },
+       {
+        "id": "g42",
+        "type": "items",
+        "name": "Popular this month",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 12,
+        "source": "courses",
+        "layout": "carousel",
+        "card": {
+         "id": "g43",
+         "type": "stack",
+         "width": 250,
+         "height": 136,
+         "background": "#0E221B",
+         "radius": 22,
+         "children": [
+          {
+           "id": "g44",
+           "type": "image",
+           "width": "fill",
+           "height": 136,
+           "radius": 22,
+           "scrim": {
+            "color": "#000000",
+            "from": 0.05,
+            "to": 0.65,
+            "middle": 0.1,
+            "at": 45
+           },
+           "bind": "image"
+          },
+          {
+           "id": "g45",
+           "type": "column",
+           "height": 136,
+           "padding": {
+            "top": 10,
+            "end": 10,
+            "bottom": 10,
+            "start": 10
+           },
+           "align": "between",
+           "children": [
+            {
+             "id": "g46",
+             "type": "text",
+             "padding": {
+              "top": 4,
+              "end": 10,
+              "bottom": 4,
+              "start": 10
+             },
+             "self_align": "start",
+             "background": "#F2B544",
+             "color": "#1E2E25",
+             "radius": 12,
+             "font": {
+              "weight": 800,
+              "size": 11,
+              "letter_spacing": 0.8,
+              "uppercase": true
+             },
+             "bind": "badge"
+            },
+            {
+             "id": "g47",
+             "type": "row",
+             "padding": {
+              "top": 8,
+              "end": 12,
+              "bottom": 8,
+              "start": 12
+             },
+             "gap": 8,
+             "cross": "center",
+             "radius": 16,
+             "surface": {
+              "glass": 16,
+              "tint": 0.22
+             },
+             "children": [
+              {
+               "id": "g48",
+               "type": "column",
+               "width": "fill",
+               "children": [
+                {
+                 "id": "g49",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 800,
+                  "size": 14
+                 },
+                 "max_lines": 1,
+                 "bind": "title"
+                },
+                {
+                 "id": "g50",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "opacity": 0.9,
+                 "font": {
+                  "size": 12
+                 },
+                 "max_lines": 1,
+                 "bind": "subtitle"
+                }
+               ]
+              },
+              {
+               "id": "g51",
+               "type": "text",
+               "color": "#F2B544",
+               "font": {
+                "weight": 800,
+                "size": 16
+               },
+               "bind": "price"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "courses",
+          "id": "5",
+          "title": "UX Design Fundamentals",
+          "subtitle": "Deniz Kaya",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+          "price_label": "₺1,450.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 5
+          }
+         },
+         {
+          "source": "courses",
+          "id": "13",
+          "title": "Product Photography with Your Phone",
+          "subtitle": "Emre Aydın",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+          "price_label": "₺890.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 13
+          }
+         },
+         {
+          "source": "courses",
+          "id": "20",
+          "title": "Excel for Small Business Owners",
+          "subtitle": "Omar Farouk",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "مجاني",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 20
+          }
+         },
+         {
+          "source": "courses",
+          "id": "27",
+          "title": "Social Media Marketing That Sells",
+          "subtitle": "Yasmin Adel",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+          "price_label": "₺1,100.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 27
+          }
+         },
+         {
+          "source": "courses",
+          "id": "33",
+          "title": "Everyday English Conversation",
+          "subtitle": "Hannah Clarke",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "₺645.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 33
+          }
+         },
+         {
+          "source": "courses",
+          "id": "40",
+          "title": "Python for Data Analysis",
+          "subtitle": "Mert Şahin",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+          "price_label": "₺1,590.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 40
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "search",
+       "notifications"
+      ],
+      "background": "#F4F1EA",
+      "color": "#14201A",
+      "dark_background": "#0A110E",
+      "dark_color": "#EDF3EF",
+      "style": "brand"
+     },
+     "background": "#F4F1EA",
+     "dark_background": "#0A110E"
+    }
+   },
+   "teachers": {
+    "screen": "teachers",
+    "studio": {
+     "body": {
+      "id": "g52",
+      "type": "column",
+      "children": [
+       {
+        "id": "g53",
+        "type": "photo_hero",
+        "name": "Follow a teacher to hear of their new courses first.",
+        "height": 132,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E221B",
+        "radius": 22,
+        "scrim": {
+         "color": "#0E221B",
+         "from": 0.1,
+         "to": 0.88,
+         "middle": 0.25,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/academy/academy-live.jpg",
+        "children": [
+         {
+          "id": "g54",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Bricolage Grotesque",
+           "weight": 700,
+           "size": 16,
+           "line_height": 1.3
+          },
+          "text": "تابع معلمًا لتعرف بدوراته الجديدة أولًا.",
+          "max_lines": 2
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "المعلمون",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F4F1EA",
+      "color": "#14201A",
+      "dark_background": "#0A110E",
+      "dark_color": "#EDF3EF",
+      "style": "large"
+     },
+     "background": "#F4F1EA",
+     "dark_background": "#0A110E",
+     "screen": "teachers"
+    }
+   },
+   "learning": {
+    "screen": "my_courses",
+    "studio": {
+     "body": {
+      "id": "g55",
+      "type": "column",
+      "children": [
+       {
+        "id": "g56",
+        "type": "photo_hero",
+        "name": "Pick up where you left off.",
+        "height": 132,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E221B",
+        "radius": 22,
+        "scrim": {
+         "color": "#0E221B",
+         "from": 0.1,
+         "to": 0.88,
+         "middle": 0.25,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/academy/academy-desk.jpg",
+        "children": [
+         {
+          "id": "g57",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Bricolage Grotesque",
+           "weight": 700,
+           "size": 16,
+           "line_height": 1.3
+          },
+          "text": "تابع من حيث توقفت.",
+          "max_lines": 2
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "دوراتي",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F4F1EA",
+      "color": "#14201A",
+      "dark_background": "#0A110E",
+      "dark_color": "#EDF3EF",
+      "style": "large"
+     },
+     "background": "#F4F1EA",
+     "dark_background": "#0A110E",
+     "screen": "my_courses"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g58",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    }
+   }
+  }
+ }
+}

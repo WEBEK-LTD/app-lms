@@ -1,0 +1,2028 @@
+{
+ "template": "travel_signature_a",
+ "look": "a",
+ "kind": "travel",
+ "app_type": "travel",
+ "vertical": null,
+ "primary_color": "#0E1424",
+ "appearance": {
+  "template": "classic",
+  "font": "Manrope"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Explore",
+   "icon": "travel_explore",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "stays",
+   "label": "Stays",
+   "icon": "bed",
+   "target": {
+    "type": "screen",
+    "screen": "stays"
+   }
+  },
+  {
+   "id": "flights",
+   "label": "Flights",
+   "icon": "flight",
+   "target": {
+    "type": "screen",
+    "screen": "flights"
+   }
+  },
+  {
+   "id": "trips",
+   "label": "Trips",
+   "icon": "luggage",
+   "target": {
+    "type": "screen",
+    "screen": "trips"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": {
+  "design": "dock",
+  "background": "#0E1424",
+  "dark_background": "#151C2E",
+  "active": "#E6C58C",
+  "inactive": "#D7DAE3",
+  "dark_active": "#E6C58C",
+  "dark_inactive": "#AEB2BF",
+  "radius": 28,
+  "margin": 16
+ },
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 96
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "photo_hero",
+        "name": "Your next trip",
+        "height": 330,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 20,
+         "start": 16
+        },
+        "gap": 18,
+        "background": "#0E1424",
+        "scrim": {
+         "color": "#0E1424",
+         "from": 0.72,
+         "to": 0.92,
+         "middle": 0.4,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/travel-photos/room.jpg",
+        "overlap": 150,
+        "children": [
+         {
+          "id": "g3",
+          "type": "row",
+          "padding": {
+           "start": 4
+          },
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g4",
+            "type": "text",
+            "width": "fill",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 17,
+             "letter_spacing": 6.5,
+             "uppercase": true
+            },
+            "text": "Guard Shop"
+           },
+           {
+            "id": "g5",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "border_color": "#7C8090",
+            "radius": 22,
+            "overlay": {
+             "color": "#FFFFFF",
+             "opacity": 0.16
+            },
+            "border_width": 1,
+            "action": {
+             "type": "screen",
+             "screen": "stays"
+            },
+            "children": [
+             {
+              "id": "g6",
+              "type": "icon",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "icon": "search",
+              "icon_size": 22
+             }
+            ]
+           },
+           {
+            "id": "g7",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "border_color": "#7C8090",
+            "radius": 22,
+            "overlay": {
+             "color": "#FFFFFF",
+             "opacity": 0.16
+            },
+            "border_width": 1,
+            "action": {
+             "type": "screen",
+             "screen": "account"
+            },
+            "children": [
+             {
+              "id": "g8",
+              "type": "icon",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "icon": "person",
+              "icon_size": 22
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g9",
+          "type": "row",
+          "name": "Explore",
+          "width": "hug",
+          "height": 44,
+          "padding": {
+           "end": 4,
+           "start": 4
+          },
+          "gap": 2,
+          "cross": "center",
+          "background": "#2C3142",
+          "dark_background": "#2C3142",
+          "radius": 22,
+          "children": [
+           {
+            "id": "g10",
+            "type": "row",
+            "height": 36,
+            "padding": {
+             "end": 14,
+             "start": 14
+            },
+            "cross": "center",
+            "self_align": "center",
+            "background": "#F4F4F6",
+            "radius": 18,
+            "children": [
+             {
+              "id": "g11",
+              "type": "text",
+              "color": "#0E1424",
+              "dark_color": "#0E1424",
+              "font": {
+               "weight": 700,
+               "size": 13
+              },
+              "text": "Explore"
+             }
+            ]
+           },
+           {
+            "id": "g12",
+            "type": "row",
+            "height": 36,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "cross": "center",
+            "self_align": "center",
+            "radius": 18,
+            "action": {
+             "type": "screen",
+             "screen": "trips"
+            },
+            "children": [
+             {
+              "id": "g13",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "font": {
+               "weight": 700,
+               "size": 13
+              },
+              "text": "Trips"
+             }
+            ]
+           },
+           {
+            "id": "g14",
+            "type": "row",
+            "height": 36,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "cross": "center",
+            "self_align": "center",
+            "radius": 18,
+            "action": {
+             "type": "screen",
+             "screen": "flights"
+            },
+            "children": [
+             {
+              "id": "g15",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "font": {
+               "weight": 700,
+               "size": 13
+              },
+              "text": "Flights"
+             }
+            ]
+           },
+           {
+            "id": "g16",
+            "type": "row",
+            "height": 36,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "cross": "center",
+            "self_align": "center",
+            "radius": 18,
+            "action": {
+             "type": "screen",
+             "screen": "saved"
+            },
+            "children": [
+             {
+              "id": "g17",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "font": {
+               "weight": 700,
+               "size": 13
+              },
+              "text": "Saved"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g18",
+          "type": "text",
+          "padding": {
+           "top": 24,
+           "end": 4,
+           "start": 4
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "font": {
+           "weight": 800,
+           "size": 30,
+           "line_height": 1.1,
+           "letter_spacing": -0.6
+          },
+          "text": "Where does the next story begin?",
+          "visibility": "signed_out"
+         },
+         {
+          "id": "g19",
+          "type": "tracking",
+          "padding": {
+           "top": 14,
+           "start": 4
+          },
+          "margin": {
+           "end": 16,
+           "start": 16
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "tracking": {
+           "kind": "trip",
+           "style": "ticket"
+          },
+          "visibility": "signed_in"
+         }
+        ]
+       },
+       {
+        "id": "g20",
+        "type": "row",
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "bottom": 10,
+         "start": 20
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g21",
+          "type": "text",
+          "width": "fill",
+          "color": "#0E1424",
+          "dark_color": "#F3EEE4",
+          "font": {
+           "weight": 800,
+           "size": 18,
+           "letter_spacing": -0.2
+          },
+          "text": "Stays with us"
+         },
+         {
+          "id": "g22",
+          "type": "text",
+          "color": "#7A5C24",
+          "dark_color": "#D8B57A",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "See all",
+          "action": {
+           "type": "screen",
+           "screen": "stays"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g23",
+        "type": "items",
+        "name": "Stays with us",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 10,
+        "color": "#0E1424",
+        "dark_color": "#F3EEE4",
+        "source": "hotels",
+        "layout": "carousel",
+        "card": {
+         "id": "g24",
+         "type": "stack",
+         "width": 150,
+         "height": 128,
+         "radius": 20,
+         "shadow": "medium",
+         "children": [
+          {
+           "id": "g25",
+           "type": "image",
+           "width": "fill",
+           "height": 128,
+           "scrim": {
+            "color": "#0E1424",
+            "from": 0,
+            "to": 0.9,
+            "middle": 0,
+            "at": 30
+           },
+           "bind": "image"
+          },
+          {
+           "id": "g26",
+           "type": "column",
+           "width": "fill",
+           "height": "fill",
+           "padding": {
+            "top": 8,
+            "end": 10,
+            "bottom": 10,
+            "start": 12
+           },
+           "gap": 1,
+           "align": "end",
+           "children": [
+            {
+             "id": "g27",
+             "type": "text",
+             "color": "#FFFFFF",
+             "dark_color": "#FFFFFF",
+             "font": {
+              "weight": 800,
+              "size": 13,
+              "line_height": 1.2
+             },
+             "max_lines": 2,
+             "bind": "title"
+            },
+            {
+             "id": "g28",
+             "type": "row",
+             "gap": 4,
+             "children": [
+              {
+               "id": "g29",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#FFFFFF",
+               "font": {
+                "weight": 800,
+                "size": 11
+               },
+               "bind": "price"
+              },
+              {
+               "id": "g30",
+               "type": "text",
+               "color": "#DDE0EA",
+               "dark_color": "#DDE0EA",
+               "font": {
+                "weight": 600,
+                "size": 11
+               },
+               "text": "a night",
+               "max_lines": 1
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "hotels",
+          "id": "1",
+          "title": "Safra Bay Resort",
+          "subtitle": "Seminyak, Bali",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+          "price_label": "$168.00",
+          "badge": "Only with us",
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "hotels",
+            "id": "1"
+           }
+          }
+         },
+         {
+          "source": "hotels",
+          "id": "2",
+          "title": "Safra Skyline Hotel",
+          "subtitle": "Downtown, Dubai",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+          "price_label": "$134.00",
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "hotels",
+            "id": "2"
+           }
+          }
+         },
+         {
+          "source": "hotels",
+          "id": "3",
+          "title": "Safra Old Town House",
+          "subtitle": "Sultanahmet, Istanbul",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+          "price_label": "$96.00",
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "hotels",
+            "id": "3"
+           }
+          }
+         },
+         {
+          "source": "hotels",
+          "id": "4",
+          "title": "Safra Caldera Suites",
+          "subtitle": "Oia, Santorini",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+          "price_label": "$262.00",
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "hotels",
+            "id": "4"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "g31",
+        "type": "row",
+        "name": "Stay + flight",
+        "height": 64,
+        "padding": {
+         "end": 12,
+         "start": 16
+        },
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 14,
+        "cross": "center",
+        "background": "#0E1424",
+        "dark_background": "#151C2E",
+        "border_color": "#0E1424",
+        "dark_border_color": "#5C5032",
+        "radius": 20,
+        "border_width": 1,
+        "shadow": "medium",
+        "action": {
+         "type": "screen",
+         "screen": "stays"
+        },
+        "children": [
+         {
+          "id": "g32",
+          "type": "text",
+          "color": "#E6C58C",
+          "dark_color": "#E6C58C",
+          "font": {
+           "weight": 800,
+           "size": 38,
+           "letter_spacing": -0.8
+          },
+          "text": "8%"
+         },
+         {
+          "id": "g33",
+          "type": "column",
+          "width": "fill",
+          "children": [
+           {
+            "id": "g34",
+            "type": "text",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text": "Stay + flight"
+           },
+           {
+            "id": "g35",
+            "type": "text",
+            "color": "#E7E9F0",
+            "dark_color": "#E7E9F0",
+            "font": {
+             "weight": 600,
+             "size": 13,
+             "line_height": 1.3
+            },
+            "text": "less when you book them together",
+            "max_lines": 2
+           }
+          ]
+         },
+         {
+          "id": "g36",
+          "type": "row",
+          "width": 40,
+          "height": 40,
+          "align": "center",
+          "cross": "center",
+          "self_align": "center",
+          "background": "#E6C58C",
+          "radius": 20,
+          "children": [
+           {
+            "id": "g37",
+            "type": "icon",
+            "color": "#0E1424",
+            "dark_color": "#0E1424",
+            "icon": "arrow_forward",
+            "icon_size": 22
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g38",
+        "type": "text",
+        "margin": {
+         "top": 18,
+         "end": 20,
+         "bottom": 8,
+         "start": 20
+        },
+        "color": "#7A5C24",
+        "dark_color": "#D8B57A",
+        "font": {
+         "weight": 800,
+         "size": 10,
+         "letter_spacing": 2,
+         "uppercase": true
+        },
+        "text": "Guard Shop · from Cairo"
+       },
+       {
+        "id": "g39",
+        "type": "row",
+        "name": "Guard Shop · from Cairo",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 8,
+        "scroll": true,
+        "children": [
+         {
+          "id": "g40",
+          "type": "row",
+          "width": "hug",
+          "height": 40,
+          "padding": {
+           "end": 14,
+           "start": 14
+          },
+          "gap": 8,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#151C2E",
+          "border_color": "#DCD5C8",
+          "dark_border_color": "#2A3148",
+          "radius": 20,
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "flights"
+          },
+          "children": [
+           {
+            "id": "g41",
+            "type": "text",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 700,
+             "size": 12
+            },
+            "text": "CAI"
+           },
+           {
+            "id": "g42",
+            "type": "icon",
+            "color": "#7A5C24",
+            "dark_color": "#D8B57A",
+            "icon": "arrow_forward",
+            "icon_size": 16
+           },
+           {
+            "id": "g43",
+            "type": "text",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 700,
+             "size": 12
+            },
+            "text": "IST"
+           },
+           {
+            "id": "g44",
+            "type": "text",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "weight": 600,
+             "size": 12
+            },
+            "text": "Istanbul"
+           },
+           {
+            "id": "g45",
+            "type": "text",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 600,
+             "size": 12
+            },
+            "text": "06:30"
+           }
+          ]
+         },
+         {
+          "id": "g46",
+          "type": "row",
+          "width": "hug",
+          "height": 40,
+          "padding": {
+           "end": 14,
+           "start": 14
+          },
+          "gap": 8,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#151C2E",
+          "border_color": "#DCD5C8",
+          "dark_border_color": "#2A3148",
+          "radius": 20,
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "flights"
+          },
+          "children": [
+           {
+            "id": "g47",
+            "type": "text",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 700,
+             "size": 12
+            },
+            "text": "CAI"
+           },
+           {
+            "id": "g48",
+            "type": "icon",
+            "color": "#7A5C24",
+            "dark_color": "#D8B57A",
+            "icon": "arrow_forward",
+            "icon_size": 16
+           },
+           {
+            "id": "g49",
+            "type": "text",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 700,
+             "size": 12
+            },
+            "text": "JTR"
+           },
+           {
+            "id": "g50",
+            "type": "text",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "weight": 600,
+             "size": 12
+            },
+            "text": "Santorini"
+           },
+           {
+            "id": "g51",
+            "type": "text",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 600,
+             "size": 12
+            },
+            "text": "08:40"
+           }
+          ]
+         },
+         {
+          "id": "g52",
+          "type": "row",
+          "width": "hug",
+          "height": 40,
+          "padding": {
+           "end": 14,
+           "start": 14
+          },
+          "gap": 8,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#151C2E",
+          "border_color": "#DCD5C8",
+          "dark_border_color": "#2A3148",
+          "radius": 20,
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "flights"
+          },
+          "children": [
+           {
+            "id": "g53",
+            "type": "text",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 700,
+             "size": 12
+            },
+            "text": "CAI"
+           },
+           {
+            "id": "g54",
+            "type": "icon",
+            "color": "#7A5C24",
+            "dark_color": "#D8B57A",
+            "icon": "arrow_forward",
+            "icon_size": 16
+           },
+           {
+            "id": "g55",
+            "type": "text",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 700,
+             "size": 12
+            },
+            "text": "DXB"
+           },
+           {
+            "id": "g56",
+            "type": "text",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "weight": 600,
+             "size": 12
+            },
+            "text": "Dubai"
+           },
+           {
+            "id": "g57",
+            "type": "text",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 600,
+             "size": 12
+            },
+            "text": "10:15"
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0B0F1A"
+    }
+   },
+   "stays": {
+    "screen": "stays",
+    "studio": {
+     "body": {
+      "id": "g58",
+      "type": "column",
+      "children": []
+     },
+     "header": {
+      "type": "title",
+      "title": "Stays",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4",
+      "style": "photo"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0B0F1A",
+     "screen": "stays"
+    }
+   },
+   "flights": {
+    "screen": "flights",
+    "studio": {
+     "body": {
+      "id": "g59",
+      "type": "column",
+      "children": []
+     },
+     "header": {
+      "type": "title",
+      "title": "Flights",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4",
+      "style": "photo"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0B0F1A",
+     "screen": "flights"
+    }
+   },
+   "trips": {
+    "screen": "trips",
+    "studio": {
+     "body": {
+      "id": "g60",
+      "type": "column",
+      "children": [
+       {
+        "id": "g61",
+        "type": "tracking",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#0E1424",
+        "color": "#F3EEE4",
+        "dark_background": "#151C2E",
+        "dark_color": "#F3EEE4",
+        "radius": 26,
+        "tracking": {
+         "kind": "trip"
+        },
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Trips",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4",
+      "style": "photo"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0B0F1A",
+     "screen": "trips"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g62",
+      "type": "column",
+      "children": []
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0B0F1A",
+     "screen": "account"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 96
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "photo_hero",
+        "name": "Your next trip",
+        "height": 330,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 20,
+         "start": 16
+        },
+        "gap": 18,
+        "background": "#0E1424",
+        "scrim": {
+         "color": "#0E1424",
+         "from": 0.72,
+         "to": 0.92,
+         "middle": 0.4,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/travel-photos/room.jpg",
+        "overlap": 150,
+        "children": [
+         {
+          "id": "g3",
+          "type": "row",
+          "padding": {
+           "start": 4
+          },
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g4",
+            "type": "text",
+            "width": "fill",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 17,
+             "letter_spacing": 6.5,
+             "uppercase": true
+            },
+            "text": "Guard Shop"
+           },
+           {
+            "id": "g5",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "border_color": "#7C8090",
+            "radius": 22,
+            "overlay": {
+             "color": "#FFFFFF",
+             "opacity": 0.16
+            },
+            "border_width": 1,
+            "action": {
+             "type": "screen",
+             "screen": "stays"
+            },
+            "children": [
+             {
+              "id": "g6",
+              "type": "icon",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "icon": "search",
+              "icon_size": 22
+             }
+            ]
+           },
+           {
+            "id": "g7",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "border_color": "#7C8090",
+            "radius": 22,
+            "overlay": {
+             "color": "#FFFFFF",
+             "opacity": 0.16
+            },
+            "border_width": 1,
+            "action": {
+             "type": "screen",
+             "screen": "account"
+            },
+            "children": [
+             {
+              "id": "g8",
+              "type": "icon",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "icon": "person",
+              "icon_size": 22
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g9",
+          "type": "row",
+          "name": "Explore",
+          "width": "hug",
+          "height": 44,
+          "padding": {
+           "end": 4,
+           "start": 4
+          },
+          "gap": 2,
+          "cross": "center",
+          "background": "#2C3142",
+          "dark_background": "#2C3142",
+          "radius": 22,
+          "children": [
+           {
+            "id": "g10",
+            "type": "row",
+            "height": 36,
+            "padding": {
+             "end": 14,
+             "start": 14
+            },
+            "cross": "center",
+            "self_align": "center",
+            "background": "#F4F4F6",
+            "radius": 18,
+            "children": [
+             {
+              "id": "g11",
+              "type": "text",
+              "color": "#0E1424",
+              "dark_color": "#0E1424",
+              "font": {
+               "weight": 700,
+               "size": 13
+              },
+              "text": "استكشف"
+             }
+            ]
+           },
+           {
+            "id": "g12",
+            "type": "row",
+            "height": 36,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "cross": "center",
+            "self_align": "center",
+            "radius": 18,
+            "action": {
+             "type": "screen",
+             "screen": "trips"
+            },
+            "children": [
+             {
+              "id": "g13",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "font": {
+               "weight": 700,
+               "size": 13
+              },
+              "text": "الرحلات"
+             }
+            ]
+           },
+           {
+            "id": "g14",
+            "type": "row",
+            "height": 36,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "cross": "center",
+            "self_align": "center",
+            "radius": 18,
+            "action": {
+             "type": "screen",
+             "screen": "flights"
+            },
+            "children": [
+             {
+              "id": "g15",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "font": {
+               "weight": 700,
+               "size": 13
+              },
+              "text": "الطيران"
+             }
+            ]
+           },
+           {
+            "id": "g16",
+            "type": "row",
+            "height": 36,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "cross": "center",
+            "self_align": "center",
+            "radius": 18,
+            "action": {
+             "type": "screen",
+             "screen": "saved"
+            },
+            "children": [
+             {
+              "id": "g17",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "font": {
+               "weight": 700,
+               "size": 13
+              },
+              "text": "المحفوظة"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g18",
+          "type": "text",
+          "padding": {
+           "top": 24,
+           "end": 4,
+           "start": 4
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "font": {
+           "weight": 800,
+           "size": 30,
+           "line_height": 1.1,
+           "letter_spacing": -0.6
+          },
+          "text": "من أين تبدأ حكايتك القادمة؟",
+          "visibility": "signed_out"
+         },
+         {
+          "id": "g19",
+          "type": "tracking",
+          "padding": {
+           "top": 14,
+           "start": 4
+          },
+          "margin": {
+           "end": 16,
+           "start": 16
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "tracking": {
+           "kind": "trip",
+           "style": "ticket"
+          },
+          "visibility": "signed_in"
+         }
+        ]
+       },
+       {
+        "id": "g20",
+        "type": "row",
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "bottom": 10,
+         "start": 20
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g21",
+          "type": "text",
+          "width": "fill",
+          "color": "#0E1424",
+          "dark_color": "#F3EEE4",
+          "font": {
+           "weight": 800,
+           "size": 18,
+           "letter_spacing": -0.2
+          },
+          "text": "أقم معنا"
+         },
+         {
+          "id": "g22",
+          "type": "text",
+          "color": "#7A5C24",
+          "dark_color": "#D8B57A",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "عرض الكل",
+          "action": {
+           "type": "screen",
+           "screen": "stays"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g23",
+        "type": "items",
+        "name": "Stays with us",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 10,
+        "color": "#0E1424",
+        "dark_color": "#F3EEE4",
+        "source": "hotels",
+        "layout": "carousel",
+        "card": {
+         "id": "g24",
+         "type": "stack",
+         "width": 150,
+         "height": 128,
+         "radius": 20,
+         "shadow": "medium",
+         "children": [
+          {
+           "id": "g25",
+           "type": "image",
+           "width": "fill",
+           "height": 128,
+           "scrim": {
+            "color": "#0E1424",
+            "from": 0,
+            "to": 0.9,
+            "middle": 0,
+            "at": 30
+           },
+           "bind": "image"
+          },
+          {
+           "id": "g26",
+           "type": "column",
+           "width": "fill",
+           "height": "fill",
+           "padding": {
+            "top": 8,
+            "end": 10,
+            "bottom": 10,
+            "start": 12
+           },
+           "gap": 1,
+           "align": "end",
+           "children": [
+            {
+             "id": "g27",
+             "type": "text",
+             "color": "#FFFFFF",
+             "dark_color": "#FFFFFF",
+             "font": {
+              "weight": 800,
+              "size": 13,
+              "line_height": 1.2
+             },
+             "max_lines": 2,
+             "bind": "title"
+            },
+            {
+             "id": "g28",
+             "type": "row",
+             "gap": 4,
+             "children": [
+              {
+               "id": "g29",
+               "type": "text",
+               "color": "#FFFFFF",
+               "dark_color": "#FFFFFF",
+               "font": {
+                "weight": 800,
+                "size": 11
+               },
+               "bind": "price"
+              },
+              {
+               "id": "g30",
+               "type": "text",
+               "color": "#DDE0EA",
+               "dark_color": "#DDE0EA",
+               "font": {
+                "weight": 600,
+                "size": 11
+               },
+               "text": "لليلة",
+               "max_lines": 1
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "hotels",
+          "id": "1",
+          "title": "Safra Bay Resort",
+          "subtitle": "Seminyak, Bali",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+          "price_label": "$168.00",
+          "badge": "Only with us",
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "hotels",
+            "id": "1"
+           }
+          }
+         },
+         {
+          "source": "hotels",
+          "id": "2",
+          "title": "Safra Skyline Hotel",
+          "subtitle": "Downtown, Dubai",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+          "price_label": "$134.00",
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "hotels",
+            "id": "2"
+           }
+          }
+         },
+         {
+          "source": "hotels",
+          "id": "3",
+          "title": "Safra Old Town House",
+          "subtitle": "Sultanahmet, Istanbul",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+          "price_label": "$96.00",
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "hotels",
+            "id": "3"
+           }
+          }
+         },
+         {
+          "source": "hotels",
+          "id": "4",
+          "title": "Safra Caldera Suites",
+          "subtitle": "Oia, Santorini",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+          "price_label": "$262.00",
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "hotels",
+            "id": "4"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "g31",
+        "type": "row",
+        "name": "Stay + flight",
+        "height": 64,
+        "padding": {
+         "end": 12,
+         "start": 16
+        },
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 14,
+        "cross": "center",
+        "background": "#0E1424",
+        "dark_background": "#151C2E",
+        "border_color": "#0E1424",
+        "dark_border_color": "#5C5032",
+        "radius": 20,
+        "border_width": 1,
+        "shadow": "medium",
+        "action": {
+         "type": "screen",
+         "screen": "stays"
+        },
+        "children": [
+         {
+          "id": "g32",
+          "type": "text",
+          "color": "#E6C58C",
+          "dark_color": "#E6C58C",
+          "font": {
+           "weight": 800,
+           "size": 38,
+           "letter_spacing": -0.8
+          },
+          "text": "8٪"
+         },
+         {
+          "id": "g33",
+          "type": "column",
+          "width": "fill",
+          "children": [
+           {
+            "id": "g34",
+            "type": "text",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 13
+            },
+            "text": "إقامة + طيران"
+           },
+           {
+            "id": "g35",
+            "type": "text",
+            "color": "#E7E9F0",
+            "dark_color": "#E7E9F0",
+            "font": {
+             "weight": 600,
+             "size": 13,
+             "line_height": 1.3
+            },
+            "text": "أقل حين تحجزهما معًا",
+            "max_lines": 2
+           }
+          ]
+         },
+         {
+          "id": "g36",
+          "type": "row",
+          "width": 40,
+          "height": 40,
+          "align": "center",
+          "cross": "center",
+          "self_align": "center",
+          "background": "#E6C58C",
+          "radius": 20,
+          "children": [
+           {
+            "id": "g37",
+            "type": "icon",
+            "color": "#0E1424",
+            "dark_color": "#0E1424",
+            "icon": "arrow_forward",
+            "icon_size": 22
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g38",
+        "type": "text",
+        "margin": {
+         "top": 18,
+         "end": 20,
+         "bottom": 8,
+         "start": 20
+        },
+        "color": "#7A5C24",
+        "dark_color": "#D8B57A",
+        "font": {
+         "weight": 800,
+         "size": 10,
+         "letter_spacing": 2,
+         "uppercase": true
+        },
+        "text": "Guard Shop · من القاهرة"
+       },
+       {
+        "id": "g39",
+        "type": "row",
+        "name": "Guard Shop · from Cairo",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 8,
+        "scroll": true,
+        "children": [
+         {
+          "id": "g40",
+          "type": "row",
+          "width": "hug",
+          "height": 40,
+          "padding": {
+           "end": 14,
+           "start": 14
+          },
+          "gap": 8,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#151C2E",
+          "border_color": "#DCD5C8",
+          "dark_border_color": "#2A3148",
+          "radius": 20,
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "flights"
+          },
+          "children": [
+           {
+            "id": "g41",
+            "type": "text",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 700,
+             "size": 12
+            },
+            "text": "CAI"
+           },
+           {
+            "id": "g42",
+            "type": "icon",
+            "color": "#7A5C24",
+            "dark_color": "#D8B57A",
+            "icon": "arrow_forward",
+            "icon_size": 16
+           },
+           {
+            "id": "g43",
+            "type": "text",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 700,
+             "size": 12
+            },
+            "text": "IST"
+           },
+           {
+            "id": "g44",
+            "type": "text",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "weight": 600,
+             "size": 12
+            },
+            "text": "إسطنبول"
+           },
+           {
+            "id": "g45",
+            "type": "text",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 600,
+             "size": 12
+            },
+            "text": "06:30"
+           }
+          ]
+         },
+         {
+          "id": "g46",
+          "type": "row",
+          "width": "hug",
+          "height": 40,
+          "padding": {
+           "end": 14,
+           "start": 14
+          },
+          "gap": 8,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#151C2E",
+          "border_color": "#DCD5C8",
+          "dark_border_color": "#2A3148",
+          "radius": 20,
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "flights"
+          },
+          "children": [
+           {
+            "id": "g47",
+            "type": "text",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 700,
+             "size": 12
+            },
+            "text": "CAI"
+           },
+           {
+            "id": "g48",
+            "type": "icon",
+            "color": "#7A5C24",
+            "dark_color": "#D8B57A",
+            "icon": "arrow_forward",
+            "icon_size": 16
+           },
+           {
+            "id": "g49",
+            "type": "text",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 700,
+             "size": 12
+            },
+            "text": "JTR"
+           },
+           {
+            "id": "g50",
+            "type": "text",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "weight": 600,
+             "size": 12
+            },
+            "text": "سانتوريني"
+           },
+           {
+            "id": "g51",
+            "type": "text",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 600,
+             "size": 12
+            },
+            "text": "08:40"
+           }
+          ]
+         },
+         {
+          "id": "g52",
+          "type": "row",
+          "width": "hug",
+          "height": 40,
+          "padding": {
+           "end": 14,
+           "start": 14
+          },
+          "gap": 8,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#151C2E",
+          "border_color": "#DCD5C8",
+          "dark_border_color": "#2A3148",
+          "radius": 20,
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "flights"
+          },
+          "children": [
+           {
+            "id": "g53",
+            "type": "text",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 700,
+             "size": 12
+            },
+            "text": "CAI"
+           },
+           {
+            "id": "g54",
+            "type": "icon",
+            "color": "#7A5C24",
+            "dark_color": "#D8B57A",
+            "icon": "arrow_forward",
+            "icon_size": 16
+           },
+           {
+            "id": "g55",
+            "type": "text",
+            "color": "#0E1424",
+            "dark_color": "#F3EEE4",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 700,
+             "size": 12
+            },
+            "text": "DXB"
+           },
+           {
+            "id": "g56",
+            "type": "text",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "weight": 600,
+             "size": 12
+            },
+            "text": "دبي"
+           },
+           {
+            "id": "g57",
+            "type": "text",
+            "color": "#5A5F6E",
+            "dark_color": "#AEB2BF",
+            "font": {
+             "family": "JetBrains Mono",
+             "weight": 600,
+             "size": 12
+            },
+            "text": "10:15"
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0B0F1A"
+    }
+   },
+   "stays": {
+    "screen": "stays",
+    "studio": {
+     "body": {
+      "id": "g58",
+      "type": "column",
+      "children": []
+     },
+     "header": {
+      "type": "title",
+      "title": "الإقامة",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4",
+      "style": "photo"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0B0F1A",
+     "screen": "stays"
+    }
+   },
+   "flights": {
+    "screen": "flights",
+    "studio": {
+     "body": {
+      "id": "g59",
+      "type": "column",
+      "children": []
+     },
+     "header": {
+      "type": "title",
+      "title": "الطيران",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4",
+      "style": "photo"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0B0F1A",
+     "screen": "flights"
+    }
+   },
+   "trips": {
+    "screen": "trips",
+    "studio": {
+     "body": {
+      "id": "g60",
+      "type": "column",
+      "children": [
+       {
+        "id": "g61",
+        "type": "tracking",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#0E1424",
+        "color": "#F3EEE4",
+        "dark_background": "#151C2E",
+        "dark_color": "#F3EEE4",
+        "radius": 26,
+        "tracking": {
+         "kind": "trip"
+        },
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "الرحلات",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0B0F1A",
+      "dark_color": "#F3EEE4",
+      "style": "photo"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0B0F1A",
+     "screen": "trips"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g62",
+      "type": "column",
+      "children": []
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0B0F1A",
+     "screen": "account"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,526 @@
+{
+ "template": "travel",
+ "look": null,
+ "kind": "travel",
+ "app_type": "travel",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Explore",
+   "icon": "travel_explore",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "stays",
+   "label": "Stays",
+   "icon": "bed",
+   "target": {
+    "type": "screen",
+    "screen": "stays"
+   }
+  },
+  {
+   "id": "flights",
+   "label": "Flights",
+   "icon": "flight",
+   "target": {
+    "type": "screen",
+    "screen": "flights"
+   }
+  },
+  {
+   "id": "trips",
+   "label": "Trips",
+   "icon": "luggage",
+   "target": {
+    "type": "screen",
+    "screen": "trips"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Where does the next story begin?",
+        "padding": {
+         "top": 24,
+         "end": 18,
+         "bottom": 24,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E1424",
+        "color": "#FFFFFF",
+        "dark_background": "#1B2338",
+        "radius": 24,
+        "children": [
+         {
+          "id": "g3",
+          "type": "icon",
+          "color": "#C9A063",
+          "icon": "travel_explore",
+          "icon_size": 30
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 26,
+           "line_height": 1.2
+          },
+          "text": "Where does the next story begin?"
+         },
+         {
+          "id": "g5",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "Stays, flights, or both as one trip at one price. Your trip and boarding pass stay in the app."
+         },
+         {
+          "id": "g6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "g7",
+            "type": "button",
+            "width": "hug",
+            "height": 44,
+            "padding": {
+             "end": 18,
+             "start": 18
+            },
+            "background": "#C9A063",
+            "color": "#0E1424",
+            "radius": 14,
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "text": "Find a stay",
+            "action": {
+             "type": "screen",
+             "screen": "stays"
+            },
+            "motion": {
+             "press": "shrink"
+            }
+           },
+           {
+            "id": "g8",
+            "type": "button",
+            "width": "hug",
+            "height": 44,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "background": "#0E1424",
+            "color": "#FFFFFF",
+            "dark_background": "#1B2338",
+            "border_color": "#FFFFFF",
+            "radius": 14,
+            "border_width": 1.5,
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "text": "Flights",
+            "action": {
+             "type": "screen",
+             "screen": "flights"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "column",
+        "name": "Featured stays",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g10",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 19
+          },
+          "text": "Featured stays"
+         },
+         {
+          "id": "g11",
+          "type": "items",
+          "gap": 12,
+          "source": "hotels",
+          "layout": "carousel",
+          "items": [
+           {
+            "source": "hotels",
+            "id": "1",
+            "title": "Safra Bay Resort",
+            "subtitle": "Seminyak, Bali",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+            "price_label": "$168.00",
+            "badge": "Only with us",
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "hotels",
+              "id": "1"
+             }
+            }
+           },
+           {
+            "source": "hotels",
+            "id": "2",
+            "title": "Safra Skyline Hotel",
+            "subtitle": "Downtown, Dubai",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+            "price_label": "$134.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "hotels",
+              "id": "2"
+             }
+            }
+           },
+           {
+            "source": "hotels",
+            "id": "3",
+            "title": "Safra Old Town House",
+            "subtitle": "Sultanahmet, Istanbul",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+            "price_label": "$96.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "hotels",
+              "id": "3"
+             }
+            }
+           },
+           {
+            "source": "hotels",
+            "id": "4",
+            "title": "Safra Caldera Suites",
+            "subtitle": "Oia, Santorini",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+            "price_label": "$262.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "hotels",
+              "id": "4"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ],
+      "background": "#0E1424",
+      "color": "#FFFFFF",
+      "dark_background": "#1B2338",
+      "dark_color": "#F4EFE6"
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Where does the next story begin?",
+        "padding": {
+         "top": 24,
+         "end": 18,
+         "bottom": 24,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E1424",
+        "color": "#FFFFFF",
+        "dark_background": "#1B2338",
+        "radius": 24,
+        "children": [
+         {
+          "id": "g3",
+          "type": "icon",
+          "color": "#C9A063",
+          "icon": "travel_explore",
+          "icon_size": 30
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 26,
+           "line_height": 1.2
+          },
+          "text": "من أين تبدأ حكايتك القادمة؟"
+         },
+         {
+          "id": "g5",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "فنادق وطيران، أو كلاهما في رحلة واحدة بسعر واحد. رحلتك وبطاقة الصعود داخل التطبيق."
+         },
+         {
+          "id": "g6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "g7",
+            "type": "button",
+            "width": "hug",
+            "height": 44,
+            "padding": {
+             "end": 18,
+             "start": 18
+            },
+            "background": "#C9A063",
+            "color": "#0E1424",
+            "radius": 14,
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "text": "ابحث عن إقامة",
+            "action": {
+             "type": "screen",
+             "screen": "stays"
+            },
+            "motion": {
+             "press": "shrink"
+            }
+           },
+           {
+            "id": "g8",
+            "type": "button",
+            "width": "hug",
+            "height": 44,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "background": "#0E1424",
+            "color": "#FFFFFF",
+            "dark_background": "#1B2338",
+            "border_color": "#FFFFFF",
+            "radius": 14,
+            "border_width": 1.5,
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "text": "الطيران",
+            "action": {
+             "type": "screen",
+             "screen": "flights"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "column",
+        "name": "Featured stays",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g10",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 19
+          },
+          "text": "إقامات مختارة"
+         },
+         {
+          "id": "g11",
+          "type": "items",
+          "gap": 12,
+          "source": "hotels",
+          "layout": "carousel",
+          "items": [
+           {
+            "source": "hotels",
+            "id": "1",
+            "title": "Safra Bay Resort",
+            "subtitle": "Seminyak, Bali",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+            "price_label": "$168.00",
+            "badge": "Only with us",
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "hotels",
+              "id": "1"
+             }
+            }
+           },
+           {
+            "source": "hotels",
+            "id": "2",
+            "title": "Safra Skyline Hotel",
+            "subtitle": "Downtown, Dubai",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+            "price_label": "$134.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "hotels",
+              "id": "2"
+             }
+            }
+           },
+           {
+            "source": "hotels",
+            "id": "3",
+            "title": "Safra Old Town House",
+            "subtitle": "Sultanahmet, Istanbul",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+            "price_label": "$96.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "hotels",
+              "id": "3"
+             }
+            }
+           },
+           {
+            "source": "hotels",
+            "id": "4",
+            "title": "Safra Caldera Suites",
+            "subtitle": "Oia, Santorini",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+            "price_label": "$262.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "hotels",
+              "id": "4"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ],
+      "background": "#0E1424",
+      "color": "#FFFFFF",
+      "dark_background": "#1B2338",
+      "dark_color": "#F4EFE6"
+     }
+    }
+   }
+  }
+ }
+}

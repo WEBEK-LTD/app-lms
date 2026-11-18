@@ -1,0 +1,1615 @@
+{
+ "template": "demo_taxi",
+ "look": null,
+ "kind": "taxi",
+ "app_type": "rides",
+ "vertical": "taxi",
+ "primary_color": "#1C2541",
+ "appearance": {
+  "template": "bold",
+  "font": "Manrope"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Ride",
+   "icon": "local_taxi",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "rides",
+   "label": "My rides",
+   "icon": "history",
+   "target": {
+    "type": "screen",
+    "screen": "my_rides"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": {
+  "design": "float",
+  "background": "#1C2541",
+  "dark_background": "#1A2138",
+  "active": "#F5B700",
+  "inactive": "#C9CEDD",
+  "dark_active": "#F5B700",
+  "dark_inactive": "#AEB4C6",
+  "radius": 24,
+  "margin": 12,
+  "labels": "active"
+ },
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 96
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "map_header",
+        "name": "Where to?",
+        "height": 352,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 24,
+         "start": 16
+        },
+        "align": "between",
+        "background": "#F5B700",
+        "dark_background": "#121829",
+        "map_drawing": {
+         "markers": [
+          {
+           "x": 33,
+           "y": 31
+          },
+          {
+           "x": 81,
+           "y": 33
+          },
+          {
+           "x": 52,
+           "y": 42
+          },
+          {
+           "x": 43,
+           "y": 92
+          },
+          {
+           "x": 72,
+           "y": 94
+          },
+          {
+           "x": 95,
+           "y": 56
+          },
+          {
+           "x": 58,
+           "y": 28
+          }
+         ],
+         "accent": "#F5B700",
+         "chip": "#1C2541",
+         "me": true,
+         "live": true,
+         "style": "two_ink",
+         "me_at": {
+          "x": 40,
+          "y": 60
+         },
+         "labels": [
+          {
+           "x": 36,
+           "y": 44,
+           "text": "Maadi"
+          },
+          {
+           "x": 6,
+           "y": 72,
+           "text": "Nile"
+          }
+         ]
+        },
+        "children": [
+         {
+          "id": "g3",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g4",
+            "type": "row",
+            "height": 44,
+            "padding": {
+             "end": 16,
+             "start": 14
+            },
+            "gap": 8,
+            "cross": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "radius": 22,
+            "children": [
+             {
+              "id": "g5",
+              "type": "icon",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "icon": "local_taxi",
+              "icon_size": 20
+             },
+             {
+              "id": "g6",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#1C2541",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "Guard Shop"
+             }
+            ]
+           },
+           {
+            "id": "g7",
+            "type": "row",
+            "width": "fill",
+            "height": 1,
+            "children": []
+           },
+           {
+            "id": "g8",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "radius": 22,
+            "action": {
+             "type": "screen",
+             "screen": "notifications"
+            },
+            "children": [
+             {
+              "id": "g9",
+              "type": "icon",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "icon": "notifications",
+              "icon_size": 22
+             }
+            ]
+           },
+           {
+            "id": "g10",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "radius": 22,
+            "action": {
+             "type": "screen",
+             "screen": "account"
+            },
+            "children": [
+             {
+              "id": "g11",
+              "type": "icon",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "icon": "person",
+              "icon_size": 22
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g12",
+          "type": "row",
+          "children": [
+           {
+            "id": "g13",
+            "type": "row",
+            "width": "fill",
+            "height": 1,
+            "children": []
+           },
+           {
+            "id": "g14",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "radius": 22,
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g15",
+              "type": "icon",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "icon": "my_location",
+              "icon_size": 22
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g16",
+        "type": "column",
+        "name": "Where to?",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 12,
+        "children": [
+         {
+          "id": "g17",
+          "type": "row",
+          "gap": 12,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g18",
+            "type": "tracking",
+            "width": "fill",
+            "color": "#141B2E",
+            "dark_color": "#F1F2F7",
+            "tracking": {
+             "kind": "nearby_taxis",
+             "style": "card"
+            },
+            "visibility": "signed_in"
+           },
+           {
+            "id": "g19",
+            "type": "row",
+            "name": "Book it",
+            "height": 52,
+            "padding": {
+             "end": 18,
+             "start": 18
+            },
+            "gap": 6,
+            "cross": "center",
+            "self_align": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "radius": 26,
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g20",
+              "type": "text",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "Book it"
+             },
+             {
+              "id": "g21",
+              "type": "icon",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "icon": "arrow_forward",
+              "icon_size": 20
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g22",
+          "type": "row",
+          "name": "Where to?",
+          "height": 56,
+          "padding": {
+           "end": 6,
+           "start": 16
+          },
+          "gap": 10,
+          "cross": "center",
+          "background": "#F3EFE3",
+          "dark_background": "#1A2138",
+          "radius": 18,
+          "action": {
+           "type": "screen",
+           "screen": "ride"
+          },
+          "children": [
+           {
+            "id": "g23",
+            "type": "icon",
+            "color": "#141B2E",
+            "dark_color": "#F1F2F7",
+            "icon": "search",
+            "icon_size": 22
+           },
+           {
+            "id": "g24",
+            "type": "text",
+            "width": "fill",
+            "color": "#141B2E",
+            "dark_color": "#F1F2F7",
+            "font": {
+             "weight": 800,
+             "size": 17
+            },
+            "text": "Where to?"
+           },
+           {
+            "id": "g25",
+            "type": "row",
+            "height": 44,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "gap": 5,
+            "cross": "center",
+            "self_align": "center",
+            "background": "#FFFDF6",
+            "dark_background": "#0E1324",
+            "radius": 14,
+            "children": [
+             {
+              "id": "g26",
+              "type": "icon",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "icon": "schedule",
+              "icon_size": 18
+             },
+             {
+              "id": "g27",
+              "type": "text",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "font": {
+               "weight": 700,
+               "size": 13
+              },
+              "text": "Now"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g28",
+          "type": "row",
+          "name": "Taxi",
+          "gap": 8,
+          "children": [
+           {
+            "id": "g29",
+            "type": "column",
+            "name": "Taxi",
+            "width": "fill",
+            "height": 52,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "gap": 1,
+            "align": "center",
+            "background": "#F5B700",
+            "radius": 16,
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g30",
+              "type": "text",
+              "color": "#1C2541",
+              "dark_color": "#1C2541",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "Taxi"
+             },
+             {
+              "id": "g31",
+              "type": "row",
+              "width": "hug",
+              "gap": 2,
+              "children": [
+               {
+                "id": "g32",
+                "type": "text",
+                "color": "#3D3206",
+                "dark_color": "#3D3206",
+                "font": {
+                 "weight": 600,
+                 "size": 12
+                },
+                "text": "from E£"
+               },
+               {
+                "id": "g33",
+                "type": "text",
+                "color": "#3D3206",
+                "dark_color": "#3D3206",
+                "font": {
+                 "weight": 700,
+                 "size": 12
+                },
+                "text": "35"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "g34",
+            "type": "column",
+            "name": "Comfort",
+            "width": "fill",
+            "height": 52,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "gap": 1,
+            "align": "center",
+            "border_color": "#E2DCCB",
+            "dark_border_color": "#2A3354",
+            "radius": 16,
+            "border_width": 1.5,
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g35",
+              "type": "text",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "Comfort"
+             },
+             {
+              "id": "g36",
+              "type": "row",
+              "width": "hug",
+              "gap": 2,
+              "children": [
+               {
+                "id": "g37",
+                "type": "text",
+                "color": "#5B6276",
+                "dark_color": "#AEB4C6",
+                "font": {
+                 "weight": 600,
+                 "size": 12
+                },
+                "text": "from E£"
+               },
+               {
+                "id": "g38",
+                "type": "text",
+                "color": "#5B6276",
+                "dark_color": "#AEB4C6",
+                "font": {
+                 "weight": 700,
+                 "size": 12
+                },
+                "text": "55"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "g39",
+            "type": "column",
+            "name": "XL",
+            "width": "fill",
+            "height": 52,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "gap": 1,
+            "align": "center",
+            "border_color": "#E2DCCB",
+            "dark_border_color": "#2A3354",
+            "radius": 16,
+            "border_width": 1.5,
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g40",
+              "type": "text",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "XL"
+             },
+             {
+              "id": "g41",
+              "type": "row",
+              "width": "hug",
+              "gap": 2,
+              "children": [
+               {
+                "id": "g42",
+                "type": "text",
+                "color": "#5B6276",
+                "dark_color": "#AEB4C6",
+                "font": {
+                 "weight": 600,
+                 "size": 12
+                },
+                "text": "from E£"
+               },
+               {
+                "id": "g43",
+                "type": "text",
+                "color": "#5B6276",
+                "dark_color": "#AEB4C6",
+                "font": {
+                 "weight": 700,
+                 "size": 12
+                },
+                "text": "85"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g44",
+          "type": "row",
+          "name": "One set price, day or night",
+          "height": 96,
+          "background": "#1C2541",
+          "dark_background": "#1C2541",
+          "radius": 20,
+          "shadow": "medium",
+          "action": {
+           "type": "screen",
+           "screen": "ride"
+          },
+          "surface": {
+           "ticket": {
+            "at": 27,
+            "axis": "vertical",
+            "notch": 8
+           }
+          },
+          "children": [
+           {
+            "id": "g45",
+            "type": "row",
+            "name": "Airport",
+            "width": 96,
+            "height": "fill",
+            "background": "#1C2541",
+            "image_background_url": "http://localhost:3000/stories/rides/rides-backseat.jpg",
+            "children": []
+           },
+           {
+            "id": "g46",
+            "type": "column",
+            "width": "fill",
+            "padding": {
+             "end": 8,
+             "start": 14
+            },
+            "gap": 3,
+            "align": "center",
+            "children": [
+             {
+              "id": "g47",
+              "type": "text",
+              "color": "#F5B700",
+              "dark_color": "#F5B700",
+              "font": {
+               "weight": 800,
+               "size": 13,
+               "letter_spacing": 2.8,
+               "uppercase": true
+              },
+              "text": "Airport"
+             },
+             {
+              "id": "g48",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 15,
+               "line_height": 1.2
+              },
+              "text": "One set price, day or night"
+             },
+             {
+              "id": "g49",
+              "type": "text",
+              "color": "#C9CEDD",
+              "dark_color": "#C9CEDD",
+              "font": {
+               "weight": 600,
+               "size": 12
+              },
+              "text": "To and from Cairo International",
+              "max_lines": 1
+             }
+            ]
+           },
+           {
+            "id": "g50",
+            "type": "row",
+            "width": 40,
+            "height": 40,
+            "margin": {
+             "end": 14
+            },
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "background": "#F5B700",
+            "radius": 20,
+            "children": [
+             {
+              "id": "g51",
+              "type": "icon",
+              "color": "#1C2541",
+              "dark_color": "#1C2541",
+              "icon": "flight_takeoff",
+              "icon_size": 22
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324"
+    }
+   },
+   "rides": {
+    "screen": "my_rides",
+    "studio": {
+     "body": {
+      "id": "g52",
+      "type": "column",
+      "children": [
+       {
+        "id": "g53",
+        "type": "photo_hero",
+        "name": "Your rides, day and night",
+        "height": 132,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#1C2541",
+        "radius": 22,
+        "scrim": {
+         "color": "#1C2541",
+         "from": 0,
+         "to": 0.82,
+         "middle": 0,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/rides/rides-backseat.jpg",
+        "children": [
+         {
+          "id": "g54",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "weight": 800,
+           "size": 17,
+           "line_height": 1.2
+          },
+          "text": "Your rides, day and night"
+         },
+         {
+          "id": "g55",
+          "type": "text",
+          "margin": {
+           "top": 3
+          },
+          "color": "#FFFFFF",
+          "opacity": 0.9,
+          "font": {
+           "size": 12.5,
+           "line_height": 1.4
+          },
+          "text": "Your rides, their fares and receipts."
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "My rides",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#FFFDF6",
+      "color": "#141B2E",
+      "dark_background": "#0E1324",
+      "dark_color": "#F1F2F7",
+      "style": "brand"
+     },
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324",
+     "screen": "my_rides"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g56",
+      "type": "column",
+      "children": []
+     },
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324",
+     "screen": "account"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 96
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "map_header",
+        "name": "Where to?",
+        "height": 352,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 24,
+         "start": 16
+        },
+        "align": "between",
+        "background": "#F5B700",
+        "dark_background": "#121829",
+        "map_drawing": {
+         "markers": [
+          {
+           "x": 33,
+           "y": 31
+          },
+          {
+           "x": 81,
+           "y": 33
+          },
+          {
+           "x": 52,
+           "y": 42
+          },
+          {
+           "x": 43,
+           "y": 92
+          },
+          {
+           "x": 72,
+           "y": 94
+          },
+          {
+           "x": 95,
+           "y": 56
+          },
+          {
+           "x": 58,
+           "y": 28
+          }
+         ],
+         "accent": "#F5B700",
+         "chip": "#1C2541",
+         "me": true,
+         "live": true,
+         "style": "two_ink",
+         "me_at": {
+          "x": 40,
+          "y": 60
+         },
+         "labels": [
+          {
+           "x": 36,
+           "y": 44,
+           "text": "Maadi"
+          },
+          {
+           "x": 6,
+           "y": 72,
+           "text": "Nile"
+          }
+         ]
+        },
+        "children": [
+         {
+          "id": "g3",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g4",
+            "type": "row",
+            "height": 44,
+            "padding": {
+             "end": 16,
+             "start": 14
+            },
+            "gap": 8,
+            "cross": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "radius": 22,
+            "children": [
+             {
+              "id": "g5",
+              "type": "icon",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "icon": "local_taxi",
+              "icon_size": 20
+             },
+             {
+              "id": "g6",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#1C2541",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "Guard Shop"
+             }
+            ]
+           },
+           {
+            "id": "g7",
+            "type": "row",
+            "width": "fill",
+            "height": 1,
+            "children": []
+           },
+           {
+            "id": "g8",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "radius": 22,
+            "action": {
+             "type": "screen",
+             "screen": "notifications"
+            },
+            "children": [
+             {
+              "id": "g9",
+              "type": "icon",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "icon": "notifications",
+              "icon_size": 22
+             }
+            ]
+           },
+           {
+            "id": "g10",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "radius": 22,
+            "action": {
+             "type": "screen",
+             "screen": "account"
+            },
+            "children": [
+             {
+              "id": "g11",
+              "type": "icon",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "icon": "person",
+              "icon_size": 22
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g12",
+          "type": "row",
+          "children": [
+           {
+            "id": "g13",
+            "type": "row",
+            "width": "fill",
+            "height": 1,
+            "children": []
+           },
+           {
+            "id": "g14",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "radius": 22,
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g15",
+              "type": "icon",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "icon": "my_location",
+              "icon_size": 22
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g16",
+        "type": "column",
+        "name": "Where to?",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 12,
+        "children": [
+         {
+          "id": "g17",
+          "type": "row",
+          "gap": 12,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g18",
+            "type": "tracking",
+            "width": "fill",
+            "color": "#141B2E",
+            "dark_color": "#F1F2F7",
+            "tracking": {
+             "kind": "nearby_taxis",
+             "style": "card"
+            },
+            "visibility": "signed_in"
+           },
+           {
+            "id": "g19",
+            "type": "row",
+            "name": "Book it",
+            "height": 52,
+            "padding": {
+             "end": 18,
+             "start": 18
+            },
+            "gap": 6,
+            "cross": "center",
+            "self_align": "center",
+            "background": "#1C2541",
+            "dark_background": "#F5B700",
+            "radius": 26,
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g20",
+              "type": "text",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "احجزه"
+             },
+             {
+              "id": "g21",
+              "type": "icon",
+              "color": "#F5B700",
+              "dark_color": "#1C2541",
+              "icon": "arrow_forward",
+              "icon_size": 20
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g22",
+          "type": "row",
+          "name": "Where to?",
+          "height": 56,
+          "padding": {
+           "end": 6,
+           "start": 16
+          },
+          "gap": 10,
+          "cross": "center",
+          "background": "#F3EFE3",
+          "dark_background": "#1A2138",
+          "radius": 18,
+          "action": {
+           "type": "screen",
+           "screen": "ride"
+          },
+          "children": [
+           {
+            "id": "g23",
+            "type": "icon",
+            "color": "#141B2E",
+            "dark_color": "#F1F2F7",
+            "icon": "search",
+            "icon_size": 22
+           },
+           {
+            "id": "g24",
+            "type": "text",
+            "width": "fill",
+            "color": "#141B2E",
+            "dark_color": "#F1F2F7",
+            "font": {
+             "weight": 800,
+             "size": 17
+            },
+            "text": "إلى أين؟"
+           },
+           {
+            "id": "g25",
+            "type": "row",
+            "height": 44,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "gap": 5,
+            "cross": "center",
+            "self_align": "center",
+            "background": "#FFFDF6",
+            "dark_background": "#0E1324",
+            "radius": 14,
+            "children": [
+             {
+              "id": "g26",
+              "type": "icon",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "icon": "schedule",
+              "icon_size": 18
+             },
+             {
+              "id": "g27",
+              "type": "text",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "font": {
+               "weight": 700,
+               "size": 13
+              },
+              "text": "الآن"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g28",
+          "type": "row",
+          "name": "Taxi",
+          "gap": 8,
+          "children": [
+           {
+            "id": "g29",
+            "type": "column",
+            "name": "Taxi",
+            "width": "fill",
+            "height": 52,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "gap": 1,
+            "align": "center",
+            "background": "#F5B700",
+            "radius": 16,
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g30",
+              "type": "text",
+              "color": "#1C2541",
+              "dark_color": "#1C2541",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "تاكسي"
+             },
+             {
+              "id": "g31",
+              "type": "row",
+              "width": "hug",
+              "gap": 2,
+              "children": [
+               {
+                "id": "g32",
+                "type": "text",
+                "color": "#3D3206",
+                "dark_color": "#3D3206",
+                "font": {
+                 "weight": 600,
+                 "size": 12
+                },
+                "text": "من ج.م"
+               },
+               {
+                "id": "g33",
+                "type": "text",
+                "color": "#3D3206",
+                "dark_color": "#3D3206",
+                "font": {
+                 "weight": 700,
+                 "size": 12
+                },
+                "text": "35"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "g34",
+            "type": "column",
+            "name": "Comfort",
+            "width": "fill",
+            "height": 52,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "gap": 1,
+            "align": "center",
+            "border_color": "#E2DCCB",
+            "dark_border_color": "#2A3354",
+            "radius": 16,
+            "border_width": 1.5,
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g35",
+              "type": "text",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "مريحة"
+             },
+             {
+              "id": "g36",
+              "type": "row",
+              "width": "hug",
+              "gap": 2,
+              "children": [
+               {
+                "id": "g37",
+                "type": "text",
+                "color": "#5B6276",
+                "dark_color": "#AEB4C6",
+                "font": {
+                 "weight": 600,
+                 "size": 12
+                },
+                "text": "من ج.م"
+               },
+               {
+                "id": "g38",
+                "type": "text",
+                "color": "#5B6276",
+                "dark_color": "#AEB4C6",
+                "font": {
+                 "weight": 700,
+                 "size": 12
+                },
+                "text": "55"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "g39",
+            "type": "column",
+            "name": "XL",
+            "width": "fill",
+            "height": 52,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "gap": 1,
+            "align": "center",
+            "border_color": "#E2DCCB",
+            "dark_border_color": "#2A3354",
+            "radius": 16,
+            "border_width": 1.5,
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g40",
+              "type": "text",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "XL"
+             },
+             {
+              "id": "g41",
+              "type": "row",
+              "width": "hug",
+              "gap": 2,
+              "children": [
+               {
+                "id": "g42",
+                "type": "text",
+                "color": "#5B6276",
+                "dark_color": "#AEB4C6",
+                "font": {
+                 "weight": 600,
+                 "size": 12
+                },
+                "text": "من ج.م"
+               },
+               {
+                "id": "g43",
+                "type": "text",
+                "color": "#5B6276",
+                "dark_color": "#AEB4C6",
+                "font": {
+                 "weight": 700,
+                 "size": 12
+                },
+                "text": "85"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g44",
+          "type": "row",
+          "name": "One set price, day or night",
+          "height": 96,
+          "background": "#1C2541",
+          "dark_background": "#1C2541",
+          "radius": 20,
+          "shadow": "medium",
+          "action": {
+           "type": "screen",
+           "screen": "ride"
+          },
+          "surface": {
+           "ticket": {
+            "at": 27,
+            "axis": "vertical",
+            "notch": 8
+           }
+          },
+          "children": [
+           {
+            "id": "g45",
+            "type": "row",
+            "name": "Airport",
+            "width": 96,
+            "height": "fill",
+            "background": "#1C2541",
+            "image_background_url": "http://localhost:3000/stories/rides/rides-backseat.jpg",
+            "children": []
+           },
+           {
+            "id": "g46",
+            "type": "column",
+            "width": "fill",
+            "padding": {
+             "end": 8,
+             "start": 14
+            },
+            "gap": 3,
+            "align": "center",
+            "children": [
+             {
+              "id": "g47",
+              "type": "text",
+              "color": "#F5B700",
+              "dark_color": "#F5B700",
+              "font": {
+               "weight": 800,
+               "size": 13,
+               "letter_spacing": 2.8,
+               "uppercase": true
+              },
+              "text": "المطار"
+             },
+             {
+              "id": "g48",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 15,
+               "line_height": 1.2
+              },
+              "text": "سعر واحد ثابت ليلًا ونهارًا"
+             },
+             {
+              "id": "g49",
+              "type": "text",
+              "color": "#C9CEDD",
+              "dark_color": "#C9CEDD",
+              "font": {
+               "weight": 600,
+               "size": 12
+              },
+              "text": "من مطار القاهرة الدولي وإليه",
+              "max_lines": 1
+             }
+            ]
+           },
+           {
+            "id": "g50",
+            "type": "row",
+            "width": 40,
+            "height": 40,
+            "margin": {
+             "end": 14
+            },
+            "align": "center",
+            "cross": "center",
+            "self_align": "center",
+            "background": "#F5B700",
+            "radius": 20,
+            "children": [
+             {
+              "id": "g51",
+              "type": "icon",
+              "color": "#1C2541",
+              "dark_color": "#1C2541",
+              "icon": "flight_takeoff",
+              "icon_size": 22
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324"
+    }
+   },
+   "rides": {
+    "screen": "my_rides",
+    "studio": {
+     "body": {
+      "id": "g52",
+      "type": "column",
+      "children": [
+       {
+        "id": "g53",
+        "type": "photo_hero",
+        "name": "Your rides, day and night",
+        "height": 132,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#1C2541",
+        "radius": 22,
+        "scrim": {
+         "color": "#1C2541",
+         "from": 0,
+         "to": 0.82,
+         "middle": 0,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/rides/rides-backseat.jpg",
+        "children": [
+         {
+          "id": "g54",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "weight": 800,
+           "size": 17,
+           "line_height": 1.2
+          },
+          "text": "رحلاتك ليلًا ونهارًا"
+         },
+         {
+          "id": "g55",
+          "type": "text",
+          "margin": {
+           "top": 3
+          },
+          "color": "#FFFFFF",
+          "opacity": 0.9,
+          "font": {
+           "size": 12.5,
+           "line_height": 1.4
+          },
+          "text": "رحلاتك وأجرتها وإيصالاتها."
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "رحلاتي",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#FFFDF6",
+      "color": "#141B2E",
+      "dark_background": "#0E1324",
+      "dark_color": "#F1F2F7",
+      "style": "brand"
+     },
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324",
+     "screen": "my_rides"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g56",
+      "type": "column",
+      "children": []
+     },
+     "background": "#FFFDF6",
+     "dark_background": "#0E1324",
+     "screen": "account"
+    }
+   }
+  }
+ }
+}

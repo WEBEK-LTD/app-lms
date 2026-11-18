@@ -1,0 +1,876 @@
+{
+ "template": "market_photo",
+ "look": null,
+ "kind": "marketplace",
+ "app_type": "food",
+ "vertical": "marketplace",
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "search",
+   "label": "Search",
+   "icon": "search",
+   "target": {
+    "type": "screen",
+    "screen": "search"
+   }
+  },
+  {
+   "id": "orders",
+   "label": "Orders",
+   "icon": "receipt_long",
+   "target": {
+    "type": "screen",
+    "screen": "food_orders"
+   }
+  },
+  {
+   "id": "club",
+   "label": "Club",
+   "icon": "workspace_premium",
+   "target": {
+    "type": "screen",
+    "screen": "club"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "market",
+        "color": "#1E6B52",
+        "text": "Search products and shops",
+        "market": {
+         "section": "address",
+         "style": "bar"
+        }
+       },
+       {
+        "id": "g3",
+        "type": "stack",
+        "name": "[This week's offer]",
+        "height": 150,
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "start": 16
+        },
+        "image_background_url": "http://localhost:3000/demo-photos/cover-market.jpg",
+        "radius": 22,
+        "scrim": {
+         "color": "#0E281E",
+         "from": 0.85,
+         "to": 0.2,
+         "middle": 0.2,
+         "at": 70,
+         "angle": 90
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "children": [
+         {
+          "id": "g4",
+          "type": "column",
+          "padding": {
+           "top": 18,
+           "end": 120,
+           "start": 16
+          },
+          "gap": 6,
+          "cross": "start",
+          "color": "#FFFFFF",
+          "children": [
+           {
+            "id": "g5",
+            "type": "text",
+            "color": "#F2A93B",
+            "font": {
+             "weight": 800,
+             "size": 12,
+             "letter_spacing": 1.7,
+             "uppercase": true
+            },
+            "text": "This week"
+           },
+           {
+            "id": "g6",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 22,
+             "line_height": 1.1
+            },
+            "text": "[This week's offer]",
+            "max_lines": 2
+           },
+           {
+            "id": "g7",
+            "type": "button",
+            "width": "hug",
+            "height": 32,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "margin": {
+             "top": 6
+            },
+            "background": "#FFFFFF",
+            "color": "#1E6B52",
+            "radius": 16,
+            "font": {
+             "weight": 800,
+             "size": 12
+            },
+            "text": "Shop now",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g8",
+        "type": "grid",
+        "name": "Fruit",
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 10,
+        "columns": 2,
+        "children": [
+         {
+          "id": "g9",
+          "type": "stack",
+          "height": 112,
+          "image_background_url": "http://localhost:3000/demo-photos/fruit.jpg",
+          "radius": 20,
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "to": 0.7,
+           "middle": 0,
+           "at": 40
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "g10",
+            "type": "column",
+            "height": 112,
+            "padding": {
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "align": "end",
+            "color": "#FFFFFF",
+            "children": [
+             {
+              "id": "g11",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "Fruit",
+              "max_lines": 1
+             },
+             {
+              "id": "g12",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 11
+              },
+              "text": "Picked this morning",
+              "max_lines": 1
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g13",
+          "type": "stack",
+          "height": 112,
+          "image_background_url": "http://localhost:3000/demo-photos/vegetables.jpg",
+          "radius": 20,
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "to": 0.7,
+           "middle": 0,
+           "at": 40
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "g14",
+            "type": "column",
+            "height": 112,
+            "padding": {
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "align": "end",
+            "color": "#FFFFFF",
+            "children": [
+             {
+              "id": "g15",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "Vegetables",
+              "max_lines": 1
+             },
+             {
+              "id": "g16",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 11
+              },
+              "text": "Farm fresh",
+              "max_lines": 1
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g17",
+          "type": "stack",
+          "height": 112,
+          "image_background_url": "http://localhost:3000/demo-photos/bakery.jpg",
+          "radius": 20,
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "to": 0.7,
+           "middle": 0,
+           "at": 40
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "g18",
+            "type": "column",
+            "height": 112,
+            "padding": {
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "align": "end",
+            "color": "#FFFFFF",
+            "children": [
+             {
+              "id": "g19",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "Bakery",
+              "max_lines": 1
+             },
+             {
+              "id": "g20",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 11
+              },
+              "text": "Baked today",
+              "max_lines": 1
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g21",
+          "type": "stack",
+          "height": 112,
+          "image_background_url": "http://localhost:3000/demo-photos/dairy.jpg",
+          "radius": 20,
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "to": 0.7,
+           "middle": 0,
+           "at": 40
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "g22",
+            "type": "column",
+            "height": 112,
+            "padding": {
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "align": "end",
+            "color": "#FFFFFF",
+            "children": [
+             {
+              "id": "g23",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "Dairy",
+              "max_lines": 1
+             },
+             {
+              "id": "g24",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 11
+              },
+              "text": "Milk, cheese, eggs",
+              "max_lines": 1
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g25",
+        "type": "row",
+        "name": "Places near you",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g26",
+          "type": "text",
+          "width": "fill",
+          "color": "#14231B",
+          "dark_color": "#EAF3EE",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Places near you"
+         },
+         {
+          "id": "g27",
+          "type": "text",
+          "color": "#1E6B52",
+          "dark_color": "#7FD3AE",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "See all",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g28",
+        "type": "market",
+        "market": {
+         "section": "vendors",
+         "style": "chips",
+         "sort": "nearest",
+         "limit": 6
+        }
+       }
+      ]
+     },
+     "background": "#F6F3EE",
+     "dark_background": "#0D1712"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "market",
+        "color": "#1E6B52",
+        "text": "ابحث عن منتجات ومتاجر",
+        "market": {
+         "section": "address",
+         "style": "bar"
+        }
+       },
+       {
+        "id": "g3",
+        "type": "stack",
+        "name": "[This week's offer]",
+        "height": 150,
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "start": 16
+        },
+        "image_background_url": "http://localhost:3000/demo-photos/cover-market.jpg",
+        "radius": 22,
+        "scrim": {
+         "color": "#0E281E",
+         "from": 0.85,
+         "to": 0.2,
+         "middle": 0.2,
+         "at": 70,
+         "angle": 90
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "children": [
+         {
+          "id": "g4",
+          "type": "column",
+          "padding": {
+           "top": 18,
+           "end": 120,
+           "start": 16
+          },
+          "gap": 6,
+          "cross": "start",
+          "color": "#FFFFFF",
+          "children": [
+           {
+            "id": "g5",
+            "type": "text",
+            "color": "#F2A93B",
+            "font": {
+             "weight": 800,
+             "size": 12,
+             "letter_spacing": 1.7,
+             "uppercase": true
+            },
+            "text": "هذا الأسبوع"
+           },
+           {
+            "id": "g6",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 22,
+             "line_height": 1.1
+            },
+            "text": "[عرض الأسبوع]",
+            "max_lines": 2
+           },
+           {
+            "id": "g7",
+            "type": "button",
+            "width": "hug",
+            "height": 32,
+            "padding": {
+             "end": 12,
+             "start": 12
+            },
+            "margin": {
+             "top": 6
+            },
+            "background": "#FFFFFF",
+            "color": "#1E6B52",
+            "radius": 16,
+            "font": {
+             "weight": 800,
+             "size": 12
+            },
+            "text": "تسوّق الآن",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g8",
+        "type": "grid",
+        "name": "Fruit",
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 10,
+        "columns": 2,
+        "children": [
+         {
+          "id": "g9",
+          "type": "stack",
+          "height": 112,
+          "image_background_url": "http://localhost:3000/demo-photos/fruit.jpg",
+          "radius": 20,
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "to": 0.7,
+           "middle": 0,
+           "at": 40
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "g10",
+            "type": "column",
+            "height": 112,
+            "padding": {
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "align": "end",
+            "color": "#FFFFFF",
+            "children": [
+             {
+              "id": "g11",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "فاكهة",
+              "max_lines": 1
+             },
+             {
+              "id": "g12",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 11
+              },
+              "text": "قُطفت هذا الصباح",
+              "max_lines": 1
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g13",
+          "type": "stack",
+          "height": 112,
+          "image_background_url": "http://localhost:3000/demo-photos/vegetables.jpg",
+          "radius": 20,
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "to": 0.7,
+           "middle": 0,
+           "at": 40
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "g14",
+            "type": "column",
+            "height": 112,
+            "padding": {
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "align": "end",
+            "color": "#FFFFFF",
+            "children": [
+             {
+              "id": "g15",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "خضروات",
+              "max_lines": 1
+             },
+             {
+              "id": "g16",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 11
+              },
+              "text": "طازجة من المزرعة",
+              "max_lines": 1
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g17",
+          "type": "stack",
+          "height": 112,
+          "image_background_url": "http://localhost:3000/demo-photos/bakery.jpg",
+          "radius": 20,
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "to": 0.7,
+           "middle": 0,
+           "at": 40
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "g18",
+            "type": "column",
+            "height": 112,
+            "padding": {
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "align": "end",
+            "color": "#FFFFFF",
+            "children": [
+             {
+              "id": "g19",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "مخبوزات",
+              "max_lines": 1
+             },
+             {
+              "id": "g20",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 11
+              },
+              "text": "خُبزت اليوم",
+              "max_lines": 1
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g21",
+          "type": "stack",
+          "height": 112,
+          "image_background_url": "http://localhost:3000/demo-photos/dairy.jpg",
+          "radius": 20,
+          "scrim": {
+           "color": "#000000",
+           "from": 0,
+           "to": 0.7,
+           "middle": 0,
+           "at": 40
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "g22",
+            "type": "column",
+            "height": 112,
+            "padding": {
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            },
+            "align": "end",
+            "color": "#FFFFFF",
+            "children": [
+             {
+              "id": "g23",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "ألبان",
+              "max_lines": 1
+             },
+             {
+              "id": "g24",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 11
+              },
+              "text": "حليب وجبن وبيض",
+              "max_lines": 1
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g25",
+        "type": "row",
+        "name": "Places near you",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g26",
+          "type": "text",
+          "width": "fill",
+          "color": "#14231B",
+          "dark_color": "#EAF3EE",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "أماكن قريبة منك"
+         },
+         {
+          "id": "g27",
+          "type": "text",
+          "color": "#1E6B52",
+          "dark_color": "#7FD3AE",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "عرض الكل",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g28",
+        "type": "market",
+        "market": {
+         "section": "vendors",
+         "style": "chips",
+         "sort": "nearest",
+         "limit": 6
+        }
+       }
+      ]
+     },
+     "background": "#F6F3EE",
+     "dark_background": "#0D1712"
+    }
+   }
+  }
+ }
+}

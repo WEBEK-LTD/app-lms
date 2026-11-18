@@ -1,0 +1,1346 @@
+{
+ "template": "delivery_signature_b",
+ "look": "b",
+ "kind": "delivery",
+ "app_type": "delivery",
+ "vertical": null,
+ "primary_color": "#1F6FB2",
+ "appearance": {
+  "template": "bold",
+  "font": "DM Sans"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "send",
+   "label": "Send",
+   "icon": "send",
+   "target": {
+    "type": "screen",
+    "screen": "send_parcel"
+   }
+  },
+  {
+   "id": "shipments",
+   "label": "My shipments",
+   "icon": "package_2",
+   "target": {
+    "type": "screen",
+    "screen": "shipments"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": {
+  "design": "float",
+  "background": "#0D1B2A",
+  "dark_background": "#15243A",
+  "active": "#F2B544",
+  "inactive": "#C9D4E0",
+  "dark_active": "#F2B544",
+  "dark_inactive": "#C2CFDD",
+  "radius": 30,
+  "margin": 14,
+  "labels": "active"
+ },
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "map_header",
+        "name": "Your shipment on its way",
+        "height": 470,
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "background": "#E8EDF2",
+        "dark_background": "#0C1623",
+        "map_drawing": {
+         "accent": "#F2B544",
+         "chip": "#0D1B2A",
+         "style": "natural",
+         "route": {
+          "points": [
+           {
+            "x": 78,
+            "y": 26
+           },
+           {
+            "x": 78,
+            "y": 62
+           },
+           {
+            "x": 30,
+            "y": 62
+           }
+          ],
+          "at": 48,
+          "eta": "6 min",
+          "icon": "two_wheeler",
+          "color": "#1F6FB2",
+          "dark_color": "#6DB3F2",
+          "live": "shipment"
+         }
+        },
+        "overlap": 28,
+        "children": [
+         {
+          "id": "g3",
+          "type": "row",
+          "gap": 8,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g4",
+            "type": "row",
+            "height": 44,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#0C1623",
+            "border_color": "#FFFFFF",
+            "dark_border_color": "#22334A",
+            "radius": 22,
+            "border_width": 1,
+            "shadow": "medium",
+            "surface": {
+             "glass": 14,
+             "tint": 0.78
+            },
+            "children": [
+             {
+              "id": "g5",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 800,
+               "size": 18,
+               "letter_spacing": -0.6
+              },
+              "text": "Guard Shop",
+              "max_lines": 1
+             }
+            ]
+           },
+           {
+            "id": "g6",
+            "type": "spacer",
+            "width": "fill",
+            "height": 1
+           },
+           {
+            "id": "g7",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#0C1623",
+            "border_color": "#FFFFFF",
+            "dark_border_color": "#22334A",
+            "radius": 22,
+            "border_width": 1,
+            "shadow": "medium",
+            "action": {
+             "type": "screen",
+             "screen": "notifications"
+            },
+            "surface": {
+             "glass": 14,
+             "tint": 0.78
+            },
+            "children": [
+             {
+              "id": "g8",
+              "type": "icon",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "icon": "notifications",
+              "icon_size": 22
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g9",
+          "type": "column",
+          "name": "Send a parcel",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 16,
+           "bottom": 8,
+           "start": 16
+          },
+          "background": "#F7F9FC",
+          "dark_background": "#08111C",
+          "corners": {
+           "top_start": 28,
+           "top_end": 28
+          },
+          "shadow": "strong",
+          "children": [
+           {
+            "id": "g10",
+            "type": "row",
+            "width": 40,
+            "height": 4,
+            "margin": {
+             "bottom": 12
+            },
+            "self_align": "center",
+            "background": "#C3CDD8",
+            "dark_background": "#2C3D52",
+            "radius": 2,
+            "children": []
+           },
+           {
+            "id": "g11",
+            "type": "tracking",
+            "name": "Your shipment on its way",
+            "width": "fill",
+            "color": "#0D1B2A",
+            "dark_color": "#EAF1F8",
+            "tracking": {
+             "kind": "shipment",
+             "style": "hero",
+             "accent": "#1F6FB2",
+             "dark_accent": "#6DB3F2"
+            },
+            "visibility": "signed_in"
+           },
+           {
+            "id": "g12",
+            "type": "row",
+            "name": "Send a parcel",
+            "padding": {
+             "top": 8,
+             "end": 16,
+             "bottom": 8,
+             "start": 8
+            },
+            "margin": {
+             "top": 14
+            },
+            "gap": 12,
+            "cross": "center",
+            "background": "#0D1B2A",
+            "dark_background": "#F2B544",
+            "radius": 26,
+            "shadow": "strong",
+            "action": {
+             "type": "screen",
+             "screen": "send_parcel"
+            },
+            "children": [
+             {
+              "id": "g13",
+              "type": "row",
+              "width": 48,
+              "height": 48,
+              "align": "center",
+              "cross": "center",
+              "background": "#F2B544",
+              "dark_background": "#0D1B2A",
+              "radius": 16,
+              "children": [
+               {
+                "id": "g14",
+                "type": "icon",
+                "color": "#0D1B2A",
+                "dark_color": "#F2B544",
+                "icon": "send",
+                "icon_size": 22
+               }
+              ]
+             },
+             {
+              "id": "g15",
+              "type": "column",
+              "width": "fill",
+              "children": [
+               {
+                "id": "g16",
+                "type": "text",
+                "color": "#FFFFFF",
+                "dark_color": "#0D1B2A",
+                "font": {
+                 "family": "Outfit",
+                 "weight": 700,
+                 "size": 17
+                },
+                "text": "Send a parcel"
+               },
+               {
+                "id": "g17",
+                "type": "text",
+                "color": "#B9C6D4",
+                "dark_color": "#4A3A12",
+                "font": {
+                 "size": 12
+                },
+                "text": "From your street · where to?",
+                "max_lines": 1
+               }
+              ]
+             },
+             {
+              "id": "g18",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#0D1B2A",
+              "font": {
+               "family": "JetBrains Mono",
+               "weight": 700,
+               "size": 12
+              },
+              "text": "EGP 40+"
+             }
+            ]
+           },
+           {
+            "id": "g19",
+            "type": "row",
+            "name": "Same day",
+            "margin": {
+             "top": 12
+            },
+            "gap": 8,
+            "children": [
+             {
+              "id": "g20",
+              "type": "photo_hero",
+              "name": "Same day",
+              "width": "fill",
+              "height": 96,
+              "padding": {
+               "top": 8,
+               "end": 8,
+               "bottom": 10,
+               "start": 10
+              },
+              "align": "between",
+              "background": "#0D1B2A",
+              "radius": 22,
+              "scrim": {
+               "color": "#000000",
+               "from": 0.05,
+               "to": 0.8,
+               "middle": 0.2,
+               "at": 40
+              },
+              "image_url": "http://localhost:3000/stories/delivery/delivery-boxes.jpg",
+              "action": {
+               "type": "screen",
+               "screen": "send_parcel"
+              },
+              "children": [
+               {
+                "id": "g21",
+                "type": "spacer",
+                "height": 18
+               },
+               {
+                "id": "g22",
+                "type": "column",
+                "children": [
+                 {
+                  "id": "g23",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "font": {
+                   "family": "Outfit",
+                   "weight": 700,
+                   "size": 20,
+                   "line_height": 1
+                  },
+                  "text": "2–4h"
+                 },
+                 {
+                  "id": "g24",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "font": {
+                   "weight": 700,
+                   "size": 12
+                  },
+                  "text": "Same day",
+                  "max_lines": 1
+                 }
+                ]
+               }
+              ]
+             },
+             {
+              "id": "g25",
+              "type": "photo_hero",
+              "name": "Express",
+              "width": "fill",
+              "height": 96,
+              "padding": {
+               "top": 8,
+               "end": 8,
+               "bottom": 10,
+               "start": 10
+              },
+              "align": "between",
+              "background": "#0D1B2A",
+              "radius": 22,
+              "scrim": {
+               "color": "#000000",
+               "from": 0.05,
+               "to": 0.8,
+               "middle": 0.2,
+               "at": 40
+              },
+              "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg",
+              "action": {
+               "type": "screen",
+               "screen": "send_parcel"
+              },
+              "children": [
+               {
+                "id": "g26",
+                "type": "text",
+                "padding": {
+                 "top": 3,
+                 "end": 8,
+                 "bottom": 3,
+                 "start": 8
+                },
+                "self_align": "end",
+                "background": "#F2B544",
+                "color": "#0D1B2A",
+                "radius": 12,
+                "font": {
+                 "weight": 800,
+                 "size": 11
+                },
+                "text": "+EGP 45"
+               },
+               {
+                "id": "g27",
+                "type": "column",
+                "children": [
+                 {
+                  "id": "g28",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "font": {
+                   "family": "Outfit",
+                   "weight": 700,
+                   "size": 20,
+                   "line_height": 1
+                  },
+                  "text": "1h"
+                 },
+                 {
+                  "id": "g29",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "font": {
+                   "weight": 700,
+                   "size": 12
+                  },
+                  "text": "Express",
+                  "max_lines": 1
+                 }
+                ]
+               }
+              ]
+             },
+             {
+              "id": "g30",
+              "type": "photo_hero",
+              "name": "Documents",
+              "width": "fill",
+              "height": 96,
+              "padding": {
+               "top": 8,
+               "end": 8,
+               "bottom": 10,
+               "start": 10
+              },
+              "align": "between",
+              "background": "#0D1B2A",
+              "radius": 22,
+              "scrim": {
+               "color": "#000000",
+               "from": 0.05,
+               "to": 0.8,
+               "middle": 0.2,
+               "at": 40
+              },
+              "image_url": "http://localhost:3000/stories/delivery/delivery-handover.jpg",
+              "action": {
+               "type": "screen",
+               "screen": "send_parcel"
+              },
+              "children": [
+               {
+                "id": "g31",
+                "type": "text",
+                "padding": {
+                 "top": 3,
+                 "end": 8,
+                 "bottom": 3,
+                 "start": 8
+                },
+                "self_align": "end",
+                "background": "#F2B544",
+                "color": "#0D1B2A",
+                "radius": 12,
+                "font": {
+                 "weight": 800,
+                 "size": 11
+                },
+                "text": "+EGP 15"
+               },
+               {
+                "id": "g32",
+                "type": "column",
+                "children": [
+                 {
+                  "id": "g33",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "font": {
+                   "family": "Outfit",
+                   "weight": 700,
+                   "size": 20,
+                   "line_height": 1
+                  },
+                  "text": "4h"
+                 },
+                 {
+                  "id": "g34",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "font": {
+                   "weight": 700,
+                   "size": 12
+                  },
+                  "text": "Documents",
+                  "max_lines": 1
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "background": "#F7F9FC",
+     "dark_background": "#08111C"
+    }
+   },
+   "send": {
+    "screen": "send_parcel",
+    "studio": {
+     "body": {
+      "id": "g35",
+      "type": "column",
+      "children": [
+       {
+        "id": "g36",
+        "type": "tracking",
+        "name": "Your shipment on its way",
+        "width": "fill",
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "color": "#0D1B2A",
+        "dark_background": "#15243A",
+        "dark_color": "#EAF1F8",
+        "radius": 22,
+        "tracking": {
+         "kind": "shipment",
+         "style": "hero",
+         "accent": "#1F6FB2",
+         "dark_accent": "#6DB3F2"
+        },
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Send",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F7F9FC",
+      "color": "#0D1B2A",
+      "dark_background": "#08111C",
+      "dark_color": "#EAF1F8",
+      "style": "glass"
+     },
+     "background": "#F7F9FC",
+     "dark_background": "#08111C",
+     "screen": "send_parcel"
+    }
+   },
+   "shipments": {
+    "screen": "shipments",
+    "studio": {
+     "body": {
+      "id": "g37",
+      "type": "column",
+      "children": [
+       {
+        "id": "g38",
+        "type": "tracking",
+        "name": "Your shipment on its way",
+        "width": "fill",
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "color": "#0D1B2A",
+        "dark_background": "#15243A",
+        "dark_color": "#EAF1F8",
+        "radius": 22,
+        "tracking": {
+         "kind": "shipment",
+         "style": "hero",
+         "accent": "#1F6FB2",
+         "dark_accent": "#6DB3F2"
+        },
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "My shipments",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F7F9FC",
+      "color": "#0D1B2A",
+      "dark_background": "#08111C",
+      "dark_color": "#EAF1F8",
+      "style": "glass"
+     },
+     "background": "#F7F9FC",
+     "dark_background": "#08111C",
+     "screen": "shipments"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g39",
+      "type": "column",
+      "children": []
+     },
+     "background": "#F7F9FC",
+     "dark_background": "#08111C",
+     "screen": "account"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "map_header",
+        "name": "Your shipment on its way",
+        "height": 470,
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "background": "#E8EDF2",
+        "dark_background": "#0C1623",
+        "map_drawing": {
+         "accent": "#F2B544",
+         "chip": "#0D1B2A",
+         "style": "natural",
+         "route": {
+          "points": [
+           {
+            "x": 78,
+            "y": 26
+           },
+           {
+            "x": 78,
+            "y": 62
+           },
+           {
+            "x": 30,
+            "y": 62
+           }
+          ],
+          "at": 48,
+          "eta": "6 min",
+          "icon": "two_wheeler",
+          "color": "#1F6FB2",
+          "dark_color": "#6DB3F2",
+          "live": "shipment"
+         }
+        },
+        "overlap": 28,
+        "children": [
+         {
+          "id": "g3",
+          "type": "row",
+          "gap": 8,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g4",
+            "type": "row",
+            "height": 44,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#0C1623",
+            "border_color": "#FFFFFF",
+            "dark_border_color": "#22334A",
+            "radius": 22,
+            "border_width": 1,
+            "shadow": "medium",
+            "surface": {
+             "glass": 14,
+             "tint": 0.78
+            },
+            "children": [
+             {
+              "id": "g5",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 800,
+               "size": 18,
+               "letter_spacing": -0.6
+              },
+              "text": "Guard Shop",
+              "max_lines": 1
+             }
+            ]
+           },
+           {
+            "id": "g6",
+            "type": "spacer",
+            "width": "fill",
+            "height": 1
+           },
+           {
+            "id": "g7",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#0C1623",
+            "border_color": "#FFFFFF",
+            "dark_border_color": "#22334A",
+            "radius": 22,
+            "border_width": 1,
+            "shadow": "medium",
+            "action": {
+             "type": "screen",
+             "screen": "notifications"
+            },
+            "surface": {
+             "glass": 14,
+             "tint": 0.78
+            },
+            "children": [
+             {
+              "id": "g8",
+              "type": "icon",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "icon": "notifications",
+              "icon_size": 22
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g9",
+          "type": "column",
+          "name": "Send a parcel",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 16,
+           "bottom": 8,
+           "start": 16
+          },
+          "background": "#F7F9FC",
+          "dark_background": "#08111C",
+          "corners": {
+           "top_start": 28,
+           "top_end": 28
+          },
+          "shadow": "strong",
+          "children": [
+           {
+            "id": "g10",
+            "type": "row",
+            "width": 40,
+            "height": 4,
+            "margin": {
+             "bottom": 12
+            },
+            "self_align": "center",
+            "background": "#C3CDD8",
+            "dark_background": "#2C3D52",
+            "radius": 2,
+            "children": []
+           },
+           {
+            "id": "g11",
+            "type": "tracking",
+            "name": "Your shipment on its way",
+            "width": "fill",
+            "color": "#0D1B2A",
+            "dark_color": "#EAF1F8",
+            "tracking": {
+             "kind": "shipment",
+             "style": "hero",
+             "accent": "#1F6FB2",
+             "dark_accent": "#6DB3F2"
+            },
+            "visibility": "signed_in"
+           },
+           {
+            "id": "g12",
+            "type": "row",
+            "name": "Send a parcel",
+            "padding": {
+             "top": 8,
+             "end": 16,
+             "bottom": 8,
+             "start": 8
+            },
+            "margin": {
+             "top": 14
+            },
+            "gap": 12,
+            "cross": "center",
+            "background": "#0D1B2A",
+            "dark_background": "#F2B544",
+            "radius": 26,
+            "shadow": "strong",
+            "action": {
+             "type": "screen",
+             "screen": "send_parcel"
+            },
+            "children": [
+             {
+              "id": "g13",
+              "type": "row",
+              "width": 48,
+              "height": 48,
+              "align": "center",
+              "cross": "center",
+              "background": "#F2B544",
+              "dark_background": "#0D1B2A",
+              "radius": 16,
+              "children": [
+               {
+                "id": "g14",
+                "type": "icon",
+                "color": "#0D1B2A",
+                "dark_color": "#F2B544",
+                "icon": "send",
+                "icon_size": 22
+               }
+              ]
+             },
+             {
+              "id": "g15",
+              "type": "column",
+              "width": "fill",
+              "children": [
+               {
+                "id": "g16",
+                "type": "text",
+                "color": "#FFFFFF",
+                "dark_color": "#0D1B2A",
+                "font": {
+                 "family": "Outfit",
+                 "weight": 700,
+                 "size": 17
+                },
+                "text": "أرسل طردًا"
+               },
+               {
+                "id": "g17",
+                "type": "text",
+                "color": "#B9C6D4",
+                "dark_color": "#4A3A12",
+                "font": {
+                 "size": 12
+                },
+                "text": "من شارعك · إلى أين؟",
+                "max_lines": 1
+               }
+              ]
+             },
+             {
+              "id": "g18",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#0D1B2A",
+              "font": {
+               "family": "JetBrains Mono",
+               "weight": 700,
+               "size": 12
+              },
+              "text": "40+ ج.م"
+             }
+            ]
+           },
+           {
+            "id": "g19",
+            "type": "row",
+            "name": "Same day",
+            "margin": {
+             "top": 12
+            },
+            "gap": 8,
+            "children": [
+             {
+              "id": "g20",
+              "type": "photo_hero",
+              "name": "Same day",
+              "width": "fill",
+              "height": 96,
+              "padding": {
+               "top": 8,
+               "end": 8,
+               "bottom": 10,
+               "start": 10
+              },
+              "align": "between",
+              "background": "#0D1B2A",
+              "radius": 22,
+              "scrim": {
+               "color": "#000000",
+               "from": 0.05,
+               "to": 0.8,
+               "middle": 0.2,
+               "at": 40
+              },
+              "image_url": "http://localhost:3000/stories/delivery/delivery-boxes.jpg",
+              "action": {
+               "type": "screen",
+               "screen": "send_parcel"
+              },
+              "children": [
+               {
+                "id": "g21",
+                "type": "spacer",
+                "height": 18
+               },
+               {
+                "id": "g22",
+                "type": "column",
+                "children": [
+                 {
+                  "id": "g23",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "font": {
+                   "family": "Outfit",
+                   "weight": 700,
+                   "size": 20,
+                   "line_height": 1
+                  },
+                  "text": "2–4 س"
+                 },
+                 {
+                  "id": "g24",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "font": {
+                   "weight": 700,
+                   "size": 12
+                  },
+                  "text": "في اليوم نفسه",
+                  "max_lines": 1
+                 }
+                ]
+               }
+              ]
+             },
+             {
+              "id": "g25",
+              "type": "photo_hero",
+              "name": "Express",
+              "width": "fill",
+              "height": 96,
+              "padding": {
+               "top": 8,
+               "end": 8,
+               "bottom": 10,
+               "start": 10
+              },
+              "align": "between",
+              "background": "#0D1B2A",
+              "radius": 22,
+              "scrim": {
+               "color": "#000000",
+               "from": 0.05,
+               "to": 0.8,
+               "middle": 0.2,
+               "at": 40
+              },
+              "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg",
+              "action": {
+               "type": "screen",
+               "screen": "send_parcel"
+              },
+              "children": [
+               {
+                "id": "g26",
+                "type": "text",
+                "padding": {
+                 "top": 3,
+                 "end": 8,
+                 "bottom": 3,
+                 "start": 8
+                },
+                "self_align": "end",
+                "background": "#F2B544",
+                "color": "#0D1B2A",
+                "radius": 12,
+                "font": {
+                 "weight": 800,
+                 "size": 11
+                },
+                "text": "+45 ج.م"
+               },
+               {
+                "id": "g27",
+                "type": "column",
+                "children": [
+                 {
+                  "id": "g28",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "font": {
+                   "family": "Outfit",
+                   "weight": 700,
+                   "size": 20,
+                   "line_height": 1
+                  },
+                  "text": "1 س"
+                 },
+                 {
+                  "id": "g29",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "font": {
+                   "weight": 700,
+                   "size": 12
+                  },
+                  "text": "سريع",
+                  "max_lines": 1
+                 }
+                ]
+               }
+              ]
+             },
+             {
+              "id": "g30",
+              "type": "photo_hero",
+              "name": "Documents",
+              "width": "fill",
+              "height": 96,
+              "padding": {
+               "top": 8,
+               "end": 8,
+               "bottom": 10,
+               "start": 10
+              },
+              "align": "between",
+              "background": "#0D1B2A",
+              "radius": 22,
+              "scrim": {
+               "color": "#000000",
+               "from": 0.05,
+               "to": 0.8,
+               "middle": 0.2,
+               "at": 40
+              },
+              "image_url": "http://localhost:3000/stories/delivery/delivery-handover.jpg",
+              "action": {
+               "type": "screen",
+               "screen": "send_parcel"
+              },
+              "children": [
+               {
+                "id": "g31",
+                "type": "text",
+                "padding": {
+                 "top": 3,
+                 "end": 8,
+                 "bottom": 3,
+                 "start": 8
+                },
+                "self_align": "end",
+                "background": "#F2B544",
+                "color": "#0D1B2A",
+                "radius": 12,
+                "font": {
+                 "weight": 800,
+                 "size": 11
+                },
+                "text": "+15 ج.م"
+               },
+               {
+                "id": "g32",
+                "type": "column",
+                "children": [
+                 {
+                  "id": "g33",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "font": {
+                   "family": "Outfit",
+                   "weight": 700,
+                   "size": 20,
+                   "line_height": 1
+                  },
+                  "text": "4 س"
+                 },
+                 {
+                  "id": "g34",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "font": {
+                   "weight": 700,
+                   "size": 12
+                  },
+                  "text": "مستندات",
+                  "max_lines": 1
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "background": "#F7F9FC",
+     "dark_background": "#08111C"
+    }
+   },
+   "send": {
+    "screen": "send_parcel",
+    "studio": {
+     "body": {
+      "id": "g35",
+      "type": "column",
+      "children": [
+       {
+        "id": "g36",
+        "type": "tracking",
+        "name": "Your shipment on its way",
+        "width": "fill",
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "color": "#0D1B2A",
+        "dark_background": "#15243A",
+        "dark_color": "#EAF1F8",
+        "radius": 22,
+        "tracking": {
+         "kind": "shipment",
+         "style": "hero",
+         "accent": "#1F6FB2",
+         "dark_accent": "#6DB3F2"
+        },
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "إرسال",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F7F9FC",
+      "color": "#0D1B2A",
+      "dark_background": "#08111C",
+      "dark_color": "#EAF1F8",
+      "style": "glass"
+     },
+     "background": "#F7F9FC",
+     "dark_background": "#08111C",
+     "screen": "send_parcel"
+    }
+   },
+   "shipments": {
+    "screen": "shipments",
+    "studio": {
+     "body": {
+      "id": "g37",
+      "type": "column",
+      "children": [
+       {
+        "id": "g38",
+        "type": "tracking",
+        "name": "Your shipment on its way",
+        "width": "fill",
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "color": "#0D1B2A",
+        "dark_background": "#15243A",
+        "dark_color": "#EAF1F8",
+        "radius": 22,
+        "tracking": {
+         "kind": "shipment",
+         "style": "hero",
+         "accent": "#1F6FB2",
+         "dark_accent": "#6DB3F2"
+        },
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "شحناتي",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F7F9FC",
+      "color": "#0D1B2A",
+      "dark_background": "#08111C",
+      "dark_color": "#EAF1F8",
+      "style": "glass"
+     },
+     "background": "#F7F9FC",
+     "dark_background": "#08111C",
+     "screen": "shipments"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g39",
+      "type": "column",
+      "children": []
+     },
+     "background": "#F7F9FC",
+     "dark_background": "#08111C",
+     "screen": "account"
+    }
+   }
+  }
+ }
+}

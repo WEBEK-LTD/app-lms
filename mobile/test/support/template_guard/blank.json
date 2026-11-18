@@ -1,0 +1,93 @@
+{
+ "template": "blank",
+ "look": null,
+ "kind": "store",
+ "app_type": "store",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "shop",
+   "label": "Shop",
+   "icon": "storefront",
+   "target": {
+    "type": "screen",
+    "screen": "search"
+   }
+  },
+  {
+   "id": "cart",
+   "label": "Cart",
+   "icon": "shopping_cart",
+   "target": {
+    "type": "screen",
+    "screen": "cart"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "gap": 8,
+      "children": []
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "gap": 8,
+      "children": []
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

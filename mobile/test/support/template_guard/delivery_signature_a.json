@@ -1,0 +1,1435 @@
+{
+ "template": "delivery_signature_a",
+ "look": "a",
+ "kind": "delivery",
+ "app_type": "delivery",
+ "vertical": null,
+ "primary_color": "#1F6FB2",
+ "appearance": {
+  "template": "bold",
+  "font": "Plus Jakarta Sans"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "send",
+   "label": "Send",
+   "icon": "send",
+   "target": {
+    "type": "screen",
+    "screen": "send_parcel"
+   }
+  },
+  {
+   "id": "shipments",
+   "label": "My shipments",
+   "icon": "package_2",
+   "target": {
+    "type": "screen",
+    "screen": "shipments"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": {
+  "design": "glass",
+  "background": "#F1F4F8",
+  "dark_background": "#070D16",
+  "active": "#1F6FB2",
+  "inactive": "#526070",
+  "dark_active": "#F2B544",
+  "dark_inactive": "#9FB0C2",
+  "radius": 26,
+  "margin": 12
+ },
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Across the city,",
+        "padding": {
+         "bottom": 4
+        },
+        "surface": {
+         "pattern": "grid",
+         "pattern_strength": 0.06
+        },
+        "children": [
+         {
+          "id": "g3",
+          "type": "row",
+          "name": "Guard Shop",
+          "padding": {
+           "top": 18,
+           "end": 16,
+           "start": 16
+          },
+          "gap": 2,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g4",
+            "type": "text",
+            "color": "#0D1B2A",
+            "dark_color": "#EAF1F8",
+            "font": {
+             "weight": 800,
+             "size": 22,
+             "letter_spacing": -0.9
+            },
+            "text": "Guard Shop",
+            "max_lines": 1
+           },
+           {
+            "id": "g5",
+            "type": "text",
+            "width": "fill",
+            "color": "#E79B12",
+            "dark_color": "#F2B544",
+            "font": {
+             "weight": 800,
+             "size": 22
+            },
+            "text": "."
+           },
+           {
+            "id": "g6",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#0F1A28",
+            "border_color": "#DCE3EC",
+            "dark_border_color": "#1E2D40",
+            "radius": 22,
+            "border_width": 1,
+            "shadow": "light",
+            "action": {
+             "type": "screen",
+             "screen": "notifications"
+            },
+            "children": [
+             {
+              "id": "g7",
+              "type": "icon",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "icon": "notifications",
+              "icon_size": 22
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g8",
+          "type": "column",
+          "padding": {
+           "top": 18,
+           "end": 16,
+           "start": 16
+          },
+          "children": [
+           {
+            "id": "g9",
+            "type": "text",
+            "color": "#0D1B2A",
+            "dark_color": "#EAF1F8",
+            "font": {
+             "weight": 800,
+             "size": 46,
+             "line_height": 1,
+             "letter_spacing": -2.2
+            },
+            "text": "Across the city,"
+           },
+           {
+            "id": "g10",
+            "type": "text",
+            "color": "#1F6FB2",
+            "dark_color": "#6DB3F2",
+            "font": {
+             "weight": 800,
+             "size": 46,
+             "line_height": 1,
+             "letter_spacing": -2.2
+            },
+            "text": "today."
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g11",
+        "type": "column",
+        "name": "Send a parcel",
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#0F1A28",
+        "border_color": "#DCE3EC",
+        "dark_border_color": "#1E2D40",
+        "radius": 28,
+        "border_width": 1,
+        "shadow": "strong",
+        "surface": {
+         "soft": 3,
+         "ticket": {
+          "at": 47,
+          "notch": 12
+         }
+        },
+        "children": [
+         {
+          "id": "g12",
+          "type": "row",
+          "name": "Pickup",
+          "gap": 12,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "send_parcel"
+          },
+          "children": [
+           {
+            "id": "g13",
+            "type": "icon",
+            "color": "#1F6FB2",
+            "dark_color": "#6DB3F2",
+            "icon": "radio_button_checked",
+            "icon_size": 22
+           },
+           {
+            "id": "g14",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g15",
+              "type": "text",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "font": {
+               "family": "JetBrains Mono",
+               "weight": 700,
+               "size": 11,
+               "letter_spacing": 2,
+               "uppercase": true
+              },
+              "text": "Pickup"
+             },
+             {
+              "id": "g16",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 800,
+               "size": 19,
+               "letter_spacing": -0.4
+              },
+              "text": "[Street name]",
+              "max_lines": 1
+             }
+            ]
+           },
+           {
+            "id": "g17",
+            "type": "icon",
+            "color": "#526070",
+            "dark_color": "#9FB0C2",
+            "icon": "my_location",
+            "icon_size": 22
+           }
+          ]
+         },
+         {
+          "id": "g18",
+          "type": "spacer",
+          "height": 20
+         },
+         {
+          "id": "g19",
+          "type": "row",
+          "name": "Drop-off",
+          "gap": 12,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "send_parcel"
+          },
+          "children": [
+           {
+            "id": "g20",
+            "type": "icon",
+            "color": "#E79B12",
+            "dark_color": "#F2B544",
+            "icon": "location_on",
+            "icon_size": 22
+           },
+           {
+            "id": "g21",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g22",
+              "type": "text",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "font": {
+               "family": "JetBrains Mono",
+               "weight": 700,
+               "size": 11,
+               "letter_spacing": 2,
+               "uppercase": true
+              },
+              "text": "Drop-off"
+             },
+             {
+              "id": "g23",
+              "type": "text",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "font": {
+               "weight": 800,
+               "size": 19,
+               "letter_spacing": -0.4
+              },
+              "text": "Where to?",
+              "max_lines": 1
+             }
+            ]
+           },
+           {
+            "id": "g24",
+            "type": "icon",
+            "color": "#526070",
+            "dark_color": "#9FB0C2",
+            "icon": "link",
+            "icon_size": 22
+           }
+          ]
+         },
+         {
+          "id": "g25",
+          "type": "spacer",
+          "height": 44
+         },
+         {
+          "id": "g26",
+          "type": "row",
+          "name": "Same day",
+          "gap": 8,
+          "children": [
+           {
+            "id": "g27",
+            "type": "column",
+            "name": "Same day",
+            "width": "fill",
+            "padding": {
+             "top": 12,
+             "end": 8,
+             "bottom": 12,
+             "start": 10
+            },
+            "gap": 6,
+            "background": "#EAF2FB",
+            "dark_background": "#132A44",
+            "border_color": "#1F6FB2",
+            "dark_border_color": "#6DB3F2",
+            "radius": 18,
+            "border_width": 2,
+            "action": {
+             "type": "screen",
+             "screen": "send_parcel"
+            },
+            "children": [
+             {
+              "id": "g28",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 700,
+               "size": 12.5,
+               "letter_spacing": -0.2
+              },
+              "text": "Same day",
+              "max_lines": 1
+             },
+             {
+              "id": "g29",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 800,
+               "size": 22,
+               "line_height": 1,
+               "letter_spacing": -0.6
+              },
+              "text": "2–4h"
+             },
+             {
+              "id": "g30",
+              "type": "text",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "font": {
+               "weight": 600,
+               "size": 11
+              },
+              "text": "+EGP 0",
+              "max_lines": 1
+             }
+            ]
+           },
+           {
+            "id": "g31",
+            "type": "column",
+            "name": "Express",
+            "width": "fill",
+            "padding": {
+             "top": 12,
+             "end": 8,
+             "bottom": 12,
+             "start": 10
+            },
+            "gap": 6,
+            "background": "#FFFFFF",
+            "dark_background": "#0F1A28",
+            "border_color": "#DCE3EC",
+            "dark_border_color": "#1E2D40",
+            "radius": 18,
+            "border_width": 1,
+            "action": {
+             "type": "screen",
+             "screen": "send_parcel"
+            },
+            "children": [
+             {
+              "id": "g32",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 700,
+               "size": 12.5,
+               "letter_spacing": -0.2
+              },
+              "text": "Express",
+              "max_lines": 1
+             },
+             {
+              "id": "g33",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 800,
+               "size": 22,
+               "line_height": 1,
+               "letter_spacing": -0.6
+              },
+              "text": "1h"
+             },
+             {
+              "id": "g34",
+              "type": "text",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "font": {
+               "weight": 600,
+               "size": 11
+              },
+              "text": "+EGP 45",
+              "max_lines": 1
+             }
+            ]
+           },
+           {
+            "id": "g35",
+            "type": "column",
+            "name": "Documents",
+            "width": "fill",
+            "padding": {
+             "top": 12,
+             "end": 8,
+             "bottom": 12,
+             "start": 10
+            },
+            "gap": 6,
+            "background": "#FFFFFF",
+            "dark_background": "#0F1A28",
+            "border_color": "#DCE3EC",
+            "dark_border_color": "#1E2D40",
+            "radius": 18,
+            "border_width": 1,
+            "action": {
+             "type": "screen",
+             "screen": "send_parcel"
+            },
+            "children": [
+             {
+              "id": "g36",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 700,
+               "size": 12.5,
+               "letter_spacing": -0.2
+              },
+              "text": "Documents",
+              "max_lines": 1
+             },
+             {
+              "id": "g37",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 800,
+               "size": 22,
+               "line_height": 1,
+               "letter_spacing": -0.6
+              },
+              "text": "4h"
+             },
+             {
+              "id": "g38",
+              "type": "text",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "font": {
+               "weight": 600,
+               "size": 11
+              },
+              "text": "+EGP 15",
+              "max_lines": 1
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g39",
+          "type": "button",
+          "width": "fill",
+          "height": 52,
+          "margin": {
+           "top": 14
+          },
+          "background": "#1F6FB2",
+          "color": "#FFFFFF",
+          "dark_background": "#F2B544",
+          "dark_color": "#0D1B2A",
+          "radius": 16,
+          "shadow": "medium",
+          "font": {
+           "weight": 800,
+           "size": 16
+          },
+          "text": "Send a parcel · from EGP 40",
+          "icon": "send",
+          "action": {
+           "type": "screen",
+           "screen": "send_parcel"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g40",
+        "type": "tracking",
+        "name": "Your shipment on its way",
+        "width": "fill",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "start": 16
+        },
+        "background": "#0D1B2A",
+        "color": "#FFFFFF",
+        "dark_background": "#13263C",
+        "radius": 26,
+        "shadow": "strong",
+        "tracking": {
+         "kind": "shipment",
+         "style": "steps",
+         "accent": "#F2B544",
+         "dark_accent": "#F2B544"
+        },
+        "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg",
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "background": "#F1F4F8",
+     "dark_background": "#070D16"
+    }
+   },
+   "send": {
+    "screen": "send_parcel",
+    "studio": {
+     "body": {
+      "id": "g41",
+      "type": "column",
+      "children": [
+       {
+        "id": "g42",
+        "type": "tracking",
+        "name": "Your shipment on its way",
+        "width": "fill",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#0D1B2A",
+        "color": "#FFFFFF",
+        "dark_background": "#13263C",
+        "radius": 26,
+        "shadow": "strong",
+        "tracking": {
+         "kind": "shipment",
+         "style": "steps",
+         "accent": "#F2B544",
+         "dark_accent": "#F2B544"
+        },
+        "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg",
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Send",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F1F4F8",
+      "color": "#0D1B2A",
+      "dark_background": "#070D16",
+      "dark_color": "#EAF1F8",
+      "style": "brand"
+     },
+     "background": "#F1F4F8",
+     "dark_background": "#070D16",
+     "screen": "send_parcel"
+    }
+   },
+   "shipments": {
+    "screen": "shipments",
+    "studio": {
+     "body": {
+      "id": "g43",
+      "type": "column",
+      "children": [
+       {
+        "id": "g44",
+        "type": "tracking",
+        "name": "Your shipment on its way",
+        "width": "fill",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#0D1B2A",
+        "color": "#FFFFFF",
+        "dark_background": "#13263C",
+        "radius": 26,
+        "shadow": "strong",
+        "tracking": {
+         "kind": "shipment",
+         "style": "steps",
+         "accent": "#F2B544",
+         "dark_accent": "#F2B544"
+        },
+        "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg",
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "My shipments",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F1F4F8",
+      "color": "#0D1B2A",
+      "dark_background": "#070D16",
+      "dark_color": "#EAF1F8",
+      "style": "brand"
+     },
+     "background": "#F1F4F8",
+     "dark_background": "#070D16",
+     "screen": "shipments"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g45",
+      "type": "column",
+      "children": []
+     },
+     "background": "#F1F4F8",
+     "dark_background": "#070D16",
+     "screen": "account"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Across the city,",
+        "padding": {
+         "bottom": 4
+        },
+        "surface": {
+         "pattern": "grid",
+         "pattern_strength": 0.06
+        },
+        "children": [
+         {
+          "id": "g3",
+          "type": "row",
+          "name": "Guard Shop",
+          "padding": {
+           "top": 18,
+           "end": 16,
+           "start": 16
+          },
+          "gap": 2,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g4",
+            "type": "text",
+            "color": "#0D1B2A",
+            "dark_color": "#EAF1F8",
+            "font": {
+             "weight": 800,
+             "size": 22,
+             "letter_spacing": -0.9
+            },
+            "text": "Guard Shop",
+            "max_lines": 1
+           },
+           {
+            "id": "g5",
+            "type": "text",
+            "width": "fill",
+            "color": "#E79B12",
+            "dark_color": "#F2B544",
+            "font": {
+             "weight": 800,
+             "size": 22
+            },
+            "text": "."
+           },
+           {
+            "id": "g6",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#0F1A28",
+            "border_color": "#DCE3EC",
+            "dark_border_color": "#1E2D40",
+            "radius": 22,
+            "border_width": 1,
+            "shadow": "light",
+            "action": {
+             "type": "screen",
+             "screen": "notifications"
+            },
+            "children": [
+             {
+              "id": "g7",
+              "type": "icon",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "icon": "notifications",
+              "icon_size": 22
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g8",
+          "type": "column",
+          "padding": {
+           "top": 18,
+           "end": 16,
+           "start": 16
+          },
+          "children": [
+           {
+            "id": "g9",
+            "type": "text",
+            "color": "#0D1B2A",
+            "dark_color": "#EAF1F8",
+            "font": {
+             "weight": 800,
+             "size": 46,
+             "line_height": 1,
+             "letter_spacing": -2.2
+            },
+            "text": "عبر المدينة،"
+           },
+           {
+            "id": "g10",
+            "type": "text",
+            "color": "#1F6FB2",
+            "dark_color": "#6DB3F2",
+            "font": {
+             "weight": 800,
+             "size": 46,
+             "line_height": 1,
+             "letter_spacing": -2.2
+            },
+            "text": "اليوم."
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g11",
+        "type": "column",
+        "name": "Send a parcel",
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#0F1A28",
+        "border_color": "#DCE3EC",
+        "dark_border_color": "#1E2D40",
+        "radius": 28,
+        "border_width": 1,
+        "shadow": "strong",
+        "surface": {
+         "soft": 3,
+         "ticket": {
+          "at": 47,
+          "notch": 12
+         }
+        },
+        "children": [
+         {
+          "id": "g12",
+          "type": "row",
+          "name": "Pickup",
+          "gap": 12,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "send_parcel"
+          },
+          "children": [
+           {
+            "id": "g13",
+            "type": "icon",
+            "color": "#1F6FB2",
+            "dark_color": "#6DB3F2",
+            "icon": "radio_button_checked",
+            "icon_size": 22
+           },
+           {
+            "id": "g14",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g15",
+              "type": "text",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "font": {
+               "family": "JetBrains Mono",
+               "weight": 700,
+               "size": 11,
+               "letter_spacing": 2,
+               "uppercase": true
+              },
+              "text": "الاستلام"
+             },
+             {
+              "id": "g16",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 800,
+               "size": 19,
+               "letter_spacing": -0.4
+              },
+              "text": "[اسم الشارع]",
+              "max_lines": 1
+             }
+            ]
+           },
+           {
+            "id": "g17",
+            "type": "icon",
+            "color": "#526070",
+            "dark_color": "#9FB0C2",
+            "icon": "my_location",
+            "icon_size": 22
+           }
+          ]
+         },
+         {
+          "id": "g18",
+          "type": "spacer",
+          "height": 20
+         },
+         {
+          "id": "g19",
+          "type": "row",
+          "name": "Drop-off",
+          "gap": 12,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "send_parcel"
+          },
+          "children": [
+           {
+            "id": "g20",
+            "type": "icon",
+            "color": "#E79B12",
+            "dark_color": "#F2B544",
+            "icon": "location_on",
+            "icon_size": 22
+           },
+           {
+            "id": "g21",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g22",
+              "type": "text",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "font": {
+               "family": "JetBrains Mono",
+               "weight": 700,
+               "size": 11,
+               "letter_spacing": 2,
+               "uppercase": true
+              },
+              "text": "التسليم"
+             },
+             {
+              "id": "g23",
+              "type": "text",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "font": {
+               "weight": 800,
+               "size": 19,
+               "letter_spacing": -0.4
+              },
+              "text": "إلى أين؟",
+              "max_lines": 1
+             }
+            ]
+           },
+           {
+            "id": "g24",
+            "type": "icon",
+            "color": "#526070",
+            "dark_color": "#9FB0C2",
+            "icon": "link",
+            "icon_size": 22
+           }
+          ]
+         },
+         {
+          "id": "g25",
+          "type": "spacer",
+          "height": 44
+         },
+         {
+          "id": "g26",
+          "type": "row",
+          "name": "Same day",
+          "gap": 8,
+          "children": [
+           {
+            "id": "g27",
+            "type": "column",
+            "name": "Same day",
+            "width": "fill",
+            "padding": {
+             "top": 12,
+             "end": 8,
+             "bottom": 12,
+             "start": 10
+            },
+            "gap": 6,
+            "background": "#EAF2FB",
+            "dark_background": "#132A44",
+            "border_color": "#1F6FB2",
+            "dark_border_color": "#6DB3F2",
+            "radius": 18,
+            "border_width": 2,
+            "action": {
+             "type": "screen",
+             "screen": "send_parcel"
+            },
+            "children": [
+             {
+              "id": "g28",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 700,
+               "size": 12.5,
+               "letter_spacing": -0.2
+              },
+              "text": "في اليوم نفسه",
+              "max_lines": 1
+             },
+             {
+              "id": "g29",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 800,
+               "size": 22,
+               "line_height": 1,
+               "letter_spacing": -0.6
+              },
+              "text": "2–4 س"
+             },
+             {
+              "id": "g30",
+              "type": "text",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "font": {
+               "weight": 600,
+               "size": 11
+              },
+              "text": "+0 ج.م",
+              "max_lines": 1
+             }
+            ]
+           },
+           {
+            "id": "g31",
+            "type": "column",
+            "name": "Express",
+            "width": "fill",
+            "padding": {
+             "top": 12,
+             "end": 8,
+             "bottom": 12,
+             "start": 10
+            },
+            "gap": 6,
+            "background": "#FFFFFF",
+            "dark_background": "#0F1A28",
+            "border_color": "#DCE3EC",
+            "dark_border_color": "#1E2D40",
+            "radius": 18,
+            "border_width": 1,
+            "action": {
+             "type": "screen",
+             "screen": "send_parcel"
+            },
+            "children": [
+             {
+              "id": "g32",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 700,
+               "size": 12.5,
+               "letter_spacing": -0.2
+              },
+              "text": "سريع",
+              "max_lines": 1
+             },
+             {
+              "id": "g33",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 800,
+               "size": 22,
+               "line_height": 1,
+               "letter_spacing": -0.6
+              },
+              "text": "1 س"
+             },
+             {
+              "id": "g34",
+              "type": "text",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "font": {
+               "weight": 600,
+               "size": 11
+              },
+              "text": "+45 ج.م",
+              "max_lines": 1
+             }
+            ]
+           },
+           {
+            "id": "g35",
+            "type": "column",
+            "name": "Documents",
+            "width": "fill",
+            "padding": {
+             "top": 12,
+             "end": 8,
+             "bottom": 12,
+             "start": 10
+            },
+            "gap": 6,
+            "background": "#FFFFFF",
+            "dark_background": "#0F1A28",
+            "border_color": "#DCE3EC",
+            "dark_border_color": "#1E2D40",
+            "radius": 18,
+            "border_width": 1,
+            "action": {
+             "type": "screen",
+             "screen": "send_parcel"
+            },
+            "children": [
+             {
+              "id": "g36",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 700,
+               "size": 12.5,
+               "letter_spacing": -0.2
+              },
+              "text": "مستندات",
+              "max_lines": 1
+             },
+             {
+              "id": "g37",
+              "type": "text",
+              "color": "#0D1B2A",
+              "dark_color": "#EAF1F8",
+              "font": {
+               "weight": 800,
+               "size": 22,
+               "line_height": 1,
+               "letter_spacing": -0.6
+              },
+              "text": "4 س"
+             },
+             {
+              "id": "g38",
+              "type": "text",
+              "color": "#526070",
+              "dark_color": "#9FB0C2",
+              "font": {
+               "weight": 600,
+               "size": 11
+              },
+              "text": "+15 ج.م",
+              "max_lines": 1
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g39",
+          "type": "button",
+          "width": "fill",
+          "height": 52,
+          "margin": {
+           "top": 14
+          },
+          "background": "#1F6FB2",
+          "color": "#FFFFFF",
+          "dark_background": "#F2B544",
+          "dark_color": "#0D1B2A",
+          "radius": 16,
+          "shadow": "medium",
+          "font": {
+           "weight": 800,
+           "size": 16
+          },
+          "text": "أرسل طردًا · من 40 ج.م",
+          "icon": "send",
+          "action": {
+           "type": "screen",
+           "screen": "send_parcel"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g40",
+        "type": "tracking",
+        "name": "Your shipment on its way",
+        "width": "fill",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "start": 16
+        },
+        "background": "#0D1B2A",
+        "color": "#FFFFFF",
+        "dark_background": "#13263C",
+        "radius": 26,
+        "shadow": "strong",
+        "tracking": {
+         "kind": "shipment",
+         "style": "steps",
+         "accent": "#F2B544",
+         "dark_accent": "#F2B544"
+        },
+        "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg",
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "background": "#F1F4F8",
+     "dark_background": "#070D16"
+    }
+   },
+   "send": {
+    "screen": "send_parcel",
+    "studio": {
+     "body": {
+      "id": "g41",
+      "type": "column",
+      "children": [
+       {
+        "id": "g42",
+        "type": "tracking",
+        "name": "Your shipment on its way",
+        "width": "fill",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#0D1B2A",
+        "color": "#FFFFFF",
+        "dark_background": "#13263C",
+        "radius": 26,
+        "shadow": "strong",
+        "tracking": {
+         "kind": "shipment",
+         "style": "steps",
+         "accent": "#F2B544",
+         "dark_accent": "#F2B544"
+        },
+        "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg",
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "إرسال",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F1F4F8",
+      "color": "#0D1B2A",
+      "dark_background": "#070D16",
+      "dark_color": "#EAF1F8",
+      "style": "brand"
+     },
+     "background": "#F1F4F8",
+     "dark_background": "#070D16",
+     "screen": "send_parcel"
+    }
+   },
+   "shipments": {
+    "screen": "shipments",
+    "studio": {
+     "body": {
+      "id": "g43",
+      "type": "column",
+      "children": [
+       {
+        "id": "g44",
+        "type": "tracking",
+        "name": "Your shipment on its way",
+        "width": "fill",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#0D1B2A",
+        "color": "#FFFFFF",
+        "dark_background": "#13263C",
+        "radius": 26,
+        "shadow": "strong",
+        "tracking": {
+         "kind": "shipment",
+         "style": "steps",
+         "accent": "#F2B544",
+         "dark_accent": "#F2B544"
+        },
+        "image_url": "http://localhost:3000/stories/delivery/delivery-rider.jpg",
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "شحناتي",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F1F4F8",
+      "color": "#0D1B2A",
+      "dark_background": "#070D16",
+      "dark_color": "#EAF1F8",
+      "style": "brand"
+     },
+     "background": "#F1F4F8",
+     "dark_background": "#070D16",
+     "screen": "shipments"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g45",
+      "type": "column",
+      "children": []
+     },
+     "background": "#F1F4F8",
+     "dark_background": "#070D16",
+     "screen": "account"
+    }
+   }
+  }
+ }
+}

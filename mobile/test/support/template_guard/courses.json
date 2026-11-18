@@ -1,0 +1,607 @@
+{
+ "template": "courses",
+ "look": null,
+ "kind": "academy",
+ "app_type": "lms",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "courses",
+   "label": "Courses",
+   "icon": "school",
+   "target": {
+    "type": "screen",
+    "screen": "courses"
+   }
+  },
+  {
+   "id": "learning",
+   "label": "My courses",
+   "icon": "menu_book",
+   "target": {
+    "type": "screen",
+    "screen": "my_courses"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Welcome to Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "Welcome to Guard Shop"
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "Everything you need, a tap away."
+         },
+         {
+          "id": "g5",
+          "type": "button",
+          "width": "hug",
+          "height": 42,
+          "padding": {
+           "end": 18,
+           "start": 18
+          },
+          "background": "#FFFFFF",
+          "color": "#0E0D24",
+          "radius": 12,
+          "font": {
+           "weight": 800,
+           "size": 14
+          },
+          "text": "Start learning",
+          "action": {
+           "type": "screen",
+           "screen": "courses"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "row",
+        "padding": {
+         "top": 14,
+         "end": 10,
+         "bottom": 14,
+         "start": 10
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "align": "around",
+        "background": "#0E0D24",
+        "color": "#F4EFE6",
+        "radius": 16,
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text_align": "center",
+          "text": "[Number] customers"
+         },
+         {
+          "id": "g8",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text_align": "center",
+          "text": "[Number] years"
+         },
+         {
+          "id": "g9",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text_align": "center",
+          "text": "[Number] branches"
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g11",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Most popular"
+         },
+         {
+          "id": "g12",
+          "type": "items",
+          "gap": 10,
+          "source": "courses",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "courses",
+            "id": "1",
+            "title": "UX Design Fundamentals",
+            "subtitle": "Deniz Kaya",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": "₺1,450.00",
+            "badge": null,
+            "rating": null,
+            "action": {
+             "type": "course",
+             "course_id": 1
+            }
+           },
+           {
+            "source": "courses",
+            "id": "10",
+            "title": "Product Photography with Your Phone",
+            "subtitle": "Emre Aydın",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": "₺890.00",
+            "badge": null,
+            "rating": null,
+            "action": {
+             "type": "course",
+             "course_id": 10
+            }
+           },
+           {
+            "source": "courses",
+            "id": "17",
+            "title": "Excel for Small Business Owners",
+            "subtitle": "Omar Farouk",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+            "price_label": "Free",
+            "badge": null,
+            "rating": null,
+            "action": {
+             "type": "course",
+             "course_id": 17
+            }
+           },
+           {
+            "source": "courses",
+            "id": "25",
+            "title": "Social Media Marketing That Sells",
+            "subtitle": "Yasmin Adel",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+            "price_label": "₺1,100.00",
+            "badge": null,
+            "rating": null,
+            "action": {
+             "type": "course",
+             "course_id": 25
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g13",
+        "type": "column",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 6,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g14",
+          "type": "ratings",
+          "rating": 5
+         },
+         {
+          "id": "g15",
+          "type": "text",
+          "font": {
+           "size": 14,
+           "italic": true
+          },
+          "text": "[What a customer says about you]"
+         },
+         {
+          "id": "g16",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "weight": 700,
+           "size": 12
+          },
+          "text": "[Customer name]"
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Welcome to Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "مرحبًا بك في Guard Shop"
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "كل ما تحتاج إليه بلمسة واحدة."
+         },
+         {
+          "id": "g5",
+          "type": "button",
+          "width": "hug",
+          "height": 42,
+          "padding": {
+           "end": 18,
+           "start": 18
+          },
+          "background": "#FFFFFF",
+          "color": "#0E0D24",
+          "radius": 12,
+          "font": {
+           "weight": 800,
+           "size": 14
+          },
+          "text": "ابدأ التعلّم",
+          "action": {
+           "type": "screen",
+           "screen": "courses"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "row",
+        "padding": {
+         "top": 14,
+         "end": 10,
+         "bottom": 14,
+         "start": 10
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "align": "around",
+        "background": "#0E0D24",
+        "color": "#F4EFE6",
+        "radius": 16,
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text_align": "center",
+          "text": "[رقم] عميل"
+         },
+         {
+          "id": "g8",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text_align": "center",
+          "text": "[رقم] سنة"
+         },
+         {
+          "id": "g9",
+          "type": "text",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text_align": "center",
+          "text": "[رقم] فرع"
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g11",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "الأكثر طلبًا"
+         },
+         {
+          "id": "g12",
+          "type": "items",
+          "gap": 10,
+          "source": "courses",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "courses",
+            "id": "1",
+            "title": "UX Design Fundamentals",
+            "subtitle": "Deniz Kaya",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": "₺1,450.00",
+            "badge": null,
+            "rating": null,
+            "action": {
+             "type": "course",
+             "course_id": 1
+            }
+           },
+           {
+            "source": "courses",
+            "id": "10",
+            "title": "Product Photography with Your Phone",
+            "subtitle": "Emre Aydın",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": "₺890.00",
+            "badge": null,
+            "rating": null,
+            "action": {
+             "type": "course",
+             "course_id": 10
+            }
+           },
+           {
+            "source": "courses",
+            "id": "17",
+            "title": "Excel for Small Business Owners",
+            "subtitle": "Omar Farouk",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+            "price_label": "مجاني",
+            "badge": null,
+            "rating": null,
+            "action": {
+             "type": "course",
+             "course_id": 17
+            }
+           },
+           {
+            "source": "courses",
+            "id": "25",
+            "title": "Social Media Marketing That Sells",
+            "subtitle": "Yasmin Adel",
+            "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+            "price_label": "₺1,100.00",
+            "badge": null,
+            "rating": null,
+            "action": {
+             "type": "course",
+             "course_id": 25
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g13",
+        "type": "column",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 6,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g14",
+          "type": "ratings",
+          "rating": 5
+         },
+         {
+          "id": "g15",
+          "type": "text",
+          "font": {
+           "size": 14,
+           "italic": true
+          },
+          "text": "[رأي أحد العملاء فيك]"
+         },
+         {
+          "id": "g16",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "weight": 700,
+           "size": 12
+          },
+          "text": "[اسم العميل]"
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,897 @@
+{
+ "template": "academy_premium",
+ "look": null,
+ "kind": "academy",
+ "app_type": "lms",
+ "vertical": null,
+ "primary_color": "#1D2B4F",
+ "appearance": {
+  "template": "classic",
+  "font": "Manrope"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "courses",
+   "label": "Explore",
+   "icon": "explore",
+   "target": {
+    "type": "screen",
+    "screen": "courses"
+   }
+  },
+  {
+   "id": "blog",
+   "label": "Blog",
+   "icon": "auto_stories",
+   "target": {
+    "type": "url",
+    "url": "https://owner.test/blog/",
+    "open_in": "in_app",
+    "web": {
+     "hide_header": true,
+     "hide_footer": true,
+     "links_inside": true
+    }
+   }
+  },
+  {
+   "id": "learning",
+   "label": "My courses",
+   "icon": "play_circle",
+   "target": {
+    "type": "screen",
+    "screen": "my_courses"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": {
+  "design": "float",
+  "background": "#1D2B4F",
+  "dark_background": "#EEF0F7",
+  "active": "#E6C26E",
+  "inactive": "#AFB6CC",
+  "dark_active": "#E6C26E",
+  "dark_inactive": "#59607A",
+  "radius": 22,
+  "margin": 12,
+  "labels": "active"
+ },
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "top": 8,
+       "end": 16,
+       "bottom": 24,
+       "start": 16
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "learning",
+        "name": "The course they're taking",
+        "height": 236,
+        "background": "#1D2B4F",
+        "color": "#FFFFFF",
+        "radius": 26,
+        "learning": {
+         "section": "continue",
+         "style": "photo"
+        },
+        "visibility": "signed_in"
+       },
+       {
+        "id": "g3",
+        "type": "stack",
+        "name": "Learn from the best, at your own pace",
+        "height": 236,
+        "background": "#1D2B4F",
+        "image_background_url": "http://localhost:3000/stories/academy/academy-desk.jpg",
+        "radius": 26,
+        "overlay": {
+         "color": "#1D2B4F",
+         "opacity": 0.55
+        },
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "g4",
+          "type": "column",
+          "height": 236,
+          "padding": {
+           "top": 16,
+           "end": 16,
+           "bottom": 16,
+           "start": 16
+          },
+          "gap": 12,
+          "align": "end",
+          "color": "#FFFFFF",
+          "children": [
+           {
+            "id": "g5",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 22,
+             "line_height": 1.1
+            },
+            "text": "Learn from the best, at your own pace"
+           },
+           {
+            "id": "g6",
+            "type": "button",
+            "width": "hug",
+            "height": 44,
+            "padding": {
+             "end": 18,
+             "start": 18
+            },
+            "background": "#E6C26E",
+            "color": "#1D2B4F",
+            "radius": 22,
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "text": "Browse courses",
+            "icon": "arrow_forward",
+            "action": {
+             "type": "screen",
+             "screen": "courses"
+            },
+            "motion": {
+             "press": "shrink"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g7",
+        "type": "row",
+        "name": "Streak and live class",
+        "margin": {
+         "top": 12
+        },
+        "gap": 10,
+        "visibility": "signed_in",
+        "children": [
+         {
+          "id": "g8",
+          "type": "learning",
+          "width": 145,
+          "background": "#FFFFFF",
+          "dark_background": "#161C33",
+          "border_color": "#E3DFD6",
+          "dark_border_color": "#262D48",
+          "radius": 20,
+          "border_width": 1,
+          "learning": {
+           "section": "streak",
+           "style": "photo"
+          }
+         },
+         {
+          "id": "g9",
+          "type": "learning",
+          "width": "fill",
+          "background": "#1D2B4F",
+          "color": "#FFFFFF",
+          "image_background_url": "http://localhost:3000/stories/academy/academy-live.jpg",
+          "radius": 20,
+          "overlay": {
+           "color": "#1D2B4F",
+           "opacity": 0.72
+          },
+          "learning": {
+           "section": "live",
+           "style": "photo"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "row",
+        "name": "Picked for you",
+        "margin": {
+         "top": 16,
+         "bottom": 10
+        },
+        "cross": "center",
+        "children": [
+         {
+          "id": "g11",
+          "type": "text",
+          "width": "fill",
+          "color": "#141A30",
+          "dark_color": "#EEF0F7",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Picked for you"
+         },
+         {
+          "id": "g12",
+          "type": "text",
+          "padding": {
+           "top": 4,
+           "end": 2,
+           "bottom": 4,
+           "start": 2
+          },
+          "color": "#7A5C14",
+          "dark_color": "#E6C26E",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "See all",
+          "action": {
+           "type": "screen",
+           "screen": "courses"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g13",
+        "type": "items",
+        "gap": 12,
+        "source": "courses",
+        "layout": "carousel",
+        "card": {
+         "id": "g14",
+         "type": "column",
+         "width": 200,
+         "background": "#FFFFFF",
+         "dark_background": "#161C33",
+         "border_color": "#E3DFD6",
+         "dark_border_color": "#262D48",
+         "radius": 22,
+         "border_width": 1,
+         "children": [
+          {
+           "id": "g15",
+           "type": "image",
+           "width": "fill",
+           "height": 100,
+           "corners": {
+            "top_start": 22,
+            "top_end": 22
+           },
+           "bind": "image"
+          },
+          {
+           "id": "g16",
+           "type": "column",
+           "padding": {
+            "top": 10,
+            "end": 12,
+            "bottom": 10,
+            "start": 12
+           },
+           "children": [
+            {
+             "id": "g17",
+             "type": "text",
+             "color": "#141A30",
+             "dark_color": "#EEF0F7",
+             "font": {
+              "weight": 800,
+              "size": 14
+             },
+             "max_lines": 1,
+             "bind": "title"
+            },
+            {
+             "id": "g18",
+             "type": "row",
+             "margin": {
+              "top": 3
+             },
+             "gap": 4,
+             "cross": "center",
+             "children": [
+              {
+               "id": "g19",
+               "type": "text",
+               "color": "#5A5F73",
+               "dark_color": "#A8AEC4",
+               "font": {
+                "size": 12
+               },
+               "max_lines": 1,
+               "bind": "subtitle"
+              },
+              {
+               "id": "g20",
+               "type": "text",
+               "color": "#5A5F73",
+               "dark_color": "#A8AEC4",
+               "font": {
+                "size": 12
+               },
+               "text": "·",
+               "bind": "rating"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "courses",
+          "id": "1",
+          "title": "UX Design Fundamentals",
+          "subtitle": "Deniz Kaya",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+          "price_label": "₺1,450.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 1
+          }
+         },
+         {
+          "source": "courses",
+          "id": "10",
+          "title": "Product Photography with Your Phone",
+          "subtitle": "Emre Aydın",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+          "price_label": "₺890.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 10
+          }
+         },
+         {
+          "source": "courses",
+          "id": "17",
+          "title": "Excel for Small Business Owners",
+          "subtitle": "Omar Farouk",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "Free",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 17
+          }
+         },
+         {
+          "source": "courses",
+          "id": "25",
+          "title": "Social Media Marketing That Sells",
+          "subtitle": "Yasmin Adel",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+          "price_label": "₺1,100.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 25
+          }
+         },
+         {
+          "source": "courses",
+          "id": "31",
+          "title": "Everyday English Conversation",
+          "subtitle": "Hannah Clarke",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+          "price_label": "₺650.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 31
+          }
+         },
+         {
+          "source": "courses",
+          "id": "39",
+          "title": "Python for Data Analysis",
+          "subtitle": "Mert Şahin",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-6",
+          "price_label": "₺1,600.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 39
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "greeting",
+      "title": "What will you learn today?",
+      "buttons": [
+       "notifications"
+      ],
+      "color": "#141A30",
+      "dark_color": "#EEF0F7"
+     },
+     "background": "#F5F3EF",
+     "dark_background": "#0B0F1F"
+    }
+   },
+   "courses": {
+    "screen": "courses",
+    "studio": {
+     "body": {
+      "id": "g21",
+      "type": "column",
+      "children": []
+     },
+     "screen": "courses"
+    }
+   },
+   "learning": {
+    "screen": "my_courses",
+    "studio": {
+     "body": {
+      "id": "g22",
+      "type": "column",
+      "children": []
+     },
+     "screen": "my_courses"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g23",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "top": 8,
+       "end": 16,
+       "bottom": 24,
+       "start": 16
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "learning",
+        "name": "The course they're taking",
+        "height": 236,
+        "background": "#1D2B4F",
+        "color": "#FFFFFF",
+        "radius": 26,
+        "learning": {
+         "section": "continue",
+         "style": "photo"
+        },
+        "visibility": "signed_in"
+       },
+       {
+        "id": "g3",
+        "type": "stack",
+        "name": "Learn from the best, at your own pace",
+        "height": 236,
+        "background": "#1D2B4F",
+        "image_background_url": "http://localhost:3000/stories/academy/academy-desk.jpg",
+        "radius": 26,
+        "overlay": {
+         "color": "#1D2B4F",
+         "opacity": 0.55
+        },
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "g4",
+          "type": "column",
+          "height": 236,
+          "padding": {
+           "top": 16,
+           "end": 16,
+           "bottom": 16,
+           "start": 16
+          },
+          "gap": 12,
+          "align": "end",
+          "color": "#FFFFFF",
+          "children": [
+           {
+            "id": "g5",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 22,
+             "line_height": 1.1
+            },
+            "text": "تعلّم من الأفضل، في الوقت الذي يناسبك"
+           },
+           {
+            "id": "g6",
+            "type": "button",
+            "width": "hug",
+            "height": 44,
+            "padding": {
+             "end": 18,
+             "start": 18
+            },
+            "background": "#E6C26E",
+            "color": "#1D2B4F",
+            "radius": 22,
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "text": "تصفّح الدورات",
+            "icon": "arrow_forward",
+            "action": {
+             "type": "screen",
+             "screen": "courses"
+            },
+            "motion": {
+             "press": "shrink"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g7",
+        "type": "row",
+        "name": "Streak and live class",
+        "margin": {
+         "top": 12
+        },
+        "gap": 10,
+        "visibility": "signed_in",
+        "children": [
+         {
+          "id": "g8",
+          "type": "learning",
+          "width": 145,
+          "background": "#FFFFFF",
+          "dark_background": "#161C33",
+          "border_color": "#E3DFD6",
+          "dark_border_color": "#262D48",
+          "radius": 20,
+          "border_width": 1,
+          "learning": {
+           "section": "streak",
+           "style": "photo"
+          }
+         },
+         {
+          "id": "g9",
+          "type": "learning",
+          "width": "fill",
+          "background": "#1D2B4F",
+          "color": "#FFFFFF",
+          "image_background_url": "http://localhost:3000/stories/academy/academy-live.jpg",
+          "radius": 20,
+          "overlay": {
+           "color": "#1D2B4F",
+           "opacity": 0.72
+          },
+          "learning": {
+           "section": "live",
+           "style": "photo"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "row",
+        "name": "Picked for you",
+        "margin": {
+         "top": 16,
+         "bottom": 10
+        },
+        "cross": "center",
+        "children": [
+         {
+          "id": "g11",
+          "type": "text",
+          "width": "fill",
+          "color": "#141A30",
+          "dark_color": "#EEF0F7",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "مختارة لك"
+         },
+         {
+          "id": "g12",
+          "type": "text",
+          "padding": {
+           "top": 4,
+           "end": 2,
+           "bottom": 4,
+           "start": 2
+          },
+          "color": "#7A5C14",
+          "dark_color": "#E6C26E",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "عرض الكل",
+          "action": {
+           "type": "screen",
+           "screen": "courses"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g13",
+        "type": "items",
+        "gap": 12,
+        "source": "courses",
+        "layout": "carousel",
+        "card": {
+         "id": "g14",
+         "type": "column",
+         "width": 200,
+         "background": "#FFFFFF",
+         "dark_background": "#161C33",
+         "border_color": "#E3DFD6",
+         "dark_border_color": "#262D48",
+         "radius": 22,
+         "border_width": 1,
+         "children": [
+          {
+           "id": "g15",
+           "type": "image",
+           "width": "fill",
+           "height": 100,
+           "corners": {
+            "top_start": 22,
+            "top_end": 22
+           },
+           "bind": "image"
+          },
+          {
+           "id": "g16",
+           "type": "column",
+           "padding": {
+            "top": 10,
+            "end": 12,
+            "bottom": 10,
+            "start": 12
+           },
+           "children": [
+            {
+             "id": "g17",
+             "type": "text",
+             "color": "#141A30",
+             "dark_color": "#EEF0F7",
+             "font": {
+              "weight": 800,
+              "size": 14
+             },
+             "max_lines": 1,
+             "bind": "title"
+            },
+            {
+             "id": "g18",
+             "type": "row",
+             "margin": {
+              "top": 3
+             },
+             "gap": 4,
+             "cross": "center",
+             "children": [
+              {
+               "id": "g19",
+               "type": "text",
+               "color": "#5A5F73",
+               "dark_color": "#A8AEC4",
+               "font": {
+                "size": 12
+               },
+               "max_lines": 1,
+               "bind": "subtitle"
+              },
+              {
+               "id": "g20",
+               "type": "text",
+               "color": "#5A5F73",
+               "dark_color": "#A8AEC4",
+               "font": {
+                "size": 12
+               },
+               "text": "·",
+               "bind": "rating"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "courses",
+          "id": "1",
+          "title": "UX Design Fundamentals",
+          "subtitle": "Deniz Kaya",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+          "price_label": "₺1,450.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 1
+          }
+         },
+         {
+          "source": "courses",
+          "id": "10",
+          "title": "Product Photography with Your Phone",
+          "subtitle": "Emre Aydın",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+          "price_label": "₺890.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 10
+          }
+         },
+         {
+          "source": "courses",
+          "id": "17",
+          "title": "Excel for Small Business Owners",
+          "subtitle": "Omar Farouk",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "مجاني",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 17
+          }
+         },
+         {
+          "source": "courses",
+          "id": "25",
+          "title": "Social Media Marketing That Sells",
+          "subtitle": "Yasmin Adel",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+          "price_label": "₺1,100.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 25
+          }
+         },
+         {
+          "source": "courses",
+          "id": "31",
+          "title": "Everyday English Conversation",
+          "subtitle": "Hannah Clarke",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+          "price_label": "₺650.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 31
+          }
+         },
+         {
+          "source": "courses",
+          "id": "39",
+          "title": "Python for Data Analysis",
+          "subtitle": "Mert Şahin",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-6",
+          "price_label": "₺1,600.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 39
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "greeting",
+      "title": "ماذا ستتعلم اليوم؟",
+      "buttons": [
+       "notifications"
+      ],
+      "color": "#141A30",
+      "dark_color": "#EEF0F7"
+     },
+     "background": "#F5F3EF",
+     "dark_background": "#0B0F1F"
+    }
+   },
+   "courses": {
+    "screen": "courses",
+    "studio": {
+     "body": {
+      "id": "g21",
+      "type": "column",
+      "children": []
+     },
+     "screen": "courses"
+    }
+   },
+   "learning": {
+    "screen": "my_courses",
+    "studio": {
+     "body": {
+      "id": "g22",
+      "type": "column",
+      "children": []
+     },
+     "screen": "my_courses"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g23",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    }
+   }
+  }
+ }
+}

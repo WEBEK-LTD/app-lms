@@ -1,0 +1,731 @@
+{
+ "template": "taxi_map",
+ "look": null,
+ "kind": "rides",
+ "app_type": "rides",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "ride",
+   "label": "Ride",
+   "icon": "directions_car",
+   "target": {
+    "type": "screen",
+    "screen": "ride"
+   }
+  },
+  {
+   "id": "rides",
+   "label": "My rides",
+   "icon": "receipt_long",
+   "target": {
+    "type": "screen",
+    "screen": "my_rides"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "children": [
+       {
+        "id": "g2",
+        "type": "map_header",
+        "name": "A taxi in a glance.",
+        "height": 400,
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "start": 16
+        },
+        "background": "#ECE8DF",
+        "dark_background": "#151B2B",
+        "map_drawing": {
+         "markers": [
+          {
+           "x": 15.2,
+           "y": 22.8
+          },
+          {
+           "x": 84.5,
+           "y": 35.5
+          },
+          {
+           "x": 33.9,
+           "y": 76
+          },
+          {
+           "x": 71.2,
+           "y": 73.8
+          },
+          {
+           "x": 57.9,
+           "y": 29.1
+          }
+         ],
+         "icon": "local_taxi",
+         "accent": "#F5B700",
+         "chip": "#1C2541",
+         "me": true,
+         "live": true
+        },
+        "overlap": 38,
+        "children": [
+         {
+          "id": "g3",
+          "type": "row",
+          "align": "between",
+          "cross": "center",
+          "children": [
+           {
+            "id": "g4",
+            "type": "row",
+            "height": 40,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "gap": 6,
+            "cross": "center",
+            "background": "#1C2541",
+            "color": "#FFFFFF",
+            "radius": 20,
+            "children": [
+             {
+              "id": "g5",
+              "type": "row",
+              "width": 8,
+              "height": 8,
+              "self_align": "center",
+              "background": "#F5B700",
+              "radius": 4,
+              "children": []
+             },
+             {
+              "id": "g6",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "Guard Shop"
+             }
+            ]
+           },
+           {
+            "id": "g7",
+            "type": "row",
+            "gap": 10,
+            "children": [
+             {
+              "id": "g8",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "color": "#141B2E",
+              "dark_background": "#1C2541",
+              "dark_color": "#F1F2F7",
+              "radius": 20,
+              "shadow": "medium",
+              "action": {
+               "type": "screen",
+               "screen": "account"
+              },
+              "children": [
+               {
+                "id": "g9",
+                "type": "icon",
+                "color": "#141B2E",
+                "dark_color": "#F1F2F7",
+                "icon": "person",
+                "icon_size": 22
+               }
+              ]
+             },
+             {
+              "id": "g10",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "color": "#141B2E",
+              "dark_background": "#1C2541",
+              "dark_color": "#F1F2F7",
+              "radius": 20,
+              "shadow": "medium",
+              "action": {
+               "type": "screen",
+               "screen": "notifications"
+              },
+              "children": [
+               {
+                "id": "g11",
+                "type": "icon",
+                "color": "#141B2E",
+                "dark_color": "#F1F2F7",
+                "icon": "notifications",
+                "icon_size": 22
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g12",
+          "type": "column",
+          "name": "A taxi in a glance.",
+          "padding": {
+           "top": 12,
+           "end": 16,
+           "bottom": 16,
+           "start": 16
+          },
+          "gap": 10,
+          "background": "#FFFFFF",
+          "dark_background": "#1C2541",
+          "corners": {
+           "top_start": 30,
+           "top_end": 30
+          },
+          "shadow": "strong",
+          "children": [
+           {
+            "id": "g13",
+            "type": "row",
+            "width": 40,
+            "height": 4,
+            "self_align": "center",
+            "background": "#E2DED6",
+            "dark_background": "#333D5E",
+            "radius": 2,
+            "children": []
+           },
+           {
+            "id": "g14",
+            "type": "text",
+            "color": "#141B2E",
+            "dark_color": "#F1F2F7",
+            "font": {
+             "weight": 800,
+             "size": 26,
+             "letter_spacing": -0.5
+            },
+            "text": "A taxi in a glance."
+           },
+           {
+            "id": "g15",
+            "type": "row",
+            "height": 56,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "gap": 10,
+            "cross": "center",
+            "background": "#F1EFEA",
+            "dark_background": "#262F4F",
+            "radius": 18,
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g16",
+              "type": "icon",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "icon": "search",
+              "icon_size": 22
+             },
+             {
+              "id": "g17",
+              "type": "text",
+              "width": "fill",
+              "color": "#5B6276",
+              "dark_color": "#AEB4C6",
+              "font": {
+               "weight": 600,
+               "size": 16
+              },
+              "text": "Where to?"
+             }
+            ]
+           },
+           {
+            "id": "g18",
+            "type": "tracking",
+            "color": "#5B6276",
+            "dark_color": "#AEB4C6",
+            "tracking": {
+             "kind": "nearby_taxis"
+            }
+           },
+           {
+            "id": "g19",
+            "type": "photo_hero",
+            "name": "One fixed fare,\nday or night",
+            "height": 118,
+            "padding": {
+             "top": 16,
+             "end": 16,
+             "bottom": 16,
+             "start": 16
+            },
+            "background": "#1C2541",
+            "radius": 22,
+            "scrim": {
+             "color": "#1C2541",
+             "from": 0.92,
+             "to": 0.2,
+             "middle": 0.2,
+             "at": 75,
+             "angle": 90
+            },
+            "image_url": "http://localhost:3000/stories/rides/rides-waiting.jpg",
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g20",
+              "type": "text",
+              "color": "#F5B700",
+              "font": {
+               "weight": 800,
+               "size": 12,
+               "letter_spacing": 1.7,
+               "uppercase": true
+              },
+              "text": "Airport"
+             },
+             {
+              "id": "g21",
+              "type": "text",
+              "margin": {
+               "top": 4
+              },
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 19,
+               "line_height": 1.2
+              },
+              "text": "One fixed fare,\nday or night"
+             }
+            ]
+           },
+           {
+            "id": "g22",
+            "type": "button",
+            "width": "fill",
+            "height": 56,
+            "background": "#F5B700",
+            "color": "#1C2541",
+            "radius": 18,
+            "font": {
+             "weight": 800,
+             "size": 16
+            },
+            "text_align": "center",
+            "text": "Book the nearest taxi",
+            "icon": "local_taxi",
+            "icon_position": "start",
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "motion": {
+             "press": "shrink"
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "background": "#ECE8DF",
+     "dark_background": "#151B2B",
+     "show_tabs": false
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "children": [
+       {
+        "id": "g2",
+        "type": "map_header",
+        "name": "A taxi in a glance.",
+        "height": 400,
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "start": 16
+        },
+        "background": "#ECE8DF",
+        "dark_background": "#151B2B",
+        "map_drawing": {
+         "markers": [
+          {
+           "x": 15.2,
+           "y": 22.8
+          },
+          {
+           "x": 84.5,
+           "y": 35.5
+          },
+          {
+           "x": 33.9,
+           "y": 76
+          },
+          {
+           "x": 71.2,
+           "y": 73.8
+          },
+          {
+           "x": 57.9,
+           "y": 29.1
+          }
+         ],
+         "icon": "local_taxi",
+         "accent": "#F5B700",
+         "chip": "#1C2541",
+         "me": true,
+         "live": true
+        },
+        "overlap": 38,
+        "children": [
+         {
+          "id": "g3",
+          "type": "row",
+          "align": "between",
+          "cross": "center",
+          "children": [
+           {
+            "id": "g4",
+            "type": "row",
+            "height": 40,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "gap": 6,
+            "cross": "center",
+            "background": "#1C2541",
+            "color": "#FFFFFF",
+            "radius": 20,
+            "children": [
+             {
+              "id": "g5",
+              "type": "row",
+              "width": 8,
+              "height": 8,
+              "self_align": "center",
+              "background": "#F5B700",
+              "radius": 4,
+              "children": []
+             },
+             {
+              "id": "g6",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 15
+              },
+              "text": "Guard Shop"
+             }
+            ]
+           },
+           {
+            "id": "g7",
+            "type": "row",
+            "gap": 10,
+            "children": [
+             {
+              "id": "g8",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "color": "#141B2E",
+              "dark_background": "#1C2541",
+              "dark_color": "#F1F2F7",
+              "radius": 20,
+              "shadow": "medium",
+              "action": {
+               "type": "screen",
+               "screen": "account"
+              },
+              "children": [
+               {
+                "id": "g9",
+                "type": "icon",
+                "color": "#141B2E",
+                "dark_color": "#F1F2F7",
+                "icon": "person",
+                "icon_size": 22
+               }
+              ]
+             },
+             {
+              "id": "g10",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "color": "#141B2E",
+              "dark_background": "#1C2541",
+              "dark_color": "#F1F2F7",
+              "radius": 20,
+              "shadow": "medium",
+              "action": {
+               "type": "screen",
+               "screen": "notifications"
+              },
+              "children": [
+               {
+                "id": "g11",
+                "type": "icon",
+                "color": "#141B2E",
+                "dark_color": "#F1F2F7",
+                "icon": "notifications",
+                "icon_size": 22
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g12",
+          "type": "column",
+          "name": "A taxi in a glance.",
+          "padding": {
+           "top": 12,
+           "end": 16,
+           "bottom": 16,
+           "start": 16
+          },
+          "gap": 10,
+          "background": "#FFFFFF",
+          "dark_background": "#1C2541",
+          "corners": {
+           "top_start": 30,
+           "top_end": 30
+          },
+          "shadow": "strong",
+          "children": [
+           {
+            "id": "g13",
+            "type": "row",
+            "width": 40,
+            "height": 4,
+            "self_align": "center",
+            "background": "#E2DED6",
+            "dark_background": "#333D5E",
+            "radius": 2,
+            "children": []
+           },
+           {
+            "id": "g14",
+            "type": "text",
+            "color": "#141B2E",
+            "dark_color": "#F1F2F7",
+            "font": {
+             "weight": 800,
+             "size": 26,
+             "letter_spacing": -0.5
+            },
+            "text": "سيارة أجرة في لمحة."
+           },
+           {
+            "id": "g15",
+            "type": "row",
+            "height": 56,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "gap": 10,
+            "cross": "center",
+            "background": "#F1EFEA",
+            "dark_background": "#262F4F",
+            "radius": 18,
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g16",
+              "type": "icon",
+              "color": "#141B2E",
+              "dark_color": "#F1F2F7",
+              "icon": "search",
+              "icon_size": 22
+             },
+             {
+              "id": "g17",
+              "type": "text",
+              "width": "fill",
+              "color": "#5B6276",
+              "dark_color": "#AEB4C6",
+              "font": {
+               "weight": 600,
+               "size": 16
+              },
+              "text": "إلى أين؟"
+             }
+            ]
+           },
+           {
+            "id": "g18",
+            "type": "tracking",
+            "color": "#5B6276",
+            "dark_color": "#AEB4C6",
+            "tracking": {
+             "kind": "nearby_taxis"
+            }
+           },
+           {
+            "id": "g19",
+            "type": "photo_hero",
+            "name": "One fixed fare,\nday or night",
+            "height": 118,
+            "padding": {
+             "top": 16,
+             "end": 16,
+             "bottom": 16,
+             "start": 16
+            },
+            "background": "#1C2541",
+            "radius": 22,
+            "scrim": {
+             "color": "#1C2541",
+             "from": 0.92,
+             "to": 0.2,
+             "middle": 0.2,
+             "at": 75,
+             "angle": 90
+            },
+            "image_url": "http://localhost:3000/stories/rides/rides-waiting.jpg",
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "children": [
+             {
+              "id": "g20",
+              "type": "text",
+              "color": "#F5B700",
+              "font": {
+               "weight": 800,
+               "size": 12,
+               "letter_spacing": 1.7,
+               "uppercase": true
+              },
+              "text": "المطار"
+             },
+             {
+              "id": "g21",
+              "type": "text",
+              "margin": {
+               "top": 4
+              },
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 19,
+               "line_height": 1.2
+              },
+              "text": "أجرة ثابتة واحدة،\nليلًا أو نهارًا"
+             }
+            ]
+           },
+           {
+            "id": "g22",
+            "type": "button",
+            "width": "fill",
+            "height": 56,
+            "background": "#F5B700",
+            "color": "#1C2541",
+            "radius": 18,
+            "font": {
+             "weight": 800,
+             "size": 16
+            },
+            "text_align": "center",
+            "text": "اطلب أقرب سيارة أجرة",
+            "icon": "local_taxi",
+            "icon_position": "start",
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "motion": {
+             "press": "shrink"
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "background": "#ECE8DF",
+     "dark_background": "#151B2B",
+     "show_tabs": false
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,1019 @@
+{
+ "template": "marketplace_signature_b",
+ "look": "b",
+ "kind": "marketplace",
+ "app_type": "food",
+ "vertical": "marketplace",
+ "primary_color": "#134A36",
+ "appearance": {
+  "template": "bold",
+  "font": "Manrope"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "shops",
+   "label": "Shops",
+   "icon": "storefront",
+   "target": {
+    "type": "page",
+    "page_slug": "shops"
+   }
+  },
+  {
+   "id": "cart",
+   "label": "Cart",
+   "icon": "shopping_bag",
+   "target": {
+    "type": "screen",
+    "screen": "cart"
+   }
+  },
+  {
+   "id": "orders",
+   "label": "Orders",
+   "icon": "receipt_long",
+   "target": {
+    "type": "screen",
+    "screen": "food_orders"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": {
+  "design": "float",
+  "background": "#FFFFFF",
+  "dark_background": "#101E17",
+  "active": "#134A36",
+  "inactive": "#3F4D46",
+  "dark_active": "#F2A93B",
+  "dark_inactive": "#B9C8C0",
+  "radius": 30,
+  "margin": 14,
+  "labels": "active"
+ },
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "photo_hero",
+        "name": "The week’s shop,",
+        "height": 430,
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "bottom": 86,
+         "start": 16
+        },
+        "align": "between",
+        "background": "#06160F",
+        "scrim": {
+         "color": "#06160F",
+         "from": 0.62,
+         "to": 0.92,
+         "middle": 0.4,
+         "at": 45
+        },
+        "image_url": "http://localhost:3000/stories/multi-vendor/zad-market-aisle.jpg",
+        "overlap": 64,
+        "ken_burns": true,
+        "children": [
+         {
+          "id": "g3",
+          "type": "live_status",
+          "name": "Your order on its way",
+          "width": "fill",
+          "padding": {
+           "top": 8,
+           "end": 8,
+           "bottom": 8,
+           "start": 12
+          },
+          "background": "#0B1A13",
+          "color": "#FFFFFF",
+          "radius": 28,
+          "live_status": {
+           "source": "market_order",
+           "style": "pill",
+           "accent": "#F2A93B",
+           "dark_accent": "#F2A93B"
+          },
+          "icon": "two_wheeler",
+          "visibility": "signed_in"
+         },
+         {
+          "id": "g4",
+          "type": "column",
+          "padding": {
+           "end": 4,
+           "start": 4
+          },
+          "children": [
+           {
+            "id": "g5",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 700,
+             "size": 11,
+             "letter_spacing": 2.4,
+             "uppercase": true
+            },
+            "text": "[Your shop · your area]"
+           },
+           {
+            "id": "g6",
+            "type": "text",
+            "margin": {
+             "top": 10
+            },
+            "color": "#FFFFFF",
+            "font": {
+             "family": "Readex Pro",
+             "weight": 700,
+             "size": 38,
+             "line_height": 1.1,
+             "letter_spacing": -1
+            },
+            "text": "The week’s shop,"
+           },
+           {
+            "id": "g7",
+            "type": "row",
+            "gap": 10,
+            "cross": "end",
+            "children": [
+             {
+              "id": "g8",
+              "type": "text",
+              "color": "#F2A93B",
+              "font": {
+               "family": "Readex Pro",
+               "weight": 700,
+               "size": 84,
+               "line_height": 1,
+               "letter_spacing": -4
+              },
+              "text": "25"
+             },
+             {
+              "id": "g9",
+              "type": "column",
+              "padding": {
+               "bottom": 10
+              },
+              "cross": "start",
+              "children": [
+               {
+                "id": "g10",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "family": "Readex Pro",
+                 "weight": 700,
+                 "size": 28,
+                 "line_height": 1
+                },
+                "text": "min"
+               },
+               {
+                "id": "g11",
+                "type": "text",
+                "color": "#FFFFFF",
+                "opacity": 0.9,
+                "font": {
+                 "size": 14
+                },
+                "text": "[to your area]",
+                "max_lines": 1
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g12",
+          "type": "column",
+          "name": "Search products and shops",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 6,
+           "start": 12
+          },
+          "margin": {
+           "end": 12,
+           "start": 12
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#101E17",
+          "border_color": "#FFFFFF",
+          "dark_border_color": "#22382D",
+          "radius": 28,
+          "border_width": 1,
+          "surface": {
+           "glass": 22,
+           "tint": 0.84,
+           "soft": 3
+          },
+          "children": [
+           {
+            "id": "g13",
+            "type": "row",
+            "name": "Search products and shops",
+            "height": 50,
+            "padding": {
+             "end": 14,
+             "start": 14
+            },
+            "gap": 10,
+            "cross": "center",
+            "background": "#E9ECE8",
+            "dark_background": "#1A2A22",
+            "radius": 16,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "g14",
+              "type": "icon",
+              "color": "#526159",
+              "dark_color": "#A3B5AB",
+              "icon": "search",
+              "icon_size": 22
+             },
+             {
+              "id": "g15",
+              "type": "text",
+              "width": "fill",
+              "color": "#526159",
+              "dark_color": "#A3B5AB",
+              "font": {
+               "size": 15
+              },
+              "text": "Search products and shops",
+              "max_lines": 1
+             },
+             {
+              "id": "g16",
+              "type": "icon",
+              "color": "#1B644C",
+              "dark_color": "#8FDDB9",
+              "icon": "barcode_scanner",
+              "icon_size": 22
+             }
+            ]
+           },
+           {
+            "id": "g17",
+            "type": "stories",
+            "name": "Departments",
+            "padding": {
+             "top": 12,
+             "bottom": 6
+            },
+            "color": "#10201A",
+            "dark_color": "#EAF3EE",
+            "slides": [
+             {
+              "image_url": "http://localhost:3000/demo-photos/fruit.jpg",
+              "heading": "Fruit & veg",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "ring": "highlight",
+              "ring_color": "#F2A93B"
+             },
+             {
+              "image_url": "http://localhost:3000/demo-photos/bakery.jpg",
+              "heading": "Bakery",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "ring": "highlight",
+              "ring_color": "#F2A93B"
+             },
+             {
+              "image_url": "http://localhost:3000/demo-photos/dairy.jpg",
+              "heading": "Dairy & eggs",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "ring": "plain"
+             },
+             {
+              "image_url": "http://localhost:3000/demo-photos/vegetables.jpg",
+              "heading": "Vegetables",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "ring": "plain"
+             },
+             {
+              "heading": "All",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "ring": "dashed",
+              "icon": "grid_view"
+             }
+            ],
+            "interval_ms": 5000,
+            "stories": {
+             "size": 58
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g18",
+        "type": "market",
+        "name": "Places near you",
+        "margin": {
+         "top": 22
+        },
+        "title": "Places near you",
+        "market": {
+         "section": "vendors",
+         "style": "deck",
+         "sort": "nearest",
+         "limit": 3
+        }
+       }
+      ]
+     },
+     "background": "#EEF1EC",
+     "dark_background": "#070D0A"
+    }
+   },
+   "shops": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g19",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g20",
+        "type": "market",
+        "margin": {
+         "top": 8
+        },
+        "market": {
+         "section": "kinds"
+        }
+       },
+       {
+        "id": "g21",
+        "type": "market",
+        "margin": {
+         "top": 22
+        },
+        "title": "Every shop, one basket",
+        "market": {
+         "section": "vendors",
+         "sort": "nearest",
+         "limit": 20
+        }
+       },
+       {
+        "id": "g22",
+        "type": "market",
+        "margin": {
+         "top": 10
+        },
+        "text": "Join the club for free delivery and members' offers.",
+        "title": "Free delivery on every order",
+        "market": {
+         "section": "club"
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Shops",
+      "buttons": [
+       "search",
+       "notifications"
+      ],
+      "background": "#EEF1EC",
+      "color": "#10201A",
+      "dark_background": "#070D0A",
+      "dark_color": "#EAF3EE",
+      "style": "photo"
+     },
+     "background": "#EEF1EC",
+     "dark_background": "#070D0A"
+    }
+   },
+   "cart": {
+    "screen": "cart",
+    "studio": {
+     "body": {
+      "id": "g23",
+      "type": "column",
+      "children": []
+     },
+     "header": {
+      "type": "title",
+      "title": "Cart",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#EEF1EC",
+      "color": "#10201A",
+      "dark_background": "#070D0A",
+      "dark_color": "#EAF3EE",
+      "style": "photo"
+     },
+     "background": "#EEF1EC",
+     "dark_background": "#070D0A",
+     "screen": "cart"
+    }
+   },
+   "orders": {
+    "screen": "food_orders",
+    "studio": {
+     "body": {
+      "id": "g24",
+      "type": "column",
+      "children": [
+       {
+        "id": "g25",
+        "type": "live_status",
+        "name": "Your order on its way",
+        "width": "fill",
+        "padding": {
+         "top": 8,
+         "end": 8,
+         "bottom": 8,
+         "start": 12
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#0B1A13",
+        "color": "#FFFFFF",
+        "radius": 28,
+        "live_status": {
+         "source": "market_order",
+         "style": "pill",
+         "accent": "#F2A93B",
+         "dark_accent": "#F2A93B"
+        },
+        "icon": "two_wheeler",
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#EEF1EC",
+      "color": "#10201A",
+      "dark_background": "#070D0A",
+      "dark_color": "#EAF3EE",
+      "style": "photo"
+     },
+     "background": "#EEF1EC",
+     "dark_background": "#070D0A",
+     "screen": "food_orders"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g26",
+      "type": "column",
+      "children": []
+     },
+     "background": "#EEF1EC",
+     "dark_background": "#070D0A",
+     "screen": "account"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "photo_hero",
+        "name": "The week’s shop,",
+        "height": 430,
+        "padding": {
+         "top": 20,
+         "end": 16,
+         "bottom": 86,
+         "start": 16
+        },
+        "align": "between",
+        "background": "#06160F",
+        "scrim": {
+         "color": "#06160F",
+         "from": 0.62,
+         "to": 0.92,
+         "middle": 0.4,
+         "at": 45
+        },
+        "image_url": "http://localhost:3000/stories/multi-vendor/zad-market-aisle.jpg",
+        "overlap": 64,
+        "ken_burns": true,
+        "children": [
+         {
+          "id": "g3",
+          "type": "live_status",
+          "name": "Your order on its way",
+          "width": "fill",
+          "padding": {
+           "top": 8,
+           "end": 8,
+           "bottom": 8,
+           "start": 12
+          },
+          "background": "#0B1A13",
+          "color": "#FFFFFF",
+          "radius": 28,
+          "live_status": {
+           "source": "market_order",
+           "style": "pill",
+           "accent": "#F2A93B",
+           "dark_accent": "#F2A93B"
+          },
+          "icon": "two_wheeler",
+          "visibility": "signed_in"
+         },
+         {
+          "id": "g4",
+          "type": "column",
+          "padding": {
+           "end": 4,
+           "start": 4
+          },
+          "children": [
+           {
+            "id": "g5",
+            "type": "text",
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 700,
+             "size": 11,
+             "letter_spacing": 2.4,
+             "uppercase": true
+            },
+            "text": "[متجرك · منطقتك]"
+           },
+           {
+            "id": "g6",
+            "type": "text",
+            "margin": {
+             "top": 10
+            },
+            "color": "#FFFFFF",
+            "font": {
+             "family": "Readex Pro",
+             "weight": 700,
+             "size": 38,
+             "line_height": 1.1,
+             "letter_spacing": -1
+            },
+            "text": "تسوّق الأسبوع،"
+           },
+           {
+            "id": "g7",
+            "type": "row",
+            "gap": 10,
+            "cross": "end",
+            "children": [
+             {
+              "id": "g8",
+              "type": "text",
+              "color": "#F2A93B",
+              "font": {
+               "family": "Readex Pro",
+               "weight": 700,
+               "size": 84,
+               "line_height": 1,
+               "letter_spacing": -4
+              },
+              "text": "25"
+             },
+             {
+              "id": "g9",
+              "type": "column",
+              "padding": {
+               "bottom": 10
+              },
+              "cross": "start",
+              "children": [
+               {
+                "id": "g10",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "family": "Readex Pro",
+                 "weight": 700,
+                 "size": 28,
+                 "line_height": 1
+                },
+                "text": "دقيقة"
+               },
+               {
+                "id": "g11",
+                "type": "text",
+                "color": "#FFFFFF",
+                "opacity": 0.9,
+                "font": {
+                 "size": 14
+                },
+                "text": "[إلى منطقتك]",
+                "max_lines": 1
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g12",
+          "type": "column",
+          "name": "Search products and shops",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 6,
+           "start": 12
+          },
+          "margin": {
+           "end": 12,
+           "start": 12
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#101E17",
+          "border_color": "#FFFFFF",
+          "dark_border_color": "#22382D",
+          "radius": 28,
+          "border_width": 1,
+          "surface": {
+           "glass": 22,
+           "tint": 0.84,
+           "soft": 3
+          },
+          "children": [
+           {
+            "id": "g13",
+            "type": "row",
+            "name": "Search products and shops",
+            "height": 50,
+            "padding": {
+             "end": 14,
+             "start": 14
+            },
+            "gap": 10,
+            "cross": "center",
+            "background": "#E9ECE8",
+            "dark_background": "#1A2A22",
+            "radius": 16,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "g14",
+              "type": "icon",
+              "color": "#526159",
+              "dark_color": "#A3B5AB",
+              "icon": "search",
+              "icon_size": 22
+             },
+             {
+              "id": "g15",
+              "type": "text",
+              "width": "fill",
+              "color": "#526159",
+              "dark_color": "#A3B5AB",
+              "font": {
+               "size": 15
+              },
+              "text": "ابحث عن منتجات ومتاجر",
+              "max_lines": 1
+             },
+             {
+              "id": "g16",
+              "type": "icon",
+              "color": "#1B644C",
+              "dark_color": "#8FDDB9",
+              "icon": "barcode_scanner",
+              "icon_size": 22
+             }
+            ]
+           },
+           {
+            "id": "g17",
+            "type": "stories",
+            "name": "Departments",
+            "padding": {
+             "top": 12,
+             "bottom": 6
+            },
+            "color": "#10201A",
+            "dark_color": "#EAF3EE",
+            "slides": [
+             {
+              "image_url": "http://localhost:3000/demo-photos/fruit.jpg",
+              "heading": "فاكهة وخضار",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "ring": "highlight",
+              "ring_color": "#F2A93B"
+             },
+             {
+              "image_url": "http://localhost:3000/demo-photos/bakery.jpg",
+              "heading": "مخبوزات",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "ring": "highlight",
+              "ring_color": "#F2A93B"
+             },
+             {
+              "image_url": "http://localhost:3000/demo-photos/dairy.jpg",
+              "heading": "ألبان وبيض",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "ring": "plain"
+             },
+             {
+              "image_url": "http://localhost:3000/demo-photos/vegetables.jpg",
+              "heading": "خضروات",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "ring": "plain"
+             },
+             {
+              "heading": "الكل",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "ring": "dashed",
+              "icon": "grid_view"
+             }
+            ],
+            "interval_ms": 5000,
+            "stories": {
+             "size": 58
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g18",
+        "type": "market",
+        "name": "Places near you",
+        "margin": {
+         "top": 22
+        },
+        "title": "أماكن قريبة منك",
+        "market": {
+         "section": "vendors",
+         "style": "deck",
+         "sort": "nearest",
+         "limit": 3
+        }
+       }
+      ]
+     },
+     "background": "#EEF1EC",
+     "dark_background": "#070D0A"
+    }
+   },
+   "shops": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g19",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g20",
+        "type": "market",
+        "margin": {
+         "top": 8
+        },
+        "market": {
+         "section": "kinds"
+        }
+       },
+       {
+        "id": "g21",
+        "type": "market",
+        "margin": {
+         "top": 22
+        },
+        "title": "كل المتاجر في سلة واحدة",
+        "market": {
+         "section": "vendors",
+         "sort": "nearest",
+         "limit": 20
+        }
+       },
+       {
+        "id": "g22",
+        "type": "market",
+        "margin": {
+         "top": 10
+        },
+        "text": "انضم إلى النادي واحصل على توصيل مجاني وعروض للأعضاء.",
+        "title": "توصيل مجاني لكل طلب",
+        "market": {
+         "section": "club"
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "المتاجر",
+      "buttons": [
+       "search",
+       "notifications"
+      ],
+      "background": "#EEF1EC",
+      "color": "#10201A",
+      "dark_background": "#070D0A",
+      "dark_color": "#EAF3EE",
+      "style": "photo"
+     },
+     "background": "#EEF1EC",
+     "dark_background": "#070D0A"
+    }
+   },
+   "cart": {
+    "screen": "cart",
+    "studio": {
+     "body": {
+      "id": "g23",
+      "type": "column",
+      "children": []
+     },
+     "header": {
+      "type": "title",
+      "title": "السلة",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#EEF1EC",
+      "color": "#10201A",
+      "dark_background": "#070D0A",
+      "dark_color": "#EAF3EE",
+      "style": "photo"
+     },
+     "background": "#EEF1EC",
+     "dark_background": "#070D0A",
+     "screen": "cart"
+    }
+   },
+   "orders": {
+    "screen": "food_orders",
+    "studio": {
+     "body": {
+      "id": "g24",
+      "type": "column",
+      "children": [
+       {
+        "id": "g25",
+        "type": "live_status",
+        "name": "Your order on its way",
+        "width": "fill",
+        "padding": {
+         "top": 8,
+         "end": 8,
+         "bottom": 8,
+         "start": 12
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#0B1A13",
+        "color": "#FFFFFF",
+        "radius": 28,
+        "live_status": {
+         "source": "market_order",
+         "style": "pill",
+         "accent": "#F2A93B",
+         "dark_accent": "#F2A93B"
+        },
+        "icon": "two_wheeler",
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "الطلبات",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#EEF1EC",
+      "color": "#10201A",
+      "dark_background": "#070D0A",
+      "dark_color": "#EAF3EE",
+      "style": "photo"
+     },
+     "background": "#EEF1EC",
+     "dark_background": "#070D0A",
+     "screen": "food_orders"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g26",
+      "type": "column",
+      "children": []
+     },
+     "background": "#EEF1EC",
+     "dark_background": "#070D0A",
+     "screen": "account"
+    }
+   }
+  }
+ }
+}

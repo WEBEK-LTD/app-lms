@@ -1,0 +1,2250 @@
+{
+ "template": "instructors_signature_b",
+ "look": "b",
+ "kind": "instructors",
+ "app_type": "lms",
+ "vertical": "instructors",
+ "primary_color": "#2E5E4E",
+ "appearance": {
+  "template": "classic",
+  "font": "Manrope"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "teachers",
+   "label": "Teachers",
+   "icon": "co_present",
+   "target": {
+    "type": "screen",
+    "screen": "teachers"
+   }
+  },
+  {
+   "id": "learning",
+   "label": "My courses",
+   "icon": "menu_book",
+   "target": {
+    "type": "screen",
+    "screen": "my_courses"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": {
+  "design": "dot",
+  "background": "#FFFFFF",
+  "dark_background": "#101914",
+  "active": "#2E5E4E",
+  "inactive": "#55615A",
+  "dark_active": "#8FD1B6",
+  "dark_inactive": "#A3B2A9",
+  "radius": 30,
+  "margin": 16,
+  "labels": "never"
+ },
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "slider",
+        "name": "On air",
+        "height": 480,
+        "corners": {
+         "bottom_end": 30,
+         "bottom_start": 30
+        },
+        "autoplay": true,
+        "interval_ms": 6000,
+        "indicator": "progress",
+        "indicator_look": {
+         "at": "top",
+         "inset": 52,
+         "color": "#FFFFFF"
+        },
+        "ken_burns": true,
+        "children": [
+         {
+          "id": "g3",
+          "type": "photo_hero",
+          "name": "Arabic for Beginners",
+          "height": 480,
+          "padding": {
+           "top": 70,
+           "end": 18,
+           "bottom": 26,
+           "start": 18
+          },
+          "align": "between",
+          "background": "#0E221B",
+          "scrim": {
+           "color": "#050A08",
+           "from": 0.45,
+           "to": 0.92,
+           "middle": 0.2,
+           "at": 38
+          },
+          "image_url": "http://localhost:3000/stories/academy/academy-live.jpg",
+          "children": [
+           {
+            "id": "g4",
+            "type": "row",
+            "gap": 10,
+            "cross": "center",
+            "action": {
+             "type": "screen",
+             "screen": "teachers"
+            },
+            "children": [
+             {
+              "id": "g5",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "align": "center",
+              "cross": "center",
+              "background": "#9E1F4A",
+              "border_color": "#FFFFFF",
+              "radius": 20,
+              "border_width": 2.5,
+              "children": [
+               {
+                "id": "g6",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 800,
+                 "size": 13
+                },
+                "text": "SN"
+               }
+              ]
+             },
+             {
+              "id": "g7",
+              "type": "column",
+              "cross": "start",
+              "children": [
+               {
+                "id": "g8",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 700,
+                 "size": 15
+                },
+                "text": "Salma Nasser"
+               },
+               {
+                "id": "g9",
+                "type": "text",
+                "color": "#FFFFFF",
+                "opacity": 0.8,
+                "font": {
+                 "size": 13
+                },
+                "text": "Arabic · Beginners"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "g10",
+            "type": "column",
+            "gap": 8,
+            "children": [
+             {
+              "id": "g11",
+              "type": "badge_text",
+              "self_align": "start",
+              "color": "#FFFFFF",
+              "gradient": {
+               "from": "#D93025",
+               "to": "#E5484D",
+               "angle": 90
+              },
+              "font": {
+               "weight": 800,
+               "size": 11,
+               "letter_spacing": 1.4,
+               "uppercase": true
+              },
+              "text": "Teaches live",
+              "badge": {
+               "style": "gradient"
+              }
+             },
+             {
+              "id": "g12",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "family": "Outfit",
+               "weight": 700,
+               "size": 38,
+               "line_height": 1,
+               "letter_spacing": -1.2
+              },
+              "text": "Arabic for Beginners",
+              "max_lines": 3
+             },
+             {
+              "id": "g13",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 15,
+               "line_height": 1.4
+              },
+              "text": "Greet people, introduce yourself and order at a café.",
+              "max_lines": 2
+             },
+             {
+              "id": "g14",
+              "type": "row",
+              "margin": {
+               "top": 6
+              },
+              "gap": 10,
+              "children": [
+               {
+                "id": "g15",
+                "type": "button",
+                "width": "hug",
+                "height": 44,
+                "padding": {
+                 "end": 18,
+                 "start": 18
+                },
+                "background": "#F2B544",
+                "color": "#1E2E25",
+                "radius": 22,
+                "font": {
+                 "weight": 800,
+                 "size": 14
+                },
+                "text": "Meet the teacher",
+                "icon": "co_present",
+                "action": {
+                 "type": "screen",
+                 "screen": "teachers"
+                },
+                "motion": {
+                 "press": "shrink"
+                }
+               },
+               {
+                "id": "g16",
+                "type": "button",
+                "width": "hug",
+                "height": 44,
+                "padding": {
+                 "end": 18,
+                 "start": 18
+                },
+                "background": "#1E2B25",
+                "color": "#FFFFFF",
+                "border_color": "#FFFFFF",
+                "radius": 22,
+                "border_width": 1,
+                "font": {
+                 "weight": 700,
+                 "size": 14
+                },
+                "text": "The courses",
+                "action": {
+                 "type": "screen",
+                 "screen": "courses"
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g17",
+          "type": "photo_hero",
+          "name": "Start Your Own Small Business",
+          "height": 480,
+          "padding": {
+           "top": 70,
+           "end": 18,
+           "bottom": 26,
+           "start": 18
+          },
+          "align": "between",
+          "background": "#0E221B",
+          "scrim": {
+           "color": "#050A08",
+           "from": 0.45,
+           "to": 0.92,
+           "middle": 0.2,
+           "at": 38
+          },
+          "image_url": "http://localhost:3000/stories/academy/academy-desk.jpg",
+          "children": [
+           {
+            "id": "g18",
+            "type": "row",
+            "gap": 10,
+            "cross": "center",
+            "action": {
+             "type": "screen",
+             "screen": "teachers"
+            },
+            "children": [
+             {
+              "id": "g19",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "align": "center",
+              "cross": "center",
+              "background": "#34336B",
+              "border_color": "#FFFFFF",
+              "radius": 20,
+              "border_width": 2.5,
+              "children": [
+               {
+                "id": "g20",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 800,
+                 "size": 13
+                },
+                "text": "OF"
+               }
+              ]
+             },
+             {
+              "id": "g21",
+              "type": "column",
+              "cross": "start",
+              "children": [
+               {
+                "id": "g22",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 700,
+                 "size": 15
+                },
+                "text": "Omar Farouk"
+               },
+               {
+                "id": "g23",
+                "type": "text",
+                "color": "#FFFFFF",
+                "opacity": 0.8,
+                "font": {
+                 "size": 13
+                },
+                "text": "Excel · Small business"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "g24",
+            "type": "column",
+            "gap": 8,
+            "children": [
+             {
+              "id": "g25",
+              "type": "badge_text",
+              "self_align": "start",
+              "color": "#FFFFFF",
+              "gradient": {
+               "from": "#D93025",
+               "to": "#E5484D",
+               "angle": 90
+              },
+              "font": {
+               "weight": 800,
+               "size": 11,
+               "letter_spacing": 1.4,
+               "uppercase": true
+              },
+              "text": "From the teacher",
+              "badge": {
+               "style": "gradient"
+              }
+             },
+             {
+              "id": "g26",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "family": "Outfit",
+               "weight": 700,
+               "size": 38,
+               "line_height": 1,
+               "letter_spacing": -1.2
+              },
+              "text": "Start Your Own Small Business",
+              "max_lines": 3
+             },
+             {
+              "id": "g27",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 15,
+               "line_height": 1.4
+              },
+              "text": "From an idea to your first customers.",
+              "max_lines": 2
+             },
+             {
+              "id": "g28",
+              "type": "row",
+              "margin": {
+               "top": 6
+              },
+              "gap": 10,
+              "children": [
+               {
+                "id": "g29",
+                "type": "button",
+                "width": "hug",
+                "height": 44,
+                "padding": {
+                 "end": 18,
+                 "start": 18
+                },
+                "background": "#F2B544",
+                "color": "#1E2E25",
+                "radius": 22,
+                "font": {
+                 "weight": 800,
+                 "size": 14
+                },
+                "text": "Meet the teacher",
+                "icon": "co_present",
+                "action": {
+                 "type": "screen",
+                 "screen": "teachers"
+                },
+                "motion": {
+                 "press": "shrink"
+                }
+               },
+               {
+                "id": "g30",
+                "type": "button",
+                "width": "hug",
+                "height": 44,
+                "padding": {
+                 "end": 18,
+                 "start": 18
+                },
+                "background": "#1E2B25",
+                "color": "#FFFFFF",
+                "border_color": "#FFFFFF",
+                "radius": 22,
+                "border_width": 1,
+                "font": {
+                 "weight": 700,
+                 "size": 14
+                },
+                "text": "The courses",
+                "action": {
+                 "type": "screen",
+                 "screen": "courses"
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g31",
+          "type": "photo_hero",
+          "name": "UX Design Fundamentals",
+          "height": 480,
+          "padding": {
+           "top": 70,
+           "end": 18,
+           "bottom": 26,
+           "start": 18
+          },
+          "align": "between",
+          "background": "#0E221B",
+          "scrim": {
+           "color": "#050A08",
+           "from": 0.45,
+           "to": 0.92,
+           "middle": 0.2,
+           "at": 38
+          },
+          "image_url": "http://localhost:3000/stories/academy/academy-phone.jpg",
+          "children": [
+           {
+            "id": "g32",
+            "type": "row",
+            "gap": 10,
+            "cross": "center",
+            "action": {
+             "type": "screen",
+             "screen": "teachers"
+            },
+            "children": [
+             {
+              "id": "g33",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "align": "center",
+              "cross": "center",
+              "background": "#2E5E4E",
+              "border_color": "#FFFFFF",
+              "radius": 20,
+              "border_width": 2.5,
+              "children": [
+               {
+                "id": "g34",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 800,
+                 "size": 13
+                },
+                "text": "DK"
+               }
+              ]
+             },
+             {
+              "id": "g35",
+              "type": "column",
+              "cross": "start",
+              "children": [
+               {
+                "id": "g36",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 700,
+                 "size": 15
+                },
+                "text": "Deniz Kaya"
+               },
+               {
+                "id": "g37",
+                "type": "text",
+                "color": "#FFFFFF",
+                "opacity": 0.8,
+                "font": {
+                 "size": 13
+                },
+                "text": "UX design · Prototyping"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "g38",
+            "type": "column",
+            "gap": 8,
+            "children": [
+             {
+              "id": "g39",
+              "type": "badge_text",
+              "self_align": "start",
+              "color": "#FFFFFF",
+              "gradient": {
+               "from": "#D93025",
+               "to": "#E5484D",
+               "angle": 90
+              },
+              "font": {
+               "weight": 800,
+               "size": 11,
+               "letter_spacing": 1.4,
+               "uppercase": true
+              },
+              "text": "From the teacher",
+              "badge": {
+               "style": "gradient"
+              }
+             },
+             {
+              "id": "g40",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "family": "Outfit",
+               "weight": 700,
+               "size": 38,
+               "line_height": 1,
+               "letter_spacing": -1.2
+              },
+              "text": "UX Design Fundamentals",
+              "max_lines": 3
+             },
+             {
+              "id": "g41",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 15,
+               "line_height": 1.4
+              },
+              "text": "Design screens people understand at a glance.",
+              "max_lines": 2
+             },
+             {
+              "id": "g42",
+              "type": "row",
+              "margin": {
+               "top": 6
+              },
+              "gap": 10,
+              "children": [
+               {
+                "id": "g43",
+                "type": "button",
+                "width": "hug",
+                "height": 44,
+                "padding": {
+                 "end": 18,
+                 "start": 18
+                },
+                "background": "#F2B544",
+                "color": "#1E2E25",
+                "radius": 22,
+                "font": {
+                 "weight": 800,
+                 "size": 14
+                },
+                "text": "Meet the teacher",
+                "icon": "co_present",
+                "action": {
+                 "type": "screen",
+                 "screen": "teachers"
+                },
+                "motion": {
+                 "press": "shrink"
+                }
+               },
+               {
+                "id": "g44",
+                "type": "button",
+                "width": "hug",
+                "height": 44,
+                "padding": {
+                 "end": 18,
+                 "start": 18
+                },
+                "background": "#1E2B25",
+                "color": "#FFFFFF",
+                "border_color": "#FFFFFF",
+                "radius": 22,
+                "border_width": 1,
+                "font": {
+                 "weight": 700,
+                 "size": 14
+                },
+                "text": "The courses",
+                "action": {
+                 "type": "screen",
+                 "screen": "courses"
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g45",
+        "type": "stories",
+        "name": "Meet the teachers",
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "color": "#121A16",
+        "dark_color": "#EEF4F0",
+        "slides": [
+         {
+          "heading": "Hannah Clarke",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "ring": "plain",
+          "ring_color": "#B8893A",
+          "color": "#8A5A1F",
+          "label": "HC"
+         },
+         {
+          "heading": "Deniz Kaya",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "ring": "plain",
+          "ring_color": "#B8893A",
+          "color": "#2E5E4E",
+          "label": "DK"
+         },
+         {
+          "heading": "Salma Nasser",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "ring": "highlight",
+          "ring_color": "#E5484D",
+          "color": "#9E1F4A",
+          "label": "SN"
+         },
+         {
+          "heading": "Omar Farouk",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "ring": "plain",
+          "ring_color": "#B8893A",
+          "color": "#34336B",
+          "label": "OF"
+         }
+        ],
+        "stories": {
+         "size": 62
+        }
+       },
+       {
+        "id": "g46",
+        "type": "row",
+        "name": "Popular this month",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g47",
+          "type": "text",
+          "width": "fill",
+          "color": "#121A16",
+          "dark_color": "#EEF4F0",
+          "font": {
+           "family": "Outfit",
+           "weight": 700,
+           "size": 21,
+           "letter_spacing": -0.4
+          },
+          "text": "Popular this month"
+         },
+         {
+          "id": "g48",
+          "type": "text",
+          "color": "#2E5E4E",
+          "dark_color": "#8FD1B6",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "See all",
+          "action": {
+           "type": "screen",
+           "screen": "courses"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g49",
+        "type": "items",
+        "name": "Popular this month",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 10,
+        "source": "courses",
+        "layout": "grid",
+        "columns": 2,
+        "card": {
+         "id": "g50",
+         "type": "stack",
+         "width": "fill",
+         "height": 168,
+         "background": "#0E221B",
+         "radius": 22,
+         "children": [
+          {
+           "id": "g51",
+           "type": "image",
+           "width": "fill",
+           "height": 168,
+           "radius": 22,
+           "scrim": {
+            "color": "#000000",
+            "from": 0.05,
+            "to": 0.65,
+            "middle": 0.1,
+            "at": 45
+           },
+           "bind": "image"
+          },
+          {
+           "id": "g52",
+           "type": "column",
+           "height": 168,
+           "padding": {
+            "top": 10,
+            "end": 10,
+            "bottom": 10,
+            "start": 10
+           },
+           "align": "between",
+           "children": [
+            {
+             "id": "g53",
+             "type": "text",
+             "padding": {
+              "top": 4,
+              "end": 10,
+              "bottom": 4,
+              "start": 10
+             },
+             "self_align": "start",
+             "background": "#F2B544",
+             "color": "#1E2E25",
+             "radius": 12,
+             "font": {
+              "weight": 800,
+              "size": 11,
+              "letter_spacing": 0.8,
+              "uppercase": true
+             },
+             "bind": "badge"
+            },
+            {
+             "id": "g54",
+             "type": "row",
+             "padding": {
+              "top": 8,
+              "end": 12,
+              "bottom": 8,
+              "start": 12
+             },
+             "gap": 8,
+             "cross": "center",
+             "radius": 16,
+             "surface": {
+              "glass": 16,
+              "tint": 0.22
+             },
+             "children": [
+              {
+               "id": "g55",
+               "type": "column",
+               "width": "fill",
+               "children": [
+                {
+                 "id": "g56",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 800,
+                  "size": 14
+                 },
+                 "max_lines": 1,
+                 "bind": "title"
+                },
+                {
+                 "id": "g57",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "opacity": 0.9,
+                 "font": {
+                  "size": 12
+                 },
+                 "max_lines": 1,
+                 "bind": "subtitle"
+                }
+               ]
+              },
+              {
+               "id": "g58",
+               "type": "text",
+               "color": "#F2B544",
+               "font": {
+                "weight": 800,
+                "size": 16
+               },
+               "bind": "price"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "courses",
+          "id": "5",
+          "title": "UX Design Fundamentals",
+          "subtitle": "Deniz Kaya",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+          "price_label": "₺1,450.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 5
+          }
+         },
+         {
+          "source": "courses",
+          "id": "13",
+          "title": "Product Photography with Your Phone",
+          "subtitle": "Emre Aydın",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+          "price_label": "₺890.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 13
+          }
+         },
+         {
+          "source": "courses",
+          "id": "20",
+          "title": "Excel for Small Business Owners",
+          "subtitle": "Omar Farouk",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "Free",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 20
+          }
+         },
+         {
+          "source": "courses",
+          "id": "27",
+          "title": "Social Media Marketing That Sells",
+          "subtitle": "Yasmin Adel",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+          "price_label": "₺1,100.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 27
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "transparent",
+      "buttons": [
+       "search"
+      ]
+     },
+     "background": "#F6F3EC",
+     "dark_background": "#070D0A"
+    }
+   },
+   "teachers": {
+    "screen": "teachers",
+    "studio": {
+     "body": {
+      "id": "g59",
+      "type": "column",
+      "children": [
+       {
+        "id": "g60",
+        "type": "photo_hero",
+        "name": "Follow a teacher to hear of their new courses first.",
+        "height": 132,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E221B",
+        "radius": 22,
+        "scrim": {
+         "color": "#0E221B",
+         "from": 0.1,
+         "to": 0.88,
+         "middle": 0.25,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/academy/academy-breakfast.jpg",
+        "children": [
+         {
+          "id": "g61",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Outfit",
+           "weight": 700,
+           "size": 16,
+           "line_height": 1.3
+          },
+          "text": "Follow a teacher to hear of their new courses first.",
+          "max_lines": 2
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Teachers",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F6F3EC",
+      "color": "#121A16",
+      "dark_background": "#070D0A",
+      "dark_color": "#EEF4F0",
+      "style": "glass"
+     },
+     "background": "#F6F3EC",
+     "dark_background": "#070D0A",
+     "screen": "teachers"
+    }
+   },
+   "learning": {
+    "screen": "my_courses",
+    "studio": {
+     "body": {
+      "id": "g62",
+      "type": "column",
+      "children": [
+       {
+        "id": "g63",
+        "type": "photo_hero",
+        "name": "Pick up where you left off.",
+        "height": 132,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E221B",
+        "radius": 22,
+        "scrim": {
+         "color": "#0E221B",
+         "from": 0.1,
+         "to": 0.88,
+         "middle": 0.25,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/academy/academy-phone.jpg",
+        "children": [
+         {
+          "id": "g64",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Outfit",
+           "weight": 700,
+           "size": 16,
+           "line_height": 1.3
+          },
+          "text": "Pick up where you left off.",
+          "max_lines": 2
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "My courses",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F6F3EC",
+      "color": "#121A16",
+      "dark_background": "#070D0A",
+      "dark_color": "#EEF4F0",
+      "style": "glass"
+     },
+     "background": "#F6F3EC",
+     "dark_background": "#070D0A",
+     "screen": "my_courses"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g65",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "slider",
+        "name": "On air",
+        "height": 480,
+        "corners": {
+         "bottom_end": 30,
+         "bottom_start": 30
+        },
+        "autoplay": true,
+        "interval_ms": 6000,
+        "indicator": "progress",
+        "indicator_look": {
+         "at": "top",
+         "inset": 52,
+         "color": "#FFFFFF"
+        },
+        "ken_burns": true,
+        "children": [
+         {
+          "id": "g3",
+          "type": "photo_hero",
+          "name": "Arabic for Beginners",
+          "height": 480,
+          "padding": {
+           "top": 70,
+           "end": 18,
+           "bottom": 26,
+           "start": 18
+          },
+          "align": "between",
+          "background": "#0E221B",
+          "scrim": {
+           "color": "#050A08",
+           "from": 0.45,
+           "to": 0.92,
+           "middle": 0.2,
+           "at": 38
+          },
+          "image_url": "http://localhost:3000/stories/academy/academy-live.jpg",
+          "children": [
+           {
+            "id": "g4",
+            "type": "row",
+            "gap": 10,
+            "cross": "center",
+            "action": {
+             "type": "screen",
+             "screen": "teachers"
+            },
+            "children": [
+             {
+              "id": "g5",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "align": "center",
+              "cross": "center",
+              "background": "#9E1F4A",
+              "border_color": "#FFFFFF",
+              "radius": 20,
+              "border_width": 2.5,
+              "children": [
+               {
+                "id": "g6",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 800,
+                 "size": 13
+                },
+                "text": "س ن"
+               }
+              ]
+             },
+             {
+              "id": "g7",
+              "type": "column",
+              "cross": "start",
+              "children": [
+               {
+                "id": "g8",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 700,
+                 "size": 15
+                },
+                "text": "سلمى ناصر"
+               },
+               {
+                "id": "g9",
+                "type": "text",
+                "color": "#FFFFFF",
+                "opacity": 0.8,
+                "font": {
+                 "size": 13
+                },
+                "text": "العربية · للمبتدئين"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "g10",
+            "type": "column",
+            "gap": 8,
+            "children": [
+             {
+              "id": "g11",
+              "type": "badge_text",
+              "self_align": "start",
+              "color": "#FFFFFF",
+              "gradient": {
+               "from": "#D93025",
+               "to": "#E5484D",
+               "angle": 90
+              },
+              "font": {
+               "weight": 800,
+               "size": 11,
+               "letter_spacing": 1.4,
+               "uppercase": true
+              },
+              "text": "يدرّس مباشرة",
+              "badge": {
+               "style": "gradient"
+              }
+             },
+             {
+              "id": "g12",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "family": "Outfit",
+               "weight": 700,
+               "size": 38,
+               "line_height": 1,
+               "letter_spacing": -1.2
+              },
+              "text": "العربية للمبتدئين",
+              "max_lines": 3
+             },
+             {
+              "id": "g13",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 15,
+               "line_height": 1.4
+              },
+              "text": "تعلّم التحية والتعريف بنفسك والطلب في المقهى.",
+              "max_lines": 2
+             },
+             {
+              "id": "g14",
+              "type": "row",
+              "margin": {
+               "top": 6
+              },
+              "gap": 10,
+              "children": [
+               {
+                "id": "g15",
+                "type": "button",
+                "width": "hug",
+                "height": 44,
+                "padding": {
+                 "end": 18,
+                 "start": 18
+                },
+                "background": "#F2B544",
+                "color": "#1E2E25",
+                "radius": 22,
+                "font": {
+                 "weight": 800,
+                 "size": 14
+                },
+                "text": "تعرّف إلى المعلم",
+                "icon": "co_present",
+                "action": {
+                 "type": "screen",
+                 "screen": "teachers"
+                },
+                "motion": {
+                 "press": "shrink"
+                }
+               },
+               {
+                "id": "g16",
+                "type": "button",
+                "width": "hug",
+                "height": 44,
+                "padding": {
+                 "end": 18,
+                 "start": 18
+                },
+                "background": "#1E2B25",
+                "color": "#FFFFFF",
+                "border_color": "#FFFFFF",
+                "radius": 22,
+                "border_width": 1,
+                "font": {
+                 "weight": 700,
+                 "size": 14
+                },
+                "text": "الدورات",
+                "action": {
+                 "type": "screen",
+                 "screen": "courses"
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g17",
+          "type": "photo_hero",
+          "name": "Start Your Own Small Business",
+          "height": 480,
+          "padding": {
+           "top": 70,
+           "end": 18,
+           "bottom": 26,
+           "start": 18
+          },
+          "align": "between",
+          "background": "#0E221B",
+          "scrim": {
+           "color": "#050A08",
+           "from": 0.45,
+           "to": 0.92,
+           "middle": 0.2,
+           "at": 38
+          },
+          "image_url": "http://localhost:3000/stories/academy/academy-desk.jpg",
+          "children": [
+           {
+            "id": "g18",
+            "type": "row",
+            "gap": 10,
+            "cross": "center",
+            "action": {
+             "type": "screen",
+             "screen": "teachers"
+            },
+            "children": [
+             {
+              "id": "g19",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "align": "center",
+              "cross": "center",
+              "background": "#34336B",
+              "border_color": "#FFFFFF",
+              "radius": 20,
+              "border_width": 2.5,
+              "children": [
+               {
+                "id": "g20",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 800,
+                 "size": 13
+                },
+                "text": "ع ف"
+               }
+              ]
+             },
+             {
+              "id": "g21",
+              "type": "column",
+              "cross": "start",
+              "children": [
+               {
+                "id": "g22",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 700,
+                 "size": 15
+                },
+                "text": "عمر فاروق"
+               },
+               {
+                "id": "g23",
+                "type": "text",
+                "color": "#FFFFFF",
+                "opacity": 0.8,
+                "font": {
+                 "size": 13
+                },
+                "text": "إكسل · المشروعات الصغيرة"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "g24",
+            "type": "column",
+            "gap": 8,
+            "children": [
+             {
+              "id": "g25",
+              "type": "badge_text",
+              "self_align": "start",
+              "color": "#FFFFFF",
+              "gradient": {
+               "from": "#D93025",
+               "to": "#E5484D",
+               "angle": 90
+              },
+              "font": {
+               "weight": 800,
+               "size": 11,
+               "letter_spacing": 1.4,
+               "uppercase": true
+              },
+              "text": "من المعلم",
+              "badge": {
+               "style": "gradient"
+              }
+             },
+             {
+              "id": "g26",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "family": "Outfit",
+               "weight": 700,
+               "size": 38,
+               "line_height": 1,
+               "letter_spacing": -1.2
+              },
+              "text": "ابدأ مشروعك الصغير",
+              "max_lines": 3
+             },
+             {
+              "id": "g27",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 15,
+               "line_height": 1.4
+              },
+              "text": "من الفكرة إلى أول عملائك.",
+              "max_lines": 2
+             },
+             {
+              "id": "g28",
+              "type": "row",
+              "margin": {
+               "top": 6
+              },
+              "gap": 10,
+              "children": [
+               {
+                "id": "g29",
+                "type": "button",
+                "width": "hug",
+                "height": 44,
+                "padding": {
+                 "end": 18,
+                 "start": 18
+                },
+                "background": "#F2B544",
+                "color": "#1E2E25",
+                "radius": 22,
+                "font": {
+                 "weight": 800,
+                 "size": 14
+                },
+                "text": "تعرّف إلى المعلم",
+                "icon": "co_present",
+                "action": {
+                 "type": "screen",
+                 "screen": "teachers"
+                },
+                "motion": {
+                 "press": "shrink"
+                }
+               },
+               {
+                "id": "g30",
+                "type": "button",
+                "width": "hug",
+                "height": 44,
+                "padding": {
+                 "end": 18,
+                 "start": 18
+                },
+                "background": "#1E2B25",
+                "color": "#FFFFFF",
+                "border_color": "#FFFFFF",
+                "radius": 22,
+                "border_width": 1,
+                "font": {
+                 "weight": 700,
+                 "size": 14
+                },
+                "text": "الدورات",
+                "action": {
+                 "type": "screen",
+                 "screen": "courses"
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g31",
+          "type": "photo_hero",
+          "name": "UX Design Fundamentals",
+          "height": 480,
+          "padding": {
+           "top": 70,
+           "end": 18,
+           "bottom": 26,
+           "start": 18
+          },
+          "align": "between",
+          "background": "#0E221B",
+          "scrim": {
+           "color": "#050A08",
+           "from": 0.45,
+           "to": 0.92,
+           "middle": 0.2,
+           "at": 38
+          },
+          "image_url": "http://localhost:3000/stories/academy/academy-phone.jpg",
+          "children": [
+           {
+            "id": "g32",
+            "type": "row",
+            "gap": 10,
+            "cross": "center",
+            "action": {
+             "type": "screen",
+             "screen": "teachers"
+            },
+            "children": [
+             {
+              "id": "g33",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "align": "center",
+              "cross": "center",
+              "background": "#2E5E4E",
+              "border_color": "#FFFFFF",
+              "radius": 20,
+              "border_width": 2.5,
+              "children": [
+               {
+                "id": "g34",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 800,
+                 "size": 13
+                },
+                "text": "د ك"
+               }
+              ]
+             },
+             {
+              "id": "g35",
+              "type": "column",
+              "cross": "start",
+              "children": [
+               {
+                "id": "g36",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 700,
+                 "size": 15
+                },
+                "text": "دنيز كايا"
+               },
+               {
+                "id": "g37",
+                "type": "text",
+                "color": "#FFFFFF",
+                "opacity": 0.8,
+                "font": {
+                 "size": 13
+                },
+                "text": "تصميم تجربة المستخدم · النماذج الأولية"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "g38",
+            "type": "column",
+            "gap": 8,
+            "children": [
+             {
+              "id": "g39",
+              "type": "badge_text",
+              "self_align": "start",
+              "color": "#FFFFFF",
+              "gradient": {
+               "from": "#D93025",
+               "to": "#E5484D",
+               "angle": 90
+              },
+              "font": {
+               "weight": 800,
+               "size": 11,
+               "letter_spacing": 1.4,
+               "uppercase": true
+              },
+              "text": "من المعلم",
+              "badge": {
+               "style": "gradient"
+              }
+             },
+             {
+              "id": "g40",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "family": "Outfit",
+               "weight": 700,
+               "size": 38,
+               "line_height": 1,
+               "letter_spacing": -1.2
+              },
+              "text": "أساسيات تصميم تجربة المستخدم",
+              "max_lines": 3
+             },
+             {
+              "id": "g41",
+              "type": "text",
+              "color": "#FFFFFF",
+              "opacity": 0.9,
+              "font": {
+               "size": 15,
+               "line_height": 1.4
+              },
+              "text": "صمّم شاشات يفهمها الناس من النظرة الأولى.",
+              "max_lines": 2
+             },
+             {
+              "id": "g42",
+              "type": "row",
+              "margin": {
+               "top": 6
+              },
+              "gap": 10,
+              "children": [
+               {
+                "id": "g43",
+                "type": "button",
+                "width": "hug",
+                "height": 44,
+                "padding": {
+                 "end": 18,
+                 "start": 18
+                },
+                "background": "#F2B544",
+                "color": "#1E2E25",
+                "radius": 22,
+                "font": {
+                 "weight": 800,
+                 "size": 14
+                },
+                "text": "تعرّف إلى المعلم",
+                "icon": "co_present",
+                "action": {
+                 "type": "screen",
+                 "screen": "teachers"
+                },
+                "motion": {
+                 "press": "shrink"
+                }
+               },
+               {
+                "id": "g44",
+                "type": "button",
+                "width": "hug",
+                "height": 44,
+                "padding": {
+                 "end": 18,
+                 "start": 18
+                },
+                "background": "#1E2B25",
+                "color": "#FFFFFF",
+                "border_color": "#FFFFFF",
+                "radius": 22,
+                "border_width": 1,
+                "font": {
+                 "weight": 700,
+                 "size": 14
+                },
+                "text": "الدورات",
+                "action": {
+                 "type": "screen",
+                 "screen": "courses"
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g45",
+        "type": "stories",
+        "name": "Meet the teachers",
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "color": "#121A16",
+        "dark_color": "#EEF4F0",
+        "slides": [
+         {
+          "heading": "هانا كلارك",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "ring": "plain",
+          "ring_color": "#B8893A",
+          "color": "#8A5A1F",
+          "label": "HC"
+         },
+         {
+          "heading": "دنيز كايا",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "ring": "plain",
+          "ring_color": "#B8893A",
+          "color": "#2E5E4E",
+          "label": "DK"
+         },
+         {
+          "heading": "سلمى ناصر",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "ring": "highlight",
+          "ring_color": "#E5484D",
+          "color": "#9E1F4A",
+          "label": "SN"
+         },
+         {
+          "heading": "عمر فاروق",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "ring": "plain",
+          "ring_color": "#B8893A",
+          "color": "#34336B",
+          "label": "OF"
+         }
+        ],
+        "stories": {
+         "size": 62
+        }
+       },
+       {
+        "id": "g46",
+        "type": "row",
+        "name": "Popular this month",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g47",
+          "type": "text",
+          "width": "fill",
+          "color": "#121A16",
+          "dark_color": "#EEF4F0",
+          "font": {
+           "family": "Outfit",
+           "weight": 700,
+           "size": 21,
+           "letter_spacing": -0.4
+          },
+          "text": "الأكثر طلبًا هذا الشهر"
+         },
+         {
+          "id": "g48",
+          "type": "text",
+          "color": "#2E5E4E",
+          "dark_color": "#8FD1B6",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "عرض الكل",
+          "action": {
+           "type": "screen",
+           "screen": "courses"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g49",
+        "type": "items",
+        "name": "Popular this month",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 10,
+        "source": "courses",
+        "layout": "grid",
+        "columns": 2,
+        "card": {
+         "id": "g50",
+         "type": "stack",
+         "width": "fill",
+         "height": 168,
+         "background": "#0E221B",
+         "radius": 22,
+         "children": [
+          {
+           "id": "g51",
+           "type": "image",
+           "width": "fill",
+           "height": 168,
+           "radius": 22,
+           "scrim": {
+            "color": "#000000",
+            "from": 0.05,
+            "to": 0.65,
+            "middle": 0.1,
+            "at": 45
+           },
+           "bind": "image"
+          },
+          {
+           "id": "g52",
+           "type": "column",
+           "height": 168,
+           "padding": {
+            "top": 10,
+            "end": 10,
+            "bottom": 10,
+            "start": 10
+           },
+           "align": "between",
+           "children": [
+            {
+             "id": "g53",
+             "type": "text",
+             "padding": {
+              "top": 4,
+              "end": 10,
+              "bottom": 4,
+              "start": 10
+             },
+             "self_align": "start",
+             "background": "#F2B544",
+             "color": "#1E2E25",
+             "radius": 12,
+             "font": {
+              "weight": 800,
+              "size": 11,
+              "letter_spacing": 0.8,
+              "uppercase": true
+             },
+             "bind": "badge"
+            },
+            {
+             "id": "g54",
+             "type": "row",
+             "padding": {
+              "top": 8,
+              "end": 12,
+              "bottom": 8,
+              "start": 12
+             },
+             "gap": 8,
+             "cross": "center",
+             "radius": 16,
+             "surface": {
+              "glass": 16,
+              "tint": 0.22
+             },
+             "children": [
+              {
+               "id": "g55",
+               "type": "column",
+               "width": "fill",
+               "children": [
+                {
+                 "id": "g56",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "font": {
+                  "weight": 800,
+                  "size": 14
+                 },
+                 "max_lines": 1,
+                 "bind": "title"
+                },
+                {
+                 "id": "g57",
+                 "type": "text",
+                 "color": "#FFFFFF",
+                 "opacity": 0.9,
+                 "font": {
+                  "size": 12
+                 },
+                 "max_lines": 1,
+                 "bind": "subtitle"
+                }
+               ]
+              },
+              {
+               "id": "g58",
+               "type": "text",
+               "color": "#F2B544",
+               "font": {
+                "weight": 800,
+                "size": 16
+               },
+               "bind": "price"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "courses",
+          "id": "5",
+          "title": "UX Design Fundamentals",
+          "subtitle": "Deniz Kaya",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+          "price_label": "₺1,450.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 5
+          }
+         },
+         {
+          "source": "courses",
+          "id": "13",
+          "title": "Product Photography with Your Phone",
+          "subtitle": "Emre Aydın",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+          "price_label": "₺890.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 13
+          }
+         },
+         {
+          "source": "courses",
+          "id": "20",
+          "title": "Excel for Small Business Owners",
+          "subtitle": "Omar Farouk",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "مجاني",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 20
+          }
+         },
+         {
+          "source": "courses",
+          "id": "27",
+          "title": "Social Media Marketing That Sells",
+          "subtitle": "Yasmin Adel",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+          "price_label": "₺1,100.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 27
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "transparent",
+      "buttons": [
+       "search"
+      ]
+     },
+     "background": "#F6F3EC",
+     "dark_background": "#070D0A"
+    }
+   },
+   "teachers": {
+    "screen": "teachers",
+    "studio": {
+     "body": {
+      "id": "g59",
+      "type": "column",
+      "children": [
+       {
+        "id": "g60",
+        "type": "photo_hero",
+        "name": "Follow a teacher to hear of their new courses first.",
+        "height": 132,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E221B",
+        "radius": 22,
+        "scrim": {
+         "color": "#0E221B",
+         "from": 0.1,
+         "to": 0.88,
+         "middle": 0.25,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/academy/academy-breakfast.jpg",
+        "children": [
+         {
+          "id": "g61",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Outfit",
+           "weight": 700,
+           "size": 16,
+           "line_height": 1.3
+          },
+          "text": "تابع معلمًا لتعرف بدوراته الجديدة أولًا.",
+          "max_lines": 2
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "المعلمون",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F6F3EC",
+      "color": "#121A16",
+      "dark_background": "#070D0A",
+      "dark_color": "#EEF4F0",
+      "style": "glass"
+     },
+     "background": "#F6F3EC",
+     "dark_background": "#070D0A",
+     "screen": "teachers"
+    }
+   },
+   "learning": {
+    "screen": "my_courses",
+    "studio": {
+     "body": {
+      "id": "g62",
+      "type": "column",
+      "children": [
+       {
+        "id": "g63",
+        "type": "photo_hero",
+        "name": "Pick up where you left off.",
+        "height": 132,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E221B",
+        "radius": 22,
+        "scrim": {
+         "color": "#0E221B",
+         "from": 0.1,
+         "to": 0.88,
+         "middle": 0.25,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/academy/academy-phone.jpg",
+        "children": [
+         {
+          "id": "g64",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Outfit",
+           "weight": 700,
+           "size": 16,
+           "line_height": 1.3
+          },
+          "text": "تابع من حيث توقفت.",
+          "max_lines": 2
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "دوراتي",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F6F3EC",
+      "color": "#121A16",
+      "dark_background": "#070D0A",
+      "dark_color": "#EEF4F0",
+      "style": "glass"
+     },
+     "background": "#F6F3EC",
+     "dark_background": "#070D0A",
+     "screen": "my_courses"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g65",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,1205 @@
+{
+ "template": "teachers_photo",
+ "look": null,
+ "kind": "instructors",
+ "app_type": "lms",
+ "vertical": "instructors",
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "courses",
+   "label": "Courses",
+   "icon": "school",
+   "target": {
+    "type": "screen",
+    "screen": "courses"
+   }
+  },
+  {
+   "id": "learning",
+   "label": "My courses",
+   "icon": "menu_book",
+   "target": {
+    "type": "screen",
+    "screen": "my_courses"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "stack",
+        "name": "Real teachers.\nReal skills.",
+        "height": 300,
+        "background": "#0E221B",
+        "image_background_url": "http://localhost:3000/demo-screens/rawaq-library.jpg",
+        "scrim": {
+         "color": "#0E221B",
+         "from": 0.5,
+         "to": 0.9,
+         "middle": 0.15,
+         "at": 40
+        },
+        "children": [
+         {
+          "id": "g3",
+          "type": "column",
+          "height": 300,
+          "padding": {
+           "top": 22,
+           "end": 18,
+           "bottom": 20,
+           "start": 18
+          },
+          "gap": 4,
+          "align": "end",
+          "color": "#FFFFFF",
+          "children": [
+           {
+            "id": "g4",
+            "type": "text",
+            "color": "#F2B544",
+            "font": {
+             "weight": 800,
+             "size": 12,
+             "letter_spacing": 1.9,
+             "uppercase": true
+            },
+            "text": "Learn from people who do it"
+           },
+           {
+            "id": "g5",
+            "type": "text",
+            "margin": {
+             "top": 6
+            },
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 29,
+             "line_height": 1.1,
+             "letter_spacing": -0.6
+            },
+            "text": "Real teachers.\nReal skills."
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "row",
+        "name": "Meet the teachers",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "width": "fill",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Meet the teachers"
+         },
+         {
+          "id": "g8",
+          "type": "text",
+          "color": "#2E5E4E",
+          "dark_color": "#8FD1B6",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "All teachers",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "row",
+        "name": "Meet the teachers",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 14,
+        "scroll": true,
+        "children": [
+         {
+          "id": "g10",
+          "type": "column",
+          "width": 70,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "children": [
+           {
+            "id": "g11",
+            "type": "column",
+            "width": 62,
+            "height": 62,
+            "align": "center",
+            "cross": "center",
+            "background": "#2E5E4E",
+            "radius": 31,
+            "children": [
+             {
+              "id": "g12",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 18
+              },
+              "text_align": "center",
+              "text": "DK"
+             }
+            ]
+           },
+           {
+            "id": "g13",
+            "type": "text",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text_align": "center",
+            "text": "Deniz",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g14",
+          "type": "column",
+          "width": 70,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "children": [
+           {
+            "id": "g15",
+            "type": "column",
+            "width": 62,
+            "height": 62,
+            "align": "center",
+            "cross": "center",
+            "background": "#B8893A",
+            "radius": 31,
+            "children": [
+             {
+              "id": "g16",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 18
+              },
+              "text_align": "center",
+              "text": "HC"
+             }
+            ]
+           },
+           {
+            "id": "g17",
+            "type": "text",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text_align": "center",
+            "text": "Hannah",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g18",
+          "type": "column",
+          "width": 70,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "children": [
+           {
+            "id": "g19",
+            "type": "column",
+            "width": 62,
+            "height": 62,
+            "align": "center",
+            "cross": "center",
+            "background": "#34336B",
+            "radius": 31,
+            "children": [
+             {
+              "id": "g20",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 18
+              },
+              "text_align": "center",
+              "text": "OF"
+             }
+            ]
+           },
+           {
+            "id": "g21",
+            "type": "text",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text_align": "center",
+            "text": "Omar",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g22",
+          "type": "column",
+          "width": 70,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "children": [
+           {
+            "id": "g23",
+            "type": "column",
+            "width": 62,
+            "height": 62,
+            "align": "center",
+            "cross": "center",
+            "background": "#B4235A",
+            "radius": 31,
+            "children": [
+             {
+              "id": "g24",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 18
+              },
+              "text_align": "center",
+              "text": "YA"
+             }
+            ]
+           },
+           {
+            "id": "g25",
+            "type": "text",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text_align": "center",
+            "text": "Yasmin",
+            "max_lines": 1
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g26",
+        "type": "row",
+        "name": "Popular this month",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g27",
+          "type": "text",
+          "width": "fill",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Popular this month"
+         }
+        ]
+       },
+       {
+        "id": "g28",
+        "type": "items",
+        "name": "Popular this month",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 12,
+        "source": "courses",
+        "layout": "carousel",
+        "card": {
+         "id": "g29",
+         "type": "column",
+         "width": 220,
+         "background": "#FFFFFF",
+         "dark_background": "#15221C",
+         "border_color": "#E2E0D6",
+         "dark_border_color": "#24352D",
+         "radius": 22,
+         "border_width": 1,
+         "children": [
+          {
+           "id": "g30",
+           "type": "stack",
+           "height": 120,
+           "children": [
+            {
+             "id": "g31",
+             "type": "image",
+             "width": "fill",
+             "height": 120,
+             "corners": {
+              "top_start": 21,
+              "top_end": 21
+             },
+             "bind": "image"
+            },
+            {
+             "id": "g32",
+             "type": "row",
+             "padding": {
+              "top": 10,
+              "end": 10,
+              "bottom": 10,
+              "start": 10
+             },
+             "children": [
+              {
+               "id": "g33",
+               "type": "text",
+               "padding": {
+                "top": 4,
+                "end": 10,
+                "bottom": 4,
+                "start": 10
+               },
+               "background": "#F2B544",
+               "color": "#1E2E25",
+               "radius": 12,
+               "font": {
+                "weight": 800,
+                "size": 11
+               },
+               "bind": "badge"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "g34",
+           "type": "column",
+           "padding": {
+            "top": 10,
+            "end": 12,
+            "bottom": 12,
+            "start": 12
+           },
+           "gap": 3,
+           "children": [
+            {
+             "id": "g35",
+             "type": "text",
+             "color": "#15241D",
+             "dark_color": "#ECF3EF",
+             "font": {
+              "weight": 800,
+              "size": 14
+             },
+             "max_lines": 2,
+             "bind": "title"
+            },
+            {
+             "id": "g36",
+             "type": "row",
+             "gap": 4,
+             "cross": "center",
+             "children": [
+              {
+               "id": "g37",
+               "type": "text",
+               "color": "#5A665F",
+               "dark_color": "#A9B7AF",
+               "font": {
+                "size": 12
+               },
+               "max_lines": 1,
+               "bind": "subtitle"
+              },
+              {
+               "id": "g38",
+               "type": "text",
+               "color": "#5A665F",
+               "dark_color": "#A9B7AF",
+               "font": {
+                "size": 12
+               },
+               "text": "·",
+               "bind": "rating"
+              }
+             ]
+            },
+            {
+             "id": "g39",
+             "type": "text",
+             "margin": {
+              "top": 3
+             },
+             "color": "#2E5E4E",
+             "dark_color": "#8FD1B6",
+             "font": {
+              "weight": 800,
+              "size": 15
+             },
+             "bind": "price"
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "courses",
+          "id": "1",
+          "title": "UX Design Fundamentals",
+          "subtitle": "Deniz Kaya",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+          "price_label": "₺1,450.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 1
+          }
+         },
+         {
+          "source": "courses",
+          "id": "10",
+          "title": "Product Photography with Your Phone",
+          "subtitle": "Emre Aydın",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+          "price_label": "₺890.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 10
+          }
+         },
+         {
+          "source": "courses",
+          "id": "17",
+          "title": "Excel for Small Business Owners",
+          "subtitle": "Omar Farouk",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "Free",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 17
+          }
+         },
+         {
+          "source": "courses",
+          "id": "25",
+          "title": "Social Media Marketing That Sells",
+          "subtitle": "Yasmin Adel",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+          "price_label": "₺1,100.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 25
+          }
+         },
+         {
+          "source": "courses",
+          "id": "31",
+          "title": "Everyday English Conversation",
+          "subtitle": "Hannah Clarke",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+          "price_label": "₺650.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 31
+          }
+         },
+         {
+          "source": "courses",
+          "id": "39",
+          "title": "Python for Data Analysis",
+          "subtitle": "Mert Şahin",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-6",
+          "price_label": "₺1,600.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 39
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "transparent",
+      "buttons": [
+       "search"
+      ]
+     },
+     "background": "#F5F4EE",
+     "dark_background": "#0C1511"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "stack",
+        "name": "Real teachers.\nReal skills.",
+        "height": 300,
+        "background": "#0E221B",
+        "image_background_url": "http://localhost:3000/demo-screens/rawaq-library.jpg",
+        "scrim": {
+         "color": "#0E221B",
+         "from": 0.5,
+         "to": 0.9,
+         "middle": 0.15,
+         "at": 40
+        },
+        "children": [
+         {
+          "id": "g3",
+          "type": "column",
+          "height": 300,
+          "padding": {
+           "top": 22,
+           "end": 18,
+           "bottom": 20,
+           "start": 18
+          },
+          "gap": 4,
+          "align": "end",
+          "color": "#FFFFFF",
+          "children": [
+           {
+            "id": "g4",
+            "type": "text",
+            "color": "#F2B544",
+            "font": {
+             "weight": 800,
+             "size": 12,
+             "letter_spacing": 1.9,
+             "uppercase": true
+            },
+            "text": "تعلّم ممن يمارسونها"
+           },
+           {
+            "id": "g5",
+            "type": "text",
+            "margin": {
+             "top": 6
+            },
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 800,
+             "size": 29,
+             "line_height": 1.1,
+             "letter_spacing": -0.6
+            },
+            "text": "معلمون حقيقيون.\nمهارات حقيقية."
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "row",
+        "name": "Meet the teachers",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "width": "fill",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "تعرّف إلى المعلمين"
+         },
+         {
+          "id": "g8",
+          "type": "text",
+          "color": "#2E5E4E",
+          "dark_color": "#8FD1B6",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "كل المعلمين",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "row",
+        "name": "Meet the teachers",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 14,
+        "scroll": true,
+        "children": [
+         {
+          "id": "g10",
+          "type": "column",
+          "width": 70,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "children": [
+           {
+            "id": "g11",
+            "type": "column",
+            "width": 62,
+            "height": 62,
+            "align": "center",
+            "cross": "center",
+            "background": "#2E5E4E",
+            "radius": 31,
+            "children": [
+             {
+              "id": "g12",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 18
+              },
+              "text_align": "center",
+              "text": "د ك"
+             }
+            ]
+           },
+           {
+            "id": "g13",
+            "type": "text",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text_align": "center",
+            "text": "دنيز",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g14",
+          "type": "column",
+          "width": 70,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "children": [
+           {
+            "id": "g15",
+            "type": "column",
+            "width": 62,
+            "height": 62,
+            "align": "center",
+            "cross": "center",
+            "background": "#B8893A",
+            "radius": 31,
+            "children": [
+             {
+              "id": "g16",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 18
+              },
+              "text_align": "center",
+              "text": "ه ك"
+             }
+            ]
+           },
+           {
+            "id": "g17",
+            "type": "text",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text_align": "center",
+            "text": "هانا",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g18",
+          "type": "column",
+          "width": 70,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "children": [
+           {
+            "id": "g19",
+            "type": "column",
+            "width": 62,
+            "height": 62,
+            "align": "center",
+            "cross": "center",
+            "background": "#34336B",
+            "radius": 31,
+            "children": [
+             {
+              "id": "g20",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 18
+              },
+              "text_align": "center",
+              "text": "ع ف"
+             }
+            ]
+           },
+           {
+            "id": "g21",
+            "type": "text",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text_align": "center",
+            "text": "عمر",
+            "max_lines": 1
+           }
+          ]
+         },
+         {
+          "id": "g22",
+          "type": "column",
+          "width": 70,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "teachers"
+          },
+          "children": [
+           {
+            "id": "g23",
+            "type": "column",
+            "width": 62,
+            "height": 62,
+            "align": "center",
+            "cross": "center",
+            "background": "#B4235A",
+            "radius": 31,
+            "children": [
+             {
+              "id": "g24",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "weight": 800,
+               "size": 18
+              },
+              "text_align": "center",
+              "text": "ي ع"
+             }
+            ]
+           },
+           {
+            "id": "g25",
+            "type": "text",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text_align": "center",
+            "text": "ياسمين",
+            "max_lines": 1
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g26",
+        "type": "row",
+        "name": "Popular this month",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g27",
+          "type": "text",
+          "width": "fill",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "الأكثر طلبًا هذا الشهر"
+         }
+        ]
+       },
+       {
+        "id": "g28",
+        "type": "items",
+        "name": "Popular this month",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 12,
+        "source": "courses",
+        "layout": "carousel",
+        "card": {
+         "id": "g29",
+         "type": "column",
+         "width": 220,
+         "background": "#FFFFFF",
+         "dark_background": "#15221C",
+         "border_color": "#E2E0D6",
+         "dark_border_color": "#24352D",
+         "radius": 22,
+         "border_width": 1,
+         "children": [
+          {
+           "id": "g30",
+           "type": "stack",
+           "height": 120,
+           "children": [
+            {
+             "id": "g31",
+             "type": "image",
+             "width": "fill",
+             "height": 120,
+             "corners": {
+              "top_start": 21,
+              "top_end": 21
+             },
+             "bind": "image"
+            },
+            {
+             "id": "g32",
+             "type": "row",
+             "padding": {
+              "top": 10,
+              "end": 10,
+              "bottom": 10,
+              "start": 10
+             },
+             "children": [
+              {
+               "id": "g33",
+               "type": "text",
+               "padding": {
+                "top": 4,
+                "end": 10,
+                "bottom": 4,
+                "start": 10
+               },
+               "background": "#F2B544",
+               "color": "#1E2E25",
+               "radius": 12,
+               "font": {
+                "weight": 800,
+                "size": 11
+               },
+               "bind": "badge"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "g34",
+           "type": "column",
+           "padding": {
+            "top": 10,
+            "end": 12,
+            "bottom": 12,
+            "start": 12
+           },
+           "gap": 3,
+           "children": [
+            {
+             "id": "g35",
+             "type": "text",
+             "color": "#15241D",
+             "dark_color": "#ECF3EF",
+             "font": {
+              "weight": 800,
+              "size": 14
+             },
+             "max_lines": 2,
+             "bind": "title"
+            },
+            {
+             "id": "g36",
+             "type": "row",
+             "gap": 4,
+             "cross": "center",
+             "children": [
+              {
+               "id": "g37",
+               "type": "text",
+               "color": "#5A665F",
+               "dark_color": "#A9B7AF",
+               "font": {
+                "size": 12
+               },
+               "max_lines": 1,
+               "bind": "subtitle"
+              },
+              {
+               "id": "g38",
+               "type": "text",
+               "color": "#5A665F",
+               "dark_color": "#A9B7AF",
+               "font": {
+                "size": 12
+               },
+               "text": "·",
+               "bind": "rating"
+              }
+             ]
+            },
+            {
+             "id": "g39",
+             "type": "text",
+             "margin": {
+              "top": 3
+             },
+             "color": "#2E5E4E",
+             "dark_color": "#8FD1B6",
+             "font": {
+              "weight": 800,
+              "size": 15
+             },
+             "bind": "price"
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "courses",
+          "id": "1",
+          "title": "UX Design Fundamentals",
+          "subtitle": "Deniz Kaya",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+          "price_label": "₺1,450.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 1
+          }
+         },
+         {
+          "source": "courses",
+          "id": "10",
+          "title": "Product Photography with Your Phone",
+          "subtitle": "Emre Aydın",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+          "price_label": "₺890.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 10
+          }
+         },
+         {
+          "source": "courses",
+          "id": "17",
+          "title": "Excel for Small Business Owners",
+          "subtitle": "Omar Farouk",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+          "price_label": "مجاني",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 17
+          }
+         },
+         {
+          "source": "courses",
+          "id": "25",
+          "title": "Social Media Marketing That Sells",
+          "subtitle": "Yasmin Adel",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+          "price_label": "₺1,100.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 25
+          }
+         },
+         {
+          "source": "courses",
+          "id": "31",
+          "title": "Everyday English Conversation",
+          "subtitle": "Hannah Clarke",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+          "price_label": "₺650.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 31
+          }
+         },
+         {
+          "source": "courses",
+          "id": "39",
+          "title": "Python for Data Analysis",
+          "subtitle": "Mert Şahin",
+          "image_url": "https://yallapp.test/api/v1/assets/asset-6",
+          "price_label": "₺1,600.00",
+          "badge": null,
+          "rating": null,
+          "action": {
+           "type": "course",
+           "course_id": 39
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "transparent",
+      "buttons": [
+       "search"
+      ]
+     },
+     "background": "#F5F4EE",
+     "dark_background": "#0C1511"
+    }
+   }
+  }
+ }
+}

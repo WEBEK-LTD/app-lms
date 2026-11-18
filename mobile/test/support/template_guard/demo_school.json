@@ -1,0 +1,852 @@
+{
+ "template": "demo_school",
+ "look": null,
+ "kind": "school",
+ "app_type": "school",
+ "vertical": null,
+ "primary_color": "#1F4E79",
+ "appearance": {
+  "template": "classic",
+  "font": "Plus Jakarta Sans"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "school",
+   "label": "School",
+   "icon": "school",
+   "target": {
+    "type": "screen",
+    "screen": "school"
+   }
+  },
+  {
+   "id": "family",
+   "label": "Parent",
+   "icon": "family_restroom",
+   "target": {
+    "type": "page",
+    "page_slug": "parent"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": {
+  "design": "float",
+  "background": "#FFFFFF",
+  "dark_background": "#0F1C2B",
+  "active": "#0E2238",
+  "inactive": "#4D5B6C",
+  "dark_active": "#F2B544",
+  "dark_inactive": "#A2B0C1",
+  "radius": 30,
+  "margin": 16,
+  "labels": "active"
+ },
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "photo_hero",
+        "name": "Guard Shop · this morning",
+        "height": 360,
+        "padding": {
+         "top": 100,
+         "end": 20,
+         "bottom": 30,
+         "start": 16
+        },
+        "align": "between",
+        "cross": "end",
+        "background": "#06101C",
+        "scrim": {
+         "color": "#06101C",
+         "from": 0.62,
+         "to": 0.94,
+         "middle": 0.18,
+         "at": 35
+        },
+        "image_url": "http://localhost:3000/stories/school/school-gate.jpg",
+        "ken_burns": true,
+        "children": [
+         {
+          "id": "g3",
+          "type": "school",
+          "self_align": "start",
+          "color": "#FFFFFF",
+          "school": {
+           "section": "children"
+          },
+          "visibility": "signed_in"
+         },
+         {
+          "id": "g4",
+          "type": "column",
+          "gap": 6,
+          "cross": "end",
+          "children": [
+           {
+            "id": "g5",
+            "type": "text",
+            "color": "#F5D68E",
+            "font": {
+             "weight": 800,
+             "size": 11,
+             "letter_spacing": 1.8,
+             "uppercase": true
+            },
+            "text_align": "end",
+            "text": "Guard Shop · this morning"
+           },
+           {
+            "id": "g6",
+            "type": "school",
+            "color": "#FFFFFF",
+            "font": {
+             "family": "Bricolage Grotesque",
+             "weight": 700,
+             "size": 30,
+             "line_height": 1.1,
+             "letter_spacing": -0.8
+            },
+            "text_align": "end",
+            "text": "Welcome to Guard Shop",
+            "school": {
+             "section": "greeting"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g7",
+        "type": "row",
+        "name": "News",
+        "height": 36,
+        "padding": {
+         "top": 4,
+         "bottom": 4,
+         "start": 4
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 10,
+        "cross": "center",
+        "background": "#FFFFFF",
+        "dark_background": "#0F1C2B",
+        "border_color": "#DED9CF",
+        "dark_border_color": "#1C2C40",
+        "radius": 18,
+        "border_width": 1,
+        "children": [
+         {
+          "id": "g8",
+          "type": "badge_text",
+          "color": "#0E2238",
+          "gradient": {
+           "from": "#F2B544",
+           "to": "#F5C76A",
+           "angle": 90
+          },
+          "font": {
+           "weight": 800,
+           "size": 11,
+           "letter_spacing": 0.9,
+           "uppercase": true
+          },
+          "text": "News",
+          "badge": {
+           "style": "gradient"
+          }
+         },
+         {
+          "id": "g9",
+          "type": "marquee",
+          "width": "fill",
+          "color": "#4D5B6C",
+          "dark_color": "#A2B0C1",
+          "font": {
+           "weight": 600,
+           "size": 13
+          },
+          "text": "[This week's news, a line each]\n[A trip, a holiday or an evening for parents]",
+          "marquee": {
+           "speed": 32,
+           "dot": true
+          },
+          "action": {
+           "type": "screen",
+           "screen": "school"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "row",
+        "name": "Today at school",
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g11",
+          "type": "text",
+          "width": "fill",
+          "color": "#0E2238",
+          "dark_color": "#E9EFF6",
+          "font": {
+           "family": "Bricolage Grotesque",
+           "weight": 700,
+           "size": 20,
+           "letter_spacing": -0.4
+          },
+          "text": "Today at school"
+         },
+         {
+          "id": "g12",
+          "type": "text",
+          "color": "#1F4E79",
+          "dark_color": "#9CC3EA",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "Timetable",
+          "action": {
+           "type": "screen",
+           "screen": "school"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g13",
+        "type": "school",
+        "margin": {
+         "end": 16,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "color": "#0E2238",
+        "dark_background": "#0F1C2B",
+        "dark_color": "#E9EFF6",
+        "border_color": "#DED9CF",
+        "dark_border_color": "#1C2C40",
+        "radius": 20,
+        "border_width": 1,
+        "shadow": "medium",
+        "school": {
+         "section": "today"
+        },
+        "visibility": "signed_in"
+       },
+       {
+        "id": "g14",
+        "type": "photo_hero",
+        "name": "At school this week",
+        "height": 150,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "end": 16,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E2238",
+        "radius": 22,
+        "scrim": {
+         "color": "#06101C",
+         "from": 0.1,
+         "to": 0.88,
+         "middle": 0.2,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/school/school-teacher.jpg",
+        "action": {
+         "type": "screen",
+         "screen": "school"
+        },
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "g15",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Bricolage Grotesque",
+           "weight": 700,
+           "size": 19
+          },
+          "text": "At school this week"
+         }
+        ]
+       },
+       {
+        "id": "g16",
+        "type": "cta_bar",
+        "name": "Forms to sign\nTrips and permission slips from the school",
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "color": "#0E2238",
+        "dark_background": "#0F1C2B",
+        "dark_color": "#E9EFF6",
+        "title": "Forms to sign\nTrips and permission slips from the school",
+        "text": "Sign",
+        "cta": {
+         "style": "card",
+         "lead": "signature"
+        },
+        "action": {
+         "type": "screen",
+         "screen": "school"
+        },
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "transparent",
+      "buttons": [
+       "notifications"
+      ]
+     },
+     "background": "#F3F1EC",
+     "dark_background": "#08111B"
+    }
+   },
+   "parent": {
+    "screen": "parent",
+    "studio": {
+     "body": {
+      "id": "g17",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent"
+    }
+   },
+   "school": {
+    "screen": "school",
+    "studio": {
+     "body": {
+      "id": "g18",
+      "type": "column",
+      "children": [
+       {
+        "id": "g19",
+        "type": "photo_hero",
+        "name": "News, the timetable and homework, in one place.",
+        "height": 140,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E2238",
+        "radius": 22,
+        "scrim": {
+         "color": "#06101C",
+         "from": 0.1,
+         "to": 0.9,
+         "middle": 0.25,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/school/school-dawn.jpg",
+        "action": {
+         "type": "screen",
+         "screen": "school"
+        },
+        "children": [
+         {
+          "id": "g20",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Bricolage Grotesque",
+           "weight": 700,
+           "size": 16,
+           "line_height": 1.3
+          },
+          "text": "News, the timetable and homework, in one place.",
+          "max_lines": 2
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "School",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F3F1EC",
+      "color": "#0E2238",
+      "dark_background": "#08111B",
+      "dark_color": "#E9EFF6",
+      "style": "glass"
+     },
+     "background": "#F3F1EC",
+     "dark_background": "#08111B",
+     "screen": "school"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g21",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "photo_hero",
+        "name": "Guard Shop · this morning",
+        "height": 360,
+        "padding": {
+         "top": 100,
+         "end": 20,
+         "bottom": 30,
+         "start": 16
+        },
+        "align": "between",
+        "cross": "end",
+        "background": "#06101C",
+        "scrim": {
+         "color": "#06101C",
+         "from": 0.62,
+         "to": 0.94,
+         "middle": 0.18,
+         "at": 35
+        },
+        "image_url": "http://localhost:3000/stories/school/school-gate.jpg",
+        "ken_burns": true,
+        "children": [
+         {
+          "id": "g3",
+          "type": "school",
+          "self_align": "start",
+          "color": "#FFFFFF",
+          "school": {
+           "section": "children"
+          },
+          "visibility": "signed_in"
+         },
+         {
+          "id": "g4",
+          "type": "column",
+          "gap": 6,
+          "cross": "end",
+          "children": [
+           {
+            "id": "g5",
+            "type": "text",
+            "color": "#F5D68E",
+            "font": {
+             "weight": 800,
+             "size": 11,
+             "letter_spacing": 1.8,
+             "uppercase": true
+            },
+            "text_align": "end",
+            "text": "Guard Shop · هذا الصباح"
+           },
+           {
+            "id": "g6",
+            "type": "school",
+            "color": "#FFFFFF",
+            "font": {
+             "family": "Bricolage Grotesque",
+             "weight": 700,
+             "size": 30,
+             "line_height": 1.1,
+             "letter_spacing": -0.8
+            },
+            "text_align": "end",
+            "text": "مرحبًا بكم في Guard Shop",
+            "school": {
+             "section": "greeting"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g7",
+        "type": "row",
+        "name": "News",
+        "height": 36,
+        "padding": {
+         "top": 4,
+         "bottom": 4,
+         "start": 4
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "start": 16
+        },
+        "gap": 10,
+        "cross": "center",
+        "background": "#FFFFFF",
+        "dark_background": "#0F1C2B",
+        "border_color": "#DED9CF",
+        "dark_border_color": "#1C2C40",
+        "radius": 18,
+        "border_width": 1,
+        "children": [
+         {
+          "id": "g8",
+          "type": "badge_text",
+          "color": "#0E2238",
+          "gradient": {
+           "from": "#F2B544",
+           "to": "#F5C76A",
+           "angle": 90
+          },
+          "font": {
+           "weight": 800,
+           "size": 11,
+           "letter_spacing": 0.9,
+           "uppercase": true
+          },
+          "text": "أخبار",
+          "badge": {
+           "style": "gradient"
+          }
+         },
+         {
+          "id": "g9",
+          "type": "marquee",
+          "width": "fill",
+          "color": "#4D5B6C",
+          "dark_color": "#A2B0C1",
+          "font": {
+           "weight": 600,
+           "size": 13
+          },
+          "text": "[أخبار هذا الأسبوع، كل خبر في سطر]\n[رحلة أو عطلة أو لقاء لأولياء الأمور]",
+          "marquee": {
+           "speed": 32,
+           "dot": true
+          },
+          "action": {
+           "type": "screen",
+           "screen": "school"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g10",
+        "type": "row",
+        "name": "Today at school",
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g11",
+          "type": "text",
+          "width": "fill",
+          "color": "#0E2238",
+          "dark_color": "#E9EFF6",
+          "font": {
+           "family": "Bricolage Grotesque",
+           "weight": 700,
+           "size": 20,
+           "letter_spacing": -0.4
+          },
+          "text": "اليوم في المدرسة"
+         },
+         {
+          "id": "g12",
+          "type": "text",
+          "color": "#1F4E79",
+          "dark_color": "#9CC3EA",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "الجدول",
+          "action": {
+           "type": "screen",
+           "screen": "school"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g13",
+        "type": "school",
+        "margin": {
+         "end": 16,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "color": "#0E2238",
+        "dark_background": "#0F1C2B",
+        "dark_color": "#E9EFF6",
+        "border_color": "#DED9CF",
+        "dark_border_color": "#1C2C40",
+        "radius": 20,
+        "border_width": 1,
+        "shadow": "medium",
+        "school": {
+         "section": "today"
+        },
+        "visibility": "signed_in"
+       },
+       {
+        "id": "g14",
+        "type": "photo_hero",
+        "name": "At school this week",
+        "height": 150,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "end": 16,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E2238",
+        "radius": 22,
+        "scrim": {
+         "color": "#06101C",
+         "from": 0.1,
+         "to": 0.88,
+         "middle": 0.2,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/school/school-teacher.jpg",
+        "action": {
+         "type": "screen",
+         "screen": "school"
+        },
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "g15",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Bricolage Grotesque",
+           "weight": 700,
+           "size": 19
+          },
+          "text": "في المدرسة هذا الأسبوع"
+         }
+        ]
+       },
+       {
+        "id": "g16",
+        "type": "cta_bar",
+        "name": "Forms to sign\nTrips and permission slips from the school",
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "color": "#0E2238",
+        "dark_background": "#0F1C2B",
+        "dark_color": "#E9EFF6",
+        "title": "نماذج للتوقيع\nالرحلات وأذونات المدرسة",
+        "text": "وقّع",
+        "cta": {
+         "style": "card",
+         "lead": "signature"
+        },
+        "action": {
+         "type": "screen",
+         "screen": "school"
+        },
+        "visibility": "signed_in"
+       }
+      ]
+     },
+     "header": {
+      "type": "transparent",
+      "buttons": [
+       "notifications"
+      ]
+     },
+     "background": "#F3F1EC",
+     "dark_background": "#08111B"
+    }
+   },
+   "parent": {
+    "screen": "parent",
+    "studio": {
+     "body": {
+      "id": "g17",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent"
+    }
+   },
+   "school": {
+    "screen": "school",
+    "studio": {
+     "body": {
+      "id": "g18",
+      "type": "column",
+      "children": [
+       {
+        "id": "g19",
+        "type": "photo_hero",
+        "name": "News, the timetable and homework, in one place.",
+        "height": 140,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E2238",
+        "radius": 22,
+        "scrim": {
+         "color": "#06101C",
+         "from": 0.1,
+         "to": 0.9,
+         "middle": 0.25,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/stories/school/school-dawn.jpg",
+        "action": {
+         "type": "screen",
+         "screen": "school"
+        },
+        "children": [
+         {
+          "id": "g20",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Bricolage Grotesque",
+           "weight": 700,
+           "size": 16,
+           "line_height": 1.3
+          },
+          "text": "الأخبار والجدول والواجبات في مكان واحد.",
+          "max_lines": 2
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "المدرسة",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#F3F1EC",
+      "color": "#0E2238",
+      "dark_background": "#08111B",
+      "dark_color": "#E9EFF6",
+      "style": "glass"
+     },
+     "background": "#F3F1EC",
+     "dark_background": "#08111B",
+     "screen": "school"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g21",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    }
+   }
+  }
+ }
+}

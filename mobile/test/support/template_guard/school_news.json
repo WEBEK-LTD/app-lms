@@ -1,0 +1,686 @@
+{
+ "template": "school_news",
+ "look": null,
+ "kind": "school",
+ "app_type": "school",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "school",
+   "label": "School",
+   "icon": "school",
+   "target": {
+    "type": "screen",
+    "screen": "school"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Welcome to Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "Welcome to Guard Shop"
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "Everything you need, a tap away."
+         },
+         {
+          "id": "g5",
+          "type": "button",
+          "width": "hug",
+          "height": 42,
+          "padding": {
+           "end": 18,
+           "start": 18
+          },
+          "background": "#FFFFFF",
+          "color": "#0E0D24",
+          "radius": 12,
+          "font": {
+           "weight": 800,
+           "size": 14
+          },
+          "text": "Open my school",
+          "action": {
+           "type": "screen",
+           "screen": "school"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "column",
+        "name": "What's new",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "What's new"
+         },
+         {
+          "id": "g8",
+          "type": "items",
+          "gap": 10,
+          "source": "school_news",
+          "layout": "list",
+          "card": {
+           "id": "g9",
+           "type": "column",
+           "padding": {
+            "top": 14,
+            "end": 14,
+            "bottom": 14,
+            "start": 14
+           },
+           "gap": 6,
+           "background": "#FFFFFF",
+           "dark_background": "#22203A",
+           "radius": 16,
+           "shadow": "light",
+           "children": [
+            {
+             "id": "g10",
+             "type": "row",
+             "children": [
+              {
+               "id": "g11",
+               "type": "text",
+               "padding": {
+                "top": 3,
+                "end": 9,
+                "bottom": 3,
+                "start": 9
+               },
+               "background": "#0E0D24",
+               "color": "#FFFFFF",
+               "radius": 9,
+               "font": {
+                "weight": 800,
+                "size": 11
+               },
+               "bind": "badge"
+              }
+             ]
+            },
+            {
+             "id": "g12",
+             "type": "text",
+             "font": {
+              "weight": 700,
+              "size": 15
+             },
+             "max_lines": 2,
+             "bind": "title"
+            },
+            {
+             "id": "g13",
+             "type": "text",
+             "opacity": 0.8,
+             "font": {
+              "size": 13
+             },
+             "max_lines": 2,
+             "bind": "subtitle"
+            }
+           ]
+          },
+          "items": [
+           {
+            "source": "school_news",
+            "id": "6",
+            "title": "Parents' evening on Thursday",
+            "subtitle": "Teachers will meet parents in the classrooms from 17:00 to 19:30. Your child's timetable shows which room to go to.",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-18",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           },
+           {
+            "source": "school_news",
+            "id": "5",
+            "title": "Science fair projects are due next Friday",
+            "subtitle": "Each class shows its projects in the hall on the morning of the fair. Families are welcome from 10:00.",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-17",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           },
+           {
+            "source": "school_news",
+            "id": "4",
+            "title": "New school bus times from Monday",
+            "subtitle": "The morning bus now leaves the last stop ten minutes earlier, at 7:20. The afternoon times stay the same.",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-15",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           },
+           {
+            "source": "school_news",
+            "id": "3",
+            "title": "Our football team is in the city final",
+            "subtitle": "The final is on Saturday at 11:00 at the city stadium. Come and cheer them on!",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-13",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g14",
+        "type": "column",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 6,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g15",
+          "type": "ratings",
+          "rating": 5
+         },
+         {
+          "id": "g16",
+          "type": "text",
+          "font": {
+           "size": 14,
+           "italic": true
+          },
+          "text": "[What a customer says about you]"
+         },
+         {
+          "id": "g17",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "weight": 700,
+           "size": 12
+          },
+          "text": "[Customer name]"
+         }
+        ]
+       },
+       {
+        "id": "g18",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g19",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Find us"
+         },
+         {
+          "id": "g20",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "[Your address and opening hours]"
+         },
+         {
+          "id": "g21",
+          "type": "map",
+          "height": 170,
+          "radius": 14,
+          "map": {
+           "lat": 30.0444,
+           "lng": 31.2357
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_center",
+      "buttons": [
+       "menu",
+       "notifications"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Welcome to Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "مرحبًا بك في Guard Shop"
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "كل ما تحتاج إليه بلمسة واحدة."
+         },
+         {
+          "id": "g5",
+          "type": "button",
+          "width": "hug",
+          "height": 42,
+          "padding": {
+           "end": 18,
+           "start": 18
+          },
+          "background": "#FFFFFF",
+          "color": "#0E0D24",
+          "radius": 12,
+          "font": {
+           "weight": 800,
+           "size": 14
+          },
+          "text": "افتح مدرستي",
+          "action": {
+           "type": "screen",
+           "screen": "school"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "column",
+        "name": "What's new",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "الجديد"
+         },
+         {
+          "id": "g8",
+          "type": "items",
+          "gap": 10,
+          "source": "school_news",
+          "layout": "list",
+          "card": {
+           "id": "g9",
+           "type": "column",
+           "padding": {
+            "top": 14,
+            "end": 14,
+            "bottom": 14,
+            "start": 14
+           },
+           "gap": 6,
+           "background": "#FFFFFF",
+           "dark_background": "#22203A",
+           "radius": 16,
+           "shadow": "light",
+           "children": [
+            {
+             "id": "g10",
+             "type": "row",
+             "children": [
+              {
+               "id": "g11",
+               "type": "text",
+               "padding": {
+                "top": 3,
+                "end": 9,
+                "bottom": 3,
+                "start": 9
+               },
+               "background": "#0E0D24",
+               "color": "#FFFFFF",
+               "radius": 9,
+               "font": {
+                "weight": 800,
+                "size": 11
+               },
+               "bind": "badge"
+              }
+             ]
+            },
+            {
+             "id": "g12",
+             "type": "text",
+             "font": {
+              "weight": 700,
+              "size": 15
+             },
+             "max_lines": 2,
+             "bind": "title"
+            },
+            {
+             "id": "g13",
+             "type": "text",
+             "opacity": 0.8,
+             "font": {
+              "size": 13
+             },
+             "max_lines": 2,
+             "bind": "subtitle"
+            }
+           ]
+          },
+          "items": [
+           {
+            "source": "school_news",
+            "id": "6",
+            "title": "Parents' evening on Thursday",
+            "subtitle": "Teachers will meet parents in the classrooms from 17:00 to 19:30. Your child's timetable shows which room to go to.",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-18",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           },
+           {
+            "source": "school_news",
+            "id": "5",
+            "title": "Science fair projects are due next Friday",
+            "subtitle": "Each class shows its projects in the hall on the morning of the fair. Families are welcome from 10:00.",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-17",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           },
+           {
+            "source": "school_news",
+            "id": "4",
+            "title": "New school bus times from Monday",
+            "subtitle": "The morning bus now leaves the last stop ten minutes earlier, at 7:20. The afternoon times stay the same.",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-15",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           },
+           {
+            "source": "school_news",
+            "id": "3",
+            "title": "Our football team is in the city final",
+            "subtitle": "The final is on Saturday at 11:00 at the city stadium. Come and cheer them on!",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-13",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g14",
+        "type": "column",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 6,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g15",
+          "type": "ratings",
+          "rating": 5
+         },
+         {
+          "id": "g16",
+          "type": "text",
+          "font": {
+           "size": 14,
+           "italic": true
+          },
+          "text": "[رأي أحد العملاء فيك]"
+         },
+         {
+          "id": "g17",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "weight": 700,
+           "size": 12
+          },
+          "text": "[اسم العميل]"
+         }
+        ]
+       },
+       {
+        "id": "g18",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g19",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "موقعنا"
+         },
+         {
+          "id": "g20",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "[العنوان ومواعيد العمل]"
+         },
+         {
+          "id": "g21",
+          "type": "map",
+          "height": 170,
+          "radius": 14,
+          "map": {
+           "lat": 30.0444,
+           "lng": 31.2357
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_center",
+      "buttons": [
+       "menu",
+       "notifications"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

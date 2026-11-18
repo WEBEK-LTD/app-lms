@@ -1,0 +1,1895 @@
+{
+ "template": "shop_deals",
+ "look": null,
+ "kind": "store",
+ "app_type": "store",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "shop",
+   "label": "Shop",
+   "icon": "storefront",
+   "target": {
+    "type": "screen",
+    "screen": "search"
+   }
+  },
+  {
+   "id": "cart",
+   "label": "Cart",
+   "icon": "shopping_cart",
+   "target": {
+    "type": "screen",
+    "screen": "cart"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "slider",
+        "name": "Free delivery this weekend",
+        "height": 150,
+        "margin": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "autoplay": true,
+        "interval_ms": 4000,
+        "indicator": "progress",
+        "children": [
+         {
+          "id": "g3",
+          "type": "column",
+          "height": "fill",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "gap": 4,
+          "align": "center",
+          "cross": "center",
+          "color": "#FFFFFF",
+          "gradient": {
+           "from": "#0E0D24",
+           "to": "#0E0D24",
+           "angle": 135
+          },
+          "radius": 18,
+          "children": [
+           {
+            "id": "g4",
+            "type": "icon",
+            "color": "#FFFFFF",
+            "icon": "local_shipping",
+            "icon_size": 30
+           },
+           {
+            "id": "g5",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 19
+            },
+            "text_align": "center",
+            "text": "Free delivery this weekend"
+           },
+           {
+            "id": "g6",
+            "type": "text",
+            "opacity": 0.9,
+            "font": {
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "On every order, to your door."
+           }
+          ]
+         },
+         {
+          "id": "g7",
+          "type": "column",
+          "height": "fill",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "gap": 4,
+          "align": "center",
+          "cross": "center",
+          "color": "#FFFFFF",
+          "gradient": {
+           "from": "#C2410C",
+           "to": "#7C2D12",
+           "angle": 135
+          },
+          "radius": 18,
+          "children": [
+           {
+            "id": "g8",
+            "type": "icon",
+            "color": "#FFFFFF",
+            "icon": "auto_awesome",
+            "icon_size": 30
+           },
+           {
+            "id": "g9",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 19
+            },
+            "text_align": "center",
+            "text": "New styles every Friday"
+           },
+           {
+            "id": "g10",
+            "type": "text",
+            "opacity": 0.9,
+            "font": {
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "Be the first to see them in the app."
+           }
+          ]
+         },
+         {
+          "id": "g11",
+          "type": "column",
+          "height": "fill",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "gap": 4,
+          "align": "center",
+          "cross": "center",
+          "color": "#FFFFFF",
+          "gradient": {
+           "from": "#0369A1",
+           "to": "#15803D",
+           "angle": 135
+          },
+          "radius": 18,
+          "children": [
+           {
+            "id": "g12",
+            "type": "icon",
+            "color": "#FFFFFF",
+            "icon": "payments",
+            "icon_size": 30
+           },
+           {
+            "id": "g13",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 19
+            },
+            "text_align": "center",
+            "text": "Pay on delivery"
+           },
+           {
+            "id": "g14",
+            "type": "text",
+            "opacity": 0.9,
+            "font": {
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "Cash or card when your order arrives."
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g15",
+        "type": "column",
+        "name": "Flash sale",
+        "padding": {
+         "top": 14,
+         "end": 12,
+         "bottom": 14,
+         "start": 12
+        },
+        "margin": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 12,
+        "color": "#FFFFFF",
+        "gradient": {
+         "from": "#0E0D24",
+         "to": "#0E0D24",
+         "angle": 135
+        },
+        "radius": 20,
+        "children": [
+         {
+          "id": "g16",
+          "type": "row",
+          "gap": 8,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g17",
+            "type": "icon",
+            "color": "#FFD166",
+            "icon": "bolt",
+            "icon_size": 26,
+            "motion": {
+             "loop": "pulse"
+            }
+           },
+           {
+            "id": "g18",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g19",
+              "type": "text",
+              "opacity": 0.9,
+              "font": {
+               "weight": 700,
+               "size": 12,
+               "letter_spacing": 1,
+               "uppercase": true
+              },
+              "text": "Flash sale"
+             },
+             {
+              "id": "g20",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 19
+              },
+              "text": "Up to 50% off, for a short time"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g21",
+          "type": "countdown",
+          "text_align": "center",
+          "text": "The flash sale has ended. New deals are on the way.",
+          "ends_at": "2026-11-21T10:00:00.000Z"
+         },
+         {
+          "id": "g22",
+          "type": "items",
+          "gap": 10,
+          "source": "products",
+          "layout": "carousel",
+          "items": [
+           {
+            "source": "products",
+            "id": "10",
+            "title": "Spring Tulip Bunch",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": "₺590.00",
+            "badge": "Sale",
+            "sale": {
+             "was": "690.00",
+             "was_formatted": "₺690.00",
+             "now": "590.00",
+             "now_formatted": "₺590.00",
+             "percent_off": 14,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "10"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "7",
+            "title": "Rose Turkish Delight Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": "₺420.00",
+            "badge": "Sale",
+            "sale": {
+             "was": "520.00",
+             "was_formatted": "₺520.00",
+             "now": "420.00",
+             "now_formatted": "₺420.00",
+             "percent_off": 19,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "7"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g23",
+        "type": "column",
+        "name": "Deal of the day",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g24",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "Deal of the day"
+         },
+         {
+          "id": "g25",
+          "type": "items",
+          "gap": 10,
+          "source": "products",
+          "layout": "list",
+          "card": {
+           "id": "g26",
+           "type": "row",
+           "padding": {
+            "top": 10,
+            "end": 10,
+            "bottom": 10,
+            "start": 10
+           },
+           "gap": 12,
+           "cross": "center",
+           "background": "#FFFFFF",
+           "dark_background": "#22203A",
+           "border_color": "#0E0D24",
+           "radius": 18,
+           "border_width": 2,
+           "shadow": "light",
+           "children": [
+            {
+             "id": "g27",
+             "type": "image",
+             "width": 112,
+             "height": 112,
+             "radius": 14,
+             "bind": "image"
+            },
+            {
+             "id": "g28",
+             "type": "column",
+             "width": "fill",
+             "gap": 6,
+             "children": [
+              {
+               "id": "g29",
+               "type": "text",
+               "color": "#0E0D24",
+               "font": {
+                "weight": 800,
+                "size": 11,
+                "uppercase": true
+               },
+               "bind": "badge"
+              },
+              {
+               "id": "g30",
+               "type": "text",
+               "font": {
+                "weight": 800,
+                "size": 16
+               },
+               "max_lines": 2,
+               "bind": "title"
+              },
+              {
+               "id": "g31",
+               "type": "text",
+               "color": "#0E0D24",
+               "font": {
+                "weight": 800,
+                "size": 18
+               },
+               "bind": "price"
+              }
+             ]
+            }
+           ]
+          },
+          "items": [
+           {
+            "source": "products",
+            "id": "12",
+            "title": "Blush Rose Bouquet",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+            "price_label": "₺1,290.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "12"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g32",
+        "type": "column",
+        "name": "Shop by category",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g33",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "Shop by category"
+         },
+         {
+          "id": "g34",
+          "type": "categories",
+          "source": "products",
+          "style": "pictures",
+          "columns": 2,
+          "categories": [
+           {
+            "id": 1,
+            "name": "Flowers",
+            "count": 3,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3"
+           },
+           {
+            "id": 2,
+            "name": "Gift boxes",
+            "count": 2,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-4"
+           },
+           {
+            "id": 3,
+            "name": "Sweets",
+            "count": 2,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2"
+           },
+           {
+            "id": 4,
+            "name": "Home",
+            "count": 1,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-5"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g35",
+        "type": "column",
+        "name": "On sale now",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g36",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "On sale now"
+         },
+         {
+          "id": "g37",
+          "type": "items",
+          "gap": 10,
+          "source": "products",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "products",
+            "id": "10",
+            "title": "Spring Tulip Bunch",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": "₺590.00",
+            "badge": "Sale",
+            "sale": {
+             "was": "690.00",
+             "was_formatted": "₺690.00",
+             "now": "590.00",
+             "now_formatted": "₺590.00",
+             "percent_off": 14,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "10"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "7",
+            "title": "Rose Turkish Delight Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": "₺420.00",
+            "badge": "Sale",
+            "sale": {
+             "was": "520.00",
+             "was_formatted": "₺520.00",
+             "now": "420.00",
+             "now_formatted": "₺420.00",
+             "percent_off": 19,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "7"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g38",
+        "type": "row",
+        "name": "15% off with this code",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 12,
+        "cross": "center",
+        "background": "#FFF7ED",
+        "dark_background": "#2A2742",
+        "border_color": "#0E0D24",
+        "radius": 18,
+        "border_width": 1.5,
+        "children": [
+         {
+          "id": "g39",
+          "type": "icon",
+          "color": "#0E0D24",
+          "icon": "redeem",
+          "icon_size": 30
+         },
+         {
+          "id": "g40",
+          "type": "column",
+          "width": "fill",
+          "gap": 6,
+          "children": [
+           {
+            "id": "g41",
+            "type": "text",
+            "opacity": 0.8,
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "For your first order"
+           },
+           {
+            "id": "g42",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 17
+            },
+            "text": "15% off with this code"
+           },
+           {
+            "id": "g43",
+            "type": "coupon",
+            "color": "#0E0D24",
+            "radius": 10,
+            "code": "WELCOME15"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g44",
+        "type": "grid",
+        "name": "Fast delivery",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "columns": 2,
+        "children": [
+         {
+          "id": "g45",
+          "type": "row",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "gap": 10,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "children": [
+           {
+            "id": "g46",
+            "type": "icon",
+            "padding": {
+             "top": 8,
+             "end": 8,
+             "bottom": 8,
+             "start": 8
+            },
+            "background": "#F4EFE6",
+            "color": "#0E0D24",
+            "dark_background": "#2A2742",
+            "radius": 99,
+            "icon": "local_shipping",
+            "icon_size": 22
+           },
+           {
+            "id": "g47",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g48",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "Fast delivery"
+             },
+             {
+              "id": "g49",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 11
+              },
+              "text": "To your door in 2 to 3 days"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g50",
+          "type": "row",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "gap": 10,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "children": [
+           {
+            "id": "g51",
+            "type": "icon",
+            "padding": {
+             "top": 8,
+             "end": 8,
+             "bottom": 8,
+             "start": 8
+            },
+            "background": "#F4EFE6",
+            "color": "#0E0D24",
+            "dark_background": "#2A2742",
+            "radius": 99,
+            "icon": "undo",
+            "icon_size": 22
+           },
+           {
+            "id": "g52",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g53",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "Easy returns"
+             },
+             {
+              "id": "g54",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 11
+              },
+              "text": "Within 14 days"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g55",
+          "type": "row",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "gap": 10,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "children": [
+           {
+            "id": "g56",
+            "type": "icon",
+            "padding": {
+             "top": 8,
+             "end": 8,
+             "bottom": 8,
+             "start": 8
+            },
+            "background": "#F4EFE6",
+            "color": "#0E0D24",
+            "dark_background": "#2A2742",
+            "radius": 99,
+            "icon": "lock",
+            "icon_size": 22
+           },
+           {
+            "id": "g57",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g58",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "Secure payment"
+             },
+             {
+              "id": "g59",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 11
+              },
+              "text": "Card or cash on delivery"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g60",
+          "type": "row",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "gap": 10,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "children": [
+           {
+            "id": "g61",
+            "type": "icon",
+            "padding": {
+             "top": 8,
+             "end": 8,
+             "bottom": 8,
+             "start": 8
+            },
+            "background": "#F4EFE6",
+            "color": "#0E0D24",
+            "dark_background": "#2A2742",
+            "radius": 99,
+            "icon": "support_agent",
+            "icon_size": 22
+           },
+           {
+            "id": "g62",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g63",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "Here to help"
+             },
+             {
+              "id": "g64",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 11
+              },
+              "text": "Message us any day"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "cart",
+       "account"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "slider",
+        "name": "Free delivery this weekend",
+        "height": 150,
+        "margin": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "autoplay": true,
+        "interval_ms": 4000,
+        "indicator": "progress",
+        "children": [
+         {
+          "id": "g3",
+          "type": "column",
+          "height": "fill",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "gap": 4,
+          "align": "center",
+          "cross": "center",
+          "color": "#FFFFFF",
+          "gradient": {
+           "from": "#0E0D24",
+           "to": "#0E0D24",
+           "angle": 135
+          },
+          "radius": 18,
+          "children": [
+           {
+            "id": "g4",
+            "type": "icon",
+            "color": "#FFFFFF",
+            "icon": "local_shipping",
+            "icon_size": 30
+           },
+           {
+            "id": "g5",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 19
+            },
+            "text_align": "center",
+            "text": "توصيل مجاني في عطلة نهاية هذا الأسبوع"
+           },
+           {
+            "id": "g6",
+            "type": "text",
+            "opacity": 0.9,
+            "font": {
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "على كل الطلبات، حتى باب بيتك."
+           }
+          ]
+         },
+         {
+          "id": "g7",
+          "type": "column",
+          "height": "fill",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "gap": 4,
+          "align": "center",
+          "cross": "center",
+          "color": "#FFFFFF",
+          "gradient": {
+           "from": "#C2410C",
+           "to": "#7C2D12",
+           "angle": 135
+          },
+          "radius": 18,
+          "children": [
+           {
+            "id": "g8",
+            "type": "icon",
+            "color": "#FFFFFF",
+            "icon": "auto_awesome",
+            "icon_size": 30
+           },
+           {
+            "id": "g9",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 19
+            },
+            "text_align": "center",
+            "text": "تصاميم جديدة كل جمعة"
+           },
+           {
+            "id": "g10",
+            "type": "text",
+            "opacity": 0.9,
+            "font": {
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "كن أول من يراها في التطبيق."
+           }
+          ]
+         },
+         {
+          "id": "g11",
+          "type": "column",
+          "height": "fill",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "gap": 4,
+          "align": "center",
+          "cross": "center",
+          "color": "#FFFFFF",
+          "gradient": {
+           "from": "#0369A1",
+           "to": "#15803D",
+           "angle": 135
+          },
+          "radius": 18,
+          "children": [
+           {
+            "id": "g12",
+            "type": "icon",
+            "color": "#FFFFFF",
+            "icon": "payments",
+            "icon_size": 30
+           },
+           {
+            "id": "g13",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 19
+            },
+            "text_align": "center",
+            "text": "ادفع عند الاستلام"
+           },
+           {
+            "id": "g14",
+            "type": "text",
+            "opacity": 0.9,
+            "font": {
+             "size": 13
+            },
+            "text_align": "center",
+            "text": "نقدًا أو بالبطاقة عند وصول طلبك."
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g15",
+        "type": "column",
+        "name": "Flash sale",
+        "padding": {
+         "top": 14,
+         "end": 12,
+         "bottom": 14,
+         "start": 12
+        },
+        "margin": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 12,
+        "color": "#FFFFFF",
+        "gradient": {
+         "from": "#0E0D24",
+         "to": "#0E0D24",
+         "angle": 135
+        },
+        "radius": 20,
+        "children": [
+         {
+          "id": "g16",
+          "type": "row",
+          "gap": 8,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g17",
+            "type": "icon",
+            "color": "#FFD166",
+            "icon": "bolt",
+            "icon_size": 26,
+            "motion": {
+             "loop": "pulse"
+            }
+           },
+           {
+            "id": "g18",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g19",
+              "type": "text",
+              "opacity": 0.9,
+              "font": {
+               "weight": 700,
+               "size": 12,
+               "letter_spacing": 1,
+               "uppercase": true
+              },
+              "text": "عرض خاطف"
+             },
+             {
+              "id": "g20",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 19
+              },
+              "text": "خصم يصل إلى ٥٠٪ لفترة قصيرة"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g21",
+          "type": "countdown",
+          "text_align": "center",
+          "text": "انتهى العرض الخاطف. عروض جديدة في الطريق.",
+          "ends_at": "2026-11-21T10:00:00.000Z"
+         },
+         {
+          "id": "g22",
+          "type": "items",
+          "gap": 10,
+          "source": "products",
+          "layout": "carousel",
+          "items": [
+           {
+            "source": "products",
+            "id": "10",
+            "title": "Spring Tulip Bunch",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": "₺590.00",
+            "badge": "تخفيض",
+            "sale": {
+             "was": "690.00",
+             "was_formatted": "₺690.00",
+             "now": "590.00",
+             "now_formatted": "₺590.00",
+             "percent_off": 14,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "10"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "7",
+            "title": "Rose Turkish Delight Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": "₺420.00",
+            "badge": "تخفيض",
+            "sale": {
+             "was": "520.00",
+             "was_formatted": "₺520.00",
+             "now": "420.00",
+             "now_formatted": "₺420.00",
+             "percent_off": 19,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "7"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g23",
+        "type": "column",
+        "name": "Deal of the day",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g24",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "عرض اليوم"
+         },
+         {
+          "id": "g25",
+          "type": "items",
+          "gap": 10,
+          "source": "products",
+          "layout": "list",
+          "card": {
+           "id": "g26",
+           "type": "row",
+           "padding": {
+            "top": 10,
+            "end": 10,
+            "bottom": 10,
+            "start": 10
+           },
+           "gap": 12,
+           "cross": "center",
+           "background": "#FFFFFF",
+           "dark_background": "#22203A",
+           "border_color": "#0E0D24",
+           "radius": 18,
+           "border_width": 2,
+           "shadow": "light",
+           "children": [
+            {
+             "id": "g27",
+             "type": "image",
+             "width": 112,
+             "height": 112,
+             "radius": 14,
+             "bind": "image"
+            },
+            {
+             "id": "g28",
+             "type": "column",
+             "width": "fill",
+             "gap": 6,
+             "children": [
+              {
+               "id": "g29",
+               "type": "text",
+               "color": "#0E0D24",
+               "font": {
+                "weight": 800,
+                "size": 11,
+                "uppercase": true
+               },
+               "bind": "badge"
+              },
+              {
+               "id": "g30",
+               "type": "text",
+               "font": {
+                "weight": 800,
+                "size": 16
+               },
+               "max_lines": 2,
+               "bind": "title"
+              },
+              {
+               "id": "g31",
+               "type": "text",
+               "color": "#0E0D24",
+               "font": {
+                "weight": 800,
+                "size": 18
+               },
+               "bind": "price"
+              }
+             ]
+            }
+           ]
+          },
+          "items": [
+           {
+            "source": "products",
+            "id": "12",
+            "title": "Blush Rose Bouquet",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+            "price_label": "₺1,290.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "12"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g32",
+        "type": "column",
+        "name": "Shop by category",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g33",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "تسوّق حسب القسم"
+         },
+         {
+          "id": "g34",
+          "type": "categories",
+          "source": "products",
+          "style": "pictures",
+          "columns": 2,
+          "categories": [
+           {
+            "id": 1,
+            "name": "Flowers",
+            "count": 3,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3"
+           },
+           {
+            "id": 2,
+            "name": "Gift boxes",
+            "count": 2,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-4"
+           },
+           {
+            "id": 3,
+            "name": "Sweets",
+            "count": 2,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2"
+           },
+           {
+            "id": 4,
+            "name": "Home",
+            "count": 1,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-5"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g35",
+        "type": "column",
+        "name": "On sale now",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g36",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "مخفّض الآن"
+         },
+         {
+          "id": "g37",
+          "type": "items",
+          "gap": 10,
+          "source": "products",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "products",
+            "id": "10",
+            "title": "Spring Tulip Bunch",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": "₺590.00",
+            "badge": "تخفيض",
+            "sale": {
+             "was": "690.00",
+             "was_formatted": "₺690.00",
+             "now": "590.00",
+             "now_formatted": "₺590.00",
+             "percent_off": 14,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "10"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "7",
+            "title": "Rose Turkish Delight Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": "₺420.00",
+            "badge": "تخفيض",
+            "sale": {
+             "was": "520.00",
+             "was_formatted": "₺520.00",
+             "now": "420.00",
+             "now_formatted": "₺420.00",
+             "percent_off": 19,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "7"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g38",
+        "type": "row",
+        "name": "15% off with this code",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 12,
+        "cross": "center",
+        "background": "#FFF7ED",
+        "dark_background": "#2A2742",
+        "border_color": "#0E0D24",
+        "radius": 18,
+        "border_width": 1.5,
+        "children": [
+         {
+          "id": "g39",
+          "type": "icon",
+          "color": "#0E0D24",
+          "icon": "redeem",
+          "icon_size": 30
+         },
+         {
+          "id": "g40",
+          "type": "column",
+          "width": "fill",
+          "gap": 6,
+          "children": [
+           {
+            "id": "g41",
+            "type": "text",
+            "opacity": 0.8,
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "لطلبك الأول"
+           },
+           {
+            "id": "g42",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 17
+            },
+            "text": "خصم ١٥٪ بهذا الرمز"
+           },
+           {
+            "id": "g43",
+            "type": "coupon",
+            "color": "#0E0D24",
+            "radius": 10,
+            "code": "WELCOME15"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g44",
+        "type": "grid",
+        "name": "Fast delivery",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "columns": 2,
+        "children": [
+         {
+          "id": "g45",
+          "type": "row",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "gap": 10,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "children": [
+           {
+            "id": "g46",
+            "type": "icon",
+            "padding": {
+             "top": 8,
+             "end": 8,
+             "bottom": 8,
+             "start": 8
+            },
+            "background": "#F4EFE6",
+            "color": "#0E0D24",
+            "dark_background": "#2A2742",
+            "radius": 99,
+            "icon": "local_shipping",
+            "icon_size": 22
+           },
+           {
+            "id": "g47",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g48",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "توصيل سريع"
+             },
+             {
+              "id": "g49",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 11
+              },
+              "text": "إلى بابك في يومين أو ثلاثة"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g50",
+          "type": "row",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "gap": 10,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "children": [
+           {
+            "id": "g51",
+            "type": "icon",
+            "padding": {
+             "top": 8,
+             "end": 8,
+             "bottom": 8,
+             "start": 8
+            },
+            "background": "#F4EFE6",
+            "color": "#0E0D24",
+            "dark_background": "#2A2742",
+            "radius": 99,
+            "icon": "undo",
+            "icon_size": 22
+           },
+           {
+            "id": "g52",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g53",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "إرجاع سهل"
+             },
+             {
+              "id": "g54",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 11
+              },
+              "text": "خلال ١٤ يومًا"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g55",
+          "type": "row",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "gap": 10,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "children": [
+           {
+            "id": "g56",
+            "type": "icon",
+            "padding": {
+             "top": 8,
+             "end": 8,
+             "bottom": 8,
+             "start": 8
+            },
+            "background": "#F4EFE6",
+            "color": "#0E0D24",
+            "dark_background": "#2A2742",
+            "radius": 99,
+            "icon": "lock",
+            "icon_size": 22
+           },
+           {
+            "id": "g57",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g58",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "دفع آمن"
+             },
+             {
+              "id": "g59",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 11
+              },
+              "text": "بالبطاقة أو نقدًا عند الاستلام"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g60",
+          "type": "row",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "gap": 10,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "dark_background": "#22203A",
+          "radius": 14,
+          "shadow": "light",
+          "children": [
+           {
+            "id": "g61",
+            "type": "icon",
+            "padding": {
+             "top": 8,
+             "end": 8,
+             "bottom": 8,
+             "start": 8
+            },
+            "background": "#F4EFE6",
+            "color": "#0E0D24",
+            "dark_background": "#2A2742",
+            "radius": 99,
+            "icon": "support_agent",
+            "icon_size": 22
+           },
+           {
+            "id": "g62",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "g63",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "في خدمتك دائمًا"
+             },
+             {
+              "id": "g64",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 11
+              },
+              "text": "راسلنا في أي يوم"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "cart",
+       "account"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

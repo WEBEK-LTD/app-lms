@@ -1,0 +1,940 @@
+{
+ "template": "university",
+ "look": null,
+ "kind": "school",
+ "app_type": "school",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "school",
+   "label": "School",
+   "icon": "school",
+   "target": {
+    "type": "screen",
+    "screen": "school"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Your university life at Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "icon",
+          "color": "#FFFFFF",
+          "icon": "apartment",
+          "icon_size": 34
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "Your university life at Guard Shop"
+         },
+         {
+          "id": "g5",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "Your timetable, courses, grades and attendance, with news from your faculty."
+         },
+         {
+          "id": "g6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "g7",
+            "type": "button",
+            "width": "hug",
+            "height": 42,
+            "padding": {
+             "end": 18,
+             "start": 18
+            },
+            "background": "#FFFFFF",
+            "color": "#0E0D24",
+            "radius": 12,
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "text": "Open my university",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            },
+            "motion": {
+             "press": "shrink"
+            }
+           },
+           {
+            "id": "g8",
+            "type": "button",
+            "width": "hug",
+            "height": 42,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "color": "#FFFFFF",
+            "radius": 12,
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "text": "What's new",
+            "action": {
+             "type": "screen",
+             "screen": "notifications"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "column",
+        "name": "What's new",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g10",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "What's new"
+         },
+         {
+          "id": "g11",
+          "type": "items",
+          "gap": 10,
+          "source": "school_news",
+          "layout": "list",
+          "card": {
+           "id": "g12",
+           "type": "column",
+           "padding": {
+            "top": 14,
+            "end": 14,
+            "bottom": 14,
+            "start": 14
+           },
+           "gap": 6,
+           "background": "#FFFFFF",
+           "dark_background": "#22203A",
+           "radius": 16,
+           "shadow": "light",
+           "children": [
+            {
+             "id": "g13",
+             "type": "row",
+             "children": [
+              {
+               "id": "g14",
+               "type": "text",
+               "padding": {
+                "top": 3,
+                "end": 9,
+                "bottom": 3,
+                "start": 9
+               },
+               "background": "#0E0D24",
+               "color": "#FFFFFF",
+               "radius": 9,
+               "font": {
+                "weight": 800,
+                "size": 11
+               },
+               "bind": "badge"
+              }
+             ]
+            },
+            {
+             "id": "g15",
+             "type": "text",
+             "font": {
+              "weight": 700,
+              "size": 15
+             },
+             "max_lines": 2,
+             "bind": "title"
+            },
+            {
+             "id": "g16",
+             "type": "text",
+             "opacity": 0.8,
+             "font": {
+              "size": 13
+             },
+             "max_lines": 2,
+             "bind": "subtitle"
+            }
+           ]
+          },
+          "items": [
+           {
+            "source": "school_news",
+            "id": "6",
+            "title": "Parents' evening on Thursday",
+            "subtitle": "Teachers will meet parents in the classrooms from 17:00 to 19:30. Your child's timetable shows which room to go to.",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-18",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           },
+           {
+            "source": "school_news",
+            "id": "5",
+            "title": "Science fair projects are due next Friday",
+            "subtitle": "Each class shows its projects in the hall on the morning of the fair. Families are welcome from 10:00.",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-17",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           },
+           {
+            "source": "school_news",
+            "id": "4",
+            "title": "New school bus times from Monday",
+            "subtitle": "The morning bus now leaves the last stop ten minutes earlier, at 7:20. The afternoon times stay the same.",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-15",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           },
+           {
+            "source": "school_news",
+            "id": "3",
+            "title": "Our football team is in the city final",
+            "subtitle": "The final is on Saturday at 11:00 at the city stadium. Come and cheer them on!",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-13",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g17",
+        "type": "column",
+        "name": "How it works",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g18",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "How it works"
+         },
+         {
+          "id": "g19",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g20",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "1"
+           },
+           {
+            "id": "g21",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "Sign in with the number you gave the university"
+           }
+          ]
+         },
+         {
+          "id": "g22",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g23",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "2"
+           },
+           {
+            "id": "g24",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "See your timetable, courses and grades"
+           }
+          ]
+         },
+         {
+          "id": "g25",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g26",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "3"
+           },
+           {
+            "id": "g27",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "Hear of exams, results and news at once"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g28",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g29",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Find us"
+         },
+         {
+          "id": "g30",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "[Your address and opening hours]"
+         },
+         {
+          "id": "g31",
+          "type": "map",
+          "height": 170,
+          "radius": 14,
+          "map": {
+           "lat": 30.0444,
+           "lng": 31.2357
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Your university life at Guard Shop",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "icon",
+          "color": "#FFFFFF",
+          "icon": "apartment",
+          "icon_size": 34
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "حياتك الجامعية في Guard Shop"
+         },
+         {
+          "id": "g5",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "جدولك ومقرراتك ودرجاتك وحضورك، وأخبار كليتك."
+         },
+         {
+          "id": "g6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "g7",
+            "type": "button",
+            "width": "hug",
+            "height": 42,
+            "padding": {
+             "end": 18,
+             "start": 18
+            },
+            "background": "#FFFFFF",
+            "color": "#0E0D24",
+            "radius": 12,
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "text": "افتح جامعتي",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            },
+            "motion": {
+             "press": "shrink"
+            }
+           },
+           {
+            "id": "g8",
+            "type": "button",
+            "width": "hug",
+            "height": 42,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "color": "#FFFFFF",
+            "radius": 12,
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "text": "الجديد",
+            "action": {
+             "type": "screen",
+             "screen": "notifications"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "column",
+        "name": "What's new",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g10",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "الجديد"
+         },
+         {
+          "id": "g11",
+          "type": "items",
+          "gap": 10,
+          "source": "school_news",
+          "layout": "list",
+          "card": {
+           "id": "g12",
+           "type": "column",
+           "padding": {
+            "top": 14,
+            "end": 14,
+            "bottom": 14,
+            "start": 14
+           },
+           "gap": 6,
+           "background": "#FFFFFF",
+           "dark_background": "#22203A",
+           "radius": 16,
+           "shadow": "light",
+           "children": [
+            {
+             "id": "g13",
+             "type": "row",
+             "children": [
+              {
+               "id": "g14",
+               "type": "text",
+               "padding": {
+                "top": 3,
+                "end": 9,
+                "bottom": 3,
+                "start": 9
+               },
+               "background": "#0E0D24",
+               "color": "#FFFFFF",
+               "radius": 9,
+               "font": {
+                "weight": 800,
+                "size": 11
+               },
+               "bind": "badge"
+              }
+             ]
+            },
+            {
+             "id": "g15",
+             "type": "text",
+             "font": {
+              "weight": 700,
+              "size": 15
+             },
+             "max_lines": 2,
+             "bind": "title"
+            },
+            {
+             "id": "g16",
+             "type": "text",
+             "opacity": 0.8,
+             "font": {
+              "size": 13
+             },
+             "max_lines": 2,
+             "bind": "subtitle"
+            }
+           ]
+          },
+          "items": [
+           {
+            "source": "school_news",
+            "id": "6",
+            "title": "Parents' evening on Thursday",
+            "subtitle": "Teachers will meet parents in the classrooms from 17:00 to 19:30. Your child's timetable shows which room to go to.",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-18",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           },
+           {
+            "source": "school_news",
+            "id": "5",
+            "title": "Science fair projects are due next Friday",
+            "subtitle": "Each class shows its projects in the hall on the morning of the fair. Families are welcome from 10:00.",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-17",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           },
+           {
+            "source": "school_news",
+            "id": "4",
+            "title": "New school bus times from Monday",
+            "subtitle": "The morning bus now leaves the last stop ten minutes earlier, at 7:20. The afternoon times stay the same.",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-15",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           },
+           {
+            "source": "school_news",
+            "id": "3",
+            "title": "Our football team is in the city final",
+            "subtitle": "The final is on Saturday at 11:00 at the city stadium. Come and cheer them on!",
+            "image_url": null,
+            "price_label": null,
+            "badge": "2026-11-13",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g17",
+        "type": "column",
+        "name": "How it works",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g18",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "كيف تعمل الخدمة"
+         },
+         {
+          "id": "g19",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g20",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "1"
+           },
+           {
+            "id": "g21",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "سجّل الدخول بالرقم الذي أعطيته للجامعة"
+           }
+          ]
+         },
+         {
+          "id": "g22",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g23",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "2"
+           },
+           {
+            "id": "g24",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "اطّلع على جدولك ومقرراتك ودرجاتك"
+           }
+          ]
+         },
+         {
+          "id": "g25",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g26",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "3"
+           },
+           {
+            "id": "g27",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "اعرف الامتحانات والنتائج والأخبار أولًا بأول"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g28",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g29",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "موقعنا"
+         },
+         {
+          "id": "g30",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "[العنوان ومواعيد العمل]"
+         },
+         {
+          "id": "g31",
+          "type": "map",
+          "height": 170,
+          "radius": 14,
+          "map": {
+           "lat": 30.0444,
+           "lng": 31.2357
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

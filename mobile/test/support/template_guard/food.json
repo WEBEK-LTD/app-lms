@@ -1,0 +1,831 @@
+{
+ "template": "food",
+ "look": null,
+ "kind": "food",
+ "app_type": "food",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "restaurants",
+   "label": "Restaurants",
+   "icon": "restaurant_menu",
+   "target": {
+    "type": "screen",
+    "screen": "restaurants"
+   }
+  },
+  {
+   "id": "orders",
+   "label": "My orders",
+   "icon": "receipt_long",
+   "target": {
+    "type": "screen",
+    "screen": "food_orders"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Hungry? Order from the restaurants near you",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "icon",
+          "color": "#FFFFFF",
+          "icon": "restaurant",
+          "icon_size": 34
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "Hungry? Order from the restaurants near you"
+         },
+         {
+          "id": "g5",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "Pick a restaurant, choose your dishes and follow your order to the door."
+         },
+         {
+          "id": "g6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "g7",
+            "type": "button",
+            "width": "hug",
+            "height": 42,
+            "padding": {
+             "end": 18,
+             "start": 18
+            },
+            "background": "#FFFFFF",
+            "color": "#0E0D24",
+            "radius": 12,
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "text": "Order now",
+            "action": {
+             "type": "screen",
+             "screen": "restaurants"
+            },
+            "motion": {
+             "press": "shrink"
+            }
+           },
+           {
+            "id": "g8",
+            "type": "button",
+            "width": "hug",
+            "height": 42,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "color": "#FFFFFF",
+            "radius": 12,
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "text": "My orders",
+            "action": {
+             "type": "screen",
+             "screen": "food_orders"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g10",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Most popular"
+         },
+         {
+          "id": "g11",
+          "type": "items",
+          "gap": 10,
+          "source": "restaurants",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "restaurants",
+            "id": "1",
+            "title": "Sahara Grill",
+            "subtitle": "Egyptian · Desserts",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "1"
+             }
+            }
+           },
+           {
+            "source": "restaurants",
+            "id": "2",
+            "title": "Forno Zamalek",
+            "subtitle": "Grill",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "2"
+             }
+            }
+           },
+           {
+            "source": "restaurants",
+            "id": "3",
+            "title": "Bayt El Koshary",
+            "subtitle": "Pizza · Desserts",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "3"
+             }
+            }
+           },
+           {
+            "source": "restaurants",
+            "id": "4",
+            "title": "Corniche Café",
+            "subtitle": "Café · Desserts",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "4"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g12",
+        "type": "column",
+        "name": "How it works",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g13",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "How it works"
+         },
+         {
+          "id": "g14",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g15",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "1"
+           },
+           {
+            "id": "g16",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "Pick a restaurant near you"
+           }
+          ]
+         },
+         {
+          "id": "g17",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g18",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "2"
+           },
+           {
+            "id": "g19",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "The restaurant prepares your order"
+           }
+          ]
+         },
+         {
+          "id": "g20",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g21",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "3"
+           },
+           {
+            "id": "g22",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "A courier brings it to your door"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g23",
+        "type": "button",
+        "width": "fill",
+        "height": 46,
+        "margin": {
+         "top": 10,
+         "end": 18,
+         "bottom": 10,
+         "start": 18
+        },
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 14,
+        "shadow": "medium",
+        "font": {
+         "weight": 800,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "See the restaurants",
+        "icon": "arrow_back",
+        "action": {
+         "type": "screen",
+         "screen": "restaurants"
+        },
+        "motion": {
+         "press": "shrink"
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Hungry? Order from the restaurants near you",
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "children": [
+         {
+          "id": "g3",
+          "type": "icon",
+          "color": "#FFFFFF",
+          "icon": "restaurant",
+          "icon_size": 34
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 24,
+           "line_height": 1.3
+          },
+          "text": "جائع؟ اطلب من المطاعم القريبة منك"
+         },
+         {
+          "id": "g5",
+          "type": "text",
+          "opacity": 0.9,
+          "font": {
+           "size": 14
+          },
+          "text": "اختر مطعمًا وأطباقك، وتابع طلبك حتى الباب."
+         },
+         {
+          "id": "g6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "g7",
+            "type": "button",
+            "width": "hug",
+            "height": 42,
+            "padding": {
+             "end": 18,
+             "start": 18
+            },
+            "background": "#FFFFFF",
+            "color": "#0E0D24",
+            "radius": 12,
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "text": "اطلب الآن",
+            "action": {
+             "type": "screen",
+             "screen": "restaurants"
+            },
+            "motion": {
+             "press": "shrink"
+            }
+           },
+           {
+            "id": "g8",
+            "type": "button",
+            "width": "hug",
+            "height": 42,
+            "padding": {
+             "end": 16,
+             "start": 16
+            },
+            "color": "#FFFFFF",
+            "radius": 12,
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "text": "طلباتي",
+            "action": {
+             "type": "screen",
+             "screen": "food_orders"
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g9",
+        "type": "column",
+        "name": "Most popular",
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g10",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "الأكثر طلبًا"
+         },
+         {
+          "id": "g11",
+          "type": "items",
+          "gap": 10,
+          "source": "restaurants",
+          "layout": "grid",
+          "columns": 2,
+          "items": [
+           {
+            "source": "restaurants",
+            "id": "1",
+            "title": "Sahara Grill",
+            "subtitle": "Egyptian · Desserts",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "1"
+             }
+            }
+           },
+           {
+            "source": "restaurants",
+            "id": "2",
+            "title": "Forno Zamalek",
+            "subtitle": "Grill",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "2"
+             }
+            }
+           },
+           {
+            "source": "restaurants",
+            "id": "3",
+            "title": "Bayt El Koshary",
+            "subtitle": "Pizza · Desserts",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "3"
+             }
+            }
+           },
+           {
+            "source": "restaurants",
+            "id": "4",
+            "title": "Corniche Café",
+            "subtitle": "Café · Desserts",
+            "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+            "price_label": null,
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "restaurants",
+              "id": "4"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g12",
+        "type": "column",
+        "name": "How it works",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "radius": 16,
+        "shadow": "light",
+        "children": [
+         {
+          "id": "g13",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "كيف تعمل الخدمة"
+         },
+         {
+          "id": "g14",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g15",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "1"
+           },
+           {
+            "id": "g16",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "اختر مطعمًا قريبًا منك"
+           }
+          ]
+         },
+         {
+          "id": "g17",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g18",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "2"
+           },
+           {
+            "id": "g19",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "يجهّز المطعم طلبك"
+           }
+          ]
+         },
+         {
+          "id": "g20",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "g21",
+            "type": "text",
+            "width": 30,
+            "height": 30,
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "radius": 15,
+            "font": {
+             "weight": 800,
+             "size": 14,
+             "line_height": 2.1
+            },
+            "text_align": "center",
+            "text": "3"
+           },
+           {
+            "id": "g22",
+            "type": "text",
+            "width": "fill",
+            "font": {
+             "weight": 600,
+             "size": 14
+            },
+            "text": "يوصله المندوب إلى بابك"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g23",
+        "type": "button",
+        "width": "fill",
+        "height": 46,
+        "margin": {
+         "top": 10,
+         "end": 18,
+         "bottom": 10,
+         "start": 18
+        },
+        "background": "#0E0D24",
+        "color": "#FFFFFF",
+        "radius": 14,
+        "shadow": "medium",
+        "font": {
+         "weight": 800,
+         "size": 15
+        },
+        "text_align": "center",
+        "text": "تصفّح المطاعم",
+        "icon": "arrow_back",
+        "action": {
+         "type": "screen",
+         "screen": "restaurants"
+        },
+        "motion": {
+         "press": "shrink"
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

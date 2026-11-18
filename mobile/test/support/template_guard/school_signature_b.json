@@ -1,0 +1,899 @@
+{
+ "template": "school_signature_b",
+ "look": "b",
+ "kind": "school",
+ "app_type": "school",
+ "vertical": null,
+ "primary_color": "#1F4E79",
+ "appearance": {
+  "template": "classic",
+  "font": "Lexend"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "school",
+   "label": "School",
+   "icon": "school",
+   "target": {
+    "type": "screen",
+    "screen": "school"
+   }
+  },
+  {
+   "id": "family",
+   "label": "Parent",
+   "icon": "family_restroom",
+   "target": {
+    "type": "page",
+    "page_slug": "parent"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": {
+  "design": "glass",
+  "background": "#FFFFFF",
+  "dark_background": "#0E1823",
+  "active": "#1F4E79",
+  "inactive": "#4A5868",
+  "dark_active": "#9CC3EA",
+  "dark_inactive": "#9FAEBF",
+  "radius": 28,
+  "margin": 16
+ },
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "top": 8,
+       "end": 16,
+       "bottom": 24,
+       "start": 16
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Today's pass",
+        "background": "#FFFFFF",
+        "dark_background": "#0E1823",
+        "border_color": "#D3DBE4",
+        "dark_border_color": "#1C2B3C",
+        "radius": 26,
+        "border_width": 1,
+        "visibility": "signed_in",
+        "surface": {
+         "soft": 3,
+         "ticket": {
+          "at": 42
+         }
+        },
+        "children": [
+         {
+          "id": "g3",
+          "type": "photo_hero",
+          "height": 128,
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "align": "end",
+          "background": "#0E2238",
+          "corners": {
+           "top_start": 26,
+           "top_end": 26
+          },
+          "scrim": {
+           "color": "#06101C",
+           "from": 0.35,
+           "to": 0.75,
+           "middle": 0.05,
+           "at": 45
+          },
+          "image_url": "http://localhost:3000/demo-screens/nakhla-school.jpg",
+          "children": [
+           {
+            "id": "g4",
+            "type": "school",
+            "color": "#FFFFFF",
+            "school": {
+             "section": "children"
+            }
+           }
+          ]
+         },
+         {
+          "id": "g5",
+          "type": "school",
+          "margin": {
+           "top": 6,
+           "end": 4,
+           "bottom": 6,
+           "start": 4
+          },
+          "color": "#0D1B2A",
+          "dark_color": "#E8EEF5",
+          "school": {
+           "section": "today"
+          },
+          "visibility": "signed_in"
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "photo_hero",
+        "name": "Welcome to Guard Shop",
+        "height": 220,
+        "padding": {
+         "top": 18,
+         "end": 18,
+         "bottom": 18,
+         "start": 18
+        },
+        "align": "end",
+        "background": "#0E2238",
+        "radius": 26,
+        "scrim": {
+         "color": "#06101C",
+         "from": 0.2,
+         "to": 0.88,
+         "middle": 0.1,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/demo-screens/nakhla-school.jpg",
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Outfit",
+           "weight": 700,
+           "size": 26,
+           "line_height": 1.1
+          },
+          "text": "Welcome to Guard Shop"
+         }
+        ]
+       },
+       {
+        "id": "g8",
+        "type": "row",
+        "margin": {
+         "top": 14
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g9",
+          "type": "column",
+          "name": "School bus",
+          "width": "fill",
+          "padding": {
+           "top": 16,
+           "end": 14,
+           "bottom": 16,
+           "start": 14
+          },
+          "gap": 8,
+          "background": "#FFFFFF",
+          "dark_background": "#0E1823",
+          "border_color": "#D3DBE4",
+          "dark_border_color": "#1C2B3C",
+          "radius": 24,
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "school"
+          },
+          "children": [
+           {
+            "id": "g10",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "background": "#FBEBC4",
+            "dark_background": "#3A2D0C",
+            "radius": 14,
+            "children": [
+             {
+              "id": "g11",
+              "type": "icon",
+              "color": "#6B4A00",
+              "dark_color": "#F2C66A",
+              "icon": "directions_bus"
+             }
+            ]
+           },
+           {
+            "id": "g12",
+            "type": "text",
+            "color": "#0D1B2A",
+            "dark_color": "#E8EEF5",
+            "font": {
+             "family": "Outfit",
+             "weight": 700,
+             "size": 17
+            },
+            "text": "School bus"
+           },
+           {
+            "id": "g13",
+            "type": "text",
+            "color": "#4A5868",
+            "dark_color": "#9FAEBF",
+            "font": {
+             "size": 13,
+             "line_height": 1.4
+            },
+            "text": "Every stop on the way home, as the bus goes."
+           }
+          ]
+         },
+         {
+          "id": "g14",
+          "type": "column",
+          "width": "fill",
+          "gap": 10,
+          "children": [
+           {
+            "id": "g15",
+            "type": "column",
+            "name": "Trips and permission slips",
+            "padding": {
+             "top": 14,
+             "end": 14,
+             "bottom": 14,
+             "start": 14
+            },
+            "gap": 6,
+            "background": "#0E2238",
+            "dark_background": "#F2B544",
+            "radius": 24,
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            },
+            "children": [
+             {
+              "id": "g16",
+              "type": "text",
+              "color": "#F5D68E",
+              "dark_color": "#4A3500",
+              "font": {
+               "weight": 800,
+               "size": 11,
+               "letter_spacing": 1.7,
+               "uppercase": true
+              },
+              "text": "To sign"
+             },
+             {
+              "id": "g17",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#0E2238",
+              "font": {
+               "family": "Outfit",
+               "weight": 700,
+               "size": 17,
+               "line_height": 1.2
+              },
+              "text": "Trips and permission slips"
+             }
+            ]
+           },
+           {
+            "id": "g18",
+            "type": "photo_hero",
+            "name": "At school this week",
+            "height": 112,
+            "padding": {
+             "top": 12,
+             "end": 12,
+             "bottom": 12,
+             "start": 12
+            },
+            "align": "end",
+            "background": "#0E2238",
+            "radius": 24,
+            "scrim": {
+             "color": "#06101C",
+             "from": 0.1,
+             "to": 0.9,
+             "middle": 0.3,
+             "at": 40
+            },
+            "image_url": "http://localhost:3000/stories/school/school-teacher.jpg",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            },
+            "children": [
+             {
+              "id": "g19",
+              "type": "text",
+              "color": "#F5D68E",
+              "dark_color": "#F5D68E",
+              "font": {
+               "weight": 800,
+               "size": 11,
+               "letter_spacing": 1.7,
+               "uppercase": true
+              },
+              "text": "School news"
+             },
+             {
+              "id": "g20",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "family": "Outfit",
+               "weight": 700,
+               "size": 15,
+               "line_height": 1.2
+              },
+              "text": "At school this week",
+              "max_lines": 2
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "greeting",
+      "buttons": [
+       "notifications"
+      ],
+      "color": "#0D1B2A",
+      "dark_color": "#E8EEF5"
+     },
+     "background": "#E8EDF2",
+     "dark_background": "#060C13"
+    }
+   },
+   "parent": {
+    "screen": "parent",
+    "studio": {
+     "body": {
+      "id": "g21",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent"
+    }
+   },
+   "school": {
+    "screen": "school",
+    "studio": {
+     "body": {
+      "id": "g22",
+      "type": "column",
+      "children": [
+       {
+        "id": "g23",
+        "type": "photo_hero",
+        "name": "News, the timetable and homework, in one place.",
+        "height": 132,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E2238",
+        "radius": 24,
+        "scrim": {
+         "color": "#06101C",
+         "from": 0.15,
+         "to": 0.88,
+         "middle": 0.2,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/demo-screens/nakhla-school.jpg",
+        "children": [
+         {
+          "id": "g24",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Outfit",
+           "weight": 700,
+           "size": 16,
+           "line_height": 1.3
+          },
+          "text": "News, the timetable and homework, in one place.",
+          "max_lines": 2
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "School",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#E8EDF2",
+      "color": "#0D1B2A",
+      "dark_background": "#060C13",
+      "dark_color": "#E8EEF5",
+      "style": "large"
+     },
+     "background": "#E8EDF2",
+     "dark_background": "#060C13",
+     "screen": "school"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g25",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "top": 8,
+       "end": 16,
+       "bottom": 24,
+       "start": 16
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "name": "Today's pass",
+        "background": "#FFFFFF",
+        "dark_background": "#0E1823",
+        "border_color": "#D3DBE4",
+        "dark_border_color": "#1C2B3C",
+        "radius": 26,
+        "border_width": 1,
+        "visibility": "signed_in",
+        "surface": {
+         "soft": 3,
+         "ticket": {
+          "at": 42
+         }
+        },
+        "children": [
+         {
+          "id": "g3",
+          "type": "photo_hero",
+          "height": 128,
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "align": "end",
+          "background": "#0E2238",
+          "corners": {
+           "top_start": 26,
+           "top_end": 26
+          },
+          "scrim": {
+           "color": "#06101C",
+           "from": 0.35,
+           "to": 0.75,
+           "middle": 0.05,
+           "at": 45
+          },
+          "image_url": "http://localhost:3000/demo-screens/nakhla-school.jpg",
+          "children": [
+           {
+            "id": "g4",
+            "type": "school",
+            "color": "#FFFFFF",
+            "school": {
+             "section": "children"
+            }
+           }
+          ]
+         },
+         {
+          "id": "g5",
+          "type": "school",
+          "margin": {
+           "top": 6,
+           "end": 4,
+           "bottom": 6,
+           "start": 4
+          },
+          "color": "#0D1B2A",
+          "dark_color": "#E8EEF5",
+          "school": {
+           "section": "today"
+          },
+          "visibility": "signed_in"
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "photo_hero",
+        "name": "Welcome to Guard Shop",
+        "height": 220,
+        "padding": {
+         "top": 18,
+         "end": 18,
+         "bottom": 18,
+         "start": 18
+        },
+        "align": "end",
+        "background": "#0E2238",
+        "radius": 26,
+        "scrim": {
+         "color": "#06101C",
+         "from": 0.2,
+         "to": 0.88,
+         "middle": 0.1,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/demo-screens/nakhla-school.jpg",
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Outfit",
+           "weight": 700,
+           "size": 26,
+           "line_height": 1.1
+          },
+          "text": "مرحبًا بكم في Guard Shop"
+         }
+        ]
+       },
+       {
+        "id": "g8",
+        "type": "row",
+        "margin": {
+         "top": 14
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g9",
+          "type": "column",
+          "name": "School bus",
+          "width": "fill",
+          "padding": {
+           "top": 16,
+           "end": 14,
+           "bottom": 16,
+           "start": 14
+          },
+          "gap": 8,
+          "background": "#FFFFFF",
+          "dark_background": "#0E1823",
+          "border_color": "#D3DBE4",
+          "dark_border_color": "#1C2B3C",
+          "radius": 24,
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "school"
+          },
+          "children": [
+           {
+            "id": "g10",
+            "type": "row",
+            "width": 44,
+            "height": 44,
+            "align": "center",
+            "cross": "center",
+            "background": "#FBEBC4",
+            "dark_background": "#3A2D0C",
+            "radius": 14,
+            "children": [
+             {
+              "id": "g11",
+              "type": "icon",
+              "color": "#6B4A00",
+              "dark_color": "#F2C66A",
+              "icon": "directions_bus"
+             }
+            ]
+           },
+           {
+            "id": "g12",
+            "type": "text",
+            "color": "#0D1B2A",
+            "dark_color": "#E8EEF5",
+            "font": {
+             "family": "Outfit",
+             "weight": 700,
+             "size": 17
+            },
+            "text": "حافلة المدرسة"
+           },
+           {
+            "id": "g13",
+            "type": "text",
+            "color": "#4A5868",
+            "dark_color": "#9FAEBF",
+            "font": {
+             "size": 13,
+             "line_height": 1.4
+            },
+            "text": "كل محطة في طريق العودة، أولًا بأول."
+           }
+          ]
+         },
+         {
+          "id": "g14",
+          "type": "column",
+          "width": "fill",
+          "gap": 10,
+          "children": [
+           {
+            "id": "g15",
+            "type": "column",
+            "name": "Trips and permission slips",
+            "padding": {
+             "top": 14,
+             "end": 14,
+             "bottom": 14,
+             "start": 14
+            },
+            "gap": 6,
+            "background": "#0E2238",
+            "dark_background": "#F2B544",
+            "radius": 24,
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            },
+            "children": [
+             {
+              "id": "g16",
+              "type": "text",
+              "color": "#F5D68E",
+              "dark_color": "#4A3500",
+              "font": {
+               "weight": 800,
+               "size": 11,
+               "letter_spacing": 1.7,
+               "uppercase": true
+              },
+              "text": "للتوقيع"
+             },
+             {
+              "id": "g17",
+              "type": "text",
+              "color": "#FFFFFF",
+              "dark_color": "#0E2238",
+              "font": {
+               "family": "Outfit",
+               "weight": 700,
+               "size": 17,
+               "line_height": 1.2
+              },
+              "text": "الرحلات والأذونات"
+             }
+            ]
+           },
+           {
+            "id": "g18",
+            "type": "photo_hero",
+            "name": "At school this week",
+            "height": 112,
+            "padding": {
+             "top": 12,
+             "end": 12,
+             "bottom": 12,
+             "start": 12
+            },
+            "align": "end",
+            "background": "#0E2238",
+            "radius": 24,
+            "scrim": {
+             "color": "#06101C",
+             "from": 0.1,
+             "to": 0.9,
+             "middle": 0.3,
+             "at": 40
+            },
+            "image_url": "http://localhost:3000/stories/school/school-teacher.jpg",
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            },
+            "children": [
+             {
+              "id": "g19",
+              "type": "text",
+              "color": "#F5D68E",
+              "dark_color": "#F5D68E",
+              "font": {
+               "weight": 800,
+               "size": 11,
+               "letter_spacing": 1.7,
+               "uppercase": true
+              },
+              "text": "أخبار المدرسة"
+             },
+             {
+              "id": "g20",
+              "type": "text",
+              "color": "#FFFFFF",
+              "font": {
+               "family": "Outfit",
+               "weight": 700,
+               "size": 15,
+               "line_height": 1.2
+              },
+              "text": "في المدرسة هذا الأسبوع",
+              "max_lines": 2
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "greeting",
+      "buttons": [
+       "notifications"
+      ],
+      "color": "#0D1B2A",
+      "dark_color": "#E8EEF5"
+     },
+     "background": "#E8EDF2",
+     "dark_background": "#060C13"
+    }
+   },
+   "parent": {
+    "screen": "parent",
+    "studio": {
+     "body": {
+      "id": "g21",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent"
+    }
+   },
+   "school": {
+    "screen": "school",
+    "studio": {
+     "body": {
+      "id": "g22",
+      "type": "column",
+      "children": [
+       {
+        "id": "g23",
+        "type": "photo_hero",
+        "name": "News, the timetable and homework, in one place.",
+        "height": 132,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "align": "end",
+        "background": "#0E2238",
+        "radius": 24,
+        "scrim": {
+         "color": "#06101C",
+         "from": 0.15,
+         "to": 0.88,
+         "middle": 0.2,
+         "at": 40
+        },
+        "image_url": "http://localhost:3000/demo-screens/nakhla-school.jpg",
+        "children": [
+         {
+          "id": "g24",
+          "type": "text",
+          "color": "#FFFFFF",
+          "font": {
+           "family": "Outfit",
+           "weight": 700,
+           "size": 16,
+           "line_height": 1.3
+          },
+          "text": "الأخبار والجدول والواجبات في مكان واحد.",
+          "max_lines": 2
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "المدرسة",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#E8EDF2",
+      "color": "#0D1B2A",
+      "dark_background": "#060C13",
+      "dark_color": "#E8EEF5",
+      "style": "large"
+     },
+     "background": "#E8EDF2",
+     "dark_background": "#060C13",
+     "screen": "school"
+    }
+   },
+   "account": {
+    "screen": "account",
+    "studio": {
+     "body": {
+      "id": "g25",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    }
+   }
+  }
+ }
+}

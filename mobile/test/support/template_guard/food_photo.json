@@ -1,0 +1,1325 @@
+{
+ "template": "food_photo",
+ "look": null,
+ "kind": "food",
+ "app_type": "food",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "restaurants",
+   "label": "Restaurants",
+   "icon": "restaurant_menu",
+   "target": {
+    "type": "screen",
+    "screen": "restaurants"
+   }
+  },
+  {
+   "id": "orders",
+   "label": "My orders",
+   "icon": "receipt_long",
+   "target": {
+    "type": "screen",
+    "screen": "food_orders"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "stack",
+        "name": "Tonight’s table is set.",
+        "cross": "end",
+        "children": [
+         {
+          "id": "g3",
+          "type": "column",
+          "height": 357,
+          "children": [
+           {
+            "id": "g4",
+            "type": "column",
+            "height": 330,
+            "padding": {
+             "top": 22,
+             "end": 18,
+             "bottom": 52,
+             "start": 18
+            },
+            "align": "between",
+            "color": "#FFFFFF",
+            "image_background_url": "http://localhost:3000/demo-screens/sofra-mezze.jpg",
+            "scrim": {
+             "color": "#140A05",
+             "from": 0.55,
+             "to": 0.75,
+             "middle": 0.05,
+             "at": 38
+            },
+            "children": [
+             {
+              "id": "g5",
+              "type": "row",
+              "gap": 10,
+              "cross": "center",
+              "children": [
+               {
+                "id": "g6",
+                "type": "column",
+                "width": "fill",
+                "children": [
+                 {
+                  "id": "g7",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "opacity": 0.9,
+                  "font": {
+                   "size": 12
+                  },
+                  "text": "Deliver to"
+                 },
+                 {
+                  "id": "g8",
+                  "type": "row",
+                  "gap": 2,
+                  "cross": "center",
+                  "children": [
+                   {
+                    "id": "g9",
+                    "type": "text",
+                    "color": "#FFFFFF",
+                    "font": {
+                     "weight": 700,
+                     "size": 15
+                    },
+                    "text": "[Your area]"
+                   },
+                   {
+                    "id": "g10",
+                    "type": "icon",
+                    "color": "#FFFFFF",
+                    "icon": "expand_more",
+                    "icon_size": 18
+                   }
+                  ]
+                 }
+                ]
+               },
+               {
+                "id": "g11",
+                "type": "stack",
+                "width": 40,
+                "height": 40,
+                "cross": "center",
+                "action": {
+                 "type": "screen",
+                 "screen": "notifications"
+                },
+                "children": [
+                 {
+                  "id": "g12",
+                  "type": "column",
+                  "width": 40,
+                  "height": 40,
+                  "background": "#FFFFFF",
+                  "radius": 20,
+                  "opacity": 0.2,
+                  "children": []
+                 },
+                 {
+                  "id": "g13",
+                  "type": "icon",
+                  "color": "#FFFFFF",
+                  "icon": "notifications",
+                  "icon_size": 22
+                 }
+                ]
+               }
+              ]
+             },
+             {
+              "id": "g14",
+              "type": "column",
+              "gap": 6,
+              "children": [
+               {
+                "id": "g15",
+                "type": "text",
+                "color": "#FFC9AE",
+                "font": {
+                 "weight": 800,
+                 "size": 12,
+                 "letter_spacing": 1.9,
+                 "uppercase": true
+                },
+                "text": "Guard Shop"
+               },
+               {
+                "id": "g16",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 800,
+                 "size": 32,
+                 "line_height": 1.1,
+                 "letter_spacing": -0.6
+                },
+                "text": "Tonight’s table\nis set."
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g17",
+          "type": "row",
+          "name": "Dishes, restaurants or cuisines",
+          "height": 54,
+          "padding": {
+           "end": 16,
+           "start": 16
+          },
+          "margin": {
+           "end": 16,
+           "start": 16
+          },
+          "gap": 10,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "color": "#6E5A50",
+          "dark_background": "#241913",
+          "dark_color": "#C5B2A6",
+          "radius": 18,
+          "shadow": "medium",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g18",
+            "type": "icon",
+            "color": "#6E5A50",
+            "dark_color": "#C5B2A6",
+            "icon": "search",
+            "icon_size": 22
+           },
+           {
+            "id": "g19",
+            "type": "text",
+            "width": "fill",
+            "color": "#6E5A50",
+            "dark_color": "#C5B2A6",
+            "font": {
+             "size": 15
+            },
+            "text": "Dishes, restaurants or cuisines",
+            "max_lines": 1
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g20",
+        "type": "row",
+        "name": "Grill",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "gap": 14,
+        "cross": "start",
+        "scroll": true,
+        "children": [
+         {
+          "id": "g21",
+          "type": "column",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g22",
+            "type": "image",
+            "width": 58,
+            "height": 58,
+            "border_color": "#D2552B",
+            "radius": 29,
+            "border_width": 2,
+            "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg"
+           },
+           {
+            "id": "g23",
+            "type": "text",
+            "color": "#2A1810",
+            "dark_color": "#F7EDE6",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "Grill"
+           }
+          ]
+         },
+         {
+          "id": "g24",
+          "type": "column",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g25",
+            "type": "image",
+            "width": 58,
+            "height": 58,
+            "radius": 29,
+            "image_url": "http://localhost:3000/demo-photos/margherita.jpg"
+           },
+           {
+            "id": "g26",
+            "type": "text",
+            "color": "#2A1810",
+            "dark_color": "#F7EDE6",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "Pizza"
+           }
+          ]
+         },
+         {
+          "id": "g27",
+          "type": "column",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g28",
+            "type": "image",
+            "width": 58,
+            "height": 58,
+            "radius": 29,
+            "image_url": "http://localhost:3000/demo-photos/kofta.jpg"
+           },
+           {
+            "id": "g29",
+            "type": "text",
+            "color": "#2A1810",
+            "dark_color": "#F7EDE6",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "Kofta"
+           }
+          ]
+         },
+         {
+          "id": "g30",
+          "type": "column",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g31",
+            "type": "image",
+            "width": 58,
+            "height": 58,
+            "radius": 29,
+            "image_url": "http://localhost:3000/demo-photos/shish-tawook.jpg"
+           },
+           {
+            "id": "g32",
+            "type": "text",
+            "color": "#2A1810",
+            "dark_color": "#F7EDE6",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "Tawook"
+           }
+          ]
+         },
+         {
+          "id": "g33",
+          "type": "column",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g34",
+            "type": "image",
+            "width": 58,
+            "height": 58,
+            "radius": 29,
+            "image_url": "http://localhost:3000/demo-photos/chocolate-brownie.jpg"
+           },
+           {
+            "id": "g35",
+            "type": "text",
+            "color": "#2A1810",
+            "dark_color": "#F7EDE6",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "Sweets"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g36",
+        "type": "live_status",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "start": 16
+        },
+        "background": "#D2552B",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "live_status": {
+         "source": "food_order"
+        },
+        "visibility": "signed_in"
+       },
+       {
+        "id": "g37",
+        "type": "row",
+        "name": "Loved near you",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g38",
+          "type": "text",
+          "width": "fill",
+          "color": "#2A1810",
+          "dark_color": "#F7EDE6",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "Loved near you"
+         },
+         {
+          "id": "g39",
+          "type": "text",
+          "color": "#B8431D",
+          "dark_color": "#FF9A72",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "See all",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g40",
+        "type": "items",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 12,
+        "source": "restaurants",
+        "layout": "carousel",
+        "card": {
+         "id": "g41",
+         "type": "column",
+         "width": 200,
+         "background": "#FFFFFF",
+         "dark_background": "#241913",
+         "border_color": "#EFE4DA",
+         "dark_border_color": "#3A2A21",
+         "radius": 20,
+         "border_width": 1,
+         "children": [
+          {
+           "id": "g42",
+           "type": "image",
+           "width": "fill",
+           "height": 108,
+           "bind": "image"
+          },
+          {
+           "id": "g43",
+           "type": "column",
+           "padding": {
+            "top": 10,
+            "end": 12,
+            "bottom": 10,
+            "start": 12
+           },
+           "gap": 2,
+           "children": [
+            {
+             "id": "g44",
+             "type": "text",
+             "color": "#2A1810",
+             "dark_color": "#F7EDE6",
+             "font": {
+              "weight": 800,
+              "size": 14
+             },
+             "max_lines": 1,
+             "bind": "title"
+            },
+            {
+             "id": "g45",
+             "type": "row",
+             "gap": 6,
+             "cross": "center",
+             "children": [
+              {
+               "id": "g46",
+               "type": "text",
+               "color": "#2A1810",
+               "dark_color": "#F7EDE6",
+               "font": {
+                "weight": 700,
+                "size": 12
+               },
+               "bind": "badge"
+              },
+              {
+               "id": "g47",
+               "type": "text",
+               "width": "fill",
+               "color": "#6E5A50",
+               "dark_color": "#C5B2A6",
+               "font": {
+                "size": 12
+               },
+               "max_lines": 1,
+               "bind": "subtitle"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "restaurants",
+          "id": "1",
+          "title": "Sahara Grill",
+          "subtitle": "Egyptian · Desserts",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "1"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "2",
+          "title": "Forno Zamalek",
+          "subtitle": "Grill",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "2"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "3",
+          "title": "Bayt El Koshary",
+          "subtitle": "Pizza · Desserts",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "3"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "4",
+          "title": "Corniche Café",
+          "subtitle": "Café · Desserts",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "4"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "5",
+          "title": "El Fawal Breakfast",
+          "subtitle": "Egyptian",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-5",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "5"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "6",
+          "title": "Burger Lab",
+          "subtitle": "Grill",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "6"
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "background": "#FBF7F2",
+     "dark_background": "#17100C"
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 24
+      },
+      "children": [
+       {
+        "id": "g2",
+        "type": "stack",
+        "name": "Tonight’s table is set.",
+        "cross": "end",
+        "children": [
+         {
+          "id": "g3",
+          "type": "column",
+          "height": 357,
+          "children": [
+           {
+            "id": "g4",
+            "type": "column",
+            "height": 330,
+            "padding": {
+             "top": 22,
+             "end": 18,
+             "bottom": 52,
+             "start": 18
+            },
+            "align": "between",
+            "color": "#FFFFFF",
+            "image_background_url": "http://localhost:3000/demo-screens/sofra-mezze.jpg",
+            "scrim": {
+             "color": "#140A05",
+             "from": 0.55,
+             "to": 0.75,
+             "middle": 0.05,
+             "at": 38
+            },
+            "children": [
+             {
+              "id": "g5",
+              "type": "row",
+              "gap": 10,
+              "cross": "center",
+              "children": [
+               {
+                "id": "g6",
+                "type": "column",
+                "width": "fill",
+                "children": [
+                 {
+                  "id": "g7",
+                  "type": "text",
+                  "color": "#FFFFFF",
+                  "opacity": 0.9,
+                  "font": {
+                   "size": 12
+                  },
+                  "text": "التوصيل إلى"
+                 },
+                 {
+                  "id": "g8",
+                  "type": "row",
+                  "gap": 2,
+                  "cross": "center",
+                  "children": [
+                   {
+                    "id": "g9",
+                    "type": "text",
+                    "color": "#FFFFFF",
+                    "font": {
+                     "weight": 700,
+                     "size": 15
+                    },
+                    "text": "[منطقتك]"
+                   },
+                   {
+                    "id": "g10",
+                    "type": "icon",
+                    "color": "#FFFFFF",
+                    "icon": "expand_more",
+                    "icon_size": 18
+                   }
+                  ]
+                 }
+                ]
+               },
+               {
+                "id": "g11",
+                "type": "stack",
+                "width": 40,
+                "height": 40,
+                "cross": "center",
+                "action": {
+                 "type": "screen",
+                 "screen": "notifications"
+                },
+                "children": [
+                 {
+                  "id": "g12",
+                  "type": "column",
+                  "width": 40,
+                  "height": 40,
+                  "background": "#FFFFFF",
+                  "radius": 20,
+                  "opacity": 0.2,
+                  "children": []
+                 },
+                 {
+                  "id": "g13",
+                  "type": "icon",
+                  "color": "#FFFFFF",
+                  "icon": "notifications",
+                  "icon_size": 22
+                 }
+                ]
+               }
+              ]
+             },
+             {
+              "id": "g14",
+              "type": "column",
+              "gap": 6,
+              "children": [
+               {
+                "id": "g15",
+                "type": "text",
+                "color": "#FFC9AE",
+                "font": {
+                 "weight": 800,
+                 "size": 12,
+                 "letter_spacing": 1.9,
+                 "uppercase": true
+                },
+                "text": "Guard Shop"
+               },
+               {
+                "id": "g16",
+                "type": "text",
+                "color": "#FFFFFF",
+                "font": {
+                 "weight": 800,
+                 "size": 32,
+                 "line_height": 1.1,
+                 "letter_spacing": -0.6
+                },
+                "text": "سفرة الليلة\nجاهزة."
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "g17",
+          "type": "row",
+          "name": "Dishes, restaurants or cuisines",
+          "height": 54,
+          "padding": {
+           "end": 16,
+           "start": 16
+          },
+          "margin": {
+           "end": 16,
+           "start": 16
+          },
+          "gap": 10,
+          "cross": "center",
+          "background": "#FFFFFF",
+          "color": "#6E5A50",
+          "dark_background": "#241913",
+          "dark_color": "#C5B2A6",
+          "radius": 18,
+          "shadow": "medium",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g18",
+            "type": "icon",
+            "color": "#6E5A50",
+            "dark_color": "#C5B2A6",
+            "icon": "search",
+            "icon_size": 22
+           },
+           {
+            "id": "g19",
+            "type": "text",
+            "width": "fill",
+            "color": "#6E5A50",
+            "dark_color": "#C5B2A6",
+            "font": {
+             "size": 15
+            },
+            "text": "أطباق أو مطاعم أو مطابخ",
+            "max_lines": 1
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g20",
+        "type": "row",
+        "name": "Grill",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "gap": 14,
+        "cross": "start",
+        "scroll": true,
+        "children": [
+         {
+          "id": "g21",
+          "type": "column",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g22",
+            "type": "image",
+            "width": 58,
+            "height": 58,
+            "border_color": "#D2552B",
+            "radius": 29,
+            "border_width": 2,
+            "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg"
+           },
+           {
+            "id": "g23",
+            "type": "text",
+            "color": "#2A1810",
+            "dark_color": "#F7EDE6",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "مشويات"
+           }
+          ]
+         },
+         {
+          "id": "g24",
+          "type": "column",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g25",
+            "type": "image",
+            "width": 58,
+            "height": 58,
+            "radius": 29,
+            "image_url": "http://localhost:3000/demo-photos/margherita.jpg"
+           },
+           {
+            "id": "g26",
+            "type": "text",
+            "color": "#2A1810",
+            "dark_color": "#F7EDE6",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "بيتزا"
+           }
+          ]
+         },
+         {
+          "id": "g27",
+          "type": "column",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g28",
+            "type": "image",
+            "width": 58,
+            "height": 58,
+            "radius": 29,
+            "image_url": "http://localhost:3000/demo-photos/kofta.jpg"
+           },
+           {
+            "id": "g29",
+            "type": "text",
+            "color": "#2A1810",
+            "dark_color": "#F7EDE6",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "كفتة"
+           }
+          ]
+         },
+         {
+          "id": "g30",
+          "type": "column",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g31",
+            "type": "image",
+            "width": 58,
+            "height": 58,
+            "radius": 29,
+            "image_url": "http://localhost:3000/demo-photos/shish-tawook.jpg"
+           },
+           {
+            "id": "g32",
+            "type": "text",
+            "color": "#2A1810",
+            "dark_color": "#F7EDE6",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "طاووق"
+           }
+          ]
+         },
+         {
+          "id": "g33",
+          "type": "column",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          },
+          "children": [
+           {
+            "id": "g34",
+            "type": "image",
+            "width": 58,
+            "height": 58,
+            "radius": 29,
+            "image_url": "http://localhost:3000/demo-photos/chocolate-brownie.jpg"
+           },
+           {
+            "id": "g35",
+            "type": "text",
+            "color": "#2A1810",
+            "dark_color": "#F7EDE6",
+            "font": {
+             "weight": 700,
+             "size": 12
+            },
+            "text": "حلويات"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g36",
+        "type": "live_status",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "start": 16
+        },
+        "background": "#D2552B",
+        "color": "#FFFFFF",
+        "radius": 18,
+        "live_status": {
+         "source": "food_order"
+        },
+        "visibility": "signed_in"
+       },
+       {
+        "id": "g37",
+        "type": "row",
+        "name": "Loved near you",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "cross": "end",
+        "children": [
+         {
+          "id": "g38",
+          "type": "text",
+          "width": "fill",
+          "color": "#2A1810",
+          "dark_color": "#F7EDE6",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "الأكثر طلبًا بالقرب منك"
+         },
+         {
+          "id": "g39",
+          "type": "text",
+          "color": "#B8431D",
+          "dark_color": "#FF9A72",
+          "font": {
+           "weight": 700,
+           "size": 13
+          },
+          "text": "عرض الكل",
+          "action": {
+           "type": "screen",
+           "screen": "restaurants"
+          }
+         }
+        ]
+       },
+       {
+        "id": "g40",
+        "type": "items",
+        "padding": {
+         "end": 16,
+         "start": 16
+        },
+        "gap": 12,
+        "source": "restaurants",
+        "layout": "carousel",
+        "card": {
+         "id": "g41",
+         "type": "column",
+         "width": 200,
+         "background": "#FFFFFF",
+         "dark_background": "#241913",
+         "border_color": "#EFE4DA",
+         "dark_border_color": "#3A2A21",
+         "radius": 20,
+         "border_width": 1,
+         "children": [
+          {
+           "id": "g42",
+           "type": "image",
+           "width": "fill",
+           "height": 108,
+           "bind": "image"
+          },
+          {
+           "id": "g43",
+           "type": "column",
+           "padding": {
+            "top": 10,
+            "end": 12,
+            "bottom": 10,
+            "start": 12
+           },
+           "gap": 2,
+           "children": [
+            {
+             "id": "g44",
+             "type": "text",
+             "color": "#2A1810",
+             "dark_color": "#F7EDE6",
+             "font": {
+              "weight": 800,
+              "size": 14
+             },
+             "max_lines": 1,
+             "bind": "title"
+            },
+            {
+             "id": "g45",
+             "type": "row",
+             "gap": 6,
+             "cross": "center",
+             "children": [
+              {
+               "id": "g46",
+               "type": "text",
+               "color": "#2A1810",
+               "dark_color": "#F7EDE6",
+               "font": {
+                "weight": 700,
+                "size": 12
+               },
+               "bind": "badge"
+              },
+              {
+               "id": "g47",
+               "type": "text",
+               "width": "fill",
+               "color": "#6E5A50",
+               "dark_color": "#C5B2A6",
+               "font": {
+                "size": 12
+               },
+               "max_lines": 1,
+               "bind": "subtitle"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        "items": [
+         {
+          "source": "restaurants",
+          "id": "1",
+          "title": "Sahara Grill",
+          "subtitle": "Egyptian · Desserts",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-1",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "1"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "2",
+          "title": "Forno Zamalek",
+          "subtitle": "Grill",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "2"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "3",
+          "title": "Bayt El Koshary",
+          "subtitle": "Pizza · Desserts",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-3",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "3"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "4",
+          "title": "Corniche Café",
+          "subtitle": "Café · Desserts",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-4",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "4"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "5",
+          "title": "El Fawal Breakfast",
+          "subtitle": "Egyptian",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-5",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "5"
+           }
+          }
+         },
+         {
+          "source": "restaurants",
+          "id": "6",
+          "title": "Burger Lab",
+          "subtitle": "Grill",
+          "image_url": "http://localhost:3000/api/v1/assets/asset-2",
+          "price_label": null,
+          "badge": null,
+          "action": {
+           "type": "item",
+           "item": {
+            "source": "restaurants",
+            "id": "6"
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "background": "#FBF7F2",
+     "dark_background": "#17100C"
+    }
+   }
+  }
+ }
+}

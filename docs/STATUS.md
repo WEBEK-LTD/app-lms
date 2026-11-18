@@ -8,6 +8,22 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 166 (a guard over every Studio template): tests that make every
+Studio template and Signature look into a project the way an owner's is,
+and read it the way a phone reads the hosted `GET /pages`, in English,
+Arabic and Turkish (`template-guard.test.ts`). They also draw each
+template's main pages through the app's renderer, on two phone widths, at
+two text sizes and in both directions (`template_guard_test.dart`, from
+fixtures the platform writes and checks). On main they find templates'
+bracketed sample words served to customers (31 templates), owners' edits not
+reaching Arabic and Turkish (every template with words), list prices with
+no amount or currency the app can convert (30 templates), a hero button
+with no action (`brand`), and overflows or cut-off elements on 60 pages
+(34 templates). Bound lists, categories, the contract and scrolling to the
+last element pass. The failures wait for 156, 161 and 163, or are new; each
+is listed in `docs/qa/2026-11-18-guard/NOTES.md`. The phase is merged
+after those fixes.
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build

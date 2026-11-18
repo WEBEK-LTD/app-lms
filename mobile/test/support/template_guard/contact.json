@@ -1,0 +1,283 @@
+{
+ "template": "contact",
+ "look": null,
+ "kind": "store",
+ "app_type": "store",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "shop",
+   "label": "Shop",
+   "icon": "storefront",
+   "target": {
+    "type": "screen",
+    "screen": "search"
+   }
+  },
+  {
+   "id": "cart",
+   "label": "Cart",
+   "icon": "shopping_cart",
+   "target": {
+    "type": "screen",
+    "screen": "cart"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g3",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Find us"
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "[Your address and opening hours]"
+         },
+         {
+          "id": "g5",
+          "type": "map",
+          "height": 170,
+          "radius": 14,
+          "map": {
+           "lat": 30.0444,
+           "lng": 31.2357
+          }
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 14,
+         "bottom": 8,
+         "start": 14
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "Get in touch"
+         },
+         {
+          "id": "g8",
+          "type": "form",
+          "form": {
+           "fields": [
+            {
+             "id": "name",
+             "kind": "text",
+             "label": "Name",
+             "required": true,
+             "options": null
+            },
+            {
+             "id": "phone",
+             "kind": "phone",
+             "label": "Mobile number",
+             "required": true,
+             "options": null
+            },
+            {
+             "id": "message",
+             "kind": "long_text",
+             "label": "Your message",
+             "required": false,
+             "options": null
+            }
+           ],
+           "send_to": "email",
+           "submit_label": null,
+           "success_text": null
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title_search"
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g3",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "موقعنا"
+         },
+         {
+          "id": "g4",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "[العنوان ومواعيد العمل]"
+         },
+         {
+          "id": "g5",
+          "type": "map",
+          "height": 170,
+          "radius": 14,
+          "map": {
+           "lat": 30.0444,
+           "lng": 31.2357
+          }
+         }
+        ]
+       },
+       {
+        "id": "g6",
+        "type": "column",
+        "padding": {
+         "top": 8,
+         "end": 14,
+         "bottom": 8,
+         "start": 14
+        },
+        "gap": 8,
+        "children": [
+         {
+          "id": "g7",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 17
+          },
+          "text": "تواصل معنا"
+         },
+         {
+          "id": "g8",
+          "type": "form",
+          "form": {
+           "fields": [
+            {
+             "id": "name",
+             "kind": "text",
+             "label": "Name",
+             "required": true,
+             "options": null
+            },
+            {
+             "id": "phone",
+             "kind": "phone",
+             "label": "Mobile number",
+             "required": true,
+             "options": null
+            },
+            {
+             "id": "message",
+             "kind": "long_text",
+             "label": "Your message",
+             "required": false,
+             "options": null
+            }
+           ],
+           "send_to": "email",
+           "submit_label": null,
+           "success_text": null
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title_search"
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,2559 @@
+{
+ "template": "shop_looks",
+ "look": null,
+ "kind": "store",
+ "app_type": "store",
+ "vertical": null,
+ "primary_color": "#0E0D24",
+ "appearance": {
+  "template": "classic",
+  "font": "Bricolage Grotesque"
+ },
+ "tabs": [
+  {
+   "id": "home",
+   "label": "Home",
+   "icon": "home",
+   "target": {
+    "type": "page",
+    "page_slug": "home"
+   }
+  },
+  {
+   "id": "shop",
+   "label": "Shop",
+   "icon": "storefront",
+   "target": {
+    "type": "screen",
+    "screen": "search"
+   }
+  },
+  {
+   "id": "cart",
+   "label": "Cart",
+   "icon": "shopping_cart",
+   "target": {
+    "type": "screen",
+    "screen": "cart"
+   }
+  },
+  {
+   "id": "account",
+   "label": "Account",
+   "icon": "person",
+   "target": {
+    "type": "screen",
+    "screen": "account"
+   }
+  }
+ ],
+ "tab_bar": null,
+ "pages": {
+  "en": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "slider",
+        "name": "New this week",
+        "height": 200,
+        "padding": {
+         "top": 8,
+         "bottom": 4,
+         "start": 12
+        },
+        "gap": 12,
+        "per_view": 1.2,
+        "children": [
+         {
+          "id": "g3",
+          "type": "column",
+          "height": "fill",
+          "padding": {
+           "top": 22,
+           "end": 20,
+           "bottom": 22,
+           "start": 20
+          },
+          "gap": 8,
+          "align": "end",
+          "background": "#7C2D12",
+          "color": "#FFFFFF",
+          "image_background_url": "http://localhost:3000/design-pictures/sunset-waves.jpg",
+          "radius": 18,
+          "overlay": {
+           "color": "#000000",
+           "opacity": 0.35
+          },
+          "children": [
+           {
+            "id": "g4",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 20,
+             "line_height": 1.2
+            },
+            "text": "Welcome to Guard Shop"
+           },
+           {
+            "id": "g5",
+            "type": "text",
+            "opacity": 0.9,
+            "font": {
+             "size": 14
+            },
+            "text": "Everything you need, a tap away."
+           }
+          ]
+         },
+         {
+          "id": "g6",
+          "type": "column",
+          "height": "fill",
+          "padding": {
+           "top": 22,
+           "end": 20,
+           "bottom": 22,
+           "start": 20
+          },
+          "gap": 8,
+          "align": "end",
+          "background": "#0C4A6E",
+          "color": "#FFFFFF",
+          "image_background_url": "http://localhost:3000/design-pictures/ocean-circles.jpg",
+          "radius": 18,
+          "overlay": {
+           "color": "#000000",
+           "opacity": 0.35
+          },
+          "children": [
+           {
+            "id": "g7",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 20,
+             "line_height": 1.2
+            },
+            "text": "New this week"
+           },
+           {
+            "id": "g8",
+            "type": "text",
+            "opacity": 0.9,
+            "font": {
+             "size": 14
+            },
+            "text": "Fresh picks, added for you."
+           }
+          ]
+         },
+         {
+          "id": "g9",
+          "type": "column",
+          "height": "fill",
+          "padding": {
+           "top": 22,
+           "end": 20,
+           "bottom": 22,
+           "start": 20
+          },
+          "gap": 8,
+          "align": "end",
+          "background": "#831843",
+          "color": "#FFFFFF",
+          "image_background_url": "http://localhost:3000/design-pictures/berry-blocks.jpg",
+          "radius": 18,
+          "overlay": {
+           "color": "#000000",
+           "opacity": 0.35
+          },
+          "children": [
+           {
+            "id": "g10",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 20,
+             "line_height": 1.2
+            },
+            "text": "Offers for you"
+           },
+           {
+            "id": "g11",
+            "type": "text",
+            "opacity": 0.9,
+            "font": {
+             "size": 14
+            },
+            "text": "Save more on the things you love."
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g12",
+        "type": "column",
+        "name": "New arrivals",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g13",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "New arrivals"
+         },
+         {
+          "id": "g14",
+          "type": "items",
+          "gap": 10,
+          "source": "products",
+          "layout": "carousel",
+          "items": [
+           {
+            "source": "products",
+            "id": "12",
+            "title": "Blush Rose Bouquet",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": "₺1,290.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "12"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "11",
+            "title": "White Orchid in Ceramic Pot",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": "₺1,850.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "11"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "10",
+            "title": "Spring Tulip Bunch",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+            "price_label": "₺590.00",
+            "badge": "Sale",
+            "sale": {
+             "was": "690.00",
+             "was_formatted": "₺690.00",
+             "now": "590.00",
+             "now_formatted": "₺590.00",
+             "percent_off": 14,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "10"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "9",
+            "title": "Birthday Surprise Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+            "price_label": "₺1,450.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "9"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "8",
+            "title": "Turkish Coffee Gift Set",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+            "price_label": "₺940.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "8"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "7",
+            "title": "Rose Turkish Delight Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-6",
+            "price_label": "₺420.00",
+            "badge": "Sale",
+            "sale": {
+             "was": "520.00",
+             "was_formatted": "₺520.00",
+             "now": "420.00",
+             "now_formatted": "₺420.00",
+             "percent_off": 19,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "7"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "6",
+            "title": "Linden Tea Tin",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-7",
+            "price_label": "₺280.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "6"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "5",
+            "title": "Fig & Cedar Candle",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-8",
+            "price_label": "₺560.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "5"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g15",
+        "type": "column",
+        "name": "Shop the look",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g16",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "Shop the look"
+         },
+         {
+          "id": "g17",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "Tap a spot to see the piece."
+         },
+         {
+          "id": "g18",
+          "type": "stack",
+          "aspect_ratio": 1.3,
+          "background": "#EDE4D6",
+          "image_background_url": "http://localhost:3000/design-pictures/art-room-living.png",
+          "radius": 18,
+          "children": [
+           {
+            "id": "g19",
+            "type": "icon",
+            "padding": {
+             "top": 6,
+             "end": 6,
+             "bottom": 6,
+             "start": 6
+            },
+            "place": {
+             "x": 50,
+             "y": 66
+            },
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "border_color": "#FFFFFF",
+            "radius": 99,
+            "border_width": 2,
+            "shadow": "medium",
+            "icon": "add",
+            "icon_size": 18,
+            "motion": {
+             "loop": "pulse"
+            }
+           },
+           {
+            "id": "g20",
+            "type": "icon",
+            "padding": {
+             "top": 6,
+             "end": 6,
+             "bottom": 6,
+             "start": 6
+            },
+            "place": {
+             "x": 73,
+             "y": 36
+            },
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "border_color": "#FFFFFF",
+            "radius": 99,
+            "border_width": 2,
+            "shadow": "medium",
+            "icon": "add",
+            "icon_size": 18,
+            "motion": {
+             "loop": "pulse"
+            }
+           },
+           {
+            "id": "g21",
+            "type": "icon",
+            "padding": {
+             "top": 6,
+             "end": 6,
+             "bottom": 6,
+             "start": 6
+            },
+            "place": {
+             "x": 50,
+             "y": 30
+            },
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "border_color": "#FFFFFF",
+            "radius": 99,
+            "border_width": 2,
+            "shadow": "medium",
+            "icon": "add",
+            "icon_size": 18,
+            "motion": {
+             "loop": "pulse"
+            }
+           }
+          ]
+         },
+         {
+          "id": "g22",
+          "type": "items",
+          "gap": 10,
+          "source": "products",
+          "layout": "carousel",
+          "items": [
+           {
+            "source": "products",
+            "id": "12",
+            "title": "Blush Rose Bouquet",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": "₺1,290.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "12"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "11",
+            "title": "White Orchid in Ceramic Pot",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": "₺1,850.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "11"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "10",
+            "title": "Spring Tulip Bunch",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+            "price_label": "₺590.00",
+            "badge": "Sale",
+            "sale": {
+             "was": "690.00",
+             "was_formatted": "₺690.00",
+             "now": "590.00",
+             "now_formatted": "₺590.00",
+             "percent_off": 14,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "10"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "9",
+            "title": "Birthday Surprise Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+            "price_label": "₺1,450.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "9"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "8",
+            "title": "Turkish Coffee Gift Set",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+            "price_label": "₺940.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "8"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "7",
+            "title": "Rose Turkish Delight Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-6",
+            "price_label": "₺420.00",
+            "badge": "Sale",
+            "sale": {
+             "was": "520.00",
+             "was_formatted": "₺520.00",
+             "now": "420.00",
+             "now_formatted": "₺420.00",
+             "percent_off": 19,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "7"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g23",
+        "type": "column",
+        "name": "Shop by brand",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g24",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "Shop by brand"
+         },
+         {
+          "id": "g25",
+          "type": "row",
+          "gap": 10,
+          "scroll": true,
+          "children": [
+           {
+            "id": "g26",
+            "type": "column",
+            "width": 84,
+            "height": 84,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#22203A",
+            "border_color": "#E5E0D5",
+            "radius": 99,
+            "border_width": 1,
+            "children": [
+             {
+              "id": "g27",
+              "type": "text",
+              "font": {
+               "weight": 900,
+               "size": 13,
+               "letter_spacing": 1.5
+              },
+              "text_align": "center",
+              "text": "NOVA"
+             }
+            ]
+           },
+           {
+            "id": "g28",
+            "type": "column",
+            "width": 84,
+            "height": 84,
+            "align": "center",
+            "cross": "center",
+            "background": "#F4EFE6",
+            "dark_background": "#22203A",
+            "border_color": "#E5E0D5",
+            "radius": 99,
+            "border_width": 1,
+            "children": [
+             {
+              "id": "g29",
+              "type": "text",
+              "font": {
+               "weight": 900,
+               "size": 13,
+               "letter_spacing": 1.5
+              },
+              "text_align": "center",
+              "text": "ATLAS"
+             }
+            ]
+           },
+           {
+            "id": "g30",
+            "type": "column",
+            "width": 84,
+            "height": 84,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#22203A",
+            "border_color": "#E5E0D5",
+            "radius": 99,
+            "border_width": 1,
+            "children": [
+             {
+              "id": "g31",
+              "type": "text",
+              "font": {
+               "weight": 900,
+               "size": 13,
+               "letter_spacing": 1.5
+              },
+              "text_align": "center",
+              "text": "LUMA"
+             }
+            ]
+           },
+           {
+            "id": "g32",
+            "type": "column",
+            "width": 84,
+            "height": 84,
+            "align": "center",
+            "cross": "center",
+            "background": "#F4EFE6",
+            "dark_background": "#22203A",
+            "border_color": "#E5E0D5",
+            "radius": 99,
+            "border_width": 1,
+            "children": [
+             {
+              "id": "g33",
+              "type": "text",
+              "font": {
+               "weight": 900,
+               "size": 13,
+               "letter_spacing": 1.5
+              },
+              "text_align": "center",
+              "text": "ORBIT"
+             }
+            ]
+           },
+           {
+            "id": "g34",
+            "type": "column",
+            "width": 84,
+            "height": 84,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#22203A",
+            "border_color": "#E5E0D5",
+            "radius": 99,
+            "border_width": 1,
+            "children": [
+             {
+              "id": "g35",
+              "type": "text",
+              "font": {
+               "weight": 900,
+               "size": 13,
+               "letter_spacing": 1.5
+              },
+              "text_align": "center",
+              "text": "MIRA"
+             }
+            ]
+           },
+           {
+            "id": "g36",
+            "type": "column",
+            "width": 84,
+            "height": 84,
+            "align": "center",
+            "cross": "center",
+            "background": "#F4EFE6",
+            "dark_background": "#22203A",
+            "border_color": "#E5E0D5",
+            "radius": 99,
+            "border_width": 1,
+            "children": [
+             {
+              "id": "g37",
+              "type": "text",
+              "font": {
+               "weight": 900,
+               "size": 13,
+               "letter_spacing": 1.5
+              },
+              "text_align": "center",
+              "text": "KOTO"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g38",
+        "type": "slider",
+        "name": "Offers for you",
+        "height": 190,
+        "margin": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "autoplay": true,
+        "interval_ms": 4500,
+        "indicator": "count",
+        "children": [
+         {
+          "id": "g39",
+          "type": "row",
+          "height": "fill",
+          "background": "#F4EFE6",
+          "dark_background": "#22203A",
+          "radius": 18,
+          "children": [
+           {
+            "id": "g40",
+            "type": "column",
+            "width": "fill",
+            "padding": {
+             "top": 14,
+             "end": 16,
+             "bottom": 14,
+             "start": 16
+            },
+            "gap": 6,
+            "align": "center",
+            "children": [
+             {
+              "id": "g41",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 18,
+               "line_height": 1.3
+              },
+              "text": "Welcome to Guard Shop",
+              "max_lines": 3
+             },
+             {
+              "id": "g42",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 13
+              },
+              "text": "Everything you need, a tap away.",
+              "max_lines": 3
+             },
+             {
+              "id": "g43",
+              "type": "button",
+              "width": "hug",
+              "height": 36,
+              "padding": {
+               "end": 14,
+               "start": 14
+              },
+              "margin": {
+               "top": 4
+              },
+              "background": "#0E0D24",
+              "color": "#FFFFFF",
+              "radius": 10,
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "Order now",
+              "action": {
+               "type": "screen",
+               "screen": "cart"
+              }
+             }
+            ]
+           },
+           {
+            "id": "g44",
+            "type": "stack",
+            "width": 136,
+            "height": "fill",
+            "background": "#7C2D12",
+            "image_background_url": "http://localhost:3000/design-pictures/sunset-waves.jpg",
+            "corners": {
+             "top_end": 18,
+             "bottom_end": 18
+            },
+            "children": []
+           }
+          ]
+         },
+         {
+          "id": "g45",
+          "type": "row",
+          "height": "fill",
+          "background": "#F4EFE6",
+          "dark_background": "#22203A",
+          "radius": 18,
+          "children": [
+           {
+            "id": "g46",
+            "type": "column",
+            "width": "fill",
+            "padding": {
+             "top": 14,
+             "end": 16,
+             "bottom": 14,
+             "start": 16
+            },
+            "gap": 6,
+            "align": "center",
+            "children": [
+             {
+              "id": "g47",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 18,
+               "line_height": 1.3
+              },
+              "text": "New this week",
+              "max_lines": 3
+             },
+             {
+              "id": "g48",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 13
+              },
+              "text": "Fresh picks, added for you.",
+              "max_lines": 3
+             },
+             {
+              "id": "g49",
+              "type": "button",
+              "width": "hug",
+              "height": 36,
+              "padding": {
+               "end": 14,
+               "start": 14
+              },
+              "margin": {
+               "top": 4
+              },
+              "background": "#0E0D24",
+              "color": "#FFFFFF",
+              "radius": 10,
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "Order now",
+              "action": {
+               "type": "screen",
+               "screen": "cart"
+              }
+             }
+            ]
+           },
+           {
+            "id": "g50",
+            "type": "stack",
+            "width": 136,
+            "height": "fill",
+            "background": "#0C4A6E",
+            "image_background_url": "http://localhost:3000/design-pictures/ocean-circles.jpg",
+            "corners": {
+             "top_end": 18,
+             "bottom_end": 18
+            },
+            "children": []
+           }
+          ]
+         },
+         {
+          "id": "g51",
+          "type": "row",
+          "height": "fill",
+          "background": "#F4EFE6",
+          "dark_background": "#22203A",
+          "radius": 18,
+          "children": [
+           {
+            "id": "g52",
+            "type": "column",
+            "width": "fill",
+            "padding": {
+             "top": 14,
+             "end": 16,
+             "bottom": 14,
+             "start": 16
+            },
+            "gap": 6,
+            "align": "center",
+            "children": [
+             {
+              "id": "g53",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 18,
+               "line_height": 1.3
+              },
+              "text": "Offers for you",
+              "max_lines": 3
+             },
+             {
+              "id": "g54",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 13
+              },
+              "text": "Save more on the things you love.",
+              "max_lines": 3
+             },
+             {
+              "id": "g55",
+              "type": "button",
+              "width": "hug",
+              "height": 36,
+              "padding": {
+               "end": 14,
+               "start": 14
+              },
+              "margin": {
+               "top": 4
+              },
+              "background": "#0E0D24",
+              "color": "#FFFFFF",
+              "radius": 10,
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "Order now",
+              "action": {
+               "type": "screen",
+               "screen": "cart"
+              }
+             }
+            ]
+           },
+           {
+            "id": "g56",
+            "type": "stack",
+            "width": 136,
+            "height": "fill",
+            "background": "#831843",
+            "image_background_url": "http://localhost:3000/design-pictures/berry-blocks.jpg",
+            "corners": {
+             "top_end": 18,
+             "bottom_end": 18
+            },
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g57",
+        "type": "column",
+        "name": "Best sellers",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g58",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "Best sellers"
+         },
+         {
+          "id": "g59",
+          "type": "items",
+          "gap": 10,
+          "source": "products",
+          "layout": "carousel",
+          "items": [
+           {
+            "source": "products",
+            "id": "12",
+            "title": "Blush Rose Bouquet",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": "₺1,290.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "12"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "11",
+            "title": "White Orchid in Ceramic Pot",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": "₺1,850.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "11"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "10",
+            "title": "Spring Tulip Bunch",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+            "price_label": "₺590.00",
+            "badge": "Sale",
+            "sale": {
+             "was": "690.00",
+             "was_formatted": "₺690.00",
+             "now": "590.00",
+             "now_formatted": "₺590.00",
+             "percent_off": 14,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "10"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "9",
+            "title": "Birthday Surprise Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+            "price_label": "₺1,450.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "9"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "8",
+            "title": "Turkish Coffee Gift Set",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+            "price_label": "₺940.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "8"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "7",
+            "title": "Rose Turkish Delight Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-6",
+            "price_label": "₺420.00",
+            "badge": "Sale",
+            "sale": {
+             "was": "520.00",
+             "was_formatted": "₺520.00",
+             "now": "420.00",
+             "now_formatted": "₺420.00",
+             "percent_off": 19,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "7"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "6",
+            "title": "Linden Tea Tin",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-7",
+            "price_label": "₺280.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "6"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "5",
+            "title": "Fig & Cedar Candle",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-8",
+            "price_label": "₺560.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "5"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g60",
+        "type": "items",
+        "name": "Recently viewed",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "title": "Recently viewed",
+        "source": "products",
+        "layout": "carousel",
+        "recent": true,
+        "items": []
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_center",
+      "buttons": [
+       "menu",
+       "search",
+       "cart"
+      ]
+     }
+    }
+   }
+  },
+  "ar": {
+   "home": {
+    "screen": null,
+    "studio": {
+     "body": {
+      "id": "g1",
+      "type": "column",
+      "padding": {
+       "bottom": 16
+      },
+      "gap": 4,
+      "children": [
+       {
+        "id": "g2",
+        "type": "slider",
+        "name": "New this week",
+        "height": 200,
+        "padding": {
+         "top": 8,
+         "bottom": 4,
+         "start": 12
+        },
+        "gap": 12,
+        "per_view": 1.2,
+        "children": [
+         {
+          "id": "g3",
+          "type": "column",
+          "height": "fill",
+          "padding": {
+           "top": 22,
+           "end": 20,
+           "bottom": 22,
+           "start": 20
+          },
+          "gap": 8,
+          "align": "end",
+          "background": "#7C2D12",
+          "color": "#FFFFFF",
+          "image_background_url": "http://localhost:3000/design-pictures/sunset-waves.jpg",
+          "radius": 18,
+          "overlay": {
+           "color": "#000000",
+           "opacity": 0.35
+          },
+          "children": [
+           {
+            "id": "g4",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 20,
+             "line_height": 1.2
+            },
+            "text": "مرحبًا بك في Guard Shop"
+           },
+           {
+            "id": "g5",
+            "type": "text",
+            "opacity": 0.9,
+            "font": {
+             "size": 14
+            },
+            "text": "كل ما تحتاج إليه بلمسة واحدة."
+           }
+          ]
+         },
+         {
+          "id": "g6",
+          "type": "column",
+          "height": "fill",
+          "padding": {
+           "top": 22,
+           "end": 20,
+           "bottom": 22,
+           "start": 20
+          },
+          "gap": 8,
+          "align": "end",
+          "background": "#0C4A6E",
+          "color": "#FFFFFF",
+          "image_background_url": "http://localhost:3000/design-pictures/ocean-circles.jpg",
+          "radius": 18,
+          "overlay": {
+           "color": "#000000",
+           "opacity": 0.35
+          },
+          "children": [
+           {
+            "id": "g7",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 20,
+             "line_height": 1.2
+            },
+            "text": "الجديد هذا الأسبوع"
+           },
+           {
+            "id": "g8",
+            "type": "text",
+            "opacity": 0.9,
+            "font": {
+             "size": 14
+            },
+            "text": "اختيارات جديدة أضفناها لك."
+           }
+          ]
+         },
+         {
+          "id": "g9",
+          "type": "column",
+          "height": "fill",
+          "padding": {
+           "top": 22,
+           "end": 20,
+           "bottom": 22,
+           "start": 20
+          },
+          "gap": 8,
+          "align": "end",
+          "background": "#831843",
+          "color": "#FFFFFF",
+          "image_background_url": "http://localhost:3000/design-pictures/berry-blocks.jpg",
+          "radius": 18,
+          "overlay": {
+           "color": "#000000",
+           "opacity": 0.35
+          },
+          "children": [
+           {
+            "id": "g10",
+            "type": "text",
+            "font": {
+             "weight": 800,
+             "size": 20,
+             "line_height": 1.2
+            },
+            "text": "عروض لك"
+           },
+           {
+            "id": "g11",
+            "type": "text",
+            "opacity": 0.9,
+            "font": {
+             "size": 14
+            },
+            "text": "وفّر أكثر على ما تحب."
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g12",
+        "type": "column",
+        "name": "New arrivals",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g13",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "وصل حديثًا"
+         },
+         {
+          "id": "g14",
+          "type": "items",
+          "gap": 10,
+          "source": "products",
+          "layout": "carousel",
+          "items": [
+           {
+            "source": "products",
+            "id": "12",
+            "title": "Blush Rose Bouquet",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": "₺1,290.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "12"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "11",
+            "title": "White Orchid in Ceramic Pot",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": "₺1,850.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "11"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "10",
+            "title": "Spring Tulip Bunch",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+            "price_label": "₺590.00",
+            "badge": "تخفيض",
+            "sale": {
+             "was": "690.00",
+             "was_formatted": "₺690.00",
+             "now": "590.00",
+             "now_formatted": "₺590.00",
+             "percent_off": 14,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "10"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "9",
+            "title": "Birthday Surprise Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+            "price_label": "₺1,450.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "9"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "8",
+            "title": "Turkish Coffee Gift Set",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+            "price_label": "₺940.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "8"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "7",
+            "title": "Rose Turkish Delight Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-6",
+            "price_label": "₺420.00",
+            "badge": "تخفيض",
+            "sale": {
+             "was": "520.00",
+             "was_formatted": "₺520.00",
+             "now": "420.00",
+             "now_formatted": "₺420.00",
+             "percent_off": 19,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "7"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "6",
+            "title": "Linden Tea Tin",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-7",
+            "price_label": "₺280.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "6"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "5",
+            "title": "Fig & Cedar Candle",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-8",
+            "price_label": "₺560.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "5"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g15",
+        "type": "column",
+        "name": "Shop the look",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g16",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "تسوّق الإطلالة كاملة"
+         },
+         {
+          "id": "g17",
+          "type": "text",
+          "opacity": 0.8,
+          "font": {
+           "size": 13
+          },
+          "text": "المس أي نقطة لترى القطعة."
+         },
+         {
+          "id": "g18",
+          "type": "stack",
+          "aspect_ratio": 1.3,
+          "background": "#EDE4D6",
+          "image_background_url": "http://localhost:3000/design-pictures/art-room-living.png",
+          "radius": 18,
+          "children": [
+           {
+            "id": "g19",
+            "type": "icon",
+            "padding": {
+             "top": 6,
+             "end": 6,
+             "bottom": 6,
+             "start": 6
+            },
+            "place": {
+             "x": 50,
+             "y": 66
+            },
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "border_color": "#FFFFFF",
+            "radius": 99,
+            "border_width": 2,
+            "shadow": "medium",
+            "icon": "add",
+            "icon_size": 18,
+            "motion": {
+             "loop": "pulse"
+            }
+           },
+           {
+            "id": "g20",
+            "type": "icon",
+            "padding": {
+             "top": 6,
+             "end": 6,
+             "bottom": 6,
+             "start": 6
+            },
+            "place": {
+             "x": 73,
+             "y": 36
+            },
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "border_color": "#FFFFFF",
+            "radius": 99,
+            "border_width": 2,
+            "shadow": "medium",
+            "icon": "add",
+            "icon_size": 18,
+            "motion": {
+             "loop": "pulse"
+            }
+           },
+           {
+            "id": "g21",
+            "type": "icon",
+            "padding": {
+             "top": 6,
+             "end": 6,
+             "bottom": 6,
+             "start": 6
+            },
+            "place": {
+             "x": 50,
+             "y": 30
+            },
+            "background": "#0E0D24",
+            "color": "#FFFFFF",
+            "border_color": "#FFFFFF",
+            "radius": 99,
+            "border_width": 2,
+            "shadow": "medium",
+            "icon": "add",
+            "icon_size": 18,
+            "motion": {
+             "loop": "pulse"
+            }
+           }
+          ]
+         },
+         {
+          "id": "g22",
+          "type": "items",
+          "gap": 10,
+          "source": "products",
+          "layout": "carousel",
+          "items": [
+           {
+            "source": "products",
+            "id": "12",
+            "title": "Blush Rose Bouquet",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": "₺1,290.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "12"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "11",
+            "title": "White Orchid in Ceramic Pot",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": "₺1,850.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "11"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "10",
+            "title": "Spring Tulip Bunch",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+            "price_label": "₺590.00",
+            "badge": "تخفيض",
+            "sale": {
+             "was": "690.00",
+             "was_formatted": "₺690.00",
+             "now": "590.00",
+             "now_formatted": "₺590.00",
+             "percent_off": 14,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "10"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "9",
+            "title": "Birthday Surprise Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+            "price_label": "₺1,450.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "9"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "8",
+            "title": "Turkish Coffee Gift Set",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+            "price_label": "₺940.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "8"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "7",
+            "title": "Rose Turkish Delight Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-6",
+            "price_label": "₺420.00",
+            "badge": "تخفيض",
+            "sale": {
+             "was": "520.00",
+             "was_formatted": "₺520.00",
+             "now": "420.00",
+             "now_formatted": "₺420.00",
+             "percent_off": 19,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "7"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g23",
+        "type": "column",
+        "name": "Shop by brand",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g24",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "تسوّق حسب العلامة التجارية"
+         },
+         {
+          "id": "g25",
+          "type": "row",
+          "gap": 10,
+          "scroll": true,
+          "children": [
+           {
+            "id": "g26",
+            "type": "column",
+            "width": 84,
+            "height": 84,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#22203A",
+            "border_color": "#E5E0D5",
+            "radius": 99,
+            "border_width": 1,
+            "children": [
+             {
+              "id": "g27",
+              "type": "text",
+              "font": {
+               "weight": 900,
+               "size": 13,
+               "letter_spacing": 1.5
+              },
+              "text_align": "center",
+              "text": "NOVA"
+             }
+            ]
+           },
+           {
+            "id": "g28",
+            "type": "column",
+            "width": 84,
+            "height": 84,
+            "align": "center",
+            "cross": "center",
+            "background": "#F4EFE6",
+            "dark_background": "#22203A",
+            "border_color": "#E5E0D5",
+            "radius": 99,
+            "border_width": 1,
+            "children": [
+             {
+              "id": "g29",
+              "type": "text",
+              "font": {
+               "weight": 900,
+               "size": 13,
+               "letter_spacing": 1.5
+              },
+              "text_align": "center",
+              "text": "ATLAS"
+             }
+            ]
+           },
+           {
+            "id": "g30",
+            "type": "column",
+            "width": 84,
+            "height": 84,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#22203A",
+            "border_color": "#E5E0D5",
+            "radius": 99,
+            "border_width": 1,
+            "children": [
+             {
+              "id": "g31",
+              "type": "text",
+              "font": {
+               "weight": 900,
+               "size": 13,
+               "letter_spacing": 1.5
+              },
+              "text_align": "center",
+              "text": "LUMA"
+             }
+            ]
+           },
+           {
+            "id": "g32",
+            "type": "column",
+            "width": 84,
+            "height": 84,
+            "align": "center",
+            "cross": "center",
+            "background": "#F4EFE6",
+            "dark_background": "#22203A",
+            "border_color": "#E5E0D5",
+            "radius": 99,
+            "border_width": 1,
+            "children": [
+             {
+              "id": "g33",
+              "type": "text",
+              "font": {
+               "weight": 900,
+               "size": 13,
+               "letter_spacing": 1.5
+              },
+              "text_align": "center",
+              "text": "ORBIT"
+             }
+            ]
+           },
+           {
+            "id": "g34",
+            "type": "column",
+            "width": 84,
+            "height": 84,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#22203A",
+            "border_color": "#E5E0D5",
+            "radius": 99,
+            "border_width": 1,
+            "children": [
+             {
+              "id": "g35",
+              "type": "text",
+              "font": {
+               "weight": 900,
+               "size": 13,
+               "letter_spacing": 1.5
+              },
+              "text_align": "center",
+              "text": "MIRA"
+             }
+            ]
+           },
+           {
+            "id": "g36",
+            "type": "column",
+            "width": 84,
+            "height": 84,
+            "align": "center",
+            "cross": "center",
+            "background": "#F4EFE6",
+            "dark_background": "#22203A",
+            "border_color": "#E5E0D5",
+            "radius": 99,
+            "border_width": 1,
+            "children": [
+             {
+              "id": "g37",
+              "type": "text",
+              "font": {
+               "weight": 900,
+               "size": 13,
+               "letter_spacing": 1.5
+              },
+              "text_align": "center",
+              "text": "KOTO"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g38",
+        "type": "slider",
+        "name": "Offers for you",
+        "height": 190,
+        "margin": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "autoplay": true,
+        "interval_ms": 4500,
+        "indicator": "count",
+        "children": [
+         {
+          "id": "g39",
+          "type": "row",
+          "height": "fill",
+          "background": "#F4EFE6",
+          "dark_background": "#22203A",
+          "radius": 18,
+          "children": [
+           {
+            "id": "g40",
+            "type": "column",
+            "width": "fill",
+            "padding": {
+             "top": 14,
+             "end": 16,
+             "bottom": 14,
+             "start": 16
+            },
+            "gap": 6,
+            "align": "center",
+            "children": [
+             {
+              "id": "g41",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 18,
+               "line_height": 1.3
+              },
+              "text": "مرحبًا بك في Guard Shop",
+              "max_lines": 3
+             },
+             {
+              "id": "g42",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 13
+              },
+              "text": "كل ما تحتاج إليه بلمسة واحدة.",
+              "max_lines": 3
+             },
+             {
+              "id": "g43",
+              "type": "button",
+              "width": "hug",
+              "height": 36,
+              "padding": {
+               "end": 14,
+               "start": 14
+              },
+              "margin": {
+               "top": 4
+              },
+              "background": "#0E0D24",
+              "color": "#FFFFFF",
+              "radius": 10,
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "اطلب الآن",
+              "action": {
+               "type": "screen",
+               "screen": "cart"
+              }
+             }
+            ]
+           },
+           {
+            "id": "g44",
+            "type": "stack",
+            "width": 136,
+            "height": "fill",
+            "background": "#7C2D12",
+            "image_background_url": "http://localhost:3000/design-pictures/sunset-waves.jpg",
+            "corners": {
+             "top_end": 18,
+             "bottom_end": 18
+            },
+            "children": []
+           }
+          ]
+         },
+         {
+          "id": "g45",
+          "type": "row",
+          "height": "fill",
+          "background": "#F4EFE6",
+          "dark_background": "#22203A",
+          "radius": 18,
+          "children": [
+           {
+            "id": "g46",
+            "type": "column",
+            "width": "fill",
+            "padding": {
+             "top": 14,
+             "end": 16,
+             "bottom": 14,
+             "start": 16
+            },
+            "gap": 6,
+            "align": "center",
+            "children": [
+             {
+              "id": "g47",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 18,
+               "line_height": 1.3
+              },
+              "text": "الجديد هذا الأسبوع",
+              "max_lines": 3
+             },
+             {
+              "id": "g48",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 13
+              },
+              "text": "اختيارات جديدة أضفناها لك.",
+              "max_lines": 3
+             },
+             {
+              "id": "g49",
+              "type": "button",
+              "width": "hug",
+              "height": 36,
+              "padding": {
+               "end": 14,
+               "start": 14
+              },
+              "margin": {
+               "top": 4
+              },
+              "background": "#0E0D24",
+              "color": "#FFFFFF",
+              "radius": 10,
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "اطلب الآن",
+              "action": {
+               "type": "screen",
+               "screen": "cart"
+              }
+             }
+            ]
+           },
+           {
+            "id": "g50",
+            "type": "stack",
+            "width": 136,
+            "height": "fill",
+            "background": "#0C4A6E",
+            "image_background_url": "http://localhost:3000/design-pictures/ocean-circles.jpg",
+            "corners": {
+             "top_end": 18,
+             "bottom_end": 18
+            },
+            "children": []
+           }
+          ]
+         },
+         {
+          "id": "g51",
+          "type": "row",
+          "height": "fill",
+          "background": "#F4EFE6",
+          "dark_background": "#22203A",
+          "radius": 18,
+          "children": [
+           {
+            "id": "g52",
+            "type": "column",
+            "width": "fill",
+            "padding": {
+             "top": 14,
+             "end": 16,
+             "bottom": 14,
+             "start": 16
+            },
+            "gap": 6,
+            "align": "center",
+            "children": [
+             {
+              "id": "g53",
+              "type": "text",
+              "font": {
+               "weight": 800,
+               "size": 18,
+               "line_height": 1.3
+              },
+              "text": "عروض لك",
+              "max_lines": 3
+             },
+             {
+              "id": "g54",
+              "type": "text",
+              "opacity": 0.8,
+              "font": {
+               "size": 13
+              },
+              "text": "وفّر أكثر على ما تحب.",
+              "max_lines": 3
+             },
+             {
+              "id": "g55",
+              "type": "button",
+              "width": "hug",
+              "height": 36,
+              "padding": {
+               "end": 14,
+               "start": 14
+              },
+              "margin": {
+               "top": 4
+              },
+              "background": "#0E0D24",
+              "color": "#FFFFFF",
+              "radius": 10,
+              "font": {
+               "weight": 800,
+               "size": 13
+              },
+              "text": "اطلب الآن",
+              "action": {
+               "type": "screen",
+               "screen": "cart"
+              }
+             }
+            ]
+           },
+           {
+            "id": "g56",
+            "type": "stack",
+            "width": 136,
+            "height": "fill",
+            "background": "#831843",
+            "image_background_url": "http://localhost:3000/design-pictures/berry-blocks.jpg",
+            "corners": {
+             "top_end": 18,
+             "bottom_end": 18
+            },
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g57",
+        "type": "column",
+        "name": "Best sellers",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "children": [
+         {
+          "id": "g58",
+          "type": "text",
+          "font": {
+           "weight": 800,
+           "size": 18
+          },
+          "text": "الأكثر مبيعًا"
+         },
+         {
+          "id": "g59",
+          "type": "items",
+          "gap": 10,
+          "source": "products",
+          "layout": "carousel",
+          "items": [
+           {
+            "source": "products",
+            "id": "12",
+            "title": "Blush Rose Bouquet",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-1",
+            "price_label": "₺1,290.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "12"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "11",
+            "title": "White Orchid in Ceramic Pot",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-2",
+            "price_label": "₺1,850.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "11"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "10",
+            "title": "Spring Tulip Bunch",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-3",
+            "price_label": "₺590.00",
+            "badge": "تخفيض",
+            "sale": {
+             "was": "690.00",
+             "was_formatted": "₺690.00",
+             "now": "590.00",
+             "now_formatted": "₺590.00",
+             "percent_off": 14,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "10"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "9",
+            "title": "Birthday Surprise Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-4",
+            "price_label": "₺1,450.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "9"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "8",
+            "title": "Turkish Coffee Gift Set",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-5",
+            "price_label": "₺940.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "8"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "7",
+            "title": "Rose Turkish Delight Box",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-6",
+            "price_label": "₺420.00",
+            "badge": "تخفيض",
+            "sale": {
+             "was": "520.00",
+             "was_formatted": "₺520.00",
+             "now": "420.00",
+             "now_formatted": "₺420.00",
+             "percent_off": 19,
+             "starts_at": null,
+             "ends_at": null,
+             "remaining": null,
+             "total": null,
+             "flash_sale_id": null
+            },
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "7"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "6",
+            "title": "Linden Tea Tin",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-7",
+            "price_label": "₺280.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "6"
+             }
+            }
+           },
+           {
+            "source": "products",
+            "id": "5",
+            "title": "Fig & Cedar Candle",
+            "subtitle": null,
+            "image_url": "https://yallapp.test/api/v1/assets/asset-8",
+            "price_label": "₺560.00",
+            "badge": null,
+            "action": {
+             "type": "item",
+             "item": {
+              "source": "products",
+              "id": "5"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "g60",
+        "type": "items",
+        "name": "Recently viewed",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "gap": 10,
+        "title": "شاهدتها مؤخرًا",
+        "source": "products",
+        "layout": "carousel",
+        "recent": true,
+        "items": []
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_center",
+      "buttons": [
+       "menu",
+       "search",
+       "cart"
+      ]
+     }
+    }
+   }
+  }
+ }
+}
