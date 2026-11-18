@@ -44,6 +44,23 @@ header (Settings on a 320 by 568 phone) loses its last lines (ROADMAP
 158.3); the staff's and second apps' tabs still to take the same space
 (158.6).
 
+Roadmap 159 (sizes automatic, by hand only when asked): Kech Flora's bag
+sat about three quarters of the way across the phone because the bar over
+the stories had a width in points from a corner drag on Studio's phone
+(a drag never became Fill there: the corner measured an empty wrapper), and
+the app keeps a width in points. A cover's top bar is now at its automatic
+size, across the cover with its wordmark between the buttons, in Studio's
+canvas, in what the hosted API serves (so apps already on phones draw it at
+once) and in the app (with the next `CLIENT_APP_RELEASE`), whatever width it had, unless
+it was sized by hand. Every element's size is automatic until the owner
+changes it: the size fields and the canvas corners ask first, "Back to
+automatic" (or a double click on a corner) puts the template's size back,
+and a corner dragged up to the edge becomes Fill again. WordPress apps keep
+a size by hand with the next plugin release. With the next app release a round button
+without words (the search, the bag) tells a screen reader what it opens
+("Search", "Cart") in the app's language, or the owner's name for it, not
+just "button". Not yet seen on Kech Flora's phone.
+
 Roadmap 160 (sign-in as the owner's four ways say, and Forgot password): a
 phone number or an email address signs in with a code every time ("…and a
 code": no password anywhere) or with its password ("…and password": the
@@ -129,6 +146,18 @@ Studio has a Sign out element, which every template's account page has.
 Delete account stays in Settings, which every look lists. `CLIENT_APP_RELEASE`
 8 rebuilds the apps; to check on a phone (ROADMAP 167.8).
 
+Roadmap 168 (the gift checkout end to end): a flower shop made from Leqaa,
+in dirhams and priced by distance, walked from the product to the
+delivered order in English and Arabic. Fixed: the cart's total no longer
+loses the delivery while the chosen day waits for its time; the shipping
+breakdown is in the customer's language; the payment page takes a gift
+without a city the order never had; the owner opens the customer's pin on
+a map; and "How your flowers travel" stays on an order just delivered
+instead of going back to "Order placed". `CLIENT_APP_RELEASE` 7. Still
+open (ROADMAP 168.6–168.10): the pin without the platform's map, the
+payment page in Arabic, and the dashboard's times in UTC. The notes:
+docs/qa/2026-11-18-gift-checkout/NOTES.md.
+
 Roadmap 171 (the Orders tab keeps the tab bar): in Leqaa's app (both
 looks, the petal bar), the Orders tab opened Orders on top, without the bar,
 because a store's orders live under Account (`/account/orders`), not among
@@ -140,6 +169,7 @@ flowers travel" with no order showed a sample journey, "Order placed" lit:
 now it, its card and its heading show only with an order, at that order's
 own step. From `CLIENT_APP_RELEASE` 8. Not yet tried on a phone (ROADMAP
 171.7).
+
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
 payout of the 1st covers the sales paid up to the end of the month before,
 cut off at midnight Istanbul time; a sale paid on the 1st or later waits for
@@ -221,23 +251,6 @@ payment our server starts, read back, confirmed and refunded as before; when
 the form can't load, the gateway's own page, the same payment. Fawaterk and
 PayPal keep their own pages (ROADMAP 153.7, 153.8). Not yet tried with real
 iyzico and Kashier test accounts (ROADMAP 153.9).
-
-Roadmap 159 (sizes automatic, by hand only when asked): Kech Flora's bag
-sat about three quarters of the way across the phone because the bar over
-the stories had a width in points from a corner drag on Studio's phone
-(a drag never became Fill there: the corner measured an empty wrapper), and
-the app keeps a width in points. A cover's top bar is now at its automatic
-size, across the cover with its wordmark between the buttons, in Studio's
-canvas, in what the hosted API serves (so apps already on phones draw it at
-once) and in the app (with the next `CLIENT_APP_RELEASE`), whatever width it had, unless
-it was sized by hand. Every element's size is automatic until the owner
-changes it: the size fields and the canvas corners ask first, "Back to
-automatic" (or a double click on a corner) puts the template's size back,
-and a corner dragged up to the edge becomes Fill again. WordPress apps keep
-a size by hand with the next plugin release. With the next app release a round button
-without words (the search, the bag) tells a screen reader what it opens
-("Search", "Cart") in the app's language, or the owner's name for it, not
-just "button". Not yet seen on Kech Flora's phone.
 
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its

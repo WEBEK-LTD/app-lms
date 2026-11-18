@@ -3,7 +3,7 @@
 import { PROVIDER_NAME, providerTakes } from "@/lib/payments/provider";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { chargedAmount, readCustomer, startPayment } from "@/lib/catalog/payment";
+import { chargedAmount, cityOptionalFor, readCustomer, startPayment } from "@/lib/catalog/payment";
 import { formatCents } from "@/lib/catalog/money";
 import { chooseManualPayment, isManualMethod } from "@/lib/catalog/manual";
 import { sendManualOrderMails } from "@/lib/catalog/manual-mail";
@@ -74,7 +74,7 @@ export async function payAction(token: string, _: PayState, formData: FormData):
   // 96.2 Bank transfer or the owner's own method: the order waits for the owner to mark it paid.
   if (app && isManualMethod(method) && !platformOrder) {
     const settings = app.catalogSettings?.manualPayments;
-    const checked = readCustomer(app, values);
+    const checked = readCustomer(app, values, { cityOptional: cityOptionalFor(order) });
     if (!checked.ok) return { errors: checked.errors, values };
     let chosen;
     try {
@@ -97,7 +97,7 @@ export async function payAction(token: string, _: PayState, formData: FormData):
   if (!providerTakes(account.account.provider, charged.currency)) {
     return { message: `${PROVIDER_NAME[account.account.provider]} doesn't take payments in ${charged.currency}, so this shop can't take card payments for now. Choose another way to pay, or go back to the app.`, values };
   }
-  const checked = readCustomer(app, values);
+  const checked = readCustomer(app, values, { cityOptional: cityOptionalFor(order) });
   if (!checked.ok) return { errors: checked.errors, values };
   // 37 A Kashier or Fawaterk payment started earlier may have gone through without its redirect or webhook: read it back before starting another.
   if (order.providerRef && order.paymentProvider && order.paymentProvider !== "iyzico") {

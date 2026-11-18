@@ -225,7 +225,9 @@ export async function startCheckout(account: PaymentAccount, request: CheckoutRe
   }
   const decimal = (cents: number) => (cents / 100).toFixed(2);
   const { customer } = request;
-  const address = { contactName: customer.name, city: customer.city, country: "Turkey", address: customer.address ?? customer.city };
+  // 168 iyzico needs a city: the address's last part when the order needed none typed (lib/catalog/payment.ts cityOptionalFor).
+  const city = customer.city || customer.address?.split(/[,،]/).pop()?.trim() || "-";
+  const address = { contactName: customer.name, city, country: "Turkey", address: customer.address ?? city };
   const price = decimal(request.amountCents);
   const startedAt = Date.now();
   const { token, paymentPageUrl, tokenExpireSeconds, formContent } = await initializeCheckoutForm(
@@ -245,9 +247,9 @@ export async function startCheckout(account: PaymentAccount, request: CheckoutRe
         email: customer.email,
         // iyzico asks for a Turkish ID number; Yallapp doesn't collect it, so it sends this placeholder.
         identityNumber: "11111111111",
-        registrationAddress: customer.address ?? customer.city,
+        registrationAddress: customer.address ?? city,
         ip: customer.ip,
-        city: customer.city,
+        city,
         country: "Turkey",
       },
       billingAddress: address,

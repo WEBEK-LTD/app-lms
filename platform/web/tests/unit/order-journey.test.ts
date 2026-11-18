@@ -9,7 +9,7 @@ import type { StudioNode } from "@/lib/pages/types";
 import { parseStudioPage } from "@/lib/pages/validate";
 import { en as appEn } from "@/lib/studio/app-words";
 import { studioDemoDesign } from "@/lib/studio/demo-designs";
-import { journeyEntryIndex, latestOrderOnItsWay, orderInProgress, orderJourneyStep, STAGE_JOURNEY } from "@/lib/studio/order-journey";
+import { journeyEntryIndex, latestOrderOnItsWay, orderInProgress, orderJourneyStep, orderToFollow, STAGE_JOURNEY } from "@/lib/studio/order-journey";
 import type { SectionContext } from "@/lib/studio/sections";
 
 /**
@@ -69,6 +69,22 @@ describe("132.187 the order's journey", () => {
     ];
     expect(latestOrderOnItsWay(orders)?.id).toBe(2);
     expect(latestOrderOnItsWay([orders[2]!])).toBeNull();
+  });
+
+  // 168 Delivered, the journey stays on the order (all ticked) instead of going back to the drawn "Order placed".
+  it("168 keeps a just-delivered order on the journey for three days, then lets it go", () => {
+    const now = new Date("2026-11-18T12:00:00Z");
+    const delivered = { id: 7, status: "completed", created_at: "2026-11-18T05:30:00Z", stage: { code: "delivered" } };
+    expect(orderToFollow([delivered], now)?.id).toBe(7);
+    expect(orderJourneyStep(delivered)).toBe("delivered");
+    // An order still on its way comes first.
+    const open = { id: 8, status: "processing", created_at: "2026-11-17T09:00:00Z" };
+    expect(orderToFollow([delivered, open], now)?.id).toBe(8);
+    // Older than three days, cancelled or refunded: none.
+    expect(orderToFollow([{ ...delivered, created_at: "2026-11-14T11:00:00Z" }], now)).toBeNull();
+    expect(orderToFollow([{ id: 9, status: "cancelled", created_at: "2026-11-18T05:00:00Z" }], now)).toBeNull();
+    expect(orderToFollow([{ id: 10, status: "refunded", created_at: "2026-11-18T05:00:00Z", stage: { code: "delivered" } }], now)).toBeNull();
+    expect(orderToFollow([], now)).toBeNull();
   });
 
   it("spreads the four steps over the entries drawn", () => {

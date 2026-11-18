@@ -102,19 +102,34 @@ Order? latestOrderOnItsWay(Iterable<Order> orders) {
   return latest;
 }
 
-/// 171 The order the journey follows: the newest still on its way, else
-/// the newest delivered (completed); null without one (an order cancelled,
-/// refunded or failed doesn't travel).
-Order? journeyOrder(Iterable<Order> orders) {
-  final onItsWay = latestOrderOnItsWay(orders);
-  if (onItsWay != null) return onItsWay;
-  Order? latest;
+/// 168 How long a delivered order stays on its journey: the customer sees
+/// "Delivered" ticked, not the drawn steps back at "Order placed".
+const deliveredJourneyKept = Duration(days: 3);
+
+/// 168 The order the journey follows: the newest still on its way, else the
+/// newest delivered in the last [deliveredJourneyKept] (all its steps done);
+/// null for none. Mirrors `orderToFollow` in
+/// platform/web/src/lib/studio/order-journey.ts.
+Order? orderToFollow(Iterable<Order> orders, DateTime now) {
+  final open = latestOrderOnItsWay(orders);
+  if (open != null) return open;
+  Order? delivered;
   for (final o in orders) {
+    if (orderJourneyStep(o) != OrderJourneyStep.delivered) continue;
     if (o.status != OrderStatus.completed) continue;
-    if (latest == null || o.createdAt.isAfter(latest.createdAt)) latest = o;
+    if (now.difference(o.createdAt) > deliveredJourneyKept) continue;
+    if (delivered == null || o.createdAt.isAfter(delivered.createdAt)) {
+      delivered = o;
+    }
   }
-  return latest;
+  return delivered;
 }
+
+/// 171 The order the journey follows ([orderToFollow], 168: the newest
+/// still on its way, else one just delivered); null without one (an order
+/// cancelled, refunded or failed doesn't travel).
+Order? journeyOrder(Iterable<Order> orders) =>
+    orderToFollow(orders, DateTime.now());
 
 /// 171 The signed-in person's order the journey follows, or null: signed
 /// out, while the orders load, or without one.
@@ -155,10 +170,10 @@ int journeyEntryIndex(OrderJourneyStep step, int count) {
 }
 
 /// 132.160 A timeline that follows the signed-in person's newest order still
-/// on its way (`timeline.source: latest_order`), 171 else their newest
-/// delivered one: its order number over the steps, the step it is at
-/// active, and a tap opens the order. 171 Signed out, without an order, or
-/// while the orders load: nothing (it isn't shown, [orderJourneyShows]).
+/// on its way (`timeline.source: latest_order`), 168 or just delivered: its
+/// order number over the steps, the step it is at active, and a tap opens
+/// the order. 171 Signed out, without such an order, or while the orders
+/// load: nothing (it isn't shown, [orderJourneyShows]).
 class OrderJourneyTimeline extends ConsumerWidget {
   const OrderJourneyTimeline({
     super.key,

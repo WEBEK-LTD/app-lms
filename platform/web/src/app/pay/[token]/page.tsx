@@ -7,7 +7,7 @@ import { formatCents } from "@/lib/catalog/money";
 import { rateText } from "@/lib/money/rates";
 import { fulfilmentOf } from "@/lib/catalog/fulfilment";
 import { optionsText } from "@/lib/catalog/options";
-import { scheduledText } from "@/lib/catalog/payment";
+import { cityOptionalFor, scheduledText } from "@/lib/catalog/payment";
 import { checkoutAccount, orderNumber, payLinkExpired } from "@/lib/catalog/settings";
 import { manualChoices } from "@/lib/catalog/manual";
 import { sha256Hex } from "@/lib/crypto/tokens";
@@ -212,6 +212,7 @@ export default async function PayPage({
         <>
           <PayForm
             token={token}
+            cityOptional={cityOptionalFor(order)}
             card={checkout ? PROVIDER_NAME[checkout.account.provider] : null}
             manual={manual}
             total={cc?.charged ? formatCents(cc.totalCents, cc.currency) : money(order.totalCents)}

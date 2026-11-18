@@ -678,7 +678,9 @@ export class CatalogConnector implements Connector {
     const physical = priced.out.some((o) => o.line.available && !o.line.digital);
     // 131 The delivery day's slot fee and shipping by place and weight, once the app sends them.
     const delivery = this.fulfilment ? null : await this.deliveryOf(request, priced.subtotal, physical, priced.weightGrams, false);
-    const placed = delivery?.ok ? delivery : null;
+    // 168 A day without its time yet (or one that's closed) still has its place priced: the quote
+    // keeps the shipping to the pin while the day waits, instead of a total without it.
+    const placed = delivery?.ok ? delivery : delivery ? await this.placeOnly(request, priced.subtotal, physical, priced.weightGrams) : null;
     // 91.1 The real total: a restaurant's delivery fee depends on how the order is collected, chosen at checkout.
     // 131 Shipping priced by place waits for the place.
     const byPlace = needsPlace(shippingRulesOf(this.settings));
@@ -717,7 +719,7 @@ export class CatalogConnector implements Connector {
         // 135.7 What the card is charged, and in which currency.
         charge: this.chargeJson(total),
         // 131 The slot's fee, where it goes and what made up its shipping; why the delivery doesn't work yet.
-        ...quoteDeliveryJson(placed?.delivery ?? null, this.settings.currency),
+        ...quoteDeliveryJson(placed?.delivery ?? null, this.settings.currency, request.lang),
         delivery_problem: delivery && !delivery.ok ? { code: delivery.code, message: delivery.message } : null,
       },
     };
@@ -735,6 +737,15 @@ export class CatalogConnector implements Connector {
       requirePlace: final && needsPlace(shippingRulesOf(this.settings)) && physical,
       weightGrams,
     });
+  }
+
+  /** 168 The quote's place alone (the day and its slot left out), when the day isn't settled yet; null when the place fails too. */
+  private async placeOnly(request: ConnectorRequest, subtotalCents: number, physical: boolean, weightGrams: number) {
+    const body = { ...((request.body ?? {}) as Record<string, unknown>) };
+    delete body.delivery_date;
+    delete body.delivery_slot;
+    const checked = await this.deliveryOf({ ...request, body }, subtotalCents, physical, weightGrams, false);
+    return checked.ok ? checked : null;
   }
 
   private async checkoutLink(request: ConnectorRequest): Promise<ConnectorResult> {
