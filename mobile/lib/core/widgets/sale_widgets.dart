@@ -471,7 +471,9 @@ class _ProductFlashSaleState extends State<ProductFlashSale> {
                     vertical: 4,
                   ),
                   child: Text(
-                    l10n.salePercentBadge(sale.percentOff),
+                    // 161 Its sign, number and percent the right way round in
+                    // Arabic (never "25٪−").
+                    percentText(l10n.salePercentBadge(sale.percentOff)),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w900,
