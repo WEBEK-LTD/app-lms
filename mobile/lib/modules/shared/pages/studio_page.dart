@@ -2029,6 +2029,27 @@ class StudioNodeView extends ConsumerWidget {
               ? IntrinsicHeight(child: strip)
               : strip,
         );
+      // 179 A row of buttons only (a hero's "Meet the teachers" and
+      // "Browse courses"): as designed when they fit; at a larger text, or
+      // on a narrow phone, the last ones go to a second line instead of
+      // running past the screen (studioButtonsWrap).
+      case StudioNodeType.row when studioButtonsWrap(node, kids):
+        return Wrap(
+          key: ValueKey('studio-buttons-${node.id}'),
+          spacing: node.gap,
+          runSpacing: node.gap > 0 ? node.gap : 8,
+          alignment: switch (node.align) {
+            StudioAlign.center => WrapAlignment.center,
+            StudioAlign.end => WrapAlignment.end,
+            _ => WrapAlignment.start,
+          },
+          crossAxisAlignment: switch (node.cross) {
+            StudioCross.start => WrapCrossAlignment.start,
+            StudioCross.end => WrapCrossAlignment.end,
+            _ => WrapCrossAlignment.center,
+          },
+          children: [for (final child in kids) view(child)],
+        );
       case StudioNodeType.row:
         final stretch =
             node.cross == StudioCross.stretch ||
@@ -2305,6 +2326,28 @@ final _arabicLetters = RegExp(
 /// before. 163 With two or more, the last gives way (a price's was-price
 /// after it, on a card of a fixed width): before, none did and the row ran
 /// past the card at a larger text size. As before whenever the row fits.
+/// 179 Whether a row is drawn as a row of buttons that may wrap: two or
+/// more buttons and nothing else, none filling the row or set to its own
+/// place across it, laid from its start, middle or end (a row spreading
+/// them apart stays a row, and one stretching them too, unless each has
+/// its own height, which stretching doesn't change).
+bool studioButtonsWrap(StudioNode row, List<StudioNode> kids) =>
+    kids.length >= 2 &&
+    !row.scroll &&
+    (row.cross != StudioCross.stretch ||
+        kids.every((k) => k.height?.fixed != null)) &&
+    (row.align == StudioAlign.start ||
+        row.align == StudioAlign.center ||
+        row.align == StudioAlign.end) &&
+    kids.every(
+      (k) =>
+          k.type == StudioNodeType.button &&
+          k.width?.fill != true &&
+          k.height?.fill != true &&
+          k.selfAlign == null &&
+          k.place == null,
+    );
+
 StudioNode? studioTextGivingWay(List<StudioNode> kids) {
   if (kids.any((k) => k.width?.fill == true)) return null;
   final texts = [

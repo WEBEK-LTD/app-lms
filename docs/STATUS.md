@@ -214,6 +214,10 @@ the parent's day, the school week) now end above the looks' floating tab
 bars (Roadmap 158's `endRoom`); that needs the next app build (no
 `CLIENT_APP_RELEASE` change here). Nakhla's "Forms to sign" card showed the
 word SIGNATURE on Studio's canvas; its icon is in the site's icon font now.
+A row of buttons only (Rawaq B's slides, the classic academy and
+university heroes) puts its last buttons on a second line when they don't
+fit at a large text, instead of running past the screen; as designed when
+they fit (next app build).
 Not yet tried on a phone (ROADMAP 179.9); the WordPress dev site was not
 run (179.10).
 

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/yallapp_api.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
@@ -40,6 +41,56 @@ void main() {
           await _close(tester, app);
         });
       });
+      if (look == 'b') {
+        testWidgets(
+          'Rawaq look b, $language: its slides\' buttons fit at text 1.3',
+          (tester) async {
+            await _usePhone(tester, phones.first, 1.3);
+            final app = await _rawaq(tester, look: look, language: language);
+            // (A grid card's price beside a filling title can still run 7
+            // points past its label at 1.3 with a long price: 179.11, open.)
+            tester.takeException();
+            final rows = find.byWidgetPredicate(
+              (w) =>
+                  w.key is ValueKey<String> &&
+                  (w.key! as ValueKey<String>).value.startsWith(
+                    'studio-buttons-',
+                  ),
+            );
+            expect(rows, findsWidgets);
+            for (final e in rows.evaluate()) {
+              // Nothing in the row of buttons runs past it.
+              for (final row
+                  in find
+                      .descendant(
+                        of: find.byElementPredicate((x) => x == e),
+                        matching: find.byType(Row),
+                      )
+                      .evaluate()) {
+                final flex = row.renderObject;
+                if (flex is! RenderFlex || !flex.hasSize) continue;
+                var width = 0.0;
+                flex.visitChildren((c) => width += (c as RenderBox).size.width);
+                expect(width, lessThanOrEqualTo(flex.size.width + 0.5));
+              }
+              final box = e.renderObject! as RenderBox;
+              final left = box.localToGlobal(Offset.zero).dx;
+              expect(left, greaterThanOrEqualTo(0));
+              expect(left + box.size.width, lessThanOrEqualTo(360.5));
+            }
+            // As designed where they fit: one line, as tall as a button.
+            await _usePhone(tester, (
+              name: '412',
+              size: const Size(412, 915),
+              top: 24,
+              bottom: 24,
+            ), 1);
+            final first = rows.evaluate().first.renderObject! as RenderBox;
+            expect(first.size.height, lessThanOrEqualTo(48));
+            await _close(tester, app);
+          },
+        );
+      }
       testWidgets('Nakhla look $look, $language: every tab reaches its end', (
         tester,
       ) async {

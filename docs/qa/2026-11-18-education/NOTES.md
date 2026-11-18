@@ -68,14 +68,38 @@ Each of these used a fixed 24. The premium My courses grids used a fixed 110 and
 
 **Test.** `phase179-education.test.ts` ("179.4"). It fails for `school_signature_a` without the icon.
 
-### 5. Studio's editor page didn't build (found and fixed on this branch)
+### 5. Rows of buttons run past the screen at text 1.3 (fixed, 179.12; found by the template guard)
+
+**Where.** Three templates' homes, on a 360-point phone at text 1.3:
+- `instructors_signature_b`: each slide's "Meet the teacher" and "The courses", 54 points past the screen.
+- `teachers`: "Meet the teachers" and "Browse courses", 57 points past in English and 46 in Arabic.
+- `university`: its hero's two buttons, 27 points past.
+
+These are the coordinator's guard rows (branch `wip-template-guard`, `docs/qa/2026-11-18-guard/NOTES.md`).
+
+**Cause.** A Studio row is a Flutter `Row`, and two buttons that hug their words can't shrink.
+
+**Fix.** `studioButtonsWrap` in `studio_page.dart`. A row holding only two or more buttons is drawn as a `Wrap`, with the same gap, start, middle or end, and cross alignment. The rule applies only when:
+- no button fills the row;
+- the row doesn't spread its children apart;
+- the row is stretched only when every button has its own height.
+
+On one line it is laid out exactly as the row was. When the buttons don't fit, the last ones go to a second line.
+
+**Test.** `phase179_education_page_end_test.dart`, "its slides' buttons fit at text 1.3". It fails without the fix and passes with it. The guard was run in a scratch worktree (my branch with `wip-template-guard` merged, never pushed, its fixtures regenerated there):
+- Flutter: the 4 failing cases fail on the guard branch alone and pass on mine. Every education template's case passes: 90 tests for school, school_brand, school_news, school_today, school_signature_a/b, demo_school, teachers, teachers_brand, teachers_offers, teachers_photo, instructors_signature_a/b, demo_instructors, university, academy_premium and premium_academy_signature_a/b, plus 2 for courses.
+- Vitest: 9 failures fail the same way on the guard branch alone. They are all outside education: prices on food, delivery and marketplace, and one tap on `brand`. The tenth failure is the guard's own fixtures check. It fails because the education pages now serve the school's news and the academy's teachers: `demo_school`, `demo_instructors`, `instructors_signature_a/b` and `school_signature_a` need writing again with `mobile/tool/template_guard_fixtures.sh` on the guard's branch. I didn't edit the guard's files.
+
+**Still open (179.11).** Rawaq B's "Popular this month" card label: a price beside a title that fills runs 7 points past at text 1.3 with a long price such as "E£1,010.00".
+
+### 6. Studio's editor page didn't build (found and fixed on this branch)
 
 My first version of the inspector note imported the teachers' service into a client component (`node:dns/promises`). `next build` failed on `/studio/editor`. The helpers now have no server code, and the version mark is set in `layout.ts`. The production build passes.
 
 ## Seen, not changed
 
 - **Sign-in default country.** The school's and the academy's sign-in open on +90, although this owner signed up with an Egyptian number. That is 160.8's rule: the owner's choice, otherwise the platform's default, which is +90. Nothing was changed for education.
-- **Nakhla look B's sign-in photo.** On the first run it was grey (`school-b-app-en-light-sign-in.png`). Looks A and B store the same photo (`demo-screens/nakhla-school.jpg`), checked on the saved project. I couldn't reproduce it as a bug; it looks like the photo loading after the 10-second wait. Check on a phone (179.9).
+- **Nakhla look B's sign-in without its photo** (`school-b-app-en-light-sign-in.png`). Not a bug. Look B's system screens are its "large" look (`chrome.system: "large"`, `nakhla-signature.ts:484`), which draws the sign-in on the look's own surface. Look A's "photo" look draws it over the school's building. Rawaq A's "brand" look is the same: its green, with no photo.
 - **Rawaq's faculty taps.** A tap on an entry opens the Teachers list, not that teacher: `Action` can't name a teacher (179.6).
 - **Studio's canvas** still draws the template's ticker and faculty, with the inspector saying what the app shows (179.7).
 - **Course prices** follow 135.5: the shop's price, then "≈" the customer's currency (`Price.label`). The hosted lists convert as 161 does. 161.9 is still open for the course screens beyond their cards.
