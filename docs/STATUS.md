@@ -39,6 +39,13 @@ Manager, not CocoaPods, and is unchanged; mobile CI's debug APKs keep their
 own Gradle cache. Signing, uploads and AUTO_PUBLISH are unchanged. Not yet
 run on the runners (ROADMAP 185.5).
 
+Roadmap 192 (client Android release builds past Stripe's private
+dependency): a client's release build stopped in lint's vital pass, which
+asked for Google's play-services-tapandpay (flutter_stripe's push
+provisioning brings it; it is on no public repository). Release builds skip
+lint and that artifact is left out of the libraries' lint checks; CI now
+builds a release APK as client builds do.
+
 Roadmap 189 (the hero's slides, plain to find in Studio): with a slider,
 one of its slides or anything on one selected, the right side lists its
 slides as the layers do, the open one with its icon, words and button, each
