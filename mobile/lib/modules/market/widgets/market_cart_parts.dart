@@ -117,7 +117,7 @@ class MarketIfMissingCard extends StatelessWidget {
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 160),
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
+                            horizontal: 4,
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
@@ -128,18 +128,18 @@ class MarketIfMissingCard extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               AppIcon(
+                                size: 16,
                                 marketMissingIcon(v),
-                                size: 18,
                                 color: v == value ? p.text : p.textSecondary,
                               ),
-                              const SizedBox(width: 5),
+                              const SizedBox(width: 4),
                               Flexible(
                                 child: Text(
                                   marketMissingText(l10n, v),
                                   maxLines: 2,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 12.5,
                                     height: 1.15,
                                     fontWeight: FontWeight.w700,
                                     color: v == value
@@ -200,104 +200,124 @@ class MarketCartRow extends ConsumerWidget {
     final name = line.note == null || line.note!.isEmpty
         ? item.name
         : '${item.name}$comma${line.note}';
-    return Row(
+    final chip = _ChoiceChip(
+      itemId: item.id,
+      choice: choice,
+      substitute: line.substitute,
+      onPick: (v) async {
+        if (v != api.MarketIfMissing.chosen) return onChoice(v, null);
+        final picked = await chooseMarketSubstitute(context, line.item);
+        if (picked != null) onChoice(v, picked);
+      },
+    );
+    return Column(
       key: ValueKey('market-cart-line-${item.id}'),
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(18),
-          child: AppNetworkImage(
-            url: item.imageUrl,
-            seed: item.id.hashCode,
-            width: 58,
-            height: 58,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: TextStyle(
-                  fontSize: 15.5,
-                  fontWeight: FontWeight.w700,
-                  color: p.text,
-                ),
-              ),
-              const SizedBox(height: 2),
-              if (item.byWeight)
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      WidgetSpan(
-                        alignment: PlaceholderAlignment.middle,
-                        child: AppIcon(
-                          Symbols.scale_rounded,
-                          size: 15,
-                          color: p.primary,
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' ${l10n.marketByWeight}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: p.primary,
-                        ),
-                      ),
-                      TextSpan(
-                        text:
-                            ' · ${ltrRun(item.price)}${marketPerUnit(l10n, item.unit).replaceAll(' ', '')}',
-                      ),
-                    ],
-                  ),
-                  style: TextStyle(fontSize: 13, color: p.textSecondary),
-                )
-              else
-                Text(
-                  item.description ?? l10n.marketEachPrice(ltrRun(item.price)),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 13, color: p.textSecondary),
-                ),
-              const SizedBox(height: 8),
-              _ChoiceChip(
-                itemId: item.id,
-                choice: choice,
-                substitute: line.substitute,
-                onPick: (v) async {
-                  if (v != api.MarketIfMissing.chosen) return onChoice(v, null);
-                  final picked = await chooseMarketSubstitute(
-                    context,
-                    line.item,
-                  );
-                  if (picked != null) onChoice(v, picked);
-                },
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              item.byWeight ? '≈ $estimate' : estimate,
-              style: TextStyle(
-                fontSize: 15.5,
-                fontWeight: FontWeight.w800,
-                color: p.text,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: AppNetworkImage(
+                url: item.imageUrl,
+                seed: item.id.hashCode,
+                width: 58,
+                height: 58,
               ),
             ),
-            const SizedBox(height: 8),
-            _OutlinedStepper(
-              itemId: item.id,
-              amount: marketAmountText(l10n, item.unit, line.quantity),
-              onAdd: onAdd,
-              onRemove: onRemove,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.w700,
+                      color: p.text,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  if (item.byWeight)
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            child: AppIcon(
+                              Symbols.scale_rounded,
+                              size: 15,
+                              color: p.primary,
+                            ),
+                          ),
+                          TextSpan(
+                            text: ' ${l10n.marketByWeight}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: p.primary,
+                            ),
+                          ),
+                          TextSpan(
+                            text:
+                                ' · ${ltrRun(item.price)}${marketPerUnit(l10n, item.unit).replaceAll(' ', '')}',
+                          ),
+                        ],
+                      ),
+                      style: TextStyle(fontSize: 13, color: p.textSecondary),
+                    )
+                  else
+                    Text(
+                      item.description ??
+                          l10n.marketEachPrice(ltrRun(item.price)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13, color: p.textSecondary),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            // At most two fifths of the line, the bigger words made to fit.
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.sizeOf(context).width * 0.4,
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.topEnd,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      item.byWeight ? '≈ $estimate' : estimate,
+                      style: TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w800,
+                        color: p.text,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _OutlinedStepper(
+                      itemId: item.id,
+                      amount: marketAmountText(l10n, item.unit, line.quantity),
+                      onAdd: onAdd,
+                      onRemove: onRemove,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
+        ),
+        // The line's own choice, under its name.
+        Padding(
+          padding: const EdgeInsetsDirectional.only(start: 70, top: 6),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: chip,
+          ),
         ),
       ],
     );
@@ -406,11 +426,11 @@ class _OutlinedStepper extends StatelessWidget {
     Widget tap(IconData icon, VoidCallback onTap, String key) => InkResponse(
       key: ValueKey(key),
       onTap: onTap,
-      radius: 18,
+      radius: 16,
       child: SizedBox(
-        width: 34,
-        height: 38,
-        child: AppIcon(icon, size: 20, color: p.primary),
+        width: 30,
+        height: 36,
+        child: AppIcon(icon, size: 18, color: p.primary),
       ),
     );
     return Container(
@@ -423,7 +443,7 @@ class _OutlinedStepper extends StatelessWidget {
         children: [
           tap(Symbols.remove_rounded, onRemove, 'market-cart-minus-$itemId'),
           ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 34),
+            constraints: const BoxConstraints(minWidth: 30),
             child: Text(
               amount,
               textAlign: TextAlign.center,
@@ -570,7 +590,9 @@ class MarketEstimateCard extends StatelessWidget {
     required this.card,
   });
 
-  final api.MarketQuote quote;
+  /// The server's prices; until there are any (no address yet), the
+  /// basket's own estimate.
+  final api.MarketQuote? quote;
   final MarketBasket basket;
   final double tolerancePercent;
 
@@ -581,7 +603,7 @@ class MarketEstimateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final l10n = context.l10n;
-    final total = double.tryParse(quote.total.amount) ?? basket.estimate;
+    final total = double.tryParse(quote?.total.amount ?? '') ?? basket.estimate;
     final most = marketAmount(
       total + basket.weighedEstimate * tolerancePercent / 100,
       basket.currency,
@@ -625,7 +647,8 @@ class MarketEstimateCard extends StatelessWidget {
                 ),
               ),
               Text(
-                quote.total.formatted,
+                quote?.total.formatted ??
+                    marketAmount(total, basket.currency, basket.decimals),
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w800,

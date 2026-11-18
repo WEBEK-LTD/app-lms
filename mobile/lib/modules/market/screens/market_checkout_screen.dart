@@ -461,10 +461,17 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
                           ),
                         ),
                       ),
-                      TextButton.icon(
-                        onPressed: _locate,
-                        icon: const Icon(Symbols.my_location, size: 18),
-                        label: Text(l10n.marketUseMyLocation),
+                      // 115.40 Bigger words shrink the button, not past the card.
+                      Flexible(
+                        child: TextButton.icon(
+                          onPressed: _locate,
+                          icon: const Icon(Symbols.my_location, size: 18),
+                          label: Text(
+                            l10n.marketUseMyLocation,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -606,7 +613,7 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
                 : _QuoteLines(quote: quote, error: _quoteError),
           ),
           // 115.40 Weighed items: the estimate, and what each way to pay means.
-          if (shop && basket.hasWeighed && quote != null) ...[
+          if (shop && basket.hasWeighed) ...[
             const SizedBox(height: 12),
             MarketEstimateCard(
               quote: quote,

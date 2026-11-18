@@ -17,13 +17,18 @@ import 'market_look.dart';
 /// "750 g", "1 kg", "1.5 kg", "2 L", or "3" for items: an amount of [unit].
 /// Kilos under one are written in grams, as a scale reads them.
 String marketAmountText(AppLocalizations l10n, MarketUnit unit, double q) {
-  String n(double v) => ltrRun(
-    v % 1 == 0
-        ? v.toStringAsFixed(0)
-        : v
-              .toStringAsFixed(v * 10 % 1 == 0 ? 1 : 2)
-              .replaceFirst(RegExp(r'0$'), ''),
-  );
+  // 0.78 kg is 780 g, not 780.0000000000001.
+  String n(double raw) {
+    final v = double.parse(raw.toStringAsFixed(3));
+    return ltrRun(
+      v % 1 == 0
+          ? v.toStringAsFixed(0)
+          : v
+                .toStringAsFixed(v * 10 % 1 == 0 ? 1 : 2)
+                .replaceFirst(RegExp(r'0$'), ''),
+    );
+  }
+
   return switch (unit) {
     MarketUnit.piece => n(q),
     MarketUnit.g => l10n.marketAmountG(n(q)),
@@ -634,4 +639,109 @@ class MarketGlassButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 115.40 A sheet with one field (a barcode, a note), answered with its
+/// words; the field's controller lives and goes with the sheet.
+Future<String?> askMarketText(
+  BuildContext context, {
+  String? initial,
+  String? label,
+  String? hint,
+  String? button,
+  Key? fieldKey,
+  Key? buttonKey,
+  TextInputType? keyboard,
+  int? maxLength,
+  Widget? icon,
+}) => showModalBottomSheet<String>(
+  context: context,
+  isScrollControlled: true,
+  showDragHandle: true,
+  builder: (context) => _TextSheet(
+    initial: initial,
+    label: label,
+    hint: hint,
+    button: button,
+    fieldKey: fieldKey,
+    buttonKey: buttonKey,
+    keyboard: keyboard,
+    maxLength: maxLength,
+    icon: icon,
+  ),
+);
+
+class _TextSheet extends StatefulWidget {
+  const _TextSheet({
+    this.initial,
+    this.label,
+    this.hint,
+    this.button,
+    this.fieldKey,
+    this.buttonKey,
+    this.keyboard,
+    this.maxLength,
+    this.icon,
+  });
+
+  final String? initial;
+  final String? label;
+  final String? hint;
+  final String? button;
+  final Key? fieldKey;
+  final Key? buttonKey;
+  final TextInputType? keyboard;
+  final int? maxLength;
+  final Widget? icon;
+
+  @override
+  State<_TextSheet> createState() => _TextSheetState();
+}
+
+class _TextSheetState extends State<_TextSheet> {
+  late final _field = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _field.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.fromLTRB(
+      16,
+      0,
+      16,
+      16 + MediaQuery.viewInsetsOf(context).bottom,
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          key: widget.fieldKey,
+          controller: _field,
+          autofocus: true,
+          keyboardType: widget.keyboard,
+          maxLength: widget.maxLength,
+          textInputAction: TextInputAction.done,
+          decoration: InputDecoration(
+            labelText: widget.label,
+            hintText: widget.hint,
+            prefixIcon: widget.icon,
+          ),
+          onSubmitted: (v) => Navigator.pop(context, v.trim()),
+        ),
+        if (widget.button != null) ...[
+          const SizedBox(height: 12),
+          FilledButton(
+            key: widget.buttonKey,
+            onPressed: () => Navigator.pop(context, _field.text.trim()),
+            child: Text(widget.button!),
+          ),
+        ],
+      ],
+    ),
+  );
 }

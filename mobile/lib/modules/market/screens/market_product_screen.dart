@@ -607,14 +607,16 @@ class _PriceTiles extends StatelessWidget {
             children: [
               Text(
                 label,
+                maxLines: 2,
                 style: TextStyle(
-                  fontSize: 13.5,
+                  fontSize: 13,
                   color: strong
                       ? Colors.white.withValues(alpha: 0.85)
                       : p.textSecondary,
                 ),
               ),
               const SizedBox(height: 2),
+              const Spacer(),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: AlignmentDirectional.centerStart,
@@ -785,30 +787,13 @@ class _PickerNote extends StatelessWidget {
     );
   }
 
-  Future<String?> _askNote(BuildContext context, String? current) {
-    final l10n = context.l10n;
-    final field = TextEditingController(text: current);
-    return showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          16,
-          0,
-          16,
-          16 + MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: TextField(
-          controller: field,
-          autofocus: true,
-          maxLength: 200,
-          decoration: InputDecoration(hintText: l10n.marketPickerNoteHint),
-          onSubmitted: (v) => Navigator.pop(context, v.trim()),
-        ),
-      ),
-    ).whenComplete(field.dispose);
-  }
+  Future<String?> _askNote(BuildContext context, String? current) =>
+      askMarketText(
+        context,
+        initial: current,
+        hint: context.l10n.marketPickerNoteHint,
+        maxLength: 200,
+      );
 }
 
 class _UnitStepper extends StatelessWidget {

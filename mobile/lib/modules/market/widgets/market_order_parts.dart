@@ -26,6 +26,9 @@ import 'market_store_widgets.dart';
 
 double _amount(api.MarketMoney m) => double.tryParse(m.amount) ?? 0;
 
+/// The clock a proposal's countdown reads; tests set their own.
+DateTime Function() marketClock = DateTime.now;
+
 MarketUnit _unit(api.ProductUnit u) => switch (u) {
   api.ProductUnit.item => MarketUnit.piece,
   api.ProductUnit.kg => MarketUnit.kg,
@@ -67,26 +70,30 @@ class MarketPickedRing extends StatelessWidget {
             backgroundColor: Colors.white.withValues(alpha: 0.18),
             strokeCap: StrokeCap.round,
           ),
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  ltrRun('$done/$total'),
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: p.onPrimary,
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    ltrRun('$done/$total'),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: p.onPrimary,
+                    ),
                   ),
-                ),
-                Text(
-                  l10n.marketPickedCount,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: p.onPrimary.withValues(alpha: 0.85),
+                  Text(
+                    l10n.marketPickedCount,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: p.onPrimary.withValues(alpha: 0.85),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -117,16 +124,13 @@ class _MarketProposalCardState extends ConsumerState<MarketProposalCard> {
   Timer? _tick;
   bool _sending = false;
 
-  /// The clock the countdown reads; tests set it.
-  static DateTime Function() now = DateTime.now;
-
   @override
   void initState() {
     super.initState();
     _tick = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
       setState(() {});
-      if (!widget.line.proposal!.waiting(now())) {
+      if (!widget.line.proposal!.waiting(marketClock())) {
         _tick?.cancel();
         widget.onAnswered(null);
       }
@@ -168,7 +172,7 @@ class _MarketProposalCardState extends ConsumerState<MarketProposalCard> {
     final l10n = context.l10n;
     final line = widget.line;
     final proposal = line.proposal!;
-    final left = proposal.expiresAt.difference(now());
+    final left = proposal.expiresAt.difference(marketClock());
     final seconds = left.isNegative ? 0 : left.inSeconds;
     final clock = ltrRun(
       '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}',
@@ -430,9 +434,12 @@ class _MarketProposalCardState extends ConsumerState<MarketProposalCard> {
 /// A line of a shop's order as picked: weighed, swapped, left out, or
 /// waiting.
 class MarketPickedRow extends StatelessWidget {
-  const MarketPickedRow({super.key, required this.line});
+  const MarketPickedRow({super.key, required this.line, this.picking = true});
 
   final api.MarketOrderLine line;
+
+  /// The order is still being picked: a line without an outcome waits.
+  final bool picking;
 
   @override
   Widget build(BuildContext context) {
@@ -460,7 +467,13 @@ class MarketPickedRow extends StatelessWidget {
             : l10n.marketChoiceFor(line.name),
       ),
       'missing' => (line.name, l10n.marketLeftOut),
-      _ => ('${line.name}$asked', l10n.marketWaitingPick),
+      _ when picking => ('${line.name}$asked', l10n.marketWaitingPick),
+      _ => (
+        '${line.name}$asked',
+        line.byWeight
+            ? '${marketAmountText(l10n, unit, line.quantity)} · ${ltrRun(line.total.formatted)}'
+            : ltrRun(line.total.formatted),
+      ),
     };
     final done = line.outcome == 'picked' || line.outcome == 'substituted';
     return Padding(
@@ -508,12 +521,18 @@ class MarketPickedRow extends StatelessWidget {
                   ? p.surfaceMuted
                   : Colors.transparent,
               shape: BoxShape.circle,
-              border: line.outcome == null
+              border: line.outcome == null && picking
                   ? Border.all(color: p.border, width: 1.5)
                   : null,
             ),
             child: line.outcome == null
-                ? null
+                ? (picking
+                      ? null
+                      : AppIcon(
+                          Symbols.check_rounded,
+                          size: 20,
+                          color: p.success,
+                        ))
                 : AppIcon(
                     done ? Symbols.check_rounded : Symbols.remove_rounded,
                     size: 20,
@@ -567,11 +586,14 @@ class MarketWeighedCard extends ConsumerWidget {
       0,
       (s, l) => s + marketLineEstimate(l) * (100 + tolerance) / 100,
     );
+    // Weighed lines first, then the swaps and what was left out.
     final changes = [
-      for (final l in order.lines)
-        if (l.outcome != null &&
-            (marketLineFinal(l) - marketLineEstimate(l)).abs() >= 0.005)
-          (l, marketLineFinal(l) - marketLineEstimate(l)),
+      for (final weighedFirst in [true, false])
+        for (final l in order.lines)
+          if (l.outcome != null &&
+              (l.outcome == 'picked') == weighedFirst &&
+              (marketLineFinal(l) - marketLineEstimate(l)).abs() >= 0.005)
+            (l, marketLineFinal(l) - marketLineEstimate(l)),
     ];
     final card = order.payMethod != api.MarketPayMethod.cash;
     final less = told - total;

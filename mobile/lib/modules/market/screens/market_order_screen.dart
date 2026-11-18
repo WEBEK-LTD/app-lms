@@ -124,7 +124,7 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
               // 115.40 The picker's proposed items, to answer in time.
               for (final line in o.lines)
                 if (line.proposal case final proposal?
-                    when proposal.waiting(DateTime.now()) &&
+                    when proposal.waiting(marketClock()) &&
                         line.outcome == null) ...[
                   MarketProposalCard(
                     order: o,
@@ -134,13 +134,13 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                   ),
                   const SizedBox(height: 12),
                 ],
+              if (!o.finished) ...[
+                _Tracking(order: o),
+                const SizedBox(height: 12),
+              ],
               // 115.40 The weighed final price against the estimate.
               if (MarketWeighedCard.shows(o)) ...[
                 MarketWeighedCard(order: o),
-                const SizedBox(height: 12),
-              ],
-              if (!o.finished) ...[
-                _Tracking(order: o),
                 const SizedBox(height: 12),
               ],
               _Stages(order: o),
@@ -160,7 +160,13 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                     const SizedBox(height: 8),
                     // 115.40 A shop's lines as picked.
                     if (o.vendor.kind != api.VendorKind.restaurant)
-                      for (final line in o.lines) MarketPickedRow(line: line)
+                      for (final line in o.lines)
+                        MarketPickedRow(
+                          line: line,
+                          picking:
+                              o.status == api.MarketOrderStatus.picking ||
+                              o.status == api.MarketOrderStatus.accepted,
+                        )
                     else
                       for (final line in o.lines)
                         Padding(

@@ -13,6 +13,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../data/market_models.dart';
 import '../data/market_store.dart';
+import '../widgets/market_store_widgets.dart';
 
 /// 115.40 Whether the scanner opens the camera: on phones (not the web,
 /// desktops or tests, where the code is typed instead).
@@ -101,45 +102,15 @@ class _MarketScannerScreenState extends ConsumerState<MarketScannerScreen> {
 
   Future<void> _type() async {
     final l10n = context.l10n;
-    final typed = TextEditingController();
-    final code = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          16,
-          0,
-          16,
-          16 + MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              key: const ValueKey('market-barcode-field'),
-              controller: typed,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                labelText: l10n.marketBarcodeHint,
-                prefixIcon: const AppIcon(Symbols.barcode_rounded),
-              ),
-              onSubmitted: (v) => Navigator.pop(context, v),
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              key: const ValueKey('market-barcode-find'),
-              onPressed: () => Navigator.pop(context, typed.text),
-              child: Text(l10n.marketFind),
-            ),
-          ],
-        ),
-      ),
+    final code = await askMarketText(
+      context,
+      label: l10n.marketBarcodeHint,
+      button: l10n.marketFind,
+      fieldKey: const ValueKey('market-barcode-field'),
+      buttonKey: const ValueKey('market-barcode-find'),
+      keyboard: TextInputType.number,
+      icon: const AppIcon(Symbols.barcode_rounded),
     );
-    typed.dispose();
     if (code != null && mounted) _found(code);
   }
 

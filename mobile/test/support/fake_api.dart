@@ -2181,12 +2181,15 @@ class FakeApi implements YallappApi {
   final marketOrders = <int, Map<String, dynamic>>{};
   String? marketPayUrl;
 
+  /// 115.40 The quote to answer with; the default one when null.
+  Map<String, dynamic>? marketQuote;
+
   @override
   Future<MarketQuote> quoteMarketOrder(MarketCartInput cart) {
     marketQuotes.add(cart);
     return _answer(
       'quoteMarketOrder',
-      () => MarketQuote.fromJson(marketQuoteJson()),
+      () => MarketQuote.fromJson(marketQuote ?? marketQuoteJson()),
     );
   }
 

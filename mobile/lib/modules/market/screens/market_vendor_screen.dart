@@ -321,12 +321,15 @@ class _Info extends StatelessWidget {
         children: [
           AppIcon(icon, size: 16, color: color ?? p.primary),
           const SizedBox(width: 5),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w700,
-              color: color ?? p.text,
+          // 115.40 Bigger words wrap inside the chip, never past the screen.
+          Flexible(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: color ?? p.text,
+              ),
             ),
           ),
         ],
@@ -1238,7 +1241,7 @@ class _StoreHome extends ConsumerWidget {
         if (page.offers.isNotEmpty) ...[
           const SizedBox(height: 14),
           SizedBox(
-            height: 176,
+            height: MediaQuery.textScalerOf(context).scale(76) + 64,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1251,7 +1254,32 @@ class _StoreHome extends ConsumerWidget {
         ],
         if (departments.isNotEmpty) ...[
           const SizedBox(height: 18),
-          MarketSectionHead(title: l10n.marketDepartments),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 8, 6),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.marketDepartments,
+                    style: TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                      color: context.palette.text,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  key: const ValueKey('market-departments-all'),
+                  onPressed: () => _allDepartments(context, page),
+                  child: Text(
+                    l10n.marketSeeAllCount(departments.length),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+          ),
           SizedBox(
             height: MediaQuery.textScalerOf(context).scale(24) + 120,
             child: ListView.separated(
@@ -1342,7 +1370,7 @@ class _StoreOffer extends StatelessWidget {
     final ink = first ? Colors.white : p.text;
     final label = first ? p.accent : marketDeeper(p.accent, 0.35);
     return Container(
-      width: 290,
+      width: 250,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: first ? deep : marketTint(p, p.accent, 0.16),
@@ -1352,7 +1380,7 @@ class _StoreOffer extends StatelessWidget {
         children: [
           Expanded(
             child: Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(18, 16, 8, 14),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 6, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1370,10 +1398,10 @@ class _StoreOffer extends StatelessWidget {
                   Expanded(
                     child: Text(
                       percentText(offer.title),
-                      maxLines: 3,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 19,
                         height: 1.1,
                         fontWeight: FontWeight.w800,
                         color: first ? p.accent : label,
@@ -1383,7 +1411,7 @@ class _StoreOffer extends StatelessWidget {
                   if (offer.text.isNotEmpty)
                     Text(
                       offer.text,
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 13.5,
@@ -1419,12 +1447,12 @@ class _StoreOffer extends StatelessWidget {
           ),
           if (offer.imageUrl.isNotEmpty)
             Padding(
-              padding: const EdgeInsetsDirectional.only(end: 14),
+              padding: const EdgeInsetsDirectional.only(end: 12, top: 12),
               child: MarketArch(
                 url: offer.imageUrl,
                 seed: offer.id.hashCode,
-                width: 104,
-                height: 146,
+                width: 82,
+                height: 104,
               ),
             ),
         ],
@@ -1529,3 +1557,52 @@ class _BuyAgainCard extends StatelessWidget {
     );
   }
 }
+
+/// 115.40 Every department of the store, to open one.
+Future<void> _allDepartments(BuildContext context, MarketVendorPage page) =>
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheet) => SafeArea(
+        child: GridView.count(
+          shrinkWrap: true,
+          crossAxisCount: 3,
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 0.72,
+          children: [
+            for (final d in page.shelves)
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(sheet);
+                  context.push(Paths.marketDepartment(page.vendor.id, d.id));
+                },
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: MarketArch(
+                        url: d.imageUrl,
+                        seed: d.id.hashCode,
+                        width: 96,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      d.name,
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: sheet.palette.text,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );

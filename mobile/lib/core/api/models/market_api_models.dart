@@ -147,7 +147,7 @@ class MarketConfig {
     this.daysAhead = 0,
     this.club = false,
     this.wallet = false,
-    this.weightTolerancePercent = 0,
+    this.weightTolerancePercent = 10,
     this.vendorAppBundled = false,
     this.courierApp = CourierApp.same,
     this.tilesUrl,
@@ -183,7 +183,8 @@ class MarketConfig {
       daysAhead: scheduling == null ? 0 : intOr(scheduling, 'days_ahead', 0),
       club: boolOr(json, 'club', false),
       wallet: boolOr(json, 'wallet', false),
-      weightTolerancePercent: intOr(json, 'weight_tolerance_percent', 0),
+      // 115.40 The server's own default (lib/market/settings.ts) when missing.
+      weightTolerancePercent: intOr(json, 'weight_tolerance_percent', 10),
       vendorAppBundled: json['vendor_app'] == 'bundle',
       courierApp: enumFromSnake(
         CourierApp.values,

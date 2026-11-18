@@ -616,9 +616,14 @@ class _ShownMeter extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(28, 18, 28, 8),
       child: Row(
         children: [
-          Text(
-            l10n.marketShownOf(shown, total),
-            style: TextStyle(fontSize: 13.5, color: p.textSecondary),
+          Flexible(
+            flex: 2,
+            child: Text(
+              l10n.marketShownOf(shown, total),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 13.5, color: p.textSecondary),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -637,12 +642,17 @@ class _ShownMeter extends StatelessWidget {
             if (error)
               TextButton(onPressed: onRetry, child: Text(l10n.tryAgain))
             else
-              Text(
-                l10n.marketLoadingMore,
-                style: TextStyle(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w700,
-                  color: p.primary,
+              Flexible(
+                flex: 2,
+                child: Text(
+                  l10n.marketLoadingMore,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: p.primary,
+                  ),
                 ),
               ),
           ],
