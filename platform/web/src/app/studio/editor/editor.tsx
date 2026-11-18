@@ -46,7 +46,7 @@ import { PublishHistory } from "./publish-history";
 import { TextStylesPanel } from "./text-styles-panel";
 import { download, fileName, fromBase64, readFont, readPicture, type OwnFontFiles } from "./design-io";
 import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
-import { Inspector, type InspectorTab } from "./inspector";
+import { Inspector, STORIES_HREF, type InspectorTab } from "./inspector";
 import { LeftPanel, NewTag, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
 import { HistoryPanel } from "./history-panel";
 import { ByHandDialog } from "./by-hand-dialog";
@@ -1209,6 +1209,14 @@ export function StudioEditor(props: StudioEditorProps) {
     // 159 A corner of an element of automatic size asks first; a double click puts it back to automatic.
     onAskByHand: (id) => setAskHand({ id, change: null }),
     onAutoSize: (id) => toAutomatic(id),
+    // 189 The slider's own buttons on the canvas.
+    slides: {
+      previous: t("stories.slidePrevious"),
+      next: t("stories.slideNext"),
+      of: t("stories.slideOf", { n: "{n}", count: "{count}" }),
+      editStories: t("stories.slidesCanvasButton"),
+      storiesHref: STORIES_HREF,
+    },
   };
 
   /** 159 The owner said to change its size by hand: from its automatic size (kept for later), with the change asked for. */

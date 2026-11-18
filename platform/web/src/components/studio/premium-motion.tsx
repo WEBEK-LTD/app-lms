@@ -33,22 +33,22 @@ export function edge(look: StudioNode["indicator_look"]): CSSProperties {
 }
 
 /** 129.1 "1/3" or "01/03" beside the indicator, at its end, the open slide first. */
-export function SliderCount({ count, look }: { count: number; look: StudioNode["indicator_look"] }) {
+export function SliderCount({ count, look, at: open = 0 }: { count: number; look: StudioNode["indicator_look"]; at?: number }) {
   const pad = (n: number) => (look?.count === "padded" ? String(n).padStart(2, "0") : String(n));
   const at = look?.at === "top" ? { top: (look.inset ?? 12) + 18 } : { bottom: (look?.inset ?? 12) + 18 };
   return (
     <span data-studio-slide-count="" dir="ltr" style={{ position: "absolute", insetInlineEnd: 16, ...at, color: look?.color ?? "#FFFFFF", fontSize: 12, fontWeight: 700, letterSpacing: 1, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
-      {pad(1)}/{pad(count)}
+      {pad(open + 1)}/{pad(count)}
     </span>
   );
 }
 
 /** 129.1 Where a slider is: its dots in a frosted pill over its slides' foot (or top), the first one open. */
-export function SliderPill({ count, look }: { count: number; look?: StudioNode["indicator_look"] }) {
+export function SliderPill({ count, look, at = 0 }: { count: number; look?: StudioNode["indicator_look"]; at?: number }) {
   return (
     <span data-studio-indicator="pill" aria-hidden="true" style={{ position: "absolute", ...edge(look), left: "50%", transform: "translateX(-50%)", display: "flex", gap: 5, padding: "7px 10px", borderRadius: 999, background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
       {Array.from({ length: count }, (_, i) => (
-        <span key={i} style={{ width: i === 0 ? 18 : 6, height: 6, borderRadius: 3, background: i === 0 ? (look?.color ?? "#FFFFFF") : "rgba(255,255,255,0.55)" }} />
+        <span key={i} style={{ width: i === at ? 18 : 6, height: 6, borderRadius: 3, background: i === at ? (look?.color ?? "#FFFFFF") : "rgba(255,255,255,0.55)" }} />
       ))}
     </span>
   );

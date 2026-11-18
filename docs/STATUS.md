@@ -35,6 +35,14 @@ refuses a full or closed time. Nothing is released from this branch, and
 `mobile/` is unchanged. Yallapp Business is not released from this
 branch.
 
+Roadmap 189 (the hero's slides, plain to find in Studio): a click anywhere on
+a slide of the app's stories (Kech Flora's and Leqaa's home hero) says at
+the top of the inspector that it is one of the app's stories, with "Edit the
+slides", which opens Stories, where each slide's picture, words and button
+are changed. On the canvas every slider has arrows to the slide before and
+after, "Slide 2 of 5", and for stories "Edit the slides in Stories". Studio's
+editor only: no app build.
+
 Roadmap 187 (no paid plan, no app and no publishing request): an app
 without a paid plan running now (never paid, or its plan ended) can't
 download its files (APK, AAB, IPA, store files; the Android upload key stays

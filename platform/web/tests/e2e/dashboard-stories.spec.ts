@@ -203,3 +203,27 @@ test("Studio draws the dashboard's stories, and says where they come from", asyn
   await inspector.getByLabel("Stories from").selectOption("dashboard");
   await expect(phone.getByText("Peonies are here").first()).toBeVisible();
 });
+
+test("189 the hero's slides are plain to find: a click on a slide says it's a story, with the way to Stories, and the arrows go through them", async () => {
+  await own.goto("/studio/editor");
+  const phone = own.getByRole("main", { name: "The page in the phone" });
+  const inspector = own.getByRole("complementary", { name: "Design" });
+  // A click on a slide's words on the canvas (not the slider in the layers): the inspector says it's one of the app's stories.
+  await phone.getByText("Peonies are here").first().click();
+  const note = inspector.locator("[data-studio-story-slides]");
+  await expect(note).toContainText(/Slide \d+ of \d+ is one of your app's stories/);
+  await expect(note).toContainText("Change each slide's picture, words and button in Stories");
+  await expect(note.getByRole("link", { name: "Edit the slides" })).toHaveAttribute("href", "/studio/project/stories");
+  // On the canvas too: the way to Stories, which slide this is, and the next one.
+  await expect(phone.locator("[data-studio-edit-stories]").first()).toHaveAttribute("href", "/studio/project/stories");
+  const of = phone.locator("[data-studio-slide-of]").first();
+  await expect(of).toHaveText(/^Slide \d+ of \d+$/);
+  const before = (await of.textContent())!;
+  await phone.getByRole("button", { name: "Next slide" }).first().click();
+  await expect(of).not.toHaveText(before);
+  await expect(of).toHaveText(/^Slide \d+ of \d+$/);
+  // The slider itself selected: all its slides are stories.
+  await expect(note).toContainText(/Slide \d+ of \d+ is one of your app's stories/);
+  await own.locator("[data-studio-layer]").filter({ hasText: "Every occasion" }).first().click();
+  await expect(note).toContainText(/These \d+ slides are your app's stories/);
+});
