@@ -12,7 +12,7 @@ import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { requireClient } from "@/lib/auth/session";
 import { centsToDecimal, formatCents } from "@/lib/catalog/money";
-import { catalogSettings } from "@/lib/catalog/settings";
+import { catalogSettings, paymentsSetUp } from "@/lib/catalog/settings";
 import { getStore } from "@/lib/data";
 import type { App, CatalogCoupon, StoreFlashSale } from "@/lib/data/types";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -502,6 +502,13 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
       {platform ? (
         <KitCallout tone="warn" icon="warning">
           {t("selling.srcPlatform", { platform })} {platformCarriesDetails(app) ? t("selling.srcCarries", { platform }) : t("selling.srcRecords", { platform })}
+        </KitCallout>
+      ) : null}
+
+      {/* 176.11 A shop kept here with no way to be paid in the app yet: its customers see the menu but can't order. */}
+      {source.kind === "catalog" && !paymentsSetUp(app) ? (
+        <KitCallout tone="warn" icon="payments">
+          {richText(t("selling.cantOrderYet"), { link: (chunk) => <Link href="/dashboard/payments">{chunk}</Link> })}
         </KitCallout>
       ) : null}
 

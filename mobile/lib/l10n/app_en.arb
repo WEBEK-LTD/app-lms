@@ -1352,6 +1352,7 @@
   "notAvailableInOptions": "Not available in these options",
   "outOfStock": "Out of stock",
   "notSoldInApp": "This item isn't sold in the app.",
+  "orderingNotOpen": "Ordering in the app isn't open yet.",
   "optionsLower": "options",
   "listAnd": " and ",
   "productPhoto": "Product photo",

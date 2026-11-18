@@ -225,3 +225,20 @@ describe("176.6 a café started from the Defne Café demo on /start", () => {
     expect(JSON.stringify(await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, demo, "banner-asset"))).toContain("Pickup in Moda");
   });
 });
+
+describe("176.11 a café that can't be paid in the app yet", () => {
+  it("says so in its config (ordering_open), until cash or its own way to pay is on", async () => {
+    const { client } = await registerClient(store, { name: "Lezzet", email: "cafe-pay@lezzet.test", whatsapp: "+905446731942", siteUrl: "", password: null }, NOW);
+    const made = await makeFromDemo(store, { clientId: client.id, plan: PLAN_INFO.pro, lang: "en" }, { demo: "restaurant", name: "Lezzet", colour: "#B5552A", logoAssetId: null, iconAssetId: null }, NOW);
+    const call = async (app: App, path: string) =>
+      (await handleHosted(contextOf(app), { method: "GET", path: path.split("/").filter(Boolean), query: new URLSearchParams({ platform: "android", app_version: "1.0.0" }), body: undefined, token: null })).body as Record<string, unknown>;
+    let app = (await store.getAppById(made.app.id))!;
+    expect(((await call(app, "/config")).store as { ordering_open: boolean }).ordering_open).toBe(false);
+    expect(((await call(app, "/store/products")).items as { purchasable: boolean }[]).every((p) => !p.purchasable)).toBe(true);
+    // Cash, as the café's own way to pay (Payments).
+    await store.updateApp(app.id, { catalogSettings: { ...app.catalogSettings!, manualPayments: { bankTransfer: null, custom: { name: "Cash at the counter", instructions: "Pay when you pick it up." }, payWithinDays: 1 } } }, NOW);
+    app = (await store.getAppById(app.id))!;
+    expect(((await call(app, "/config")).store as { ordering_open: boolean }).ordering_open).toBe(true);
+    expect(((await call(app, "/store/products")).items as { purchasable: boolean }[]).some((p) => p.purchasable)).toBe(true);
+  });
+});

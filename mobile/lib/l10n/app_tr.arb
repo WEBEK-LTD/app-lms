@@ -534,6 +534,7 @@
   "notAvailableInOptions": "Bu seçeneklerle mevcut değil",
   "outOfStock": "Stokta yok",
   "notSoldInApp": "Bu ürün uygulamada satılmıyor.",
+  "orderingNotOpen": "Uygulamadan sipariş henüz açık değil.",
   "optionsLower": "seçenekleri",
   "listAnd": " ve ",
   "productPhoto": "Ürün fotoğrafı",

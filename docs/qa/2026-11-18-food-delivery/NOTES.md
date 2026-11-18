@@ -81,7 +81,7 @@ A second build with the fixes 176.1–176.4 was walked again; 176.5 and 176.6 ar
 
 ### Noted, not fixed
 
-- **F7:** a hosted café without a card gateway shows "This item isn't sold in the app." on every dish (`61-cafe-dish.png`). By design (`paymentsSetUp`), but the words read as a broken item; the setup checklist is where the owner learns it.
+- **F7 (fixed later, 176.11):** a hosted café without a card gateway or its own way to pay showed "This item isn't sold in the app." on every dish (`61-cafe-dish.png`). Selling still needs a way to be paid (`paymentsSetUp`); the app now says "Ordering in the app isn't open yet." (`StoreConfig.ordering_open`), and Delivery & offers tells the owner what to turn on.
 - **F8:** five tabs on a 360-point phone cut "Restaurants" and "My orders" to "Restaura…" / "My orde…" (`19-sofra-orders-empty.png`): the bar's one-line ellipsis (Phase 110), the same in every app; a design decision.
 - **F9:** `POST /food/quote` answers 503 ("We aren't taking orders in the app yet") but the contract doesn't list it.
 - The store review number is also a restaurant's staff in the preview, so a second "Restaurant" tab shows, by design (the review account).

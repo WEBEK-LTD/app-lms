@@ -532,6 +532,7 @@
 {"key":"notAvailableInOptions","en":"Not available in these options","ar":"غير متاح بهذه الخيارات","tr":"Bu seçeneklerle mevcut değil"},
 {"key":"outOfStock","en":"Out of stock","ar":"نفد من المخزون","tr":"Stokta yok"},
 {"key":"notSoldInApp","en":"This item isn't sold in the app.","ar":"لا يُباع هذا المنتج في التطبيق.","tr":"Bu ürün uygulamada satılmıyor."},
+{"key":"orderingNotOpen","en":"Ordering in the app isn't open yet.","ar":"الطلب من التطبيق غير متاح بعد.","tr":"Uygulamadan sipariş henüz açık değil."},
 {"key":"optionsLower","en":"options","ar":"الخيارات","tr":"seçenekleri"},
 {"key":"listAnd","en":" and ","ar":" و","tr":" ve "},
 {"key":"productPhoto","en":"Product photo","ar":"صورة المنتج","tr":"Ürün fotoğrafı"},

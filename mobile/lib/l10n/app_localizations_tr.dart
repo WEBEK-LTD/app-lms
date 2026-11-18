@@ -2048,6 +2048,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get notSoldInApp => 'Bu ürün uygulamada satılmıyor.';
 
   @override
+  String get orderingNotOpen => 'Uygulamadan sipariş henüz açık değil.';
+
+  @override
   String get optionsLower => 'seçenekleri';
 
   @override

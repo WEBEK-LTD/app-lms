@@ -15149,6 +15149,9 @@ components:
         currency: { type: string, example: TRY }
         guest_checkout: { type: boolean, description: Whether the shop allows checkout without an account. }
         checkout_opens_in: { type: string, enum: [in_app, browser] }
+        ordering_open:
+          type: boolean
+          description: "Roadmap 176.11. False while the shop has no way to be paid in the app yet (no card gateway of its own and no bank transfer or own method): its products aren't `purchasable`, and the app says ordering isn't open yet rather than that the product isn't sold in the app. Missing means the app doesn't know (WordPress shops, older servers)."
         reviews: { type: boolean, description: Whether product reviews are on. }
         checkout_payment:
           type: string

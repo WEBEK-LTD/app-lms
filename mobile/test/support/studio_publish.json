@@ -79,6 +79,7 @@
    "currency": "TRY",
    "guest_checkout": true,
    "checkout_opens_in": "in_app",
+   "ordering_open": false,
    "reviews": false,
    "checkout_mode": "standard",
    "delivery_date": {
