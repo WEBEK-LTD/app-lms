@@ -166,6 +166,8 @@ for (const lang of ["en", "ar"] as const) {
     await admin.getByText(L.wallet, { exact: true }).click();
     await shot(admin, `12-dashboard-complaint-${lang}`);
     await admin.getByRole("button", { name: L.decide }).click();
+    // Decided: the form is gone and the card says what was decided.
+    await expect(admin.getByRole("button", { name: L.decide })).toHaveCount(0);
     await expect(admin.locator("#h-decision").locator("..")).toContainText(L.decided);
 
     // 4. The customer sees it: the decision, the support person's name and the wallet's credit.

@@ -124,6 +124,11 @@ String complaintStatusText(AppLocalizations l10n, ComplaintStatus s) =>
       ComplaintStatus.rejected => l10n.marketComplaintRejected,
     };
 
+/// The brand colour as text and icons on cards: lightened at night so it
+/// reads on dark surfaces (the designs' mint).
+Color _ink(AppPalette p) =>
+    p.isDark ? Color.lerp(p.primary, Colors.white, 0.55)! : p.primary;
+
 /// The app's name, as "`<App name>` support" says it.
 String _appName(WidgetRef ref) => ref.watch(appConfigProvider).site.name;
 
@@ -210,9 +215,13 @@ class _Header extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.trailing,
+    this.avatar,
   });
 
   final Widget leading;
+
+  /// Before the title: support's round mark (06b).
+  final Widget? avatar;
   final String title;
   final Widget? subtitle;
   final Widget? trailing;
@@ -237,6 +246,7 @@ class _Header extends StatelessWidget {
         children: [
           leading,
           const SizedBox(width: 14),
+          if (avatar != null) ...[avatar!, const SizedBox(width: 12)],
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -781,7 +791,7 @@ class _ReasonTile extends StatelessWidget {
                   _reasonIcon(reason),
                   size: 28,
                   fill: selected ? 1 : 0,
-                  color: selected ? p.primary : p.textBody,
+                  color: selected ? _ink(p) : p.textBody,
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -791,7 +801,7 @@ class _ReasonTile extends StatelessWidget {
                     fontSize: 13.5,
                     height: 1.15,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                    color: selected ? p.primary : p.text,
+                    color: selected ? _ink(p) : p.text,
                   ),
                 ),
               ],
@@ -971,14 +981,14 @@ class _AddPhotoTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         onTap: onTap,
         child: CustomPaint(
-          painter: _DashedBorder(color: p.primary, radius: 18),
+          painter: _DashedBorder(color: _ink(p), radius: 18),
           child: SizedBox(
             width: 74,
             height: 74,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Symbols.add_a_photo, size: 24, color: p.primary),
+                Icon(Symbols.add_a_photo, size: 24, color: _ink(p)),
                 const SizedBox(height: 2),
                 Text(
                   label,
@@ -987,7 +997,7 @@ class _AddPhotoTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: p.primary,
+                    color: _ink(p),
                   ),
                 ),
               ],
@@ -1046,7 +1056,7 @@ class _TextArea extends StatelessWidget {
       decoration: BoxDecoration(
         color: p.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: p.primary, width: 1.5),
+        border: Border.all(color: _ink(p), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -1303,6 +1313,7 @@ class _ChatViewState extends ConsumerState<_ChatView> {
             label: l10n.back,
             onPressed: widget.onBack ?? () => Navigator.of(context).maybePop(),
           ),
+          avatar: const _SupportAvatar(),
           title: support,
           subtitle: Text(
             agent == null ? l10n.mcAnsweringNobody : l10n.mcAnswering(agent),
@@ -1490,6 +1501,42 @@ class _ChatViewState extends ConsumerState<_ChatView> {
   }
 }
 
+/// Support's round mark with the dot that says it answers here.
+class _SupportAvatar extends StatelessWidget {
+  const _SupportAvatar();
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return SizedBox(
+      width: 56,
+      height: 56,
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(shape: BoxShape.circle, color: p.primary),
+            alignment: Alignment.center,
+            child: Icon(Symbols.support_agent, size: 30, color: p.accent),
+          ),
+          PositionedDirectional(
+            end: 0,
+            bottom: 2,
+            child: Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: p.success,
+                border: Border.all(color: p.background, width: 2.5),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _TicketCard extends StatelessWidget {
   const _TicketCard({required this.complaint, required this.order});
 
@@ -1651,7 +1698,7 @@ class _Bubble extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w800,
-                  color: p.primary,
+                  color: _ink(p),
                 ),
               ),
               const SizedBox(height: 6),
@@ -1722,7 +1769,7 @@ class _QuickChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: p.primary,
+              color: _ink(p),
             ),
           ),
         ),
