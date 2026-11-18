@@ -216,6 +216,18 @@ hero), and travel, events, donations and listings prices in the customer's
 currency (ROADMAP 180.11–180.13). Needs the next app build (no
 `CLIENT_APP_RELEASE` change here); the hosted API part (bookings words, the
 reply's title) works for apps already in the stores once deployed.
+Then (the coordinator's decisions): Studio's canvas has a Signed in /
+Signed out switch, signed out first; travel, events, homes and campaigns
+show their prices in the customer's currency (the travel API sends each
+price's amount and currency, the contract in both copies); the smaller
+ones fixed; Safra's homes fit text 1.3 (the template guard passes for
+the travel demo and both Signature looks); and a walk of each kind in the
+app found and fixed six more: a gym from the demo without classes until
+the next day, the checkout offering a payment the company can't take,
+Safra's empty cover for a signed-in person without a trip, photo
+headers' titles unreadable, the flights' search and the account's phone
+broken at 1.3, and a one-word section title broken (ROADMAP 180.11–180.23).
+An e2e spec takes Safra from Studio to a booked stay.
 
 Roadmap 156 (what the owner publishes in Studio is what the app shows, in
 every language): a template's translations of its own words stop applying

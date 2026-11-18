@@ -4,23 +4,53 @@ ROADMAP Phase 180. Branch `wip-qa-travel-bookings`, from `origin/main` (app rele
 
 ## What was set up
 
-- **The platform** ran locally the way the e2e suite runs it: `next build`, then `next start` with `playwright.config.ts`'s environment and the memory store.
-- **The app** was the committed web build at `/preview-app/`, at 360×800 with deviceScaleFactor 1, in headless Chromium, driven through Flutter's semantics.
-- **The apps were made the way an owner makes them:**
-  - Safra QA: signed up, activated by the team, started from `/start?for=studio` → Hotels and flights, then given Studio plan 1.
-  - Nile Homes QA: `/start/real-estate` → Start with this app → Create my app.
+### The platform
 
-  The classic demos are at `/start/bookings`, `/start/clinic`, `/start/fitness`, `/start/events`, `/start/real-estate`, `/start/news` and `/start/charity`.
-- **The code was read against the server.** The app's travel, bookings, events, real estate, news and donations modules were checked against the hosted API's connectors. Every finding was checked in the code. Each fix has a test that fails without it.
+It ran locally the way the e2e suite runs it: `next build`, then `next start` with `playwright.config.ts`'s environment and the memory store. `APP_URL` pointed at a small local proxy that served:
 
-## What was not done, and why
+- the app's **own web build from this branch** at `/preview-app/` (`flutter build web`, not committed; the committed preview isn't rebuilt);
+- everything else from the platform.
 
-- **Not walked screen by screen in the running app:** every screen of every kind, in en/ar/tr, light and dark, at text sizes 1.0 and 1.3, with Studio edits published and compared.
-  - The preview app needs the store review number and code to sign in. Its checkout is off by design.
-  - A full walk of the seven kinds was more than this session had time for.
-  - What was walked: Safra's sign-in and home (signed out), Studio's editor on Safra, and a real estate listing in Arabic.
-- **Yallapp Business** (appointments, events, donations, the inbox): not opened.
-- **The dashboard pages for each kind in en/ar/tr:** not opened, except Setup and the Studio editor.
+### The app
+
+It was driven in headless Chromium at 360×800, deviceScaleFactor 1, through Flutter's semantics:
+
+- text at 1.3 by the browser's root font size;
+- a customer signed in with each app's **store review number and code**, set in App sign-in (the preview never sends codes).
+
+### Eight apps, made as an owner makes them
+
+Each owner signed up and the team activated them. Then:
+
+- **Safra QA**: from `/start?for=studio` → Hotels and flights, on Studio plan 1 with Travel ticked in Admin › Plans.
+- **The seven classic kinds**: from their demos' "Make it yours" step: `/start/bookings`, `/start/clinic`, `/start/fitness`, `/start/events`, `/start/real-estate`, `/start/news` and `/start/charity`.
+
+### The walk
+
+Each app was walked with every tab and its end, three ways:
+
+- English by day at 1.0;
+- Arabic by night at 1.3;
+- Turkish by day at 1.3.
+
+The salon, clinic, gym, news and charity demos offer English and Turkish only, so their "Arabic" run is English by night.
+
+### The code
+
+The travel, bookings, events, real estate, news and donations modules were read against the hosted API's connectors. Every fix has a test that fails without it.
+
+### The template guard
+
+The guard (166, branch `wip-template-guard` b5e199b) was run over this branch for the travel templates: its test files were laid over a scratch worktree, and its fixtures were written again from this branch's platform.
+
+## Not done, and why
+
+- **The main flows weren't driven end to end in the app.** That is booking a slot, buying a ticket and donating; only every tab was walked. The preview has no checkout by design.
+  - Travel's main flow (search → stay → price → book → the trip) is covered by the new e2e spec, against the API the app uses.
+  - The other kinds' flows are covered by their existing e2e specs (`bookings-hosted`, `clinic-hosted`, `fitness-hosted`, `events-hosted`, `listings-hosted`, `news-hosted`, `donations-hosted`). Those weren't run in this session, only `travel-hosted` and the new spec.
+- **Yallapp Business** wasn't opened.
+- **The dashboard pages for each kind in ar and tr** weren't opened.
+- **Notifications opening the right place** were checked in the code and in tests (180.4); there's no push in the preview.
 
 ## Bugs
 
@@ -28,32 +58,52 @@ Most serious first.
 
 | # | Where | What a customer saw | Cause | Fix |
 |---|---|---|---|---|
-| 1 | Travel: Stays → hotel → rooms → Reserve | After opening a flight's fares and going back, a room booked from Stays opened "stay + flight", with the old flight in the price and asking for every traveller's name | `tripChoiceProvider` is app-wide. Only the flight searches cleared it; Reserve went to the bundle whenever a flight was held | **180.1** The flight goes with the room only when the trip is underneath (`travelTripBelow`). From the trip's Change, Reserve goes back to that trip instead of stacking a second one |
-| 2 | Real estate and bookings pushes | "Nile Homes replied" and "Your appointment moved" opened Home | Both are sent as `announcement` with `inquiry_id` / `appointment_id`; `pushTargetLocation` only knew `course_id` | **180.4** Opens `/messages/{id}` and `/appointment/{id}`. The reply's title is now in the app's language |
-| 3 | Travel: flights found, Track | Off didn't stop the alert, so prices kept coming. Always showed off. On again made a duplicate | Local `bool`, never read from or written to Price alerts | **180.3** Starts from the matching alert; off deletes it; on again adds none |
-| 4 | Bookings (salon, clinic, gym) in Arabic and Turkish | "Approved", "Pending" on appointments; "Categories", "Services", "Your next appointment", "Our team" on the home | Hosted API wrote fixed English (`BOOKING_STATUS_LABELS`, the connector's titles); the app showed them as they came | **180.5** The hosted API writes them in the request's language (`lib/bookings/words.ts`); the app maps each state to its own words |
-| 5 | Real estate in Arabic ([04](04-real-estate-listing-ar-type-in-english.png)) | "للبيع · Villa · Maadi, Cairo"; the filter chips "Apartment", "Villa" | `PROPERTY_TYPES` labels are English, and the app showed `type_label` | **180.6** `propertyTypeLabel` by key |
-| 6 | Real estate filter and donation amount | Arabic digits never appeared in the price filter. "1.500.000" dropped the filter, "1.500" meant 1.5. Arabic digits gave "Enter an amount" | ASCII-only input filter and parsers | **180.9** `latinDigits`, `parseTypedNumber`, `TypedNumberFormatter` |
-| 7 | Gym: Membership | A plan's price only in the gym's currency | Screen used `price.formatted` and ignored the `display` the server sent | **180.8** |
-| 8 | Travel: a flight's details | "power", "entertainment", "lounge" shown as stored | Only wifi and meal were mapped | **180.7** `flightAmenityName` |
-| 9 | Travel in Arabic | "07:30 → 09:40", "Sun 14 Nov → Thu 18 Nov": the arrow points against the reading way | Hard-coded "→" | **180.10** `route()` |
-| 10 | Travel: hotels found, flights found | The last card under Android's navigation bar | Fixed bottom padding under `SafeArea(bottom: false)` | **180.2** `endRoom` |
-| 11 | Studio's canvas, Safra A home ([01](01-studio-safra-hero-signed-in-and-out.png)) | The owner sees "Where does the next story begin?" over "Your next trip · in 4 days / Bali / 4 nights at Safra Bay Resort" | The canvas ignores `visibility` (signed in / signed out) and draws both. The app draws one ([03](03-safra-home-signed-out-en.png)) | **Not fixed (180.11):** needs a "Signed in / Signed out" switch on the canvas, a design decision |
-| 12 | Travel prices | Hotels, rooms, flights and the trip always in the company's currency | The travel API sends `*_formatted` texts only, no money objects the display converter can read | **Not fixed (180.12):** a contract change for the server and the app |
-| 13 | Event cards, donations, listings | Event lists show the organiser's currency only; donations and homes are never converted | `eventSummaryJson` sends no amount; donations and listings aren't in `DISPLAY_CONNECTORS` | **Not fixed (180.13):** to decide with 12 |
-| 14 | Smaller | A Services list on an empty category says "No services yet" (the chips still lead out). An open real estate conversation doesn't show a reply that arrives. A Studio Categories element on an events page is empty. Travel's server errors are English. A failed seat map says nothing | — | **Not fixed (180.14)** |
+| 1 | Travel: Stays → hotel → Reserve | A flight looked at earlier and left was priced into the room | `tripChoiceProvider` kept it | **180.1** |
+| 2 | Gym from the demo | "No classes this day", all week ([05](05-gym-no-classes-before-180.22.png)) | The timetable's classes were made only by the next day's job | **180.22** |
+| 3 | Real estate and bookings pushes | The reply and a moved appointment opened Home | Sent as `announcement` with `inquiry_id` / `appointment_id` | **180.4** |
+| 4 | Travel: checkout without card payments | "Confirm and pay", refused by the server | `Config.travel` offered paying now without a gateway | **180.17** |
+| 5 | Safra signed in, no trip | An empty cover photo | The question shows signed out only; the ticket had no trip | **180.18** ([07](07-safra-signed-in-no-trip-after-180.18.png)) |
+| 6 | Safra's Stays, Flights and Trips | The navy title unreadable over the photo | The look's header colour over a photo | **180.19** ([08](08-safra-tr-1.3-trips-title-after-180.19.png)) |
+| 7 | Travel: flights found, Track | Off didn't stop the alert; on again made two | Not read from or written to Price alerts | **180.3** |
+| 8 | Prices in the customer's currency: travel, events, homes, campaigns | Always the company's currency | No amount or currency beside the travel API's texts; listings and campaigns not converted; events sent a label only | **180.12, 180.13** |
+| 9 | Bookings in Arabic and Turkish | "Approved", "Categories", "Our team"… in English | The hosted API wrote them in English | **180.5** |
+| 10 | Studio's canvas, Safra | The question over the next trip's ticket ([01](01-studio-safra-hero-signed-in-and-out.png)) | It ignored signed in / signed out | **180.11** (a switch, signed out first) |
+| 11 | Real estate in Arabic | "للبيع · Villa" ([04](04-real-estate-listing-ar-type-in-english.png)) | The property types' labels are English | **180.6** |
+| 12 | Price filter and donation amount | Arabic digits refused; "1.500.000" dropped | ASCII-only parsing | **180.9** |
+| 13 | Safra at text 1.3 (the guard) | The tab pill, Stay + flight and the departures overflowed | Fixed widths and heights | **180.16** |
+| 14 | Flights' search, ar and tr at 1.3 | The travellers broken mid-word ("السياحي/ة", "Eko/nomi") | "Direct only" took the row | **180.20** ([09](09-safra-tr-1.3-flights-search-after-180.20.png)) |
+| 15 | Every account look, tr at 1.3 | The phone number on two lines | No line limit beside Edit | **180.21** |
+| 16 | A charity's home, tr at 1.3 | "Kampanyaları/mız" ([06](06-charity-tr-1.3-title-broken-before-180.23.png)) | One long word wider than its room | **180.23** |
+| 17 | Smaller | See below | — | **180.2, 180.7, 180.8, 180.10, 180.14** |
 
-## Checked and not a bug
+The smaller ones (17):
 
-- **"Pay at the hotel" when paying now is off:** the booking screen already switches to it (`booking_screens.dart`, line 801).
-- **The travel tabs' lists (Explore, Trips, Saved):** the travel shell's bar doesn't float over them. The bottom padding under it is 0.
-- **Safra on Studio plan 1:** its travel API answers `feature_disabled` (403). This is by design: Travel is a plan choice, as `travel-hosted.spec.ts` expects.
-- **A real estate app from the Nile Homes demo:** its samples are in TRY. They are converted into the owner's currency on purpose (`samplePrice`), and a new app's currency is TRY until the owner changes it.
-- **Icons:** every travel, bookings, events, real estate, news and donations file uses Material Symbols Rounded (`Symbols.*` and `AppIcon`). No bracket placeholders in these modules.
+- **180.2:** the hotels and flights found ended under Android's buttons.
+- **180.7:** three flight amenities showed as raw ids.
+- **180.8:** a membership's price only in the gym's currency.
+- **180.10:** the "→" arrows pointed against the reading way in Arabic.
+- **180.14:** five fixes:
+  - an empty category said "No services yet";
+  - an open real estate conversation didn't show a reply that arrived;
+  - seats that didn't load in Manage booking said nothing;
+  - the Categories block was offered for events, where it showed nothing;
+  - the travel API's errors were found already translated, and a test keeps them so.
+
+## Checked and not a bug, or not ours to change
+
+- **Pay at the hotel when paying now is off:** already handled in the app.
+- **The travel tabs' lists:** the travel shell's bar doesn't float over them.
+- **Safra on Studio plan 1 without Travel:** `feature_disabled`, by design.
+- **Samples priced in TRY:** demo samples are converted into the owner's currency, TRY until changed.
+- **Sample content in English in Turkish and Arabic apps:** the owner's sample data, copied from the demos in English only, to replace with their own. This covers Safra's hotel themes ("Beach", "Spa"), the salon's and the clinic's services and categories, the events' categories, and the homes' and campaigns' titles.
+- **"Appointments" cut to "Appoint…" in a five-tab bar at 1.3:** the bar's labels are one line by design.
+- **Icons:** Material Symbols Rounded throughout these modules; no bracket placeholders.
 
 ## Screenshots
 
-1. `01-studio-safra-hero-signed-in-and-out.png`: Studio, Safra A's home: the signed-out title over the signed-in trip.
-2. `02-safra-sign-in-en.png`: Safra's sign-in in the preview, 360×800.
-3. `03-safra-home-signed-out-en.png`: Safra's home signed out: the title, without the trip.
-4. `04-real-estate-listing-ar-type-in-english.png`: a home in Arabic with "Villa" in English (the build before 180.6).
+1. `01-studio-safra-hero-signed-in-and-out.png`: Studio before 180.11.
+2. `02-safra-sign-in-en.png`, `03-safra-home-signed-out-en.png`: Safra's sign-in and home in the committed preview.
+3. `04-real-estate-listing-ar-type-in-english.png`: before 180.6.
+4. `05-gym-no-classes-before-180.22.png`: before 180.22.
+5. `06-charity-tr-1.3-title-broken-before-180.23.png`: before 180.23.
+6. `07-…after-180.18`, `08-…after-180.19`, `09-…after-180.20`: Safra after the fixes, from this branch's build.
