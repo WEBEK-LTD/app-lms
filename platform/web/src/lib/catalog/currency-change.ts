@@ -1,7 +1,9 @@
 import type { DataStore } from "../data/store";
 import type { App, CatalogProduct, CatalogSettings, CatalogVariants } from "../data/types";
-import { currencyDigits } from "../money/currencies";
 import { rateBetween, rateText, type Rates } from "../money/rates";
+import { convertPrice } from "./price-convert";
+
+export { convertPrice };
 
 /**
  * 175 Changing a shop's currency (Products › Settings): prices are kept as
@@ -21,20 +23,6 @@ export function conversionOf(rates: Rates, from: string, to: string): { rate: nu
   if (from === to) return null;
   const rate = rateBetween(rates, from, to);
   return rate ? { rate, text: rateText(rate, from, to) } : null;
-}
-
-/**
- * An amount at `rate`, rounded the way a shop prices in `to`: whole units
- * for a currency without minor units and for amounts of 10 or more,
- * else to the tenth (0.30, 4.50). Never below one minor unit when the
- * amount wasn't zero.
- */
-export function convertPrice(cents: number, rate: number, to: string): number {
-  if (cents === 0) return 0;
-  const raw = cents * rate;
-  const step = currencyDigits(to) === 0 || raw >= 1000 ? 100 : 10;
-  const rounded = Math.round(raw / step) * step;
-  return rounded > 0 ? rounded : step;
 }
 
 const opt = (cents: number | null | undefined, rate: number, to: string): number | null => (cents === null || cents === undefined ? null : convertPrice(cents, rate, to));
@@ -103,6 +91,16 @@ export async function convertShopRecords(store: DataStore, app: Pick<App, "id">,
     report.flashSales += 1;
   }
   return report;
+}
+
+/** Whether the shop has any amount a new currency would change: without one, a new currency needs no choice. */
+export async function shopHasPrices(store: DataStore, app: Pick<App, "id">, settings: CatalogSettings): Promise<boolean> {
+  const at = settingsAt(settings, 1, settings.currency);
+  const amounts = [at.shippingCents, at.freeShippingOverCents, at.otherCityCents, at.shippingMinCents, at.distancePricing?.baseCents, at.distancePricing?.perKmCents, at.weightPricing?.perKgCents, at.fulfilment?.deliveryFeeCents, at.fulfilment?.minOrderCents, ...(at.cityPrices ?? []).map((c) => c.cents), ...(at.delivery?.slots ?? []).map((s) => s.feeCents)];
+  if (amounts.some((c) => typeof c === "number" && c > 0)) return true;
+  if ((await store.listCatalogProducts(app.id)).length > 0) return true;
+  if ((await store.listCatalogCoupons(app.id)).some((c) => c.kind === "amount" || c.minOrderCents !== null)) return true;
+  return (await store.listFlashSales(app.id)).some((f) => f.discount.kind === "price");
 }
 
 /** The log line of a currency change. */

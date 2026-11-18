@@ -32,7 +32,7 @@ import { imageType } from "@/lib/images";
 import { chosenPictures } from "@/lib/media/pictures";
 import { getStore } from "@/lib/data";
 import type { App, CatalogCurrency, CatalogProductInput, CatalogSettings, CatalogTax, OwnPayment } from "@/lib/data/types";
-import { conversionOf, convertShopRecords, currencyChangeLine, settingsAt } from "@/lib/catalog/currency-change";
+import { conversionOf, convertShopRecords, currencyChangeLine, settingsAt, shopHasPrices } from "@/lib/catalog/currency-change";
 import { currentRates } from "@/lib/money/rates";
 import { appUrl, encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
@@ -334,8 +334,10 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
   // 175 A new currency: the owner chooses to convert every price at the day's rate, or to keep the numbers.
   const changing = !errors.currency && values.currency !== before.currency;
   let conversion: ReturnType<typeof conversionOf> = null;
-  if (changing && values.prices !== "convert" && values.prices !== "keep") errors.prices = "Choose what happens to your prices.";
-  if (changing && values.prices === "convert") {
+  // Nothing priced yet (a new shop): nothing to convert, nothing to ask.
+  const priced = changing && (await shopHasPrices(store, app, before));
+  if (priced && values.prices !== "convert" && values.prices !== "keep") errors.prices = "Choose what happens to your prices.";
+  if (priced && values.prices === "convert") {
     conversion = conversionOf(await currentRates(store), before.currency, values.currency);
     if (!conversion) errors.prices = "There's no rate between these currencies today. Keep the numbers, or try again tomorrow.";
   }
@@ -378,7 +380,7 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
     await recordStaffChange(context, line);
   }
   refresh();
-  const message = !changing ? "Shop settings saved." : conversion ? "Shop settings saved. Your prices were converted." : "Shop settings saved. Your prices kept their numbers: check them.";
+  const message = !priced ? "Shop settings saved." : conversion ? "Shop settings saved. Your prices were converted." : "Shop settings saved. Your prices kept their numbers: check them.";
   return { ok: true, message, values: { ...values, prices: "" } };
 }
 

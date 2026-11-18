@@ -48,6 +48,15 @@ export const STARTER_CITIES: Record<string, { en: string; ar: string; tr: string
     { en: "Gaziantep", ar: "غازي عنتاب", tr: "Gaziantep" },
     { en: "Kocaeli", ar: "كوجالي", tr: "Kocaeli" },
   ],
+  // 175 Morocco's.
+  MA: [
+    { en: "Casablanca", ar: "الدار البيضاء", tr: "Kazablanka" },
+    { en: "Marrakech", ar: "مراكش", tr: "Marakeş" },
+    { en: "Rabat", ar: "الرباط", tr: "Rabat" },
+    { en: "Fes", ar: "فاس", tr: "Fes" },
+    { en: "Tangier", ar: "طنجة", tr: "Tanca" },
+    { en: "Agadir", ar: "أكادير", tr: "Agadir" },
+  ],
   EG: [
     { en: "Cairo", ar: "القاهرة", tr: "Kahire" },
     { en: "Giza", ar: "الجيزة", tr: "Giza" },

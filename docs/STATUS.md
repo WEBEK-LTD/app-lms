@@ -19,7 +19,10 @@ Owner API takes the choice as `refund` (an older Business without it keeps
 drawer promises (shipped, postponed, couldn't be delivered, delivered) and
 when the order is cancelled, in the language they checked out in. A new
 store currency asks to convert every price at the day's rate or keep the
-numbers, and the Team page logs the change. No migration. Yallapp Business is not released from this
+numbers, and the Team page logs the change. A new shop starts in its
+owner's country's currency and delivery time zone (+212: MAD,
+Africa/Casablanca); Studio's gift checkout sample is drawn in the shop's
+currency, country and city, dated from today. No migration. Yallapp Business is not released from this
 branch.
 
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the

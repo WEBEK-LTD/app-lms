@@ -7,6 +7,13 @@ import { E2E } from "../../playwright.config";
 import { startFakeKashier, type FakeGateway } from "./fake-gateways";
 import { solidPng } from "./png";
 
+/** 175 A shop that has prices already chooses what a new currency does to them: here, keep the numbers. */
+async function keepPrices(p: Page) {
+  const keep = p.getByLabel("Keep the numbers as they are");
+  if (await keep.isVisible()) await keep.check();
+}
+
+
 /**
  * Roadmap 47: a shop with its own Kashier keys takes an order and refunds
  * it from the dashboard, first in part, then the rest: Kashier gets the
@@ -113,6 +120,7 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   // 132.10 Products has its own pages: the shop's settings, payments and the products.
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
   await page.getByLabel("Currency", { exact: true }).selectOption("EGP");
+  await keepPrices(page);
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 
@@ -258,6 +266,7 @@ test("cancelling a paid order asks first, then refunds through its gateway, rest
   await page.getByRole("link", { name: "Products", exact: true }).click();
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
   await page.getByLabel("Currency", { exact: true }).selectOption("EGP");
+  await keepPrices(page);
   await page.getByRole("button", { name: "Save settings" }).click();
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
   const payments = page.getByRole("region", { name: "Card payments" });

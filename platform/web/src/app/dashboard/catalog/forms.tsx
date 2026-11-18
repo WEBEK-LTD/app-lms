@@ -836,8 +836,11 @@ export function ShopSettingsForm({
   shippingFields = true,
   gateway = null,
   conversions = {},
+  priced = true,
 }: {
   currency: string;
+  /** 175 Whether the shop has any amount yet: without one, a new currency needs no choice. */
+  priced?: boolean;
   /** 175 The day's rate from the shop's currency to each one that has a rate ("1 TRY = 0.2700 MAD"). */
   conversions?: Record<string, string>;
   shipping: string;
@@ -859,7 +862,7 @@ export function ShopSettingsForm({
   const [chosen, setChosen] = useState(state.values?.currency ?? currency);
   // 175 Saved, the new currency is the shop's: nothing more to choose.
   const saved = state.ok ? (state.values?.currency ?? currency) : currency;
-  const changing = chosen !== saved;
+  const changing = priced && chosen !== saved;
   const rate = conversions[chosen];
   return (
     <form action={action} noValidate className="flex flex-col gap-4">

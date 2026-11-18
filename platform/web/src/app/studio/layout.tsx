@@ -5,6 +5,10 @@ import { dashboardMessages, knownEnglish } from "@/i18n/dashboard";
 import { WorkingInAccount } from "@/components/working-in-account";
 import { getClientContext } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
+import { ShopSampleProvider } from "@/components/studio/shop-sample";
+import { getStore } from "@/lib/data";
+import { currentRates } from "@/lib/money/rates";
+import { shopSampleOf } from "@/lib/studio/shop-sample";
 
 /**
  * 103R The approved design's font, for the editor around the phone: Cairo
@@ -53,7 +57,8 @@ export default async function StudioLayout({ children }: { children: React.React
             <WorkingInAccount context={context} text={text} className="w-full py-2" />
           </div>
         ) : null}
-        {children}
+        {/* 175 Studio's samples (the gift checkout's) in the shop's currency, places and today. */}
+        <ShopSampleProvider value={context ? shopSampleOf(context.app, context.client, await currentRates(await getStore()), new Date()) : null}>{children}</ShopSampleProvider>
       </div>
     </DashboardI18n>
   );

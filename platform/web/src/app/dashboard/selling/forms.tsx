@@ -126,9 +126,12 @@ export function AreasForm({
   countries,
   starters,
   areas,
+  hintPoint = { lat: "41.0369", lng: "28.9850" },
 }: {
   values: Record<string, string>;
   currency: string;
+  /** 175 The example point of the map's fields, in the shop's own city. */
+  hintPoint?: { lat: string; lng: string };
   /** 132.186 Every country, the platform's first ones on top. */
   countries: CountryChoice[];
   starters: Record<string, string[]>;
@@ -162,7 +165,7 @@ export function AreasForm({
       {mode === "city" ? <Field label={t("selling.otherCity", { currency })} name="otherCity" inputMode="decimal" defaultValue={v.otherCity} hint={t("selling.otherCityHint")} error={e.otherCity} small /> : null}
       {mode === "distance" ? (
         <div className="grid gap-3 sm:grid-cols-3">
-          <Field label={t("selling.originLat")} name="originLat" inputMode="decimal" dir="ltr" defaultValue={v.originLat} hint={t("selling.originHint")} error={e.origin} small />
+          <Field label={t("selling.originLat")} name="originLat" inputMode="decimal" dir="ltr" defaultValue={v.originLat} hint={t("selling.originHint", hintPoint)} error={e.origin} small />
           <Field label={t("selling.originLng")} name="originLng" inputMode="decimal" dir="ltr" defaultValue={v.originLng} small />
           <Field label={t("selling.maxKm")} name="maxKm" inputMode="decimal" defaultValue={v.maxKm} hint={t("selling.maxKmHint")} error={e.maxKm} small />
           <Field label={t("selling.baseFee", { currency })} name="baseFee" inputMode="decimal" defaultValue={v.baseFee} error={e.baseFee} small />
