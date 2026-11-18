@@ -12,10 +12,11 @@ import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
 import 'package:yallapp/modules/shared/pages/recently_viewed.dart';
 import 'package:yallapp/modules/store/data/cart_controller.dart';
+import 'package:yallapp/modules/store/screens/cart_screen.dart';
 import 'package:yallapp/modules/store/widgets/product_widgets.dart';
 
 import '../screenshots/support/demo_api.dart';
-import '../screenshots/support/shot.dart' show usePhone;
+import '../screenshots/support/shot.dart' show loadAppFonts, usePhone;
 import '../screenshots/support/studio_demo.dart';
 import '../support/test_app.dart';
 
@@ -198,7 +199,6 @@ Future<TestApp> _open(
 }) async {
   StudioDemo.language = 'en';
   usePhone(tester);
-  letStudioOverflows();
   final app = TestApp(
     api: api,
     appType: AppType.store,
@@ -209,31 +209,16 @@ Future<TestApp> _open(
   return app;
 }
 
-/// 161 Layout overflows inside Studio's elements in the test's font, whose
-/// letters are all as wide as they are tall (the cover's top row, the
-/// flash sale's title beside its countdown), belong to the layout fixes
-/// (163); these tests are about the prices, so only those are let through.
-/// Any other error, and an overflow anywhere else (the shop's cards), still
-/// fails the test.
-void letStudioOverflows() {
-  final shown = FlutterError.onError;
-  FlutterError.onError = (details) {
-    final text = details.toString();
-    if (text.contains('overflowed') &&
-        text.contains('/lib/modules/shared/pages/')) {
-      return;
-    }
-    shown?.call(details);
-  };
-  addTearDown(() => FlutterError.onError = shown);
-}
-
 /// Every text on screen.
 List<String> _texts() => [
   for (final e in find.byType(Text).evaluate()) ?(e.widget as Text).data,
 ];
 
 void main() {
+  // The app's own fonts, on a phone's size (support/shot.dart), as the
+  // layout tests draw Leqaa (163).
+  setUpAll(loadAppFonts);
+
   for (final c in ['USD', 'EGP', 'EUR']) {
     group('161 a shop in MAD, the customer in $c', () {
       testWidgets(
@@ -279,10 +264,8 @@ void main() {
           'related': <Object>[],
           'external_url': null,
           'permalink': 'https://kechflora.ma/p/103',
-        };
-        // 131 A gift add-on offered with it.
-        api.addons = {
-          0: [
+          // 131 A gift add-on offered with it ("Add a little more").
+          'addons': [
             {
               ..._product((201, 'Ceramic Vase', 3500, null, null), c),
               'addon': true,
@@ -313,10 +296,13 @@ void main() {
           tester.getRect(card).bottom - tester.getRect(shopPrice).bottom,
           lessThan(16),
         );
-        // The shop's dirhams only as that second line.
+        // The shop's dirhams only as that second line (a range's both ends).
         for (final t in _texts().where((t) => t.contains('MAD'))) {
           expect(
-            [for (final b in _bouquets) _mad(b.$3)],
+            [
+              for (final b in _bouquets)
+                (_product(b, c)['price'] as Map)['formatted'],
+            ],
             contains(t),
             reason: t,
           );
@@ -327,12 +313,17 @@ void main() {
         // In theirs first; the shop's under it, as the shop's products show.
         expect(find.text(_approx(18000, c)), findsWidgets);
         expect(find.text(_mad(18000)), findsOneWidget);
-        // The add-on: "+" after the approximate sign.
-        await tester.scrollUntilVisible(
-          find.text('Ceramic Vase'),
-          200,
-          scrollable: find.byType(Scrollable).first,
-        );
+        // The add-on: "+" after the approximate sign. Scrolled to on the
+        // screen, the bouquet's page on top.
+        for (
+          var i = 0;
+          i < 8 && find.text('Ceramic Vase').evaluate().isEmpty;
+          i++
+        ) {
+          await tester.dragFrom(const Offset(180, 560), const Offset(0, -260));
+          await TestApp.settle(tester, 4);
+        }
+        expect(find.text('Ceramic Vase'), findsOneWidget);
         expect(find.text('≈ +${_in(3500, c)}'), findsOneWidget);
         expect(tester.takeException(), isNull);
       });
@@ -406,8 +397,8 @@ void main() {
           await TestApp.settle(tester, 20);
           // The cart's own list, under the Studio page around it.
           final list = find
-              .ancestor(
-                of: find.text('Medina Lilies', skipOffstage: false).first,
+              .descendant(
+                of: find.byType(CartScreen, skipOffstage: false),
                 matching: find.byType(Scrollable, skipOffstage: false),
               )
               .first;
