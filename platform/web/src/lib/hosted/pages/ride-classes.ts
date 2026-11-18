@@ -14,6 +14,6 @@ export async function rideClassesOf(app: Pick<App, "id" | "appType">, store: Pic
   const [types, settings] = await Promise.all([store.listVehicleTypes(app.id), store.getDeliverySettings(app.id)]);
   const list = offeredTypes(types)
     .sort((a, b) => a.position - b.position || a.id - b.id)
-    .map((t) => ({ id: t.id, name: t.name, seats: t.seats, minCents: t.minCents }));
+    .map((t) => ({ id: t.id, name: t.name, seats: t.seats, minCents: t.minCents, ...(t.sample ? { sample: true } : {}) }));
   return { list, currency: deliverySettingsOf(settings).currency };
 }

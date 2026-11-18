@@ -118,6 +118,18 @@ describe("178 the template's car classes are the company's vehicle types, at its
     expect(lira.flat()).not.toContain("from E£");
   });
 
+  it("the demo's own sample types keep the template's words in Arabic and Turkish; the owner's own names stay theirs", async () => {
+    await start("rides", "a");
+    const id = state.app!.id;
+    await state.store.saveDeliverySettings(id, { ...deliverySettingsOf(await state.store.getDeliverySettings(id)), currency: "TRY" }, NOW);
+    expect(cards(classRows(await home("ar"))[0]!).map((c) => c[1])).toEqual([APP_WORDS.ar.rideEconomy, APP_WORDS.ar.rideComfort, APP_WORDS.ar.rideVan]);
+    expect(cards(classRows(await home("tr"))[0]!).map((c) => c[1])).toEqual([APP_WORDS.tr.rideEconomy, APP_WORDS.tr.rideComfort, APP_WORDS.tr.rideVan]);
+    // Renamed in the dashboard, a sample is the owner's (110.2) and keeps its new name.
+    const [first] = await state.store.listVehicleTypes(id);
+    await state.store.updateVehicleType(id, first!.id, { name: "Ekonomi Plus", sample: false }, NOW);
+    expect(cards(classRows(await home("ar"))[0]!)[0]).toContain("Ekonomi Plus");
+  });
+
   it("Studio's canvas gets the same types to draw the cards as the app does", async () => {
     await start("taxi", "a");
     await ownTypes("TRY");

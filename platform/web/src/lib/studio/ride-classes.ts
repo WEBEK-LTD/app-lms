@@ -31,6 +31,8 @@ export interface RideClass {
   seats: number;
   /** The smallest fare, in the company's currency. */
   minCents: number;
+  /** 110.2 A sample of the demo's (Economy, Comfort, Van): its name in the customer's language while it is the template's word. */
+  sample?: boolean;
 }
 
 /** The company's car classes for the template's lists; `currency`: Ride settings' (ISO 4217). */
@@ -119,13 +121,20 @@ function plain(node: StudioNode, text: string): StudioNode {
   return { ...rest, text, ...(Object.keys(kept).length ? { translations: kept } : {}) } as StudioNode;
 }
 
+/** A class's name as the cards write it: the owner's as they wrote it; a demo sample's still named with a template word, in `lang`. */
+function nameOf(c: RideClass, lang: Lang): string {
+  const word = c.sample ? wordOf(TEMPLATE_CLASS_WORDS, c.name) : null;
+  return word ? APP_WORDS[lang][word.word] : c.name;
+}
+
 /** The template's card at its place, made the company's class `c`. */
 function cardFor(card: StudioNode, c: RideClass, currency: string, lang: Lang, key: string): StudioNode {
+  const name = nameOf(c, lang);
   const fareRows = new Set(subtree(card).filter(fareRow).flatMap((r) => (r.children ?? []).map((k) => k.id)));
   const fill = (node: StudioNode): StudioNode => {
     const id = `${node.id}-${key}`;
     if (isText(node)) {
-      if (wordOf(TEMPLATE_CLASS_WORDS, node.text)) return { ...plain(node, c.name), id };
+      if (wordOf(TEMPLATE_CLASS_WORDS, node.text)) return { ...plain(node, name), id };
       const fare = wordOf(FARE_WORDS, node.text);
       if (fare && fareRows.has(node.id)) return { ...plain(node, fareWord(fare.word, lang, currency)), id };
       if (fareRows.has(node.id)) return { ...plain(node, amount(c.minCents)), id };
@@ -135,7 +144,7 @@ function cardFor(card: StudioNode, c: RideClass, currency: string, lang: Lang, k
       if (/^\d{1,2}$/.test(String(node.text ?? "").trim())) return { ...plain(node, String(c.seats)), id };
       return { ...node, id };
     }
-    return { ...node, id, ...(node.name && wordOf(TEMPLATE_CLASS_WORDS, node.name) ? { name: c.name } : {}), ...(node.children ? { children: node.children.map(fill) } : {}) };
+    return { ...node, id, ...(node.name && wordOf(TEMPLATE_CLASS_WORDS, node.name) ? { name } : {}), ...(node.children ? { children: node.children.map(fill) } : {}) };
   };
   return fill(card);
 }
@@ -151,7 +160,7 @@ function listFor(node: StudioNode, classes: RideClasses, lang: Lang): StudioNode
     if (i > 0 && line) children.push({ ...line, id: `${line.id}-${c.id}` });
     children.push(cardFor(cards[Math.min(i, cards.length - 1)]!, c, classes.currency, lang, `t${c.id}`));
   });
-  return { ...node, ...(node.name && wordOf(TEMPLATE_CLASS_WORDS, node.name) && shown[0] ? { name: shown[0].name } : {}), children };
+  return { ...node, ...(node.name && wordOf(TEMPLATE_CLASS_WORDS, node.name) && shown[0] ? { name: nameOf(shown[0], lang) } : {}), children };
 }
 
 /** `body` with the template's lists of car classes made the company's, in `lang`; as it is without a type offered. */
