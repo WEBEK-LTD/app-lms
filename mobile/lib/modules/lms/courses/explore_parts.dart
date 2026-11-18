@@ -7,6 +7,7 @@ import '../../../core/api/yallapp_api.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/format/text_case.dart';
 
 /// 123 The parts of the premium academy's Explore (`Config.screens.looks`
 /// `catalog: explore`): a large title, the search with the filters in it,
@@ -120,7 +121,7 @@ class ExploreSearch extends StatelessWidget {
 
 /// A subject's icon, from its name in the languages the app speaks.
 IconData subjectIcon(String name) {
-  final n = name.toLowerCase();
+  final n = lowerIn(name);
   bool has(List<String> words) => words.any(n.contains);
   if (has(['design', 'تصميم', 'tasarım', 'ui', 'ux'])) {
     return Symbols.palette_rounded;

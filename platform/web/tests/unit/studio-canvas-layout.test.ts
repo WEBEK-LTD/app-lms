@@ -102,6 +102,25 @@ describe("124.6 the canvas lays a page out as the app", () => {
     expect(styleOf(column, "top")["justify-self"]).toBe("flex-start");
   });
 
+  it("159 draws a cover's top bar given a width in points across the cover, its wordmark between the buttons; by hand, at its width", () => {
+    const disc = (id: string, icon: string): StudioNode => ({ id, type: "row", width: 42, height: 42, radius: 21, align: "center", cross: "center", self_align: "center", action: { type: "screen", screen: icon === "search" ? "search" : "cart" }, children: [{ id: `${id}-icon`, type: "icon", icon }] });
+    // Kech Flora's: 324 wide from a corner drag, its wordmark hugging on one line.
+    const bar: StudioNode = { id: "top", type: "row", width: 324, gap: 10, height: 68, cross: "center", self_align: "start", padding: { top: 26, end: 16, bottom: 0, start: 16 }, children: [disc("search", "search"), { id: "wordmark", type: "text", text: "KechFlora", width: "hug", max_lines: 1, text_align: "center" }, disc("bag", "shopping_bag")] };
+    const hero = (top: StudioNode): StudioPage => ({ body: { id: "body", type: "column", children: [{ id: "hero", type: "stack", height: 520, cross: "start", children: [{ id: "slides", type: "slider", height: 520, children: [] }, top] }] } });
+    const auto = draw(hero(bar));
+    expect(styleOf(auto, "top")["justify-self"]).toBe("stretch");
+    expect(styleOf(auto, "top")["align-self"]).toBe("flex-start");
+    expect(styleOf(auto, "top").width).toBeUndefined();
+    expect(styleOf(auto, "wordmark").flex).toBe("1 1 0");
+    expect(styleOf(auto, "wordmark")["flex-shrink"]).toBeUndefined();
+    // Sized by hand: 324 at its place, the wordmark at its own width giving way, as the app draws it.
+    const hand = draw(hero({ ...bar, manual_size: { width: "fill", height: 68 }, children: [bar.children![0]!, { ...bar.children![1]!, manual_size: { width: "fill", height: null } }, bar.children![2]!] }));
+    expect(styleOf(hand, "top").width).toBe("324px");
+    expect(styleOf(hand, "top")["justify-self"]).toBe("flex-start");
+    expect(styleOf(hand, "wordmark").flex).toBe("0 0 auto");
+    expect(styleOf(hand, "wordmark")["flex-shrink"]).toBe("1");
+  });
+
   it("leaves out a card's text bound to what the entry hasn't (a course without a badge)", () => {
     const home = academyHome();
     const list = allNodes(home).find((x) => x.type === "items")!;

@@ -21,6 +21,7 @@ import '../../../core/widgets/own_icon.dart';
 import 'page_actions.dart';
 import 'page_blocks.dart';
 import 'studio_page.dart' show SliderCount, SliderLines;
+import '../../../core/format/text_case.dart';
 
 /// 33 The blocks whose content the owner writes in the dashboard: slider,
 /// quick links, testimonials, questions, countdown, contact, opening hours,
@@ -644,7 +645,7 @@ class _Avatar extends StatelessWidget {
         )
         .take(2)
         // 110 Past an article ("اسم العميل" → "اع", not "اا").
-        .map((w) => nameInitial(w).toUpperCase())
+        .map((w) => nameInitial(w).toUpperCaseIn(context))
         .join();
     return ExcludeSemantics(
       child: SizedBox(

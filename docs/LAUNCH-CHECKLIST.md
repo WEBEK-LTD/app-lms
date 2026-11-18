@@ -1879,6 +1879,15 @@ Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
       (iPhone 6.9", iPad 13") in every listing language, framed only when
       the owner ticked it, and both stores take them.
 
+## Phase 173: An order's delivery, card and amounts
+
+- [ ] Release plugin **0.4.51** in Admin › Plugin releases (`Order.amounts`
+      from the WooCommerce order). Older plugins leave it out and the app
+      shows the items and the total, as before.
+- [ ] On a phone, in Leqaa's and Kech Flora's apps: open an order with a
+      card and a coupon (like #1057) and one without; the delivery, the card
+      and the totals show and add up, in English and Arabic.
+
 ## Phase 145: The app audit
 
 - [ ] Release plugin **0.4.50** in Admin › Plugin releases (delivery days in
@@ -2019,3 +2028,71 @@ check.
       domain association file, tell us: that file would be served from
       `/.well-known/` on host.webek.org (deploy/apache-proxy.conf keeps that
       folder off Netlify).
+
+## Phase 159: Sizes automatic, by hand only when asked
+
+No migration, no setting. The hosted API serves a cover's top bar across the
+cover as soon as the platform is deployed; the next `CLIENT_APP_RELEASE` (bumped
+once with the other urgent app fixes) gives every active app a build with the
+same rule (4 an hour).
+
+- [ ] **Kech Flora on a phone:** after the deploy, open the app (or switch
+      away and back): the bag of the bar over the stories at the right edge,
+      the search at the left, "KechFlora" in the middle, on an iPhone and on
+      an Android phone, in English and in Arabic (the search on the right).
+      Nothing to change or publish in Studio.
+- [ ] **Studio:** on Kech Flora's home, select the bar (the wordmark, then
+      Select what holds it): Size and place says Automatic size and Width
+      Fill. Change the width: Studio asks first; Cancel changes nothing.
+      Change by hand, then Back to automatic: Fill again. Drag a corner of
+      another element up to the edge of the phone: its width becomes Fill.
+- [ ] **Screen readers (the next app release's build):** with TalkBack or VoiceOver on,
+      the round search and bag over the stories say "Search" and "Cart"
+      (in Arabic بحث and السلة), not just "button".
+- [ ] **WordPress apps:** release plugin **0.4.51** in Admin › Plugin releases:
+      it sends `manual_size` and `name`; until then a WordPress app draws a cover's top bar across the
+      cover even when it was sized by hand in Studio.
+
+## Phase 160: Sign-in as the owner's four ways say
+
+Nothing to deploy beyond the code and the apps' next build (`CLIENT_APP_RELEASE` 9):
+no migration, no setting. A choice saved before with a code and a password
+on the same channel now signs in with the password there.
+
+- [ ] **The bell, signed out (Kech Flora or Leqaa):** tap the bell on the
+      Bouquets page, sign in with the email and password: sign-in closes
+      and Notifications opens; back goes to Bouquets. Do it again with
+      "Forgot password": the code by email (or on WhatsApp for the phone
+      number), the new password, then Notifications, never before.
+- [ ] **Each way alone, on App sign-in:** "Phone number and a code" and
+      "Email address and a code": a code every time, no password field and
+      no "Forgot password". "Email address and password" and "Phone number
+      and password": a new account gets one code, then must set a password;
+      signing in again asks for the password only.
+- [ ] **Together:** turning on "Email address and a code" turns off "Email
+      address and password" (and the same for the phone); "Phone number
+      and a code" with "Email address and password": the app shows Email
+      (the password) and Phone (a code).
+
+## Phase 165: Dashboard › Stories
+
+Deploy runs migration 0144 (`app_stories`, `apps.stories_seeded_at` and
+`apps.stories_saved_at`: until the owner saves in Dashboard › Stories, the
+story elements follow the Studio design; after main's 0143) as any
+other. Nothing to copy by hand: each app's Studio stories are copied into
+the dashboard by the code, once, the first time they're needed.
+
+- [ ] **Leqaa and Kech Flora:** open **Stories** in each project. The note
+      says the stories were copied from Studio; the five occasions are
+      there with their photos, words and buttons. Open the app on a phone:
+      the home looks exactly as before.
+- [ ] **A change reaches the app without a build:** add a story with a
+      photo, its words in English and Arabic and a button opening one of
+      the shop's categories; move it first; switch another off. Close the
+      app and open it again: the new story is first in
+      the hero and the rings, the switched-off one is gone, the words are
+      in the phone's language. Its button opens the shop (on the category
+      in an app built with release 9).
+- [ ] **Release 9:** once the apps are rebuilt with release 9, a story's
+      full-screen view shows its small label, title, line and button words,
+      and a video story plays its video.

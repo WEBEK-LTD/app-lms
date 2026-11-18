@@ -41,6 +41,8 @@ final lmsModule = AppModule(
     Paths.courses,
     Paths.myCourses,
     Paths.teacherDesk,
+    // 171 Rawaq Academy's Teachers tab shows them, the bar under them.
+    Paths.teachers,
     Paths.account,
   },
   screens: _screens,
@@ -128,6 +130,9 @@ final teacherTab = ShellTab(
 List<TabScreen> _screens() => [
   TabScreen(Paths.home, (state) => const HomeScreen()),
   TabScreen(Paths.teacherDesk, (state) => const TeacherDeskScreen()),
+  // 105.3 The academy's teachers: 171 a tab (Rawaq Academy's), else opened
+  // on top from Account and the home's buttons, its own back button.
+  TabScreen(Paths.teachers, (state) => const TeachersScreen(), ownBar: true),
   TabScreen(Paths.courses, (state) {
     final q = state.uri.queryParameters;
     return CoursesScreen(
@@ -205,11 +210,8 @@ List<RouteBase> _pushedRoutes() => [
     path: Paths.courseCart,
     pageBuilder: (context, state) => appPage(state, const CourseCartScreen()),
   ),
-  // 105.3 The academy's teachers, applying to teach, a teacher's course.
-  GoRoute(
-    path: Paths.teachers,
-    pageBuilder: (context, state) => appPage(state, const TeachersScreen()),
-  ),
+  // 105.3 A teacher's page, applying to teach, a teacher's course (171 the
+  // teachers themselves are a screen above, a tab or on top).
   GoRoute(
     path: '/teachers/:id',
     pageBuilder: (context, state) {

@@ -248,7 +248,8 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
               child: SingleChildScrollView(
                 controller: _scroll,
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+                // 158 Its end clear of a tab bar over the screen.
+                padding: EdgeInsets.fromLTRB(20, 12, 20, endRoom(context, 32)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

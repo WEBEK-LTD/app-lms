@@ -123,6 +123,8 @@ function hostedSettingsFor(deps: DemoSetupDeps, id: DemoId): HostedSettings {
     signupFields: [],
     signupAllowed: true,
     defaultCountryCode: DEMO_SIGN_IN.countryCode,
+    // 160.8 The demo number's code, whatever the demo shop's country.
+    countryCodeChosen: true,
     deviceLimit: 0,
     supportWhatsapp: deps.contact.whatsapp,
     termsUrl: `${deps.platformUrl}/terms`,
@@ -210,7 +212,15 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     };
   } else if (content === "catalog" && id === FLOWER_SHOP_DEMO) {
     // 131.20 Leqaa in Cairo: Egyptian pounds, free from a bigger order; 131 the gift checkout, its days and slots, Greater Cairo by the distance.
-    patch.catalogSettings = { currency: FLOWER_CURRENCY, shippingCents: FLOWER_SHIPPING_CENTS, freeShippingOverCents: FLOWER_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(FLOWER_COMMERCE) };
+    patch.catalogSettings = {
+      currency: FLOWER_CURRENCY,
+      shippingCents: FLOWER_SHIPPING_CENTS,
+      freeShippingOverCents: FLOWER_FREE_SHIPPING_OVER_CENTS,
+      payment: null,
+      ...structuredClone(FLOWER_COMMERCE),
+      // 162 Build your bouquet kept through a refresh (its products' IDs stay); entries.ts writes it when they change.
+      ...(app.catalogSettings?.bouquet ? { bouquet: app.catalogSettings.bouquet } : {}),
+    };
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
   } else if (content === "bookings" && id === "fitness") {

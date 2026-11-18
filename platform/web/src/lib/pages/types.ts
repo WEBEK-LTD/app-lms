@@ -152,7 +152,30 @@ export interface StudioStory extends Slide {
   color?: string;
   label?: string;
   icon?: string;
+  // 165 Served from Dashboard › Stories only (the ring's name is `heading`), shown by the story viewer of apps from release 9.
+  /** The small line over the story's title. */
+  kicker?: string;
+  /** The story's title in the viewer (`heading` is the ring's name). */
+  title?: string;
+  /** Its line under the title. */
+  line?: string;
+  /** Its button's words (older apps: "Open"). */
+  button_label?: string;
+  /** Its video (older apps show its photo). */
+  video_url?: string;
 }
+
+/**
+ * 165 Where a story element's stories come from: Dashboard › Stories
+ * (`dashboard`, served into it in the language asked for) or as designed
+ * in Studio (`studio`). Missing: as designed, except the flower shop's
+ * occasions (Leqaa's template, lib/stories/elements.ts), from the dashboard.
+ */
+export const STORIES_SOURCES = ["dashboard", "studio"] as const;
+export type StoriesSource = (typeof STORIES_SOURCES)[number];
+/** 165 What a part of a story's slide (or chip) shows of each story: its kicker, title, line, ring name, icon or button. */
+export const STORY_PARTS = ["kicker", "title", "line", "ring", "icon", "button"] as const;
+export type StoryPart = (typeof STORY_PARTS)[number];
 /** 129.5 A gallery's photo; with a link, a tap opens it instead of the full-screen viewer. */
 export interface StudioPhoto extends GalleryImage {
   action?: Action;
@@ -279,7 +302,8 @@ export const BLOCK_TYPES = [
   "form",
 ] as const;
 export const VISIBILITIES = ["everyone", "signed_in", "signed_out"] as const;
-export const ACTION_TYPES = ["page", "screen", "course", "item", "url"] as const;
+/** 167 `sign_out`: Studio's Sign out element, asked first, then signed out (the app's account ends with it too). */
+export const ACTION_TYPES = ["page", "screen", "course", "item", "url", "sign_out"] as const;
 export const SCREENS = [
   "courses",
   "my_courses",
@@ -524,13 +548,31 @@ export interface Action {
   type: (typeof ACTION_TYPES)[number];
   page_slug?: string | null;
   screen?: ScreenName | null;
+  /**
+   * 157 For `screen` (the shop's search): opens it filtered to this category
+   * of the shop. Sent by hosted `GET /pages` for a template's lists of the
+   * shop's categories (lib/studio/shop-categories.ts), never saved.
+   * 165 With the shop's screen (`courses`): the shop opened on this
+   * category (or collection) of the store, saved with a story's button in
+   * Dashboard › Stories; older apps open the shop.
+   */
+  category_id?: string | null;
   course_id?: number | null;
   item?: { source: ItemSource; id: string } | null;
   url?: string | null;
   open_in?: "in_app" | "browser";
   /** 122 A web page opened in the app (`url`, `in_app`): as a tab, the page alone, its site's header and footer hidden. */
   web?: WebPageLook;
+  /**
+   * 162 A store's screen action (the shop, `search`) that opens Build your
+   * bouquet when the store has it set up (`StoreConfig.bouquet`); else, and
+   * in an older app, its screen.
+   */
+  flow?: (typeof ACTION_FLOWS)[number];
 }
+
+/** 162 What a screen action may open first, when the app can: Build your bouquet. */
+export const ACTION_FLOWS = ["bouquet"] as const;
 
 /**
  * 122 How the app shows a web page in it (`Action.web`): with no address bar
@@ -1342,6 +1384,10 @@ export interface StudioNode {
   indicator_look?: StudioIndicatorLook | null;
   /** 129.2 For `stories`: each story's photo, title (`heading`), line under it (`subheading`), link (`action`) and ring. */
   slides?: StudioStory[];
+  /** 165 For `stories`, a `slider` of story slides and a `row` of story chips: where its stories come from. */
+  stories_source?: StoriesSource;
+  /** 165 In a story slide or chip: what of each story this part shows. */
+  story_part?: StoryPart;
   /** 129.1 For `segments`: how many, how many done. */
   segments?: StudioSegments | null;
   /** 129.5 For `gallery`: how its captions sit over the photos; missing, on a shade. */
@@ -1380,6 +1426,8 @@ export interface StudioNode {
   // ——— end 131 ———
   /** 112.4 For `items` of products: the ones this person opened lately, kept on the phone (the servers send none). */
   recent?: boolean;
+  /** 164 Served only: this element is the title of its sibling list with this ID, and hides with it (lib/hosted/pages/lists.ts). */
+  heads?: string;
   source?: ItemSource;
   layout?: (typeof ITEMS_LAYOUTS)[number];
   query?: ItemsQuery;
@@ -1427,7 +1475,19 @@ export interface StudioNode {
   text_style?: StudioTextStyle;
   /** Editor audit 3.3: its sizes, spacing and text on tablets (a screen at least 600 wide on its short side); the font field by field. */
   tablet?: StudioTablet;
+  /**
+   * 159 Its size was changed by hand, after Studio asked (lib/studio/auto-size.ts): `width` and `height` are then the
+   * owner's. It holds the automatic sizes they replaced (null: none of its own, the layout's), which "Back to automatic"
+   * puts back. Missing, its size is automatic: as its template or the layout designs it (a cover's top bar spans the cover).
+   */
+  manual_size?: StudioManualSize | null;
   translations?: Translations;
+}
+
+/** 159 The automatic sizes a size set by hand replaced (`StudioNode.manual_size`); null, none of its own. */
+export interface StudioManualSize {
+  width?: StudioSize | null;
+  height?: StudioSize | null;
 }
 
 /** Editor audit 3.3: what can be different on tablets. */

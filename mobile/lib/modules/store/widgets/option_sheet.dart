@@ -104,7 +104,17 @@ class _OptionSheetState extends State<OptionSheet> {
     final l10n = context.l10n;
     final unit =
         centsOf(widget.price.amount) + optionsDeltaCents(_groups, _chosen);
-    final total = formatMoney(unit * _quantity, widget.price.currency);
+    // 161 In the customer's currency, converted as the server converts.
+    final display = widget.price.display;
+    final total = customerPrice(
+      formatMoney(unit * _quantity, widget.price.currency),
+      display == null
+          ? null
+          : formatMoney(
+              convertCents(unit * _quantity, display.rate, display.currency),
+              display.currency,
+            ),
+    );
     final missing = missingGroups(_groups, _chosen);
     final ready = optionsComplete(_groups, _chosen);
 

@@ -1,5 +1,6 @@
 import 'addon_models.dart';
 import 'json.dart';
+import 'money_models.dart';
 
 /// 131 The flower shop's commerce in the app API: a product's sale, the
 /// delivery slots of a day, the card messages by occasion, the coupons the
@@ -20,23 +21,42 @@ class ProductSale {
     this.remaining,
     this.total,
     this.flashSaleId,
-  });
+    this.title,
+    this.titles = const {},
+    String? shopNowFormatted,
+  }) : shopNowFormatted = shopNowFormatted ?? nowFormatted;
 
   static ProductSale? tryParse(Object? value) {
     if (value is! Map) return null;
     try {
       final json = asJson(value);
+      // 161 Its prices in the customer's currency when the server sent
+      // them (`display`): the price now approximate ("≈ \$9.80"), the one
+      // before as it is, struck through.
+      final shown = DisplayMoney.tryParse(json['display']);
       return ProductSale(
         was: reqString(json, 'was'),
-        wasFormatted: reqString(json, 'was_formatted'),
+        wasFormatted:
+            shown?['was_formatted'] ?? reqString(json, 'was_formatted'),
         now: reqString(json, 'now'),
-        nowFormatted: reqString(json, 'now_formatted'),
+        nowFormatted: customerPrice(
+          reqString(json, 'now_formatted'),
+          shown?['now_formatted'],
+        ),
+        shopNowFormatted: reqString(json, 'now_formatted'),
         percentOff: intOr(json, 'percent_off', 0).clamp(0, 100),
         startsAt: optDate(json, 'starts_at'),
         endsAt: optDate(json, 'ends_at'),
         remaining: optInt(json, 'remaining'),
         total: optInt(json, 'total'),
         flashSaleId: optInt(json, 'flash_sale_id'),
+        title: optString(json, 'title'),
+        titles: {
+          if (json['titles'] is Map)
+            for (final e in (json['titles'] as Map).entries)
+              if (e.value is String && (e.value as String).trim().isNotEmpty)
+                '${e.key}': (e.value as String).trim(),
+        },
       );
     } on FormatException {
       return null;
@@ -44,15 +64,37 @@ class ProductSale {
   }
 
   final String was;
+
+  /// The price before the sale, in the customer's currency when the server
+  /// sent it (161), else the shop's.
   final String wasFormatted;
   final String now;
+
+  /// The price now as the customer sees it (161): "≈ \$9.80" in their
+  /// currency, else the shop's.
   final String nowFormatted;
+
+  /// The price now in the shop's currency (read out after the customer's).
+  final String shopNowFormatted;
   final int percentOff;
   final DateTime? startsAt;
   final DateTime? endsAt;
   final int? remaining;
   final int? total;
   final int? flashSaleId;
+
+  /// 168 The flash sale's name as the owner wrote it; null for the source's
+  /// own sale.
+  final String? title;
+
+  /// 168 Its name in the app's other languages (`ar`, `tr`, …).
+  final Map<String, String> titles;
+
+  /// 168 Its name in [language], else as named; null without one.
+  String? titleIn(String language) {
+    final named = titles[language] ?? title;
+    return named == null || named.trim().isEmpty ? null : named.trim();
+  }
 
   /// Still on at [at]: not ended (a sale without an end is on).
   bool liveAt(DateTime at) => endsAt == null || endsAt!.isAfter(at);
@@ -187,8 +229,9 @@ class PublicCoupon {
     return PublicCoupon(
       code: code,
       percentOff: optInt(json, 'percent_off'),
-      amountOff: optString(json, 'amount_off_formatted'),
-      minOrder: optString(json, 'min_order_formatted'),
+      // 161 In the customer's currency when the server sent it.
+      amountOff: customerText(json, 'amount_off_formatted'),
+      minOrder: customerText(json, 'min_order_formatted'),
       endsAt: optDate(json, 'ends_at'),
     );
   }
@@ -265,7 +308,8 @@ class DeliverySlot {
     start: reqString(json, 'start'),
     end: reqString(json, 'end'),
     label: optString(json, 'label') ?? '',
-    fee: optString(json, 'fee_formatted'),
+    // 161 In the customer's currency when the server sent it.
+    fee: customerText(json, 'fee_formatted'),
     capacity: optInt(json, 'capacity'),
     available: boolOr(json, 'available', true),
     full: boolOr(json, 'full', false),
@@ -385,7 +429,8 @@ class StoreShippingRules {
       ],
       needsLocation: boolOr(json, 'needs_location', false),
       charged: boolOr(json, 'charged', true),
-      freeOver: optString(json, 'free_over_formatted'),
+      // 161 In the customer's currency when the server sent it.
+      freeOver: customerText(json, 'free_over_formatted'),
       mapTilesUrl: json['map'] is Map
           ? optString(asJson(json['map']), 'tiles_url')
           : null,
@@ -585,6 +630,9 @@ class OrderDelivery {
     this.date,
     this.slotLabel,
     this.recipientName,
+    this.recipientPhone,
+    this.recipientAddress,
+    this.recipientCity,
     this.senderName,
     this.message,
     this.anonymous = false,
@@ -596,26 +644,131 @@ class OrderDelivery {
     final slot = json['slot'];
     final recipient = json['recipient'];
     final sender = json['sender'];
+    String? text(Object? map, String key) {
+      if (map is! Map) return null;
+      final v = map[key];
+      return v is String && v.trim().isNotEmpty ? v.trim() : null;
+    }
+
     return OrderDelivery(
       date: optString(json, 'date'),
-      slotLabel: slot is Map && slot['label'] is String
-          ? slot['label'] as String
-          : null,
-      recipientName: recipient is Map && recipient['name'] is String
-          ? recipient['name'] as String
-          : null,
-      senderName: sender is Map && sender['name'] is String
-          ? sender['name'] as String
-          : null,
-      message: optString(json, 'gift_message'),
+      slotLabel: text(slot, 'label'),
+      recipientName: text(recipient, 'name'),
+      recipientPhone: text(recipient, 'phone'),
+      recipientAddress: text(recipient, 'address'),
+      recipientCity: text(recipient, 'city'),
+      senderName: text(sender, 'name'),
+      message: text(json, 'gift_message'),
       anonymous: boolOr(json, 'anonymous', false),
     );
   }
 
+  /// YYYY-MM-DD, the shop's day.
   final String? date;
+
+  /// "10:00–13:00", in the shop's time.
   final String? slotLabel;
   final String? recipientName;
+
+  /// 173 Who receives it: their phone, the street and the city.
+  final String? recipientPhone;
+  final String? recipientAddress;
+  final String? recipientCity;
   final String? senderName;
   final String? message;
   final bool anonymous;
+
+  /// 173 Whether there is a day, a slot, a recipient or an address to show.
+  bool get hasDelivery =>
+      date != null ||
+      slotLabel != null ||
+      recipientName != null ||
+      recipientAddress != null;
+
+  /// 173 Whether there is a card to show: its message, or who sends it.
+  bool get hasGift => message != null;
+}
+
+/// 173 `Order.amounts`: what the total is made of, each formatted like the
+/// total, so the lines add up: the subtotal, less the coupon and the points,
+/// plus the delivery, the delivery time's fee, the other fees and an added
+/// tax. Null on older servers.
+class OrderAmounts {
+  const OrderAmounts({
+    required this.subtotal,
+    required this.total,
+    this.discountCode,
+    this.discount,
+    this.pointsUsed = 0,
+    this.points,
+    this.shippingZone,
+    this.shipping,
+    this.slotFee,
+    this.fees = const [],
+    this.taxLabel,
+    this.tax,
+    this.taxIncluded = false,
+  });
+
+  static OrderAmounts? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final subtotal = json['subtotal'];
+    final total = json['total'];
+    if (subtotal is! String || total is! String) return null;
+    Json? obj(String key) => json[key] is Map ? asJson(json[key]) : null;
+    final discount = obj('discount');
+    final points = obj('points');
+    final shipping = obj('shipping');
+    final tax = obj('tax');
+    final fees = json['fees'];
+    return OrderAmounts(
+      subtotal: subtotal,
+      total: total,
+      discountCode: discount == null ? null : optString(discount, 'code'),
+      discount: discount == null ? null : optString(discount, 'amount'),
+      pointsUsed: points == null ? 0 : intOr(points, 'used', 0),
+      points: points == null ? null : optString(points, 'amount'),
+      shippingZone: shipping == null ? null : optString(shipping, 'zone'),
+      shipping: shipping == null ? null : optString(shipping, 'amount'),
+      slotFee: optString(json, 'slot_fee'),
+      fees: [
+        if (fees is List)
+          for (final f in fees)
+            if (f is Map && f['label'] is String && f['amount'] is String)
+              (label: f['label'] as String, amount: f['amount'] as String),
+      ],
+      taxLabel: tax == null ? null : optString(tax, 'label'),
+      tax: tax == null ? null : optString(tax, 'amount'),
+      taxIncluded: tax != null && boolOr(tax, 'included', false),
+    );
+  }
+
+  final String subtotal;
+  final String total;
+
+  /// The coupon's code; null when the discount has none.
+  final String? discountCode;
+
+  /// What the coupon took off; null without one.
+  final String? discount;
+  final int pointsUsed;
+
+  /// What the points took off; null without any.
+  final String? points;
+
+  /// Where the delivery was priced for ("Marrakech").
+  final String? shippingZone;
+
+  /// The delivery, without the slot's fee; null for none.
+  final String? shipping;
+
+  /// The delivery time's fee; null for none.
+  final String? slotFee;
+  final List<({String label, String amount})> fees;
+  final String? taxLabel;
+  final String? tax;
+
+  /// True: the tax is inside the other amounts, only said.
+  final bool taxIncluded;
 }

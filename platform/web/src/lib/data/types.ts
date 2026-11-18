@@ -403,6 +403,12 @@ export interface HostedSettings {
   signupFields: ("email" | "city")[];
   signupAllowed: boolean;
   defaultCountryCode: string;
+  /**
+   * 160.8 Whether the owner chose `defaultCountryCode` on App sign-in; false:
+   * the app follows the shop's country, then the owner's (lib/hosted/country-code.ts).
+   * Missing (saved before 160): any code but the platform's default was chosen.
+   */
+  countryCodeChosen?: boolean;
   /** Devices per customer; 0 for no limit. */
   deviceLimit: number;
   supportWhatsapp: string | null;
@@ -785,6 +791,15 @@ export interface App {
    * app's default never moves a site whose plugin can't relay.
    */
   pushRelayAt?: Date | null;
+  /** 165 When the stories of its Studio design were copied into Dashboard › Stories (once); null or missing: not yet. */
+  storiesSeededAt?: Date | null;
+  /**
+   * 165 When the owner last saved the app's stories in Dashboard › Stories
+   * (added, changed, reordered or removed one; the copy from Studio isn't
+   * the owner's). Null or missing: never, so the story elements still follow
+   * the Studio design, the owner's edits there included.
+   */
+  storiesSavedAt?: Date | null;
   /** Shop settings when the products are managed in the dashboard (connector "catalog"). */
   catalogSettings: CatalogSettings | null;
   /** 77 The chat's settings; null: on (when the plan has chat), without course groups. */
@@ -1333,6 +1348,8 @@ export interface CatalogSettings {
   titles?: StoreSectionTitles | null;
   /** 134 How a connected store's customers pay: the platform's own checkout (missing: as before) or inside the app (Demo). */
   checkoutPayment?: "platform" | "in_app";
+  /** 162 Build your bouquet: the flowers, the wraps and the cards the customer chooses from; null or missing: off (its Start opens the shop). */
+  bouquet?: BouquetSettings | null;
   /** 134 The last "Test connection" that passed on the saved gateway keys: when, the gateway, and a fingerprint of those keys (new keys need a new test). */
   gatewayTested?: { at: string; provider: PaymentProviderId; keys: string } | null;
 }
@@ -1410,6 +1427,12 @@ export interface GiftSettings {
   maxLength: number;
   /** Beginnings the customer can tap ("Happy birthday!"), at most 6 of 80 characters. */
   starters: string[];
+  /**
+   * 169 The beginnings in the app's other languages (code → lines, the same
+   * limits); a language missing or empty: `starters`, which stay the main
+   * language's. Missing on settings saved before 169.
+   */
+  starterTexts?: Record<string, string[]>;
   /** The recipient's name and phone (someone else than the buyer). */
   recipient: boolean;
   /** "Send anonymously": the card goes without the buyer's name. */
@@ -1438,6 +1461,58 @@ export interface GiftOccasion {
   updatedAt: Date;
 }
 
+/**
+ * 165 One of the app's stories (Dashboard › Stories): the full-screen
+ * stories at the top of a home (a hero slider) and the story rings, served
+ * into the Studio elements whose source is the dashboard (`stories_source`).
+ */
+export interface AppStory {
+  id: number;
+  appId: string;
+  /** Its place among the app's stories (0 first). */
+  position: number;
+  /** Off: kept, never served. */
+  enabled: boolean;
+  /** Served from this time on; null: at once. */
+  startsAt: Date | null;
+  /** Served until this time; null: always. */
+  endsAt: Date | null;
+  /** Its photo or video (a video's photo shows until it plays, and in older apps). */
+  media: AppStoryMedia;
+  /** Its words by language code: the app's main language, and Arabic and Turkish beside it. */
+  texts: Record<string, AppStoryTexts>;
+  /** The ring's icon (Material Symbols Rounded); null: none. */
+  icon: string | null;
+  /** What its button opens; null: the shop (never Home). */
+  action: import("../pages/types").Action | null;
+  /** The store's category it belongs to; null: none. */
+  categoryId: string | null;
+  /** Copied from the app's Studio design (`<page>:<element>:<n>`), so it is copied once; null: the owner's own. */
+  importKey: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AppStoryMedia {
+  kind: "image" | "video";
+  /** The photo; for a video, its first picture (or null). */
+  imageUrl: string | null;
+  /** For a video: the video. */
+  videoUrl: string | null;
+}
+
+/** 165 A story's words in one language; empty or missing: the main language's. */
+export interface AppStoryTexts {
+  /** The small line over its title ("For love"). */
+  kicker?: string;
+  title?: string;
+  line?: string;
+  /** The ring's name, under its round photo. */
+  ring?: string;
+  /** Its button's words. */
+  button?: string;
+}
+
 /** 131 One ready card message: its words in each language (the app's default language at least). */
 export interface GiftTemplate {
   /** Short and stable ("t1"). */
@@ -1460,7 +1535,7 @@ export interface OrderDelivery {
   /** 131 Where it goes, as the shop's delivery areas and prices read it (the country, the city, the pin); null: not asked. */
   place?: { country: string | null; city: string | null; lat: number | null; lng: number | null } | null;
   /** 131 The shipping as quoted: the zone ("Istanbul", "4.2 km") and what made it up. */
-  shipping?: { cents: number; zone: string | null; rule?: string; breakdown: { label: string; cents: number; rule?: string }[] } | null;
+  shipping?: { cents: number; zone: string | null; rule?: string; breakdown: { label: string; cents: number; rule?: string; words?: { kind: string; km?: number; grams?: number; includedKg?: number } }[] } | null;
   message: string | null;
   anonymous: boolean;
 }
@@ -1873,6 +1948,33 @@ export interface StoreAddonSettings {
   offerWith: AddonRule;
 }
 
+/**
+ * 162 Build your bouquet (lib/selling/bouquet.ts): the customer chooses the
+ * flowers from one category, by the stem, then a wrap, then the card and
+ * its message; the three go in the cart as one bouquet.
+ */
+export interface BouquetSettings {
+  /** The category whose products are the flowers. */
+  flowersCategoryId: number;
+  /** The wraps: gift add-ons the owner chose (`addons`), or a category's products (`category`). */
+  wraps: { from: "addons"; productIds: number[] } | { from: "category"; categoryId: number };
+  /** The cards: gift add-ons the owner chose; empty: the card is its message alone. */
+  cardProductIds: number[];
+  /** The customer may leave out the wrap ("No wrap") or the card ("No card"). */
+  wrapOptional: boolean;
+  cardOptional: boolean;
+  /** Stems in one bouquet: at least and at most (null: 1 and 99). */
+  minStems: number | null;
+  maxStems: number | null;
+}
+
+/** 162 A line of a bouquet in the cart and on the order: the bouquet it is part of, which part, and the card's message (on one of its lines). */
+export interface BouquetPart {
+  id: string;
+  part: "flower" | "wrap" | "card";
+  message?: string;
+}
+
 /** 91.5 A product's variations: up to three attributes, and the combinations the shop sells. */
 export interface CatalogVariants {
   /** "Size: S, M, L", "Colour: Red, Blue" (1 to 3). */
@@ -1919,6 +2021,8 @@ export interface CatalogOrderLine {
   weightGrams?: number;
   /** 131 A gift add-on: the product of the line it goes with. */
   addonOf?: number;
+  /** 162 Part of a bouquet the customer built: its flowers, wrap and card together. */
+  bouquet?: BouquetPart;
 }
 
 /**

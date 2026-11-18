@@ -139,6 +139,8 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   catalog_coupons: "content",
   store_flash_sales: "content",
   store_gift_occasions: "content",
+  // 165 Dashboard › Stories
+  app_stories: "content",
   listings: "content",
   listing_settings: "content",
   article_categories: "content",

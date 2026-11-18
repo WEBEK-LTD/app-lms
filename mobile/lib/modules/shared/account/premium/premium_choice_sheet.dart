@@ -4,6 +4,7 @@ import '../../../../core/api/models/models.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/palette.dart';
 import '../../../../core/widgets/premium_chrome.dart';
+import '../../../../core/format/text_case.dart';
 
 /// 130.21 The language (or another choice) in the project's premium look:
 /// a rounded sheet with its title large, each choice on a row with its
@@ -29,11 +30,12 @@ class PremiumChoiceSheet<T> extends StatelessWidget {
     final p = context.palette;
     String markOf(T v) {
       final s = v is String && v.length <= 3 ? v : label(v);
-      return s.characters.take(2).toString().toUpperCase();
+      return s.characters.take(2).toString().toUpperCaseIn(context);
     }
 
     return SafeArea(
-      child: Padding(
+      // 158 Every choice in reach on a short phone or with a large font.
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: DecoratedBox(
           key: ValueKey('chrome-choice-${look.name}'),

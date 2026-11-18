@@ -61,3 +61,13 @@ String formatMoney(int cents, String currency) {
     return '$symbol${(cents / 100).toStringAsFixed(digits)}';
   }
 }
+
+/// 161 The shop's [cents] in the customer's currency [to] at [rate] (units
+/// of it for one of the shop's, a `display`'s), rounded to what [to] holds
+/// (whole yen): as the server converts (lib/money/rates.ts
+/// `convertCents`), for an amount the app adds up itself (a bouquet with
+/// its options, times how many).
+int convertCents(int cents, double rate, String to) {
+  final step = currencyDigits(to) == 0 ? 100 : 1;
+  return ((cents * rate).round() / step).round() * step;
+}

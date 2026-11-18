@@ -5026,6 +5026,21 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "جزء الدفع العادي للبلد والمدينة والمكان على الخريطة، علشان شحن المتجر.",
     tr: "Standart ödemenin ülke, şehir ve haritadaki yer bölümü, mağazanın kargosu için.",
   },
+  "168 Title of the notice when the shop prices delivery by distance but the platform has no map to pin on.": {
+    en: "Title of the notice when the shop prices delivery by distance but there's no map to pin the place on.",
+    ar: "عنوان التنبيه لما المتجر بيحسب التوصيل حسب المسافة ومفيش خريطة لتحديد المكان.",
+    tr: "Mağaza teslimatı mesafeye göre fiyatlandırdığında ama yeri işaretleyecek harita olmadığında çıkan uyarının başlığı.",
+  },
+  "168 Why the phone's own location is used when there is no map: a gift's recipient is usually elsewhere.": {
+    en: "Why the phone's own location is used when there's no map: a gift's recipient is usually somewhere else.",
+    ar: "ليه بنستخدم مكان الموبايل لما مفيش خريطة: مستلم الهدية غالبًا في مكان تاني.",
+    tr: "Harita yokken neden telefonun konumunun kullanıldığı: hediyenin alıcısı genellikle başka bir yerdedir.",
+  },
+  "168 Uses the phone's location as the delivery place when there is no map.": {
+    en: "Uses the phone's location as the delivery place when there's no map.",
+    ar: "بيستخدم مكان الموبايل كمكان التوصيل لما مفيش خريطة.",
+    tr: "Harita yokken telefonun konumunu teslimat yeri olarak kullanır.",
+  },
   "131 Opens the map to pin where the order goes, for shipping priced by distance.": {
     en: "Opens the map to pin where the order goes, for shipping priced by distance.",
     ar: "بيفتح الخريطة علشان تحدّد مكان الطلب، للشحن حسب المسافة.",
@@ -5223,6 +5238,111 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     en: "On an order paid in the customer's currency: what they paid.",
     ar: "في أوردر اتدفع بعملة العميل: المبلغ اللي اتدفع.",
     tr: "Müşterinin para biriminde ödenen siparişte: ödenen tutar.",
+  },
+  "162 Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.": {
+    en: "Build your bouquet: the screen where the customer chooses the flowers, the wrap and the card.",
+    ar: "«صمّم باقتك»: الشاشة اللي الزبون بيختار فيها الورد والتغليف والكارت.",
+    tr: "Buketini oluştur: müşterinin çiçekleri, ambalajı ve kartı seçtiği ekran.",
+  },
+  "162 Build your bouquet: the name of a step, in the bar at the top.": {
+    en: "Build your bouquet: the name of a step, in the bar at the top.",
+    ar: "«صمّم باقتك»: اسم خطوة، في الشريط اللي فوق.",
+    tr: "Buketini oluştur: üstteki çubukta bir adımın adı.",
+  },
+  "162 Build your bouquet: how many stems a bouquet may have, under the flowers.": {
+    en: "Build your bouquet: how many stems a bouquet may have, under the flowers.",
+    ar: "«صمّم باقتك»: عدد العيدان اللي ينفع تبقى في الباقة، تحت الورد.",
+    tr: "Buketini oluştur: bir bukette kaç dal olabileceği, çiçeklerin altında.",
+  },
+  "162 Build your bouquet: a choice in the wrap or card step.": {
+    en: "Build your bouquet: a choice in the wrap or card step.",
+    ar: "«صمّم باقتك»: اختيار في خطوة التغليف أو الكارت.",
+    tr: "Buketini oluştur: ambalaj ya da kart adımında bir seçenek.",
+  },
+  "162 Build your bouquet: the summary before it goes in the cart.": {
+    en: "Build your bouquet: the summary before it goes in the cart.",
+    ar: "«صمّم باقتك»: الملخص قبل ما تدخل السلة.",
+    tr: "Buketini oluştur: sepete girmeden önceki özet.",
+  },
+  "162 A bouquet the customer built, shown as one in the cart and in the order.": {
+    en: "A bouquet the customer built, shown as one in the cart and in the order.",
+    ar: "باقة الزبون صمّمها، بتظهر كباقة واحدة في السلة وفي الطلب.",
+    tr: "Müşterinin oluşturduğu buket, sepette ve siparişte tek parça olarak görünür.",
+  },
+  "169 The same for an app of another kind than an academy (its kind's words).": {
+    en: "The same for an app of another kind than an academy, in its kind's words.",
+    ar: "نفس الكلام لأبلكيشن من نوع غير الأكاديمية، بكلام نوعه.",
+    tr: "Akademi dışındaki bir uygulama türü için aynısı, kendi türünün sözcükleriyle.",
+  },
+  "173 The order screen: the heading over the delivery day, time, recipient and address.": {
+    en: "The order screen: the heading over the delivery day, time, recipient and address.",
+    ar: "شاشة الطلب: العنوان اللي فوق يوم التوصيل ووقته والمستلم والعنوان.",
+    tr: "Sipariş ekranı: teslimat günü, saati, alıcı ve adresin üstündeki başlık.",
+  },
+  "173 The order screen: the delivery time chosen, in the shop's time zone, like 10:00–13:00.": {
+    en: "The order screen: the delivery time chosen, in the shop's time zone, like 10:00–13:00.",
+    ar: "شاشة الطلب: وقت التوصيل المختار، بتوقيت المحل، زي 10:00–13:00.",
+    tr: "Sipariş ekranı: seçilen teslimat saati, mağazanın saat diliminde, örneğin 10:00–13:00.",
+  },
+  "173 The order screen: who receives the order.": {
+    en: "The order screen: who receives the order.",
+    ar: "شاشة الطلب: مين هيستلم الطلب.",
+    tr: "Sipariş ekranı: siparişi kimin teslim alacağı.",
+  },
+  "173 The order screen: where the order is delivered.": {
+    en: "The order screen: where the order is delivered.",
+    ar: "شاشة الطلب: الطلب هيتوصل فين.",
+    tr: "Sipariş ekranı: siparişin teslim edileceği yer.",
+  },
+  "173 The order screen: the heading over the card's message and who sends it.": {
+    en: "The order screen: the heading over the card's message and who sends it.",
+    ar: "شاشة الطلب: العنوان اللي فوق رسالة الكارت ومين باعتها.",
+    tr: "Sipariş ekranı: kart mesajının ve gönderenin üstündeki başlık.",
+  },
+  "173 The order screen: who signs the gift card.": {
+    en: "The order screen: who signs the gift card.",
+    ar: "شاشة الطلب: مين بيمضي كارت الهدية.",
+    tr: "Sipariş ekranı: hediye kartını kimin imzaladığı.",
+  },
+  "173 The order screen: the card doesn't show the sender's name.": {
+    en: "The order screen: the card doesn't show the sender's name.",
+    ar: "شاشة الطلب: الكارت مش بيبيّن اسم الراسل.",
+    tr: "Sipariş ekranı: kart gönderenin adını göstermez.",
+  },
+  "173 The order screen: the heading over the subtotal, discounts, fees and total.": {
+    en: "The order screen: the heading over the subtotal, discounts, fees and total.",
+    ar: "شاشة الطلب: العنوان اللي فوق المجموع الفرعي والخصومات والرسوم والإجمالي.",
+    tr: "Sipariş ekranı: ara toplam, indirimler, ücretler ve toplamın üstündeki başlık.",
+  },
+  "173 The order screen: the coupon's line in the totals, with its code.": {
+    en: "The order screen: the coupon's line in the totals, with its code.",
+    ar: "شاشة الطلب: سطر الكوبون في الحساب، بكوده.",
+    tr: "Sipariş ekranı: tutarlardaki kupon satırı, koduyla birlikte.",
+  },
+  "173 The order screen: a discount without a coupon code.": {
+    en: "The order screen: a discount without a coupon code.",
+    ar: "شاشة الطلب: خصم من غير كود كوبون.",
+    tr: "Sipariş ekranı: kupon kodu olmayan bir indirim.",
+  },
+  "173 The order screen: the loyalty points used, a line in the totals.": {
+    en: "The order screen: the loyalty points used, a line in the totals.",
+    ar: "شاشة الطلب: نقاط الولاء اللي اتستخدمت، سطر في الحساب.",
+    tr: "Sipariş ekranı: kullanılan sadakat puanları, tutarlarda bir satır.",
+  },
+  "173 The order screen: the delivery fee and where it was priced for, like Marrakech.": {
+    en: "The order screen: the delivery fee and where it was priced for, like Marrakech.",
+    ar: "شاشة الطلب: رسوم التوصيل والمكان اللي اتحسبت له، زي مراكش.",
+    tr: "Sipariş ekranı: teslimat ücreti ve fiyatlandırıldığı yer, örneğin Marakeş.",
+  },
+  "173 The order screen: the chosen delivery time's fee.": {
+    en: "The order screen: the chosen delivery time's fee.",
+    ar: "شاشة الطلب: رسوم وقت التوصيل المختار.",
+    tr: "Sipariş ekranı: seçilen teslimat saatinin ücreti.",
+  },
+  "173 The order screen: a tax inside the prices, like VAT 20%.": {
+    en: "The order screen: a tax inside the prices, like VAT 20%.",
+    ar: "شاشة الطلب: ضريبة جوه الأسعار، زي ضريبة القيمة المضافة 20%.",
+    tr: "Sipariş ekranı: fiyatlara dahil bir vergi, örneğin %20 KDV.",
   },
 };
 

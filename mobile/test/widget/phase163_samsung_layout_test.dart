@@ -107,6 +107,7 @@ void main() {
       tester,
     ) async {
       final problems = LayoutProblems();
+      // 171 The journey and its title show with an order to follow.
       await openLeqaaPage(
         tester,
         look: 'a',
@@ -114,6 +115,7 @@ void main() {
         phone: galaxy,
         problems: problems,
         language: 'ar',
+        withOrder: true,
       );
       final title = tester.renderObject<RenderParagraph>(
         find.text('رحلة زهورك إليهم'),
@@ -128,10 +130,10 @@ void main() {
     // wip-page-scroll's (the coordinating session, 18 November); scrolled
     // to its end it is above the bar (163.2).
 
-    // The steps over the orders are the template's own (a sample, its
-    // first step lit) until the person has an order on its way; then they
-    // follow it (132.160, 132.187).
-    testWidgets('no orders: the template\'s sample steps, the first lit', (
+    // The steps over the orders follow the person's order on its way
+    // (132.160, 132.187). 171 Without one, no sample steps (they showed the
+    // template's, its first step lit): the Orders page's own "No orders yet".
+    testWidgets('no orders: no sample steps, the page\'s own empty state', (
       tester,
     ) async {
       await openLeqaaPage(
@@ -142,7 +144,7 @@ void main() {
         problems: LayoutProblems(),
         language: 'ar',
       );
-      expect(find.text('تم الطلب'), findsOneWidget);
+      expect(find.text('تم الطلب'), findsNothing);
       expect(find.textContaining('5107'), findsNothing);
       expect(find.text('لا توجد طلبات بعد'), findsOneWidget);
     });
@@ -168,12 +170,14 @@ void main() {
     testWidgets('Latin keeps its line height, the cover its height', (
       tester,
     ) async {
+      // 171 The journey's title shows with an order to follow.
       await openLeqaaPage(
         tester,
         look: 'a',
         slug: 'orders',
         phone: samsungCommon,
         problems: LayoutProblems(),
+        withOrder: true,
       );
       // Fraunces at 27 on its designed 1.04.
       final title = tester.renderObject<RenderParagraph>(
@@ -213,6 +217,131 @@ void main() {
       find.ancestor(of: mark.first, matching: find.byType(Stack)).first,
     );
     expect(stack.clipBehavior, Clip.none);
+  });
+
+  // 163.11 The occasions' rings on the shop (Leqaa's tester: "Sympat…",
+  // "New ba…" at 130%): each name whole, on two lines when it needs them.
+  group('163.11 the occasion rings name each occasion whole', () {
+    for (final look in ['a', 'b']) {
+      for (final language in ['en', 'ar', 'tr']) {
+        for (final scale in [1.0, 1.3, 2.0]) {
+          final phone = PhoneSettings(
+            width: 360,
+            height: 780,
+            density: 3,
+            fontScale: scale,
+            bottom: 48,
+          );
+          testWidgets('$look $language at ${(scale * 100).round()}%', (
+            tester,
+          ) async {
+            await openLeqaaPage(
+              tester,
+              look: look,
+              slug: 'shop',
+              phone: phone,
+              problems: LayoutProblems(),
+              language: language,
+            );
+            final tiles = find.byWidgetPredicate(
+              (w) =>
+                  w is GestureDetector &&
+                  '${w.key}'.contains('studio-story-') &&
+                  !'${w.key}'.contains('ring'),
+            );
+            expect(tiles, findsNWidgets(5));
+            for (final tile in tiles.evaluate()) {
+              final label = find
+                  .descendant(
+                    of: find.byElementPredicate((e) => e == tile),
+                    matching: find.byType(RichText),
+                  )
+                  .evaluate()
+                  .map((e) => e.renderObject! as RenderParagraph)
+                  .where((p) => p.maxLines == 2)
+                  .single;
+              final name = label.text.toPlainText();
+              expect(label.didExceedMaxLines, isFalse, reason: name);
+              // No word broken across lines: each fits the label's width.
+              for (final word in name.split(RegExp(r'\s+'))) {
+                final painter = TextPainter(
+                  text: TextSpan(text: word, style: label.text.style),
+                  textDirection: label.textDirection,
+                  textScaler: label.textScaler,
+                )..layout();
+                expect(
+                  painter.width,
+                  lessThanOrEqualTo(label.constraints.maxWidth + 0.5),
+                  reason: '"$word" of "$name"',
+                );
+                painter.dispose();
+              }
+            }
+          });
+        }
+      }
+    }
+  });
+
+  // 163.12 Look B's price list (Kech Flora's: "Blush Ga…" at 390 points):
+  // a product's name takes a second line before it is cut.
+  group("163.12 the price list's names aren't cut", () {
+    for (final language in ['en', 'ar']) {
+      for (final width in [360.0, 390.0, 412.0]) {
+        for (final scale in [1.0, 1.3]) {
+          final phone = PhoneSettings(
+            width: width,
+            height: width * 2.17,
+            density: 1080 / width,
+            fontScale: scale,
+            bottom: 48,
+          );
+          testWidgets('$language, ${width.round()} pt, '
+              '${(scale * 100).round()}%', (tester) async {
+            await openLeqaaPage(
+              tester,
+              look: 'b',
+              slug: 'home',
+              phone: phone,
+              problems: LayoutProblems(),
+              language: language,
+            );
+            final list = find.byKey(const ValueKey('studio-node-sig-89'));
+            await tester.scrollUntilVisible(list, 300, scrollable: _page);
+            await tester.pump(const Duration(milliseconds: 600));
+            final names = find
+                .descendant(
+                  of: list,
+                  matching: find.byWidgetPredicate(
+                    (w) =>
+                        w is KeyedSubtree &&
+                        '${w.key}'.contains('studio-node-sig-93'),
+                  ),
+                )
+                .evaluate()
+                .toList();
+            expect(names, isNotEmpty);
+            for (final name in names) {
+              final paragraph =
+                  find
+                          .descendant(
+                            of: find.byElementPredicate((e) => e == name),
+                            matching: find.byType(RichText),
+                          )
+                          .evaluate()
+                          .first
+                          .renderObject!
+                      as RenderParagraph;
+              expect(
+                paragraph.didExceedMaxLines,
+                isFalse,
+                reason: paragraph.text.toPlainText(),
+              );
+            }
+          });
+        }
+      }
+    }
   });
 
   group('163.5 the rules', () {

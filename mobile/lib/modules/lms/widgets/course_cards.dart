@@ -9,6 +9,7 @@ import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/format/dates.dart';
 import '../data/lms_providers.dart';
+import '../../../core/format/text_case.dart';
 
 String courseMeta(CourseSummary course) {
   final lessons = currentL10n.lessonCount(course.lessonCount);
@@ -711,7 +712,7 @@ class ContinueCardMinimal extends StatelessWidget {
                         (finished
                                 ? context.l10n.completed
                                 : context.l10n.continueAction)
-                            .toUpperCase(),
+                            .toUpperCaseIn(context),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,

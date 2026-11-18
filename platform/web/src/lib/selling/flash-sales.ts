@@ -56,8 +56,10 @@ export function bestSale(sales: StoreFlashSale[], product: { id: number; categor
 const money = (cents: number, currency: string) => formatCents(cents, currency as CatalogCurrency);
 
 /** `ProductSale` in the contract: was, now, the share off, when it ends and how many are left. */
-export function saleJson(input: { wasCents: number; nowCents: number; currency: string; endsAt: Date | null; startsAt?: Date | null; remaining: number | null; total: number | null; flashSaleId: number | null }) {
+export function saleJson(input: { wasCents: number; nowCents: number; currency: string; endsAt: Date | null; startsAt?: Date | null; remaining: number | null; total: number | null; flashSaleId: number | null; sale?: Pick<StoreFlashSale, "title" | "titles"> | null }) {
   return {
+    // 161 Its currency: the hosted API adds `display`, its prices in the customer's (lib/money/display.ts).
+    currency: input.currency,
     was: centsToDecimal(input.wasCents),
     was_formatted: money(input.wasCents, input.currency),
     now: centsToDecimal(input.nowCents),
@@ -68,6 +70,8 @@ export function saleJson(input: { wasCents: number; nowCents: number; currency: 
     remaining: input.remaining,
     total: input.total,
     flash_sale_id: input.flashSaleId,
+    // 168 The flash sale's name as the owner wrote it, and in the app's other languages, for the product's page.
+    ...(input.sale ? { title: input.sale.title, titles: input.sale.titles ?? null } : {}),
   };
 }
 
@@ -101,7 +105,14 @@ export function withSale<T extends { id: number; price?: PriceJson | null; sale?
   categoryIds?: number[],
 ): T & { sale?: unknown } {
   const price = product.price;
-  if (!price || price.range) return product.sale !== undefined ? product : { ...product, sale: null };
+  if (!price) return product.sale !== undefined ? product : { ...product, sale: null };
+  // 168 A product with sizes (a range "from – to"): the flash sale prices both ends, so it's listed
+  // on sale as its sizes are on its page and at checkout; its `sale` is its cheapest size's.
+  if (price.range) {
+    const ranged = withRangeSale(product, price, sales, now, categoryIds);
+    if (ranged) return ranged;
+    return product.sale !== undefined ? product : { ...product, sale: null };
+  }
   const current = centsOf(price.amount);
   const regular = centsOf(price.regular_amount) ?? current;
   if (current === null || regular === null) return { ...product, sale: product.sale ?? null };
@@ -117,7 +128,7 @@ export function withSale<T extends { id: number; price?: PriceJson | null; sale?
         regular_formatted: money(regular, price.currency),
         on_sale: true,
       },
-      sale: saleJson({ wasCents: regular, nowCents: best.cents, currency: price.currency, endsAt: best.sale.endsAt, startsAt: best.sale.startsAt, remaining: unitsLeft(best.sale), total: best.sale.limit, flashSaleId: best.sale.id }),
+      sale: saleJson({ wasCents: regular, nowCents: best.cents, currency: price.currency, endsAt: best.sale.endsAt, startsAt: best.sale.startsAt, remaining: unitsLeft(best.sale), total: best.sale.limit, flashSaleId: best.sale.id, sale: best.sale }),
     };
   }
   if (product.sale !== undefined && product.sale !== null) return product;
@@ -125,6 +136,36 @@ export function withSale<T extends { id: number; price?: PriceJson | null; sale?
     return { ...product, sale: saleJson({ wasCents: regular, nowCents: current, currency: price.currency, endsAt: null, remaining: null, total: null, flashSaleId: null }) };
   }
   return { ...product, sale: null };
+}
+
+/** 168 `withSale` for a range price: its low and high ends at the flash sale's price; null when no sale on now lowers it. */
+function withRangeSale<T extends { id: number; price?: PriceJson | null; categories?: { id: number }[] }>(
+  product: T,
+  price: PriceJson & { max_amount?: string },
+  sales: StoreFlashSale[],
+  now: Date,
+  categoryIds?: number[],
+): (T & { sale?: unknown }) | null {
+  const low = centsOf(price.amount);
+  const high = centsOf(price.max_amount) ?? low;
+  if (low === null || high === null) return null;
+  const covered = { id: product.id, categoryIds: categoryIds ?? product.categories?.map((c) => c.id) };
+  const lowSale = bestSale(sales, covered, low, now);
+  if (!lowSale) return null;
+  const highSale = bestSale(sales, covered, high, now);
+  const newLow = lowSale.cents;
+  const newHigh = highSale ? highSale.cents : high;
+  return {
+    ...product,
+    price: {
+      ...price,
+      amount: centsToDecimal(newLow),
+      ...(price.max_amount !== undefined ? { max_amount: centsToDecimal(newHigh) } : {}),
+      formatted: newLow === newHigh ? money(newLow, price.currency) : `${money(newLow, price.currency)} – ${money(newHigh, price.currency)}`,
+      on_sale: true,
+    },
+    sale: saleJson({ wasCents: low, nowCents: newLow, currency: price.currency, endsAt: lowSale.sale.endsAt, startsAt: lowSale.sale.startsAt, remaining: unitsLeft(lowSale.sale), total: lowSale.sale.limit, flashSaleId: lowSale.sale.id, sale: lowSale.sale }),
+  };
 }
 
 type Parsed<T> = { ok: true; value: T } | { ok: false; errors: Record<string, string> };

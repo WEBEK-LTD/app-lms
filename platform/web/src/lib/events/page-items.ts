@@ -4,7 +4,16 @@ import { getStore } from "../data";
 import type { DataStore } from "../data/store";
 import type { EventRecord } from "../data/types";
 import { itemWords, type ItemWords } from "../hosted/pages/item-words";
+import { centsToDecimal, formatCents } from "../catalog/money";
 import { categoryId, loadEvents, placesLeft, priceLabel } from "./service";
+
+/** 161 An event's lowest paid ticket as an amount and a currency (what "From ₺150" says); 0 when all are free ("Free"), none without tickets. */
+function lowestPrice(cents: number[], currency: string): { price?: { amount: string; currency: string; formatted: string } } {
+  if (!cents.length) return {};
+  const paid = cents.filter((c) => c > 0);
+  const low = paid.length ? Math.min(...paid) : 0;
+  return { price: { amount: centsToDecimal(low, currency), currency, formatted: formatCents(low, currency) } };
+}
 
 /** One card of a list block (`Item` in docs/api/openapi.yaml), from the "events" source. */
 export interface EventItem {
@@ -14,6 +23,8 @@ export interface EventItem {
   subtitle: string | null;
   image_url: string | null;
   price_label: string | null;
+  /** 161 The lowest price as an amount and a currency (`ItemPrice`); the hosted API adds it in the customer's. */
+  price?: { amount: string; currency: string; formatted: string };
   badge: string | null;
   action: { type: "item"; item: { source: "events"; id: string } };
 }
@@ -72,6 +83,7 @@ export async function eventPageItems(
       subtitle: subtitle(e, data.settings.timeZone, words),
       image_url: e.imageAssetIds[0] ? assetUrl(e.imageAssetIds[0]) : null,
       price_label: priceLabel(types, data.settings.currency, words),
+      ...lowestPrice(types.map((t) => t.priceCents), data.settings.currency),
       badge: left === 0 ? words.soldOut : left !== null && left <= 10 ? words.left(left) : null,
       action: { type: "item", item: { source: "events", id } },
     };

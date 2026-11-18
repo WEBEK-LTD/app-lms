@@ -23,6 +23,7 @@ import 'signup_screen.dart';
 import '../../../core/l10n/l10n.dart';
 // 130.24 The code screen in the project's premium look.
 import 'auth_look.dart';
+import '../../../core/l10n/vertical_wording.dart';
 
 class OtpArgs {
   const OtpArgs({
@@ -155,7 +156,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
         _error = e.code == 'signup_disabled'
             ? (widget.args.email != null
                   ? context.l10n.noAccountForEmail
-                  : context.l10n.noAccountForNumber)
+                  : context.words.noAccountForNumber)
             : e.message;
         _code.clear();
       });

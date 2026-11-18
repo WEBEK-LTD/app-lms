@@ -2645,6 +2645,16 @@
   "primeMoreActionsHelp": "Coupons, flash sales, delivery times, busy mode",
   "primeGoalsHelp": "A goal for the day, week or month, with a ring on Today",
   "primeWeeklyHelp": "A summary by email every Monday",
+  "bouquetWrap": "Wrap",
+  "bouquetCard": "Card",
+  "bouquetMessage": "Card message: {message}",
+  "@bouquetMessage": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {
@@ -3039,6 +3049,14 @@
   "@needsAwaitingPayment": {
     "placeholders": {
       "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bouquetGroup": "Bouquet · {stems, plural, =1{1 stem} other{{stems} stems}}",
+  "@bouquetGroup": {
+    "placeholders": {
+      "stems": {
         "type": "int"
       }
     }

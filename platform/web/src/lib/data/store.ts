@@ -24,7 +24,7 @@ import type {
 } from "./types";
 // 106.12 Studio Market discounts
 import type { MarketDiscount, MarketDiscountKind } from "./types";
-import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
+import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type {
   Activation,
   App,
@@ -822,6 +822,7 @@ export interface DataStore {
   listCatalogCategories(appId: string): Promise<CatalogCategory[]>;
   /** 110.2 `sample`: a category made with the sample products. */
   createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean }): Promise<CatalogCategory>;
+  /** 157 Also makes a demo's (`sample`) category the owner's. */
   renameCatalogCategory(appId: string, id: number, name: string): Promise<void>;
   /** 132.12 The categories in this order (their `position`); ids of other apps or missing ones are skipped, the rest keep their place after these. */
   reorderCatalogCategories(appId: string, ids: number[]): Promise<void>;
@@ -879,6 +880,22 @@ export interface DataStore {
   createGiftOccasion(input: Omit<GiftOccasion, "id">): Promise<GiftOccasion>;
   updateGiftOccasion(appId: string, id: number, patch: Partial<Omit<GiftOccasion, "id" | "appId" | "createdAt">>): Promise<void>;
   deleteGiftOccasion(appId: string, id: number): Promise<void>;
+  /** 165 The app's stories (Dashboard › Stories), in their order. */
+  listAppStories(appId: string): Promise<AppStory[]>;
+  getAppStory(appId: string, id: number): Promise<AppStory | null>;
+  /**
+   * Null when a story with the same `importKey` is already the app's (a copy from Studio made once).
+   * One without an `importKey` is the owner's: the app's `storiesSavedAt` is set (as by the three below).
+   */
+  createAppStory(input: Omit<AppStory, "id">): Promise<AppStory | null>;
+  /** False when the app has no such story. Sets the app's `storiesSavedAt`. */
+  updateAppStory(appId: string, id: number, patch: Partial<Omit<AppStory, "id" | "appId" | "createdAt" | "importKey">>): Promise<boolean>;
+  /** Sets the app's `storiesSavedAt` when it removed one. */
+  deleteAppStory(appId: string, id: number): Promise<boolean>;
+  /** Puts the app's stories in this order (ids not given keep their order after them). Sets the app's `storiesSavedAt`. */
+  reorderAppStories(appId: string, ids: number[], now: Date): Promise<void>;
+  /** Notes that the app's Studio stories were copied (`apps.stories_seeded_at`); false when it already was. */
+  markStoriesSeeded(appId: string, now: Date): Promise<boolean>;
   createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder>;
   getCatalogOrder(appId: string, id: number): Promise<CatalogOrder | null>;
   getCatalogOrderByToken(tokenHash: string): Promise<CatalogOrder | null>;

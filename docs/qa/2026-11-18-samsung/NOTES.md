@@ -131,3 +131,44 @@ date). On the merged tree:
 | Template guard, Leqaa cases (`--plain-name flowers_signature`) | 20 passed |
 
 The whole suite was run once, before the merge (above); not again after it.
+
+## The occasion rings at a larger text size (Leqaa's tester, after the merge)
+
+"Sympat…", "New ba…" on the shop at 130%. Cause:
+`mobile/lib/modules/shared/pages/studio_stories.dart:84` (`width: size + 8`,
+66 pt for Leqaa's 58-point rings) with the name at `:107`–`:110`
+(`maxLines: 1`, ellipsis). "Congratulations" was cut even at 100%. Fix:
+each tile is as wide as its ring, or as its name's longest word at the
+phone's text size (`_longestWord`), and the name takes two lines when it
+needs them. A tile is wider only where its word needs it.
+
+| Run | Result |
+|---|---|
+| `flutter test test/widget/phase163_samsung_layout_test.dart --plain-name 163.11` (both looks × en/ar/tr × 100/130/200%) | 18 passed; on the old `studio_stories.dart`, 18 failed |
+| `dart format --output=none --set-exit-if-changed` (lib, my tests) | 469 files, 0 changed |
+| `flutter analyze` | No issues found |
+| `flutter test test/widget/phase163_samsung_layout_test.dart` (whole file) | 426 passed |
+
+No release bump and no preview rebuild here, as the coordinator asked;
+`tool/build_preview.sh --check` will need a rebuild once this lands.
+
+## Look B's price list (Leqaa's tester: Kech Flora's "Blush Ga…" at 390 px)
+
+Cause: the template's price-list card (`leqaa-signature.ts`, look B,
+`items` `layout: list`) sets the product's name to one line (Outfit 21)
+beside a 64-point photo and its price. The renderer drew it as set
+(`studio_page.dart`, the text node's `maxLines: node.maxLines`), so a name
+was cut wherever the row was narrower than it. Fix: in the card of a
+`list` layout (`StudioScope.inListRow`, set by `_CustomCards`), a name
+bound to one line takes a second before it is cut. Grids and carousels,
+whose cards line up side by side, keep their one line.
+
+| Run | Result |
+|---|---|
+| `--plain-name 163.12` (en and ar × 360, 390, 412 points × 100% and 130%) | 12 passed; on the previous code 7 failed (all at 130%, and Arabic at 360 at 100%) |
+
+## The whole suite, with 163.11 and 163.12
+
+`flutter test` (mobile) on the ring and price-list fixes (the same code as
+46fcb14, whose merge brought in docs only): **2,594 passed, 776 skipped
+(screenshots and gallery, off by default), 0 failed** (9 min 47 s).

@@ -209,7 +209,11 @@ class _Plan extends ConsumerWidget {
                     fit: BoxFit.scaleDown,
                     alignment: AlignmentDirectional.centerStart,
                     child: Text(
-                      premiumPrice(cents, currency),
+                      // 161 In the customer's currency when the server sent it.
+                      customerPrice(
+                        premiumPrice(cents, currency),
+                        plan.display?[yearly ? 'price_yearly' : 'price'],
+                      ),
                       textDirection: TextDirection.ltr,
                       style: TextStyle(
                         fontSize: 30,

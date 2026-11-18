@@ -16,6 +16,7 @@ import '../learning/learning_providers.dart';
 import '../my_courses/premium_my_courses.dart' show myCoursesTitle;
 import '../navigation.dart';
 import 'course_look_kit.dart';
+import '../../../core/format/text_case.dart';
 
 /// 130.52 My courses in Studio's course screens' look (`Config.screens.
 /// courses.my_courses`): the tab's name large with the owner's line under
@@ -647,7 +648,7 @@ class _ListItem extends StatelessWidget {
             children: [
               if (teacher != null && teacher.trim().isNotEmpty)
                 Text(
-                  faculty ? teacher.toUpperCase() : teacher,
+                  faculty ? teacher.toUpperCaseIn(context) : teacher,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

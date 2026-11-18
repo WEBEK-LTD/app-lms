@@ -1,11 +1,14 @@
 "use client";
 
+import { withDashboardStories } from "@/lib/stories/canvas";
 import { COMMERCE_WORDS_EN, CouponCanvas, FlashSaleCanvas, type CommerceWords } from "./commerce";
 import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import type { LanguageCode } from "@/lib/pages/types";
-import { resized, snapped } from "@/lib/studio/resize";
+import { RESIZE_START, resized, snapped } from "@/lib/studio/resize";
+import { autoSized, sizedByHand } from "@/lib/studio/auto-size";
 import { forTablet } from "@/lib/studio/tablet";
 import { mapTree } from "@/lib/studio/tree";
+import { withShopCategoriesIn } from "@/lib/studio/shop-categories";
 import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
 import { splitTabs } from "@/lib/pages/tab-bar";
@@ -72,6 +75,10 @@ export interface StudioEditing {
   tagOf: (node: StudioNode) => string;
   /** 108.1 A corner of the selection dragged: the element's new size; `drag` is the same for one drag (one undo step). */
   onResize?: (id: string, size: { width?: StudioSize; height?: StudioSize }, drag: number) => void;
+  /** 159 A corner of an element of automatic size pressed: Studio asks before its size changes by hand, then it can be dragged. */
+  onAskByHand?: (id: string) => void;
+  /** 159 A double click on a corner: the element back to its automatic size. */
+  onAutoSize?: (id: string) => void;
 }
 
 interface ViewProps {
@@ -200,8 +207,16 @@ export function textGivingWay(kids: readonly StudioNode[]): string | null {
   return texts.length === 1 ? texts[0]!.id : null;
 }
 
-export function StudioView(viewProps: ViewProps) {
-  const props = viewProps.tablet ? { ...viewProps, page: { ...viewProps.page, body: mapTree(viewProps.page.body, forTablet) ?? viewProps.page.body } } : viewProps;
+export function StudioView(givenProps: ViewProps) {
+  // 165 The story elements from Dashboard › Stories show its stories, as the app does now.
+  const storied = withDashboardStories(givenProps.page, givenProps.pickable?.stories, givenProps.lang, givenProps.defaultLang, new Date());
+  const viewProps = storied === givenProps.page ? givenProps : { ...givenProps, page: storied };
+  // 157 A template's lists of the shop's categories as the app shows them.
+  const shop = viewProps.pickable.shopCategories;
+  const listed = shop ? { ...viewProps, page: { ...viewProps.page, body: withShopCategoriesIn(viewProps.page.body, shop) } } : viewProps;
+  // 159 At their automatic sizes, as the app draws them (a cover's top bar across the cover), unless sized by hand.
+  const body = autoSized(listed.tablet ? (mapTree(listed.page.body, forTablet) ?? listed.page.body) : listed.page.body);
+  const props = body === listed.page.body ? listed : { ...listed, page: { ...listed.page, body } };
   const { page, dark, look } = props;
   const bg = (dark ? (page.dark_background ?? page.background) : page.background) ?? (dark ? "#14121F" : "#FBF8F2");
   const rtl = props.lang === "ar";
@@ -795,7 +810,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       {selected && editing ? (
         <>
           {(["top", "bottom"] as const).flatMap((v) =>
-            (["insetInlineStart", "insetInlineEnd"] as const).map((h) => <Corner key={`${v}${h}`} v={v} h={h} rtl={lang === "ar"} id={node.id} onResize={node.id === props.page.body.id || locked ? undefined : editing.onResize} />),
+            (["insetInlineStart", "insetInlineEnd"] as const).map((h) => <Corner key={`${v}${h}`} v={v} h={h} rtl={lang === "ar"} id={node.id} onResize={node.id === props.page.body.id || locked ? undefined : editing.onResize} onAsk={sizedByHand(node) ? undefined : editing.onAskByHand} onAuto={editing.onAutoSize} />),
           )}
           <SizeBadge id={node.id} />
           <Tag text={editing.tagOf(node)} />
@@ -1419,8 +1434,10 @@ function EmptyLayout() {
 /**
  * A corner of the selected element. 108.1 Dragging it resizes the element
  * (Shift keeps its shape); a double click gives it back its own size.
+ * 159 An element of automatic size asks first (`onAsk`); a double click puts
+ * it back to its automatic size (`onAuto`).
  */
-function Corner({ v, h, rtl, id, onResize }: { v: "top" | "bottom"; h: "insetInlineStart" | "insetInlineEnd"; rtl: boolean; id: string; onResize?: StudioEditing["onResize"] }) {
+function Corner({ v, h, rtl, id, onResize, onAsk, onAuto }: { v: "top" | "bottom"; h: "insetInlineStart" | "insetInlineEnd"; rtl: boolean; id: string; onResize?: StudioEditing["onResize"]; onAsk?: (id: string) => void; onAuto?: (id: string) => void }) {
   const right = (h === "insetInlineEnd") !== rtl;
   const style: CSSProperties = { position: "absolute", [v]: -9, [h]: -9, width: 9, height: 9, background: "#FFFFFF", border: "2px solid #3D63FF", borderRadius: 2, zIndex: 6, boxSizing: "content-box" };
   if (!onResize) return <span aria-hidden="true" style={style} />;
@@ -1429,10 +1446,34 @@ function Corner({ v, h, rtl, id, onResize }: { v: "top" | "bottom"; h: "insetInl
     if (!el || e.button !== 0 || !onResize) return;
     e.preventDefault();
     e.stopPropagation();
+    // 159 Its size is automatic: once the corner is dragged, Studio asks before it changes by hand (a click or a
+    // double click alone asks nothing).
+    if (onAsk) {
+      const from = { x: e.clientX, y: e.clientY };
+      const target = e.currentTarget;
+      target.setPointerCapture(e.pointerId);
+      const moved = (m: globalThis.PointerEvent) => {
+        if (Math.abs(m.clientX - from.x) < RESIZE_START && Math.abs(m.clientY - from.y) < RESIZE_START) return;
+        stop();
+        onAsk(id);
+      };
+      const stop = () => {
+        target.removeEventListener("pointermove", moved);
+        target.removeEventListener("pointerup", stop);
+        target.removeEventListener("pointercancel", stop);
+      };
+      target.addEventListener("pointermove", moved);
+      target.addEventListener("pointerup", stop);
+      target.addEventListener("pointercancel", stop);
+      return;
+    }
     const box = el.getBoundingClientRect();
     // The phone may be zoomed: its pixels, not the screen's.
     const scale = el.offsetWidth ? box.width / el.offsetWidth : 1;
-    const holder = el.parentElement;
+    // 159 What holds it: the layout's own box, past the wrapper each element is drawn in (`display: contents`, no box,
+    // no width), so a width dragged up to it becomes "fill" and a half or a third of it snaps.
+    let holder = el.parentElement;
+    while (holder && getComputedStyle(holder).display === "contents") holder = holder.parentElement;
     const room = holder ? holder.clientWidth - (parseFloat(getComputedStyle(holder).paddingLeft) || 0) - (parseFloat(getComputedStyle(holder).paddingRight) || 0) : 0;
     const start = { x: e.clientX, y: e.clientY, width: el.offsetWidth, height: el.offsetHeight, room };
     const drag = Date.now();
@@ -1486,7 +1527,8 @@ function Corner({ v, h, rtl, id, onResize }: { v: "top" | "bottom"; h: "insetInl
       onClick={(e) => e.stopPropagation()}
       onDoubleClick={(e) => {
         e.stopPropagation();
-        onResize(id, { width: undefined, height: undefined }, Date.now());
+        if (onAuto) onAuto(id);
+        else onResize(id, { width: undefined, height: undefined }, Date.now());
       }}
       draggable={false}
       onDragStart={(e) => {

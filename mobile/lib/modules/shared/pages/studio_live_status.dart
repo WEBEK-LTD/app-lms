@@ -13,6 +13,7 @@ import '../../../core/theme/symbol_names.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../taxi/data/taxi_providers.dart' show distanceKm, driveMinutes;
 import 'content_blocks.dart' show pageClockProvider;
+import '../../../core/format/text_case.dart';
 
 /// 128 A `live_status` element (`StudioLiveStatus`): the signed-in person's
 /// latest order still on its way, from the app's own data: what it is and
@@ -73,7 +74,7 @@ const _marketActive = {
 
 /// "Kofta" as it reads inside a sentence ("Your kofta is on its way").
 String _inSentence(String name) =>
-    name.isEmpty ? name : name[0].toLowerCase() + name.substring(1);
+    name.isEmpty ? name : lowerIn(name[0]) + name.substring(1);
 
 /// About how many minutes a courier at [from] is from [to], as the
 /// order's own map says it ("Arrives in about 8 min"); null without both.
