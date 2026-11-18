@@ -1903,7 +1903,11 @@ and what's still open are in ROADMAP, Phase 69):
   (`next.config.ts`). API routes and media links are left out of that
   policy because they send their own: uploaded files and SVGs are served
   with `default-src 'none'; sandbox`. The app preview alone may be framed,
-  by the dashboard.
+  by the dashboard. The permissions policy turns off the camera, the
+  microphone, location and payments (`payment=()`); 155 the payment page
+  (`/pay/…`) alone allows payments for itself and Stripe's frames
+  (`payment=(self "https://js.stripe.com" "https://checkout.stripe.com")`,
+  `lib/csp.ts`), so Apple Pay and Google Pay can show in Stripe's form.
 - **Store review access** on the hosted API skips the per-number and per-IP
   limits but has one of its own per app (30 requests an hour), so its fixed
   code can't be guessed.

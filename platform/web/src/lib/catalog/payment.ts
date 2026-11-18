@@ -30,6 +30,7 @@ import type { Lang } from "@/i18n/config";
 import { optionsText } from "./options";
 import { catalogSettings, orderNumber, type CheckoutAccount } from "./settings";
 import { stripeKeysProblem } from "../payments/stripe-keys";
+import { ensureWalletDomain } from "../payments/wallets";
 import { emailTemplate, renderTemplate } from "../email/templates";
 import { checkTicketHold, holdForPayment, noticeRefundDue, providerPageExpiry } from "../events/holds";
 import { noteAppError } from "../watch/app-errors";
@@ -122,6 +123,8 @@ export async function startPayment(
     /** Where the provider sends the customer back, and posts its webhook (lib/payments/routes.ts). */
     callbackUrls: { returnUrl: string; webhookUrl: string | null };
     hosted?: boolean;
+    /** 155 The payment page's domain, registered for Apple Pay and Google Pay in the shop's Stripe account before its form (lib/payments/wallets.ts); null: none. */
+    walletDomain?: string | null;
   },
 ): Promise<StartedPayment> {
   const { order, customer } = deps;
@@ -180,12 +183,19 @@ export async function startPayment(
   );
   let started;
   if (publishableKey) {
+    // 155 The domain registered for Apple Pay and Google Pay once, alongside the session; it never throws or stops the payment.
+    const wallets =
+      account.provider === "stripe"
+        ? ensureWalletDomain({ store: deps.store, app: deps.app, keys: account.keys, domain: deps.walletDomain ?? null, fetcher: deps.fetcher, baseUrl: deps.urls?.stripe, now: deps.now })
+        : null;
     try {
       started = await start(true);
     } catch (e) {
       // 144 Stripe's own page when it won't embed its form (an older account, a setting): the payment still starts.
       if (!(e instanceof PaymentError)) throw e;
       started = await start(false);
+    } finally {
+      await wallets;
     }
   } else {
     started = await start(false);

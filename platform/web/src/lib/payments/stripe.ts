@@ -51,6 +51,8 @@ interface Options {
   fetcher?: Fetch;
   /** Stripe's address in tests (a fake server). */
   baseUrl?: string | null;
+  /** 155 How long one request may take (20 seconds unless said). */
+  timeoutMs?: number;
 }
 
 export const STRIPE_URL = "https://api.stripe.com";
@@ -175,7 +177,7 @@ async function call(
         ...(options.idempotencyKey ? { "idempotency-key": options.idempotencyKey } : {}),
       },
       ...(params === undefined ? {} : { body: stripeForm(params).join("&") }),
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(options.timeoutMs ?? 20_000),
     });
   } catch {
     throw new StripeError("Stripe can't be reached.", { unreachable: true });
@@ -475,4 +477,83 @@ export async function stripeTestPayment(keys: StripeKeys, request: { key: string
   if (created.status >= 400 || !id) return probeOf(created.status >= 400 ? created.status : 502, created.json, () => ({ id: "" }));
   const cancelled = await call(keys, "POST", `/v1/payment_intents/${encodeURIComponent(id)}/cancel`, { cancellation_reason: "abandoned" }, { ...options, idempotencyKey: `${request.key}-cancel` });
   return probeOf(cancelled.status, cancelled.json, () => ({ id }));
+}
+
+// 155 Apple Pay and Google Pay in Stripe's card form: the payment page's domain registered in the account.
+
+/** How one wallet stands on a registered domain: Stripe's `status`, and its words when it isn't active. */
+export interface StripeWalletState {
+  active: boolean;
+  /** Stripe's `status_details.error_message`, keys cut out; null when active or Stripe gave none. */
+  message: string | null;
+}
+
+/** A payment method domain as Stripe has it (docs.stripe.com/api/payment_method_domains/object). */
+export interface StripeWalletDomain {
+  id: string;
+  domain: string;
+  enabled: boolean;
+  applePay: StripeWalletState;
+  googlePay: StripeWalletState;
+}
+
+function walletState(value: unknown): StripeWalletState {
+  const wallet = record(value);
+  const message = text(record(wallet?.status_details)?.error_message);
+  return { active: text(wallet?.status) === "active", message: message ? scrubStripeText(message).slice(0, 300) : null };
+}
+
+function walletDomainOf(json: Record<string, unknown>): StripeWalletDomain | null {
+  const id = text(json.id);
+  const domain = text(json.domain_name);
+  if (!id || !domain) return null;
+  return { id, domain, enabled: json.enabled !== false, applePay: walletState(json.apple_pay), googlePay: walletState(json.google_pay) };
+}
+
+/**
+ * 155 Registers the payment page's domain for wallets in the account the
+ * key belongs to, as Stripe asks for Elements and Embedded Checkout
+ * (docs.stripe.com/payments/payment-methods/pmd-registration): Apple Pay and
+ * Google Pay show in Stripe's form only on a domain registered in the
+ * account that takes the payment, in each mode (test and live) apart.
+ * Registered once: the domain is looked up first (GET
+ * /v1/payment_method_domains?domain_name=…) and created only when the
+ * account doesn't have it (POST /v1/payment_method_domains); one turned off
+ * is turned on again, and one whose wallet isn't active yet is checked
+ * again (…/validate), which is what Stripe asks after a fix. Stripe handles
+ * Apple's merchant validation itself. Throws StripeError when Stripe can't
+ * be reached.
+ */
+export async function registerStripeWalletDomain(keys: StripeKeys, domain: string, options: Options & { now?: Date } = {}): Promise<StripeProbe<StripeWalletDomain>> {
+  const found = await call(keys, "GET", `/v1/payment_method_domains?domain_name=${encodeURIComponent(domain)}&limit=10`, undefined, options);
+  const listed = probeOf(found.status, found.json, (list) =>
+    (Array.isArray(list.data) ? list.data : []).flatMap((item) => {
+      const one = record(item);
+      const parsed = one ? walletDomainOf(one) : null;
+      return parsed && parsed.domain.toLowerCase() === domain ? [parsed] : [];
+    }),
+  );
+  if (listed.kind !== "ok") return listed;
+  const known = listed.value.find((d) => d.enabled) ?? listed.value[0] ?? null;
+  const read = (status: number, json: Record<string, unknown> | null): StripeProbe<StripeWalletDomain> => {
+    const probe = probeOf(status, json, (one) => walletDomainOf(one));
+    if (probe.kind !== "ok") return probe;
+    return probe.value ? { kind: "ok", value: probe.value } : { kind: "error", status: 502, message: "Stripe answered without the domain." };
+  };
+  if (!known) {
+    // One registration an hour per domain and mode, however many payments start at once.
+    const hour = Math.floor((options.now ?? new Date()).getTime() / 3_600_000);
+    const created = await call(keys, "POST", "/v1/payment_method_domains", { domain_name: domain, enabled: true }, { ...options, idempotencyKey: `yallapp-pmd-${domain}-${hour}` });
+    return read(created.status, created.json);
+  }
+  if (!known.enabled) {
+    const enabled = await call(keys, "POST", `/v1/payment_method_domains/${encodeURIComponent(known.id)}`, { enabled: true }, options);
+    return read(enabled.status, enabled.json);
+  }
+  if (!known.applePay.active || !known.googlePay.active) {
+    const validated = await call(keys, "POST", `/v1/payment_method_domains/${encodeURIComponent(known.id)}/validate`, {}, options);
+    // A validation Stripe refuses still leaves the domain as it was.
+    return validated.status < 400 ? read(validated.status, validated.json) : { kind: "ok", value: known };
+  }
+  return { kind: "ok", value: known };
 }

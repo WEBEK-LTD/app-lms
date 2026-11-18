@@ -106,6 +106,8 @@ test("the page and the test's results in Egyptian Arabic", async () => {
   await own.context().addCookies([{ name: "yallapp_lang", value: "ar", url: E2E.baseURL }]);
   await own.goto("/studio/project/payments");
   await expect(own.getByRole("heading", { name: "المدفوعات", level: 1 })).toBeVisible();
+  // 155 The domain was registered with the keys saved: Apple Pay and Google Pay ready, in Egyptian Arabic.
+  await expect(own.locator("[data-wallets]")).toContainText("Apple Pay وGoogle Pay: جاهزين.");
   // 132.145 Connected, the gateway's keys open from its row.
   await own.locator("[data-gateway-edit]").click();
   const test = own.getByRole("button", { name: "جرّب الاتصال" });

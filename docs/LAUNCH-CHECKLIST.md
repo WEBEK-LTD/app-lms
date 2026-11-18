@@ -1964,3 +1964,49 @@ payment each.
       shows after 20 seconds, and the payment works there meanwhile.
 - [ ] **Fawaterk and PayPal:** unchanged, their own pages as before
       (ROADMAP 153.7, 153.8).
+
+## Phase 155: Apple Pay and Google Pay in Stripe's form
+
+Nothing to deploy beyond the code: no migration, no setting, no app build.
+Use a real Stripe account in test mode first (a test shop with its
+publishable and secret test keys saved), then live keys. Stripe registers
+the payment page's domain in each mode apart, so live keys need their own
+check.
+
+- [ ] **The domain:** on the test shop's **Payments** page choose Save keys
+      or Test connection. The line under the summary says "Apple Pay and
+      Google Pay: ready", and Test connection says "yallapp.com.tr is
+      registered in this Stripe account". In the Stripe Dashboard (test
+      mode), **Settings › Payment method domains** lists yallapp.com.tr with
+      Apple Pay and Google Pay active. If the line says "not available yet",
+      send us a screenshot of it and of that Stripe page.
+- [ ] **Stripe's payment methods:** in the Stripe Dashboard, **Settings ›
+      Payment methods**: Apple Pay and Google Pay are on (Stripe turns them
+      on by default).
+- [ ] **Apple Pay in Safari:** on an iPhone or a Mac with a card in Apple
+      Wallet, open a checkout link in **Safari** (not the app), enter the
+      details and tap Pay: Stripe's form shows Apple Pay above the card
+      fields. Pay with it: the page goes to the order's page and the order is
+      paid on **Orders**. In test mode Stripe doesn't charge the real card in
+      the wallet (docs.stripe.com/testing/wallets).
+- [ ] **Google Pay in Chrome:** on an Android phone (and on a computer),
+      signed in to Chrome with a card in Google Pay, do the same: Stripe's
+      form shows Google Pay; pay with it.
+- [ ] **Other browsers:** Stripe's form offers only what the browser and
+      the device support, so some (Firefox, for one) show neither wallet;
+      the card fields work as before.
+- [ ] **The apps:** check out in the iPhone app and in the Android app.
+      Stripe's card form works as before; Apple Pay and Google Pay are
+      **not expected** there (ROADMAP 155.6: Apple doesn't allow Apple Pay in
+      a web view that adds scripts, as the app's does, and Android's web
+      view keeps Google Pay off unless the app turns it on and each app is
+      approved by Google). Tell us if either does show.
+- [ ] **A restricted key (rk_…):** give it Write access to **Payment method
+      domains** in Stripe, or add yallapp.com.tr yourself under Settings ›
+      Payment method domains, then Test connection again.
+- [ ] **Live:** save the live keys, check the line says "ready" again, make
+      one real Apple Pay payment in Safari and refund it from **Orders**.
+- [ ] If Apple Pay stays inactive in Stripe with a message about Apple's
+      domain association file, tell us: that file would be served from
+      `/.well-known/` on host.webek.org (deploy/apache-proxy.conf keeps that
+      folder off Netlify).

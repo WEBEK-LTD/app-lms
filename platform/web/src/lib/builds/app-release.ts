@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 7;
+export const CLIENT_APP_RELEASE = 8;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -50,6 +50,12 @@ export const CLIENT_APP_RELEASE = 7;
  *    a store's product link with no product chosen opens the shop, and so
  *    does one whose product the shop no longer has (in place of "not
  *    found").
+ * 8  163 Studio pages on a Samsung's settings (larger text, display zoom,
+ *    its navigation bar): Arabic text never under a 1.5 line, so its
+ *    letters don't draw over the next card; a cover grows with what is on
+ *    it; a row's last text that shows something gives way; a
+ *    testimonial's quote mark isn't cut; the flash sale's title wraps; the
+ *    folding header no longer redraws during layout.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */
