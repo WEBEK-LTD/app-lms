@@ -2141,6 +2141,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notSoldInApp => 'لا يُباع هذا المنتج في التطبيق.';
 
   @override
+  String get orderingNotOpen => 'الطلب من التطبيق غير متاح بعد.';
+
+  @override
   String get optionsLower => 'الخيارات';
 
   @override

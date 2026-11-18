@@ -2030,6 +2030,10 @@ class OverlayLocalizations extends AppLocalizations {
   String get notSoldInApp => overlay.text('notSoldInApp') ?? base.notSoldInApp;
 
   @override
+  String get orderingNotOpen =>
+      overlay.text('orderingNotOpen') ?? base.orderingNotOpen;
+
+  @override
   String get optionsLower => overlay.text('optionsLower') ?? base.optionsLower;
 
   @override

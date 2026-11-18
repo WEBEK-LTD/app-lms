@@ -23,6 +23,7 @@ import { facultyOf, withAcademyFaculty } from "../teachers/faculty";
 import { isPublished, isTeachersApp } from "../teachers/service";
 import { isReviewTeacher } from "../teachers/review";
 import { courseSetup } from "../courses/setup";
+import { withoutDemoWords } from "./demo-words";
 
 /**
  * The draft and the published copy of an app's layout (roadmap 10.4). The
@@ -365,7 +366,9 @@ export function withFreshTranslations<T extends Layout>(layout: T, app: Pick<App
   // demo's own, which the pass below leaves out of a business's app, and the bouquet is known by them.
   const sampled = withSampleProducts(layout);
   // 156 And no template [placeholder] for customers: the store's facts fill theirs, the rest waits for the owner's words.
-  const fresh = withoutPlaceholders(withoutStaleTranslations(sampled, { ...words, dropMarks: true }), storeFactsOf(app), words);
+  const placed = withoutPlaceholders(withoutStaleTranslations(sampled, { ...words, dropMarks: true }), storeFactsOf(app), words);
+  // 176.6 And, in a business's own app, no App editor demo's own banner line and welcome sentence.
+  const fresh = app.demo === true ? placed : withoutDemoWords(placed);
   if (fresh === layout) return layout;
   return { ...fresh, version: `${layout.version}~f${sha256Hex(JSON.stringify(fresh)).slice(0, 8)}` };
 }

@@ -251,6 +251,19 @@ older servers leave it out and the app shows the lines and the total as
 before. Needs the next app build (no `CLIENT_APP_RELEASE` change here) and
 plugin 0.4.51 released; not yet tried on a phone (ROADMAP 173.6).
 
+Roadmap 176 (food and delivery apps say the business's own words): Sofra's
+and Sahm's Signature looks showed every business made from them the demo's
+restaurants and prices in Egyptian pounds, in every language; they are the
+demos' facts now, and apps made before are served without them. Served
+pages also drop what stood only beside a placeholder (Sofra's "Deliver to"
+and its chevron) and ask "Where from?" for a pickup street still to be
+written. A food company's restaurants show no delivery fee before its
+prices are set; a new company isn't told its couriers worked in its
+customers' app. An app started from an App editor demo is served without
+the demo's banner line and welcome sentence (Defne Café's hours and
+neighbourhoods). No migration, no app build. Not yet on a phone: text size
+1.3, a parcel, a café's card order, Yallapp Business (ROADMAP 176.7).
+
 Roadmap 179 (the education templates, tested by hand): Nakhla School's
 look A home ran the template's words in its News pill, which customers'
 apps leave out, so every school showed "News" with nothing after it; it now

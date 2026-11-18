@@ -3304,6 +3304,12 @@ abstract class AppLocalizations {
   /// **'This item isn\'t sold in the app.'**
   String get notSoldInApp;
 
+  /// No description provided for @orderingNotOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordering in the app isn\'t open yet.'**
+  String get orderingNotOpen;
+
   /// No description provided for @optionsLower.
   ///
   /// In en, this message translates to:

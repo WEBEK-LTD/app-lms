@@ -2049,6 +2049,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notSoldInApp => 'This item isn\'t sold in the app.';
 
   @override
+  String get orderingNotOpen => 'Ordering in the app isn\'t open yet.';
+
+  @override
   String get optionsLower => 'options';
 
   @override

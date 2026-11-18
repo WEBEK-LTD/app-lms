@@ -534,6 +534,7 @@
   "notAvailableInOptions": "غير متاح بهذه الخيارات",
   "outOfStock": "نفد من المخزون",
   "notSoldInApp": "لا يُباع هذا المنتج في التطبيق.",
+  "orderingNotOpen": "الطلب من التطبيق غير متاح بعد.",
   "optionsLower": "الخيارات",
   "listAnd": " و",
   "productPhoto": "صورة المنتج",

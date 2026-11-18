@@ -570,11 +570,21 @@ export function hasPlaceholder(text: unknown, options: TemplateWords = {}): bool
   return [...text.matchAll(BRACKETS)].some((m) => known.chunks(m[0]));
 }
 
+/** 176.5 Placeholders a customer's own choice fills, by their words in each language: a pickup street still to be written reads "Where from?", as the drop-off's "Where to?". */
+let askIndex: Map<string, string> | null = null;
+
+function asked(): Map<string, string> {
+  askIndex ??= new Map(TEMPLATE_LANGS.map((l) => [APP_WORDS[l].deliveryFrom, APP_WORDS[l].deliveryWhereFrom]));
+  return askIndex;
+}
+
 /** `text` with the store's facts in place of their placeholders. */
 function filled(text: string, facts: StoreFacts, options: TemplateWords): string {
-  if (!facts.cutoff) return text;
+  const ask = asked();
+  const own = text.replace(BRACKETS, (chunk) => ask.get(chunk) ?? chunk);
+  if (!facts.cutoff) return own;
   const { cutoff } = placeholders(options);
-  return text.replace(BRACKETS, (chunk) => (cutoff.has(chunk) ? facts.cutoff! : chunk));
+  return own.replace(BRACKETS, (chunk) => (cutoff.has(chunk) ? facts.cutoff! : chunk));
 }
 
 /** A node's, entry's or slide's own words, its fields whose placeholder leaves the whole of it out, and its translations without placeholders. */
@@ -621,6 +631,19 @@ const NODE_TEXTS = ["text", "title"] as const;
 const ENTRY_TEXTS = ["title", "subtitle", "text", "label", "prefix", "suffix"] as const;
 const SLIDE_TEXTS = ["heading", "subheading", "label"] as const;
 
+/** 176.3 An icon, a space or a line that does nothing of its own. */
+function isOrnament(node: Record<string, unknown>): boolean {
+  return ["icon", "spacer", "divider"].includes(node.type as string) && !node.action;
+}
+
+/** 176.3 The templates' labels of a value the customer's own place fills ("Deliver to"), in any of Studio's languages. */
+let labelWords: Set<string> | null = null;
+
+function isLabelWord(node: Record<string, unknown>): boolean {
+  labelWords ??= new Set(TEMPLATE_LANGS.map((l) => APP_WORDS[l].fpDeliverTo));
+  return node.type === "text" && !node.action && typeof node.text === "string" && labelWords.has(node.text.trim());
+}
+
 /** One element and what it holds without placeholders, or null to leave it out. */
 function nodeWithout(node: Record<string, unknown>, facts: StoreFacts, options: TemplateWords): Record<string, unknown> | null {
   // An element bound to an entry shows the entry's words: its own sample just goes.
@@ -634,7 +657,12 @@ function nodeWithout(node: Record<string, unknown>, facts: StoreFacts, options: 
   for (const key of ["children"] as const) {
     const list = own[key];
     if (!Array.isArray(list)) continue;
-    const next = list.map((c) => (isRecord(c) ? nodeWithout(c, facts, options) : c)).filter((c) => c !== null);
+    // 176.3 In a row, what filled its width and went leaves its room, so what follows stays where it was (the search and the bell at the end).
+    const fill = (c: Record<string, unknown>) => (own.type === "row" && c.width === "fill" ? { id: c.id, type: "spacer", width: "fill", height: 1 } : null);
+    const next = list.map((c) => (isRecord(c) ? (nodeWithout(c, facts, options) ?? fill(c)) : c)).filter((c) => c !== null);
+    // 176.3 What stood only with words still to be written goes with them: the chevron beside the area, the
+    // "Deliver to" over it (Sofra's address row showed "Deliver to" over nothing but a chevron).
+    if (next.length < list.length && next.length && !own.action && next.every((c) => isRecord(c) && (isOrnament(c) || isLabelWord(c)))) return null;
     if (next.length !== list.length || next.some((c, i) => c !== list[i])) set(key, next);
   }
   if (isRecord(own.card)) {
