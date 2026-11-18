@@ -1329,9 +1329,10 @@ export function StudioEditor(props: StudioEditorProps) {
         <HistoryPanel count={timeline.length} current={history.past.length} labelOf={(i) => stepLabel(i ? timeline[i - 1]! : null, timeline[i]!)} onJump={jumpTo} />
         <TextStylesPanel styles={textStyles} use={textStyleCount} fontLabels={fontLabels} onChange={(style, font) => change((l) => applyTextStyle(l, style, font), `text_style:${style}`)} />
         <PublishHistory entries={publishes} busy={restoring} onRestore={(entry) => void restorePublish(entry)} />
-        <div role="status" aria-live="polite" className="flex max-w-[320px] items-center gap-1.5 text-[13px]" style={{ color: status === "invalid" ? "#FFB49A" : C.barMuted }}>
+        {/* 174.1 A long problem stays on one line (the whole of it on hover), so Publish never moves to a second row. */}
+        <div role="status" aria-live="polite" title={notice ?? savedText} className="flex min-w-0 max-w-[320px] shrink items-center gap-1.5 whitespace-nowrap text-[13px]" style={{ color: status === "invalid" ? "#FFB49A" : C.barMuted }}>
           <Glyph name={status === "saved" ? "cloud_done" : status === "saving" ? "cloud_sync" : status === "invalid" ? "error" : "cloud_upload"} size={16} />
-          <span className="truncate" suppressHydrationWarning>
+          <span className="min-w-0 truncate" suppressHydrationWarning>
             {notice ?? savedText}
           </span>
         </div>

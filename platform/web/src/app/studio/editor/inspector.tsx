@@ -33,6 +33,7 @@ import {
   STUDIO_LOOPS,
   STUDIO_PRESSES,
   STUDIO_TEXT_STYLES,
+  STUDIO_PILL_RADIUS,
   LAYOUT_LIMITS,
   TAB_LABELS,
   type Action,
@@ -1079,7 +1080,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           ))}
         </div>
       ) : (
-              <RangeField label={t("studio.corners")} value={Math.min(node.radius ?? 0, 999)} min={0} max={40} unit="px" fallback={0} presets={[{ value: 0 }, { value: 8 }, { value: 16 }, { value: 24 }, { value: 999, label: t("studio.pill") }]} onChange={(radius) => onChange({ radius: radius || undefined })} />
+              <RangeField label={t("studio.corners")} value={Math.min(node.radius ?? 0, STUDIO_PILL_RADIUS)} min={0} max={40} unit="px" fallback={0} presets={[{ value: 0 }, { value: 8 }, { value: 16 }, { value: 24 }, { value: STUDIO_PILL_RADIUS, label: t("studio.pill") }]} onChange={(radius) => onChange({ radius: radius || undefined })} />
       )}
       <Check
         label={t("studio.eachCorner")}

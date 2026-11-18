@@ -8,6 +8,14 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 174 (Studio's QA on Leqaa's flower shop, fixed at the root):
+"Pill" corners save again. The preset stored 999, above the server's
+limit of 500, so the bar said "Not saved", later edits were lost on
+reload and Publish stayed off; Pill is now 500 (a pill on anything up to
+1000 px high, on the canvas and in the app), and larger corners already
+in an editor are brought down to 500 when saved instead of refused. No
+migration, no app build.
+
 Roadmap 156 (what the owner publishes in Studio is what the app shows, in
 every language): a template's translations of its own words stop applying
 once the owner changes the text, so the app shows the owner's text in
