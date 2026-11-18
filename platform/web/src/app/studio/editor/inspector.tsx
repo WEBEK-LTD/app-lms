@@ -489,13 +489,15 @@ export function TapAction({ id, action, onChange, pages, sources, screens, picka
   const value = !action ? "none" : action.type === "screen" && action.flow === "bouquet" ? "flow:bouquet" : atCategory ? "category" : action.type === "screen" ? `screen:${action.screen ?? ""}` : action.type === "page" ? `page:${action.page_slug ?? ""}` : action.type;
   const bouquet = pickable.commerce !== undefined && screens.some((s) => s.value === "search");
   const opens = (target: string) => t("studio.opens", { target });
-  const icon = !action ? "touch_app" : value === "flow:bouquet" ? "local_florist" : action.type === "screen" ? "apps" : action.type === "page" ? "description" : action.type === "url" ? "link" : action.type === "course" ? "school" : product ? "shopping_bag" : "category";
+  const icon = !action ? "touch_app" : value === "flow:bouquet" ? "local_florist" : action.type === "screen" ? "apps" : action.type === "page" ? "description" : action.type === "url" ? "link" : action.type === "course" ? "school" : action.type === "sign_out" ? "logout" : product ? "shopping_bag" : "category";
   const choose = (v: string) => {
     if (v === "none") onChange(null);
     else if (v === "flow:bouquet") onChange({ type: "screen", screen: "search", flow: "bouquet" });
     else if (v.startsWith("screen:")) onChange({ type: "screen", screen: v.slice(7) as Action["screen"] });
     else if (v.startsWith("page:")) onChange({ type: "page", page_slug: v.slice(5) });
     else if (v === "url") onChange({ type: "url", url: "", open_in: "in_app" });
+    // 167 Sign out.
+    else if (v === "sign_out") onChange({ type: "sign_out" });
     else if (v === "course") onChange({ type: "course", course_id: Number(pickable.items.courses?.[0]?.id ?? 0) || null });
     else if (v === "category") onChange({ type: "screen", screen: "search", category_id: categories[0]?.id ?? "" });
     else onChange({ type: "item", item: { source: entrySources[0] ?? "products", id: "" } });
@@ -537,6 +539,8 @@ export function TapAction({ id, action, onChange, pages, sources, screens, picka
           {sources.includes("products") ? <option value="category">{opens(t("studio.tapCategory"))}</option> : null}
           {entrySources.length || action?.type === "item" ? <option value="item">{opens(t(onlyProducts || product ? "studio.tapProduct" : "studio.tapItem"))}</option> : null}
           {sources.includes("courses") || action?.type === "course" ? <option value="course">{opens(t("studio.tapCourse"))}</option> : null}
+          {/* 167 Studio's Sign out element. */}
+          <option value="sign_out">{t("studio.tapSignOut")}</option>
         </select>
         <Chevron />
       </label>

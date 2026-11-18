@@ -10,7 +10,9 @@ import '../../../core/routing/app_router.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/web/web_page_screen.dart';
+import '../../../core/auth/auth_controller.dart';
 import '../../travel/travel_paths.dart';
+import '../account/sign_out.dart';
 import 'more_tabs.dart';
 import 'screen_page.dart';
 
@@ -80,6 +82,9 @@ bool runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
           .firstOrNull;
       if (more == null) return false;
       showMoreTabs(context, ref, more.more);
+    // 167 Studio's Sign out: asked first, then signed out.
+    case PageActionType.signOut:
+      confirmSignOut(context, ref);
   }
   return true;
 }
@@ -126,7 +131,8 @@ String? actionLocation(WidgetRef ref, PageAction action) {
     case PageActionType.course ||
         PageActionType.item ||
         PageActionType.url ||
-        PageActionType.more:
+        PageActionType.more ||
+        PageActionType.signOut:
       return null;
   }
 }
@@ -241,7 +247,9 @@ bool canFollowAction(PageAction action, AppType appType) =>
       // A page without its name, or a link without an address, opens nothing.
       PageActionType.page => (action.pageSlug ?? '').isNotEmpty,
       PageActionType.url => _linkOf(action.url) != null,
-      PageActionType.screen || PageActionType.more => true,
+      PageActionType.screen ||
+      PageActionType.more ||
+      PageActionType.signOut => true,
     };
 
 /// The address a link action opens; null for a missing or broken one.
@@ -278,6 +286,9 @@ bool canOpenAction(WidgetRef ref, PageAction action) {
       // error; unknown until the pages load.
       final pages = ref.watch(navigationProvider)?.pages;
       return pages == null || pages.isEmpty || pages.any((p) => p.slug == slug);
+    // 167 Sign out only for someone signed in.
+    case PageActionType.signOut:
+      return ref.watch(authControllerProvider).user != null;
     // 109 The More tab's list only when the bar has a More tab.
     case PageActionType.more:
       return ref.watch(shellTabsProvider).any((t) => t.isMore);

@@ -15,6 +15,7 @@ import 'app_header.dart';
 import 'draft_reload.dart';
 import 'page_blocks.dart';
 import 'page_providers.dart';
+import '../account/sign_out.dart';
 import 'screen_page.dart';
 import 'side_menu.dart';
 import 'studio_page.dart';
@@ -93,6 +94,8 @@ class AppPageView extends ConsumerWidget {
         screen: around == null
             ? null
             : builtInScreenWidget(context, ref, around),
+        // 167 The Account as a page of its own ends with Sign out.
+        accountEnd: around == null && pageStandsForAccount(ref, page.slug),
       );
     }
     final template = ref.watch(appLookProvider).template;
@@ -113,6 +116,11 @@ class AppPageView extends ConsumerWidget {
       top: top,
     );
     final p = context.palette;
+    final background = switch (page.background) {
+      PageBackground.none => null,
+      PageBackground.tint => p.primarySoft,
+      PageBackground.surface => p.surface,
+    };
     final picture = page.headerImageUrl;
     final list = ListView(
       padding: EdgeInsets.zero,
@@ -183,13 +191,13 @@ class AppPageView extends ConsumerWidget {
             ],
           ),
         ),
+        // 167 The Account as a page of its own ends with Sign out.
+        if (pageStandsForAccount(ref, page.slug)) ...[
+          AccountPageEnd(background: background ?? p.background),
+          SizedBox(height: accountListEnd(context, 0)),
+        ],
       ],
     );
-    final background = switch (page.background) {
-      PageBackground.none => null,
-      PageBackground.tint => p.primarySoft,
-      PageBackground.surface => p.surface,
-    };
     // 110 Behind the status bar: the page's background, or the bold
     // header's colour, so nothing scrolls under the clock.
     final chosen = pushed ? null : ref.watch(appLookProvider).header;

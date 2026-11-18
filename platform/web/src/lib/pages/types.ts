@@ -302,7 +302,8 @@ export const BLOCK_TYPES = [
   "form",
 ] as const;
 export const VISIBILITIES = ["everyone", "signed_in", "signed_out"] as const;
-export const ACTION_TYPES = ["page", "screen", "course", "item", "url"] as const;
+/** 167 `sign_out`: Studio's Sign out element, asked first, then signed out (the app's account ends with it too). */
+export const ACTION_TYPES = ["page", "screen", "course", "item", "url", "sign_out"] as const;
 export const SCREENS = [
   "courses",
   "my_courses",

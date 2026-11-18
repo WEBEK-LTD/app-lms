@@ -11,6 +11,7 @@ import '../../../../core/widgets/studio_screen_scope.dart';
 import '../../../store/screens/points_screen.dart' show myPointsProvider;
 import '../../auth/country_codes.dart';
 import '../account_looks.dart' show AccountLookEntry;
+import '../sign_out.dart' show accountListEnd;
 import 'system_screen_frame.dart';
 
 /// 130.21 The Account tab in the project's premium look: the person on a
@@ -256,7 +257,9 @@ class PremiumAccountLook extends ConsumerWidget {
             16,
             (banner || petal) && stats != null ? 0 : 18,
             16,
-            28,
+            // 167 Past the bar floating over it (the petal's, the pill),
+            // so Sign out, last, can be scrolled into view and tapped.
+            accountListEnd(context, 28),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

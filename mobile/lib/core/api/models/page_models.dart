@@ -382,7 +382,8 @@ class BlockLook {
 }
 
 /// 109 `more`: the More tab, which opens the tabs past the fourth.
-enum PageActionType { page, screen, course, item, url, more }
+/// 167 `sign_out`: Studio's Sign out element, asked first, then signed out.
+enum PageActionType { page, screen, course, item, url, more, signOut }
 
 /// Built-in screens a tab, button or card can open.
 enum BuiltInScreen {

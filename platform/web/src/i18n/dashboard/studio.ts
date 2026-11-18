@@ -886,6 +886,8 @@ export const en = {
   tapBouquet: "Build your bouquet",
   bouquetNotSet: "Build your bouquet isn't set up yet, so this opens the shop for now.",
   bouquetSetUp: "Set it up",
+  // 167 Studio's Sign out element.
+  tapSignOut: "Signs the person out (asked first)",
   chooseEntry: "Choose…",
   entryId: "Its ID",
   // 152 A store's entries are its products: linking a tap to one of them.
@@ -2723,6 +2725,7 @@ export const ar: Messages = {
   tapBouquet: "صمّم باقتك",
   bouquetNotSet: "«صمّم باقتك» لسه متظبطش، فده بيفتح المحل دلوقتي.",
   bouquetSetUp: "ظبّطه",
+  tapSignOut: "يسجّل خروج الشخص (بيسأله الأول)",
   chooseEntry: "اختار…",
   entryId: "الرقم بتاعه",
   tapProduct: "منتج",
@@ -4545,6 +4548,7 @@ export const tr: Messages = {
   tapBouquet: "Buketini oluştur",
   bouquetNotSet: "Buketini oluştur henüz ayarlanmadı, bu yüzden şimdilik mağazayı açar.",
   bouquetSetUp: "Ayarla",
+  tapSignOut: "Kişinin oturumunu kapatır (önce sorar)",
   chooseEntry: "Seçin…",
   entryId: "Kimliği",
   tapProduct: "Bir ürün",

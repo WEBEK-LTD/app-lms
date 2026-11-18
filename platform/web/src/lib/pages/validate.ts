@@ -485,6 +485,9 @@ function parseAction(ctx: Context, where: string, value: unknown, required: bool
       const web = openIn === "in_app" ? parseWebLook(c, where, v.web) : null;
       return { type: "url", url: url ?? "", open_in: openIn, ...(web ? { web } : {}) };
     }
+    // 167 Sign out: nothing more to choose.
+    case "sign_out":
+      return { type: "sign_out" };
   }
   return null;
 }

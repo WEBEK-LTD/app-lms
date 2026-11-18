@@ -3128,9 +3128,47 @@
     },
     "studio": {
      "body": {
-      "id": "sig-194",
+      "id": "sig-195",
       "type": "column",
-      "children": []
+      "children": [
+       {
+        "id": "sig-194",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
      },
      "screen": "account",
      "background": "#F3F1EA",
@@ -4222,7 +4260,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-195",
+      "id": "sig-196",
       "type": "column",
       "children": []
      },
@@ -4264,7 +4302,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-196",
+      "id": "sig-197",
       "type": "column",
       "children": []
      },
@@ -4306,7 +4344,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-197",
+      "id": "sig-198",
       "type": "column",
       "children": []
      },
@@ -4348,7 +4386,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-198",
+      "id": "sig-199",
       "type": "column",
       "children": []
      },
@@ -4382,7 +4420,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-199",
+      "id": "sig-200",
       "type": "column",
       "children": []
      },
@@ -4399,7 +4437,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-200",
+      "id": "sig-201",
       "type": "column",
       "children": []
      },
