@@ -32,6 +32,7 @@ jobs:
     outputs:
       app: ${{ steps.files.outputs.app }}
       business: ${{ steps.files.outputs.business }}
+      ios: ${{ steps.files.outputs.ios }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -56,6 +57,8 @@ jobs:
             if match '^(mobile/|platform/web/public/preview-app/|\.github/workflows/mobile\.yml$)'; then echo app=true; else echo app=false; fi
             # 59 Yallapp Business, the owners' app.
             if match '^(business/|build/scripts/business_store\.py$|\.github/workflows/mobile\.yml$)'; then echo business=true; else echo business=false; fi
+            # 170 The client app's native iPhone code and what it builds with.
+            if match '^(mobile/ios/|mobile/pubspec\.(yaml|lock)$|\.github/workflows/mobile\.yml$)'; then echo ios=true; else echo ios=false; fi
           } >> "$GITHUB_OUTPUT"
 
   app:
@@ -251,6 +254,49 @@ jobs:
           path: mobile/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 7
+
+  # 170 The client app's iPhone code compiles: nothing else builds iOS
+  # before the clients' own builds (build-apps.yml, from main, after a
+  # release bump), where a Swift error would only show as failed iPhone
+  # builds. A simulator build: no signing, no secrets, nothing uploaded.
+  ios:
+    name: iOS compile (no signing)
+    needs: changes
+    if: needs.changes.outputs.ios == 'true'
+    runs-on: macos-15
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      # The same Xcode as the clients' iPhone builds (build-apps.yml).
+      - name: Use Xcode 26
+        run: |
+          xcode=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | grep -Eiv 'beta|release_candidate' | sort -V | tail -n 1)
+          if [ -z "$xcode" ]; then
+            echo "::error::This runner has no Xcode 26."
+            ls -d /Applications/Xcode*.app
+            exit 1
+          fi
+          sudo xcode-select -s "$xcode/Contents/Developer"
+          xcodebuild -version
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: stable
+          flutter-version: 3.47.5
+          cache: true
+
+      - name: Install packages
+        run: flutter pub get --enforce-lockfile
+
+      - name: Apply the example build config
+        run: dart run tool/apply_config.dart config/example.json
+
+      - name: Build for the iOS simulator (no signing)
+        run: flutter build ios --simulator --debug --no-codesign
 
   # 59 Yallapp Business (business/), the app for the people who run an app
   # on Yallapp: the same checks as the client app. No APK here: release
