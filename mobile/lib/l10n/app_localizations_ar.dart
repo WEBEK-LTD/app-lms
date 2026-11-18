@@ -12891,22 +12891,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get marketEstimatedPrice => 'السعر التقديري';
 
   @override
-  String get marketAtMostAfterWeighing => 'الحد الأقصى بعد الوزن';
+  String get marketAtMostAfterWeighing => 'نقدًا: بحد أقصى';
 
   @override
   String get marketWeighFinal => 'يُحدَّد السعر النهائي بعد الوزن.';
 
   @override
   String get marketWeighCard =>
-      'تدفع السعر التقديري الآن؛ وإذا جاء الوزن أقل، نردّ إليك الفرق.';
+      'تدفع السعر التقديري الآن. وإذا جاء الوزن أقل، نردّ إليك الفرق.';
 
   @override
-  String marketWeighCash(String amount) {
-    return 'نقدًا: تدفع ما يقرؤه الميزان، بحد أقصى $amount.';
+  String marketWeighCash(String estimate, String most) {
+    return 'نقدًا: تقديريًا $estimate · بحد أقصى $most، حسب ما يقرؤه الميزان.';
   }
 
   @override
-  String get marketByCard => 'بالبطاقة';
+  String get marketByCard => 'بالبطاقة أو المحفظة';
 
   @override
   String get marketPickerSliced => 'شرائح';
@@ -13000,7 +13000,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String marketOutTakeInstead(String name) {
-    return 'نفد $name. هل تقبل هذا بدلًا منه؟';
+    return 'نفد $name. وجدنا هذا في الممر نفسه، ولن يكون أغلى. هل تقبله؟';
   }
 
   @override
@@ -13076,20 +13076,12 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String marketCardRefunded(String amount) {
-    return 'دفعت السعر التقديري بالبطاقة؛ ويعود إليك الفرق $amount على بطاقتك.';
-  }
-
-  @override
   String get marketCashFinal => 'تدفع السعر النهائي نقدًا عند الاستلام.';
 
   @override
   String marketBringingIt(String name) {
     return '$name في الطريق إليك';
   }
-
-  @override
-  String get marketCallCourier => 'اتصل بالمندوب';
 
   @override
   String get marketScanTitle => 'امسح الباركود';
@@ -13127,5 +13119,29 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String marketShownCount(int count) {
     return 'ظاهر $count';
+  }
+
+  @override
+  String get marketSamePrice => 'السعر نفسه';
+
+  @override
+  String marketAmountBack(String amount) {
+    return '$amount تعود إليك';
+  }
+
+  @override
+  String get marketNeverMore => 'لا يزيد عما دفعت';
+
+  @override
+  String get marketYouPaid => 'دفعت';
+
+  @override
+  String marketRefundToCard(String amount) {
+    return '$amount في طريقه إلى بطاقتك تلقائيًا (وإلى محفظتك إن تعذّر الردّ إلى البطاقة).';
+  }
+
+  @override
+  String marketRefundToWallet(String amount) {
+    return 'عاد $amount إلى محفظتك تلقائيًا.';
   }
 }

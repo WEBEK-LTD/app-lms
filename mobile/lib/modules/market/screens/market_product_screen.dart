@@ -161,6 +161,7 @@ class _MarketProductScreenState extends ConsumerState<MarketProductScreen> {
                         ),
                         const SizedBox(height: 14),
                         _WeighNote(
+                          estimate: money(estimate),
                           most: money(estimate * (100 + tolerance) / 100),
                         ),
                         const SizedBox(height: 14),
@@ -651,8 +652,9 @@ class _PriceTiles extends StatelessWidget {
 
 /// The final price comes after weighing: what a card and cash each pay.
 class _WeighNote extends StatelessWidget {
-  const _WeighNote({required this.most});
+  const _WeighNote({required this.estimate, required this.most});
 
+  final String estimate;
   final String most;
 
   @override
@@ -681,8 +683,6 @@ class _WeighNote extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.marketWeighFinal, style: style),
-                const SizedBox(height: 4),
                 Text.rich(
                   TextSpan(
                     children: [
@@ -696,7 +696,12 @@ class _WeighNote extends StatelessWidget {
                   style: style,
                 ),
                 const SizedBox(height: 4),
-                Text(l10n.marketWeighCash(most), style: style),
+                Text.rich(
+                  TextSpan(
+                    children: _boldLead(l10n.marketWeighCash(estimate, most)),
+                  ),
+                  style: style,
+                ),
               ],
             ),
           ),
@@ -885,4 +890,17 @@ class _AddButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// "Cash: estimated …" with its lead word ("Cash:") bold.
+List<TextSpan> _boldLead(String text) {
+  final at = text.indexOf(':');
+  if (at < 0) return [TextSpan(text: text)];
+  return [
+    TextSpan(
+      text: text.substring(0, at + 1),
+      style: const TextStyle(fontWeight: FontWeight.w700),
+    ),
+    TextSpan(text: text.substring(at + 1)),
+  ];
 }

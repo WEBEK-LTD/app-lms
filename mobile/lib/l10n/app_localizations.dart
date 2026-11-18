@@ -19967,7 +19967,7 @@ abstract class AppLocalizations {
   /// 115.40 The most a weighed item can come to, paying cash.
   ///
   /// In en, this message translates to:
-  /// **'At most, after weighing'**
+  /// **'Cash: at most'**
   String get marketAtMostAfterWeighing;
 
   /// 115.40 The note on weighed items.
@@ -19979,19 +19979,19 @@ abstract class AppLocalizations {
   /// 115.40 Card orders of weighed items.
   ///
   /// In en, this message translates to:
-  /// **'You pay the estimate now; if it weighs less, we refund the difference.'**
+  /// **'You pay the estimate now. If it weighs less, we refund the difference.'**
   String get marketWeighCard;
 
   /// 115.40 Cash orders of weighed items: the estimate plus the tolerance.
   ///
   /// In en, this message translates to:
-  /// **'Cash: you pay what the scale reads, at most {amount}.'**
-  String marketWeighCash(String amount);
+  /// **'Cash: estimated {estimate} · at most {most}, as the scale reads.'**
+  String marketWeighCash(String estimate, String most);
 
   /// 115.40 Before the card note.
   ///
   /// In en, this message translates to:
-  /// **'By card'**
+  /// **'Card or wallet'**
   String get marketByCard;
 
   /// 115.40 A note for the picker.
@@ -20141,7 +20141,7 @@ abstract class AppLocalizations {
   /// 115.40 A proposed substitute.
   ///
   /// In en, this message translates to:
-  /// **'{name} is out. Take this instead?'**
+  /// **'{name} is out. We found this in the same aisle, never dearer. Take it?'**
   String marketOutTakeInstead(String name);
 
   /// 115.40 On the missing item's picture.
@@ -20252,12 +20252,6 @@ abstract class AppLocalizations {
   /// **'{name}, your choice'**
   String marketSubChosen(String name);
 
-  /// 115.40 A card order weighed lower.
-  ///
-  /// In en, this message translates to:
-  /// **'You paid the estimate by card; the difference of {amount} comes back to your card.'**
-  String marketCardRefunded(String amount);
-
   /// 115.40 A cash order once weighed.
   ///
   /// In en, this message translates to:
@@ -20269,12 +20263,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} is bringing it'**
   String marketBringingIt(String name);
-
-  /// 115.40 A masked call: neither side sees the other's number.
-  ///
-  /// In en, this message translates to:
-  /// **'Call the courier'**
-  String get marketCallCourier;
 
   /// 115.40 The scanner's title.
   ///
@@ -20335,6 +20323,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} shown'**
   String marketShownCount(int count);
+
+  /// 115.40 A proposed or swapped item at the line's price.
+  ///
+  /// In en, this message translates to:
+  /// **'Same price'**
+  String get marketSamePrice;
+
+  /// 115.40 What comes back on a weighed line that came to less (card or wallet).
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} back'**
+  String marketAmountBack(String amount);
+
+  /// 115.40 A card or wallet order once weighed: never more than the estimate paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Never more than you paid'**
+  String get marketNeverMore;
+
+  /// 115.40 The estimate a card or wallet order paid.
+  ///
+  /// In en, this message translates to:
+  /// **'You paid'**
+  String get marketYouPaid;
+
+  /// 115.40 The lower weighed price's difference, back to the card.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is on its way back to your card, by itself (to your wallet if the card refund fails).'**
+  String marketRefundToCard(String amount);
+
+  /// 115.40 The lower weighed price's difference, back to the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is back in your wallet, by itself.'**
+  String marketRefundToWallet(String amount);
 }
 
 class _AppLocalizationsDelegate

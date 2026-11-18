@@ -12491,22 +12491,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketEstimatedPrice => 'Estimated price';
 
   @override
-  String get marketAtMostAfterWeighing => 'At most, after weighing';
+  String get marketAtMostAfterWeighing => 'Cash: at most';
 
   @override
   String get marketWeighFinal => 'The final price comes after weighing.';
 
   @override
   String get marketWeighCard =>
-      'You pay the estimate now; if it weighs less, we refund the difference.';
+      'You pay the estimate now. If it weighs less, we refund the difference.';
 
   @override
-  String marketWeighCash(String amount) {
-    return 'Cash: you pay what the scale reads, at most $amount.';
+  String marketWeighCash(String estimate, String most) {
+    return 'Cash: estimated $estimate · at most $most, as the scale reads.';
   }
 
   @override
-  String get marketByCard => 'By card';
+  String get marketByCard => 'Card or wallet';
 
   @override
   String get marketPickerSliced => 'Sliced';
@@ -12601,7 +12601,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String marketOutTakeInstead(String name) {
-    return '$name is out. Take this instead?';
+    return '$name is out. We found this in the same aisle, never dearer. Take it?';
   }
 
   @override
@@ -12677,11 +12677,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String marketCardRefunded(String amount) {
-    return 'You paid the estimate by card; the difference of $amount comes back to your card.';
-  }
-
-  @override
   String get marketCashFinal =>
       'You pay the final price in cash when it arrives.';
 
@@ -12689,9 +12684,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String marketBringingIt(String name) {
     return '$name is bringing it';
   }
-
-  @override
-  String get marketCallCourier => 'Call the courier';
 
   @override
   String get marketScanTitle => 'Scan a barcode';
@@ -12730,5 +12722,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String marketShownCount(int count) {
     return '$count shown';
+  }
+
+  @override
+  String get marketSamePrice => 'Same price';
+
+  @override
+  String marketAmountBack(String amount) {
+    return '$amount back';
+  }
+
+  @override
+  String get marketNeverMore => 'Never more than you paid';
+
+  @override
+  String get marketYouPaid => 'You paid';
+
+  @override
+  String marketRefundToCard(String amount) {
+    return '$amount is on its way back to your card, by itself (to your wallet if the card refund fails).';
+  }
+
+  @override
+  String marketRefundToWallet(String amount) {
+    return '$amount is back in your wallet, by itself.';
   }
 }

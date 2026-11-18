@@ -596,7 +596,8 @@ class MarketEstimateCard extends StatelessWidget {
   final MarketBasket basket;
   final double tolerancePercent;
 
-  /// Paying by card (or the phone's wallet): the estimate is charged now.
+  /// Paying by card or wallet (or the phone's wallet): the estimate is
+  /// charged now; that line comes first, cash's after.
   final bool card;
 
   @override
@@ -604,6 +605,7 @@ class MarketEstimateCard extends StatelessWidget {
     final p = context.palette;
     final l10n = context.l10n;
     final total = double.tryParse(quote?.total.amount ?? '') ?? basket.estimate;
+    final estimate = marketAmount(total, basket.currency, basket.decimals);
     final most = marketAmount(
       total + basket.weighedEstimate * tolerancePercent / 100,
       basket.currency,
@@ -635,14 +637,6 @@ class MarketEstimateCard extends StatelessWidget {
                         color: p.text,
                       ),
                     ),
-                    if (!card)
-                      Text(
-                        l10n.marketAtMostAfter(most),
-                        style: TextStyle(
-                          fontSize: 13.5,
-                          color: p.textSecondary,
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -658,22 +652,54 @@ class MarketEstimateCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppIcon(
-                card ? Symbols.credit_card_rounded : Symbols.payments_rounded,
-                size: 20,
-                color: p.textSecondary,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  card ? l10n.marketWeighCard : l10n.marketWeighCash(most),
-                  style: TextStyle(fontSize: 13.5, color: p.textBody),
+          // What each way to pay means: the estimate now by card or
+          // wallet (the way chosen first), or the scale's price in cash.
+          Container(
+            key: const ValueKey('market-pay-note'),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: marketTint(p, p.primary, 0.1),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppIcon(
+                  card ? Symbols.credit_card_rounded : Symbols.payments_rounded,
+                  size: 20,
+                  color: p.primary,
+                  filled: true,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final (i, line) in [
+                        (
+                          '${l10n.marketByCard} · ${l10n.marketWeighCard}',
+                          card,
+                        ),
+                        (l10n.marketWeighCash(estimate, most), !card),
+                      ].indexed) ...[
+                        if (i > 0) const SizedBox(height: 3),
+                        Text(
+                          line.$1,
+                          style: TextStyle(
+                            fontSize: 13,
+                            height: 1.35,
+                            fontWeight: line.$2
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                            color: line.$2 ? p.text : p.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -8,6 +8,7 @@ import type { PickedLine } from "./flow";
  * five minutes to accept it or leave the line out. Unanswered by then, the
  * order's choice decides: a similar item is taken, anything else leaves it
  * out. "My choice" lines and "leave it out" lines are never asked. The
+ * proposal costs at most the line as ordered (never dearer). The
  * proposal lives in the order's lines (no table of its own); the time runs
  * out when the order is next read or answered, as `syncWithJob` follows the
  * courier's job. Picking then has to follow the answer (`checkPicks`).
@@ -70,7 +71,8 @@ export async function proposeSubstitute(store: DataStore, order: MarketOrder, li
     name: product.name,
     imageUrl: product.imageAssetId ? imageUrl(product.imageAssetId) : null,
     quantity: input.quantity,
-    total: Math.round(product.price * input.quantity + 1e-9),
+    // Never dearer than the line as ordered (the owner's rule, designs of 18 November).
+    total: Math.min(Math.round(product.price * input.quantity + 1e-9), Math.round(line.unitPrice * line.quantity + 1e-9)),
     proposedAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + ANSWER_MINUTES * 60_000).toISOString(),
     answer: null,

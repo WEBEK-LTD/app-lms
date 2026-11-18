@@ -13777,7 +13777,7 @@
   "@marketEstimatedPrice": {
     "description": "115.40 A weighed item's price before weighing."
   },
-  "marketAtMostAfterWeighing": "At most, after weighing",
+  "marketAtMostAfterWeighing": "Cash: at most",
   "@marketAtMostAfterWeighing": {
     "description": "115.40 The most a weighed item can come to, paying cash."
   },
@@ -13785,20 +13785,23 @@
   "@marketWeighFinal": {
     "description": "115.40 The note on weighed items."
   },
-  "marketWeighCard": "You pay the estimate now; if it weighs less, we refund the difference.",
+  "marketWeighCard": "You pay the estimate now. If it weighs less, we refund the difference.",
   "@marketWeighCard": {
     "description": "115.40 Card orders of weighed items."
   },
-  "marketWeighCash": "Cash: you pay what the scale reads, at most {amount}.",
+  "marketWeighCash": "Cash: estimated {estimate} · at most {most}, as the scale reads.",
   "@marketWeighCash": {
     "description": "115.40 Cash orders of weighed items: the estimate plus the tolerance.",
     "placeholders": {
-      "amount": {
+      "estimate": {
+        "type": "String"
+      },
+      "most": {
         "type": "String"
       }
     }
   },
-  "marketByCard": "By card",
+  "marketByCard": "Card or wallet",
   "@marketByCard": {
     "description": "115.40 Before the card note."
   },
@@ -13949,7 +13952,7 @@
   "@marketYourAnswer": {
     "description": "115.40 Over a proposed substitute."
   },
-  "marketOutTakeInstead": "{name} is out. Take this instead?",
+  "marketOutTakeInstead": "{name} is out. We found this in the same aisle, never dearer. Take it?",
   "@marketOutTakeInstead": {
     "description": "115.40 A proposed substitute.",
     "placeholders": {
@@ -14076,15 +14079,6 @@
       }
     }
   },
-  "marketCardRefunded": "You paid the estimate by card; the difference of {amount} comes back to your card.",
-  "@marketCardRefunded": {
-    "description": "115.40 A card order weighed lower.",
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
   "marketCashFinal": "You pay the final price in cash when it arrives.",
   "@marketCashFinal": {
     "description": "115.40 A cash order once weighed."
@@ -14097,10 +14091,6 @@
         "type": "String"
       }
     }
-  },
-  "marketCallCourier": "Call the courier",
-  "@marketCallCourier": {
-    "description": "115.40 A masked call: neither side sees the other's number."
   },
   "marketScanTitle": "Scan a barcode",
   "@marketScanTitle": {
@@ -14154,6 +14144,45 @@
     "placeholders": {
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "marketSamePrice": "Same price",
+  "@marketSamePrice": {
+    "description": "115.40 A proposed or swapped item at the line's price."
+  },
+  "marketAmountBack": "{amount} back",
+  "@marketAmountBack": {
+    "description": "115.40 What comes back on a weighed line that came to less (card or wallet).",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketNeverMore": "Never more than you paid",
+  "@marketNeverMore": {
+    "description": "115.40 A card or wallet order once weighed: never more than the estimate paid."
+  },
+  "marketYouPaid": "You paid",
+  "@marketYouPaid": {
+    "description": "115.40 The estimate a card or wallet order paid."
+  },
+  "marketRefundToCard": "{amount} is on its way back to your card, by itself (to your wallet if the card refund fails).",
+  "@marketRefundToCard": {
+    "description": "115.40 The lower weighed price's difference, back to the card.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketRefundToWallet": "{amount} is back in your wallet, by itself.",
+  "@marketRefundToWallet": {
+    "description": "115.40 The lower weighed price's difference, back to the wallet.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
       }
     }
   }

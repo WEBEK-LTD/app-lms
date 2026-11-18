@@ -5,7 +5,6 @@ import 'package:yallapp/core/api/models/market_api_models.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
-import 'package:yallapp/core/services/external_links.dart';
 import 'package:yallapp/modules/market/data/market_basket.dart';
 import 'package:yallapp/modules/market/data/market_models.dart';
 import 'package:yallapp/modules/market/screens/market_scanner_screen.dart';
@@ -19,7 +18,7 @@ import '../support/zad_market_fixtures.dart';
 /// 115.40 The supermarket in the customer app (designs 01–05b of
 /// 18 November 2026), on Zad Market: its home, a department paged by the
 /// cursor, a product by weight, the cart's "if something is missing", the
-/// order's live substitute and weighed price, the courier's masked call,
+/// order's live substitute and weighed price, the courier by first name,
 /// and the barcode typed where there's no camera. Every screen in English
 /// and Arabic (right to left), light and dark, at text scale 1.0 and 1.3
 /// on a 360-point phone, without an overflow.
@@ -282,14 +281,14 @@ void main() {
     expect(find.text('EGP 132.00'), findsOneWidget);
     expect(
       find.textContaining(
-        'You pay the estimate now; if it weighs less, we refund the '
+        'You pay the estimate now. If it weighs less, we refund the '
         'difference.',
         findRichText: true,
       ),
       findsOneWidget,
     );
     expect(
-      find.text('Cash: you pay what the scale reads, at most EGP 132.00.'),
+      find.textContaining('at most EGP 132.00', findRichText: true),
       findsOneWidget,
     );
     // Its most is 3 kg.
@@ -333,7 +332,13 @@ void main() {
     );
     // Paying cash: at most the estimate and 10% of the weighed items.
     // 396 + (120 + 35) × 10% = 411.50.
-    expect(find.text('At most EGP 411.50 after weighing'), findsOneWidget);
+    expect(
+      find.text(
+        'Cash: estimated EGP 396.00 · at most EGP 411.50, as the '
+        'scale reads.',
+      ),
+      findsOneWidget,
+    );
     var cart = app.api.marketQuotes.last.toJson();
     expect(cart['if_missing'], 'similar');
     final lines = (cart['lines'] as List).cast<Map<String, dynamic>>();
@@ -382,8 +387,8 @@ void main() {
     await tester.tap(find.text('Card'));
     await TestApp.settle(tester, 6);
     expect(
-      find.text(
-        'You pay the estimate now; if it weighs less, we refund the '
+      find.textContaining(
+        'You pay the estimate now. If it weighs less, we refund the '
         'difference.',
       ),
       findsOneWidget,
@@ -397,10 +402,13 @@ void main() {
     await open(tester, Paths.marketOrder(4821), api: api);
     expect(find.text('YOUR ANSWER, PLEASE'), findsOneWidget);
     expect(
-      find.text('Egyptian rice, 1 kg is out. Take this instead?'),
+      find.text(
+        'Egyptian rice, 1 kg is out. We found this in the same aisle, never '
+        'dearer. Take it?',
+      ),
       findsOneWidget,
     );
-    expect(find.text('+EGP 8.00'), findsOneWidget);
+    expect(find.text('Same price'), findsOneWidget);
     expect(
       find.text('No answer in time? We follow your choice: a similar item.'),
       findsOneWidget,
@@ -410,7 +418,10 @@ void main() {
       find.byKey(const ValueKey('market-proposal-clock')),
     );
     expect(clock.data, matches(RegExp(r'^4:[23]\d$')));
-    await reveal(tester, find.text('Weighed 780 g · EGP 124.80'));
+    await reveal(
+      tester,
+      find.text('Weighed 740 g · EGP 118.40 · EGP 1.60 back'),
+    );
     expect(find.text('Your choice, for Eggs, 30'), findsOneWidget);
     await reveal(
       tester,
@@ -468,60 +479,56 @@ void main() {
     phone(tester);
     final api = zad();
     await open(tester, Paths.marketOrder(4821), api: api);
+    await reveal(
+      tester,
+      find.byKey(const ValueKey('market-proposal-decline-1')),
+    );
     await tester.tap(find.byKey(const ValueKey('market-proposal-decline-1')));
     await TestApp.settle(tester, 12);
     expect(api.substituteAnswers.last, (order: 4821, line: 1, accept: false));
   });
 
-  testWidgets('on its way: the weighed price line by line, and the courier\'s '
-      'masked call', (tester) async {
+  testWidgets('on its way: the weighed price line by line, and the courier '
+      'by first name', (tester) async {
     phone(tester);
-    final opened = <String>[];
-    await open(
-      tester,
-      Paths.marketOrder(4822),
-      more: [
-        openExternalProvider.overrideWithValue((url) async {
-          opened.add(url);
-          return true;
-        }),
-      ],
-    );
+    await open(tester, Paths.marketOrder(4822));
     expect(find.text('Weighed and final'), findsOneWidget);
-    expect(find.text('Within 10%'), findsOneWidget);
+    // Card: never more than the estimate paid, the difference back.
+    expect(find.text('Never more than you paid'), findsOneWidget);
+    expect(find.text('You paid'), findsOneWidget);
     expect(find.text('EGP 396.00'), findsOneWidget);
     expect(
       tester
           .widget<Text>(find.byKey(const ValueKey('market-final-total')))
           .data,
-      'EGP 415.55',
+      'EGP 387.65',
     );
-    expect(find.text('+EGP 4.80'), findsOneWidget);
-    expect(find.text('+EGP 1.75'), findsOneWidget);
-    expect(find.text('+EGP 8.00'), findsOneWidget);
-    expect(find.text('+EGP 5.00'), findsOneWidget);
+    expect(
+      find.text(
+        'EGP 8.35 is on its way back to your card, by itself (to your '
+        'wallet if the card refund fails).',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('−EGP 1.60'), findsOneWidget);
+    expect(find.text('−EGP 1.75'), findsOneWidget);
+    expect(find.text('−EGP 5.00'), findsOneWidget);
+    expect(find.text('Same price'), findsOneWidget);
     expect(
       find.text('Short-grain rice, 1 kg ×2, you accepted'),
       findsOneWidget,
     );
     expect(find.text('Karim is bringing your order'), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('market-call-courier')));
-    await tester.pump();
-    expect(opened.single, 'tel:+20212345678,4821');
   });
 
-  testWidgets('no masked line, no call button; cash pays the final price', (
-    tester,
-  ) async {
+  testWidgets('cash pays the final price', (tester) async {
     phone(tester);
     final api = zad();
     api.marketOrders[4822] = {
-      ...ZadMarket.onTheWay(payment: 'cash', call: false),
+      ...ZadMarket.onTheWay(payment: 'cash'),
       'id': 4822,
     };
     await open(tester, Paths.marketOrder(4822), api: api);
-    expect(find.text('Karim is bringing your order'), findsOneWidget);
-    expect(find.byKey(const ValueKey('market-call-courier')), findsNothing);
     expect(
       find.text('You pay the final price in cash when it arrives.'),
       findsOneWidget,

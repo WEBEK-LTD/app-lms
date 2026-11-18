@@ -160,10 +160,10 @@ abstract final class ZadMarket {
     description: t('White, medium', 'أبيض، وسط'),
   );
   static MarketItem get eggs15 =>
-      piece('52', t('Eggs, 15', 'بيض، 15 بيضة'), 85, picture: 'eggs');
+      piece('52', t('Eggs, 15', 'بيض، 15 بيضة'), 80, picture: 'eggs');
   static MarketItem get rice => piece(
     '61',
-    t(t('Egyptian rice, 1 kg', 'أرز مصري، 1 كجم'), 'أرز مصري، 1 كجم'),
+    t('Egyptian rice, 1 kg', 'أرز مصري، 1 كجم'),
     38,
     picture: 'egyptian-rice',
   );
@@ -401,7 +401,7 @@ abstract final class ZadMarket {
         _line(
           1,
           61,
-          t(t('Egyptian rice, 1 kg', 'أرز مصري، 1 كجم'), 'أرز مصري، 1 كجم'),
+          t('Egyptian rice, 1 kg', 'أرز مصري، 1 كجم'),
           2,
           'item',
           '38.00',
@@ -412,8 +412,8 @@ abstract final class ZadMarket {
             'name': t('Short-grain rice, 1 kg', 'أرز قصير الحبة، 1 كجم'),
             'image_url': photo('egyptian-rice'),
             'quantity': 2,
-            'total': egp('84.00'),
-            'difference': egp('8.00'),
+            'total': egp('76.00'),
+            'difference': egp('0.00'),
             'proposed_at': at
                 .subtract(const Duration(minutes: 5))
                 .add(left)
@@ -434,8 +434,8 @@ abstract final class ZadMarket {
           '120.00',
           picture: 'white-cheese',
           outcome: 'picked',
-          picked: 0.78,
-          total: '124.80',
+          picked: 0.74,
+          total: '118.40',
         ),
         _line(
           3,
@@ -448,8 +448,8 @@ abstract final class ZadMarket {
           picture: 'bananas',
           ifMissing: 'remove',
           outcome: 'picked',
-          picked: 1.05,
-          total: '36.75',
+          picked: 0.95,
+          total: '33.25',
         ),
         _line(
           4,
@@ -462,12 +462,12 @@ abstract final class ZadMarket {
           picture: 'eggs',
           ifMissing: 'chosen',
           outcome: 'substituted',
-          total: '170.00',
+          total: '160.00',
           substitute: {
             'product_id': 52,
             'name': t('Eggs, 15', 'بيض، 15 بيضة'),
             'quantity': 2,
-            'total': egp('170.00'),
+            'total': egp('160.00'),
           },
         ),
       ],
@@ -505,23 +505,20 @@ abstract final class ZadMarket {
   }
 
   /// Order #4821 on its way: weighed, the rice swapped as accepted.
-  static Map<String, dynamic> onTheWay({
-    String payment = 'card',
-    bool call = true,
-  }) {
+  static Map<String, dynamic> onTheWay({String payment = 'card'}) {
     final at = DateTime.now();
     final order = picking(now: at);
     final lines = (order['lines'] as List).cast<Map<String, dynamic>>();
     lines[0] = {
       ...lines[0],
       'outcome': 'substituted',
-      'total': egp('84.00'),
-      'weighed_total': egp('84.00'),
+      'total': egp('76.00'),
+      'weighed_total': null,
       'substitute': {
         'product_id': 62,
         'name': t('Short-grain rice, 1 kg', 'أرز قصير الحبة، 1 كجم'),
         'quantity': 2,
-        'total': egp('84.00'),
+        'total': egp('76.00'),
       },
       'proposal': {
         ...(lines[0]['proposal'] as Map<String, dynamic>),
@@ -534,13 +531,13 @@ abstract final class ZadMarket {
       'status': 'on_the_way',
       'estimated': false,
       'lines': lines,
-      // 396 told: 4.80 + 1.75 + 8.00 + 5.00 more once weighed and swapped.
-      'total': egp('415.55'),
+      // 396 paid: 1.60, 1.75 and 5.00 less once weighed and swapped.
+      'total': egp('387.65'),
       'price': [
         {
           'kind': 'items',
           'label': t('Items', 'الأصناف'),
-          'amount': egp('415.55'),
+          'amount': egp('387.65'),
         },
         {
           'kind': 'delivery',
@@ -550,7 +547,7 @@ abstract final class ZadMarket {
         {
           'kind': 'total',
           'label': t('Total', 'الإجمالي'),
-          'amount': egp('415.55'),
+          'amount': egp('387.65'),
         },
       ],
       'payment': {'method': payment, 'status': 'paid', 'wallet_used': null},
@@ -565,7 +562,6 @@ abstract final class ZadMarket {
           'name': t('Karim', 'كريم'),
           'photo_url': null,
           'vehicle': t('Motorbike', 'دراجة نارية'),
-          'call': call ? {'number': '+20 2 1234 5678', 'code': '4821'} : null,
         },
         'position': {'lat': 30.0548, 'lng': 31.2195},
         'updated_at': at.toUtc().toIso8601String(),

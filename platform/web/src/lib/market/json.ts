@@ -305,8 +305,7 @@ export function customerOrderJson(
     tracking: input.tracking
       ? {
           mode: input.tracking.mode,
-          // 115.40 `call`: a masked line to the app's courier; null until the app has a call relay.
-          courier: input.tracking.courier ? { name: input.tracking.courier.name, photo_url: input.tracking.courier.photoUrl, vehicle: input.tracking.courier.vehicle, call: null } : null,
+          courier: input.tracking.courier ? { name: input.tracking.courier.name, photo_url: input.tracking.courier.photoUrl, vehicle: input.tracking.courier.vehicle } : null,
           position: input.tracking.position,
           updated_at: input.tracking.updatedAt ? input.tracking.updatedAt.toISOString() : null,
           route: [],

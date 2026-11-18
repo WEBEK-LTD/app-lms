@@ -9,7 +9,6 @@ import '../../../core/api/models/market_api_models.dart' as api;
 import '../../../core/format/bidi.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
-import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
@@ -22,7 +21,7 @@ import 'market_store_widgets.dart';
 /// 05a and 05b): how many lines are picked, the picker's proposed item to
 /// accept or leave out before its time runs out (then the order's choice
 /// applies), each line as picked, the weighed final price against the
-/// estimate line by line, and the courier by first name with a masked call.
+/// estimate line by line, and the courier by first name.
 
 double _amount(api.MarketMoney m) => double.tryParse(m.amount) ?? 0;
 
@@ -365,8 +364,9 @@ class _MarketProposalCardState extends ConsumerState<MarketProposalCard> {
                   label: l10n.marketSimilarLabel,
                   name: proposal.name,
                   price: '$qty · ${ltrRun(proposal.total.formatted)}',
+                  // Never dearer: the same price, or what it saves.
                   extra: diff.abs() < 0.005
-                      ? null
+                      ? l10n.marketSamePrice
                       : ltrRun(
                           '${diff > 0 ? '+' : '−'}${marketAmount(diff.abs(), currency, decimals)}',
                         ),
@@ -433,19 +433,32 @@ class _MarketProposalCardState extends ConsumerState<MarketProposalCard> {
 
 /// A line of a shop's order as picked: weighed, swapped, left out, or
 /// waiting.
-class MarketPickedRow extends StatelessWidget {
-  const MarketPickedRow({super.key, required this.line, this.picking = true});
+class MarketPickedRow extends ConsumerWidget {
+  const MarketPickedRow({
+    super.key,
+    required this.line,
+    this.picking = true,
+    this.paidAhead = false,
+  });
 
   final api.MarketOrderLine line;
+
+  /// Paid by card or wallet: a weighed line that came to less says what
+  /// comes back.
+  final bool paidAhead;
 
   /// The order is still being picked: a line without an outcome waits.
   final bool picking;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final l10n = context.l10n;
     final unit = _unit(line.unit);
+    final config = ref.watch(marketConfigProvider);
+    final double back = paidAhead
+        ? marketLineEstimate(line) - marketLineFinal(line)
+        : 0;
     final asked = line.unit == api.ProductUnit.item
         ? (line.quantity == 1
               ? ''
@@ -454,10 +467,20 @@ class MarketPickedRow extends StatelessWidget {
     final (String title, String words) = switch (line.outcome) {
       'picked' when line.byWeight => (
         line.name,
-        l10n.marketWeighedAt(
-          marketAmountText(l10n, unit, line.pickedQuantity ?? line.quantity),
-          ltrRun(line.total.formatted),
-        ),
+        [
+          l10n.marketWeighedAt(
+            marketAmountText(l10n, unit, line.pickedQuantity ?? line.quantity),
+            ltrRun(line.total.formatted),
+          ),
+          if (back > 0.005)
+            l10n.marketAmountBack(
+              marketAmount(
+                back,
+                config?.currency ?? 'EGP',
+                config?.currencyDecimals ?? 2,
+              ),
+            ),
+        ].join(' · '),
       ),
       'picked' => ('${line.name}$asked', ltrRun(line.total.formatted)),
       'substituted' => (
@@ -592,7 +615,8 @@ class MarketWeighedCard extends ConsumerWidget {
         for (final l in order.lines)
           if (l.outcome != null &&
               (l.outcome == 'picked') == weighedFirst &&
-              (marketLineFinal(l) - marketLineEstimate(l)).abs() >= 0.005)
+              (l.outcome == 'substituted' ||
+                  (marketLineFinal(l) - marketLineEstimate(l)).abs() >= 0.005))
             (l, marketLineFinal(l) - marketLineEstimate(l)),
     ];
     final card = order.payMethod != api.MarketPayMethod.cash;
@@ -623,17 +647,27 @@ class MarketWeighedCard extends ConsumerWidget {
                   ),
                 ),
               ),
-              if (limit == 0 || weighedFinal <= limit + 0.005)
-                MarketPill(
-                  text: l10n.marketWithinPercent(
-                    ltrRun(tolerance.toStringAsFixed(0)),
-                  ),
-                  background: marketTint(p, p.success, 0.14),
-                  color: p.success,
-                  icon: Symbols.verified_rounded,
-                ),
             ],
           ),
+          if (card || limit == 0 || weighedFinal <= limit + 0.005) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child:
+                  // Card or wallet: never more than the estimate paid; cash:
+                  // within the tolerance.
+                  MarketPill(
+                    text: card
+                        ? l10n.marketNeverMore
+                        : l10n.marketWithinPercent(
+                            ltrRun(tolerance.toStringAsFixed(0)),
+                          ),
+                    background: marketTint(p, p.success, 0.14),
+                    color: p.success,
+                    icon: Symbols.verified_rounded,
+                  ),
+            ),
+          ],
           const SizedBox(height: 12),
           IntrinsicHeight(
             child: Row(
@@ -651,7 +685,7 @@ class MarketWeighedCard extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l10n.marketYouWereTold,
+                          card ? l10n.marketYouPaid : l10n.marketYouWereTold,
                           style: TextStyle(
                             fontSize: 13.5,
                             color: p.textSecondary,
@@ -665,7 +699,9 @@ class MarketWeighedCard extends ConsumerWidget {
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
                               color: p.textSecondary,
-                              decoration: TextDecoration.lineThrough,
+                              decoration: card
+                                  ? null
+                                  : TextDecoration.lineThrough,
                             ),
                           ),
                         ),
@@ -710,7 +746,40 @@ class MarketWeighedCard extends ConsumerWidget {
               ],
             ),
           ),
-          if (limit > 0) ...[
+          if (card && less > 0.005)
+            Container(
+              key: const ValueKey('market-refund'),
+              margin: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: marketTint(p, p.success, 0.14),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                children: [
+                  AppIcon(
+                    Symbols.undo_rounded,
+                    size: 20,
+                    color: p.success,
+                    filled: true,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      order.payMethod == api.MarketPayMethod.wallet
+                          ? l10n.marketRefundToWallet(money(less))
+                          : l10n.marketRefundToCard(money(less)),
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: p.success,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (!card && limit > 0) ...[
             const SizedBox(height: 14),
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
@@ -734,38 +803,43 @@ class MarketWeighedCard extends ConsumerWidget {
                 Expanded(child: _ChangeText(line: l)),
                 const SizedBox(width: 8),
                 Text(
-                  ltrRun('${d > 0 ? '+' : '−'}${money(d.abs())}'),
+                  d.abs() < 0.005
+                      ? l10n.marketSamePrice
+                      : ltrRun('${d > 0 ? '+' : '−'}${money(d.abs())}'),
                   style: TextStyle(
                     fontSize: 14.5,
                     fontWeight: FontWeight.w800,
-                    color: d > 0 ? marketDeeper(p.accent, 0.4) : p.success,
+                    color: d.abs() < 0.005
+                        ? p.text
+                        : d > 0
+                        ? marketDeeper(p.accent, 0.4)
+                        : p.success,
                   ),
                 ),
               ],
             ),
           ],
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppIcon(
-                card ? Symbols.credit_card_rounded : Symbols.payments_rounded,
-                size: 20,
-                color: p.textSecondary,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  card
-                      ? (less > 0.005
-                            ? l10n.marketCardRefunded(money(less))
-                            : l10n.marketWeighCard)
-                      : l10n.marketCashFinal,
-                  style: TextStyle(fontSize: 13.5, color: p.textBody),
+          // Cash pays the final price; a card or wallet paid the estimate.
+          if (!card || less <= 0.005) ...[
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppIcon(
+                  card ? Symbols.credit_card_rounded : Symbols.payments_rounded,
+                  size: 20,
+                  color: p.textSecondary,
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    card ? l10n.marketWeighCard : l10n.marketCashFinal,
+                    style: TextStyle(fontSize: 13.5, color: p.textBody),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -820,8 +894,8 @@ class _ChangeText extends StatelessWidget {
   }
 }
 
-/// The courier by first name and vehicle, with a call through the app's
-/// masked line when it has one (the app's couriers only).
+/// The courier by first name and vehicle; how to reach them comes with
+/// Phase 184's contact field (`MarketTracking.courier.call`).
 class MarketCourierCard extends ConsumerWidget {
   const MarketCourierCard({super.key, required this.tracking});
 
@@ -832,7 +906,6 @@ class MarketCourierCard extends ConsumerWidget {
     final p = context.palette;
     final l10n = context.l10n;
     final name = tracking.courierName!;
-    final number = tracking.callNumber;
     return Container(
       key: const ValueKey('market-courier'),
       padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 12, 12),
@@ -908,39 +981,6 @@ class MarketCourierCard extends ConsumerWidget {
               ],
             ),
           ),
-          if (number != null)
-            Semantics(
-              button: true,
-              label: l10n.marketCallCourier,
-              child: Material(
-                color: marketTint(p, p.primary, 0.14),
-                shape: const CircleBorder(),
-                child: InkWell(
-                  key: const ValueKey('market-call-courier'),
-                  customBorder: const CircleBorder(),
-                  onTap: () {
-                    final code = tracking.callCode;
-                    final dial = number.replaceAll(RegExp(r'[^0-9+]'), '');
-                    // The code after a pause, for the relay to connect.
-                    ref.read(openExternalProvider)(
-                      code == null || code.isEmpty
-                          ? 'tel:$dial'
-                          : 'tel:$dial,${code.replaceAll(RegExp(r'[^0-9]'), '')}',
-                    );
-                  },
-                  child: SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: AppIcon(
-                      Symbols.call_rounded,
-                      size: 24,
-                      color: p.primary,
-                      filled: true,
-                    ),
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );

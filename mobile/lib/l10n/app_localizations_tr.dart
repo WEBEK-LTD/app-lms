@@ -12397,22 +12397,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String get marketEstimatedPrice => 'Tahmini fiyat';
 
   @override
-  String get marketAtMostAfterWeighing => 'Tartımdan sonra en fazla';
+  String get marketAtMostAfterWeighing => 'Nakit: en fazla';
 
   @override
   String get marketWeighFinal => 'Son fiyat tartımdan sonra belli olur.';
 
   @override
   String get marketWeighCard =>
-      'Tahmini tutarı şimdi ödersiniz; daha hafif gelirse farkı iade ederiz.';
+      'Tahmini tutarı şimdi ödersiniz. Daha hafif gelirse farkı iade ederiz.';
 
   @override
-  String marketWeighCash(String amount) {
-    return 'Nakit: terazinin gösterdiğini ödersiniz, en fazla $amount.';
+  String marketWeighCash(String estimate, String most) {
+    return 'Nakit: tahmini $estimate · en fazla $most, terazinin gösterdiği kadar.';
   }
 
   @override
-  String get marketByCard => 'Kartla';
+  String get marketByCard => 'Kart veya cüzdan';
 
   @override
   String get marketPickerSliced => 'Dilimlenmiş';
@@ -12507,7 +12507,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String marketOutTakeInstead(String name) {
-    return '$name kalmadı. Bunun yerine bunu alalım mı?';
+    return '$name kalmadı. Aynı reyondan bunu bulduk, daha pahalı değil. Alalım mı?';
   }
 
   @override
@@ -12583,20 +12583,12 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String marketCardRefunded(String amount) {
-    return 'Tahmini tutarı kartla ödediniz; $amount fark kartınıza iade edilir.';
-  }
-
-  @override
   String get marketCashFinal => 'Son fiyatı teslimatta nakit ödersiniz.';
 
   @override
   String marketBringingIt(String name) {
     return '$name getiriyor';
   }
-
-  @override
-  String get marketCallCourier => 'Kuryeyi ara';
 
   @override
   String get marketScanTitle => 'Barkod tara';
@@ -12635,5 +12627,29 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String marketShownCount(int count) {
     return '$count gösteriliyor';
+  }
+
+  @override
+  String get marketSamePrice => 'Aynı fiyat';
+
+  @override
+  String marketAmountBack(String amount) {
+    return '$amount iade';
+  }
+
+  @override
+  String get marketNeverMore => 'Ödediğinizden fazla değil';
+
+  @override
+  String get marketYouPaid => 'Ödediğiniz';
+
+  @override
+  String marketRefundToCard(String amount) {
+    return '$amount kendiliğinden kartınıza iade ediliyor (kart iadesi olmazsa cüzdanınıza).';
+  }
+
+  @override
+  String marketRefundToWallet(String amount) {
+    return '$amount kendiliğinden cüzdanınıza döndü.';
   }
 }

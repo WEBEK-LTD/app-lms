@@ -957,15 +957,12 @@ class MarketTracking {
     this.lng,
     this.updatedAt,
     this.route = const [],
-    this.callNumber,
-    this.callCode,
   });
 
   factory MarketTracking.fromJson(Json json) {
     final courier = optObject(json, 'courier', (j) => j);
     final position = optObject(json, 'position', (j) => j);
     final route = json['route'];
-    final call = courier == null ? null : optObject(courier, 'call', (j) => j);
     return MarketTracking(
       onMap: json['mode'] == 'map',
       courierName: courier == null ? null : optString(courier, 'name'),
@@ -980,8 +977,6 @@ class MarketTracking {
             if (point is List && point.length == 2)
               ((point[0] as num).toDouble(), (point[1] as num).toDouble()),
       ],
-      callNumber: call == null ? null : optString(call, 'number'),
-      callCode: call == null ? null : optString(call, 'code'),
     );
   }
 
@@ -997,11 +992,6 @@ class MarketTracking {
 
   /// The road ahead as (lat, lng) points.
   final List<(double, double)> route;
-
-  /// 115.40 A masked line to the app's courier (never the courier's own
-  /// number) and the code dialled after it; null when the app has none.
-  final String? callNumber;
-  final String? callCode;
 }
 
 /// `MarketOrder`: a customer's order from one vendor.

@@ -13241,9 +13241,9 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('marketWeighCard') ?? base.marketWeighCard;
 
   @override
-  String marketWeighCash(String amount) =>
-      overlay.format('marketWeighCash', {'amount': amount}) ??
-      base.marketWeighCash(amount);
+  String marketWeighCash(String estimate, String most) =>
+      overlay.format('marketWeighCash', {'estimate': estimate, 'most': most}) ??
+      base.marketWeighCash(estimate, most);
 
   @override
   String get marketByCard => overlay.text('marketByCard') ?? base.marketByCard;
@@ -13441,11 +13441,6 @@ class OverlayLocalizations extends AppLocalizations {
       base.marketSubChosen(name);
 
   @override
-  String marketCardRefunded(String amount) =>
-      overlay.format('marketCardRefunded', {'amount': amount}) ??
-      base.marketCardRefunded(amount);
-
-  @override
   String get marketCashFinal =>
       overlay.text('marketCashFinal') ?? base.marketCashFinal;
 
@@ -13453,10 +13448,6 @@ class OverlayLocalizations extends AppLocalizations {
   String marketBringingIt(String name) =>
       overlay.format('marketBringingIt', {'name': name}) ??
       base.marketBringingIt(name);
-
-  @override
-  String get marketCallCourier =>
-      overlay.text('marketCallCourier') ?? base.marketCallCourier;
 
   @override
   String get marketScanTitle =>
@@ -13499,4 +13490,31 @@ class OverlayLocalizations extends AppLocalizations {
   String marketShownCount(int count) =>
       overlay.format('marketShownCount', {'count': count}) ??
       base.marketShownCount(count);
+
+  @override
+  String get marketSamePrice =>
+      overlay.text('marketSamePrice') ?? base.marketSamePrice;
+
+  @override
+  String marketAmountBack(String amount) =>
+      overlay.format('marketAmountBack', {'amount': amount}) ??
+      base.marketAmountBack(amount);
+
+  @override
+  String get marketNeverMore =>
+      overlay.text('marketNeverMore') ?? base.marketNeverMore;
+
+  @override
+  String get marketYouPaid =>
+      overlay.text('marketYouPaid') ?? base.marketYouPaid;
+
+  @override
+  String marketRefundToCard(String amount) =>
+      overlay.format('marketRefundToCard', {'amount': amount}) ??
+      base.marketRefundToCard(amount);
+
+  @override
+  String marketRefundToWallet(String amount) =>
+      overlay.format('marketRefundToWallet', {'amount': amount}) ??
+      base.marketRefundToWallet(amount);
 }

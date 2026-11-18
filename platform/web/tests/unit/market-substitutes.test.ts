@@ -185,8 +185,8 @@ describe("115.40 substitutes asked live", () => {
     const proposed = await propose(staff.access_token, order.id, 1, shortRice);
     expect(proposed.status, JSON.stringify(proposed.body)).toBe(200);
     const seen = await read(customer.access_token, order.id);
-    // 2 × 42 against 2 × 38: 8 more.
-    expect(seen.lines[0]!.proposal).toMatchObject({ product_id: shortRice, answer: null, answered_by: null, difference: { amount: "8.00" } });
+    // 2 × 42 against 2 × 38: never dearer, so at the line's 76.
+    expect(seen.lines[0]!.proposal).toMatchObject({ product_id: shortRice, answer: null, answered_by: null, total: { amount: "76.00" }, difference: { amount: "0.00" } });
     expect(new Date(seen.lines[0]!.proposal!.expires_at).getTime() - now.getTime()).toBe(ANSWER_MINUTES * 60_000);
     // Waiting: the line can't be swapped yet, and nothing else is proposed for it.
     expect((await call("PATCH", "/vendor/orders/{order_id}/lines", { token: staff.access_token, params: [String(order.id)], body: { lines: [{ line_id: 1, outcome: "substituted" }] } })).status).toBe(409);

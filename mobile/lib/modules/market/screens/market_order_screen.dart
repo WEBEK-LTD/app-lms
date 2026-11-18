@@ -166,6 +166,7 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                           picking:
                               o.status == api.MarketOrderStatus.picking ||
                               o.status == api.MarketOrderStatus.accepted,
+                          paidAhead: o.payMethod != api.MarketPayMethod.cash,
                         )
                     else
                       for (final line in o.lines)

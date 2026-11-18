@@ -20380,8 +20380,8 @@ components:
             name: { type: string }
             image_url: { type: [string, 'null'], format: uri }
             quantity: { type: number }
-            total: { $ref: '#/components/schemas/Money', description: 'The proposed item at its own price.' }
-            difference: { $ref: '#/components/schemas/Money', description: 'Its total less the line''s, negative when it costs less.' }
+            total: { $ref: '#/components/schemas/Money', description: 'The proposed item at its own price, never above the line as ordered ("never dearer").' }
+            difference: { $ref: '#/components/schemas/Money', description: 'Its total less the line as ordered: zero or negative.' }
             proposed_at: { type: string, format: date-time }
             expires_at: { type: string, format: date-time }
             answer: { type: [string, 'null'], enum: [accepted, declined, null], description: 'Null while it waits.' }
@@ -20470,18 +20470,11 @@ components:
         courier:
           type: [object, 'null']
           required: [name, photo_url, vehicle]
-          description: "The courier's own phone is never sent: the customer reaches support, or the courier through `call` (a masked line) when the app has one."
+          description: No phone; the customer reaches support.
           properties:
             name: { type: string, description: 'First name.' }
             photo_url: { type: [string, 'null'], format: uri }
             vehicle: { type: [string, 'null'], example: Motorbike }
-            call:
-              type: [object, 'null']
-              description: '115.40 A masked line to the app''s courier while the order is on its way: the app''s relay number and the code that connects it to this order''s courier; the courier''s own number is never sent. Null when the app has no call relay, and for a vendor''s own drivers. Missing on older servers.'
-              required: [number, code]
-              properties:
-                number: { type: string, description: 'E.164.' }
-                code: { type: [string, 'null'], description: 'Dialled after the number, when the relay asks for one.' }
         position:
           type: [object, 'null']
           required: [lat, lng]

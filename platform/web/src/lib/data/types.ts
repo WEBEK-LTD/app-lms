@@ -5204,7 +5204,7 @@ export interface SubstituteProposal {
   name: string;
   imageUrl: string | null;
   quantity: number;
-  /** Minor units: the proposed item at its own price. */
+  /** Minor units: the proposed item, never dearer than the line as ordered. */
   total: number;
   proposedAt: string;
   expiresAt: string;
