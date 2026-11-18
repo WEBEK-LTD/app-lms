@@ -1,5 +1,6 @@
 "use client";
 
+import { withDashboardStories } from "@/lib/stories/canvas";
 import { COMMERCE_WORDS_EN, CouponCanvas, FlashSaleCanvas, type CommerceWords } from "./commerce";
 import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import type { LanguageCode } from "@/lib/pages/types";
@@ -200,7 +201,10 @@ export function textGivingWay(kids: readonly StudioNode[]): string | null {
   return texts.length === 1 ? texts[0]!.id : null;
 }
 
-export function StudioView(viewProps: ViewProps) {
+export function StudioView(givenProps: ViewProps) {
+  // 165 The story elements from Dashboard › Stories show its stories, as the app does now.
+  const storied = withDashboardStories(givenProps.page, givenProps.pickable?.stories, givenProps.lang, givenProps.defaultLang, new Date());
+  const viewProps = storied === givenProps.page ? givenProps : { ...givenProps, page: storied };
   const props = viewProps.tablet ? { ...viewProps, page: { ...viewProps.page, body: mapTree(viewProps.page.body, forTablet) ?? viewProps.page.body } } : viewProps;
   const { page, dark, look } = props;
   const bg = (dark ? (page.dark_background ?? page.background) : page.background) ?? (dark ? "#14121F" : "#FBF8F2");

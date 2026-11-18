@@ -16649,6 +16649,25 @@ components:
               color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$', description: "Without a photo, the circle's colour." }
               label: { type: string, maxLength: 3, description: "Without a photo, the letters in the circle (initials)." }
               icon: { type: string, description: "Without a photo or `label`, a Material Symbols name in the circle. A story without a photo that has an `action` opens it instead of the stories." }
+              kicker: { type: string, maxLength: 40, description: "165 From Dashboard › Stories (`stories_source` dashboard): the small line over its title in the full-screen viewer. Apps before release 7 don't show it." }
+              title: { type: string, maxLength: 80, description: "165 From Dashboard › Stories: its title in the viewer (`heading` is then the ring's name). Apps before release 7 show `heading`." }
+              line: { type: string, maxLength: 160, description: "165 From Dashboard › Stories: its line under the title in the viewer." }
+              button_label: { type: string, maxLength: 30, description: "165 From Dashboard › Stories: its button's words (apps before release 7: their own \"Open\")." }
+              video_url: { type: string, format: uri, description: "165 From Dashboard › Stories: its video, played muted in the viewer over `image_url` (its first picture). Apps before release 7 show the photo." }
+        stories_source:
+          type: string
+          enum: [dashboard, studio]
+          description: |
+            165 For `stories`, a `slider` of story slides and a `row` of story
+            chips: `dashboard`, the server serves Dashboard › Stories into it
+            in the language asked for (each story a ring, or a copy of the
+            n-th designed slide or chip with the story's photo or video, words,
+            icon and button; left out while none is shown); `studio`, as
+            designed. Missing: as designed, except the flower shop's occasions.
+        story_part:
+          type: string
+          enum: [kicker, title, line, ring, icon, button]
+          description: "165 In a story slide or chip: what of each story this part shows. Served already filled; the app draws it as any element."
         images:
           type: array
           maxItems: 30
@@ -17425,6 +17444,7 @@ components:
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
         open_in: { type: string, enum: [in_app, browser], default: in_app }
+        category_id: { type: [string, 'null'], description: "165 With `screen` `courses` (a store's shop): the shop opened on this category or collection. Apps before release 7 open the shop." }
         web:
           type: [object, 'null']
           description: |

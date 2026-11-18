@@ -66,6 +66,7 @@ export const en = {
   // Ring
   ring: "Ring",
   ringIcon: "Ring icon",
+  ringIconName: "Icon name (Material Symbols)",
   ringIconHint: "A Material Symbols name, e.g. favorite, cake, spa. Shown beside the label and on the ring when there's no photo.",
   noIcon: "No icon",
   // Button
@@ -175,6 +176,7 @@ export const ar: Messages = {
   buttonHint: "زي «ابعت ورد»",
   ring: "الدايرة",
   ringIcon: "أيقونة الدايرة",
+  ringIconName: "اسم الأيقونة (Material Symbols)",
   ringIconHint: "اسم من Material Symbols، زي favorite وcake وspa. بتظهر جنب الكلمة الصغيرة وعلى الدايرة لو مفيش صورة.",
   noIcon: "من غير أيقونة",
   button: "الزرار",
@@ -277,6 +279,7 @@ export const tr: Messages = {
   buttonHint: "ör. “Çiçek gönder”",
   ring: "Halka",
   ringIcon: "Halka simgesi",
+  ringIconName: "Simge adı (Material Symbols)",
   ringIconHint: "Bir Material Symbols adı, ör. favorite, cake, spa. Etiketin yanında ve fotoğraf yokken halkada gösterilir.",
   noIcon: "Simge yok",
   button: "Düğme",

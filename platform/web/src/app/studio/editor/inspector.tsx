@@ -65,6 +65,7 @@ import { BannerControls, BeforeAfterControls, GalleryControls, IndicatorLookCont
 // 129.11–129.20 The premium elements' options and lists, and a layout's premium card style.
 import { PremiumControls, SurfaceControls } from "./premium-controls";
 import { CommerceControls } from "./commerce-controls";
+import { fromDashboard, isStoryElement, StoriesSourceControls } from "./stories-source-controls";
 import { Glyph } from "./shared";
 
 /**
@@ -777,7 +778,9 @@ function DesignTab(props: Props & { node: StudioNode }) {
       ) : null}
       {node.type === "tracking" ? <TrackingControls node={node} onChange={onChange} /> : null}
       {/* 129 Premium motion & media. */}
-      {node.type === "stories" ? <StoriesControls {...premiumProps(props, node)} /> : null}
+      {/* 165 Where a story element's stories come from: Dashboard › Stories, or as designed here. */}
+      {isStoryElement(node, props.page.body) ? <StoriesSourceControls node={node} body={props.page.body} pickable={props.pickable} onChange={onChange} /> : null}
+      {node.type === "stories" && !fromDashboard(node, props.page.body) ? <StoriesControls {...premiumProps(props, node)} /> : null}
       {node.type === "marquee" ? <MarqueeControls {...premiumProps(props, node)} /> : null}
       {node.type === "video_hero" || node.type === "parallax_banner" ? <BannerControls {...premiumProps(props, node)} /> : null}
       {node.type === "gallery" ? <GalleryControls {...premiumProps(props, node)} /> : null}

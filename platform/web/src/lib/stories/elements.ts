@@ -221,6 +221,8 @@ function filledTemplate(template: StudioNode, kind: "slides" | "chips", story: S
       if (!text) return null;
       out = { ...out, text };
     }
+    // Its words are the story's, in the language asked for: not the design's other languages (Studio's canvas reads them).
+    if (part && part !== "icon") delete out.translations;
     return out;
   };
   const root = fill(template) ?? template;
@@ -250,7 +252,8 @@ export function withServedStories(node: StudioNode, kind: StoryElementKind, stor
       const look = looks[Math.min(i, looks.length - 1)];
       return {
         image_url: s.imageUrl,
-        heading: s.ring ?? s.title,
+        // The ring's name under it (as before 165, at most 40 characters).
+        heading: (s.ring ?? s.title)?.slice(0, 40) ?? null,
         subheading: null,
         action: s.action,
         ...(look?.ring ? { ring: look.ring } : {}),

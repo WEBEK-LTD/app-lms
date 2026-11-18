@@ -13,12 +13,16 @@ import { parseLayoutContent } from "@/lib/pages/validate";
 import { ensureStoriesSeeded, parseStory, servedStories, SHOP_ACTION, storyAction, storyLive, type StoryRules } from "@/lib/stories";
 import { dashboardStoryElements, storiesSourceOf, storyElementKind } from "@/lib/stories/elements";
 import { storyOrder } from "@/lib/stories/order";
+import { withDashboardStories } from "@/lib/stories/canvas";
+import { storyViewOf } from "@/lib/stories/view";
+import { copyApp } from "@/lib/apps/copy";
 import { appWords } from "@/lib/studio/app-words";
 import type { SectionContext } from "@/lib/studio/sections";
 import { TEMPLATES } from "@/lib/studio/sections";
 import { startLayout } from "@/lib/studio/start";
 import { allNodes, mapTree } from "@/lib/studio/tree";
 import { appStoriesStoreSuite, NOW, storiesApp, storyOf } from "./app-stories-store-suite";
+import { expectContract } from "./contract";
 
 /**
  * 165 Dashboard › Stories: the stories of the flower shop's home (its hero's
@@ -77,6 +81,8 @@ async function home(store: MemoryStore, app: App, lang: string, now = NOW): Prom
   const slug = (await store.getAppLayout(app.id))!.published!.pages[0]!.slug;
   const result = await handlePages(context(store, fresh, now), { method: "GET", path: ["pages", slug], query: new URLSearchParams({ platform: "android" }), body: null, token: null, headers: new Headers({ "accept-language": lang }) }, null);
   expect(result?.status).toBe(200);
+  // What the app reads, as the contract says (docs/api/openapi.yaml).
+  expectContract("GET", "/pages/{slug}", result!);
   return (result!.body as { studio: StudioPage }).studio;
 }
 
@@ -322,5 +328,47 @@ describe("165 serving the dashboard's stories in each language", () => {
     const story = { ...storyOf("app", 0, { texts: { en: { title: "Roses", button: "Shop" }, ar: { title: "ورد" } } }), id: 1 };
     expect(servedStories([story], "ar", "en", NOW)[0]).toMatchObject({ title: "ورد", button: "Shop" });
     expect(servedStories([story], "tr", "en", NOW)[0]).toMatchObject({ title: "Roses", button: "Shop" });
+  });
+});
+
+describe("165 Studio shows the dashboard's stories, and a copy of the app takes them", () => {
+  it("draws the story elements from the dashboard on the canvas, in the language edited; keeps the design while none is shown", async () => {
+    const store = new MemoryStore();
+    const app = await storiesApp(store);
+    const layout = leqaaLayout(app, "a");
+    await published(store, app, layout);
+    await ensureStoriesSeeded(store, app, NOW);
+    const [first] = await store.listAppStories(app.id);
+    await store.updateAppStory(app.id, first!.id, { texts: { en: { title: "Peonies today", ring: "Peony" }, ar: { title: "فاوانيا النهارده", ring: "فاوانيا" } }, updatedAt: NOW });
+    const views = (await store.listAppStories(app.id)).map(storyViewOf);
+    const page = layout.pages[0]!.studio!;
+    const shown = withDashboardStories(page, views, "ar", "en", NOW);
+    const slide = sliderOf(shown).children![0]!;
+    expect(allNodes({ body: slide }).find((n) => n.story_part === "title")).toMatchObject({ text: "فاوانيا النهارده" });
+    expect(allNodes({ body: slide }).find((n) => n.story_part === "title")?.translations).toBeUndefined();
+    expect(ringsOf(shown).slides![0]).toMatchObject({ heading: "فاوانيا", title: "فاوانيا النهارده" });
+    // The first slide keeps its ids: the canvas selects the design from it.
+    expect(slide.id).toBe(sliderOf(page).children![0]!.id);
+    // Off: the design stays to be selected (the inspector says none is shown).
+    expect(withDashboardStories(page, views.map((v) => ({ ...v, enabled: false })), "en", "en", NOW)).toBe(page);
+    // As designed: untouched.
+    const designed = asDesigned(layout).pages[0]!.studio!;
+    expect(withDashboardStories(designed, views, "en", "en", NOW)).toBe(designed);
+  });
+
+  it("copies the stories with an app, its categories and products the copy's", async () => {
+    const store = new MemoryStore();
+    const app = await storiesApp(store);
+    const category = await store.createCatalogCategory({ appId: app.id, name: "Roses", now: NOW });
+    await store.createAppStory(storyOf(app.id, 0, { categoryId: String(category.id), action: { type: "screen", screen: "courses", category_id: String(category.id) }, importKey: "home:hero:0" }));
+    await store.createAppStory(storyOf(app.id, 1, { enabled: false }));
+    const { app: copy, copied } = await copyApp({ store, now: NOW, copyBlob: null, media: null }, app, { clientId: app.clientId, name: "Leqaa 2" });
+    expect(copied.app_stories).toBe(2);
+    const stories = await store.listAppStories(copy.id);
+    const mapped = (await store.listCatalogCategories(copy.id))[0]!.id;
+    expect(stories.map((s) => [s.categoryId, s.action, s.enabled, s.importKey])).toEqual([
+      [String(mapped), { type: "screen", screen: "courses", category_id: String(mapped) }, true, "home:hero:0"],
+      [null, null, false, null],
+    ]);
   });
 });

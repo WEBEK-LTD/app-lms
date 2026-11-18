@@ -4,7 +4,8 @@ import { appOpensScreen, itemSourcesFor } from "../pages/sources";
 import { ACTION_TYPES, SCREENS, type Action, type ItemSource, type StudioNode } from "../pages/types";
 import { mediaAddress } from "../pages/validate";
 import type { DashKey } from "../../i18n/dashboard";
-import { designedStories, dashboardStoryElements, storyText, type DesignedStory, type ServedStory } from "./elements";
+import { designedStories, dashboardStoryElements, type DesignedStory } from "./elements";
+export { SHOP_ACTION, servedStories, storyAction, storyLive } from "./serve";
 
 /**
  * 165 Dashboard › Stories: the app's stories, each its photo or video, its
@@ -18,9 +19,6 @@ import { designedStories, dashboardStoryElements, storyText, type DesignedStory,
 
 export const STORY_LIMITS = { stories: 20, kicker: 40, title: 80, line: 160, ring: 24, button: 30 } as const;
 export const STORY_TEXT_PARTS = ["kicker", "title", "line", "ring", "button"] as const satisfies readonly (keyof AppStoryTexts)[];
-
-/** The shop: what a story's button opens when the owner chose nothing (never Home). */
-export const SHOP_ACTION: Action = { type: "screen", screen: "courses" };
 
 /** What the dashboard sends for a story. */
 export interface StoryInput {
@@ -144,42 +142,6 @@ export function parseStory(input: StoryInput, rules: StoryRules): StoryParse {
     ok: true,
     value: { enabled: input.enabled !== false, startsAt: startsAt ?? null, endsAt: endsAt ?? null, media: shownMedia, texts, icon: icon ?? null, action: action === "bad" ? null : action, categoryId: categoryId ?? null },
   };
-}
-
-/** Whether a story is shown now: on, and between its dates. */
-export function storyLive(story: Pick<AppStory, "enabled" | "startsAt" | "endsAt">, now: Date): boolean {
-  if (!story.enabled) return false;
-  if (story.startsAt && story.startsAt.getTime() > now.getTime()) return false;
-  if (story.endsAt && story.endsAt.getTime() <= now.getTime()) return false;
-  return true;
-}
-
-/**
- * 165 What a story's button opens: the owner's choice; with none, the shop
- * (on the story's category when it has one), never Home. The app follows it
- * on the same path as every other tap (mobile runPageAction).
- */
-export function storyAction(story: Pick<AppStory, "action" | "categoryId">): Action {
-  if (story.action) return story.action;
-  return story.categoryId ? { ...SHOP_ACTION, category_id: story.categoryId } : SHOP_ACTION;
-}
-
-/** The stories as an app gets them now: those live, in their order, each in `lang` (else the main language). */
-export function servedStories(stories: readonly AppStory[], lang: string, def: string, now: Date): ServedStory[] {
-  return stories
-    .filter((s) => storyLive(s, now))
-    .map((s) => ({
-      id: s.id,
-      imageUrl: s.media.imageUrl,
-      videoUrl: s.media.kind === "video" ? s.media.videoUrl : null,
-      kicker: storyText(s, "kicker", lang, def),
-      title: storyText(s, "title", lang, def),
-      line: storyText(s, "line", lang, def),
-      ring: storyText(s, "ring", lang, def),
-      button: storyText(s, "button", lang, def),
-      icon: s.icon,
-      action: storyAction(s),
-    }));
 }
 
 // ——— 165 The stories an app's Studio design already shows, copied once ———

@@ -43,6 +43,8 @@ export interface Pickable {
   samples?: Partial<Record<string, Partial<Record<ItemSource, PickableEntry[]>>>>;
   /** 131 A store's flash sales, coupons and card messages. */
   commerce?: PickableCommerce;
+  /** 165 Dashboard › Stories, for Studio's canvas (the story elements whose source is the dashboard). */
+  stories?: import("../../stories/view").StoryView[];
 }
 
 /** 110 The cards the app shows for a source the platform fills (lib/hosted/pages/sources.ts), by entry. */
