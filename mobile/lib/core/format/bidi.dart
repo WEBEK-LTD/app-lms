@@ -31,7 +31,7 @@ String ltrRun(String text) =>
 String percentText(String text) =>
     text.replaceAllMapped(_signedPercent, (m) => ltrRun(m[0]!));
 
-final _signedPercent = RegExp(r'[-−+]?\s?(?:\d+\s?[%٪]|[%٪]\s?\d+)');
+final _signedPercent = RegExp(r'(?:[-−+]\s?)?(?:\d+\s?[%٪]|[%٪]\s?\d+)');
 
 /// The direction [text] is written in, from its first letter: for a line
 /// cut short, so the "…" goes at its end.

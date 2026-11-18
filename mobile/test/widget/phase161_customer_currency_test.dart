@@ -12,6 +12,7 @@ import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
 import 'package:yallapp/modules/shared/pages/recently_viewed.dart';
 import 'package:yallapp/modules/store/data/cart_controller.dart';
+import 'package:yallapp/modules/store/screens/cart_screen.dart';
 import 'package:yallapp/modules/store/widgets/product_widgets.dart';
 
 import '../screenshots/support/demo_api.dart';
@@ -297,10 +298,13 @@ void main() {
           tester.getRect(card).bottom - tester.getRect(shopPrice).bottom,
           lessThan(16),
         );
-        // The shop's dirhams only as that second line.
+        // The shop's dirhams only as that second line (a range's both ends).
         for (final t in _texts().where((t) => t.contains('MAD'))) {
           expect(
-            [for (final b in _bouquets) _mad(b.$3)],
+            [
+              for (final b in _bouquets)
+                (_product(b, c)['price'] as Map)['formatted'],
+            ],
             contains(t),
             reason: t,
           );
@@ -390,8 +394,8 @@ void main() {
           await TestApp.settle(tester, 20);
           // The cart's own list, under the Studio page around it.
           final list = find
-              .ancestor(
-                of: find.text('Medina Lilies', skipOffstage: false).first,
+              .descendant(
+                of: find.byType(CartScreen, skipOffstage: false),
                 matching: find.byType(Scrollable, skipOffstage: false),
               )
               .first;
