@@ -18,7 +18,7 @@ import { durationLabel, itemWords } from "./item-words";
 import { itemResolver, type Item } from "./items";
 import { sha256Hex } from "../../crypto/tokens";
 import { readShopCategories } from "./shop-categories";
-import { showsRideClasses, withRideClassesIn, type RideClasses } from "../../studio/ride-classes";
+import { showsRideClasses, withRideClassesIn } from "../../studio/ride-classes";
 import { rideClassesOf } from "./ride-classes";
 import { withMapWordsIn } from "../../studio/map-words";
 import { listHeadings, productFallbacks, withListHeadings, withSampleProduct } from "./lists";

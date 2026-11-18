@@ -198,6 +198,26 @@ older servers leave it out and the app shows the lines and the total as
 before. Needs the next app build (no `CLIENT_APP_RELEASE` change here) and
 plugin 0.4.51 released; not yet tried on a phone (ROADMAP 173.6).
 
+Roadmap 178 (the rides and taxi templates, tested by hand): Masar Rides
+and Lamha Taxi made both ways and walked through in the app preview. Their
+homes' car classes (Economy, Comfort and Van "from E£35"; Taxi, Comfort,
+XL) were the template's words, whatever vehicle types, fares and currency
+the company set: hosted `GET /pages` and Studio's canvas now make them the
+company's offered vehicle types, at their smallest fares in Ride settings'
+currency, and the pages' version follows them. A drawn map's template
+words (Home, Office, Airport, the districts, Pickup) are served in the
+language asked for. The app preview may use the location (geolocation=
+(self) on /preview-app and the Preview page only). In the app: the
+drivers' app preview reads its role (it showed the riders' home), no empty
+frosted card without a ride, no second menu and chip under the ride
+screen's Studio header, My rides and the driver's lists end above a
+floating bar, the glass bar fits at 1.3, Lamha's cream headers show their
+buttons, and "No free taxis near you" with none free. Yallapp Business
+colours an accepted ride (the driver on the way) in the board's blue. No migration; the
+app's part needs the next app build (no `CLIENT_APP_RELEASE` change here);
+the whole trip with a real driver's phone, real tiles and pushes is still
+to try (ROADMAP 178.10).
+
 Roadmap 156 (what the owner publishes in Studio is what the app shows, in
 every language): a template's translations of its own words stop applying
 once the owner changes the text, so the app shows the owner's text in
