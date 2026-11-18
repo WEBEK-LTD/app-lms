@@ -16276,7 +16276,7 @@ components:
       type: object
       required: [version, tabs, pages]
       properties:
-        version: { type: string, description: Changes on every publish., example: '2026-10-13T18:00:00Z.4' }
+        version: { type: string, description: "Changes on every publish. 157 On hosted apps also when the shop's categories that a page's template lists of them show change (`Action.category_id`).", example: '2026-10-13T18:00:00Z.4' }
         tabs:
           type: array
           minItems: 2
@@ -17421,6 +17421,20 @@ components:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
           enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, market, market_orders, vendor, complaints, wallet, club, ride, my_rides, driver, teachers, teacher, school, classroom, explore, stays, flights, trips, saved, price_alerts, null]
+        category_id:
+          type: [string, 'null']
+          pattern: '^[1-9][0-9]{0,14}$'
+          description: |
+            157 For `screen` `search` in a Store app: the shop opens filtered
+            to this category (a `ProductCategory` id), as the owner picks it
+            in Studio for a tile, a ring or a chip. Hosted `GET /pages` also
+            sends it on a template's lists of the shop's categories (Leqaa's
+            occasion rings, chips and ticker, its collections' bento, arches
+            and cards) left as the template made them, which follow the
+            shop's categories once the owner has their own, and on an element
+            that opens the shop named like one of its categories; one the
+            shop no longer lists is sent as the shop. Apps that don't know it
+            open the shop.
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }

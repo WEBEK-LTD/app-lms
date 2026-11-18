@@ -65,6 +65,7 @@ import { BannerControls, BeforeAfterControls, GalleryControls, IndicatorLookCont
 // 129.11–129.20 The premium elements' options and lists, and a layout's premium card style.
 import { PremiumControls, SurfaceControls } from "./premium-controls";
 import { CommerceControls } from "./commerce-controls";
+import { CategoryListNote } from "./category-list-note";
 import { Glyph } from "./shared";
 
 /**
@@ -156,6 +157,7 @@ export function Inspector(props: Props) {
         ) : null}
       </div>
       {node && !props.headerSelected ? <Tools {...props} node={node} /> : null}
+      {node && !props.headerSelected ? <CategoryListNote node={node} body={props.page.body} pickable={props.pickable} /> : null}
       {props.tabsSelected ? (
         <TabsPanel {...props} />
       ) : props.headerSelected ? (
@@ -445,7 +447,10 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
   const t = useDashT();
   const known = useKnownText();
   const entrySources = sources.filter((s) => s !== "courses" && s !== "posts");
-  const value = !action ? "none" : action.type === "screen" ? `screen:${action.screen ?? ""}` : action.type === "page" ? `page:${action.page_slug ?? ""}` : action.type;
+  // 157 The shop opened at one of its categories (a tile's, a ring's, a chip's).
+  const categories = sources.includes("products") ? (pickable.categories.products ?? []) : [];
+  const atCategory = action?.type === "screen" && action.screen === "search" && action.category_id !== undefined && action.category_id !== null;
+  const value = !action ? "none" : atCategory ? "category" : action.type === "screen" ? `screen:${action.screen ?? ""}` : action.type === "page" ? `page:${action.page_slug ?? ""}` : action.type;
   const opens = (target: string) => t("studio.opens", { target });
   const icon = !action ? "touch_app" : action.type === "screen" ? "apps" : action.type === "page" ? "description" : action.type === "url" ? "link" : action.type === "course" ? "school" : "category";
   const choose = (v: string) => {
@@ -454,6 +459,7 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
     else if (v.startsWith("page:")) onChange({ type: "page", page_slug: v.slice(5) });
     else if (v === "url") onChange({ type: "url", url: "", open_in: "in_app" });
     else if (v === "course") onChange({ type: "course", course_id: Number(pickable.items.courses?.[0]?.id ?? 0) || null });
+    else if (v === "category") onChange({ type: "screen", screen: "search", category_id: categories[0]?.id ?? "" });
     else onChange({ type: "item", item: { source: entrySources[0] ?? "products", id: "" } });
   };
   const field = "h-[34px] w-full rounded-lg bg-white px-2.5 text-[13px]";
@@ -487,6 +493,7 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
             </optgroup>
           ) : null}
           <option value="url">{opens(t("studio.tapLink"))}</option>
+          {sources.includes("products") ? <option value="category">{opens(t("studio.tapCategory"))}</option> : null}
           {entrySources.length || action?.type === "item" ? <option value="item">{opens(t("studio.tapItem"))}</option> : null}
           {sources.includes("courses") || action?.type === "course" ? <option value="course">{opens(t("studio.tapCourse"))}</option> : null}
         </select>
@@ -524,6 +531,21 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
             <input dir="ltr" aria-label={t("studio.entryId")} placeholder={t("studio.entryId")} value={action.item.id} onChange={(e) => onChange({ type: "item", item: { ...action.item!, id: e.target.value.trim() } })} className={`${field} ${entrySources.length > 1 ? "" : "col-span-2"}`} style={line} />
           )}
         </div>
+      ) : null}
+      {atCategory ? (
+        categories.length ? (
+          <select aria-label={t("studio.tapCategory")} value={action.category_id ?? ""} onChange={(e) => onChange({ type: "screen", screen: "search", category_id: e.target.value })} className={field} style={line}>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
+            {t("studio.noCategoriesYet")}
+          </span>
+        )
       ) : null}
       {action?.type === "course" ? (
         <select aria-label={t("studio.tapCourse")} value={String(action.course_id ?? "")} onChange={(e) => onChange({ type: "course", course_id: Number(e.target.value) || null })} className={field} style={line}>

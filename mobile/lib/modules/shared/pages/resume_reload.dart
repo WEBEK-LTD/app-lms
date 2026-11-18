@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/gate/app_gate.dart';
 import '../../lms/data/lms_providers.dart';
+import '../../store/data/store_providers.dart';
 import 'page_providers.dart';
 
 /// What tells the app it is back on screen (from another app, the home
@@ -32,8 +33,9 @@ const resumeReloadGap = Duration(seconds: 20);
 /// (colours, fonts, Studio › Screens, the store's settings, its languages)
 /// and its tabs and pages again, in place. Nothing on screen changes when
 /// nothing did; the pages on screen are asked again when the pages changed,
-/// and the courses' home every time. A paused, failed or closed-for-
-/// maintenance app tries again.
+/// and the courses' home and 157 the shop's categories every time (the
+/// owner adds and renames them in the dashboard). A paused, failed or
+/// closed-for-maintenance app tries again.
 final resumeReloadProvider = Provider<void>((ref) {
   final now = ref.watch(resumeClockProvider);
   var last = now();
@@ -55,6 +57,7 @@ final resumeReloadProvider = Provider<void>((ref) {
       ref.invalidate(pageProvider);
     }
     ref.invalidate(homeSectionsProvider);
+    ref.invalidate(productCategoriesProvider);
   });
   ref.onDispose(subscription.cancel);
 });

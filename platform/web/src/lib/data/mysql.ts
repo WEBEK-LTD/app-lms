@@ -1351,7 +1351,8 @@ export class MysqlStore implements DataStore {
     await this.run((db) =>
       db
         .update(schema.catalogCategories)
-        .set({ name })
+        // 157 Renamed in the dashboard, a demo's category is the owner's.
+        .set({ name, sample: false })
         .where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
     );
   }

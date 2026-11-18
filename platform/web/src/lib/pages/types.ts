@@ -517,6 +517,12 @@ export interface Action {
   type: (typeof ACTION_TYPES)[number];
   page_slug?: string | null;
   screen?: ScreenName | null;
+  /**
+   * 157 For `screen` (the shop's search): opens it filtered to this category
+   * of the shop. Sent by hosted `GET /pages` for a template's lists of the
+   * shop's categories (lib/studio/shop-categories.ts), never saved.
+   */
+  category_id?: string | null;
   course_id?: number | null;
   item?: { source: ItemSource; id: string } | null;
   url?: string | null;

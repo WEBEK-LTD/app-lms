@@ -6,6 +6,7 @@ import type { LanguageCode } from "@/lib/pages/types";
 import { resized, snapped } from "@/lib/studio/resize";
 import { forTablet } from "@/lib/studio/tablet";
 import { mapTree } from "@/lib/studio/tree";
+import { withShopCategoriesIn } from "@/lib/studio/shop-categories";
 import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
 import { splitTabs } from "@/lib/pages/tab-bar";
@@ -201,7 +202,10 @@ export function textGivingWay(kids: readonly StudioNode[]): string | null {
 }
 
 export function StudioView(viewProps: ViewProps) {
-  const props = viewProps.tablet ? { ...viewProps, page: { ...viewProps.page, body: mapTree(viewProps.page.body, forTablet) ?? viewProps.page.body } } : viewProps;
+  // 157 A template's lists of the shop's categories as the app shows them.
+  const shop = viewProps.pickable.shopCategories;
+  const listed = shop ? { ...viewProps, page: { ...viewProps.page, body: withShopCategoriesIn(viewProps.page.body, shop) } } : viewProps;
+  const props = listed.tablet ? { ...listed, page: { ...listed.page, body: mapTree(listed.page.body, forTablet) ?? listed.page.body } } : listed;
   const { page, dark, look } = props;
   const bg = (dark ? (page.dark_background ?? page.background) : page.background) ?? (dark ? "#14121F" : "#FBF8F2");
   const rtl = props.lang === "ar";

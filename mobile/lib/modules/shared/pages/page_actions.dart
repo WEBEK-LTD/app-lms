@@ -38,9 +38,14 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
       final screen = action.screen;
       if (screen == null) return;
       final gate = ref.read(appGateProvider);
+      final config = gate is GateReady ? gate.config : null;
+      // 157 One of the shop's categories (a template's rings, chips and
+      // tiles): the shop filtered to it.
+      final category = actionCategoryLocation(action, appType, config);
+      if (category != null) return openLocation(context, category);
       final location = ref
           .read(appModuleProvider)
-          .screenLocation(screen, gate is GateReady ? gate.config : null);
+          .screenLocation(screen, config);
       if (location != null) openLocation(context, location);
     case PageActionType.course:
       final id = action.courseId;
@@ -79,6 +84,24 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
           .firstOrNull;
       if (more != null) showMoreTabs(context, ref, more.more);
   }
+}
+
+/// 157 Where a screen action with a category opens: a store's shop
+/// (its search) filtered to that category; null for any other action, and
+/// for a restaurant, whose shop is its menu.
+String? actionCategoryLocation(
+  PageAction action,
+  AppType appType,
+  AppConfig? config,
+) {
+  final id = action.categoryId;
+  if (id == null ||
+      action.type != PageActionType.screen ||
+      action.screen != BuiltInScreen.search ||
+      config?.vertical == AppVertical.restaurant) {
+    return null;
+  }
+  return categoryLocation(ItemSource.products, appType, id);
 }
 
 /// 30 Whether this app type can follow [action]: an Academy app's course in a

@@ -219,7 +219,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             const SizedBox(height: 10),
             Expanded(
               child: RefreshIndicator(
-                onRefresh: controller.refresh,
+                // 157 The shop's categories too, as the owner changed them.
+                onRefresh: () {
+                  ref.invalidate(productCategoriesProvider);
+                  return controller.refresh();
+                },
                 child: _grid(context, state, controller),
               ),
             ),
