@@ -313,6 +313,11 @@ jobs:
       - name: Build for the iOS simulator (no signing)
         run: flutter build ios --simulator --debug --no-codesign
 
+      # 192 A release build for a real iPhone too (unsigned), as client builds are: release runs
+      # what a simulator debug build doesn't (the device SDK, optimisation, the release Pods).
+      - name: Build for an iPhone, release (no signing)
+        run: flutter build ios --release --no-codesign
+
   # 59 Yallapp Business (business/), the app for the people who run an app
   # on Yallapp: the same checks as the client app. No APK here: release
   # builds are made for the stores (docs/LAUNCH-CHECKLIST.md).

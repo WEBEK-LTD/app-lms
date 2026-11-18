@@ -4326,5 +4326,5 @@ The owner's report (18 November, urgent): a client's Android build failed after 
 |---|---|---|
 | [x] | 192.1 The app's release builds skip lint (`lint { checkReleaseBuilds = false }` in `mobile/android/app/build.gradle.kts`): lint checks code, the app builds the same | CI "Build release APK (debug key)" |
 | [x] | 192.2 `play-services-tapandpay` left out of every library's lint-check configurations (`mobile/android/build.gradle.kts`), so nothing asks the repositories for it (the apps don't issue cards to wallets) | CI "Build release APK (debug key)" |
-| [x] | 192.3 CI's Flutter job builds a release APK too (the debug key, never uploaded), as client builds do | `mobile.yml` |
+| [x] | 192.3 CI's Flutter job builds a release APK too (the debug key, never uploaded), as client builds do; and the iOS job a release build for a real iPhone (unsigned), so neither store's release build is first tried on a client's app | `mobile.yml` |
 | [ ] | 192.4 The failed client's build run again, and passing | — |
