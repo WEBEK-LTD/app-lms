@@ -1,4 +1,5 @@
 import { allNodes, mapTreeAsync } from "../../studio/tree";
+import { showsShopCategories, withShopCategoriesIn, type ShopCategories } from "../../studio/shop-categories";
 import { ENGINES, isAppType } from "../../app/kinds";
 import type { App, HostedUser } from "../../data/types";
 import { isSamplePlace } from "../../pages/designs/build";
@@ -12,6 +13,8 @@ import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
 import { itemResolver, type Item } from "./items";
+import { sha256Hex } from "../../crypto/tokens";
+import { readShopCategories } from "./shop-categories";
 import "./sources";
 
 /**
@@ -42,7 +45,7 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
   // 17 A draft preview gets the Pages & look draft.
   const layout = await servedLayout(ctx.store, ctx.app, ctx.plan ?? null, { draft: Boolean(ctx.preview?.draft), now: ctx.now });
   const lang = pickLanguage(req.headers?.get("accept-language"), layout.languages);
-  if (slug === undefined) return navigation(layout, lang, req, ctx.app);
+  if (slug === undefined) return navigation(layout, lang, req, ctx.app, await categoriesMark({ ctx, user, platform, lang, layout }));
   const page = layout.pages.find((p) => p.slug === slug);
   if (!page) return { status: 404, body: { code: "not_found", message: "This page doesn't exist." }, headers: VARY };
   const pc: PageContext = { ctx, user, platform, lang, layout };
@@ -81,7 +84,9 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
   const def = pc.layout.languages.default;
   // 152 The products the elements open that the shop no longer has.
   const gone = await goneProducts(pc, studio);
-  const body = await mapTreeAsync(studio.body, async (node) => {
+  // 157 A template's lists of the shop's categories follow them, read from the layout's own words before any translation.
+  const listed = await withCategoryLists(pc, studio.body);
+  const body = await mapTreeAsync(listed, async (node) => {
     // 107.2 A hidden element stays in the editor only.
     if (node.hidden) return null;
     const { query, translations: _t, ...texts } = translated(node, pc.lang, def);
@@ -112,6 +117,39 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
   });
   const header = studio.header ? (({ translations: _h, ...rest }) => (void _h, rest))(translated(studio.header, pc.lang, def)) : studio.header;
   return { ...studio, ...(header !== undefined ? { header } : {}), body: body ?? studio.body };
+}
+
+/**
+ * 157 A Studio page's body with the template's lists of the shop's
+ * categories (Leqaa's occasion rings, chips and ticker, its collections'
+ * bento, arches and cards) as the shop's categories make them, and each
+ * element named like a category opening it (lib/studio/shop-categories.ts);
+ * the shop's categories are read only for a page with one of those.
+ */
+async function withCategoryLists(pc: PageContext, body: StudioNode): Promise<StudioNode> {
+  if (!showsShopCategories(body)) return body;
+  return withShopCategoriesIn(body, await shopCategoriesOf(pc));
+}
+
+/**
+ * 157 What the published pages' lists of the shop's categories show, as a
+ * short mark for the pages' version (`Navigation.version`): an app back on
+ * screen asks for its pages again when the owner changed the shop's
+ * categories, as after a publish (145.1). Null when no page has such a list.
+ */
+async function categoriesMark(pc: PageContext): Promise<string | null> {
+  const lists = pc.layout.pages.some((page) => page.studio && showsShopCategories(page.studio.body));
+  if (!lists) return null;
+  // The pages' list never fails for it.
+  const shop = await shopCategoriesOf(pc).catch(() => null);
+  return shop ? sha256Hex(JSON.stringify(shop)).slice(0, 10) : null;
+}
+
+/** 157 The shop's categories for those lists (./shop-categories.ts); null without a shop. */
+async function shopCategoriesOf(pc: PageContext): Promise<ShopCategories | null> {
+  const { app, store, connector } = pc.ctx;
+  if (!connector || !servable(app, connector, "products")) return null;
+  return readShopCategories(app, store, connector, { platform: pc.platform, now: pc.ctx.now, lang: pc.lang, user: pc.user });
 }
 
 /** 152 A product's ID in the app API: a positive whole number. */
@@ -248,11 +286,12 @@ export function pageScreens(layout: Pick<Layout, "pages" | "tabs">, app: Pick<Ap
   return out;
 }
 
-function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest, app: Pick<App, "appType">): HostedResult {
+function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest, app: Pick<App, "appType">, mark: string | null = null): HostedResult {
   const def = layout.languages.default;
   // Each language is its own version, so an app that switches language gets
   // the new texts instead of a 304 (the plugin does the same).
-  const version = lang === def ? layout.version : `${layout.version}.${lang}`;
+  // 157 And the shop's categories a template's lists show, so an open app asks for its pages again when they change.
+  const version = `${lang === def ? layout.version : `${layout.version}.${lang}`}${mark ? `.c${mark}` : ""}`;
   const etag = `"${version}"`;
   if (etagValues(req.headers?.get("if-none-match") ?? null).includes(version)) {
     return { status: 304, headers: { ...VARY, etag } };

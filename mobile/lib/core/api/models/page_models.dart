@@ -456,6 +456,7 @@ class PageAction {
     required this.type,
     this.pageSlug,
     this.screen,
+    this.categoryId,
     this.courseId,
     this.item,
     this.url,
@@ -473,6 +474,7 @@ class PageAction {
       type: type,
       pageSlug: optString(json, 'page_slug'),
       screen: _screenFrom(json['screen']),
+      categoryId: _categoryIdFrom(json['category_id']),
       courseId: optInt(json, 'course_id'),
       item: ItemRef.tryParse(json['item']),
       url: optString(json, 'url'),
@@ -486,6 +488,11 @@ class PageAction {
 
   /// Null when the screen is missing or unknown to this app.
   final BuiltInScreen? screen;
+
+  /// 157 For [screen] (the shop's search): the category of the shop it
+  /// opens filtered to (a template's rings, chips and tiles); null for the
+  /// whole screen.
+  final int? categoryId;
   final int? courseId;
   final ItemRef? item;
   final String? url;
@@ -493,6 +500,13 @@ class PageAction {
 
   /// 122 How a web page opened in the app shows; null, as it is.
   final WebPageLook? web;
+}
+
+/// 157 `Action.category_id`: a positive whole number, as a string or a
+/// number; null for anything else.
+int? _categoryIdFrom(Object? value) {
+  final id = value is int ? value : int.tryParse('${value ?? ''}'.trim());
+  return id != null && id > 0 ? id : null;
 }
 
 /// 122 `Action.web`: a web page in the app with its site's header and

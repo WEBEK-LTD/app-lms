@@ -4,6 +4,7 @@ import { taxCents, taxLabel, taxOf } from "../../catalog/tax";
 import { attributesJson, sellableVariants, variantLabel, variantMax, variantPrices, variantsOf, variationAttributes } from "../../catalog/variants";
 import { canReturn, parseReturnInput, requestReturn, returnDays, returnJson } from "../../catalog/returns";
 import { couponDiscount, normalizeCouponCode } from "../../catalog/coupons";
+import { ownCategoryIds, shownCategories } from "../../catalog/categories";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import { checkOptions, optionGroupsJson, optionGroupsOf, type ChosenOption } from "../../catalog/options";
 import { awaitingManualPayment } from "../../catalog/manual";
@@ -337,11 +338,11 @@ export class CatalogConnector implements Connector {
     return { status: 200, body: { items: list.map((p) => this.summary(p)) } };
   }
 
+  /** The categories with products; 157 once the owner has their own, the demo's (an app started from one) left out. */
   private async categories() {
     const [categories, products] = await Promise.all([this.deps.store.listCatalogCategories(this.deps.app.id), this.listed()]);
-    return categories
-      .map((c) => this.category(c, products.filter((p) => p.categoryIds.includes(c.id)).length, products))
-      .filter((c) => c.count > 0);
+    const listed = categories.map((c) => this.category(c, products.filter((p) => p.categoryIds.includes(c.id)).length, products)).filter((c) => c.count > 0);
+    return shownCategories(listed, ownCategoryIds(categories, products));
   }
 
   private sorted(products: CatalogProduct[], orderby: OrderBy): CatalogProduct[] {

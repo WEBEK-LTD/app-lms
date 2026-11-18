@@ -1165,7 +1165,10 @@ export class MemoryStore implements DataStore {
 
   async renameCatalogCategory(appId: string, id: number, name: string): Promise<void> {
     const category = this.catalogCategories.get(id);
-    if (category && category.appId === appId) category.name = name;
+    if (!category || category.appId !== appId) return;
+    category.name = name;
+    // 157 Renamed in the dashboard, a demo's category is the owner's.
+    delete category.sample;
   }
 
   async reorderCatalogCategories(appId: string, ids: number[]): Promise<void> {

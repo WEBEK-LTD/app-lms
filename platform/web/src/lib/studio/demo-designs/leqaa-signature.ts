@@ -41,6 +41,12 @@ import { inked, sides, sigEntry, sigImage, sigPhoto, sigTexts, signatureBar, sig
  * words (`lqCutoff`), its day chips opening the shop; the real day and
  * slot are picked at checkout. Nothing is made up: no number, review or
  * price is the template's; the lists are the shop's own products.
+ *
+ * 157 The occasions (the rings, B's chips, the ticker) and the collections
+ * (the bento, B's arches, the edit's cards) are the template's words here,
+ * and follow the shop's own categories as the app gets them
+ * (lib/studio/shop-categories.ts): a word they use is one of its
+ * `TEMPLATE_CATEGORY_WORDS`, and each entry opens the shop (`shop`).
  */
 
 // ——— The two looks' colours and faces ———

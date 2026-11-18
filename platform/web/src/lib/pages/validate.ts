@@ -417,6 +417,9 @@ interface Context {
   blockIssues: BlockIssue[];
 }
 
+/** 157 A category of the shop (`Action.category_id`), as the app API gives its IDs. */
+const CATEGORY_ID = /^[1-9][0-9]{0,14}$/;
+
 function parseAction(ctx: Context, where: string, value: unknown, required: boolean): Action | null {
   const { c } = ctx;
   if (value === undefined || value === null) {
@@ -439,6 +442,13 @@ function parseAction(ctx: Context, where: string, value: unknown, required: bool
       if (!oneOf(SCREENS, v.screen)) c.fail(where, "choose a screen.");
       // 31 Only screens the app's module opens: anything else would do nothing when tapped.
       else if (!appOpensScreen(ctx.app, v.screen)) c.fail(where, `this app has no "${screenName(v.screen)}" screen. Choose another screen.`);
+      // 157 The shop opened at one of its categories (a tile's, a ring's): its ID, or the shop as it is.
+      if (v.screen === "search" && v.category_id !== undefined && v.category_id !== null && v.category_id !== "") {
+        const category = String(v.category_id).trim();
+        if (!ctx.sources.includes("products")) c.fail(where, "this app has no shop to open at a category.");
+        else if (!CATEGORY_ID.test(category)) c.fail(where, "choose one of the shop's categories.");
+        else return { type: "screen", screen: "search", category_id: category };
+      }
       return { type: "screen", screen: v.screen as Action["screen"] };
     case "course": {
       if (!ctx.sources.includes("courses")) c.fail(where, "this app has no courses. Choose what happens on tap.");

@@ -6,6 +6,9 @@ import type { ItemSource } from "../../pages/types";
 import { offeredTypes } from "../../rides/settings";
 import { connectorFor } from "../connectors";
 import { itemResolver } from "./items";
+import { itemSourcesFor } from "../../pages/sources";
+import type { ShopCategories } from "../../studio/shop-categories";
+import { readShopCategories } from "./shop-categories";
 import "./sources";
 import type { Connector } from "../connectors/types";
 import { catalogSettings } from "../../catalog/settings";
@@ -43,6 +46,8 @@ export interface Pickable {
   samples?: Partial<Record<string, Partial<Record<ItemSource, PickableEntry[]>>>>;
   /** 131 A store's flash sales, coupons and card messages. */
   commerce?: PickableCommerce;
+  /** 157 The shop's categories a template's lists of them show (lib/studio/shop-categories.ts), as the app gets them. */
+  shopCategories?: ShopCategories;
 }
 
 /** 110 The cards the app shows for a source the platform fills (lib/hosted/pages/sources.ts), by entry. */
@@ -142,7 +147,16 @@ export async function pickableContent(
   const content = await pickableOwn(app, deps, now);
   // 131 A store's flash sales, coupons shown in the app and card messages (Yallapp keeps them for every source).
   const commerce = await pickableCommerce(deps.store, app, now).catch(() => undefined);
-  return commerce ? { ...content, commerce } : content;
+  // 157 The shop's categories for the template's lists of them, so the canvas draws them as the app does.
+  const shopCategories = await pickableShopCategories(app, deps, now).catch(() => null);
+  return { ...content, ...(commerce ? { commerce } : {}), ...(shopCategories ? { shopCategories } : {}) };
+}
+
+/** 157 The shop's categories as hosted `GET /pages` gives the template's lists of them; none for an app whose pages its own site serves. */
+async function pickableShopCategories(app: App, deps: { store: DataStore; key: Buffer; assetUrl: (id: string) => string; platformUrl: string }, now: Date): Promise<ShopCategories | null> {
+  if (app.backend !== "hosted" || !itemSourcesFor(app).includes("products")) return null;
+  const connector = connectorFor(app, deps.key, { store: deps.store, assetUrl: deps.assetUrl, platformUrl: deps.platformUrl });
+  return connector ? readShopCategories(app, deps.store, connector, { platform: "android", now }) : null;
 }
 
 async function pickableOwn(

@@ -8,6 +8,25 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 157 (the template's categories are the shop's): Leqaa's occasion
+rings, chips and ticker and its collections' bento, arches and cards were
+the template's own words, opening the whole shop, whatever categories the
+owner added. Hosted `GET /pages` now serves such a list, left as the
+template made it, as the shop's categories: once the owner has their own,
+one entry per category with its name as the shop has it in every
+language, its photo and a tap that opens the shop filtered to it; until
+then the template's. On any Studio page, an element that opens the shop
+and is named like one of its categories opens that category (the demo's
+own on an app started from it), and Studio's "When the customer taps"
+lets the owner pick the category of any tile, ring or chip. Made at
+serving time, so apps already made from the template have it with no
+change to their pages. The shop's list leaves the demo's categories out
+once the owner has one (a renamed demo category is theirs); the pages'
+version follows the categories, so an open app asks for its pages again;
+Studio's canvas draws the lists as the app does. `CLIENT_APP_RELEASE` 8:
+the app opens the category (an older app the whole shop) and asks for the
+shop's chips again when it comes back on screen.
+
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
 payout of the 1st covers the sales paid up to the end of the month before,
 cut off at midnight Istanbul time; a sale paid on the 1st or later waits for
@@ -736,6 +755,9 @@ sale show, with their prices from Admin › Plans.
 
 ## To verify against real services before release
 
+- 157 On a phone, Kech Flora's and Leqaa's home and Bouquets: the shop's own
+  categories in the rings, the collections and the ticker, each opening its
+  products, in English and Arabic (ROADMAP 157.8).
 - 138 The App Store Connect calls of the App Review submission
   (`lib/publishing/app-review-submit.ts`): `builds` by version and
   processing state, `usesNonExemptEncryption`, making and renaming an
@@ -800,6 +822,12 @@ test environment:
 
 ## Known gaps
 
+- 157 A Leqaa page served by the WordPress plugin (a WooCommerce store) keeps
+  the template's occasions and collections; its categories are
+  WooCommerce's. The hero's five occasion slides are the template's words
+  (headlines, not a list of categories) and still open the whole shop. On
+  Studio's canvas, an entry past the template's own (a sixth ring) can't be
+  selected; its look is the last entry's.
 - 138 An account's limit can be passed by one or two apps when several
   new apps are given accounts in the same instant (each app still gets
   exactly one account, written once). Assignment reads the settings
