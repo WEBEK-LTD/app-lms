@@ -198,6 +198,25 @@ older servers leave it out and the app shows the lines and the total as
 before. Needs the next app build (no `CLIENT_APP_RELEASE` change here) and
 plugin 0.4.51 released; not yet tried on a phone (ROADMAP 173.6).
 
+Roadmap 179 (the education templates, tested by hand): Nakhla School's
+look A home ran the template's words in its News pill, which customers'
+apps leave out, so every school showed "News" with nothing after it; it now
+runs the school's own news to everyone (Dashboard › School › News), newest
+first, and goes when there is none. Rawaq Academy's faculty (look A's
+index, look B's slides and rings) named the template's four teachers in
+every academy; it is now the academy's own active teachers, featured
+first, with their subjects and, on B, their newest course, and goes when
+there is none. Both are made when the pages are served, so apps already
+made from the templates have them with no change to their pages, and the
+pages' version follows the news and the teachers. Studio's inspector says
+so over them. The academy's and the school's tabs (Teachers, My courses,
+the parent's day, the school week) now end above the looks' floating tab
+bars (Roadmap 158's `endRoom`); that needs the next app build (no
+`CLIENT_APP_RELEASE` change here). Nakhla's "Forms to sign" card showed the
+word SIGNATURE on Studio's canvas; its icon is in the site's icon font now.
+Not yet tried on a phone (ROADMAP 179.9); the WordPress dev site was not
+run (179.10).
+
 Roadmap 156 (what the owner publishes in Studio is what the app shows, in
 every language): a template's translations of its own words stop applying
 once the owner changes the text, so the app shows the owner's text in
