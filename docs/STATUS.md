@@ -713,6 +713,14 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
 | 100.6 | Sales in Analytics and the Owner API, the guide, the terms | unit, e2e (analytics, owner API, public pages) |
 | 100.7 | Apps on their own API, Teachable and Thinkific schools | unit, MariaDB store suites, e2e of the dashboard |
 
+Roadmap 154 (the pricing page in its Day and night look): /pricing in the
+design the owner chose, the app by day and Studio by night: a night hero
+with the two products and their fanned phones, the period picker floating
+over its edge with each period's saving, compact cards with the rest
+folded, Studio's plans on a night band, every kind of app each product
+makes, a few questions and a closing band in the night. Only the plans for
+sale show, with their prices from Admin › Plans.
+
 ## To verify against real services before release
 
 - 138 The App Store Connect calls of the App Review submission
