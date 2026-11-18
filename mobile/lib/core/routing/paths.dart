@@ -239,6 +239,10 @@ abstract final class Paths {
   static String question(int id) => '/question/$id';
   static String product(int id) => '/product/$id';
 
+  /// 152 A product a Studio element links to: the shop instead when the shop
+  /// no longer has it (`or=shop`).
+  static String linkedProduct(int id) => '/product/$id?or=shop';
+
   /// 26 One order, for following it.
   static String order(int id) => '$orders/$id';
   static String productReviews(int id) => '/product/$id/reviews';

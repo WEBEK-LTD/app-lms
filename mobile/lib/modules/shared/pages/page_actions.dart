@@ -32,6 +32,18 @@ bool runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
       context.push(Paths.course(id));
     case PageActionType.item:
       final item = action.item;
+      // 152 A store's product the owner linked opens it; none chosen opens
+      // the shop, and so does one the shop no longer has (its page sends
+      // the person there).
+      if (_linksProduct(item, appType)) {
+        final id = int.tryParse(item?.id.trim() ?? '');
+        if (id == null || id < 1) {
+          openShop(context, ref);
+        } else {
+          context.push(Paths.linkedProduct(id));
+        }
+        return true;
+      }
       final location = item == null ? null : itemLocation(item, appType);
       if (location == null) return false;
       context.push(location);
@@ -99,6 +111,13 @@ String? actionLocation(WidgetRef ref, PageAction action) {
   }
 }
 
+/// 152 Whether [item] is one of a store's products, linked or not: a Studio
+/// element the owner may link to a product (a bouquet's sizes and its
+/// "Choose this bouquet"). One with no entry at all in a store is too.
+bool _linksProduct(ItemRef? item, AppType appType) =>
+    appType == AppType.store &&
+    (item == null || item.source == ItemSource.products);
+
 /// 161 Where the shop is: the app's catalog, as the templates' "shop" taps
 /// open it (a store's search, a restaurant's menu, an academy's courses);
 /// null for an app without one.
@@ -113,10 +132,18 @@ String? shopLocation(WidgetRef ref) {
 }
 
 /// 152 Opens the shop, as the templates' "shop" taps do (the shop's search,
-/// or a restaurant's menu): where a link that opens nothing goes.
-void openShop(BuildContext context, WidgetRef ref) {
+/// or a restaurant's menu): where a product link with no product, or one
+/// the shop no longer has, goes (161 and a story's Open whose link opens
+/// nothing). [instead]: in place of the screen on top (the product page
+/// that found no product).
+void openShop(BuildContext context, WidgetRef ref, {bool instead = false}) {
   final location = shopLocation(ref);
-  if (location != null) openLocation(context, location);
+  if (location == null) return;
+  if (instead) {
+    replaceLocation(context, location);
+  } else {
+    openLocation(context, location);
+  }
 }
 
 /// 161 What a story's Open opens (and a tap on a story without a photo):
@@ -158,8 +185,10 @@ bool canFollowAction(PageAction action, AppType appType) =>
     switch (action.type) {
       PageActionType.course =>
         action.courseId != null && appType == AppType.lms,
+      // 152 A store's product link opens the product, or the shop.
       PageActionType.item =>
-        action.item != null && itemLocation(action.item!, appType) != null,
+        _linksProduct(action.item, appType) ||
+            action.item != null && itemLocation(action.item!, appType) != null,
       // A page without its name, or a link without an address, opens nothing.
       PageActionType.page => (action.pageSlug ?? '').isNotEmpty,
       PageActionType.url => _linkOf(action.url) != null,

@@ -1,4 +1,4 @@
-import { mapTreeAsync } from "../../studio/tree";
+import { allNodes, mapTreeAsync } from "../../studio/tree";
 import { ENGINES, isAppType } from "../../app/kinds";
 import type { App, HostedUser } from "../../data/types";
 import { isSamplePlace } from "../../pages/designs/build";
@@ -87,11 +87,15 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
  */
 async function servedStudio(pc: PageContext, studio: StudioPage): Promise<StudioPage> {
   const def = pc.layout.languages.default;
+  // 152 The products the elements open that the shop no longer has.
+  const gone = await goneProducts(pc, studio);
   const body = await mapTreeAsync(studio.body, async (node) => {
     // 107.2 A hidden element stays in the editor only.
     if (node.hidden) return null;
-    const { query, translations: _t, ...own } = translated(node, pc.lang, def);
+    const { query, translations: _t, ...texts } = translated(node, pc.lang, def);
     void _t;
+    // 152 A tap linked to one of the shop's products: the product, else the shop.
+    const own = texts.action ? { ...texts, action: linkedProduct(pc, texts.action, gone) } : texts;
     // 129.11–129.20 A premium element's entries, each in the language asked for.
     const shown = own.entries ? { ...own, entries: own.entries.map((entry) => translated(entry, pc.lang, def)) } : own;
     // 129 The premium elements' entries (stories, photos) in the language asked for too.
@@ -100,7 +104,7 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
       if (entries) (shown as Record<string, unknown>)[list] = entries.map((entry) => (({ translations: _e, ...rest }) => (void _e, rest))(translated(entry, pc.lang, def) as { translations?: Translations }));
     }
     // 161 A shop's stories: each one's Open opens its link, else the shop (never nothing, which left the customer on Home).
-    if (node.type === "stories" && Array.isArray(shown.slides) && pc.ctx.app.appType === "store") return { ...shown, slides: shown.slides.map((slide) => storyWithLink(pc, slide)) } as StudioNode;
+    if (node.type === "stories" && Array.isArray(shown.slides) && pc.ctx.app.appType === "store") return { ...shown, slides: shown.slides.map((slide) => storyWithLink(pc, slide, gone)) } as StudioNode;
     // 161 A plan's prices in the customer's currency too.
     if (node.type === "pricing" && shown.entries) return { ...shown, entries: shown.entries.map((entry) => pricedEntry(entry, node.pricing?.currency ?? "TRY", pc.display)) } as StudioNode;
     // 112.4 What this person opened lately is kept on the phone: sent without entries.
@@ -122,8 +126,49 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
   return { ...studio, ...(header !== undefined ? { header } : {}), body: body ?? studio.body };
 }
 
-/** The shop, as the templates' "shop" taps open it. */
+/** 152 A product's ID in the app API: a positive whole number. */
+const PRODUCT_ID = /^[1-9]\d{0,11}$/;
+/** 152 What a tap linked to no product, or to one the shop no longer has, opens: the shop, as the templates' sizes and buttons do. */
 const SHOP: Action = { type: "screen", screen: "search" };
+/** 152 At most this many of a page's linked products are looked up (each one connector read, in parallel). */
+const LINKED_PRODUCTS_CHECKED = 12;
+
+/** 152 The product a tap opens ("" for none chosen yet), or undefined when it opens something else. */
+function productLink(action: Action | null | undefined): string | undefined {
+  return action?.type === "item" && action.item?.source === "products" ? action.item.id.trim() : undefined;
+}
+
+/**
+ * 152 Of the products a Studio page's elements open (a flower shop's
+ * bouquet sizes and "Choose this bouquet"), those the shop no longer has:
+ * its connector answers 404 for them, as the app's product page would. A
+ * read that fails keeps the link (the app sends a product it can't find to
+ * the shop too).
+ */
+async function goneProducts(pc: PageContext, studio: StudioPage): Promise<Set<string>> {
+  const connector = pc.ctx.connector;
+  if (!connector || !itemSourcesFor(pc.ctx.app).includes("products")) return new Set();
+  // 161 And the stories' own links.
+  const ids = [...new Set(allNodes(studio).flatMap((n) => (n.hidden ? [] : [productLink(n.action), ...(n.type === "stories" ? (n.slides ?? []).map((slide) => productLink(slide.action)) : [])])))].filter((id): id is string => id !== undefined && PRODUCT_ID.test(id)).slice(0, LINKED_PRODUCTS_CHECKED);
+  const answers = await Promise.all(
+    ids.map(async (id) => {
+      try {
+        const result = await connector.handle({ method: "GET", path: ["store", "products", id], query: new URLSearchParams({ platform: pc.platform }), body: undefined, user: pc.user, now: pc.ctx.now, lang: pc.lang });
+        return result?.status === 404 ? id : null;
+      } catch {
+        return null;
+      }
+    }),
+  );
+  return new Set(answers.filter((id): id is string => id !== null));
+}
+
+/** 152 A tap as the app gets it: one linked to no product, or to one the shop no longer has, opens the shop. */
+function linkedProduct(pc: PageContext, action: Action, gone: ReadonlySet<string>): Action {
+  const id = productLink(action);
+  if (id === undefined || !itemSourcesFor(pc.ctx.app).includes("products")) return action;
+  return PRODUCT_ID.test(id) && !gone.has(id) ? action : SHOP;
+}
 
 /**
  * 161 A shop's story as the app gets it: a story with a photo (its viewer
@@ -133,9 +178,11 @@ const SHOP: Action = { type: "screen", screen: "search" };
  * Studio (or the dashboard); a tile without a photo keeps opening its
  * stories.
  */
-function storyWithLink<T extends { image_url?: string | null; action?: Action | null }>(pc: PageContext, slide: T): T {
+function storyWithLink<T extends { image_url?: string | null; action?: Action | null }>(pc: PageContext, slide: T, gone: ReadonlySet<string>): T {
   if (!slide.image_url) return slide;
-  const action = slide.action;
+  // 152 A story linked to one of the shop's products: the product, else the shop.
+  const action = slide.action ? linkedProduct(pc, slide.action, gone) : slide.action;
+  if (action !== slide.action) return { ...slide, action };
   const opens =
     action &&
     (action.type === "page"
@@ -536,8 +583,8 @@ function serviceItem(service: Record<string, unknown>, lang: LanguageCode): Item
     subtitle: Number.isInteger(minutes) && minutes > 0 ? durationLabel(minutes, lang) : null,
     image_url: str(service.image_url),
     price_label: price.free ? itemWords(lang).free : str(price.formatted),
-    // 161 As amounts and a currency, also in the customer's.
-    ...(price.free ? {} : itemPrice(price)),
+    // 161 As amounts and a currency, also in the customer's (a free one too: 0, its words "Free").
+    ...itemPrice(price),
     badge: null,
     action: { type: "item", item: { source: "services", id: String(id) } },
   };

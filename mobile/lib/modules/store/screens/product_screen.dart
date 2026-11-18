@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/format/money.dart';
 import '../../../core/gate/app_gate.dart';
@@ -15,6 +16,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../lms/courses/community_widgets.dart' show StarRow;
 import '../../lms/lesson/content/html_content.dart';
+import '../../shared/pages/page_actions.dart' show openShop;
 import '../../shared/pages/recently_viewed.dart';
 import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
@@ -30,15 +32,25 @@ import '../../../core/config/build_config_data.dart';
 
 /// A product: images, price, options, quantity and Add to cart.
 class ProductScreen extends ConsumerWidget {
-  const ProductScreen({super.key, required this.productId});
+  const ProductScreen({
+    super.key,
+    required this.productId,
+    this.orShop = false,
+  });
 
   final int productId;
+
+  /// 152 Opened from a Studio element the owner linked to this product (a
+  /// bouquet's size, "Choose this bouquet"): when the shop no longer has it,
+  /// the shop opens instead of "not found".
+  final bool orShop;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final product = ref.watch(productProvider(productId));
     return switch (product) {
       AsyncData(:final value) => _ProductView(product: value),
+      AsyncError(:final error) when orShop && _gone(error) => const _ToShop(),
       AsyncError(:final error) => Scaffold(
         appBar: AppBar(leading: const AppBarBackButton()),
         body: ErrorView(
@@ -52,6 +64,35 @@ class ProductScreen extends ConsumerWidget {
       ),
     };
   }
+}
+
+/// 152 Whether [error] says the shop has no such product (anymore).
+bool _gone(Object error) =>
+    error is ApiException &&
+    (error.statusCode == 404 || error.code == 'not_found');
+
+/// 152 A linked product the shop no longer has: the shop opens in its place.
+class _ToShop extends ConsumerStatefulWidget {
+  const _ToShop();
+
+  @override
+  ConsumerState<_ToShop> createState() => _ToShopState();
+}
+
+class _ToShopState extends ConsumerState<_ToShop> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) openShop(context, ref, instead: true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(leading: const AppBarBackButton()),
+    body: SkeletonDetail(label: context.l10n.loadingProduct),
+  );
 }
 
 class _ProductView extends ConsumerStatefulWidget {

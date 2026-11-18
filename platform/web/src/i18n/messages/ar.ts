@@ -200,6 +200,10 @@ export const ar: Messages = {
     lifetimeNote: "دفعة واحدة تُبقي هذه الباقة مفعّلة ما دامت Yallapp تقدّم الخدمة، دون أي تجديد. وتشمل ما تتضمنه الباقة يوم الدفع. أما الإضافات ورسوم متاجر التطبيقات نفسها وأي عمل خارج الباقة فتُدفع على حدة.",
     lifetimeChoose: "احصل على {plan} مدى الحياة",
     lifetimeCompare: "قارن بين كل الباقات",
+    /** 154 The pricing page's compact cards: what's folded under the first highlights, a plan on request, and the period picker's hint. */
+    seeEverything: "اعرض كل ما تتضمّنه",
+    onRequestNote: "نحدّد السعر معك على WhatsApp",
+    saveUpTo: "وفّر حتى {percent}%",
   },
   pricing: {
     eachApp: "لكل تطبيق باقته الخاصة. لديك سؤال عن إحدى الباقات؟ <link>راسلنا على WhatsApp</link>.",
@@ -281,6 +285,14 @@ export const ar: Messages = {
     studioWhoText:
       "الأنشطة التي تريد تصميمًا خاصًا بها، وتلك التي لا يخدمها إلا Studio: شركات التوصيل، وتوصيل الطعام، وتوصيل الركاب وسيارات الأجرة، والأكاديميات بمدرسين كثيرين، والمدارس والجامعات.",
     compareAllText: "كل ميزات باقات التطبيق وحدودها، جنبًا إلى جنب.",
+    /** 154 The pricing page in its Day and night look: Studio's tag, the kinds of apps (folded after the first), and the questions. */
+    studioTag: "تصميم حر",
+    kindsMore: "+{count} أخرى",
+    kindsFewer: "عرض أقل",
+    faqLifetime: "ما الذي يشمله «مدى الحياة»؟",
+    faqChange: "هل يمكنني تغيير الباقة لاحقًا؟",
+    faqFees: "من يدفع رسوم متاجر التطبيقات؟ وهل يمكنني استرداد المبلغ؟",
+    faqUsers: "من هم مستخدمو التطبيق؟",
   },
   solutions: {
     contentFrom: "مصادر المحتوى:",

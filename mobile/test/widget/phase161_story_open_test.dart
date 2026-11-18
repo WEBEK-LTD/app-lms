@@ -121,7 +121,7 @@ void main() {
       final app = await _open(tester, api);
       final expected = [
         '/page/bouquet',
-        '/product/101',
+        '/product/101?or=shop',
         '/shop?focus=1',
         '/shop?focus=1',
         '/shop?focus=1',

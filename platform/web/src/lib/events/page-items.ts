@@ -7,11 +7,11 @@ import { itemWords, type ItemWords } from "../hosted/pages/item-words";
 import { centsToDecimal, formatCents } from "../catalog/money";
 import { categoryId, loadEvents, placesLeft, priceLabel } from "./service";
 
-/** 161 An event's lowest paid ticket as an amount and a currency (what "From ₺150" says); none when all are free. */
+/** 161 An event's lowest paid ticket as an amount and a currency (what "From ₺150" says); 0 when all are free ("Free"), none without tickets. */
 function lowestPrice(cents: number[], currency: string): { price?: { amount: string; currency: string; formatted: string } } {
+  if (!cents.length) return {};
   const paid = cents.filter((c) => c > 0);
-  if (!paid.length) return {};
-  const low = Math.min(...paid);
+  const low = paid.length ? Math.min(...paid) : 0;
   return { price: { amount: centsToDecimal(low, currency), currency, formatted: formatCents(low, currency) } };
 }
 
