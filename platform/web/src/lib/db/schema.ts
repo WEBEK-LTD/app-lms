@@ -89,7 +89,7 @@ import type {
   ChatReportOutcome,
 } from "../data/types";
 // 11.6 and 11.8
-import type { AutoScreenshots, BuildFailure, BuildRelease, BuildVariant, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
+import type { AutoScreenshots, BuildFailure, BuildRelease, BuildVariant, LangText, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
 import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingItem, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan, PlanFeature } from "../plans";
@@ -830,6 +830,8 @@ export const catalogCategories = mysqlTable(
     // 110.2 A sample entry (lib/samples).
     sample: boolean("sample").notNull().default(false),
     createdAt: time("created_at").notNull(),
+    // 175 Its name in the app's other languages ({ "ar": "…", "tr": "…" }, JSON); null: `name` in every language.
+    names: jsonText<LangText>("names"),
   },
   (t) => [index("catalog_categories_app_idx").on(t.appId)],
 );

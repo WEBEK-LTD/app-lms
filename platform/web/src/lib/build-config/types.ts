@@ -66,6 +66,10 @@ export interface BuildConfig {
     site_paths?: string[];
     crash_report_url: string;
   };
+  /** 188 The app's Stripe PaymentSheet: the owner's Apple Pay merchant ID (Payments › Stripe). */
+  payments?: {
+    apple_pay_merchant_id?: string;
+  };
 }
 
 /** Field rules, kept identical to the patterns in the schema. */

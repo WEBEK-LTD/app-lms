@@ -60,6 +60,8 @@ export const TEAM_ACTIONS = [
   "prime.weekly_report",
   // 132 The business's reply under a food order's, a marketplace order's or a ride's rating.
   "rating.reply",
+  // 175 The shop's currency changed, its prices converted or kept.
+  "shop.currency",
 ] as const;
 export type TeamAction = (typeof TEAM_ACTIONS)[number];
 

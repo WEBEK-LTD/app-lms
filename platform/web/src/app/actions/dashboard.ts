@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ownContentSetup } from "@/lib/app/own-content";
+import { startingCatalogSettings } from "@/lib/app/country-defaults";
 import { ownerLang } from "@/lib/app/owner-lang";
 import { startDraftIn, startLanguages, wordsLangOf } from "@/lib/app/start-language";
 import { inMainLanguage } from "@/lib/pages/builtin";
@@ -272,7 +273,7 @@ export async function startFromWebsiteAction(formData: FormData): Promise<void> 
     ...base,
     // A WordPress site gets the plugin; any other site keeps its own place, and the app's content
     // is added in the dashboard (the Website step's own content, which the owner can change).
-    ...(ownContent ? { siteUrl: null, backend: "hosted" as const, ...ownContentSetup(ENGINES[base.appType].ownContent.kind, base), websiteDoneAt: now } : {}),
+    ...(ownContent ? { siteUrl: null, backend: "hosted" as const, ...ownContentSetup(ENGINES[base.appType].ownContent.kind, base, startingCatalogSettings(context.client)), websiteDoneAt: now } : {}),
     appName: draft.details.appName,
     shortName: draft.details.shortName,
     primaryColor: draft.details.primaryColor,
@@ -325,7 +326,7 @@ export async function saveWebsiteAction(_: WebsiteFormState, formData: FormData)
   }
   if (data.backend === "catalog") {
     // 20 The engine's own content, managed in the dashboard (lib/app/kinds.ts).
-    await store.updateApp(context.app.id, { siteUrl: null, backend: "hosted", ...ownContentSetup(engine.ownContent.kind, context.app), websiteDoneAt: now }, now);
+    await store.updateApp(context.app.id, { siteUrl: null, backend: "hosted", ...ownContentSetup(engine.ownContent.kind, context.app, startingCatalogSettings(context.client)), websiteDoneAt: now }, now);
     revalidatePath("/dashboard", "layout");
     return afterStep(context, "website");
   }

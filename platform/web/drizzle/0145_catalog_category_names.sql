@@ -1,0 +1,1 @@
+ALTER TABLE `catalog_categories` ADD `names` longtext;

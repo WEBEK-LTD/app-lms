@@ -93,6 +93,8 @@ export async function StudioConsole({ context, text, children, notice }: { conte
     { href: "/studio/project/catalog/coupons", label: t("shop.coupons") },
     { href: "/studio/project/catalog/delivery", label: t("shop.pickupDelivery") },
     { href: "/studio/project/catalog/settings", label: t("manage.settings") },
+    // 175 Products › Import as well.
+    { href: "/studio/project/catalog/import", label: t("imports.title") },
   ];
   // 60 The person signed in: a team member shows as themselves.
   const me = context.member ?? context.user;

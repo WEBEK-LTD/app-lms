@@ -48,9 +48,11 @@ export function readOwnKeys(
     const secretKey = key("secretKey", was?.secretKey);
     const publishableKey = key("publishableKey", was?.publishableKey);
     const webhookSecret = key("webhookSecret", was?.webhookSecret);
+    // 188 Not a secret: the field shows what's saved, so an empty one clears it.
+    const applePayMerchantId = field("applePayMerchantId").trim() || null;
     if (options.lenient) {
       if (!secretKey) return { ok: false, errors: { secretKey: "Paste your Stripe secret key: it starts with sk_live_ or sk_test_." } };
-      return { ok: true, input: { provider, secretKey, sandbox: stripeTestKey(secretKey), publishableKey, webhookSecret } };
+      return { ok: true, input: { provider, secretKey, sandbox: stripeTestKey(secretKey), publishableKey, webhookSecret, ...(was?.applePayMerchantId ? { applePayMerchantId: was.applePayMerchantId } : {}) } };
     }
     // Each key's own shape first (both said at once), then whether they're of the same mode.
     if (!secretKey || !validStripeKey(secretKey)) errors.secretKey = "Paste your Stripe secret key: it starts with sk_live_ or sk_test_.";
@@ -60,8 +62,11 @@ export function readOwnKeys(
     }
     // 132.31 The signing secret is optional: without it, payments are read back when the customer returns and every hour.
     if (typed("webhookSecret") && (!webhookSecret || !validStripeWebhookSecret(webhookSecret))) errors.webhookSecret = "Paste the webhook's signing secret: it starts with whsec_.";
+    if (applePayMerchantId !== null && !validApplePayMerchantId(applePayMerchantId)) {
+      errors.applePayMerchantId = "Enter the Apple Pay merchant ID as Apple shows it: it starts with merchant., like merchant.com.yourshop.app.";
+    }
     if (Object.keys(errors).length > 0 || !secretKey) return { ok: false, errors };
-    return { ok: true, input: { provider, secretKey, sandbox: stripeTestKey(secretKey), publishableKey, webhookSecret } };
+    return { ok: true, input: { provider, secretKey, sandbox: stripeTestKey(secretKey), publishableKey, webhookSecret, ...(applePayMerchantId ? { applePayMerchantId } : {}) } };
   }
   // 96.1 PayPal: the REST app's client ID and secret, sandbox or live.
   if (provider === "paypal") {
@@ -84,6 +89,15 @@ export function readOwnKeys(
   return apiKey && secretKey && !errors.merchantId ? { ok: true, input: { provider, merchantId, apiKey, secretKey, sandbox } } : { ok: false, errors };
 }
 
+/**
+ * 188 An Apple Pay merchant ID as Apple's developer account shows it
+ * (`merchant.` then a reverse-domain name, letters, digits, dots and
+ * dashes); it goes into the iPhone app's entitlements, so nothing else.
+ */
+export function validApplePayMerchantId(value: string): boolean {
+  return /^merchant\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$/.test(value) && value.length <= 128;
+}
+
 /** The account to call the gateway with. */
 export function accountOf(input: OwnPaymentInput): PaymentAccount {
   if (input.provider === "stripe") return { provider: "stripe", keys: { secretKey: input.secretKey, sandbox: input.sandbox } };
@@ -102,6 +116,8 @@ export interface SavedKeysView {
   apiKey: string | null;
   publishableKey: string | null;
   webhookSecret: string | null;
+  /** 188 Not a secret: shown whole. */
+  applePayMerchantId: string | null;
 }
 
 export function savedKeysView(saved: OwnPaymentInput | null): SavedKeysView | null {
@@ -112,6 +128,7 @@ export function savedKeysView(saved: OwnPaymentInput | null): SavedKeysView | nu
     apiKey: maskKey(saved.provider === "stripe" || saved.provider === "paypal" ? null : saved.apiKey),
     publishableKey: saved.provider === "stripe" ? (saved.publishableKey ?? null) : null,
     webhookSecret: maskKey(saved.provider === "stripe" ? saved.webhookSecret : null),
+    applePayMerchantId: saved.provider === "stripe" ? (saved.applePayMerchantId ?? null) : null,
   };
 }
 

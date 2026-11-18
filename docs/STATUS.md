@@ -23,6 +23,47 @@ Manager, not CocoaPods, and is unchanged; mobile CI's debug APKs keep their
 own Gradle cache. Signing, uploads and AUTO_PUBLISH are unchanged. Not yet
 run on the runners (ROADMAP 185.5).
 
+Roadmap 188 (Stripe's PaymentSheet in the apps): the payment page stays
+inside the app's web view, and a Stripe payment there is taken by Stripe's
+native bottom sheet in the app, with the card, Google Pay on Android and
+Apple Pay on iPhone (with the owner's Apple Pay merchant ID, Payments ›
+Stripe). The platform makes one PaymentIntent per order on the owner's own
+Stripe account (`POST /pay/<token>/sheet`), never alongside a Checkout
+Session that could be paid too, and settles it only once read back from
+Stripe (the status the app reads, and the webhook's
+`payment_intent.succeeded`). A browser, the app preview and the apps already
+on phones keep Stripe's form in the page. 170's browser sheet is dormant.
+It reaches the apps with app release 11 (`CLIENT_APP_RELEASE` 11, the
+preview rebuilt); not yet built for Android or iOS here, nor tried on real
+phones (ROADMAP 188.6 to 188.9).
+
+Roadmap 175 (the dashboard QA fixes of 18 November, a flower shop in MAD):
+Cancel order on a paid order asks first, and the owner chooses every time
+between "Cancel and refund {amount}" (through the order's payment gateway,
+else Needs a refund) and "Cancel without refund", in the dashboard and in
+Yallapp Business; the units go back in stock, the customer is told (a guest
+by email), and the order leaves the paid orders and Analytics' revenue. The
+Owner API takes the choice as `refund` (an older Business without it keeps
+132's rule). A guest customer is now emailed at every stage the order
+drawer promises (shipped, postponed, couldn't be delivered, delivered) and
+when the order is cancelled, in the language they checked out in. A new
+store currency asks to convert every price at the day's rate or keep the
+numbers, and the Team page logs the change. A new shop starts in its
+owner's country's currency and delivery time zone (+212: MAD,
+Africa/Casablanca); Studio's gift checkout sample is drawn in the shop's
+currency, country and city, dated from today. The products list shows the
+price the app serves; the shop's pages and Yallapp Business write amounts
+in the viewer's language (د.م. in Arabic, Latin digits), and amounts typed
+with Arabic-Indic digits are read. Categories refuse a duplicate name and
+have optional Arabic and Turkish names, served in the app's language;
+Products › Settings is in Studio's breadcrumb. Migration
+`0145_catalog_category_names` (after main's 0143 and 0144). Yallapp Business
+places add-ons under their own size, says when a signed card has no name,
+offers Postpone and Retry days from the shop's today, and the server
+refuses a full or closed time. Nothing is released from this branch, and
+`mobile/` is unchanged. Yallapp Business is not released from this
+branch.
+
 Roadmap 187 (no paid plan, no app and no publishing request): an app
 without a paid plan running now (never paid, or its plan ended) can't
 download its files (APK, AAB, IPA, store files; the Android upload key stays

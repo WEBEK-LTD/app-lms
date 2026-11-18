@@ -1,4 +1,5 @@
 import { knownTranslator } from "@/i18n/dashboard";
+import { inMoneyLang } from "./money-lang";
 import { localePath } from "@/i18n/paths";
 import * as ratings from "./ratings";
 import * as account from "./account";
@@ -216,7 +217,8 @@ export async function handleOwner(deps: OwnerDeps, req: OwnerRequest): Promise<O
     // 60 What the route needs, on its app when it has one.
     const permission = found.route.permission;
     if (permission && !teamCan(ctx.access, permission, appId)) throw notAllowed();
-    return await found.route.handler(ctx, found.params);
+    // 175 Amounts written in the person's language ("1,234.50 د.م." in Arabic), as the dashboard writes them.
+    return await inMoneyLang(ctx.lang, () => found.route.handler(ctx, found.params));
   } catch (error) {
     if (error instanceof OwnerError) return errorBody(error, k);
     throw error;

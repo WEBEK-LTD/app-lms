@@ -901,7 +901,7 @@ abstract class AppLocalizations {
   /// No description provided for @cancelOrderText.
   ///
   /// In en, this message translates to:
-  /// **'The customer is told. A payment taken for it is refunded separately.'**
+  /// **'The customer is told, and its items go back in stock.'**
   String get cancelOrderText;
 
   /// No description provided for @orderUpdated.
@@ -7155,6 +7155,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Card message: {message}'**
   String bouquetMessage(String message);
+
+  /// No description provided for @cancelPaidText.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer is told, and its items go back in stock. Choose what happens to the payment.'**
+  String get cancelPaidText;
+
+  /// No description provided for @cancelAndRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel and refund {amount}'**
+  String cancelAndRefund(String amount);
+
+  /// No description provided for @cancelRefundNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded now through the order\'s payment gateway. The customer is told.'**
+  String get cancelRefundNow;
+
+  /// No description provided for @cancelRefundYourself.
+  ///
+  /// In en, this message translates to:
+  /// **'This payment can\'t go back by itself: the order shows Needs a refund until you pay it back.'**
+  String get cancelRefundYourself;
+
+  /// No description provided for @cancelRefundEither.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded through the order\'s payment gateway when it can; otherwise the order shows Needs a refund until you pay it back.'**
+  String get cancelRefundEither;
+
+  /// No description provided for @cancelWithoutRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel without refund'**
+  String get cancelWithoutRefund;
+
+  /// No description provided for @cancelWithoutRefundHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You keep the payment. You can still refund it later.'**
+  String get cancelWithoutRefundHint;
+
+  /// No description provided for @keepOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the order'**
+  String get keepOrder;
+
+  /// No description provided for @signedNoName.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed, with no name given'**
+  String get signedNoName;
 
   /// No description provided for @minutesAgo.
   ///

@@ -435,6 +435,34 @@ class _StageSheetState extends ConsumerState<StageSheet> {
       widget.stage == 'postponed' ||
       (widget.stage == 'failed' && _next == 'retry');
 
+  /// 175 The shop's today (its time zone, from the server), the first day
+  /// offered; the phone's own until the server answers.
+  DateTime? _shopToday;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.stage != 'shipped') _loadShopToday();
+  }
+
+  Future<void> _loadShopToday() async {
+    try {
+      final today = await ref
+          .read(apiProvider)
+          .stageSlots(ref.read(appIdProvider));
+      final parsed = DateTime.tryParse(today.date);
+      if (mounted && parsed != null) setState(() => _shopToday = parsed);
+    } on Object {
+      // The phone's day stays; the server still checks the day chosen.
+    }
+  }
+
+  /// The shop's today, else the phone's, as a calendar day.
+  DateTime get _today {
+    final now = DateTime.now();
+    return _shopToday ?? DateTime(now.year, now.month, now.day);
+  }
+
   @override
   void dispose() {
     _courierName.dispose();
@@ -464,12 +492,12 @@ class _StageSheetState extends ConsumerState<StageSheet> {
   }
 
   Future<void> _otherDay() async {
-    final now = DateTime.now();
+    final today = _today;
     final picked = await showDatePicker(
       context: context,
-      firstDate: DateTime(now.year, now.month, now.day),
-      lastDate: now.add(const Duration(days: 60)),
-      initialDate: now.add(const Duration(days: 3)),
+      firstDate: today,
+      lastDate: today.add(const Duration(days: 60)),
+      initialDate: today.add(const Duration(days: 3)),
     );
     if (picked != null) await _pickDay(_iso(picked));
   }
@@ -558,8 +586,12 @@ class _StageSheetState extends ConsumerState<StageSheet> {
     final theme = Theme.of(context);
     final order = widget.order;
     final stage = widget.stage;
-    final now = DateTime.now();
-    final days = [for (var i = 0; i < 4; i++) now.add(Duration(days: i))];
+    // 175 From the shop's today, not the phone's clock.
+    final today = _today;
+    final days = [
+      for (var i = 0; i < 4; i++)
+        DateTime(today.year, today.month, today.day + i),
+    ];
     final title = switch (stage) {
       'shipped' => l10n.shipSheetTitle(order.label),
       'postponed' => l10n.postponeSheetTitle(order.label),

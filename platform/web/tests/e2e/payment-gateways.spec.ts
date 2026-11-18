@@ -88,7 +88,7 @@ test("a Studio project sets up Stripe on its Payments page and tests it", async 
   await payments.getByRole("button", { name: "Test connection" }).click();
   await expect(results).toContainText("Stripe account: Lotus Gifts · AE.");
   await expect(results).toContainText("Signing secret: it looks right (whsec_…).");
-  await expect(results).toContainText("Your webhook endpoint doesn't send checkout.session.async_payment_succeeded. Add them to the endpoint in Stripe.");
+  await expect(results).toContainText("Your webhook endpoint doesn't send checkout.session.async_payment_succeeded and payment_intent.succeeded. Add them to the endpoint in Stripe.");
   await expect(results).toContainText("Webhook: not received yet. It comes with the next payment.");
   await expect(results).toContainText(/Test payment made and cancelled \(pi_test_\w+\)/);
   await expect(results.getByText("Test mode", { exact: true })).toBeVisible();

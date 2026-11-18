@@ -170,7 +170,7 @@ describe("132.30 Stripe's keys", () => {
     expect(JSON.stringify(payment)).not.toContain(WHSEC);
     const withKeys = { ...app, catalogSettings: { ...app.catalogSettings!, payment } };
     expect(ownPaymentInput(withKeys, KEY)).toEqual(stripeInput());
-    expect(savedKeysView(ownPaymentInput(withKeys, KEY))).toEqual({ provider: "stripe", secretKey: "sk_test_…ests", apiKey: null, publishableKey: PK_TEST, webhookSecret: "whsec_…1234" });
+    expect(savedKeysView(ownPaymentInput(withKeys, KEY))).toEqual({ provider: "stripe", secretKey: "sk_test_…ests", apiKey: null, publishableKey: PK_TEST, webhookSecret: "whsec_…1234", applePayMerchantId: null });
     // Saved before 132: the secret key alone. It still takes payments.
     const old = encryptOwnPayment(app.id, { provider: "stripe", secretKey: SK_TEST, sandbox: true }, KEY);
     expect(old).not.toHaveProperty("publishableKey");
@@ -358,7 +358,8 @@ describe("132.34 Test connection: Stripe", () => {
     expect(await of([{ url: HOOK, status: "disabled", enabled_events: ["*"] }])).toContain("warn:endpointDisabled");
     expect(await of([{ url: HOOK, status: "enabled", enabled_events: ["*"] }])).toContain("ok:endpointOk");
     const short = await testConnection(connection(stripeInput()), { fetcher: endpoints([{ url: HOOK, status: "enabled", enabled_events: ["checkout.session.completed"] }]) });
-    expect(short.checks.find((c) => c.code === "endpointEvents")!.values).toEqual({ events: "checkout.session.async_payment_succeeded" });
+    // 188 With the app's PaymentSheet: payment_intent.succeeded too.
+    expect(short.checks.find((c) => c.code === "endpointEvents")!.values).toEqual({ events: "checkout.session.async_payment_succeeded, payment_intent.succeeded" });
   });
 
   it("says when Stripe can't be reached, when live payments aren't on yet, and what the last webhook was", async () => {

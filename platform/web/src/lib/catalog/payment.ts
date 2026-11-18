@@ -30,6 +30,7 @@ import type { Lang } from "@/i18n/config";
 import { optionsText } from "./options";
 import { catalogSettings, orderNumber, type CheckoutAccount } from "./settings";
 import { stripeKeysProblem } from "../payments/stripe-keys";
+import { cancelStripeIntent, StripeError } from "../payments/stripe";
 import { ensureWalletDomain } from "../payments/wallets";
 import { emailTemplate, renderTemplate } from "../email/templates";
 import { checkTicketHold, holdForPayment, noticeRefundDue, providerPageExpiry } from "../events/holds";
@@ -69,7 +70,7 @@ export function readCustomer(
   return { ok: true, customer: { name, phone: phone!.e164, email, city, address } };
 }
 
-interface PaymentDeps {
+export interface PaymentDeps {
   store: DataStore;
   app: App;
   /** The shop's own account (37 iyzico, Kashier, Fawaterk, Stripe or PayPal); 72 for an old marketplace order, the account it started with. */
@@ -194,6 +195,11 @@ export async function startPayment(
     },
     { fetcher: deps.fetcher, urls: deps.urls },
   );
+  // 188 A PaymentIntent the app's PaymentSheet started for this order is cancelled first, so only one of them can be paid.
+  if (account.provider === "stripe" && order.paymentProvider === "stripe" && order.providerRef?.startsWith("pi_")) {
+    const left = await cancelStripeIntent(account.keys, order.providerRef, { fetcher: deps.fetcher, baseUrl: deps.urls?.stripe });
+    if (left && left.status !== "canceled") throw new StripeError("The payment in the app is already going through.");
+  }
   let started;
   if (publishableKey) {
     // 155 The domain registered for Apple Pay and Google Pay once, alongside the session; it never throws or stops the payment.

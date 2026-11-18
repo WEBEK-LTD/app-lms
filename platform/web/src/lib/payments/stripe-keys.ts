@@ -65,7 +65,8 @@ export function maskKey(value: string | null | undefined): string | null {
  * that confirms after a while (a bank debit). Stripe's fulfilment guide
  * names these two (docs.stripe.com/checkout/fulfillment).
  */
-export const STRIPE_WEBHOOK_EVENTS = ["checkout.session.completed", "checkout.session.async_payment_succeeded"] as const;
+/** 188 With payment_intent.succeeded: the app's PaymentSheet pays a PaymentIntent, not a Checkout Session. */
+export const STRIPE_WEBHOOK_EVENTS = ["checkout.session.completed", "checkout.session.async_payment_succeeded", "payment_intent.succeeded"] as const;
 
 /** The address of an app's Stripe webhook endpoint, to paste in Stripe's Dashboard. */
 export function stripeWebhookUrl(base: string, appId: string): string {

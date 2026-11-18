@@ -1,4 +1,5 @@
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { formatCents } from "@/lib/catalog/money";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -71,8 +72,9 @@ describe("58 pushes to the owner's phone", () => {
     const order = { id: 42, totalCents: 125000, currency: "TRY" } as CatalogOrder;
     expect(await pushNewOrder(deps(), app, order)).toBe(2);
     expect(sent.map((s) => [s.targets, s.title, s.body]).sort()).toEqual([
-      [["token-11111111-1111-4111-8111-111111111111"], "Yeni sipariş 1042", "Moda Café: ₺1,250.00"],
-      [["token-22222222-2222-4222-8222-222222222222"], "طلب جديد 1042", "Moda Café: ₺1,250.00"],
+      // 175 Each amount as its language writes it.
+      [["token-11111111-1111-4111-8111-111111111111"], "Yeni sipariş 1042", "Moda Café: ₺1.250,00"],
+      [["token-22222222-2222-4222-8222-222222222222"], "طلب جديد 1042", `Moda Café: ${formatCents(1250_00, "TRY", "ar")}`],
     ]);
     // 64 With the business it is about, for the app to switch to it.
     expect(sent[0]!.data).toEqual({ type: "owner", kind: "new_order", app_id: app.id, order_id: "42", business_id: app.clientId, business_name: "Moda Café" });

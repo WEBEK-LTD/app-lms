@@ -39,7 +39,7 @@ export async function RefundSection({
           {refunds.map((r) => (
             <li key={r.id}>
               {t("orders.refundedOn", {
-                amount: formatCents(r.amountCents, r.currency),
+                amount: formatCents(r.amountCents, r.currency, lang),
                 date: formatDateTime(r.createdAt, lang),
                 email: r.byEmail,
                 reason: isRefundReason(r.reason) ? k(REFUND_REASONS[r.reason]) : r.reason,
@@ -64,7 +64,7 @@ export async function RefundSection({
             providerName: outside ?? PROVIDER_NAME[options.provider],
             outside: outside !== null,
             left: (options.leftCents / 100).toFixed(2),
-            leftFormatted: formatCents(options.leftCents, currency),
+            leftFormatted: formatCents(options.leftCents, currency, lang),
             currency,
             byApi: options.byApi,
             manual: options.manual,

@@ -131,3 +131,26 @@ export function parseVariants(raw: string): Parsed {
 export function allCombinations(attributes: CatalogVariants["attributes"]): string[][] {
   return attributes.reduce<string[][]>((acc, a) => acc.flatMap((prefix) => a.values.map((value) => [...prefix, value])), [[]]).filter((c) => c.length === attributes.length);
 }
+
+/**
+ * 175 The price the app serves (the hosted API's `price`): a product with
+ * variations from its cheapest to its dearest one on sale now (all of them
+ * when none can be sold), its regular price only when they all cost the
+ * same; else its own price and sale price. The products list shows the
+ * same (report #9: it showed a sale price no size used).
+ */
+export function servedPrice(product: Pick<CatalogProduct, "priceCents" | "salePriceCents" | "variants" | "stock">): { low: number; high: number; regular: number | null; onSale: boolean } {
+  const variants = variantsOf(product);
+  if (variants) {
+    const items = sellableVariants(product);
+    const prices = (items.length ? items : variants.items).map((v) => variantPrices(product, v));
+    const low = Math.min(...prices.map((x) => x.now));
+    const high = Math.max(...prices.map((x) => x.now));
+    const onSale = prices.some((x) => x.now < x.regular);
+    const single = low === high && prices.length > 0 ? prices.find((x) => x.now === low)! : null;
+    return { low, high, regular: single && onSale ? single.regular : null, onSale };
+  }
+  const onSale = product.salePriceCents !== null && product.salePriceCents < product.priceCents;
+  const now = onSale ? product.salePriceCents! : product.priceCents;
+  return { low: now, high: now, regular: onSale ? product.priceCents : null, onSale };
+}

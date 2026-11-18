@@ -35,9 +35,13 @@ export interface StageRefundDeps extends RefundDeps {
   baseUrl?: string;
 }
 
-/** Whether cancelling this order now gives its money back: it's after a failed delivery, and something of it was paid. */
-export function refundsOnCancel(order: Pick<CatalogOrder, "deliveryStage" | "paidAt" | "totalCents" | "refundedCents" | "stageRefund">): boolean {
-  if (!order.deliveryStage || !(REFUND_AFTER_STAGES as readonly string[]).includes(order.deliveryStage)) return false;
+/**
+ * Whether cancelling this order now gives its money back: it's after a
+ * failed delivery (175: or the owner chose "Cancel and refund"), and
+ * something of it was paid.
+ */
+export function refundsOnCancel(order: Pick<CatalogOrder, "deliveryStage" | "paidAt" | "totalCents" | "refundedCents" | "stageRefund">, chosen = false): boolean {
+  if (!chosen && (!order.deliveryStage || !(REFUND_AFTER_STAGES as readonly string[]).includes(order.deliveryStage))) return false;
   if (order.stageRefund || !order.paidAt) return false;
   return order.totalCents - (order.refundedCents ?? 0) > 0;
 }
@@ -55,14 +59,16 @@ function whyManual(order: CatalogOrder, why: string | null, failed: string | nul
  * "Needs a refund" (with one notice to the owner). Returns what was kept, or
  * null when nothing was owed.
  */
-export async function refundAfterFailedDelivery(deps: StageRefundDeps, order: CatalogOrder): Promise<OrderStageRefund | null> {
+export async function refundAfterFailedDelivery(deps: StageRefundDeps, order: CatalogOrder, opts: { chosen?: boolean } = {}): Promise<OrderStageRefund | null> {
   const { store, app, now } = deps;
-  if (!refundsOnCancel(order)) return null;
+  const chosen = opts.chosen === true;
+  if (!refundsOnCancel(order, chosen)) return null;
   const cents = order.totalCents - (order.refundedCents ?? 0);
   const options = await orderRefundOptions(deps, app, order);
   let failed: string | null = null;
   if (options.refundable && options.byApi) {
-    const result = await refundOrder(deps, app, order, { cents, reason: "other", note: "The delivery failed and the order was cancelled.", method: "api" });
+    const note = chosen ? "The order was cancelled and refunded." : "The delivery failed and the order was cancelled.";
+    const result = await refundOrder(deps, app, order, { cents, reason: "other", note, method: "api" });
     if (result.ok) {
       const kept: OrderStageRefund = { status: "refunded", cents, at: now.toISOString(), why: null, whyCode: null, refundId: result.refund.id, doneAt: now.toISOString(), doneBy: null };
       await store.updateCatalogOrder(app.id, order.id, { stageRefund: kept, updatedAt: now });
@@ -74,7 +80,7 @@ export async function refundAfterFailedDelivery(deps: StageRefundDeps, order: Ca
   const reason = whyManual(order, options.why, failed);
   const kept: OrderStageRefund = { status: "needed", cents, at: now.toISOString(), why: reason.why, whyCode: reason.code, refundId: null, doneAt: null, doneBy: null };
   await store.updateCatalogOrder(app.id, order.id, { stageRefund: kept, updatedAt: now });
-  await noticeOwner(deps, order, cents);
+  await noticeOwner(deps, order, cents, chosen);
   return kept;
 }
 
@@ -119,7 +125,7 @@ async function tellCustomer(deps: StageRefundDeps, order: CatalogOrder, cents: n
   }
 }
 
-async function noticeOwner(deps: StageRefundDeps, order: CatalogOrder, cents: number): Promise<void> {
+async function noticeOwner(deps: StageRefundDeps, order: CatalogOrder, cents: number, chosen: boolean): Promise<void> {
   const { store, app, now } = deps;
   const number = orderNumber(order);
   const notice = await store.createOwnerNotice({
@@ -128,7 +134,7 @@ async function noticeOwner(deps: StageRefundDeps, order: CatalogOrder, cents: nu
     kind: "order_refund_due",
     dedupeKey: `order_refund_due:${order.id}`,
     title: `${appLabel(app)}: refund order ${number}`,
-    body: `The delivery of order ${number} failed and the order was cancelled. Its payment couldn't be refunded by itself: pay back ${formatCents(cents, order.currency)} to the customer, then mark it refunded on the order.`,
+    body: `${chosen ? `Order ${number} was cancelled with a refund.` : `The delivery of order ${number} failed and the order was cancelled.`} Its payment couldn't be refunded by itself: pay back ${formatCents(cents, order.currency)} to the customer, then mark it refunded on the order.`,
     linkUrl: `${(deps.baseUrl ?? "").replace(/\/+$/, "")}/dashboard/orders`,
     linkLabel: "See orders",
     tone: "warn",

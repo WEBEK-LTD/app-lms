@@ -14,20 +14,27 @@ export const BILLING_CURRENCIES: CatalogCurrency[] = ["TRY", "USD", "EUR", "EGP"
 
 const formatters = new Map<string, (amount: number) => string>();
 
-/** "₺1,234.50", "KWD 1.250", "¥1,250": each currency with its own digits. */
-export function formatCents(cents: number, currency: CatalogCurrency): string {
-  let format = formatters.get(currency);
+/**
+ * "₺1,234.50", "KWD 1.250", "¥1,250": each currency with its own digits.
+ * 175 In the viewer's language (`lang`): Arabic writes "1,234.50 د.م." with
+ * the dashboard's Latin digits (LANG_INFO's `ar-EG-u-nu-latn`), Turkish
+ * "MAD 1.234,50"; English, the default, as before.
+ */
+export function formatCents(cents: number, currency: CatalogCurrency, lang?: string | null): string {
+  const locale = lang === "ar" ? "ar-EG-u-nu-latn" : lang === "tr" ? "tr-TR" : "en-US";
+  const key = `${locale}|${currency}`;
+  let format = formatters.get(key);
   if (!format) {
     const digits = currencyDigits(currency);
     try {
-      const formatter = new Intl.NumberFormat("en-US", { style: "currency", currency, currencyDisplay: "narrowSymbol", minimumFractionDigits: digits, maximumFractionDigits: digits });
+      const formatter = new Intl.NumberFormat(locale, { style: "currency", currency, currencyDisplay: "narrowSymbol", minimumFractionDigits: digits, maximumFractionDigits: digits });
       format = (amount) => formatter.format(amount);
     } catch {
       // A code this server's Intl doesn't know: the code and the number.
-      const plain = new Intl.NumberFormat("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+      const plain = new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits });
       format = (amount) => `${currency} ${plain.format(amount)}`;
     }
-    formatters.set(currency, format);
+    formatters.set(key, format);
   }
   return format(cents / 100);
 }
@@ -35,6 +42,19 @@ export function formatCents(cents: number, currency: CatalogCurrency): string {
 /** "1234.50", "1.250" (KWD), "1250" (JPY), as the API's amounts; two digits when no currency is given. */
 export function centsToDecimal(cents: number, currency?: string | null): string {
   return (cents / 100).toFixed(currency ? currencyDigits(currency) : 2);
+}
+
+/**
+ * 175 Arabic-Indic (٠-٩) and Eastern Arabic (۰-۹) digits as 0-9, the Arabic
+ * decimal and thousands separators (٫ ٬) as "." and ",": an amount typed on
+ * an Arabic keyboard ("٤٥٠٫٥٠") reads as "450.50".
+ */
+export function latinDigits(value: string): string {
+  return value
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+    .replace(/٫/g, ".")
+    .replace(/٬/g, ",");
 }
 
 /**
@@ -46,7 +66,8 @@ export function centsToDecimal(cents: number, currency?: string | null): string 
  */
 export function parsePrice(value: string, currency?: string | null): number | null {
   const digits = currency ? currencyDigits(currency) : 2;
-  let text = value.trim().replace(/[\s₺$€£¥]/g, "");
+  // 175 Arabic-Indic digits typed on an Arabic keyboard read as 0-9.
+  let text = latinDigits(value).trim().replace(/[\s₺$€£¥]/g, "");
   // The code written before or after the amount ("KWD1.250", "1.250kwd"), compared as text, never as a pattern.
   if (currency) {
     const code = currency.toUpperCase();
