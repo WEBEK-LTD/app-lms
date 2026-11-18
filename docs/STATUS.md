@@ -8,13 +8,15 @@ Last updated: 18 November 2026.
 
 ## Current release
 
-Roadmap 189 (the hero's slides, plain to find in Studio): a click anywhere on
-a slide of the app's stories (Kech Flora's and Leqaa's home hero) says at
-the top of the inspector that it is one of the app's stories, with "Edit the
-slides", which opens Stories, where each slide's picture, words and button
-are changed. On the canvas every slider has arrows to the slide before and
-after, "Slide 2 of 5", and for stories "Edit the slides in Stories". Studio's
-editor only: no app build.
+Roadmap 189 (the hero's slides, plain to find in Studio): with a slider,
+one of its slides or anything on one selected, the right side lists its
+slides as the layers do, the open one with its icon, words and button, each
+to select; whatever is picked on slide 2 or 3, on the left, the right or the
+phone, is the slide the phone shows. On the canvas every slider has arrows to
+the slide before and after and "Slide 2 of 5". Once Dashboard › Stories is
+saved (until then the app shows the slides designed in Studio), a slider of
+the app's stories says its slides are changed there, with "Edit the slides
+in Stories". Studio's editor only: no app build.
 
 Roadmap 188 (Stripe's PaymentSheet in the apps): the payment page stays
 inside the app's web view, and a Stripe payment there is taken by Stripe's

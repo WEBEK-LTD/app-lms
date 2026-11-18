@@ -84,10 +84,11 @@ export interface StudioEditing {
   /**
    * 189 A slider's own buttons on the canvas, in the dashboard's language:
    * the slide before and after, "Slide 2 of 5" (`of`, with `{n}` and
-   * `{count}`), and for the app's stories the way to Stories, where their
-   * pictures, words and buttons are changed.
+   * `{count}`), and for the app's stories, once saved in Dashboard ›
+   * Stories (`storiesSaved`, the app showing those), the way there, where
+   * their pictures, words and buttons are changed.
    */
-  slides?: { previous: string; next: string; of: string; editStories: string; storiesHref: string };
+  slides?: { previous: string; next: string; of: string; editStories: string; storiesHref: string; storiesSaved?: boolean };
 }
 
 interface ViewProps {
@@ -1158,14 +1159,14 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
               </button>
             </span>
           ) : null}
-          {editing && labels && (count > 1 || storiesSlider(n)) ? (
+          {editing && labels && (count > 1 || (labels.storiesSaved && storiesSlider(n))) ? (
             <span style={{ position: "absolute", insetInline: 0, bottom: 10, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, pointerEvents: "none", zIndex: 4 }}>
               {count > 1 ? (
                 <span data-studio-slide-of="" style={{ padding: "3px 10px", borderRadius: 999, background: "rgba(14,13,36,0.62)", color: "#FFFFFF", fontSize: 11, fontWeight: 700 }}>
                   {labels.of.replace("{n}", String(open + 1)).replace("{count}", String(count))}
                 </span>
               ) : null}
-              {storiesSlider(n) ? (
+              {labels.storiesSaved && storiesSlider(n) ? (
                 <a
                   href={labels.storiesHref}
                   target="_blank"

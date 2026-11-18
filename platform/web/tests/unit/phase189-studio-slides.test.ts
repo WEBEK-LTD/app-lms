@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { StudioNode } from "@/lib/pages/types";
-import { holds, shownSlide, storiesSlider, storiesSliderOf } from "@/lib/studio/slides";
+import { holds, shownSlide, slideParts, sliderOf, storiesSlider, storiesSliderOf } from "@/lib/studio/slides";
 
 /**
  * 189 A slider's slides plain to find in Studio: the canvas shows the slide
- * holding what's selected, and anything on a slide of the app's stories
- * (a slider whose stories come from Dashboard › Stories) says so.
+ * holding what's selected, the inspector lists any slider's slides (and
+ * what's on the open one) for whatever on it is selected, and anything on a
+ * slide of the app's stories (a slider whose stories come from Dashboard ›
+ * Stories) says so.
  */
 
 const slide = (id: string): StudioNode => ({
@@ -13,6 +15,7 @@ const slide = (id: string): StudioNode => ({
   type: "photo_hero",
   image_url: `https://img.test/${id}.jpg`,
   children: [
+    { id: `${id}-row`, type: "row", children: [{ id: `${id}-line`, type: "row", children: [] }, { id: `${id}-icon`, type: "icon", icon: "favorite", story_part: "icon" }] },
     { id: `${id}-kicker`, type: "text", text: "For love", story_part: "kicker" },
     { id: `${id}-title`, type: "text", text: "Say it with roses.", story_part: "title" },
     { id: `${id}-button`, type: "button", text: "Send flowers", story_part: "button" },
@@ -53,5 +56,33 @@ describe("189 the app's stories on a slide", () => {
     // Designed here instead: the owner's own slides, not the dashboard's.
     const own: StudioNode = { ...body, children: [{ ...stories, stories_source: "studio" }] };
     expect(storiesSliderOf(own, "s2")).toBeNull();
+  });
+});
+
+describe("189 the inspector's list of a slider's slides", () => {
+  it("finds the slider (stories or designed here) for the slider, a slide or anything on one", () => {
+    expect(sliderOf(body, "hero")).toMatchObject({ slider: { id: "hero" }, parent: { id: "stack" }, index: null });
+    expect(sliderOf(body, "s3")).toMatchObject({ slider: { id: "hero" }, index: 2 });
+    expect(sliderOf(body, "s2-icon")).toMatchObject({ slider: { id: "hero" }, index: 1 });
+    expect(sliderOf(body, "d2-title")).toMatchObject({ slider: { id: "deals" }, parent: { id: "body" }, index: 1 });
+    expect(sliderOf(body, "stack")).toBeNull();
+    expect(sliderOf(body, "body")).toBeNull();
+    expect(sliderOf(body, undefined)).toBeNull();
+  });
+
+  it("is the innermost slider for a slider on a slide", () => {
+    const inner: StudioNode = { id: "inner", type: "slider", children: [slide("i1"), slide("i2")] };
+    const outer: StudioNode = { id: "outer", type: "slider", children: [{ ...slide("o1"), children: [inner] }, slide("o2")] };
+    const page: StudioNode = { id: "page", type: "column", children: [outer] };
+    expect(sliderOf(page, "i2-title")).toMatchObject({ slider: { id: "inner" }, index: 1 });
+    // The inner slider itself selected: its own slides.
+    expect(sliderOf(page, "inner")).toMatchObject({ slider: { id: "inner" }, index: null });
+    expect(sliderOf(page, "o1")).toMatchObject({ slider: { id: "outer" }, index: 0 });
+    expect(sliderOf(page, "o2-button")).toMatchObject({ slider: { id: "outer" }, index: 1 });
+  });
+
+  it("offers a slide's icons, words and buttons in order, not the rows holding them", () => {
+    expect(slideParts(slide("s1")).map((n) => n.id)).toEqual(["s1-icon", "s1-kicker", "s1-title", "s1-button"]);
+    expect(slideParts({ id: "bare", type: "photo_hero" })).toEqual([]);
   });
 });
