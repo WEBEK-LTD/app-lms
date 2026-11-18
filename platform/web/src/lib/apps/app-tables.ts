@@ -132,6 +132,8 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   // Keys and hooks.
   app_auth_keys: "secrets",
   api_webhooks: "secrets",
+  // 184 The ways customers and couriers reach each other, with the owner's own Twilio account (encrypted).
+  contact_settings: "secrets",
 
   // Content.
   catalog_categories: "content",
@@ -295,6 +297,9 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   chat_blocks: "messages",
   chat_sessions: "messages",
   chat_uploads: "messages",
+  // 184 A courier job's chat between its customer and its courier.
+  contact_messages: "messages",
+  contact_reads: "messages",
   school_announcements: "messages",
   school_slips: "messages",
   owner_notices: "messages",

@@ -68,6 +68,7 @@ import { monthBounds, vendorStatement, type PanelContext } from "../../market/pa
 import { parseAnyPhone } from "../phone";
 import { hostedSettings } from "../service";
 import { error, intParam } from "./common";
+import { contactSettingsOf, contactWaysJson } from "../../contact/thread";
 import { completeUpload, kindOf, mediaLink, startUpload, uploadUrl } from "../../media/files";
 import type { MediaStorage } from "../../media/storage";
 import type { RateLimitRule } from "../../rate-limit";
@@ -577,6 +578,8 @@ export class MarketConnector {
       canComplain: window.open && !openOne && !["awaiting_payment", "cancelled"].includes(o.status),
       complaintId: latest?.id ?? null,
       eta,
+      // 184 The app's couriers only: a place delivering itself makes no job.
+      contact: contactWaysJson(contactSettingsOf(this.deps.app.id, await this.deps.store.getContactSettings(this.deps.app.id)), job, now),
     });
   }
 

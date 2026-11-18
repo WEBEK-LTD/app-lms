@@ -24,6 +24,7 @@ import type {
 } from "./types";
 // 106.12 Studio Market discounts
 import type { MarketDiscount, MarketDiscountKind } from "./types";
+import type { ContactMessage, ContactMessageInput, ContactRead, ContactSettings, ContactSide } from "./types";
 import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type {
   Activation,
@@ -2662,4 +2663,18 @@ export interface DataStore {
   /** Cancelled only while it isn't sent: its month is free again. False otherwise. */
   cancelDesignerPayout(id: string, patch: Pick<DesignerPayout, "cancelledAt" | "cancelledBy" | "cancelNote">): Promise<boolean>;
   markDesignerPayoutEmailed(id: string, at: Date): Promise<void>;
+  /** 184 Which ways customers and couriers reach each other (Settings › Calls); null: never saved (chat on, calls off). */
+  getContactSettings(appId: string): Promise<ContactSettings | null>;
+  saveContactSettings(settings: ContactSettings): Promise<void>;
+  /**
+   * 184 Adds a message to a courier job's thread. With a `clientId` already sent by the same side on the
+   * same thread, nothing is added and that message comes back with `created: false`.
+   */
+  createContactMessage(input: ContactMessageInput): Promise<{ message: ContactMessage; created: boolean }>;
+  /** 184 A thread's messages, oldest first: after `afterId` (else the last `limit`), only `courierId`'s conversation when given. */
+  listContactMessages(appId: string, shipmentId: number, options: { courierId?: number; afterId?: number; limit: number }): Promise<ContactMessage[]>;
+  /** 184 How far each side has read. */
+  listContactReads(appId: string, shipmentId: number): Promise<ContactRead[]>;
+  /** 184 Moves a side's read mark forward to `lastReadId` (never back). */
+  markContactRead(appId: string, shipmentId: number, side: ContactSide, lastReadId: number, at: Date): Promise<void>;
 }

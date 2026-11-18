@@ -31,6 +31,7 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StudioTemplate, StudioDesign, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
+import type { ContactMessage, ContactMessageInput, ContactRead, ContactSettings, ContactSide } from "./types";
 import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
 import { firebaseAppOrder } from "../firebase/order";
@@ -9448,6 +9449,50 @@ export class MemoryStore implements DataStore {
   async markDesignerPayoutEmailed(id: string, at: Date): Promise<void> {
     const found = this.designerPayouts.get(id);
     if (found) this.designerPayouts.set(id, { ...found, emailedAt: new Date(at) });
+  }
+
+  // 184 A customer and their order's courier reach each other
+
+  private contactSettings = new Map<string, ContactSettings>();
+  private contactMessages: ContactMessage[] = [];
+  private nextContactMessageId = 1;
+  private contactReads: ContactRead[] = [];
+
+  async getContactSettings(appId: string): Promise<ContactSettings | null> {
+    const found = this.contactSettings.get(appId);
+    return found ? clone(found) : null;
+  }
+
+  async saveContactSettings(settings: ContactSettings): Promise<void> {
+    this.contactSettings.set(settings.appId, clone(settings));
+  }
+
+  async createContactMessage(input: ContactMessageInput): Promise<{ message: ContactMessage; created: boolean }> {
+    if (input.clientId !== null) {
+      const sent = this.contactMessages.find((m) => m.appId === input.appId && m.shipmentId === input.shipmentId && m.sender === input.sender && m.clientId === input.clientId);
+      if (sent) return { message: clone(sent), created: false };
+    }
+    const message: ContactMessage = { ...clone(input), id: this.nextContactMessageId++ };
+    this.contactMessages.push(message);
+    return { message: clone(message), created: true };
+  }
+
+  async listContactMessages(appId: string, shipmentId: number, options: { courierId?: number; afterId?: number; limit: number }): Promise<ContactMessage[]> {
+    const thread = this.contactMessages.filter(
+      (m) => m.appId === appId && m.shipmentId === shipmentId && (options.courierId === undefined || m.courierId === options.courierId),
+    );
+    const picked = options.afterId !== undefined ? thread.filter((m) => m.id > options.afterId!).slice(0, options.limit) : thread.slice(-options.limit);
+    return picked.map(clone);
+  }
+
+  async listContactReads(appId: string, shipmentId: number): Promise<ContactRead[]> {
+    return this.contactReads.filter((r) => r.appId === appId && r.shipmentId === shipmentId).map(clone);
+  }
+
+  async markContactRead(appId: string, shipmentId: number, side: ContactSide, lastReadId: number, at: Date): Promise<void> {
+    const found = this.contactReads.find((r) => r.appId === appId && r.shipmentId === shipmentId && r.side === side);
+    if (!found) this.contactReads.push({ appId, shipmentId, side, lastReadId, readAt: new Date(at) });
+    else if (lastReadId > found.lastReadId) Object.assign(found, { lastReadId, readAt: new Date(at) });
   }
 }
 

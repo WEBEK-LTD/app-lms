@@ -6053,3 +6053,64 @@ export const studioMarketPayouts = mysqlTable(
     index("studio_market_payouts_period_idx").on(t.period, t.status),
   ],
 );
+
+// 184 A customer and their order's courier reach each other: the courier job's chat, and the owner's switches.
+
+/** Which ways are on for an app (Settings › Calls); no row: chat on, calls off. */
+export const contactSettings = mysqlTable(
+  "contact_settings",
+  {
+    appId: id("app_id")
+      .primaryKey()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    chat: boolean("chat").notNull().default(true),
+    appCall: boolean("app_call").notNull().default(false),
+    phoneCall: boolean("phone_call").notNull().default(false),
+    updatedAt: time("updated_at").notNull(),
+  },
+);
+
+/** A message on a courier job's thread, between its customer and the courier who had the job when it was written. */
+export const contactMessages = mysqlTable(
+  "contact_messages",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    shipmentId: bigint("shipment_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => shipments.id, { onDelete: "cascade" }),
+    // Kept as written: a job given to another courier starts a new conversation.
+    courierId: bigint("courier_id", { mode: "number", unsigned: true }).notNull(),
+    sender: varchar("sender", { length: 8 }).notNull().$type<"customer" | "courier">(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<"text" | "quick" | "location">(),
+    body: varchar("body", { length: 1000 }),
+    quick: varchar("quick", { length: 32 }),
+    lat: double("lat"),
+    lng: double("lng"),
+    clientId: varchar("client_id", { length: 64 }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [
+    index("contact_messages_thread_idx").on(t.appId, t.shipmentId, t.id),
+    uniqueIndex("contact_messages_client_unique").on(t.appId, t.shipmentId, t.sender, t.clientId),
+  ],
+);
+
+/** How far each side of a thread has read. */
+export const contactReads = mysqlTable(
+  "contact_reads",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    shipmentId: bigint("shipment_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => shipments.id, { onDelete: "cascade" }),
+    side: varchar("side", { length: 8 }).notNull().$type<"customer" | "courier">(),
+    lastReadId: bigint("last_read_id", { mode: "number", unsigned: true }).notNull(),
+    readAt: time("read_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.shipmentId, t.side] })],
+);

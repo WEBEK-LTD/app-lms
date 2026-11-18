@@ -242,9 +242,22 @@ export interface Tracking {
   updatedAt: Date | null;
 }
 
+/** 184 Which ways the customer and the courier reach each other now (lib/contact/thread.ts contactWaysJson); null with no courier. */
+export type ContactWays = { chat: boolean; app_call: boolean; phone_call: boolean; chat_until: string | null } | null;
+
 export function customerOrderJson(
   o: MarketOrder,
-  input: { vendor: ReturnType<typeof vendorSummaryJson>; taxLabel: string; tracking: Tracking | null; canCancel: boolean; canComplain: boolean; complaintId: number | null; eta: Date | null },
+  input: {
+    vendor: ReturnType<typeof vendorSummaryJson>;
+    taxLabel: string;
+    tracking: Tracking | null;
+    canCancel: boolean;
+    canComplain: boolean;
+    complaintId: number | null;
+    eta: Date | null;
+    /** 184 The ways to reach the courier; missing: none. */
+    contact?: ContactWays;
+  },
 ) {
   const c = o.currency;
   return {
@@ -265,7 +278,9 @@ export function customerOrderJson(
     tracking: input.tracking
       ? {
           mode: input.tracking.mode,
-          courier: input.tracking.courier ? { name: input.tracking.courier.name, photo_url: input.tracking.courier.photoUrl, vehicle: input.tracking.courier.vehicle } : null,
+          courier: input.tracking.courier
+            ? { name: input.tracking.courier.name, photo_url: input.tracking.courier.photoUrl, vehicle: input.tracking.courier.vehicle, call: input.contact ?? null }
+            : null,
           position: input.tracking.position,
           updated_at: input.tracking.updatedAt ? input.tracking.updatedAt.toISOString() : null,
           route: [],
@@ -273,6 +288,8 @@ export function customerOrderJson(
       : null,
     // 132 With its comment and the business's reply under it.
     rating: o.rating ? { vendor: o.rating.vendor, courier: o.rating.courier, comment: o.rating.comment, reply: appReplyJson(o.rating.reply) } : null,
+    // 184 Also after the tracking ends: the chat stays open 2 hours after delivery.
+    contact: input.contact ?? null,
     can_cancel: input.canCancel,
     can_complain: input.canComplain,
     complaint_id: input.complaintId,

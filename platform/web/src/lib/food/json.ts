@@ -120,7 +120,17 @@ function courierOf(job: Shipment | null, courier: Courier | null) {
 /** `FoodOrder`, as its customer sees it. */
 export function foodOrderJson(
   order: FoodOrder,
-  extra: { restaurant?: Restaurant | null; job?: Shipment | null; courier?: Courier | null; settings?: DeliverySettings; now?: Date; assetUrl?: AssetUrl; demo?: boolean } = {},
+  extra: {
+    restaurant?: Restaurant | null;
+    job?: Shipment | null;
+    courier?: Courier | null;
+    settings?: DeliverySettings;
+    now?: Date;
+    assetUrl?: AssetUrl;
+    demo?: boolean;
+    /** 184 The ways to reach the courier (lib/contact/thread.ts). */
+    contact?: { chat: boolean; app_call: boolean; phone_call: boolean; chat_until: string | null } | null;
+  } = {},
 ) {
   const job = extra.job ?? null;
   return {
@@ -148,6 +158,7 @@ export function foodOrderJson(
     rejection: order.rejection ? { reason: order.rejection.reason, note: order.rejection.note } : null,
     courier: courierOf(job, extra.courier ?? null),
     courier_location: job && extra.settings && extra.now ? visibleLocation(job, extra.courier ?? null, extra.settings, extra.now, { demo: extra.demo }) : null,
+    contact: extra.contact ?? null,
     // 132 With the business's reply under it.
     rating: order.rating ? { restaurant: order.rating.restaurant, courier: order.rating.courier, comment: order.rating.comment, reply: appReplyJson(order.rating.reply) } : null,
     timeline: stagesJson(order),

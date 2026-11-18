@@ -1323,6 +1323,124 @@
       ]
     },
     {
+      "name": "Contact",
+      "description": "Roadmap 184. A customer and their order's courier reach each other, and nobody else: a store never has a side. The app's owner switches each way on in Settings › Calls: the chat (on by default), a call over the internet in the app, and a masked phone call through the owner's own Twilio number. `ContactWays` on the order and the job says which are on now. The chat opens when a courier is given the job and closes 2 hours after the job ends; each side sees the other's first name only and never a phone number.\n\nEach message is pushed to the other side's phones, never to the inbox: `type` `contact_message` with `shipment_id`, `message_id` and `to` (`customer` or `courier`); the customer's push carries the order to open (`market_order_id` or `food_order_id`, neither for a parcel), the courier's opens the job's chat. A quick reply's push is written in the reader's own language.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/me/market-orders/{order_id}/contact",
+          "summary": "The chat with the courier",
+          "description": "184 The conversation between the order's customer and its courier, for the customer, on their marketplace order. Readable after it closes too; written only while it's open. `no_courier` (409) before a courier has the order; `contact_off` (403) when the app's owner switched chat off. A job given to another courier starts a new conversation.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/market-orders/{order_id}/contact/messages",
+          "summary": "Newer messages",
+          "description": "184 The messages after `after` (oldest first, up to 50), or the newest 50. Asked every `poll_after_seconds` while the conversation is on screen.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/market-orders/{order_id}/contact/messages",
+          "summary": "Write to the courier",
+          "description": "184 Text, one of the sender's quick replies, or a location. The other side gets a push (`contact_message`). `contact_closed` (409) once the chat has closed; `rate_limited` (429) past 30 a minute. A message sent again with the same `client_id` is kept once and answered with 200.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/market-orders/{order_id}/contact/read",
+          "summary": "Mark the conversation read",
+          "description": "184 Up to `last_read_id` (never past the newest message, never back). The other side sees \"read\".",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/food-orders/{order_id}/contact",
+          "summary": "The chat with the courier",
+          "description": "184 The conversation between the order's customer and its courier, for the customer, on their food order. Readable after it closes too; written only while it's open. `no_courier` (409) before a courier has the order; `contact_off` (403) when the app's owner switched chat off. A job given to another courier starts a new conversation.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/food-orders/{order_id}/contact/messages",
+          "summary": "Newer messages",
+          "description": "184 The messages after `after` (oldest first, up to 50), or the newest 50. Asked every `poll_after_seconds` while the conversation is on screen.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/food-orders/{order_id}/contact/messages",
+          "summary": "Write to the courier",
+          "description": "184 Text, one of the sender's quick replies, or a location. The other side gets a push (`contact_message`). `contact_closed` (409) once the chat has closed; `rate_limited` (429) past 30 a minute. A message sent again with the same `client_id` is kept once and answered with 200.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/food-orders/{order_id}/contact/read",
+          "summary": "Mark the conversation read",
+          "description": "184 Up to `last_read_id` (never past the newest message, never back). The other side sees \"read\".",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/shipments/{shipment_id}/contact",
+          "summary": "The chat with the courier",
+          "description": "184 The conversation between the order's customer and its courier, for the customer, on their parcel. Readable after it closes too; written only while it's open. `no_courier` (409) before a courier has the order; `contact_off` (403) when the app's owner switched chat off. A job given to another courier starts a new conversation.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/shipments/{shipment_id}/contact/messages",
+          "summary": "Newer messages",
+          "description": "184 The messages after `after` (oldest first, up to 50), or the newest 50. Asked every `poll_after_seconds` while the conversation is on screen.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/shipments/{shipment_id}/contact/messages",
+          "summary": "Write to the courier",
+          "description": "184 Text, one of the sender's quick replies, or a location. The other side gets a push (`contact_message`). `contact_closed` (409) once the chat has closed; `rate_limited` (429) past 30 a minute. A message sent again with the same `client_id` is kept once and answered with 200.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/shipments/{shipment_id}/contact/read",
+          "summary": "Mark the conversation read",
+          "description": "184 Up to `last_read_id` (never past the newest message, never back). The other side sees \"read\".",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/courier/jobs/{shipment_id}/contact",
+          "summary": "The chat with the customer",
+          "description": "184 The conversation between the order's customer and its courier, for the courier, on the job they have. Only while the chat is open; `not_found` (404) once it has closed, so the courier keeps the customer's words and place no longer. `no_courier` (409) before a courier has the order; `contact_off` (403) when the app's owner switched chat off. A job given to another courier starts a new conversation.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/courier/jobs/{shipment_id}/contact/messages",
+          "summary": "Newer messages",
+          "description": "184 The messages after `after` (oldest first, up to 50), or the newest 50. Asked every `poll_after_seconds` while the conversation is on screen.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/courier/jobs/{shipment_id}/contact/messages",
+          "summary": "Write to the customer",
+          "description": "184 Text, one of the sender's quick replies, or a location. The other side gets a push (`contact_message`). `contact_closed` (409) once the chat has closed; `rate_limited` (429) past 30 a minute. A message sent again with the same `client_id` is kept once and answered with 200.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/courier/jobs/{shipment_id}/contact/read",
+          "summary": "Mark the conversation read",
+          "description": "184 Up to `last_read_id` (never past the newest message, never back). The other side sees \"read\".",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Market",
       "description": "Roadmap 115. The marketplace: many restaurants, supermarkets and shops in one app (a Yallapp Studio project of the kind `marketplace`, whose plan has the `market` feature, growing 105.1's food delivery). Vendors are of three kinds (`restaurant`, `grocery`, `shop`); restaurants have menus, groceries and shops have departments, aisles and products, some sold by weight. The customer finds vendors (`GET /market/vendors`, `GET /market/search`), fills one vendor's cart, sees every line of the price before ordering (`POST /market/quote`: items before and after their discounts, the coupon, the club's discount, delivery, taxes, the wallet), and orders for now or for later, delivered or to pick up, paying cash, by card, with Apple Pay or Google Pay (`MarketConfig.payment`), or partly from the wallet. Each vendor chooses who delivers: the app's couriers (the order is followed on the map) or its own drivers (followed by its stages; on the map when the driver uses the courier app). Every amount is in `MarketConfig.currency`, as a decimal string with that currency's decimals (`MarketConfig.currency_decimals`), and formatted. Vendors never reach customers and customers never reach vendors: no vendor's phone, email or chat is ever shown, and support is the app's owner's (the Chat tag, and complaints here). A complaint can be opened on an order from when it is placed until 48 hours after it arrives; the owner's support team decides it.",
       "endpoints": [

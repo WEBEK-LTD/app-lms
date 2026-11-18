@@ -28,6 +28,7 @@ import { centsToDecimal, formatCents } from "../../catalog/money";
 import { hitRateLimit, RATE_LIMITS } from "../../rate-limit";
 import { platformSetting } from "../../settings/platform";
 import { hostedSettings } from "../service";
+import { contactSettingsOf, contactWaysJson } from "../../contact/thread";
 import { error, intParam } from "./common";
 import type { MapDeps } from "../../taxi/maps";
 import { handleMapRequest, isMapRequest, platformMapEndpoints } from "./maps";
@@ -253,7 +254,8 @@ export class DeliveryConnector implements Connector {
     const shipment = await this.ownShipment(request, id);
     if (!shipment) return notFound();
     const [settings, courier] = await Promise.all([this.settings(), shipment.courierId !== null ? this.deps.store.getCourier(this.deps.app.id, shipment.courierId) : null]);
-    return { status: 200, body: shipmentJson(shipment, { courier, settings, now: request.now, demo: this.deps.app.demo === true }) };
+    const contact = contactWaysJson(await this.contactSettings(), shipment, request.now);
+    return { status: 200, body: shipmentJson(shipment, { courier, settings, now: request.now, demo: this.deps.app.demo === true, contact }) };
   }
 
   private async cancel(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
@@ -355,10 +357,23 @@ export class DeliveryConnector implements Connector {
           per_page: perPage,
           total: result.total,
           total_pages: Math.max(1, Math.ceil(result.total / perPage)),
-          items: result.items.map((s) => courierJobJson(s, s.courierId === courier.id)),
+          items: await (async () => {
+            const contact = await this.contactSettings();
+            return result.items.map((s) => courierJobJson(s, s.courierId === courier.id, contactWaysJson(contact, s, request.now)));
+          })(),
         },
       };
     });
+  }
+
+  /** 184 Which ways customers and couriers reach each other in this app. */
+  private async contactSettings() {
+    return contactSettingsOf(this.deps.app.id, await this.deps.store.getContactSettings(this.deps.app.id));
+  }
+
+  /** A job as its courier sees it, with the ways to reach its customer (184) when it's theirs. */
+  private async jobJson(shipment: Shipment, mine: boolean, now: Date) {
+    return courierJobJson(shipment, mine, mine ? contactWaysJson(await this.contactSettings(), shipment, now) : null);
   }
 
   /** A job the courier may see: theirs, or one waiting that they could take. */
@@ -373,7 +388,7 @@ export class DeliveryConnector implements Connector {
   private job(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
     return this.withCourier(request, async (courier) => {
       const shipment = await this.visibleJob(courier, id);
-      return shipment ? { status: 200, body: courierJobJson(shipment, shipment.courierId === courier.id) } : jobNotFound();
+      return shipment ? { status: 200, body: await this.jobJson(shipment, shipment.courierId === courier.id, request.now) } : jobNotFound();
     });
   }
 
@@ -384,12 +399,12 @@ export class DeliveryConnector implements Connector {
       if (!courier.onDuty) return error(403, "off_duty", "Go on duty to take jobs.");
       const shipment = await this.deps.store.getShipment(this.deps.app.id, id);
       if (!shipment) return jobNotFound();
-      if (shipment.courierId === courier.id) return { status: 200, body: courierJobJson(shipment, true) };
+      if (shipment.courierId === courier.id) return { status: 200, body: await this.jobJson(shipment, true, request.now) };
       if (shipment.status !== "pending" || shipment.courierId !== null) return error(409, "job_taken", "Another courier took this job.");
       if (!(await this.mayHave(courier, shipment))) return jobNotFound();
       const moved = await assignShipment({ store: this.deps.store, app: this.deps.app, now: request.now }, shipment, courier, "courier");
       if (!moved.ok) return error(409, "job_taken", "Another courier took this job.");
-      return { status: 200, body: courierJobJson(moved.shipment, true) };
+      return { status: 200, body: await this.jobJson(moved.shipment, true, request.now) };
     });
   }
 
@@ -408,7 +423,7 @@ export class DeliveryConnector implements Connector {
       const deps = { store: this.deps.store, app: this.deps.app, now: request.now };
       const moved = await moveShipment(deps, shipment, status === "released" ? "pending" : status, "courier", note);
       if (!moved.ok) return error(409, "invalid_status", "This job changed meanwhile. Pull to refresh.");
-      return { status: 200, body: courierJobJson(moved.shipment, status !== "released") };
+      return { status: 200, body: await this.jobJson(moved.shipment, status !== "released", request.now) };
     });
   }
 

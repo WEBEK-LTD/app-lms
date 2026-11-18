@@ -202,7 +202,10 @@ export function visibleLocation(shipment: Shipment, courier: Courier | null, set
 }
 
 /** `Shipment`, as its customer sees it. */
-export function shipmentJson(shipment: Shipment, extra: { courier?: Courier | null; settings?: DeliverySettings; now?: Date; demo?: boolean } = {}) {
+export function shipmentJson(
+  shipment: Shipment,
+  extra: { courier?: Courier | null; settings?: DeliverySettings; now?: Date; demo?: boolean; contact?: { chat: boolean; app_call: boolean; phone_call: boolean; chat_until: string | null } | null } = {},
+) {
   const active = COURIER_ACTIVE.includes(shipment.status);
   return {
     id: shipment.id,
@@ -222,6 +225,8 @@ export function shipmentJson(shipment: Shipment, extra: { courier?: Courier | nu
     payment: { method: shipment.paymentMethod, status: shipment.paymentStatus },
     courier: shipment.courierName ? { name: shipment.courierName, phone: active ? (extra.courier?.phone ?? null) : null } : null,
     courier_location: extra.settings && extra.now ? visibleLocation(shipment, extra.courier ?? null, extra.settings, extra.now, { demo: extra.demo }) : null,
+    // 184 The ways to reach the courier (lib/contact/thread.ts); null with none.
+    contact: extra.contact ?? null,
     timeline: stagesJson(shipment.timeline),
     created_at: shipment.createdAt.toISOString(),
   };
@@ -241,7 +246,8 @@ export function courierJson(courier: Courier, settings: DeliverySettings, delive
 }
 
 /** `CourierJob`: phone numbers only once the job is the courier's. */
-export function courierJobJson(shipment: Shipment, mine: boolean) {
+/** `contact`: 184 the ways to reach the customer (lib/contact/thread.ts contactWaysJson), only on the courier's own job. */
+export function courierJobJson(shipment: Shipment, mine: boolean, contact: { chat: boolean; app_call: boolean; phone_call: boolean; chat_until: string | null } | null = null) {
   const collect = shipment.paymentMethod === "cash" && shipment.paymentStatus === "unpaid" ? shipment.priceCents : 0;
   return {
     id: shipment.id,
@@ -257,6 +263,7 @@ export function courierJobJson(shipment: Shipment, mine: boolean) {
     recipient: { name: shipment.recipientName, phone: mine ? shipment.recipientPhone : null },
     collect: centsToDecimal(collect),
     collect_formatted: collect > 0 ? formatCents(collect, shipment.currency) : null,
+    contact: mine ? contact : null,
     created_at: shipment.createdAt.toISOString(),
     timeline: stagesJson(shipment.timeline),
   };

@@ -7847,3 +7847,48 @@ export * from "./travel-types";
 
 // 106 Studio Market: designers, templates, their versions and reviews, buyers' licences and applications
 export * from "./studio-market-types";
+
+// 184 A customer and their order's courier reach each other
+
+/** The side of a courier job's thread. */
+export type ContactSide = "customer" | "courier";
+
+/** Which ways are on for an app (Settings › Calls). */
+export interface ContactSettings {
+  appId: string;
+  chat: boolean;
+  appCall: boolean;
+  phoneCall: boolean;
+  updatedAt: Date;
+}
+
+/** A message on a courier job's thread. */
+export interface ContactMessage {
+  id: number;
+  appId: string;
+  shipmentId: number;
+  /** The courier who had the job when it was written: a job given to another courier starts a new conversation. */
+  courierId: number;
+  sender: ContactSide;
+  kind: "text" | "quick" | "location";
+  /** Text (and a location's words, if any); null for a quick reply. */
+  body: string | null;
+  /** A quick reply's code (lib/contact/quick.ts), read in each side's language. */
+  quick: string | null;
+  lat: number | null;
+  lng: number | null;
+  /** The app's own ID for the message, so a send tried again isn't sent twice. */
+  clientId: string | null;
+  createdAt: Date;
+}
+
+export type ContactMessageInput = Omit<ContactMessage, "id">;
+
+/** How far a side of a thread has read. */
+export interface ContactRead {
+  appId: string;
+  shipmentId: number;
+  side: ContactSide;
+  lastReadId: number;
+  readAt: Date;
+}

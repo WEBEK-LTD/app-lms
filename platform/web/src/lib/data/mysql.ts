@@ -108,6 +108,7 @@ import type {
 import { holdsOf, holdsOn } from "../travel/holds";
 import { alertData, bookingColumns, bookingData, flightData, hotelData, reviewData, roomData, type TravelAlertData, type TravelBookingData, type TravelFlightData, type TravelHotelData, type TravelReviewData, type TravelRoomData } from "../travel/rows";
 import type { AppDeletion, AppDeletionStatus, AppMoveRequest, AppMoveStatus, KeptBillingRecord } from "./types";
+import type { ContactMessage, ContactMessageInput, ContactRead, ContactSettings, ContactSide } from "./types";
 import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
 import { firebaseAppOrder } from "../firebase/order";
@@ -11556,6 +11557,75 @@ export class MysqlStore implements DataStore {
   async markDesignerPayoutEmailed(id: string, at: Date): Promise<void> {
     const t = schema.studioMarketPayouts;
     await this.run((db) => db.update(t).set({ emailedAt: at }).where(eq(t.id, id)));
+  }
+
+  // 184 A customer and their order's courier reach each other
+
+  async getContactSettings(appId: string): Promise<ContactSettings | null> {
+    const t = schema.contactSettings;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).limit(1));
+    return row ?? null;
+  }
+
+  async saveContactSettings(settings: ContactSettings): Promise<void> {
+    const { appId: _appId, ...rest } = settings;
+    void _appId;
+    await this.run((db) => db.insert(schema.contactSettings).values(settings).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async createContactMessage(input: ContactMessageInput): Promise<{ message: ContactMessage; created: boolean }> {
+    const t = schema.contactMessages;
+    const sent = async () =>
+      input.clientId === null
+        ? null
+        : ((
+            await this.run((db) =>
+              db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.shipmentId, input.shipmentId), eq(t.sender, input.sender), eq(t.clientId, input.clientId!))).limit(1),
+            )
+          )[0] ?? null);
+    const before = await sent();
+    if (before) return { message: before, created: false };
+    try {
+      const [result] = await this.run((db) => db.insert(t).values(input));
+      return { message: { ...input, id: Number(result.insertId) }, created: true };
+    } catch (error) {
+      // The same send arrived twice at once: the first one is the message.
+      if (errorCode(error) === "ER_DUP_ENTRY") {
+        const first = await sent();
+        if (first) return { message: first, created: false };
+      }
+      throw error;
+    }
+  }
+
+  async listContactMessages(appId: string, shipmentId: number, options: { courierId?: number; afterId?: number; limit: number }): Promise<ContactMessage[]> {
+    const t = schema.contactMessages;
+    const where = and(
+      eq(t.appId, appId),
+      eq(t.shipmentId, shipmentId),
+      options.courierId !== undefined ? eq(t.courierId, options.courierId) : undefined,
+      options.afterId !== undefined ? gt(t.id, options.afterId) : undefined,
+    );
+    if (options.afterId !== undefined) return this.run((db) => db.select().from(t).where(where).orderBy(asc(t.id)).limit(options.limit));
+    const rows = await this.run((db) => db.select().from(t).where(where).orderBy(desc(t.id)).limit(options.limit));
+    return rows.reverse();
+  }
+
+  async listContactReads(appId: string, shipmentId: number): Promise<ContactRead[]> {
+    const t = schema.contactReads;
+    return this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.shipmentId, shipmentId))));
+  }
+
+  async markContactRead(appId: string, shipmentId: number, side: ContactSide, lastReadId: number, at: Date): Promise<void> {
+    const t = schema.contactReads;
+    // The side's first read makes its row; after that, only a later mark moves it (a read sent late from another phone doesn't take it back).
+    await this.run((db) => db.insert(t).ignore().values({ appId, shipmentId, side, lastReadId, readAt: at }));
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({ lastReadId, readAt: at })
+        .where(and(eq(t.appId, appId), eq(t.shipmentId, shipmentId), eq(t.side, side), lt(t.lastReadId, lastReadId))),
+    );
   }
 }
 

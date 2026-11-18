@@ -19,6 +19,8 @@ import "./registry";
 import { ShopifyConnector } from "./shopify";
 import type { Connector } from "./types";
 import { withStoreExtras } from "../../selling/store";
+import { withContact } from "../../contact/chat";
+import { notifyDeps } from "../../delivery/flow";
 
 export const context = (appId: string) => `app:connector:${appId}`;
 
@@ -118,8 +120,10 @@ function sourceConnector(app: App, key: Buffer, deps: Parameters<typeof connecto
   if (app.connector?.kind === "articles") return new ArticlesConnector({ ...deps, app });
   if (app.connector?.kind === "events") return new EventsConnector({ ...deps, app });
   if (app.connector?.kind === "campaigns") return new DonationsConnector({ ...deps, app });
-  if (app.connector?.kind === "deliveries") return new DeliveryConnector({ ...deps, app, fetcher });
-  if (app.connector?.kind === "restaurants") return new FoodConnector({ ...deps, app, fetcher });
+  // 184.3 The chat between a job's customer and its courier, in front of both.
+  const chat = { store: deps.store, app, notify: (now: Date) => notifyDeps({ store: deps.store, app, now }) };
+  if (app.connector?.kind === "deliveries") return withContact(new DeliveryConnector({ ...deps, app, fetcher }), { ...chat, enabled: deps.delivery !== false });
+  if (app.connector?.kind === "restaurants") return withContact(new FoodConnector({ ...deps, app, fetcher }), { ...chat, enabled: deps.food !== false });
   if (app.connector?.kind === "rides") {
     // 105.9 A live taxi app: the rides engine with the live map; 112.1 ride hailing apps on the same map.
     return new TaxiConnector({ ...deps, app, fetcher, key, account: serviceAccountOf(app, key), maps: { fetcher } });

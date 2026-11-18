@@ -118,6 +118,22 @@ export async function deliver(
   );
 }
 
+/**
+ * 184 A push only, without the inbox: each chat message on a courier job reaches the other side's phones,
+ * and the inbox isn't filled with them. Returns the phones reached.
+ */
+export async function pushOnly(deps: DeliveryNotifyDeps, userId: number, words: Words, data: Record<string, string>, audience: PushAudience): Promise<number> {
+  if (!deps.account && !deps.courierAccount) return 0;
+  const devices = await deps.store.listHostedPushDevices(deps.app.id, [userId], audience);
+  const message = { title: words.title.slice(0, NOTIFICATION_TITLE_MAX), body: words.body.slice(0, NOTIFICATION_BODY_MAX), data };
+  const own = devices.filter((d) => !d.courierDeviceId);
+  const hub = devices.filter((d) => d.courierDeviceId);
+  return (
+    (await pushTo(deps, deps.account, own, message, false)) +
+    (await pushTo(deps, deps.courierAccount ?? null, hub, { ...message, data: { ...message.data, app_id: deps.app.id } }, true))
+  );
+}
+
 /** One push to these phones; returns those reached. Tokens the service says are gone are forgotten (on Yallapp Courier too). */
 async function pushTo(deps: DeliveryNotifyDeps, account: ServiceAccount | null, devices: HostedDevice[], message: PushMessage, hub: boolean): Promise<number> {
   if (!account || devices.length === 0) return 0;
@@ -145,7 +161,7 @@ export async function tellCustomer(deps: DeliveryNotifyDeps, shipment: Shipment)
 }
 
 /** The courier's account: the customer account with the courier's number (or email). */
-async function courierUser(store: DataStore, courier: Courier) {
+export async function courierUser(store: DataStore, courier: Courier) {
   if (courier.phone) return store.getHostedUserByPhone(courier.appId, courier.phone);
   return courier.email ? store.getHostedEmailUser(courier.appId, courier.email) : null;
 }

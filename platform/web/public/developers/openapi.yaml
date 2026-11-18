@@ -298,6 +298,23 @@ tags:
       accept each with the minutes it needs or turn it down with a reason,
       mark it ready for the courier, and set the restaurant busy for a while
       (no new orders) or open again.
+  - name: Contact
+    description: |
+      Roadmap 184. A customer and their order's courier reach each other, and
+      nobody else: a store never has a side. The app's owner switches each way
+      on in Settings › Calls: the chat (on by default), a call over the
+      internet in the app, and a masked phone call through the owner's own
+      Twilio number. `ContactWays` on the order and the job says which are on
+      now. The chat opens when a courier is given the job and closes 2 hours
+      after the job ends; each side sees the other's first name only and
+      never a phone number.
+
+      Each message is pushed to the other side's phones, never to the inbox:
+      `type` `contact_message` with `shipment_id`, `message_id` and `to`
+      (`customer` or `courier`); the customer's push carries the order to
+      open (`market_order_id` or `food_order_id`, neither for a parcel), the
+      courier's opens the job's chat. A quick reply's push is written in the
+      reader's own language.
   - name: Market
     description: |
       Roadmap 115. The marketplace: many restaurants, supermarkets and shops in
@@ -6602,6 +6619,422 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Complaint' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/market-orders/{order_id}/contact:
+    get:
+      tags: [Contact]
+      operationId: getMarketContact
+      summary: The chat with the courier
+      description: |
+        184 The conversation between the order's customer and its courier, for
+        the customer, on their marketplace order. Readable after it closes too; written only while it's open. `no_courier` (409) before a courier
+        has the order; `contact_off` (403) when the app's owner switched chat
+        off. A job given to another courier starts a new conversation.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      responses:
+        '200':
+          description: The conversation, its newest 50 messages
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactThread' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/market-orders/{order_id}/contact/messages:
+    get:
+      tags: [Contact]
+      operationId: listMarketContactMessages
+      summary: Newer messages
+      description: 184 The messages after `after` (oldest first, up to 50), or the newest 50. Asked every `poll_after_seconds` while the conversation is on screen.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+        - name: after
+          in: query
+          required: false
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Messages
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactMessages' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    post:
+      tags: [Contact]
+      operationId: sendMarketContactMessage
+      summary: Write to the courier
+      description: |
+        184 Text, one of the sender's quick replies, or a location. The other
+        side gets a push (`contact_message`). `contact_closed` (409) once the
+        chat has closed; `rate_limited` (429) past 30 a minute. A message sent
+        again with the same `client_id` is kept once and answered with 200.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactMessageInput' }
+      responses:
+        '200':
+          description: Already sent with this `client_id`
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactMessage' }
+        '201':
+          description: The message
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /me/market-orders/{order_id}/contact/read:
+    post:
+      tags: [Contact]
+      operationId: readMarketContact
+      summary: Mark the conversation read
+      description: 184 Up to `last_read_id` (never past the newest message, never back). The other side sees "read".
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [last_read_id]
+              properties:
+                last_read_id: { type: integer, minimum: 0 }
+      responses:
+        '204': { description: Marked }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/food-orders/{order_id}/contact:
+    get:
+      tags: [Contact]
+      operationId: getFoodContact
+      summary: The chat with the courier
+      description: |
+        184 The conversation between the order's customer and its courier, for
+        the customer, on their food order. Readable after it closes too; written only while it's open. `no_courier` (409) before a courier
+        has the order; `contact_off` (403) when the app's owner switched chat
+        off. A job given to another courier starts a new conversation.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      responses:
+        '200':
+          description: The conversation, its newest 50 messages
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactThread' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/food-orders/{order_id}/contact/messages:
+    get:
+      tags: [Contact]
+      operationId: listFoodContactMessages
+      summary: Newer messages
+      description: 184 The messages after `after` (oldest first, up to 50), or the newest 50. Asked every `poll_after_seconds` while the conversation is on screen.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+        - name: after
+          in: query
+          required: false
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Messages
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactMessages' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    post:
+      tags: [Contact]
+      operationId: sendFoodContactMessage
+      summary: Write to the courier
+      description: |
+        184 Text, one of the sender's quick replies, or a location. The other
+        side gets a push (`contact_message`). `contact_closed` (409) once the
+        chat has closed; `rate_limited` (429) past 30 a minute. A message sent
+        again with the same `client_id` is kept once and answered with 200.
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactMessageInput' }
+      responses:
+        '200':
+          description: Already sent with this `client_id`
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactMessage' }
+        '201':
+          description: The message
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /me/food-orders/{order_id}/contact/read:
+    post:
+      tags: [Contact]
+      operationId: readFoodContact
+      summary: Mark the conversation read
+      description: 184 Up to `last_read_id` (never past the newest message, never back). The other side sees "read".
+      parameters:
+        - $ref: '#/components/parameters/FoodOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [last_read_id]
+              properties:
+                last_read_id: { type: integer, minimum: 0 }
+      responses:
+        '204': { description: Marked }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/shipments/{shipment_id}/contact:
+    get:
+      tags: [Contact]
+      operationId: getShipmentContact
+      summary: The chat with the courier
+      description: |
+        184 The conversation between the order's customer and its courier, for
+        the customer, on their parcel. Readable after it closes too; written only while it's open. `no_courier` (409) before a courier
+        has the order; `contact_off` (403) when the app's owner switched chat
+        off. A job given to another courier starts a new conversation.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      responses:
+        '200':
+          description: The conversation, its newest 50 messages
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactThread' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/shipments/{shipment_id}/contact/messages:
+    get:
+      tags: [Contact]
+      operationId: listShipmentContactMessages
+      summary: Newer messages
+      description: 184 The messages after `after` (oldest first, up to 50), or the newest 50. Asked every `poll_after_seconds` while the conversation is on screen.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+        - name: after
+          in: query
+          required: false
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Messages
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactMessages' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    post:
+      tags: [Contact]
+      operationId: sendShipmentContactMessage
+      summary: Write to the courier
+      description: |
+        184 Text, one of the sender's quick replies, or a location. The other
+        side gets a push (`contact_message`). `contact_closed` (409) once the
+        chat has closed; `rate_limited` (429) past 30 a minute. A message sent
+        again with the same `client_id` is kept once and answered with 200.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactMessageInput' }
+      responses:
+        '200':
+          description: Already sent with this `client_id`
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactMessage' }
+        '201':
+          description: The message
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /me/shipments/{shipment_id}/contact/read:
+    post:
+      tags: [Contact]
+      operationId: readShipmentContact
+      summary: Mark the conversation read
+      description: 184 Up to `last_read_id` (never past the newest message, never back). The other side sees "read".
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [last_read_id]
+              properties:
+                last_read_id: { type: integer, minimum: 0 }
+      responses:
+        '204': { description: Marked }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /courier/jobs/{shipment_id}/contact:
+    get:
+      tags: [Contact]
+      operationId: getCourierJobContact
+      summary: The chat with the customer
+      description: |
+        184 The conversation between the order's customer and its courier, for
+        the courier, on the job they have. Only while the chat is open; `not_found` (404) once it has closed, so the courier keeps the customer's words and place no longer. `no_courier` (409) before a courier
+        has the order; `contact_off` (403) when the app's owner switched chat
+        off. A job given to another courier starts a new conversation.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      responses:
+        '200':
+          description: The conversation, its newest 50 messages
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactThread' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /courier/jobs/{shipment_id}/contact/messages:
+    get:
+      tags: [Contact]
+      operationId: listCourierJobContactMessages
+      summary: Newer messages
+      description: 184 The messages after `after` (oldest first, up to 50), or the newest 50. Asked every `poll_after_seconds` while the conversation is on screen.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+        - name: after
+          in: query
+          required: false
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Messages
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactMessages' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    post:
+      tags: [Contact]
+      operationId: sendCourierJobContactMessage
+      summary: Write to the customer
+      description: |
+        184 Text, one of the sender's quick replies, or a location. The other
+        side gets a push (`contact_message`). `contact_closed` (409) once the
+        chat has closed; `rate_limited` (429) past 30 a minute. A message sent
+        again with the same `client_id` is kept once and answered with 200.
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactMessageInput' }
+      responses:
+        '200':
+          description: Already sent with this `client_id`
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactMessage' }
+        '201':
+          description: The message
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /courier/jobs/{shipment_id}/contact/read:
+    post:
+      tags: [Contact]
+      operationId: readCourierJobContact
+      summary: Mark the conversation read
+      description: 184 Up to `last_read_id` (never past the newest message, never back). The other side sees "read".
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [last_read_id]
+              properties:
+                last_read_id: { type: integer, minimum: 0 }
+      responses:
+        '204': { description: Marked }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -19085,6 +19518,7 @@ components:
       required: [id, reference, status, service, pickup, dropoff, zone, distance_km, package, recipient, notes, price, price_formatted, currency, payment, courier, courier_location, timeline, created_at]
       properties:
         id: { type: integer }
+        contact: { $ref: '#/components/schemas/ContactWays' }
         reference: { type: string, example: 'S-1042' }
         status: { $ref: '#/components/schemas/ShipmentStatus' }
         service:
@@ -19169,6 +19603,7 @@ components:
       description: A shipment as its courier sees it. Phone numbers are null on a job waiting for a courier.
       properties:
         id: { type: integer }
+        contact: { $ref: '#/components/schemas/ContactWays' }
         reference: { type: string }
         status: { $ref: '#/components/schemas/ShipmentStatus' }
         service: { type: [string, 'null'] }
@@ -19429,6 +19864,7 @@ components:
       required: [id, reference, status, restaurant, lines, subtotal_formatted, delivery_fee_formatted, total, total_formatted, currency, payment, pickup, dropoff, notes, ready_at, rejection, courier, courier_location, rating, timeline, created_at]
       properties:
         id: { type: integer }
+        contact: { $ref: '#/components/schemas/ContactWays' }
         reference: { type: string, example: 'F-1042' }
         status: { $ref: '#/components/schemas/FoodOrderStatus' }
         restaurant:
@@ -19922,6 +20358,7 @@ components:
       required: [id, reference, vendor, status, fulfilment, scheduled_for, lines, price, total, payment, delivery_by, ready_at, eta, pickup_code, tracking, rating, can_cancel, can_complain, complaint_id, created_at, timeline]
       properties:
         id: { type: integer }
+        contact: { $ref: '#/components/schemas/ContactWays' }
         reference: { type: string, example: M-1042 }
         vendor: { $ref: '#/components/schemas/MarketVendorSummary' }
         status: { $ref: '#/components/schemas/MarketOrderStatus' }
@@ -19982,11 +20419,15 @@ components:
         courier:
           type: [object, 'null']
           required: [name, photo_url, vehicle]
-          description: No phone; the customer reaches support.
+          description: No phone. 184 The customer reaches the courier by the ways in `call`.
           properties:
             name: { type: string, description: 'First name.' }
             photo_url: { type: [string, 'null'], format: uri }
             vehicle: { type: [string, 'null'], example: Motorbike }
+            call:
+              description: 184 The ways the customer reaches the courier now, the server's signal of which are on (also `MarketOrder.contact`, which stays after the tracking ends); missing on older servers.
+              allOf:
+                - $ref: '#/components/schemas/ContactWays'
         position:
           type: [object, 'null']
           required: [lat, lng]
@@ -20002,6 +20443,110 @@ components:
             minItems: 2
             maxItems: 2
             items: { type: number }
+
+    ContactWays:
+      type: [object, 'null']
+      description: |
+        184 Which ways the order's customer and its courier reach each other
+        now, as the app's owner switched them on (Settings › Calls); null
+        while the order has no courier, and on orders a place delivers
+        itself (a store never reaches a customer). Neither side ever sees the
+        other's phone number. Missing on older servers.
+      required: [chat, app_call, phone_call, chat_until]
+      properties:
+        chat: { type: boolean, description: 'The chat is open: from when a courier is given the job until 2 hours after it ends.' }
+        app_call: { type: boolean, description: 'A call over the internet in the app (184.6); only while the order is on its way. False until it is built.' }
+        phone_call: { type: boolean, description: "A masked phone call through the owner's own Twilio number (184.5); only while the order is on its way. False until it is built." }
+        chat_until: { type: [string, 'null'], format: date-time, description: 'When the chat closes: 2 hours after the job ended; null while it is on its way.' }
+
+    ContactMessage:
+      type: object
+      required: [id, client_id, from, mine, kind, text, quick, location, created_at]
+      properties:
+        id: { type: integer }
+        client_id: { type: [string, 'null'], description: "The app's own ID it was sent with." }
+        from: { type: string, enum: [customer, courier] }
+        mine: { type: boolean }
+        kind: { type: string, enum: [text, quick, location] }
+        text: { type: [string, 'null'], maxLength: 1000, description: "The words; a location's words, if any; null for a quick reply." }
+        quick:
+          type: [string, 'null']
+          description: |
+            A quick reply's code, for the app to write in its own language.
+            The customer's: `leave_at_door`, `call_me`, `ring_bell`,
+            `coming_down`; the courier's: `at_door`, `downstairs`, `call_me`,
+            `five_minutes`, `left_at_door`. An app shows a code it doesn't
+            know as a plain message.
+          example: leave_at_door
+        location:
+          type: [object, 'null']
+          required: [lat, lng]
+          properties:
+            lat: { type: number }
+            lng: { type: number }
+        created_at: { type: string, format: date-time }
+
+    ContactMessageInput:
+      type: object
+      required: [kind]
+      properties:
+        client_id: { type: string, pattern: '^[A-Za-z0-9_-]{1,64}$', description: 'Sent again with the same ID after a failed try, it is kept once (200 instead of 201).' }
+        kind: { type: string, enum: [text, quick, location] }
+        text: { type: string, maxLength: 1000, description: 'For `text` (required) and `location` (optional).' }
+        quick: { type: string, description: "For `quick`: one of the sender's own codes (`ContactMessage.quick`)." }
+        location:
+          type: object
+          description: For `location`.
+          required: [lat, lng]
+          properties:
+            lat: { type: number, minimum: -90, maximum: 90 }
+            lng: { type: number, minimum: -180, maximum: 180 }
+
+    ContactRead:
+      type: object
+      required: [my_last_read_id, other_last_read_id, other_read_at]
+      description: How far each side has read; the app shows "read" on its own messages up to `other_last_read_id`.
+      properties:
+        my_last_read_id: { type: integer }
+        other_last_read_id: { type: integer }
+        other_read_at: { type: [string, 'null'], format: date-time }
+
+    ContactMessages:
+      type: object
+      required: [open, closes_at, read, poll_after_seconds, items]
+      properties:
+        open: { type: boolean, description: 'Messages can be written.' }
+        closes_at: { type: [string, 'null'], format: date-time }
+        read: { $ref: '#/components/schemas/ContactRead' }
+        poll_after_seconds: { type: integer, example: 4, description: 'Ask again after this long while the conversation is open and on screen; a push brings the rest.' }
+        items:
+          type: array
+          description: Oldest first.
+          items: { $ref: '#/components/schemas/ContactMessage' }
+
+    ContactThread:
+      description: An order's conversation between its customer and its courier.
+      allOf:
+        - $ref: '#/components/schemas/ContactMessages'
+        - type: object
+          required: [ways, opened_at, me, other, reference, unread, quick_replies]
+          properties:
+            ways: { $ref: '#/components/schemas/ContactWays' }
+            opened_at: { type: [string, 'null'], format: date-time, description: 'When the courier who has the job was given it.' }
+            me: { type: string, enum: [customer, courier] }
+            other:
+              type: object
+              required: [role, name]
+              description: The other side, by first name only.
+              properties:
+                role: { type: string, enum: [customer, courier] }
+                name: { type: string, example: Karim }
+            reference: { type: string, example: S-1042, description: "The courier job's reference." }
+            unread: { type: integer, description: "The other side's messages after this side's read mark." }
+            quick_replies:
+              type: array
+              description: This side's quick replies, in the order to show them.
+              items: { type: string }
 
     ComplaintInput:
       type: object

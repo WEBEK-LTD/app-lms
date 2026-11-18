@@ -29,6 +29,7 @@ import { FOOD_REJECTIONS, type FoodRejection } from "../../data/types";
 import { parseAnyPhone } from "../phone";
 import { platformSetting } from "../../settings/platform";
 import { hostedSettings } from "../service";
+import { contactSettingsOf, contactWaysJson } from "../../contact/thread";
 import { error, intParam } from "./common";
 import { handleMapRequest, isMapRequest, platformMapEndpoints } from "./maps";
 import { DeliveryConnector, type DeliveryDeps } from "./delivery";
@@ -305,7 +306,8 @@ export class FoodConnector implements Connector {
       order.shipmentId !== null ? store.getShipment(app.id, order.shipmentId) : null,
     ]);
     const courier = job?.courierId != null ? await store.getCourier(app.id, job.courierId) : null;
-    return foodOrderJson(order, { restaurant, job, courier, settings, now, assetUrl: this.deps.assetUrl, demo: app.demo === true });
+    const contact = contactWaysJson(contactSettingsOf(app.id, await this.deps.store.getContactSettings(app.id)), job, now);
+    return foodOrderJson(order, { restaurant, job, courier, settings, now, assetUrl: this.deps.assetUrl, demo: app.demo === true, contact });
   }
 
   private async myOrders(request: ConnectorRequest): Promise<ConnectorResult> {
