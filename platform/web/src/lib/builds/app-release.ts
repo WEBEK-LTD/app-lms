@@ -46,9 +46,10 @@ export const CLIENT_APP_RELEASE = 7;
  *    the owner's switch off the app hides Settings › Currency and sends no
  *    `X-Currency`; with the owner's list, the picker shows only those and
  *    a region's currency outside it isn't sent.
- * 7  159 A cover's top bar at its automatic size: across the cover, its
- *    wordmark between the buttons, unless sized by hand in Studio
- *    (Kech Flora's bag at the edge, not three quarters of the way across).
+ * 7  152 Our bouquet's chips and button open the product the owner links:
+ *    a store's product link with no product chosen opens the shop, and so
+ *    does one whose product the shop no longer has (in place of "not
+ *    found").
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */
