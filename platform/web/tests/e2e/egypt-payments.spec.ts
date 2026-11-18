@@ -7,9 +7,10 @@ import { solidPng } from "./png";
  * Roadmap 37: Kashier and Fawaterk next to iyzico. The team adds Yallapp's
  * Kashier and Fawaterk accounts and picks the provider; a new client pays
  * their plan in Egyptian pounds on Kashier, then extends it on Fawaterk; a
- * shop with its own Kashier keys takes an order. Each payment page is a
- * fake (fake-gateways.ts) that posts its signed webhook and sends the
- * browser back; our server reads the payment back before marking it paid.
+ * shop with its own Kashier keys takes an order (153 in Kashier's form,
+ * inside our payment page). Each payment page is a fake (fake-gateways.ts)
+ * that posts its signed webhook and sends the browser back; our server
+ * reads the payment back before marking it paid.
  */
 test.describe.configure({ mode: "serial" });
 // Its own address, so its sign-ups never use up the shared sign-up limit of the other specs.
@@ -225,9 +226,16 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   await page.getByLabel("City").fill("Cairo");
   await page.getByLabel("Address").fill("26 July Street, Zamalek");
   await page.getByRole("button", { name: "Pay E£1,700.00" }).click();
-  await expect(page.getByText("Total 1700.00")).toBeVisible();
-  await page.getByRole("button", { name: "Pay with test card" }).click();
+  // 153 Kashier's card form in this page: its session's page in a frame, under the details.
+  await expect(page.getByRole("heading", { name: "Your card" })).toBeVisible();
+  await expect(page.getByText("Enter your card to pay E£1,700.00. It goes straight to Kashier: the shop never sees its number.")).toBeVisible();
+  await expect(page).toHaveURL(/\/pay\/[\w-]+$/);
+  const form = page.frameLocator("iframe[data-kashier-embedded]");
+  await expect(form.getByText("Total 1700.00")).toBeVisible();
+  await form.getByRole("button", { name: "Pay with test card" }).click();
+  // Kashier tells the page where it's done; the page goes on to our return address, which reads the payment back.
   await expect(page).toHaveURL(/\/pay\/[\w-]+\/order-received$/);
+  expect(kashier.paidInFrame).toHaveLength(1);
   // The shop's own keys took this payment, not Yallapp's.
   expect(kashier.calls.filter((c) => c.path === "/v3/payment/sessions").map((c) => c.authorization)).toEqual(["kashier-test-secret", "shop-kashier-secret"]);
 

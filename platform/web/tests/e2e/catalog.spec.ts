@@ -1,13 +1,16 @@
 import { createServer, type Server } from "node:http";
 import { expect, test, type Cookie, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
+import { FAKE_IYZICO_BUNDLE, fakeIyzicoCardPage, fakeIyzicoFormContent } from "./fake-gateways";
 import { solidPng } from "./png";
 import { expectReceiptAttached, mailsWithFiles, pdfBehind } from "./receipts";
 
 /**
  * A shop without a website (roadmap 8.6): the client picks "I don't have a
  * website", adds a product and iyzico keys, the app's customer pays on the
- * payment page (against a fake iyzico), and the order reaches the dashboard.
+ * payment page (against a fake iyzico; 153 in iyzico's form inside the page,
+ * or on iyzico's page when the form can't load), and the order reaches the
+ * dashboard.
  */
 test.describe.configure({ mode: "serial" });
 
@@ -34,7 +37,12 @@ test.beforeAll(async () => {
         const input = JSON.parse(body) as { callbackUrl: string; basketId: string; price: string };
         const token = `iyzi-${payments.size + 1}`;
         payments.set(token, input);
-        return send({ status: "success", token, paymentPageUrl: `${base}/pay?token=${token}` });
+        // 153 With its Checkout Form's script, for inside the payment page, as iyzico answers.
+        return send({ status: "success", token, paymentPageUrl: `${base}/pay?token=${token}`, checkoutFormContent: fakeIyzicoFormContent(base, token) });
+      }
+      if (url.pathname === "/checkoutform/v2/bundle.js") {
+        response.writeHead(200, { "content-type": "application/javascript" }).end(FAKE_IYZICO_BUNDLE);
+        return;
       }
       if (url.pathname.endsWith("/checkoutform/auth/ecom/detail")) {
         const { token } = JSON.parse(body) as { token: string };
@@ -42,11 +50,9 @@ test.beforeAll(async () => {
         return send({ status: "success", paymentStatus: "SUCCESS", paymentId: "777", paidPrice: Number(payment.price), basketId: payment.basketId });
       }
       if (url.pathname === "/pay") {
-        // iyzico's card page, cut down to its last step: it posts the token back to the shop.
+        // iyzico's card page, cut down to its last step: it posts the token back to the shop (153 from its frame, to the whole page).
         const token = url.searchParams.get("token")!;
-        response.writeHead(200, { "content-type": "text/html" }).end(
-          `<!doctype html><title>iyzico</title><form method="post" action="${payments.get(token)!.callbackUrl}"><input type="hidden" name="token" value="${token}"><button>Pay with test card</button></form>`,
-        );
+        response.writeHead(200, { "content-type": "text/html" }).end(fakeIyzicoCardPage(payments.get(token)!.callbackUrl, token, url.searchParams.get("iframe") === "true"));
         return;
       }
       response.writeHead(404).end();
@@ -58,6 +64,12 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
   await new Promise((resolve) => server.close(resolve));
 });
+
+/** 153 iyzico's card form inside the payment page (the fake bundle's frame of iyzico's card page): its test card pays. */
+async function payInPage(page: Page) {
+  await expect(page.getByRole("heading", { name: "Your card" })).toBeVisible();
+  await page.frameLocator("#iyzipay-checkout-form iframe").getByRole("button", { name: "Pay with test card" }).click();
+}
 
 /**
  * The sign-in page takes 8 tries per email in 15 minutes (RATE_LIMITS.signInEmail), and
@@ -209,7 +221,13 @@ test("a customer pays in the app and the order reaches the dashboard", async ({ 
   await page.getByLabel("City").fill("Istanbul");
   await page.getByLabel("Address").fill("Moda Cd. 12, Kadikoy");
   await page.getByRole("button", { name: "Pay ₺750.00" }).click();
-  await page.getByRole("button", { name: "Pay with test card" }).click();
+  // 153 iyzico's form in this page, under the details: its script filled the div in its responsive look.
+  await expect(page.getByRole("heading", { name: "Your card" })).toBeVisible();
+  await expect(page.getByText("Enter your card to pay ₺750.00. It goes straight to iyzico: the shop never sees its number.")).toBeVisible();
+  await expect(page.locator("#iyzipay-checkout-form iframe")).toHaveAttribute("data-fake-iyzico", "responsive");
+  await expect(page).toHaveURL(/\/pay\/[\w-]+$/);
+  // The card is paid in iyzico's frame; iyzico posts its token to our callback from the whole page.
+  await page.frameLocator("#iyzipay-checkout-form iframe").getByRole("button", { name: "Pay with test card" }).click();
   await expect(page).toHaveURL(/\/pay\/[\w-]+\/order-received$/);
   await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
   // 71 The receipt as a PDF: on the page, and attached to the customer's email.
@@ -288,7 +306,14 @@ test("91.3 a signed-in customer asks to return a completed order, and the shop a
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("City").fill("Izmir");
   await page.getByLabel("Address").fill("Kordon 5, Alsancak");
+  // 153 iyzico's script blocked: iyzico's own page, the same payment.
+  const bundle = /\/checkoutform\/v2\/bundle\.js/;
+  await page.route(bundle, (route) => route.abort());
   await page.getByRole("button", { name: "Pay ₺400.00" }).click();
+  await expect(page.getByText("The card form didn't load here. Pay on iyzico's secure page instead.")).toBeVisible();
+  await page.getByRole("link", { name: "Pay ₺400.00 on iyzico" }).click();
+  await expect(page).toHaveURL(new RegExp(`^http://localhost:${E2E.iyzicoPort}/pay\\?token=`));
+  await page.unroute(bundle);
   await page.getByRole("button", { name: "Pay with test card" }).click();
   await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
 
@@ -365,7 +390,7 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
     await page.getByLabel("City").fill("Ankara");
     await page.getByLabel("Address").fill("Tunali 7, Cankaya");
     await page.getByRole("button", { name: `Pay ${total}` }).click();
-    await page.getByRole("button", { name: "Pay with test card" }).click();
+    await payInPage(page);
     await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
   };
 
@@ -440,7 +465,7 @@ test("91.5 a product in two colours, and KDV inside the prices, from the dashboa
   await page.getByLabel("City").fill("Izmir");
   await page.getByLabel("Address").fill("Kordon 3, Alsancak");
   await page.getByRole("button", { name: "Pay ₺250.00" }).click();
-  await page.getByRole("button", { name: "Pay with test card" }).click();
+  await payInPage(page);
   await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
 
   // The red one is sold out; the white one still sells.
@@ -591,7 +616,7 @@ test("132.187 the owner prepares and ships an order in the dashboard; the app's 
   const city = page.getByLabel("City");
   if (await city.isVisible()) await city.fill("Istanbul");
   await page.getByRole("button", { name: /^Pay ₺/ }).click();
-  await page.getByRole("button", { name: "Pay with test card" }).click();
+  await payInPage(page);
   await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
 
   const placed = await (await request.get(`${api}/me/orders`, { headers })).json();
