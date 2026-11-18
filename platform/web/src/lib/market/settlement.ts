@@ -1,11 +1,11 @@
 import type { DataStore } from "../data/store";
 import type { App, MarketOrder } from "../data/types";
-import { ownPaymentAccount } from "../catalog/settings";
+import { orderNumber, ownPaymentAccount } from "../catalog/settings";
 import { paymentApiUrls } from "../env";
+import { refundThroughProvider } from "../payments/refund";
 import { formatMinor } from "./currency";
 import { marketOrderReference } from "./json";
 import type { OrderMoney, Settlement } from "./money";
-import { refundMarketPayment } from "./payments";
 
 /**
  * 115.29 Weighed orders settled with what was paid (the owner's decision D1).
@@ -23,6 +23,9 @@ import { refundMarketPayment } from "./payments";
  * - Cash orders pay what they come to, at most the estimate plus the
  *   vendor's tolerance; the courier's job collects that amount.
  */
+
+/** 115.29 A market order's `paymentRef` once paid online: the shop order (its payment page) that took the money. */
+export const SHOP_ORDER_REF = "shop:";
 
 export type CardRefund = (order: MarketOrder, cents: number) => Promise<{ ok: true } | { ok: false; error: string }>;
 
@@ -52,16 +55,49 @@ export function settlementDue(order: Pick<MarketOrder, "money" | "paymentMethod"
   return { toCard: Math.max(0, online - order.money.payNow), toWallet: Math.max(0, c.wallet - order.money.wallet) };
 }
 
-/** The app's own gateway, as complaints' refunds use it (lib/market/decisions.ts). */
-export function gatewayRefund(store: DataStore, app: App, key: Buffer, ip: string, now: Date): CardRefund | undefined {
+/**
+ * 115.29 Money back to the card a market order was paid with, through the shop
+ * order whose payment page took it (its gateway payment and session, as 47's
+ * refunds of shop orders), with the app's own keys. For the weighed
+ * settlement and complaints' refunds (lib/market/decisions.ts).
+ */
+export async function refundMarketToCard(
+  deps: { store: DataStore; app: App; key: Buffer; ip: string; now: Date },
+  order: Pick<MarketOrder, "id" | "paymentRef">,
+  input: { cents: number; refundedBefore: number; note: string },
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { store, app, key } = deps;
+  const ref = order.paymentRef?.startsWith(SHOP_ORDER_REF) ? Number(order.paymentRef.slice(SHOP_ORDER_REF.length)) : NaN;
+  const paid = Number.isSafeInteger(ref) ? await store.getCatalogOrder(app.id, ref) : null;
+  if (!paid || !paid.paidAt) return { ok: false, error: "This order's card payment isn't known here, so it can't be refunded to the card." };
   const account = ownPaymentAccount(app, key);
-  if (!account) return undefined;
-  return async (order, cents) => {
-    const charged = chargedOf(order);
-    // Against what the card paid, not the lower total after picking.
-    const done = await refundMarketPayment(account, { ...order, money: { ...order.money, payNow: charged.payNow } }, { cents, refundedBefore: 0, paymentId: order.paymentRef, note: `Weighed ${marketOrderReference(order)}`, ip, now }, { urls: paymentApiUrls() });
-    return done.ok ? { ok: true } : { ok: false, error: done.error };
-  };
+  if (!account || account.provider !== (paid.paymentProvider ?? "iyzico")) return { ok: false, error: "The app's gateway that took this payment isn't set up any more." };
+  if (input.cents <= 0 || input.cents + input.refundedBefore > paid.totalCents) return { ok: false, error: "That's more than what was paid online for this order." };
+  const done = await refundThroughProvider(
+    account,
+    {
+      conversationId: `order-${orderNumber(paid)}`,
+      paymentId: paid.paymentId,
+      providerRef: paid.providerRef ?? null,
+      currency: paid.currency,
+      paidCents: paid.totalCents,
+      paidAt: paid.paidAt,
+      cents: input.cents,
+      earlier: [],
+      refundedBeforeCents: input.refundedBefore,
+      reason: "buyer_request",
+      note: input.note.slice(0, 200),
+      ip: deps.ip,
+      now: deps.now,
+    },
+    { urls: paymentApiUrls() },
+  );
+  return done.error ? { ok: false, error: done.error } : { ok: true };
+}
+
+/** The weighed settlement's card refund through the app's own gateway. */
+export function gatewayRefund(store: DataStore, app: App, key: Buffer, ip: string, now: Date): CardRefund {
+  return (order, cents) => refundMarketToCard({ store, app, key, ip, now }, order, { cents, refundedBefore: 0, note: `Weighed ${marketOrderReference(order)}` });
 }
 
 export type SettleResult = { settled: false; reason: "nothing" | "unpaid" | "done" } | { settled: true; order: MarketOrder; settlement: Settlement };

@@ -1,12 +1,11 @@
 import type { DataStore } from "../data/store";
 import type { App, MarketOrder } from "../data/types";
 import { ownPaymentAccount } from "../catalog/settings";
-import { paymentApiUrls } from "../env";
 import { notifyDeps } from "../delivery/flow";
 import { tellComplaint } from "./notify";
 import type { DecisionDeps } from "./complaints";
 import { personalCoupon } from "./offers";
-import { refundMarketPayment } from "./payments";
+import { refundMarketToCard } from "./settlement";
 
 /**
  * 115.9 What support's decision on a complaint is carried out with: a refund
@@ -19,13 +18,12 @@ export function complaintDecisionDeps(store: DataStore, app: App, key: Buffer, i
   return {
     tell: (complaint) => tellComplaint(notifyDeps({ store, app, now: input.now }), complaint, "decision"),
     refundToPayment: async (order: MarketOrder, amount: number, complaintId: number) => {
-      const account = ownPaymentAccount(app, key);
-      if (!account) return { ok: false, error: "The app's payments aren't set up, so the refund can't go back to the card. Refund to the wallet instead." };
+      if (!ownPaymentAccount(app, key)) return { ok: false, error: "The app's payments aren't set up, so the refund can't go back to the card. Refund to the wallet instead." };
       const earlier = (await store.listMarketComplaints({ appId: app.id, orderId: order.id, limit: 100, offset: 0 })).items
         .filter((c) => c.id !== complaintId && c.decision?.to === "payment")
         .reduce((sum, c) => sum + (c.decision?.amount ?? 0), 0) + (order.money.settlement?.toCard ?? 0);
-      const done = await refundMarketPayment(account, order, { cents: amount, refundedBefore: earlier, paymentId: order.paymentRef, note: `Complaint ${complaintId}`, ip: input.ip, now: input.now }, { urls: paymentApiUrls() });
-      return done.ok ? { ok: true } : { ok: false, error: done.error };
+      // 115.29 Through the shop order that took the payment, as 47's refunds.
+      return refundMarketToCard({ store, app, key, ip: input.ip, now: input.now }, order, { cents: amount, refundedBefore: earlier, note: `Complaint ${complaintId}` });
     },
     makeCoupon: async (order: MarketOrder, amount: number, complaintId: number) => {
       if (order.userId === null) throw new Error("The order has no customer account to give a coupon to.");

@@ -8,7 +8,7 @@ import { priceOrder, type Tax } from "./money";
 import { commissionOfVendor } from "./cart";
 import { joinClub, returnToWallet } from "./offers";
 import { giveBackOrderStock, stockAfterPick } from "./stock";
-import { paidAhead } from "./settlement";
+import { paidAhead, SHOP_ORDER_REF } from "./settlement";
 import { tellMarketCustomer, tellVendor } from "./notify";
 import { prepWithDelay } from "./vendor-controls";
 
@@ -301,17 +301,16 @@ export async function payMarketOrder(store: DataStore, app: App, paid: CatalogOr
   if (app.connector?.kind !== "restaurants" || productId === undefined || productId >= 0 || clubPlanOfLine(productId) !== null) return null;
   const order = await store.getMarketOrder(app.id, -productId);
   if (!order || order.paymentMethod === "cash" || order.paymentStatus !== "unpaid") return null;
-  // 115.29 The gateway's payment as it was just recorded (the order passed in was read before it was).
-  const paymentId = paid.paymentId ?? (await store.getCatalogOrder(app.id, paid.id))?.paymentId ?? null;
+  // 115.29 The shop order that took the payment, for refunds to the card (lib/market/settlement.ts `refundMarketToCard`).
+  const shopRef = `${SHOP_ORDER_REF}${paid.id}`;
   await store.updateCatalogOrder(app.id, paid.id, { status: "completed", updatedAt: now });
   if (order.status !== "awaiting_payment") {
-    await store.updateMarketOrder(app.id, order.id, { paymentStatus: "paid", paymentRef: paymentId ?? order.paymentRef, updatedAt: now }, { statuses: [order.status] });
+    await store.updateMarketOrder(app.id, order.id, { paymentStatus: "paid", paymentRef: shopRef, updatedAt: now }, { statuses: [order.status] });
     return null;
   }
   const status: MarketOrderStatus = order.scheduledFor ? "scheduled" : "placed";
   const timeline = [...order.timeline, marketStage(status, now, "system")];
-  // 115.29 The gateway's payment, for refunds to the card (a weighed order's settlement, complaints).
-  const paymentRef = paymentId ?? order.paymentRef;
+  const paymentRef = shopRef;
   const changed = await store.updateMarketOrder(app.id, order.id, { status, paymentStatus: "paid", paymentRef, timeline, updatedAt: now }, { statuses: ["awaiting_payment"] });
   if (!changed) return null;
   const paidOrder: MarketOrder = { ...order, status, paymentStatus: "paid", paymentRef, timeline, updatedAt: now };
