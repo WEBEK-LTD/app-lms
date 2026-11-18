@@ -45,6 +45,11 @@
       .map(([id, ic, label]) => `<div class="tab${id === on ? " on" : ""}"><span class="ic">${icon(ic, id === on ? "f" : "")}</span>${label}${id === "cart" && cart ? `<span class="badge">${cart}</span>` : ""}</div>`)
       .join("")}</nav>`;
   };
+  /** The vendor app's bar: Orders, Picking, Stock, Offers, More. */
+  const vtabs = (on, badge = 0) => {
+    const tabs = [["orders", "receipt_long", t("Orders", "الطلبات")], ["picking", "checklist", t("Picking", "التجهيز")], ["stock", "inventory_2", t("Stock", "المخزون")], ["offers", "sell", t("Offers", "العروض")], ["more", "menu", t("More", "المزيد")]];
+    return `<nav class="vtabs">${tabs.map(([id, ic, l]) => `<div class="vtab${id === on ? " on" : ""}">${icon(ic, id === on ? "f" : "")}${l}${id === "orders" && badge ? `<span class="badge">${badge}</span>` : ""}</div>`).join("")}</nav>`;
+  };
   /** Writes the screen, then waits for its fonts and photos. */
   const mount = (html) => {
     document.getElementById("app").innerHTML = html;
@@ -54,5 +59,5 @@
     });
     Promise.all([document.fonts.ready, ...imgs]).then(() => document.fonts.load('24px "Material Symbols Rounded"', "home")).then(() => { document.body.dataset.ready = "1"; });
   };
-  Object.assign(window, { LANG: lang, THEME: theme, AR, t, n, money, grams, icon, photo, bg, statusBar, homeInd, tabbar, mount });
+  Object.assign(window, { LANG: lang, THEME: theme, AR, t, n, money, grams, icon, photo, bg, statusBar, homeInd, tabbar, vtabs, mount });
 })();

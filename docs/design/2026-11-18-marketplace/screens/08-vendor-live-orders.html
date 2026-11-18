@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>08 · Vendor app: live orders</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/kit.css">
+<script src="../kit/kit.js"></script>
+<style>
+  .stats { display: flex; gap: 8px; margin-top: 14px; }
+  .stats div { flex: 1; border-radius: 14px; background: rgba(255,255,255,.09); padding: 8px 10px; font-size: 11px; opacity: .95; }
+  .stats b { display: block; font: 700 16px/1.2 "Lexend", sans-serif; margin-top: 2px; }
+  .stats .hot { background: var(--amber); color: #241700; }
+  .ring { position: absolute; top: 52px; inset-inline-end: 16px; display: flex; gap: 8px; }
+  .bell { height: 36px; border-radius: 18px; padding: 0 12px; display: flex; align-items: center; gap: 6px; background: var(--amber); color: #241700; font-weight: 800; font-size: 12.5px; box-shadow: 0 0 0 5px rgba(242,169,59,.25), 0 0 0 10px rgba(242,169,59,.12); }
+  .seg { display: flex; gap: 6px; padding: 12px 16px 0; }
+  .seg span { height: 34px; border-radius: 17px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 12.5px; border: 1px solid var(--line); background: var(--surface); white-space: nowrap; }
+  .seg span b { font: 700 11px/18px "Lexend", sans-serif; min-width: 18px; height: 18px; border-radius: 9px; text-align: center; background: var(--field); padding: 0 4px; }
+  .seg span.on { background: var(--ink); color: var(--page); border-color: var(--ink); }
+  .seg span.on b { background: var(--amber); color: #241700; }
+  .ord { margin: 12px 16px 0; border-radius: 24px; background: var(--surface); box-shadow: var(--shadow-strong); padding: 14px; border: 2px solid var(--amber); }
+  .ord.calm { border: 1px solid var(--line); box-shadow: var(--shadow); padding: 12px 14px; }
+  .oh { display: flex; align-items: center; gap: 10px; }
+  .oh .num { font: 800 18px/1 "Lexend", sans-serif; }
+  .new { display: inline-flex; align-items: center; gap: 4px; height: 22px; border-radius: 7px; padding: 0 7px; background: var(--amber); color: #241700; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; }
+  [lang="ar"] .new { letter-spacing: 0; font-size: 11px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .meta span { display: inline-flex; align-items: center; gap: 4px; height: 26px; border-radius: 9px; padding: 0 8px; background: var(--field); font-size: 11.5px; font-weight: 700; }
+  .meta .i { font-size: 15px; }
+  .lines { margin-top: 10px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--line-2); padding: 6px 10px; }
+  .ln { display: flex; gap: 8px; font-size: 12.5px; padding: 4px 0; align-items: center; }
+  .ln b { font: 700 12.5px/1 "Lexend", sans-serif; min-width: 44px; color: var(--accent); }
+  .ln .w { font-size: 10.5px; font-weight: 800; color: var(--amber-ink); background: var(--amber-soft); border-radius: 6px; padding: 2px 6px; }
+  .times { display: flex; gap: 6px; margin-top: 12px; }
+  .times span { flex: 1; height: 40px; border-radius: 12px; display: grid; place-items: center; font: 700 13px/1 "Lexend", sans-serif; border: 1px solid var(--line); background: var(--surface); }
+  .times span small { display: block; font: 600 9.5px/1 var(--font); color: var(--muted); margin-top: 2px; text-align: center; }
+  .times span.on { background: var(--tint); border: 2px solid var(--accent); color: var(--tint-ink); }
+  .acts { display: flex; gap: 8px; margin-top: 10px; }
+  .acts .btn { height: 50px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+mount(`
+<div class="phone">
+  ${statusBar(true)}
+  <div class="vhead">
+    <div class="store">
+      <div class="logo">${t("Z", "ز")}</div>
+      <div class="grow"><div style="font:700 17px/1.1 var(--display)">${t("Zad Market", "زاد ماركت")}</div><div class="small" style="opacity:.75;margin-top:2px">${t("Zad Partner · Samir, picker", "زاد بارتنر · سمير، مُجهِّز")}</div></div>
+    </div>
+    <div class="ring"><span class="bell">${icon("notifications_active", "f", "font-size:18px")}${t("2 new", "طلبان جديدان")}</span><span class="round" style="width:36px;height:36px;background:rgba(255,255,255,.12);box-shadow:none;color:#fff">${icon("volume_up", "f", "font-size:20px")}</span></div>
+    <div class="row" style="margin-top:12px"><span class="live">${t("Taking orders", "نستقبل الطلبات")}</span><span class="grow"></span><span class="small" style="opacity:.8">${t("Busy?", "مشغول؟")} <b style="color:#FFD27A">${t("+15 min", "+15 دقيقة")}</b></span></div>
+    <div class="stats">
+      <div>${t("Orders today", "طلبات اليوم")}<b>38</b></div>
+      <div>${t("Sales today", "مبيعات اليوم")}<b>${money(14820, { whole: true })}</b></div>
+      <div class="hot">${t("New now", "جديدة الآن")}<b>2</b></div>
+    </div>
+  </div>
+  <div class="seg">
+    <span class="on">${t("New", "جديدة")}<b>2</b></span>
+    <span>${t("Preparing", "قيد التحضير")}<b>5</b></span>
+    <span>${t("Ready", "جاهزة")}<b>1</b></span>
+    <span>${t("For later", "لوقت لاحق")}<b>3</b></span>
+  </div>
+
+  <div class="ord">
+    <div class="oh">
+      <span class="new">${icon("graphic_eq", "", "font-size:14px")}${t("Ringing", "يرنّ")}</span>
+      <span class="num">${n("#4822")}</span>
+      <span class="grow small muted ellipsis">${t("Hany · 1 min ago", "هاني · منذ دقيقة")}</span>
+      <span style="font:800 16px/1 'Lexend',sans-serif">${money(386.5)}</span>
+    </div>
+    <div class="meta">
+      <span>${icon("two_wheeler")}${t("The app's courier", "مندوب التطبيق")}</span>
+      <span>${icon("credit_card")}${t("Card", "بطاقة")}</span>
+      <span>${icon("scale")}${t("3 by weight", "3 بالوزن")}</span>
+      <span>${icon("shopping_basket")}${t("7 items", "7 أصناف")}</span>
+    </div>
+    <div class="lines">
+      <div class="ln"><b>${grams(1500)}</b><span class="grow">${t("Tomatoes", "طماطم")}</span><span class="w">${t("weigh", "وزن")}</span></div>
+      <div class="ln"><b>${grams(500)}</b><span class="grow">${t("White cheese, sliced", "جبنة بيضاء، شرائح")}</span><span class="w">${t("weigh", "وزن")}</span></div>
+      <div class="ln"><b>×3</b><span class="grow">${t("Full-cream milk, 1 l", "حليب كامل الدسم، 1 لتر")}</span></div>
+      <div class="ln muted"><b style="color:var(--muted)">+4</b><span class="grow">${t("more items", "أصناف أخرى")}</span></div>
+    </div>
+    <div class="small" style="font-weight:800;margin-top:12px">${t("Ready in", "جاهز خلال")}</div>
+    <div class="times">
+      <span>10<small>${t("min", "د")}</small></span><span>15<small>${t("min", "د")}</small></span><span class="on">20<small>${t("min", "د")}</small></span><span>30<small>${t("min", "د")}</small></span><span>45<small>${t("min", "د")}</small></span>
+    </div>
+    <div class="acts">
+      <div class="btn ghost" style="flex:1;padding:0 10px">${t("Turn down", "رفض")}</div>
+      <div class="btn" style="flex:2.2;padding:0 12px">${icon("check")}<span style="white-space:nowrap">${t("Accept · ready", "قبول · جاهز")} ${n("20:32")}</span></div>
+    </div>
+  </div>
+
+  <div class="ord calm">
+    <div class="oh">
+      <span class="new" style="background:var(--amber-soft);color:var(--amber-ink)">${t("New", "جديد")}</span>
+      <span class="num">${n("#4823")}</span>
+      <span class="grow small muted ellipsis">${t("Salma · just now", "سلمى · الآن")}</span>
+      <span style="font:800 15px/1 'Lexend',sans-serif">${money(142)}</span>
+    </div>
+    <div class="meta"><span>${icon("storefront")}${t("Pick-up", "استلام من المحل")}</span><span>${icon("payments")}${t("Cash", "نقدًا")}</span><span>${icon("shopping_basket")}${t("3 items", "3 أصناف")}</span></div>
+  </div>
+  ${vtabs("orders", 2)}
+  ${homeInd()}
+</div>`);
+</script>
+</body>
+</html>

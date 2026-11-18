@@ -1,0 +1,99 @@
+<!doctype html>
+<html data-variants="card,wallet,coupon,declined">
+<head>
+<meta charset="utf-8">
+<title>06c · The decision</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/kit.css">
+<script src="../kit/kit.js"></script>
+<style>
+  .hero { margin: 4px 16px 0; border-radius: 30px; padding: 22px 18px 18px; position: relative; overflow: hidden; color: #fff; background: var(--poster); }
+  .hero.declined { background: var(--surface); color: var(--ink); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .hero::before { content: ""; position: absolute; width: 260px; height: 260px; border-radius: 50%; top: -120px; inset-inline-end: -90px; background: radial-gradient(circle, rgba(242,169,59,.30), transparent 65%); }
+  .hero.declined::before { display: none; }
+  .badge { width: 60px; height: 60px; border-radius: 30px 30px 14px 14px; display: grid; place-items: center; background: var(--amber); color: #241700; position: relative; }
+  .badge .i { font-size: 30px; }
+  .hero.declined .badge { background: var(--field); color: var(--muted); }
+  .hero h2 { font: 700 24px/1.15 var(--display); letter-spacing: -.5px; margin-top: 16px; position: relative; }
+  [lang="ar"] .hero h2 { letter-spacing: 0; }
+  .amount { font: 800 46px/1 "Lexend", sans-serif; letter-spacing: -2px; color: var(--amber); margin-top: 10px; }
+  .hero p { font-size: 13.5px; line-height: 1.45; opacity: .9; margin-top: 8px; position: relative; }
+  .reason { margin-top: 12px; padding: 12px 14px; border-radius: 18px; background: var(--field); font-size: 13.5px; line-height: 1.5; border-inline-start: 4px solid var(--amber); }
+  .coupon { margin-top: 14px; display: flex; align-items: stretch; border-radius: 18px; background: rgba(255,255,255,.08); border: 1.5px dashed var(--amber); position: relative; }
+  .coupon .code { flex: 1; padding: 12px 14px; font: 700 20px/1 var(--mono); letter-spacing: 1px; }
+  .coupon .code small { display: block; font: 600 11px/1.3 var(--font); letter-spacing: 0; opacity: .75; margin-top: 5px; }
+  .coupon .copy { display: flex; align-items: center; gap: 5px; padding: 0 14px; font-weight: 800; color: var(--amber); border-inline-start: 1.5px dashed var(--amber); }
+  .facts { margin-top: 14px; display: flex; gap: 8px; position: relative; }
+  .facts div { flex: 1; border-radius: 16px; background: rgba(255,255,255,.08); padding: 9px 11px; font-size: 11.5px; }
+  .facts b { display: block; font: 700 14px/1.2 var(--display); margin-top: 3px; }
+  .hero.declined .facts div { background: var(--surface-2); border: 1px solid var(--line-2); }
+  .steps { margin: 14px 16px 0; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); padding: 12px 14px; }
+  .st { display: flex; gap: 12px; position: relative; padding-bottom: 12px; }
+  .st:last-child { padding-bottom: 0; }
+  .st::before { content: ""; position: absolute; top: 24px; bottom: 0; inset-inline-start: 11px; width: 2px; background: var(--line); }
+  .st:last-child::before { display: none; }
+  .st .d { width: 24px; height: 24px; border-radius: 12px; background: var(--tint); color: var(--tint-ink); display: grid; place-items: center; flex: none; }
+  .st .d .i { font-size: 15px; }
+  .st .d.now { background: var(--fill); color: var(--on-fill); }
+  .st b { font-size: 13px; }
+  .st span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+  .dock { padding: 10px 16px 28px; display: flex; gap: 8px; }
+  .dock .btn { flex: 1; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const v = new URLSearchParams(location.search).get("v") || "card";
+const amount = money(161.55);
+const D = {
+  card: { icon: "credit_card", title: t("We're refunding your card", "سنردّ المبلغ إلى بطاقتك"), amount,
+    text: t("For the cheese and the bananas. The refund leaves today; your bank shows it in 5 to 10 working days.", "عن الجبنة والموز. يُرسَل المبلغ اليوم، ويظهر في حسابك خلال 5 إلى 10 أيام عمل حسب مصرفك."),
+    facts: [[t("To", "إلى"), t("Card •• 4242", "البطاقة •• 4242")], [t("Order total now", "إجمالي الطلب الآن"), money(254)]],
+    step: t("Refund to card · EGP 161.55", "استرداد إلى البطاقة · 161.55 ج.م"), main: t("Done", "تم"), second: t("Reply", "رد") },
+  wallet: { icon: "account_balance_wallet", title: t("It's in your wallet", "أُضيف المبلغ إلى محفظتك"), amount,
+    text: t("For the cheese and the bananas, ready now for your next order at any place in Zad.", "عن الجبنة والموز، وهو متاح الآن لطلبك القادم من أي متجر في زاد."),
+    facts: [[t("Wallet balance", "رصيد المحفظة"), money(211.55)], [t("Added", "أُضيف"), t("Today 20:41", "اليوم 20:41")]],
+    step: t("Refund to wallet · EGP 161.55", "استرداد إلى المحفظة · 161.55 ج.م"), main: t("Open wallet", "فتح المحفظة"), second: t("Reply", "رد") },
+  coupon: { icon: "confirmation_number", title: t("A coupon for your next order", "قسيمة لطلبك القادم"), amount: money(175, { whole: true }),
+    text: t("Off your next order at Zad Market, with no smallest order. It's already in your coupons.", "خصم على طلبك القادم من زاد ماركت دون حد أدنى للطلب، وقد أُضيفت إلى قسائمك.") , coupon: true,
+    facts: [[t("Valid until", "صالحة حتى"), t("18 December", "18 ديسمبر")], [t("Use", "الاستخدام"), t("Once", "مرة واحدة")]],
+    step: t("Coupon · EGP 175", "قسيمة · 175 ج.م"), main: t("Shop now", "تسوّق الآن"), second: t("Reply", "رد") },
+  declined: { icon: "info", title: t("We couldn't refund this one", "تعذّر علينا ردّ المبلغ هذه المرة"), declined: true,
+    reason: t("Zad Market checked: 16 November is the day the cheese was packed, and it is good until 30 November. In the photos the bananas look ripe rather than damaged. We've passed your note about the taste on, so the store checks that batch.", "راجع زاد ماركت الأمر: 16 نوفمبر هو تاريخ تعبئة الجبنة، وهي صالحة حتى 30 نوفمبر، ويبدو الموز في الصور ناضجًا لا تالفًا. أبلغنا المتجر بملاحظتك عن الطعم ليفحص هذه الدفعة."),
+    step: t("No refund, with the reason", "دون استرداد، مع السبب"), main: t("Reply to support", "الرد على الدعم"), second: t("Close", "إغلاق") },
+}[v];
+if (v === "declined") D.facts = [[t("Decided by", "اتخذ القرار"), t("Nour, Zad support", "نور، دعم زاد")], [t("When", "الوقت"), t("Today 20:41", "اليوم 20:41")]];
+mount(`
+<div class="phone">
+  ${statusBar()}
+  <div class="scroll">
+    <div class="appbar">
+      <div class="round flat">${icon("arrow_back", "flip")}</div>
+      <div class="grow"><h1 style="font:700 18px/1.1 var(--display)">${t("Complaint", "الشكوى")} ${n("C-1093")}</h1><div class="small muted" style="margin-top:2px">${t("Zad Market", "زاد ماركت")} · ${t("Order", "الطلب")} ${n("#4821")}</div></div>
+      <span class="pill ${D.declined ? "line" : "ok"}" style="height:26px;font-size:11.5px">${D.declined ? t("Closed", "مغلقة") : t("Resolved", "تمت معالجتها")}</span>
+    </div>
+    <div class="hero${D.declined ? " declined" : ""}">
+      <div class="badge">${icon(D.icon, "f")}</div>
+      <h2>${D.title}</h2>
+      ${D.amount ? `<div class="amount">${D.amount}</div>` : ""}
+      ${D.text ? `<p>${D.text}</p>` : ""}
+      ${D.reason ? `<div class="reason"><div class="small" style="font-weight:800;color:var(--amber-ink);margin-bottom:4px">${t("Why", "السبب")}</div>${D.reason}</div>` : ""}
+      ${D.coupon ? `<div class="coupon"><div class="code">SORRY-4821<small>${t("Applied by itself at checkout", "تُطبَّق تلقائيًا عند الدفع")}</small></div><div class="copy">${icon("content_copy", "", "font-size:18px")}${t("Copy", "نسخ")}</div></div>` : ""}
+      <div class="facts">${D.facts.map(([a, b]) => `<div><span style="opacity:.75">${a}</span><b>${b}</b></div>`).join("")}</div>
+    </div>
+    <div class="steps">
+      <div class="st"><span class="d">${icon("flag", "f")}</span><div><b>${t("You opened it", "فتحت الشكوى")}</b><span>${t("Quality · cheese and bananas · 2 photos · 20:05", "الجودة · الجبنة والموز · صورتان · 20:05")}</span></div></div>
+      <div class="st"><span class="d">${icon("forum", "f")}</span><div><b>${t("Nour answered", "ردّت نور")}</b><span>${t("3 messages · first in 7 minutes", "3 رسائل · أول رد خلال 7 دقائق")}</span></div></div>
+      <div class="st"><span class="d now">${icon(D.declined ? "gavel" : "check")}</span><div><b>${D.step}</b><span>${t("Today 20:41", "اليوم 20:41")}</span></div></div>
+    </div>
+  </div>
+  <div class="dock">
+    <div class="btn ghost">${icon(D.declined ? "close" : "chat")}${D.second}</div>
+    <div class="btn" style="flex:1.4">${D.main}</div>
+  </div>
+  ${homeInd()}
+</div>`);
+</script>
+</body>
+</html>

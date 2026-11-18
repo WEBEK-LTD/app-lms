@@ -27,7 +27,8 @@ The dashboard uses Yallapp's own dashboard tokens and fonts
 (`platform/web/src/app/globals.css`: ivory and midnight, Bricolage Grotesque
 and IBM Plex Sans Arabic), and its words and their Arabic come from
 `platform/web/src/i18n/dashboard/market.ts` (Modern Standard Arabic, as 115.12
-asks of the marketplace's pages). The apps' Arabic is Modern Standard Arabic.
+asks of the marketplace's pages). The apps' Arabic is Modern Standard Arabic;
+the vendor app's words follow the partner panel's (`lib/market/panel-words.ts`).
 
 Every name, price and product is Zad's demo (`lib/demo/marketplace.ts`): Zad
 Market, its departments, its prices in EGP with VAT in them, FRESH15, Zad Club
@@ -55,8 +56,9 @@ Talabat or Yemeksepeti logo, colour, name or screen is used.
 | 11 | Dashboard, complaints queue: assignee, status, time since opened and since the last reply, ready replies | `screens/11-dashboard-complaints-queue.html` |
 | 12 | Dashboard, a complaint: the order, the conversation, team notes, the decision panel | `screens/12-dashboard-complaint.html` |
 
-PNGs are in `png/`, named `<screen>[-<variant>]-<en|ar>-<light|dark>.png`,
-phones at 390×844 and the dashboard at 1440×1024, all at twice the pixels.
+PNGs are in `png/` (76 of them, about 30 MB, lossless), named
+`<screen>[-<variant>]-<en|ar>-<light|dark>.png`, phones at 390×844 and the
+dashboard at 1440×1024, all at twice the pixels.
 
 ## Decisions these screens assume (for the owner to confirm)
 
@@ -108,7 +110,8 @@ phones at 390×844 and the dashboard at 1440×1024, all at twice the pixels.
    ("the whole order" by default), with how many of each.
 10. The customer sees **four decisions**: refund to the card (with the bank's
     usual 5 to 10 working days), refund to the wallet (at once), a coupon
-    (its code, amount and an expiry of 30 days, the owner's choice), or
+    (its code, an expiry of 30 days, and possibly worth more than the refund
+    as a compensation: EGP 175 against EGP 161.55 in the sample), or
     declined with the reason support wrote. After a decision the conversation
     stays open for replies; it doesn't reopen the decision.
 11. Support writes in the app's chat (77) under the team's name, "Zad
@@ -130,8 +133,9 @@ phones at 390×844 and the dashboard at 1440×1024, all at twice the pixels.
     customer app but denser: a deep green header and amber for what is new.
 15. A new order **rings until someone acts**, with a badge on the tab and a
     sound toggle; it is accepted with a **preparation time** (10, 15, 20, 30
-    or 45 minutes) or declined with a reason (busy, closing soon, items out
-    of stock, something else), the customer told.
+    or 45 minutes) or turned down with the panel's reasons (we're closing,
+    too busy, items unavailable, too far, other), the customer told. The
+    staff see only the customer's first name, as on the partner panel.
 16. The picking list groups items by **aisle**, shows the customer's choice
     for each line ("similar", "their pick", "leave out"), takes the **actual
     weight** from a keypad (or a connected scale later), and keeps

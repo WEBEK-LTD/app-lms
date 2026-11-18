@@ -1,0 +1,141 @@
+<!doctype html>
+<html data-size="dashboard">
+<head>
+<meta charset="utf-8">
+<title>11 · Dashboard: complaints queue</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/dash.css">
+<script src="../kit/kit.js"></script>
+<style>
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
+  .stat { padding: 14px 16px; }
+  .stat .v { font-size: 26px; font-weight: 700; letter-spacing: -.5px; margin-top: 4px; }
+  .stat .s { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .split { display: flex; gap: 16px; margin-top: 16px; align-items: flex-start; }
+  .queue { flex: 1; min-width: 0; overflow: hidden; }
+  .tabs { display: flex; gap: 4px; padding: 10px 12px 0; border-bottom: 1px solid var(--line); }
+  .tab { padding: 8px 12px 11px; font-size: 13.5px; font-weight: 600; color: var(--muted); position: relative; display: flex; gap: 6px; align-items: center; }
+  .tab b { font-size: 11.5px; min-width: 20px; height: 20px; border-radius: 10px; background: var(--step); display: grid; place-items: center; padding: 0 6px; color: var(--ink-2); }
+  .tab.on { color: var(--midnight); }
+  .tab.on::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 3px; border-radius: 2px; background: var(--midnight); }
+  .tab.on b { background: var(--ember); color: #fff; }
+  .tools { display: flex; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line-soft); }
+  .search { flex: 1; height: 36px; border-radius: 10px; border: 1px solid var(--line); display: flex; align-items: center; gap: 8px; padding: 0 10px; color: var(--faint); font-size: 13px; background: var(--sand); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: start; font-size: 11.5px; font-weight: 600; color: var(--muted); padding: 9px 9px; border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
+  td { padding: 10px 9px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; white-space: nowrap; }
+  tr.sel td { background: var(--peach-soft); }
+  tr.sel td:first-child { box-shadow: inset 3px 0 0 var(--ember); }
+  [dir="rtl"] tr.sel td:first-child { box-shadow: inset -3px 0 0 var(--ember); }
+  .ref { font-weight: 700; }
+  .who { font-size: 12px; color: var(--muted); }
+  .take { height: 28px; border-radius: 8px; padding: 0 10px; border: 1px dashed var(--line-strong); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; color: var(--accent); }
+  .tm { font-weight: 600; }
+  .bar { display: inline-block; width: 6px; height: 6px; border-radius: 3px; margin-inline-end: 6px; vertical-align: 1px; }
+  .panel { width: 340px; flex: none; padding: 16px; }
+  .msg { margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--sand); border: 1px solid var(--line-soft); font-size: 13px; }
+  .shots { display: flex; gap: 6px; margin-top: 8px; }
+  .shots span { width: 64px; height: 48px; border-radius: 8px; }
+  .rr { margin-top: 14px; }
+  .rr .h { font-size: 12px; font-weight: 700; color: var(--muted); display: flex; justify-content: space-between; }
+  .rr .r { margin-top: 6px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); font-size: 12.5px; display: flex; gap: 8px; align-items: flex-start; }
+  .rr .r .i { font-size: 16px; color: var(--faint); margin-top: 1px; }
+  .rr .r.on { border-color: var(--midnight); background: var(--sand); }
+  .reply { margin-top: 10px; border: 1.5px solid var(--midnight); border-radius: 12px; padding: 10px; font-size: 13px; min-height: 70px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const logo = (f) => `../../../../platform/web/public/brand/${f}`;
+const navItem = (ic, label, on, count) => `<div class="nav${on ? " on" : ""}">${icon(ic, on ? "f" : "")}<span>${label}</span>${count ? `<span class="count">${count}</span>` : ""}</div>`;
+const side = `
+  <aside class="side">
+    <img class="logo l" src="${logo("yallapp-logo-primary-transparent.svg")}" alt="Yallapp">
+    <img class="logo d" src="${logo("yallapp-logo-reversed-transparent.svg")}" alt="Yallapp">
+    <div class="appcard"><span class="ic">${t("Z", "ز")}</span><div class="grow"><div style="font-weight:700">${t("Zad", "زاد")}</div><div class="small muted"><span class="dot"></span> ${t("Marketplace · Active", "السوق الإلكتروني · نشط")}</div></div>${icon("unfold_more", "", "color:var(--faint)")}</div>
+    <div style="height:12px"></div>
+    ${navItem("dashboard", t("Overview", "نظرة عامة"))}
+    <div class="navh">${t("Your marketplace", "سوقك الإلكتروني")}</div>
+    ${navItem("receipt_long", t("Marketplace orders", "طلبات السوق"))}
+    ${navItem("support_agent", t("Complaints", "الشكاوى"), true, 6)}
+    ${navItem("storefront", t("Vendors", "التجار"))}
+    ${navItem("how_to_reg", t("Joining", "الانضمام"))}
+    ${navItem("sell", t("Offers & club", "العروض والنادي"))}
+    ${navItem("two_wheeler", t("Courier jobs", "مهام المناديب"))}
+    ${navItem("tune", t("Marketplace settings", "إعدادات السوق"))}
+    <div class="navh">${t("Publish", "النشر")}</div>
+    ${navItem("build", t("Builds & downloads", "الإصدارات والتنزيلات"))}
+    ${navItem("publish", t("Publishing", "النشر على المتاجر"))}
+    <div class="me"><span class="av">${t("R", "ر")}</span><div class="grow"><div style="font-weight:600">${t("Rania, support lead", "رانيا، مسؤولة الدعم")}</div><div class="small muted">${t("Zad team", "فريق زاد")}</div></div>${icon("logout", "flip", "color:var(--faint)")}</div>
+  </aside>`;
+const C = { n: "#2F6F5E", o: "#8A4FBF", r: "#C2410C" };
+const av = (l, c) => `<span class="avs" style="background:${c}">${l}</span>`;
+const mins = (m) => (m >= 60 ? `${Math.floor(m / 60)} ${t("h", "س")} ${m % 60} ${t("min", "د")}` : `${m} ${t("min", "د")}`);
+const wait = (m) => { const cls = m >= 60 ? "t-bad" : m >= 15 ? "t-warn" : "t-ok"; const col = m >= 60 ? "var(--danger)" : m >= 15 ? "var(--warn)" : "var(--success)"; return `<span class="tm ${cls}"><span class="bar" style="background:${col}"></span>${mins(m)}</span>`; };
+const rows = [
+  { ref: "C-1091", who: t("Tarek", "طارق"), ord: "#4802", place: t("Nile Pizza Co.", "نايل بيتزا"), reason: t("Wrong items", "أصناف خاطئة"), what: t("1 item · 1 photo", "صنف واحد · صورة"), st: ["c-new", t("New", "جديدة")], as: null, open: 72, last: 72, amt: 190, sel: true },
+  { ref: "C-1094", who: t("Hany", "هاني"), ord: "#4817", place: t("Bab El Sharq Grill", "مشويات باب الشرق"), reason: t("Late", "تأخر"), what: t("The whole order", "الطلب كله"), st: ["c-new", t("New", "جديدة")], as: null, open: 18, last: 18, amt: 320 },
+  { ref: "C-1093", who: t("Mona", "منى"), ord: "#4821", place: t("Zad Market", "زاد ماركت"), reason: t("Quality", "الجودة"), what: t("2 items · 2 photos", "صنفان · صورتان"), st: ["c-review", t("In review", "قيد المراجعة")], as: [t("N", "ن"), C.n, t("Nour", "نور")], open: 41, last: 3, amt: 161.55 },
+  { ref: "C-1090", who: t("Salma", "سلمى"), ord: "#4799", place: t("Zad Market", "زاد ماركت"), reason: t("Missing items", "أصناف ناقصة"), what: t("3 items", "3 أصناف"), st: ["c-review", t("In review", "قيد المراجعة")], as: [t("O", "ع"), C.o, t("Omar", "عمر")], open: 124, last: 9, amt: 96 },
+  { ref: "C-1088", who: t("Youssef", "يوسف"), ord: "#4785", place: t("Zad Market", "زاد ماركت"), reason: t("Charged wrong", "خطأ في المبلغ"), what: t("The whole order", "الطلب كله"), st: ["c-review", t("In review", "قيد المراجعة")], as: [t("N", "ن"), C.n, t("Nour", "نور")], open: 186, last: 26, amt: 42.5 },
+  { ref: "C-1087", who: t("Rana", "رنا"), ord: "#4770", place: t("Bab El Sharq Grill", "مشويات باب الشرق"), reason: t("The courier", "المندوب"), what: t("The whole order", "الطلب كله"), st: ["c-review", t("In review", "قيد المراجعة")], as: [t("R", "ر"), C.r, t("Rania", "رانيا")], open: 247, last: 48, amt: 0 },
+];
+const table = `
+  <table>
+    <thead><tr><th>${t("Complaint", "الشكوى")}</th><th>${t("Place", "المتجر")}</th><th>${t("Reason", "السبب")}</th><th>${t("Status", "الحالة")}</th><th>${t("Assigned to", "مسندة إلى")}</th><th>${t("Since opened", "منذ الفتح")}</th><th>${t("Since last reply", "منذ آخر رد")}</th></tr></thead>
+    <tbody>${rows.map((r) => `
+      <tr class="${r.sel ? "sel" : ""}">
+        <td><div class="ref">${n(r.ref)}</div><div class="who">${r.who} · ${t("order", "الطلب")} ${n(r.ord)}</div></td>
+        <td><div>${r.place}</div><div class="who">${r.amt ? money(r.amt) : "—"}</div></td>
+        <td><div>${r.reason}</div><div class="who">${r.what}</div></td>
+        <td><span class="chip ${r.st[0]}">${r.st[1]}</span></td>
+        <td>${r.as ? `<span class="row" style="gap:7px">${av(r.as[0], r.as[1])}${r.as[2]}</span>` : `<span class="take">${icon("person_add", "", "font-size:15px")}${t("Take it", "أتولاها")}</span>`}</td>
+        <td class="muted">${mins(r.open)}</td>
+        <td>${wait(r.last)}</td>
+      </tr>`).join("")}
+    </tbody>
+  </table>`;
+const replies = AR
+  ? ["نعتذر عن ذلك. نراجع الأمر الآن وسنعود إليك قريبًا.", "هل يمكنك إرسال صورة للمنتجات لنحل الأمر بسرعة؟", "أضفنا المبلغ إلى محفظتك، ويمكنك استخدامه في طلبك القادم.", "أعدنا المبلغ إلى وسيلة الدفع، وقد يستغرق ظهوره بضعة أيام.", "شكرًا لإخبارنا. أبلغنا المتجر حتى لا يتكرر ذلك."]
+  : ["We're sorry about this. We're looking into it now and will come back to you shortly.", "Could you send a photo of the items, so we can sort this out quickly?", "We've added the amount to your wallet. You can use it on your next order.", "We've refunded the amount to your payment. It can take a few days to show.", "Thank you for telling us. We've passed this on so it doesn't happen again."];
+mount(`
+<div class="shell">
+  ${side}
+  <main class="main">
+    <div class="row"><div class="grow"><h1>${t("Complaints", "الشكاوى")}</h1></div><span class="btn">${icon("download")}${t("Export", "تصدير")}</span><span class="btn">${icon("bolt")}${t("Ready replies", "ردود جاهزة")}</span></div>
+    <p class="intro">${t("Customers open a ticket on an order from when it's placed until 48 hours after it arrives. Your support team answers here and decides; the places read only what you share with them.", "يفتح العملاء شكوى على الطلب من لحظة إنشائه حتى 48 ساعة بعد وصوله. يرد فريق الدعم لديك هنا ويتخذ القرار، ولا ترى المحالّ إلا ما تشاركه معها.")}</p>
+    <div class="stats">
+      <div class="card stat"><div class="small muted">${t("Waiting on you", "بانتظار ردك")}</div><div class="v">6</div><div class="s">${t("2 not assigned", "2 غير مسندتين")}</div></div>
+      <div class="card stat"><div class="small muted">${t("Longest without a reply", "أطول انتظار دون رد")}</div><div class="v t-bad">${mins(72)}</div><div class="s">${n("C-1091")} · ${t("Nile Pizza Co.", "نايل بيتزا")}</div></div>
+      <div class="card stat"><div class="small muted">${t("First reply today, typical", "أول رد اليوم، في المعتاد")}</div><div class="v">${mins(9)}</div><div class="s">${t("Target 15 min", "الهدف 15 دقيقة")}</div></div>
+      <div class="card stat"><div class="small muted">${t("Decided today", "قرارات اليوم")}</div><div class="v">11</div><div class="s">${t("Refunded", "مستردّ")} ${money(1284.4, { whole: false })}</div></div>
+    </div>
+    <div class="split">
+      <div class="card queue">
+        <div class="tabs">
+          <span class="tab on">${t("Waiting on you", "بانتظار ردك")} <b>6</b></span>
+          <span class="tab">${t("Waiting on the customer", "بانتظار العميل")} <b>3</b></span>
+          <span class="tab">${t("Assigned to me", "المسندة إليّ")} <b>1</b></span>
+          <span class="tab">${t("Closed", "المغلقة")}</span>
+          <span class="tab">${t("All", "الكل")}</span>
+        </div>
+        <div class="tools"><div class="search">${icon("search", "", "font-size:18px")}${t("Complaint, order or customer", "الشكوى أو الطلب أو العميل")}</div><span class="btn">${icon("storefront", "", "font-size:18px")}${t("Every place", "كل المتاجر")}${icon("expand_more", "", "font-size:18px")}</span><span class="btn">${icon("sort", "", "font-size:18px")}${t("Longest waiting", "الأطول انتظارًا")}</span></div>
+        ${table}
+        <div class="row small muted" style="padding:12px 14px"><span class="grow">${t("6 complaints waiting on you", "6 شكاوى بانتظار ردك")}</span><span>${t("Amber after 15 min without a reply, red after 1 h", "كهرماني بعد 15 دقيقة دون رد، وأحمر بعد ساعة")}</span></div>
+      </div>
+      <aside class="card panel">
+        <div class="row"><div class="grow"><div style="font-weight:700;font-size:16px">${t("Complaint", "الشكوى")} ${n("C-1091")}</div><div class="small muted">${t("Tarek · order", "طارق · الطلب")} ${n("#4802")} · ${t("Nile Pizza Co.", "نايل بيتزا")}</div></div><span class="chip c-new">${t("New", "جديدة")}</span></div>
+        <div class="msg"><div class="small" style="font-weight:700;margin-bottom:4px">${t("Customer", "العميل")} · <span class="t-bad">${t("waiting", "بانتظار منذ")} ${mins(72)}</span></div>${t("I ordered Pepperoni, large, and got Margherita, regular. Photo attached.", "طلبت بيتزا ببروني كبيرة ووصلتني مارجريتا عادية. أرفقت صورة.")}<div class="shots"><span style="background:var(--step);display:grid;place-items:center;color:var(--faint)">${icon("image")}</span><span class="small muted" style="width:auto;height:auto;align-self:center">${t("1 photo", "صورة واحدة")}</span></div></div>
+        <div class="rr"><div class="h"><span>${t("Ready replies", "ردود جاهزة")}</span><span style="color:var(--accent)">${t("Edit", "تعديل")}</span></div>
+          ${replies.map((r, i) => `<div class="r${i === 0 ? " on" : ""}">${icon(i === 0 ? "check_circle" : "chat_bubble", i === 0 ? "f" : "")}<span>${r}</span></div>`).slice(0, 4).join("")}
+        </div>
+        <div class="reply">${replies[0]}<span style="display:inline-block;width:1.5px;height:15px;background:var(--midnight);vertical-align:-2px;margin-inline-start:2px"></span></div>
+        <div class="row" style="margin-top:10px"><span class="take">${icon("person_add", "", "font-size:15px")}${t("Take it", "أتولاها")}</span><span class="grow"></span><span class="btn">${t("Open", "فتح")}</span><span class="btn dark">${icon("send", "flip", "font-size:17px")}${t("Send", "إرسال")}</span></div>
+      </aside>
+    </div>
+  </main>
+</div>`);
+</script>
+</body>
+</html>

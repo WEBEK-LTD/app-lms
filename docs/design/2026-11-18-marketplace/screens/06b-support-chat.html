@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>06b · The support conversation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/kit.css">
+<script src="../kit/kit.js"></script>
+<style>
+  .top { display: flex; align-items: center; gap: 10px; padding: 6px 16px 10px; border-bottom: 1px solid var(--line); background: var(--page); }
+  .agent { width: 42px; height: 42px; border-radius: 21px; background: var(--poster); color: var(--amber); display: grid; place-items: center; position: relative; flex: none; }
+  .agent::after { content: ""; position: absolute; bottom: 1px; inset-inline-end: 1px; width: 11px; height: 11px; border-radius: 6px; background: #3DD68C; border: 2px solid var(--page); }
+  .ticket { margin: 10px 16px 0; padding: 10px 12px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+  .ticket .thumbs { display: flex; }
+  .ticket .thumbs span { width: 34px; height: 34px; border-radius: 10px; border: 2px solid var(--surface); margin-inline-start: -10px; }
+  .ticket .thumbs span:first-child { margin-inline-start: 0; }
+  .chat { padding: 10px 16px 0; display: flex; flex-direction: column; gap: 8px; }
+  .day { align-self: center; font-size: 11px; font-weight: 700; color: var(--muted); background: var(--field); border-radius: 10px; padding: 4px 10px; }
+  .msg { max-width: 80%; padding: 10px 13px; border-radius: 20px; font-size: 13.5px; line-height: 1.42; position: relative; }
+  .msg time { display: block; font: 600 10px/1 var(--display); opacity: .6; margin-top: 5px; text-align: end; }
+  .me { align-self: flex-end; background: var(--fill); color: var(--on-fill); border-end-end-radius: 6px; }
+  .them { align-self: flex-start; background: var(--surface); box-shadow: var(--shadow); border-end-start-radius: 6px; }
+  .who { font-size: 11px; font-weight: 800; color: var(--accent); margin-bottom: 3px; }
+  .pics { display: flex; gap: 5px; margin-bottom: 7px; }
+  .pics span { width: 96px; height: 72px; border-radius: 13px; }
+  .event { align-self: center; display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); font-weight: 600; }
+  .event .i { font-size: 16px; color: var(--amber); }
+  .typing { align-self: flex-start; display: flex; gap: 4px; padding: 12px 14px; border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); }
+  .typing i { width: 7px; height: 7px; border-radius: 4px; background: var(--faint); }
+  .typing i:nth-child(2) { opacity: .6; } .typing i:nth-child(3) { opacity: .35; }
+  .quick { display: flex; gap: 6px; padding: 0 16px; position: absolute; bottom: 92px; left: 0; right: 0; }
+  .quick span { height: 32px; border-radius: 16px; padding: 0 12px; display: inline-flex; align-items: center; font-size: 12.5px; font-weight: 700; border: 1px solid var(--line); background: var(--surface); color: var(--accent); white-space: nowrap; }
+  .composer { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 12px 28px; display: flex; gap: 8px; align-items: center; background: var(--page); border-top: 1px solid var(--line); }
+  .composer .field { flex: 1; height: 46px; border-radius: 23px; }
+  .send { width: 46px; height: 46px; border-radius: 23px; background: var(--fill); color: var(--on-fill); display: grid; place-items: center; flex: none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+mount(`
+<div class="phone">
+  ${statusBar()}
+  <div class="scroll">
+    <div class="top">
+      <div class="round flat" style="width:38px;height:38px">${icon("arrow_back", "flip")}</div>
+      <div class="agent">${icon("support_agent", "f")}</div>
+      <div class="grow"><div style="font-weight:800;font-size:15px">${t("Zad support", "دعم زاد")}</div><div class="small muted">${t("Nour is answering · usually within 15 min", "نور ترد عليك · عادةً خلال 15 دقيقة")}</div></div>
+    </div>
+    <div class="ticket">
+      <div class="thumbs"><span class="ph" style="${bg("bananas.jpg")}"></span><span class="ph" style="${bg("white-cheese.jpg")}"></span></div>
+      <div class="grow"><div style="font-weight:800;font-size:13px">${t("Complaint", "الشكوى")} ${n("C-1093")} · ${t("Quality", "الجودة")}</div><div class="small muted">${t("Order", "الطلب")} ${n("#4821")} · ${t("2 items", "صنفان")}</div></div>
+      <span class="pill" style="background:var(--amber-soft);color:var(--amber-ink);height:26px;font-size:11.5px">${t("In review", "قيد المراجعة")}</span>
+    </div>
+
+    <div class="chat">
+      <div class="day">${t("Today", "اليوم")}</div>
+      <div class="msg me">
+        <div class="pics"><span class="ph" style="${bg("bananas.jpg")}"></span><span class="ph" style="${bg("white-cheese.jpg")}"></span></div>
+        ${t("The bananas are bruised and soft, and the cheese tastes sour, as if it were old.", "الموز مكدوم وطري، والجبنة طعمها حامض كأنها قديمة.")}<time>20:05</time>
+      </div>
+      <div class="event">${icon("person_add", "f")}${t("Nour from Zad support took your complaint", "تولّت نور من دعم زاد شكواك")}</div>
+      <div class="msg them"><div class="who">${t("Nour · Zad support", "نور · دعم زاد")}</div>${t("I'm sorry about this. Was the cheese in a sealed pack, and do you see its date on it?", "نأسف لذلك. هل كانت الجبنة في عبوة مغلقة، وهل ترى تاريخها عليها؟")}<time>20:12</time></div>
+      <div class="msg me">${t("Sealed, yes. It says 16 November.", "نعم، مغلقة. التاريخ 16 نوفمبر.")}<time>20:14</time></div>
+      <div class="msg them"><div class="who">${t("Nour · Zad support", "نور · دعم زاد")}</div>${t("Thank you, that helps. I'm checking with the store now; you'll see the decision here in a few minutes.", "شكرًا لك، هذا يساعدنا. أراجع الأمر مع المتجر الآن، وسترى القرار هنا خلال دقائق.")}<time>20:16</time></div>
+      <div class="typing"><i></i><i></i><i></i></div>
+    </div>
+  </div>
+  <div class="quick"><span>${t("Thank you", "شكرًا لك")}</span><span>${t("Add a photo", "إضافة صورة")}</span><span>${t("Okay", "حسنًا")}</span></div>
+  <div class="composer">
+    <div class="round flat" style="width:46px;height:46px">${icon("add_photo_alternate")}</div>
+    <div class="field">${t("Write to support…", "اكتب إلى الدعم…")}</div>
+    <div class="send">${icon("send", "f flip")}</div>
+  </div>
+  ${homeInd()}
+</div>`);
+</script>
+</body>
+</html>

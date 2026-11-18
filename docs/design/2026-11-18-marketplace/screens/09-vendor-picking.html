@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>09 · Vendor app: the picking list</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0">
+<link rel="stylesheet" href="../kit/kit.css">
+<script src="../kit/kit.js"></script>
+<style>
+  .vhead { padding-bottom: 12px; }
+  .prog { height: 8px; border-radius: 4px; background: rgba(255,255,255,.14); margin-top: 12px; overflow: hidden; display: flex; gap: 3px; }
+  .prog i { flex: 1; background: rgba(255,255,255,.14); }
+  .prog i.ok { background: #fff; } .prog i.wait { background: var(--amber); }
+  .body { padding: 0 16px; }
+  .aisle { font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); padding: 12px 2px 6px; display: flex; align-items: center; gap: 6px; }
+  [lang="ar"] .aisle { letter-spacing: 0; font-size: 12px; }
+  .aisle .i { font-size: 16px; }
+  .pk { background: var(--surface); border-radius: 20px; box-shadow: var(--shadow); padding: 10px 12px; margin-bottom: 8px; }
+  .pk.open { border: 2px solid var(--accent); box-shadow: var(--shadow-strong); }
+  .pk.done { opacity: .72; box-shadow: none; border: 1px solid var(--line); }
+  .pr { display: flex; align-items: center; gap: 10px; }
+  .pr .ph { width: 44px; height: 44px; border-radius: 13px; flex: none; }
+  .pr .nm { font-weight: 800; font-size: 14px; }
+  .pr .ask { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .pr .ask b { font: 700 12px/1 "Lexend", sans-serif; color: var(--ink); }
+  .choice { display: inline-flex; align-items: center; gap: 3px; height: 20px; border-radius: 6px; padding: 0 6px; font-size: 10.5px; font-weight: 800; margin-top: 4px; }
+  .choice .i { font-size: 13px; }
+  .choice.sim { background: var(--tint); color: var(--tint-ink); }
+  .choice.mine { background: var(--amber-soft); color: var(--amber-ink); }
+  .weigh { display: flex; gap: 8px; align-items: stretch; margin-top: 10px; }
+  .wbox { flex: 1.3; border-radius: 16px; border: 2px solid var(--accent); background: var(--surface-2); padding: 8px 12px; }
+  .wbox small { font-size: 10.5px; color: var(--muted); font-weight: 700; display: block; }
+  .wbox b { font: 800 26px/1.1 "Lexend", sans-serif; letter-spacing: -.8px; }
+  .wbox b em { font-style: normal; font-size: 14px; color: var(--muted); margin-inline-start: 3px; }
+  .wbox .caret { display: inline-block; width: 2px; height: 22px; background: var(--accent); vertical-align: -3px; margin-inline-start: 2px; }
+  .wprice { flex: 1; border-radius: 16px; background: var(--poster); color: #fff; padding: 8px 12px; }
+  .wprice small { font-size: 10.5px; opacity: .75; font-weight: 700; display: block; }
+  .wprice b { display: block; font: 800 17px/1.3 "Lexend", sans-serif; }
+  .wprice span { display: block; font-size: 10.5px; color: #FFD27A; font-weight: 700; }
+  .keys { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-top: 8px; direction: ltr; }
+  .keys > span { height: 34px; border-radius: 10px; background: var(--field); display: grid; place-items: center; font: 700 14px/1 "Lexend", sans-serif; }
+  .keys > span.scale { background: var(--tint); color: var(--tint-ink); grid-column: span 2; font-family: var(--font); font-size: 12px; gap: 4px; display: flex; justify-content: center; align-items: center; }
+  .pacts { display: flex; gap: 6px; margin-top: 9px; }
+  .pacts .btn { height: 40px; font-size: 13px; padding: 0 10px; }
+  .st { width: 30px; height: 30px; border-radius: 15px; display: grid; place-items: center; flex: none; }
+  .st.ok { background: var(--fill); color: var(--on-fill); }
+  .st.wait { background: var(--amber); color: #241700; }
+  .swapline { display: flex; align-items: center; gap: 8px; margin-top: 9px; padding: 8px 10px; border-radius: 14px; background: var(--amber-soft); font-size: 12px; }
+  .swapline .ph { width: 30px; height: 30px; border-radius: 9px; flex: none; }
+  .dock { padding: 10px 16px 28px; background: var(--page); border-top: 1px solid var(--line); }
+  .dock .btn { opacity: .5; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+mount(`
+<div class="phone">
+  ${statusBar(true)}
+  <div class="vhead">
+    <div class="row">
+      <div class="round" style="width:38px;height:38px;background:rgba(255,255,255,.12);box-shadow:none;color:#fff">${icon("arrow_back", "flip")}</div>
+      <div class="grow"><div style="font:700 17px/1.1 var(--display)">${t("Order", "الطلب")} ${n("#4821")} · ${t("Mona", "منى")}</div><div class="small" style="opacity:.75;margin-top:2px">${t("Courier comes 19:30 · picking 6:12", "يصل المندوب 19:30 · التجهيز 6:12")}</div></div>
+      <span class="pill" style="background:rgba(255,255,255,.12);color:#fff;height:30px">${n("3/5")}</span>
+    </div>
+    <div class="prog"><i class="ok"></i><i class="ok"></i><i class="ok"></i><i class="wait"></i><i></i></div>
+  </div>
+  <div class="body">
+    <div class="aisle">${icon("kitchen")}${t("Cheese & eggs · aisle 4", "الأجبان والبيض · الممر 4")}</div>
+    <div class="pk open">
+      <div class="pr">
+        <div class="ph" style="${bg("white-cheese.jpg")}"></div>
+        <div class="grow"><div class="nm">${t("White cheese, sliced", "جبنة بيضاء، شرائح")}</div><div class="ask">${t("Asked", "المطلوب")} <b>${grams(750)}</b> · ${money(160)}/${t("kg", "كغ")}</div><span class="choice sim">${icon("published_with_changes")}${t("If out: similar", "عند النفاد: مشابه")}</span></div>
+      </div>
+      <div class="weigh">
+        <div class="wbox"><small>${t("Actual weight", "الوزن الفعلي")}</small><b>780<em>${t("g", "غ")}</em><span class="caret"></span></b></div>
+        <div class="wprice"><small>${t("Price", "السعر")}</small><b>${money(124.8)}</b><span>${t("up to", "حتى")} ${grams(825)} · ${money(132)}</span></div>
+      </div>
+      <div class="keys"><span>7</span><span>8</span><span>0</span><span>⌫</span><span class="scale">${icon("scale", "f", "font-size:16px")}${t("From scale", "من الميزان")}</span></div>
+      <div class="pacts">
+        <div class="btn danger" style="flex:1">${icon("remove_shopping_cart", "", "font-size:18px")}${t("Out", "نفد")}</div>
+        <div class="btn ghost" style="flex:1">${icon("swap_horiz", "", "font-size:18px")}${t("Swap", "بديل")}</div>
+        <div class="btn" style="flex:1.4">${icon("check")}${t("Picked", "تم التجهيز")}</div>
+      </div>
+    </div>
+
+    <div class="aisle">${icon("grain")}${t("Rice, pasta & pulses · aisle 7", "أرز ومكرونة وبقوليات · الممر 7")}</div>
+    <div class="pk">
+      <div class="pr">
+        <div class="ph" style="${bg("egyptian-rice.jpg")};filter:grayscale(1);opacity:.6"></div>
+        <div class="grow"><div class="nm">${t("Egyptian rice, 1 kg", "أرز مصري، 1 كغ")} <span class="muted">×2</span></div><div class="ask" style="color:var(--danger);font-weight:700">${t("Out of stock", "غير متوفر")}</div></div>
+        <span class="st wait">${icon("hourglass_top", "f", "font-size:17px")}</span>
+      </div>
+      <div class="swapline"><span class="ph" style="${bg("egyptian-rice.jpg")}"></span><span class="grow"><b>${t("Short-grain rice, 1 kg ×2", "أرز قصير الحبة، 1 كغ ×2")}</b><br><span class="muted">${t("Asked the customer · 4:32 left", "بانتظار رد العميل · متبقٍ 4:32")}</span></span></div>
+    </div>
+
+    <div class="aisle">${icon("nutrition")}${t("Fresh fruit · aisle 1", "فاكهة طازجة · الممر 1")}</div>
+    <div class="pk done">
+      <div class="pr">
+        <div class="ph" style="${bg("bananas.jpg")}"></div>
+        <div class="grow"><div class="nm">${t("Bananas", "موز")}</div><div class="ask">${t("Weighed", "الوزن")} <b>${grams(1050)}</b> ${t("of", "من")} ${grams(1000)} · ${money(36.75)}</div></div>
+        <span class="st ok">${icon("check")}</span>
+      </div>
+    </div>
+    <div class="pk done">
+      <div class="pr">
+        <div class="ph" style="${bg("eggs.jpg")}"></div>
+        <div class="grow"><div class="nm">${t("Eggs, 15 ×2", "بيض 15 ×2")}</div><div class="ask">${t("Their pick, for Eggs, 30", "اختيار العميل بدلًا من بيض 30")}</div></div>
+        <span class="st ok">${icon("check")}</span>
+      </div>
+    </div>
+  </div>
+  <div class="dock" style="position:absolute;left:0;right:0;bottom:0">
+    <div class="btn amber">${icon("two_wheeler", "f")}${t("Ready for courier", "جاهز للمندوب")}</div>
+    <div class="small muted" style="text-align:center;margin-top:7px">${t("2 lines left: the cheese, and the rice waiting for the customer", "بقي صنفان: الجبنة، والأرز بانتظار رد العميل")}</div>
+  </div>
+  ${homeInd()}
+</div>`);
+</script>
+</body>
+</html>
