@@ -125,7 +125,7 @@ bool canFollowAction(PageAction action, AppType appType) =>
     switch (action.type) {
       PageActionType.course =>
         action.courseId != null && appType == AppType.lms,
-      // 152 A store's product link always opens something: the product or the shop.
+      // 152 A store's product link opens the product, or the shop.
       PageActionType.item =>
         _linksProduct(action.item, appType) ||
             action.item != null && itemLocation(action.item!, appType) != null,
