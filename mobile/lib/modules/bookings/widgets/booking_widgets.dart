@@ -43,6 +43,21 @@ Color statusColor(AppPalette p, AppointmentStatus status) => switch (status) {
   AppointmentStatus.unknown => p.textSecondary,
 };
 
+/// 180.5 An appointment's state in the app's language (the server's words
+/// were English in every language); one it doesn't know, as the server says.
+String appointmentStatusText(BuildContext context, Appointment a) {
+  final l10n = context.l10n;
+  return switch (a.status) {
+    AppointmentStatus.approved => l10n.appointmentStatusApproved,
+    AppointmentStatus.pending => l10n.appointmentStatusPending,
+    AppointmentStatus.cancelled => l10n.appointmentStatusCancelled,
+    AppointmentStatus.rejected => l10n.appointmentStatusRejected,
+    AppointmentStatus.noShow => l10n.appointmentStatusNoShow,
+    AppointmentStatus.completed => l10n.appointmentStatusCompleted,
+    AppointmentStatus.unknown => a.statusLabel,
+  };
+}
+
 /// A service as a row: image, name, duration and price.
 class ServiceTile extends StatelessWidget {
   const ServiceTile({super.key, required this.service, required this.onTap});
@@ -164,7 +179,7 @@ class AppointmentCard extends StatelessWidget {
         a.serviceName,
         appointmentWhen(a),
         if (staff != null) context.l10n.withStaffLower(staff.name),
-        a.statusLabel,
+        appointmentStatusText(context, a),
       ].join(', '),
       child: Row(
         children: [
@@ -224,7 +239,7 @@ class AppointmentCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  a.statusLabel,
+                  appointmentStatusText(context, a),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,

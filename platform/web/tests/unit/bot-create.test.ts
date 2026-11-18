@@ -85,7 +85,7 @@ describe("the bot makes a Studio project: the chosen demo, exactly", () => {
     const kept = parseLayoutContent(demo, { app, now: NOW });
     expect(kept.ok).toBe(true);
     // 124.7 The demo's own words where the project keeps the template's brackets for the owner.
-    const asDemo = { ...layout, pages: layout.pages.map((p) => (p.slug === "home" && p.studio ? { ...p, studio: withDemoFacts(id, p.studio) } : p)) };
+    const asDemo = { ...layout, pages: layout.pages.map((p) => (p.studio ? { ...p, studio: withDemoFacts(id, p.studio) } : p)) };
     if (kept.ok) expect(whole(asDemo)).toEqual(whole(kept.value));
     // The demo's own sample entries.
     expect(await sampleTotal(store, (await store.getAppById(app.id))!)).toBeGreaterThan(0);

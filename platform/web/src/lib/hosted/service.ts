@@ -34,6 +34,7 @@ import {
   HOSTED_APP_ROLES,
   type App,
   type ChatMember,
+  type DeliverySettings,
   type HostedAppRole,
   type HostedDevice,
   type HostedNotification,
@@ -299,7 +300,8 @@ async function shopCurrencyOf(ctx: HostedContext): Promise<string | null> {
   if (!ctx.connector) return null;
   try {
     const extra = (await ctx.connector.config()) as Record<string, { currency?: unknown } | undefined>;
-    return currencyCodeOf(extra.store?.currency ?? extra.food?.currency ?? extra.events?.currency ?? extra.bookings?.currency);
+    // 180.12–180.13 travel, listings and donations too.
+    return currencyCodeOf(extra.store?.currency ?? extra.food?.currency ?? extra.events?.currency ?? extra.bookings?.currency ?? extra.travel?.currency ?? extra.listings?.currency ?? extra.donations?.currency);
   } catch {
     return null;
   }
@@ -636,7 +638,7 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       // Yallapp, when the owner left them on) and the plan has offline mode.
       downloads: extra.features?.downloads === true && ctx.plan !== undefined && hasFeature(ctx.plan, "offline_downloads"),
     },
-    auth: authConfig(app, ctx.ownerCountry),
+    auth: authConfig(app, ctx.ownerCountry, await ctx.store.getDeliverySettings(app.id)),
     // 118.3 Studio apps: the sign-in screen's look and the account menu.
     // 156 Without the template's words in other languages for a text the owner changed in the main one.
     ...screensConfig(app, { language: looks.languages.default, words: screenTextForms() }),
@@ -715,13 +717,14 @@ async function schoolConfigOf(ctx: HostedContext) {
 }
 
 /** `Config.auth`: the owner's sign-in choices. */
-function authConfig(app: App, ownerCountry: string | null | undefined) {
+function authConfig(app: App, ownerCountry: string | null | undefined, delivery?: DeliverySettings | null) {
   const settings = hostedSettings(app);
   return {
     signup_allowed: settings.signupAllowed,
     signup_fields: signupFields(settings),
     // 160.8 The owner's choice, else the shop's country, the owner's, then the platform's.
-    default_country_code: appCountryCode(app, ownerCountry).code,
+    // 177 A marketplace's (or a delivery app's) own country, from its delivery settings.
+    default_country_code: appCountryCode(app, ownerCountry, delivery).code,
     // 18 Phone, email (a code by email) or both, as the owner chose.
     methods: hostedSignInMethods(app),
     ...(hostedSignInMethods(app).includes("email") ? { email_sign_in: "code" } : {}),
@@ -762,7 +765,7 @@ async function signInConfig(ctx: HostedContext, req: HostedRequest): Promise<Hos
     },
     branding: { logo_url: app.logoAssetId ? ctx.assetUrl(app.logoAssetId) : null, primary_color: app.primaryColor },
     features: { lms: null, lms_version: "", pro: false, certificates: false, quizzes: false, wishlist: false, reviews: false, qna: false, push: false },
-    auth: { ...authConfig(app, ctx.ownerCountry), provider: "yallapp", base_url: ctx.yallappSignIn!.baseUrl },
+    auth: { ...authConfig(app, ctx.ownerCountry, await ctx.store.getDeliverySettings(app.id)), provider: "yallapp", base_url: ctx.yallappSignIn!.baseUrl },
     // 118.3 A Studio app on its own API: the app takes these with the sign-in rules.
     ...screensConfig(app, { language: (await publishedLayout(ctx.store, app.id))?.languages.default ?? null, words: screenTextForms() }),
     purchases: { enroll_button: false, free_enrollment: false },
@@ -1560,6 +1563,9 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     // 105.1 The food order, 105.2 the ride, 105.4 the student and the homework they open.
     ...(n.data?.food_order_id ? { food_order_id: numberOf(n.data.food_order_id) } : {}),
     ...(n.data?.ride_id ? { ride_id: numberOf(n.data.ride_id) } : {}),
+    // 115.22 The marketplace order and the complaint they open.
+    ...(n.data?.market_order_id ? { market_order_id: numberOf(n.data.market_order_id) } : {}),
+    ...(n.data?.complaint_id ? { complaint_id: numberOf(n.data.complaint_id) } : {}),
     ...(n.data?.student_id ? { student_id: numberOf(n.data.student_id) } : {}),
     ...(n.data?.homework_id ? { homework_id: numberOf(n.data.homework_id) } : {}),
     // 112.5 The live class and the assignment they open.

@@ -74,7 +74,7 @@ import { BannerControls, BeforeAfterControls, GalleryControls, IndicatorLookCont
 // 129.11–129.20 The premium elements' options and lists, and a layout's premium card style.
 import { PremiumControls, SurfaceControls } from "./premium-controls";
 import { CommerceControls } from "./commerce-controls";
-import { CategoryListNote } from "./category-list-note";
+import { CategoryListNote, TemplateDataNote } from "./category-list-note";
 import { fromDashboard, isStoryElement, StoriesSourceControls } from "./stories-source-controls";
 import { Glyph } from "./shared";
 
@@ -88,6 +88,10 @@ export type InspectorTab = "design" | "motion" | "data";
 interface Props {
   page: StudioPage;
   node: StudioNode | null;
+  /** 181 The story of a stories row picked (its ring clicked on the canvas). */
+  story?: number | null;
+  /** 181 A story's fields used: its ring is picked on the canvas. */
+  onStory?: (index: number) => void;
   headerSelected: boolean;
   /** 109 The bottom tabs selected: they and the bar's look are edited here. */
   tabsSelected: boolean;
@@ -179,6 +183,7 @@ export function Inspector(props: Props) {
       </div>
       {node && !props.headerSelected ? <Tools {...props} node={node} /> : null}
       {node && !props.headerSelected ? <CategoryListNote node={node} body={props.page.body} pickable={props.pickable} /> : null}
+      {node && !props.headerSelected ? <TemplateDataNote node={node} body={props.page.body} /> : null}
       {props.tabsSelected ? (
         <TabsPanel {...props} />
       ) : props.headerSelected ? (
@@ -881,7 +886,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {/* 165 Where a story element's stories come from: Dashboard › Stories, or as designed here. */}
       {isStoryElement(node, props.page.body) ? <StoriesSourceControls node={node} body={props.page.body} pickable={props.pickable} onChange={onChange} /> : null}
       {/* 165 The rings' own stories while they follow this design: from Dashboard › Stories only once saved there. */}
-      {node.type === "stories" && (!fromDashboard(node, props.page.body) || !props.pickable.storiesSaved) ? <StoriesControls {...premiumProps(props, node)} /> : null}
+      {node.type === "stories" && (!fromDashboard(node, props.page.body) || !props.pickable.storiesSaved) ? <StoriesControls {...premiumProps(props, node)} story={props.story ?? null} onStory={props.onStory} /> : null}
       {node.type === "marquee" ? <MarqueeControls {...premiumProps(props, node)} /> : null}
       {node.type === "video_hero" || node.type === "parallax_banner" ? <BannerControls {...premiumProps(props, node)} /> : null}
       {node.type === "gallery" ? <GalleryControls {...premiumProps(props, node)} /> : null}

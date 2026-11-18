@@ -143,7 +143,8 @@ class _StudioMapLooksState extends ConsumerState<StudioMapLooks>
     );
     final drives = route != null && route.moving && route.live == null;
 
-    return LayoutBuilder(
+    // 178 A route that follows the person's ride follows its stages too.
+    final map = LayoutBuilder(
       builder: (context, box) {
         final w = box.maxWidth, h = box.maxHeight;
         final lens = style == StudioMapStyle.lens ? _lensBox(w, h) : null;
@@ -409,6 +410,9 @@ class _StudioMapLooksState extends ConsumerState<StudioMapLooks>
         );
       },
     );
+    return route?.live == StudioMapRouteLive.ride
+        ? ActiveRideFollower(child: map)
+        : map;
   }
 }
 
@@ -1348,14 +1352,11 @@ class _RingsPainter extends CustomPainter {
 // What is on the map.
 
 Widget _centered({required Offset at, required Widget child, Key? key}) =>
-    Positioned(
+    _anchored(
       key: key,
-      left: at.dx,
-      top: at.dy,
-      child: FractionalTranslation(
-        translation: const Offset(-0.5, -0.5),
-        child: child,
-      ),
+      at: Offset(at.dx, at.dy),
+      translation: const Offset(-0.5, -0.5),
+      child: child,
     );
 
 /// Words with their start at [at] (their end, right to left).
@@ -1365,14 +1366,11 @@ Widget _label({
   required bool rtl,
   required TextStyle style,
   Key? key,
-}) => Positioned(
+}) => _anchored(
   key: key,
-  left: at.dx,
-  top: at.dy,
-  child: FractionalTranslation(
-    translation: Offset(rtl ? -1 : 0, -0.5),
-    child: Text(upperIn(text), maxLines: 1, softWrap: false, style: style),
-  ),
+  at: Offset(at.dx, at.dy),
+  translation: Offset(rtl ? -1 : 0, -0.5),
+  child: Text(upperIn(text), maxLines: 1, softWrap: false, style: style),
 );
 
 Positioned _round(
@@ -1717,55 +1715,52 @@ Widget _place({
   required bool dark,
   required bool rtl,
   Key? key,
-}) => Positioned(
+}) => _anchored(
   key: key,
-  left: rtl ? at.dx + 17 : at.dx - 17,
-  top: at.dy - 17,
-  child: FractionalTranslation(
-    translation: Offset(rtl ? -1 : 0, 0),
-    child: Container(
-      height: 34,
-      padding: const EdgeInsetsDirectional.only(start: 4, end: 12),
-      decoration: BoxDecoration(
-        color: p.glass,
-        borderRadius: BorderRadius.circular(17),
-        border: Border.all(color: p.glassEdge),
-        boxShadow: [
-          BoxShadow(
-            color: dark ? const Color(0x80000000) : const Color(0x290B2422),
-            blurRadius: dark ? 40 : 34,
-            offset: Offset(0, dark ? 16 : 14),
+  at: Offset(rtl ? at.dx + 17 : at.dx - 17, at.dy - 17),
+  translation: Offset(rtl ? -1 : 0, 0),
+  child: Container(
+    height: 34,
+    padding: const EdgeInsetsDirectional.only(start: 4, end: 12),
+    decoration: BoxDecoration(
+      color: p.glass,
+      borderRadius: BorderRadius.circular(17),
+      border: Border.all(color: p.glassEdge),
+      boxShadow: [
+        BoxShadow(
+          color: dark ? const Color(0x80000000) : const Color(0x290B2422),
+          blurRadius: dark ? 40 : 34,
+          offset: Offset(0, dark ? 16 : 14),
+        ),
+      ],
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 26,
+          height: 26,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: p.pin, shape: BoxShape.circle),
+          child: Icon(
+            symbolByName(pin.icon ?? 'place'),
+            size: 16,
+            color: p.pinInk,
+            fill: 1,
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 26,
-            height: 26,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: p.pin, shape: BoxShape.circle),
-            child: Icon(
-              symbolByName(pin.icon ?? 'place'),
-              size: 16,
-              color: p.pinInk,
-              fill: 1,
-            ),
+        ),
+        const SizedBox(width: 7),
+        Text(
+          pin.label,
+          maxLines: 1,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: p.ink,
+            height: 1.2,
           ),
-          const SizedBox(width: 7),
-          Text(
-            pin.label,
-            maxLines: 1,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: p.ink,
-              height: 1.2,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     ),
   ),
 );
@@ -1801,99 +1796,93 @@ List<Widget> _standing({
     height: stem,
     child: ColoredBox(color: bg),
   ),
-  Positioned(
-    left: at.dx,
-    top: at.dy - stem,
-    child: FractionalTranslation(
-      translation: const Offset(-0.5, -1),
-      child: Container(
-        height: 32,
-        padding: EdgeInsetsDirectional.only(
-          start: icon != null ? 8 : 12,
-          end: icon != null ? 11 : 12,
-        ),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x38000000),
-              blurRadius: 18,
-              offset: Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null)
-              Icon(icon, size: 17, color: fg, fill: 1)
-            else if (dot != null)
-              Container(
-                width: 7,
-                height: 7,
-                decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
-              ),
-            if (text.isNotEmpty) ...[
-              const SizedBox(width: 6),
-              Text(
-                text,
-                maxLines: 1,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: fg,
-                  height: 1.2,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    ),
-  ),
-];
-
-/// A chip of words with its middle bottom at [at].
-Widget _chip(Offset at, String text, bool dark) => Positioned(
-  left: at.dx,
-  top: at.dy,
-  child: FractionalTranslation(
+  _anchored(
+    at: Offset(at.dx, at.dy - stem),
     translation: const Offset(-0.5, -1),
     child: Container(
-      height: 26,
-      constraints: const BoxConstraints(maxWidth: 170),
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      height: 32,
+      padding: EdgeInsetsDirectional.only(
+        start: icon != null ? 8 : 12,
+        end: icon != null ? 11 : 12,
+      ),
       decoration: BoxDecoration(
-        color: dark ? const Color(0xFF15243A) : Colors.white,
-        borderRadius: BorderRadius.circular(13),
-        boxShadow: [
+        color: bg,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
           BoxShadow(
-            color: dark ? const Color(0x99000000) : const Color(0x4D0D1B2A),
-            blurRadius: 16,
-            spreadRadius: -6,
-            offset: const Offset(0, 6),
+            color: Color(0x38000000),
+            blurRadius: 18,
+            offset: Offset(0, 8),
           ),
         ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: Text(
+          if (icon != null)
+            Icon(icon, size: 17, color: fg, fill: 1)
+          else if (dot != null)
+            Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+            ),
+          if (text.isNotEmpty) ...[
+            const SizedBox(width: 6),
+            Text(
               text,
               maxLines: 1,
-              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: dark ? const Color(0xFFEAF1F8) : const Color(0xFF0D1B2A),
+                fontWeight: FontWeight.w800,
+                color: fg,
                 height: 1.2,
               ),
             ),
-          ),
+          ],
         ],
       ),
+    ),
+  ),
+];
+
+/// A chip of words with its middle bottom at [at].
+Widget _chip(Offset at, String text, bool dark) => _anchored(
+  at: Offset(at.dx, at.dy),
+  translation: const Offset(-0.5, -1),
+  child: Container(
+    height: 26,
+    constraints: const BoxConstraints(maxWidth: 170),
+    padding: const EdgeInsets.symmetric(horizontal: 10),
+    decoration: BoxDecoration(
+      color: dark ? const Color(0xFF15243A) : Colors.white,
+      borderRadius: BorderRadius.circular(13),
+      boxShadow: [
+        BoxShadow(
+          color: dark ? const Color(0x99000000) : const Color(0x4D0D1B2A),
+          blurRadius: 16,
+          spreadRadius: -6,
+          offset: const Offset(0, 6),
+        ),
+      ],
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: dark ? const Color(0xFFEAF1F8) : const Color(0xFF0D1B2A),
+              height: 1.2,
+            ),
+          ),
+        ),
+      ],
     ),
   ),
 );
@@ -2315,47 +2304,47 @@ List<Widget> _vehicle(
   return [
     ...body,
     if (eta != null && eta.isNotEmpty)
-      Positioned(
-        left: style == StudioMapStyle.twoInk
-            ? at.dx
-            : (rtl ? at.dx + 30 : at.dx - 30),
-        top: style == StudioMapStyle.twoInk ? at.dy - 20 : at.dy,
-        child: FractionalTranslation(
-          translation: style == StudioMapStyle.twoInk
-              ? const Offset(-0.5, -1)
-              : Offset(rtl ? 0 : -1, -0.5),
-          child: Container(
-            key: const ValueKey('studio-map-eta'),
-            height: 28,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: dark ? const Color(0xFFF2F6FA) : const Color(0xFF0D1B2A),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: accent,
-                    shape: BoxShape.circle,
-                  ),
+      _anchored(
+        at: Offset(
+          style == StudioMapStyle.twoInk
+              ? at.dx
+              : (rtl ? at.dx + 30 : at.dx - 30),
+          style == StudioMapStyle.twoInk ? at.dy - 20 : at.dy,
+        ),
+        translation: style == StudioMapStyle.twoInk
+            ? const Offset(-0.5, -1)
+            : Offset(rtl ? 0 : -1, -0.5),
+        child: Container(
+          key: const ValueKey('studio-map-eta'),
+          height: 28,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: dark ? const Color(0xFFF2F6FA) : const Color(0xFF0D1B2A),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: accent,
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  eta,
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: dark ? const Color(0xFF0D1B2A) : Colors.white,
-                    height: 1.2,
-                  ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                eta,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: dark ? const Color(0xFF0D1B2A) : Colors.white,
+                  height: 1.2,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -2426,4 +2415,47 @@ class _RoutePainter extends CustomPainter {
     }
     return true;
   }
+}
+
+/// 178 [child] at [at], moved by [translation] of its own size (as a
+/// FractionalTranslation would), and kept inside the map: a label, a pin or
+/// a chip near its edge (Masar's "Downtown" at 80% of a phone 360 points
+/// wide, a longer word in Arabic, a larger text size) is moved back in
+/// rather than drawn past it. Where it fits, exactly where it was.
+Widget _anchored({
+  required Offset at,
+  required Offset translation,
+  required Widget child,
+  Key? key,
+}) => Positioned.fill(
+  key: key,
+  child: CustomSingleChildLayout(
+    delegate: _Anchor(at, translation),
+    child: child,
+  ),
+);
+
+class _Anchor extends SingleChildLayoutDelegate {
+  const _Anchor(this.at, this.translation);
+
+  final Offset at;
+  final Offset translation;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
+      BoxConstraints.loose(constraints.biggest);
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    final x = at.dx + translation.dx * childSize.width;
+    final y = at.dy + translation.dy * childSize.height;
+    return Offset(
+      x.clamp(0, math.max(0, size.width - childSize.width)).toDouble(),
+      y.clamp(0, math.max(0, size.height - childSize.height)).toDouble(),
+    );
+  }
+
+  @override
+  bool shouldRelayout(_Anchor old) =>
+      old.at != at || old.translation != translation;
 }

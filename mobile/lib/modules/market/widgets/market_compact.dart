@@ -12,7 +12,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/star_text.dart';
 import '../data/market_models.dart';
-import '../data/market_place.dart';
+import 'market_address.dart';
 
 /// 128 The marketplace's compact sections (Zad's approved home): the
 /// address as a flat bar (`style: bar` of `address`) and the places as small
@@ -80,8 +80,8 @@ class MarketAddressBar extends ConsumerWidget {
                 Expanded(
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: () =>
-                        ref.read(marketPlaceProvider.notifier).useMyLocation(),
+                    // 177 The map's pin or the phone's position.
+                    onTap: () => chooseMarketPlace(context, ref),
                     child: Row(
                       children: [
                         Container(

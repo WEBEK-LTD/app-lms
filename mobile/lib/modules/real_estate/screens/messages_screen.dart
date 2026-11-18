@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +11,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
+import '../../../core/services/push_service.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
@@ -242,8 +245,36 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
   Inquiry? _latest;
   bool _sending = false;
 
+  // 180.14 The office's reply shows while the conversation is open: when its
+  // push arrives, when the app comes back, every 20 seconds, and pulled down.
+  StreamSubscription<Map<String, dynamic>>? _pushes;
+  AppLifecycleListener? _lifecycle;
+  Timer? _poll;
+
+  void _reload() {
+    if (mounted) ref.invalidate(inquiryProvider(widget.inquiryId));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final push = ref.read(pushServiceProvider);
+    if (push.isAvailable) {
+      _pushes = push.receivedMessages.listen((data) {
+        if (int.tryParse('${data['inquiry_id'] ?? ''}') == widget.inquiryId) {
+          _reload();
+        }
+      });
+    }
+    _lifecycle = AppLifecycleListener(onResume: _reload);
+    _poll = Timer.periodic(const Duration(seconds: 20), (_) => _reload());
+  }
+
   @override
   void dispose() {
+    unawaited(_pushes?.cancel());
+    _lifecycle?.dispose();
+    _poll?.cancel();
     _text.dispose();
     super.dispose();
   }
@@ -278,6 +309,8 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
     // Opening the conversation marks it read: refresh the list and badge.
     ref.listen(inquiryProvider(widget.inquiryId), (_, next) {
       if (next is AsyncData) {
+        // The copy kept from the last send gives way to the one just read.
+        if (_latest != null) setState(() => _latest = null);
         ref
           ..invalidate(inquiriesProvider)
           ..invalidate(unreadMessagesProvider);
@@ -326,7 +359,11 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
           ),
           Expanded(
             child: switch ((inquiry, loaded)) {
-              (final Inquiry i, _) => _Messages(inquiry: i),
+              (final Inquiry i, _) => RefreshIndicator(
+                onRefresh: () =>
+                    ref.refresh(inquiryProvider(widget.inquiryId).future),
+                child: _Messages(inquiry: i),
+              ),
               (_, AsyncError(:final error)) => ErrorView(
                 error: error,
                 onRetry: () =>

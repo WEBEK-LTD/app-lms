@@ -110,7 +110,8 @@ export function displayJson(shown: Shown | null, cents: number | null | undefine
 }
 
 /** 135.5 The connectors whose prices Yallapp sets itself (the dashboard's shop, bookings, courses, events, menus); a connected platform's never. */
-export const DISPLAY_CONNECTORS: ReadonlySet<string> = new Set(["catalog", "bookings", "courses", "events", "restaurants"]);
+// 180.12 travel; 180.13 listings and donations too.
+export const DISPLAY_CONNECTORS: ReadonlySet<string> = new Set(["catalog", "bookings", "courses", "events", "restaurants", "travel", "listings", "campaigns"]);
 
 const DECIMAL = /^\d{1,13}(?:\.\d{1,3})?$/;
 

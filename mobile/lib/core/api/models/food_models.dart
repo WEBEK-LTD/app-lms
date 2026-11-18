@@ -169,6 +169,7 @@ class DishChoice {
     required this.id,
     required this.name,
     this.extraFormatted,
+    this.extra,
     this.available = true,
   });
 
@@ -176,12 +177,17 @@ class DishChoice {
     id: reqInt(json, 'id'),
     name: reqString(json, 'name'),
     extraFormatted: optString(json, 'extra_formatted'),
+    extra: double.tryParse('${json['extra'] ?? ''}'),
     available: boolOr(json, 'available', true),
   );
 
   final int id;
   final String name;
   final String? extraFormatted;
+
+  /// 115.23 What it adds, as a number (the marketplace's `extra`), for a
+  /// running total; null when the server didn't say.
+  final double? extra;
   final bool available;
 }
 
