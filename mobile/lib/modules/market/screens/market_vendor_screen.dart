@@ -3,8 +3,6 @@ import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import 'package:go_router/go_router.dart';
-
 import '../../../core/api/models/models.dart' show Dish;
 import '../../../core/format/bidi.dart';
 import '../../../core/l10n/l10n.dart';
