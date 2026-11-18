@@ -8,21 +8,6 @@ Last updated: 18 November 2026.
 
 ## Current release
 
-Roadmap 172 (a saved legal page that lacks the default's new text): Admin ›
-Website content notices when the team's saved version of the privacy
-policy, terms or refund policy, in any language, lacks sentences Yallapp's
-default text added since the version it was based on: a badge in the list
-and, on the page, "Yallapp's default text for this page was updated on …".
-"Review the changes" lists each new or changed paragraph with the new
-sentences highlighted; "Add the new text" puts them into the team's text
-at the places the default has them (or between two ==== lines for the team
-to place, which a save refuses), and nothing is published until Save. A
-save keeps the default's version it was based on with the page's fields
-(no migration); versions saved before are taken as based on the default
-before 18 November 2026. The default's earlier versions come from git
-(`scripts/legal-history.mjs` writes `src/content/legal-history.ts`; run it
-after changing a legal page's default, a unit test says so).
-
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
 payout of the 1st covers the sales paid up to the end of the month before,
 cut off at midnight Istanbul time; a sale paid on the 1st or later waits for
@@ -73,6 +58,34 @@ chosen, or whose product the shop no longer has, opens the shop: hosted
 it, and the app does the same from `CLIENT_APP_RELEASE` 7 (WooCommerce
 stores' pages too). Not yet tried on a phone (ROADMAP 152.7).
 
+Roadmap 155 (Apple Pay and Google Pay in Stripe's form): the payment page
+(`/pay/…`) lets the page and Stripe's frames use the Payment Request API
+(`payment=(self "https://js.stripe.com" "https://checkout.stripe.com")`, as
+Stripe's Google Pay guide gives it); every other page keeps `payment=()`.
+The page's domain is registered in each shop's own Stripe account with its
+own key (Payment Method Domains), when its Stripe keys are saved or tested
+and once before Stripe's form if it isn't yet; the answer is kept on the
+shop's payment settings, and a failure never stops a card payment (noted
+for the team). Payments says "Apple Pay and Google Pay: ready" or why not
+yet. The wallets are expected in Safari and Chrome, not inside the apps'
+web views (ROADMAP 155.6). Not yet tried with a real Stripe account on real
+devices (ROADMAP 155.7).
+
+Roadmap 172 (a saved legal page that lacks the default's new text): Admin ›
+Website content notices when the team's saved version of the privacy
+policy, terms or refund policy, in any language, lacks sentences Yallapp's
+default text added since the version it was based on: a badge in the list
+and, on the page, "Yallapp's default text for this page was updated on …".
+"Review the changes" lists each new or changed paragraph with the new
+sentences highlighted; "Add the new text" puts them into the team's text
+at the places the default has them (or between two ==== lines for the team
+to place, which a save refuses), and nothing is published until Save. A
+save keeps the default's version it was based on with the page's fields
+(no migration); versions saved before are taken as based on the default
+before 18 November 2026. The default's earlier versions come from git
+(`scripts/legal-history.mjs` writes `src/content/legal-history.ts`; run it
+after changing a legal page's default, a unit test says so).
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build
@@ -82,6 +95,19 @@ problem on our side and offers iPhone only; the admin shows the technical
 cause and the team gets one alert per build. Nothing retries it. Every
 iPhone failure now says its cause in plain words with where to fix it,
 and the iPhone app's build output is for the admin only.
+
+Roadmap 163 (Studio pages on a Samsung's settings): Leqaa's signature
+template, every page of both looks, is drawn by the real app in tests at
+font scales 1.0 to 1.5, display zoom (360, 384, 412 points) and both
+navigation bars, Arabic and English, light and dark. Arabic text in Studio
+pages is never under a 1.5 line, so the Orders title no longer draws over
+the journey's card; a photo cover grows with its words; a row's last text
+gives way (one that shows something, so a long price with no sale
+shrinks); a testimonial's quote mark isn't cut; the flash sale's title
+wraps; the folding header no longer redraws during layout.
+`CLIENT_APP_RELEASE` is 8 (after 152's 7). Lists whose last items stay under the tab bar (Account, Bouquets, Picks) and the Orders empty
+state under the phone's bar are `wip-page-scroll`'s (ROADMAP 163.7). The
+journey's card offset in right-to-left wasn't reproduced (163.8).
 
 Roadmap 153 (the card inside the payment page for iyzico and Kashier): as
 with Stripe (144), Yallapp's payment page shows the gateway's own card form
