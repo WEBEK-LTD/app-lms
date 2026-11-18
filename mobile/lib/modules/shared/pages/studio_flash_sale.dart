@@ -95,14 +95,18 @@ class _StudioFlashSaleState extends State<StudioFlashSale> {
               filled: true,
             ),
             const SizedBox(width: 6),
-            Semantics(
-              header: true,
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
-                  color: banner ? Colors.white : p.text,
+            // 163 On two lines when the phone's text is larger, not past
+            // the banner's edge.
+            Flexible(
+              child: Semantics(
+                header: true,
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: banner ? Colors.white : p.text,
+                  ),
                 ),
               ),
             ),
@@ -112,11 +116,13 @@ class _StudioFlashSaleState extends State<StudioFlashSale> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                context.l10n.flashEndsIn,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: banner ? Colors.white : p.textSecondary,
+              Flexible(
+                child: Text(
+                  context.l10n.flashEndsIn,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: banner ? Colors.white : p.textSecondary,
+                  ),
                 ),
               ),
               const SizedBox(width: 6),
