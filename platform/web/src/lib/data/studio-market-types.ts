@@ -262,9 +262,61 @@ export interface TemplateOrder {
   applyError: string | null;
   createdAt: Date;
   paidAt: Date | null;
+  /**
+   * 106.12 The discount it was bought with (a price drop, a flash sale or a
+   * coupon code), or null (and missing on orders made before): `grossCents`
+   * is then the price paid, the split is of it.
+   */
+  discount?: TemplateOrderDiscount | null;
 }
 
-export type TemplateOrderPatch = Partial<Pick<TemplateOrder, "licenceId" | "startsAt" | "endsAt" | "appliedAt" | "applyError">>;
+/** 106.12 The discount an order got: what the plan cost before it and what came off, in US cents. */
+export interface TemplateOrderDiscount {
+  /** The discount's id (`MarketDiscount.id`): a coupon's uses are its paid orders. */
+  id: string;
+  kind: MarketDiscountKind;
+  /** The coupon's code as the buyer used it (upper case); null for a price drop or a flash sale. */
+  code: string | null;
+  /** The plan's price before the discount; `grossCents` is after it. */
+  listCents: number;
+  /** listCents − grossCents. */
+  offCents: number;
+}
+
+export type TemplateOrderPatch = Partial<Pick<TemplateOrder, "licenceId" | "startsAt" | "endsAt" | "appliedAt" | "applyError" | "providerRef">>;
+
+/** 106.12 A price drop (automatic), a flash sale (automatic, with a countdown and the market's flash strip) or a coupon code the designer gives out. */
+export type MarketDiscountKind = "drop" | "flash" | "coupon";
+
+/**
+ * 106.12 A designer's discount on one of their templates: an amount or a
+ * percentage off, on some or all of its plans, from a start (or now) to an
+ * end (or until it is ended). Nothing stacks: a buyer gets the better of
+ * the automatic price (a drop or a flash sale) or their code. A price never
+ * goes below the plans' lowest price ($1): a discount never makes a paid
+ * plan free.
+ */
+export interface MarketDiscount {
+  id: string;
+  templateId: string;
+  designerId: string;
+  kind: MarketDiscountKind;
+  /** A coupon's code in upper case (codes are read without regard to case); null for a drop or a flash sale. */
+  code: string | null;
+  /** A percentage (1 to 100) or an amount in US cents off. */
+  offType: "percent" | "amount";
+  offValue: number;
+  /** The plans it is for; null for every plan the template offers (also those added later). */
+  plans: MarketPlanPeriod[] | null;
+  /** From then (inclusive), UTC; null: from when it was made. A flash sale always has both. */
+  startsAt: Date | null;
+  /** Until then (exclusive), UTC; null: until the designer ends it. */
+  endsAt: Date | null;
+  /** A coupon's most uses (paid orders); null for no limit. */
+  usageLimit: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 /** Why an application ended. */
 export type TemplateApplicationEnd = "moved" | "restored" | "replaced" | "ended";

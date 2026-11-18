@@ -17,6 +17,8 @@ import type {
   TemplateOrderPatch,
   TemplateOrderStatus,
 } from "./types";
+// 106.12 Studio Market discounts
+import type { MarketDiscount, MarketDiscountKind } from "./types";
 import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type {
   Activation,
@@ -2580,4 +2582,28 @@ export interface DataStore {
   listTemplateApplications(filter: { licenceId?: string; appId?: string; open?: boolean }): Promise<TemplateApplication[]>;
   /** Ends it, or moves it to another version, only while it is open. False otherwise. */
   updateTemplateApplication(id: string, patch: TemplateApplicationPatch): Promise<boolean>;
+
+  // 106.12 Studio Market discounts: price drops, flash sales and coupon codes
+  /** Null when the template has a coupon with this code already. */
+  createMarketDiscount(discount: MarketDiscount): Promise<MarketDiscount | null>;
+  getMarketDiscount(id: string): Promise<MarketDiscount | null>;
+  /** Oldest first; by templates or designer, kinds, and only those not ended at `notEndedAt` (no end, or an end after it). */
+  listMarketDiscounts(filter: { templateIds?: readonly string[]; designerId?: string; kinds?: readonly MarketDiscountKind[]; notEndedAt?: Date }): Promise<MarketDiscount[]>;
+  /** The template's coupon with this code (upper case), or null. */
+  findMarketCoupon(templateId: string, code: string): Promise<MarketDiscount | null>;
+  /** Ends it now, only while it hasn't ended (no end, or an end after now); a start after now moves to now. False otherwise. */
+  endMarketDiscount(id: string, now: Date): Promise<boolean>;
+  deleteMarketDiscount(id: string): Promise<boolean>;
+  /** How many paid orders each discount has (a coupon's uses): by discount id. */
+  countMarketDiscountUses(ids: readonly string[]): Promise<Record<string, number>>;
+  /**
+   * Records a pending order that uses a coupon with a usage limit, only
+   * while one of its uses is left: fewer than `limit` of its orders paid,
+   * or pending since `holdSince` (their payment page may still be paid),
+   * other buyers' (a buyer trying again isn't held up by their own page).
+   * Two buyers at once: one gets the last use. `used_up`: its paid orders
+   * reached the limit; `held`: its last uses are in payments still open;
+   * `gone`: the coupon was deleted meanwhile.
+   */
+  createTemplateOrderWithCoupon(order: TemplateOrder, limit: number, holdSince: Date): Promise<"ok" | "used_up" | "held" | "gone">;
 }

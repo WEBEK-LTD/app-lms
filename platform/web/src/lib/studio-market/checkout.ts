@@ -10,6 +10,7 @@ import { isStudioProject } from "../studio/section";
 import { APPLY_MESSAGES, applyTemplate } from "./apply";
 import { templateFits } from "./kinds";
 import { offeredPlans, periodEnd, splitSale } from "./plans";
+import { CODE_PROBLEM_MESSAGES, COUPON_HOLD_MS, couponProblem, discountFor, DISCOUNT_MESSAGES, normalizeCode, quotePlan, type PlanQuote } from "./discounts";
 import { templateText } from "./templates";
 
 /**
@@ -29,9 +30,14 @@ import { templateText } from "./templates";
  * date, or from now when it ended. Each paid period is recorded, and the
  * sale's split (75% the designer's, 25% Yallapp's) is kept on the order.
  *
- * Stage 4's codes come in here: `TemplateCheckoutInput` gets the code, and
- * the gross price is lowered before the split (the designer's 75% is of
- * what was paid).
+ * 106.12 Discounts: the plan's price is the better of its automatic price
+ * (a price drop or a flash sale) or the buyer's code, worked out here when
+ * the buyer pays, never taken from the browser; the order's gross is the
+ * price paid, and the split is of it (the designer's 75% is of what was
+ * paid). The price the buyer saw comes with the payment and must be the
+ * one worked out (a flash sale ending meanwhile, or a price changed in the
+ * browser, is refused). A coupon with a usage limit takes its use with the
+ * order, in one step (two buyers at once: one gets the last use).
  */
 
 /** English texts the dashboard translates (studioMarket.known). */
@@ -87,9 +93,28 @@ export interface TemplateCheckoutInput {
   city: string;
   ip: string;
   callbackUrls: (token: string) => { returnUrl: string; webhookUrl: string | null };
+  /** 106.12 The buyer's code, as typed (any case); empty or missing for none. */
+  code?: string | null;
+  /** 106.12 The total the buyer saw, in US cents: when given, it must be the price worked out here. */
+  expectedCents?: number;
 }
 
-export type CheckoutResult = { ok: true; url: string; order: TemplateOrder } | { ok: false; message: string; field?: "plan" | "app" | "consent" };
+export type CheckoutResult = { ok: true; url: string; order: TemplateOrder } | { ok: false; message: string; field?: "plan" | "app" | "consent" | "code" | "price" };
+
+/** 106.12 A plan's price for this buyer now: its automatic price, or their code's when it is better. */
+export async function quoteCheckout(store: DataStore, template: MarketTemplate, plan: { period: TemplateOrder["plan"]; cents: number }, code: string | null | undefined, now: Date): Promise<{ ok: true; quote: PlanQuote } | { ok: false; message: string }> {
+  const automatic = await store.listMarketDiscounts({ templateIds: [template.id], kinds: ["drop", "flash"], notEndedAt: now });
+  const wanted = code ? normalizeCode(code) : "";
+  let coupon = null;
+  if (wanted) {
+    coupon = await store.findMarketCoupon(template.id, wanted);
+    const uses = coupon?.usageLimit != null ? ((await store.countMarketDiscountUses([coupon.id]))[coupon.id] ?? 0) : 0;
+    const problem = couponProblem(coupon, uses, now);
+    if (problem) return { ok: false, message: CODE_PROBLEM_MESSAGES[problem] };
+    if (!discountFor(coupon!, plan.period)) return { ok: false, message: DISCOUNT_MESSAGES.wrongPlan };
+  }
+  return { ok: true, quote: quotePlan(plan, automatic, coupon, now) };
+}
 
 /** Why an app can't take the template at checkout (greyed out with it), or null when it can. */
 export function appProblem(template: Pick<MarketTemplate, "kinds">, app: App): "not_studio" | "kind" | null {
@@ -120,7 +145,12 @@ export async function startTemplateCheckout(deps: CheckoutDeps, input: TemplateC
     appId = app.id;
   }
   if (!input.consent) return { ok: false, message: CHECKOUT_MESSAGES.consent, field: "consent" };
-  const charge = chargeFor(plan.cents, deps.account.provider, deps.egpPerUsd);
+  // 106.12 The price now: the better of the automatic price or the code, never the browser's.
+  const quoted = await quoteCheckout(deps.store, template, plan, input.code, now);
+  if (!quoted.ok) return { ok: false, message: quoted.message, field: "code" };
+  const { quote } = quoted;
+  if (input.expectedCents !== undefined && input.expectedCents !== quote.cents) return { ok: false, message: DISCOUNT_MESSAGES.priceChanged, field: "price" };
+  const charge = chargeFor(quote.cents, deps.account.provider, deps.egpPerUsd);
   if (!charge) return { ok: false, message: CHECKOUT_MESSAGES.unavailable };
 
   const token = randomToken(24);
@@ -135,8 +165,9 @@ export async function startTemplateCheckout(deps: CheckoutDeps, input: TemplateC
     licenceId: input.renew?.id ?? null,
     plan: plan.period,
     appId,
-    grossCents: plan.cents,
-    ...splitSale(plan.cents),
+    // 106.12 The price paid: the split is of it.
+    grossCents: quote.cents,
+    ...splitSale(quote.cents),
     amountCents: charge.cents,
     currency: charge.currency,
     egpPerUsd: charge.egpPerUsd,
@@ -152,7 +183,14 @@ export async function startTemplateCheckout(deps: CheckoutDeps, input: TemplateC
     applyError: null,
     createdAt: now,
     paidAt: null,
+    discount: quote.discount,
   };
+  // Recorded before the gateway's page: a coupon with a usage limit takes its use with it, or there is none left.
+  const limit = quote.wins === "code" ? quote.code!.discount.usageLimit : null;
+  if (limit !== null) {
+    const claimed = await deps.store.createTemplateOrderWithCoupon(order, limit, new Date(now.getTime() - COUPON_HOLD_MS));
+    if (claimed !== "ok") return { ok: false, message: CODE_PROBLEM_MESSAGES[claimed === "gone" ? "unknown" : claimed], field: "code" };
+  } else await deps.store.createTemplateOrder(order);
   const name = `Studio Market: ${templateText(template, "en").title}`.slice(0, 100);
   const { returnUrl, webhookUrl } = input.callbackUrls(token);
   let started;
@@ -183,11 +221,13 @@ export async function startTemplateCheckout(deps: CheckoutDeps, input: TemplateC
       { fetcher: deps.fetcher, urls: deps.urls },
     );
   } catch (e) {
+    // Nothing to pay: the order fails (a coupon's use it held is free again).
+    await deps.store.failTemplateOrder(order.id);
     if (e instanceof PaymentError) return { ok: false, message: CHECKOUT_MESSAGES.start };
     throw e;
   }
   const recorded = { ...order, providerRef: started.providerRef.slice(0, 191) };
-  await deps.store.createTemplateOrder(recorded);
+  await deps.store.updateTemplateOrder(order.id, { providerRef: recorded.providerRef });
   return { ok: true, url: started.url, order: recorded };
 }
 
