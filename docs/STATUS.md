@@ -54,6 +54,14 @@ sign-in and the screens in its look draw their buttons in the app's main
 colour, in the app and in Studio › Screens, not the second colour's gold
 that looked the same in every app.
 
+Roadmap 147 (a search opens with its keyboard closed): the shop's, the
+academy's, real estate's, events' and news' searches no longer focus their
+field when they open, so Leqaa's and Kech Flora's Bouquets tab doesn't bring
+the keyboard up by itself; it comes up only on a tap. `CLIENT_APP_RELEASE`
+is 5. Roadmap 148: an order under the least Stripe charges (Kech Flora's
+MAD 1.00 test, about USD 0.10, under 0.50) says so on the payment page
+instead of "couldn't start".
+
 Roadmap 145 (the app audit): what the owner publishes shows in an open
 app when it comes back on screen, not only after a full restart; Studio's
 bar says "Not in the app yet" until Publish. A page over the same screen as

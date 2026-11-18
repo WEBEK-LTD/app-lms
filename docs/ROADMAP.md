@@ -3781,3 +3781,20 @@ The owner (17 November), on yallapp.com.tr/pricing: Studio didn't offer 1, 2 and
 | [x] | 146.7 The period chosen goes with a signed-in visitor to Dashboard › Plan (`/dashboard/license?period=…#change-plan`); a Studio project pays its Studio plan for 2 years on (a fake) Kashier | `pricing-studio.spec.ts`, `starter-flow.spec.ts` |
 | [x] | 146.8 The new words in English, Modern Standard Arabic and Turkish, right to left in Arabic, light and dark | `pricing-studio.test.ts`, screens for the owner (`PRICING_SHOTS_DIR`) |
 | [ ] | 146.9 For the owner: check Studio's prices for 1 year, 2 and 3 years and lifetime in Admin › Plans › Yallapp Studio (a period never priced shows its suggested price, worked out from the plan's own), and switch off any period Studio shouldn't be sold for | — |
+
+## Phase 147: A search opens with its keyboard closed
+
+The owner (17 November), on Kech Flora and Leqaa: the Bouquets page brought the keyboard up by itself, from its "Search products" field ("متتفتحش غير لو الشخص ضغط بس"). The Bouquets tab is a page around the shop's search (`/shop?focus=1`), and the search focused its field when it opened, so the keyboard came up with the tab; Phase 141 only kept it from coming back. No migration.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 147.1 The shop's, the academy's, real estate's, events' and news' searches open with the keyboard closed, as a tab, a page around them or a link: it comes up only when the customer taps the field (`focusSearch` gone; `?focus=1` still names the search screen) | `phase147_no_autofocus_test.dart`, `phase141_keyboard_test.dart` |
+| [x] | 147.2 Reaches the apps in the stores with `CLIENT_APP_RELEASE` 5 | `publish-for-all.test.ts` |
+
+## Phase 148: Why a card payment under Stripe's least can't start
+
+Kech Flora's live test (17 November) of an order of MAD 1.00 (about USD 0.10) said only "The card payment couldn't start": Stripe refuses an amount under the least it charges once converted to the account's currency (USD 0.50, about MAD 5). No migration.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 148.1 Stripe's `amount_too_small`, and our own check of a currency's least, mark the error (`StripeError.tooSmall`); the payment page then says the order is under the least a card can be charged, with Stripe's words, and to add to the order or pay another way; other refusals keep the message they had, and every one is still noted for the team and in Integrations | `stripe-too-small.test.ts` |
