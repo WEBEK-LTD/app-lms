@@ -4,17 +4,41 @@ import '../../../core/api/models/market_api_models.dart' as api;
 import 'market_models.dart';
 
 /// 115 One item in the basket, with how much and, at a shop, what to do
-/// when it's out when picked.
+/// when it's out when picked. 115.23 A dish keeps the choices the customer
+/// picked (its size, its extras: their ids for the server, their names to
+/// show) and a note for the kitchen; the same dish with other choices is
+/// another line.
 class MarketBasketLine {
   const MarketBasketLine({
     required this.item,
     required this.quantity,
     this.ifMissing = api.MarketIfMissing.remove,
+    this.choices = const [],
+    this.choiceNames = const [],
+    this.extra = 0,
+    this.note,
   });
 
   final MarketItem item;
   final double quantity;
   final api.MarketIfMissing ifMissing;
+
+  /// The chosen choices' ids, as `MarketCartInput.lines[].choices`.
+  final List<int> choices;
+
+  /// The same choices' names, for the basket and the checkout.
+  final List<String> choiceNames;
+
+  /// What the choices add to one item, for the running total only.
+  final double extra;
+  final String? note;
+
+  /// Whether [other] is the same item with the same choices and note.
+  bool sameAs(MarketBasketLine other) =>
+      item.id == other.item.id &&
+      note == other.note &&
+      choices.length == other.choices.length &&
+      choices.toSet().containsAll(other.choices);
 
   MarketBasketLine copyWith({
     double? quantity,
@@ -23,6 +47,10 @@ class MarketBasketLine {
     item: item,
     quantity: quantity ?? this.quantity,
     ifMissing: ifMissing ?? this.ifMissing,
+    choices: choices,
+    choiceNames: choiceNames,
+    extra: extra,
+    note: note,
   );
 }
 
@@ -43,21 +71,28 @@ class MarketBasket {
   bool get isEmpty => lines.isEmpty;
   int get count => lines.length;
 
-  double quantityOf(String itemId) =>
-      lines.where((l) => l.item.id == itemId).firstOrNull?.quantity ?? 0;
+  /// How many of the item, whatever was chosen with it.
+  double quantityOf(String itemId) => lines
+      .where((l) => l.item.id == itemId)
+      .fold(0, (sum, l) => sum + l.quantity);
 
   /// A running total for the basket bar; the checkout's quote has the real
   /// one, with the delivery, the coupon and the taxes.
-  double get estimate =>
-      lines.fold(0, (sum, l) => sum + l.quantity * l.item.priceValue);
+  double get estimate => lines.fold(
+    0,
+    (sum, l) => sum + l.quantity * (l.item.priceValue + l.extra),
+  );
 
-  /// The lines for `POST /market/quote`.
+  /// The lines for `POST /market/quote` and `POST /market/orders`, each
+  /// dish with its choices and note.
   List<api.MarketCartLineInput> inputs({required bool shop}) => [
     for (final l in lines)
       if (int.tryParse(l.item.id) case final id?)
         api.MarketCartLineInput(
           productId: id,
           quantity: l.quantity,
+          choices: l.choices,
+          note: l.note,
           ifMissing: shop ? l.ifMissing : null,
         ),
   ];
@@ -71,20 +106,37 @@ class MarketBasketController extends Notifier<MarketBasket> {
   bool wouldReplace(MarketVendor vendor) =>
       !state.isEmpty && state.vendor?.id != vendor.id;
 
+  /// One more of [item] (a step of it); 115.23 with what was chosen for a
+  /// dish, [count] of them at once (from its choices' sheet).
   void add(
     MarketVendor vendor,
     MarketItem item, {
     required String currency,
     required int decimals,
+    List<int> choices = const [],
+    List<String> choiceNames = const [],
+    double extra = 0,
+    String? note,
+    int count = 1,
   }) {
     final step = item.unit == MarketUnit.piece ? 1.0 : item.step;
     final same = state.vendor?.id == vendor.id;
     final lines = same ? [...state.lines] : <MarketBasketLine>[];
-    final at = lines.indexWhere((l) => l.item.id == item.id);
+    final line = MarketBasketLine(
+      item: item,
+      quantity: step * count,
+      choices: choices,
+      choiceNames: choiceNames,
+      extra: extra,
+      note: note,
+    );
+    final at = lines.indexWhere((l) => l.sameAs(line));
     if (at < 0) {
-      lines.add(MarketBasketLine(item: item, quantity: step));
+      lines.add(line);
     } else {
-      lines[at] = lines[at].copyWith(quantity: lines[at].quantity + step);
+      lines[at] = lines[at].copyWith(
+        quantity: lines[at].quantity + step * count,
+      );
     }
     state = MarketBasket(
       vendor: vendor,
@@ -94,10 +146,14 @@ class MarketBasketController extends Notifier<MarketBasket> {
     );
   }
 
-  void remove(MarketItem item) {
+  /// One less of [item]: of [line] when given (a checkout row), else of
+  /// the item's last line.
+  void remove(MarketItem item, {MarketBasketLine? line}) {
     final step = item.unit == MarketUnit.piece ? 1.0 : item.step;
     final lines = [...state.lines];
-    final at = lines.indexWhere((l) => l.item.id == item.id);
+    final at = line != null
+        ? lines.indexWhere((l) => l.sameAs(line))
+        : lines.lastIndexWhere((l) => l.item.id == item.id);
     if (at < 0) return;
     final left = lines[at].quantity - step;
     if (left <= 0.0001) {
@@ -108,6 +164,20 @@ class MarketBasketController extends Notifier<MarketBasket> {
     state = MarketBasket(
       vendor: lines.isEmpty ? null : state.vendor,
       lines: lines,
+      currency: state.currency,
+      decimals: state.decimals,
+    );
+  }
+
+  /// One more of the same line (its choices and note kept).
+  void again(MarketBasketLine line) {
+    final step = line.item.unit == MarketUnit.piece ? 1.0 : line.item.step;
+    state = MarketBasket(
+      vendor: state.vendor,
+      lines: [
+        for (final l in state.lines)
+          l.sameAs(line) ? l.copyWith(quantity: l.quantity + step) : l,
+      ],
       currency: state.currency,
       decimals: state.decimals,
     );

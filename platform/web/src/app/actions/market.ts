@@ -9,6 +9,8 @@ import type { App, ComplaintDecision, ComplaintStatus } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import { decideComplaint, supportReply, teamNote } from "@/lib/market/complaints";
 import { complaintDecisionDeps } from "@/lib/market/decisions";
+import { tellComplaint } from "@/lib/market/notify";
+import { notifyDeps } from "@/lib/delivery/flow";
 import { complaintReference } from "@/lib/market/json";
 import { currencyDecimals, toMinor } from "@/lib/market/currency";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
@@ -63,7 +65,10 @@ export async function replyComplaintAction(formData: FormData): Promise<void> {
   if (!c) redirect("/dashboard/market/complaints");
   const patch = supportReply(c, text(formData, "text"), whoOf(context), new Date());
   if (patch) {
-    await (await getStore()).updateMarketComplaint(context.app.id, c.id, { ...patch, assignee: c.assignee ?? whoOf(context) });
+    const store = await getStore();
+    await store.updateMarketComplaint(context.app.id, c.id, { ...patch, assignee: c.assignee ?? whoOf(context) });
+    // 115.22 The customer is told (`complaint_update`).
+    await tellComplaint(notifyDeps({ store, app: context.app, now: new Date() }), { ...c, ...patch }, "reply");
     await recordStaffChange(context, `Answered complaint ${complaintReference(c)}`);
   }
   back(c.id);
