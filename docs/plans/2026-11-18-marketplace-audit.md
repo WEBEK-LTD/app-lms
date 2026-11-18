@@ -536,6 +536,73 @@ The next migration number is `0145`, after `0144_app_stories`. The names below a
 
 ## 3. Decisions for the owner
 
+### Decided (18 November 2026)
+
+The owner approved these on 18 November 2026. They're also in `docs/ROADMAP.md` Phase 115, under the owner's decisions. Where a decision differs from the proposals further down, the decision holds.
+
+- **D1. Weighed items paid online.**
+  - The card, Apple Pay, Google Pay or wallet pays the estimate.
+  - A lower weighed total is refunded automatically to the payment, with the wallet as the fallback.
+  - These orders never charge more than was paid.
+  - Cash keeps the +10% tolerance (`weightTolerancePercent`).
+  - Later, for Stripe only: a hold of the estimate **+10%**, captured at the weighed price.
+- **D2. Substitutes are asked live** (this differs from the proposal).
+  - The picker proposes a similar item from the same aisle, never dearer than the line.
+  - The customer accepts it or leaves it out in the app within 5 minutes.
+  - Otherwise the order's "If something is missing" choice applies. That choice is set once for the whole order (similar by default) and can be changed per item.
+- **D3. The complaint window.**
+  - The 48 hours start at the courier job's delivered time.
+  - A stuck order can be complained about after 6 hours.
+  - One new ticket is allowed after a decision.
+  - Refused or cancelled orders take a ticket only if money was taken.
+- **D4.** Keep the ticket's own thread, shown inside Support.
+- **D5.** The wallet is credit only, with no cash-out.
+- **D6.** The club renews by a reminder and a payment link, at the owner's prices.
+- **D7.** The vendor app is the third app in the bundle. Keep the in-app tab for small marketplaces.
+- **D8.** No cash limit unless the owner sets one. Weighed orders count the estimate plus the tolerance against it.
+- **D9.** `stock` null means not counted.
+- **D10. Places edit their own catalog and menus,** with the owner's Undo (this is wider than the proposal, which was menus only).
+- **Customer contact** (new).
+  - The customer sees the picker's and the courier's first names.
+  - A call goes through a masked number, for the app's couriers only.
+  - A store never reaches a customer.
+
+### What the decisions change in the plan
+
+- **Stage 1.** Products, departments and aisles edited by a place are marked "Changed by the place", with the owner's Undo, as for its hours (115.20's `vendor_edit`). The same holds for a restaurant's menu, which Stage 6 makes editable in the panel.
+- **Stage 3.**
+  - The checkout sets "If something is missing" once for the whole order, similar by default, and lets the customer change it per item.
+  - The contract gets an order-level `if_missing` beside the line's.
+- **Stage 4.**
+  - The settlement follows D1 as written: card, Apple Pay, Google Pay and wallet orders are capped at the paid amount, and a lower total is refunded to the payment with the wallet as the fallback.
+  - Cash keeps `weightTolerancePercent`.
+  - The Stripe hold is estimate +10%, later.
+- **New stage 4b: live substitutes (M, 3 days).** Needs Stage 0's notifications and Stage 3.
+  - **Contract:** a line's `proposal` {product, quantity, price, expires_at}, and `POST /me/market-orders/{id}/lines/{line_id}/answer` {accept | leave_out}.
+  - **Migrations:** none (it goes in the order's `lines` JSON).
+  - **Platform:**
+    - the picker proposes an item from the same aisle, never dearer than the line;
+    - a push to the customer;
+    - after 5 minutes the frequent job, or the next read, applies the order's choice;
+    - the order can't be "ready" while a proposal is waiting.
+  - **Apps:**
+    - the customer answers from the notification or the order;
+    - the vendor's picking screen shows "waiting for the customer" with its time left.
+  - **Tests:**
+    - unit tests: accepted, left out, timed out, a dearer item refused;
+    - widget tests.
+- **Stage 7 grows: masked calls (M, 2–3 days),** for the app's couriers only.
+  - **Contract:** `MarketTracking.courier.call` {available}, and `POST /me/market-orders/{id}/call` that returns a number or connects a call.
+  - **Platform:**
+    - a masked-calling provider (to be chosen, and a cost for the owner);
+    - calls only while the order is on its way;
+    - the picker's and the courier's first names on the order.
+  - **No calls for places:** no route lets a place or a vendor's own driver reach the customer.
+  - **Tests:** unit tests for who may call and when.
+  - **For the owner:** the provider and who pays for calls.
+
+### The proposals as written
+
 Each has a recommended default. They're only things Phase 115 doesn't already decide.
 
 - **D1. Weighed items paid online.**
