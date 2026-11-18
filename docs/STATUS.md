@@ -8,6 +8,34 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
+payout of the 1st covers the sales paid up to the end of the month before,
+cut off at midnight Istanbul time; a sale paid on the 1st or later waits for
+the next 1st. Earnings says "Next payout · 1 December" with the sales it
+includes and what counts toward the 1st after; Admin › Studio Market ›
+Payouts shows that month's run from the 1st and prepares only the balance
+before the cut-off; the daily job alerts the team on the 1st (Admin ›
+Watching, emailed once). The privacy policy (en/ar/tr) and the designer
+terms say what's kept for payouts and when it's paid (the owner's approved
+text).
+
+Roadmap 106.11 (Studio Market, the designer's money): each paid template
+sale is written once in the designer's ledger with its split (the sale,
+Yallapp's 25%, their exact 75%, in whole cents). The designer area's
+Earnings shows the balance available, pending and paid out, each sale's
+split and the payouts with their receipts (a page and a PDF, in the
+designer's language). Before the first payout (not before publishing) the
+designer sends their ID with a photo of it and their bank for SWIFT; the ID
+number and the account are encrypted with the platform's key and shown
+masked except to the new `market.payouts` permission (owners and admins).
+Admin › Studio Market › Payout checks approves them or asks for a fix;
+Payouts lists the month's due (USD 250 or more, checks approved, monthly;
+below that the balance carries over), prepares the bank file (CSV), and
+records each transfer the team sends from Yallapp's bank with Mark as sent
+(the designer emailed a receipt). Nothing is sent by the platform.
+Migration `0142_studio_market_money`; the first real payout is to be
+checked by hand (LAUNCH-CHECKLIST, Phase 106.11).
+
 The plugin's end-to-end job (WordPress + Tutor LMS) no longer loses a check
 about a minute into its run (main #449 and #450, PR #454): the dev site runs
 no WP-Cron of its own (`DISABLE_WP_CRON`). WP-CLI took WordPress's cron lock

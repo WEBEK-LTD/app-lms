@@ -84,3 +84,9 @@ Then run:
 | e2e: `empty-lists.spec.ts`, `bouquet-links.spec.ts` (new production build) | 3 passed |
 | `dart format`, `flutter analyze` | 0 changed; no issues |
 | Flutter: `phase164_empty_lists_test.dart`, `phase152_bouquet_links_test.dart` | 15 passed |
+
+Then `main`'s #452 (106.11 Studio Market money) was merged too. Its only conflict was the e2e admin list, where both sides' admins are kept. Run again on that tree:
+- `tsc` and eslint: exit 0;
+- the same vitest files: 77 passed;
+- preview `--check`: up to date;
+- the same e2e (a new build): 3 passed.

@@ -293,6 +293,20 @@ export function licenseRefreshTestUrl(): string | null {
   return url ?? null;
 }
 
+/**
+ * 106.11 End-to-end tests only (refused on Netlify): days added to the clock
+ * of Studio Market's payouts (lib/studio-market/payout-clock.ts), so a sale
+ * paid during the test falls before a 1st's cut-off. 0 when not set.
+ */
+export function payoutTestDays(): number {
+  const value = read("STUDIO_MARKET_PAYOUT_TEST_DAYS");
+  if (!value) return 0;
+  if (isNetlify()) throw new Error("STUDIO_MARKET_PAYOUT_TEST_DAYS is for local tests only.");
+  const days = Number(value);
+  if (!Number.isInteger(days) || days < 0 || days > 400) throw new Error("STUDIO_MARKET_PAYOUT_TEST_DAYS must be a whole number of days from 0 to 400.");
+  return days;
+}
+
 /** 81.3 Local tests only (refused on Netlify): every site scan reads this fake site instead of the address given. */
 export function siteScanTestUrl(): string | null {
   const url = read("SITE_SCAN_TEST_URL");
