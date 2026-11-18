@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { customerCurrencyAllowed, customerCurrencyRule } from "@/lib/money/display";
 import { deliveryDayLabel } from "@/lib/selling/delivery";
 import { taxLabel } from "@/lib/catalog/tax";
 import { redirect } from "next/navigation";
@@ -65,7 +66,9 @@ export default async function PayPage({
   if (!app.demo && !checkout && manual.length === 0) return note("Payments are off", "This shop can't take payments right now. Please try again later.");
 
   const money = (cents: number) => formatCents(cents, order.currency);
-  const cc = order.customerCurrency ?? null;
+  // 149 The converted total only while the app still shows that currency (one charged in it is what the card pays).
+  const saved = order.customerCurrency ?? null;
+  const cc = saved && (saved.charged || customerCurrencyAllowed(customerCurrencyRule(app.catalogSettings), saved.currency)) ? saved : null;
   const color = app.primaryColor;
   return (
     <PayShell app={app}>

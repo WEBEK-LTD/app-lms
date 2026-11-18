@@ -721,12 +721,30 @@ export function AddCategoryForm() {
 /**
  * 135.7 Customers' currencies: the app shows prices in the customer's own
  * currency at the day's rate; whether the card is charged in it when the
- * gateway takes it. `ratesDate`: the day's rates (null: none yet).
+ * gateway takes it. `ratesDate`: the day's rates (null: none yet). 149 Per
+ * app: whether prices show in the customer's currency at all, and only in
+ * which (`currencies`; empty: any).
  */
-export function CustomerCurrenciesForm({ base, charge, ratesDate, gateway }: { base: string; charge: boolean; ratesDate: string | null; gateway: { provider: string; count: number } | null }) {
+export function CustomerCurrenciesForm({
+  base,
+  charge,
+  show = true,
+  currencies = [],
+  ratesDate,
+  gateway,
+}: {
+  base: string;
+  charge: boolean;
+  show?: boolean;
+  currencies?: string[];
+  ratesDate: string | null;
+  gateway: { provider: string; count: number } | null;
+}) {
   const t = useDashT();
   const lang = useDashLang();
   const [state, action] = useActionState(saveCustomerCurrenciesAction, initialFormState);
+  const showSaved = state.values ? state.values.showInCustomerCurrency === "on" : show;
+  const [on, setOn] = useState(showSaved);
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />
@@ -735,6 +753,15 @@ export function CustomerCurrenciesForm({ base, charge, ratesDate, gateway }: { b
         {ratesDate ? t("money.ratesDate", { date: formatDate(lang, new Date(`${ratesDate}T12:00:00Z`), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) }) : t("money.ratesNone", { base })}{" "}
         <RatesAttribution />
       </p>
+      {/* 149 Off: the app shows and charges the shop's currency only. */}
+      <label className="flex cursor-pointer items-start gap-3">
+        <input type="checkbox" name="showInCustomerCurrency" defaultChecked={showSaved} onChange={(e) => setOn(e.target.checked)} className="mt-1 h-4 w-4 accent-midnight" />
+        <span className="flex flex-col gap-0.5">
+          <span className="text-[15px] font-semibold">{t("money.showLabel")}</span>
+          <span className="text-[13px] text-muted">{t("money.showHint", { base })}</span>
+        </span>
+      </label>
+      <CustomerCurrencyList base={base} initial={state.values ? (state.values.customerCurrencies ?? "").split(",").filter(Boolean) : currencies} disabled={!on} error={state.errors?.customerCurrencies} />
       <Check name="chargeInCustomerCurrency" label={t("money.chargeLabel")} hint={t("money.chargeHint", { base })} defaultChecked={state.values ? state.values.chargeInCustomerCurrency === "on" : charge} />
       {gateway ? <p className="m-0 text-[13px] text-muted">{t("money.chargeGateway", { provider: gateway.provider, count: gateway.count })}</p> : null}
       <div className="flex justify-end">
@@ -743,6 +770,60 @@ export function CustomerCurrenciesForm({ base, charge, ratesDate, gateway }: { b
         </SubmitButton>
       </div>
     </form>
+  );
+}
+
+/**
+ * 149 "Only these currencies": the searchable currency picker and Add, the
+ * chosen ones as chips (each sent as `customerCurrencies`), removed with
+ * their ×. Kept while the switch is off, so turning it back on restores
+ * them.
+ */
+function CustomerCurrencyList({ base, initial, disabled, error }: { base: string; initial: string[]; disabled: boolean; error?: string }) {
+  const t = useDashT();
+  const [chosen, setChosen] = useState<string[]>(initial);
+  const [pick, setPick] = useState(base === "USD" ? "EUR" : "USD");
+  const add = () => setChosen((list) => (pick && !list.includes(pick) ? [...list, pick] : list));
+  return (
+    <>
+      {/* Outside the fieldset: sent (and kept) while the switch is off too. */}
+      {chosen.map((code) => (
+        <input key={code} type="hidden" name="customerCurrencies" value={code} />
+      ))}
+    <fieldset className="m-0 flex min-w-0 flex-col gap-2 border-0 p-0" disabled={disabled} aria-describedby="f-customer-currencies-hint">
+      <legend className="mb-1 p-0 text-sm font-semibold">{t("money.onlyLabel")}</legend>
+      <ul className="m-0 flex list-none flex-wrap gap-2 p-0" aria-label={t("money.onlyLabel")} data-customer-currencies>
+        {chosen.length === 0 ? (
+          <li className="text-[13px] text-muted">{t("money.onlyAll")}</li>
+        ) : (
+          chosen.map((code) => (
+            <li key={code} className="inline-flex h-8 items-center gap-1 rounded-full border border-line bg-white ps-3 pe-1 text-sm font-bold">
+              <span data-currency-chip>{code}</span>
+              <button
+                type="button"
+                onClick={() => setChosen((list) => list.filter((c) => c !== code))}
+                aria-label={t("money.onlyRemove", { code })}
+                className="inline-flex h-6 w-6 items-center justify-center rounded-full text-muted hover:bg-sand hover:text-midnight disabled:opacity-60"
+              >
+                <Icon name="close" size={16} />
+              </button>
+            </li>
+          ))
+        )}
+      </ul>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+        <CurrencyPicker id="f-customer-currency-add" name="customerCurrencyAdd" label={t("money.onlyAdd")} searchLabel={t("money.onlySearch")} value={pick} onChange={setPick} disabled={disabled} className="flex-1" />
+        <button type="button" onClick={add} disabled={disabled || chosen.includes(pick)} className={`${btn.secondary} h-11`}>
+          <Icon name="add" size={18} />
+          {t("common.add")}
+        </button>
+      </div>
+      <span id="f-customer-currencies-hint" className="text-[13px] text-muted">
+        {t("money.onlyHint", { base })}
+      </span>
+      <FieldError id="f-customer-currencies-error" error={error} />
+    </fieldset>
+    </>
   );
 }
 

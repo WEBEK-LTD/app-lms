@@ -3794,7 +3794,9 @@ paths:
         135.5 Every currency with a day's rate, for the app's currency picker (the shop's
         own first, then the customer's region's, then these): named in the
         `Accept-Language` language. Send the one picked as `X-Currency` (or `?currency=`).
-        Rates are read once a day by Yallapp, never per request.
+        Rates are read once a day by Yallapp, never per request. 149 Only the app's own
+        currencies when the owner chose some (`Config.customer_currency`), the shop's first;
+        the shop's alone when the owner turned prices in the customer's currency off.
       security: [{}, { bearerAuth: [] }]
       responses:
         '200':
@@ -12112,7 +12114,9 @@ components:
         menus, courses, events, bookings) then also come in it as `display`, at the day's rate,
         with the rate and its date; the amounts stay in the shop's currency. Same as the
         `X-Currency` header. Missing, the shop's own, or a currency without a rate: the shop's
-        prices only, as before. Never for a connected platform's prices.
+        prices only, as before. Never for a connected platform's prices. 149 Nor when the
+        owner turned it off for the app or left the currency out of the app's
+        (`Config.customer_currency`): the answer is then as for none asked.
       schema: { type: string, pattern: '^[A-Za-z]{3}$', example: USD }
     DisplayCurrencyHeader:
       name: X-Currency
@@ -12649,6 +12653,29 @@ components:
             app doesn't know means nothing to it.
           additionalProperties: { type: boolean }
           example: { chat: true, side_menu: false, block_looks: true, own_icons: true }
+        customer_currency:
+          type: object
+          description: |
+            Roadmap 149. Prices in the customer's currency (135.5), as the
+            owner set them for this app (the dashboard's shop settings,
+            Customers' currencies). `enabled` false: the app shows no
+            currency choice and sends no `X-Currency`. `currencies`: the only
+            customers' currencies allowed, empty for any with a rate; the
+            shop's own currency is always allowed. A customer whose currency
+            (the phone's region, or the one picked) isn't allowed sends none.
+            The server applies the same rule to every answer whatever the
+            app sends (no `display`, nothing charged in it, `GET /currencies`
+            limited), so older apps stay right. Only for apps selling what
+            Yallapp prices itself (shops and menus without a website,
+            courses, events, bookings, food); missing on older servers and
+            other apps means enabled, any currency.
+          required: [enabled, currencies]
+          properties:
+            enabled: { type: boolean }
+            currencies:
+              type: array
+              items: { type: string, pattern: '^[A-Z]{3}$' }
+          example: { enabled: true, currencies: [USD, KWD] }
         auth:
           type: object
           required: [signup_allowed, signup_fields, default_country_code]
