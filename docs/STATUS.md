@@ -71,6 +71,21 @@ yet. The wallets are expected in Safari and Chrome, not inside the apps'
 web views (ROADMAP 155.6). Not yet tried with a real Stripe account on real
 devices (ROADMAP 155.7).
 
+Roadmap 172 (a saved legal page that lacks the default's new text): Admin ›
+Website content notices when the team's saved version of the privacy
+policy, terms or refund policy, in any language, lacks sentences Yallapp's
+default text added since the version it was based on: a badge in the list
+and, on the page, "Yallapp's default text for this page was updated on …".
+"Review the changes" lists each new or changed paragraph with the new
+sentences highlighted; "Add the new text" puts them into the team's text
+at the places the default has them (or between two ==== lines for the team
+to place, which a save refuses), and nothing is published until Save. A
+save keeps the default's version it was based on with the page's fields
+(no migration); versions saved before are taken as based on the default
+before 18 November 2026. The default's earlier versions come from git
+(`scripts/legal-history.mjs` writes `src/content/legal-history.ts`; run it
+after changing a legal page's default, a unit test says so).
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build

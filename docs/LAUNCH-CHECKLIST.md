@@ -1934,6 +1934,15 @@ Only once Phase 1 (Yallapp's Firebase pool, keyless sending) is live.
       goes back to the balance). A transfer returned after it was marked
       sent has no button yet: record it with the developers.
 
+## Phase 172: A saved legal page that lacks the default's new text
+
+- [ ] After deploy, open Admin › Website content: a "Default updated"
+      badge on Privacy policy (or Terms, Refund policy) means the team's
+      saved version lacks the default's new text in that language. Open it,
+      Review the changes, Add the new text, check it, Save and publish, and
+      check /privacy (/ar/privacy, /tr/privacy) shows the three sentences.
+      No badge: nothing saved, or the saved version already has them.
+
 ## Phase 153: The card inside the payment page (iyzico, Kashier)
 
 Nothing to deploy beyond the code: no migration, no setting, no app build.

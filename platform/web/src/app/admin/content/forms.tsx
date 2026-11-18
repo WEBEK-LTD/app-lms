@@ -4,9 +4,11 @@ import { useActionState, useState } from "react";
 import { saveSiteContentAction } from "@/app/actions/admin-content";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Markdown } from "@/components/markdown";
+import { mergeLegalChanges } from "@/lib/content/legal-diff";
 import { fillValues } from "@/lib/content/markdown";
 import type { ContentField } from "@/lib/content/site";
 import { initialFormState } from "@/lib/forms";
+import { LegalUpdatePanel, type LegalUpdateView } from "./legal-update";
 
 /**
  * A page's texts; Markdown fields show a live preview next to the text.
@@ -21,6 +23,7 @@ export function ContentForm({
   previewValues,
   lang,
   placeholders = {},
+  legal,
 }: {
   pageKey: string;
   lang?: "ar" | "tr";
@@ -29,25 +32,43 @@ export function ContentForm({
   values: Record<string, string>;
   /** Filled in the preview, like the contact details on legal pages. */
   previewValues: Record<string, string>;
+  /**
+   * 172 A legal page: the version of Yallapp's default its text is based on (sent with a save),
+   * and the default's changes the saved version lacks, if any.
+   */
+  legal?: { base: string; update: LegalUpdateView | null };
 }) {
   const [state, action] = useActionState(saveSiteContentAction, initialFormState);
   // Markdown fields are controlled, for the preview (and so a failed save keeps the text).
   const [drafts, setDrafts] = useState<Record<string, string>>(() =>
     Object.fromEntries(fields.filter((f) => f.kind === "markdown").map((f) => [f.name, values[f.name] ?? ""])),
   );
-  const v = (name: string) => state.values?.[name] ?? values[name] ?? "";
+  // 172 "Add the new text": the default's changes merged into the text, the default's date, and the default's version as the base.
+  const [base, setBase] = useState(legal?.base ?? "");
+  const [added, setAdded] = useState<{ placed: number; unplaced: string[]; updated: string } | null>(null);
+  const addNewText = () => {
+    if (!legal?.update) return;
+    const merged = mergeLegalChanges(drafts.body ?? "", legal.update.changes);
+    setDrafts((d) => ({ ...d, body: merged.text }));
+    setAdded({ placed: merged.placed, unplaced: merged.unplaced, updated: legal.update.updated });
+    setBase(legal.update.hash);
+  };
+  const v = (name: string) => (name === "updated" && added ? added.updated : (state.values?.[name] ?? values[name] ?? ""));
   return (
     <form action={action} noValidate className="flex flex-col gap-5">
       <input type="hidden" name="key" value={pageKey} />
       {lang ? <input type="hidden" name="lang" value={lang} /> : null}
+      {legal ? <input type="hidden" name="base" value={base} /> : null}
       <FormMessage message={state.message} ok={state.ok} />
+      {legal?.update && !(state.ok && added) ? <LegalUpdatePanel update={legal.update} onAdd={addNewText} result={added} /> : null}
       {fields.map((field) => {
         const id = `f-${field.name}`;
         const error = state.errors?.[field.name];
         if (field.kind === "line") {
           return (
             <Field
-              key={field.name}
+              // Remade with the default's date once the new text is added.
+              key={`${field.name}${added ? "-added" : ""}`}
               label={field.label}
               name={field.name}
               maxLength={field.max}
