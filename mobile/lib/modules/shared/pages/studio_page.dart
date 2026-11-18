@@ -28,6 +28,7 @@ import '../../../core/widgets/studio_screen_scope.dart';
 import '../../lms/home/learning_cards.dart';
 import '../../school/widgets/studio_school.dart';
 import '../../market/widgets/market_sections.dart';
+import '../account/order_journey.dart' show isJourneyHeading, orderJourneyShows;
 import 'app_header.dart';
 import 'content_blocks.dart' show pageClockProvider;
 import 'page_actions.dart';
@@ -1247,6 +1248,9 @@ class StudioNodeView extends ConsumerWidget {
           ref.watch(liveMarketOrderProvider).value != null,
         null => false,
       },
+      // 171 The journey of the person's order, once there is one.
+      StudioNodeType.timeline when node.premium?.followsLatestOrder ?? false =>
+        orderJourneyShows(ref),
       // 128 The person's shipment, ride or the taxis near them, once there is one.
       StudioNodeType.tracking => studioLiveShows(node, ref),
       // 128 A part of the family's school day, with something to show.
@@ -1901,7 +1905,15 @@ class StudioNodeView extends ConsumerWidget {
 
   /// Rows, columns, layers and grids.
   Widget _layout(BuildContext context, WidgetRef ref) {
-    final kids = shownChildren(node.children, ref);
+    final all = node.children;
+    // 164 A list's heading goes with a list not shown (shownChildren).
+    final kids = shownChildren([
+      for (final (i, child) in all.indexed)
+        // 171 The heading of a journey without an order goes with it.
+        if (!(isJourneyHeading(child, all.elementAtOrNull(i + 1)) &&
+            !shows(all[i + 1], ref)))
+          child,
+    ], ref);
     if (kids.isEmpty) return const SizedBox.shrink();
     final inner = node.font?.uppercase == true ? scope.inCapitals() : scope;
     Widget view(StudioNode child) =>

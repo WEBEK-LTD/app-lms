@@ -212,6 +212,12 @@ abstract final class Paths {
   static String chatConversation(String id) =>
       '$chat/${Uri.encodeComponent(id)}';
 
+  /// 171 The screens every app type has that a published tab can show in
+  /// its place, the bar under them, as well as open on top (from Account,
+  /// a page's button): the orders, the notifications, the settings and the
+  /// chat. A tab of one of these used to push it, without the bar.
+  static const sharedTabPaths = {orders, notifications, settings, chat};
+
   /// 48 One of the site's own pages opened the app: asks the site what it
   /// is, then opens that screen or the page in the in-app browser.
   static const openLink = '/open';
