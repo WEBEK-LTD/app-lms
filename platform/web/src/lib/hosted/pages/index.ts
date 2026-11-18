@@ -136,7 +136,7 @@ function productLink(action: Action | null | undefined): string | undefined {
 async function goneProducts(pc: PageContext, studio: StudioPage): Promise<Set<string>> {
   const connector = pc.ctx.connector;
   if (!connector || !itemSourcesFor(pc.ctx.app).includes("products")) return new Set();
-  const ids = [...new Set(allNodes(studio).map((n) => productLink(n.action)))].filter((id): id is string => id !== undefined && PRODUCT_ID.test(id)).slice(0, LINKED_PRODUCTS_CHECKED);
+  const ids = [...new Set(allNodes(studio).map((n) => (n.hidden ? undefined : productLink(n.action))))].filter((id): id is string => id !== undefined && PRODUCT_ID.test(id)).slice(0, LINKED_PRODUCTS_CHECKED);
   const answers = await Promise.all(
     ids.map(async (id) => {
       try {
