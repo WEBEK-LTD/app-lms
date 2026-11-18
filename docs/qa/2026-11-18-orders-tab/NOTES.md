@@ -162,7 +162,7 @@ look B, each in English (LTR) and Arabic (RTL).
 | `dart format --output=none --set-exit-if-changed lib test tool` | 0 changed |
 | `flutter analyze` | No issues found |
 | Phase171 + phase132 together on the merged tree (after merging `origin/main`) | **44/44 passed** |
-| Whole `flutter test` | still running when this was first committed; the result follows in the next commit |
+| Whole `flutter test` on the final tree (after the merge, the preview rebuilt) | **All tests passed: 2185 passed, 776 skipped, 0 failed** (7 min 51 s). An earlier full run before the merge also passed 2185, but it overlapped a `git stash` of `lib`, so it is not counted |
 
 The phase132 change was deliberate. Its "no order on its way: the steps as
 drawn" and "signed out: the steps as drawn" tests became "only a delivered
