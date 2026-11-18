@@ -28,9 +28,17 @@ export const PLAN_MESSAGES = {
   price: "Enter a price from $1 to $10,000, like 24 or 24.50.",
 } as const;
 
-/** The sale split: the designer's 75% (rounded to the cent) and Yallapp's 25%, adding up to the price. */
+/**
+ * The sale split: the designer's 75% and Yallapp's 25%, adding up to the
+ * price, in whole cents with no floating point: 75% of the cents, a half
+ * cent or more going to the designer ($1.02: $0.77 and $0.25). 106.11 The
+ * designer's ledger keeps these amounts as the order has them.
+ */
 export function splitSale(grossCents: number): { designerCents: number; yallappCents: number } {
-  const designerCents = Math.round((grossCents * DESIGNER_SHARE_PERCENT) / 100);
+  if (!Number.isSafeInteger(grossCents) || grossCents < 0) throw new RangeError("A sale is a whole, positive number of cents");
+  const scaled = grossCents * DESIGNER_SHARE_PERCENT;
+  const rest = scaled % 100;
+  const designerCents = (scaled - rest) / 100 + (rest >= 50 ? 1 : 0);
   return { designerCents, yallappCents: grossCents - designerCents };
 }
 

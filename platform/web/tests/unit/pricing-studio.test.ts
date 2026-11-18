@@ -9,6 +9,13 @@ import { planChangeFor } from "@/lib/billing/plan-change";
 import { planFor } from "@/lib/marketing-lang";
 import { PLAN_INFO, planFitsSection, planPayableFor, planSettingOf, plansForSale, plansWith, POUNDS_VIEW, type PlanSetting } from "@/lib/plans";
 import { messagesFor, type Lang } from "@/i18n";
+import { KINDS } from "@/lib/app/kinds";
+import { STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
+import { ALL_SOLUTIONS } from "@/lib/marketing";
+import { STUDIO_ONLY_KINDS } from "@/lib/studio/section";
+import { CARD_HIGHLIGHTS, periodHint, RegularPlanCards, StudioPlanCards } from "@/site/pricing-cards";
+import { kindChips, KINDS_SHOWN } from "@/site/pricing-kinds";
+import { DEFAULT_WHATSAPP, whatsappLines } from "@/lib/contact-lines";
 
 /**
  * 146 The pricing page shows the app and Studio side by side: Studio's plans
@@ -161,5 +168,152 @@ describe("146 the comparison of the two", () => {
     // The site's Arabic is Modern Standard Arabic, and nothing says "AI".
     expect(messagesFor("ar").pricing.studioWho).toBe("صمّم تطبيقك بحرية، وأدِر كل شيء من Yallapp.");
     for (const lang of ["en", "ar", "tr"] as const) expect(JSON.stringify(messagesFor(lang).pricing)).not.toMatch(/\bAI\b|ذكاء اصطناعي|yapay zeka/i);
+  });
+});
+
+/**
+ * 154 The pricing page in its Day and night look: compact cards (the first
+ * highlights, the rest folded under "See everything (+N)" with nothing left
+ * out), one picker for both products with each period's saving, Studio's
+ * plans on the night band beside what every Studio plan has, only the plans
+ * that are for sale, and every kind of app each product makes as chips.
+ */
+describe("154 the pricing page by day and by night", () => {
+  const regular = plansForSale(plans, "regular");
+  const studios = plansForSale(plans, "studio");
+  const regularHtml = (period: Parameters<typeof RegularPlanCards>[0]["period"], lang: Lang = "en") =>
+    sp(renderToStaticMarkup(createElement(RegularPlanCards, { plans: regular.map((p) => planFor(lang, p)), view: POUNDS_VIEW, lang, period })));
+  const lines = { lines: whatsappLines({ whatsapp: DEFAULT_WHATSAPP }), country: "EG" } as unknown as Parameters<typeof StudioPlanCards>[0]["contact"];
+  const studioCards = (list: typeof studios, period: Parameters<typeof StudioPlanCards>[0]["period"], lang: Lang = "en") =>
+    sp(renderToStaticMarkup(createElement(StudioPlanCards, { plans: list.map((p) => planFor(lang, p)), view: POUNDS_VIEW, lang, period, contact: lines })));
+
+  it("shows a regular card's first four highlights and folds the rest, its limits and its stores under See everything", () => {
+    const html = regularHtml("24");
+    const pro = html.slice(html.indexOf('data-plan="pro"'), html.indexOf("Start with Pro"));
+    const shown = pro.slice(0, pro.indexOf("data-plan-more"));
+    const folded = pro.slice(pro.indexOf("data-plan-more"));
+    const highlights = PLAN_INFO.pro.highlights;
+    for (const h of highlights.slice(0, CARD_HIGHLIGHTS)) expect(shown).toContain(h);
+    for (const h of highlights.slice(CARD_HIGHLIGHTS)) {
+      expect(shown).not.toContain(h);
+      expect(folded).toContain(h);
+    }
+    // +N counts everything in the fold: the other highlights, the 4 limits and the stores.
+    expect(folded).toContain(`See everything</span><span class="pr-cnt" dir="ltr">+${highlights.length - CARD_HIGHLIGHTS + 4 + 1}</span>`);
+    expect(folded).toContain('aria-label="Pro limits"');
+    expect(folded).toContain("data-plan-stores");
+    // The period's price, per month and the saving, as before.
+    expect(pro).toContain("EGP 8,150");
+    expect(pro).toContain("/ 2 years");
+    expect(pro).toMatch(/data-per-month=""[^]*a month[^]*Save \d+%/);
+    // A plan on request says how its price is agreed.
+    const growth = html.slice(html.indexOf('data-plan="growth"'), html.indexOf("Start with Growth"));
+    expect(growth).toContain("On request");
+    expect(growth).toContain("We agree the price with you on WhatsApp");
+    // The team's highlighted plan has its badge.
+    expect(growth).toContain("Most popular");
+    expect(html).toContain('data-pricing-plans=""');
+    expect(html).toContain('data-currency="EGP"');
+  });
+
+  it("puts Studio's cards on the night band with what each includes, folds what it doesn't, and widens what every Studio plan has", () => {
+    const html = studioCards(studios, "12");
+    expect(html).toContain('data-studio-plans=""');
+    const pro = html.slice(html.indexOf('data-plan="studio_2"'), html.indexOf("Start with Studio Pro"));
+    expect(pro).toMatch(/EGP 6,000<\/span><span class="pr-per">\/ year/);
+    expect(pro).toMatch(/data-per-month=""[^]*EGP 500 a month[^]*Save 16%/);
+    expect(pro).toMatch(/data-included=""[^]*A second app for couriers/);
+    const fold = pro.slice(pro.indexOf("data-not-included"));
+    expect(fold).toContain("options not on this plan");
+    expect(fold).toContain("Delivery &amp; couriers");
+    expect(fold).toContain("Not included in Studio Pro");
+    // What every Studio plan has, after the plans, in the same row (it grows to fill it, pricing.css).
+    const basics = html.slice(html.indexOf("data-studio-basics"));
+    expect(basics).toContain("Every Studio plan has");
+    for (const item of ["The Studio editor and its elements", "We publish for you on Google Play and the App Store"]) expect(basics).toContain(item);
+    expect(html.indexOf("data-studio-basics")).toBeGreaterThan(html.indexOf('data-plan="studio_2"'));
+    // 6 months is switched off for Studio Pro: its own price, and why.
+    expect(studioCards(studios, "6")).toContain("Not sold for this period");
+    // In Arabic, the night band's words are Arabic.
+    const ar = studioCards(studios, "24", "ar");
+    expect(ar).toContain("وفّر 25%");
+    expect(ar).toContain(messagesFor("ar").plans.seeEverything);
+  });
+
+  it("never shows a plan that isn't for sale: no sample prices, no invented Studio plans", () => {
+    const html = studioCards(studios, "12");
+    expect(html.match(/data-plan="/g)).toHaveLength(studios.length);
+    for (const made of ["Studio Start", "Studio Business", "EGP 2,400", "EGP 3,600", "EGP 9,600"]) expect(html).not.toContain(made);
+    // None offered: on request, with what every Studio plan has.
+    const none = studioCards([], "12");
+    expect(none).not.toContain('data-plan="');
+    expect(none).toContain("data-studio-on-request");
+    expect(none).toContain("Every Studio plan has");
+    // The regular cards: the plans for sale, in the team's order, and Studio's never among them.
+    const cards = regularHtml("12");
+    expect([...cards.matchAll(/data-plan="([a-z_0-9]+)"/g)].map((m) => m[1])).toEqual(regular.map((p) => p.id));
+    expect(cards).not.toContain('data-plan="studio_');
+  });
+
+  it("says each period's saving in the picker, for both products: up to the most when the plans differ", () => {
+    const both = [...regular, ...studios];
+    expect(periodHint("en", both, POUNDS_VIEW, "lifetime")).toBe("Pay once");
+    expect(periodHint("en", both, POUNDS_VIEW, "1")).toBeNull();
+    // Studio Pro saves 16% on a year, Pro 20%: "up to"; one plan alone, its own saving.
+    expect(periodHint("en", both, POUNDS_VIEW, "12")).toBe("Save up to 20%");
+    expect(periodHint("en", [plans.pro], POUNDS_VIEW, "12")).toBe("Save 20%");
+    expect(periodHint("en", studios, POUNDS_VIEW, "24")).toBe("Save 25%");
+    expect(periodHint("ar", both, POUNDS_VIEW, "12")).toBe("وفّر حتى 20%");
+    expect(periodHint("tr", both, POUNDS_VIEW, "12")).toBe("En fazla %20 tasarruf");
+    // Prices rounded to EGP 50 move a saving by a point: about the same saving is the least of them, never more.
+    const yearly = (plan: "starter" | "growth" | "pro", cents: number) => edit(plan, { priceCents: cents, usdCents: null, onRequest: false, billingMonths: 12 });
+    const same = plansForSale(plansWith({ starter: yearly("starter", 270000), growth: yearly("growth", 360000) }), "regular");
+    expect(periodHint("en", same, POUNDS_VIEW, "12")).toBe("Save 25%");
+    const three = plansForSale(plansWith({ starter: yearly("starter", 270000), growth: yearly("growth", 360000), pro: yearly("pro", 600000) }), "regular");
+    for (const key of ["6", "12", "24", "36"] as const) {
+      const savings = three.flatMap((plan) => periodPrices(plan, POUNDS_VIEW).filter((p) => p.key === key).map((p) => p.saving ?? 0));
+      const [least, most] = [Math.min(...savings), Math.max(...savings)];
+      expect(periodHint("en", three, POUNDS_VIEW, key), key).toBe(least > 0 && most - least <= 2 ? `Save ${least}%` : `Save up to ${most}%`);
+    }
+  });
+
+  it("names every kind of app each product makes, from the code: Studio all of them, the app all but Studio's own", () => {
+    for (const lang of ["en", "ar", "tr"] as const) {
+      const studio = kindChips(lang, "studio");
+      const app = kindChips(lang, "regular");
+      const covered = (chips: typeof studio) => new Set(chips.flatMap((c) => c.covers));
+      // Studio: every kind it offers on /studio/new, every /solutions page and every Studio demo.
+      for (const id of [...KINDS.map((k) => k.id), ...ALL_SOLUTIONS.map((s) => s.id), ...STUDIO_DEMO_TYPES]) expect(covered(studio).has(id), `${lang} studio ${id}`).toBe(true);
+      // The app: every kind but Studio's own, and none of those.
+      for (const kind of KINDS) expect(covered(app).has(kind.id), `${lang} app ${kind.id}`).toBe(!STUDIO_ONLY_KINDS.has(kind.id));
+      for (const chips of [studio, app]) {
+        expect(new Set(chips.map((c) => c.id)).size).toBe(chips.length);
+        // Public pages never call the multi-vendor kind a marketplace (phase 72).
+        for (const chip of chips) expect(chip.label, `${lang} ${chip.id}`).not.toMatch(/marketplace/i);
+      }
+      if (lang !== "en") {
+        // Each in the page's language, not left in English.
+        const english = new Map(kindChips("en", "studio").map((c) => [c.id, c.label]));
+        for (const chip of studio) expect(chip.label, `${lang} ${chip.id}`).not.toBe(english.get(chip.id));
+        if (lang === "ar") for (const chip of studio) expect(chip.label, chip.id).toMatch(/[؀-ۿ]/);
+      }
+    }
+    // The common ones first, as many as show before "+N more".
+    expect(kindChips("en", "studio").slice(0, KINDS_SHOWN).map((c) => c.id)).toEqual(["store", "restaurant", "food", "marketplace", "delivery", "rides", "academy", "school"]);
+    expect(kindChips("en", "regular").slice(0, KINDS_SHOWN).map((c) => c.id)).toEqual(["store", "academy", "restaurant", "bookings", "clinic", "fitness", "real_estate", "events"]);
+    expect(kindChips("en", "studio").find((c) => c.id === "university")).toMatchObject({ label: "University", href: "/solutions/university" });
+    expect(kindChips("ar", "studio").find((c) => c.id === "flowers")).toMatchObject({ label: "متجر الزهور", href: "/ar/yallapp-studio/flowers" });
+  });
+
+  it("has the new words in English, Arabic and Turkish, and nothing says AI", () => {
+    for (const lang of ["ar", "tr"] as const) {
+      for (const key of ["studioTag", "kindsMore", "kindsFewer", "faqLifetime", "faqChange", "faqFees", "faqUsers"] as const) {
+        expect(messagesFor(lang).pricing[key], `${lang} ${key}`).toBeTruthy();
+        expect(messagesFor(lang).pricing[key], `${lang} ${key}`).not.toBe(messagesFor("en").pricing[key]);
+      }
+      for (const key of ["seeEverything", "onRequestNote", "saveUpTo"] as const) expect(messagesFor(lang).plans[key], `${lang} ${key}`).not.toBe(messagesFor("en").plans[key]);
+    }
+    expect(messagesFor("ar").pricing.faqChange).toBe("هل يمكنني تغيير الباقة لاحقًا؟");
+    for (const lang of ["en", "ar", "tr"] as const) expect(JSON.stringify([messagesFor(lang).pricing, messagesFor(lang).plans])).not.toMatch(/\bAI\b|ذكاء اصطناعي|yapay zeka/i);
   });
 });
