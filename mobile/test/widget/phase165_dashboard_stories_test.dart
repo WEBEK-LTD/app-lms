@@ -95,7 +95,7 @@ void main() {
     expect(entry.viewerTitle, 'Love, said in flowers');
     expect(entry.viewerLine, 'Hand-tied today');
     expect(entry.buttonLabel, 'See roses');
-    expect(entry.action?.categoryId, '12');
+    expect(entry.action?.categoryId, 12);
     final old = StudioStoryEntry.tryParse({
       'image_url': 'https://cdn.example.com/a.jpg',
       'heading': 'New',

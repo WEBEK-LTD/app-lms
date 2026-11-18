@@ -1,6 +1,6 @@
 {
  "navigation": {
-  "version": "2026-10-12T10:00:00Z.1~t1c5bb1e8.c7a64a036a7",
+  "version": "2026-10-12T10:00:00Z.1~tcdd2a4e8.cbd91f7b1e6",
   "tabs": [
    {
     "id": "home",
@@ -144,14 +144,14 @@
  "categories": {
   "items": [
    {
-    "id": 25,
+    "id": 34,
     "name": "Luxury boxes",
     "count": 2,
     "parent_id": null,
     "image_url": null
    },
    {
-    "id": 26,
+    "id": 35,
     "name": "Wedding",
     "count": 1,
     "parent_id": null,
@@ -184,6 +184,7 @@
         "id": "n3",
         "type": "slider",
         "name": "Every occasion",
+        "stories_source": "dashboard",
         "height": 520,
         "autoplay": true,
         "interval_ms": 5500,
@@ -241,6 +242,7 @@
              {
               "id": "n7",
               "type": "icon",
+              "story_part": "icon",
               "color": "#FFD9C2",
               "icon": "favorite",
               "icon_size": 15
@@ -248,6 +250,7 @@
              {
               "id": "n8",
               "type": "text",
+              "story_part": "kicker",
               "color": "#FFFFFF",
               "font": {
                "weight": 700,
@@ -262,6 +265,7 @@
            {
             "id": "n9",
             "type": "text",
+            "story_part": "title",
             "margin": {
              "top": 14
             },
@@ -279,6 +283,7 @@
            {
             "id": "n10",
             "type": "text",
+            "story_part": "line",
             "margin": {
              "top": 10
             },
@@ -295,6 +300,7 @@
             "id": "n11",
             "type": "button",
             "name": "Send flowers",
+            "story_part": "button",
             "width": "hug",
             "height": 48,
             "padding": {
@@ -372,6 +378,7 @@
              {
               "id": "n15",
               "type": "icon",
+              "story_part": "icon",
               "color": "#FFD9C2",
               "icon": "cake",
               "icon_size": 15
@@ -379,6 +386,7 @@
              {
               "id": "n16",
               "type": "text",
+              "story_part": "kicker",
               "color": "#FFFFFF",
               "font": {
                "weight": 700,
@@ -393,6 +401,7 @@
            {
             "id": "n17",
             "type": "text",
+            "story_part": "title",
             "margin": {
              "top": 14
             },
@@ -410,6 +419,7 @@
            {
             "id": "n18",
             "type": "text",
+            "story_part": "line",
             "margin": {
              "top": 10
             },
@@ -426,6 +436,7 @@
             "id": "n19",
             "type": "button",
             "name": "Send flowers",
+            "story_part": "button",
             "width": "hug",
             "height": 48,
             "padding": {
@@ -503,6 +514,7 @@
              {
               "id": "n23",
               "type": "icon",
+              "story_part": "icon",
               "color": "#FFD9C2",
               "icon": "spa",
               "icon_size": 15
@@ -510,6 +522,7 @@
              {
               "id": "n24",
               "type": "text",
+              "story_part": "kicker",
               "color": "#FFFFFF",
               "font": {
                "weight": 700,
@@ -524,6 +537,7 @@
            {
             "id": "n25",
             "type": "text",
+            "story_part": "title",
             "margin": {
              "top": 14
             },
@@ -541,6 +555,7 @@
            {
             "id": "n26",
             "type": "text",
+            "story_part": "line",
             "margin": {
              "top": 10
             },
@@ -557,6 +572,7 @@
             "id": "n27",
             "type": "button",
             "name": "Send flowers",
+            "story_part": "button",
             "width": "hug",
             "height": 48,
             "padding": {
@@ -634,6 +650,7 @@
              {
               "id": "n31",
               "type": "icon",
+              "story_part": "icon",
               "color": "#FFD9C2",
               "icon": "child_care",
               "icon_size": 15
@@ -641,6 +658,7 @@
              {
               "id": "n32",
               "type": "text",
+              "story_part": "kicker",
               "color": "#FFFFFF",
               "font": {
                "weight": 700,
@@ -655,6 +673,7 @@
            {
             "id": "n33",
             "type": "text",
+            "story_part": "title",
             "margin": {
              "top": 14
             },
@@ -672,6 +691,7 @@
            {
             "id": "n34",
             "type": "text",
+            "story_part": "line",
             "margin": {
              "top": 10
             },
@@ -688,6 +708,7 @@
             "id": "n35",
             "type": "button",
             "name": "Send flowers",
+            "story_part": "button",
             "width": "hug",
             "height": 48,
             "padding": {
@@ -765,6 +786,7 @@
              {
               "id": "n39",
               "type": "icon",
+              "story_part": "icon",
               "color": "#FFD9C2",
               "icon": "celebration",
               "icon_size": 15
@@ -772,6 +794,7 @@
              {
               "id": "n40",
               "type": "text",
+              "story_part": "kicker",
               "color": "#FFFFFF",
               "font": {
                "weight": 700,
@@ -786,6 +809,7 @@
            {
             "id": "n41",
             "type": "text",
+            "story_part": "title",
             "margin": {
              "top": 14
             },
@@ -803,6 +827,7 @@
            {
             "id": "n42",
             "type": "text",
+            "story_part": "line",
             "margin": {
              "top": 10
             },
@@ -819,6 +844,7 @@
             "id": "n43",
             "type": "button",
             "name": "Send flowers",
+            "story_part": "button",
             "width": "hug",
             "height": 48,
             "padding": {
@@ -978,32 +1004,43 @@
         "id": "n51",
         "type": "stories",
         "name": "Every occasion",
+        "stories_source": "dashboard",
         "color": "#2A121C",
         "dark_color": "#F8EAEE",
         "slides": [
          {
           "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
           "heading": "Luxury boxes",
+          "subheading": null,
           "action": {
            "type": "screen",
            "screen": "search",
-           "category_id": "25"
+           "category_id": "34"
           },
           "ring": "highlight",
           "ring_color": "#C89B6D",
-          "subheading": null
+          "icon": "favorite",
+          "kicker": "للحب",
+          "title": "قلها بالورد.",
+          "line": "باقات مع بطاقة بكلماتك أنت.",
+          "button_label": "أرسل الزهور"
          },
          {
           "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
           "heading": "Wedding",
+          "subheading": null,
           "action": {
            "type": "screen",
            "screen": "search",
-           "category_id": "26"
+           "category_id": "35"
           },
           "ring": "highlight",
           "ring_color": "#C89B6D",
-          "subheading": null
+          "icon": "cake",
+          "kicker": "لعيد ميلاد",
+          "title": "عامٌ جديد يزهر.",
+          "line": "باقات مع بطاقة بكلماتك أنت.",
+          "button_label": "أرسل الزهور"
          }
         ],
         "interval_ms": 5000,
@@ -1321,7 +1358,7 @@
         "action": {
          "type": "screen",
          "screen": "search",
-         "category_id": "25"
+         "category_id": "34"
         }
        },
        {
@@ -1331,7 +1368,7 @@
         "action": {
          "type": "screen",
          "screen": "search",
-         "category_id": "26"
+         "category_id": "35"
         },
         "subtitle": null,
         "size": "wide"
@@ -1396,7 +1433,8 @@
          "screen": "search"
         }
        }
-      ]
+      ],
+      "heads": "n76"
      },
      {
       "id": "n76",
@@ -1512,33 +1550,47 @@
       "items": [
        {
         "source": "products",
-        "id": "28",
+        "id": "37",
         "title": "Trio Luxury Box",
         "subtitle": null,
         "image_url": null,
         "price_label": "₺2,199.00",
+        "price": {
+         "amount": "2199.00",
+         "currency": "TRY",
+         "formatted": "₺2,199.00",
+         "range": false,
+         "on_sale": false
+        },
         "badge": null,
         "action": {
          "type": "item",
          "item": {
           "source": "products",
-          "id": "28"
+          "id": "37"
          }
         }
        },
        {
         "source": "products",
-        "id": "27",
+        "id": "36",
         "title": "Red & White Roses in a 24 Luxury Box",
         "subtitle": null,
         "image_url": null,
         "price_label": "₺599.00",
+        "price": {
+         "amount": "599.00",
+         "currency": "TRY",
+         "formatted": "₺599.00",
+         "range": false,
+         "on_sale": false
+        },
         "badge": null,
         "action": {
          "type": "item",
          "item": {
           "source": "products",
-          "id": "27"
+          "id": "36"
          }
         }
        }
@@ -1576,7 +1628,8 @@
       "ken_burns": true,
       "action": {
        "type": "screen",
-       "screen": "search"
+       "screen": "search",
+       "flow": "bouquet"
       },
       "children": [
        {
@@ -1839,7 +1892,8 @@
         "icon": "arrow_forward",
         "action": {
          "type": "screen",
-         "screen": "search"
+         "screen": "search",
+         "flow": "bouquet"
         },
         "motion": {
          "press": "shrink"
@@ -2073,6 +2127,7 @@
       "id": "n116",
       "type": "stories",
       "name": "Every occasion",
+      "stories_source": "dashboard",
       "padding": {
        "top": 10,
        "end": 12,
@@ -2085,26 +2140,36 @@
        {
         "image_url": "http://localhost:3000/flower-photos/blush-bouquet.jpg",
         "heading": "Luxury boxes",
+        "subheading": null,
         "action": {
          "type": "screen",
          "screen": "search",
-         "category_id": "25"
+         "category_id": "34"
         },
         "ring": "highlight",
         "ring_color": "#C89B6D",
-        "subheading": null
+        "icon": "favorite",
+        "kicker": "للحب",
+        "title": "قلها بالورد.",
+        "line": "باقات مع بطاقة بكلماتك أنت.",
+        "button_label": "أرسل الزهور"
        },
        {
         "image_url": "http://localhost:3000/flower-photos/tulips.jpg",
         "heading": "Wedding",
+        "subheading": null,
         "action": {
          "type": "screen",
          "screen": "search",
-         "category_id": "26"
+         "category_id": "35"
         },
         "ring": "highlight",
         "ring_color": "#C89B6D",
-        "subheading": null
+        "icon": "cake",
+        "kicker": "لعيد ميلاد",
+        "title": "عامٌ جديد يزهر.",
+        "line": "باقات مع بطاقة بكلماتك أنت.",
+        "button_label": "أرسل الزهور"
        }
       ],
       "interval_ms": 5000,

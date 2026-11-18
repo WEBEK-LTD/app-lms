@@ -188,7 +188,7 @@ describe("161 GET /pages: a MAD shop's Leqaa home in the customer's currency", (
       commissionCents: null,
       itemTransactionIds: null,
       payoutApprovedAt: null,
-    } as Parameters<MemoryStore["createCatalogOrder"]>[0]);
+    } as unknown as Parameters<MemoryStore["createCatalogOrder"]>[0]);
     const read = async (currency: string) => {
       const display: DisplayCurrency = { currency, rates: RATES };
       const answer = await connector().handle({ method: "GET", path: ["me", "orders"], query: new URLSearchParams(), body: null, user: { id: 5 } as HostedUser, now: NOW, display });
@@ -266,7 +266,8 @@ describe("161 a shop's stories: Open opens the story's link, or the shop", () =>
     expect(html("ar")).toContain("زرار «افتح» بتاعها بيفتح");
     expect(html("tr")).toContain("Aç düğmesinin açtığı");
     // Not in an app without a shop.
-    const plain = renderToStaticMarkup(createElement(DashboardI18n, { lang: "en", messages: dashboardMessages("en"), knownEnglish: {}, children: createElement(StoriesControls, { node, onChange: () => {}, lang: "en", defaultLang: "en", link: () => null }) }));
+    const plainProps: ComponentProps<typeof DashboardI18n> = { lang: "en", messages: dashboardMessages("en"), knownEnglish: {}, children: createElement(StoriesControls, { node, onChange: () => {}, lang: "en", defaultLang: "en", link: () => null }) };
+    const plain = renderToStaticMarkup(createElement(DashboardI18n, plainProps));
     expect(plain).not.toContain("data-story-open-hint");
   });
 });
@@ -278,7 +279,7 @@ describe("161 the parts", () => {
     expect(itemPrice({ amount: "100.00", currency: "MAD", formatted: "MAD 100.00", range: true, max_amount: "200.00", regular_amount: null, on_sale: false })).toEqual({ price: { amount: "100.00", currency: "MAD", formatted: "MAD 100.00", range: true, max_amount: "200.00", on_sale: false } });
     expect(itemPrice({ is_free: true, amount: null, currency: null, formatted: null })).toEqual({});
     // A range, both ends converted.
-    const range = addDisplayPrices({ amount: "100.00", currency: "MAD", formatted: "MAD 100.00 – MAD 200.00", range: true, max_amount: "200.00" }, display) as { display: Record<string, unknown> };
+    const range = addDisplayPrices({ amount: "100.00", currency: "MAD", formatted: "MAD 100.00 – MAD 200.00", range: true, max_amount: "200.00" }, display) as unknown as { display: Record<string, unknown> };
     expect(range.display).toMatchObject({ formatted: "$10.00 – $20.00", max_amount: "20.00" });
   });
 

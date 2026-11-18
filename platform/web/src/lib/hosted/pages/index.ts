@@ -57,7 +57,7 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
   // 17 A draft preview gets the Pages & look draft.
   const layout = await servedLayout(ctx.store, ctx.app, ctx.plan ?? null, { draft: Boolean(ctx.preview?.draft), now: ctx.now });
   const lang = pickLanguage(req.headers?.get("accept-language"), layout.languages);
-  if (slug === undefined) return navigation(layout, lang, req, ctx.app, await categoriesMark({ ctx, user, platform, lang, layout }));
+  if (slug === undefined) return navigation(layout, lang, req, ctx.app, await categoriesMark({ ctx, user, platform, lang, layout, display: null }));
   const page = layout.pages.find((p) => p.slug === slug);
   if (!page) return { status: 404, body: { code: "not_found", message: "This page doesn't exist." }, headers: VARY };
   const pc: PageContext = { ctx, user, platform, lang, layout, display: display ? await display() : null };
@@ -123,6 +123,9 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
       const entries = shown[list] as { translations?: Translations }[] | undefined;
       if (entries) (shown as Record<string, unknown>)[list] = entries.map((entry) => (({ translations: _e, ...rest }) => (void _e, rest))(translated(entry, pc.lang, def) as { translations?: Translations }));
     }
+    // 165 Dashboard › Stories in the language asked for; left out while none is shown.
+    const storyKind = storyElements.get(node.id);
+    if (storyKind) return withServedStories(shown as StudioNode, storyKind, await dashboardStories());
     // 161 A shop's stories: each one's Open opens its link, else the shop (never nothing, which left the customer on Home).
     if (node.type === "stories" && Array.isArray(shown.slides) && pc.ctx.app.appType === "store") return { ...shown, slides: shown.slides.map((slide) => storyWithLink(pc, slide, gone)) } as StudioNode;
     // 161 A plan's prices in the customer's currency too.
@@ -143,16 +146,15 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
     // 131 A flash sale with its sale and products; a coupon bound to the shop's coupons with the one it shows; else left out.
     if (node.type === "flash_sale") return servedFlashSale(pc, shown as StudioNode);
     if (node.type === "coupon" && node.coupon?.bind === "public") return servedCoupon(pc, shown as StudioNode);
-    // 165 Dashboard › Stories in the language asked for; left out while none is shown.
-    const storyKind = storyElements.get(node.id);
-    if (storyKind) return withServedStories(shown as StudioNode, storyKind, await dashboardStories());
     return shown as StudioNode;
   });
+  // 157 and 165: the dashboard's stories still as the template made them follow the shop's categories too.
+  const served = body && stories ? await withCategoryLists(pc, body) : body;
   const header = studio.header ? (({ translations: _h, ...rest }) => (void _h, rest))(translated(studio.header, pc.lang, def)) : studio.header;
   // 159 At their automatic sizes, as Studio's canvas draws them, so apps already on phones draw them so too (a cover's
   // top bar across the cover, its bag at the edge, whatever width a corner drag gave it before the owner was asked).
   // 164 A list's title goes with it, and is marked so the app hides it with a list it hides (what was seen lately).
-  return { ...studio, ...(header !== undefined ? { header } : {}), body: autoSized(withListHeadings(body ?? studio.body, listHeadings(studio.body))) };
+  return { ...studio, ...(header !== undefined ? { header } : {}), body: autoSized(withListHeadings(served ?? studio.body, listHeadings(studio.body))) };
 }
 
 /**

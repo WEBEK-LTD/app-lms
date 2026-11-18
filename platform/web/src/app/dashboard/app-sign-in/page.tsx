@@ -12,7 +12,7 @@ import { appMailFormValues } from "@/lib/email/app-mail";
 import { appUrl, isProduction } from "@/lib/env";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { hostedSettings } from "@/lib/hosted/service";
-import { hostedSettingsValues } from "@/lib/hosted/settings-form";
+import { hostedSettingsValues, type HostedSettingsForm } from "@/lib/hosted/settings-form";
 import { appCountryCode } from "@/lib/hosted/country-code";
 import { chosenEmailSignIn, chosenSignInMethods, emailSignInNote, emailSignInPossible, hostedSignInMethods, passwordSignIn, passwordSignInPossible, signInMethodsChoice } from "@/lib/hosted/sign-in-methods";
 import { signedInPath } from "@/lib/app/api-check";
@@ -211,7 +211,7 @@ export default async function AppSignInPage() {
   const choice = signInMethodsChoice(methods);
   // 160.8 The code sign-in shows first: the owner's, else the shop's country, the account's, then the platform's.
   const countryCode = appCountryCode(app, client.country);
-  const rules = wordpress ? null : { ...hostedSettingsValues(hostedSettings(app)), defaultCountryCode: countryCode.code.replace(/^\+/, "") };
+  const rules: HostedSettingsForm | null = wordpress ? null : { ...hostedSettingsValues(hostedSettings(app)), defaultCountryCode: countryCode.code.replace(/^\+/, "") };
   // 132.136 The premium kit: how people sign in, its choice in sight; the rules, the WhatsApp number and the email each a row with its state as a pill, their forms folded.
   return (
     <KitPage>

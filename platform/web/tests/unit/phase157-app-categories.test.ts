@@ -370,9 +370,10 @@ describe("157 what the app draws", () => {
       home: await fetchApp("/pages/home", "ar"),
       shop: await fetchApp("/pages/shop", "ar"),
     };
-    // The elements' IDs are made at random with the project: numbered in order instead, so the file stays the same.
+    // The elements' IDs are made at random with the project: numbered in order instead, so the file stays the same
+    // (164 and the element a list's title goes with, `heads`).
     const ids = new Map<string, string>();
-    const stable = (key: string, value: unknown) => (key === "id" && typeof value === "string" && /^n[0-9a-z]{1,8}(-\d+)?$/.test(value) ? (ids.get(value) ?? ids.set(value, `n${ids.size + 1}`).get(value)) : value);
+    const stable = (key: string, value: unknown) => ((key === "id" || key === "heads") && typeof value === "string" && /^n[0-9a-z]{1,8}(-\d+)?$/.test(value) ? (ids.get(value) ?? ids.set(value, `n${ids.size + 1}`).get(value)) : value);
     const json = `${JSON.stringify(served, stable, 1)}\n`;
     // After a change: PHASE157_FIXTURE=1 npx vitest run tests/unit/phase157-app-categories.test.ts
     if (process.env.PHASE157_FIXTURE === "1" || !existsSync(MOBILE_FIXTURE)) writeFileSync(MOBILE_FIXTURE, json);

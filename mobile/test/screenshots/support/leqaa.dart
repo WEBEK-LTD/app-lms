@@ -575,7 +575,6 @@ Map<String, dynamic> leqaaBouquetBuilder(String base, {String lang = 'en'}) {
     'wraps_from': 'addons',
     'wrap_optional': false,
     'card_optional': true,
-    'cards': true,
     'min_stems': 3,
     'max_stems': 36,
     'max_message': 300,

@@ -205,8 +205,7 @@ Future<TestApp> _open(
 
 /// Every text on screen.
 List<String> _texts() => [
-  for (final e in find.byType(Text).evaluate())
-    if ((e.widget as Text).data case final t?) t,
+  for (final e in find.byType(Text).evaluate()) ?(e.widget as Text).data,
 ];
 
 void main() {
@@ -451,7 +450,7 @@ void main() {
   testWidgets(
     '161 the owner\'s switch off (no `display` from the server): the shop\'s dirhams, as before',
     (tester) async {
-      final app = await _open(tester, _kechFlora(null), null);
+      await _open(tester, _kechFlora(null), null);
       expect(find.text(_mad(25000)), findsWidgets);
       expect(_texts().where((t) => t.contains('≈')), isEmpty);
       expect(tester.takeException(), isNull);
