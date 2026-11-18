@@ -145,9 +145,24 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                         child: Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                '${_qty(line)} × ${line.name}',
-                                style: TextStyle(color: p.textBody),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${_qty(line)} × ${line.name}',
+                                    style: TextStyle(color: p.textBody),
+                                  ),
+                                  // 115.23 What was chosen with a dish.
+                                  if (line.choices.isNotEmpty)
+                                    Text(
+                                      line.choices.join(' · '),
+                                      key: ValueKey('order-choices-${line.id}'),
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: p.textSecondary,
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
                             Text(
