@@ -224,3 +224,17 @@ describe("177.3 the marketplace's checkout and orders in the customer's language
     expect((small.body as { message: string }).message).toBe("Bu işletmenin en düşük sipariş tutarına ulaşmak için biraz daha ekleyin.");
   });
 });
+
+describe("177.6 a marketplace's Vendors page in its own words", () => {
+  it("has the vendors' words in English, Egyptian Arabic and Turkish, and the page uses them for a marketplace", async () => {
+    const { en, ar, tr } = await import("@/i18n/dashboard/food");
+    for (const lang of [en, ar, tr]) {
+      for (const key of ["vendors", "vendorsIntro", "addVendor", "addVendorHint", "vendorCount", "noVendors", "searchVendors"] as const) expect(lang[key].length, key).toBeGreaterThan(3);
+      expect(lang.vendors).not.toBe(lang.restaurants);
+    }
+    expect(ar.addVendor).toBe("إضافة بائع");
+    const { readFileSync } = await import("node:fs");
+    const page = readFileSync("src/app/dashboard/restaurants/page.tsx", "utf8");
+    for (const key of ["vendors", "vendorsIntro", "addVendor", "vendorCount", "searchVendors"]) expect(page).toContain(`"food.${key}"`);
+  });
+});
