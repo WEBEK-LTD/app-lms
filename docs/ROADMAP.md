@@ -3796,3 +3796,11 @@ The owner (17 November), on prices shown in the customer's currency (135.5, 135.
 | [x] | 149.5 The app (`appCurrencyProvider`, `CustomerCurrencyRule`): the switch off hides Settings › Currency and sends no `X-Currency` (a pick made before stays saved); with a list, the picker shows the shop's and those only, and a region's or picked currency outside it isn't sent; the shop's own alone allowed: no choice offered. Older servers and other apps: as before. The preview rebuilt; `CLIENT_APP_RELEASE` 6 (after 5) | `phase149_customer_currency_test.dart`, `currency_test.dart`, `currency_picker_test.dart`, `publish-for-all.test.ts` |
 | [ ] | 149.6 Courses, events, bookings and food apps keep the default (on, any currency): their own settings pages don't have the form yet | — |
 | [ ] | 149.7 An order placed and set to be charged in the customer's currency just before the owner turns it off is still charged in it on its payment page (its link lasts `PAY_LINK_MINUTES`) | — |
+
+## Phase 150: Studio's canvas draws a cover's top row across it
+
+The owner (17 November), on Kech Flora's home in Studio: the row with the search, the wordmark and the bag was 404 wide, so the bag sat in the middle of the cover ("قولتلك لازم تتظبط"). A row placed at a layer's top (`self_align: start`, Leqaa's `roseTop`) shrank to its icons and words on the canvas, while the app's Row spans the layer; the canvas now draws it as the app does. No migration, no app build.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 150.1 On a stack's layer, a row with no width of its own or `fill` spans the layer whatever its own placement, which moves it up or down only; a row with a width, a column and anything else keep their placement across (`view.tsx`, as `studio_page.dart`'s `Align` around a `Row`) | `studio-canvas-layout.test.ts` |
