@@ -644,6 +644,11 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       createdAt: NOW,
       updatedAt: NOW,
     });
+    // 115.77 A coupon their place made for itself.
+    const theirOffer = (await store.createMarketCoupon({
+      appId: theirs.food.id, code: "MARKOFFER", title: `${MARK} offer`, kind: "percent", value: 10, maxDiscount: null, minOrder: 0, currency: "EGP", paidBy: "vendor", firstOrderOnly: false,
+      vendorIds: [restaurant.id], vendorKinds: [], departmentIds: [], productIds: [], createdByVendorId: restaurant.id, ownerPaused: false, usesLimit: null, perUserLimit: null, startsAt: null, endsAt: null, active: true, createdAt: NOW, updatedAt: NOW,
+    }))!;
     // 115 A marketplace order of the other client's, on its vendor, and a complaint about it.
     const theirMarketOrder = await store.createMarketOrder({
       appId: theirs.food.id, vendorId: restaurant.id, vendorName: `${MARK} kitchen`, vendorKind: "restaurant", userId: null, customerName: `${MARK} customer`, customerPhone: "+201001113333",
@@ -743,6 +748,9 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       vendor_id: String(restaurant.id),
       market_order_id: String(theirMarketOrder.id),
       complaint_id: String(theirComplaint.id),
+      // 115.77 Their place's own offer, paused.
+      offer_id: String(theirOffer.id),
+      action: "pause",
       device_id: customerDevice,
       conversation_id: conversation.id,
       message_id: String(message.id),
