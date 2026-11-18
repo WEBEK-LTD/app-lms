@@ -380,6 +380,13 @@ test("the sale is split on the price paid, and the code is used up", async () =>
   await dz.goto(`/designer/discounts/${templateId}`);
   await expect(dz.locator('tr[data-code="LALE30"]')).toContainText("1 of 1");
   await expect(dz.locator('tr[data-code="LALE30"]')).toContainText("Used up");
+  // My templates: the price as buyers see it now, the paid sale, and the designer's 75% of the price paid (106.11's ledger).
+  await dz.goto("/designer/templates");
+  const mine = dz.locator(`tr[data-template="${templateId}"]`);
+  await expect(mine.locator("td").nth(2)).toContainText("From $6.40/mo");
+  await expect(mine.locator("td").nth(2).locator("[data-was]")).toContainText("$8/mo");
+  await expect(mine.locator("td").nth(4)).toHaveText("1 sale");
+  await expect(mine.locator("td").nth(5)).toHaveText("$12.60");
 
   // Used up for the next purchase.
   await own.goto(`/dashboard/studio-market/checkout/${slug}?plan=3m`);
