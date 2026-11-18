@@ -2090,6 +2090,28 @@ export const FAQ: FaqGroup[] = [
       },
     ],
   },
+  // 106.13 Studio Market, for owners and designers.
+  {
+    title: "Studio Market",
+    items: [
+      {
+        q: "What is Studio Market?",
+        a: "Whole app designs that independent designers made in Yallapp Studio, reviewed by our team before they're first published. Try each one in its demo on [Studio Market](/templates), then apply it to your Studio app, free or for a time.",
+      },
+      {
+        q: "Does a template renew by itself?",
+        a: "No. We remind you 14 days before the end and on the last day, and you renew by paying again. When a plan ends, the design stays without updates or your app goes back to its previous design, as the template's page says. See [Studio Market](/docs/studio-market).",
+      },
+      {
+        q: "Can I get a refund for a template?",
+        a: "No. Templates are digital content applied at once, so purchases on Studio Market can't be refunded. Try the demo and preview it on your app before you buy.",
+      },
+      {
+        q: "How are designers paid?",
+        a: "Yallapp takes 25% of each sale and the designer always gets exactly 75%, paid on the 1st of every month once their balance is USD 250 or more and their details have been reviewed.",
+      },
+    ],
+  },
   {
     title: "Content sources",
     items: [

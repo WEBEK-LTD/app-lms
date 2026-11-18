@@ -10,6 +10,7 @@ import { markTravelPaid, payTravelBooking, travelPayLink } from "@/lib/travel/pa
 import { dueCents, freeUnits } from "@/lib/travel/pricing";
 import { DEFAULT_TRAVEL_SETTINGS } from "@/lib/travel/settings";
 import { flightInput, hotelInput, roomInput } from "./travel-fixtures";
+import { payToken } from "./pay-token";
 
 /**
  * 126 The travel rows in either store: settings, hotels, rooms, flights,
@@ -210,7 +211,7 @@ export function travelStoreSuite(storeOf: () => DataStore) {
     expect(third.order.id).not.toBe(first.order.id);
     expect(third.url).not.toBe(first.url);
     expect((await store.getTravelBooking(t.app.id, made.booking.id))!).toMatchObject({ holdUntil: cap, orderId: third.order.id });
-    expect(await store.getCatalogOrderByToken(sha256Hex(third.url.split("/").pop()!))).toMatchObject({ id: third.order.id });
+    expect(await store.getCatalogOrderByToken(sha256Hex(payToken(third.url)))).toMatchObject({ id: third.order.id });
   });
 
   it("126.10 marks paid a booking whose hold ended only while its room and seats are still free", async () => {

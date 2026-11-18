@@ -195,7 +195,7 @@ describe("115.22 the marketplace's notifications", () => {
     // 3 days before, by two runs at once: once.
     const soon = new Date(ends.getTime() - 3 * DAY + MIN);
     expect((await Promise.all([remind(soon), remind(soon)])).reduce((a, b) => a + b, 0)).toBe(1);
-    expect(push.sent).toEqual([{ tokens: ["push-mariam-customer-0"], title: "تنتهي عضويتك في النادي قريبًا", body: "تنتهي Club Monthly في 15 أكتوبر 11:00. جدّدها من التطبيق لتحتفظ بميزة التوصيل.", data: { type: "club_renewal", plan_id: expect.any(String), url: expect.stringMatching(/\/pay\//), notification_id: expect.any(String) } }]);
+    expect(push.sent).toEqual([{ tokens: ["push-mariam-customer-0"], title: "تنتهي عضويتك في النادي قريبًا", body: "تنتهي Club Monthly في 15 أكتوبر 11:00. جدّدها من التطبيق لتحتفظ بميزة التوصيل.", data: { type: "club_renewal", plan_id: expect.any(String), url: expect.stringMatching(/\/pay\/[\w-]+\/in-app$/), notification_id: expect.any(String) } }]);
     expect(await remind(new Date(ends.getTime() - 2 * DAY))).toBe(0);
     // Its last day: once more.
     expect(await remind(new Date(ends.getTime() - 6 * 3_600_000))).toBe(1);

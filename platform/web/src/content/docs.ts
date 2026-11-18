@@ -1355,6 +1355,58 @@ On a demo's page the middle phone runs the real demo app, as a guest on its home
 Every card on the choosing page plays a short silent loop of its demo, in its look A, while you see it: its home, one other tab, and back. Phones set to reduce motion show the picture only.
 `,
   }),
+  // 106.13 Studio Market, for owners and designers.
+  doc({
+    slug: "studio-market",
+    section: "Your app",
+    title: "Studio Market: buying, applying and selling templates",
+    description: "Find a whole app design on Studio Market, try it, buy it or take it free, apply it to your Studio app, renew it and move it; and, as a designer, publish your own templates, set their prices and discounts and get paid.",
+    steps: false,
+    body: `Studio Market sells and shares whole app designs that independent designers made in Yallapp Studio. Owners apply them to their Studio apps; designers publish them and are paid for each sale. Browse it on the website at [Studio Market](/templates), or in your dashboard under **Studio Market**.
+
+## Choosing a template
+
+Each template's page shows its pages drawn in phones as your app draws them, in each of its languages, light and dark, and **Try the demo** opens every page. It says what's included, which kinds of app it fits, who designed it, each plan's price now and what happens when a plan ends. Our team reviewed every template before it was first published.
+
+Prices are in US dollars. A card shows **Free**, **From $X/mo** (the lowest price per month among the plans for a time) or **$X once** (lifetime only). During a price drop or a flash sale the old price is struck through, with a **Sale** or **Flash sale** pill, and a flash sale shows its countdown.
+
+## Buying and applying
+
+Choose a plan: 1, 3 or 6 months, 1 or 2 years, or lifetime, as the designer offers them. On the website, you make a free Yallapp account first (or sign in) and come back to the checkout. At checkout, choose the app it goes on (one of your Studio apps of a kind it fits) or apply it later, enter a designer's code if you have one, and tick the box that there are no refunds. You pay by card through Kashier: your card details stay with Kashier. The template is put on your app and the receipt is emailed to you.
+
+**Preview it on my app first** shows the template with your app's name, logo and entries before you take it. A free template is applied from its page in one step.
+
+Your app's design before the template is kept: go back to it any time from **My templates**. When your app is live, the template's design is published at once.
+
+## Renewing, moving and when a plan ends
+
+- **No automatic renewal.** We remind you 14 days before the end and on the last day; renew by paying again from **My templates**. A renewal extends from the end date, or from today once the plan has ended.
+- **When a plan ends**, the design stays in your app without updates, or your app goes back to the design it had before, as the designer chose for that template. The template's page says which before you buy. Free and lifetime never end.
+- **Moving.** Switch a template to another of your apps of the same kind once every 30 days; it keeps its end date.
+- **Updates.** On an active plan, a free template or lifetime, you get the designer's updates: take a newer version from **My templates**.
+- **No refunds.** Templates are digital content applied at once, so what you buy on Studio Market can't be refunded.
+
+## Becoming a designer
+
+Studio is free for designers, and you don't need an app or a plan of your own to design templates (publishing an app of your own still needs a plan). Select **Become a designer** on [Studio Market](/templates) or in your dashboard: your name as buyers see it, your address, the country you're paid in, and the Studio Market designer terms, including Yallapp's 25% share.
+
+## Publishing and the review
+
+In your designer area, **Publish a template** has seven steps on one page: the Studio project, the title and description in each language, the pictures (your pages drawn as the app draws them), up to three app kinds and tags, the plans, what happens after a plan ends, and sending it for review with a note to the team. Use only photos, fonts and icons you own or have the rights to, no other brand's names or logos, and no contact details or outside links in the screens.
+
+Our team reviews a template the first time it's published: it goes from **In review** to **Published**, or back to you as **Changes requested** with the team's notes. Later updates go live without another review.
+
+## Prices and discounts
+
+Set a price in US dollars for each plan you offer, from $1 to $10,000, or make the template free; a price change reaches only the next purchases. Under **Discounts** in your designer area, add price drops, flash sales (up to 14 days, with a countdown in the market's flash strip) and coupon codes you give out, each an amount or a percentage off some or all plans. Nothing stacks: a buyer gets the better of the automatic price or their code, and a discounted price is never below $1.
+
+## Your earnings and payouts
+
+Yallapp takes 25% of each sale. The 25% includes taxes, the card payment fees and the SWIFT payout fees, the intermediary banks' fees too: you always get exactly 75%. Your earnings are paid out on the 1st of every month for the sales paid up to the end of the month before, once your balance is USD 250 or more and the review of your details is complete; otherwise the balance carries over to the next month.
+
+Before your first payout, **Earnings** in your designer area asks for your name as it is on your ID, your country, your ID's type and number and a copy of it, and your bank details. We use these details only to verify your identity and to pay out your earnings, as the [privacy policy](/privacy) says. You can publish before that.
+`,
+  }),
   doc({
     slug: "languages",
     section: "Your app",
