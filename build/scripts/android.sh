@@ -107,7 +107,10 @@ keyAlias=$ALIAS
 keyPassword=$KEY_PASSWORD
 PROPS
 
-(cd "$MOBILE" && flutter build apk --release && flutter build appbundle --release)
+# 185 Each build again after 30 s, 90 s and 180 s when a download failed (429, 5xx, a timeout),
+# never on any other failure (network_retry.py).
+(cd "$MOBILE" && python3 "$SCRIPTS/network_retry.py" flutter build apk --release &&
+	python3 "$SCRIPTS/network_retry.py" flutter build appbundle --release)
 rm -f "$MOBILE/android/key.properties"
 
 APK="$MOBILE/build/app/outputs/flutter-apk/app-release.apk"
