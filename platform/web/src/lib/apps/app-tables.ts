@@ -98,6 +98,8 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   // 106.10 A paid template's orders and each period a licence was paid for: the account's purchases, like its licences.
   studio_market_orders: "account",
   studio_market_licence_periods: "account",
+  // 106.12 A designer's discounts on their templates: the template's, never an app's.
+  studio_market_discounts: "account",
 
   apps: "app",
 
