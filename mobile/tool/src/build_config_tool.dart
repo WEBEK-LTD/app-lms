@@ -27,6 +27,7 @@ const _topLevelKeys = {
   'huawei',
   'analytics',
   'links',
+  'payments',
 };
 
 const _required = [
@@ -472,7 +473,48 @@ ValidationResult validateBuildConfig(Object? decoded) {
       }
     }
   }
+  // 188 The app's Stripe PaymentSheet: the owner's Apple Pay merchant ID.
+  final payments = c['payments'];
+  if (payments != null) {
+    if (payments is! Map<String, dynamic>) {
+      errors.add('"payments" must be an object.');
+    } else {
+      for (final key in payments.keys) {
+        if (key != 'apple_pay_merchant_id') {
+          errors.add('Unknown field "payments.$key".');
+        }
+      }
+      final merchant = _string(
+        payments,
+        'apple_pay_merchant_id',
+        errors,
+        prefix: 'payments.',
+      );
+      if (merchant != null && !isApplePayMerchantId(merchant)) {
+        errors.add(
+          '"payments.apple_pay_merchant_id" must be a merchant ID like '
+          '"merchant.com.shop.app".',
+        );
+      }
+    }
+  }
   return ValidationResult(errors);
+}
+
+/// 188 An Apple Pay merchant ID as Apple shows it (the same rule as the
+/// platform's lib/payments/owner-keys.ts and the build config's schema).
+bool isApplePayMerchantId(String value) =>
+    value.length <= 128 &&
+    RegExp(
+      r'^merchant\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?'
+      r'(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$',
+    ).hasMatch(value);
+
+/// 188 The Apple Pay merchant ID in the build config; null without one.
+String? applePayMerchantIdOf(Map<String, dynamic> c) {
+  final payments = c['payments'];
+  final id = payments is Map ? payments['apple_pay_merchant_id'] : null;
+  return id is String && isApplePayMerchantId(id) ? id : null;
 }
 
 const _linkKeys = {
@@ -699,6 +741,7 @@ const buildConfig = BuildConfigData(
   siteLinkBaseUrl: ${_dartString(_links(c)['site_base_url'])},
   crashReportUrl: ${_dartString(_links(c)['crash_report_url'])},
   sitePaths: [${sitePaths(c).map(_dartString).join(', ')}],
+  applePayMerchantId: ${_dartString(applePayMerchantIdOf(c))},
 );
 ''';
 }

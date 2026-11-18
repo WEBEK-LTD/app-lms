@@ -1776,6 +1776,8 @@ export interface OwnStripePayment {
   webhook?: PaymentWebhookReceipt | null;
   /** 155 The payment page's domain as registered for Apple Pay and Google Pay in this account (lib/payments/wallets.ts); missing: not tried yet. */
   wallets?: StripeWallets | null;
+  /** 188 The Apple Pay merchant ID (merchant.…) the iPhone app's Stripe PaymentSheet uses, built into the app; missing: no Apple Pay in the app. */
+  applePayMerchantId?: string | null;
 }
 
 /**

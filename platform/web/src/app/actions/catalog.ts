@@ -540,7 +540,7 @@ export async function savePaymentKeysAction(_: FormState, formData: FormData): P
   const { app } = context;
   const provider = str(formData, "provider") || "iyzico";
   const sandbox = formData.get("sandbox") === "on";
-  const values = { provider, merchantId: str(formData, "merchantId"), clientId: str(formData, "clientId"), publishableKey: str(formData, "publishableKey"), sandbox: sandbox ? "on" : "" };
+  const values = { provider, merchantId: str(formData, "merchantId"), clientId: str(formData, "clientId"), publishableKey: str(formData, "publishableKey"), applePayMerchantId: str(formData, "applePayMerchantId"), sandbox: sandbox ? "on" : "" };
   if (!isPaymentProvider(provider)) return { errors: { provider: "Choose your payment provider." }, values };
   const saved = ownPaymentInput(app, encryptionKey());
   const read = readOwnKeys(provider, (name) => String(formData.get(name) ?? ""), sandbox, saved);

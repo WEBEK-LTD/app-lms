@@ -557,3 +557,114 @@ export async function registerStripeWalletDomain(keys: StripeKeys, domain: strin
   }
   return { kind: "ok", value: known };
 }
+
+// 188 Stripe's PaymentSheet in the apps: a PaymentIntent the app's native sheet confirms (card, Apple Pay, Google Pay).
+
+export interface StripeIntentRequest {
+  /** Our reference ("order-<id>"): the PaymentIntent's metadata, read back before anything is marked paid. */
+  reference: string;
+  amountCents: number;
+  currency: string;
+  /** One line about what is paid, on the receipt and in Stripe's Dashboard. */
+  description: string;
+  customerEmail: string | null;
+  /** One PaymentIntent per order and payment: the same key answers with the same PaymentIntent (Stripe keeps a key 24 hours). */
+  idempotencyKey: string;
+}
+
+/** A PaymentIntent as Stripe has it (docs.stripe.com/api/payment_intents/object). */
+export interface StripeIntent {
+  id: string;
+  /** requires_payment_method, requires_confirmation, requires_action, processing, requires_capture, canceled or succeeded. */
+  status: string;
+  /** The secret the app's sheet confirms it with (never kept). */
+  clientSecret: string | null;
+  reference: string | null;
+  /** In cents, back from Stripe's units (amount_received once paid, else amount). */
+  amountCents: number | null;
+  currency: string | null;
+  livemode: boolean | null;
+}
+
+function intentOf(json: Record<string, unknown>): StripeIntent | null {
+  const id = text(json.id);
+  if (!id) return null;
+  const currency = text(json.currency)?.toUpperCase() ?? null;
+  const status = text(json.status) ?? "";
+  const amount = status === "succeeded" && typeof json.amount_received === "number" ? json.amount_received : json.amount;
+  return {
+    id,
+    status,
+    clientSecret: text(json.client_secret),
+    reference: text(record(json.metadata)?.reference),
+    amountCents: typeof amount === "number" && currency ? centsFromStripe(amount, currency) : null,
+    currency,
+    livemode: typeof json.livemode === "boolean" ? json.livemode : null,
+  };
+}
+
+/**
+ * 188 Creates the PaymentIntent the app's PaymentSheet pays (POST
+ * /v1/payment_intents): the order's amount and currency, our reference in
+ * its metadata, the payment methods the account has on (cards, Apple Pay and
+ * Google Pay among them) without redirects, which a native sheet can't
+ * follow back. Same checks as a Checkout Session: Stripe's units, its least
+ * amount.
+ */
+export async function createStripeIntent(keys: StripeKeys, request: StripeIntentRequest, options: Options = {}): Promise<StripeIntent> {
+  const amount = stripeAmount(request.amountCents, request.currency);
+  if (amount === null) throw new StripeError(`Stripe doesn't take this amount in ${request.currency.toUpperCase()}.`);
+  const least = stripeMinimumCents(request.currency);
+  if (least !== null && request.amountCents < least) throw new StripeError(`Stripe takes payments of at least ${(least / 100).toFixed(currencyDigits(request.currency))} ${request.currency.toUpperCase()}.`, { tooSmall: true });
+  const { status, json } = await call(
+    keys,
+    "POST",
+    "/v1/payment_intents",
+    {
+      amount,
+      currency: request.currency.toLowerCase(),
+      automatic_payment_methods: { enabled: true, allow_redirects: "never" },
+      description: request.description.slice(0, 500),
+      metadata: { reference: request.reference, source: "app_payment_sheet" },
+      ...(request.customerEmail ? { receipt_email: request.customerEmail } : {}),
+    },
+    { ...options, idempotencyKey: request.idempotencyKey },
+  );
+  const intent = json && status < 400 ? intentOf(json) : null;
+  if (!intent || !intent.clientSecret) {
+    const tooSmall = text(record(json?.error)?.code) === "amount_too_small";
+    throw new StripeError(errorOf(json, "Stripe couldn't start the payment."), { tooSmall });
+  }
+  return intent;
+}
+
+/** 188 A PaymentIntent read back (GET /v1/payment_intents/{id}); null when Stripe doesn't know it. */
+export async function getStripeIntent(keys: StripeKeys, id: string, options: Options = {}): Promise<StripeIntent | null> {
+  const { status, json } = await call(keys, "GET", `/v1/payment_intents/${encodeURIComponent(id)}`, undefined, options);
+  if (status === 404) return null;
+  if (status >= 400 || !json) throw new StripeError(errorOf(json, `Stripe answered HTTP ${status}.`));
+  return intentOf(json);
+}
+
+/**
+ * 188 Cancels a PaymentIntent no longer used (POST …/cancel), so it can't be
+ * paid as well as the payment that replaces it. Returns it as Stripe has it
+ * afterwards: a PaymentIntent already paid (or being paid) can't be
+ * cancelled, and comes back as it is.
+ */
+export async function cancelStripeIntent(keys: StripeKeys, id: string, options: Options = {}): Promise<StripeIntent | null> {
+  const { status, json } = await call(keys, "POST", `/v1/payment_intents/${encodeURIComponent(id)}/cancel`, { cancellation_reason: "abandoned" }, options);
+  if (status < 400 && json) return intentOf(json);
+  return getStripeIntent(keys, id, options);
+}
+
+/**
+ * 188 Expires an open Checkout Session (POST …/expire) before the app's sheet
+ * takes the payment, so the page's card form can't be paid as well. False
+ * when it couldn't be expired (paid or expired already, or unknown): the
+ * caller reads it back.
+ */
+export async function expireStripeSession(keys: StripeKeys, sessionId: string, options: Options = {}): Promise<boolean> {
+  const { status } = await call(keys, "POST", `/v1/checkout/sessions/${encodeURIComponent(sessionId)}/expire`, {}, options);
+  return status < 400;
+}

@@ -69,6 +69,10 @@
                 <data android:scheme="${yallappReturnScheme}" android:host="app" android:path="/pay-return" />
             </intent-filter>
         </activity>
+        <!-- 188 Google Pay in Stripe's PaymentSheet (flutter_stripe). -->
+        <meta-data
+            android:name="com.google.android.gms.wallet.api.enabled"
+            android:value="true" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

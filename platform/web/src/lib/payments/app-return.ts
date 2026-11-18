@@ -82,3 +82,8 @@ export function payStatusOf(order: Pick<CatalogOrder, "status" | "manualPayment"
 export function fromAppSheet(jar: { get(name: string): { value: string } | undefined }): boolean {
   return jar.get(APP_RETURN_COOKIE)?.value === "1";
 }
+
+/** 188 Whether reading the status first reads the payment back from Stripe: a pending order whose payment is a PaymentIntent (the app's PaymentSheet). */
+export function settlesOnStatus(order: Pick<CatalogOrder, "status" | "manualPayment" | "paymentProvider" | "providerRef">): boolean {
+  return order.status === "pending" && !order.manualPayment && order.paymentProvider === "stripe" && (order.providerRef?.startsWith("pi_") ?? false);
+}

@@ -12,7 +12,8 @@ import { verifyStripeSignature } from "./stripe";
  * Stripe Dashboard: one address per app, /api/pay/stripe/webhook/<app id>
  * (lib/payments/stripe-keys.ts). Its signature is checked on the raw body
  * with the endpoint's signing secret the owner saved (verifyStripeSignature),
- * and a paid Checkout Session settles its order or donation as Kashier's and
+ * and a paid Checkout Session (188 or the PaymentIntent the app's
+ * PaymentSheet paid) settles its order or donation as Kashier's and
  * Fawaterk's webhooks do: the event is only a trigger, the session is read
  * back from Stripe with the owner's key before anything is marked paid
  * (lib/payments/settle.ts), so a replay or a forged event changes nothing.
@@ -89,7 +90,7 @@ const record = (value: unknown): Record<string, unknown> | null =>
 const text = (value: unknown): string | null => (typeof value === "string" && value !== "" ? value : null);
 
 /** The events that settle a payment (lib/payments/stripe-keys.ts STRIPE_WEBHOOK_EVENTS). */
-const SETTLING = new Set(["checkout.session.completed", "checkout.session.async_payment_succeeded"]);
+const SETTLING = new Set(["checkout.session.completed", "checkout.session.async_payment_succeeded", "payment_intent.succeeded"]);
 
 /**
  * One webhook from Stripe for an app. 400 when its signature doesn't match
@@ -129,9 +130,10 @@ export async function handleStripeWebhook(deps: StripeWebhookDeps, appId: string
   // An event of the other mode (a test endpoint's secret with live keys): its session can't be read back with these keys.
   if (livemode !== null && livemode === payment.sandbox) return { status: 200, body: { received: true, ignored: "other_mode" } };
   if (!type || !SETTLING.has(type)) return { status: 200, body: { received: true } };
+  // 188 A Checkout Session, or the PaymentIntent the app's PaymentSheet paid (its reference in its metadata): either is read back.
   const session = record(record(event.data)?.object);
   const sessionId = text(session?.id);
-  const reference = text(session?.client_reference_id) ?? text(record(session?.metadata)?.reference);
+  const reference = (type.startsWith("payment_intent.") ? null : text(session?.client_reference_id)) ?? text(record(session?.metadata)?.reference);
   const match = reference ? /^(order|donation)-(\d{1,15})$/.exec(reference) : null;
   if (!sessionId || !match) return { status: 200, body: { received: true } };
   const id = Number(match[2]);

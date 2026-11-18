@@ -56,6 +56,9 @@ dependencies:
   share_plus: 13.3.0
   shared_preferences: 2.5.5
   url_launcher: 6.3.2
+  # 188 Stripe's native PaymentSheet (card, Apple Pay, Google Pay) for a
+  # Stripe payment on the payment page. 14.2.0: published 2026-10-14.
+  flutter_stripe: 14.2.0
   video_player: 2.14.0
   web: ^1.1.1
   webview_flutter: ^4.14.1

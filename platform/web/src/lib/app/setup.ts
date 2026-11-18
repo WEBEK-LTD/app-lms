@@ -1,3 +1,5 @@
+import { catalogSettings } from "../catalog/settings";
+import { validApplePayMerchantId } from "../payments/owner-keys";
 import { blocking, preflightChecks, type PreflightCheck, type PreflightDeps } from "../builds/preflight";
 import { newId } from "../crypto/tokens";
 import { BuildRunningError, type DataStore } from "../data/store";
@@ -212,6 +214,13 @@ export function readableOn(hex: string): string {
   return 0.2126 * r! + 0.7152 * g! + 0.0722 * b! > 0.45 ? "#14121F" : "#FFFFFF";
 }
 
+/** 188 The Apple Pay merchant ID saved with the app's own Stripe keys, when it's a valid one; null otherwise. */
+export function applePayMerchantOf(app: App): string | null {
+  const payment = catalogSettings(app).payment;
+  const id = payment?.provider === "stripe" ? (payment.applePayMerchantId ?? null) : null;
+  return id && validApplePayMerchantId(id) ? id : null;
+}
+
 /** Builds the config from the wizard data. Secrets are never part of it. */
 export function buildConfigFor(
   app: App,
@@ -235,6 +244,7 @@ export function buildConfigFor(
   const huawei = app.huaweiAgconnectAssetId ? { agconnect_config_url: assetUrl(app.huaweiAgconnectAssetId) } : null;
   const analytics = analyticsBuildConfig(app.id, appUrl(), signingSecret());
   const links = buildConfigLinks(app, appUrl());
+  const applePay = applePayMerchantOf(app);
   return {
     schema_version: 1,
     client_id: client.id,
@@ -260,6 +270,8 @@ export function buildConfigFor(
     ...(analytics ? { analytics } : {}),
     // 46 Links that open the app, and where crash reports go.
     ...(links ? { links } : {}),
+    // 188 Apple Pay in the app's Stripe PaymentSheet: the owner's merchant ID, when Stripe takes the app's payments.
+    ...(applePay ? { payments: { apple_pay_merchant_id: applePay } } : {}),
   };
 }
 
