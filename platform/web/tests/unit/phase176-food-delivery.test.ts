@@ -136,3 +136,26 @@ describe("176.1 a business's own food or delivery app: no demo restaurants, no d
     expect(shown).toEqual(expect.arrayContaining(["Tonight on the grill", "Kofta, shish tawook and lamb chops"]));
   });
 });
+
+describe("176.3 Sofra's address row without the customer's area", () => {
+  it("in a business's app, no \"Deliver to\" over a lone chevron: the search and the bell stay at the row's end", async () => {
+    const app = await business("food", "food_signature_a", null);
+    for (const lang of ["en", "ar", "tr"]) {
+      const home = await handleHosted(contextOf(app), { method: "GET", path: ["pages", "home"], query: new URLSearchParams({ platform: "android" }), body: undefined, token: null, headers: new Headers({ "accept-language": lang }) });
+      type Node = { type: string; text?: string; icon?: string; width?: unknown; action?: unknown; children?: Node[] };
+      const all = (n: Node): Node[] => [n, ...(n.children ?? []).flatMap(all)];
+      const nodes = all((home.body as { studio: { body: Node } }).studio.body);
+      expect(nodes.filter((n) => n.text === "Deliver to" || n.text === "التوصيل إلى" || n.text === "Teslimat adresi"), lang).toEqual([]);
+      expect(nodes.filter((n) => n.icon === "expand_more"), lang).toEqual([]);
+      const row = nodes.find((n) => n.type === "row" && (n.children ?? []).some((c) => all(c).some((x) => x.icon === "notifications")))!;
+      expect(row.children!.map((c) => (c.type === "spacer" ? `spacer ${String(c.width)}` : (all(c).find((x) => x.icon)?.icon ?? c.type)))).toEqual(["spacer fill", "search", "notifications"]);
+    }
+  });
+
+  it("Yallapp's demo app keeps its address: Home · Zamalek under \"Deliver to\"", async () => {
+    const kind = demoKind("food");
+    const demo: App = { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, section: "studio", backend: "hosted", appName: DEMO_BRANDS.food.appName, brandingDoneAt: NOW };
+    const layout = await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, demo, "banner-asset");
+    expect(texts(layout.pages.find((p) => p.slug === "home")!.studio)).toEqual(expect.arrayContaining(["Deliver to", "Home · Zamalek"]));
+  });
+});

@@ -197,6 +197,20 @@ describe("105.1 food delivery apps on the hosted API", () => {
     return signUp(phone, name);
   }
 
+  it("176.2 before the company sets its delivery prices, a restaurant's card shows no delivery fee (not E£0.00)", async () => {
+    await store.saveDeliverySettings(app.id, { ...SETTINGS, pricing: "fixed", fixedCents: 0, baseCents: 0, perKmCents: 0, minCents: 0 }, NOW);
+    for (const query of [{}, { lat: String(HOME.lat), lng: String(HOME.lng) }]) {
+      const list = (await call("GET", "/food/restaurants", { query })).body as { items: { delivery_fee_formatted: string | null }[] };
+      expect(list.items[0]!.delivery_fee_formatted).toBeNull();
+    }
+    const one = (await call("GET", "/food/restaurants/{restaurant_id}", { params: [String(abou)] })).body as { delivery_fee_formatted: string | null };
+    expect(one.delivery_fee_formatted).toBeNull();
+    // With a price, it shows.
+    await store.saveDeliverySettings(app.id, { ...SETTINGS, pricing: "fixed", fixedCents: 25_00 }, NOW);
+    const priced = (await call("GET", "/food/restaurants")).body as { items: { delivery_fee_formatted: string | null }[] };
+    expect(priced.items[0]!.delivery_fee_formatted).toBe("E£25.00");
+  });
+
   it("sends Config.food: currency, time zone, cuisines, payment, tracking, when courier jobs are made, the map", async () => {
     const config = (await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).body as Record<string, unknown>;
     expect(config.food).toEqual({
