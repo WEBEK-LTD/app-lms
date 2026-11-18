@@ -71,7 +71,19 @@ export function fakeStripe(options: { secretKey?: string; base?: string; account
   const sessions = new Map<string, StripeSession>();
   const refunds: URLSearchParams[] = [];
   const endpoints: StripeEndpoint[] = [];
-  const intents: { id: string; form: URLSearchParams; status: string }[] = [];
+  const intents: { id: string; form: URLSearchParams; status: string; key?: string }[] = [];
+  /** 188 A PaymentIntent as Stripe answers it: its client secret, amount, currency and metadata from what was posted. */
+  const intentView = (i: { id: string; form: URLSearchParams; status: string }) => ({
+    id: i.id,
+    object: "payment_intent",
+    status: i.status,
+    client_secret: `${i.id}_secret_fake`,
+    amount: Number(i.form.get("amount")),
+    amount_received: i.status === "succeeded" ? Number(i.form.get("amount")) : 0,
+    currency: i.form.get("currency") ?? "",
+    metadata: { reference: i.form.get("metadata[reference]") ?? undefined },
+    livemode: false,
+  });
   const domains: StripeDomain[] = [];
   const domainView = (d: StripeDomain) => ({ object: "payment_method_domain", ...d, link: { status: "active" }, paypal: { status: "active" } });
   const handle: Handler = (request) => {
@@ -110,16 +122,35 @@ export function fakeStripe(options: { secretKey?: string; base?: string; account
     if (path === "/v1/checkout/sessions" && request.method === "GET") return ok({ object: "list", data: [], has_more: false });
     if (path === "/v1/webhook_endpoints" && request.method === "GET") return ok({ object: "list", data: endpoints.map((e, i) => ({ id: `we_${i + 1}`, object: "webhook_endpoint", ...e })), has_more: false });
     if (path === "/v1/payment_intents" && request.method === "POST") {
-      const intent = { id: `pi_test_${intents.length + 1}fake`, form: new URLSearchParams(request.body), status: "requires_payment_method" };
+      // 188 Stripe's idempotency: the same key answers with the same PaymentIntent.
+      const key = request.headers["idempotency-key"];
+      const again = key ? intents.find((i) => i.key === key) : undefined;
+      if (again) return ok(intentView(again));
+      const intent = { id: `pi_test_${intents.length + 1}fake`, form: new URLSearchParams(request.body), status: "requires_payment_method", key };
       intents.push(intent);
-      return ok({ id: intent.id, object: "payment_intent", status: intent.status });
+      return ok(intentView(intent));
+    }
+    const readIntent = /^\/v1\/payment_intents\/([^/]+)$/.exec(path);
+    if (readIntent && request.method === "GET") {
+      const intent = intents.find((i) => i.id === decodeURIComponent(readIntent[1]!));
+      return intent ? ok(intentView(intent)) : notFound;
     }
     const cancel = /^\/v1\/payment_intents\/([^/]+)\/cancel$/.exec(path);
     if (cancel && request.method === "POST") {
       const intent = intents.find((i) => i.id === decodeURIComponent(cancel[1]!));
       if (!intent) return notFound;
+      // Stripe can't cancel a PaymentIntent that is paid or being paid.
+      if (intent.status === "succeeded" || intent.status === "processing") return { status: 400, json: { error: { code: "payment_intent_unexpected_state", message: `This PaymentIntent's status is ${intent.status}.` } } };
       intent.status = "canceled";
-      return ok({ id: intent.id, object: "payment_intent", status: "canceled" });
+      return ok(intentView(intent));
+    }
+    const expire = /^\/v1\/checkout\/sessions\/([^/]+)\/expire$/.exec(path);
+    if (expire && request.method === "POST") {
+      const session = sessions.get(decodeURIComponent(expire[1]!));
+      if (!session) return notFound;
+      if (session.status !== "open") return { status: 400, json: { error: { message: "Only Checkout Sessions with a status in [\"open\"] can be expired." } } };
+      session.status = "expired";
+      return ok({ id: session.id, object: "checkout.session", status: "expired" });
     }
     if (path === "/v1/checkout/sessions" && request.method === "POST") {
       const form = new URLSearchParams(request.body);
@@ -167,7 +198,11 @@ export function fakeStripe(options: { secretKey?: string; base?: string; account
     const session = sessions.get(id)!;
     Object.assign(session, { status: "complete", payment_status: "paid", payment_intent: `pi_${id.slice(-6)}`, ...extra });
   };
-  return { handle, fetcher: fetcherFor(handle, calls), calls, sessions, refunds, pay, endpoints, intents, domains };
+  /** 188 The app's sheet paid this PaymentIntent (or `status`: processing, …). */
+  const payIntent = (id: string, status = "succeeded") => {
+    intents.find((i) => i.id === id)!.status = status;
+  };
+  return { handle, fetcher: fetcherFor(handle, calls), calls, sessions, refunds, pay, payIntent, endpoints, intents, domains };
 }
 
 export interface PaypalOrder {

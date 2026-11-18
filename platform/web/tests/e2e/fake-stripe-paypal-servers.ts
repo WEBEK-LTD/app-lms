@@ -18,6 +18,9 @@ export interface FakeServer {
   sessions?: Map<string, { id: string; client_reference_id: string | null }>;
   /** 155 Stripe: the payment method domains registered (POST /v1/payment_method_domains), for Apple Pay and Google Pay. */
   domains?: StripeDomain[];
+  /** 188 Stripe: the PaymentIntents it made (the app's PaymentSheet), and paying one as the sheet would. */
+  intents?: { id: string; form: URLSearchParams; status: string }[];
+  payIntent?: (id: string, status?: string) => void;
 }
 
 function readBody(request: IncomingMessage): Promise<string> {
@@ -92,7 +95,7 @@ export async function startFakeStripe(port: number, options: { accountName?: str
     }
     return { html: page("Stripe Checkout", (session.amount_total / 100).toFixed(2), `/pay/${session.id}/done`) };
   });
-  return { ...served, endpoints: stripe.endpoints, sessions: stripe.sessions, domains: stripe.domains };
+  return { ...served, endpoints: stripe.endpoints, sessions: stripe.sessions, domains: stripe.domains, intents: stripe.intents, payIntent: stripe.payIntent };
 }
 
 export async function startFakePaypal(port: number): Promise<FakeServer> {

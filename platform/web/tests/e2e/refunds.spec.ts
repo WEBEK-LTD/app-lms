@@ -7,6 +7,13 @@ import { E2E } from "../../playwright.config";
 import { startFakeKashier, type FakeGateway } from "./fake-gateways";
 import { solidPng } from "./png";
 
+/** 175 A shop that has prices already chooses what a new currency does to them: here, keep the numbers. */
+async function keepPrices(p: Page) {
+  const keep = p.getByLabel("Keep the numbers as they are");
+  if (await keep.isVisible()) await keep.check();
+}
+
+
 /**
  * Roadmap 47: a shop with its own Kashier keys takes an order and refunds
  * it from the dashboard, first in part, then the rest: Kashier gets the
@@ -24,6 +31,9 @@ const suffix = Date.now().toString(36);
 const shop = { name: "Garden City Books", email: `garden-${suffix}@shop.test`, password: "garden-strong-password-1" };
 const site = { name: "Maadi Academy", email: `maadi-${suffix}@academy.test`, password: "maadi-strong-password-1" };
 const customer = `reader-${suffix}@example.com`;
+// 175 Cancel order on a paid order.
+const florist = { name: "Kech Flora Test", email: `kech-${suffix}@shop.test`, password: "kech-strong-password-1" };
+const guest = `guest-${suffix}@example.com`;
 let kashier: FakeGateway;
 let wordpress: Server;
 const refreshes: { body: { timestamp: number; signature: string } }[] = [];
@@ -110,6 +120,7 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   // 132.10 Products has its own pages: the shop's settings, payments and the products.
   await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
   await page.getByLabel("Currency", { exact: true }).selectOption("EGP");
+  await keepPrices(page);
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Shop settings saved.")).toBeVisible();
 
@@ -235,4 +246,96 @@ test("the team edits what a plan includes, and the WordPress site on it is asked
   await expect(form.getByText("Business: features and limits saved.")).toBeVisible();
   const signed = (r: (typeof refreshes)[number]) => r.body.signature === createHmac("sha256", key.toUpperCase()).update(`yallapp-license-refresh:${r.body.timestamp}`).digest("hex");
   await expect.poll(() => refreshes.slice(before).filter(signed).length, { timeout: 15_000 }).toBeGreaterThanOrEqual(1);
+});
+
+/**
+ * 175 Cancel order on a paid order asks first, and the owner chooses every
+ * time: Keep the order changes nothing; Cancel and refund refunds what's left
+ * through the order's gateway (Kashier here), the units go back in stock,
+ * the guest customer gets an email, and the order is no longer a paid one.
+ */
+test("cancelling a paid order asks first, then refunds through its gateway, restocks and tells the guest", async ({ page, request }) => {
+  await signUpAndActivate(page, florist, "+212 612 345 678");
+  await signIn(page, florist.email, florist.password);
+  await page.getByRole("link", { name: "Start from an empty app" }).click();
+  await page.getByText("Store", { exact: true }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByText("I don't have a website").click();
+  await page.getByRole("button", { name: "Save & continue" }).click();
+  await expect(page.getByRole("heading", { name: "Branding" })).toBeVisible();
+  await page.getByRole("link", { name: "Products", exact: true }).click();
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Settings/ }).click();
+  await page.getByLabel("Currency", { exact: true }).selectOption("EGP");
+  await keepPrices(page);
+  await page.getByRole("button", { name: "Save settings" }).click();
+  await page.getByRole("navigation", { name: "Products", exact: true }).getByRole("link", { name: /^Payments/ }).click();
+  const payments = page.getByRole("region", { name: "Card payments" });
+  await payments.getByRole("button", { name: "Connect", exact: true }).click();
+  await payments.locator('[data-gateway="kashier"]').click();
+  await payments.getByLabel("Merchant ID").fill("MID-7777-175");
+  await payments.getByLabel("Payment API key").fill("kech-kashier-api-key");
+  await payments.getByLabel("Secret key").fill("kech-kashier-secret");
+  await payments.getByText("Test mode keys").click();
+  await payments.getByRole("button", { name: "Save keys" }).click();
+  await expect(payments.getByText("Kashier keys saved.")).toBeVisible();
+
+  await page.getByRole("link", { name: "Products", exact: true }).click();
+  await page.getByRole("link", { name: "Add product" }).click();
+  await page.getByLabel("Name", { exact: true }).fill("Atlas Roses");
+  await page.getByLabel("Price (EGP)", { exact: true }).fill("450");
+  await page.getByLabel("Stock", { exact: true }).fill("2");
+  await page.locator('input[name="images"]').setInputFiles({ name: "roses.png", mimeType: "image/png", buffer: solidPng(64, 64, [200, 60, 90]) });
+  await page.getByRole("button", { name: "Add product" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Atlas Roses”.");
+  await page.getByRole("button", { name: /^Atlas Roses/ }).click();
+  await page.getByRole("link", { name: "Edit product" }).click();
+  const link = (await page.getByRole("link", { name: /\/shop\// }).textContent())!;
+  const api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(link)![1]}`;
+
+  const products = await (await request.get(`${api}/store/products`)).json();
+  const checkout = await request.post(`${api}/store/checkout-link?platform=android`, { data: { lines: [{ product_id: products.items[0].id, quantity: 2 }] } });
+  const { url } = (await checkout.json()) as { url: string };
+  await page.goto(url);
+  await page.getByLabel("Full name").fill("Yasmine Alaoui");
+  await page.getByLabel("Mobile number").fill("+20 100 222 3175");
+  await page.getByLabel("Email").fill(guest);
+  await page.getByLabel("City").fill("Cairo");
+  await page.getByLabel("Address").fill("12 Road 9, Maadi");
+  await page.getByRole("button", { name: "Pay E£900.00" }).click();
+  await page.frameLocator("iframe[data-kashier-embedded]").getByRole("button", { name: "Pay with test card" }).click();
+  await expect(page).toHaveURL(/\/pay\/[\w-]+\/order-received$/);
+  // Both sold: out of stock.
+  expect((await (await request.get(`${api}/store/products`)).json()).items[0].stock_status).toBe("out_of_stock");
+
+  await signIn(page, florist.email, florist.password);
+  await page.goto("/dashboard/orders");
+  const order = page.getByRole("listitem").filter({ hasText: "Yasmine Alaoui" });
+  await order.getByRole("button", { name: /^Order \d+/ }).click();
+  const refundsBefore = kashier.refunds.length;
+  // Asked first: keeping it changes nothing.
+  await order.getByRole("button", { name: "Cancel order" }).click();
+  const ask = page.getByRole("dialog", { name: /^Cancel order \d+\?$/ });
+  await expect(ask).toBeVisible();
+  await expect(ask).toContainText("Choose what happens to the payment.");
+  await expect(ask.getByRole("button", { name: "Cancel without refund" })).toBeVisible();
+  await expect(ask).toContainText("Refunded now through the order's payment gateway.");
+  await ask.getByRole("button", { name: "Keep the order" }).click();
+  await expect(ask).toBeHidden();
+  expect(kashier.refunds.length).toBe(refundsBefore);
+
+  // Cancel and refund.
+  await order.getByRole("button", { name: "Cancel order" }).click();
+  await ask.getByRole("button", { name: "Cancel and refund E£900.00" }).click();
+  await expect.poll(() => kashier.refunds.length).toBe(refundsBefore + 1);
+  expect((kashier.refunds.at(-1)!.body.transaction as Record<string, unknown>).amount).toBe(900);
+  await page.reload();
+  const cancelled = page.getByRole("listitem").filter({ hasText: "Yasmine Alaoui" });
+  await expect(cancelled).toContainText("Cancelled");
+  // The units back in stock.
+  expect((await (await request.get(`${api}/store/products`)).json()).items[0].stock_status).toBe("in_stock");
+  // The guest is told: the cancel and the refund.
+  await expect.poll(async () => (await mailsTo(guest)).map((m) => m.text).join("\n")).toContain("Your order was cancelled.");
+  await expect.poll(async () => (await mailsTo(guest)).some((m) => / refunded E£900\.00 /.test(m.subject))).toBe(true);
+  // No longer a paid order.
+  await expect(page.locator(".kit-tile").filter({ hasText: "Paid orders" }).locator(".kit-tile-v")).toHaveText("0");
 });

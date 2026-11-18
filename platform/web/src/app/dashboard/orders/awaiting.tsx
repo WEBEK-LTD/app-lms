@@ -39,7 +39,7 @@ export async function AwaitingPayment({ app }: { app: App }) {
         {items.map((order) => {
           const payment = order.manualPayment!;
           const due = new Date(payment.dueAt);
-          const title = t("orders.orderTitle", { number: orderNumber(order), total: formatCents(order.totalCents, order.currency) });
+          const title = t("orders.orderTitle", { number: orderNumber(order), total: formatCents(order.totalCents, order.currency, lang) });
           const line = t("orders.awaitingLine", {
             method: payment.method === "bank_transfer" ? t("orders.bankTransfer") : payment.name,
             placed: formatDateTime(order.updatedAt, lang),

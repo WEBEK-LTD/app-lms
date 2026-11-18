@@ -424,7 +424,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get cancelOrderText =>
-      'سيتم إبلاغ العميل. يُسترد أي مبلغ مدفوع بشكل منفصل.';
+      'سيتم إبلاغ العميل، وتعود المنتجات إلى المخزون.';
 
   @override
   String orderUpdated(String number, String status) {
@@ -3993,6 +3993,40 @@ class AppLocalizationsAr extends AppLocalizations {
   String bouquetMessage(String message) {
     return 'رسالة البطاقة: $message';
   }
+
+  @override
+  String get cancelPaidText =>
+      'سيتم إبلاغ العميل، وتعود المنتجات إلى المخزون. اختر ما يحدث للمبلغ المدفوع.';
+
+  @override
+  String cancelAndRefund(String amount) {
+    return 'إلغاء واسترداد $amount';
+  }
+
+  @override
+  String get cancelRefundNow =>
+      'يُسترد المبلغ الآن عبر بوابة الدفع الخاصة بالطلب، ويُبلَّغ العميل.';
+
+  @override
+  String get cancelRefundYourself =>
+      'لا يمكن استرداد هذا المبلغ تلقائيًا: سيظهر الطلب «يحتاج إلى استرداد» إلى أن تعيده بنفسك.';
+
+  @override
+  String get cancelRefundEither =>
+      'يُسترد عبر بوابة الدفع الخاصة بالطلب متى أمكن؛ وإلا فسيظهر الطلب «يحتاج إلى استرداد» إلى أن تعيده بنفسك.';
+
+  @override
+  String get cancelWithoutRefund => 'إلغاء دون استرداد';
+
+  @override
+  String get cancelWithoutRefundHint =>
+      'يبقى المبلغ لديك، ويمكنك استرداده لاحقًا.';
+
+  @override
+  String get keepOrder => 'الإبقاء على الطلب';
+
+  @override
+  String get signedNoName => 'موقّعة، دون ذكر اسم';
 
   @override
   String minutesAgo(int count) {

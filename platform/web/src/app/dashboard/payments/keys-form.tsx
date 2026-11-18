@@ -358,6 +358,21 @@ export function PaymentKeysForm({ provider, sandbox, merchantId = "", clientId =
             error={state.errors?.publishableKey}
           />
         ) : null}
+        {stripe ? (
+          // 188 Apple Pay in the iPhone app's Stripe sheet: the merchant ID goes into the next build.
+          <Field
+            key="apple-pay-merchant-stripe"
+            label={t("gateways.applePayMerchantId")}
+            name="applePayMerchantId"
+            dir="ltr"
+            autoComplete="off"
+            spellCheck={false}
+            placeholder="merchant.com.yourshop.app"
+            defaultValue={state.values?.applePayMerchantId ?? mine?.applePayMerchantId ?? ""}
+            hint={t("gateways.applePayMerchantHint")}
+            error={state.errors?.applePayMerchantId}
+          />
+        ) : null}
         {!stripe && choice !== "paypal" ? (
           <Field
             key={`api-${choice}`}

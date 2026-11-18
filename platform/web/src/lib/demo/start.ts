@@ -1,6 +1,7 @@
 import "server-only";
 import { ENGINES } from "../app/kinds";
 import { ownContentSetup } from "../app/own-content";
+import { DEMO_TEMPLATE_MONEY, startingCatalogSettings } from "../app/country-defaults";
 import { newApp } from "../app/setup";
 import { startFromDemoDesign } from "../bot/create";
 import type { DataStore } from "../data/store";
@@ -135,7 +136,8 @@ export async function makeFromDemo(store: DataStore, maker: DemoMaker, input: De
     ...named,
     siteUrl: null,
     backend: "hosted",
-    ...ownContentSetup(ENGINES[kind.engine].ownContent.kind, named),
+    // 175 In the owner's country's currency and time zone, else the demo's.
+    ...ownContentSetup(ENGINES[kind.engine].ownContent.kind, named, startingCatalogSettings(await store.getClientById(maker.clientId), DEMO_TEMPLATE_MONEY)),
     websiteDoneAt: now,
     hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...(named.hostedSettings ?? {}), firstSteps: steps },
   };

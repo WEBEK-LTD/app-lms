@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api/models.dart';
 import '../../core/providers.dart';
 import '../../core/session.dart';
+import '../../core/theme/icons.dart';
+import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 
@@ -60,7 +62,8 @@ String orderTone(Order order) =>
     : order.status;
 
 /// Moves the order on (asking first before cancelling); null when it
-/// didn't change.
+/// didn't change. 175 Cancelling a paid order asks the owner, every time,
+/// to cancel and refund it or to cancel without a refund.
 Future<Order?> changeOrderStatus(
   BuildContext context,
   WidgetRef ref,
@@ -68,20 +71,32 @@ Future<Order?> changeOrderStatus(
   String status,
 ) async {
   final l10n = context.l10n;
+  bool? refund;
   if (status == 'cancelled') {
-    final ok = await confirm(
-      context,
-      title: l10n.cancelOrderTitle(order.label),
-      text: l10n.cancelOrderText,
-      action: orderActionLabel(context, order, status),
-      destructive: true,
-    );
-    if (!ok) return null;
+    final amount = order.cancelRefund;
+    if (amount != null) {
+      refund = await askCancelRefund(context, order, amount);
+      if (refund == null) return null;
+    } else {
+      final ok = await confirm(
+        context,
+        title: l10n.cancelOrderTitle(order.label),
+        text: l10n.cancelOrderText,
+        action: orderActionLabel(context, order, status),
+        destructive: true,
+      );
+      if (!ok) return null;
+    }
   }
   try {
     final updated = await ref
         .read(apiProvider)
-        .changeOrderStatus(ref.read(appIdProvider), order.id, status);
+        .changeOrderStatus(
+          ref.read(appIdProvider),
+          order.id,
+          status,
+          refund: refund,
+        );
     if (context.mounted) {
       showMessage(
         context,
@@ -93,6 +108,70 @@ Future<Order?> changeOrderStatus(
     if (context.mounted) showError(context, e);
     return null;
   }
+}
+
+/// 175 Cancel order on a paid order: "Cancel and refund {amount}" (true),
+/// "Cancel without refund" (false), or keep the order (null). Each choice
+/// says what happens: refunded now through the order's payment gateway,
+/// or, when it can't go back by itself, the order needs the owner's refund.
+Future<bool?> askCancelRefund(BuildContext context, Order order, Money amount) {
+  final l10n = context.l10n;
+  final byApi = order.refund?.byApi;
+  final refundHint = switch (byApi) {
+    true => l10n.cancelRefundNow,
+    false => l10n.cancelRefundYourself,
+    null => l10n.cancelRefundEither,
+  };
+  return showDialog<bool>(
+    context: context,
+    builder: (context) {
+      final hint = TextStyle(color: context.yb.muted, fontSize: 13);
+      return AlertDialog(
+        title: Text(l10n.cancelOrderTitle(order.label)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.cancelPaidText),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                key: const ValueKey('cancel-refund'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(64, 48),
+                  backgroundColor: context.yb.danger,
+                  foregroundColor: context.yb.onDanger,
+                ),
+                icon: const Icon(AppIcons.refund),
+                onPressed: () => Navigator.pop(context, true),
+                label: Text(l10n.cancelAndRefund(amount.formatted)),
+              ),
+              const SizedBox(height: 6),
+              Text(refundHint, style: hint),
+              const SizedBox(height: 14),
+              OutlinedButton(
+                key: const ValueKey('cancel-no-refund'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(64, 48),
+                ),
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(l10n.cancelWithoutRefund),
+              ),
+              const SizedBox(height: 6),
+              Text(l10n.cancelWithoutRefundHint, style: hint),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            key: const ValueKey('cancel-keep'),
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.keepOrder),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 /// The next-status buttons: the step forward filled, cancelling outlined.

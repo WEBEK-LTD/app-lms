@@ -1,7 +1,7 @@
 import { roundToCurrency } from "../money/currencies";
 import { recordAudit } from "../admin/audit";
 import { undoOrderPoints } from "../catalog/loyalty";
-import { formatCents } from "../catalog/money";
+import { formatCents, latinDigits } from "../catalog/money";
 import { accountForOrder, orderNumber } from "../catalog/settings";
 import type { DataStore } from "../data/store";
 import type { App, CatalogOrder, Donation, PaymentProviderId, PaymentRefund } from "../data/types";
@@ -108,7 +108,8 @@ function readableDate(date: Date): string {
 
 /** An amount like "150" or "150.50" in cents; null when it isn't one. */
 export function parseRefundAmount(value: string): number | null {
-  const text = value.trim().replace(",", ".");
+  // 175 Typed on an Arabic keyboard too ("٢٠٠٫٥٠").
+  const text = latinDigits(value).trim().replace(",", ".");
   if (!/^\d{1,9}(\.\d{1,2})?$/.test(text)) return null;
   const cents = Math.round(Number(text) * 100);
   return cents > 0 ? cents : null;

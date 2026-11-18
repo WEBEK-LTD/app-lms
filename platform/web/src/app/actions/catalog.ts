@@ -4,18 +4,21 @@ import { decideReturn } from "@/lib/catalog/returns";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
-import { recordOrderStatus, recordRefund } from "@/lib/team/activity";
+import { recordOrderStatus, recordRefund, recordTeamActivity } from "@/lib/team/activity";
 import type { TeamPermission } from "@/lib/team/permissions";
 import { getBlobStore } from "@/lib/blobs";
 import { parseCoupon } from "@/lib/catalog/coupons";
 import { parseFulfilmentForm } from "@/lib/catalog/fulfilment";
 import { changeOrderStatus, inKitchen } from "@/lib/catalog/order-status";
 import { parseStageInput, setOrderStage } from "@/lib/catalog/order-stages";
-import { markStageRefunded, refundAfterFailedDelivery, type StageRefundDeps } from "@/lib/catalog/stage-refunds";
+import { markStageRefunded, type StageRefundDeps } from "@/lib/catalog/stage-refunds";
+import { cancelNeedsChoice, cancelOrder, readRefundChoice } from "@/lib/catalog/cancel";
+import { duplicateCategory, readCategoryNames } from "@/lib/catalog/category-names";
+import type { GuestMailer } from "@/lib/hosted/auto-notifications";
 import { headers } from "next/headers";
 import { ipFromHeaders } from "@/lib/http";
 import { parseShipment, shipOrder, shippable } from "@/lib/catalog/shipping";
-import { sendTemplate } from "@/lib/email/send";
+import { sendAppMail, sendTemplate } from "@/lib/email/send";
 import { CATALOG_CURRENCIES, formatCents, parsePrice } from "@/lib/catalog/money";
 import { isCurrencyCode } from "@/lib/money/currencies";
 import { LOYALTY_LIMITS } from "@/lib/catalog/loyalty";
@@ -29,7 +32,9 @@ import { newId } from "@/lib/crypto/tokens";
 import { imageType } from "@/lib/images";
 import { chosenPictures } from "@/lib/media/pictures";
 import { getStore } from "@/lib/data";
-import type { App, CatalogCurrency, CatalogProductInput, CatalogTax, OwnPayment } from "@/lib/data/types";
+import type { App, CatalogCurrency, CatalogProductInput, CatalogSettings, CatalogTax, OwnPayment } from "@/lib/data/types";
+import { conversionOf, convertShopRecords, currencyChangeLine, settingsAt, shopHasPrices } from "@/lib/catalog/currency-change";
+import { currentRates } from "@/lib/money/rates";
 import { appUrl, encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { missingKeysReport, testConnection, type PaymentTestState } from "@/lib/payments/connection";
@@ -101,20 +106,28 @@ function refresh() {
 export async function addCategoryAction(_: FormState, formData: FormData): Promise<FormState> {
   const { app } = await requireCatalogApp();
   const name = str(formData, "name");
-  if (!name) return { errors: { name: "Enter a name." } };
-  if (name.length > 80) return { errors: { name: "Use at most 80 characters." }, values: { name } };
+  const values = { name, name_ar: str(formData, "name_ar"), name_tr: str(formData, "name_tr") };
+  if (!name) return { errors: { name: "Enter a name." }, values };
+  if (name.length > 80) return { errors: { name: "Use at most 80 characters." }, values };
   const store = await getStore();
-  if ((await store.listCatalogCategories(app.id)).length >= 50) return { message: "You can have up to 50 categories." };
-  await store.createCatalogCategory({ appId: app.id, name, now: new Date() });
+  const categories = await store.listCatalogCategories(app.id);
+  if (categories.length >= 50) return { message: "You can have up to 50 categories.", values };
+  // 175 Two categories of one name read as one in the app.
+  if (duplicateCategory(categories, name)) return { errors: { name: "You already have a category with this name. Choose another, or use that one." }, values };
+  await store.createCatalogCategory({ appId: app.id, name, now: new Date(), names: readCategoryNames((f) => str(formData, f)) });
   refresh();
   return { ok: true, message: `Added “${name}”.` };
 }
 
+/** Renames a category, and 175 its Arabic and Turkish names; a name another category has is left as it was (the list warns). */
 export async function renameCategoryAction(formData: FormData): Promise<void> {
   const { app } = await requireCatalogApp();
   const name = str(formData, "name").slice(0, 80);
   const id = Number(formData.get("id"));
-  if (name && Number.isSafeInteger(id)) await (await getStore()).renameCatalogCategory(app.id, id, name);
+  if (!Number.isSafeInteger(id)) return refresh();
+  const store = await getStore();
+  if (name && !duplicateCategory(await store.listCatalogCategories(app.id), name, id)) await store.renameCatalogCategory(app.id, id, name);
+  if (formData.has("name_ar") || formData.has("name_tr")) await store.setCatalogCategoryNames(app.id, id, readCategoryNames((f) => str(formData, f)));
   refresh();
 }
 
@@ -312,8 +325,12 @@ export async function setProductFeaturedAction(_: FormState, formData: FormData)
 // Shop settings
 
 export async function saveShopSettingsAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { app } = await requireCatalogApp();
+  const context = await requireCatalogApp();
+  const { app } = context;
+  const store = await getStore();
+  const before = catalogSettings(app);
   const values = {
+    prices: str(formData, "prices"),
     currency: str(formData, "currency"),
     shipping: str(formData, "shipping"),
     freeOver: str(formData, "freeOver"),
@@ -324,10 +341,21 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
   };
   const errors: Record<string, string> = {};
   if (!CATALOG_CURRENCIES.includes(values.currency as CatalogCurrency)) errors.currency = "Choose a currency.";
-  // 135.2 In the currency chosen, with its digits (1.250 KWD, ¥1250).
-  const shipping = values.shipping ? parsePrice(values.shipping, values.currency) : 0;
+  // 175 A new currency: the owner chooses to convert every price at the day's rate, or to keep the numbers.
+  const changing = !errors.currency && values.currency !== before.currency;
+  let conversion: ReturnType<typeof conversionOf> = null;
+  // Nothing priced yet (a new shop): nothing to convert, nothing to ask.
+  const priced = changing && (await shopHasPrices(store, app, before));
+  if (priced && values.prices !== "convert" && values.prices !== "keep") errors.prices = "Choose what happens to your prices.";
+  if (priced && values.prices === "convert") {
+    conversion = conversionOf(await currentRates(store), before.currency, values.currency);
+    if (!conversion) errors.prices = "There's no rate between these currencies today. Keep the numbers, or try again tomorrow.";
+  }
+  // 135.2 In the currency chosen, with its digits (1.250 KWD, ¥1250); 175 converted: the amounts typed are still in the old one.
+  const typedIn = conversion ? before.currency : values.currency;
+  const shipping = values.shipping ? parsePrice(values.shipping, typedIn) : 0;
   if (shipping === null) errors.shipping = "Enter an amount, or leave it empty for free shipping.";
-  const freeOver = values.freeOver ? parsePrice(values.freeOver, values.currency) : null;
+  const freeOver = values.freeOver ? parsePrice(values.freeOver, typedIn) : null;
   if (values.freeOver && freeOver === null) errors.freeOver = "Enter an amount, or leave it empty.";
   // 91.3 Returns asked for in the app: days after an order is completed; empty for none.
   const returnDays = values.returnDays.trim() === "" ? null : Number(values.returnDays.trim());
@@ -344,24 +372,26 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
   }
   if (Object.keys(errors).length > 0) return { errors, values };
   const now = new Date();
-  const settings = catalogSettings(app);
-  await (await getStore()).updateApp(
-    app.id,
-    {
-      catalogSettings: {
-        ...settings,
-        currency: values.currency as CatalogCurrency,
-        shippingCents: shipping!,
-        freeShippingOverCents: freeOver,
-        // 26 A restaurant's form has no shipping fields, nor returns: kept as they were.
-        ...(formData.has("returnDays") ? { returnDays } : {}),
-        ...(formData.has("taxRate") ? { tax } : {}),
-      },
-    },
-    now,
-  );
+  const saved: CatalogSettings = {
+    ...before,
+    shippingCents: shipping!,
+    freeShippingOverCents: freeOver,
+    // 26 A restaurant's form has no shipping fields, nor returns: kept as they were.
+    ...(formData.has("returnDays") ? { returnDays } : {}),
+    ...(formData.has("taxRate") ? { tax } : {}),
+  };
+  // 175 Converted: the settings' amounts with the new currency, then the products, coupons and flash sales.
+  const next = conversion ? settingsAt(saved, conversion.rate, values.currency) : saved;
+  await store.updateApp(app.id, { catalogSettings: { ...next, currency: values.currency as CatalogCurrency } }, now);
+  if (conversion) await convertShopRecords(store, app, conversion.rate, values.currency, now);
+  if (changing) {
+    const line = currencyChangeLine(before.currency, values.currency, conversion);
+    await recordTeamActivity(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), action: "shop.currency", target: { type: "app", id: app.id }, summary: line }, now);
+    await recordStaffChange(context, line);
+  }
   refresh();
-  return { ok: true, message: "Shop settings saved.", values };
+  const message = !priced ? "Shop settings saved." : conversion ? "Shop settings saved. Your prices were converted." : "Shop settings saved. Your prices kept their numbers: check them.";
+  return { ok: true, message, values: { ...values, prices: "" } };
 }
 
 /**
@@ -510,7 +540,7 @@ export async function savePaymentKeysAction(_: FormState, formData: FormData): P
   const { app } = context;
   const provider = str(formData, "provider") || "iyzico";
   const sandbox = formData.get("sandbox") === "on";
-  const values = { provider, merchantId: str(formData, "merchantId"), clientId: str(formData, "clientId"), publishableKey: str(formData, "publishableKey"), sandbox: sandbox ? "on" : "" };
+  const values = { provider, merchantId: str(formData, "merchantId"), clientId: str(formData, "clientId"), publishableKey: str(formData, "publishableKey"), applePayMerchantId: str(formData, "applePayMerchantId"), sandbox: sandbox ? "on" : "" };
   if (!isPaymentProvider(provider)) return { errors: { provider: "Choose your payment provider." }, values };
   const saved = ownPaymentInput(app, encryptionKey());
   const read = readOwnKeys(provider, (name) => String(formData.get(name) ?? ""), sandbox, saved);
@@ -621,16 +651,23 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
   const status = String(formData.get("status"));
   const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
   const now = new Date();
-  if (order && !inKitchen(order) && (await changeOrderStatus({ store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: null }, order, status))) {
-    // 60 Who moved it, on the Team page.
-    await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: awaitingManualPayment(order) && status === "processing" ? "paid" : status }, now);
-    // 132 Cancelled after a failed delivery: the money goes back (or the order needs the owner's refund).
-    if (status === "cancelled") {
-      const cancelled = await store.getCatalogOrder(app.id, order.id);
-      if (cancelled) await refundAfterFailedDelivery(await stageRefundDepsOf(context, app), cancelled);
-    }
-  }
+  if (!order || inKitchen(order)) return refresh();
+  const deps = { store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: serviceAccountOf(app, encryptionKey()), guestMail: guestMailer(store) };
+  let moved: boolean;
+  if (status === "cancelled") {
+    // 175 A paid order is cancelled only with the owner's choice (the confirmation's two buttons): refunded, or not.
+    const refund = readRefundChoice(formData.get("refund"));
+    if (cancelNeedsChoice(order) && refund === null) return refresh();
+    moved = (await cancelOrder(deps, await stageRefundDepsOf(context, app), order, refund ?? false)).moved;
+  } else moved = await changeOrderStatus(deps, order, status);
+  // 60 Who moved it, on the Team page.
+  if (moved) await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: awaitingManualPayment(order) && status === "processing" ? "paid" : status }, now);
   refresh();
+}
+
+/** 175 A guest customer's order emails, in the app's name. */
+function guestMailer(store: Awaited<ReturnType<typeof getStore>>): GuestMailer {
+  return (mailApp, to, mail) => sendAppMail(store, mailApp, { to, ...mail });
 }
 
 /**
@@ -705,7 +742,7 @@ export async function setOrderStageAction(_: FormState, formData: FormData): Pro
   const now = new Date();
   const user = actorOf(context);
   const done = await setOrderStage(
-    { store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: serviceAccountOf(app, encryptionKey()) },
+    { store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: serviceAccountOf(app, encryptionKey()), guestMail: guestMailer(store) },
     order,
     parsed.input,
     { userId: user.id, name: user.name?.trim() || user.email, via: "dashboard" },

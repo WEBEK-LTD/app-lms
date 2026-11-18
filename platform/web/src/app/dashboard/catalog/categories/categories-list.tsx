@@ -7,10 +7,13 @@ import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { useDashT } from "@/components/dashboard-i18n";
 import { SortableList, SortControls } from "@/components/manage-kit-client";
+import { sameCategoryName } from "@/lib/catalog/category-names";
 
 export interface CategoryRow {
   id: number;
   name: string;
+  /** 175 Its Arabic and Turkish names; null: none. */
+  names?: Record<string, string> | null;
   count: number;
   image: string | null;
 }
@@ -56,15 +59,35 @@ export function CategoriesList({ categories, restaurant }: { categories: Categor
                 <Icon name={restaurant ? "restaurant_menu" : "category"} size={22} />
               </span>
             )}
-            <form action={renameCategoryAction} className="flex min-w-0 flex-[1_1_220px] items-center gap-2">
+            <form action={renameCategoryAction} className="flex min-w-0 flex-[1_1_220px] flex-col gap-1.5">
               <input type="hidden" name="id" value={c.id} />
-              <label htmlFor={`cat-${c.id}`} className="sr-only">
-                {t("shop.categoryName")}
-              </label>
-              <input key={c.name} id={`cat-${c.id}`} name="name" defaultValue={c.name} maxLength={80} required className="input input-sm min-w-0 flex-1 font-semibold" />
-              <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                {t("shop.rename")}
-              </SubmitButton>
+              <span className="flex min-w-0 items-center gap-2">
+                <label htmlFor={`cat-${c.id}`} className="sr-only">
+                  {t("shop.categoryName")}
+                </label>
+                <input key={c.name} id={`cat-${c.id}`} name="name" defaultValue={c.name} maxLength={80} required className="input input-sm min-w-0 flex-1 font-semibold" />
+                <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                  {t("shop.rename")}
+                </SubmitButton>
+              </span>
+              {/* 175 Two categories of one name read as one in the app. */}
+              {categories.some((o) => o.id !== c.id && sameCategoryName(o.name, c.name)) ? (
+                <span className="flex items-center gap-1.5 text-[13px] font-semibold text-warn" data-category-duplicate="">
+                  <Icon name="warning" size={16} />
+                  {t("shop.categoryDuplicate")}
+                </span>
+              ) : null}
+              {/* 175 Its names in the app's other languages, served to customers in theirs. */}
+              <details className="group text-[13px]" open={Boolean(c.names?.ar || c.names?.tr)}>
+                <summary className="inline-flex cursor-pointer list-none items-center gap-1 font-semibold text-muted hover:text-midnight [&::-webkit-details-marker]:hidden">
+                  <Icon name="translate" size={16} />
+                  {t("shop.categoryOtherNames")}
+                </summary>
+                <span className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
+                  <input name="name_ar" dir="rtl" lang="ar" defaultValue={c.names?.ar ?? ""} maxLength={80} aria-label={t("shop.categoryNameAr")} placeholder={t("shop.categoryNameAr")} className="input input-sm min-w-0" />
+                  <input name="name_tr" lang="tr" defaultValue={c.names?.tr ?? ""} maxLength={80} aria-label={t("shop.categoryNameTr")} placeholder={t("shop.categoryNameTr")} className="input input-sm min-w-0" />
+                </span>
+              </details>
             </form>
             <Link href={`/dashboard/catalog?category=${c.id}`} className="flex h-9 shrink-0 items-center gap-1 rounded-lg px-2.5 text-sm font-semibold text-midnight no-underline hover:bg-sand hover:text-midnight">
               <span className="tabular-nums">{t("shop.count", { kind, count: c.count })}</span>

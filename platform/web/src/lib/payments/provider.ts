@@ -4,7 +4,7 @@ import { createFawaterkInvoice, getFawaterkInvoice, checkFawaterkKeys, type Fawa
 import { checkIyzicoKeys, initializeCheckoutForm, retrieveCheckoutForm, type IyzicoKeys } from "./iyzico";
 import { checkKashierKeys, createKashierSession, getKashierSessionPayment, type KashierKeys } from "./kashier";
 import { checkPaypalKeys, confirmPaypalOrder, createPaypalOrder, PAYPAL_CURRENCIES, type PaypalKeys } from "./paypal";
-import { checkStripeKeys, createStripeSession, getStripeSession, STRIPE_CURRENCIES, type StripeKeys } from "./stripe";
+import { checkStripeKeys, createStripeSession, getStripeIntent, getStripeSession, STRIPE_CURRENCIES, type StripeKeys } from "./stripe";
 
 /**
  * 37 One interface for the card payment providers: iyzico (Turkey), Kashier
@@ -306,6 +306,13 @@ export async function confirmCheckout(account: PaymentAccount, expected: Expecte
   }
   if (account.provider === "stripe") {
     if (!expected.providerRef) return { paid: false, reason: "unpaid" };
+    // 188 The app's PaymentSheet: a PaymentIntent of ours, paid in full in this currency.
+    if (expected.providerRef.startsWith("pi_")) {
+      const intent = await getStripeIntent(account.keys, expected.providerRef, { fetcher: options.fetcher, baseUrl: options.urls?.stripe });
+      if (!intent || intent.status !== "succeeded") return { paid: false, reason: "unpaid" };
+      if (intent.reference !== expected.reference || intent.amountCents !== expected.amountCents || intent.currency !== expected.currency) return { paid: false, reason: "mismatch" };
+      return { paid: true, paymentId: intent.id.slice(0, 64), transactionIds: [] };
+    }
     const session = await getStripeSession(account.keys, expected.providerRef, { fetcher: options.fetcher, baseUrl: options.urls?.stripe });
     if (!session.paid) return { paid: false, reason: "unpaid" };
     if (session.reference !== expected.reference || session.amountCents !== expected.amountCents || session.currency !== expected.currency) return { paid: false, reason: "mismatch" };

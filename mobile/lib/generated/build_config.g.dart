@@ -34,4 +34,5 @@ const buildConfig = BuildConfigData(
   siteLinkBaseUrl: null,
   crashReportUrl: null,
   sitePaths: [],
+  applePayMerchantId: null,
 );

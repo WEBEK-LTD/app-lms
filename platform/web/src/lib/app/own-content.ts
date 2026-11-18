@@ -1,12 +1,17 @@
 import type { AppPatch } from "../data/store";
-import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, DEFAULT_COURSE_SETUP, type App } from "../data/types";
+import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, DEFAULT_COURSE_SETUP, type App, type CatalogSettings } from "../data/types";
 import type { OwnContentKind } from "./kinds";
 
-/** 20 The connector and starting settings of content managed in the dashboard. */
-export function ownContentSetup(kind: OwnContentKind, app: App): AppPatch {
+/**
+ * 20 The connector and starting settings of content managed in the dashboard;
+ * 175 `starting`: a new shop's catalog settings from its owner's country
+ * (lib/app/country-defaults.ts), used only when the app has none saved.
+ */
+export function ownContentSetup(kind: OwnContentKind, app: App, starting?: CatalogSettings): AppPatch {
+  const catalog = app.catalogSettings ?? starting ?? DEFAULT_CATALOG_SETTINGS;
   switch (kind) {
     case "courses":
-      return { connector: { kind }, courseSetup: app.courseSetup ?? DEFAULT_COURSE_SETUP, catalogSettings: app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS };
+      return { connector: { kind }, courseSetup: app.courseSetup ?? DEFAULT_COURSE_SETUP, catalogSettings: catalog };
     case "bookings":
       return { connector: { kind }, bookingSetup: app.bookingSetup ?? DEFAULT_BOOKING_SETUP };
     case "catalog":
@@ -24,7 +29,7 @@ export function ownContentSetup(kind: OwnContentKind, app: App): AppPatch {
     case "school":
     // 126 And a travel company's bookings paid now.
     case "travel":
-      return { connector: { kind }, catalogSettings: app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS };
+      return { connector: { kind }, catalogSettings: catalog };
     case "listings":
     case "articles":
       return { connector: { kind } };

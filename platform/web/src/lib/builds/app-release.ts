@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 10;
+export const CLIENT_APP_RELEASE = 11;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -97,6 +97,12 @@ export const CLIENT_APP_RELEASE = 10;
  *    whole row (Leqaa's "Collections" heading and its "Shop all"); and
  *    163.13 Build your bouquet checked at 130% and 150% text (a test; the
  *    app's fix is 163.2's).
+ * 11 188 Stripe's PaymentSheet in the app: the payment page stays in the
+ *    app's web view (186), and a Stripe payment there is taken by Stripe's
+ *    native bottom sheet, with the card, Google Pay on Android and Apple
+ *    Pay on iPhone (with the owner's Apple Pay merchant ID); the app reads
+ *    `/pay/<token>/status` before it opens the order. 170's browser sheet
+ *    is dormant. The preview keeps Stripe's form in the page.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */

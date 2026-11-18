@@ -1,6 +1,7 @@
 import type { DataStore } from "../data/store";
 import type { App, CatalogOrder, CatalogOrderStatus, FulfilmentStatus } from "../data/types";
 import type { sendPush, ServiceAccount } from "../hosted/push";
+import type { GuestMailer } from "../hosted/auto-notifications";
 import type { ProviderUrls } from "../payments/provider";
 import { notifyOrderUpdate } from "../hosted/auto-notifications";
 import { canMoveTo, nextStep } from "./fulfilment";
@@ -48,6 +49,8 @@ export interface OrderMoveDeps {
   /** The app's push account, to tell a restaurant's customer (null: the inbox only). */
   account: ServiceAccount | null;
   send?: typeof sendPush;
+  /** 175 Emails a guest customer what a signed-in one is told in the app; without it, guests aren't emailed. */
+  guestMail?: GuestMailer;
 }
 
 /**
@@ -73,11 +76,15 @@ export async function changeOrderStatus(
   if (inKitchen(order)) {
     moved = (await moveOrder({ store, app, order, to: status as FulfilmentStatus, account: deps.account, now, send: deps.send })).moved;
   } else if (NEXT_STATUSES[order.status]?.includes(status as CatalogOrderStatus)) {
-    await store.updateCatalogOrder(app.id, order.id, { status: status as CatalogOrderStatus, updatedAt: now });
-    moved = true;
-    // 91.2 The customer hears of it (a restaurant's kitchen tells its own steps).
+    // 175 Cancelling puts its units back in stock, once (the store checks it was still in progress).
+    if (status === "cancelled") moved = await store.cancelCatalogOrder(app.id, order.id, now);
+    else {
+      await store.updateCatalogOrder(app.id, order.id, { status: status as CatalogOrderStatus, updatedAt: now });
+      moved = true;
+    }
+    // 91.2 The customer hears of it (a restaurant's kitchen tells its own steps); 175 a guest by email.
     try {
-      if (opts.notice !== false) await notifyOrderUpdate({ store, key: deps.key, now, send: deps.send }, app, order, opts.notice ?? (status as "completed" | "cancelled"));
+      if (moved && opts.notice !== false) await notifyOrderUpdate({ store, key: deps.key, now, send: deps.send, guestMail: deps.guestMail }, app, order, opts.notice ?? (status as "completed" | "cancelled"));
     } catch (e) {
       console.error(`[orders] the order update failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 400));
     }

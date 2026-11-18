@@ -1776,6 +1776,8 @@ export interface OwnStripePayment {
   webhook?: PaymentWebhookReceipt | null;
   /** 155 The payment page's domain as registered for Apple Pay and Google Pay in this account (lib/payments/wallets.ts); missing: not tried yet. */
   wallets?: StripeWallets | null;
+  /** 188 The Apple Pay merchant ID (merchant.…) the iPhone app's Stripe PaymentSheet uses, built into the app; missing: no Apple Pay in the app. */
+  applePayMerchantId?: string | null;
 }
 
 /**
@@ -1872,6 +1874,8 @@ export interface CatalogCategory {
   /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
   sample?: boolean;
   createdAt: Date;
+  /** 175 Its name in the app's other languages ("ar", "tr"); null or missing: `name` in every language. */
+  names?: LangText | null;
 }
 
 export interface CatalogProduct {

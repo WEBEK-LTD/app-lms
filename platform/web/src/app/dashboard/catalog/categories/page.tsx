@@ -31,7 +31,7 @@ export default async function CatalogCategoriesPage() {
   const rows: CategoryRow[] = categories.map((c) => {
     const inIt = products.filter((p) => p.categoryIds.includes(c.id));
     const pictured = inIt.find((p) => p.imageAssetIds.length > 0);
-    return { id: c.id, name: c.name, count: inIt.length, image: pictured ? assetUrl(pictured.imageAssetIds[0]!) : null };
+    return { id: c.id, name: c.name, names: c.names ?? null, count: inIt.length, image: pictured ? assetUrl(pictured.imageAssetIds[0]!) : null };
   });
   const without = products.filter((p) => p.categoryIds.length === 0).length;
   return (

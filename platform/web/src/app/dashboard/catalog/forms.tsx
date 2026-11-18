@@ -22,7 +22,7 @@ import { KitWayRow, KitWaySwitch } from "@/components/studio-page/way-row";
 import { FormActions, FormSection } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
 import { MediaImagesPicker } from "@/components/media-picker";
-import { useDashLang, useDashT } from "@/components/dashboard-i18n";
+import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { formatDate } from "@/i18n/format";
 import { richText } from "@/i18n/rich";
 
@@ -714,6 +714,11 @@ export function AddCategoryForm() {
           {t("common.add")}
         </SubmitButton>
       </div>
+      {/* 175 Its names in the app's other languages (optional), served to customers in theirs. */}
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Field label={t("shop.categoryNameAr")} name="name_ar" dir="rtl" maxLength={80} defaultValue={state.ok ? "" : state.values?.name_ar} small />
+        <Field label={t("shop.categoryNameTr")} name="name_tr" maxLength={80} defaultValue={state.ok ? "" : state.values?.name_tr} small />
+      </div>
     </form>
   );
 }
@@ -835,8 +840,14 @@ export function ShopSettingsForm({
   tax = { label: "", rate: "", included: true },
   shippingFields = true,
   gateway = null,
+  conversions = {},
+  priced = true,
 }: {
   currency: string;
+  /** 175 Whether the shop has any amount yet: without one, a new currency needs no choice. */
+  priced?: boolean;
+  /** 175 The day's rate from the shop's currency to each one that has a rate ("1 TRY = 0.2700 MAD"). */
+  conversions?: Record<string, string>;
   shipping: string;
   freeOver: string;
   /** 91.3 Days after completion a return can be asked for; empty: none. */
@@ -852,11 +863,46 @@ export function ShopSettingsForm({
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveShopSettingsAction, initialFormState);
+  const known = useKnownText();
+  const [chosen, setChosen] = useState(state.values?.currency ?? currency);
+  // 175 Saved, the new currency is the shop's: nothing more to choose.
+  const saved = state.ok ? (state.values?.currency ?? currency) : currency;
+  const changing = priced && chosen !== saved;
+  const rate = conversions[chosen];
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />
       {/* 135.3 Any currency: searched by name, code or sign, the usual ones first. */}
-      <CurrencyPicker id="f-currency" label={t("shop.currency")} defaultValue={state.values?.currency ?? currency} error={state.errors?.currency} gateway={gateway} />
+      <CurrencyPicker id="f-currency" label={t("shop.currency")} defaultValue={state.values?.currency ?? currency} onChange={setChosen} error={state.errors?.currency} gateway={gateway} />
+      {/* 175 A new currency: convert every price at the day's rate, or keep the numbers. */}
+      {changing ? (
+        <fieldset className="m-0 flex flex-col gap-2.5 rounded-xl border border-line p-4" aria-describedby={state.errors?.prices ? "f-prices-error" : undefined} data-currency-change>
+          <legend className="px-1 text-sm font-semibold">{t("shop.pricesTitle", { from: saved, to: chosen })}</legend>
+          {rate ? (
+            <label className="flex cursor-pointer items-start gap-2.5 text-[15px]">
+              <input type="radio" name="prices" value="convert" defaultChecked={state.values?.prices === "convert"} className="mt-1 h-4 w-4 shrink-0 accent-ember" />
+              <span className="flex flex-col gap-0.5">
+                <span className="font-semibold">{t("shop.pricesConvert", { rate })}</span>
+                <span className="text-sm text-muted">{t("shop.pricesConvertHint", { currency: chosen })}</span>
+              </span>
+            </label>
+          ) : (
+            <p className="m-0 text-sm text-muted">{t("shop.pricesNoRate", { from: saved, to: chosen })}</p>
+          )}
+          <label className="flex cursor-pointer items-start gap-2.5 text-[15px]">
+            <input type="radio" name="prices" value="keep" defaultChecked={state.values?.prices === "keep"} className="mt-1 h-4 w-4 shrink-0 accent-ember" />
+            <span className="flex flex-col gap-0.5">
+              <span className="font-semibold">{t("shop.pricesKeep")}</span>
+              <span className="text-sm text-muted">{t("shop.pricesKeepHint")}</span>
+            </span>
+          </label>
+          {state.errors?.prices ? (
+            <p id="f-prices-error" className="m-0 text-sm font-semibold text-danger" role="alert">
+              {known(state.errors.prices)}
+            </p>
+          ) : null}
+        </fieldset>
+      ) : null}
       {shippingFields ? (
         <>
           <Field
