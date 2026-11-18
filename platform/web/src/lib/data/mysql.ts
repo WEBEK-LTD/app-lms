@@ -16,6 +16,11 @@ import type {
   TemplateOrder,
   TemplateOrderPatch,
   TemplateOrderStatus,
+  DesignerLedgerEntry,
+  DesignerPayout,
+  DesignerPayoutDetails,
+  DesignerPayoutStatus,
+  PayoutDetailsStatus,
 } from "./types";
 import { and, asc, count, desc, eq, getTableColumns, getTableName, gt, gte, inArray, is, isNotNull, isNull, like, lt, lte, ne, not, or, sql, type SQL } from "drizzle-orm";
 import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
@@ -11168,6 +11173,172 @@ export class MysqlStore implements DataStore {
     const t = schema.studioMarketApplications;
     const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.id, id), isNull(t.endedAt))));
     return result.affectedRows > 0;
+  }
+
+  // ——— 106.11 The designer's money ———
+
+  private ledgerRow(row: typeof schema.studioMarketLedger.$inferSelect): DesignerLedgerEntry {
+    return { ...row, kind: row.kind === "renew" ? "renew" : "buy", plan: row.plan as DesignerLedgerEntry["plan"] };
+  }
+
+  async recordDesignerSale(entry: DesignerLedgerEntry): Promise<boolean> {
+    try {
+      await this.run((db) => db.insert(schema.studioMarketLedger).values(entry));
+      return true;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return false;
+      throw error;
+    }
+  }
+
+  async listDesignerLedger(filter: { designerId?: string }): Promise<DesignerLedgerEntry[]> {
+    const t = schema.studioMarketLedger;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(filter.designerId ? eq(t.designerId, filter.designerId) : undefined)
+        .orderBy(desc(t.earnedAt), desc(t.id)),
+    );
+    return rows.map((r) => this.ledgerRow(r));
+  }
+
+  async designerEarnings(before?: Date): Promise<Record<string, { cents: number; sales: number }>> {
+    const t = schema.studioMarketLedger;
+    // SUM of a bigint comes back as a DECIMAL (a string): read as a whole number of cents.
+    const rows = await this.run((db) =>
+      db
+        .select({ designerId: t.designerId, cents: sql<string>`coalesce(sum(${t.designerCents}), 0)`, sales: count() })
+        .from(t)
+        .where(before ? lt(t.earnedAt, before) : undefined)
+        .groupBy(t.designerId),
+    );
+    return Object.fromEntries(rows.map((r) => [r.designerId, { cents: Number(r.cents), sales: Number(r.sales) }]));
+  }
+
+  private payoutDetailsRow(row: typeof schema.studioMarketPayoutDetails.$inferSelect): DesignerPayoutDetails {
+    return {
+      ...row,
+      idType: row.idType === "national_id" ? "national_id" : "passport",
+      accountKind: row.accountKind === "number" ? "number" : "iban",
+      status: row.status === "approved" ? "approved" : row.status === "changes_requested" ? "changes_requested" : "submitted",
+    };
+  }
+
+  async getDesignerPayoutDetails(designerId: string): Promise<DesignerPayoutDetails | null> {
+    const t = schema.studioMarketPayoutDetails;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.designerId, designerId)).limit(1));
+    return row ? this.payoutDetailsRow(row) : null;
+  }
+
+  async saveDesignerPayoutDetails(details: DesignerPayoutDetails): Promise<void> {
+    const { designerId: _designerId, createdAt: _createdAt, ...changes } = details;
+    void _designerId;
+    void _createdAt;
+    await this.run((db) => db.insert(schema.studioMarketPayoutDetails).values(details).onDuplicateKeyUpdate({ set: changes }));
+  }
+
+  async reviewDesignerPayoutDetails(designerId: string, submittedAt: Date, patch: Pick<DesignerPayoutDetails, "status" | "reviewNote" | "reviewedAt" | "reviewedBy">): Promise<boolean> {
+    const t = schema.studioMarketPayoutDetails;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ ...patch, reviewNote: patch.reviewNote?.slice(0, 1000) ?? null, ...(patch.reviewedAt ? { updatedAt: patch.reviewedAt } : {}) })
+        .where(and(eq(t.designerId, designerId), eq(t.status, "submitted"), eq(t.submittedAt, submittedAt))),
+    );
+    return result.affectedRows > 0;
+  }
+
+  async listDesignerPayoutDetails(statuses?: readonly PayoutDetailsStatus[]): Promise<DesignerPayoutDetails[]> {
+    if (statuses && !statuses.length) return [];
+    const t = schema.studioMarketPayoutDetails;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(statuses ? inArray(t.status, [...statuses]) : undefined)
+        .orderBy(asc(t.submittedAt), asc(t.designerId)),
+    );
+    return rows.map((r) => this.payoutDetailsRow(r));
+  }
+
+  private payoutRow({ monthSlot: _slot, ...row }: typeof schema.studioMarketPayouts.$inferSelect): DesignerPayout {
+    void _slot;
+    return {
+      ...row,
+      status: row.status === "sent" ? "sent" : row.status === "cancelled" ? "cancelled" : "processing",
+      currency: "USD",
+      accountKind: row.accountKind === "number" ? "number" : "iban",
+    };
+  }
+
+  async createDesignerPayout(payout: DesignerPayout, check: { before: Date; expectedCents: number }): Promise<"created" | "exists" | "changed"> {
+    try {
+      return await this.run((db) =>
+        db.transaction(async (tx) => {
+          // Locks the designer's row: two payouts (or a payout and a cancel) for one designer are made one after the other.
+          await tx.select({ id: schema.studioMarketDesigners.id }).from(schema.studioMarketDesigners).where(eq(schema.studioMarketDesigners.id, payout.designerId)).for("update");
+          const p = schema.studioMarketPayouts;
+          const l = schema.studioMarketLedger;
+          const [taken] = await tx
+            .select({ n: count() })
+            .from(p)
+            .where(and(eq(p.designerId, payout.designerId), eq(p.period, payout.period), ne(p.status, "cancelled")));
+          if (Number(taken?.n ?? 0) > 0) return "exists" as const;
+          // The run's sales only: those paid before its cut-off.
+          const [earned] = await tx
+            .select({ cents: sql<string>`coalesce(sum(${l.designerCents}), 0)` })
+            .from(l)
+            .where(and(eq(l.designerId, payout.designerId), lt(l.earnedAt, check.before)));
+          const [paid] = await tx
+            .select({ cents: sql<string>`coalesce(sum(${p.amountCents}), 0)` })
+            .from(p)
+            .where(and(eq(p.designerId, payout.designerId), ne(p.status, "cancelled")));
+          if (Number(earned?.cents ?? 0) - Number(paid?.cents ?? 0) !== check.expectedCents) return "changed" as const;
+          await tx.insert(p).values({ ...payout, monthSlot: `${payout.designerId}|${payout.period}` });
+          return "created" as const;
+        }),
+      );
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return "exists";
+      throw error;
+    }
+  }
+
+  async getDesignerPayout(id: string): Promise<DesignerPayout | null> {
+    const t = schema.studioMarketPayouts;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.id, id)).limit(1));
+    return row ? this.payoutRow(row) : null;
+  }
+
+  async listDesignerPayouts(filter: { designerId?: string; period?: string; statuses?: readonly DesignerPayoutStatus[] }): Promise<DesignerPayout[]> {
+    if (filter.statuses && !filter.statuses.length) return [];
+    const t = schema.studioMarketPayouts;
+    const where = and(
+      filter.designerId ? eq(t.designerId, filter.designerId) : undefined,
+      filter.period ? eq(t.period, filter.period) : undefined,
+      filter.statuses ? inArray(t.status, [...filter.statuses]) : undefined,
+    );
+    const rows = await this.run((db) => db.select().from(t).where(where).orderBy(desc(t.preparedAt), desc(t.id)));
+    return rows.map((r) => this.payoutRow(r));
+  }
+
+  async markDesignerPayoutSent(id: string, patch: Pick<DesignerPayout, "bankReference" | "sentOn" | "sentAt" | "sentBy">): Promise<boolean> {
+    const t = schema.studioMarketPayouts;
+    const [result] = await this.run((db) => db.update(t).set({ ...patch, status: "sent" }).where(and(eq(t.id, id), eq(t.status, "processing"))));
+    return result.affectedRows > 0;
+  }
+
+  async cancelDesignerPayout(id: string, patch: Pick<DesignerPayout, "cancelledAt" | "cancelledBy" | "cancelNote">): Promise<boolean> {
+    const t = schema.studioMarketPayouts;
+    // The month is free again (`month_slot` null): a new payout can be prepared once the details are put right.
+    const [result] = await this.run((db) => db.update(t).set({ ...patch, status: "cancelled", monthSlot: null }).where(and(eq(t.id, id), eq(t.status, "processing"))));
+    return result.affectedRows > 0;
+  }
+
+  async markDesignerPayoutEmailed(id: string, at: Date): Promise<void> {
+    const t = schema.studioMarketPayouts;
+    await this.run((db) => db.update(t).set({ emailedAt: at }).where(eq(t.id, id)));
   }
 }
 

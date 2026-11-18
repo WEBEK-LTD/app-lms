@@ -461,7 +461,8 @@ function parseAction(ctx: Context, where: string, value: unknown, required: bool
       const source = item?.source;
       const id = typeof item?.id === "string" ? item.id.trim() : "";
       if (!oneOf(ctx.sources, source)) c.fail(where, "this app can't show that kind of entry.");
-      if (!/^[A-Za-z0-9_.:-]{1,64}$/.test(id)) c.fail(where, "enter the entry's ID.");
+      // 152 A store's product not chosen yet opens the shop (the app, and hosted GET /pages, send it there).
+      else if (!(source === "products" && id === "") && !/^[A-Za-z0-9_.:-]{1,64}$/.test(id)) c.fail(where, "enter the entry's ID.");
       return { type: "item", item: { source: source as ItemSource, id } };
     }
     case "url": {

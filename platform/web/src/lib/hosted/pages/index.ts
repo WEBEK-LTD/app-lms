@@ -1,4 +1,4 @@
-import { mapTreeAsync } from "../../studio/tree";
+import { allNodes, mapTreeAsync } from "../../studio/tree";
 import { showsShopCategories, withShopCategoriesIn, type ShopCategories } from "../../studio/shop-categories";
 import { ENGINES, isAppType } from "../../app/kinds";
 import type { App, HostedUser } from "../../data/types";
@@ -8,7 +8,7 @@ import { etagValues } from "../../pages/plugin";
 import { itemSourcesFor, sameScreenAs } from "../../pages/sources";
 import { moreTab, splitTabs } from "../../pages/tab-bar";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
-import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type Translations, type StudioPage } from "../../pages/types";
+import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, type Action, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type Translations, type StudioPage } from "../../pages/types";
 import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
@@ -82,13 +82,17 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
  */
 async function servedStudio(pc: PageContext, studio: StudioPage): Promise<StudioPage> {
   const def = pc.layout.languages.default;
+  // 152 The products the elements open that the shop no longer has.
+  const gone = await goneProducts(pc, studio);
   // 157 A template's lists of the shop's categories follow them, read from the layout's own words before any translation.
   const listed = await withCategoryLists(pc, studio.body);
   const body = await mapTreeAsync(listed, async (node) => {
     // 107.2 A hidden element stays in the editor only.
     if (node.hidden) return null;
-    const { query, translations: _t, ...own } = translated(node, pc.lang, def);
+    const { query, translations: _t, ...texts } = translated(node, pc.lang, def);
     void _t;
+    // 152 A tap linked to one of the shop's products: the product, else the shop.
+    const own = texts.action ? { ...texts, action: linkedProduct(pc, texts.action, gone) } : texts;
     // 129.11–129.20 A premium element's entries, each in the language asked for.
     const shown = own.entries ? { ...own, entries: own.entries.map((entry) => translated(entry, pc.lang, def)) } : own;
     // 129 The premium elements' entries (stories, photos) in the language asked for too.
@@ -146,6 +150,49 @@ async function shopCategoriesOf(pc: PageContext): Promise<ShopCategories | null>
   const { app, store, connector } = pc.ctx;
   if (!connector || !servable(app, connector, "products")) return null;
   return readShopCategories(app, store, connector, { platform: pc.platform, now: pc.ctx.now, lang: pc.lang, user: pc.user });
+}
+
+/** 152 A product's ID in the app API: a positive whole number. */
+const PRODUCT_ID = /^[1-9]\d{0,11}$/;
+/** 152 What a tap linked to no product, or to one the shop no longer has, opens: the shop, as the templates' sizes and buttons do. */
+const SHOP: Action = { type: "screen", screen: "search" };
+/** 152 At most this many of a page's linked products are looked up (each one connector read, in parallel). */
+const LINKED_PRODUCTS_CHECKED = 12;
+
+/** 152 The product a tap opens ("" for none chosen yet), or undefined when it opens something else. */
+function productLink(action: Action | null | undefined): string | undefined {
+  return action?.type === "item" && action.item?.source === "products" ? action.item.id.trim() : undefined;
+}
+
+/**
+ * 152 Of the products a Studio page's elements open (a flower shop's
+ * bouquet sizes and "Choose this bouquet"), those the shop no longer has:
+ * its connector answers 404 for them, as the app's product page would. A
+ * read that fails keeps the link (the app sends a product it can't find to
+ * the shop too).
+ */
+async function goneProducts(pc: PageContext, studio: StudioPage): Promise<Set<string>> {
+  const connector = pc.ctx.connector;
+  if (!connector || !itemSourcesFor(pc.ctx.app).includes("products")) return new Set();
+  const ids = [...new Set(allNodes(studio).map((n) => (n.hidden ? undefined : productLink(n.action))))].filter((id): id is string => id !== undefined && PRODUCT_ID.test(id)).slice(0, LINKED_PRODUCTS_CHECKED);
+  const answers = await Promise.all(
+    ids.map(async (id) => {
+      try {
+        const result = await connector.handle({ method: "GET", path: ["store", "products", id], query: new URLSearchParams({ platform: pc.platform }), body: undefined, user: pc.user, now: pc.ctx.now, lang: pc.lang });
+        return result?.status === 404 ? id : null;
+      } catch {
+        return null;
+      }
+    }),
+  );
+  return new Set(answers.filter((id): id is string => id !== null));
+}
+
+/** 152 A tap as the app gets it: one linked to no product, or to one the shop no longer has, opens the shop. */
+function linkedProduct(pc: PageContext, action: Action, gone: ReadonlySet<string>): Action {
+  const id = productLink(action);
+  if (id === undefined || !itemSourcesFor(pc.ctx.app).includes("products")) return action;
+  return PRODUCT_ID.test(id) && !gone.has(id) ? action : SHOP;
 }
 
 /** 131 A store route of the app's connector (`GET /store/flash-sales`, `/store/products`, `/store/coupons`), or null. */

@@ -23,9 +23,59 @@ serving time, so apps already made from the template have it with no
 change to their pages. The shop's list leaves the demo's categories out
 once the owner has one (a renamed demo category is theirs); the pages'
 version follows the categories, so an open app asks for its pages again;
-Studio's canvas draws the lists as the app does. `CLIENT_APP_RELEASE` 7:
+Studio's canvas draws the lists as the app does. `CLIENT_APP_RELEASE` 8:
 the app opens the category (an older app the whole shop) and asks for the
 shop's chips again when it comes back on screen.
+
+Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
+payout of the 1st covers the sales paid up to the end of the month before,
+cut off at midnight Istanbul time; a sale paid on the 1st or later waits for
+the next 1st. Earnings says "Next payout · 1 December" with the sales it
+includes and what counts toward the 1st after; Admin › Studio Market ›
+Payouts shows that month's run from the 1st and prepares only the balance
+before the cut-off; the daily job alerts the team on the 1st (Admin ›
+Watching, emailed once). The privacy policy (en/ar/tr) and the designer
+terms say what's kept for payouts and when it's paid (the owner's approved
+text).
+
+Roadmap 106.11 (Studio Market, the designer's money): each paid template
+sale is written once in the designer's ledger with its split (the sale,
+Yallapp's 25%, their exact 75%, in whole cents). The designer area's
+Earnings shows the balance available, pending and paid out, each sale's
+split and the payouts with their receipts (a page and a PDF, in the
+designer's language). Before the first payout (not before publishing) the
+designer sends their ID with a photo of it and their bank for SWIFT; the ID
+number and the account are encrypted with the platform's key and shown
+masked except to the new `market.payouts` permission (owners and admins).
+Admin › Studio Market › Payout checks approves them or asks for a fix;
+Payouts lists the month's due (USD 250 or more, checks approved, monthly;
+below that the balance carries over), prepares the bank file (CSV), and
+records each transfer the team sends from Yallapp's bank with Mark as sent
+(the designer emailed a receipt). Nothing is sent by the platform.
+Migration `0142_studio_market_money`; the first real payout is to be
+checked by hand (LAUNCH-CHECKLIST, Phase 106.11).
+
+The plugin's end-to-end job (WordPress + Tutor LMS) no longer loses a check
+about a minute into its run (main #449 and #450, PR #454): the dev site runs
+no WP-Cron of its own (`DISABLE_WP_CRON`). WP-CLI took WordPress's cron lock
+while building the site; 60 seconds later the next request started
+wp-cron.php in the built-in server's only worker, with WordPress's update
+checks to api.wordpress.org (30 seconds each in cron, then again over plain
+HTTP), and the check waiting behind it timed out after 60 seconds. The suite
+now takes about a minute, so slower runners crossed that point. The checks
+call the cron jobs they test themselves, and the job shows the PHP log when
+it fails. Test only: the plugin stays 0.4.50.
+
+Roadmap 152 (Our bouquet's chips and button open the product the owner
+links): in Leqaa's looks and the apps made from them (Kech Flora), the
+bouquet's size chips and "Choose this bouquet" open the shop until the
+owner links each to one of their products in Studio ("When the customer
+taps": A product, from the app's own products, with the hint that without
+one it opens the shop). A linked one opens its product; one with no product
+chosen, or whose product the shop no longer has, opens the shop: hosted
+`GET /pages` sends both as the shop, so apps already in the stores follow
+it, and the app does the same from `CLIENT_APP_RELEASE` 7 (WooCommerce
+stores' pages too). Not yet tried on a phone (ROADMAP 152.7).
 
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
@@ -681,6 +731,14 @@ Billing and the App Store's in-app purchase) is complete (steps 100.1 to
 | 100.5 | App: Google Play Billing and StoreKit, restore, manage subscription | dart format, flutter analyze, flutter test |
 | 100.6 | Sales in Analytics and the Owner API, the guide, the terms | unit, e2e (analytics, owner API, public pages) |
 | 100.7 | Apps on their own API, Teachable and Thinkific schools | unit, MariaDB store suites, e2e of the dashboard |
+
+Roadmap 154 (the pricing page in its Day and night look): /pricing in the
+design the owner chose, the app by day and Studio by night: a night hero
+with the two products and their fanned phones, the period picker floating
+over its edge with each period's saving, compact cards with the rest
+folded, Studio's plans on a night band, every kind of app each product
+makes, a few questions and a closing band in the night. Only the plans for
+sale show, with their prices from Admin › Plans.
 
 ## To verify against real services before release
 

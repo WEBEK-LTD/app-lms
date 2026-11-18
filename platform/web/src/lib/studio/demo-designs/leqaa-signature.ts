@@ -770,9 +770,12 @@ function leqaaPages(k: SignatureInk, family: string, look: "a" | "b") {
 /**
  * The signature bouquet as the look draws a product's page: its photos as a
  * gallery, the sizes to choose from, the add-ons, when it arrives (the
- * delivery days) and the card (a preview of the words), and the button
- * that opens the shop's own product. The prices, sizes and add-ons a
- * person pays for are the product's own options in the shop.
+ * delivery days) and the card (a preview of the words), and "Choose this
+ * bouquet". The prices, sizes and add-ons a person pays for are the
+ * product's own options in the shop. 152 The size chips and the button open
+ * the shop until the owner links each to one of their products in Studio
+ * ("When the customer taps": A product); a linked one opens that product,
+ * and one whose product is gone opens the shop again.
  */
 function bouquetPage(ctx: SectionContext, k: SignatureInk, family: string, look: "a" | "b"): StudioPage {
   const id = idOf(ctx);

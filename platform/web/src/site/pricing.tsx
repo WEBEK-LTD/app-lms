@@ -2,15 +2,16 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import "./pricing.css";
 import { JsonLdScript } from "@/components/json-ld";
-import { analyticsEventsKeepText, analyticsKeepText, currencyNote, periodUnitFor, PlanCards, storageText } from "@/components/plan-cards";
-import { StoreName } from "@/components/brand-marks";
+import { analyticsEventsKeepText, analyticsKeepText, currencyNote, periodUnitFor, storageText } from "@/components/plan-cards";
+import { StoreName, WhatsAppMark } from "@/components/brand-marks";
 import { PhoneFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
-import { CheckList, MarketingPage, MoreLink, Section, SectionTitle } from "@/components/marketing";
+import { CheckList, MarketingPage, MoreLink } from "@/components/marketing";
 import { getSiteContent } from "@/lib/content/get";
-import { StudioDifferences, studioPlanChoices, StudioPlans } from "@/components/studio-marketing";
+import { studioPlanChoices } from "@/components/studio-marketing";
 import { cleanLimitDefs, comparisonRows, extraLimitRows, hasFeature, lifetimeNoteOf, pagesLimitOf, plansForSale, planStores, type ComparisonRow, type ComparisonValue, type PlanInfo, type Plan, type PriceView } from "@/lib/plans";
 import { periodPrices, periodsAmong, startPeriod } from "@/lib/billing/period-prices";
 import { isPeriodKey, periodUnit, type PeriodKey } from "@/lib/billing/periods";
@@ -29,6 +30,9 @@ import { formatMessage, formatNumber, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { COMPARE_TEXT } from "@/lib/compare";
+import { periodHint, RegularPlanCards, StudioPlanCards } from "./pricing-cards";
+import { kindChips, KINDS_SHOWN, type KindChip } from "./pricing-kinds";
+import { OpenOnHash } from "./pricing-open";
 
 export function pricingMetadata(lang: Lang): Metadata {
   const m = messagesFor(lang).meta;
@@ -81,49 +85,52 @@ function Cell({ value, plan, lang }: { value: ComparisonValue; plan: string; lan
   const m = messagesFor(lang).pricing;
   if (value === true) {
     return (
-      <span role="img" aria-label={formatMessage(lang, m.included, { plan })} className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-success-bg text-success">
-        <Icon name="check" size={17} />
+      <span role="img" aria-label={formatMessage(lang, m.included, { plan })} className="pr-ct-yes">
+        <Icon name="check" size={19} />
       </span>
     );
   }
   if (value === false) {
     return (
-      <span role="img" aria-label={formatMessage(lang, m.notIncluded, { plan })} className="text-muted">
+      <span role="img" aria-label={formatMessage(lang, m.notIncluded, { plan })} className="pr-ct-no">
         —
       </span>
     );
   }
-  return <span className="text-sm font-semibold">{value}</span>;
+  return <span className="pr-ct-value">{value}</span>;
 }
 
 /** 146 The two products: the regular app (from a website, a store or a platform) and Yallapp Studio. */
 type Product = "regular" | "studio";
 
-/** 146 Each product's look on the page: its icon, its colour, and real screens of apps made with it (public/screens). */
-const PRODUCT: Record<Product, { icon: IconName; border: string; badge: string; sample: AppScreen; samples: [AppScreen, AppScreen, AppScreen] }> = {
+/**
+ * 146 Each product's mark and real screens of apps made with it
+ * (public/screens). 154 Day and night: two fanned phones at the top, the
+ * app's three demos in its detail, and Studio's editor beside a school by
+ * night in its.
+ */
+const PRODUCT: Record<Product, { icon: IconName; fan: [AppScreen, AppScreen]; detail: AppScreen[] }> = {
   regular: {
     icon: "apps",
-    border: "border-midnight",
-    badge: "bg-midnight text-white",
-    // The regular demos: a shop, an academy, a café's menu and a bookings app.
-    sample: "store-home",
-    samples: ["academy-home", "restaurant-menu", "bookings-services"],
+    // An academy behind a shop.
+    fan: ["academy-home", "store-home"],
+    // A café's menu, an academy and a bookings app.
+    detail: ["restaurant-menu", "academy-home", "bookings-services"],
   },
   studio: {
     icon: "dashboard_customize",
-    border: "border-ember",
-    badge: "bg-ember text-midnight",
-    // Studio's demos in their Signature looks: food delivery by night, a live taxi app by night, a school and a flower shop by night.
-    sample: "food-delivery-sig-a-home-dark",
-    samples: ["taxi-sig-a-home-dark", "school-sig-b-home", "flowers-sig-b-home-dark"],
+    // Lamha Taxi's live map behind Sofra Eats by night (Studio's Signature looks).
+    fan: ["lamha-home", "food-delivery-sig-a-home-dark"],
+    // Nakhla School by night, beside the Studio editor.
+    detail: ["school-sig-b-home-dark"],
   },
 };
 
 /** A real screen of an app in the site's phone frame. */
-function Sample({ screen, alt, className }: { screen: AppScreen; alt: string; className: string }) {
+function Phone({ screen, alt, className = "", priority = false }: { screen: AppScreen; alt: string; className?: string; priority?: boolean }) {
   return (
     <PhoneFrame className={className} data-screen={screen}>
-      <Image src={`/screens/${screen}.png`} alt={alt} fill sizes="160px" className="object-cover" />
+      <Image src={`/screens/${screen}.png`} alt={alt} fill sizes="160px" priority={priority} className="object-cover" />
     </PhoneFrame>
   );
 }
@@ -150,138 +157,209 @@ function perPeriodText(lang: Lang, key: PeriodKey): string {
   return key === "lifetime" ? w.payOnce : formatMessage(lang, w.perPeriod, { period: periodUnitFor(lang, periodUnit(key)) });
 }
 
-/** 146 One of the two products at the top: who it's for, a real screen, its "from" price, and the way to its plans and its explanation. */
-function ProductChoice({ product, lang, name, who, from, alt }: { product: Product; lang: Lang; name: string; who: string; from: { key: PeriodKey; price: string } | null; alt: string }) {
+/** 146 One of the two products at the top: who it's for, two real screens, its "from" price, and the way to its plans and its explanation. */
+function ProductChoice({ product, lang, name, who, tag, from }: { product: Product; lang: Lang; name: string; who: string; tag: string; from: { key: PeriodKey; price: string } | null }) {
   const p = messagesFor(lang).pricing;
   const look = PRODUCT[product];
+  const alt = screenAltFor(lang);
   return (
-    <article aria-labelledby={`product-${product}`} data-product={product} className={`flex gap-4 rounded-[24px] border-2 bg-white p-4 sm:gap-6 sm:p-6 ${look.border}`}>
-      <Sample screen={look.sample} alt={alt} className="w-[104px] flex-none self-center sm:w-[136px]" />
-      <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-        <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${look.badge}`}>
-          <Icon name={look.icon} size={22} />
-        </span>
-        <h2 id={`product-${product}`} className="m-0 text-[22px] leading-tight font-extrabold tracking-[-0.4px] sm:text-[28px]">
-          {name}
-        </h2>
-        <p className="m-0 text-[15px] leading-snug text-ink-4 sm:text-base">{who}</p>
-        <p className="m-0 flex flex-wrap items-baseline gap-x-1.5" data-from-price="">
+    <article aria-labelledby={`product-${product}`} data-product={product} className={`pr-prod is-${product}`}>
+      <div className="pr-prod-text">
+        <div className="pr-prod-top">
+          <span className="pr-mark">
+            <Icon name={look.icon} size={21} />
+          </span>
+          <span className="pr-tag">{tag}</span>
+        </div>
+        <h2 id={`product-${product}`}>{name}</h2>
+        <p className="pr-who">{who}</p>
+        <p className="pr-from" data-from-price="">
           {from ? (
             <>
-              <span className="text-[13px] font-semibold text-muted">{p.from}</span>
-              <span dir="ltr" className="text-[22px] font-extrabold tracking-[-0.4px] sm:text-[26px]">
+              <span className="pr-from-label">{p.from}</span>
+              <span dir="ltr" className="pr-from-amt">
                 {from.price}
               </span>
-              <span className="text-[13px] font-medium text-muted">{perPeriodText(lang, from.key)}</span>
+              <span className="pr-from-per">{perPeriodText(lang, from.key)}</span>
             </>
           ) : (
-            <span className="text-lg font-bold">{messagesFor(lang).plans.onRequest}</span>
+            <span className="pr-from-amt is-request">{messagesFor(lang).plans.onRequest}</span>
           )}
         </p>
-        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-1">
-          <a
-            href={`#${product}`}
-            className="flex h-11 items-center gap-1.5 rounded-xl bg-midnight px-4 text-[15px] font-bold text-white no-underline transition-colors hover:bg-ink-3 hover:text-white"
-          >
+        <div className="pr-prod-actions">
+          <a href={`#${product}`} className="pr-btn">
             {p.seePlans}
             <Icon name="arrow_downward" size={18} />
           </a>
-          <a href={`#about-${product}`} className="text-[15px] font-semibold text-midnight underline-offset-4 hover:text-midnight">
+          <a href={`#about-${product}`} className="pr-lnk">
             {p.howItWorks}
           </a>
         </div>
+      </div>
+      <div className="pr-fan">
+        <Phone screen={look.fan[0]} alt={alt[look.fan[0]]} className="pr-p1" />
+        <Phone screen={look.fan[1]} alt={alt[look.fan[1]]} className="pr-p2" priority />
       </div>
     </article>
   );
 }
 
-/** 146 The heading of a product's plans, with the product's mark. */
-function PlansTitle({ product, eyebrow, title, text }: { product: Product; eyebrow: string; title: string; text: string }) {
-  const look = PRODUCT[product];
+/** 154 The kinds of apps a product makes, the common ones first and the rest folded under "+N more" (no script: the fold opens them, pricing.css). */
+function KindChips({ chips, lang, label }: { chips: KindChip[]; lang: Lang; label: string }) {
+  const p = messagesFor(lang).pricing;
+  const fold = chips.length > KINDS_SHOWN + 1;
   return (
-    <div className="flex items-start gap-4">
-      <span className={`mt-1 hidden h-12 w-12 flex-none items-center justify-center rounded-2xl sm:flex ${look.badge}`}>
-        <Icon name={look.icon} size={26} />
-      </span>
-      <div className="flex max-w-[680px] flex-col gap-1.5">
-        <span className={`text-[13px] font-bold tracking-[1px] uppercase ${product === "studio" ? "text-accent" : "text-ink-4"}`}>{eyebrow}</span>
-        <h2 className="m-0 text-[26px] leading-[1.12] font-extrabold tracking-[-0.6px] text-balance sm:text-[34px] sm:tracking-[-0.8px]">{title}</h2>
-        <p className="m-0 text-base leading-relaxed text-ink-4 sm:text-[17px]">{text}</p>
-      </div>
-    </div>
+    <ul className="pr-kinds" aria-label={label} data-kinds="">
+      {chips.map((chip, at) => {
+        const inner = (
+          <>
+            <Icon name={chip.icon} size={16} />
+            {chip.label}
+          </>
+        );
+        return (
+          <li key={chip.id} data-kind={chip.id} data-kind-extra={fold && at >= KINDS_SHOWN ? "" : undefined}>
+            {chip.href ? <Link href={chip.href}>{inner}</Link> : <span>{inner}</span>}
+          </li>
+        );
+      })}
+      {fold ? (
+        <li className="pr-kinds-toggle">
+          <details data-kinds-more="">
+            <summary>
+              <span className="pr-kinds-closed">{formatMessage(lang, p.kindsMore, { count: chips.length - KINDS_SHOWN })}</span>
+              <span className="pr-kinds-open">{p.kindsFewer}</span>
+            </summary>
+          </details>
+        </li>
+      ) : null}
+    </ul>
   );
 }
 
-/** 146 A product in detail: real screens, what you get, how it works and who it suits, and where to see more. */
+/** 146 A product in detail: real screens, how it works, the kinds of apps it makes, what you get and who it suits (folded), and where to see more. */
 function ProductDetail({
   product,
   lang,
   name,
-  who,
   intro,
   get,
   steps,
   suits,
-  extra,
+  chips,
   links,
 }: {
   product: Product;
   lang: Lang;
   name: string;
-  who: string;
   intro: string;
   get: ReactNode;
   steps: string[];
   suits: string;
-  extra?: ReactNode;
+  chips: KindChip[];
   links: ReactNode;
 }) {
   const p = messagesFor(lang).pricing;
   const look = PRODUCT[product];
   const alt = screenAltFor(lang);
   return (
-    <article id={`about-${product}`} aria-labelledby={`about-${product}-title`} data-product-detail={product} className={`flex scroll-mt-6 flex-col gap-6 rounded-[24px] border-2 bg-white p-5 sm:p-7 ${look.border}`}>
-      <div className="flex items-center gap-3.5">
-        <span className={`flex h-12 w-12 flex-none items-center justify-center rounded-2xl ${look.badge}`}>
-          <Icon name={look.icon} size={26} />
-        </span>
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <h3 id={`about-${product}-title`} className="m-0 text-2xl leading-tight font-extrabold tracking-[-0.4px]">
-            {name}
-          </h3>
-          <span className="text-[15px] leading-snug text-ink-4">{who}</span>
+    <article id={`about-${product}`} aria-labelledby={`about-${product}-title`} data-product-detail={product} className={`pr-about-card ${product === "studio" ? "is-night" : ""}`}>
+      <div className={`pr-media is-${product}`} data-product-samples="">
+        {product === "studio" ? (
+          <>
+            {/* The real Studio editor. */}
+            <div className="pr-editor">
+              <Image src="/screens/studio-editor.png" alt={alt["studio-editor"]} width={1920} height={1200} sizes="(max-width: 1100px) 76vw, 420px" />
+            </div>
+            <Phone screen={look.detail[0]!} alt={alt[look.detail[0]!]} className="pr-media-phone" />
+          </>
+        ) : (
+          look.detail.map((screen) => <Phone key={screen} screen={screen} alt={alt[screen]} />)
+        )}
+      </div>
+      <div className="pr-about-body">
+        <div className="pr-about-head">
+          <span className="pr-mark">
+            <Icon name={look.icon} size={21} />
+          </span>
+          <h3 id={`about-${product}-title`}>{name}</h3>
         </div>
-      </div>
-      {/* Three phones in a row at any width: each a third of the row, at most 128 px. */}
-      <div className="flex justify-center gap-2 rounded-2xl bg-sand px-3 py-5 sm:gap-5" data-product-samples="">
-        {look.samples.map((screen) => (
-          <Sample key={screen} screen={screen} alt={alt[screen]} className="w-[min(30%,128px)] flex-none" />
-        ))}
-      </div>
-      <p className="m-0 text-base leading-relaxed text-ink-3">{intro}</p>
-      <div className="flex flex-col gap-3">
-        <h4 className="m-0 text-lg font-bold">{p.whatYouGet}</h4>
-        {get}
-      </div>
-      {extra}
-      <div className="flex flex-col gap-3">
-        <h4 className="m-0 text-lg font-bold">{p.howItWorks}</h4>
-        <ol className="m-0 flex list-none flex-col gap-3 p-0">
+        <p className="pr-about-intro">{intro}</p>
+        <h4 className="sr-only">{p.howItWorks}</h4>
+        <ol className="pr-steps">
           {steps.map((step, index) => (
-            <li key={step} className="flex gap-3">
-              <span className={`flex h-7 w-7 flex-none items-center justify-center rounded-full text-sm font-bold ${look.badge}`}>{formatNumber(lang, index + 1)}</span>
-              <span className="pt-0.5 text-[15px] leading-relaxed">{step}</span>
+            <li key={step}>
+              <span className="pr-step-n">{formatNumber(lang, index + 1)}</span>
+              {step}
             </li>
           ))}
         </ol>
+        <KindChips chips={chips} lang={lang} label={messagesFor(lang).home.kindsLabel} />
+        {/* What you get and who it suits, folded so the card stays short. */}
+        <details className="pr-about-more" data-about-more="">
+          <summary>
+            <h4>{p.whatYouGet}</h4>
+            <Icon name="expand_more" size={18} className="pr-chev" />
+          </summary>
+          <div className="pr-about-more-body">
+            {get}
+            <h4>{p.whoTitle}</h4>
+            <p>{suits}</p>
+          </div>
+        </details>
+        <div className="pr-about-links">{links}</div>
       </div>
-      <div className="flex flex-col gap-2">
-        <h4 className="m-0 text-lg font-bold">{p.whoTitle}</h4>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{suits}</p>
-      </div>
-      <div className="mt-auto flex flex-wrap gap-x-8 gap-y-3 border-t border-line-soft pt-5">{links}</div>
     </article>
   );
+}
+
+/** 103R Regular apps next to Studio projects, topic by topic; 154 Studio's column by night, and on phones each topic over the two answers. */
+function Versus({ lang }: { lang: Lang }) {
+  const s = messagesFor(lang).studio;
+  const rows = [
+    { topic: s.rowPages, regular: s.rowPagesRegular, studio: s.rowPagesStudio },
+    { topic: s.rowContent, regular: s.rowContentRegular, studio: s.rowContentStudio },
+    { topic: s.rowKinds, regular: s.rowKindsRegular, studio: s.rowKindsStudio },
+    { topic: s.rowPlans, regular: s.rowPlansRegular, studio: s.rowPlansStudio },
+    { topic: s.rowAccount, regular: s.rowAccountRegular, studio: s.rowAccountStudio },
+    { topic: s.rowPublish, regular: s.rowPublishBoth, studio: s.rowPublishBoth },
+  ];
+  return (
+    <div role="table" aria-label={s.diffTitle} className="pr-vs" data-studio-differences="">
+      <div role="row" className="pr-vs-row is-head">
+        <span role="columnheader" className="pr-vs-k">
+          {s.topic}
+        </span>
+        <span role="columnheader" className="pr-vs-h">
+          <Icon name="apps" size={18} />
+          {s.regular}
+        </span>
+        <span role="columnheader" className="pr-vs-h is-s">
+          <Icon name="dashboard_customize" size={18} />
+          {s.studio}
+        </span>
+      </div>
+      {rows.map((row) => (
+        <div role="row" key={row.topic} className="pr-vs-row">
+          <span role="rowheader" className="pr-vs-k">
+            {row.topic}
+          </span>
+          <span role="cell">{row.regular}</span>
+          <span role="cell" className="is-s">
+            {row.studio}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** 154 A note of the page used as a question's answer: its bold label ("Changing plans:") left out, the rest starting with a capital. */
+function answerOf(lang: Lang, text: string, tags: Record<string, (chunk: string) => ReactNode>): ReactNode {
+  const label = /^<b>[^<]*:<\/b>\s*/.exec(text);
+  if (!label) return richText(text, tags);
+  const rest = text.slice(label[0].length);
+  return richText(rest.charAt(0).toLocaleUpperCase(lang) + rest.slice(1), tags);
 }
 
 /**
@@ -290,12 +368,14 @@ function ProductDetail({
  * page is rendered per request and sent with `Vary` (next.config.ts).
  * 55 In any language; the prices are written the same way in each.
  *
- * 146 The app and Studio side by side, short and simple: the two products
- * at the top, each with who it's for, a real screen and its "from" price;
- * one billing period for both (lifetime among them); each product's plans
- * right under it, Studio's with the same periods as the regular ones; each
- * product in detail with real screens; then how they differ, and every
- * feature of the app's plans in a fold.
+ * 146 The app and Studio side by side, short and simple. 154 In the Day and
+ * night look the owner chose (pricing.css): a night hero with the app as a
+ * day panel and Studio glowing beside it, each with two fanned phones; the
+ * period picker floating over the hero's edge, a saving under each period,
+ * lifetime among them; the app's plans by day and Studio's on a night
+ * band, in compact cards; each product in detail, Studio's with its real
+ * editor; how they differ, every feature folded, a few questions, and the
+ * closing band in the night.
  */
 export async function PricingPage({ lang, period: asked = null }: { lang: Lang; period?: string | null }) {
   const contact = await getVisitorContact();
@@ -303,7 +383,7 @@ export async function PricingPage({ lang, period: asked = null }: { lang: Lang; 
   const [all, view, extras] = await Promise.all([effectivePlans(store), visitorPriceView(store), platformSetting(store, "planExtras")]);
   // 133 The regular plans for sale, in the team's order (an archived or hidden one isn't).
   const plans = plansForSale(all, "regular").map((plan) => planFor(lang, plan));
-  // 103R Yallapp Studio's own plans, apart: the ones the team offers.
+  // 103R Yallapp Studio's own plans, apart: the ones the team offers, and only those (never a sample).
   const studioPlans = plansForSale(all, "studio").map((plan) => planFor(lang, plan));
   const s = messagesFor(lang).studio;
   const limitDefs = cleanLimitDefs(extras?.value);
@@ -319,274 +399,333 @@ export async function PricingPage({ lang, period: asked = null }: { lang: Lang; 
   const text = await getSiteContent("pricing", lang);
   const m = messagesFor(lang).pricing;
   const h = messagesFor(lang).home;
-  const alt = screenAltFor(lang);
+  const nav = messagesFor(lang).nav;
   const lp = (path: string) => localePath(lang, path);
-  const strong = { b: (chunk: string) => <strong className="text-ink-2">{chunk}</strong> };
+  const strong = { b: (chunk: string) => <strong>{chunk}</strong> };
+  const wa = (chunk: string) => (
+    <WhatsAppLink lines={contact.lines} country={contact.country}>
+      {chunk}
+    </WhatsAppLink>
+  );
+  const refund = (chunk: string) => <Link href={lp("/refund")}>{chunk}</Link>;
   const from = { regular: fromPrice(plans, view, shownPeriod), studio: fromPrice(studioPlans, view, shownPeriod) };
   // 133 Lifetime on each product: its lowest price for life.
   const lifetimeFrom = { regular: lowestFor(plans, view, "lifetime"), studio: lowestFor(studioPlans, view, "lifetime") };
   const names: Record<Product, string> = { regular: m.appName, studio: s.studio };
-  return (
-    <MarketingPage current="pricing" eyebrow={text.eyebrow} title={text.title!} intro={text.intro!} lang={lang}>
-      <JsonLdScript data={softwareLd(siteUrl(), plans, view, lang === "en" ? undefined : lang)} />
-      <Section id="plans" label={w.list}>
-        {/* 146 The two products, side by side and alike. */}
-        <div className="grid gap-4 sm:gap-5 lg:grid-cols-2" role="group" aria-label={m.productsLabel} data-products="">
-          <ProductChoice product="regular" lang={lang} name={names.regular} who={m.appWho} from={from.regular} alt={alt[PRODUCT.regular.sample]} />
-          <ProductChoice product="studio" lang={lang} name={names.studio} who={m.studioWho} from={from.studio} alt={alt[PRODUCT.studio.sample]} />
+  // 154 A few questions, answered with the page's own notes; lifetime's when a plan is sold for life.
+  const faq: { id: string; q: string; a: ReactNode }[] = [
+    ...(lifetime ? [{ id: "lifetime", q: m.faqLifetime, a: lifetimeNoteOf(extras?.value, lang) ?? w.lifetimeNote }] : []),
+    { id: "change", q: m.faqChange, a: answerOf(lang, m.changing, strong) },
+    { id: "fees", q: m.faqFees, a: richText(m.fees, { link: refund }) },
+    { id: "users", q: m.faqUsers, a: answerOf(lang, m.users, strong) },
+  ];
+
+  const hero = (
+    <section className="pr-night" data-pricing-hero="">
+      <div className="pr-wrap pr-hero">
+        <div>
+          {text.eyebrow ? <span className="pr-eyebrow">{text.eyebrow}</span> : null}
+          <h1>{text.title}</h1>
         </div>
-        <div className="flex flex-col gap-6">
-          {/* 133 How long to pay for: each card shows that period's price, per month and the saving. 146 One choice for both products, kept in sight while their plans scroll by. */}
+        <p className="pr-lead">{text.intro}</p>
+      </div>
+      {/* 146 The two products, side by side and alike: the app by day, Studio by night. */}
+      <div className="pr-wrap pr-products" role="group" aria-label={m.productsLabel} data-products="">
+        <ProductChoice product="regular" lang={lang} name={names.regular} who={m.appWho} tag={w.androidIos} from={from.regular} />
+        <ProductChoice product="studio" lang={lang} name={names.studio} who={m.studioWho} tag={m.studioTag} from={from.studio} />
+      </div>
+    </section>
+  );
+
+  return (
+    <MarketingPage current="pricing" eyebrow={text.eyebrow} title={text.title!} intro={text.intro!} lang={lang} hero={hero} closing="glow">
+      <JsonLdScript data={softwareLd(siteUrl(), plans, view, lang === "en" ? undefined : lang)} />
+      <OpenOnHash ids={["compare"]} />
+      <div className="pr">
+        <section id="plans" aria-label={w.list} className="pr-plans">
+          {/* 133 How long to pay for: each card shows that period's price, per month and the saving. 146 One choice for both products; 154 floating over the hero's edge, kept in sight on computers while the plans scroll by. */}
           {periods.length > 1 ? (
-            <div className="flex flex-col gap-2 rounded-2xl border border-line bg-white/95 p-3 shadow-[0_14px_30px_-24px_rgba(14,13,36,0.45)] backdrop-blur sm:sticky sm:top-2 sm:z-20 sm:p-2.5 sm:ps-4" data-period-bar="">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                <span className="text-sm font-bold text-ink-2">{w.periods}</span>
-                <nav aria-label={w.periods} className="flex flex-wrap gap-1.5" data-period-tabs="">
-                  {periods.map((key) => (
-                    <Link
-                      key={key}
-                      href={`${lp("/pricing")}?period=${key}#plans`}
-                      scroll={false}
-                      aria-current={key === period ? "true" : undefined}
-                      data-period={key}
-                      className={`flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-[14px] font-semibold no-underline sm:h-10 sm:px-4 sm:text-[15px] ${
-                        key === "lifetime"
-                          ? "on-dark border-ember bg-midnight text-white hover:text-white"
-                          : key === period
-                            ? "border-midnight bg-midnight text-white hover:text-white"
-                            : "border-line bg-white text-ink-2 hover:border-line-strong hover:text-ink"
-                      } ${key === "lifetime" && key === period ? "ring-2 ring-ember/50" : ""}`}
-                    >
-                      {key === "lifetime" ? <Icon name="diamond" size={17} filled className="text-ember" /> : null}
-                      {periodName(key)}
-                    </Link>
-                  ))}
-                </nav>
-                {/* Straight to either product's plans. */}
-                <nav aria-label={w.list} className="ms-auto hidden items-center gap-1 lg:flex" data-product-jump="">
-                  {(["regular", "studio"] as const).map((product) => (
-                    <a key={product} href={`#${product}`} className="flex h-10 items-center gap-1.5 rounded-full px-3 text-[14px] font-semibold text-ink-2 no-underline hover:bg-sand hover:text-ink-2">
-                      <Icon name={PRODUCT[product].icon} size={18} className={product === "studio" ? "text-accent" : "text-ink-4"} />
-                      {names[product]}
-                    </a>
-                  ))}
+            <div className="pr-wrap pr-bar-wrap">
+              <div className="pr-bar" data-period-bar="">
+                <div className="pr-bar-label">
+                  <b>
+                    <Icon name="calendar_month" size={19} />
+                    {w.periods}
+                  </b>
+                  <span>{m.periodHint}</span>
+                </div>
+                <nav aria-label={w.periods} className="pr-seg" data-period-tabs="">
+                  {periods.map((key) => {
+                    const hint = periodHint(lang, both, view, key);
+                    return (
+                      <Link
+                        key={key}
+                        href={`${lp("/pricing")}?period=${key}#plans`}
+                        scroll={false}
+                        aria-current={key === period ? "true" : undefined}
+                        data-period={key}
+                        className={`pr-seg-btn ${key === period ? "is-on" : ""}`}
+                      >
+                        <span className="pr-seg-label" data-period-label="">
+                          {key === "lifetime" ? <Icon name="diamond" size={16} filled className="pr-life-ico" /> : null}
+                          {periodName(key)}
+                        </span>
+                        {hint ? (
+                          <span className="pr-seg-hint" data-period-hint="">
+                            {hint}
+                          </span>
+                        ) : (
+                          <span className="pr-seg-hint is-empty" aria-hidden="true">
+                            {" "}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
                 </nav>
               </div>
-              <p className="m-0 text-[13px] leading-snug text-muted sm:text-[14px]">{m.periodHint}</p>
             </div>
           ) : null}
-          {/* 133 Lifetime, to link to (/pricing#lifetime); 146 a choice of the period above, on both products' plans. */}
+          {/* 133 Lifetime, to link to (/pricing#lifetime); 146 a choice of the period above, on both products' plans; 154 a note under the picker, with what it covers once chosen. */}
           {lifetime ? (
-            <div id="lifetime-offer" className="scroll-mt-24">
-              <section
-                id="lifetime"
-                aria-labelledby="lifetime-title"
-                data-lifetime-offer=""
-                className="on-dark relative isolate flex scroll-mt-24 flex-col gap-4 overflow-hidden rounded-[22px] border border-ember/40 bg-midnight p-5 text-white sm:p-6"
-              >
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -top-24 -end-20 -z-10 h-60 w-60 rounded-full bg-[radial-gradient(circle,rgba(255,90,31,0.4),rgba(255,90,31,0)_70%)]"
-                />
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
-                  <div className="flex min-w-0 flex-[1_1_320px] flex-col gap-1.5">
-                    <span className="flex items-center gap-2 text-xs font-bold tracking-[1.2px] text-ember uppercase">
-                      <Icon name="diamond" size={18} filled className="text-ember" />
-                      {w.lifetimeEyebrow}
-                    </span>
-                    <h3 id="lifetime-title" className="m-0 text-[22px] leading-tight font-extrabold tracking-[-0.4px] text-white sm:text-[26px]">
-                      {w.lifetimeTitle}
-                    </h3>
-                    <p className="m-0 text-[15px] leading-relaxed text-night-text">
-                      {w.lifetimeText} {m.lifetimeBoth}
-                    </p>
-                  </div>
-                  <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
-                    {(["regular", "studio"] as const).map((product) =>
-                      lifetimeFrom[product] ? (
-                        <li key={product} data-lifetime-from={product} className="flex flex-col rounded-xl border border-night-line bg-night-2/70 px-3.5 py-2">
-                          <span className="flex items-center gap-1.5 text-[12px] font-bold text-night-text">
-                            <Icon name={PRODUCT[product].icon} size={15} className="text-ember" />
-                            {names[product]}
-                          </span>
-                          <span className="flex items-baseline gap-1.5">
-                            <span className="text-[12px] text-night-muted">{m.from}</span>
-                            <span dir="ltr" className="text-lg font-extrabold text-white">
-                              {lifetimeFrom[product]!.price}
+            <div id="lifetime-offer" className="pr-wrap pr-life-wrap">
+              <section id="lifetime" aria-labelledby="lifetime-title" data-lifetime-offer="" className={`pr-life-note ${period === "lifetime" ? "is-on" : ""}`}>
+                <Icon name="diamond" size={22} filled className="pr-life-gem" />
+                <div className="pr-life-body">
+                  <div className="pr-life-row">
+                    <div className="pr-life-text">
+                      <div className="pr-life-title">
+                        <span className="pr-life-eyebrow">{w.lifetimeEyebrow}</span>
+                        <h3 id="lifetime-title">{w.lifetimeTitle}</h3>
+                      </div>
+                      <p>
+                        {w.lifetimeText} {m.lifetimeBoth}
+                      </p>
+                    </div>
+                    <ul className="pr-life-from">
+                      {(["regular", "studio"] as const).map((product) =>
+                        lifetimeFrom[product] ? (
+                          <li key={product} data-lifetime-from={product}>
+                            <span className="pr-life-from-name">
+                              <Icon name={PRODUCT[product].icon} size={15} />
+                              {names[product]}
                             </span>
-                          </span>
-                        </li>
-                      ) : null,
-                    )}
-                  </ul>
-                  {period !== "lifetime" ? (
-                    <Link
-                      href={`${lp("/pricing")}?period=lifetime#plans`}
-                      scroll={false}
-                      className="flex h-11 items-center gap-2 rounded-xl bg-ember px-4 text-[15px] font-bold text-white no-underline transition-colors hover:bg-[#e94e15] hover:text-white"
-                    >
-                      <Icon name="diamond" size={18} filled />
-                      {m.lifetimeSee}
-                    </Link>
-                  ) : null}
-                </div>
-                {period === "lifetime" ? (
-                  <div className="flex gap-3 rounded-2xl border border-night-line bg-night-2/50 p-4 text-[14px] leading-relaxed text-night-text" data-lifetime-note="">
-                    <Icon name="info" size={20} className="mt-0.5 flex-none text-ember" />
-                    <div className="flex flex-col gap-1">
-                      <strong className="text-white">{w.lifetimeNoteTitle}</strong>
+                            <span className="pr-life-from-price">
+                              <span>{m.from}</span>
+                              <b dir="ltr">{lifetimeFrom[product]!.price}</b>
+                            </span>
+                          </li>
+                        ) : null,
+                      )}
+                    </ul>
+                    {period !== "lifetime" ? (
+                      <Link href={`${lp("/pricing")}?period=lifetime#plans`} scroll={false} className="pr-life-see">
+                        <Icon name="diamond" size={17} filled />
+                        {m.lifetimeSee}
+                      </Link>
+                    ) : null}
+                  </div>
+                  {period === "lifetime" ? (
+                    <div className="pr-life-covers" data-lifetime-note="">
+                      <strong>{w.lifetimeNoteTitle}</strong>
                       <span>{lifetimeNoteOf(extras?.value, lang) ?? w.lifetimeNote}</span>
                     </div>
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
               </section>
             </div>
           ) : null}
-          {/* 103R The regular apps' plans. */}
-          <div id="regular" className="flex scroll-mt-24 flex-col gap-6 rounded-[28px] border border-line bg-sand p-4 pt-6 sm:p-8" data-product-plans="regular">
-            <PlansTitle product="regular" eyebrow={m.appName} title={s.pricingRegular} text={s.pricingRegularText} />
-            <PlanCards plans={plans} view={view} headingLevel={3} lang={lang} period={shownPeriod} />
-            <p className="m-0 flex gap-2.5 rounded-2xl bg-white p-4 text-[15px] leading-relaxed text-ink-3">
-              <Icon name="dashboard_customize" size={20} className="mt-0.5 flex-none text-accent" />
-              <span>{richText(s.pricingStudio, { link: (chunk) => <Link href="#studio">{chunk}</Link> })}</span>
-            </p>
-          </div>
-          {/* 103R Yallapp Studio's own plans; 146 for the same periods. */}
-          <div id="studio" className="flex scroll-mt-24 flex-col gap-6 rounded-[28px] border border-ember/40 bg-peach-soft p-4 pt-6 sm:p-8" data-product-plans="studio">
-            <PlansTitle product="studio" eyebrow={s.studio} title={s.plansTitle} text={s.plansText} />
-            <StudioPlans lang={lang} plans={studioPlans} view={view} contact={contact} period={shownPeriod} basics={false} />
-          </div>
-          <div className="flex flex-col gap-2 text-[15px] leading-relaxed text-ink-4">
-            <p className="m-0">
-              <span data-currency-note="">{currencyNote(view, lang)}</span>{" "}
-              {richText(m.eachApp, { link: (chunk) => <WhatsAppLink lines={contact.lines} country={contact.country}>{chunk}</WhatsAppLink> })}
-            </p>
-            <p className="m-0" data-fees="">
-              {richText(m.fees, { link: (chunk) => <Link href={lp("/refund")}>{chunk}</Link> })}
-            </p>
-          </div>
-        </div>
-      </Section>
 
-      {/* 146 Each product in detail, with real screens of apps made with it. */}
-      <Section tinted id="about">
-        <SectionTitle title={m.aboutTitle} text={m.aboutText} />
-        <div className="grid items-start gap-5 lg:grid-cols-2">
-          <ProductDetail
-            product="regular"
-            lang={lang}
-            name={names.regular}
-            who={m.appWho}
-            intro={m.appIntro}
-            get={<CheckList items={[m.appGet1, m.appGet2, m.appGet3, m.appGet4, m.appGet5, w.weePublishPlayApple]} />}
-            steps={[m.appStep1, m.appStep2, m.appStep3]}
-            suits={m.appWhoText}
-            links={
-              <>
-                <MoreLink href={lp("/how-it-works")}>{h.howInDetail}</MoreLink>
-                <MoreLink href={lp("/demo")}>{h.tryDemo}</MoreLink>
-              </>
-            }
-          />
-          <ProductDetail
-            product="studio"
-            lang={lang}
-            name={names.studio}
-            who={m.studioWho}
-            intro={s.intro}
-            get={
-              <div className="flex flex-col gap-2">
-                <span className="text-[15px] font-semibold text-ink-3">{s.everyPlan}</span>
-                <CheckList items={[s.base1, s.base2, s.base3, s.base4, s.base5, s.base6, s.base7, s.base8]} />
+          {/* 103R The regular apps' plans, by day. */}
+          <section id="regular" aria-labelledby="regular-title" className="pr-day" data-product-plans="regular">
+            <div className="pr-wrap">
+              <div className="pr-sec-head">
+                <div>
+                  <span className="pr-kicker">
+                    <span className="pr-n">01</span>
+                    {m.appName}
+                  </span>
+                  <h2 id="regular-title">{s.pricingRegular}</h2>
+                  <p>{s.pricingRegularText}</p>
+                </div>
+                <a href="#compare" className="pr-lnk-u">
+                  {m.compareTitle}
+                </a>
               </div>
-            }
-            extra={
-              <div className="flex flex-col gap-3" data-studio-choices="">
-                <h4 className="m-0 text-lg font-bold">{s.byPlan}</h4>
-                <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
-                  {studioPlanChoices(lang).map((choice) => (
-                    <li key={choice.label} className="flex items-center gap-1.5 rounded-full border border-line bg-sand px-3 py-1.5 text-[14px] font-semibold text-ink-2">
-                      <Icon name={choice.icon} size={17} className="text-accent" />
-                      {choice.label}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            }
-            steps={[m.studioStep1, m.studioStep2, m.studioStep3]}
-            suits={m.studioWhoText}
-            links={
-              <>
-                <MoreLink href={lp("/yallapp-studio")}>{s.homeLink}</MoreLink>
-                <MoreLink href={lp("/demo/studio")}>{s.seeDemo}</MoreLink>
-              </>
-            }
-          />
-        </div>
-      </Section>
+              <RegularPlanCards plans={plans} view={view} lang={lang} period={shownPeriod} />
+              <p className="pr-notes pr-studio-apart">
+                <Icon name="dashboard_customize" size={18} />
+                <span>{richText(s.pricingStudio, { link: (chunk) => <a href="#studio">{chunk}</a> })}</span>
+              </p>
+            </div>
+          </section>
 
-      {/* 103R How the two differ; 146 then every feature of the app's plans, folded so the page stays short. */}
-      <Section id="differences">
-        <SectionTitle title={s.diffTitle} text={s.diffText} />
-        <StudioDifferences lang={lang} />
-        <details id="compare" className="group scroll-mt-6 rounded-2xl border border-line bg-white transition-colors duration-200 open:border-line-strong hover:border-line-strong" data-compare-all="">
-          <summary className="flex cursor-pointer items-center gap-4 rounded-2xl px-5 py-[18px] sm:px-6">
-            <span className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-peach text-midnight">
-              <Icon name="compare" size={26} />
-            </span>
-            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span className="text-lg leading-snug font-bold sm:text-xl">{m.compareTitle}</span>
-              <span className="text-[15px] leading-snug text-ink-4">{m.compareAllText}</span>
-            </span>
-            <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-sand transition-colors group-open:bg-midnight group-open:text-white">
-              <Icon name="expand_more" size={22} className="transition-transform duration-200 group-open:rotate-180" />
-            </span>
-          </summary>
-          <div className="flex flex-col gap-6 border-t border-line-soft p-4 sm:p-6">
-            <div className="overflow-x-auto rounded-2xl border border-line bg-white" data-pricing-table="">
-              <table className="w-full min-w-[720px] border-collapse text-[15px]">
-                <caption className="sr-only">{m.caption}</caption>
-                <thead>
-                  <tr className="border-b border-line text-start">
-                    <th scope="col" className="px-5 py-4 text-start font-bold">
-                      {m.whatYouGet}
-                    </th>
-                    {plans.map((plan) => (
-                      <th key={plan.id} scope="col" className={`w-[140px] px-4 py-4 text-center font-bold ${plan.featured ? "bg-peach-soft" : ""}`}>
-                        <bdi>{plan.name}</bdi>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row) => (
-                    <tr key={row.label} className="border-b border-line-soft last:border-b-0 hover:bg-sand">
-                      <th scope="row" className="px-5 py-3.5 text-start font-normal">
-                        {row.store ? <StoreName id={row.store} /> : row.label}
-                      </th>
+          {/* 103R Yallapp Studio's own plans; 146 for the same periods; 154 on a night band. */}
+          <section id="studio" aria-labelledby="studio-title" className="pr-night-band" data-product-plans="studio">
+            <div className="pr-wrap">
+              <div className="pr-sec-head">
+                <div>
+                  <span className="pr-kicker">
+                    <span className="pr-n">02</span>
+                    {s.studio}
+                  </span>
+                  <h2 id="studio-title">{s.plansTitle}</h2>
+                  <p>{s.plansText}</p>
+                </div>
+                <Link href={lp("/yallapp-studio")} className="pr-lnk-u">
+                  {s.homeLink}
+                </Link>
+              </div>
+              <StudioPlanCards plans={studioPlans} view={view} lang={lang} period={shownPeriod} contact={contact} />
+              <div className="pr-notes" data-pricing-notes="">
+                <p>
+                  <span data-currency-note="">{currencyNote(view, lang)}</span> {richText(m.eachApp, { link: wa })}
+                </p>
+                <p data-fees="">{richText(m.fees, { link: refund })}</p>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        {/* 146 Each product in detail, with real screens of apps made with it; 154 Studio's with its real editor, and every kind of app each makes. */}
+        <section id="about" aria-labelledby="about-title" className="pr-wrap pr-about">
+          <div className="pr-sec-title">
+            <h2 id="about-title">{m.aboutTitle}</h2>
+            <p>{m.aboutText}</p>
+          </div>
+          <div className="pr-about-grid">
+            <ProductDetail
+              product="regular"
+              lang={lang}
+              name={names.regular}
+              intro={m.appIntro}
+              get={<CheckList items={[m.appGet1, m.appGet2, m.appGet3, m.appGet4, m.appGet5, w.weePublishPlayApple]} />}
+              steps={[m.appStep1, m.appStep2, m.appStep3]}
+              suits={m.appWhoText}
+              chips={kindChips(lang, "regular")}
+              links={
+                <>
+                  <MoreLink href={lp("/how-it-works")}>{h.howInDetail}</MoreLink>
+                  <MoreLink href={lp("/demo")}>{h.tryDemo}</MoreLink>
+                </>
+              }
+            />
+            <ProductDetail
+              product="studio"
+              lang={lang}
+              name={names.studio}
+              intro={s.intro}
+              get={
+                <>
+                  <span className="pr-about-sub">{s.everyPlan}</span>
+                  <CheckList items={[s.base1, s.base2, s.base3, s.base4, s.base5, s.base6, s.base7, s.base8]} />
+                  <div className="pr-choices" data-studio-choices="">
+                    <h4>{s.byPlan}</h4>
+                    <ul>
+                      {studioPlanChoices(lang).map((choice) => (
+                        <li key={choice.label}>
+                          <Icon name={choice.icon} size={17} />
+                          {choice.label}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              }
+              steps={[m.studioStep1, m.studioStep2, m.studioStep3]}
+              suits={m.studioWhoText}
+              chips={kindChips(lang, "studio")}
+              links={
+                <>
+                  <MoreLink href={lp("/yallapp-studio")}>{s.homeLink}</MoreLink>
+                  <MoreLink href={lp("/demo/studio")}>{s.seeDemo}</MoreLink>
+                </>
+              }
+            />
+          </div>
+        </section>
+
+        {/* 103R How the two differ; 146 then every feature of the app's plans, folded so the page stays short. */}
+        <section id="differences" aria-labelledby="differences-title" className="pr-wrap pr-diff">
+          <div className="pr-sec-title">
+            <h2 id="differences-title">{s.diffTitle}</h2>
+            <p>{s.diffText}</p>
+          </div>
+          <Versus lang={lang} />
+          <details id="compare" className="pr-fold" data-compare-all="">
+            <summary>
+              <Icon name="compare" size={24} className="pr-fold-ico" />
+              <span className="pr-fold-t">
+                <b>{m.compareTitle}</b>
+                <span>{m.compareAllText}</span>
+              </span>
+              <Icon name="expand_more" size={22} className="pr-chev" />
+            </summary>
+            <div className="pr-fold-body">
+              <div className="pr-ct-wrap" data-pricing-table="">
+                <table className="pr-ct">
+                  <caption className="sr-only">{m.caption}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">{m.whatYouGet}</th>
                       {plans.map((plan) => (
-                        <td key={plan.id} className={`px-4 py-3.5 text-center ${plan.featured ? "bg-peach-soft" : ""}`}>
-                          <Cell value={row.values[plan.id] ?? false} plan={plan.name} lang={lang} />
-                        </td>
+                        <th key={plan.id} scope="col" className={plan.featured ? "is-feat" : undefined}>
+                          <bdi>{plan.name}</bdi>
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {rows.map((row) => (
+                      <tr key={row.label}>
+                        <th scope="row">{row.store ? <StoreName id={row.store} /> : row.label}</th>
+                        {plans.map((plan) => (
+                          <td key={plan.id} className={plan.featured ? "is-feat" : undefined}>
+                            <Cell value={row.values[plan.id] ?? false} plan={plan.name} lang={lang} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="pr-ct-notes">
+                <p>{richText(m.users, strong)}</p>
+                <p>{richText(m.platforms, strong)}</p>
+                <p>{richText(m.changing, strong)}</p>
+                <p>{richText(m.stores, strong)}</p>
+              </div>
             </div>
-            <div className="flex flex-col gap-2.5 text-[15px] leading-relaxed text-ink-4">
-              <p className="m-0">{richText(m.users, strong)}</p>
-              <p className="m-0">{richText(m.platforms, strong)}</p>
-              <p className="m-0">{richText(m.changing, strong)}</p>
-              <p className="m-0">{richText(m.stores, strong)}</p>
-            </div>
+          </details>
+          <div className="pr-diff-links">
+            <MoreLink href={lp("/yallapp-studio")}>{s.homeLink}</MoreLink>
+            <MoreLink href={lp("/compare")}>{COMPARE_TEXT[lang].title}</MoreLink>
           </div>
-        </details>
-        <div className="flex flex-wrap gap-x-8 gap-y-3">
-          <MoreLink href={lp("/yallapp-studio")}>{s.homeLink}</MoreLink>
-          <MoreLink href={lp("/compare")}>{COMPARE_TEXT[lang].title}</MoreLink>
-        </div>
-      </Section>
+        </section>
+
+        {/* 154 A few questions, answered with the page's own words. */}
+        <section aria-labelledby="pricing-faq-title" className="pr-wrap pr-faq" data-pricing-faq="">
+          <div className="pr-faq-side">
+            <span className="pr-eyebrow is-day">{nav.faq}</span>
+            <h2 id="pricing-faq-title">{nav.faqText}</h2>
+            <WhatsAppLink lines={contact.lines} country={contact.country} className="pr-faq-wa">
+              <WhatsAppMark size={18} />
+              {messagesFor(lang).common.talkWhatsApp}
+            </WhatsAppLink>
+          </div>
+          <div>
+            {faq.map((item, at) => (
+              <details key={item.id} className="pr-qa" data-faq={item.id} open={at === 0}>
+                <summary>
+                  <span>{item.q}</span>
+                  <Icon name="expand_more" size={22} />
+                </summary>
+                <p>{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      </div>
     </MarketingPage>
   );
 }

@@ -163,6 +163,14 @@ export const AUDIT_ACTIONS = {
   // 106.2 The daily job: a buyer's plan for a template ended; and the team changing a licence's end date.
   "market.licence_ended": "Studio Market plan ended (daily job)",
   "market.licence_end_date": "Studio Market licence end date changed",
+  // 106.11 The designer's money.
+  "market.details_approved": "Studio Market payout checks approved",
+  "market.details_fix": "Studio Market payout checks sent back for a fix",
+  "market.details_viewed": "Studio Market ID document opened",
+  "market.payouts_prepared": "Studio Market payouts prepared",
+  "market.payouts_export": "Studio Market bank file downloaded",
+  "market.payout_sent": "Studio Market payout marked as sent",
+  "market.payout_cancelled": "Studio Market payout cancelled",
   // 136 Yallapp's Firebase projects
   "firebase.project_add": "Yallapp Firebase project added",
   "firebase.project_edit": "Yallapp Firebase project changed",
@@ -204,6 +212,8 @@ export const AUDIT_TARGETS = {
   // 106
   market_template: "Studio Market template",
   market_licence: "Studio Market licence",
+  market_designer: "Studio Market designer",
+  market_payout: "Studio Market payout",
   // 133
   addon: "Add-on",
   // 136

@@ -441,18 +441,23 @@ function Chevron() {
 /**
  * What a tap opens, as in the design: one line ("Opens: Cart") listing the
  * app's screens and pages, a web address, an entry or a course; a second
- * field only for the address, the entry or the course.
+ * field only for the address, the entry or the course. 152 A store's entry
+ * is "A product", picked from the shop's own products: one not chosen, or
+ * gone from the shop, opens the shop.
  */
-function TapAction({ id, action, onChange, pages, sources, screens, pickable }: { id: string; action: Action | null; onChange: (action: Action | null) => void; pages: { slug: string; title: string }[]; sources: ItemSource[]; screens: ScreenOption[]; pickable: Pickable }) {
+export function TapAction({ id, action, onChange, pages, sources, screens, pickable }: { id: string; action: Action | null; onChange: (action: Action | null) => void; pages: { slug: string; title: string }[]; sources: ItemSource[]; screens: ScreenOption[]; pickable: Pickable }) {
   const t = useDashT();
   const known = useKnownText();
   const entrySources = sources.filter((s) => s !== "courses" && s !== "posts");
+  // 152 A store's entries are its products.
+  const onlyProducts = entrySources.length === 1 && entrySources[0] === "products";
+  const product = action?.type === "item" && action.item?.source === "products";
   // 157 The shop opened at one of its categories (a tile's, a ring's, a chip's).
   const categories = sources.includes("products") ? (pickable.categories.products ?? []) : [];
   const atCategory = action?.type === "screen" && action.screen === "search" && action.category_id !== undefined && action.category_id !== null;
   const value = !action ? "none" : atCategory ? "category" : action.type === "screen" ? `screen:${action.screen ?? ""}` : action.type === "page" ? `page:${action.page_slug ?? ""}` : action.type;
   const opens = (target: string) => t("studio.opens", { target });
-  const icon = !action ? "touch_app" : action.type === "screen" ? "apps" : action.type === "page" ? "description" : action.type === "url" ? "link" : action.type === "course" ? "school" : "category";
+  const icon = !action ? "touch_app" : action.type === "screen" ? "apps" : action.type === "page" ? "description" : action.type === "url" ? "link" : action.type === "course" ? "school" : product ? "shopping_bag" : "category";
   const choose = (v: string) => {
     if (v === "none") onChange(null);
     else if (v.startsWith("screen:")) onChange({ type: "screen", screen: v.slice(7) as Action["screen"] });
@@ -465,6 +470,8 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
   const field = "h-[34px] w-full rounded-lg bg-white px-2.5 text-[13px]";
   const line = { border: "1px solid var(--sf-line)" };
   const entries = action?.type === "item" && action.item ? (pickable.items[action.item.source] ?? []) : [];
+  // 152 A product linked before that the list no longer has (gone from the shop): kept, and named by its ID.
+  const unlisted = action?.type === "item" && action.item?.id && entries.length > 0 && !entries.some((e) => e.id === action.item!.id) ? action.item.id : null;
   return (
     <div className="flex flex-col gap-2">
       <label className="relative flex items-center">
@@ -494,7 +501,7 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
           ) : null}
           <option value="url">{opens(t("studio.tapLink"))}</option>
           {sources.includes("products") ? <option value="category">{opens(t("studio.tapCategory"))}</option> : null}
-          {entrySources.length || action?.type === "item" ? <option value="item">{opens(t("studio.tapItem"))}</option> : null}
+          {entrySources.length || action?.type === "item" ? <option value="item">{opens(t(onlyProducts || product ? "studio.tapProduct" : "studio.tapItem"))}</option> : null}
           {sources.includes("courses") || action?.type === "course" ? <option value="course">{opens(t("studio.tapCourse"))}</option> : null}
         </select>
         <Chevron />
@@ -519,8 +526,9 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
             </select>
           ) : null}
           {entries.length ? (
-            <select aria-label={t("studio.tapItem")} value={action.item.id} onChange={(e) => onChange({ type: "item", item: { ...action.item!, id: e.target.value } })} className={`${field} ${entrySources.length > 1 ? "" : "col-span-2"}`} style={line}>
+            <select aria-label={t(product ? "studio.tapProduct" : "studio.tapItem")} value={action.item.id} onChange={(e) => onChange({ type: "item", item: { ...action.item!, id: e.target.value } })} className={`${field} ${entrySources.length > 1 ? "" : "col-span-2"}`} style={line}>
               <option value="">{t("studio.chooseEntry")}</option>
+              {unlisted ? <option value={unlisted}>{t("studio.productNotListed", { id: unlisted })}</option> : null}
               {entries.map((e) => (
                 <option key={e.id} value={e.id}>
                   {e.title}
@@ -546,6 +554,12 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
             {t("studio.noCategoriesYet")}
           </span>
         )
+      ) : null}
+      {product ? (
+        <p data-product-link-hint className="m-0 flex items-start gap-1.5 text-xs" style={{ color: "var(--sf-muted)" }}>
+          <Glyph name="storefront" size={16} />
+          <span>{t("studio.productLinkHint")}</span>
+        </p>
       ) : null}
       {action?.type === "course" ? (
         <select aria-label={t("studio.tapCourse")} value={String(action.course_id ?? "")} onChange={(e) => onChange({ type: "course", course_id: Number(e.target.value) || null })} className={field} style={line}>
