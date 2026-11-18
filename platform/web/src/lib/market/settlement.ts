@@ -58,7 +58,7 @@ export function gatewayRefund(store: DataStore, app: App, key: Buffer, ip: strin
   return async (order, cents) => {
     const charged = chargedOf(order);
     // Against what the card paid, not the lower total after picking.
-    const done = await refundMarketPayment(account, { ...order, money: { ...order.money, payNow: charged.payNow } }, { cents, refundedBefore: 0, paymentId: null, note: `Weighed ${marketOrderReference(order)}`, ip, now });
+    const done = await refundMarketPayment(account, { ...order, money: { ...order.money, payNow: charged.payNow } }, { cents, refundedBefore: 0, paymentId: order.paymentRef, note: `Weighed ${marketOrderReference(order)}`, ip, now });
     return done.ok ? { ok: true } : { ok: false, error: done.error };
   };
 }
@@ -90,6 +90,7 @@ export async function settleWeighedOrder(deps: SettleDeps, order: MarketOrder): 
     }
     if (!refunded.ok) {
       cardError = refunded.error.slice(0, 200);
+      console.error(`[market] weighed refund of order ${order.id} to the card: ${cardError}; to the wallet instead`);
       toWallet += toCard;
       toCard = 0;
     }

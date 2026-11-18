@@ -303,14 +303,16 @@ export async function payMarketOrder(store: DataStore, app: App, paid: CatalogOr
   if (!order || order.paymentMethod === "cash" || order.paymentStatus !== "unpaid") return null;
   await store.updateCatalogOrder(app.id, paid.id, { status: "completed", updatedAt: now });
   if (order.status !== "awaiting_payment") {
-    await store.updateMarketOrder(app.id, order.id, { paymentStatus: "paid", updatedAt: now }, { statuses: [order.status] });
+    await store.updateMarketOrder(app.id, order.id, { paymentStatus: "paid", paymentRef: paid.paymentId ?? order.paymentRef, updatedAt: now }, { statuses: [order.status] });
     return null;
   }
   const status: MarketOrderStatus = order.scheduledFor ? "scheduled" : "placed";
   const timeline = [...order.timeline, marketStage(status, now, "system")];
-  const changed = await store.updateMarketOrder(app.id, order.id, { status, paymentStatus: "paid", timeline, updatedAt: now }, { statuses: ["awaiting_payment"] });
+  // 115.29 The gateway's payment, for refunds to the card (a weighed order's settlement, complaints).
+  const paymentRef = paid.paymentId ?? order.paymentRef;
+  const changed = await store.updateMarketOrder(app.id, order.id, { status, paymentStatus: "paid", paymentRef, timeline, updatedAt: now }, { statuses: ["awaiting_payment"] });
   if (!changed) return null;
-  const paidOrder: MarketOrder = { ...order, status, paymentStatus: "paid", timeline, updatedAt: now };
+  const paidOrder: MarketOrder = { ...order, status, paymentStatus: "paid", paymentRef, timeline, updatedAt: now };
   // 115.22 The customer hears it's booked or sent, and the vendor's staff of a new order (once: only the confirmation that moved it).
   await announceMarketOrder({ store, app, now }, paidOrder);
   return paidOrder;

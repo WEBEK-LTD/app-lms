@@ -23,7 +23,7 @@ export function complaintDecisionDeps(store: DataStore, app: App, key: Buffer, i
       const earlier = (await store.listMarketComplaints({ appId: app.id, orderId: order.id, limit: 100, offset: 0 })).items
         .filter((c) => c.id !== complaintId && c.decision?.to === "payment")
         .reduce((sum, c) => sum + (c.decision?.amount ?? 0), 0) + (order.money.settlement?.toCard ?? 0);
-      const done = await refundMarketPayment(account, order, { cents: amount, refundedBefore: earlier, paymentId: null, note: `Complaint ${complaintId}`, ip: input.ip, now: input.now });
+      const done = await refundMarketPayment(account, order, { cents: amount, refundedBefore: earlier, paymentId: order.paymentRef, note: `Complaint ${complaintId}`, ip: input.ip, now: input.now });
       return done.ok ? { ok: true } : { ok: false, error: done.error };
     },
     makeCoupon: async (order: MarketOrder, amount: number, complaintId: number) => {

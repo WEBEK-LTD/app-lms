@@ -289,7 +289,8 @@ test("a weighed card order picked lighter gets the difference back on its card, 
     expect((await page.request.post(board, { data: { action: "ready", order_id: order.id } })).status()).toBe(200);
 
     // EGP 50 back to the card, once, through the owner's Kashier keys.
-    expect(kashier.refunds).toHaveLength(1);
+    const seen = await (await request.get(`${api}/me/market-orders/${order.id}`, { headers })).text();
+    expect(kashier.refunds, seen).toHaveLength(1);
     expect(kashier.refunds[0]!.authorization).toBe("souk-kashier-secret");
     expect(JSON.stringify(kashier.refunds[0]!.body)).toContain("50");
     const settled = (await (await request.get(`${api}/me/market-orders/${order.id}`, { headers })).json()) as { estimated: boolean; settlement: Record<string, { amount: string }>; price: { kind: string; amount: { amount: string } }[]; payment: { status: string } };
