@@ -4374,3 +4374,12 @@ The owner's word (18 November, very urgent), on Kech Flora and Leqaa: "keep the 
 | [x] | 193.5 `CLIENT_APP_RELEASE` 13 (12 is the release 12 integration's, #473), the preview rebuilt | `publish-for-all.test.ts`, CI "App preview is up to date" |
 | [x] | 193.7 The owner, on the first look: "why the big space between the name and the price?" The shop's grid went row by row (each row as tall as its fullest card, the cards of a row the same height); a card's name keeps its two lines with the price right under it, level across the row, Add to cart at the card's foot. Before, every cell was one fixed height made for the fullest card, the price pushed to its foot, leaving a band between the name and the price | `phase193_add_to_cart_test.dart`, screenshots |
 | [ ] | 193.6 A flash sale's own cards (`flash_sale`) keep their look without the button; on Kech Flora's phone, Add to cart on the Bouquets tab and the home | — |
+
+## Phase 195: The documentation's pages read their articles in one query
+
+The owner's log (19 November, 01:50): a website page failed with `Failed query: select … from user_sessions …` and, under it, `Queue limit reached`. The documentation's menu (on every documentation page, `docsNavGroups`) and its search read each of the 73 articles' texts on its own, one query each in English and two in Arabic and Turkish, all at once. The site's one database connection per function (`createPool`, 50 queries waiting at most) had more waiting than it takes, so the page failed, and the session read beside it with it.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 195.1 `getSiteContents(keys, lang)` (`lib/content/get.ts`): several pages' texts as `getSiteContent` gives each (the team's edits, their translations, the defaults when the database can't be read), from one query for this render (`listSiteContent`) | `phase195-docs-one-query` |
+| [x] | 195.2 The documentation's menu (`components/docs-shell.tsx`) and its search (`site/docs.tsx`) read all their articles with it: one query, whatever the language | `phase195-docs-one-query` |

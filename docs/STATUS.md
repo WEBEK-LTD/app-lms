@@ -8,6 +8,12 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 195 (the documentation's pages read their articles in one
+query): the documentation's menu and search read each of the 73 articles
+on its own, one or two queries each at once, past the 50 the site's one
+database connection lets wait ("Queue limit reached", the page and the
+session read with it failing). Now one query for them all.
+
 Roadmap 193 (Add to cart under every product, on Leqaa's looks): on a
 store with the gift checkout (Leqaa's looks, Kech Flora), every product's
 card keeps its look and gets Add to cart under it, on the shop's grid, the

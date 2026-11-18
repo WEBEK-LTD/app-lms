@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { DOCS, DOC_SECTIONS, type DocSection } from "@/content/docs";
-import { getSiteContent } from "@/lib/content/get";
+import { getSiteContents } from "@/lib/content/get";
 import { DEFAULT_LANG, messagesFor, type Lang, type Messages } from "@/i18n";
 import { localePath } from "@/i18n/paths";
 import { DocsNav, type DocsNavGroup } from "./docs-nav";
@@ -28,7 +28,9 @@ export function docSectionName(lang: Lang, section: DocSection): string {
  * 55 In a language: its titles and links; `section` keeps the English section (for its icon).
  */
 export async function docsNavGroups(lang: Lang = DEFAULT_LANG): Promise<(DocsNavGroup & { section: DocSection })[]> {
-  const texts = new Map(await Promise.all(DOCS.map(async (d) => [d.slug, await getSiteContent(d.key, lang)] as const)));
+  // 195 Every article's title in one query (one or two each held the database connection past its queue).
+  const all = await getSiteContents(DOCS.map((d) => d.key), lang);
+  const texts = new Map(DOCS.map((d, i) => [d.slug, all[i]!] as const));
   const m = messagesFor(lang).docs;
   return DOC_SECTIONS.map((section) => ({
     section,
