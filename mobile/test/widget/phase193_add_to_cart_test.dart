@@ -185,6 +185,40 @@ void main() {
         findsOneWidget,
       );
     }
+    // The owner: "why the big space between the name and the price?" The
+    // cards of a row as tall as each other, the price right under the
+    // name's two lines, level across the row, Add to cart at the foot.
+    Rect rectOf(Finder f) => tester.getRect(f);
+    final row = [
+      for (final id in [301, 302])
+        find.ancestor(
+          of: find.byKey(ValueKey('quick-add-$id'), skipOffstage: false),
+          matching: find.byType(ProductCard, skipOffstage: false),
+        ),
+    ];
+    final prices = [
+      for (final c in row)
+        rectOf(
+          find
+              .descendant(
+                of: c,
+                matching: find.byType(ProductPriceLabel, skipOffstage: false),
+              )
+              .first,
+        ),
+    ];
+    expect(rectOf(row[0]).height, moreOrLessEquals(rectOf(row[1]).height));
+    expect(prices[0].top, moreOrLessEquals(prices[1].top));
+    for (final (i, c) in row.indexed) {
+      final card = rectOf(c);
+      // Under the square picture: the name's two lines (about 38) and 6.
+      final picture = card.top + card.width;
+      expect(prices[i].top - picture, lessThan(60), reason: 'no band');
+      final add = rectOf(
+        find.byKey(ValueKey('quick-add-${[301, 302][i]}'), skipOffstage: false),
+      );
+      expect(card.bottom - add.bottom, lessThan(16));
+    }
     await close(tester, app);
 
     (app, _) = await open(tester, gift: false);

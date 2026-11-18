@@ -14,7 +14,9 @@ card keeps its look and gets Add to cart under it, on the shop's grid, the
 home's rows, "You may also like" and every Studio list of products, and on
 Studio's canvas. A product with nothing to choose goes straight in the cart
 with "Added to cart"; one with sizes or options opens its page; out of
-stock, the button is off. `CLIENT_APP_RELEASE` is 13 (12 is #473's); the
+stock, the button is off. The shop's grid goes row by row, so a card's
+price sits right under its name, level across the row, with no empty
+band between them. `CLIENT_APP_RELEASE` is 13 (12 is #473's); the
 preview rebuilt. No migration.
 
 Roadmap 183 (`brand`'s Start now opens the app's main screen): the
