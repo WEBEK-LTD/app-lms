@@ -252,7 +252,7 @@ test("a weighed card order picked lighter gets the difference back on its card, 
     await own.getByRole("button", { name: "Save the settings" }).click();
     await expect(own.getByText("The marketplace settings are saved.")).toBeVisible();
 
-    // The customer pays 1 kg (EGP 200) by card on Kashier's form.
+    // The customer pays 1 kg (EGP 200) and its delivery by card on Kashier's form.
     const asked = (await (await request.post(`${api}/auth/email/request`, { data: { email: `card-${customerEmail}` }, headers: { "x-forwarded-for": "198.51.100.127" } })).json()) as { request_id: string };
     const verified = (await (await request.post(`${api}/auth/otp/verify`, { data: { request_id: asked.request_id, code: await emailedCode(`card-${customerEmail}`), device: { ...device, id: `${device.id}-card` } } })).json()) as { signup_token: string };
     const registered = await request.post(`${api}/auth/register`, { data: { signup_token: verified.signup_token, name: "Karim Card", device: { ...device, id: `${device.id}-card` } } });
@@ -289,12 +289,12 @@ test("a weighed card order picked lighter gets the difference back on its card, 
     expect((await page.request.post(board, { data: { action: "ready", order_id: order.id } })).status()).toBe(200);
 
     // EGP 50 back to the card, once, through the owner's Kashier keys.
-    const seen = await (await request.get(`${api}/me/market-orders/${order.id}`, { headers })).text();
-    expect(kashier.refunds, seen).toHaveLength(1);
+    expect(kashier.refunds).toHaveLength(1);
     expect(kashier.refunds[0]!.authorization).toBe("souk-kashier-secret");
     expect(JSON.stringify(kashier.refunds[0]!.body)).toContain("50");
     const settled = (await (await request.get(`${api}/me/market-orders/${order.id}`, { headers })).json()) as { estimated: boolean; settlement: Record<string, { amount: string }>; price: { kind: string; amount: { amount: string } }[]; payment: { status: string } };
-    expect(settled).toMatchObject({ estimated: false, payment: { status: "partly_refunded" }, settlement: { paid: { amount: "200.00" }, final: { amount: "150.00" }, to_card: { amount: "50.00" }, to_wallet: { amount: "0.00" } } });
+    expect(settled).toMatchObject({ estimated: false, payment: { status: "partly_refunded" }, // 1 kg (200) and the delivery (30) paid; 750 g (150) and the delivery once weighed.
+      settlement: { paid: { amount: "230.00" }, final: { amount: "180.00" }, to_card: { amount: "50.00" }, to_wallet: { amount: "0.00" } } });
     expect(settled.price.at(-1)).toMatchObject({ kind: "refund", amount: { amount: "-50.00" } });
     // Readied again (a second tap): nothing more goes back.
     await page.request.post(board, { data: { action: "ready", order_id: order.id } });
