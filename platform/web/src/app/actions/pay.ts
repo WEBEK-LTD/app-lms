@@ -15,6 +15,7 @@ import type { FormState } from "@/lib/forms";
 import { ipFromHeaders } from "@/lib/http";
 import { PaymentError } from "@/lib/payments/errors";
 import { StripeError } from "@/lib/payments/stripe";
+import { walletDomain } from "@/lib/payments/wallets";
 import { callbackUrls } from "@/lib/payments/routes";
 import { settleOrderPayment } from "@/lib/payments/settle";
 import { withDemoChecked } from "@/lib/demo/apps";
@@ -111,18 +112,21 @@ export async function payAction(token: string, _: PayState, formData: FormData):
     }
   }
   let started;
+  const urls = paymentApiUrls();
   try {
     started = await startPayment({
       store,
       app,
       account,
-      urls: paymentApiUrls(),
+      urls,
       now,
       order: payable,
       customer: checked.customer,
       ip: ipFromHeaders(await headers()),
       callbackUrls: callbackUrls(appUrl(), "order", account.account.provider, token),
       hosted: formData.get("hosted") === "1",
+      // 155 This page's domain, for Apple Pay and Google Pay in Stripe's form.
+      walletDomain: walletDomain(appUrl(), Boolean(urls.stripe)),
     });
   } catch (e) {
     if (e instanceof HoldEndedError) return { message: "The places held for this order were released. Go back to the app and get your tickets again." };
