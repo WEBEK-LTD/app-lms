@@ -2818,6 +2818,12 @@ app opens on the site's links (`<site>/a/page/<slug>`).
   into `result.json`, and `report.py` sends it (`StatusReport.failure`). The
   build keeps it (migration 0071); `lib/builds/failures.ts` says what happened
   and what to do (known texts, en/ar/tr) on the page and in the email.
+  151 The client's words never name GitHub, a Mac, a runner or the pipeline;
+  the iPhone app's output is shown in the admin only (`BuildCause`, with the
+  code and `adminFailureDetail`). An iOS job GitHub had no Mac for writes no
+  result: the report job reads the run's jobs and sends `ios_no_mac_runner`;
+  the status report raises the team's one alert for the build
+  (`lib/watch/watch.ts` `alertNoMac`), and nothing retries it.
 - **Rebuild as it was** (87.3): the jobs report `source_commit`; a rebuild
   carries the earlier build's commit as `source_ref` (checked out instead of
   the workflow's commit), its config and listing, with a new version
