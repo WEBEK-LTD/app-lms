@@ -8,6 +8,9 @@ import 'package:yallapp/core/format/text_case.dart';
 import 'package:yallapp/core/l10n/l10n.dart';
 import 'package:yallapp/core/l10n/vertical_wording.dart';
 import 'package:yallapp/core/routing/paths.dart';
+import 'package:yallapp/modules/store/data/cart_controller.dart';
+
+import 'dart:convert';
 
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
@@ -228,6 +231,70 @@ void main() {
       });
       expect(rules.startersIn('tr'), ['With love']);
     });
+  });
+
+  group('169.4 the flower shop\'s screens in Arabic and Turkish', () {
+    // The gift checkout's fee is a delivery to the recipient, not shipping
+    // ("Kargo", "الشحن"); a standard shop keeps its shipping.
+    for (final (language, gift, label) in [
+      ('tr', true, 'Teslimat ücreti · Kahire'),
+      ('ar', true, 'رسوم التوصيل · Kahire'),
+      ('en', true, 'Delivery fee · Kahire'),
+      ('tr', false, 'Kargo · Kahire'),
+    ]) {
+      testWidgets('the cart\'s fee in $language${gift ? ' (gift)' : ''}', (
+        tester,
+      ) async {
+        tester.view
+          ..physicalSize = const Size(1080, 4800)
+          ..devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        final api =
+            FakeApi(
+                config: {
+                  ...configJson(lms: null, languages: languagesJson()),
+                  'store': {
+                    ...storeConfigJson(),
+                    if (gift) 'checkout_mode': 'gift',
+                  },
+                },
+              )
+              ..pages = {'home': appPageJson(blocks: [])}
+              ..cartQuote = {
+                ...cartQuoteJson(),
+                'shipping': '₺95.00',
+                'delivery_zone': 'Kahire',
+              };
+        final app = TestApp(
+          appType: AppType.store,
+          signedIn: true,
+          api: api,
+          preferences: {
+            'settings.language': language,
+            CartController.storageKey: jsonEncode([
+              const CartItem(
+                productId: 21,
+                quantity: 2,
+                name: 'Sunflower Basket',
+                price: '₺200.00',
+                maxQuantity: 5,
+              ).toJson(),
+            ]),
+          },
+        );
+        await app.pump(tester);
+        GoRouter.of(tester.element(find.byType(Scaffold).first))
+            .push(Paths.cart);
+        await TestApp.settle(tester, 10);
+        final fee = find.text(label);
+        await tester.scrollUntilVisible(
+          fee,
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(fee, findsOneWidget);
+      });
+    }
   });
 }
 

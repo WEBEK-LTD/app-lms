@@ -55,7 +55,9 @@ Turkish. Capitals follow the language (Turkish "AŞK İÇİN", not "AŞK
 IÇIN") through one helper, in Studio's capitals, kickers, labels and
 initials. The card's "Beginnings to tap" have a field per app language in
 Delivery & offers › Gifts, sent by language in `StoreConfig` and shown in
-the customer's; saved ones stay the main language's. Not yet in a rebuilt
+the customer's; saved ones stay the main language's. Every screen of both
+looks was walked in Arabic (day and night) and Turkish: a gift's delivery
+in the cart's summary is "Delivery fee", not "Shipping". Not yet in a rebuilt
 app (ROADMAP 169.6); the plugin's stay one field (169.5).
 
 Roadmap 152 (Our bouquet's chips and button open the product the owner

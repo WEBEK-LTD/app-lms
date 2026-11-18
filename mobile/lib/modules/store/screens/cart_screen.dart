@@ -452,6 +452,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     // 131 The gift checkout (the store's, or the look Studio set) and the look.
     final look = ref.watch(appConfigProvider).screens?.checkout;
     final gift = store.giftCheckout || (look?.gift ?? false);
+    final feeLabel = gift
+        ? context.l10n.deliveryFee
+        : context.l10n.cartShipping;
     final needsDate =
         (rules.enabled && rules.required || gift) && _deliveryDate == null;
     final needsSlot =
@@ -863,9 +866,11 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               ),
                             if (value?.shipping case final shipping?)
                               _SumRow(
+                                // 169 A gift's delivery (a flower shop's), not
+                                // shipping ("Kargo" in Turkish).
                                 label: value!.deliveryZone == null
-                                    ? context.l10n.cartShipping
-                                    : '${context.l10n.cartShipping} · ${value.deliveryZone}',
+                                    ? feeLabel
+                                    : '$feeLabel · ${value.deliveryZone}',
                                 value: shipping,
                               ),
                             // 131 What made up the shipping (the city, the km,
