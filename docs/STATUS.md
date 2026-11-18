@@ -61,6 +61,22 @@ currency; a review's Stars show 5; and the report's minor Studio bugs are
 fixed (ROADMAP 174.8). No migration. Not yet seen on a phone (ROADMAP
 174.9).
 
+Roadmap 115.21–115.23 (the marketplace audit's three bugs,
+docs/plans/2026-11-18-marketplace-audit.md): orders for later reach their
+vendor from the frequent job at their time less the vendor's preparation
+(with a delay in force), released and announced once even when two runs
+overlap, on memory and MariaDB; the four marketplace notifications are
+sent through the inbox and push path in the person's language, opening
+the right screen (`market_order_update` on each stage, `vendor_order` to
+the vendor's staff on a new or released order, `complaint_update` on
+support's reply or decision, `club_renewal` 3 days before a kept club plan
+ends and on its last day, nothing charged); the customer app opens a
+dish's choices before it goes in the basket and sends them with the quote
+and the order, and shows them in the basket, the checkout and the order.
+No migration and no contract change. Still to check on a real phone: the
+pushes arriving (customer app, vendor app, the Vendor tab) and each tap
+opening its screen, and the dish sheet on a small screen.
+
 Roadmap 157 (the template's categories are the shop's): Leqaa's occasion
 rings, chips and ticker and its collections' bento, arches and cards were
 the template's own words, opening the whole shop, whatever categories the

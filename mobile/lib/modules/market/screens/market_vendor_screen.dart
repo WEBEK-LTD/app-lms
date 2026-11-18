@@ -3,6 +3,9 @@ import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../../core/api/models/models.dart' show Dish;
 import '../../../core/format/bidi.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/gate/app_gate.dart';
@@ -14,6 +17,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../data/market_basket.dart';
 import '../../delivery/data/delivery_providers.dart' show LocateProblem;
+import '../../food/widgets/dish_sheet.dart';
 import '../data/market_models.dart';
 import '../data/market_place.dart';
 import '../data/market_providers.dart';
@@ -130,6 +134,40 @@ class _VendorPageViewState extends ConsumerState<_VendorPageView> {
         ),
       );
       if (yes != true || !mounted) return;
+    }
+    // 115.23 A dish with choices (a size, extras) opens them first: what's
+    // chosen goes in the basket with it, and to the server with the order.
+    if (item.choices.isNotEmpty) {
+      final chosen = await showDishSheet(
+        context,
+        Dish(
+          id: int.tryParse(item.id) ?? 0,
+          name: item.name,
+          priceFormatted: item.price,
+          description: item.description,
+          imageUrl: item.imageUrl,
+          available: item.inStock,
+          choiceGroups: item.choices,
+        ),
+      );
+      if (chosen == null || !mounted) return;
+      final extra = [
+        for (final g in item.choices)
+          for (final c in g.choices)
+            if (chosen.choices.contains(c.id)) c.extra ?? 0,
+      ].fold<double>(0, (sum, e) => sum + e);
+      basket.add(
+        _vendor,
+        item,
+        currency: widget.page.currency,
+        decimals: widget.page.decimals,
+        choices: chosen.choices,
+        choiceNames: chosen.choiceNames,
+        extra: extra,
+        note: chosen.note,
+        count: chosen.quantity,
+      );
+      return;
     }
     basket.add(
       _vendor,
@@ -851,7 +889,11 @@ class _DishRow extends StatelessWidget {
                       end: -4,
                       bottom: -4,
                       child: item.inStock
-                          ? _RoundAdd(count: quantity, onTap: onAdd)
+                          ? _RoundAdd(
+                              key: ValueKey('market-add-${item.id}'),
+                              count: quantity,
+                              onTap: onAdd,
+                            )
                           : MarketPill(
                               text: l10n.marketSoldOut,
                               background: p.text,
@@ -870,7 +912,7 @@ class _DishRow extends StatelessWidget {
 }
 
 class _RoundAdd extends StatelessWidget {
-  const _RoundAdd({required this.count, required this.onTap});
+  const _RoundAdd({super.key, required this.count, required this.onTap});
 
   final int count;
   final VoidCallback onTap;

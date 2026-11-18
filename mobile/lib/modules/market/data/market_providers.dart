@@ -266,6 +266,7 @@ MarketItem marketItemFrom(api.MarketProduct p) => MarketItem(
   },
   step: p.step,
   hasChoices: p.choices.isNotEmpty,
+  choices: p.choices,
   popular: p.tags.contains('popular'),
   inStock: p.inStock,
 );

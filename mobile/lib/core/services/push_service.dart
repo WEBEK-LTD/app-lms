@@ -56,6 +56,9 @@ abstract class PushService {
 /// - 104 `shipment_update` opens the shipment, `courier_job` the courier's job;
 /// - 105.1 `food_order_update` opens the food order, `restaurant_order` the
 ///   restaurant's order;
+/// - 115.22 a marketplace's: `market_order_update` the customer's order,
+///   `vendor_order` the order in the vendor's screens, `complaint_update`
+///   the customer's complaint, `club_renewal` the club;
 /// - 105.2 `ride_update` opens the ride, `ride_offer` the driver's screen;
 /// - 105.3 `new_course` opens the course, `teacher_course` the teacher's
 ///   course, `teacher_question` the question;
@@ -124,6 +127,20 @@ String pushTargetLocation(Map<String, dynamic> data) {
     case 'restaurant_order':
       final food = id('food_order_id');
       return food != null ? Paths.restaurantOrder(food) : Paths.restaurantDesk;
+    // 115.22 A marketplace's order, a vendor's new order, a complaint, the club.
+    case 'market_order_update':
+      final market = id('market_order_id');
+      return market != null ? Paths.marketOrder(market) : Paths.marketOrders;
+    case 'vendor_order':
+      final market = id('market_order_id');
+      return market != null ? Paths.vendorOrder(market) : Paths.vendorDesk;
+    case 'complaint_update':
+      final complaint = id('complaint_id');
+      return complaint != null
+          ? Paths.marketComplaint(complaint)
+          : Paths.marketOrders;
+    case 'club_renewal':
+      return Paths.marketClub;
     case 'ride_update':
       final ride = id('ride_id');
       return ride != null ? Paths.rideFollow(ride) : Paths.myRides;

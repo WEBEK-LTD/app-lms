@@ -1563,6 +1563,9 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     // 105.1 The food order, 105.2 the ride, 105.4 the student and the homework they open.
     ...(n.data?.food_order_id ? { food_order_id: numberOf(n.data.food_order_id) } : {}),
     ...(n.data?.ride_id ? { ride_id: numberOf(n.data.ride_id) } : {}),
+    // 115.22 The marketplace order and the complaint they open.
+    ...(n.data?.market_order_id ? { market_order_id: numberOf(n.data.market_order_id) } : {}),
+    ...(n.data?.complaint_id ? { complaint_id: numberOf(n.data.complaint_id) } : {}),
     ...(n.data?.student_id ? { student_id: numberOf(n.data.student_id) } : {}),
     ...(n.data?.homework_id ? { homework_id: numberOf(n.data.homework_id) } : {}),
     // 112.5 The live class and the assignment they open.

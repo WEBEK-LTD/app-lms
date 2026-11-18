@@ -537,12 +537,17 @@ describe("125 the Owner API for the Studio apps, Prime and VIP", () => {
     ]);
     const replied = await call("POST", "/apps/{app_id}/market/complaints/{complaint_id}/reply", { token, params: { app_id: market.id, complaint_id: c.id }, body: { text: "We're sorry. Checking now." } });
     expect(replied.body).toMatchObject({ waiting_for: "customer", status: "waiting_for_customer", messages: [{ from: "support", text: "We're sorry. Checking now." }] });
+    // 115.22 The customer is told of the reply, opening the complaint.
+    const toldOf = async () => (await store.listHostedNotifications({ appId: market.id, userId: customer.id, since: new Date(0), page: 1, perPage: 20 })).items.filter((n) => n.data?.type === "complaint_update").sort((x, y) => x.id - y.id);
+    expect((await toldOf()).map((n) => [n.body, n.data])).toEqual([[`C-${100 + c.id}: We're sorry. Checking now.`, { type: "complaint_update", complaint_id: String(c.id) }]]);
     expect((await call("GET", "/apps/{app_id}/market/complaints", { token, params: { app_id: market.id }, query: { queue: "vendor" } })).body.total).toBe(1);
     const decide = (body: unknown) => call("POST", "/apps/{app_id}/market/complaints/{complaint_id}/decide", { token, params: { app_id: market.id, complaint_id: c.id }, body });
     expect((await decide({ decision: "no_refund" })).body).toMatchObject({ code: "invalid_request", errors: { note: "Tell the customer why." } });
     expect((await decide({ decision: "partial_refund", amount_cents: 99_999, to: "wallet" })).body).toMatchObject({ errors: { amount_cents: "That's more than is left to give back on this order." } });
     const decided = await decide({ decision: "partial_refund", amount_cents: 7_500, to: "wallet", funder: "vendor" });
     expect(decided.body).toMatchObject({ status: "resolved", decisions: [], decision: { decision: "partial_refund", amount: { amount_cents: 7_500 }, to: "wallet" } });
+    // And of the decision.
+    expect((await toldOf()).map((n) => n.body)).toEqual([`C-${100 + c.id}: We're sorry. Checking now.`, `C-${100 + c.id}: We've given the amount back to your wallet.`]);
     expect((await decide({ decision: "refund" })).body).toMatchObject({ code: "invalid_status" });
     expect((await call("GET", "/apps/{app_id}/market/vendors", { token, params: { app_id: market.id } })).body.items).toMatchObject([{ id: vendor.id, kind: "grocery", orders_today: 1 }]);
   });
