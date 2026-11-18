@@ -12642,6 +12642,18 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('deliveryPinChoose') ?? base.deliveryPinChoose;
 
   @override
+  String get deliveryPinNoMapTitle =>
+      overlay.text('deliveryPinNoMapTitle') ?? base.deliveryPinNoMapTitle;
+
+  @override
+  String get deliveryPinNoMapMessage =>
+      overlay.text('deliveryPinNoMapMessage') ?? base.deliveryPinNoMapMessage;
+
+  @override
+  String get deliveryPinUseHere =>
+      overlay.text('deliveryPinUseHere') ?? base.deliveryPinUseHere;
+
+  @override
   String get deliveryPinSet =>
       overlay.text('deliveryPinSet') ?? base.deliveryPinSet;
 

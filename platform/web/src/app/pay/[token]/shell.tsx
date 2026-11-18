@@ -13,10 +13,11 @@ export function textOn(hex: string): string {
 }
 
 /** The page frame in the client's branding: this page opens inside their app. */
-export function PayShell({ app, children }: { app: App | null; children: React.ReactNode }) {
-  const name = app?.appName ?? "Checkout";
+export function PayShell({ app, children, lang = "en" }: { app: App | null; children: React.ReactNode; lang?: "en" | "ar" | "tr" }) {
+  const name = app?.appName ?? (lang === "ar" ? "إتمام الطلب" : lang === "tr" ? "Ödeme" : "Checkout");
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col gap-5 bg-white px-4 py-6 sm:my-8 sm:min-h-0 sm:rounded-2xl sm:border sm:border-line sm:px-7">
+    // 168 In the customer's language, right to left in Arabic.
+    <main lang={lang} dir={lang === "ar" ? "rtl" : "ltr"} className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col gap-5 bg-white px-4 py-6 sm:my-8 sm:min-h-0 sm:rounded-2xl sm:border sm:border-line sm:px-7">
       <header className="flex items-center gap-3">
         {app?.logoAssetId ? (
           // eslint-disable-next-line @next/next/no-img-element

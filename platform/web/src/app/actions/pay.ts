@@ -4,6 +4,7 @@ import { PROVIDER_NAME, providerTakes } from "@/lib/payments/provider";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { chargedAmount, cityOptionalFor, readCustomer, startPayment } from "@/lib/catalog/payment";
+import { payErrors, payLangOf, payMessage } from "@/lib/catalog/pay-words";
 import { formatCents } from "@/lib/catalog/money";
 import { chooseManualPayment, isManualMethod } from "@/lib/catalog/manual";
 import { sendManualOrderMails } from "@/lib/catalog/manual-mail";
@@ -57,7 +58,19 @@ export interface PayState extends FormState {
  * 96.2 places the order to pay by bank transfer or the owner's own method.
  * `hosted` (Stripe's form couldn't load) asks for Stripe's own page.
  */
-export async function payAction(token: string, _: PayState, formData: FormData): Promise<PayState> {
+/**
+ * The payment page's form. 168 Its answers (each field's error, the
+ * page's message) in the customer's language, the order's.
+ */
+export async function payAction(token: string, previous: PayState, formData: FormData): Promise<PayState> {
+  const state = await payActionIn(token, previous, formData);
+  const order = await (await getStore()).getCatalogOrderByToken(sha256Hex(token));
+  const lang = payLangOf(order);
+  if (lang === "en") return state;
+  return { ...state, ...(state.message ? { message: payMessage(state.message, lang) } : {}), ...(state.errors ? { errors: payErrors(state.errors, lang) } : {}) };
+}
+
+async function payActionIn(token: string, _: PayState, formData: FormData): Promise<PayState> {
   const values = Object.fromEntries(["name", "phone", "email", "city", "address"].map((k) => [k, String(formData.get(k) ?? "")]));
   const store = await getStore();
   const order = await store.getCatalogOrderByToken(sha256Hex(token));

@@ -12358,6 +12358,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deliveryPinChoose => 'حدّد مكان التوصيل على الخريطة';
 
   @override
+  String get deliveryPinNoMapTitle => 'لا توجد خريطة لهذا المتجر بعد';
+
+  @override
+  String get deliveryPinNoMapMessage =>
+      'سيكون مكان التوصيل هو مكان هاتفك الآن. استخدمه فقط إذا كنت في المكان الذي سيُرسل إليه الطلب، أو اطلب من المتجر التوصيل إلى عنوانك.';
+
+  @override
+  String get deliveryPinUseHere => 'استخدم مكاني الحالي';
+
+  @override
   String get deliveryPinSet => 'تم تحديد المكان على الخريطة';
 
   @override

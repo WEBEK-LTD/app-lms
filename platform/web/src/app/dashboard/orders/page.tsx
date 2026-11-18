@@ -1,4 +1,5 @@
 import { mapsLink } from "../shipments/parts";
+import { shopZone } from "@/lib/selling/zone";
 import { rateText } from "@/lib/money/rates";
 import type { Metadata } from "next";
 import { deliveryDayLabel, deliveryOf, shopToday, slotLabel } from "@/lib/selling/delivery";
@@ -75,6 +76,8 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   const kitchen = app.connector.kind === "catalog" ? fulfilmentOf(app) : null;
   if (kitchen) return <KitchenView app={app} kitchen={kitchen} page={page} />;
   const store = await getStore();
+  // 168 The orders' times in the shop's own time zone (its delivery times', else the app's), not UTC.
+  const zone = shopZone(app);
   const { items, total } = await store.listCatalogOrders({ appId: app.id, statuses: PAID, offset: (page - 1) * PER_PAGE, limit: PER_PAGE });
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
   // 132.132 The hero's numbers: what still waits for the owner, and what's done.
@@ -126,7 +129,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
             filters={groups}
             items={items.map((order, index) => {
               const title = t("orders.orderTitle", { number: orderNumber(order), total: formatCents(order.totalCents, order.currency) });
-              const paidLine = `${t("orders.paidOn", { date: formatDateTime(order.paidAt, lang) })}${order.refundedCents && order.status !== "refunded" ? ` · ${k(refundedLine(order.refundedCents, order.totalCents, order.currency) ?? "")}` : ""}`;
+              const paidLine = `${t("orders.paidOn", { date: formatDateTime(order.paidAt, lang, zone) })}${order.refundedCents && order.status !== "refunded" ? ` · ${k(refundedLine(order.refundedCents, order.totalCents, order.currency) ?? "")}` : ""}`;
               const status = order.shipment && order.status === "processing" ? k("Shipped") : k(ORDER_STATUS_LABELS[order.status]);
               const count = order.lines.filter((l) => !l.addonOf).reduce((sum, l) => sum + l.quantity, 0);
               return {
@@ -195,7 +198,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                             { b: (chunk) => <strong>{chunk}</strong> },
                           )}{" "}
                           {order.payoutApprovedAt
-                            ? t(byIyzico(order) ? "orders.releasedIyzico" : "orders.releasedYallapp", { date: formatDateTime(order.payoutApprovedAt, lang) })
+                            ? t(byIyzico(order) ? "orders.releasedIyzico" : "orders.releasedYallapp", { date: formatDateTime(order.payoutApprovedAt, lang, zone) })
                             : order.status === "processing"
                               ? t(byIyzico(order) ? "orders.pendingIyzico" : "orders.pendingYallapp")
                               : t("orders.notReleased")}
@@ -280,7 +283,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                                     {t(`orders.stage_${e.stage}`)}
                                     {e.reason ? ` · ${t(`orders.reason_${e.reason}`)}` : ""}
                                   </span>
-                                  <span className="text-[13px] text-(--sp-muted)">{t("orders.stageBy", { by: e.by?.name ?? "Yallapp", when: formatDateTime(new Date(e.at), lang) })}</span>
+                                  <span className="text-[13px] text-(--sp-muted)">{t("orders.stageBy", { by: e.by?.name ?? "Yallapp", when: formatDateTime(new Date(e.at), lang, zone) })}</span>
                                   {e.date ? <span>{t("orders.stageDayLine", { day: `${deliveryDayLabel(e.date, lang)}${e.slot ? ` · ${slotLabel(e.slot)}` : ""}` })}</span> : null}
                                   {e.next ? <span>{t("orders.stageNextLine", { step: t(`orders.next_${e.next}`) })}</span> : null}
                                   {e.courier ? (
@@ -335,7 +338,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                           </h3>
                           {order.shipment ? (
                             <div className="flex flex-col gap-0.5 text-[15px]">
-                              <span className="text-(--sp-muted)">{t("orders.shippedOn", { date: formatDateTime(new Date(order.shipment.shippedAt), lang) })}</span>
+                              <span className="text-(--sp-muted)">{t("orders.shippedOn", { date: formatDateTime(new Date(order.shipment.shippedAt), lang, zone) })}</span>
                               {order.shipment.carrier ? <span>{order.shipment.carrier}</span> : null}
                               {order.shipment.trackingNumber ? (
                                 <span dir="ltr" className="font-semibold">
@@ -379,7 +382,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                             <KitStatus tone={order.returnRequest.status === "approved" ? "success" : order.returnRequest.status === "declined" ? "neutral" : "warn"}>{t(`orders.return_${order.returnRequest.status}`)}</KitStatus>
                           </h3>
                           <div className="flex flex-col gap-0.5 text-[15px]">
-                            <span className="text-(--sp-muted)">{t("orders.returnAskedOn", { date: formatDateTime(new Date(order.returnRequest.requestedAt), lang) })}</span>
+                            <span className="text-(--sp-muted)">{t("orders.returnAskedOn", { date: formatDateTime(new Date(order.returnRequest.requestedAt), lang, zone) })}</span>
                             <span className="font-semibold">{t(`orders.returnReason_${order.returnRequest.reason}`)}</span>
                             {order.returnRequest.note ? <span className="whitespace-pre-line">{order.returnRequest.note}</span> : null}
                             {order.returnRequest.reply ? <span className="text-(--sp-muted)">{t("orders.returnYourReply", { reply: order.returnRequest.reply })}</span> : null}

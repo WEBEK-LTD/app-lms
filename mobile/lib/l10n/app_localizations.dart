@@ -19160,6 +19160,24 @@ abstract class AppLocalizations {
   /// **'Pin the delivery place on the map'**
   String get deliveryPinChoose;
 
+  /// 168 Title of the notice when the shop prices delivery by distance but the platform has no map to pin on.
+  ///
+  /// In en, this message translates to:
+  /// **'This shop has no map yet'**
+  String get deliveryPinNoMapTitle;
+
+  /// 168 Why the phone's own location is used when there is no map: a gift's recipient is usually elsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'The delivery place will be where your phone is now. Use it only if you\'re at the place the order goes, or ask the shop to deliver to your address.'**
+  String get deliveryPinNoMapMessage;
+
+  /// 168 Uses the phone's location as the delivery place when there is no map.
+  ///
+  /// In en, this message translates to:
+  /// **'Use where I am'**
+  String get deliveryPinUseHere;
+
   /// 131 The place the order goes is pinned on the map.
   ///
   /// In en, this message translates to:

@@ -1,4 +1,5 @@
 import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf, orderTimesJson } from "../../catalog/fulfilment";
+import { serverMessage } from "../../i18n/builtin";
 import { LOYALTY_HISTORY, loyaltyConfigJson, loyaltyOf, orderPointsJson, pointsAccountJson, usablePoints } from "../../catalog/loyalty";
 import { taxCents, taxLabel, taxOf } from "../../catalog/tax";
 import { attributesJson, sellableVariants, variantLabel, variantMax, variantPrices, variantsOf, variationAttributes } from "../../catalog/variants";
@@ -685,7 +686,8 @@ export class CatalogConnector implements Connector {
         charge: this.chargeJson(total),
         // 131 The slot's fee, where it goes and what made up its shipping; why the delivery doesn't work yet.
         ...quoteDeliveryJson(placed?.delivery ?? null, this.settings.currency, request.lang),
-        delivery_problem: delivery && !delivery.ok ? { code: delivery.code, message: delivery.message } : null,
+        // 168 In the customer's language, as an error's message is (lib/i18n/builtin localizedError).
+        delivery_problem: delivery && !delivery.ok ? { code: delivery.code, message: (request.lang ? serverMessage(delivery.message, request.lang) : null) ?? delivery.message } : null,
       },
     };
   }
