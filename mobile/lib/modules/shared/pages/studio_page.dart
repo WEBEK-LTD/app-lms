@@ -1234,6 +1234,11 @@ class StudioNodeView extends ConsumerWidget {
         return false;
       }
     }
+    // 178 A row or column holding only what shows the person's own (their
+    // ride, the taxis near them, their order) while there is none of it:
+    // nothing, not an empty card (Masar's frosted "On the way" over the
+    // map, signed in without a ride).
+    if (_emptyOfLive(node, ref)) return false;
     return switch (node.type) {
       // 112.4 What this person opened lately, once there is something.
       StudioNodeType.items when node.recent =>
@@ -1281,6 +1286,38 @@ class StudioNodeView extends ConsumerWidget {
       StudioNodeType.search => PageBlockView.shows(_searchBlock(node, ''), ref),
       _ => true,
     };
+  }
+
+  /// 178 What shows the person's own, or a list of the source's, and so
+  /// nothing while there is none.
+  static const _live = {
+    StudioNodeType.tracking,
+    StudioNodeType.liveStatus,
+    StudioNodeType.learning,
+    StudioNodeType.school,
+    StudioNodeType.segments,
+    StudioNodeType.items,
+    StudioNodeType.categories,
+    StudioNodeType.coupon,
+  };
+
+  /// 178 A row or column whose every child is live ([_live], or a row or
+  /// column of them) and shows nothing now.
+  static bool _emptyOfLive(StudioNode node, WidgetRef ref) {
+    if (node.type != StudioNodeType.row && node.type != StudioNodeType.column) {
+      return false;
+    }
+    final children = node.children;
+    if (children.isEmpty) return false;
+    for (final child in children) {
+      final live =
+          _live.contains(child.type) ||
+          ((child.type == StudioNodeType.row ||
+                  child.type == StudioNodeType.column) &&
+              child.children.isNotEmpty);
+      if (!live || shows(child, ref)) return false;
+    }
+    return true;
   }
 
   @override
