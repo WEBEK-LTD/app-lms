@@ -232,7 +232,7 @@ function filledTemplate(template: StudioNode, kind: "slides" | "chips", story: S
   if (kind === "chips") return done(base);
   // A video plays muted under the slide's shade (its photo first, and in older apps); a photo grows slowly as before.
   const slide: StudioNode = story.videoUrl
-    ? { ...base, type: "video_hero", video_url: story.videoUrl, image_url: story.imageUrl }
+    ? { ...base, type: "video_hero", video_url: story.videoUrl, image_url: story.imageUrl, autoplay: true }
     : { ...base, type: "photo_hero", image_url: story.imageUrl, video_url: undefined };
   if (!story.videoUrl) delete slide.video_url;
   return done(slide);

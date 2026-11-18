@@ -37,6 +37,17 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
     case PageActionType.screen:
       final screen = action.screen;
       if (screen == null) return;
+      // 165 The shop on one of its categories (a story's button in
+      // Dashboard › Stories); apps without one open the shop.
+      final category = int.tryParse(action.categoryId ?? '');
+      if (screen == BuiltInScreen.courses && category != null) {
+        final filtered = categoryLocation(
+          appType == AppType.lms ? ItemSource.courses : ItemSource.products,
+          appType,
+          category,
+        );
+        if (filtered != null) return openLocation(context, filtered);
+      }
       final gate = ref.read(appGateProvider);
       final location = ref
           .read(appModuleProvider)

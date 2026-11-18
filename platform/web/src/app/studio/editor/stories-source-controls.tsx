@@ -55,7 +55,7 @@ export function StoriesSourceControls({ node, body, pickable, onChange }: { node
         <>
           <p className="m-0 text-[13px] font-semibold" role="note">
             {t("stories.studioNote")}{" "}
-            <Link href="/dashboard/stories" target="_blank" className="underline">
+            <Link href="/studio/project/stories" target="_blank" className="underline">
               {t("stories.studioOpen")}
             </Link>
           </p>

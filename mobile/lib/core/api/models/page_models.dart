@@ -461,6 +461,7 @@ class PageAction {
     this.url,
     this.openIn = OpenIn.inApp,
     this.web,
+    this.categoryId,
   });
 
   /// Null for a missing action or one whose type this app doesn't know.
@@ -478,6 +479,7 @@ class PageAction {
       url: optString(json, 'url'),
       openIn: enumFromSnake(OpenIn.values, json['open_in'], OpenIn.inApp),
       web: WebPageLook.tryParse(json['web']),
+      categoryId: optString(json, 'category_id'),
     );
   }
 
@@ -493,6 +495,10 @@ class PageAction {
 
   /// 122 How a web page opened in the app shows; null, as it is.
   final WebPageLook? web;
+
+  /// 165 With the shop's screen (`courses`): the shop opened on this
+  /// category (a story's button in Dashboard › Stories).
+  final String? categoryId;
 }
 
 /// 122 `Action.web`: a web page in the app with its site's header and
@@ -2308,6 +2314,11 @@ class StudioStoryEntry {
     this.color,
     this.label,
     this.icon,
+    this.kicker,
+    this.title,
+    this.line,
+    this.buttonLabel,
+    this.videoUrl,
   });
 
   /// Null with nothing to show.
@@ -2326,8 +2337,17 @@ class StudioStoryEntry {
       color: optString(json, 'color'),
       label: optString(json, 'label'),
       icon: optString(json, 'icon'),
+      kicker: optString(json, 'kicker'),
+      title: optString(json, 'title'),
+      line: optString(json, 'line'),
+      buttonLabel: optString(json, 'button_label'),
+      videoUrl: optString(json, 'video_url'),
     );
-    return (story.imageUrl ?? story.heading ?? story.label ?? story.icon) ==
+    return (story.imageUrl ??
+                story.videoUrl ??
+                story.heading ??
+                story.label ??
+                story.icon) ==
             null
         ? null
         : story;
@@ -2344,6 +2364,30 @@ class StudioStoryEntry {
 
   /// A Material Symbols name.
   final String? icon;
+
+  // 165 From Dashboard › Stories (the ring's name is [heading]).
+
+  /// The small line over the story's title in the viewer.
+  final String? kicker;
+
+  /// Its title in the viewer; null: [heading].
+  final String? title;
+
+  /// Its line under the title; null: [subheading].
+  final String? line;
+
+  /// Its button's words; null: "Open".
+  final String? buttonLabel;
+
+  /// Its video, played muted over its photo in the viewer.
+  final String? videoUrl;
+
+  /// What the viewer shows as its title and line.
+  String? get viewerTitle => title ?? heading;
+  String? get viewerLine => line ?? subheading;
+
+  /// Whether it has something to show full screen: a photo or a video.
+  bool get hasMedia => imageUrl != null || videoUrl != null;
 }
 
 /// 129.5 A photo of a premium element; in a gallery, with a link a tap

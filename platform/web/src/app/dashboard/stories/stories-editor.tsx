@@ -106,6 +106,8 @@ export function StoriesEditor(props: Props) {
   const [said, setSaid] = useState("");
   const [errors, setErrors] = useState<DashKey[]>([]);
   const [saving, start] = useTransition();
+  // When the page opened: whether a story has started or ended.
+  const [now] = useState(() => new Date().getTime());
   const main = props.languages[0]?.code ?? "en";
   const nameOf = (s: { texts: Record<string, AppStoryTexts> }) => s.texts[main]?.title || s.texts[main]?.ring || Object.values(s.texts).find((x) => x.title || x.ring)?.title || t("stories.untitled");
 
@@ -183,7 +185,7 @@ export function StoriesEditor(props: Props) {
                       {name}
                     </span>
                     <span className="text-[13px] text-muted">
-                      <When story={s} />
+                      <When story={s} now={now} />
                     </span>
                   </div>
                   <span className="flex items-center gap-2 text-sm text-muted">
@@ -237,10 +239,9 @@ function Thumb({ story }: { story: StoryView }) {
   );
 }
 
-function When({ story }: { story: StoryView }) {
+function When({ story, now }: { story: StoryView; now: number }) {
   const t = useDashT();
   const date = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
-  const now = Date.now();
   if (story.endsAt && new Date(story.endsAt).getTime() <= now) return <>{t("stories.ended", { date: date(story.endsAt) })}</>;
   const parts = [story.startsAt && new Date(story.startsAt).getTime() > now ? t("stories.scheduled", { date: date(story.startsAt) }) : null, story.endsAt ? t("stories.until", { date: date(story.endsAt) }) : null].filter(Boolean);
   return <>{parts.length ? parts.join(" · ") : story.media.kind === "video" ? t("stories.video") : t("stories.photo")}</>;
