@@ -12324,4 +12324,91 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get paySheetOpenAgain => 'Ödeme sayfasını aç';
+
+  @override
+  String get appointmentStatusApproved => 'Onaylandı';
+
+  @override
+  String get appointmentStatusPending => 'Beklemede';
+
+  @override
+  String get appointmentStatusCancelled => 'İptal edildi';
+
+  @override
+  String get appointmentStatusRejected => 'Reddedildi';
+
+  @override
+  String get appointmentStatusNoShow => 'Gelmedi';
+
+  @override
+  String get appointmentStatusCompleted => 'Tamamlandı';
+
+  @override
+  String get propertyTypeApartment => 'Daire';
+
+  @override
+  String get propertyTypeVilla => 'Villa';
+
+  @override
+  String get propertyTypeHouse => 'Müstakil ev';
+
+  @override
+  String get propertyTypeTownhouse => 'Sıra ev';
+
+  @override
+  String get propertyTypeDuplex => 'Dubleks';
+
+  @override
+  String get propertyTypePenthouse => 'Çatı katı dairesi';
+
+  @override
+  String get propertyTypeStudio => 'Stüdyo daire';
+
+  @override
+  String get propertyTypeChalet => 'Şale';
+
+  @override
+  String get propertyTypeLand => 'Arsa';
+
+  @override
+  String get propertyTypeOffice => 'Ofis';
+
+  @override
+  String get propertyTypeShop => 'Dükkân';
+
+  @override
+  String get propertyTypeWarehouse => 'Depo';
+
+  @override
+  String get propertyTypeBuilding => 'Bina';
+
+  @override
+  String get travelPower => 'Priz';
+
+  @override
+  String get travelEntertainment => 'Eğlence sistemi';
+
+  @override
+  String get travelLounge => 'Bekleme salonu';
+
+  @override
+  String get travelSeatsNotLoaded => 'Koltuklar yüklenemedi.';
+
+  @override
+  String get travelSeatsCantChange =>
+      'Bu uçuşun koltukları uygulamadan değiştirilemez.';
+
+  @override
+  String get servicesNoneInCategory => 'Bu kategoride henüz hizmet yok';
+
+  @override
+  String get servicesNoneInCategoryText =>
+      'Başka bir kategori seçin ya da tüm hizmetleri görün.';
+
+  @override
+  String get servicesSeeAll => 'Tüm hizmetleri gör';
+
+  @override
+  String get travelNoPaymentYet =>
+      'Bu henüz uygulamada ödenemiyor. Otelde ödediğiniz bir konaklama seçin ya da bizimle iletişime geçin.';
 }

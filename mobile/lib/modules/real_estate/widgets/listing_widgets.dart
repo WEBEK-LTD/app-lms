@@ -52,6 +52,26 @@ String areaText(BuildContext context, double area, AreaUnit unit) {
   };
 }
 
+/// 180.6 A property type in the app's language, by its key (the server's
+/// labels are English); a type the app doesn't know, as the server names it.
+String propertyTypeLabel(AppLocalizations l10n, String key, [String? label]) =>
+    switch (key) {
+      'apartment' => l10n.propertyTypeApartment,
+      'villa' => l10n.propertyTypeVilla,
+      'house' => l10n.propertyTypeHouse,
+      'townhouse' => l10n.propertyTypeTownhouse,
+      'duplex' => l10n.propertyTypeDuplex,
+      'penthouse' => l10n.propertyTypePenthouse,
+      'studio' => l10n.propertyTypeStudio,
+      'chalet' => l10n.propertyTypeChalet,
+      'land' => l10n.propertyTypeLand,
+      'office' => l10n.propertyTypeOffice,
+      'shop' => l10n.propertyTypeShop,
+      'warehouse' => l10n.propertyTypeWarehouse,
+      'building' => l10n.propertyTypeBuilding,
+      _ => label ?? key,
+    };
+
 String purposeLabel(AppLocalizations l10n, ListingPurpose purpose) =>
     switch (purpose) {
       ListingPurpose.sale => l10n.forSale,

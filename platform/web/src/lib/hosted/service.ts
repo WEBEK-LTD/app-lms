@@ -300,7 +300,8 @@ async function shopCurrencyOf(ctx: HostedContext): Promise<string | null> {
   if (!ctx.connector) return null;
   try {
     const extra = (await ctx.connector.config()) as Record<string, { currency?: unknown } | undefined>;
-    return currencyCodeOf(extra.store?.currency ?? extra.food?.currency ?? extra.events?.currency ?? extra.bookings?.currency);
+    // 180.12–180.13 travel, listings and donations too.
+    return currencyCodeOf(extra.store?.currency ?? extra.food?.currency ?? extra.events?.currency ?? extra.bookings?.currency ?? extra.travel?.currency ?? extra.listings?.currency ?? extra.donations?.currency);
   } catch {
     return null;
   }

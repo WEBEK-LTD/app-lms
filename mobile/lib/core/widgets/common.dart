@@ -562,12 +562,18 @@ class SectionHeader extends StatelessWidget {
         Expanded(
           child: Semantics(
             header: true,
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: size,
-                fontWeight: weight,
-                color: p.text,
+            // 180.23 A title of one long word ("Kampanyalarımız" at a larger
+            // text size beside "See all") a little smaller instead of broken
+            // inside the word; titles with spaces wrap as before.
+            child: _oneWord(
+              Text(
+                title,
+                maxLines: title.trim().contains(' ') ? null : 1,
+                style: TextStyle(
+                  fontSize: size,
+                  fontWeight: weight,
+                  color: p.text,
+                ),
               ),
             ),
           ),
@@ -584,6 +590,14 @@ class SectionHeader extends StatelessWidget {
       ],
     );
   }
+
+  Widget _oneWord(Widget text) => title.trim().contains(' ')
+      ? text
+      : FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: AlignmentDirectional.centerStart,
+          child: text,
+        );
 }
 
 /// 158 The space a screen's list leaves after its last row: [end], its own,
@@ -1497,3 +1511,20 @@ String formatClock(Duration d) {
 
 /// Course thumbnails tint by course id so lists don't look uniform.
 int seedFor(CourseSummary course) => course.id;
+
+/// 180.21 A phone number on one line, a little smaller if it must (at a
+/// larger text size beside an Edit button its last digits went to a second
+/// line): every account look's.
+class OnePhoneLine extends StatelessWidget {
+  const OnePhoneLine(this.phone, {super.key, this.style});
+
+  final String phone;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    alignment: AlignmentDirectional.centerStart,
+    child: Text(phone, maxLines: 1, style: style),
+  );
+}

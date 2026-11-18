@@ -319,6 +319,37 @@ the academy's teachers.
 Not yet tried on a phone (ROADMAP 179.9); the WordPress dev site was not
 run (179.10).
 
+Roadmap 180 (travel, bookings, events, real estate, news and charity, tested
+as a customer): Safra and the classic bookings, events, real estate, news and
+charity apps, started from Studio and from their demos. Fixed: a room reserved
+from a stays search no longer brings in a flight looked at earlier, and the
+trip's Change goes back to the same trip; Track on the flights found reflects
+the alert the person has, and off deletes it; the hotels and flights found end
+above Android's buttons; the real estate office's reply and a moved
+appointment's pushes open their screens (they opened Home), the reply's title
+in the app's language; the hosted bookings API writes its home titles and an
+appointment's state in the app's language, and the app shows the states, a
+home's property type and every flight amenity in its own words; a membership's
+price with the customer's currency; Arabic digits and "1.500.000" in the price
+filter and the donation amount; the flights' arrows right to left. Open:
+Studio's canvas drawing signed-in and signed-out elements together (Safra's
+hero), and travel, events, donations and listings prices in the customer's
+currency (ROADMAP 180.11–180.13). Needs the next app build (no
+`CLIENT_APP_RELEASE` change here); the hosted API part (bookings words, the
+reply's title) works for apps already in the stores once deployed.
+Then (the coordinator's decisions): Studio's canvas has a Signed in /
+Signed out switch, signed out first; travel, events, homes and campaigns
+show their prices in the customer's currency (the travel API sends each
+price's amount and currency, the contract in both copies); the smaller
+ones fixed; Safra's homes fit text 1.3 (the template guard passes for
+the travel demo and both Signature looks); and a walk of each kind in the
+app found and fixed six more: a gym from the demo without classes until
+the next day, the checkout offering a payment the company can't take,
+Safra's empty cover for a signed-in person without a trip, photo
+headers' titles unreadable, the flights' search and the account's phone
+broken at 1.3, and a one-word section title broken (ROADMAP 180.11–180.23).
+An e2e spec takes Safra from Studio to a booked stay.
+
 Roadmap 181 (what 157 to 163 left open for Leqaa and Kech Flora): under a
 premium header that folds as the page scrolls, a quick fling now ends at
 the page's end on Android and the iPhone (it could stop up to about 10

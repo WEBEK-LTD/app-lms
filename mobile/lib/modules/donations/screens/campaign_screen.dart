@@ -6,6 +6,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/format/dates.dart';
+import '../../../core/format/digits.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
@@ -352,6 +353,7 @@ class DonationForm extends ConsumerWidget {
             key: const ValueKey('donation-amount'),
             controller: draft.custom,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: const [TypedNumberFormatter()],
             onChanged: (_) => draft.update(() => draft.error = null),
             decoration: InputDecoration(
               labelText: l10n.donateOtherAmount,

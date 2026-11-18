@@ -40,7 +40,7 @@ class StudioCoverView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final kids = [
       for (final child in node.children)
-        if (StudioNodeView.shows(child, ref)) child,
+        if (StudioNodeView.shows(child, ref, siblings: node.children)) child,
     ];
     // 128.10 Its own last element hangs over its foot, when this person
     // sees it; else none does (not the one before it).
@@ -70,7 +70,12 @@ class StudioCoverView extends ConsumerWidget {
     final over = StudioNode(
       id: '${node.id}-over',
       type: StudioNodeType.column,
-      children: front,
+      // 180.18 All of them but the one hanging over its foot: the column
+      // leaves out what this person doesn't see, knowing what is beside it
+      // (a signed-out element stands in for the next trip with none).
+      children: hang == null
+          ? node.children
+          : node.children.sublist(0, node.children.length - 1),
       gap: node.gap,
       align: node.align,
       cross: node.cross,

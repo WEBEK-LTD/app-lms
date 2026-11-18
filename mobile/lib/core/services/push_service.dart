@@ -97,6 +97,12 @@ String pushTargetLocation(Map<String, dynamic> data) {
     case 'enrolled':
     case 'announcement':
       if (course != null) return Paths.course(course);
+      // 180.4 The office's reply to a home's message (real estate) and an
+      // appointment the business moved: sent as announcements with their own.
+      final inquiry = id('inquiry_id');
+      if (inquiry != null) return Paths.conversation(inquiry);
+      final appointment = id('appointment_id');
+      if (appointment != null) return Paths.appointment(appointment);
     case 'article':
       final article = '${data['article_id'] ?? ''}'.trim();
       if (article.isNotEmpty) return Paths.article(article);

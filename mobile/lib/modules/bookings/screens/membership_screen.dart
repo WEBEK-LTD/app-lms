@@ -461,9 +461,13 @@ class PlanCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  per == null
-                      ? plan.price.formatted
-                      : '${isolate(plan.price.formatted)} · $per',
+                  // 180.8 With the customer's currency, as every other booking price.
+                  [
+                    isolate(plan.price.formatted),
+                    if (plan.price.display?.formatted case final shown?)
+                      isolate(context.l10n.approxPrice(shown)),
+                    ?per,
+                  ].join(' · '),
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,

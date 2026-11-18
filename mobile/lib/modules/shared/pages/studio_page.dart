@@ -1203,7 +1203,7 @@ class StudioNodeView extends ConsumerWidget {
   ) {
     final shown = [
       for (final child in children)
-        if (shows(child, ref)) child,
+        if (shows(child, ref, siblings: children)) child,
     ];
     final ids = {for (final child in shown) child.id};
     return [
@@ -1212,7 +1212,29 @@ class StudioNodeView extends ConsumerWidget {
     ];
   }
 
-  static bool shows(StudioNode node, WidgetRef ref) {
+  /// 180.18 A signed-out element beside a signed-in live one (Safra's
+  /// question over its cover, beside the next trip's ticket) stands in for it
+  /// while it has nothing to show: a signed-in person without a trip saw an
+  /// empty cover.
+  static bool _standsIn(
+    StudioNode node,
+    List<StudioNode>? siblings,
+    WidgetRef ref,
+  ) =>
+      node.visibility == StudioVisibility.signedOut &&
+      siblings != null &&
+      siblings.any(
+        (s) =>
+            s.type == StudioNodeType.tracking &&
+            s.visibility == StudioVisibility.signedIn &&
+            !studioLiveShows(s, ref),
+      );
+
+  static bool shows(
+    StudioNode node,
+    WidgetRef ref, {
+    List<StudioNode>? siblings,
+  }) {
     // 107.2 Hidden by the owner (the servers leave these out already).
     if (node.hidden) return false;
     final platforms = node.platforms;
@@ -1231,7 +1253,8 @@ class StudioNodeView extends ConsumerWidget {
     }
     if (node.visibility != StudioVisibility.everyone) {
       final signedIn = ref.watch(authControllerProvider) is SignedIn;
-      if (signedIn != (node.visibility == StudioVisibility.signedIn)) {
+      if (signedIn != (node.visibility == StudioVisibility.signedIn) &&
+          !(signedIn && _standsIn(node, siblings, ref))) {
         return false;
       }
     }
@@ -1323,7 +1346,9 @@ class StudioNodeView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!shows(node, ref)) return const SizedBox.shrink();
+    if (!shows(node, ref, siblings: parent?.children)) {
+      return const SizedBox.shrink();
+    }
     // 123 A text bound to what the entry hasn't (a course without a badge)
     // leaves no empty pill.
     if (scope.entry != null &&
