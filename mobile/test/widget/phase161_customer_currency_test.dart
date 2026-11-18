@@ -264,10 +264,8 @@ void main() {
           'related': <Object>[],
           'external_url': null,
           'permalink': 'https://kechflora.ma/p/103',
-        };
-        // 131 A gift add-on offered with it.
-        api.addons = {
-          0: [
+          // 131 A gift add-on offered with it ("Add a little more").
+          'addons': [
             {
               ..._product((201, 'Ceramic Vase', 3500, null, null), c),
               'addon': true,
@@ -315,12 +313,17 @@ void main() {
         // In theirs first; the shop's under it, as the shop's products show.
         expect(find.text(_approx(18000, c)), findsWidgets);
         expect(find.text(_mad(18000)), findsOneWidget);
-        // The add-on: "+" after the approximate sign.
-        await tester.scrollUntilVisible(
-          find.text('Ceramic Vase'),
-          200,
-          scrollable: find.byType(Scrollable).first,
-        );
+        // The add-on: "+" after the approximate sign. Scrolled to on the
+        // screen, the bouquet's page on top.
+        for (
+          var i = 0;
+          i < 8 && find.text('Ceramic Vase').evaluate().isEmpty;
+          i++
+        ) {
+          await tester.dragFrom(const Offset(180, 560), const Offset(0, -260));
+          await TestApp.settle(tester, 4);
+        }
+        expect(find.text('Ceramic Vase'), findsOneWidget);
         expect(find.text('≈ +${_in(3500, c)}'), findsOneWidget);
         expect(tester.takeException(), isNull);
       });
