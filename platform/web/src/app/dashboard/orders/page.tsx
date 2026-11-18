@@ -25,6 +25,8 @@ import { ShippingForm } from "./shipping";
 import { StageForms } from "./stages";
 import { CARRIER_SUGGESTIONS, shippable, waybillLink } from "@/lib/catalog/shipping";
 import { RefundSection } from "./refunds-view";
+import { CancelOrderButton } from "./cancel";
+import { cancelRefundCents } from "@/lib/catalog/cancel";
 import { AwaitingPayment } from "./awaiting";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
@@ -78,7 +80,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
   // 132.132 The hero's numbers: what still waits for the owner, and what's done.
   const countOf = async (status: CatalogOrderStatus) => (await store.listCatalogOrders({ appId: app.id, statuses: [status], offset: 0, limit: 1 })).total;
-  const [open, completed] = await Promise.all([countOf("processing"), countOf("completed")]);
+  const [open, completed, cancelled] = await Promise.all([countOf("processing"), countOf("completed"), countOf("cancelled")]);
   const closeLabel = t("common.close");
   // 47 Each order's refunds and what its Refund form offers.
   const key = encryptionKey();
@@ -106,7 +108,8 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
               {/* 132.152 The first tile's bar: how many of the paid orders are done. */}
               <KitStat icon="package_2" tone="accent" label={t("studioPage.ordersOpen")} value={num(open)} progress={total ? completed / total : 0} />
               <KitStat icon="check_circle" tone="success" label={k(ORDER_STATUS_LABELS.completed)} value={num(completed)} />
-              <KitStat icon="receipt_long" label={t("studioPage.ordersPaid")} value={num(total)} />
+              {/* 175 A cancelled order is no longer a paid one. */}
+              <KitStat icon="receipt_long" label={t("studioPage.ordersPaid")} value={num(total - cancelled)} />
             </>
           }
         />
@@ -401,7 +404,8 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                         {order.status === "processing" ? (
                           <>
                             <StatusButton order={order} status="completed" label={t("orders.markCompleted")} />
-                            <StatusButton order={order} status="cancelled" label={t("orders.cancelOrder")} />
+                            {/* 175 Asks first, and for a paid order the owner chooses: refund or not. */}
+                            <CancelOrderButton id={order.id} number={orderNumber(order)} refund={cancelRefundCents(order) !== null ? formatCents(cancelRefundCents(order)!, order.currency) : null} byGateway={options[index]!.refundable && options[index]!.byApi} />
                           </>
                         ) : null}
                         {/* 71 The customer's receipt, the same PDF they got by email. */}

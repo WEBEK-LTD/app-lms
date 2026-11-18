@@ -275,7 +275,8 @@ describe("132 delivery stages", () => {
     const done = await call("POST", "/apps/{app_id}/orders/{order_id}/refund-done", route);
     expect(done.status).toBe(200);
     expect(done.body.refund_due).toMatchObject({ status: "recorded", done_by: "Leyla Kaya" });
-    expect(done.body.status).toBe("refunded");
+    // 175 A cancelled order stays cancelled once refunded.
+    expect(done.body.status).toBe("cancelled");
     expect((await inbox()).map((n) => n.body)).toContain("We refunded E£1,800.00. It may take a few days to reach you.");
     expect((await call("POST", "/apps/{app_id}/orders/{order_id}/refund-done", route)).status).toBe(409);
   });

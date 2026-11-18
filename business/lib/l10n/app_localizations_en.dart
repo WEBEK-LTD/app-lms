@@ -424,7 +424,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancelOrderText =>
-      'The customer is told. A payment taken for it is refunded separately.';
+      'The customer is told, and its items go back in stock.';
 
   @override
   String orderUpdated(String number, String status) {
@@ -3999,6 +3999,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get primeWeeklyHelp => 'A summary by email every Monday';
+
+  @override
+  String get cancelPaidText =>
+      'The customer is told, and its items go back in stock. Choose what happens to the payment.';
+
+  @override
+  String cancelAndRefund(String amount) {
+    return 'Cancel and refund $amount';
+  }
+
+  @override
+  String get cancelRefundNow =>
+      'Refunded now through the order\'s payment gateway. The customer is told.';
+
+  @override
+  String get cancelRefundYourself =>
+      'This payment can\'t go back by itself: the order shows Needs a refund until you pay it back.';
+
+  @override
+  String get cancelRefundEither =>
+      'Refunded through the order\'s payment gateway when it can; otherwise the order shows Needs a refund until you pay it back.';
+
+  @override
+  String get cancelWithoutRefund => 'Cancel without refund';
+
+  @override
+  String get cancelWithoutRefundHint =>
+      'You keep the payment. You can still refund it later.';
+
+  @override
+  String get keepOrder => 'Keep the order';
 
   @override
   String minutesAgo(int count) {

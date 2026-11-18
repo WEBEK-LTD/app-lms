@@ -19,7 +19,8 @@ import { formatMinor } from "../market/currency";
 import { countOpenQuestions } from "../courses/community";
 import { changeOrderStatus, nextOrderStatuses } from "../catalog/order-status";
 import { nextStages, parseStageInput, setOrderStage } from "../catalog/order-stages";
-import { markStageRefunded, refundAfterFailedDelivery, stageRefundStatus, type StageRefundDeps } from "../catalog/stage-refunds";
+import { markStageRefunded, stageRefundStatus, type StageRefundDeps } from "../catalog/stage-refunds";
+import { cancelOrder, cancelRefundCents, readRefundChoice } from "../catalog/cancel";
 import { ownerStageHistoryJson, ownerStageJson } from "../catalog/stage-json";
 import { deliveryDayLabel, deliveryOf, shopToday, slotClosed, slotLabel, slotStarted } from "../selling/delivery";
 import { awaitingManualPayment } from "../catalog/manual";
@@ -300,6 +301,8 @@ function orderJson(ctx: OwnerContext, order: CatalogOrder, extras: OrderExtras) 
     next_stages: stagesOf(ctx, order),
     // 132 The money back after a failed delivery cancelled it.
     refund_due: stageRefundJson(ctx, order),
+    // 175 What Cancel order offers to refund (the owner chooses: refund or not); null when nothing paid is left.
+    cancel_refund: cancelRefundJson(order),
     // 96.2 To pay by bank transfer or the owner's own method: waiting (status pending) until marked paid.
     pay_outside: order.manualPayment
       ? { method: order.manualPayment.method, name: order.manualPayment.method === "bank_transfer" ? ctx.k("Bank transfer") : order.manualPayment.name, due_at: order.manualPayment.dueAt }
@@ -370,20 +373,16 @@ export async function getOrder(ctx: OwnerContext, params: Record<string, string>
 /** The dashboard's buttons: completed or cancelled, or a restaurant's kitchen steps (the customer is told); 96.2 paid ("processing") or cancelled for an order waiting for a bank transfer or the owner's own method. */
 export async function changeOrder(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
   const { app, order } = await ownOrder(ctx, params);
-  const status = bodyObject(ctx.req.body).status;
+  const body = bodyObject(ctx.req.body);
+  const status = body.status;
   if (typeof status !== "string" || !status) throw invalid({ status: "The request isn't valid." });
   const { deps } = ctx;
-  const moved = await changeOrderStatus(
-    { store: deps.store, app, now: deps.now, key: deps.encryptionKey, urls: deps.paymentUrls, account: serviceAccountOf(app, deps.encryptionKey), send: deps.sendPush },
-    order,
-    status,
-  );
+  const moveDeps = { store: deps.store, app, now: deps.now, key: deps.encryptionKey, urls: deps.paymentUrls, account: serviceAccountOf(app, deps.encryptionKey), send: deps.sendPush, guestMail: deps.guestMail };
+  // 175 Cancelling a paid order carries the owner's choice: `refund` true (all that's left, through its gateway) or false. Without it (an older app), only after a failed delivery (132).
+  const refund = readRefundChoice(body.refund);
+  if (body.refund !== undefined && refund === null) throw invalid({ refund: "The request isn't valid." });
+  const moved = status === "cancelled" ? (await cancelOrder(moveDeps, stageRefundDeps(ctx, app), order, refund)).moved : await changeOrderStatus(moveDeps, order, status);
   if (!moved) throw new OwnerError(409, "invalid_status", "This order can't move to that status.");
-  // 132 Cancelled after a failed delivery: the money goes back (or the order needs the owner's refund).
-  if (status === "cancelled") {
-    const cancelled = await deps.store.getCatalogOrder(app.id, order.id);
-    if (cancelled) await refundAfterFailedDelivery(stageRefundDeps(ctx, app), cancelled);
-  }
   // 60 Who moved it, on the dashboard's Team page.
   await recordOrderStatus(deps.store, { clientId: ctx.client.id, appId: app.id, actor: ctx.user, orderId: order.id, to: awaitingManualPayment(order) && status === "processing" ? "paid" : status }, deps.now);
   return { status: 200, body: await orderDetail(ctx, app, (await deps.store.getCatalogOrder(app.id, order.id))!) };
@@ -392,6 +391,12 @@ export async function changeOrder(ctx: OwnerContext, params: Record<string, stri
 /** 132 What giving the money back after a failed delivery needs: the refunds' (the person's) and the app's push. */
 function stageRefundDeps(ctx: OwnerContext, app: App): StageRefundDeps {
   return { ...refundDeps(ctx), app, account: serviceAccountOf(app, ctx.deps.encryptionKey), send: ctx.deps.sendPush, baseUrl: ctx.deps.baseUrl };
+}
+
+/** 175 `Order.cancel_refund`: what's left of the payment if the order is cancelled now. */
+function cancelRefundJson(order: CatalogOrder) {
+  const cents = cancelRefundCents(order);
+  return cents === null ? null : { amount: money(cents, order.currency) };
 }
 
 /** 132 `Order.refund_due`: the money back after a failed delivery cancelled it; null when nothing was owed. */
@@ -437,7 +442,7 @@ export async function setStage(ctx: OwnerContext, params: Record<string, string>
   if (!parsed.ok) throw invalid(parsed.errors);
   const { deps } = ctx;
   const done = await setOrderStage(
-    { store: deps.store, app, now: deps.now, key: deps.encryptionKey, urls: deps.paymentUrls, account: serviceAccountOf(app, deps.encryptionKey), send: deps.sendPush },
+    { store: deps.store, app, now: deps.now, key: deps.encryptionKey, urls: deps.paymentUrls, account: serviceAccountOf(app, deps.encryptionKey), send: deps.sendPush, guestMail: deps.guestMail },
     order,
     parsed.input,
     { userId: ctx.user.id, name: ctx.user.name?.trim() || ctx.user.email, via: "business" },

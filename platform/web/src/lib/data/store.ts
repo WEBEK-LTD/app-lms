@@ -887,6 +887,12 @@ export interface DataStore {
    */
   payCatalogOrder(appId: string, id: number, paymentId: string, now: Date): Promise<boolean>;
   /**
+   * 175 Cancels a paid order in progress ("processing" to "cancelled") and
+   * puts its quantities back in stock (the product's and its variation's),
+   * once: false when the order wasn't in progress.
+   */
+  cancelCatalogOrder(appId: string, id: number, now: Date): Promise<boolean>;
+  /**
    * Newest first; `statuses` limits the list (the app shows paid orders only).
    * 96.2 `manualOnly`: only those to pay by bank transfer or the owner's own
    * method; `awaitingManual`: those still waiting for it too, besides `statuses`.
@@ -1956,7 +1962,7 @@ export interface DataStore {
   listTeamActivity(clientId: string, input: { limit: number; offset?: number; actorId?: string }): Promise<{ items: TeamActivity[]; total: number }>;
 
   // 61 Today's numbers counted by the database, for a window [from, to)
-  /** Paid orders (in progress, completed, cancelled or refunded) whose payment came in the window. */
+  /** Paid orders (in progress, completed or refunded; 175 not cancelled) whose payment came in the window. */
   sumPaidCatalogOrders(appId: string, from: Date, to: Date): Promise<PaidTotals>;
   /** Paid (or since refunded) donations whose payment came in the window. */
   sumPaidDonations(appId: string, from: Date, to: Date): Promise<PaidTotals>;

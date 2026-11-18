@@ -8,6 +8,19 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 175 (the dashboard QA fixes of 18 November, a flower shop in MAD):
+Cancel order on a paid order asks first, and the owner chooses every time
+between "Cancel and refund {amount}" (through the order's payment gateway,
+else Needs a refund) and "Cancel without refund", in the dashboard and in
+Yallapp Business; the units go back in stock, the customer is told (a guest
+by email), and the order leaves the paid orders and Analytics' revenue. The
+Owner API takes the choice as `refund` (an older Business without it keeps
+132's rule). A guest customer is now emailed at every stage the order
+drawer promises (shipped, postponed, couldn't be delivered, delivered) and
+when the order is cancelled, in the language they checked out in. No
+migration. Yallapp Business is not released from this
+branch.
+
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
 payout of the 1st covers the sales paid up to the end of the month before,
 cut off at midnight Istanbul time; a sale paid on the 1st or later waits for

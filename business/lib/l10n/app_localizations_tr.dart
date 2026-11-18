@@ -425,7 +425,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get cancelOrderText =>
-      'Müşteriye bildirilir. Alınan ödeme ayrıca iade edilir.';
+      'Müşteriye bildirilir ve ürünler stoğa geri döner.';
 
   @override
   String orderUpdated(String number, String status) {
@@ -4003,6 +4003,37 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get primeWeeklyHelp => 'Her pazartesi e-postayla özet';
+
+  @override
+  String get cancelPaidText =>
+      'Müşteriye bildirilir ve ürünler stoğa geri döner. Ödemeye ne olacağını seçin.';
+
+  @override
+  String cancelAndRefund(String amount) {
+    return 'İptal et ve $amount iade et';
+  }
+
+  @override
+  String get cancelRefundNow =>
+      'Siparişin ödeme altyapısı üzerinden hemen iade edilir. Müşteriye bildirilir.';
+
+  @override
+  String get cancelRefundYourself =>
+      'Bu ödeme kendiliğinden iade edilemez: siz geri ödeyene kadar sipariş «İade gerekiyor» olarak görünür.';
+
+  @override
+  String get cancelRefundEither =>
+      'Mümkünse siparişin ödeme altyapısı üzerinden iade edilir; değilse siz geri ödeyene kadar sipariş «İade gerekiyor» olarak görünür.';
+
+  @override
+  String get cancelWithoutRefund => 'İade etmeden iptal et';
+
+  @override
+  String get cancelWithoutRefundHint =>
+      'Ödeme sizde kalır. Daha sonra yine iade edebilirsiniz.';
+
+  @override
+  String get keepOrder => 'Siparişi koru';
 
   @override
   String minutesAgo(int count) {

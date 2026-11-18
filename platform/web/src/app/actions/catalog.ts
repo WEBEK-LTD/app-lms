@@ -11,11 +11,13 @@ import { parseCoupon } from "@/lib/catalog/coupons";
 import { parseFulfilmentForm } from "@/lib/catalog/fulfilment";
 import { changeOrderStatus, inKitchen } from "@/lib/catalog/order-status";
 import { parseStageInput, setOrderStage } from "@/lib/catalog/order-stages";
-import { markStageRefunded, refundAfterFailedDelivery, type StageRefundDeps } from "@/lib/catalog/stage-refunds";
+import { markStageRefunded, type StageRefundDeps } from "@/lib/catalog/stage-refunds";
+import { cancelNeedsChoice, cancelOrder, readRefundChoice } from "@/lib/catalog/cancel";
+import type { GuestMailer } from "@/lib/hosted/auto-notifications";
 import { headers } from "next/headers";
 import { ipFromHeaders } from "@/lib/http";
 import { parseShipment, shipOrder, shippable } from "@/lib/catalog/shipping";
-import { sendTemplate } from "@/lib/email/send";
+import { sendAppMail, sendTemplate } from "@/lib/email/send";
 import { CATALOG_CURRENCIES, formatCents, parsePrice } from "@/lib/catalog/money";
 import { isCurrencyCode } from "@/lib/money/currencies";
 import { LOYALTY_LIMITS } from "@/lib/catalog/loyalty";
@@ -599,16 +601,23 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
   const status = String(formData.get("status"));
   const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
   const now = new Date();
-  if (order && !inKitchen(order) && (await changeOrderStatus({ store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: null }, order, status))) {
-    // 60 Who moved it, on the Team page.
-    await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: awaitingManualPayment(order) && status === "processing" ? "paid" : status }, now);
-    // 132 Cancelled after a failed delivery: the money goes back (or the order needs the owner's refund).
-    if (status === "cancelled") {
-      const cancelled = await store.getCatalogOrder(app.id, order.id);
-      if (cancelled) await refundAfterFailedDelivery(await stageRefundDepsOf(context, app), cancelled);
-    }
-  }
+  if (!order || inKitchen(order)) return refresh();
+  const deps = { store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: serviceAccountOf(app, encryptionKey()), guestMail: guestMailer(store) };
+  let moved: boolean;
+  if (status === "cancelled") {
+    // 175 A paid order is cancelled only with the owner's choice (the confirmation's two buttons): refunded, or not.
+    const refund = readRefundChoice(formData.get("refund"));
+    if (cancelNeedsChoice(order) && refund === null) return refresh();
+    moved = (await cancelOrder(deps, await stageRefundDepsOf(context, app), order, refund ?? false)).moved;
+  } else moved = await changeOrderStatus(deps, order, status);
+  // 60 Who moved it, on the Team page.
+  if (moved) await recordOrderStatus(store, { clientId: context.client.id, appId: app.id, actor: actorOf(context), orderId: order.id, to: awaitingManualPayment(order) && status === "processing" ? "paid" : status }, now);
   refresh();
+}
+
+/** 175 A guest customer's order emails, in the app's name. */
+function guestMailer(store: Awaited<ReturnType<typeof getStore>>): GuestMailer {
+  return (mailApp, to, mail) => sendAppMail(store, mailApp, { to, ...mail });
 }
 
 /**
@@ -683,7 +692,7 @@ export async function setOrderStageAction(_: FormState, formData: FormData): Pro
   const now = new Date();
   const user = actorOf(context);
   const done = await setOrderStage(
-    { store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: serviceAccountOf(app, encryptionKey()) },
+    { store, app, now, key: encryptionKey(), urls: paymentApiUrls(), account: serviceAccountOf(app, encryptionKey()), guestMail: guestMailer(store) },
     order,
     parsed.input,
     { userId: user.id, name: user.name?.trim() || user.email, via: "dashboard" },

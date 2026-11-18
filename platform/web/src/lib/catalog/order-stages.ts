@@ -196,7 +196,7 @@ export async function setOrderStage(
   }
   if (input.stage === "shipped" || input.stage === "postponed" || input.stage === "failed") {
     try {
-      await notifyOrderStage({ store, key: deps.key, now, send: deps.send }, app, fresh, entry);
+      await notifyOrderStage({ store, key: deps.key, now, send: deps.send, guestMail: deps.guestMail }, app, fresh, entry);
     } catch (e) {
       console.error(`[orders] the stage notice failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 400));
     }

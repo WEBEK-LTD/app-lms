@@ -140,7 +140,7 @@
       }
     }
   },
-  "cancelOrderText": "The customer is told. A payment taken for it is refunded separately.",
+  "cancelOrderText": "The customer is told, and its items go back in stock.",
   "orderUpdated": "Order {number}: {status}",
   "@orderUpdated": {
     "placeholders": {
@@ -2645,6 +2645,21 @@
   "primeMoreActionsHelp": "Coupons, flash sales, delivery times, busy mode",
   "primeGoalsHelp": "A goal for the day, week or month, with a ring on Today",
   "primeWeeklyHelp": "A summary by email every Monday",
+  "cancelPaidText": "The customer is told, and its items go back in stock. Choose what happens to the payment.",
+  "cancelAndRefund": "Cancel and refund {amount}",
+  "@cancelAndRefund": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelRefundNow": "Refunded now through the order's payment gateway. The customer is told.",
+  "cancelRefundYourself": "This payment can't go back by itself: the order shows Needs a refund until you pay it back.",
+  "cancelRefundEither": "Refunded through the order's payment gateway when it can; otherwise the order shows Needs a refund until you pay it back.",
+  "cancelWithoutRefund": "Cancel without refund",
+  "cancelWithoutRefundHint": "You keep the payment. You can still refund it later.",
+  "keepOrder": "Keep the order",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {
