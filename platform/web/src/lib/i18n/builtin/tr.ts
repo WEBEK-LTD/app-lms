@@ -1269,4 +1269,14 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "Enter the stock as a number.": "Stoğu sayı olarak girin.",
   "{0} is no longer available.": "{0} artık mevcut değil.",
   "Order at least {0} of {1}.": "{1} ürününden en az {0} sipariş edin.",
+  // 115.40 Substitutes asked live.
+  "Accept the item or leave it out.": "Ürünü kabul edin veya çıkarın.",
+  "Choose the item to propose.": "Önereceğiniz ürünü seçin.",
+  "Choose what to do if something is out.": "Bir ürün yoksa ne yapılacağını seçin.",
+  "This order has moved on. Refresh it.": "Bu sipariş ilerledi. Yenileyin.",
+  "That line isn't on this order.": "Bu satır bu siparişte yok.",
+  "This line is already picked.": "Bu satır zaten hazırlandı.",
+  "That item isn't sold here.": "Bu ürün burada satılmıyor.",
+  "Choose another item that's in stock.": "Stokta olan başka bir ürün seçin.",
+  "There's nothing to answer on this line.": "Bu satırda yanıtlanacak bir şey yok.",
 };
