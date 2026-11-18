@@ -25,6 +25,10 @@ CAUSES = [
     ]),
     ("apple_agreement", [r"agreement.*(has not been|hasn't been|needs to be) (signed|accepted)", r"FORBIDDEN\.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED"]),
     ("apple_key", [r"NOT_AUTHORIZED", r"Authentication credentials are missing or invalid", r"appstoreconnect.*\b401\b", r"invalid.*\.p8"]),
+    # 151 The iPhone app's usual causes, each with where the client fixes it.
+    ("ios_bundle_id_taken", [r"App ID with Identifier '?[\w.-]+'? is not available", r"[Bb]undle ID '?[\w.-]+'? (is not available|is already (in use|taken))"]),
+    ("ios_certificates_full", [r"maximum number of (available )?(iOS |Apple )?Distribution certificates", r"You already have a current (iOS |Apple )?Distribution certificate"]),
+    ("ios_app_missing", [r"Could not find app with (app )?identifier", r"No suitable application records were found", r"Couldn't find app '[\w.-]+' on the account"]),
     ("ios_signing", [
         r"No signing certificate",
         r"doesn't include signing certificate",

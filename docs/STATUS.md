@@ -21,6 +21,16 @@ yet. The wallets are expected in Safari and Chrome, not inside the apps'
 web views (ROADMAP 155.6). Not yet tried with a real Stripe account on real
 devices (ROADMAP 155.7).
 
+Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
+the iOS job in its queue before any step runs, the report says so as its
+own reason (`ios_no_mac_runner`, read from the run's jobs), not a build
+failure; the Android app is as before. Builds & downloads tells the owner,
+without technical words and in their language, that it's a temporary
+problem on our side and offers iPhone only; the admin shows the technical
+cause and the team gets one alert per build. Nothing retries it. Every
+iPhone failure now says its cause in plain words with where to fix it,
+and the iPhone app's build output is for the admin only.
+
 Roadmap 153 (the card inside the payment page for iyzico and Kashier): as
 with Stripe (144), Yallapp's payment page shows the gateway's own card form
 under the customer's details: iyzico's Checkout Form (the script iyzico

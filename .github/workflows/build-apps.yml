@@ -210,6 +210,11 @@ jobs:
     needs: [queue, android, ios]
     if: always() && needs.queue.outputs.builds != '[]' && needs.queue.outputs.builds != ''
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    # 151 Reads this run's jobs: an iOS job GitHub had no Mac for (cancelled in the queue, before
+    # any step ran) can't report itself, so the report says why from here.
+    permissions:
+      contents: read
+      actions: read
     strategy:
       fail-fast: false
       matrix:
@@ -228,4 +233,6 @@ jobs:
           # 142 The apps this build makes (the jobs that ran for it).
           BUILD_ONLY: ${{ matrix.build.only }}
           BUILD_IOS: ${{ matrix.build.ios }}
+          # 151 Read-only (actions: read above): the run's jobs, for an iOS job that never got a Mac.
+          GITHUB_TOKEN: ${{ github.token }}
         run: python3 build/scripts/report.py "${{ matrix.build.id }}" results
