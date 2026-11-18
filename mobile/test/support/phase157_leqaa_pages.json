@@ -1,6 +1,6 @@
 {
  "navigation": {
-  "version": "2026-10-12T10:00:00Z.1~tcdd2a4e8.cbd91f7b1e6",
+  "version": "2026-10-12T10:00:00Z.1~f~tcdd2a4e8.cbd91f7b1e6",
   "tabs": [
    {
     "id": "home",
@@ -1111,32 +1111,20 @@
              "letter_spacing": -0.5
             },
             "text": "أرسل اليوم"
-           },
-           {
-            "id": "n57",
-            "type": "text",
-            "color": "#7B5E67",
-            "dark_color": "#C9AEB6",
-            "font": {
-             "size": 13.5,
-             "line_height": 1.4
-            },
-            "text": "اطلب قبل الرابعة عصرًا ويصل اليوم إلى أي مكان في القاهرة.",
-            "max_lines": 3
            }
           ]
          }
         ]
        },
        {
-        "id": "n58",
+        "id": "n57",
         "type": "row",
         "name": "Delivery days · today, tomorrow, a date",
         "width": "fill",
         "gap": 6,
         "children": [
          {
-          "id": "n59",
+          "id": "n58",
           "type": "row",
           "name": "Today",
           "width": "fill",
@@ -1157,7 +1145,7 @@
           },
           "children": [
            {
-            "id": "n60",
+            "id": "n59",
             "type": "icon",
             "color": "#FFFFFF",
             "dark_color": "#2A121C",
@@ -1165,7 +1153,7 @@
             "icon_size": 15
            },
            {
-            "id": "n61",
+            "id": "n60",
             "type": "text",
             "color": "#FFFFFF",
             "dark_color": "#2A121C",
@@ -1179,7 +1167,7 @@
           ]
          },
          {
-          "id": "n62",
+          "id": "n61",
           "type": "row",
           "name": "Tomorrow",
           "width": "fill",
@@ -1201,7 +1189,7 @@
           },
           "children": [
            {
-            "id": "n63",
+            "id": "n62",
             "type": "text",
             "color": "#2A121C",
             "dark_color": "#F8EAEE",
@@ -1215,7 +1203,7 @@
           ]
          },
          {
-          "id": "n64",
+          "id": "n63",
           "type": "row",
           "name": "Pick a date",
           "width": "fill",
@@ -1237,7 +1225,7 @@
           },
           "children": [
            {
-            "id": "n65",
+            "id": "n64",
             "type": "text",
             "color": "#2A121C",
             "dark_color": "#F8EAEE",
@@ -1255,7 +1243,7 @@
       ]
      },
      {
-      "id": "n66",
+      "id": "n65",
       "type": "row",
       "name": "Collections",
       "padding": {
@@ -1268,13 +1256,13 @@
       "cross": "end",
       "children": [
        {
-        "id": "n67",
+        "id": "n66",
         "type": "column",
         "width": "fill",
         "gap": 4,
         "children": [
          {
-          "id": "n68",
+          "id": "n67",
           "type": "text",
           "color": "#A8325A",
           "dark_color": "#F3A9C0",
@@ -1287,7 +1275,7 @@
           "text": "لكل مناسبة"
          },
          {
-          "id": "n69",
+          "id": "n68",
           "type": "text",
           "color": "#2A121C",
           "dark_color": "#F8EAEE",
@@ -1304,7 +1292,7 @@
         ]
        },
        {
-        "id": "n70",
+        "id": "n69",
         "type": "text",
         "padding": {
          "bottom": 4
@@ -1324,7 +1312,7 @@
       ]
      },
      {
-      "id": "n71",
+      "id": "n70",
       "type": "bento",
       "name": "Collections",
       "margin": {
@@ -1370,7 +1358,7 @@
       }
      },
      {
-      "id": "n72",
+      "id": "n71",
       "type": "row",
       "name": "Loved most",
       "padding": {
@@ -1383,13 +1371,13 @@
       "cross": "end",
       "children": [
        {
-        "id": "n73",
+        "id": "n72",
         "type": "column",
         "width": "fill",
         "gap": 4,
         "children": [
          {
-          "id": "n74",
+          "id": "n73",
           "type": "text",
           "color": "#2A121C",
           "dark_color": "#F8EAEE",
@@ -1406,7 +1394,7 @@
         ]
        },
        {
-        "id": "n75",
+        "id": "n74",
         "type": "text",
         "padding": {
          "bottom": 4
@@ -1424,10 +1412,10 @@
         }
        }
       ],
-      "heads": "n76"
+      "heads": "n75"
      },
      {
-      "id": "n76",
+      "id": "n75",
       "type": "items",
       "name": "Loved most",
       "padding": {
@@ -1438,19 +1426,19 @@
       "source": "products",
       "layout": "carousel",
       "card": {
-       "id": "n77",
+       "id": "n76",
        "type": "column",
        "width": 172,
        "gap": 8,
        "children": [
         {
-         "id": "n78",
+         "id": "n77",
          "type": "stack",
          "width": 172,
          "height": 214,
          "children": [
           {
-           "id": "n79",
+           "id": "n78",
            "type": "image",
            "width": 172,
            "height": 214,
@@ -1464,7 +1452,7 @@
            "bind": "image"
           },
           {
-           "id": "n80",
+           "id": "n79",
            "type": "text",
            "padding": {
             "top": 4,
@@ -1490,7 +1478,7 @@
          ]
         },
         {
-         "id": "n81",
+         "id": "n80",
          "type": "text",
          "color": "#2A121C",
          "dark_color": "#F8EAEE",
@@ -1505,13 +1493,13 @@
          "bind": "title"
         },
         {
-         "id": "n82",
+         "id": "n81",
          "type": "row",
          "gap": 8,
          "cross": "center",
          "children": [
           {
-           "id": "n83",
+           "id": "n82",
            "type": "text",
            "color": "#A8325A",
            "dark_color": "#F3A9C0",
@@ -1523,7 +1511,7 @@
            "bind": "price"
           },
           {
-           "id": "n84",
+           "id": "n83",
            "type": "text",
            "color": "#7B5E67",
            "dark_color": "#C9AEB6",
@@ -1587,7 +1575,7 @@
       ]
      },
      {
-      "id": "n85",
+      "id": "n84",
       "type": "photo_hero",
       "name": "Build your bouquet",
       "height": 300,
@@ -1623,7 +1611,7 @@
       },
       "children": [
        {
-        "id": "n86",
+        "id": "n85",
         "type": "text",
         "color": "#FFD9C2",
         "font": {
@@ -1635,7 +1623,7 @@
         "text": "اصنعها بذوقك"
        },
        {
-        "id": "n87",
+        "id": "n86",
         "type": "text",
         "width": 230,
         "margin": {
@@ -1653,7 +1641,7 @@
         "max_lines": 2
        },
        {
-        "id": "n88",
+        "id": "n87",
         "type": "text",
         "width": 230,
         "margin": {
@@ -1669,7 +1657,7 @@
         "max_lines": 3
        },
        {
-        "id": "n89",
+        "id": "n88",
         "type": "row",
         "name": "Build your bouquet",
         "margin": {
@@ -1679,7 +1667,7 @@
         "scroll": true,
         "children": [
          {
-          "id": "n90",
+          "id": "n89",
           "type": "row",
           "height": 32,
           "padding": {
@@ -1698,7 +1686,7 @@
           },
           "children": [
            {
-            "id": "n91",
+            "id": "n90",
             "type": "row",
             "width": 22,
             "height": 22,
@@ -1709,7 +1697,7 @@
             "radius": 11,
             "children": [
              {
-              "id": "n92",
+              "id": "n91",
               "type": "text",
               "color": "#2A0C17",
               "dark_color": "#2A0C17",
@@ -1724,7 +1712,7 @@
             ]
            },
            {
-            "id": "n93",
+            "id": "n92",
             "type": "text",
             "color": "#FFFFFF",
             "dark_color": "#FFFFFF",
@@ -1737,7 +1725,7 @@
           ]
          },
          {
-          "id": "n94",
+          "id": "n93",
           "type": "row",
           "height": 32,
           "padding": {
@@ -1756,7 +1744,7 @@
           },
           "children": [
            {
-            "id": "n95",
+            "id": "n94",
             "type": "row",
             "width": 22,
             "height": 22,
@@ -1767,7 +1755,7 @@
             "radius": 11,
             "children": [
              {
-              "id": "n96",
+              "id": "n95",
               "type": "text",
               "color": "#2A0C17",
               "dark_color": "#2A0C17",
@@ -1782,7 +1770,7 @@
             ]
            },
            {
-            "id": "n97",
+            "id": "n96",
             "type": "text",
             "color": "#FFFFFF",
             "dark_color": "#FFFFFF",
@@ -1795,7 +1783,7 @@
           ]
          },
          {
-          "id": "n98",
+          "id": "n97",
           "type": "row",
           "height": 32,
           "padding": {
@@ -1814,7 +1802,7 @@
           },
           "children": [
            {
-            "id": "n99",
+            "id": "n98",
             "type": "row",
             "width": 22,
             "height": 22,
@@ -1825,7 +1813,7 @@
             "radius": 11,
             "children": [
              {
-              "id": "n100",
+              "id": "n99",
               "type": "text",
               "color": "#2A0C17",
               "dark_color": "#2A0C17",
@@ -1840,7 +1828,7 @@
             ]
            },
            {
-            "id": "n101",
+            "id": "n100",
             "type": "text",
             "color": "#FFFFFF",
             "dark_color": "#FFFFFF",
@@ -1855,7 +1843,7 @@
         ]
        },
        {
-        "id": "n102",
+        "id": "n101",
         "type": "button",
         "name": "Start",
         "width": "hug",
@@ -1892,7 +1880,7 @@
       ]
      },
      {
-      "id": "n103",
+      "id": "n102",
       "type": "marquee",
       "name": "Every occasion",
       "padding": {
@@ -1919,7 +1907,7 @@
       }
      },
      {
-      "id": "n104",
+      "id": "n103",
       "type": "row",
       "name": "Kind words",
       "padding": {
@@ -1932,13 +1920,13 @@
       "cross": "end",
       "children": [
        {
-        "id": "n105",
+        "id": "n104",
         "type": "column",
         "width": "fill",
         "gap": 4,
         "children": [
          {
-          "id": "n106",
+          "id": "n105",
           "type": "text",
           "color": "#2A121C",
           "dark_color": "#F8EAEE",
@@ -1957,41 +1945,7 @@
       ]
      },
      {
-      "id": "n107",
-      "type": "testimonials",
-      "name": "Kind words",
-      "padding": {
-       "end": 18,
-       "start": 18
-      },
-      "gap": 12,
-      "background": "#FFFFFF",
-      "color": "#2A121C",
-      "dark_background": "#21121A",
-      "dark_color": "#F8EAEE",
-      "border_color": "#F0DDD9",
-      "dark_border_color": "#3A2530",
-      "radius": 26,
-      "border_width": 1,
-      "entries": [
-       {
-        "title": "[اسم العميل]",
-        "subtitle": "[ما أرسله]",
-        "text": "[رأي أحد العملاء فيك]"
-       },
-       {
-        "title": "[اسم العميل]",
-        "subtitle": "[ما أرسله]",
-        "text": "[كلمات عميل آخر]"
-       }
-      ],
-      "motion": {
-       "enter": "slide_up",
-       "duration_ms": 500
-      }
-     },
-     {
-      "id": "n108",
+      "id": "n106",
       "type": "row",
       "name": "Floral rule",
       "padding": {
@@ -2005,7 +1959,7 @@
       "cross": "center",
       "children": [
        {
-        "id": "n109",
+        "id": "n107",
         "type": "row",
         "width": "fill",
         "height": 1,
@@ -2014,7 +1968,7 @@
         "children": []
        },
        {
-        "id": "n110",
+        "id": "n108",
         "type": "icon",
         "color": "#A8325A",
         "dark_color": "#F3A9C0",
@@ -2022,7 +1976,7 @@
         "icon_size": 16
        },
        {
-        "id": "n111",
+        "id": "n109",
         "type": "row",
         "width": "fill",
         "height": 1,
@@ -2046,11 +2000,11 @@
   "blocks": [],
   "studio": {
    "body": {
-    "id": "n112",
+    "id": "n110",
     "type": "column",
     "children": [
      {
-      "id": "n113",
+      "id": "n111",
       "type": "photo_hero",
       "name": "Find the right flowers",
       "height": 190,
@@ -2081,7 +2035,7 @@
       "ken_burns": true,
       "children": [
        {
-        "id": "n114",
+        "id": "n112",
         "type": "text",
         "width": 220,
         "color": "#FFFFFF",
@@ -2096,7 +2050,7 @@
         "max_lines": 2
        },
        {
-        "id": "n115",
+        "id": "n113",
         "type": "text",
         "width": 220,
         "margin": {
@@ -2114,7 +2068,7 @@
       ]
      },
      {
-      "id": "n116",
+      "id": "n114",
       "type": "stories",
       "name": "Every occasion",
       "stories_source": "dashboard",
@@ -2158,7 +2112,7 @@
       }
      },
      {
-      "id": "n117",
+      "id": "n115",
       "type": "row",
       "name": "The signature bouquet",
       "padding": {
@@ -2171,7 +2125,7 @@
       "scroll": true,
       "children": [
        {
-        "id": "n118",
+        "id": "n116",
         "type": "button",
         "name": "Our bouquet",
         "width": "hug",
@@ -2202,7 +2156,7 @@
         }
        },
        {
-        "id": "n119",
+        "id": "n117",
         "type": "button",
         "name": "Your picks",
         "width": "hug",
