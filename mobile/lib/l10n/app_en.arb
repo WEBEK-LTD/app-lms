@@ -13610,5 +13610,61 @@
   "bouquetRemove": "Remove the bouquet",
   "@bouquetRemove": {
     "description": "162 A bouquet the customer built, shown as one in the cart and in the order."
+  },
+  "paySheetWaitingTitle": "Finish paying in the window that opened",
+  "@paySheetWaitingTitle": {
+    "description": "170 Under the phone's browser sheet with the payment page (where Apple Pay and Google Pay show), while the customer pays there."
+  },
+  "paySheetWaitingBody": "Pay there by card, Apple Pay or Google Pay. You come back here once it's done.",
+  "@paySheetWaitingBody": {
+    "description": "170 Under the title while the payment page is open in the browser sheet."
+  },
+  "paySheetChecking": "Checking your payment…",
+  "@paySheetChecking": {
+    "description": "170 While the app asks the platform how the payment stands, after the browser sheet."
+  },
+  "paySheetPendingTitle": "Your payment isn't confirmed yet",
+  "@paySheetPendingTitle": {
+    "description": "170 The payment was started but isn't confirmed yet (it may still be)."
+  },
+  "paySheetPendingBody": "If you paid, it's confirmed within a few minutes and your order shows in your orders. Check again before paying a second time.",
+  "@paySheetPendingBody": {
+    "description": "170 Under the title when the payment isn't confirmed yet: never says it failed."
+  },
+  "paySheetNotPaidTitle": "Not paid yet",
+  "@paySheetNotPaidTitle": {
+    "description": "170 The browser sheet was closed and no payment was made for the order."
+  },
+  "paySheetNotPaidBody": "Nothing was charged for this order. You can pay now, or close and come back later.",
+  "@paySheetNotPaidBody": {
+    "description": "170 Under the title when no payment was started for the order."
+  },
+  "paySheetFailedBody": "The payment didn't go through. You can try again.",
+  "@paySheetFailedBody": {
+    "description": "170 Under the title when the payment page said the payment didn't go through and the order isn't paid."
+  },
+  "paySheetClosedTitle": "This order is closed",
+  "@paySheetClosedTitle": {
+    "description": "170 The order was cancelled or closed meanwhile."
+  },
+  "paySheetClosedBody": "Nothing more to pay here. Go back and check out again if you still want it.",
+  "@paySheetClosedBody": {
+    "description": "170 Under the title when the order is closed."
+  },
+  "paySheetCheckFailedTitle": "We couldn't check your payment",
+  "@paySheetCheckFailedTitle": {
+    "description": "170 The platform couldn't be reached to read the payment's state."
+  },
+  "paySheetCheckFailedBody": "Check your connection and try again. If you paid, your order is safe.",
+  "@paySheetCheckFailedBody": {
+    "description": "170 Under the title when the payment's state couldn't be read."
+  },
+  "paySheetCheckAgain": "Check payment",
+  "@paySheetCheckAgain": {
+    "description": "170 Button: ask the platform again how the payment stands."
+  },
+  "paySheetOpenAgain": "Open the payment page",
+  "@paySheetOpenAgain": {
+    "description": "170 Button: open the payment page in the browser sheet again."
   }
 }

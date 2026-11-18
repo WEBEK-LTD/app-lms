@@ -639,3 +639,58 @@ export function withoutPlaceholders<T extends { pages: readonly { studio?: Studi
 }
 
 type StudioPageLike = { body: unknown; header?: unknown };
+
+/** 174.5 A template's [placeholder] still on a page: where it is (the page, the element; null for the page's header) and its words. */
+export interface PlaceholderSpot {
+  slug: string;
+  /** The element to select in Studio's editor; null for the page's header. */
+  id: string | null;
+  /** Each placeholder as written ("[Customer name]"), once. */
+  words: string[];
+}
+
+/**
+ * 174.5 Every template [placeholder] still on the layout's Studio pages, in
+ * the main language, as the app would leave it out (withoutPlaceholders):
+ * the store's facts fill theirs first (the same-day cut-off), and in a
+ * business's own app a demo's facts are the template's words again. An
+ * element hidden in the app, or bound to an entry (its sample never shows),
+ * isn't listed. Studio lists them under "What's missing" and before Publish.
+ */
+export function placeholdersIn(layout: { pages: readonly { slug: string; studio?: StudioPageLike | null }[] }, facts: StoreFacts = {}, options: TemplateWords = {}): PlaceholderSpot[] {
+  const known = placeholders(options);
+  const out: PlaceholderSpot[] = [];
+  const wordsOf = (value: Record<string, unknown>, fields: readonly string[]): string[] => {
+    const found: string[] = [];
+    for (const field of fields) {
+      const text = value[field];
+      if (typeof text !== "string") continue;
+      const own = filled(facts.ownBusiness ? (demoFactTemplate(text, options.appName) ?? text) : text, facts, options);
+      for (const m of own.matchAll(BRACKETS)) if (known.chunks(m[0]) && !found.includes(m[0])) found.push(m[0]);
+    }
+    return found;
+  };
+  for (const page of layout.pages) {
+    const studio = page.studio;
+    if (!studio || !isRecord(studio.body)) continue;
+    const add = (id: string | null, words: string[]) => {
+      if (!words.length) return;
+      const spot = out.find((s) => s.slug === page.slug && s.id === id);
+      if (spot) spot.words.push(...words.filter((w) => !spot.words.includes(w)));
+      else out.push({ slug: page.slug, id, words });
+    };
+    if (isRecord(studio.header)) add(null, wordsOf(studio.header as Record<string, unknown>, ["title", "subtitle"]));
+    // `within`: inside a list's card, the list is what's selected.
+    const visit = (node: Record<string, unknown>, within: string | null) => {
+      if (node.hidden === true) return;
+      const id = within ?? (typeof node.id === "string" ? node.id : null);
+      if (!node.bind) add(id, wordsOf(node, NODE_TEXTS));
+      for (const e of Array.isArray(node.entries) ? node.entries : []) if (isRecord(e)) add(id, wordsOf(e, ENTRY_TEXTS));
+      for (const s of Array.isArray(node.slides) ? node.slides : []) if (isRecord(s)) add(id, wordsOf(s, SLIDE_TEXTS));
+      if (isRecord(node.card)) visit(node.card, id);
+      for (const c of Array.isArray(node.children) ? node.children : []) if (isRecord(c)) visit(c, within);
+    };
+    visit(studio.body as Record<string, unknown>, null);
+  }
+  return out;
+}

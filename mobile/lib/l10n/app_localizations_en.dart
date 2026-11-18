@@ -12367,4 +12367,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bouquetRemove => 'Remove the bouquet';
+
+  @override
+  String get paySheetWaitingTitle => 'Finish paying in the window that opened';
+
+  @override
+  String get paySheetWaitingBody =>
+      'Pay there by card, Apple Pay or Google Pay. You come back here once it\'s done.';
+
+  @override
+  String get paySheetChecking => 'Checking your payment…';
+
+  @override
+  String get paySheetPendingTitle => 'Your payment isn\'t confirmed yet';
+
+  @override
+  String get paySheetPendingBody =>
+      'If you paid, it\'s confirmed within a few minutes and your order shows in your orders. Check again before paying a second time.';
+
+  @override
+  String get paySheetNotPaidTitle => 'Not paid yet';
+
+  @override
+  String get paySheetNotPaidBody =>
+      'Nothing was charged for this order. You can pay now, or close and come back later.';
+
+  @override
+  String get paySheetFailedBody =>
+      'The payment didn\'t go through. You can try again.';
+
+  @override
+  String get paySheetClosedTitle => 'This order is closed';
+
+  @override
+  String get paySheetClosedBody =>
+      'Nothing more to pay here. Go back and check out again if you still want it.';
+
+  @override
+  String get paySheetCheckFailedTitle => 'We couldn\'t check your payment';
+
+  @override
+  String get paySheetCheckFailedBody =>
+      'Check your connection and try again. If you paid, your order is safe.';
+
+  @override
+  String get paySheetCheckAgain => 'Check payment';
+
+  @override
+  String get paySheetOpenAgain => 'Open the payment page';
 }

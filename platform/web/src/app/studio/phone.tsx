@@ -1,7 +1,8 @@
 "use client";
 
 import { StudioView, type StudioLook } from "@/components/studio/view";
-import type { Pickable } from "@/lib/hosted/pages/pickable";
+import type { Pickable, PickableCommerce } from "@/lib/hosted/pages/pickable";
+import type { CommerceWords } from "@/components/studio/commerce";
 import type { LanguageCode, StudioPage } from "@/lib/pages/types";
 import { STUDIO_COLORS as C } from "./editor/shared";
 
@@ -19,10 +20,15 @@ export function ProjectPhone({
   size,
   words,
   samples,
+  commerce,
+  commerceWords,
 }: {
   home: { page: StudioPage; look: StudioLook; lang: LanguageCode } | null;
   /** The samples a project's lists show while they're empty (lib/studio/sample-entries.ts). */
   samples?: Pickable["samples"];
+  /** 174.6 The shop's own sales and coupons (and its currency for a sample), with the canvas's words for them. */
+  commerce?: PickableCommerce;
+  commerceWords?: CommerceWords;
   size: "card" | "whole";
   words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string; copy: string };
 }) {
@@ -57,7 +63,7 @@ export function ProjectPhone({
       >
         {home ? (
           <div style={{ width: SCREEN_WIDTH, minHeight: screenHeight / scale, transform: `scale(${scale})`, transformOrigin: "top left", pointerEvents: "none" }}>
-            <StudioView page={home.page} lang={home.lang} defaultLang={home.lang} dark={false} look={home.look} pickable={samples ? { ...NO_DATA, samples } : NO_DATA} words={words} />
+            <StudioView page={home.page} lang={home.lang} defaultLang={home.lang} dark={false} look={home.look} pickable={{ ...NO_DATA, ...(samples ? { samples } : {}), ...(commerce ? { commerce } : {}) }} words={words} commerceWords={commerceWords} />
           </div>
         ) : null}
       </div>

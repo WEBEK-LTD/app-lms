@@ -29,7 +29,7 @@ function ColorIn({ label, value, onChange }: { label: string; value: string | nu
   return (
     <label className="flex items-center justify-between gap-2">
       <span>{label}</span>
-      <input type="color" value={value ?? "#000000"} onChange={(e) => onChange(e.target.value.toUpperCase())} className="h-7 w-10 cursor-pointer rounded-md bg-white p-0.5" style={FIELD} />
+      <input type="color" aria-label={label} value={value ?? "#000000"} onChange={(e) => onChange(e.target.value.toUpperCase())} className="h-7 w-10 cursor-pointer rounded-md bg-white p-0.5" style={FIELD} />
     </label>
   );
 }
@@ -37,7 +37,7 @@ function ColorIn({ label, value, onChange }: { label: string; value: string | nu
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (on: boolean) => void }) {
   return (
     <label className="flex items-center gap-1">
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ accentColor: "#1F8A4C" }} />
+      <input type="checkbox" aria-label={label} checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ accentColor: "#1F8A4C" }} />
       {label}
     </label>
   );

@@ -3281,5 +3281,19 @@
   "bouquetWrapPart": "Ambalaj: {name}",
   "bouquetCardPart": "Kart: {name}",
   "bouquetMessage": "“{message}”",
-  "bouquetRemove": "Buketi kaldır"
+  "bouquetRemove": "Buketi kaldır",
+  "paySheetWaitingTitle": "Ödemeyi açılan pencerede tamamlayın",
+  "paySheetWaitingBody": "Orada kartla, Apple Pay veya Google Pay ile ödeyin. Ödeme bitince buraya dönersiniz.",
+  "paySheetChecking": "Ödemeniz kontrol ediliyor…",
+  "paySheetPendingTitle": "Ödemeniz henüz onaylanmadı",
+  "paySheetPendingBody": "Ödediyseniz birkaç dakika içinde onaylanır ve siparişiniz siparişlerinizde görünür. İkinci kez ödemeden önce yeniden kontrol edin.",
+  "paySheetNotPaidTitle": "Henüz ödenmedi",
+  "paySheetNotPaidBody": "Bu sipariş için herhangi bir ücret alınmadı. Şimdi ödeyebilir ya da kapatıp daha sonra dönebilirsiniz.",
+  "paySheetFailedBody": "Ödeme gerçekleşmedi. Yeniden deneyebilirsiniz.",
+  "paySheetClosedTitle": "Bu sipariş kapandı",
+  "paySheetClosedBody": "Burada ödenecek bir şey kalmadı. Hâlâ istiyorsanız geri dönüp yeniden sipariş verin.",
+  "paySheetCheckFailedTitle": "Ödemeniz kontrol edilemedi",
+  "paySheetCheckFailedBody": "Bağlantınızı kontrol edip yeniden deneyin. Ödediyseniz siparişiniz güvende.",
+  "paySheetCheckAgain": "Ödemeyi kontrol et",
+  "paySheetOpenAgain": "Ödeme sayfasını aç"
 }

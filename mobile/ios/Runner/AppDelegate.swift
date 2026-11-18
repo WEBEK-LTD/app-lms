@@ -11,6 +11,7 @@ import UIKit
   private var privateFiles: PrivateFiles?
   private var mediaPermission: MediaPermission?
   private var dataSaver: DataSaver?
+  private var payReturn: PayReturn?
 
   override func application(
     _ application: UIApplication,
@@ -30,7 +31,40 @@ import UIKit
       mediaPermission = MediaPermission(messenger: registrar.messenger())
       // 129.4 Low Data Mode, for Studio's video banners.
       dataSaver = DataSaver(messenger: registrar.messenger())
+      // 170 Back from the payment page in the browser sheet.
+      let back = PayReturn(messenger: registrar.messenger())
+      registrar.addSceneDelegate(back)
+      payReturn = back
     }
+  }
+}
+
+/// 170 The payment page, in the browser sheet over the app
+/// (SFSafariViewController), sends the customer back with the app's own
+/// address (`yallapp-<app id>://app/pay-return?order=<id>&result=<…>`,
+/// CFBundleURLTypes from YallappBuild.xcconfig). While the app runs, the link
+/// goes to the payment screen on `yallapp/pay_return` (`returned`), which
+/// closes the sheet and asks the platform how the payment stands; it isn't
+/// handed to the router, which would replace the screens open. Started by
+/// the link, the app gets it through the router instead (Flutter's deep
+/// linking at connection), which opens Orders.
+final class PayReturn: NSObject, FlutterSceneLifeCycleDelegate {
+  private let channel: FlutterMethodChannel
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "yallapp/pay_return", binaryMessenger: messenger)
+    super.init()
+  }
+
+  static func isReturn(_ url: URL) -> Bool {
+    guard let scheme = url.scheme?.lowercased(), scheme.hasPrefix("yallapp-") else { return false }
+    return url.host == "app" && url.path == "/pay-return"
+  }
+
+  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) -> Bool {
+    guard let link = URLContexts.map(\.url).first(where: PayReturn.isReturn) else { return false }
+    channel.invokeMethod("returned", arguments: link.absoluteString)
+    return true
   }
 }
 

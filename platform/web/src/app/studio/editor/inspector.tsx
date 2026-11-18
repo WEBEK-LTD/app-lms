@@ -34,6 +34,7 @@ import {
   STUDIO_LOOPS,
   STUDIO_PRESSES,
   STUDIO_TEXT_STYLES,
+  STUDIO_PILL_RADIUS,
   LAYOUT_LIMITS,
   TAB_LABELS,
   type Action,
@@ -53,6 +54,8 @@ import {
   TAB_BAR_DESIGNS,
   type WebPageLook,
 } from "@/lib/pages/types";
+// 174 The field is in the direction of the language being edited (Arabic right to left, whatever the dashboard's).
+import { isRtl } from "@/lib/i18n/locales";
 import { TextInApp } from "./text-in-app";
 import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
@@ -139,6 +142,10 @@ interface Props {
   tablet?: { changed: boolean; onReset: () => void };
   /** 130.21 The system screens' look (Studio › Screens), where the project has Studio's screens. */
   system?: { look: SystemLook | null; onLook: (look: SystemLook | null) => void; busy: boolean };
+  /** 174.4 The plan leaves motion out of what the app gets: the plans that have it (their names) and where plans are chosen. */
+  motionOff?: { plans: string[]; href: string } | null;
+  /** 174 The canvas shows dark mode: the dark colours are opened and the light ones said to be light. */
+  dark?: boolean;
 }
 
 export function Inspector(props: Props) {
@@ -409,7 +416,7 @@ function SizeMode({ byHand, onBackToAuto }: { byHand: boolean; onBackToAuto: () 
 function Check({ label, checked, onChange }: { label: string; checked: boolean; onChange: (on: boolean) => void }) {
   return (
     <label className="flex items-center gap-1">
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ accentColor: "#1F8A4C" }} />
+      <input type="checkbox" aria-label={label} checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ accentColor: "#1F8A4C" }} />
       {label}
     </label>
   );
@@ -747,7 +754,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {textual && node.type !== "bullets" && node.type !== "countdown" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.text")}
-          <textarea value={textOf(node, props.lang, props.defaultLang)} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} rows={node.type === "text" ? 3 : 1} maxLength={2000} placeholder={node.type === "text" ? undefined : node.text ?? ""} className="rounded-lg px-2.5 py-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} data-studio-text="" />
+          <textarea value={textOf(node, props.lang, props.defaultLang)} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} rows={node.type === "text" ? 3 : 1} maxLength={2000} placeholder={node.type === "text" ? undefined : node.text ?? ""} dir={isRtl(props.lang) ? "rtl" : "ltr"} className="rounded-lg px-2.5 py-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} data-studio-text="" />
         </label>
       ) : null}
       {/* 156 What the app's other languages show of these words (outside the label: the field keeps its name). */}
@@ -774,7 +781,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "bullets" || node.type === "countdown" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t(node.type === "bullets" ? "studio.bulletLines" : "studio.endedText")}
-          <textarea value={textOf(node, props.lang, props.defaultLang)} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} rows={node.type === "bullets" ? 4 : 2} maxLength={2000} className="rounded-lg px-2.5 py-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} data-studio-text="" />
+          <textarea value={textOf(node, props.lang, props.defaultLang)} onChange={(e) => onChange(withText(node, e.target.value, props.lang, props.defaultLang))} rows={node.type === "bullets" ? 4 : 2} maxLength={2000} dir={isRtl(props.lang) ? "rtl" : "ltr"} className="rounded-lg px-2.5 py-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }} data-studio-text="" />
           {node.type === "countdown" ? (
             <span className="text-xs font-normal" style={{ color: "var(--sf-muted)" }}>
               {t("studio.endedTextHint")}
@@ -1030,6 +1037,12 @@ function DesignTab(props: Props & { node: StudioNode }) {
 
       <Rule />
       <Heading>{t("studio.colors")}</Heading>
+      {/* 174 In the dark preview these rows still set the light colours (the canvas wouldn't change): said, and the dark ones open below. */}
+      {props.dark ? (
+        <p className="m-0 text-xs" style={{ color: "var(--sf-muted)" }} data-colors-light-note="">
+          {t("studio.colorsLightNote")}
+        </p>
+      ) : null}
       <Colors
         palette={props.palette}
         rows={[
@@ -1037,7 +1050,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           { label: t("studio.textColor"), value: node.color, onChange: (color) => onChange({ color: color ?? undefined }) },
         ]}
       />
-      <details>
+      <details key={props.dark ? "dark" : "light"} open={props.dark || undefined} data-colors-dark="">
         <summary className="cursor-pointer">{t("studio.inDark")}</summary>
         <div className="flex flex-col gap-2.5 pt-2">
           <Colors
@@ -1156,7 +1169,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           ))}
         </div>
       ) : (
-              <RangeField label={t("studio.corners")} value={Math.min(node.radius ?? 0, 999)} min={0} max={40} unit="px" fallback={0} presets={[{ value: 0 }, { value: 8 }, { value: 16 }, { value: 24 }, { value: 999, label: t("studio.pill") }]} onChange={(radius) => onChange({ radius: radius || undefined })} />
+              <RangeField label={t("studio.corners")} value={Math.min(node.radius ?? 0, STUDIO_PILL_RADIUS)} min={0} max={40} unit="px" fallback={0} presets={[{ value: 0 }, { value: 8 }, { value: 16 }, { value: 24 }, { value: STUDIO_PILL_RADIUS, label: t("studio.pill") }]} onChange={(radius) => onChange({ radius: radius || undefined })} />
       )}
       <Check
         label={t("studio.eachCorner")}
@@ -1299,6 +1312,7 @@ function MotionTab(props: Props & { node: StudioNode }) {
   const words = { none: "None", fade: "Fade", slide_up: "SlideUp", slide_down: "SlideDown", slide_start: "SlideStart", slide_end: "SlideEnd", zoom: "Zoom" } as const;
   return (
     <>
+      {props.motionOff ? <MotionOffPlan {...props.motionOff} /> : null}
       <label className="flex flex-col gap-1 font-bold">
         {t("studio.enter")}
         <select value={m.enter ?? "none"} onChange={(e) => set({ enter: e.target.value as (typeof STUDIO_ENTERS)[number] })} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
@@ -1335,6 +1349,33 @@ function MotionTab(props: Props & { node: StudioNode }) {
         {t("studio.reduceMotion")}
       </p>
     </>
+  );
+}
+
+/**
+ * 174.4 The plan has no "Motion in the editor": the choices are saved (and
+ * play on the canvas) but the served layout leaves every element's motion
+ * out, the template's own entrances too (lib/pages/plan.ts). Said here,
+ * with what a plan that has it turns on and where plans are chosen.
+ */
+function MotionOffPlan({ plans, href }: { plans: string[]; href: string }) {
+  const t = useDashT();
+  return (
+    <div role="note" data-motion-off-plan="" className="flex flex-col gap-1.5 rounded-xl p-3 text-xs leading-relaxed" style={{ background: "var(--sf-soft)", border: "1px solid var(--sf-line)", color: "var(--sf-ink)" }}>
+      <span className="flex items-center gap-1.5 text-[13px] font-bold">
+        <span style={{ color: "var(--sf-accent)" }} className="flex">
+          <Glyph name="workspace_premium" size={18} />
+        </span>
+        {t("studio.motionOffPlan")}
+      </span>
+      <span>{t("studio.motionOffPlanText")}</span>
+      <span style={{ color: "var(--sf-muted)" }}>{t("studio.motionUpgrade")}</span>
+      {plans.length ? <span style={{ color: "var(--sf-muted)" }}>{t("studio.motionUpgradePlans", { plans: plans.join(" · ") })}</span> : null}
+      <a href={href} className="inline-flex items-center gap-1 self-start font-bold">
+        {t("studio.motionSeePlans")}
+        <Glyph name="arrow_forward" size={16} flip />
+      </a>
+    </div>
   );
 }
 

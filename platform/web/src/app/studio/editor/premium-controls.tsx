@@ -1,5 +1,6 @@
 "use client";
 
+import { isRtl } from "@/lib/i18n/locales";
 import { useState, type ReactNode } from "react";
 import { useDashT } from "@/components/dashboard-i18n";
 import { MediaPicker } from "@/components/media-picker";
@@ -31,6 +32,7 @@ import {
 import { RangeField } from "./controls";
 import { Glyph } from "./shared";
 import { TextInApp } from "./text-in-app";
+import { appWords, type AppWord } from "@/lib/studio/app-words";
 
 /**
  * 129.11–129.20 The inspector's part for the premium elements: every option
@@ -60,7 +62,7 @@ interface Props {
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (on: boolean) => void }) {
   return (
     <label className="flex items-center gap-1">
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ accentColor: "#1F8A4C" }} />
+      <input type="checkbox" aria-label={label} checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ accentColor: "#1F8A4C" }} />
       {label}
     </label>
   );
@@ -70,7 +72,7 @@ function Choice<T extends string>({ label, value, options, onChange }: { label: 
   return (
     <label className="flex items-center justify-between gap-2">
       {label}
-      <select value={value} onChange={(e) => onChange(e.target.value as T)} className="h-8 max-w-[60%] rounded-lg px-1.5" style={FIELD}>
+      <select aria-label={label} value={value} onChange={(e) => onChange(e.target.value as T)} className="h-8 max-w-[60%] rounded-lg px-1.5" style={FIELD}>
         {options.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
@@ -87,7 +89,7 @@ function ColorIn({ label, value, onChange }: { label: string; value: string | nu
     <label className="flex items-center justify-between gap-2">
       <span>{label}</span>
       <span className="flex items-center gap-1.5">
-        <input type="color" value={value ?? "#000000"} onChange={(e) => onChange(e.target.value.toUpperCase())} className="h-7 w-10 cursor-pointer rounded-md bg-white p-0.5" style={FIELD} />
+        <input type="color" aria-label={label} value={value ?? "#000000"} onChange={(e) => onChange(e.target.value.toUpperCase())} className="h-7 w-10 cursor-pointer rounded-md bg-white p-0.5" style={FIELD} />
         {value ? (
           <button type="button" onClick={() => onChange(null)} className="rounded-md bg-white px-1.5 text-xs" style={FIELD}>
             {t("studio.none")}
@@ -114,22 +116,23 @@ function Picture({ label, value, onChange }: { label: string; value: string | nu
 }
 
 /** A text of an entry (or of the element) in the language being edited, the default language's as its hint. */
-function TextIn({ label, value, hint, onChange, rows = 1, max }: { label: string; value: string; hint?: string; onChange: (v: string) => void; rows?: number; max: number }) {
+function TextIn({ label, value, hint, onChange, rows = 1, max, dir }: { label: string; value: string; hint?: string; onChange: (v: string) => void; rows?: number; max: number; dir?: "rtl" | "ltr" }) {
+  // 174 Named for screen readers whatever wraps it, and in the direction of the language being edited.
   return (
     <label className="flex flex-col gap-1">
       {label}
       {rows > 1 ? (
-        <textarea value={value} rows={rows} maxLength={max} placeholder={hint} onChange={(e) => onChange(e.target.value)} className="rounded-lg px-2.5 py-1.5" style={FIELD} />
+        <textarea value={value} rows={rows} maxLength={max} placeholder={hint} aria-label={label} dir={dir} onChange={(e) => onChange(e.target.value)} className="rounded-lg px-2.5 py-1.5" style={FIELD} />
       ) : (
-        <input value={value} maxLength={max} placeholder={hint} onChange={(e) => onChange(e.target.value)} className="h-8 rounded-lg px-2.5" style={FIELD} />
+        <input value={value} maxLength={max} placeholder={hint} aria-label={label} dir={dir} onChange={(e) => onChange(e.target.value)} className="h-8 rounded-lg px-2.5" style={FIELD} />
       )}
     </label>
   );
 }
 
 /** The fields each element's entries show in the inspector. */
-const ENTRY_FIELDS: Record<string, { texts: { field: EntryField; key: string; rows?: number }[]; value?: { key: string; min: number; max: number; step: number; unit?: string }; picture?: string; icon?: boolean; highlight?: string; prices?: boolean; size?: boolean; gradient?: boolean; color?: boolean; action?: boolean }> = {
-  testimonials: { texts: [{ field: "text", key: "pm_quote", rows: 3 }, { field: "title", key: "pm_personName" }, { field: "subtitle", key: "pm_personRole" }], value: { key: "pm_stars", min: 0, max: 5, step: 1, unit: "★" }, picture: "pm_photo" },
+const ENTRY_FIELDS: Record<string, { texts: { field: EntryField; key: string; rows?: number }[]; value?: { key: string; min: number; max: number; step: number; unit?: string; /** 174.7 What the canvas and the app draw while it is unset (a review's 5 stars). */ unset?: number }; picture?: string; icon?: boolean; highlight?: string; prices?: boolean; size?: boolean; gradient?: boolean; color?: boolean; action?: boolean }> = {
+  testimonials: { texts: [{ field: "text", key: "pm_quote", rows: 3 }, { field: "title", key: "pm_personName" }, { field: "subtitle", key: "pm_personRole" }], value: { key: "pm_stars", min: 0, max: 5, step: 1, unit: "★", unset: 5 }, picture: "pm_photo" },
   pricing: { texts: [{ field: "title", key: "pm_planName" }, { field: "text", key: "pm_features", rows: 4 }, { field: "label", key: "pm_buttonWords" }], prices: true, highlight: "pm_popular", action: true },
   stats: { texts: [{ field: "title", key: "pm_label" }, { field: "prefix", key: "pm_prefix" }, { field: "suffix", key: "pm_suffix" }], value: { key: "pm_number", min: -1e9, max: 1e9, step: 1 }, icon: true, highlight: "pm_accentNumber", color: true },
   // 129 A ring's photo, icon and chip; a step's chip and share on its card; a tile's chip.
@@ -138,19 +141,26 @@ const ENTRY_FIELDS: Record<string, { texts: { field: EntryField; key: string; ro
   bento: { texts: [{ field: "title", key: "pm_tileTitle" }, { field: "text", key: "pm_tileText", rows: 2 }, { field: "subtitle", key: "pm_tileChip" }, { field: "label", key: "pm_linkWords" }], picture: "pm_tilePhoto", icon: true, size: true, gradient: true, color: true, action: true },
 };
 
-/** A new entry of the element's kind, as its first one was. */
-function newEntry(type: StudioNode["type"]): StudioEntry {
+/**
+ * A new entry of the element's kind, as its first one was. 174 Its words are
+ * the templates' [placeholders] in the project's main language (they were
+ * "…", which reached the app): the app leaves an entry still to be written
+ * out (156), Studio says "Fill this in" under it and lists it under What's
+ * missing.
+ */
+function newEntry(type: StudioNode["type"], w: (word: AppWord) => string): StudioEntry {
   switch (type) {
     case "testimonials":
-      return { text: "…", title: "…", value: 5 };
+      return { text: w("reviewText"), title: w("reviewName"), value: 5 };
     case "pricing":
-      return { title: "…", price: null, price_yearly: null };
+      return { title: w("offerTitle"), price: null, price_yearly: null };
     case "stats":
-      return { title: "…", value: 0 };
+      return { title: w("statsOne"), value: 0 };
     case "progress":
-      return { title: "…", value: 50 };
+    case "timeline":
+      return { title: w("pdGeStep1"), ...(type === "progress" ? { value: 50 } : {}) };
     default:
-      return { title: "…" };
+      return { title: w("offerTitle") };
   }
 }
 
@@ -199,7 +209,7 @@ function EntriesEditor({ node, onChange, lang, defaultLang, languages, appName, 
             <>
               {spec.texts.map((f) => (
                 <div key={f.field} className="flex flex-col gap-1">
-                  <TextIn label={t(`studio.${f.key}` as DashKey)} value={textOf(e, f.field)} hint={other ? (e[f.field] ?? "") : undefined} rows={f.rows} max={f.field === "text" ? 600 : f.field === "label" ? 40 : f.field === "prefix" || f.field === "suffix" ? 8 : 120} onChange={(v) => setText(i, f.field, v)} />
+                  <TextIn label={t(`studio.${f.key}` as DashKey)} value={textOf(e, f.field)} hint={other ? (e[f.field] ?? "") : undefined} dir={isRtl(lang) ? "rtl" : "ltr"} rows={f.rows} max={f.field === "text" ? 600 : f.field === "label" ? 40 : f.field === "prefix" || f.field === "suffix" ? 8 : 120} onChange={(v) => setText(i, f.field, v)} />
                   {/* 156 What the app shows of these words in its other languages. */}
                   <TextInApp value={e} field={f.field} lang={lang} defaultLang={defaultLang} languages={languages} appName={appName} />
                 </div>
@@ -208,10 +218,10 @@ function EntriesEditor({ node, onChange, lang, defaultLang, languages, appName, 
                 spec.value.max > 100 ? (
                   <label className="flex items-center justify-between gap-2">
                     {t(`studio.${spec.value.key}` as DashKey)}
-                    <input type="number" dir="ltr" value={e.value ?? 0} step="any" onChange={(ev) => set(i, { value: Number.isFinite(Number(ev.target.value)) ? Math.max(-1e9, Math.min(1e9, Number(ev.target.value))) : 0 })} className="h-8 w-28 rounded-lg px-2 text-end" style={FIELD} />
+                    <input type="number" dir="ltr" aria-label={t(`studio.${spec.value.key}` as DashKey)} value={e.value ?? 0} step="any" onChange={(ev) => set(i, { value: Number.isFinite(Number(ev.target.value)) ? Math.max(-1e9, Math.min(1e9, Number(ev.target.value))) : 0 })} className="h-8 w-28 rounded-lg px-2 text-end" style={FIELD} />
                   </label>
                 ) : (
-                  <RangeField label={t(`studio.${spec.value.key}` as DashKey)} value={e.value ?? 0} min={spec.value.min} max={spec.value.max} step={spec.value.step} unit={spec.value.unit ?? ""} onChange={(value) => set(i, { value })} />
+                  <RangeField label={t(`studio.${spec.value.key}` as DashKey)} value={e.value ?? spec.value.unset ?? 0} min={spec.value.min} max={spec.value.max} step={spec.value.step} unit={spec.value.unit ?? ""} onChange={(value) => set(i, { value })} />
                 )
               ) : null}
               {spec.prices ? (
@@ -250,7 +260,7 @@ function EntriesEditor({ node, onChange, lang, defaultLang, languages, appName, 
         <button
           type="button"
           onClick={() => {
-            onChange({ entries: [...entries, newEntry(node.type)] });
+            onChange({ entries: [...entries, newEntry(node.type, appWords(defaultLang, appName ?? ""))] });
             setOpen(entries.length);
           }}
           className="flex h-8 items-center justify-center gap-1 rounded-lg bg-white font-semibold"

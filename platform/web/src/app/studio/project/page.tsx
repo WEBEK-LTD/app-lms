@@ -1,4 +1,6 @@
 import { sampleEntries } from "@/lib/studio/sample-entries";
+import { pickableCommerce } from "@/lib/hosted/pages/pickable";
+import { appWord } from "@/lib/studio/app-words";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -72,12 +74,29 @@ export default async function StudioProjectPage({ searchParams }: PageProps<"/st
         { label: t("studio.statLanguages"), value: number(card.languages), icon: "translate" },
       ];
   const done = steps.filter((step) => step.done).length;
+  // 174.6 The shop's own coupon and flash sale on the canvas (else marked samples, in the shop's currency), as the editor draws them.
+  const commerce = await pickableCommerce(store, app, now).catch(() => undefined);
+  const commerceWords = {
+    flash: appWord(lang, "newFlash", app.appName ?? ""),
+    left: t("studio.canvasLeft"),
+    soldOut: t("studio.canvasSoldOut"),
+    endsIn: t("studio.canvasEndsIn"),
+    copy: t("studio.copyCode"),
+    off: t("studio.canvasOff"),
+    days: t("studio.days"),
+    hours: t("studio.hours"),
+    minutes: t("studio.minutes"),
+    seconds: t("studio.seconds"),
+    sample: t("studio.canvasSample"),
+    saleSample: t("studio.canvasSaleSample"),
+    couponSample: t("studio.canvasCouponSample"),
+  };
   const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode") };
   return (
     <div className="flex flex-col gap-6">
       {/* The page kit: the project and its one main action, the numbers, then what's left before publishing. */}
       <section aria-labelledby="h-project" className="flex flex-wrap items-center gap-6 rounded-[18px] border border-line bg-white p-5 sm:p-6">
-        <ProjectPhone home={card.home} size="whole" words={words} samples={sampleEntries(now)} />
+        <ProjectPhone home={card.home} size="whole" words={words} samples={sampleEntries(now)} commerce={commerce} commerceWords={commerceWords} />
         <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2.5">
             <h1 id="h-project" className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">

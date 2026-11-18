@@ -13107,4 +13107,60 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get bouquetRemove =>
       overlay.text('bouquetRemove') ?? base.bouquetRemove;
+
+  @override
+  String get paySheetWaitingTitle =>
+      overlay.text('paySheetWaitingTitle') ?? base.paySheetWaitingTitle;
+
+  @override
+  String get paySheetWaitingBody =>
+      overlay.text('paySheetWaitingBody') ?? base.paySheetWaitingBody;
+
+  @override
+  String get paySheetChecking =>
+      overlay.text('paySheetChecking') ?? base.paySheetChecking;
+
+  @override
+  String get paySheetPendingTitle =>
+      overlay.text('paySheetPendingTitle') ?? base.paySheetPendingTitle;
+
+  @override
+  String get paySheetPendingBody =>
+      overlay.text('paySheetPendingBody') ?? base.paySheetPendingBody;
+
+  @override
+  String get paySheetNotPaidTitle =>
+      overlay.text('paySheetNotPaidTitle') ?? base.paySheetNotPaidTitle;
+
+  @override
+  String get paySheetNotPaidBody =>
+      overlay.text('paySheetNotPaidBody') ?? base.paySheetNotPaidBody;
+
+  @override
+  String get paySheetFailedBody =>
+      overlay.text('paySheetFailedBody') ?? base.paySheetFailedBody;
+
+  @override
+  String get paySheetClosedTitle =>
+      overlay.text('paySheetClosedTitle') ?? base.paySheetClosedTitle;
+
+  @override
+  String get paySheetClosedBody =>
+      overlay.text('paySheetClosedBody') ?? base.paySheetClosedBody;
+
+  @override
+  String get paySheetCheckFailedTitle =>
+      overlay.text('paySheetCheckFailedTitle') ?? base.paySheetCheckFailedTitle;
+
+  @override
+  String get paySheetCheckFailedBody =>
+      overlay.text('paySheetCheckFailedBody') ?? base.paySheetCheckFailedBody;
+
+  @override
+  String get paySheetCheckAgain =>
+      overlay.text('paySheetCheckAgain') ?? base.paySheetCheckAgain;
+
+  @override
+  String get paySheetOpenAgain =>
+      overlay.text('paySheetOpenAgain') ?? base.paySheetOpenAgain;
 }

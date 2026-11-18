@@ -16,7 +16,7 @@ import { withLanguageList } from "../i18n/packs";
 import { designFitsApp, findDesign } from "./designs/catalog";
 import { scheduleAutoScreenshots } from "../app/auto-screenshots";
 import { PAGE_TEXT_FORMS } from "../i18n/builtin";
-import { withoutPlaceholders, withoutStaleTranslations } from "./template-translations";
+import { placeholdersIn, withoutPlaceholders, withoutStaleTranslations, type PlaceholderSpot, type StoreFacts } from "./template-translations";
 import { withSampleProduct } from "../hosted/pages/lists";
 
 /**
@@ -360,10 +360,20 @@ export function withFreshTranslations<T extends Layout>(layout: T, app: Pick<App
   // demo's own, which the pass below leaves out of a business's app, and the bouquet is known by them.
   const sampled = withSampleProducts(layout);
   // 156 And no template [placeholder] for customers: the store's facts fill theirs, the rest waits for the owner's words.
-  const delivery = app.catalogSettings?.delivery;
-  const fresh = withoutPlaceholders(withoutStaleTranslations(sampled, { ...words, dropMarks: true }), { cutoff: delivery?.enabled && delivery.sameDay ? delivery.cutoff : null, ownBusiness: app.demo !== true }, words);
+  const fresh = withoutPlaceholders(withoutStaleTranslations(sampled, { ...words, dropMarks: true }), storeFactsOf(app), words);
   if (fresh === layout) return layout;
   return { ...fresh, version: `${layout.version}~f${sha256Hex(JSON.stringify(fresh)).slice(0, 8)}` };
+}
+
+/** 174.5 The store's facts a template's placeholders stand for (the same-day cut-off), and whether the app is a business's own. */
+export function storeFactsOf(app: Partial<Pick<App, "catalogSettings" | "demo">>): StoreFacts {
+  const delivery = app.catalogSettings?.delivery;
+  return { cutoff: delivery?.enabled && delivery.sameDay ? delivery.cutoff : null, ownBusiness: app.demo !== true };
+}
+
+/** 174.5 Every template [placeholder] still on the layout's Studio pages, as the app would leave it out. */
+export function layoutPlaceholders(layout: Pick<LayoutContent, "pages">, app: Pick<App, "appName"> & Partial<Pick<App, "catalogSettings" | "demo">>): PlaceholderSpot[] {
+  return placeholdersIn(layout, storeFactsOf(app), { appName: app.appName, more: PAGE_TEXT_FORMS });
 }
 
 /** 164 Each Studio page with the template's sample bouquet served as one of the shop's products (lib/hosted/pages/lists.ts). */
