@@ -32,6 +32,11 @@ export function elementLabel(t: ReturnType<typeof useDashT>, type: StudioNode["t
   return t(`studio.el_${type}` as DashKey);
 }
 
+/** An element's name in the layers (and the inspector's list of a slider's slides): its own name, else its kind, a text's and a button's words with it. */
+export function layerLabel(t: ReturnType<typeof useDashT>, node: StudioNode): string {
+  return node.name ?? node.title ?? (node.type === "button" || node.type === "text" ? `${elementLabel(t, node.type, node.source)} «${(node.text ?? "").slice(0, 24)}»` : elementLabel(t, node.type, node.source));
+}
+
 /** Whether an element made for some projects only is offered in this one. */
 function offered(only: ElementInfo["only"], props: { marketplace?: boolean; academy?: boolean; orders?: boolean; trips?: boolean; school?: boolean; store?: boolean }): boolean {
   if (!only) return true;
@@ -383,7 +388,7 @@ function Layer(props: {
   const kids = holdsChildren(node) ? (node.children ?? []) : [];
   const folded = props.folded.has(node.id);
   const selected = props.selectedId === node.id;
-  const label = node.name ?? node.title ?? (node.type === "button" || node.type === "text" ? `${elementLabel(t, node.type, node.source)} «${(node.text ?? "").slice(0, 24)}»` : elementLabel(t, node.type, node.source));
+  const label = layerLabel(t, node);
   return (
     <>
       <li
