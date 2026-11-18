@@ -196,6 +196,8 @@ export const en = {
   recipientLabel: "Recipient",
   card: "Card",
   anonymousYes: "Sent anonymously",
+  // 168 The place the customer pinned, for the courier.
+  pinOnMap: "The pin on the map",
   zone: "Zone",
   fee: "Delivery fee",
   // 132.186 Several times a day, every country with the owner's own cities, products with their pictures
@@ -497,6 +499,7 @@ export const ar: Messages = {
   recipientLabel: "المستلم",
   card: "الكارت",
   anonymousYes: "متبعت من غير اسم",
+  pinOnMap: "المكان على الخريطة",
   zone: "المنطقة",
   fee: "رسوم التوصيل",
   // 132.186 أكتر من ميعاد في اليوم، كل الدول بمدنك، والمنتجات بصورها
@@ -788,6 +791,7 @@ export const tr: Messages = {
   recipientLabel: "Alıcı",
   card: "Kart",
   anonymousYes: "İsimsiz gönderildi",
+  pinOnMap: "Haritadaki konum",
   zone: "Bölge",
   fee: "Teslimat ücreti",
   // 132.186 Günde birden çok saat, kendi şehirlerinizle tüm ülkeler, resimleriyle ürünler

@@ -47,6 +47,7 @@ export function PayForm({
   color,
   textColor,
   defaults,
+  cityOptional = false,
 }: {
   token: string;
   /** The card provider's name; null when the shop takes no cards. */
@@ -57,6 +58,8 @@ export function PayForm({
   color: string;
   textColor: string;
   defaults?: Partial<CatalogCustomer>;
+  /** 168 The order already says where it goes (lib/catalog/payment.ts cityOptionalFor). */
+  cityOptional?: boolean;
 }) {
   const [state, action] = useActionState<PayState, FormData>(payAction.bind(null, token), initialFormState);
   // 144 Stripe's form didn't load: its own page instead, with the same details. 153 iyzico's or Kashier's: their page, the same payment.
@@ -138,7 +141,7 @@ export function PayForm({
         <Field label="Full name" name="name" autoComplete="name" required defaultValue={value("name")} error={state.errors?.name} />
         <Field label="Mobile number" name="phone" type="tel" autoComplete="tel" required defaultValue={value("phone")} error={state.errors?.phone} />
         <Field label="Email" name="email" type="email" autoComplete="email" required defaultValue={value("email")} error={state.errors?.email} />
-        <Field label="City" name="city" autoComplete="address-level2" required defaultValue={value("city")} error={state.errors?.city} />
+        <Field label={cityOptional ? "City (optional)" : "City"} name="city" autoComplete="address-level2" required={!cityOptional} defaultValue={value("city")} error={state.errors?.city} />
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-address" className="text-sm font-semibold">
             Address

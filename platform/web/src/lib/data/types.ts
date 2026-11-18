@@ -1455,7 +1455,7 @@ export interface OrderDelivery {
   /** 131 Where it goes, as the shop's delivery areas and prices read it (the country, the city, the pin); null: not asked. */
   place?: { country: string | null; city: string | null; lat: number | null; lng: number | null } | null;
   /** 131 The shipping as quoted: the zone ("Istanbul", "4.2 km") and what made it up. */
-  shipping?: { cents: number; zone: string | null; rule?: string; breakdown: { label: string; cents: number; rule?: string }[] } | null;
+  shipping?: { cents: number; zone: string | null; rule?: string; breakdown: { label: string; cents: number; rule?: string; words?: { kind: string; km?: number; grams?: number; includedKg?: number } }[] } | null;
   message: string | null;
   anonymous: boolean;
 }

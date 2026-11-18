@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 6;
+export const CLIENT_APP_RELEASE = 7;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -46,6 +46,9 @@ export const CLIENT_APP_RELEASE = 6;
  *    the owner's switch off the app hides Settings › Currency and sends no
  *    `X-Currency`; with the owner's list, the picker shows only those and
  *    a region's currency outside it isn't sent.
+ * 7  168 The gift checkout end to end: "How your flowers travel" stays on
+ *    an order just delivered (every step done) instead of going back to the
+ *    drawn steps at "Order placed".
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */

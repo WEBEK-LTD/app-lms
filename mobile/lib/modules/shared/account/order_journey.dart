@@ -102,6 +102,29 @@ Order? latestOrderOnItsWay(Iterable<Order> orders) {
   return latest;
 }
 
+/// 168 How long a delivered order stays on its journey: the customer sees
+/// "Delivered" ticked, not the drawn steps back at "Order placed".
+const deliveredJourneyKept = Duration(days: 3);
+
+/// 168 The order the journey follows: the newest still on its way, else the
+/// newest delivered in the last [deliveredJourneyKept] (all its steps done);
+/// null for none. Mirrors `orderToFollow` in
+/// platform/web/src/lib/studio/order-journey.ts.
+Order? orderToFollow(Iterable<Order> orders, DateTime now) {
+  final open = latestOrderOnItsWay(orders);
+  if (open != null) return open;
+  Order? delivered;
+  for (final o in orders) {
+    if (orderJourneyStep(o) != OrderJourneyStep.delivered) continue;
+    if (o.status != OrderStatus.completed) continue;
+    if (now.difference(o.createdAt) > deliveredJourneyKept) continue;
+    if (delivered == null || o.createdAt.isAfter(delivered.createdAt)) {
+      delivered = o;
+    }
+  }
+  return delivered;
+}
+
 /// The entry to make active for [step] among [count] entries: the journey's
 /// four steps spread over the entries the owner drew.
 int journeyEntryIndex(OrderJourneyStep step, int count) {
@@ -112,9 +135,10 @@ int journeyEntryIndex(OrderJourneyStep step, int count) {
 }
 
 /// 132.160 A timeline that follows the signed-in person's newest order still
-/// on its way (`timeline.source: latest_order`): its order number over the
-/// steps, the step it is at active, and a tap opens the order. Signed out,
-/// with no order on its way, or while the orders load: the steps as drawn.
+/// on its way (`timeline.source: latest_order`), 168 or just delivered: its
+/// order number over the steps, the step it is at active, and a tap opens
+/// the order. Signed out, with no such order, or while the orders load: the
+/// steps as drawn.
 class OrderJourneyTimeline extends ConsumerWidget {
   const OrderJourneyTimeline({
     super.key,
@@ -133,7 +157,7 @@ class OrderJourneyTimeline extends ConsumerWidget {
     final orders = signedIn
         ? ref.watch(ordersProvider.select((s) => s.items))
         : const <Order>[];
-    final order = latestOrderOnItsWay(orders);
+    final order = orderToFollow(orders, DateTime.now());
     if (order == null) return PremiumTimeline(node: node, dark: dark);
     final tones = PremiumTones.of(context, dark: dark);
     final active = journeyEntryIndex(

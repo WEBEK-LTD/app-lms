@@ -1,3 +1,4 @@
+import { mapsLink } from "../shipments/parts";
 import { rateText } from "@/lib/money/rates";
 import type { Metadata } from "next";
 import { deliveryDayLabel, deliveryOf, shopToday, slotLabel } from "@/lib/selling/delivery";
@@ -247,6 +248,12 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                                   {order.delivery.recipient.address}
                                   {order.delivery.place?.city ? `, ${order.delivery.place.city}` : ""}
                                 </span>
+                              ) : null}
+                              {/* 168 Where the customer pinned it, for the courier. */}
+                              {order.delivery.place && order.delivery.place.lat !== null && order.delivery.place.lng !== null ? (
+                                <a href={mapsLink(order.delivery.place.lat, order.delivery.place.lng)} target="_blank" rel="noopener noreferrer" className="font-semibold" data-order-pin="">
+                                  {t("selling.pinOnMap")}
+                                </a>
                               ) : null}
                             </div>
                           ) : null}

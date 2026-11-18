@@ -332,13 +332,76 @@ void main() {
     });
 
     testWidgets('no order on its way: the steps as drawn', (tester) async {
-      final api = _api()..orders = [_order(status: 'completed')];
+      // 168 Completed more than three days ago: let go.
+      final api = _api()
+        ..orders = [
+          _order(status: 'completed', created: '2026-10-01T10:00:00Z'),
+        ];
       await _open(tester, api);
       expect(
         find.bySemanticsLabel(RegExp('Step 1 of 4, Current step')),
         findsOneWidget,
       );
       expect(find.byKey(const ValueKey('order-journey-track')), findsNothing);
+    });
+
+    // 168 Delivered just now: all four steps done on the order, not the
+    // drawn steps back at "Order placed" (docs/qa/2026-11-18-gift-checkout).
+    testWidgets('just delivered: its number, every step done', (tester) async {
+      final recently = DateTime.now()
+          .toUtc()
+          .subtract(const Duration(hours: 1))
+          .toIso8601String();
+      final api = _api()
+        ..orders = [
+          _order(
+            id: 1037,
+            status: 'completed',
+            stage: {'code': 'delivered', 'label': 'Delivered'},
+            created: recently,
+          ),
+        ];
+      await _open(tester, api);
+      expect(find.text('Order #1037'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel(RegExp('Step 4 of 4, Current step')),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel(RegExp('Step 1 of 4, Current step')),
+        findsNothing,
+      );
+    });
+
+    test('168 the order the journey follows', () {
+      Order order(Map<String, dynamic> json) => Order.fromJson(json);
+      final now = DateTime.utc(2026, 11, 18, 12);
+      final delivered = order(
+        _order(
+          id: 7,
+          status: 'completed',
+          stage: {'code': 'delivered', 'label': 'Delivered'},
+          created: '2026-11-18T05:30:00Z',
+        ),
+      );
+      final open = order(_order(id: 8, created: '2026-11-17T09:00:00Z'));
+      expect(orderToFollow([delivered], now)?.id, 7);
+      // One still on its way comes first.
+      expect(orderToFollow([delivered, open], now)?.id, 8);
+      // Older than three days, or cancelled: none.
+      expect(
+        orderToFollow([
+          order(_order(status: 'completed', created: '2026-11-14T11:00:00Z')),
+        ], now),
+        isNull,
+      );
+      expect(
+        orderToFollow([
+          order(_order(status: 'cancelled', created: '2026-11-18T05:00:00Z')),
+        ], now),
+        isNull,
+      );
+      expect(orderToFollow(const [], now), isNull);
     });
 
     testWidgets('signed out: the steps as drawn, no orders asked', (

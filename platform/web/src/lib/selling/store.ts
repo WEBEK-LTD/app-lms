@@ -207,14 +207,14 @@ export async function checkStoreCheckout(
 }
 
 /** The quote's delivery parts (`Cart.delivery_fee`, `shipping_breakdown`, `delivery_zone`). */
-export function quoteDeliveryJson(delivery: OrderDelivery | null, currency: string) {
+export function quoteDeliveryJson(delivery: OrderDelivery | null, currency: string, lang?: string | null) {
   const money = (cents: number) => formatCents(cents, currency as CatalogCurrency);
   return {
     delivery_fee: delivery && delivery.feeCents > 0 ? money(delivery.feeCents) : null,
     delivery_zone: delivery?.shipping?.zone ?? null,
     shipping_breakdown:
       delivery?.shipping || (delivery && delivery.feeCents > 0)
-        ? breakdownJson([...(delivery.shipping?.breakdown ?? []), ...(delivery.feeCents > 0 && delivery.slot ? [{ label: slotLabel(delivery.slot), cents: delivery.feeCents, rule: "slot" as const }] : [])], currency)
+        ? breakdownJson([...(delivery.shipping?.breakdown ?? []), ...(delivery.feeCents > 0 && delivery.slot ? [{ label: slotLabel(delivery.slot), cents: delivery.feeCents, rule: "slot" as const }] : [])], currency, lang)
         : null,
   };
 }

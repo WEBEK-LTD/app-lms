@@ -8,6 +8,18 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 168 (the gift checkout end to end): a flower shop made from Leqaa,
+in dirhams and priced by distance, walked from the product to the
+delivered order in English and Arabic. Fixed: the cart's total no longer
+loses the delivery while the chosen day waits for its time; the shipping
+breakdown is in the customer's language; the payment page takes a gift
+without a city the order never had; the owner opens the customer's pin on
+a map; and "How your flowers travel" stays on an order just delivered
+instead of going back to "Order placed". `CLIENT_APP_RELEASE` 7. Still
+open (ROADMAP 168.6–168.10): the pin without the platform's map, the
+payment page in Arabic, and the dashboard's times in UTC. The notes:
+docs/qa/2026-11-18-gift-checkout/NOTES.md.
+
 Roadmap 151 (an iPhone build GitHub had no Mac for): when GitHub cancels
 the iOS job in its queue before any step runs, the report says so as its
 own reason (`ios_no_mac_runner`, read from the run's jobs), not a build
