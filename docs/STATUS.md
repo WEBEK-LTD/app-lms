@@ -102,20 +102,6 @@ customer's order, the dashboard and Yallapp Business. A shop that hasn't
 set it up, an older app and WordPress keep today's Start: the shop.
 Leqaa's demo has it on. `CLIENT_APP_RELEASE` is 8 (after 152's 7).
 
-
-Roadmap 163 (Studio pages on a Samsung's settings): Leqaa's signature
-template, every page of both looks, is drawn by the real app in tests at
-font scales 1.0 to 1.5, display zoom (360, 384, 412 points) and both
-navigation bars, Arabic and English, light and dark. Arabic text in Studio
-pages is never under a 1.5 line, so the Orders title no longer draws over
-the journey's card; a photo cover grows with its words; a row's last text
-gives way (one that shows something, so a long price with no sale
-shrinks); a testimonial's quote mark isn't cut; the flash sale's title
-wraps; the folding header no longer redraws during layout.
-`CLIENT_APP_RELEASE` is 8 (after 152's 7). Lists whose last items stay under the tab bar (Account, Bouquets, Picks) and the Orders empty
-state under the phone's bar are `wip-page-scroll`'s (ROADMAP 163.7). The
-journey's card offset in right-to-left wasn't reproduced (163.8).
-
 Roadmap 164 (a bound list of products is never an empty section): Leqaa's
 "Picked for you" was bound to featured products, which a real shop may not
 have, so the served page dropped the list and kept its title and "Shop all"
@@ -168,7 +154,6 @@ flowers travel" with no order showed a sample journey, "Order placed" lit:
 now it, its card and its heading show only with an order, at that order's
 own step. From `CLIENT_APP_RELEASE` 8. Not yet tried on a phone (ROADMAP
 171.7).
-
 Roadmap 106.11, payouts on the 1st (the owner's answer, 18 November): the
 payout of the 1st covers the sales paid up to the end of the month before,
 cut off at midnight Istanbul time; a sale paid on the 1st or later waits for

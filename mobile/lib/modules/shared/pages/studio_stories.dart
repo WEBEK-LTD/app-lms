@@ -92,7 +92,13 @@ class _StudioStoriesRowState extends ConsumerState<StudioStoriesRow> {
                   setState(() {});
                 },
                 child: SizedBox(
-                  width: size + 8,
+                  // 163 As wide as its ring, or as its name's longest word
+                  // at the phone's text size, so a word is never cut
+                  // ("Sympat…" at 130%).
+                  width: math.max(
+                    size + 8,
+                    _longestWord(context, story.heading ?? ''),
+                  ),
                   child: Column(
                     children: [
                       _Ring(
@@ -116,13 +122,12 @@ class _StudioStoriesRowState extends ConsumerState<StudioStoriesRow> {
                       ExcludeSemantics(
                         child: Text(
                           story.heading ?? '',
-                          maxLines: 1,
+                          // 163 On two lines when it needs them ("New
+                          // baby" at a larger text size).
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: _label,
                         ),
                       ),
                     ],
@@ -135,6 +140,28 @@ class _StudioStoriesRowState extends ConsumerState<StudioStoriesRow> {
       ),
     );
   }
+}
+
+/// A story's name under its ring.
+const _label = TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
+
+/// 163 How wide the longest word of [label] is, drawn as the row draws it
+/// (its text style, the phone's text size).
+double _longestWord(BuildContext context, String label) {
+  final style = DefaultTextStyle.of(context).style.merge(_label);
+  var widest = 0.0;
+  for (final word in label.split(RegExp(r'\s+'))) {
+    if (word.isEmpty) continue;
+    final painter = TextPainter(
+      text: TextSpan(text: word, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    widest = math.max(widest, painter.width);
+    painter.dispose();
+  }
+  return widest.ceilToDouble() + 2;
 }
 
 /// The stories a row opens full screen: those with a photo, and those
