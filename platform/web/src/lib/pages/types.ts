@@ -152,7 +152,30 @@ export interface StudioStory extends Slide {
   color?: string;
   label?: string;
   icon?: string;
+  // 165 Served from Dashboard › Stories only (the ring's name is `heading`), shown by the story viewer of apps from release 7.
+  /** The small line over the story's title. */
+  kicker?: string;
+  /** The story's title in the viewer (`heading` is the ring's name). */
+  title?: string;
+  /** Its line under the title. */
+  line?: string;
+  /** Its button's words (older apps: "Open"). */
+  button_label?: string;
+  /** Its video (older apps show its photo). */
+  video_url?: string;
 }
+
+/**
+ * 165 Where a story element's stories come from: Dashboard › Stories
+ * (`dashboard`, served into it in the language asked for) or as designed
+ * in Studio (`studio`). Missing: as designed, except the flower shop's
+ * occasions (Leqaa's template, lib/stories/elements.ts), from the dashboard.
+ */
+export const STORIES_SOURCES = ["dashboard", "studio"] as const;
+export type StoriesSource = (typeof STORIES_SOURCES)[number];
+/** 165 What a part of a story's slide (or chip) shows of each story: its kicker, title, line, ring name, icon or button. */
+export const STORY_PARTS = ["kicker", "title", "line", "ring", "icon", "button"] as const;
+export type StoryPart = (typeof STORY_PARTS)[number];
 /** 129.5 A gallery's photo; with a link, a tap opens it instead of the full-screen viewer. */
 export interface StudioPhoto extends GalleryImage {
   action?: Action;
@@ -523,6 +546,8 @@ export interface Action {
   open_in?: "in_app" | "browser";
   /** 122 A web page opened in the app (`url`, `in_app`): as a tab, the page alone, its site's header and footer hidden. */
   web?: WebPageLook;
+  /** 165 With the shop's screen (`courses`): the shop opened on this category (or collection) of the store; older apps open the shop. */
+  category_id?: string | null;
 }
 
 /**
@@ -1335,6 +1360,10 @@ export interface StudioNode {
   indicator_look?: StudioIndicatorLook | null;
   /** 129.2 For `stories`: each story's photo, title (`heading`), line under it (`subheading`), link (`action`) and ring. */
   slides?: StudioStory[];
+  /** 165 For `stories`, a `slider` of story slides and a `row` of story chips: where its stories come from. */
+  stories_source?: StoriesSource;
+  /** 165 In a story slide or chip: what of each story this part shows. */
+  story_part?: StoryPart;
   /** 129.1 For `segments`: how many, how many done. */
   segments?: StudioSegments | null;
   /** 129.5 For `gallery`: how its captions sit over the photos; missing, on a shade. */

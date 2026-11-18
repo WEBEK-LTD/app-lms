@@ -223,6 +223,8 @@ function occasionStories(ctx: SectionContext, k: SignatureInk, ring: string, siz
     id: idOf(ctx)(),
     type: "stories",
     name: ctx.w("lqOccasions"),
+    // 165 From Dashboard › Stories (these, copied there the first time).
+    stories_source: "dashboard",
     interval_ms: 5000,
     stories: { size },
     color: k.ink,
@@ -430,14 +432,14 @@ function roseSlide(ctx: SectionContext, o: (typeof OCCASIONS)[number]): StudioNo
         height: 22,
         children: [
           { id: id(), type: "row", width: 22, height: 1, self_align: "center", background: "#FFD9C2", dark_background: "#FFD9C2", children: [] },
-          { id: id(), type: "icon", icon: o.icon, icon_size: 15, color: "#FFD9C2" },
-          { id: id(), type: "text", text: ctx.w(o.kicker), color: white, font: { size: 11, weight: 700, letter_spacing: 1.8, uppercase: true } },
+          { id: id(), type: "icon", icon: o.icon, icon_size: 15, color: "#FFD9C2", story_part: "icon" },
+          { id: id(), type: "text", ...sigTexts(ctx, { text: o.kicker }), color: white, font: { size: 11, weight: 700, letter_spacing: 1.8, uppercase: true }, story_part: "kicker" },
         ],
       },
-      { id: id(), type: "text", text: ctx.w(o.headline), color: white, max_lines: 3, font: display(FRAUNCES, 50, { weight: 500, line_height: 0.98 }), margin: sides(14, 0, 0, 0) },
-      { id: id(), type: "text", text: ctx.w("lqHeroLine"), color: white, opacity: 0.9, max_lines: 2, font: { size: 15, line_height: 1.4 }, margin: sides(10, 0, 0, 0) },
+      { id: id(), type: "text", ...sigTexts(ctx, { text: o.headline }), color: white, max_lines: 3, font: display(FRAUNCES, 50, { weight: 500, line_height: 0.98 }), margin: sides(14, 0, 0, 0), story_part: "title" },
+      { id: id(), type: "text", ...sigTexts(ctx, { text: "lqHeroLine" }), color: white, opacity: 0.9, max_lines: 2, font: { size: 15, line_height: 1.4 }, margin: sides(10, 0, 0, 0), story_part: "line" },
       // A compact button at the words' start edge, as far under them as they are from each other.
-      heroButton(ctx, "lqSendFlowers", shop, { background: white, color: ROSE_SHADE }, sides(16, 0, 0, 0)),
+      { ...heroButton(ctx, "lqSendFlowers", shop, { background: white, color: ROSE_SHADE }, sides(16, 0, 0, 0)), ...sigTexts(ctx, { text: "lqSendFlowers" }), story_part: "button" },
     ],
   };
 }
@@ -479,6 +481,8 @@ function roseHero(ctx: SectionContext): StudioNode {
         id: id(),
         type: "slider",
         name: ctx.w("lqOccasions"),
+        // 165 Each slide a story of Dashboard › Stories, drawn as the first (these, copied there the first time).
+        stories_source: "dashboard",
         height: 520,
         per_view: 1,
         autoplay: true,
@@ -1006,8 +1010,8 @@ function askB(ctx: SectionContext): StudioNode {
     action: shop,
     ...(lit ? { background: B.fill, dark_background: B.darkFill } : { background: B.surface, dark_background: B.darkSurface, border_color: B.line, dark_border_color: B.darkLine, border_width: 1 }),
     children: [
-      { id: id(), type: "icon", icon: o.icon, icon_size: 17, color: lit ? B.onFill : B.accent, dark_color: lit ? B.darkOnFill : B.darkAccent },
-      { id: id(), type: "text", text: ctx.w(o.word), font: { size: 13.5, weight: 700 }, color: lit ? B.onFill : B.ink, dark_color: lit ? B.darkOnFill : B.darkInk },
+      { id: id(), type: "icon", icon: o.icon, icon_size: 17, color: lit ? B.onFill : B.accent, dark_color: lit ? B.darkOnFill : B.darkAccent, story_part: "icon" },
+      { id: id(), type: "text", text: ctx.w(o.word), font: { size: 13.5, weight: 700 }, color: lit ? B.onFill : B.ink, dark_color: lit ? B.darkOnFill : B.darkInk, story_part: "ring" },
     ],
   });
   return {
@@ -1018,7 +1022,8 @@ function askB(ctx: SectionContext): StudioNode {
     padding: sides(18, 0, 6, 0),
     children: [
       { ...say(ctx, B, "lqAsk", display(OUTFIT, 38, { weight: 400, line_height: 1 }), { max_lines: 2 }), padding: sides(0, 18, 0, 18) },
-      { id: id(), type: "row", gap: 8, scroll: true, padding: sides(0, 16, 0, 16), children: OCCASIONS.map((o, i) => chip(o, i === 0)) },
+      // 165 Each chip a story of Dashboard › Stories (its ring's name and icon), the first lit.
+      { id: id(), type: "row", gap: 8, scroll: true, stories_source: "dashboard", padding: sides(0, 16, 0, 16), children: OCCASIONS.map((o, i) => chip(o, i === 0)) },
     ],
   };
 }

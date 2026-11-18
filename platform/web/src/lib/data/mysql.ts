@@ -101,7 +101,7 @@ import type {
 import { holdsOf, holdsOn } from "../travel/holds";
 import { alertData, bookingColumns, bookingData, flightData, hotelData, reviewData, roomData, type TravelAlertData, type TravelBookingData, type TravelFlightData, type TravelHotelData, type TravelReviewData, type TravelRoomData } from "../travel/rows";
 import type { AppDeletion, AppDeletionStatus, AppMoveRequest, AppMoveStatus, KeptBillingRecord } from "./types";
-import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
+import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
 import { firebaseAppOrder } from "../firebase/order";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
@@ -116,6 +116,7 @@ import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, Reke
 import { candidatesIn, needsRekey } from "../crypto/rekey";
 import { assetIdsIn } from "./asset-ids";
 import { categoryOrder } from "../catalog/bulk";
+import { storyOrder } from "../stories/order";
 import type { PushAudience } from "./types";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack, ReviewsRow } from "./types";
@@ -1665,6 +1666,79 @@ export class MysqlStore implements DataStore {
   async deleteGiftOccasion(appId: string, id: number): Promise<void> {
     const t = schema.storeGiftOccasions;
     await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  private appStoryOf(row: typeof schema.appStories.$inferSelect): AppStory {
+    const { data, ...rest } = row;
+    return { ...rest, media: data.media, texts: data.texts, icon: data.icon ?? null, action: data.action ?? null };
+  }
+
+  async listAppStories(appId: string): Promise<AppStory[]> {
+    const t = schema.appStories;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.position), asc(t.id)));
+    return rows.map((r) => this.appStoryOf(r));
+  }
+
+  async getAppStory(appId: string, id: number): Promise<AppStory | null> {
+    const t = schema.appStories;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ? this.appStoryOf(row) : null;
+  }
+
+  async createAppStory(input: Omit<AppStory, "id">): Promise<AppStory | null> {
+    const { media, texts, icon, action, ...rest } = input;
+    try {
+      const [result] = await this.run((db) => db.insert(schema.appStories).values({ ...rest, data: { media, texts, icon, action } }));
+      return { ...input, id: Number(result.insertId) };
+    } catch (error) {
+      // A story copied from Studio is copied once (app_stories_import_unique).
+      if (errorCode(error) === "ER_DUP_ENTRY") return null;
+      throw error;
+    }
+  }
+
+  async updateAppStory(appId: string, id: number, patch: Partial<Omit<AppStory, "id" | "appId" | "createdAt" | "importKey">>): Promise<boolean> {
+    const current = await this.getAppStory(appId, id);
+    if (!current) return false;
+    const next = { ...current, ...patch };
+    const t = schema.appStories;
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({
+          position: next.position,
+          enabled: next.enabled,
+          startsAt: next.startsAt,
+          endsAt: next.endsAt,
+          categoryId: next.categoryId,
+          updatedAt: next.updatedAt,
+          data: { media: next.media, texts: next.texts, icon: next.icon, action: next.action },
+        })
+        .where(and(eq(t.appId, appId), eq(t.id, id))),
+    );
+    return true;
+  }
+
+  async deleteAppStory(appId: string, id: number): Promise<boolean> {
+    const t = schema.appStories;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows > 0;
+  }
+
+  async reorderAppStories(appId: string, ids: number[], now: Date): Promise<void> {
+    const t = schema.appStories;
+    const current = await this.listAppStories(appId);
+    for (const [position, id] of storyOrder(current, ids).entries()) {
+      if (current.find((s) => s.id === id)?.position === position) continue;
+      await this.run((db) => db.update(t).set({ position, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+    }
+  }
+
+  async markStoriesSeeded(appId: string, now: Date): Promise<boolean> {
+    const t = schema.apps;
+    // Only while it isn't set, in the same statement; the app's own time stays as it was.
+    const [result] = await this.run((db) => db.update(t).set({ storiesSeededAt: now }).where(and(eq(t.id, appId), isNull(t.storiesSeededAt))));
+    return result.affectedRows === 1;
   }
 
   async createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder> {

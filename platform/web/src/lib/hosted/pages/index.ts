@@ -13,6 +13,8 @@ import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
 import { itemResolver, type Item } from "./items";
 import "./sources";
+import { ensureStoriesSeeded, servedStories } from "../../stories";
+import { dashboardStoryElements, withServedStories, type ServedStory, type StoryElementKind } from "../../stories/elements";
 
 /**
  * GET /pages and GET /pages/{slug} on the hosted API (roadmap 10.6): the
@@ -79,6 +81,15 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
  */
 async function servedStudio(pc: PageContext, studio: StudioPage): Promise<StudioPage> {
   const def = pc.layout.languages.default;
+  // 165 The story elements whose stories come from Dashboard › Stories (copied there from the design the first time).
+  const storyElements = new Map<string, StoryElementKind>(dashboardStoryElements(studio.body).map((e) => [e.node.id, e.kind]));
+  let stories: ServedStory[] | null = null;
+  const dashboardStories = async () => {
+    if (stories) return stories;
+    await ensureStoriesSeeded(pc.ctx.store, pc.ctx.app, pc.ctx.now);
+    stories = servedStories(await pc.ctx.store.listAppStories(pc.ctx.app.id), pc.lang, def, pc.ctx.now);
+    return stories;
+  };
   const body = await mapTreeAsync(studio.body, async (node) => {
     // 107.2 A hidden element stays in the editor only.
     if (node.hidden) return null;
@@ -104,6 +115,9 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
     // 131 A flash sale with its sale and products; a coupon bound to the shop's coupons with the one it shows; else left out.
     if (node.type === "flash_sale") return servedFlashSale(pc, shown as StudioNode);
     if (node.type === "coupon" && node.coupon?.bind === "public") return servedCoupon(pc, shown as StudioNode);
+    // 165 Dashboard › Stories in the language asked for; left out while none is shown.
+    const storyKind = storyElements.get(node.id);
+    if (storyKind) return withServedStories(shown as StudioNode, storyKind, await dashboardStories());
     return shown as StudioNode;
   });
   const header = studio.header ? (({ translations: _h, ...rest }) => (void _h, rest))(translated(studio.header, pc.lang, def)) : studio.header;

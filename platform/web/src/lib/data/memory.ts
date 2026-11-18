@@ -24,7 +24,7 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StudioTemplate, StudioDesign, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
 import type { CampaignSend, HostedCart, HostedOrderWatch, NotificationCampaign, NotificationCampaignPatch, NotificationCampaignStatus } from "./types";
 import type { LoyaltyEntry, LoyaltyReason } from "./types";
-import type { GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
+import type { AppStory, GiftOccasion, StoreDelivery, StoreFlashSale, StorePlatformOrder, StorePlatformOrderStatus } from "./types";
 import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
 import { firebaseAppOrder } from "../firebase/order";
 import type {
@@ -257,6 +257,7 @@ import type { PaymentRefund, RefundKind } from "./types";
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import { mergeCrash } from "../crashes/report";
 import { categoryOrder } from "../catalog/bulk";
+import { storyOrder } from "../stories/order";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
 import type { AddonTaskStatus, AppAddon, AppAddonPatch } from "../addons/types";
@@ -1380,6 +1381,52 @@ export class MemoryStore implements DataStore {
 
   async deleteGiftOccasion(appId: string, id: number): Promise<void> {
     this.giftOccasions = this.giftOccasions.filter((o) => !(o.appId === appId && o.id === id));
+  }
+
+  private appStories: AppStory[] = [];
+  private nextAppStoryId = 1;
+
+  async listAppStories(appId: string): Promise<AppStory[]> {
+    return this.appStories.filter((s) => s.appId === appId).map(clone).sort((a, b) => a.position - b.position || a.id - b.id);
+  }
+
+  async getAppStory(appId: string, id: number): Promise<AppStory | null> {
+    const found = this.appStories.find((s) => s.appId === appId && s.id === id);
+    return found ? clone(found) : null;
+  }
+
+  async createAppStory(input: Omit<AppStory, "id">): Promise<AppStory | null> {
+    if (input.importKey !== null && this.appStories.some((s) => s.appId === input.appId && s.importKey === input.importKey)) return null;
+    const row: AppStory = { ...clone(input), id: this.nextAppStoryId++ };
+    this.appStories.push(row);
+    return clone(row);
+  }
+
+  async updateAppStory(appId: string, id: number, patch: Partial<Omit<AppStory, "id" | "appId" | "createdAt" | "importKey">>): Promise<boolean> {
+    const found = this.appStories.find((s) => s.appId === appId && s.id === id);
+    if (!found) return false;
+    Object.assign(found, clone(patch));
+    return true;
+  }
+
+  async deleteAppStory(appId: string, id: number): Promise<boolean> {
+    const before = this.appStories.length;
+    this.appStories = this.appStories.filter((s) => !(s.appId === appId && s.id === id));
+    return this.appStories.length < before;
+  }
+
+  async reorderAppStories(appId: string, ids: number[], now: Date): Promise<void> {
+    storyOrder(await this.listAppStories(appId), ids).forEach((id, position) => {
+      const story = this.appStories.find((s) => s.appId === appId && s.id === id);
+      if (story && story.position !== position) Object.assign(story, { position, updatedAt: now });
+    });
+  }
+
+  async markStoriesSeeded(appId: string, now: Date): Promise<boolean> {
+    const app = this.apps.get(appId);
+    if (!app || app.storiesSeededAt) return false;
+    app.storiesSeededAt = now;
+    return true;
   }
 
   async createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder> {

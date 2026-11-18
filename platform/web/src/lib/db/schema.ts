@@ -30,6 +30,8 @@ import type {
   StoreFlashSale,
   AddonRule,
   GiftOccasion,
+  // 165 The app's stories
+  AppStory,
   CatalogOptionGroup,
   CatalogCustomer,
   CatalogOrderLine,
@@ -388,6 +390,8 @@ export const apps = mysqlTable(
     firebaseProjectId: varchar("firebase_project_id", { length: 64 }),
     // 136.45 A WordPress app's owner chose Yallapp's Firebase while the site's plugin relays (0.4.49+); null: a WordPress app stays on its own.
     pushRelayAt: time("push_relay_at"),
+    // 165 When the Studio design's stories were copied into Dashboard › Stories (once); null: not yet.
+    storiesSeededAt: time("stories_seeded_at"),
     googlePlayKeyEncrypted: text("google_play_key_encrypted"),
     googlePlayClientEmail: varchar("google_play_client_email", { length: 191 }),
     ascIssuerId: varchar("asc_issuer_id", { length: 64 }),
@@ -1267,6 +1271,31 @@ export const storeGiftOccasions = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [index("store_gift_occasions_app_idx").on(t.appId, t.position)],
+);
+
+// 165 The app's stories (Dashboard › Stories).
+export const appStories = mysqlTable(
+  "app_stories",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id").notNull(),
+    position: int("position").notNull(),
+    enabled: boolean("enabled").notNull().default(true),
+    startsAt: time("starts_at"),
+    endsAt: time("ends_at"),
+    categoryId: varchar("category_id", { length: 64 }),
+    // Copied from the app's Studio design once (`<page>:<element>:<n>`); null for the owner's own.
+    importKey: varchar("import_key", { length: 191 }),
+    // Its photo or video, its words by language, its icon and what its button opens (JSON).
+    data: jsonText<Pick<AppStory, "media" | "texts" | "icon" | "action">>("data").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    foreignKey({ name: "app_stories_app_fk", columns: [t.appId], foreignColumns: [apps.id] }).onDelete("cascade"),
+    index("app_stories_app_idx").on(t.appId, t.position),
+    uniqueIndex("app_stories_import_unique").on(t.appId, t.importKey),
+  ],
 );
 
 export const storeDeliveries = mysqlTable(
