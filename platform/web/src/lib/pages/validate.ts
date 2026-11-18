@@ -1632,6 +1632,12 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   if (width !== undefined) node.width = width;
   const height = parseSize(c, where, v.height, "the height");
   if (height !== undefined) node.height = height;
+  // 159 Its size changed by hand, with the automatic sizes it replaced (null: none of its own).
+  if (v.manual_size !== undefined && v.manual_size !== null) {
+    const m = record(v.manual_size);
+    if (!m) bad("the size set by hand isn't valid.");
+    else node.manual_size = { width: parseSize(c, where, m.width, "the automatic width") ?? null, height: parseSize(c, where, m.height, "the automatic height") ?? null };
+  }
   const minHeight = num("min_height", 0, L.maxSize, "the lowest height");
   if (minHeight) node.min_height = minHeight;
   const ratio = num("aspect_ratio", 0.1, 10, "the width over the height");

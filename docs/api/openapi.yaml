@@ -16581,7 +16581,7 @@ components:
         type:
           type: string
           enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale]
-        name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
+        name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app. }
         children:
           type: array
           maxItems: 60
@@ -16843,6 +16843,29 @@ components:
             per_view: { type: number, minimum: 1, maximum: 4 }
             font: { $ref: '#/components/schemas/StudioFont' }
             text_align: { type: string, enum: [start, center, end] }
+          additionalProperties: false
+        manual_size:
+          type: [object, 'null']
+          description: |
+            159 Its size was changed by hand in Studio, after Studio asked:
+            `width` and `height` are the owner's. It holds the automatic sizes
+            they replaced (null: none of its own), which Studio's "Back to
+            automatic" puts back. Missing, its size is automatic: as its
+            template or the layout designs it. A cover's top bar (a `row` on a
+            `stack`'s later layer, not on a `place` and not scrolling, holding
+            two or more elements that open something) without it spans the
+            cover whatever `width` it has, and when nothing in it fills, its
+            one `text` without it fills the room between; the servers send
+            them so, and an app reading a page from elsewhere draws them so.
+          properties:
+            width:
+              oneOf:
+                - { $ref: '#/components/schemas/StudioSize' }
+                - { type: 'null' }
+            height:
+              oneOf:
+                - { $ref: '#/components/schemas/StudioSize' }
+                - { type: 'null' }
           additionalProperties: false
 
     StudioEntry:

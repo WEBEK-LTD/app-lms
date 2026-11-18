@@ -27,6 +27,21 @@ the form can't load, the gateway's own page, the same payment. Fawaterk and
 PayPal keep their own pages (ROADMAP 153.7, 153.8). Not yet tried with real
 iyzico and Kashier test accounts (ROADMAP 153.9).
 
+Roadmap 159 (sizes automatic, by hand only when asked): Kech Flora's bag
+sat about three quarters of the way across the phone because the bar over
+the stories had a width in points from a corner drag on Studio's phone
+(a drag never became Fill there: the corner measured an empty wrapper), and
+the app keeps a width in points. A cover's top bar is now at its automatic
+size, across the cover with its wordmark between the buttons, in Studio's
+canvas, in what the hosted API serves (so apps already on phones draw it at
+once) and in the app (`CLIENT_APP_RELEASE` 7), whatever width it had, unless
+it was sized by hand. Every element's size is automatic until the owner
+changes it: the size fields and the canvas corners ask first, "Back to
+automatic" (or a double click on a corner) puts the template's size back,
+and a corner dragged up to the edge becomes Fill again. WordPress apps keep
+a size by hand with the next plugin release. Not yet seen on Kech Flora's
+phone.
+
 Roadmap 146 (the pricing page: the app and Studio side by side): /pricing
 starts with the two products side by side, each with a real screen and its
 "from" price; one billing period for both, lifetime among its choices;

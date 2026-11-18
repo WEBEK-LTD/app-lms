@@ -2744,7 +2744,11 @@ class StudioNode {
       if (type == null) return null;
       double n(String key, double fallback, double min, double max) =>
           (optDouble(json, key) ?? fallback).clamp(min, max).toDouble();
-      final rawChildren = json['children'];
+      // 159 A layer's top bar at its automatic size, as Studio draws it.
+      final rawChildren =
+          type == StudioNodeType.stack && json['children'] is List
+          ? _autoSizedLayers(json['children'] as List)
+          : json['children'];
       final rawPlatforms = json['platforms'];
       final mapJson = json['map'];
       return StudioNode(
@@ -2965,6 +2969,82 @@ class StudioNode {
     final o = json[object];
     if (o is! Map) return fallback;
     return (optDouble(asJson(o), key) ?? fallback).clamp(min, max).toDouble();
+  }
+
+  /// 159 A stack's layers at their automatic sizes (Studio's
+  /// lib/studio/auto-size.ts `autoSized`, which the hosted API serves too):
+  /// a cover's top bar (a row over the first layer holding two or more
+  /// elements that open something: Leqaa's search, wordmark and bag) spans
+  /// the cover unless its size was set by hand (`manual_size`), and when
+  /// nothing in it fills, its one text takes the room between its buttons,
+  /// so the bag sits at the edge whatever width the bar was given before
+  /// Studio asked (Kech Flora's, from a corner drag, put it three quarters
+  /// of the way across). Everything else as it is.
+  static List<Object?> _autoSizedLayers(List<Object?> layers) {
+    final out = <Object?>[];
+    var first = true;
+    for (final layer in layers) {
+      if (!_shown(layer)) {
+        out.add(layer);
+      } else if (first) {
+        first = false;
+        out.add(layer);
+      } else {
+        final json = layer as Map;
+        out.add(_coverBar(json) ? _autoBar(asJson(json)) : json);
+      }
+    }
+    return out;
+  }
+
+  static bool _shown(Object? json) => json is Map && json['hidden'] != true;
+
+  static bool _byHand(Map<dynamic, dynamic> json) => json['manual_size'] is Map;
+
+  static bool _coverBar(Map<dynamic, dynamic> json) {
+    if (json['type'] != 'row' ||
+        json['scroll'] == true ||
+        json['place'] is Map ||
+        json['children'] is! List) {
+      return false;
+    }
+    final opening = (json['children'] as List).where(
+      (k) =>
+          _shown(k) && ((k as Map)['type'] == 'button' || k['action'] is Map),
+    );
+    return opening.length >= 2;
+  }
+
+  static Map<String, dynamic> _autoBar(Map<String, dynamic> bar) {
+    final out = _byHand(bar) ? bar : _filling(bar);
+    final shown = [
+      for (final k in out['children'] as List)
+        if (_shown(k)) k as Map,
+    ];
+    if (shown.any((k) => k['width'] == 'fill')) return out;
+    final texts = [
+      for (final k in shown)
+        if (k['type'] == 'text') k,
+    ];
+    if (texts.length != 1 || _byHand(texts.single)) return out;
+    final word = texts.single;
+    return {
+      ...out,
+      'children': [
+        for (final k in out['children'] as List)
+          identical(k, word) ? _filling(asJson(k)) : k,
+      ],
+    };
+  }
+
+  /// Across all the room it has, on phones and tablets.
+  static Map<String, dynamic> _filling(Map<String, dynamic> json) {
+    final tablet = json['tablet'];
+    return {
+      ...json,
+      'width': 'fill',
+      if (tablet is Map) 'tablet': {...asJson(tablet)}..remove('width'),
+    };
   }
 
   /// Editor audit 3.3: the element with its tablet changes (`tablet`) put

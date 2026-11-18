@@ -55,6 +55,9 @@ import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
 import { followStyle } from "@/lib/studio/text-styles";
 import { SCRIM_DEFAULT } from "@/lib/studio/scrim";
+import { automaticSize, sizedByHand } from "@/lib/studio/auto-size";
+import { forTablet } from "@/lib/studio/tablet";
+import { mapTree } from "@/lib/studio/tree";
 import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
 import { CoverControls, TrackingControls } from "./cover-controls";
@@ -88,6 +91,10 @@ interface Props {
   tab: InspectorTab;
   onTab: (tab: InspectorTab) => void;
   onChange: (patch: Partial<StudioNode>) => void;
+  /** 159 A change of the width or height of an element of automatic size: the editor asks first, then makes it. */
+  onAskByHand: (patch: Partial<StudioNode>) => void;
+  /** 159 The selected element back to its automatic size. */
+  onBackToAuto: () => void;
   onHeader: (header: StudioHeader | null) => void;
   onPage: (patch: Partial<StudioPage>) => void;
   onCopy: () => void;
@@ -370,6 +377,26 @@ function SizeControl({ label, value, onChange }: { label: string; value: StudioS
   );
 }
 
+/** 159 Whether the element's size is automatic or set by hand, and the way back to automatic. */
+function SizeMode({ byHand, onBackToAuto }: { byHand: boolean; onBackToAuto: () => void }) {
+  const t = useDashT();
+  return (
+    <div role="note" className="flex flex-col gap-1.5 rounded-lg p-2.5 text-xs" style={{ background: byHand ? "var(--sf-soft)" : "var(--sf-select-fill)", color: "var(--sf-ink)" }} data-studio-size-mode={byHand ? "hand" : "auto"}>
+      <span className="flex items-center gap-1.5 font-bold">
+        <Glyph name={byHand ? "pan_tool" : "auto_awesome"} size={16} />
+        {t(byHand ? "studio.sizeByHand" : "studio.sizeAuto")}
+      </span>
+      <span style={{ color: "var(--sf-muted)" }}>{t(byHand ? "studio.sizeByHandHint" : "studio.sizeAutoHint")}</span>
+      {byHand ? (
+        <button type="button" onClick={onBackToAuto} className="flex h-8 items-center justify-center gap-1.5 rounded-md text-[13px] font-semibold" style={{ border: "1px solid var(--sf-line)", background: "var(--sf-surface)", color: "var(--sf-ink)" }}>
+          <Glyph name="auto_awesome" size={16} />
+          {t("studio.backToAuto")}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 function Check({ label, checked, onChange }: { label: string; checked: boolean; onChange: (on: boolean) => void }) {
   return (
     <label className="flex items-center gap-1">
@@ -621,6 +648,10 @@ function DesignTab(props: Props & { node: StudioNode }) {
   const titled = holder?.type === "accordion" || holder?.type === "tabs";
   // 112.4 A list of what was seen lately has its own title, hidden with it.
   const listTitled = (node.type === "items" && (node.recent || !!node.title)) || node.type === "market";
+  // 159 Its size is automatic (as the canvas draws it) until the owner says to change it by hand.
+  const byHand = sizedByHand(node);
+  const sized = byHand ? { width: node.width, height: node.height } : automaticSize(props.tablet ? (mapTree(props.page.body, forTablet) ?? props.page.body) : props.page.body, node.id);
+  const resize = (patch: Partial<StudioNode>) => (byHand ? onChange(patch) : props.onAskByHand(patch));
   return (
     <>
       {props.tablet ? (
@@ -826,9 +857,10 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {textual || node.type === "image" || node.type === "icon" || node.type === "video" || node.type === "map" || node.type === "form" || node.type === "slider" || node.type === "ratings" || node.type === "coupon" || holder?.type === "stack" ? <Rule /> : null}
 
       <Heading>{t("studio.sizePlace")}</Heading>
+      <SizeMode byHand={byHand} onBackToAuto={props.onBackToAuto} />
       <div className="grid grid-cols-2 gap-2">
-        <SizeControl label={t("studio.width")} value={node.width} onChange={(width) => onChange({ width })} />
-        <SizeControl label={t("studio.height")} value={node.height} onChange={(height) => onChange({ height })} />
+        <SizeControl label={t("studio.width")} value={sized.width} onChange={(width) => resize({ width })} />
+        <SizeControl label={t("studio.height")} value={sized.height} onChange={(height) => resize({ height })} />
         <SidesField label={t("studio.paddingInside")} value={node.padding} onChange={(padding) => onChange({ padding })} />
         <SidesField label={t("studio.marginOutside")} value={node.margin} onChange={(margin) => onChange({ margin })} />
         {layout ? (
