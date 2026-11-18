@@ -734,7 +734,11 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     // what it holds, at its own alignment or the layer's (and as wide, when it hugs or has a width).
     const fills = props.inStack?.first === false && node.height === "fill" && (node.width === undefined || node.width === "fill");
     const at = node.self_align ? ITEMS[node.self_align] : STACK_AT[props.inStack?.cross ?? "stretch"];
-    const across = node.self_align ? ITEMS[node.self_align] : node.width === "hug" || typeof node.width === "number" ? at : "stretch";
+    // 150 A row placed at the top (or foot) of a layer still spans it, as the app's Row does (Leqaa's and Kech Flora's
+    // wordmark between the search and the bag, which shrank to its words here and put the bag mid-cover); its
+    // own placement moves it up or down only. Others take theirs across too.
+    const spans = node.type === "row" && !node.scroll && (node.width === undefined || node.width === "fill");
+    const across = node.self_align && !spans ? ITEMS[node.self_align] : node.width === "hug" || typeof node.width === "number" ? at : "stretch";
     Object.assign(style, { gridArea: "1 / 1", justifySelf: fills ? "stretch" : across, alignSelf: fills ? "stretch" : at });
   }
   // 112.4 A spot on a picture: the point at the same share of it sits there, as the app's alignment does.

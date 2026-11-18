@@ -3782,3 +3782,11 @@ Kech Flora's live test (17 November) of an order of MAD 1.00 (about USD 0.10) sa
 | Status | Item | Tests |
 |---|---|---|
 | [x] | 148.1 Stripe's `amount_too_small`, and our own check of a currency's least, mark the error (`StripeError.tooSmall`); the payment page then says the order is under the least a card can be charged, with Stripe's words, and to add to the order or pay another way; other refusals keep the message they had, and every one is still noted for the team and in Integrations | `stripe-too-small.test.ts` |
+
+## Phase 150: Studio's canvas draws a cover's top row across it
+
+The owner (17 November), on Kech Flora's home in Studio: the row with the search, the wordmark and the bag was 404 wide, so the bag sat in the middle of the cover ("قولتلك لازم تتظبط"). A row placed at a layer's top (`self_align: start`, Leqaa's `roseTop`) shrank to its icons and words on the canvas, while the app's Row spans the layer; the canvas now draws it as the app does. No migration, no app build.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 150.1 On a stack's layer, a row with no width of its own or `fill` spans the layer whatever its own placement, which moves it up or down only; a row with a width, a column and anything else keep their placement across (`view.tsx`, as `studio_page.dart`'s `Align` around a `Row`) | `studio-canvas-layout.test.ts` |

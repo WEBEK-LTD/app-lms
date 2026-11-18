@@ -70,6 +70,34 @@ describe("124.6 the canvas lays a page out as the app", () => {
     expect(styleOf(end, "row")["align-self"]).toBe("end");
   });
 
+  it("150 draws a row placed at a layer's top across the whole layer, as the app's Row (Kech Flora's bag at the end)", () => {
+    const top: StudioNode = {
+      id: "top",
+      type: "row",
+      width: "fill",
+      height: 68,
+      cross: "center",
+      self_align: "start",
+      children: [
+        { id: "search", type: "icon", icon: "search", width: 42, height: 42 },
+        { id: "wordmark", type: "text", text: "KechFlora", width: "fill", text_align: "center" },
+        { id: "bag", type: "icon", icon: "shopping_bag", width: 42, height: 42 },
+      ],
+    };
+    const hero: StudioNode = { id: "hero", type: "stack", height: 520, children: [{ id: "pic", type: "image", width: "fill", height: 520 }, top] };
+    const root = draw({ body: { id: "body", type: "column", children: [hero] } });
+    // At the top, and across: not shrunk to its icons and words.
+    expect(styleOf(root, "top")["align-self"]).toBe("flex-start");
+    expect(styleOf(root, "top")["justify-self"]).toBe("stretch");
+    // A row without a width of its own spans too; one with a width, or a column, keeps its placement across.
+    const plain = draw({ body: { id: "body", type: "column", children: [{ ...hero, children: [hero.children![0]!, { ...top, width: undefined }] }] } });
+    expect(styleOf(plain, "top")["justify-self"]).toBe("stretch");
+    const sized = draw({ body: { id: "body", type: "column", children: [{ ...hero, children: [hero.children![0]!, { ...top, width: 200 }] }] } });
+    expect(styleOf(sized, "top")["justify-self"]).toBe("flex-start");
+    const column = draw({ body: { id: "body", type: "column", children: [{ ...hero, children: [hero.children![0]!, { ...top, type: "column" }] }] } });
+    expect(styleOf(column, "top")["justify-self"]).toBe("flex-start");
+  });
+
   it("leaves out a card's text bound to what the entry hasn't (a course without a badge)", () => {
     const home = academyHome();
     const list = allNodes(home).find((x) => x.type === "items")!;
