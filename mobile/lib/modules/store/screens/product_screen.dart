@@ -228,6 +228,8 @@ class _ProductViewState extends ConsumerState<_ProductView> {
           content: Text(
             added ? context.l10n.addedToCart : context.l10n.cartFull,
           ),
+          // 197 Goes away by itself like any message: with its View cart it stayed until closed.
+          persist: false,
           action: added
               ? SnackBarAction(
                   label: context.l10n.viewCart,

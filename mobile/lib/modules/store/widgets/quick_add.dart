@@ -110,6 +110,8 @@ class _QuickAddButtonState extends ConsumerState<QuickAddButton> {
       ..showSnackBar(
         SnackBar(
           content: Text(added ? words.addedToCart : words.cartFull),
+          // 197 Goes away by itself like any message: with its View cart it stayed until closed.
+          persist: false,
           action: added
               ? SnackBarAction(
                   label: words.viewCart,

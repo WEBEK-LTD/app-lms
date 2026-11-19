@@ -4383,3 +4383,12 @@ The owner's report (19 November, urgent, a client waiting): Kech Flora's build #
 |---|---|---|
 | [x] | 196.1 The pipeline asks the platform again on a 500 too (`build/scripts/platform.py`, as on a 429, 502, 503 or 504), six tries over about two minutes | a local server answering 500 twice, then 204: the report goes through on the third |
 | [x] | 196.2 A building build that reported nothing for three hours is stalled (`BUILDING_STALL_MS`, was six; the Android and iPhone jobs take 2½ hours at most), so Try again comes back sooner; the documentation says three hours (en, ar, tr) | `builds-downloads` |
+
+## Phase 197: "Added to cart" goes away by itself
+
+The owner's report (19 November, Kech Flora): adding a product to the cart, "Added to cart" stayed on the screen until the customer closed it. Since Flutter 3.29 a message with an action (its View cart) stays until it is closed, unless it says otherwise.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 197.1 The message goes away by itself like any other (`persist: false`), its View cart kept: Add to cart under a card (`quick_add.dart`), a product's page, and a class's "See plans" (the event's "See tickets" did so already) | `phase193_add_to_cart`: gone after a few seconds, untouched; fails without the change |
+| [x] | 197.2 `CLIENT_APP_RELEASE` 14: every client's app is built again with it; the preview rebuilt | `flutter test` (2872), `build_preview.sh --check` |
