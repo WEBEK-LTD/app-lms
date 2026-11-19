@@ -108,7 +108,7 @@ export function needsDressing(html: string | undefined): boolean {
  * The email in the premium look, when it is a template's plain words or
  * text only; an email with its own design is left as it is.
  */
-export function dressMail<M extends { subject: string; text: string; html?: string }>(mail: M, brand: MailBrand, lang?: Lang): M {
+export function dressMail<M extends { subject: string; text: string; html?: string }>(mail: M, brand: MailBrand, lang?: Lang): M & { html?: string } {
   if (!needsDressing(mail.html)) return mail;
   const parts = mail.html && mail.html.trim() !== "" ? plainParts(mail.html) : { body: textAsHtml(mail.text), lang: lang ?? "en" };
   const language = lang ?? parts.lang;
