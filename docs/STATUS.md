@@ -8,6 +8,11 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 198 (the customer's receipt email in the business's look): after
+paying, the customer gets a premium email in the business's look (its
+logo, its colour, light and dark) in their language, the order as a card,
+and the receipt as the attached PDF, with no link.
+
 Roadmap 193 (Add to cart under every product, on Leqaa's looks): on a
 store with the gift checkout (Leqaa's looks, Kech Flora), every product's
 card keeps its look and gets Add to cart under it, on the shop's grid, the

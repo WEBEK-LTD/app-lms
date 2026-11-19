@@ -724,7 +724,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     key: "order_receipt",
     name: "Order receipt",
     description:
-      "To a customer when their order (products, a restaurant's order, tickets, a paid course or a membership) is paid (apps without a website), with the receipt as a PDF. Sent in the business's name, from the app's own email server when its owner set one.",
+      "To a customer when their order (products, a restaurant's order, tickets, a paid course or a membership) is paid (apps without a website), with the receipt as a PDF. Sent in the business's name, from the app's own email server when its owner set one. The email itself is in the business's look (its logo and colour, light and dark) and the customer's language; an edit here changes its subject and its plain-text part.",
     placeholders: [
       { name: "org_name", description: "The business's name (the app's name)", sample: "Harbour Books" },
       { name: "customer_name", description: "The customer's name", sample: "Elif Yılmaz" },
@@ -732,13 +732,13 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       { name: "total", description: "The order's total", sample: "₺450.00" },
       { name: "order_lines", description: "One line per item with its options, and shipping (a restaurant's delivery fee)", sample: "Tulip vase × 1: ₺400.00\nShipping: ₺50.00" },
       { name: "date", description: "The day the payment went through", sample: "14 October 2026" },
-      { name: "receipt_url", description: "The receipt as a PDF, to download again", sample: "https://yallapp.com.tr/receipts/orders/sample" },
     ],
     subject: "Your receipt from {{org_name}} · order {{order_number}}",
     body:
       "Dear {{customer_name}},\n\nThank you for your order from {{org_name}}. We received your payment.\n\n" +
       "{{order_lines}}\nTotal: {{total}}\nDate: {{date}}\nOrder: {{order_number}}\n\n" +
-      "Your receipt: {{receipt_url}}\n\nKeep this email for your records. If you have a question about your order, contact {{org_name}} and give the order number above.",
+      // 198 The PDF is the receipt: no link. Sent as the premium email in the business's look (lib/email/order-receipt-email.ts).
+      "Your receipt is attached to this email as a PDF.\nKeep this email for your records. If you have a question about your order, contact {{org_name}} and give the order number above.",
   },
   {
     // 96.2 Sent in the business's name, like the receipt.

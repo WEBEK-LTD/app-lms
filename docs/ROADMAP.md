@@ -4374,3 +4374,14 @@ The owner's word (18 November, very urgent), on Kech Flora and Leqaa: "keep the 
 | [x] | 193.5 `CLIENT_APP_RELEASE` 13 (12 is the release 12 integration's, #473), the preview rebuilt | `publish-for-all.test.ts`, CI "App preview is up to date" |
 | [x] | 193.7 The owner, on the first look: "why the big space between the name and the price?" The shop's grid went row by row (each row as tall as its fullest card, the cards of a row the same height); a card's name keeps its two lines with the price right under it, level across the row, Add to cart at the card's foot. Before, every cell was one fixed height made for the fullest card, the price pushed to its foot, leaving a band between the name and the price | `phase193_add_to_cart_test.dart`, screenshots |
 | [ ] | 193.6 A flash sale's own cards (`flash_sale`) keep their look without the button; on Kech Flora's phone, Add to cart on the Bouquets tab and the home | — |
+
+## Phase 198: The customer's receipt email in the business's look
+
+The owner's report (19 November, Kech Flora): the email a customer gets after paying was plain text with a link to the receipt. Wanted: a premium email that suits light and dark, with the business's logo, and no link, the attached PDF being the receipt.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 198.1 `lib/email/order-receipt-email.ts`: the receipt email as HTML in the business's look: its logo (else its icon, else its name in its colour) at the top, its main colour as the accent, the order's number and date, its lines and total as a card, "Your receipt is attached as a PDF"; tables and inline styles, at most 600 px wide | `phase198-receipt-email` |
+| [x] | 198.2 By day and by night: `color-scheme` and `supported-color-schemes` light dark, dark colours under `prefers-color-scheme: dark` and Outlook's `[data-ogsc]`, light colours that stay readable when a mail app turns them around by itself | `phase198-receipt-email`; rendered in Chromium light and dark |
+| [x] | 198.3 No link to the receipt (the Order receipt template's `{{receipt_url}}` gone, and its line left out of a template the team edited); the PDF still attached | `receipts-routes` |
+| [x] | 198.4 In the customer's language (the receipt's own, `customerLang`): English, Arabic right to left, Turkish; a template the team edited keeps its words for the subject and the plain-text part | `phase198-receipt-email` |
