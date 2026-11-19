@@ -4375,6 +4375,17 @@ The owner's word (18 November, very urgent), on Kech Flora and Leqaa: "keep the 
 | [x] | 193.7 The owner, on the first look: "why the big space between the name and the price?" The shop's grid went row by row (each row as tall as its fullest card, the cards of a row the same height); a card's name keeps its two lines with the price right under it, level across the row, Add to cart at the card's foot. Before, every cell was one fixed height made for the fullest card, the price pushed to its foot, leaving a band between the name and the price | `phase193_add_to_cart_test.dart`, screenshots |
 | [ ] | 193.6 A flash sale's own cards (`flash_sale`) keep their look without the button; on Kech Flora's phone, Add to cart on the Bouquets tab and the home | — |
 
+## Phase 195: No page fails with "Queue limit reached"
+
+The owner's log (19 November, 01:50, on `/admin/builds`): a page failed with `Failed query: select … from user_sessions …` and, under it, `Queue limit reached`. The documentation's menu (on every documentation page, `docsNavGroups`) and its search read each of the 73 articles' texts on its own, one query each in English and two in Arabic and Turkish, all at once. The site's one database connection per function (`createPool`, 50 queries waiting at most) had more waiting than it takes, so the page failed, and the session read beside it with it.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 195.1 `getSiteContents(keys, lang)` (`lib/content/get.ts`): several pages' texts as `getSiteContent` gives each (the team's edits, their translations, the defaults when the database can't be read), from one query for this render (`listSiteContent`) | `phase195-docs-one-query` |
+| [x] | 195.2 The documentation's menu (`components/docs-shell.tsx`) and its search (`site/docs.tsx`) read all their articles with it: one query, whatever the language | `phase195-docs-one-query` |
+| [x] | 195.3 The build queue (`/admin/builds`, up to 200 builds) looked up each build's client, its user and its app, three queries each, all at once (with client apps rebuilding for release 13, a full queue): now each client, user and app once, ten at a time | `tsc`; e2e `publishing`, `starter-flow` (CI) |
+| [x] | 195.4 Up to 1000 queries may wait for a function's connection (`DEFAULT_QUEUE_LIMIT`, was 50; `DATABASE_QUEUE_LIMIT` still sets it): other pages that look up each of their rows (Admin › Publishing, Coupons, a client's page) no longer fail when they have many | `database-ca` |
+
 ## Phase 196: A finished build is never left on "building"
 
 The owner's report (19 November, urgent, a client waiting): Kech Flora's build #23 said "Building" for over half an hour. Its Android app had been built at 22:51 UTC, but the platform answered the pipeline's report with a 500 for about three minutes (the database busy, Phase 195), and the pipeline asked only once: the build was left on "building", and Try again came back only after six hours.

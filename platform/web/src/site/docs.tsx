@@ -14,7 +14,7 @@ import { DOCS, docBySlug, type DocSection } from "@/content/docs";
 import type { ApiEndpoint, ApiReference } from "@/lib/api-reference";
 import { getContact } from "@/lib/contact";
 import { WhatsAppLink } from "@/components/whatsapp-link";
-import { getSiteContent } from "@/lib/content/get";
+import { getSiteContent, getSiteContents } from "@/lib/content/get";
 import { headingId } from "@/lib/content/markdown";
 import { parseGuide } from "@/lib/content/site";
 import { DASHBOARD_SCREENS, type AppScreen, type DashboardScreen } from "@/lib/marketing";
@@ -117,7 +117,9 @@ export async function docsSearchMetadata(lang: Lang): Promise<Metadata> {
 export async function DocsSearchPage({ lang, query }: { lang: Lang; query: string }) {
   const m = messagesFor(lang).docs;
   const q = query.trim().slice(0, SEARCH_MAX_QUERY);
-  const [texts, contact] = await Promise.all([Promise.all(DOCS.map(async (d) => ({ doc: d, text: await getSiteContent(d.key, lang) }))), getContact()]);
+  // 195 All the articles' texts in one query (one or two each held the database connection past its queue).
+  const [all, contact] = await Promise.all([getSiteContents(DOCS.map((d) => d.key), lang), getContact()]);
+  const texts = DOCS.map((doc, i) => ({ doc, text: all[i]! }));
   const hits = q
     ? searchDocs(
         texts.map(({ doc, text }) => ({ slug: doc.slug, section: doc.section, title: text.title!, description: text.description ?? "", body: text.body ?? "" })),

@@ -12,6 +12,13 @@ Roadmap 197 ("Added to cart" goes away by itself): the message with its
 View cart stayed on the screen until closed (Flutter keeps a message with
 an action); it now goes away like any other, on a card's Add to cart, a
 product's page and a class's See plans. App release 14.
+Roadmap 195 (no page fails with "Queue limit reached"): Admin › Builds
+looked up each of its up to 200 builds' client, user and app at once, and
+the documentation's menu and search each of its 73 articles, past the 50
+queries the site's one database connection let wait, failing the page
+and the session read with it. The build queue now looks each up once, ten
+at a time, the documentation reads its articles in one query, and up to
+1000 queries may wait.
 Roadmap 196 (a finished build is never left on "building"): the
 pipeline asks the platform again on a 500 (six tries, about two minutes),
 and a build that reported nothing for three hours (was six) is stalled,
