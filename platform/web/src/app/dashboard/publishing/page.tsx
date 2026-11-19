@@ -38,6 +38,7 @@ import { reviewNotesFor, suggestedReviewNotes } from "@/lib/publishing/review-no
 import { ChecklistForm, ListingForm } from "./forms";
 import { ReadySection } from "./ready";
 import { ReviewSection } from "./review-section";
+import { StoreLinks } from "./store-links";
 import { PublishingTabs } from "./tabs";
 import { courierAppNameOf, hasCourierJobs, secondAppRoleOf } from "@/lib/delivery/courier-app";
 import { reviewNotes } from "@/lib/delivery/review";
@@ -145,6 +146,8 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
       </KitBar>
       {/* 110.2 Sample entries left: nothing goes to the stores. */}
       <SamplesStoreNotice app={app} />
+      {/* 201 The links the stores ask for, whoever publishes: delete account page, privacy policy, support email. */}
+      <StoreLinks app={app} platformUrl={appUrl()} text={text} name={name} />
     </>
   );
 
