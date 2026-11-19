@@ -18,6 +18,10 @@ export interface AppEmailShell {
   appName: string;
   /** The app's logo, else its icon, as a public address; null for none. */
   logoUrl: string | null;
+  /** 200 A wide logo's size (Yallapp's own, 99 × 32), else a 64 px square. */
+  logoSize?: { width: number; height: number };
+  /** 200 The logo to show in a mail app's dark mode, when it has one of its own. */
+  darkLogoUrl?: string | null;
   /** The app's main colour (#RRGGBB). */
   brand: string;
   /** The `<title>` (the subject). */
@@ -80,8 +84,15 @@ export function appEmailHtml(shell: AppEmailShell): string {
   const brand = hexColour(shell.brand);
   const name = escapeHtml(shell.appName);
   const font = rtl ? "Tahoma,'Segoe UI',Arial,sans-serif" : "-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+  const size = shell.logoSize;
+  const img = (url: string, cls: string, hidden = false) =>
+    size
+      ? `<img src="${escapeHtml(url)}" class="${cls}" width="${size.width}" height="${size.height}" alt="${name}" style="display:${hidden ? "none" : "block"};width:${size.width}px;height:${size.height}px;border:0;outline:none;text-decoration:none;margin:0 auto${hidden ? ";max-height:0;overflow:hidden" : ""}" />`
+      : `<img src="${escapeHtml(url)}" class="${cls}" width="64" height="64" alt="${name}" style="display:${hidden ? "none" : "block"};width:64px;height:64px;border-radius:16px;border:0;outline:none;text-decoration:none;margin:0 auto;object-fit:cover${hidden ? ";max-height:0;overflow:hidden" : ""}" />`;
   const head = shell.logoUrl
-    ? `<img src="${escapeHtml(shell.logoUrl)}" width="64" height="64" alt="${name}" style="display:block;width:64px;height:64px;border-radius:16px;border:0;outline:none;text-decoration:none;margin:0 auto;object-fit:cover" />`
+    ? shell.darkLogoUrl
+      ? `<div class="ylp-has-dark">${img(shell.logoUrl, "ylp-logo")}<!--[if !mso]><!-->${img(shell.darkLogoUrl, "ylp-logo-dark", true)}<!--<![endif]--></div>`
+      : img(shell.logoUrl, "ylp-logo")
     : `<div class="ylp-brand" style="font-size:24px;font-weight:800;letter-spacing:-0.2px;color:${brand}">${name}</div>`;
   return `<!doctype html>
 <html lang="${shell.lang}" dir="${dir}" xmlns="http://www.w3.org/1999/xhtml">
@@ -106,6 +117,9 @@ export function appEmailHtml(shell: AppEmailShell): string {
     .ylp-total, .ylp-code { color:#FFFFFF !important; }
     .ylp-brand { color:${tintColour(brand, 0.35)} !important; }
     .ylp-pill { background:#262235 !important; color:#EDE9F6 !important; }
+    .ylp-link { color:${tintColour(brand, 0.35)} !important; }
+    .ylp-logo-dark { display:block !important; max-height:none !important; }
+    .ylp-has-dark .ylp-logo { display:none !important; }
   }
   [data-ogsc] .ylp-page { background:#121019 !important; }
   [data-ogsc] .ylp-card { background:#1D1A28 !important; }

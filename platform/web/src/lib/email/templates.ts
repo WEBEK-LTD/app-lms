@@ -1163,7 +1163,8 @@ export function renderTemplate(text: TemplateText, values: Record<string, Templa
     subject,
     text: bodyText,
     // 56 An email in Arabic or Turkish says its language, and Arabic reads right to left.
-    html: `<!doctype html><html${lang === "en" ? "" : ` lang="${lang}" dir="${LANG_INFO[lang].dir}"`}><body style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#24223a">${html}</body></html>`,
+    // 200 Marked plain: sendMail and sendAppMail dress it in the premium look before it goes (lib/email/premium-mail.ts).
+    html: `<!doctype html><html${lang === "en" ? "" : ` lang="${lang}" dir="${LANG_INFO[lang].dir}"`}><body data-ylp-plain style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#24223a">${html}</body></html>`,
   };
 }
 

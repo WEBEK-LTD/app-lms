@@ -10,7 +10,9 @@ Last updated: 18 November 2026.
 
 Roadmap 200 (the "how to pay" email in the receipt's look): a customer who
 chose a bank transfer or cash on delivery gets the business's details in
-the app's premium look, in their language.
+the app's premium look, in their language. Every other email (shipped,
+refunded, reminders, Yallapp's own) is sent in the same look too: the
+app's logo and colour to its customers, Yallapp's to clients.
 
 Roadmap 199 (the app's emails to its users in the receipt's look): a
 welcome after signing up in an app with an email address, and the code
