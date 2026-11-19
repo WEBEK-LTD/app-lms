@@ -314,7 +314,7 @@ describe("71 the customers' receipt links", () => {
   });
 });
 
-async function mails(): Promise<{ to: string; subject: string; text: string; attachments?: { filename: string; contentType: string; size: number; base64: string }[] }[]> {
+async function mails(): Promise<{ to: string; subject: string; text: string; html?: string; attachments?: { filename: string; contentType: string; size: number; base64: string }[] }[]> {
   const files = (await readdir(mailDir)).sort();
   return Promise.all(files.map(async (f) => JSON.parse(await readFile(path.join(mailDir, f), "utf8"))));
 }
@@ -324,7 +324,7 @@ describe("71 payment emails carry the receipt", () => {
     await rm(mailDir, { recursive: true, force: true });
   });
 
-  it("attaches the order's receipt to the customer's email, with its link", async () => {
+  it("attaches the order's receipt to the customer's email (198: the PDF is the receipt, no link)", async () => {
     const a = await account("ada@academy.test");
     const app = await shop(a.client.id);
     const paid = await order(app, true);
@@ -333,7 +333,13 @@ describe("71 payment emails carry the receipt", () => {
     const [mail] = await mails();
     expect(mail!.to).toBe("mona@example.com");
     expect(mail!.subject).toBe(`Your receipt from Harbour Books · order ${1000 + paid.id}`);
-    expect(mail!.text).toContain(`/receipts/orders/${orderReceiptCode(app.id, paid.id, signingSecret())}`);
+    // 198 No link to the receipt: the PDF is it.
+    expect(mail!.text).not.toContain("/receipts/");
+    expect(mail!.html).not.toContain("/receipts/");
+    // 198 The premium email in the business's look, light and dark.
+    expect(mail!.html).toContain('<meta name="color-scheme" content="light dark">');
+    expect(mail!.html).toContain(">Harbour Books<");
+    expect(mail!.text).not.toContain(orderReceiptCode(app.id, paid.id, signingSecret()));
     expect(mail!.text).toContain("Atlas × 1: ₺450.00");
     expect(mail!.attachments).toHaveLength(1);
     const file = mail!.attachments![0]!;
