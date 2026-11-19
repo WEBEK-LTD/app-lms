@@ -15,6 +15,10 @@ queries the site's one database connection let wait, failing the page
 and the session read with it. The build queue now looks each up once, ten
 at a time, the documentation reads its articles in one query, and up to
 1000 queries may wait.
+Roadmap 196 (a finished build is never left on "building"): the
+pipeline asks the platform again on a 500 (six tries, about two minutes),
+and a build that reported nothing for three hours (was six) is stalled,
+so Try again comes back sooner.
 
 Roadmap 193 (Add to cart under every product, on Leqaa's looks): on a
 store with the gift checkout (Leqaa's looks, Kech Flora), every product's

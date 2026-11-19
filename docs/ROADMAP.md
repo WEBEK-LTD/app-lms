@@ -4385,3 +4385,12 @@ The owner's log (19 November, 01:50, on `/admin/builds`): a page failed with `Fa
 | [x] | 195.2 The documentation's menu (`components/docs-shell.tsx`) and its search (`site/docs.tsx`) read all their articles with it: one query, whatever the language | `phase195-docs-one-query` |
 | [x] | 195.3 The build queue (`/admin/builds`, up to 200 builds) looked up each build's client, its user and its app, three queries each, all at once (with client apps rebuilding for release 13, a full queue): now each client, user and app once, ten at a time | `tsc`; e2e `publishing`, `starter-flow` (CI) |
 | [x] | 195.4 Up to 1000 queries may wait for a function's connection (`DEFAULT_QUEUE_LIMIT`, was 50; `DATABASE_QUEUE_LIMIT` still sets it): other pages that look up each of their rows (Admin › Publishing, Coupons, a client's page) no longer fail when they have many | `database-ca` |
+
+## Phase 196: A finished build is never left on "building"
+
+The owner's report (19 November, urgent, a client waiting): Kech Flora's build #23 said "Building" for over half an hour. Its Android app had been built at 22:51 UTC, but the platform answered the pipeline's report with a 500 for about three minutes (the database busy, Phase 195), and the pipeline asked only once: the build was left on "building", and Try again came back only after six hours.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 196.1 The pipeline asks the platform again on a 500 too (`build/scripts/platform.py`, as on a 429, 502, 503 or 504), six tries over about two minutes | a local server answering 500 twice, then 204: the report goes through on the third |
+| [x] | 196.2 A building build that reported nothing for three hours is stalled (`BUILDING_STALL_MS`, was six; the Android and iPhone jobs take 2½ hours at most), so Try again comes back sooner; the documentation says three hours (en, ar, tr) | `builds-downloads` |
