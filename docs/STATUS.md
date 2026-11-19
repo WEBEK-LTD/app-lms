@@ -8,6 +8,10 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 197 ("Added to cart" goes away by itself): the message with its
+View cart stayed on the screen until closed (Flutter keeps a message with
+an action); it now goes away like any other, on a card's Add to cart, a
+product's page and a class's See plans. App release 14.
 Roadmap 195 (no page fails with "Queue limit reached"): Admin › Builds
 looked up each of its up to 200 builds' client, user and app at once, and
 the documentation's menu and search each of its 73 articles, past the 50
