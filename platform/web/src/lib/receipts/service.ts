@@ -11,7 +11,7 @@ import { newOrderMailValues } from "../catalog/payment";
 import type { MailAttachment } from "../email/app-mail";
 import { emailLangOf, renderEmail, sendAppMail } from "../email/send";
 import { orderReceiptHtml, orderReceiptSubject, orderReceiptText, type OrderReceiptEmailInput } from "../email/order-receipt-email";
-import { assetUrl } from "../assets";
+import { appLogoUrl } from "../assets";
 import { formatDate } from "@/i18n/format";
 import { publishedLayout } from "../pages/layout";
 import { pickLanguage } from "../pages/translate";
@@ -126,12 +126,6 @@ function withoutReceiptLink(body: string): string {
     .split("\n")
     .filter((line) => !line.includes("{{receipt_url}}"))
     .join("\n");
-}
-
-/** 198 The app's logo, else its icon, as a public address; null for none. */
-function appLogoUrl(app: Pick<App, "logoAssetId" | "iconAssetId">): string | null {
-  const id = app.logoAssetId ?? app.iconAssetId;
-  return id ? assetUrl(id) : null;
 }
 
 /**

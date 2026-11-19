@@ -4394,3 +4394,14 @@ The owner's report (19 November, Kech Flora): the email a customer gets after pa
 | [x] | 198.2 By day and by night: `color-scheme` and `supported-color-schemes` light dark, dark colours under `prefers-color-scheme: dark` and Outlook's `[data-ogsc]`, light colours that stay readable when a mail app turns them around by itself | `phase198-receipt-email`; rendered in Chromium light and dark |
 | [x] | 198.3 No link to the receipt (the Order receipt template's `{{receipt_url}}` gone, and its line left out of a template the team edited); the PDF still attached | `receipts-routes` |
 | [x] | 198.4 In the customer's language (the receipt's own, `customerLang`): English, Arabic right to left, Turkish; a template the team edited keeps its words for the subject and the plain-text part | `phase198-receipt-email` |
+
+## Phase 199: The app's emails to its users in the receipt's look
+
+The owner (19 November): whoever signs up in an app gets a premium welcome email; the email with the code (signing in, or setting a forgotten password again) premium too; the app's logo and name, never Yallapp's. The same look as the receipt (198), only the content differs.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 199.1 The receipt's look shared (`lib/email/app-email-shell.ts`: the app's logo or name, the card in its colour, light and dark, the footer in its name); the receipt, the welcome and the code use it | `phase198-receipt-email`, `phase199-app-emails` |
+| [x] | 199.2 A welcome after signing up with an email address (`POST /auth/register`, never on signing in), in the app's name and the customer's language, when the app's email can go out; never fails the sign-up; the "Welcome to the app" template (`app_welcome`) in the admin | `sign-in-methods`: one welcome on signing up, none on signing in again |
+| [x] | 199.3 The code email (hosted apps and WordPress sites with email codes) in the app's look and the customer's language: the code large and spaced, selectable, its expiry kept; `purpose: reset` on `/auth/email/request` words it as setting a new password | `phase199-app-emails` |
+| [x] | 199.4 An edited template (Sign-in code, Welcome) keeps its words for the subject and the plain-text part | `phase199-app-emails` |

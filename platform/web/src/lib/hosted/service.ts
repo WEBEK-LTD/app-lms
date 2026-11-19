@@ -140,7 +140,9 @@ export interface HostedContext {
    * 18 Emails a sign-in code (the "Sign-in code" email template, through the
    * platform's SMTP). Missing: email codes fail with provider_error.
    */
-  sendEmailCode?: (input: { to: string; code: string; appName: string; minutes: number }) => Promise<void>;
+  sendEmailCode?: (input: { to: string; code: string; appName: string; minutes: number; purpose?: "sign_in" | "reset" }) => Promise<void>;
+  /** 199 The welcome email after someone signs up with an email address (never on signing in). Failing it never fails the sign-up. */
+  sendWelcome?: (input: { to: string; name: string }) => Promise<void>;
   /** Whether push can be sent (a Firebase service account is saved). */
   push: boolean;
   /** 136.21 iPhones register APNs tokens (`provider: apns`, `features.apns`): Yallapp mode with the client's APNs key saved. */
@@ -972,7 +974,8 @@ async function requestEmailCode(ctx: HostedContext, body: Record<string, unknown
   if (!review) {
     try {
       if (!ctx.sendEmailCode) throw new Error("No email sender.");
-      await ctx.sendEmailCode({ to: email, code, appName: ctx.app.appName ?? "Yallapp", minutes: Math.round(CODE_TTL_SECONDS / 60) });
+      // 199 `purpose: reset` (a forgotten password) words the email for that; otherwise a sign-in code.
+      await ctx.sendEmailCode({ to: email, code, appName: ctx.app.appName ?? "Yallapp", minutes: Math.round(CODE_TTL_SECONDS / 60), purpose: body.purpose === "reset" ? "reset" : "sign_in" });
     } catch (e) {
       await logSendFailure(ctx, "email", e);
       await ctx.store.deleteHostedChallenge(sha256Hex(requestId));
@@ -1114,6 +1117,14 @@ async function register(ctx: HostedContext, body: Record<string, unknown>): Prom
   }
   if (fields.includes("password")) await ctx.store.setHostedUserPassword(ctx.app.id, user.id, await hashPassword(password), ctx.now);
   await ctx.store.deleteHostedChallenge(hash);
+  // 199 A welcome to the new account's email address, once: an account is made here only. Never fails the sign-up.
+  if (user.email && ctx.sendWelcome) {
+    try {
+      await ctx.sendWelcome({ to: user.email, name: user.name ?? name });
+    } catch (e) {
+      console.error(`[hosted] the welcome email failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 300));
+    }
+  }
   if (ctx.onUsersCounted && ctx.plan?.limits.appUsers != null) {
     try {
       await ctx.onUsersCounted(await ctx.store.countHostedUsers(ctx.app.id));

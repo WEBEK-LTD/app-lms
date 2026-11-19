@@ -8,6 +8,11 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 199 (the app's emails to its users in the receipt's look): a
+welcome after signing up in an app with an email address, and the code
+email (signing in, a forgotten password), both in the app's logo, name and
+colour, light and dark, in the customer's language.
+
 Roadmap 198 (the customer's receipt email in the business's look): after
 paying, the customer gets a premium email in the business's look (its
 logo, its colour, light and dark) in their language, the order as a card,

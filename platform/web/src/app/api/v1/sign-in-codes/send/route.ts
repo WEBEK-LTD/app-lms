@@ -1,5 +1,6 @@
 import { storeAndLimit } from "@/lib/api";
 import { hmacSha256 } from "@/lib/crypto/tokens";
+import { sendAppCodeEmail } from "@/lib/email/app-user-mail";
 import { appMailDelivered, sendTemplate } from "@/lib/email/send";
 import { appUrl, encryptionKey, signingSecret, waabekApiUrl } from "@/lib/env";
 import { appOtpSender, recordOwnWhatsappFailure } from "@/lib/hosted/app-sender";
@@ -24,7 +25,9 @@ export async function POST(request: Request): Promise<Response> {
     // 24 Email codes: through the app's own email server when its owner set one, else Yallapp's.
     mailer: async (app, { to, code, appName, minutes }) => {
       if (!(app ? await appMailDelivered(store, app) : await mailDelivered(store))) throw new Error("No email server is set up.");
-      await sendTemplate("sign_in_code", to, { app_name: appName, code, minutes: String(minutes) }, app ? { app } : {});
+      // 199 A client's app's code in that app's look and the customer's language.
+      if (app) await sendAppCodeEmail(store, app, { to, code, minutes, wanted: request.headers.get("accept-language") });
+      else await sendTemplate("sign_in_code", to, { app_name: appName, code, minutes: String(minutes) });
     },
     secret: hmacSha256(signingSecret(), "sign-in-codes"),
     now,
