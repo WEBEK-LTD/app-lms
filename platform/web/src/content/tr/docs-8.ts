@@ -102,7 +102,7 @@ Bir mağaza sorunu, durumu **Hazır** olan bir derlemede de görünebilir: dosya
 
 ## Duran bir derleme
 
-Bir derleme genellikle 15 ila 45 dakika sürer. Başlamak için bir günden uzun beklerse ya da derlenirken altı saat boyunca hiçbir şey bildirmezse, sayfa her zamankinden çok daha uzun sürdüğünü ve muhtemelen durduğunu söyler. Ekibimize haber verilir. Yeniden başlatmak için **Tekrar dene**'yi seçin: duran derleme kapatılır ve ondan hiçbir şey yayınlanmaz.
+Bir derleme genellikle 15 ila 45 dakika sürer. Başlamak için bir günden uzun beklerse ya da derlenirken üç saat boyunca hiçbir şey bildirmezse, sayfa her zamankinden çok daha uzun sürdüğünü ve muhtemelen durduğunu söyler. Ekibimize haber verilir. Yeniden başlatmak için **Tekrar dene**'yi seçin: duran derleme kapatılır ve ondan hiçbir şey yayınlanmaz.
 
 ## Bir bağlantı başarısız olduğunda
 

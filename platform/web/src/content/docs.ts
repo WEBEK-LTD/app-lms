@@ -3696,7 +3696,7 @@ A store problem can also show on a build that is **Ready**: your files were made
 
 ## A build that stopped
 
-A build usually takes 15 to 45 minutes. If it waits to start for more than a day, or reports nothing for six hours while building, the page says it's taking much longer than usual and has probably stopped. Our team is told. Choose **Try again** to start it again: the stopped build is closed, and nothing from it is published.
+A build usually takes 15 to 45 minutes. If it waits to start for more than a day, or reports nothing for three hours while building, the page says it's taking much longer than usual and has probably stopped. Our team is told. Choose **Try again** to start it again: the stopped build is closed, and nothing from it is published.
 
 ## When a connection fails
 

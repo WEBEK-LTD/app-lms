@@ -23,7 +23,10 @@ import urllib.request
 def call(method, path, body=None):
     base = os.environ["PLATFORM_API_URL"].rstrip("/")
     data = None if body is None else json.dumps(body).encode()
-    for attempt in range(4):
+    # 196 A 500 is asked again too: the platform failing for a minute (its database busy) left a build
+    # it had finished on "building", its result never received. About two minutes in all before giving up.
+    attempts = 6
+    for attempt in range(attempts):
         request = urllib.request.Request(
             base + path,
             data=data,
@@ -41,7 +44,7 @@ def call(method, path, body=None):
                 return response.status, (json.loads(raw) if raw else None)
         except urllib.error.HTTPError as error:
             raw = error.read()
-            if error.code in (429, 502, 503, 504) and attempt < 3:
+            if error.code in (429, 500, 502, 503, 504) and attempt < attempts - 1:
                 time.sleep(2 ** (attempt + 1))
                 continue
             try:
@@ -50,7 +53,7 @@ def call(method, path, body=None):
                 payload = {"code": "http_error", "message": raw.decode(errors="replace")[:500]}
             return error.code, payload
         except urllib.error.URLError:
-            if attempt < 3:
+            if attempt < attempts - 1:
                 time.sleep(2 ** (attempt + 1))
                 continue
             raise

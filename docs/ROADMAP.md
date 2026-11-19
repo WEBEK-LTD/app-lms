@@ -4374,3 +4374,12 @@ The owner's word (18 November, very urgent), on Kech Flora and Leqaa: "keep the 
 | [x] | 193.5 `CLIENT_APP_RELEASE` 13 (12 is the release 12 integration's, #473), the preview rebuilt | `publish-for-all.test.ts`, CI "App preview is up to date" |
 | [x] | 193.7 The owner, on the first look: "why the big space between the name and the price?" The shop's grid went row by row (each row as tall as its fullest card, the cards of a row the same height); a card's name keeps its two lines with the price right under it, level across the row, Add to cart at the card's foot. Before, every cell was one fixed height made for the fullest card, the price pushed to its foot, leaving a band between the name and the price | `phase193_add_to_cart_test.dart`, screenshots |
 | [ ] | 193.6 A flash sale's own cards (`flash_sale`) keep their look without the button; on Kech Flora's phone, Add to cart on the Bouquets tab and the home | — |
+
+## Phase 196: A finished build is never left on "building"
+
+The owner's report (19 November, urgent, a client waiting): Kech Flora's build #23 said "Building" for over half an hour. Its Android app had been built at 22:51 UTC, but the platform answered the pipeline's report with a 500 for about three minutes (the database busy, Phase 195), and the pipeline asked only once: the build was left on "building", and Try again came back only after six hours.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 196.1 The pipeline asks the platform again on a 500 too (`build/scripts/platform.py`, as on a 429, 502, 503 or 504), six tries over about two minutes | a local server answering 500 twice, then 204: the report goes through on the third |
+| [x] | 196.2 A building build that reported nothing for three hours is stalled (`BUILDING_STALL_MS`, was six; the Android and iPhone jobs take 2½ hours at most), so Try again comes back sooner; the documentation says three hours (en, ar, tr) | `builds-downloads` |
