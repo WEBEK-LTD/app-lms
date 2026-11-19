@@ -12,6 +12,10 @@ Roadmap 198 (the customer's receipt email in the business's look): after
 paying, the customer gets a premium email in the business's look (its
 logo, its colour, light and dark) in their language, the order as a card,
 and the receipt as the attached PDF, with no link.
+Roadmap 196 (a finished build is never left on "building"): the
+pipeline asks the platform again on a 500 (six tries, about two minutes),
+and a build that reported nothing for three hours (was six) is stalled,
+so Try again comes back sooner.
 
 Roadmap 193 (Add to cart under every product, on Leqaa's looks): on a
 store with the gift checkout (Leqaa's looks, Kech Flora), every product's

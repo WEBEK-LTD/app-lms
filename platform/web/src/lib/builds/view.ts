@@ -10,8 +10,12 @@ import { bumpPatch } from "../semver";
 
 /** A queued build the pipeline hasn't taken in this long is stalled (it checks every hour, or at once). */
 export const QUEUED_STALL_MS = 24 * 60 * 60 * 1000;
-/** A running build that reported nothing for this long is stalled (the jobs time out after 60 and 90 minutes). */
-export const BUILDING_STALL_MS = 6 * 60 * 60 * 1000;
+/**
+ * A running build that reported nothing for this long is stalled (the jobs time out after 60 and 90 minutes).
+ * 196 Three hours, not six (the Android and iPhone jobs take 2½ hours at most): a build whose result
+ * the platform failed to receive waited six hours on "building" before Try again came back.
+ */
+export const BUILDING_STALL_MS = 3 * 60 * 60 * 1000;
 
 /** True when a queued or building build stopped moving: it no longer blocks a new build. */
 export function isStalled(build: Pick<Build, "status" | "createdAt" | "updatedAt">, now: Date): boolean {
