@@ -8,6 +8,10 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 201 (the links the stores ask for): at the top of Publishing, the
+app's delete account page, privacy policy and support email, each with
+Copy.
+
 Roadmap 200 (the "how to pay" email in the receipt's look): a customer who
 chose a bank transfer or cash on delivery gets the business's details in
 the app's premium look, in their language. Every other email (shipped,
