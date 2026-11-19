@@ -119,14 +119,10 @@ export function orderReceiptText(input: OrderReceiptEmailInput): string {
   ].join("\n");
 }
 
-/** The HTML part, in the shared look of the app's emails (app-email-shell.ts). */
-export function orderReceiptHtml(input: OrderReceiptEmailInput): string {
-  const w = WORDS[input.lang];
-  const { dir, start, end } = sides(input.lang);
-  const brand = hexColour(input.brand);
-  const soft = tintColour(brand, 0.9);
-
-  const lines = input.lines
+/** 200 The order's lines as a table: the words at the start, the amount at the end. */
+export function orderLinesTable(lang: Lang, lines: readonly string[]): string {
+  const { dir, start, end } = sides(lang);
+  const rows = lines
     .map(splitLine)
     .map(
       ({ label, amount }) =>
@@ -134,22 +130,38 @@ export function orderReceiptHtml(input: OrderReceiptEmailInput): string {
         `<td class="ylp-line ylp-amount" style="padding:10px 0;border-bottom:1px solid #ECEAF2;font-size:15px;line-height:1.45;color:#24223A;text-align:${end};white-space:nowrap;font-weight:600">${escapeHtml(amount)}</td></tr>`,
     )
     .join("");
-  const meta = (label: string, value: string) =>
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" dir="${dir}">${rows}</table>`;
+}
+
+/** 200 The total in the app's soft colour. */
+export function totalBox(lang: Lang, brand: string, label: string, total: string): string {
+  const { dir, start, end } = sides(lang);
+  return (
+    `<table role="presentation" class="ylp-sum" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${tintColour(brand, 0.9)};border-radius:14px" dir="${dir}"><tr>` +
+    `<td class="ylp-text" style="padding:16px 18px;font-size:15px;font-weight:700;color:#24223A;text-align:${start}">${escapeHtml(label)}</td>` +
+    `<td class="ylp-total" style="padding:16px 18px;font-size:20px;font-weight:800;color:#24223A;text-align:${end};white-space:nowrap">${escapeHtml(total)}</td></tr></table>`
+  );
+}
+
+/** 200 Two labelled values side by side (Order, Date). */
+export function metaRow(lang: Lang, pairs: ReadonlyArray<readonly [string, string]>): string {
+  const { dir, start } = sides(lang);
+  const cell = ([label, value]: readonly [string, string]) =>
     `<td class="ylp-meta" style="vertical-align:top;text-align:${start}"><div class="ylp-muted" style="font-size:12px;letter-spacing:0.4px;text-transform:uppercase;color:#6E6A85">${escapeHtml(label)}</div>` +
     `<div class="ylp-text" style="font-size:15px;font-weight:700;color:#24223A;margin-top:2px">${escapeHtml(value)}</div></td>`;
-  const table = (inner: string, style = "") => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" dir="${dir}"${style}>${inner}</table>`;
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" dir="${dir}"><tr>${pairs.map(cell).join("")}</tr></table>`;
+}
+
+/** The HTML part, in the shared look of the app's emails (app-email-shell.ts). */
+export function orderReceiptHtml(input: OrderReceiptEmailInput): string {
+  const w = WORDS[input.lang];
+  const brand = hexColour(input.brand);
 
   const rows = [
     cardRow(input.lang, pill(brand, `✓ ${w.order} #${input.orderNumber}`) + heading(w.title) + paragraph(w.hello(input.customerName), { margin: "0 0 6px 0" }) + paragraph(w.intro(input.shopName), { muted: true, margin: "0" }), "30px 32px 8px 32px"),
-    cardRow(input.lang, table(`<tr>${meta(w.order, `#${input.orderNumber}`)}${meta(w.date, input.date)}</tr>`), "20px 32px 0 32px"),
-    cardRow(input.lang, table(lines), "18px 32px 0 32px"),
-    cardRow(
-      input.lang,
-      `<table role="presentation" class="ylp-sum" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${soft};border-radius:14px" dir="${dir}"><tr>` +
-        `<td class="ylp-text" style="padding:16px 18px;font-size:15px;font-weight:700;color:#24223A;text-align:${start}">${escapeHtml(w.total)}</td>` +
-        `<td class="ylp-total" style="padding:16px 18px;font-size:20px;font-weight:800;color:#24223A;text-align:${end};white-space:nowrap">${escapeHtml(input.total)}</td></tr></table>`,
-      "16px 32px 0 32px",
-    ),
+    cardRow(input.lang, metaRow(input.lang, [[w.order, `#${input.orderNumber}`], [w.date, input.date]]), "20px 32px 0 32px"),
+    cardRow(input.lang, orderLinesTable(input.lang, input.lines), "18px 32px 0 32px"),
+    cardRow(input.lang, totalBox(input.lang, brand, w.total, input.total), "16px 32px 0 32px"),
     ...(input.note ? [cardRow(input.lang, paragraph(input.note, { size: 14, margin: "0" }), "16px 32px 0 32px")] : []),
     cardRow(input.lang, paragraph(`📎 ${w.attached}`, { size: 14, strong: true }) + paragraph(w.keep(input.shopName), { muted: true, size: 13, margin: "0" }), "22px 32px 30px 32px"),
   ].join("\n");

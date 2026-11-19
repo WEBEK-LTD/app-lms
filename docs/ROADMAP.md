@@ -4425,3 +4425,12 @@ The owner (19 November): whoever signs up in an app gets a premium welcome email
 | [x] | 199.2 A welcome after signing up with an email address (`POST /auth/register`, never on signing in), in the app's name and the customer's language, when the app's email can go out; never fails the sign-up; the "Welcome to the app" template (`app_welcome`) in the admin | `sign-in-methods`: one welcome on signing up, none on signing in again |
 | [x] | 199.3 The code email (hosted apps and WordPress sites with email codes) in the app's look and the customer's language: the code large and spaced, selectable, its expiry kept; `purpose: reset` on `/auth/email/request` words it as setting a new password | `phase199-app-emails` |
 | [x] | 199.4 An edited template (Sign-in code, Welcome) keeps its words for the subject and the plain-text part | `phase199-app-emails` |
+
+## Phase 200: The "how to pay" email in the receipt's look
+
+The owner (19 November), trying an order on Kech Flora with a bank transfer: two emails came, the receipt in its premium look and the "how to pay" email as plain text ("الاول بيزيك اوي مش عايزينه زي الصورة كدا"). The "how to pay" email now has the receipt's look (198, 199).
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 200.1 The customer's "how to pay" email (bank transfer or the business's own method, such as cash on delivery) in the app's look (`lib/email/order-awaiting-payment-email.ts`, `lib/catalog/manual-mail.ts`): the logo, the order with its lines and total, the amount by its day, and the business's details in a box of their own. In the customer's language ("Bank transfer" in its words; a method the business named keeps its name), light and dark. An edited template keeps its words for the subject and the text part. The owner's "waiting for payment" email is unchanged | `phase200-pay-email`, `manual-payments` (unit and e2e: same English subject, the details in the text) |
+

@@ -8,6 +8,10 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 200 (the "how to pay" email in the receipt's look): a customer who
+chose a bank transfer or cash on delivery gets the business's details in
+the app's premium look, in their language.
+
 Roadmap 199 (the app's emails to its users in the receipt's look): a
 welcome after signing up in an app with an email address, and the code
 email (signing in, a forgotten password), both in the app's logo, name and
