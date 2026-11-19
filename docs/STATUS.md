@@ -17,6 +17,10 @@ Roadmap 198 (the customer's receipt email in the business's look): after
 paying, the customer gets a premium email in the business's look (its
 logo, its colour, light and dark) in their language, the order as a card,
 and the receipt as the attached PDF, with no link.
+Roadmap 197 ("Added to cart" goes away by itself): the message with its
+View cart stayed on the screen until closed (Flutter keeps a message with
+an action); it now goes away like any other, on a card's Add to cart, a
+product's page and a class's See plans. App release 14.
 Roadmap 196 (a finished build is never left on "building"): the
 pipeline asks the platform again on a 500 (six tries, about two minutes),
 and a build that reported nothing for three hours (was six) is stalled,
