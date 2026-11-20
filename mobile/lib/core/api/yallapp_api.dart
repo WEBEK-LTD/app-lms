@@ -481,7 +481,11 @@ abstract class YallappApi {
   });
 
   /// 18 A code by email (`Config.auth.email_sign_in: code`).
-  Future<OtpRequestResult> requestEmailCode({required String email});
+  /// 200.3 [reset]: the code is for a forgotten password (`purpose: reset`), so its email is worded for setting a new one.
+  Future<OtpRequestResult> requestEmailCode({
+    required String email,
+    bool reset = false,
+  });
 
   /// 18 Email and password of an existing account (`email_sign_in: password`).
   /// 118 In a Studio app also the phone number (with [countryCode]) or the
@@ -1794,12 +1798,19 @@ class HttpYallappApi implements YallappApi {
   );
 
   @override
-  Future<OtpRequestResult> requestEmailCode({required String email}) => _send(
+  Future<OtpRequestResult> requestEmailCode({
+    required String email,
+    bool reset = false,
+  }) => _send(
     'POST',
     '/auth/email/request',
     _public,
     (data) => OtpRequestResult.fromJson(asJson(data)),
-    body: {'email': email, if (preview) 'preview': true},
+    body: {
+      'email': email,
+      if (preview) 'preview': true,
+      if (reset) 'purpose': 'reset',
+    },
     account: true,
   );
 
