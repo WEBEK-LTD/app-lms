@@ -17,6 +17,7 @@ import { parseStudioScreens, studioScreensOn, type StudioScreens } from "../stud
 import { isStudioProject } from "../studio/section";
 import { appKindId, templateFits } from "./kinds";
 import { versionDesign } from "./snapshot";
+import { houseFileFor, houseLookOf, readTemplateLook, withTemplateLook, type TemplateLook } from "./house";
 
 /**
  * 106.1 A template on a buyer's app. Applying it keeps the app's design as
@@ -99,8 +100,13 @@ function contentOf(layout: Layout | null): LayoutContent | null {
   return content;
 }
 
-/** The template's design made to fit the app, over the app's draft: its pages, tabs, bar and look. `keep` keeps the app's texts and pictures. */
-export function designedLayout(app: App, draft: LayoutContent, file: DesignFile, now: Date, keep = false): LayoutContent {
+/**
+ * The template's design made to fit the app, over the app's draft: its
+ * pages, tabs, bar and look. `keep` keeps the app's texts and pictures.
+ * 190 `look`: the rest of the appearance a version keeps next to its design
+ * (Yallapp's own demos': lib/studio-market/house.ts).
+ */
+export function designedLayout(app: App, draft: LayoutContent, file: DesignFile, now: Date, keep = false, look: TemplateLook | null = null): LayoutContent {
   const pictures = new Map<string, string>();
   for (const p of file.pages) {
     for (const url of picturesIn(p.studio)) if (/^https?:\/\//.test(url)) pictures.set(url, url);
@@ -117,7 +123,8 @@ export function designedLayout(app: App, draft: LayoutContent, file: DesignFile,
     now: now.toISOString(),
   });
   const open = draft.pages.find((p) => p.studio)?.slug ?? fitted[0]?.slug ?? "home";
-  return applyWholeDesign(draft, fitted, file.look, { mode: "project", openSlug: open, pageIndex: 0, keep, now: now.toISOString(), designSlugs: file.pages.map((p) => p.slug) });
+  const designed = applyWholeDesign(draft, fitted, file.look, { mode: "project", openSlug: open, pageIndex: 0, keep, now: now.toISOString(), designSlugs: file.pages.map((p) => p.slug) });
+  return look ? { ...designed, appearance: withTemplateLook(designed.appearance, look) } : designed;
 }
 
 /** The template's screens' looks for this app, when it has Studio's screens and they pass their checker. */
@@ -133,10 +140,17 @@ async function check(store: DataStore, app: App, layout: LayoutContent, now: Dat
   return parsed.ok ? null : parsed.errors;
 }
 
-async function loadVersion(deps: MarketDeps, versionId: string | null): Promise<{ version: MarketTemplateVersion; file: DesignFile } | null> {
+type LoadedVersion = { version: MarketTemplateVersion; file: DesignFile; look: TemplateLook | null };
+
+/** A version's design (190 Yallapp's own demos' for `app`: with its name where the demo writes the app's, and their look). */
+async function loadVersion(deps: MarketDeps, versionId: string | null, app: Pick<App, "appName">): Promise<LoadedVersion | null> {
   const version = versionId ? await deps.store.getMarketTemplateVersion(versionId) : null;
-  const file = version ? await versionDesign(deps.blobs, version) : null;
-  return version && file ? { version, file } : null;
+  if (!version) return null;
+  const house = houseFileFor(version, app.appName);
+  if (house) return { version, ...house };
+  const file = await versionDesign(deps.blobs, version);
+  if (!file) return null;
+  return { version, file, look: houseLookOf(version.templateId) ? await readTemplateLook(deps.blobs, version) : null };
 }
 
 /** Saves the app's design as it is now, to go back to; its file store key. */
@@ -229,7 +243,7 @@ export async function applyTemplate(deps: MarketDeps, input: ApplyInput): Promis
 
   // A licence whose plan ended stays on its version; the others get the newest.
   const versionId = licence && !getsUpdates(licence, now) ? licence.versionId : template.currentVersionId;
-  const loaded = await loadVersion(deps, versionId);
+  const loaded = await loadVersion(deps, versionId, app);
   if (!loaded) return fail(APPLY_MESSAGES.design);
   const done = await putOn(deps, app, loaded, input.by, input.plan);
   if (!done.ok) return done;
@@ -271,13 +285,13 @@ export async function applyTemplate(deps: MarketDeps, input: ApplyInput): Promis
 async function putOn(
   deps: MarketDeps,
   app: App,
-  loaded: { version: MarketTemplateVersion; file: DesignFile },
+  loaded: LoadedVersion,
   by: string,
   plan: PlanInfo | null,
 ): Promise<MarketResult<{ application: Omit<TemplateApplication, "licenceId" | "templateId">; live: boolean }>> {
   const { store, now } = deps;
   const record = await loadLayout(store, app, now);
-  const next = designedLayout(app, record.draft, await ownCopy(deps, app, loaded, by), now);
+  const next = designedLayout(app, record.draft, await ownCopy(deps, app, loaded, by), now, false, loaded.look);
   const problems = await check(store, app, next, now);
   if (problems) return fail(APPLY_MESSAGES.invalid, problems);
   const id = newId();
@@ -305,7 +319,7 @@ async function putOn(
  * the buyer's account (the design pointing to the copies), its fonts made
  * the app's own fonts (or, when one can't be, the app's font there).
  */
-async function ownCopy(deps: MarketDeps, app: App, loaded: { version: MarketTemplateVersion; file: DesignFile }, by: string): Promise<DesignFile> {
+async function ownCopy(deps: MarketDeps, app: App, loaded: LoadedVersion, by: string): Promise<DesignFile> {
   if (!deps.baseUrl) return loaded.file;
   let file = movePictures(loaded.file, await copyPictures({ ...deps, baseUrl: deps.baseUrl }, designPictures(loaded.file), app.clientId, "buyer"));
   const families = [file.look?.font, file.look?.arabic_font, ...file.pages.flatMap((p) => fontsIn(p.studio))].filter((f): f is string => Boolean(f) && ownFamily(f!));
@@ -425,12 +439,12 @@ export async function moveTemplate(deps: MarketDeps, input: OwnedInput & { licen
   const open = (await store.listTemplateApplications({ licenceId: licence.id, appId: from.id, open: true }))[0];
   if (!open) return fail(APPLY_MESSAGES.gone);
   // The version they have, checked on the new app before anything changes.
-  const loaded = await loadVersion(deps, getsUpdates(licence, now) ? (input.template.currentVersionId ?? licence.versionId) : licence.versionId);
+  const loaded = await loadVersion(deps, getsUpdates(licence, now) ? (input.template.currentVersionId ?? licence.versionId) : licence.versionId, to);
   if (!loaded) return fail(APPLY_MESSAGES.design);
   const target = await loadLayout(store, to, now);
   // Checked as it is, its own fonts aside (the copies are made, and the fonts added, when it goes on).
   const families = [loaded.file.look?.font, loaded.file.look?.arabic_font, ...loaded.file.pages.flatMap((p) => fontsIn(p.studio))].filter((f): f is string => Boolean(f) && ownFamily(f!));
-  const problems = await check(store, to, designedLayout(to, target.draft, withoutFonts(loaded.file, new Set(families)), now), now);
+  const problems = await check(store, to, designedLayout(to, target.draft, withoutFonts(loaded.file, new Set(families)), now, false, loaded.look), now);
   if (problems) return fail(APPLY_MESSAGES.invalid, problems);
   // The move rule, in the database.
   if (!(await store.moveTemplateLicence(licence.id, from.id, to.id, new Date(now.getTime() - MOVE_EVERY_DAYS * DAY), now))) return fail(APPLY_MESSAGES.tooSoon);
@@ -461,10 +475,10 @@ export async function updateToLatest(deps: MarketDeps, input: OwnedInput & { app
   if (!owned || owned.application.templateId !== input.template.id) return fail(APPLY_MESSAGES.gone);
   if (!getsUpdates(owned.licence, now)) return fail(APPLY_MESSAGES.noUpdates);
   if (!input.template.currentVersionId || input.template.currentVersionId === owned.application.versionId) return fail(APPLY_MESSAGES.upToDate);
-  const loaded = await loadVersion(deps, input.template.currentVersionId);
+  const loaded = await loadVersion(deps, input.template.currentVersionId, owned.app);
   if (!loaded) return fail(APPLY_MESSAGES.design);
   const record = await loadLayout(store, owned.app, now);
-  const next = designedLayout(owned.app, record.draft, await ownCopy(deps, owned.app, loaded, input.by), now, true);
+  const next = designedLayout(owned.app, record.draft, await ownCopy(deps, owned.app, loaded, input.by), now, true, loaded.look);
   const problems = await check(store, owned.app, next, now);
   if (problems) return fail(APPLY_MESSAGES.invalid, problems);
   const saved = await saveAndPublish(deps, owned.app, next, input.by, input.plan);

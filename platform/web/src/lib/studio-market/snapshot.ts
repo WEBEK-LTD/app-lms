@@ -4,7 +4,7 @@ import type { DataStore } from "../data/store";
 import type { App, MarketTemplate, MarketTemplateCover, MarketTemplateVersion } from "../data/types";
 import { freeFont } from "../fonts/catalog";
 import { loadLayout, ownFontNames } from "../pages/layout";
-import type { LayoutPage, StudioNode } from "../pages/types";
+import type { LayoutContent, LayoutPage, StudioNode } from "../pages/types";
 import { parseLayoutContent } from "../pages/validate";
 import { fontsIn, readDesignFile, withoutFonts, writeDesignFile, type DesignFile } from "../studio/design-file";
 import { copyPictures, copyProjectFonts, designPictures, fontsKey, movePictures, type PictureDeps } from "./assets";
@@ -45,8 +45,16 @@ export function orderedPages(pages: readonly LayoutPage[], order: readonly strin
  */
 export async function projectDesign(store: DataStore, app: App, name: string, order: readonly string[], now: Date, keepFonts: ReadonlySet<string> = new Set()): Promise<{ ok: true; file: DesignFile } | { ok: false; error: SnapshotError; errors?: string[] }> {
   const record = await loadLayout(store, app, now);
-  const own = await ownFontNames(store, app.id);
-  const checked = parseLayoutContent(record.draft, { app, now, ownFonts: own });
+  return layoutDesign(app, record.draft, name, order, now, await ownFontNames(store, app.id), keepFonts);
+}
+
+/**
+ * 190 A draft as a design file, as `projectDesign` takes a project's (the
+ * same checks, pages and look): also Yallapp's own demos, made in code
+ * (lib/studio-market/house.ts). `own`: the project's uploaded fonts' names.
+ */
+export function layoutDesign(app: App, content: LayoutContent, name: string, order: readonly string[], now: Date, own: readonly string[] = [], keepFonts: ReadonlySet<string> = new Set()): { ok: true; file: DesignFile } | { ok: false; error: SnapshotError; errors?: string[] } {
+  const checked = parseLayoutContent(content, { app, now, ownFonts: own });
   if (!checked.ok) return { ok: false, error: "invalid", errors: checked.errors };
   const draft = checked.value;
   const pages = orderedPages(draft.pages, order);
