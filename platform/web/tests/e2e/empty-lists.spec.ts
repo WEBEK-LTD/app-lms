@@ -90,12 +90,14 @@ test("the template's sample products removed, as a real shop does: the lists go 
   // The project starts with the demo's sample flowers (110.2); a real shop removes them for its own.
   await own.goto("/studio/project/catalog");
   const samples = own.locator("[data-samples]").getByRole("button", { name: "Remove all samples" });
+  // 195 Waited for: `count()` doesn't wait, and on a page still drawing it saw none, removed nothing and found the samples after.
+  await samples.waitFor({ timeout: 15_000 }).catch(() => undefined);
   if (await samples.count()) {
     await samples.click();
     await expect(own.getByRole("status").filter({ hasText: /Removed \d+ sample/ })).toBeVisible();
   }
-  const left = (await (await request.get(`${api}/store/products?platform=android`, { headers })).json()) as { items: unknown[] };
-  expect(left.items).toEqual([]);
+  const products = async () => ((await (await request.get(`${api}/store/products?platform=android`, { headers })).json()) as { items: unknown[] }).items;
+  await expect.poll(products, { timeout: 15_000 }).toEqual([]);
   const wishlist = all(await served(request, "wishlist"));
   expect(wishlist.filter((n) => n.type === "items").map((n) => n.recent ?? false)).toEqual([true]);
   expect(wishlist.some((n) => n.name === "Picked for you")).toBe(false);

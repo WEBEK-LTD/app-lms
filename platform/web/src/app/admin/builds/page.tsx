@@ -14,6 +14,18 @@ import { adminFileHref, artifactLinks, FILES_NOT_CONFIGURED } from "@/lib/files"
 
 export const metadata: Metadata = { title: "Build queue" };
 
+/** 195 Each id's record, `LOOKUPS_AT_ONCE` queries at a time. */
+const LOOKUPS_AT_ONCE = 10;
+async function lookUp<T>(ids: readonly string[], get: (id: string) => Promise<T>): Promise<Map<string, T>> {
+  const found = new Map<string, T>();
+  for (let i = 0; i < ids.length; i += LOOKUPS_AT_ONCE) {
+    const chunk = ids.slice(i, i + LOOKUPS_AT_ONCE);
+    const values = await Promise.all(chunk.map(get));
+    chunk.forEach((id, j) => found.set(id, values[j]!));
+  }
+  return found;
+}
+
 const TABS: { id: BuildStatus | "all"; label: string }[] = [
   { id: "queued", label: "Queued" },
   { id: "building", label: "Building" },
@@ -30,14 +42,16 @@ export default async function BuildQueuePage({ searchParams }: PageProps<"/admin
   // The queue reads oldest first, like the pipeline; finished builds newest first, so the latest are always on the page.
   const builds = await store.listBuilds({ status: status === "all" ? undefined : status, limit: 200, newestFirst: status !== "queued" && status !== "building" });
   const mayManage = await adminCan("builds.manage");
-  const rows = await Promise.all(
-    builds.map(async (build) => {
-      const client = await store.getClientById(build.clientId);
-      const user = client ? await store.getUserById(client.userId) : null;
-      const app = await store.getAppById(build.appId);
-      return { build, name: user?.name ?? "Unknown client", appName: appLabel(app) };
-    }),
-  );
+  // 195 Each client, its user and each app looked up once, a few at a time: up to 200 builds, three lookups each at
+  // once, held the database connection past its queue ("Queue limit reached") and failed the page.
+  const clients = await lookUp([...new Set(builds.map((b) => b.clientId))], (id) => store.getClientById(id));
+  const users = await lookUp([...new Set([...clients.values()].flatMap((c) => (c ? [c.userId] : [])))], (id) => store.getUserById(id));
+  const apps = await lookUp([...new Set(builds.map((b) => b.appId))], (id) => store.getAppById(id));
+  const rows = builds.map((build) => {
+    const client = clients.get(build.clientId) ?? null;
+    const user = client ? (users.get(client.userId) ?? null) : null;
+    return { build, name: user?.name ?? "Unknown client", appName: appLabel(apps.get(build.appId) ?? null) };
+  });
   const now = new Date();
 
   return (

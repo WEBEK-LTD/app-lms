@@ -28,14 +28,14 @@ describe("DATABASE_CA", () => {
 });
 
 describe("DATABASE_QUEUE_LIMIT", () => {
-  it("keeps 50 unless a whole number is given; 0 means no limit", () => {
+  it("keeps 1000 (195) unless a whole number is given; 0 means no limit", () => {
     expect(databaseQueueLimit(undefined)).toBe(DEFAULT_QUEUE_LIMIT);
-    expect(DEFAULT_QUEUE_LIMIT).toBe(50);
+    expect(DEFAULT_QUEUE_LIMIT).toBe(1000);
     expect(databaseQueueLimit("0")).toBe(0);
     expect(databaseQueueLimit(" 200 ")).toBe(200);
-    expect(databaseQueueLimit("")).toBe(50);
-    expect(databaseQueueLimit("-1")).toBe(50);
-    expect(databaseQueueLimit("2.5")).toBe(50);
-    expect(databaseQueueLimit("many")).toBe(50);
+    expect(databaseQueueLimit("")).toBe(DEFAULT_QUEUE_LIMIT);
+    expect(databaseQueueLimit("-1")).toBe(DEFAULT_QUEUE_LIMIT);
+    expect(databaseQueueLimit("2.5")).toBe(DEFAULT_QUEUE_LIMIT);
+    expect(databaseQueueLimit("many")).toBe(DEFAULT_QUEUE_LIMIT);
   });
 });

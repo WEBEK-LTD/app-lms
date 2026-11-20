@@ -97,6 +97,8 @@ class _ClassesScreenState extends ConsumerState<ClassesScreen> {
       ..showSnackBar(
         SnackBar(
           content: Text(message),
+          // 197 Goes away by itself like any message, with its shortcut.
+          persist: false,
           action: SnackBarAction(
             label: context.l10n.membershipSeePlans,
             onPressed: () => context.go(Paths.memberships),

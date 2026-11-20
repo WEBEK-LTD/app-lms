@@ -20,6 +20,7 @@ import '../data/store_providers.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/vertical_wording.dart';
+import '../widgets/quick_add.dart';
 
 /// The Store app's Home: sections from `GET /store/home` in the order set in
 /// the plugin, in the look of the app's template.
@@ -90,7 +91,13 @@ class _Sections extends ConsumerWidget {
             ),
           ),
         for (final s in known)
-          _section(context, s, template, twoPrices: customerPricesShown(ref)),
+          _section(
+            context,
+            s,
+            template,
+            twoPrices: customerPricesShown(ref),
+            quickAdd: quickAddShown(ref),
+          ),
       ],
     );
   }
@@ -100,6 +107,7 @@ class _Sections extends ConsumerWidget {
     StoreHomeSection s,
     AppTemplate template, {
     bool twoPrices = false,
+    bool quickAdd = false,
   }) {
     switch (s.type) {
       case StoreSectionType.banner:
@@ -179,7 +187,10 @@ class _Sections extends ConsumerWidget {
           }),
           child: SizedBox(
             height:
-                width + productCardTextHeight(context, twoPrices: twoPrices),
+                width +
+                productCardTextHeight(context, twoPrices: twoPrices) +
+                // 193 Add to cart under each card.
+                (quickAdd ? quickAddHeight(context) : 0),
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -193,6 +204,7 @@ class _Sections extends ConsumerWidget {
                     product: product,
                     width: width,
                     plain: plain,
+                    quickAdd: quickAdd,
                     onTap: () => context.push(Paths.product(product.id)),
                   ),
                 );

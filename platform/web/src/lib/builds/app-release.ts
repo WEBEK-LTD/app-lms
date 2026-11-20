@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 11;
+export const CLIENT_APP_RELEASE = 14;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -103,6 +103,17 @@ export const CLIENT_APP_RELEASE = 11;
  *    Pay on iPhone (with the owner's Apple Pay merchant ID); the app reads
  *    `/pay/<token>/status` before it opens the order. 170's browser sheet
  *    is dormant. The preview keeps Stripe's form in the page.
+ * 12 Held by the release 12 integration (wip-urgent-apps-3): the templates
+ *    walked through by hand (176–181, 115.21–115.23).
+ * 13 193 Add to cart under every product's card on Leqaa's looks (a store
+ *    on the gift checkout, Kech Flora's too): the shop's grid, the home's
+ *    rows, a product's "You may also like" and every Studio list of
+ *    products; one with nothing to choose goes straight in the cart ("Added
+ *    to cart", the way to it), one with sizes or options opens its page,
+ *    out of stock the button is off.
+ * 14 197 "Added to cart" goes away by itself, as any message: with its View
+ *    cart it stayed on the screen until the customer closed it (a product's
+ *    page, Add to cart under a card, and a class's "See plans").
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */
