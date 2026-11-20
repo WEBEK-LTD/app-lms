@@ -95,9 +95,16 @@ class FakeApi implements YallappApi {
   String? lastEmail;
   String? lastPassword;
 
+  /// 200.3 Whether the last email code was asked for a forgotten password.
+  bool? lastEmailReset;
+
   @override
-  Future<OtpRequestResult> requestEmailCode({required String email}) {
+  Future<OtpRequestResult> requestEmailCode({
+    required String email,
+    bool reset = false,
+  }) {
     lastEmail = email;
+    lastEmailReset = reset;
     return _answer(
       'requestEmailCode',
       () => OtpRequestResult.fromJson({

@@ -8,6 +8,9 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 200.3: the app asks for a forgotten password's email code as one,
+so its email is worded for a new password (in the next app release).
+
 Roadmap 190 (Yallapp's Studio demos in Studio Market, free): every look a
 new Studio project starts from on /start?for=studio, each Studio demo's
 Signature looks A and B (twenty), is a published, free template by

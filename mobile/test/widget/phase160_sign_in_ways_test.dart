@@ -108,6 +108,8 @@ void main() {
           await tester.tap(find.text('Send code'));
           await TestApp.settle(tester);
           expect(app.api.count('requestEmailCode'), 1);
+          // 200.3 A sign-in code's email is worded for signing in.
+          expect(app.api.lastEmailReset, isFalse);
         } else {
           await tester.enterText(find.byType(TextField), '5321234567');
           await tester.pump();
@@ -398,6 +400,8 @@ void main() {
       await TestApp.settle(tester);
       expect(app.api.count('requestEmailCode'), 1);
       expect(app.api.lastEmail, 'layla@example.com');
+      // 200.3 Asked for a forgotten password: its email says so.
+      expect(app.api.lastEmailReset, isTrue);
     });
 
     testWidgets('a username: its own channel', (tester) async {

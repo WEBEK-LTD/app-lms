@@ -101,9 +101,12 @@ class AuthController extends Notifier<AuthState> {
     required String phone,
   }) => _api.requestOtp(countryCode: countryCode, phone: phone);
 
-  /// 18 Sends a sign-in code by email.
-  Future<OtpRequestResult> requestEmailCode({required String email}) =>
-      _api.requestEmailCode(email: email);
+  /// 18 Sends a sign-in code by email; 200.3 [reset]: for a forgotten
+  /// password, so the email says so.
+  Future<OtpRequestResult> requestEmailCode({
+    required String email,
+    bool reset = false,
+  }) => _api.requestEmailCode(email: email, reset: reset);
 
   /// 18 Signs in with the email and password of an existing account; 118 in
   /// a Studio app also with the phone number or the username.
