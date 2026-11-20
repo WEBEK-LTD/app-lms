@@ -8,6 +8,13 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 191 (Studio Market lives in Studio): the market's pages are in
+Studio's own frame (/studio/market, a template, My templates, checkout), in
+Studio's menu (Browse templates, My templates) and on
+Studio's bar; the regular dashboard has none of it, its old addresses open
+the same page in Studio. The website's header has Studio Market on its bar on wide screens;
+the footer and Studio's list had it already.
+
 Roadmap 201 (the links the stores ask for): at the top of Publishing, the
 app's delete account page, privacy policy and support email, each with
 Copy.

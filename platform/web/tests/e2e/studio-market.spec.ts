@@ -47,7 +47,7 @@ async function page(browser: Browser): Promise<Page> {
   const p = await (await browser.newContext({ extraHTTPHeaders })).newPage();
   const browserNote = /was preloaded using link preload|WebGL|GL Driver Message/;
   // Studio Market's own pages (Studio's and the app preview's are other specs').
-  const ours = () => /\/(?:dashboard\/studio-market|designer|admin\/market)(?:[/?#]|$)/.test(new URL(p.url()).pathname + "/");
+  const ours = () => /\/(?:studio\/market|designer|admin\/market)(?:[/?#]|$)/.test(new URL(p.url()).pathname + "/");
   p.on("console", (m) => {
     if (ours() && (m.type() === "error" || m.type() === "warning") && !m.location().url.includes("/api/v1/fonts/") && !browserNote.test(m.text())) problems.push(`${m.type()} on ${p.url()}: ${m.text()}`);
   });
@@ -261,16 +261,19 @@ test("an owner applies it to one of their apps, moves it to the other and goes b
   const giftsBefore = await homeTexts(own, request, "Tulip Gifts");
   expect(flowersBefore).not.toEqual(designed);
 
-  // The market: in the dashboard's dark bar and its own menu.
-  await own.goto("/dashboard/studio-market");
-  await expect(own.getByRole("link", { name: "Studio Market" }).first()).toHaveAttribute("aria-current", "page");
+  // 191 The market is Studio's: its old dashboard address opens it in Studio, Studio's menu has it, and the regular apps' bar doesn't.
+  await own.goto(`/dashboard/studio-market?q=${suffix}`);
+  await expect(own).toHaveURL(new RegExp(`/studio/market\\?q=${suffix}$`));
+  await own.goto("/studio/market");
+  await expect(own.getByRole("link", { name: "Browse templates" }).first()).toHaveAttribute("aria-current", "page");
+  await expect(own.getByRole("link", { name: "My templates" }).first()).toHaveAttribute("href", "/studio/market/mine");
   await expect(own.getByRole("heading", { name: "Designs worth opening." })).toBeVisible();
   // Two heroes, one per theme: the search shown is the one to use.
   await own.getByRole("searchbox", { name: "Search templates" }).fill(suffix);
   await own.getByRole("searchbox", { name: "Search templates" }).press("Enter");
   await expect(own.getByRole("heading", { name: "1 template" })).toBeVisible();
   await own.getByRole("link", { name: title }).first().click();
-  await expect(own).toHaveURL(/\/dashboard\/studio-market\/t\//);
+  await expect(own).toHaveURL(/\/studio\/market\/t\//);
   await expect(own.getByRole("heading", { name: title, level: 1 })).toBeVisible();
   await expect(own.getByText("Never ends · every update")).toBeVisible();
   // The demo, every page in a large phone.
@@ -293,7 +296,7 @@ test("an owner applies it to one of their apps, moves it to the other and goes b
   expect(applied.length).toBeGreaterThan(designed.length / 2);
 
   // My templates: on Tulip Flowers; switch it to Tulip Gifts.
-  await own.goto("/dashboard/studio-market/mine");
+  await own.goto("/studio/market/mine");
   const row = own.locator("tr").filter({ hasText: title });
   await expect(row.getByText("Active")).toBeVisible();
   await expect(row.getByText("Tulip Flowers", { exact: true })).toBeVisible();
@@ -305,7 +308,7 @@ test("an owner applies it to one of their apps, moves it to the other and goes b
   expect(await homeTexts(own, request, "Tulip Flowers")).toEqual(flowersBefore);
   expect(await homeTexts(own, request, "Tulip Gifts")).toEqual(applied);
   // Not again for 30 days.
-  await own.goto("/dashboard/studio-market/mine#switch");
+  await own.goto("/studio/market/mine#switch");
   await expect(own.getByRole("button", { name: "Move it" })).toBeDisabled();
   await expect(own.getByText(/You can move it again on/)).toBeVisible();
 
@@ -314,25 +317,26 @@ test("an owner applies it to one of their apps, moves it to the other and goes b
   await own.locator("tr").filter({ hasText: title }).getByRole("button", { name: "Back to the previous design" }).click();
   await expect(own.getByText("Your app went back to the design it had before.")).toBeVisible();
   expect(await homeTexts(own, request, "Tulip Gifts")).toEqual(giftsBefore);
-  await own.goto("/dashboard/studio-market/mine");
+  await own.goto("/studio/market/mine");
   await expect(own.locator("tr").filter({ hasText: title }).getByText("Not applied")).toBeVisible();
   await expect(own.getByRole("button", { name: "Apply to an app" })).toBeVisible();
 });
 
 test("the designer can't get their own template, and the market's pages read in Arabic", async () => {
-  await dz.goto("/dashboard/studio-market");
+  await dz.goto("/studio/market");
   await dz.getByRole("link", { name: title }).first().click();
   await expect(dz.getByText("This is your template")).toBeVisible();
   await expect(dz.getByRole("button", { name: "Apply to my app" })).toHaveCount(0);
   // Arabic, right to left, with the market's Arabic name.
-  await own.goto("/dashboard/studio-market");
+  await own.goto("/studio/market");
   // A click before the page is ready does nothing, so it is tried again.
   await expect(async () => {
     await own.getByRole("button", { name: "العربية" }).first().click();
     await expect(own.locator("html")).toHaveAttribute("dir", "rtl", { timeout: 5_000 });
   }).toPass({ timeout: 30_000 });
   await expect(own.getByRole("heading", { name: "تصميمات تستاهل تتفتح." })).toBeVisible();
-  await expect(own.getByRole("link", { name: /ماركت Studio/ }).first()).toBeVisible();
+  // 191 Studio's menu has the market, in Arabic.
+  await expect(own.getByRole("link", { name: "تصفّح التمبلتات" }).first()).toHaveAttribute("href", "/studio/market");
   await own.getByRole("button", { name: "English" }).first().click();
   expect(problems).toEqual([]);
 });

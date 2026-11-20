@@ -26,7 +26,7 @@ import { versionDesign } from "@/lib/studio-market/snapshot";
 import { templateText } from "@/lib/studio-market/templates";
 import { sampleEntries } from "@/lib/studio/sample-entries";
 
-export async function generateMetadata({ params }: PageProps<"/dashboard/studio-market/t/[slug]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/studio/market/t/[slug]">): Promise<Metadata> {
   const template = await (await getStore()).getMarketTemplateBySlug((await params).slug);
   const { t, lang } = await dashboardText();
   return { title: template ? templateText(template, lang).title : t("studioMarket.nav") };
@@ -46,7 +46,7 @@ const LANGUAGE_NAMES: Record<string, Record<string, string>> = {
  * owner's Studio projects of a kind it fits, "Preview it on my app first",
  * and the demo.
  */
-export default async function TemplatePage({ params, searchParams }: PageProps<"/dashboard/studio-market/t/[slug]">) {
+export default async function TemplatePage({ params, searchParams }: PageProps<"/studio/market/t/[slug]">) {
   const context = await requireClient("settings");
   const { t, k, lang } = await dashboardText();
   const store = await getStore();
@@ -100,14 +100,14 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
 
   const crumbs = (
     <nav aria-label={t("studioMarket.nav")} className="flex min-w-0 items-center gap-2 text-sm">
-      <Link href="/dashboard/studio-market" className="inline-flex items-center gap-1.5 font-semibold text-[var(--mk-ink)] no-underline opacity-80 hover:text-[var(--mk-ink)] hover:opacity-100">
+      <Link href="/studio/market" className="inline-flex items-center gap-1.5 font-semibold text-[var(--mk-ink)] no-underline opacity-80 hover:text-[var(--mk-ink)] hover:opacity-100">
         <Icon name="arrow_back" size={18} />
         {t("studioMarket.nav")}
       </Link>
       {kinds[0] ? (
         <>
           <span className="hidden opacity-40 sm:inline">/</span>
-          <Link href={`/dashboard/studio-market?kind=${kinds[0].id}`} className="hidden text-[var(--mk-ink)] no-underline opacity-80 hover:text-[var(--mk-ink)] hover:opacity-100 sm:inline">
+          <Link href={`/studio/market?kind=${kinds[0].id}`} className="hidden text-[var(--mk-ink)] no-underline opacity-80 hover:text-[var(--mk-ink)] hover:opacity-100 sm:inline">
             {k(kinds[0].name)}
           </Link>
         </>
@@ -217,7 +217,7 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
             <b>{t("studioMarket.onApp", { app: appLabel(onApp) })}</b>
             <br />
             {t("studioMarket.onAppText")}{" "}
-            <Link href="/dashboard/studio-market/mine" className="font-semibold">
+            <Link href="/studio/market/mine" className="font-semibold">
               {t("studioMarket.navMine")}
             </Link>
           </Notice>
@@ -327,7 +327,7 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
             const title = templateText(x, lang).title;
             const cover = v ? coverView(v.cover, v.languages, lang, title) : null;
             return (
-              <Link key={x.id} href={`/dashboard/studio-market/t/${x.slug}`} className="flex items-center gap-2 rounded-full border border-[var(--mk-hair)] py-1.5 ps-1.5 pe-3 text-[var(--mk-ink)] no-underline hover:border-[var(--mk-ink)] hover:text-[var(--mk-ink)]">
+              <Link key={x.id} href={`/studio/market/t/${x.slug}`} className="flex items-center gap-2 rounded-full border border-[var(--mk-hair)] py-1.5 ps-1.5 pe-3 text-[var(--mk-ink)] no-underline hover:border-[var(--mk-ink)] hover:text-[var(--mk-ink)]">
                 <span className="block h-9 w-[26px] flex-none overflow-hidden rounded-md">{cover ? <PageThumb view={cover} width={26} height={36} /> : null}</span>
                 <b dir="auto" className="max-w-[160px] truncate text-[13px]">
                   {title}
@@ -335,7 +335,7 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
               </Link>
             );
           })}
-          <Link href={`/dashboard/studio-market?designer=${designer.slug}`} className="mk-link text-sm">
+          <Link href={`/studio/market?designer=${designer.slug}`} className="mk-link text-sm">
             {t("studioMarket.seeDesigner", { count: designerTemplates.length })}
             <Icon name="arrow_forward" size={16} />
           </Link>

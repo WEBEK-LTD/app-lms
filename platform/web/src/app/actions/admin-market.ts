@@ -56,7 +56,7 @@ export async function decideReviewAction(_: FormState, formData: FormData): Prom
     console.error("[studio-market] the review email wasn't sent:", error instanceof Error ? error.message : error);
   }
   revalidatePath("/admin/market");
-  revalidatePath("/dashboard/studio-market", "layout");
+  revalidatePath("/studio/market", "layout");
   redirect(`/admin/market?done=${decision === "approved" ? "approved" : "changes"}`);
 }
 

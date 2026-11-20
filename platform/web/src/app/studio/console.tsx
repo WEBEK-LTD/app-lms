@@ -74,7 +74,17 @@ export async function StudioConsole({ context, text, children, notice }: { conte
   const contact = await getVisitorContact();
   const can = (permission: Parameters<typeof contextCan>[1]) => contextCan(context, permission);
   const nav = project ? { app: project, text: { t, k }, can, supportUrl: contact.whatsappUrl } : null;
-  const groups: ProjectNavGroup[] = nav
+  // 191 Studio Market, Studio's own (never the regular apps' dashboard's): templates to browse and the account's (selling designs is the designer's area, from the market's page).
+  const market: ProjectNavGroup = {
+    id: "market",
+    label: t("studioMarket.nav"),
+    icon: "storefront",
+    items: [
+      ...(can("settings") ? [{ href: "/studio/market", label: t("studioMarket.navBrowse"), icon: "storefront" }] : []),
+      ...(can("billing") ? [{ href: "/studio/market/mine", label: t("studioMarket.navMine"), icon: "dashboard_customize" }] : []),
+    ],
+  };
+  const base: ProjectNavGroup[] = nav
     ? studioProjectNav(nav).map(({ id, label, icon, items }) => ({ id, label, icon, items: items.map(({ href, label, icon, external }) => ({ href, label, icon, external })) }))
     : [
         // The account's pages before a project: Studio's projects, then the account and the team.
@@ -86,6 +96,7 @@ export async function StudioConsole({ context, text, children, notice }: { conte
           items: [{ href: "/studio/account", label: t("account.nav"), icon: "account_circle" }, ...(can("team") ? [{ href: "/studio/team", label: t("team.nav"), icon: "groups" }] : [])],
         },
       ];
+  const groups: ProjectNavGroup[] = market.items.length ? [...base, market] : base;
   const more = nav ? studioJumpTargets(nav).map(({ href, label, icon }) => ({ href, label, icon })) : [];
   // 174 The shop's pages behind Products' tabs (lib dashboard/catalog/tabs.tsx), named in the crumbs.
   const subpages = [

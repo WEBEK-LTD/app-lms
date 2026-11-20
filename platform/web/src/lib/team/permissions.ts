@@ -173,20 +173,30 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   // 66 Your account: anyone sees it; only the owner can ask to delete the account (lib/account/deletion.ts).
   ["/dashboard/account", "dashboard"],
   ["/dashboard/businesses", "dashboard"],
-  // 106 Studio Market: browsing and a template's page for whoever sets up the apps; the account's templates (what it got,
-  // applying, moving and going back to a design) for the owner only, like its plans.
+  // 191 Studio Market's old addresses: they open its pages in Studio (STUDIO_PATHS below).
   ["/dashboard/studio-market", "settings"],
-  ["/dashboard/studio-market/mine", "billing"],
-  // 106.2 Paying for a template, or renewing one: the account's owner.
-  ["/dashboard/studio-market/checkout", "billing"],
   ["/dashboard", "dashboard"],
+];
+
+/**
+ * 191 Studio's own pages outside a project, with what each needs (the pages
+ * ask requireClient for the same). 106 Studio Market: browsing and a
+ * template's page for whoever sets up the apps; the account's templates
+ * (what it got, applying, moving and going back to a design) for the owner
+ * only, like its plans; 106.2 paying for a template, or renewing one: the
+ * account's owner.
+ */
+export const STUDIO_PATHS: readonly (readonly [string, TeamPermission])[] = [
+  ["/studio/market", "settings"],
+  ["/studio/market/mine", "billing"],
+  ["/studio/market/checkout", "billing"],
 ];
 
 /** What a dashboard address needs (the sidebar hides links the person can't open). */
 export function pathPermission(href: string): TeamPermission {
   const path = href.split(/[?#]/)[0] ?? href;
-  let best: (typeof DASHBOARD_PATHS)[number] | null = null;
-  for (const entry of DASHBOARD_PATHS) {
+  let best: readonly [string, TeamPermission] | null = null;
+  for (const entry of [...DASHBOARD_PATHS, ...STUDIO_PATHS]) {
     // The overview is only itself; every other entry covers its pages below.
     const covers = path === entry[0] || (entry[0] !== "/dashboard" && path.startsWith(`${entry[0]}/`));
     if (covers && (!best || entry[0].length > best[0].length)) best = entry;

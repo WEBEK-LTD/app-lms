@@ -137,7 +137,7 @@ export default async function DesignerLayout({ children }: { children: React.Rea
                 <Icon name="draw" size={18} />
                 {t("studio.title")}
               </Link>
-              <Link href="/dashboard/studio-market" className="flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] whitespace-nowrap text-night-text no-underline hover:bg-night-line hover:text-white">
+              <Link href="/studio/market" className="flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] whitespace-nowrap text-night-text no-underline hover:bg-night-line hover:text-white">
                 <Icon name="storefront" size={18} />
                 {t("studioMarket.nav")}
               </Link>

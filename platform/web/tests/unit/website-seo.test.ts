@@ -41,10 +41,11 @@ import nextConfig from "../../next.config";
 const BASE = "https://yallapp.test";
 
 describe("32 the website's menu", () => {
-  it("has Home, Product, Studio and Resources lists, then Pricing, Demo and Contact", () => {
-    // 103R Studio has its own list on the bar, with "New".
-    expect(SITE_NAV.map((e) => e.label)).toEqual(["Home", "Product", "Studio", "Pricing", "Demo", "Resources", "Contact"]);
-    expect(SITE_NAV.map((e) => e.kind)).toEqual(["link", "group", "group", "link", "link", "group", "link"]);
+  it("has Home, Product, Studio and Resources lists, then Studio Market, Pricing, Demo and Contact", () => {
+    // 103R Studio has its own list on the bar, with "New"; 191 Studio Market its own link after it.
+    expect(SITE_NAV.map((e) => e.label)).toEqual(["Home", "Product", "Studio", "Studio Market", "Pricing", "Demo", "Resources", "Contact"]);
+    expect(SITE_NAV.map((e) => e.kind)).toEqual(["link", "group", "group", "link", "link", "link", "group", "link"]);
+    expect(SITE_NAV.find((e) => e.id === "templates")).toMatchObject({ kind: "link", href: "/templates" });
     const hrefs = (id: string) => SITE_NAV.flatMap((e) => (e.kind === "group" && e.id === id ? e.items.map((i) => i.href) : []));
     expect(hrefs("product")).toEqual(["/solutions", "/features", "/integrations", "/how-it-works"]);
     // Studio's list: its page, the apps made in it (their story pages, under a heading) and its demo.
@@ -71,6 +72,8 @@ describe("32 the website's menu", () => {
     expect(activeEntry("studio")).toBe("studio");
     expect(activeEntry("story-rides")).toBe("studio");
     expect(activeEntry("studio-demo")).toBe("studio");
+    // 191 Studio Market's page marks its own link on the bar.
+    expect(activeEntry("templates")).toBe("templates");
     expect(activeEntry("features")).toBe("product");
     expect(activeEntry("how")).toBe("product");
     expect(activeEntry("developers")).toBe("resources");

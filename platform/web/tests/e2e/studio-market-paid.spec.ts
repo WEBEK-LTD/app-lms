@@ -46,7 +46,7 @@ async function mailsTo(email: string): Promise<SentMail[]> {
 async function page(browser: Browser): Promise<Page> {
   const p = await (await browser.newContext({ extraHTTPHeaders })).newPage();
   const browserNote = /was preloaded using link preload|WebGL|GL Driver Message/;
-  const ours = () => /\/(?:dashboard\/studio-market|designer|admin\/market)(?:[/?#]|$)/.test(new URL(p.url()).pathname + "/");
+  const ours = () => /\/(?:studio\/market|designer|admin\/market)(?:[/?#]|$)/.test(new URL(p.url()).pathname + "/");
   p.on("console", (m) => {
     if (ours() && (m.type() === "error" || m.type() === "warning") && !m.location().url.includes("/api/v1/fonts/") && !browserNote.test(m.text())) problems.push(`${m.type()} on ${p.url()}: ${m.text()}`);
   });
@@ -128,7 +128,7 @@ async function endIn(hours: number, row: string): Promise<void> {
 async function payOnKashier(p: Page, total: string): Promise<void> {
   await expect(p.getByText(`Total ${total}`)).toBeVisible();
   await p.getByRole("button", { name: "Pay with test card" }).click();
-  await expect(p).toHaveURL(/\/dashboard\/studio-market\/mine\?done=/);
+  await expect(p).toHaveURL(/\/studio\/market\/mine\?done=/);
 }
 
 test.beforeAll(async ({ browser }) => {
@@ -258,7 +258,7 @@ test("an owner buys the 3-month plan for one of their apps: paid in pounds on Ka
   flowersBefore = await homeTexts(own, request, "Zeynep Flowers");
   giftsBefore = await homeTexts(own, request, "Zeynep Gifts");
 
-  await own.goto(`/dashboard/studio-market?q=${suffix}`);
+  await own.goto(`/studio/market?q=${suffix}`);
   const card = own.locator(`[data-template-card]`).filter({ hasText: title });
   await expect(card).toContainText("From $8/mo");
   await card.getByRole("link", { name: title }).click();
@@ -267,7 +267,7 @@ test("an owner buys the 3-month plan for one of their apps: paid in pounds on Ka
   await own.getByRole("link", { name: "Apply to my app · $24" }).click();
 
   // Checkout: the plan, the app (the café greyed out with why), Kashier's charge in pounds.
-  await expect(own).toHaveURL(/\/studio-market\/checkout\/[\w-]+\?plan=3m$/);
+  await expect(own).toHaveURL(/\/studio\/market\/checkout\/[\w-]+\?plan=3m$/);
   await expect(own.getByRole("heading", { name: "Checkout.", level: 1 })).toBeVisible();
   const cafe = own.locator('label[data-app]').filter({ hasText: "Zeynep Café" });
   await expect(cafe).toContainText("Made for Store apps only.");
@@ -299,7 +299,7 @@ test("an owner buys the 3-month plan for one of their apps: paid in pounds on Ka
 });
 
 test("they renew it from its end date", async () => {
-  await own.goto("/dashboard/studio-market/mine");
+  await own.goto("/studio/market/mine");
   const row = own.locator("tr[data-licence]").filter({ hasText: title });
   await row.getByRole("link", { name: "Renew" }).click();
   await expect(own.getByRole("heading", { name: "Renew.", level: 1 })).toBeVisible();
@@ -322,7 +322,7 @@ test("the daily job reminds them 14 days before and on the last day, once each, 
   await request.post("/api/internal/daily", { headers: job });
   await expect.poll(async () => (await reminders()).length).toBe(1);
   expect((await reminders())[0]!.text).toContain("ends in 10 days");
-  expect((await reminders())[0]!.text).toContain("/dashboard/studio-market/checkout/");
+  expect((await reminders())[0]!.text).toContain("/studio/market/checkout/");
 
   await endIn(12, buyer.name);
   await request.post("/api/internal/daily", { headers: job });
@@ -335,7 +335,7 @@ test("the daily job reminds them 14 days before and on the last day, once each, 
   expect((await ran.json()).studioMarket).toMatchObject({ ended: 1 });
   await expect.poll(async () => (await mailsTo(buyer.email)).map((m) => m.subject)).toContain(`${title}: your plan ended`);
   expect((await mailsTo(buyer.email)).find((m) => m.subject.endsWith("your plan ended"))!.text).toContain("The design stays on Zeynep Flowers as it is now, without updates.");
-  await own.goto("/dashboard/studio-market/mine");
+  await own.goto("/studio/market/mine");
   const row = own.locator("tr[data-licence]").filter({ hasText: title });
   await expect(row).toContainText("Ended");
   await expect(row.getByRole("link", { name: "Buy again" })).toBeVisible();
@@ -349,9 +349,9 @@ test("with “back to the previous design”, the other app goes back to its own
   await dz.locator("#step-after").getByRole("button", { name: "Save and continue" }).click();
   await expect(dz.locator("#step-after").getByText("Saved.")).toBeVisible();
 
-  await own.goto(`/dashboard/studio-market?q=${suffix}`);
+  await own.goto(`/studio/market?q=${suffix}`);
   const slug = await own.locator("[data-template-card]").filter({ hasText: title }).getAttribute("data-template-card");
-  await own.goto(`/dashboard/studio-market/checkout/${slug}?plan=3m`);
+  await own.goto(`/studio/market/checkout/${slug}?plan=3m`);
   await own.locator('label[data-app]').filter({ hasText: "Zeynep Gifts" }).click();
   await expect(own.getByText(/Then Zeynep Gifts goes back to the design it had before\./)).toBeVisible();
   await own.getByRole("checkbox", { name: /I understand this is digital content/ }).check();

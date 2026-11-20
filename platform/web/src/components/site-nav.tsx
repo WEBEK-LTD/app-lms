@@ -219,7 +219,7 @@ function DesktopNav({ current, nav, labels }: NavProps) {
               setOpen={(open) => setOpenId(open ? entry.id : null)}
             />
           ) : (
-            <li key={entry.id} className={entry.wideOnly ? "hidden xl:block" : undefined}>
+            <li key={entry.id} className={entry.widestOnly ? "hidden 2xl:block" : entry.wideOnly ? "hidden xl:block" : undefined}>
               <Link
                 href={entry.href}
                 aria-current={entry.id === current ? "page" : undefined}
