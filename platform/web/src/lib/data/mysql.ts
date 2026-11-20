@@ -317,7 +317,7 @@ class ClassFullError extends Error {}
  * request for up to 30 seconds (each new connection costs its TCP, TLS and
  * sign-in round trips, often more than the request's queries), with TCP
  * keep-alive; a connection the server or a frozen function dropped is
- * opened again (`run`'s retry). Up to 50 queries wait for that connection
+ * opened again (`run`'s retry). Up to 1000 queries wait for that connection (195)
  * (DATABASE_QUEUE_LIMIT changes it; the e2e suites on MariaDB, one `next
  * start` for every request, lift it).
  */

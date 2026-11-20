@@ -237,6 +237,8 @@ List<Shot> get _galleryShots => [
         ('bouquet-2', '/page/bouquet', 760.0),
         ('product', '/product/101', 0.0),
         ('shop', '/page/shop', 0.0),
+        // 193 The shop's grid under the page's top.
+        ('shop-2', '/page/shop', 700.0),
         ('cart', '/page/cart', 0.0),
         ('orders', '/page/orders', 0.0),
         ('wishlist', '/page/wishlist', 0.0),

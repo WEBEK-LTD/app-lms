@@ -388,8 +388,16 @@ export interface DatabaseConfig {
   queueLimit?: number;
 }
 
-/** 50 queries waiting is plenty for one Netlify function; `next start` (the e2e suites) serves many requests on one pool. */
-export const DEFAULT_QUEUE_LIMIT = 50;
+/**
+ * How many queries may wait for a Netlify function's one connection. 195: 50
+ * was too few: a page that looks up each of its rows (the build queue's 200
+ * builds, three lookups each; the documentation's 73 articles) asked for
+ * more at once, and every query past them failed with "Queue limit reached",
+ * the session read included, failing the page. Waiting is cheap; a page
+ * past this many is a bug to fix where it reads. `next start` (the e2e
+ * suites) serves many requests on one pool.
+ */
+export const DEFAULT_QUEUE_LIMIT = 1000;
 
 /** DATABASE_QUEUE_LIMIT: a whole number, 0 for no limit; anything else keeps the default. */
 export function databaseQueueLimit(value: string | undefined): number {

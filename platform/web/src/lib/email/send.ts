@@ -9,6 +9,8 @@ import { appUrl, encryptionKey } from "../env";
 import { mailDelivered, sendMail } from "../mail";
 import { platformSetting } from "../settings/platform";
 import { appMailTarget, mailerWithFallback, recordOwnMailFailure, sendThroughServer, type MailAttachment, type MailMessage } from "./app-mail";
+import { appLogoUrl } from "../assets";
+import { dressMail } from "./premium-mail";
 import { emailTemplate, renderTemplate, type EmailTemplateKey, type RenderedEmail, type TemplateText, type TemplateValue } from "./templates";
 import { localizedDefault } from "./templates-lang";
 import { langOf, type Lang } from "@/i18n/config";
@@ -87,7 +89,9 @@ export async function appMailDelivered(store: DataStore, app: Pick<App, "id" | "
 }
 
 /** 24 An email to one of the app's users (see sendTemplate). */
-export async function sendAppMail(store: DataStore, app: App, message: MailMessage): Promise<void> {
+export async function sendAppMail(store: DataStore, app: App, input: MailMessage): Promise<void> {
+  // 200 Every email premium: a template's plain words in the app's logo and colour.
+  const message = dressMail(input, { name: app.appName?.trim() || "—", logoUrl: appLogoUrl(app), colour: app.primaryColor });
   const target = appMailTarget(app, encryptionKey());
   // Without the app's own server, Yallapp's sends (or, outside production, logs) it as before.
   const platform = !target || (await mailDelivered(store)) ? (m: MailMessage) => sendMail(m, { fromName: app.appName?.trim() || undefined }) : null;

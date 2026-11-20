@@ -4371,3 +4371,86 @@ The owner's report (18 November, urgent): a client's Android build failed after 
 | [x] | 192.2 `play-services-tapandpay` left out of every library's lint-check configurations (`mobile/android/build.gradle.kts`), so nothing asks the repositories for it (the apps don't issue cards to wallets) | CI "Build release APK (debug key)" |
 | [x] | 192.3 CI's Flutter job builds a release APK too (the debug key, never uploaded), as client builds do; and the iOS job a release build for a real iPhone (unsigned), so neither store's release build is first tried on a client's app | `mobile.yml` |
 | [ ] | 192.4 The failed client's build run again, and passing | — |
+
+## Phase 193: Add to cart under every product, on Leqaa's looks
+
+The owner's word (18 November, very urgent), on Kech Flora and Leqaa: "keep the old look, just add Add to cart" under every product, on every page. The cards stay exactly as they were; each product's card gets its own Add to cart under it, on a store whose checkout is the gift checkout (`Config.screens.checkout` `gift`: Leqaa's looks A and B and every app made from them, Kech Flora's too). Other shops keep their cards as they were.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 193.1 The button (`QuickAddButton`, mobile/lib/modules/store/widgets/quick_add.dart) in the app's main colour, the app's own words ("Add to cart", "أضف إلى السلة", "Sepete ekle"), Material Symbols Rounded `add_shopping_cart`, by day and by night, right to left in Arabic | `phase193_add_to_cart_test.dart`, screenshots |
+| [x] | 193.2 A product with nothing to choose goes straight in the cart (one, at the shop's price now; the cart's count on Send follows) with "Added to cart" and "View cart"; one with sizes, variations or options opens its page to choose them, so a wrong one never goes in; out of stock, or a shop that can't sell, the button is off ("Out of stock"); the cart, the quote and the checkout as they were | `phase193_add_to_cart_test.dart` |
+| [x] | 193.3 On every list of products: the shop's grid (the Bouquets tab, a category, the search, On sale), the home's rows, a product's "You may also like", and every Studio list of products (grids, rows and carousels: Loved most, Picked for you, the price list, Our bouquet) | `phase193_add_to_cart_test.dart`, `phase161_customer_currency_test.dart` |
+| [x] | 193.4 Studio's canvas draws it under each product's card on those looks, in the layout's language (`components/studio/quick-add.ts`) | `phase193-quick-add.test.ts` |
+| [x] | 193.5 `CLIENT_APP_RELEASE` 13 (12 is the release 12 integration's, #473), the preview rebuilt | `publish-for-all.test.ts`, CI "App preview is up to date" |
+| [x] | 193.7 The owner, on the first look: "why the big space between the name and the price?" The shop's grid went row by row (each row as tall as its fullest card, the cards of a row the same height); a card's name keeps its two lines with the price right under it, level across the row, Add to cart at the card's foot. Before, every cell was one fixed height made for the fullest card, the price pushed to its foot, leaving a band between the name and the price | `phase193_add_to_cart_test.dart`, screenshots |
+| [ ] | 193.6 A flash sale's own cards (`flash_sale`) keep their look without the button; on Kech Flora's phone, Add to cart on the Bouquets tab and the home | — |
+
+## Phase 195: No page fails with "Queue limit reached"
+
+The owner's log (19 November, 01:50, on `/admin/builds`): a page failed with `Failed query: select … from user_sessions …` and, under it, `Queue limit reached`. The documentation's menu (on every documentation page, `docsNavGroups`) and its search read each of the 73 articles' texts on its own, one query each in English and two in Arabic and Turkish, all at once. The site's one database connection per function (`createPool`, 50 queries waiting at most) had more waiting than it takes, so the page failed, and the session read beside it with it.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 195.1 `getSiteContents(keys, lang)` (`lib/content/get.ts`): several pages' texts as `getSiteContent` gives each (the team's edits, their translations, the defaults when the database can't be read), from one query for this render (`listSiteContent`) | `phase195-docs-one-query` |
+| [x] | 195.2 The documentation's menu (`components/docs-shell.tsx`) and its search (`site/docs.tsx`) read all their articles with it: one query, whatever the language | `phase195-docs-one-query` |
+| [x] | 195.3 The build queue (`/admin/builds`, up to 200 builds) looked up each build's client, its user and its app, three queries each, all at once (with client apps rebuilding for release 13, a full queue): now each client, user and app once, ten at a time | `tsc`; e2e `publishing`, `starter-flow` (CI) |
+| [x] | 195.4 Up to 1000 queries may wait for a function's connection (`DEFAULT_QUEUE_LIMIT`, was 50; `DATABASE_QUEUE_LIMIT` still sets it): other pages that look up each of their rows (Admin › Publishing, Coupons, a client's page) no longer fail when they have many | `database-ca` |
+
+## Phase 196: A finished build is never left on "building"
+
+The owner's report (19 November, urgent, a client waiting): Kech Flora's build #23 said "Building" for over half an hour. Its Android app had been built at 22:51 UTC, but the platform answered the pipeline's report with a 500 for about three minutes (the database busy, Phase 195), and the pipeline asked only once: the build was left on "building", and Try again came back only after six hours.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 196.1 The pipeline asks the platform again on a 500 too (`build/scripts/platform.py`, as on a 429, 502, 503 or 504), six tries over about two minutes | a local server answering 500 twice, then 204: the report goes through on the third |
+| [x] | 196.2 A building build that reported nothing for three hours is stalled (`BUILDING_STALL_MS`, was six; the Android and iPhone jobs take 2½ hours at most), so Try again comes back sooner; the documentation says three hours (en, ar, tr) | `builds-downloads` |
+
+## Phase 197: "Added to cart" goes away by itself
+
+The owner's report (19 November, Kech Flora): adding a product to the cart, "Added to cart" stayed on the screen until the customer closed it. Since Flutter 3.29 a message with an action (its View cart) stays until it is closed, unless it says otherwise.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 197.1 The message goes away by itself like any other (`persist: false`), its View cart kept: Add to cart under a card (`quick_add.dart`), a product's page, and a class's "See plans" (the event's "See tickets" did so already) | `phase193_add_to_cart`: gone after a few seconds, untouched; fails without the change |
+| [x] | 197.2 `CLIENT_APP_RELEASE` 14: every client's app is built again with it; the preview rebuilt | `flutter test` (2872), `build_preview.sh --check` |
+
+## Phase 198: The customer's receipt email in the business's look
+
+The owner's report (19 November, Kech Flora): the email a customer gets after paying was plain text with a link to the receipt. Wanted: a premium email that suits light and dark, with the business's logo, and no link, the attached PDF being the receipt.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 198.1 `lib/email/order-receipt-email.ts`: the receipt email as HTML in the business's look: its logo (else its icon, else its name in its colour) at the top, its main colour as the accent, the order's number and date, its lines and total as a card, "Your receipt is attached as a PDF"; tables and inline styles, at most 600 px wide | `phase198-receipt-email` |
+| [x] | 198.2 By day and by night: `color-scheme` and `supported-color-schemes` light dark, dark colours under `prefers-color-scheme: dark` and Outlook's `[data-ogsc]`, light colours that stay readable when a mail app turns them around by itself | `phase198-receipt-email`; rendered in Chromium light and dark |
+| [x] | 198.3 No link to the receipt (the Order receipt template's `{{receipt_url}}` gone, and its line left out of a template the team edited); the PDF still attached | `receipts-routes` |
+| [x] | 198.4 In the customer's language (the receipt's own, `customerLang`): English, Arabic right to left, Turkish; a template the team edited keeps its words for the subject and the plain-text part | `phase198-receipt-email` |
+
+## Phase 199: The app's emails to its users in the receipt's look
+
+The owner (19 November): whoever signs up in an app gets a premium welcome email; the email with the code (signing in, or setting a forgotten password again) premium too; the app's logo and name, never Yallapp's. The same look as the receipt (198), only the content differs.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 199.1 The receipt's look shared (`lib/email/app-email-shell.ts`: the app's logo or name, the card in its colour, light and dark, the footer in its name); the receipt, the welcome and the code use it | `phase198-receipt-email`, `phase199-app-emails` |
+| [x] | 199.2 A welcome after signing up with an email address (`POST /auth/register`, never on signing in), in the app's name and the customer's language, when the app's email can go out; never fails the sign-up; the "Welcome to the app" template (`app_welcome`) in the admin | `sign-in-methods`: one welcome on signing up, none on signing in again |
+| [x] | 199.3 The code email (hosted apps and WordPress sites with email codes) in the app's look and the customer's language: the code large and spaced, selectable, its expiry kept; `purpose: reset` on `/auth/email/request` words it as setting a new password | `phase199-app-emails` |
+| [x] | 199.4 An edited template (Sign-in code, Welcome) keeps its words for the subject and the plain-text part | `phase199-app-emails` |
+
+## Phase 200: The "how to pay" email in the receipt's look
+
+The owner (19 November), trying an order on Kech Flora with a bank transfer: two emails came, the receipt in its premium look and the "how to pay" email as plain text ("الاول بيزيك اوي مش عايزينه زي الصورة كدا"). The "how to pay" email now has the receipt's look (198, 199).
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 200.1 The customer's "how to pay" email (bank transfer or the business's own method, such as cash on delivery) in the app's look (`lib/email/order-awaiting-payment-email.ts`, `lib/catalog/manual-mail.ts`): the logo, the order with its lines and total, the amount by its day, and the business's details in a box of their own. In the customer's language ("Bank transfer" in its words; a method the business named keeps its name), light and dark. An edited template keeps its words for the subject and the text part. The owner's "waiting for payment" email is unchanged | `phase200-pay-email`, `manual-payments` (unit and e2e: same English subject, the details in the text) |
+| [x] | 200.2 The owner: every email premium ("اي ايميل يتبعت يبقا بريميوم"), with the same template. Every email that isn't designed on its own (shipped, refunded, a booking, the plan's reminders, a password reset, every admin template and every text-only email) is dressed in the receipt's look just before it goes (`lib/email/premium-mail.ts` `dressMail`, in `sendAppMail` and `sendMail`/`openMailer`): an app's email to its customers in the app's logo and colour, Yallapp's own in Yallapp's logo (the reversed one by night). The subject is the card's heading; the template's words, paragraphs and links stay as they are, links in the brand's colour, a link alone on its line a button. Light and dark, in the email's language (Arabic right to left). An email with its own design (receipt, how to pay, welcome, code, campaigns, moving an app) is left as it is. The admin's templates and their words are unchanged | `phase200-pay-email` (every email premium), the whole unit suite |
+
+## Phase 201: The links the stores ask for, easy to find
+
+The owner (19 November): the account deletion link Google Play and Apple ask for was hard to find ("ما تسهلها وتحطها في صفحه العميل"). It was only in Publishing's checks, after choosing who publishes.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 201.1 At the top of Publishing (dashboard and Studio), whoever publishes and before choosing: "Links the stores ask for", the app's own delete account page (`/a/<app>/delete-account`, with where Google Play asks for it), its privacy policy and its support email, each with Copy; one not set yet links to the setup step that adds it. In English, Arabic and Turkish | `tsc`, `eslint` |
+

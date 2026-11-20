@@ -1,3 +1,4 @@
+import { sendAppCodeEmail, sendAppWelcome } from "@/lib/email/app-user-mail";
 import { assetUrl } from "@/lib/assets";
 import { notifyDeps } from "@/lib/delivery/flow";
 import { tellStudentAnswered, tellTeacherQuestion } from "@/lib/teachers/notify";
@@ -167,13 +168,19 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         otpSenderFrom(await resolvedOtpSenderConfig(store, encryptionKey())),
         () => recordOwnWhatsappFailure({ store, now, baseUrl: appUrl(), mail: sendTemplate }, app.id),
       ),
-      sendEmailCode: async ({ to, code, appName, minutes }) => {
+      sendEmailCode: async ({ to, code, minutes, purpose }) => {
         // Without SMTP in production, sendMail drops the message: say the code couldn't be sent instead.
         // 24 The app's own email server counts too: the code goes out through it.
         if (!(await appMailDelivered(store, app))) {
           throw new Error("No email server is set up.");
         }
-        await sendTemplate("sign_in_code", to, { app_name: appName, code, minutes: String(minutes) }, { app });
+        // 199 In the app's look and the customer's language.
+        await sendAppCodeEmail(store, app, { to, code, minutes, purpose, wanted: url.searchParams.get("lang") ?? request.headers.get("accept-language") });
+      },
+      // 199 The welcome after signing up, when the app's email can go out.
+      sendWelcome: async ({ to, name }) => {
+        if (app.demo || !(await appMailDelivered(store, app))) return;
+        await sendAppWelcome(store, app, { to, name, wanted: url.searchParams.get("lang") ?? request.headers.get("accept-language") });
       },
       push: serviceAccountOf(app, encryptionKey()) !== null,
       // 136.21 Direct APNs: Yallapp mode with the client's APNs key.

@@ -15,6 +15,52 @@ Studio's bar; the regular dashboard has none of it, its old addresses open
 the same page in Studio. The website's header has Studio Market on its bar on wide screens;
 the footer and Studio's list had it already.
 
+Roadmap 201 (the links the stores ask for): at the top of Publishing, the
+app's delete account page, privacy policy and support email, each with
+Copy.
+
+Roadmap 200 (the "how to pay" email in the receipt's look): a customer who
+chose a bank transfer or cash on delivery gets the business's details in
+the app's premium look, in their language. Every other email (shipped,
+refunded, reminders, Yallapp's own) is sent in the same look too: the
+app's logo and colour to its customers, Yallapp's to clients.
+
+Roadmap 199 (the app's emails to its users in the receipt's look): a
+welcome after signing up in an app with an email address, and the code
+email (signing in, a forgotten password), both in the app's logo, name and
+colour, light and dark, in the customer's language.
+
+Roadmap 198 (the customer's receipt email in the business's look): after
+paying, the customer gets a premium email in the business's look (its
+logo, its colour, light and dark) in their language, the order as a card,
+and the receipt as the attached PDF, with no link.
+Roadmap 197 ("Added to cart" goes away by itself): the message with its
+View cart stayed on the screen until closed (Flutter keeps a message with
+an action); it now goes away like any other, on a card's Add to cart, a
+product's page and a class's See plans. App release 14.
+Roadmap 195 (no page fails with "Queue limit reached"): Admin › Builds
+looked up each of its up to 200 builds' client, user and app at once, and
+the documentation's menu and search each of its 73 articles, past the 50
+queries the site's one database connection let wait, failing the page
+and the session read with it. The build queue now looks each up once, ten
+at a time, the documentation reads its articles in one query, and up to
+1000 queries may wait.
+Roadmap 196 (a finished build is never left on "building"): the
+pipeline asks the platform again on a 500 (six tries, about two minutes),
+and a build that reported nothing for three hours (was six) is stalled,
+so Try again comes back sooner.
+
+Roadmap 193 (Add to cart under every product, on Leqaa's looks): on a
+store with the gift checkout (Leqaa's looks, Kech Flora), every product's
+card keeps its look and gets Add to cart under it, on the shop's grid, the
+home's rows, "You may also like" and every Studio list of products, and on
+Studio's canvas. A product with nothing to choose goes straight in the cart
+with "Added to cart"; one with sizes or options opens its page; out of
+stock, the button is off. The shop's grid goes row by row, so a card's
+price sits right under its name, level across the row, with no empty
+band between them. `CLIENT_APP_RELEASE` is 13 (12 is #473's); the
+preview rebuilt. No migration.
+
 Roadmap 183 (`brand`'s Start now opens the app's main screen): the
 template for every kind of project served its hero's "Start now" opening
 nothing. Each kind now has a main screen (`mainScreenOf`, lib/app/kinds.ts):

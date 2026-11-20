@@ -9,10 +9,10 @@ import { donationReference } from "../donations/service";
 import { formatCents } from "../catalog/money";
 import { newOrderMailValues } from "../catalog/payment";
 import type { MailAttachment } from "../email/app-mail";
-import { emailLangOf, sendTemplate } from "../email/send";
-import { appUrl, signingSecret } from "../env";
+import { emailLangOf, renderEmail, sendAppMail } from "../email/send";
+import { orderReceiptHtml, orderReceiptSubject, orderReceiptText, type OrderReceiptEmailInput } from "../email/order-receipt-email";
+import { appLogoUrl } from "../assets";
 import { formatDate } from "@/i18n/format";
-import { orderReceiptUrl } from "./links";
 import { publishedLayout } from "../pages/layout";
 import { pickLanguage } from "../pages/translate";
 import { planName } from "../plans";
@@ -120,9 +120,19 @@ export async function receiptAttachment(make: () => Promise<ReceiptPdf | null>):
   }
 }
 
+/** 198 A line of an edited receipt template with the receipt's link, left out: the PDF is the receipt. */
+function withoutReceiptLink(body: string): string {
+  return body
+    .split("\n")
+    .filter((line) => !line.includes("{{receipt_url}}"))
+    .join("\n");
+}
+
 /**
  * After an order is paid: the customer's "Order receipt" email in the
  * business's name, with the receipt's PDF. Never fails the payment.
+ * 198 A premium email in the business's look (its logo, its colour, light
+ * and dark), in the customer's language, the PDF the receipt: no link.
  */
 export async function sendOrderReceipt(store: DataStore, app: App, order: CatalogOrder): Promise<void> {
   const to = order.customer?.email;
@@ -132,16 +142,47 @@ export async function sendOrderReceipt(store: DataStore, app: App, order: Catalo
     // 96.4 In the language the customer checked out in, when the app has it.
     const lang = await customerLang(store, app, order.lang);
     const attachments = await receiptAttachment(() => orderReceiptPdf(store, app, order, lang));
-    const values = {
-      org_name: app.appName?.trim() || "—",
-      customer_name: order.customer!.name,
-      order_number: orderNumber(order),
+    const shopName = app.appName?.trim() || "—";
+    const paidAt = order.paidAt ?? order.createdAt;
+    // The order's lines, then (after a blank line) how a restaurant's order is collected.
+    const all = newOrderMailValues(order, app.appName ?? "", "", zone, lang).order_lines!.split("\n");
+    const blank = all.indexOf("");
+    const input: OrderReceiptEmailInput = {
+      lang,
+      shopName,
+      logoUrl: appLogoUrl(app),
+      brand: app.primaryColor,
+      customerName: order.customer!.name,
+      orderNumber: orderNumber(order),
+      date: formatDate(lang, paidAt, { day: "numeric", month: "long", year: "numeric", timeZone: zone }),
       total: formatCents(order.totalCents, order.currency),
-      order_lines: newOrderMailValues(order, app.appName ?? "", "", zone).order_lines!,
-      date: formatDate("en", order.paidAt ?? order.createdAt, { day: "numeric", month: "long", year: "numeric", timeZone: zone }),
-      receipt_url: orderReceiptUrl(appUrl(), app.id, order.id, signingSecret()),
+      lines: blank >= 0 ? all.slice(0, blank) : all,
+      note: blank >= 0 ? all.slice(blank + 1).join("\n").trim() || null : null,
     };
-    await sendTemplate("order_receipt", to, values, { app, attachments });
+    // A template the team edited in the admin keeps its words for the subject and the text part (its receipt link left out).
+    const saved = await store.getEmailTemplate("order_receipt");
+    const edited = saved
+      ? await renderEmail(
+          store,
+          "order_receipt",
+          {
+            org_name: shopName,
+            customer_name: input.customerName,
+            order_number: input.orderNumber,
+            total: input.total,
+            order_lines: newOrderMailValues(order, app.appName ?? "", "", zone).order_lines!,
+            date: formatDate("en", paidAt, { day: "numeric", month: "long", year: "numeric", timeZone: zone }),
+          },
+          { subject: saved.subject, body: withoutReceiptLink(saved.body) },
+        )
+      : null;
+    await sendAppMail(store, app, {
+      to,
+      subject: edited?.subject ?? orderReceiptSubject(lang, shopName, input.orderNumber),
+      text: edited?.text ?? orderReceiptText(input),
+      html: orderReceiptHtml(input),
+      ...(attachments.length ? { attachments } : {}),
+    });
   } catch (e) {
     // The order is paid either way; the app and the order page have it.
     console.error(`[mail] the order receipt email failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 400));

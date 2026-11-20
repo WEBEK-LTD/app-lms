@@ -74,7 +74,8 @@ describe("sign-in methods", () => {
 describe("email sign-in on the hosted API", () => {
   let store: MemoryStore;
   let app: App;
-  let mails: { to: string; code: string; appName: string; minutes: number }[];
+  let mails: { to: string; code: string; appName: string; minutes: number; purpose?: string }[];
+  let welcomes: { to: string; name: string }[];
   let now: Date;
   let failMail: boolean;
 
@@ -91,6 +92,7 @@ describe("email sign-in on the hosted API", () => {
     };
     await store.createApp(app);
     mails = [];
+    welcomes = [];
     now = NOW;
     failMail = false;
   });
@@ -106,6 +108,10 @@ describe("email sign-in on the hosted API", () => {
     sendEmailCode: async (input) => {
       if (failMail) throw new Error("SMTP down");
       mails.push(input);
+    },
+    // 199 The welcome after signing up.
+    sendWelcome: async (input) => {
+      welcomes.push(input);
     },
     push: false,
     assetUrl: (id) => `https://yallapp.test/api/v1/assets/${id}`,
@@ -147,11 +153,16 @@ describe("email sign-in on the hosted API", () => {
     const created = await call("POST", "/auth/register", { signup_token: token, name: "Sara", email: "other@example.com", city: "Izmir", device: DEVICE });
     expect(created.status).toBe(201);
     expect((created.body as { user: unknown }).user).toMatchObject({ name: "Sara", phone: null, email: "sara@example.com", city: "Izmir" });
+    // 199 One welcome, to the new account's address; the code was a sign-in code.
+    expect(welcomes).toEqual([{ to: "sara@example.com", name: "Sara" }]);
+    expect(mails.at(-1)!.purpose).toBe("sign_in");
 
     const again = await emailCode("sara@example.com");
     const signedIn = await call("POST", "/auth/otp/verify", { request_id: again.requestId, code: again.code, device: DEVICE });
     expect(signedIn.status).toBe(200);
     expect(signedIn.body).toMatchObject({ user: { email: "sara@example.com", phone: null } });
+    // 199 Signing in again sends no second welcome.
+    expect(welcomes).toHaveLength(1);
 
     // The address is how they sign in: it isn't changed from the app.
     const access = (signedIn.body as { access_token: string }).access_token;

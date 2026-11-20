@@ -9,5 +9,11 @@ export function assetUrl(assetId: string): string {
   return `${appUrl()}/api/v1/assets/${assetId}`;
 }
 
+/** 198, 199 An app's logo, else its icon, as a public address (its emails' header); null for none. */
+export function appLogoUrl(app: { logoAssetId: string | null; iconAssetId: string | null }): string | null {
+  const id = app.logoAssetId ?? app.iconAssetId;
+  return id ? assetUrl(id) : null;
+}
+
 export const ICON_MAX_BYTES = 5 * 1024 * 1024;
 export const LOGO_MAX_BYTES = 2 * 1024 * 1024;

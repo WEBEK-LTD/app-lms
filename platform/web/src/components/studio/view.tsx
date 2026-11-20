@@ -38,6 +38,7 @@ import { isPremiumContent, PREMIUM_WORDS_EN, PremiumElement, SurfaceExtras, surf
 // 130.20 The premium page headers.
 import { PremiumHeader, SystemScreen } from "./premium-chrome";
 import { GiftCheckout } from "./gift-checkout";
+import { quickAddLabel } from "./quick-add";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -125,6 +126,8 @@ interface ViewProps {
   premiumWords?: PremiumWords;
   /** 131 The flash sale's and the coupon's words (lib/studio/app-words.ts); missing, English. */
   commerceWords?: CommerceWords;
+  /** 193 The app draws Add to cart under each product's card (a store on the gift checkout, Leqaa's looks). */
+  quickAdd?: boolean;
 }
 
 /** 124.8 The app's screen under a page's elements in the canvas. */
@@ -1228,12 +1231,23 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
           ? { display: "flex", gap: n.gap ?? 10, overflow: "hidden" }
           : { display: "flex", flexDirection: "column", gap: n.gap ?? 10 };
     const shades = dark ? ["#3A3020", "#1E3A2E", "#2A2840", "#3A2434"] : ["#F2E3C9", "#D7EBE2", "#E6E3EF", "#EEDDE8"];
+    // 193 Add to cart under each product's card, as the app draws it on Leqaa's looks.
+    const quickAdd = Boolean(p.quickAdd) && n.source === "products";
+    const addButton = (
+      <span data-studio-quick-add="" style={{ marginTop: 8, height: 34, borderRadius: 12, background: look.brand, color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden" }}>
+        <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 16 }}>
+          add_shopping_cart
+        </span>
+        {quickAddLabel(lang)}
+      </span>
+    );
     const list = (
       <span style={wrap}>
         {shown.map((entry, i) =>
           n.card ? (
-            <span key={entry.id} style={layout === "carousel" ? { flex: "0 0 60%" } : undefined}>
+            <span key={entry.id} style={layout === "carousel" ? { flex: "0 0 60%" } : quickAdd ? { display: "flex", flexDirection: "column" } : undefined}>
               <CardOf {...p} node={n.card} entry={{ id: entry.id, title: entry.title, price: entry.price ?? "", subtitle: entry.subtitle ?? "", imageUrl: entry.imageUrl ?? null, badge: entry.badge ?? "", rating: entry.rating ?? null, sale: entry.sale ?? null }} />
+              {quickAdd ? addButton : null}
             </span>
           ) : (
             <span key={entry.id} data-studio-entry={entry.id} style={{ background: dark ? "#22203A" : "#FFFFFF", borderRadius: 14, padding: 8, boxShadow: "0 2px 6px rgba(20,54,31,0.08)", display: layout === "list" ? "flex" : "block", gap: 8, minWidth: 0, ...(layout === "carousel" ? { flex: "0 0 60%" } : {}) }}>
@@ -1264,6 +1278,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
                 ) : entry.price || entry.subtitle ? (
                   <span style={{ display: "block", fontSize: 11, opacity: 0.7, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.price || entry.subtitle}</span>
                 ) : null}
+                {quickAdd ? addButton : null}
               </span>
             </span>
           ),
