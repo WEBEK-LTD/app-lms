@@ -226,8 +226,8 @@ function dimensionCard(ctx: SectionContext): StudioNode {
           { id: id(), type: "text", bind: "sale", font: font(10.5, 800), color: K.onFill, background: K.fill, dark_color: K.darkOnFill, dark_background: K.darkFill, padding: sides(2, 6, 2, 6), place: { x: 4, y: 5 } },
         ],
       },
-      { id: id(), type: "text", bind: "subtitle", max_lines: 2, color: K.ink, dark_color: K.darkInk, font: font(14, 800, { line_height: 1.25 }), margin: sides(6, 0, 0, 0) },
-      { id: id(), type: "row", gap: 0, cross: "center", children: [tick(), { id: id(), type: "row", width: "fill", height: 1, background: K.ink, dark_background: K.darkInk, children: [] }, tick()] },
+      { id: id(), type: "text", bind: "subtitle", max_lines: 2, color: K.ink, dark_color: K.darkInk, font: font(12.5, 800, { line_height: 1.3 }), margin: sides(6, 0, 0, 0) },
+      { id: id(), type: "row", width: 150, gap: 0, cross: "center", children: [tick(), { id: id(), type: "row", width: 148, height: 1, background: K.ink, dark_background: K.darkInk, children: [] }, tick()] },
       { id: id(), type: "text", bind: "title", max_lines: 1, color: K.muted, dark_color: K.darkMuted, font: font(12.5), margin: sides(4, 0, 0, 0) },
       {
         id: id(),
