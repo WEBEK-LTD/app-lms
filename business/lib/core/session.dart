@@ -210,8 +210,9 @@ class SessionController extends Notifier<SessionState> {
   }
 
   Future<void> signOutEverywhere() async {
-    _stopPush();
+    // 207 Offline, it fails here and the phone stays signed in with its pushes.
     await ref.read(apiProvider).signOutAll();
+    _stopPush();
     await _forget();
   }
 
@@ -250,6 +251,8 @@ class SessionController extends Notifier<SessionState> {
     if (token != null) {
       try {
         await api.setPushToken(token);
+        // 207 And the phone's ringtones, so its pushes ring with them.
+        await ref.read(ringSettingsProvider.notifier).sendToServer();
       } on ApiException {
         // Tried again on the next start.
       }

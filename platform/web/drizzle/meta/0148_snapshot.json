@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "93d275fa-fdf7-49ad-a2b2-141b2728fd90",
-  "prevId": "878e547c-7a12-4c3e-8300-dc2b4bbef7cc",
+  "id": "7051a898-3b91-4fce-b524-85ab5804d620",
+  "prevId": "2f852f4d-9e5b-47bf-8faf-51c0afb691cf",
   "tables": {
     "account_deletion_requests": {
       "name": "account_deletion_requests",
@@ -16609,6 +16609,13 @@
         },
         "push_preferences": {
           "name": "push_preferences",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "push_sounds": {
+          "name": "push_sounds",
           "type": "longtext",
           "primaryKey": false,
           "notNull": false,

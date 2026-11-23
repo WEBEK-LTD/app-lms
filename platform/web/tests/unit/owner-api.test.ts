@@ -406,6 +406,21 @@ describe("58 the Owner API", () => {
       expect(done.body).toMatchObject({ status: "completed", kitchen: { step: "completed" }, next_statuses: [] });
     });
 
+    it("207 finds an order by its number or who ordered, Arabic digits too", async () => {
+      const { access_token: token } = await signIn();
+      const first = await paidOrder(store, shop);
+      const second = await paidOrder(store, shop);
+      await store.updateCatalogOrder(shop.id, second.id, { customer: { name: "Ali Kaya", phone: "+905321112233", email: "ali@example.com", city: "İstanbul", address: "Moda Cd. 5" } });
+      const search = (q: string) => call("GET", "/apps/{app_id}/orders", { token, params: { app_id: shop.id }, query: { q } });
+      const number = String(1000 + second.id);
+      expect((await search(`#${number}`)).body).toMatchObject({ total: 1, items: [{ id: second.id }] });
+      expect((await search("mona")).body).toMatchObject({ total: 1, items: [{ id: first.id }] });
+      expect((await search("ALI@example")).body).toMatchObject({ total: 1, items: [{ id: second.id }] });
+      // Phone digits, typed on an Arabic keyboard.
+      expect((await search("٢٢٣٣")).body).toMatchObject({ total: 1, items: [{ id: second.id }] });
+      expect((await search("nobody")).body).toMatchObject({ total: 0, items: [] });
+    });
+
     it("80.4 ships a shop's order with any carrier, and only orders with something to ship", async () => {
       const { access_token: token } = await signIn();
       const order = await paidOrder(store, shop);
@@ -637,6 +652,22 @@ describe("58 the Owner API", () => {
     const prefs = await call("PUT", "/me/push-preferences", { token: pixel.access_token, body: { new_review: false } });
     expect(prefs.body).toMatchObject({ new_order: true, new_review: false, yallapp_updates: true });
     expect((await call("GET", "/me/push-preferences", { token: pixel.access_token })).body).toEqual(prefs.body);
+  });
+
+  it("207 keeps each device's ringtones, as the contract says", async () => {
+    const { access_token: token, device_id } = await signIn();
+    const first = await call("GET", "/me/push-sounds", { token });
+    expect(first.body).toMatchObject({ saved: false, sounds: { orders: "counter_bell", messages: "pop", other: "default" }, ring: ["orders"], ring_minutes: 3 });
+    expect(await call("PUT", "/me/push-sounds", { token, body: { sounds: { orders: "trumpet" } } })).toMatchObject({ status: 400 });
+    expect(await call("PUT", "/me/push-sounds", { token, body: { ring: ["messages"] } })).toMatchObject({ status: 400 });
+    expect(await call("PUT", "/me/push-sounds", { token, body: { quiet: { from: "25:00", to: "07:00" } } })).toMatchObject({ status: 400 });
+    expect(await call("PUT", "/me/push-sounds", { token, body: { time_zone: "Mars/Olympus" } })).toMatchObject({ status: 400 });
+    const saved = await call("PUT", "/me/push-sounds", { token, body: { sounds: { orders: "rush_hour", messages: "silent" }, ring: ["orders", "bookings"], ring_minutes: 5, alarm_volume: true, quiet: { from: "23:00", to: "07:00" }, time_zone: "Europe/Istanbul" } });
+    expect(saved.body).toMatchObject({ saved: true, sounds: { orders: "rush_hour", messages: "silent", bookings: "doorbell" }, ring: ["orders", "bookings"], ring_minutes: 5, alarm_volume: true, vibrate: true, quiet: { from: "23:00", to: "07:00" } });
+    // Fields left out keep their choice.
+    expect((await call("PUT", "/me/push-sounds", { token, body: { vibrate: false } })).body).toMatchObject({ sounds: { orders: "rush_hour" }, vibrate: false, ring_minutes: 5 });
+    expect((await store.getOwnerDevice(device_id))!.pushSounds).toMatchObject({ sounds: { orders: "rush_hour" }, timeZone: "Europe/Istanbul" });
+    expect((await call("GET", "/me/push-sounds", { token })).body).toMatchObject({ saved: true, vibrate: false });
   });
 
   it("gives a preview link for an hour, builds read-only and the plan with where to manage it", async () => {

@@ -7,6 +7,8 @@ import { marketOrderReference } from "./json";
 import { priceOrder, type Tax } from "./money";
 import { commissionOfVendor } from "./cart";
 import { joinClub, returnToWallet } from "./offers";
+import { pushOrderCancelled } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
 
 /**
  * 115 How a marketplace order moves. The customer places it (cash, the
@@ -117,6 +119,10 @@ export async function cancelMarketOrder(deps: FlowDeps, order: MarketOrder, by: 
   const moved = await move(deps.store, order, { status: "cancelled" }, by, deps.now);
   if (!moved.ok) return moved;
   await giveBack(deps.store, moved.order, deps.now);
+  // 207 A customer's cancellation reaches the owner's phones (not one still waiting for its payment).
+  if (by === "customer" && order.status !== "awaiting_payment") {
+    await (deps.pushOwner ?? pushOwnerSafely)((d) => pushOrderCancelled(d, deps.app, { reference: marketOrderReference(order), place: order.vendorName, ids: { market_order_id: String(order.id) } }), deps.store).catch(() => undefined);
+  }
   if (order.shipmentId !== null) {
     const job = await deps.store.getShipment(deps.app.id, order.shipmentId);
     if (job && ["pending", "assigned", "failed"].includes(job.status)) await moveShipment(deps, job, "cancelled", "company", "The order was cancelled.").catch(() => undefined);
@@ -274,8 +280,8 @@ export async function payMarketOrder(store: DataStore, app: App, paid: CatalogOr
   return changed ? { ...order, status, paymentStatus: "paid", timeline, updatedAt: now } : null;
 }
 
-/** Orders for later reach their vendor when their preparation should start. */
-export async function releaseScheduled(store: DataStore, appId: string, now: Date): Promise<number> {
+/** Orders for later reach their vendor when their preparation should start (207 `released`: each one, for the owner's phones). */
+export async function releaseScheduled(store: DataStore, appId: string, now: Date, released_?: (order: MarketOrder) => Promise<void>): Promise<number> {
   const due = await store.listMarketOrders({ appId, statuses: ["scheduled"], order: "oldest", limit: 200, offset: 0 });
   let released = 0;
   for (const o of due.items) {
@@ -283,7 +289,10 @@ export async function releaseScheduled(store: DataStore, appId: string, now: Dat
     const start = o.scheduledFor.getTime() - (o.prepMinutes ?? 30) * 60_000 - 15 * 60_000;
     if (start > now.getTime()) continue;
     const moved = await move(store, o, { status: "placed" }, "system", now);
-    if (moved.ok) released++;
+    if (moved.ok) {
+      released++;
+      await released_?.(moved.order).catch(() => undefined);
+    }
   }
   return released;
 }

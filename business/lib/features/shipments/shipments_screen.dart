@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app.dart' show pushEventsProvider;
 import '../../core/api/models.dart';
 import '../../core/providers.dart';
 import '../../core/routing/paths.dart';
@@ -47,6 +48,13 @@ class _ShipmentsScreenState extends ConsumerState<ShipmentsScreen> {
     final l10n = context.l10n;
     final app = ref.watch(currentAppProvider);
     if (app == null) return const SizedBox.shrink();
+    // 207 A push about it while the list is open shows at once.
+    ref.listen(pushEventsProvider, (_, notice) {
+      final kind = notice?.data['kind'];
+      if ((kind == 'shipment_waiting') && mounted) {
+        setState(() => _version++);
+      }
+    });
     final api = ref.watch(apiProvider);
     final filter = filters[_filter];
     String n(String key) => context.number(_counts[key] ?? 0);
