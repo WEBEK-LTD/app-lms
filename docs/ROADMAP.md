@@ -4736,3 +4736,30 @@ The owner approved the design (23 November; `design-refs/business-pharaonic` on 
 | [x] | 215.4 Its ornaments, painted (no new package): the ground behind every route (lapis with grain, a calm band of sky, a whisper of stars in the header band only, gentle edges; papyrus with quiet inscription columns), the kheker frieze along every app bar, the cornice, the cartouche, gilt cards with corner pieces and a faience edge, the winged sun with uraei, the pylon, papyrus columns, the lotus border, motifs (ankh, djed, Eye of Horus) as decoration only. Actions stay Material Symbols | `pharaonic_screens_test.dart` (every screen lays out, en/ar/tr, light/dark) |
 | [x] | 215.5 Its screens: the welcome (cornice, columns, pylon, winged sun, wordmark), the lock and the opening; Today (cornice, the shop in a cartouche, sections under a gold rule with a centred motif); an order (its number in a cartouche); the ringtones (the chosen one on faience); the nav (gold-edged tab, gold hairline) and the metallic primary button; empty states (a gold medallion). Every other screen takes the theme's tokens | `phase215_pharaonic_test.dart`, `pharaonic_screens_test.dart` |
 | [x] | 215.6 The New order card (214, one card for both themes) in the Pharaonic skin, through its `NewOrderCardTheme`: the theme's colours, a gilt frame with corner pieces and a faience-tile edge, and a soft light sweeping across it every 4.5 seconds while the order waits; it goes with the card once the order is answered, and stays still when the phone asks for less motion. The default card is 1.0.6's, unchanged | `phase215_pharaonic_test.dart`, `pharaonic_theme_test.dart` (the card's colours at AA) |
+
+## Phase 217: the Studio stories' plans in the home page's night band
+
+The owner: the "The Studio plans" section on the Studio story pages looked bad; they wanted it exactly like the home page's Studio plans band (205).
+
+| | Item | Tests |
+|---|---|---|
+| [x] | 217.1 Every story page (`/yallapp-studio/<story>`, English, Arabic, Turkish) shows Studio's plans in `StudioPlansBand` (`site/studio-plans-band.tsx`): the night band, the compact cards, "Every Studio plan has", the currency note. The band takes an `id` (the home page keeps `#studio-plans`, the story keeps `#plans`, which its opening's "See the plans" links to), the page's own heading (the story keeps "The Studio plans" and "This bundle is a Yallapp Studio project…") and its own link (the story's "All plans and prices" to /pricing, in the band's underlined link). Yallapp Studio's own page (`/yallapp-studio`) shows the same band, with its "Studio's own plans" heading and "See all plans" to /pricing, in place of the older cards and "Chosen plan by plan". No price, plan or admin change. Before and after in `docs/design/story-plans/` | `pricing-studio`, e2e `public`, `pages`, `pricing-studio` |
+
+## Phase 218: Yallapp's own designer page, its photo from the admin
+
+The owner asked where to change the photo of Yallapp's own designer page (/designers/yallapp, and the market's cards of Yallapp's free templates, 190). That designer is on the demo account, which nobody signs in to, so its photo could only be uploaded from Designer area › Your page signed in as that account, and it showed initials. No migration, no app build.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 218.1 Yallapp's logo by default (`lib/studio-market/house-photo.ts`): Yallapp's own designer (`HOUSE_DESIGNER_ID`) shows the site's own logo (`/android-chrome-512x512.png`, lib/seo.ts `LOGO_PATH`) whenever no approved photo is uploaded: on the market's cards and designers' lists (`designerChip`), on /designers/yallapp (its photo, link previews and its JSON-LD `image`, `publicDesigner`) and in the admin. The photo check (`safePhotoUrl`) takes that one path besides the uploaded assets' addresses; another designer still shows initials until their photo is approved | `phase218-house-photo` |
+| [x] | 218.2 Admin › Studio Market › Designers › Yallapp's own page, on top: the photo the page shows now (the uploaded one, or the logo), upload or replace it (PNG or JPEG by its first bytes, up to 2 MB, a `designer_photo` asset in the demo account's folder, as the designer's upload), "Use the Yallapp logo" to remove the uploaded one (its file and asset gone), the line about it (one language, as the designer's form has it, 400 characters) and "See the page". Approved at once, never in the review queue. Permission `market.review` (owners, admins, support); viewers see it disabled. In the audit log (`market.house_page_saved`, what changed). Before the demo apps are made, the card says to make them first | `phase218-house-photo`, `studio-market-house-photo.spec.ts` |
+| [ ] | 218.3 For the owner: on production, upload the photo in Admin › Studio Market › Designers › Yallapp's own page; until then the Yallapp logo shows. If the demo account had a designer profile of its own before 190 (not the fixed `HOUSE_DESIGNER_ID`), the card still edits it but the logo default doesn't apply to it | — |
+
+## Phase 219: iPhone builds with Xcode 27
+
+Apple's upload notice ITMS-90725 (23 November, on Yallapp Business 1.0.5): apps built with the iOS 26.2 SDK are still taken, but from April 2027 App Store Connect takes only apps built with the iOS 27 SDK (Xcode 27 or later). The owner asked that the clients' apps the platform builds follow too.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 219.1 Every job that builds for iPhone runs on GitHub's `xcode-27` runner and picks the newest released Xcode on it, never older than 27 (a beta or release candidate never counts; with none, the job stops and lists the Xcodes it found): the clients' builds (`build-apps.yml`), Yallapp Business and Yallapp Courier releases, and CI's iOS compiles (`mobile.yml`) | CI's iOS compile jobs on this change |
+| [ ] | 219.2 The first signed builds on Xcode 27: the next Yallapp Business release, then a client's build, reach TestFlight without the ITMS-90725 notice | — |
