@@ -1125,7 +1125,7 @@ export function computersTabs(tabs: readonly LayoutTab[]): LayoutTab[] {
 const NAWAH_SCREENS = signatureScreens({
   style: "photo",
   photo: P("setup-purple"),
-  title: { en: "Your setup starts here", ar: "جهازك يبدأ من هنا", tr: "Kurulumun burada başlar" },
+  title: { en: "Your setup starts here", ar: "جهازك يبدأ معنا", tr: "Kurulumun burada başlar" },
   subtitle: { en: "Sign in to follow your orders, your builds and your warranty.", ar: "سجّل الدخول لتتابع طلباتك وتجميعاتك وضمانك.", tr: "Siparişlerinizi, toplamalarınızı ve garantinizi izlemek için giriş yapın." },
   menu: "night",
   accent: A.fill,
