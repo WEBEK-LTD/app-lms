@@ -25,6 +25,12 @@ import { templateFits, templateKinds } from "@/lib/studio-market/kinds";
 import { versionDesign } from "@/lib/studio-market/snapshot";
 import { templateText } from "@/lib/studio-market/templates";
 import { sampleEntries } from "@/lib/studio/sample-entries";
+import { RatingLine } from "@/components/studio-market/parts";
+import { safePhotoUrl } from "@/lib/studio-market/photo-url";
+import { RatingList } from "@/components/studio-market/ratings";
+import { designerPath, publicProfile, ratingAuthorName } from "@/lib/studio-market/designer-page";
+import { templateRatings } from "@/lib/studio-market/designer-public";
+import { RateForm } from "./rate-form";
 
 export async function generateMetadata({ params }: PageProps<"/studio/market/t/[slug]">): Promise<Metadata> {
   const template = await (await getStore()).getMarketTemplateBySlug((await params).slug);
@@ -79,6 +85,12 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
   const wasText = words.was;
   const designerTemplates = (await store.listMarketTemplates({ designerId: designer.id, statuses: ["published"] })).filter((x) => x.currentVersionId);
   const chip = designerChip(designer);
+  // 106.14 The buyers' ratings; an account that got it rates it here (once, changed in place).
+  const { ratings, stats } = await templateRatings(store, template, text.title);
+  const myRating = owner && !own && licences.length ? await store.getMarketRatingByBuyer(template.id, context.client.id) : null;
+  const me = context.member ?? context.user;
+  const profile = publicProfile(designer);
+  const designerHref = chip.page && designerTemplates.length ? designerPath(designer.slug) : `/studio/market?designer=${designer.slug}`;
 
   const pageTitle = (p: (typeof file.pages)[number]) => (p.translations?.[lang as "ar"]?.title as string | undefined) || p.title;
   const pages: DemoPage[] = file.pages.flatMap((p) => {
@@ -124,10 +136,13 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
       </h1>
       <div className="flex flex-wrap items-center gap-2.5 text-[15px]">
         <DesignerAvatar designer={chip} size="sm" />
-        <b dir="auto">{designer.name}</b>
+        <Link href={designerHref} dir="auto" data-designer-link={designer.slug} className="font-bold text-[var(--mk-ink)] hover:text-[var(--mk-ink)]">
+          {designer.name}
+        </Link>
         <span className="opacity-40">·</span>
         <span className="mk-muted">{t("studioMarket.usedBy", { count: used })}</span>
       </div>
+      <RatingLine rating={stats} size={18} className="text-[14px]" />
       {text.short ? (
         <p dir="auto" className="mk-lead m-0 max-w-[460px] md:text-[17px]">
           {text.short}
@@ -291,9 +306,14 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
   const designerCard = (
     <section aria-labelledby="h-designer" className="mk-panel grid overflow-hidden rounded-[28px] md:grid-cols-[240px_minmax(0,1fr)]">
       <div className="mk-mono h-[200px] rounded-none md:h-full md:min-h-[320px]">
-        <span className="flex h-[118px] w-[118px] items-center justify-center rounded-full text-[44px] font-extrabold tracking-[-0.04em] shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)]" style={{ background: chip.bg, color: chip.fg }} aria-hidden="true">
-          {chip.initials}
-        </span>
+        {safePhotoUrl(chip.photoUrl) ? (
+          // eslint-disable-next-line @next/next/no-img-element -- The designer's approved photo, served by the platform's own asset route.
+          <img src={safePhotoUrl(chip.photoUrl)!} alt="" className="h-[118px] w-[118px] rounded-full object-cover shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)]" />
+        ) : (
+          <span className="flex h-[118px] w-[118px] items-center justify-center rounded-full text-[44px] font-extrabold tracking-[-0.04em] shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)]" style={{ background: chip.bg, color: chip.fg }} aria-hidden="true">
+            {chip.initials}
+          </span>
+        )}
       </div>
       <div className="flex min-w-0 flex-col gap-4 px-5 py-6 md:px-8 md:py-[30px]">
         <span className="mk-eyebrow">{t("studioMarket.designerEyebrow")}</span>
@@ -303,9 +323,9 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
           </h2>
           <span className="mk-muted text-[13px]">{t("studioMarket.designerSince", { country: countryName(designer.country, lang), year: String(designer.createdAt.getUTCFullYear()) })}</span>
         </div>
-        {designer.bio ? (
+        {profile.bio ? (
           <p dir="auto" className="m-0 text-base leading-relaxed text-[var(--mk-ink2)]">
-            {designer.bio}
+            {profile.bio}
           </p>
         ) : null}
         <div className="flex flex-wrap gap-7">
@@ -335,12 +355,37 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
               </Link>
             );
           })}
-          <Link href={`/studio/market?designer=${designer.slug}`} className="mk-link text-sm">
+          <Link href={designerHref} className="mk-link text-sm">
             {t("studioMarket.seeDesigner", { count: designerTemplates.length })}
             <Icon name="arrow_forward" size={16} />
           </Link>
         </div>
       </div>
+    </section>
+  );
+
+  const ratingsSection = (
+    <section aria-labelledby="h-ratings" className="flex flex-col gap-5" data-template-ratings="">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <h2 id="h-ratings" className="mk-h2 text-[28px] md:text-[38px]">
+          {t("marketPage.ratings")}
+        </h2>
+        <RatingLine rating={stats} size={18} className="text-[14px]" />
+      </div>
+      {owner && !own && licences.length ? (
+        <RateForm
+          slug={template.slug}
+          mine={myRating ? { stars: myRating.stars, comment: myRating.comment ?? "", hidden: Boolean(myRating.hiddenAt), reply: myRating.reply } : null}
+          name={ratingAuthorName(me.name) || t("marketPage.someone")}
+          designerName={designer.name}
+        />
+      ) : null}
+      <RatingList
+        ratings={ratings}
+        words={{ someone: t("marketPage.someone"), replyFrom: (name) => t("marketPage.replyFrom", { name }), date: (date) => formatDate(date, lang), edited: t("marketPage.edited") }}
+        designerName={designer.name}
+        empty={t("marketPage.noTemplateRatings")}
+      />
     </section>
   );
 
@@ -367,6 +412,7 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
               {includedSection}
               {about}
               {designerCard}
+              {ratingsSection}
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerClient } from "@/lib/auth/accounts";
 import type { BlobStore } from "@/lib/blobs";
 import { MemoryStore } from "@/lib/data/memory";
-import type { MarketTemplate } from "@/lib/data/types";
+import { designerPageDefaults, type MarketTemplate } from "@/lib/data/types";
 import type { LayoutContent, LayoutPage, LayoutTab, StudioNode, StudioPage } from "@/lib/pages/types";
 import { demoKind, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
@@ -18,7 +18,7 @@ import { TEMPLATES } from "@/lib/studio/sections";
 import { parseStudioScreens } from "@/lib/studio/screens";
 import { applyTemplate, restorePrevious, updateToLatest, type MarketDeps } from "@/lib/studio-market/apply";
 import { buyerLicences, filterCards, marketCatalog, readMarketQuery, sellerTemplates } from "@/lib/studio-market/catalog";
-import { joinAsDesigner } from "@/lib/studio-market/designers";
+import { DESIGNER_MESSAGES, joinAsDesigner } from "@/lib/studio-market/designers";
 import { ensureHouseTemplates, HOUSE_DESIGNER, HOUSE_DESIGNER_ID, houseDesign, houseFileFor, houseKinds, houseLookOf, houseLooks, houseTemplateId, houseVersions, readTemplateLook } from "@/lib/studio-market/house";
 import { kindsForEngine, templateFits } from "@/lib/studio-market/kinds";
 import { publicTemplate, publicTemplateSlugs } from "@/lib/studio-market/public";
@@ -251,10 +251,11 @@ describe("190 seeded on read, by Yallapp, free", () => {
   });
 
   it("never touches a designer's templates, nor takes a designer's address", async () => {
-    // A designer with the address "yallapp" and a template at one of the looks' addresses.
+    // A designer with the address "yallapp" (106.14: kept for Yallapp now, so made before the list) and a template at one of the looks' addresses.
     const other = await account("Other");
-    const joined = await joinAsDesigner(store, { id: other }, { name: "Yall App Studio", slug: "yallapp", country: "TR", bio: "", terms: true }, NOW);
-    if (!joined.ok) throw new Error("join");
+    expect(await joinAsDesigner(store, { id: other }, { name: "Yall App Studio", slug: "yallapp", country: "TR", bio: "", terms: true }, NOW)).toMatchObject({ ok: false, errors: { slug: DESIGNER_MESSAGES.slugReserved } });
+    const madeBefore = await store.createTemplateDesigner({ id: "6c1d2e3f-0000-4000-8000-0000000000d1", clientId: other, name: "Yall App Studio", slug: "yallapp", country: "TR", bio: null, status: "active", termsAcceptedAt: NOW, createdAt: NOW, updatedAt: NOW, ...designerPageDefaults() });
+    const joined = { ok: true as const, designer: madeBefore! };
     const taken = houseVersions().find((v) => v.demo === "taxi" && v.look === "a")!.slug;
     const theirs: MarketTemplate = {
       id: "6c1d2e3f-0000-4000-8000-000000000002", designerId: joined.designer.id, clientId: other, sourceAppId: null, slug: taken, status: "published", texts: { en: { title: "Their taxi", short: "Theirs.", description: "Theirs." } },

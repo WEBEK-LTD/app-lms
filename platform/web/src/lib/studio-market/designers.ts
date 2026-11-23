@@ -1,7 +1,7 @@
 import { parseCountry } from "../account/country";
 import { newId } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
-import type { Client, TemplateDesigner } from "../data/types";
+import { designerPageDefaults, type Client, type TemplateDesigner } from "../data/types";
 
 /**
  * 106.1 Becoming a designer on Studio Market: a name, a public address
@@ -18,12 +18,30 @@ export const DESIGNER_MESSAGES = {
   name: "Enter the name buyers will see, up to 60 characters.",
   slug: "Use 3 to 40 small letters, numbers or dashes for your address.",
   slugTaken: "Another designer has this address. Choose another one.",
+  slugReserved: "This address is kept for Yallapp. Choose another one.",
   country: "Choose your country from the list.",
   bio: "Keep the line about you to 400 characters.",
   terms: "Tick the box to agree to the designer terms.",
   saved: "Saved.",
   already: "This account is a designer already.",
 } as const;
+
+/**
+ * 106.14 Addresses a designer can't take: the website's and the dashboard's
+ * own words, and names that would pass for Yallapp's team. A designer who
+ * has one already (made before this list) keeps it.
+ */
+export const RESERVED_DESIGNER_SLUGS: ReadonlySet<string> = new Set([
+  "about", "account", "accounts", "admin", "administrator", "api", "app", "apps", "billing", "blog", "contact", "dashboard", "demo", "designer", "designers", "docs",
+  "faq", "features", "help", "home", "join", "login", "logout", "market", "marketplace", "me", "moderator", "new", "null", "official", "owner", "pay", "payments",
+  "pricing", "privacy", "profile", "publish", "refund", "root", "security", "settings", "shop", "sign-in", "sign-out", "sign-up", "signin", "signup", "staff", "store",
+  "studio", "studio-market", "support", "system", "team", "templates", "terms", "undefined", "webek", "www", "yallapp", "yallapp-studio", "yallapp-team", "yallapp-support",
+]);
+
+/** 106.14 An address kept for Yallapp: the list, or one that starts with "yallapp" (Yallapp's own designs keep theirs). */
+export function isReservedDesignerSlug(slug: string): boolean {
+  return RESERVED_DESIGNER_SLUGS.has(slug) || slug.startsWith("yallapp");
+}
 
 /** "Studio Nūr" → "studio-nur". */
 export function designerSlug(name: string): string {
@@ -47,13 +65,14 @@ export interface DesignerInput {
 
 export type DesignerProfile = Pick<TemplateDesigner, "name" | "slug" | "country" | "bio">;
 
-/** The profile as sent, checked; an error per field otherwise (English, studioMarket.known). */
-export function readDesignerProfile(input: DesignerInput): { ok: true; value: DesignerProfile } | { ok: false; errors: Record<string, string> } {
+/** The profile as sent, checked; an error per field otherwise (English, studioMarket.known). `currentSlug`: the address they have (kept even if it is reserved now). */
+export function readDesignerProfile(input: DesignerInput, currentSlug: string | null = null): { ok: true; value: DesignerProfile } | { ok: false; errors: Record<string, string> } {
   const errors: Record<string, string> = {};
   const name = input.name.replace(/\s+/g, " ").trim();
   if (!name || name.length > DESIGNER_LIMITS.name) errors.name = DESIGNER_MESSAGES.name;
   const slug = (input.slug.trim() || designerSlug(name)).toLowerCase();
   if (slug.length < DESIGNER_LIMITS.slugMin || slug.length > DESIGNER_LIMITS.slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) errors.slug = DESIGNER_MESSAGES.slug;
+  else if (slug !== currentSlug && isReservedDesignerSlug(slug)) errors.slug = DESIGNER_MESSAGES.slugReserved;
   const country = parseCountry(input.country);
   if (!country) errors.country = DESIGNER_MESSAGES.country;
   const bio = input.bio.replace(/\s+/g, " ").trim();
@@ -71,7 +90,7 @@ export async function joinAsDesigner(store: DataStore, client: Pick<Client, "id"
   if (!input.terms) errors.terms = DESIGNER_MESSAGES.terms;
   if (!read.ok || Object.keys(errors).length) return { ok: false, errors };
   if (await store.getTemplateDesignerByClient(client.id)) return { ok: false, errors: { form: DESIGNER_MESSAGES.already } };
-  const designer: TemplateDesigner = { id: newId(), clientId: client.id, ...read.value, status: "active", termsAcceptedAt: now, createdAt: now, updatedAt: now };
+  const designer: TemplateDesigner = { id: newId(), clientId: client.id, ...read.value, status: "active", termsAcceptedAt: now, createdAt: now, updatedAt: now, ...designerPageDefaults(), profileReview: read.value.bio ? "pending" : "none" };
   const created = await store.createTemplateDesigner(designer);
   if (!created) return { ok: false, errors: { slug: DESIGNER_MESSAGES.slugTaken } };
   return { ok: true, designer: created };
@@ -79,10 +98,27 @@ export async function joinAsDesigner(store: DataStore, client: Pick<Client, "id"
 
 /** A designer's own profile changed (their name, address, country or line). */
 export async function updateDesignerProfile(store: DataStore, designer: TemplateDesigner, input: DesignerInput, now: Date): Promise<{ ok: true } | { ok: false; errors: Record<string, string> }> {
-  const read = readDesignerProfile(input);
+  const read = readDesignerProfile(input, designer.slug);
   if (!read.ok) return read;
-  if (!(await store.updateTemplateDesigner(designer.id, read.value, now))) return { ok: false, errors: { slug: DESIGNER_MESSAGES.slugTaken } };
+  // 106.14 A new line about them waits for the team's first look (once approved, a change goes live).
+  const profileReview = nextProfileReview(designer, { bio: read.value.bio, photoAssetId: designer.photoAssetId, changed: read.value.bio !== designer.bio });
+  if (!(await store.updateTemplateDesigner(designer.id, { ...read.value, profileReview }, now))) return { ok: false, errors: { slug: DESIGNER_MESSAGES.slugTaken } };
   return { ok: true };
+}
+
+/**
+ * 106.14 The team looks at a designer's photo and line about them the first
+ * time (like a template's first publish): a new one is "pending" until
+ * approved, and neither shows on the public pages meanwhile. Once approved,
+ * changes go live (the team can still lock the page). Declined, the next
+ * change is looked at again. With neither, there is nothing to look at.
+ */
+export function nextProfileReview(designer: Pick<TemplateDesigner, "profileReview">, next: { bio: string | null; photoAssetId: string | null; changed: boolean }): TemplateDesigner["profileReview"] {
+  const something = Boolean(next.bio || next.photoAssetId);
+  if (designer.profileReview === "approved") return "approved";
+  if (!something) return "none";
+  if (designer.profileReview === "declined" && !next.changed) return "declined";
+  return "pending";
 }
 
 /** Two letters for a designer's round picture: "Studio Nūr" → "SN". */

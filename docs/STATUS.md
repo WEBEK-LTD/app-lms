@@ -8,6 +8,21 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 106.14 (a designer's public page on Studio Market, the owner's
+decision of 23 November): `/designers/<handle>` in English, Arabic and
+Turkish shows the designer's photo, name and line (after the team's first
+look), their country and links if they choose, their published templates
+with prices and ratings, the overall rating, ratings and buyers, and each
+buyer's rating with the designer's one reply. Designers set it up in
+Designer area › Your page (reserved addresses refused) and answer in
+Ratings; an account that got a template rates it once from its page in
+Studio and can change it; the team approves photos and lines, hides a
+rating or locks a page in Admin › Studio Market › Designers. The market's
+cards show the rating and link the designer's name to the page. Migration
+0147. The privacy policy and the designer terms now say the page, ratings
+and replies are public: after deploy, act on any "Default updated" badge
+in Admin › Website content (Phase 172).
+
 Roadmap 213 (Yallapp Business 1.0.5, the money sounds; in the code, not
 released: the release waits for the owner): seven more order sounds beside
 the 17 of 1.0.4, made from code the same way: Cha-ching, Coins dropping, Till
