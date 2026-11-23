@@ -95,7 +95,7 @@ export const DECOR_CD_WORDS = typeWords({
     atNew: "مقتنيات جديدة",
     atVisitKicker: "زيارة",
     atVisit: "صالة العرض",
-    atVisitText: "زر صالة العرض أو اطلب من هنا: كل قطعة تُغلَّف باليد وتصل إلى بابك.",
+    atVisitText: "تفضّل بزيارة صالة العرض أو اطلب من التطبيق: كل قطعة تُغلَّف باليد وتصل إلى بابك.",
     atShopKicker: "المجموعة كاملة",
     atShopTitle: "كل القطع",
     atCartNote: "تُغلَّف كعمل فني",

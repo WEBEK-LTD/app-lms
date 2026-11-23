@@ -129,11 +129,11 @@ describe("130.21 the system screens' look", () => {
 });
 
 describe("130.23 the defaults", () => {
-  it("gives every Studio demo's new project premium system screens and its pages a premium header: its look A's (130)", () => {
+  it("gives every Studio demo's new project premium system screens and its pages a premium header: its main look's (130; 223 C where it has one, else A)", () => {
     for (const demo of STUDIO_DEMO_TYPES) {
       const screens = demoStudioScreens(demo, "https://yallapp.test");
       const chrome = demoChrome(demo)!;
-      expect(chrome.pages, demo).toBe(signatureDesign(demo, "a")!.chrome.header);
+      expect(chrome.pages, demo).toBe(signatureDesign(demo)!.chrome.header);
       expect(screens.system?.look, demo).toBe(chrome.system.look);
       expect(parseStudioScreens(screens).problems, demo).toEqual([]);
       expect(chromedHeader({ type: "title" }, chrome.pages)?.style).toBe(chrome.pages);
