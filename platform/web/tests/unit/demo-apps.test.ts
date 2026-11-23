@@ -100,9 +100,9 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
     // 110.5 The live taxi app is the rides engine with the taxi vertical, the academy with many teachers the courses engine with the instructors vertical.
     expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null, null, "charity", null, null, "marketplace", null, "taxi", null, "instructors", null, null, null, null, null, null]);
     // 123 The premium academy: an academy that keeps the template it started from.
-    expect(apps.at(-4)?.design).toBe("academy_premium");
+    expect(apps.at(-5)?.design).toBe("academy_premium");
     // 131.20 Leqaa, the flower shop: a shop that keeps its Signature look A.
-    expect(apps.at(-3)?.design).toBe("flowers_signature_a");
+    expect(apps.at(-4)?.design).toBe("flowers_signature_a");
     // 208 Lujain, the clothes shop: a shop that keeps its look A (LUJAIN).
     expect(apps.at(-3)?.design).toBe("clothes_signature_a");
     // 209 Velours, the cosmetics shop: its look A (VELOURS).
