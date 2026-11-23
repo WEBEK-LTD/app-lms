@@ -176,6 +176,13 @@ export const APP_SCREENS = [
   "beauty-sig-b-home",
   "beauty-sig-a-home-dark",
   "beauty-sig-b-home-dark",
+  // 209 Kids' clothes: Toota, its guide's screens (look A) and its looks' homes.
+  "toota-home",
+  "toota-menu",
+  "toota-product",
+  "kids-sig-b-home",
+  "kids-sig-a-home-dark",
+  "kids-sig-b-home-dark",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -325,6 +332,13 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "beauty-sig-b-home": "Velours in its second look, NAQA LAB's clinic: the hero, shopping by skin and need, the skin quiz, the active ingredients and the routine",
   "beauty-sig-a-home-dark": "Velours in its first look, plum and gold, by night: the search, the categories, the week's edits, the flash deals and the shade finder",
   "beauty-sig-b-home-dark": "Velours in its second look, NAQA LAB's clinic, by night: the hero, shopping by skin and need, the skin quiz and the active ingredients",
+  // 209 Kids' clothes
+  "toota-home": "Toota, a kids' clothes shop, in its first look's soft pastels: the search, the categories, the season's collection, shopping by age and what's new",
+  "toota-menu": "Toota's category menu: baby and newborn, girls, boys, shoes and gifts, each a row of cards that slides with its sub-categories",
+  "toota-product": "A child's sweater in Toota: its photos, its sizes by age with the size guide, what it is made of and how to wash it",
+  "kids-sig-b-home": "Toota in its second look, MINIMO's bright navy: the autumn hero, shopping by age, new this week and the look of the week",
+  "kids-sig-a-home-dark": "Toota in its first look by night: the search, the categories, the season's collection, shopping by age and what's new",
+  "kids-sig-b-home-dark": "Toota in its second look, MINIMO, by night: the autumn hero, shopping by age, new this week and the look of the week",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",

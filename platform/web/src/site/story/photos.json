@@ -599,5 +599,85 @@
         "title": "Burning Candle"
       }
     }
+  ],
+  "kids": [
+    {
+      "slot": "kids-hero",
+      "src": "/stories/kids/kids-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Ariel Lustre",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/people-girls-LI39BZMA3U",
+        "title": "People Girls"
+      }
+    },
+    {
+      "slot": "kids-newborn",
+      "src": "/stories/kids/kids-newborn.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Candace McDaniel",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/baby-newborn-ILUIZBPPTT",
+        "title": "Baby Newborn"
+      }
+    },
+    {
+      "slot": "kids-gift",
+      "src": "/stories/kids/kids-gift.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Altered Reality",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/gift-box-PIHUS3UFDJ",
+        "title": "Gift Box"
+      }
+    },
+    {
+      "slot": "kids-school",
+      "src": "/stories/kids/kids-school.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Direct Media",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/child-homework-GV5GIEXDBA",
+        "title": "Child Homework"
+      }
+    },
+    {
+      "slot": "kids-party",
+      "src": "/stories/kids/kids-party.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Altered Reality",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/happy-birthday-ICAFQZXX7W",
+        "title": "Happy Birthday"
+      }
+    },
+    {
+      "slot": "kids-walk",
+      "src": "/stories/kids/kids-walk.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Leeroy",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/boy-child-R0C7A5M4WB",
+        "title": "Boy Child"
+      }
+    }
   ]
 }

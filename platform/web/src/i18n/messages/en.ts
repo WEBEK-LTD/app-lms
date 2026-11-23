@@ -56,6 +56,9 @@ export const en = {
     storyClothesText: "Sizes and colours, a category menu and complete the look",
     storyBeauty: "Cosmetics shop app",
     storyBeautyText: "Shades, a skin quiz, routines and ingredients",
+    // 209 Kids' clothes
+    storyKids: "Kids' clothes shop app",
+    storyKidsText: "Sizes by age, newborn gifts and ready sets",
     studioDemo: "Studio demo",
     studioDemoText: "Try Studio's apps on your phone",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -825,6 +828,9 @@ export const en = {
       clothes_b: { name: "NOUN, streetwear", text: "The whole clothes shop as streetwear: concrete grey and electric blue, the category menu with numbered rows, the drop of the week, the ticker, the numbered best sellers, shop the fit and the deal of the day; every page, the bar, the account, the shop, the cart and orders in the look, with a near-black night." },
       beauty_a: { name: "VELOURS, plum and gold", text: "The whole cosmetics shop in plum, blush and gold: the small header whose menu opens the category menu, the search, the categories as chips, the hero carousel with the next card peeking, the flash deals, the best sellers, the shade finder, the skin quiz, the daily routine with ready-made routines, the care rituals, the brands and the trust strip; the category menu, the skin quiz page, the shop, the cart and orders in blush, with a plum-black night." },
       beauty_b: { name: "NAQA LAB, the clinic", text: "The whole cosmetics shop as a clinic: ink and cobalt on porcelain, shopping by skin and need, the skin quiz, the active ingredients, the most wanted two by two, the routine step by step, the shade finder, the flash deals and the SPF banner; every page, the bar, the account, the shop, the cart and orders in the look, with a near-black night." },
+      // 209 Kids' clothes
+      kids_a: { name: "TOOTA, soft pastels", text: "The whole kids' clothes shop in soft pastels: the small header whose menu opens the category menu, the search, the categories in circles, the hero carousel with the next card peeking, shopping by age in pastel tiles, what's new, girls, boys and baby, the gift sets, school and occasions, the weekend's deals, the size finder by age, the most loved and the promises; the category menu, the size guide, the shop, the cart and orders in cream and terracotta, with a warm cocoa night." },
+      kids_b: { name: "MINIMO, playful navy", text: "The whole kids' clothes shop in playful navy, its sections numbered: the category chips, the autumn hero, shopping by age in a grid, new this week, the look of the week with numbered spots, who you're shopping for, the newborn box, little gifts under a price, the occasions, the weekend's deals and the size finder; every page, the bar, the account, the shop, the cart and orders in the look, with a blue-black night." },
     },
   },
   meta: {

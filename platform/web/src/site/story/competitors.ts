@@ -309,6 +309,8 @@ const BY_STORY: Record<StoryId, (keyof typeof COLUMNS)[]> = {
   clothes: ["tapcart", "appmysite", "mobiloud"],
   // 209 The cosmetics shop: the same companies that make apps for online shops.
   beauty: ["tapcart", "appmysite", "mobiloud"],
+  // 209 The kids' clothes shop: the same companies that make apps for online shops.
+  kids: ["tapcart", "appmysite", "mobiloud"],
 };
 
 export function competitorsOf(story: StoryId): CompareColumn[] {
@@ -379,6 +381,14 @@ export const YALLAPP: Record<StoryId, Pick<CompareColumn, "kind" | "apps" | "own
   },
   // 209 Velours, the cosmetics shop: a template, as Lujain is.
   beauty: {
+    kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
+    apps: { en: "The shop's own app for its customers, and Studio for you", ar: "تطبيق المتجر الخاص لعملائه، وStudio لك", tr: "Mağazanın müşterileri için kendi uygulaması ve sizin için Studio" },
+    ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },
+    pricing: { en: "A Studio plan; no share of your sales", ar: "باقة Studio؛ بلا نسبة من مبيعاتك", tr: "Bir Studio paketi; satışlarınızdan pay yok" },
+    arabic: { en: "Yes: Arabic, right to left, in the app and in Studio", ar: "نعم: العربية من اليمين لليسار، في التطبيق وفي Studio", tr: "Evet: Arapça, sağdan sola, uygulamada ve Studio'da" },
+  },
+  // 209 Toota, the kids' clothes shop: a template, as Lujain is.
+  kids: {
     kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
     apps: { en: "The shop's own app for its customers, and Studio for you", ar: "تطبيق المتجر الخاص لعملائه، وStudio لك", tr: "Mağazanın müşterileri için kendi uygulaması ve sizin için Studio" },
     ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },

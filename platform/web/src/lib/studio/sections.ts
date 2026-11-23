@@ -19,6 +19,8 @@ import { LEQAA_SECTIONS } from "./demo-designs/leqaa-signature";
 import { CLOTHES_SECTIONS } from "./demo-designs/clothes-signature";
 // 209 Cosmetics: Velours's sections.
 import { BEAUTY_SECTIONS } from "./demo-designs/beauty-signature";
+// 209 Kids' clothes
+import { KIDS_SECTIONS } from "./demo-designs/kids-signature";
 import { INSTALLMENTS_SECTION } from "./installments";
 
 /**
@@ -320,6 +322,8 @@ export type SectionWord =
   | Extract<AppWord, `cl${string}`>
   // 209 Cosmetics: Velours's looks, pages and sections (lib/studio/demo-designs/beauty-signature.ts).
   | Extract<AppWord, `bt${string}`>
+  // 209 Kids' clothes: Toota's looks, pages and sections (lib/studio/demo-designs/kids-signature.ts).
+  | Extract<AppWord, `kd${string}`>
   | "installmentsSoon";
 
 export interface SectionContext {
@@ -1113,6 +1117,8 @@ export const SECTIONS: readonly SectionInfo[] = [
   ...CLOTHES_SECTIONS,
   // 209 Cosmetics: the shade finder, the skin quiz, the routine, the rituals, the brands, the trust strip and B's clinic parts.
   ...BEAUTY_SECTIONS,
+  // 209 Kids' clothes: Toota's parts (the category menu, the peeking heroes, shopping by age, the size finder and chart, the worlds, the gifts, the occasions, the deal, the best loved and the promises).
+  ...KIDS_SECTIONS,
   INSTALLMENTS_SECTION,
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,

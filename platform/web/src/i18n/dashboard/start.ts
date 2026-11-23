@@ -61,6 +61,8 @@ export const en = {
     clothes: { name: "Clothes shop", line: "Sizes and colours, the category menu and complete the look" },
     // 209 Cosmetics
     beauty: { name: "Cosmetics shop", line: "Shades, a skin quiz and ready-made routines" },
+    // 209 Kids' clothes
+    kids: { name: "Kids' clothes shop", line: "Sizes by age, newborn gifts with a card and ready sets" },
   },
   business: {
     teaching: "Teaching and courses",
@@ -252,6 +254,8 @@ export const ar: Messages = {
     clothes: { name: "محل هدوم", line: "مقاسات وألوان، وقايمة الأقسام، وكمّل الإطلالة" },
     // 209 Cosmetics
     beauty: { name: "محل مستحضرات تجميل", line: "درجات الألوان، واختبار البشرة، وروتينات جاهزة" },
+    // 209 Kids' clothes
+    kids: { name: "محل هدوم أطفال", line: "مقاسات حسب السن، وهدايا المواليد بكارت، وأطقم جاهزة" },
   },
   business: {
     teaching: "تعليم وكورسات",
@@ -439,6 +443,8 @@ export const tr: Messages = {
     clothes: { name: "Giyim mağazası", line: "Beden ve renkler, kategori menüsü ve görünümü tamamla" },
     // 209 Cosmetics
     beauty: { name: "Kozmetik mağazası", line: "Tonlar, cilt testi ve hazır rutinler" },
+    // 209 Kids' clothes
+    kids: { name: "Çocuk giyim mağazası", line: "Yaşa göre bedenler, kartlı yenidoğan hediyeleri ve hazır takımlar" },
   },
   business: {
     teaching: "Eğitim ve kurslar",

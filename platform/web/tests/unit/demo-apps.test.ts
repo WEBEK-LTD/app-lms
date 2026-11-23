@@ -86,6 +86,8 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
       ["clothes", true],
       // 209 Velours, the cosmetics shop.
       ["beauty", true],
+      // 209 Kids' clothes: Toota.
+      ["kids", true],
     ]);
     const user = await store.getUserByEmail(DEMO_ACCOUNT.email);
     expect(user?.passwordHash).toBeNull();
@@ -93,19 +95,21 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
     expect(client.status).toBe("active");
 
     const apps = await listDemoApps(store, { fresh: true });
-    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "food", "rides", "rides", "school", "lms", "travel", "lms", "store", "store", "store"]);
+    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "food", "rides", "rides", "school", "lms", "travel", "lms", "store", "store", "store", "store"]);
     // 21 The clinic demo is the bookings engine with the clinic vertical; 26 the café the store engine with the restaurant vertical; 27 the gym the bookings engine with the fitness vertical; 29 the charity the donations engine with the charity vertical.
     // 110.5 The live taxi app is the rides engine with the taxi vertical, the academy with many teachers the courses engine with the instructors vertical.
-    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null, null, "charity", null, null, "marketplace", null, "taxi", null, "instructors", null, null, null, null, null]);
+    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null, null, "charity", null, null, "marketplace", null, "taxi", null, "instructors", null, null, null, null, null, null]);
     // 123 The premium academy: an academy that keeps the template it started from.
     expect(apps.at(-4)?.design).toBe("academy_premium");
     // 131.20 Leqaa, the flower shop: a shop that keeps its Signature look A.
     expect(apps.at(-3)?.design).toBe("flowers_signature_a");
     // 208 Lujain, the clothes shop: a shop that keeps its look A (LUJAIN).
-    expect(apps.at(-2)?.design).toBe("clothes_signature_a");
+    expect(apps.at(-3)?.design).toBe("clothes_signature_a");
     // 209 Velours, the cosmetics shop: its look A (VELOURS).
-    expect(apps.at(-1)?.design).toBe("beauty_signature_a");
-    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(22);
+    expect(apps.at(-2)?.design).toBe("beauty_signature_a");
+    // 209 Toota, the kids' clothes shop: its look A (TOOTA).
+    expect(apps.at(-1)?.design).toBe("kids_signature_a");
+    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(23);
     expect(new Set(apps.map((a) => a.template))).toEqual(new Set(["classic", "bold", "minimal"]));
     for (const app of apps) {
       expect(app).toMatchObject({ demo: true, backend: "hosted", publishingMode: "managed" });
@@ -263,8 +267,8 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
     expect(second.clientId).toBe(first.clientId);
     expect(second.apps.map((a) => a.appId)).toEqual(first.apps.map((a) => a.appId));
     expect(second.apps.every((a) => !a.created)).toBe(true);
-    expect(await store.listAppsByClient(first.clientId)).toHaveLength(22);
-    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(22);
+    expect(await store.listAppsByClient(first.clientId)).toHaveLength(23);
+    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(23);
     const food = second.apps.find((a) => a.type === "food")!.appId;
     expect(await store.listRestaurants(food)).toHaveLength(DEMO_RESTAURANTS.length);
     const parcels = second.apps.find((a) => a.type === "delivery")!.appId;
@@ -322,9 +326,10 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
     expect(demoTypeOfSlug("teachers")).toBe("instructors");
     expect(demoTypeOfSlug("premium-academy")).toBe("premium_academy");
     expect(DEMO_TYPES).not.toContain("rides");
-    expect(STUDIO_DEMO_TYPES).toEqual(["delivery", "food", "marketplace", "rides", "taxi", "school", "instructors", "travel", "premium_academy", "flowers", "clothes", "beauty"]);
+    expect(STUDIO_DEMO_TYPES).toEqual(["delivery", "food", "marketplace", "rides", "taxi", "school", "instructors", "travel", "premium_academy", "flowers", "clothes", "beauty", "kids"]);
     expect(demoTypeOfSlug("flowers")).toBe("flowers");
     expect(demoTypeOfSlug("clothes")).toBe("clothes");
+    expect(demoTypeOfSlug("kids")).toBe("kids");
     expect(demoTypeOfSlug("travel")).toBe("travel");
     expect(demoTypeOfSlug("nope")).toBeNull();
   });
@@ -594,7 +599,7 @@ describe("signing in to a demo app", () => {
       expect(screens.sign_in?.title.tr, id).toBeTruthy();
       expect(screens.account_menu?.header, id).not.toBe("plain");
       // Their photos are the website's own, credit-free ones (123 the premium academy's, its own picture; 131.20 Leqaa's, its flowers).
-      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/(stories|demo-screens|demo-photos|design-pictures|travel-photos|flower-photos|clothes-photos|beauty-photos)\/.+\.jpg$/);
+      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/(stories|demo-screens|demo-photos|design-pictures|travel-photos|flower-photos|clothes-photos|beauty-photos|kids-photos)\/.+\.jpg$/);
     }
     expect((await config("taxi"))?.account_menu).toMatchObject({ header: "night", accent: "#F5B700" });
     // 119 Their bars in their own designs; 128 as their approved boards have them (several the same classic bar in their own colours), 126 Safra's the dot under the open tab.
@@ -744,7 +749,7 @@ describe("demo checkout and the daily clean-up", () => {
     expect((await cleanDemoActivity(store, new Date(NOW.getTime() + 2 * HOUR))).deleted).toBe(0);
 
     const report = await runDailyNotices({ store, baseUrl: "https://yallapp.test", mail: async () => undefined, now: new Date(NOW.getTime() + 25 * HOUR) });
-    expect(report.demo.apps).toBe(22);
+    expect(report.demo.apps).toBe(23);
     // An order, a conversation, a favorite, a device; 115.15 and Zad's courier job of yesterday (made again with its day).
     expect(report.demo.deleted).toBe(5);
     const left = await store.listCatalogOrders({ appId: shop.id, offset: 0, limit: 10 });

@@ -1545,5 +1545,253 @@ export const STORIES_EN: StoryCopy = {
         "beauty-candle": "A lit candle in a glass jar beside a small tin"
       }
     },
+    // 209 Toota, the kids' clothes shop: a newborn gift and a raincoat on a rainy Wednesday, in its look A (TOOTA); look B (MINIMO) in its section.
+    kids: {
+      navName: "Kids' clothes shop app",
+      metaTitle: "A kids' clothes shop app with sizes by age, newborn gifts and ready sets, designed in Yallapp Studio",
+      metaDescription: "A day with Toota: a new nephew, a gift box wrapped with a card, the size finder by age and a raincoat for a four-year-old.",
+      summary: "Sizes by age from birth to 12, a size finder and chart, boys', girls' and baby categories, newborn gifts with wrapping and a card, and ready-made sets, in two premium looks.",
+      eyebrow: "Yallapp Studio · The kids' clothes shop",
+      title: "A gift for Adam, a raincoat for Youssef",
+      intro: "Salma's sister had a baby boy this morning, and her own son Youssef has grown out of his raincoat just as the rain came. It's a Wednesday evening in Cairo. This is how a few minutes with her phone become both.",
+      cast: "Salma shops at Toota, a children's clothes shop in Cairo. Toota is the kids' clothes template's demo: its clothes, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Cairo, after bath time",
+          title: "Two things to buy tonight",
+          text: "Salma opens Toota on the sofa while Youssef sleeps. The home is soft and quick: the search, the categories in circles, the season's collection in cards that slide, and under them the ages, from 0–6 months to 8–12 years, each a pastel tile."
+        },
+        {
+          time: "20:43",
+          kicker: "The menu",
+          title: "Girls, boys and baby",
+          text: "She taps the menu beside the bell. Every category of the shop is a row of cards with their photos: Baby & newborn first, with Newborn sets, Bodysuits and Sleepwear sliding after it, then Girls, Boys, Shoes, Newborn gifts and Ready sets."
+        },
+        {
+          time: "20:46",
+          kicker: "The size finder",
+          title: "Four years old, 104 cm",
+          text: "Youssef is four. In the size finder on the home she picks 4–5Y, and the card shows the size with its height, weight and chest from the shop's own chart: 104 to 110 cm. One tap, and the shop opens on the pieces in his size."
+        },
+        {
+          time: "20:52",
+          kicker: "Newborn gifts",
+          title: "A box, wrapped, with a card",
+          text: "For baby Adam, the first newborn box: a bodysuit, a hat, a knitted blanket and a soft toy, in organic cotton. In the cart, the shop offers gift wrapping and a greeting card with it. At checkout she taps \"Welcome to the world, little one!\" and adds a line of her own."
+        },
+        {
+          time: "20:58",
+          kicker: "Weekend deals",
+          title: "The hoodie, 30% off",
+          text: "Back on the home, the weekend's deals count down. The grey fleece hoodie is in it in Youssef's size, the old price struck through. She adds it with the raincoat, and the shop's code, TOOTA10, takes ten per cent off the order."
+        },
+        {
+          time: "10:15",
+          kicker: "Thursday, at the shop",
+          title: "4–5Y in yellow, a box wrapped",
+          text: "At Toota, Mona opens the morning's orders. Salma's says the raincoat in yellow, size 4–5Y, the hoodie in grey, and the newborn box wrapped, with the card's message to write by hand. The stock of each size goes down by one.",
+          push: {
+            app: "Toota",
+            title: "Order 3204",
+            body: "Your order is on its way. The gift is wrapped, with your card."
+          }
+        }
+      ],
+      interlude: {
+        quote: "One gift wrapped, one raincoat that fits.",
+        text: "Everything in between was the shop's own: its categories and their rows, its sizes by age and the stock of each, its size chart, its gift wrapping and cards, its offers and its exchanges, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one evening",
+      stats: [
+        "main categories in the demo's menu, each a row of cards",
+        "sizes by age, from 0–3 months to 11–12 years",
+        "days to exchange a size that doesn't fit",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Sizes by age, the category menu, the gifts and the sets, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Sizes by age",
+          title: "The size that fits, by age",
+          text: "Every piece comes in sizes by age, and the shop keeps the stock of each.",
+          features: [
+            [
+              "Ages for sizes",
+              "From 0–3 months to 11–12 years, each piece in the ages it is made for."
+            ],
+            [
+              "The size finder",
+              "Pick the child's age, see the height, weight and chest that size fits."
+            ],
+            [
+              "The size chart",
+              "The shop's own chart, by age, on its size guide page and beside the sizes."
+            ],
+            [
+              "In three languages",
+              "The chart's titles in English, Arabic and Turkish."
+            ],
+            [
+              "Shop their size",
+              "The finder's button opens the shop."
+            ],
+            [
+              "Gone is gone",
+              "A size with none left is greyed out and can't be chosen."
+            ]
+          ]
+        },
+        {
+          name: "The category menu",
+          title: "Girls, boys and baby, one row each",
+          text: "The menu beside the bell opens all of the shop's categories at once, each a row of cards with their photos.",
+          features: [
+            [
+              "A row per category",
+              "Each main category is a row of cards that slides sideways."
+            ],
+            [
+              "All of it first",
+              "The first card is the category itself, with how many pieces it has."
+            ],
+            [
+              "Girls, boys and baby",
+              "Each with its own sub-categories, and a piece in two when it belongs there."
+            ],
+            [
+              "Search on top",
+              "One field searches every category."
+            ],
+            [
+              "The account at the foot",
+              "My account, my orders, the language and how to reach the shop."
+            ],
+            [
+              "In the editor too",
+              "The category menu is an element of Studio's library, for any store."
+            ]
+          ]
+        },
+        {
+          name: "Gifts and sets",
+          title: "Wrapped, with a card",
+          text: "Newborn gift boxes, little gifts under a price and whole outfits sold as one.",
+          features: [
+            [
+              "Gift wrapping and a card",
+              "Offered with the newborn gifts in the cart, each priced by the shop."
+            ],
+            [
+              "The card's message",
+              "Written at checkout, or started from a line to tap."
+            ],
+            [
+              "Little gifts under a price",
+              "A list of the shop's pieces at a price or under."
+            ],
+            [
+              "Ready-made sets",
+              "Whole outfits sold as one, with every piece in them named."
+            ],
+            [
+              "What it's made of",
+              "The fabric, the fit and how to wash it on every piece's page."
+            ],
+            [
+              "Badges",
+              "Organic cotton, gift wrapping on offer, tested for children's safety."
+            ]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Toota comes in two premium looks, built only from Studio's elements.",
+          features: [
+            [
+              "TOOTA and MINIMO",
+              "Look A in soft pastels, terracotta and cream; look B in playful navy, its sections numbered."
+            ],
+            [
+              "Light and dark",
+              "Both looks have a designed night."
+            ],
+            [
+              "A compact hero",
+              "The collections in cards about 210 points tall, the next one peeking."
+            ],
+            [
+              "A floating bar",
+              "Home, Shop, Cart, Orders and Account, the open one with its name."
+            ],
+            [
+              "Ready sections",
+              "Shopping by age, the size finder, the gift sets and more, for any store."
+            ],
+            [
+              "Three languages",
+              "English, Arabic right to left, and Turkish."
+            ]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Toota works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            [
+              "Products in Yallapp",
+              "Everything on this page: categories inside categories, sizes by age, the gifts and their add-ons."
+            ],
+            [
+              "WordPress and other platforms",
+              "Their categories and sub-categories in the menu, their sizes and stock on the page."
+            ],
+            [
+              "Coming next",
+              "The size chart from a connected platform."
+            ]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        [
+          "Toota",
+          "Parents, on Android and iPhone"
+        ],
+        [
+          "Yallapp Studio",
+          "The shop: its look, categories, sizes and gifts"
+        ],
+        [
+          "The shop's website",
+          "WooCommerce, Shopify or another, if it has one"
+        ]
+      ],
+      bundleFlows: [
+        "A new sub-category shows in its row of the menu",
+        "A size sold out is greyed out in the app",
+        "The size chart shows in the parent's language",
+        "An order arrives with its sizes, its wrapping and its card"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Saturday, in the rain",
+        text: "Youssef jumps in every puddle in his yellow raincoat. Across town, Adam sleeps under the knitted blanket, the card propped on the shelf. Mona has already added the new winter sets to their row."
+      },
+      photos: {
+        "kids-hero": "Two girls in white dresses playing in a sunlit field",
+        "kids-newborn": "A newborn baby asleep in a striped knit hat",
+        "kids-gift": "A gift box in kraft paper tied with a pink ribbon",
+        "kids-school": "A girl drawing at her desk by a window",
+        "kids-party": "Pastel balloons against a pink wall",
+        "kids-walk": "A little boy in a denim jacket, seen from behind"
+      }
+    },
   },
 };

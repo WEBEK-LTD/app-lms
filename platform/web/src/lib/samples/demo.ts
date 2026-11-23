@@ -10,6 +10,8 @@ import { studioDemoOf } from "../studio/demo-templates";
 import { clothesPartsForSamples, demoClothesProducts } from "../demo/clothes-entries";
 // 209 Cosmetics
 import { demoBeautyProducts } from "../demo/beauty-entries";
+// 209 Kids' clothes
+import { demoKidsProducts, kidsPartsForSamples } from "../demo/kids-entries";
 import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
 import { marketCuisines, marketplaceSamples, savingZadPictures } from "../demo/marketplace";
 import { savePicture } from "../demo/picture-assets";
@@ -114,6 +116,8 @@ const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   clothes: { products: async (m) => (await demoClothesProducts(m.entries, m.app), await clothesPartsForSamples(m.entries, m.app), true) },
   // 209 Velours's products, their shades and details, its categories, skin types and brands.
   beauty: { products: async (m) => (await demoBeautyProducts(m.entries, m.app), true) },
+  // 209 Kids' clothes: Toota's pieces, their categories and sub-categories, its gift add-ons, size chart and card message.
+  kids: { products: async (m) => (await demoKidsProducts(m.entries, m.app), await kidsPartsForSamples(m.entries, m.app), true) },
   restaurant: { products: products(true) },
   booking: { services: bookings("salon") },
   clinic: { services: bookings("clinic") },

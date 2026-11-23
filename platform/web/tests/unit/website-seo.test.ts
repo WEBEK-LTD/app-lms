@@ -57,8 +57,9 @@ describe("32 the website's menu", () => {
       "/yallapp-studio/multi-vendor",
       "/yallapp-studio/academy",
       "/yallapp-studio/flowers",
-    "/yallapp-studio/clothes",
+      "/yallapp-studio/clothes",
       "/yallapp-studio/beauty",
+      "/yallapp-studio/kids",
       "/demo/studio",
       // 106.13 Studio Market's public page.
       "/templates",

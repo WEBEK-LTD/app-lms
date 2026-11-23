@@ -23,8 +23,10 @@ import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
-import { ALL_DEMO_TYPES, BEAUTY_DEMO, CLOTHES_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, type DemoId } from "./constants";
+import { ALL_DEMO_TYPES, BEAUTY_DEMO, CLOTHES_DEMO, KIDS_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, type DemoId } from "./constants";
 import { CLOTHES_COMMERCE, CLOTHES_CURRENCY, CLOTHES_FREE_SHIPPING_OVER_CENTS, CLOTHES_SHIPPING_CENTS } from "./clothes";
+// 209 Kids' clothes
+import { KIDS_COMMERCE, KIDS_CURRENCY, KIDS_FREE_SHIPPING_OVER_CENTS, KIDS_SHIPPING_CENTS } from "./kids";
 import { FLOWER_COMMERCE, FLOWER_CURRENCY, FLOWER_FREE_SHIPPING_OVER_CENTS, FLOWER_SHIPPING_CENTS } from "./flowers";
 import {
   BOOKING_RULES,
@@ -51,6 +53,8 @@ import { demoClothesCommerce, demoClothesProducts } from "./clothes-entries";
 // 209 Cosmetics
 import { BEAUTY_COMMERCE, BEAUTY_CURRENCY, BEAUTY_FREE_SHIPPING_OVER_CENTS, BEAUTY_SHIPPING_CENTS } from "./beauty";
 import { demoBeautyCommerce, demoBeautyProducts } from "./beauty-entries";
+// 209 Kids' clothes
+import { demoKidsCommerce, demoKidsProducts } from "./kids-entries";
 import { demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerCommerce, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, type EntryDeps } from "./entries";
 import { savePicture, type DemoPicture, type PictureSize } from "./picture-assets";
 import { refreshMarketplaceDemo, savingZadPictures } from "./marketplace";
@@ -232,6 +236,9 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   } else if (content === "catalog" && id === BEAUTY_DEMO) {
     // 209 Velours in Dubai: dirhams, free delivery from 150 AED, unopened products back within 14 days.
     patch.catalogSettings = { currency: BEAUTY_CURRENCY, shippingCents: BEAUTY_SHIPPING_CENTS, freeShippingOverCents: BEAUTY_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(BEAUTY_COMMERCE) };
+  } else if (content === "catalog" && id === KIDS_DEMO) {
+    // 209 Kids' clothes: Toota in Cairo, Egyptian pounds, free from a bigger order, exchanges within 30 days, its size chart by age, Complete the look and the card's message.
+    patch.catalogSettings = { currency: KIDS_CURRENCY, shippingCents: KIDS_SHIPPING_CENTS, freeShippingOverCents: KIDS_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(KIDS_COMMERCE) };
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
   } else if (content === "bookings" && id === "fitness") {
@@ -269,6 +276,10 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     // 209 Velours's products, their shades and details, its categories (skin types and brands too), its flash deals and code.
     await demoBeautyProducts(entryDeps(deps, client.id), saved);
     await demoBeautyCommerce(entryDeps(deps, client.id), saved);
+  } else if (content === "catalog" && id === KIDS_DEMO) {
+    // 209 Kids' clothes: Toota's pieces in sizes by age, its categories, its gift add-ons, its weekend deals and code.
+    await demoKidsProducts(entryDeps(deps, client.id), saved);
+    await demoKidsCommerce(entryDeps(deps, client.id), saved);
   }
   else if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
   // Studio's demos: a parcel company, food delivery from three restaurants, rides.

@@ -397,6 +397,16 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["velours-home", "velours-menu", "velours-product"],
   },
+  // 209 Kids' clothes: Toota, a store in Studio, its two Signature looks, sizes by age, newborn gifts and ready sets.
+  kids: {
+    summary: "A children's clothes shop in Cairo, from birth to 12: baby and newborn, girls, boys, shoes and accessories in sizes by age, newborn gift boxes with gift wrapping and a card, and ready-made sets. Its photos are CC0, from StockSnap.",
+    tryThis: [
+      "In the size finder on the home, pick your child's age and see the size that fits, with the height, weight and chest",
+      "Tap the menu at the top and slide through Girls, Boys and Baby & newborn, each with its own sub-categories",
+      "Open the first newborn gift box, add gift wrapping and a card, and write the card's message at checkout",
+    ],
+    screens: ["toota-home", "toota-menu", "toota-product"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -829,6 +839,26 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Genuine skincare, makeup and fragrance, with your shade and your skin type a tap away.",
     fullDescription: `Velours is a beauty house: skincare, makeup, fragrance, body and bath, hair, gifts and ready-made routines.\n\nFind your foundation's shade, take the skin quiz and see what suits your skin, and read every product's ingredients, how to use it and its expiry before you buy. Every product is genuine.\n\n${PRIVACY_NOTE}`,
     welcome: "Genuine skincare and makeup, with your shade and your skin type a tap away.",
+  },
+  // 209 Kids' clothes: Toota (توتة, "mulberry"), its look A's soft pastels and terracotta.
+  kids: {
+    appName: "Toota",
+    shortName: "Toota",
+    primaryColor: "#B35C4B",
+    splashColor: "#F7F2EC",
+    secondaryColor: "#3A2B26",
+    template: "minimal",
+    font: "Outfit",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-kids",
+    banner: { picture: "banner-store", heading: "Soft clothes for little ones", subheading: "From birth to 12, in sizes by age, delivered across Cairo." },
+    androidPackage: "com.yallapp.demo.kids",
+    storeTitle: "Toota Kids",
+    shortDescription: "Baby, girls' and boys' clothes in sizes by age, newborn gifts and ready sets.",
+    fullDescription: `Toota dresses children from birth to 12: baby and newborn sets, girls' and boys' clothes, shoes and accessories, newborn gift boxes and ready-made sets.\n\nFind the size that fits by your child's age, browse every category from the menu, and send a newborn gift wrapped, with a card in your words. Exchanges are free within 30 days.\n\n${PRIVACY_NOTE}`,
+    welcome: "Soft clothes from birth to 12, in the size that fits.",
   },
 };
 

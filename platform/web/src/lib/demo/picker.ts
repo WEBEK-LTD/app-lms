@@ -20,6 +20,8 @@ import { FLOWER_PRODUCTS } from "./flowers";
 import { CLOTHES_PRODUCTS } from "./clothes";
 // 209 Cosmetics
 import { BEAUTY_PRODUCTS } from "./beauty";
+// 209 Kids' clothes
+import { KIDS_PRODUCTS } from "./kids";
 import { SCHOOL_CLASSES } from "./school";
 import { TRAVEL_HOTELS } from "@/lib/travel/samples";
 
@@ -85,6 +87,8 @@ const DEMO_BUSINESS: Partial<Record<DemoId, string>> = {
   clothes: "shop",
   // 209 Velours, the cosmetics shop, too.
   beauty: "shop",
+  // 209 Kids' clothes: Toota, too.
+  kids: "shop",
 };
 
 export function businessOf(id: DemoId): string {
@@ -165,6 +169,8 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   clothes: () => ({ list: "products", noun: "products", count: CLOTHES_PRODUCTS.length }),
   // 209 Velours: its skincare, makeup, fragrance, body, hair and routines.
   beauty: () => ({ list: "products", noun: "products", count: BEAUTY_PRODUCTS.length }),
+  // 209 Kids' clothes: Toota's pieces, gift boxes, sets and gift add-ons.
+  kids: () => ({ list: "products", noun: "products", count: KIDS_PRODUCTS.length }),
 };
 
 export function demoItems(id: DemoId): DemoItems {
