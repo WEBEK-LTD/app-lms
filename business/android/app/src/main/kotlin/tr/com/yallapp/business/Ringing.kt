@@ -47,6 +47,8 @@ object Ringing {
         "chime", "counter_bell", "kitchen_ticket", "marimba", "harp", "digital", "rush_hour",
         "cash_drawer", "doorbell", "xylophone", "soft_pulse", "chirp", "sunrise", "arcade",
         "soft_drop", "pop", "knock",
+        // 213 The money sounds.
+        "cha_ching", "coin_drop", "till_bell", "coin_chime", "sale_jingle", "piggy_bank", "receipt_printer",
     )
     private val defaults = mapOf(
         "orders" to "counter_bell",
@@ -86,6 +88,8 @@ object Ringing {
         var sound = s.optJSONObject("sounds")?.optString(group, "")?.takeIf { it == "default" || it == "silent" || it in ringtones }
             ?: defaults[group] ?: "default"
         if (group != "orders" && inQuietHours(s.optJSONObject("quiet"))) sound = "silent"
+        // 214 Ring by order value: the band of the order's total.
+        if (group == "orders") soundByValue(s.optJSONArray("by_value"), data["order_value"]?.toDoubleOrNull())?.let { sound = it }
         val ringGroups = s.optJSONArray("ring")
         var ring = false
         if (ringGroups != null) for (i in 0 until ringGroups.length()) if (ringGroups.optString(i) == group) ring = true
@@ -96,6 +100,17 @@ object Ringing {
             vibrate = s.optBoolean("vibrate", true),
             alarm = s.optBoolean("alarm_volume", false),
         )
+    }
+
+    /** 214 The sound of the band the value falls in (bands from 0, each above the one before), or null. */
+    private fun soundByValue(bands: org.json.JSONArray?, value: Double?): String? {
+        if (bands == null || value == null) return null
+        var chosen: String? = null
+        for (i in 0 until bands.length()) {
+            val band = bands.optJSONObject(i) ?: continue
+            if (value >= band.optDouble("from", Double.MAX_VALUE)) chosen = band.optString("sound")
+        }
+        return chosen?.takeIf { it == "default" || it == "silent" || it in ringtones }
     }
 
     private fun minutesOf(hhmm: String): Int? {
@@ -172,13 +187,38 @@ object Ringing {
         return item.hashCode() and 0x7fffffff
     }
 
-    private fun openIntent(context: Context, id: Int, data: Map<String, String>): PendingIntent {
+    private fun openIntent(context: Context, id: Int, data: Map<String, String>, accept: Boolean = false): PendingIntent {
+        val push = if (accept) data + ("yb_action" to "accept") else data
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_ID, id)
-            putExtra(EXTRA_PUSH, JSONObject(data as Map<*, *>).toString())
+            putExtra(EXTRA_PUSH, JSONObject(push as Map<*, *>).toString())
         }
-        return PendingIntent.getActivity(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        return PendingIntent.getActivity(context, if (accept) id xor 0x5A5A else id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    }
+
+    /** 214 The kinds a notification can accept from: a shop's order and a food order (the app opens and accepts it). */
+    private val acceptable = setOf("new_order", "new_food_order")
+
+    /**
+     * 214 A new order stays (ongoing) until it's opened or accepted, with
+     * Accept (when the order can be) and Open; the app ends it when the
+     * order is accepted there.
+     */
+    private fun orderActions(context: Context, b: Notification.Builder, id: Int, data: Map<String, String>) {
+        if (data["yb_group"] != "orders") return
+        b.setOngoing(true)
+        if (data["kind"] in acceptable) {
+            b.addAction(Notification.Action.Builder(null, word(context, "accept", "Accept"), openIntent(context, id, data, accept = true)).build())
+        }
+        b.addAction(Notification.Action.Builder(null, word(context, "open", "Open"), openIntent(context, id, data)).build())
+    }
+
+    /** 214 The order's notification goes (accepted or opened in the app). */
+    fun cancelFor(context: Context, data: Map<String, String>) {
+        val id = notificationId(data)
+        forget(context, id)
+        (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(id)
     }
 
     private fun receiverIntent(context: Context, action: String, id: Int): PendingIntent {
@@ -232,6 +272,7 @@ object Ringing {
             // Never rings past the minutes chosen, even if the alarm below is late.
             b.setTimeoutAfter(sound.minutes * 60_000L + 5_000L)
         }
+        orderActions(context, b, id, data)
         if (sound.ring) {
             b.addAction(Notification.Action.Builder(null, word(context, "silence", "Silence"), receiverIntent(context, ACTION_QUIET, id)).build())
         }
@@ -265,7 +306,7 @@ object Ringing {
         }
         val channel = ensureQuietChannel(context, manager)
         @Suppress("DEPRECATION")
-        val notification = builder(context, channel)
+        val quietBuilder = builder(context, channel)
             .setSmallIcon(R.drawable.ic_stat_yallapp)
             .setContentTitle(data["yb_title"] ?: "")
             .setContentText(data["yb_body"] ?: "")
@@ -274,7 +315,8 @@ object Ringing {
             .setOnlyAlertOnce(true)
             .setContentIntent(openIntent(context, id, data))
             .setColor(0xFFE8572A.toInt())
-            .build()
+        orderActions(context, quietBuilder, id, data)
+        val notification = quietBuilder.build()
         runCatching { manager.notify(id, notification) }
     }
 

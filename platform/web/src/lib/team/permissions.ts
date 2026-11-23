@@ -268,6 +268,8 @@ export const PUSH_PERMISSION: Record<OwnerPushKind, TeamPermission> = {
   // 207
   new_market_order: "orders",
   order_cancelled: "orders",
+  // 214
+  daily_summary: "analytics",
 };
 
 // The owner's choices on the Team page and in the Owner API

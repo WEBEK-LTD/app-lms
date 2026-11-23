@@ -22,7 +22,10 @@ use Yallapp\Plugin;
 $checks   = array();
 $requests = array();
 $key      = 'YALL-TEST-0000-0077';
-$platform = array( 'session' => 'ok' );
+$platform = array(
+	'session' => 'ok',
+	'forget'  => 'ok',
+);
 
 $check   = static function ( $name, $ok, $detail = '' ) use ( &$checks ) {
 	$checks[] = array( $name, (bool) $ok, is_string( $detail ) ? $detail : wp_json_encode( $detail ) );
@@ -75,8 +78,8 @@ add_filter(
 			return $respond( 200, array( 'token' => 'chat-token-0077', 'expires_at' => '2099-01-01T01:00:00.000Z', 'base_url' => 'https://yallapp.test/api/app/00000000-0000-4000-8000-000000000077' ) );
 		}
 		if ( false !== strpos( $url, '/chat/members/forget' ) ) {
-			$requests[] = array( 'forget', json_decode( (string) $request['body'], true ) );
-			return $respond( 204 );
+			$requests[] = array( 'forget', json_decode( (string) $request['body'], true ), $request['timeout'] );
+			return 'down' === $platform['forget'] ? new WP_Error( 'http_request_failed', 'cURL error 28' ) : $respond( 204 );
 		}
 		return $pre;
 	},
@@ -149,9 +152,26 @@ $check( 'chat: an unsigned notification is refused (401)', 401 === $status, $sta
 
 wp_set_current_user( 0 );
 require_once ABSPATH . 'wp-admin/includes/user.php';
+$forgets = static function () use ( &$requests ) {
+	return array_values( array_filter( $requests, static function ( $r ) { return 'forget' === $r[0]; } ) );
+};
+// 206.1 Deleting never waits on Yallapp: the call is queued in WP-Cron, sent from there, and tried
+// again later while Yallapp can't be reached.
+$platform['forget'] = 'down';
+$started            = microtime( true );
 wp_delete_user( $student );
-$forget = array_values( array_filter( $requests, static function ( $r ) { return 'forget' === $r[0]; } ) );
-$check( 'chat: deleting the account tells the platform', 1 === count( $forget ) && $student === ( $forget[0][1]['user_id'] ?? 0 ) && $key === ( $forget[0][1]['license_key'] ?? '' ), $forget );
+$took   = microtime( true ) - $started;
+$queued = wp_get_scheduled_event( License_Client::FORGET_HOOK, array( $student, 1 ) );
+$check( 'chat: deleting the account sends nothing itself and queues telling the platform', 0 === count( $forgets() ) && false !== $queued && $took < 2, array( count( $forgets() ), $queued, $took ) );
+do_action_ref_array( License_Client::FORGET_HOOK, $queued->args );
+$again = wp_get_scheduled_event( License_Client::FORGET_HOOK, array( $student, 2 ) );
+$check( 'chat: the platform down, the forget is tried again later, with a short timeout', 1 === count( $forgets() ) && false !== $again && $again->timestamp > time() && ( $forgets()[0][2] ?? 99 ) <= 5, array( $forgets(), $again ) );
+$platform['forget'] = 'ok';
+wp_unschedule_event( $queued->timestamp, License_Client::FORGET_HOOK, $queued->args );
+do_action_ref_array( License_Client::FORGET_HOOK, $again->args );
+wp_unschedule_event( $again->timestamp, License_Client::FORGET_HOOK, $again->args );
+$forget = $forgets();
+$check( 'chat: deleting the account tells the platform', 2 === count( $forget ) && $student === ( $forget[1][1]['user_id'] ?? 0 ) && $key === ( $forget[1][1]['license_key'] ?? '' ) && false === wp_get_scheduled_event( License_Client::FORGET_HOOK, array( $student, 3 ) ), $forget );
 
 delete_option( License_Client::STATUS_OPTION );
 $plugin->layout_client()->forget();

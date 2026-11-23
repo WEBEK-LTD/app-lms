@@ -4374,6 +4374,229 @@ class AppLocalizationsTr extends AppLocalizations {
       'Her türün sesini seçin, yeni siparişler açılana kadar çalsın';
 
   @override
+  String get ringtonesMoney => 'Para ve satış';
+
+  @override
+  String get soundChaChing => 'Ça-çing';
+
+  @override
+  String get soundCoinDrop => 'Düşen bozukluklar';
+
+  @override
+  String get soundTillBell => 'Kasa ve zil';
+
+  @override
+  String get soundCoinChime => 'Bozukluk ve çan';
+
+  @override
+  String get soundSaleJingle => 'Satış yapıldı';
+
+  @override
+  String get soundPiggyBank => 'Kumbara';
+
+  @override
+  String get soundReceiptPrinter => 'Fiş yazıcısı';
+
+  @override
+  String get ringByValueTitle => 'Yeni siparişlerin sesi';
+
+  @override
+  String get ringSameForEvery => 'Her sipariş için aynı ses';
+
+  @override
+  String get ringByValue => 'Sipariş tutarına göre';
+
+  @override
+  String get ringByValueHelp =>
+      'Her birinin kendi sesi olan en fazla 3 aralık; büyük bir sipariş farklı çalar.';
+
+  @override
+  String ringBandUnder(String amount) {
+    return '$amount altı';
+  }
+
+  @override
+  String ringBandBetween(String from, String to) {
+    return '$from ile $to arası';
+  }
+
+  @override
+  String ringBandFrom(String amount) {
+    return '$amount ve üzeri';
+  }
+
+  @override
+  String get ringBandSound => 'Bu aralığın sesi';
+
+  @override
+  String get ringBandFromTitle => 'Bu aralığın başladığı tutar';
+
+  @override
+  String get ringBandFromHelp =>
+      'Siparişin toplamı, mağazanızın para biriminde';
+
+  @override
+  String get ringBandFromInvalid =>
+      'Önceki ve sonraki aralıkların arasında bir tutar girin.';
+
+  @override
+  String get ringBandAdd => 'Aralık ekle';
+
+  @override
+  String get ringBandRemove => 'Son aralığı kaldır';
+
+  @override
+  String get summarySetting => 'Gün sonu özeti';
+
+  @override
+  String summarySettingOn(String time) {
+    return 'Sipariş olan her gün saat $time\'de, mağazanızın saatine göre';
+  }
+
+  @override
+  String get summarySettingHelp =>
+      'Bugünün satışları, siparişleri ve en çok satanı; geçen haftanın aynı günüyle karşılaştırmalı';
+
+  @override
+  String summaryTime(String time) {
+    return 'Saat $time';
+  }
+
+  @override
+  String get daySummaryTitle => 'Gün özeti';
+
+  @override
+  String get daySummarySales => 'Satışlar';
+
+  @override
+  String get daySummaryOrders => 'Siparişler';
+
+  @override
+  String get daySummaryAverage => 'Ortalama sipariş';
+
+  @override
+  String get daySummaryBest => 'En çok satan';
+
+  @override
+  String get daySummaryNoBest => 'Henüz yok';
+
+  @override
+  String daySummaryUp(String pct, String day) {
+    return 'Geçen $day gününden %$pct fazla';
+  }
+
+  @override
+  String daySummaryDown(String pct, String day) {
+    return 'Geçen $day gününden %$pct az';
+  }
+
+  @override
+  String daySummarySame(String day) {
+    return 'Geçen $day ile aynı';
+  }
+
+  @override
+  String daySummaryNoCompare(String day) {
+    return 'Karşılaştırmak için geçen $day satış yok';
+  }
+
+  @override
+  String daySummaryLastWeek(String day, String sales, String orders) {
+    return 'Geçen $day: $sales, $orders sipariş';
+  }
+
+  @override
+  String get daySummaryBefore => 'Önceki gün';
+
+  @override
+  String get daySummaryAfter => 'Sonraki gün';
+
+  @override
+  String get pauseShop => 'Yeni siparişleri duraklat';
+
+  @override
+  String get pauseHelp =>
+      'Müşteriler şu an sipariş almadığınızı ve ne zaman döneceğinizi görür. Verilmiş siparişler olduğu gibi kalır.';
+
+  @override
+  String get pauseWhich => 'Hangi yer';
+
+  @override
+  String get pauseAllPlaces => 'Hepsi';
+
+  @override
+  String get pauseHowLong => 'Ne kadar süre';
+
+  @override
+  String get pauseFor15 => '15 dk';
+
+  @override
+  String get pauseFor30 => '30 dk';
+
+  @override
+  String get pauseFor60 => '1 saat';
+
+  @override
+  String get pauseUntilReopen => 'Ben açana kadar';
+
+  @override
+  String get pauseReason => 'Neden (isteğe bağlı)';
+
+  @override
+  String get pauseReasonHelp => 'Müşteriler okur, ör. Namazdan sonra dönüyoruz';
+
+  @override
+  String get pauseConfirm => 'Duraklat';
+
+  @override
+  String get pausedNow => 'Yeni siparişler duraklatıldı';
+
+  @override
+  String get pausedShopNow => 'Yeni sipariş alınmıyor';
+
+  @override
+  String pausedPlacesNow(String count) {
+    return '$count duraklatıldı';
+  }
+
+  @override
+  String pausedUntil(String time) {
+    return 'Saat $time\'e kadar';
+  }
+
+  @override
+  String get pausedUntilReopen => 'Siz açana kadar';
+
+  @override
+  String pauseReasonShown(String reason) {
+    return 'Müşteriler okur: $reason';
+  }
+
+  @override
+  String get pauseMore => 'Başka bir yeri duraklat';
+
+  @override
+  String get reopenNow => 'Şimdi aç';
+
+  @override
+  String get reopenedNow => 'Yeniden sipariş alınıyor';
+
+  @override
+  String newOrderMore(String count) {
+    return '+$count daha';
+  }
+
+  @override
+  String get ringFocusTitle => 'Odak modunda sipariş uyarıları';
+
+  @override
+  String get ringFocusHelp =>
+      'iPhone\'da yeni sipariş uyarıları Zamana Duyarlı\'dır. Odak veya Rahatsız Etme sırasında duymak için Yallapp Business\'ın bildirim ayarlarında Zamana Duyarlı Bildirimler\'i açın ve Odak\'ta izin verin.';
+
+  @override
+  String get ringFocusOpen => 'Bildirim ayarlarını aç';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

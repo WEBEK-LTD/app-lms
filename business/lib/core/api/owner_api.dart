@@ -1,4 +1,6 @@
+import '../services/live_activity.dart';
 import 'models.dart';
+import 'shop_models.dart';
 
 /// 59 Every call of the Owner API (docs/api/owner.yaml) that Yallapp
 /// Business makes. [HttpOwnerApi] talks to yallapp.com.tr; [FakeOwnerApi]
@@ -70,6 +72,28 @@ abstract class OwnerApi {
     String? query,
   });
   Future<Order> order(String appId, int orderId);
+
+  /// 214 Pause the shop: whether it (or each of its places) takes new
+  /// orders; pause for 15, 30 or 60 minutes or until reopened ([minutes]
+  /// null), a place ([placeId], or null for all of them); reopen now.
+  Future<ShopPauseState> shopPause(String appId);
+  Future<ShopPauseState> pauseShop(
+    String appId, {
+    required int? minutes,
+    String? reason,
+    String? placeId,
+  });
+  Future<ShopPauseState> reopenShop(String appId, {String? placeId});
+
+  /// 214 A day's summary (today by default), the end-of-day push's screen.
+  Future<DaySummary> daySummary(String appId, {String? date});
+
+  /// 214 The home-screen widget's own token (read-only, `GET /widget` only),
+  /// handed to the widget; null when the server has none to give.
+  Future<String?> widgetToken();
+
+  /// 214 This iPhone's Live Activity push tokens (`PUT /me/live-activity`).
+  Future<void> setLiveActivity(LiveTokens tokens);
 
   /// 207 Marks it shipped with the carrier and the tracking; the customer
   /// is emailed (80.4). Again changes the tracking.

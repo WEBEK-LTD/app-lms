@@ -27,6 +27,7 @@ import '../../features/team/team_screen.dart';
 import '../../features/more/devices_screen.dart';
 import '../../features/more/appearance_screen.dart';
 import '../../features/more/ringtones_screen.dart';
+import '../../features/today/day_summary_screen.dart';
 import '../../features/more/language_screen.dart';
 import '../../features/more/more_screen.dart';
 import '../../features/more/plan_screen.dart';
@@ -167,6 +168,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 parentNavigatorKey: rootNavigatorKey,
                 builder: (_, s) => OrderScreen(
                   orderId: int.tryParse(s.pathParameters['id']!) ?? 0,
+                  accept: s.uri.queryParameters['accept'] == '1',
                 ),
               ),
             ],
@@ -249,8 +251,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: ':id',
                 parentNavigatorKey: rootNavigatorKey,
-                builder: (_, s) =>
-                    FoodOrderScreen(orderId: s.pathParameters['id']!),
+                builder: (_, s) => FoodOrderScreen(
+                  orderId: s.pathParameters['id']!,
+                  accept: s.uri.queryParameters['accept'] == '1',
+                ),
               ),
             ],
           ),
@@ -344,6 +348,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       full(Paths.appearance, (_) => const AppearanceScreen()),
       full(Paths.notifications, (_) => const PushSettingsScreen()),
       full(Paths.ringtones, (_) => const RingtonesScreen()),
+      // 214 The end-of-day summary.
+      full(
+        '/day-summary',
+        (s) => DaySummaryScreen(date: s.uri.queryParameters['date']),
+      ),
       full(Paths.devices, (_) => const DevicesScreen()),
       full(Paths.team, (_) => const TeamScreen()),
       // 125 Studio apps' screens, Prime and VIP.

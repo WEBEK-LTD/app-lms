@@ -1,0 +1,1 @@
+ALTER TABLE `owner_devices` ADD `live_activity` longtext;

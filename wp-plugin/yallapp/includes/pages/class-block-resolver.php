@@ -879,10 +879,19 @@ class Block_Resolver {
 			) : null;
 		}
 		if ( 'screen' === $type ) {
-			return in_array( $raw['screen'] ?? null, self::SCREENS, true ) ? array(
+			if ( ! in_array( $raw['screen'] ?? null, self::SCREENS, true ) ) {
+				return null;
+			}
+			$action = array(
 				'type'   => 'screen',
 				'screen' => $raw['screen'],
-			) : null;
+			);
+			// 157.7 The shop filtered to one of its categories (an app before release 9 opens the shop).
+			$category = isset( $raw['category_id'] ) && is_scalar( $raw['category_id'] ) ? (string) $raw['category_id'] : '';
+			if ( 'search' === $raw['screen'] && preg_match( '/^[1-9]\d{0,11}$/', $category ) ) {
+				$action['category_id'] = $category;
+			}
+			return $action;
 		}
 		if ( 'course' === $type ) {
 			$course = isset( $raw['course_id'] ) && is_numeric( $raw['course_id'] ) ? absint( $raw['course_id'] ) : 0;
@@ -1197,6 +1206,7 @@ class Block_Resolver {
 		if ( null === $body ) {
 			return null;
 		}
+		$body = $this->with_shop_categories( $body );
 		$page = array(
 			'header' => is_array( $raw['header'] ?? null ) ? $this->studio_header( Translator::apply( $raw['header'], $language ) ) : null,
 			'body'   => $body,
@@ -1211,6 +1221,32 @@ class Block_Resolver {
 		}
 		return $page;
 	}
+
+	/**
+	 * 157.7 A served Studio body with the template's lists of the shop's categories (Leqaa's
+	 * occasions and collections) showing the shop's WooCommerce categories, and each element named
+	 * like one opening it (Shop_Categories), as the hosted pages do. The categories are read only
+	 * for a page with one of those, on a site that sells products.
+	 *
+	 * @param array $body Served body.
+	 * @return array
+	 */
+	private function with_shop_categories( array $body ) {
+		if ( ! $this->serves( 'products' ) || ! Shop_Categories::shown_in( $body ) ) {
+			return $body;
+		}
+		if ( null === $this->shop_categories ) {
+			$this->shop_categories = new Shop_Categories( $this->categories( 'products' ) );
+		}
+		return $this->shop_categories->apply( $body );
+	}
+
+	/**
+	 * 157.7 The shop's categories, read once per request.
+	 *
+	 * @var Shop_Categories|null
+	 */
+	private $shop_categories = null;
 
 	/**
 	 * 103R A StudioHeader, or null.

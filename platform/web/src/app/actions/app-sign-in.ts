@@ -11,7 +11,7 @@ import { DEFAULT_HOSTED_SETTINGS } from "@/lib/data/types";
 import { appMailFormValues, appMailServer, appMailTarget, parseAppMailForm, sendThroughServer, type AppMailFormValues } from "@/lib/email/app-mail";
 import { appUrl, encryptionKey, isProduction, waabekApiUrl } from "@/lib/env";
 import { ensureAuthKey, rotateAuthKey, yallappSignsIn } from "@/lib/hosted/app-auth";
-import { derivedCountryCode } from "@/lib/hosted/country-code";
+import { appPhoneCode, derivedCountryCode } from "@/lib/hosted/country-code";
 import { resendWebhook } from "@/lib/hosted/api-webhooks";
 import { issueTestToken } from "@/lib/hosted/test-token";
 import type { FormState } from "@/lib/forms";
@@ -268,7 +268,7 @@ export async function removeAppWhatsappAction(): Promise<void> {
 export async function testAppWhatsappAction(_: FormState, formData: FormData): Promise<FormState> {
   const { context, app } = await signInContext();
   const raw = String(formData.get("phone") ?? "").trim();
-  const phone = parseAnyPhone(raw, app.hostedSettings?.defaultCountryCode ?? DEFAULT_HOSTED_SETTINGS.defaultCountryCode);
+  const phone = parseAnyPhone(raw, appPhoneCode(app, context.client.country));
   if (!phone) return { errors: { phone: "Enter a phone number with its country code, like +90 532 123 45 67." }, values: { phone: raw } };
   const sender = appOtpSender(app, encryptionKey(), waabekApiUrl());
   if (!sender) return { ok: false, message: "Save your WABEK API key first.", values: { phone: raw } };

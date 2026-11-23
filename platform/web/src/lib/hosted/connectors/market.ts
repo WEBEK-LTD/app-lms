@@ -1,3 +1,4 @@
+import { appPhoneCode } from "../country-code";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import { pushNewComplaint, pushNewMarketOrder } from "../../owner/push";
 import { pushOwnerSafely } from "../../owner/push-env";
@@ -68,13 +69,13 @@ import { delayJson, mayEditPlace, parseClosedDates, parseDelay, parseHoursList, 
 import { utcToLocal } from "../../bookings/time";
 import { monthBounds, vendorStatement, type PanelContext } from "../../market/panel-pages";
 import { parseAnyPhone } from "../phone";
-import { hostedSettings } from "../service";
 import { error, intParam } from "./common";
 import { completeUpload, kindOf, mediaLink, startUpload, uploadUrl } from "../../media/files";
 import type { MediaStorage } from "../../media/storage";
 import type { RateLimitRule } from "../../rate-limit";
 import { hitRateLimit } from "../../rate-limit";
 import type { ConnectorRequest, ConnectorResult } from "./types";
+import { pauseJson, placePause } from "../../shop/pause";
 
 /**
  * 115 The marketplace's routes (the contract's Market and Vendor tags), for
@@ -254,7 +255,7 @@ export class MarketConnector {
       const own = quoteMarketDelivery(settings, { ...v, busyUntil: null, active: true }, { fulfilment: "delivery", dropoff: { address: "", details: null, lat: at.lat, lng: at.lng }, items: 0, itemCount: 1 }, now);
       if (own.ok) fee = own.fee;
     }
-    return { open, opensAt: state.opensAt, busy: state.busy, distanceKm: km, delivers, deliveryFee: fee, minutes, offer, clubBenefit: club, delay: delayJson(v, now) };
+    return { open, opensAt: state.opensAt, busy: state.busy, distanceKm: km, delivers, deliveryFee: fee, minutes, offer, clubBenefit: club, delay: delayJson(v, now), paused: pauseJson(placePause(this.deps.app, v.id, now)) };
   }
 
   private async offerWords(currency: string): Promise<Map<number | null, string>> {
@@ -453,7 +454,7 @@ export class MarketConnector {
     const deliveryBy = fulfilment === "pickup" ? null : pr.delivery.by;
     const collectedBy = collectedByOf({ paymentMethod: input.payment, fulfilment, deliveryBy });
     const money = repriceFor(pr, { ...input, useWallet: input.useWallet || input.payment === "wallet" }, collectedBy);
-    const phone = parseAnyPhone(request.user.phone ?? "", hostedSettings(app).defaultCountryCode)?.e164 ?? request.user.phone ?? "";
+    const phone = parseAnyPhone(request.user.phone ?? "", appPhoneCode(app))?.e164 ?? request.user.phone ?? "";
     const status: MarketOrderStatus = online && money.payNow > 0 ? "awaiting_payment" : input.scheduledFor ? "scheduled" : "placed";
     const created = await store.createMarketOrder({
       appId: app.id,

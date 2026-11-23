@@ -95,6 +95,14 @@ export const en = {
     newMarketOrderBody: "{vendor}: {total}",
     orderCancelled: "{reference} was cancelled",
     orderCancelledBody: "The customer cancelled the order at {place}.",
+    // 214 The end-of-day summary.
+    summaryTitle: "Today: {sales}",
+    summaryOrders: "{count, plural, one {{count} order} other {{count} orders}}",
+    summaryAverage: "average {amount}",
+    summaryBest: "best seller {name}",
+    summaryUp: "{pct}% more than last {day}",
+    summaryDown: "{pct}% less than last {day}",
+    summarySame: "the same as last {day}",
   },
   // 125 Prime: today's comparison, insights, smart alerts and the morning brief.
   prime: {
@@ -263,6 +271,14 @@ export const ar: Messages = {
     newMarketOrderBody: "{vendor}: {total}",
     orderCancelled: "تم إلغاء {reference}",
     orderCancelledBody: "ألغى العميل الطلب لدى {place}.",
+    // 214
+    summaryTitle: "اليوم: {sales}",
+    summaryOrders: "{count, plural, zero {لا طلبات} one {طلب واحد} two {طلبان} few {{count} طلبات} many {{count} طلبًا} other {{count} طلب}}",
+    summaryAverage: "المتوسط {amount}",
+    summaryBest: "الأكثر مبيعًا {name}",
+    summaryUp: "أكثر بنسبة {pct}% من {day} الماضي",
+    summaryDown: "أقل بنسبة {pct}% من {day} الماضي",
+    summarySame: "مثل {day} الماضي",
   },
   prime: {
     vsLast: "مقارنةً بيوم {day} الماضي",
@@ -421,6 +437,14 @@ export const tr: Messages = {
     newMarketOrderBody: "{vendor}: {total}",
     orderCancelled: "{reference} iptal edildi",
     orderCancelledBody: "Müşteri {place} siparişini iptal etti.",
+    // 214
+    summaryTitle: "Bugün: {sales}",
+    summaryOrders: "{count, plural, one {{count} sipariş} other {{count} sipariş}}",
+    summaryAverage: "ortalama {amount}",
+    summaryBest: "en çok satan {name}",
+    summaryUp: "geçen {day} gününden %{pct} fazla",
+    summaryDown: "geçen {day} gününden %{pct} az",
+    summarySame: "geçen {day} ile aynı",
   },
   prime: {
     vsLast: "geçen {day} gününe göre",

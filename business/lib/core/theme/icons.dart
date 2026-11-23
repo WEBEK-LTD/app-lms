@@ -172,6 +172,8 @@ abstract final class AppIcons {
   static const ringing = Symbols.notifications_active_rounded;
   static const vibrate = Symbols.vibration_rounded;
   static const quietHours = Symbols.bedtime_rounded;
+  // 214 Order alerts through Focus (iPhone's Time Sensitive notifications).
+  static const focus = Symbols.do_not_disturb_on_rounded;
   static const stop = Symbols.stop_rounded;
   static const alarmVolume = Symbols.alarm_rounded;
   static const cancelledOrder = Symbols.remove_shopping_cart_rounded;
@@ -180,6 +182,11 @@ abstract final class AppIcons {
   static const share = Symbols.share_rounded;
   // 210 Custom-order requests.
   static const customOrder = Symbols.design_services_rounded;
+  // 214
+  static const remove = Symbols.remove_rounded;
+  static const pauseShop = Symbols.pause_circle_rounded;
+  static const summary = Symbols.insights_rounded;
+  static const trendFlat = Symbols.trending_flat_rounded;
 }
 
 /// Icons that point a way (back, forward, send) turn round in Arabic.

@@ -212,6 +212,22 @@ new order rings with a card over every screen (Silence, Open). The review
 added order search, Mark as shipped with the carrier and tracking, copying
 or sending an order's details, and a product search.
 
+Roadmap 213 (Yallapp Business 1.0.5): seven money sounds join the 17
+(Cha-ching, Coins dropping, Till and bell, Coin chime, Sale made, Piggy bank,
+Receipt printer; `moneyRingtoneIds`), under Money and sales in the picker.
+`python3 tool/ringtones.py <id> …` makes only the ringtones named, so the
+others' files stay as they are.
+
+Roadmap 214 (Yallapp Business 1.0.6): ring by order value, the end-of-day
+summary and Pause the shop on Today; the home-screen widget
+(`android/.../ShopWidget.kt`; on iOS the `ShopWidget` extension in
+`ios/ShopWidget`, with `ios/Shared/WidgetShared.swift` in both targets),
+which reads `GET /widget` with its own token (`lib/core/services/home_widget.dart`
+hands it over); a new order's ongoing notification with Accept and Open on
+Android, and its Live Activity on iPhones (`lib/core/services/live_activity.dart`,
+`ios/Runner/WidgetBridge.swift`). The widget and the Live Activity open the
+app with `yallappbusiness://push?…`, read as a tapped push.
+
 Each screen and quick action is shown only when the app has it
 (`AppSummary.features`): the second tab is the app's main tool (Events,
 Appointments, Orders, Donations or its catalog), Inbox and Stats appear when

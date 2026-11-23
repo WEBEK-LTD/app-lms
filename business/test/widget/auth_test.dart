@@ -96,6 +96,7 @@ void main() {
     expect(find.textContaining("That didn't work"), findsOneWidget);
     again.biometrics!.succeed = true;
     await tapOn(tester, find.text('Unlock with fingerprint'));
+    await seeOnToday(tester, find.text('Needs you now'));
     expect(find.text('Needs you now'), findsOneWidget);
   });
 

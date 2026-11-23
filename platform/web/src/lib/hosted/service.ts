@@ -58,7 +58,7 @@ import { DEMO_LIMITS, DEMO_SIGN_IN, DEMO_USER_NAME } from "../demo/constants";
 import { recordDemoVisit } from "../live-activity/demo";
 import { hostedSignInMethods, normalizeEmail, normalizeUsername, PASSWORD_MIN_LENGTH, passwordProblem, passwordSignIn } from "./sign-in-methods";
 import { hashPassword, verifyPassword } from "../auth/password";
-import { appCountryCode } from "./country-code";
+import { appCountryCode, appPhoneCode } from "./country-code";
 import { personClaims, yallappSignsIn, type AppSignIn } from "./app-auth";
 import { localizedError, requestLanguage } from "../i18n/builtin";
 import { chatConfig, chatSessionKind } from "../chat/access";
@@ -250,7 +250,7 @@ async function userLimitReached(ctx: HostedContext, phone: string | null, email:
   const limit = ctx.plan?.limits.appUsers ?? null;
   if (limit === null) return false;
   const settings = hostedSettings(ctx.app);
-  if (phone && settings.reviewPhone && parseAnyPhone(settings.reviewPhone, settings.defaultCountryCode)?.e164 === phone) return false;
+  if (phone && settings.reviewPhone && parseAnyPhone(settings.reviewPhone, appPhoneCode(ctx.app, ctx.ownerCountry))?.e164 === phone) return false;
   if (email && isReviewEmail(settings, email)) return false;
   const count = await ctx.store.countHostedUsers(ctx.app.id);
   if (count < limit) return false;

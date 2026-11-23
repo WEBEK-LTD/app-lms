@@ -678,7 +678,9 @@ enum PushKind {
   morningBrief('morning_brief'),
   // 207 A marketplace order reached its vendor; a customer cancelled one.
   newMarketOrder('new_market_order'),
-  orderCancelled('order_cancelled');
+  orderCancelled('order_cancelled'),
+  // 214 The end-of-day summary (its switch is with its time, in Notifications).
+  dailySummary('daily_summary');
 
   const PushKind(this.wire);
   final String wire;

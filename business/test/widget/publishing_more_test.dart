@@ -145,6 +145,7 @@ void main() {
     expect(app.api.language, 'tr');
     expect(find.text('Dil'), findsOneWidget);
     await go(tester, app, '/today');
+    await seeOnToday(tester, find.text('Şimdi sizi bekleyenler'));
     expect(find.text('Şimdi sizi bekleyenler'), findsOneWidget);
   });
 

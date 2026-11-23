@@ -61,7 +61,12 @@ class StaffScreen extends ConsumerWidget {
                         ..invalidate(checkinTodayProvider),
                       child: ListView(
                         key: const ValueKey('staff'),
-                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                        padding: EdgeInsets.fromLTRB(
+                          20,
+                          4,
+                          20,
+                          endRoom(context, 24),
+                        ),
                         children: const [
                           CheckinCard(),
                           BusDutyEntry(),

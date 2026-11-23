@@ -153,10 +153,17 @@ PushTarget pushTarget(Map<String, dynamic> data) {
             _ => Paths.today,
           },
           'morning_brief' => Paths.today,
+          // 214 The end-of-day summary opens its day.
+          'daily_summary' => Paths.daySummary(value('date')),
           _ => Paths.today,
         };
+  // 214 Accept on a new order's notification: the order opens on its accept.
+  final accept =
+      value('yb_action') == 'accept' &&
+      (location == (foodOrder == null ? null : Paths.foodOrder(foodOrder)) ||
+          location == (order == null ? null : Paths.order(order)));
   return PushTarget(
-    location: location,
+    location: accept ? '$location?accept=1' : location,
     appId: appId,
     kind: kind,
     businessId: value('business_id'),

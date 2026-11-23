@@ -138,6 +138,7 @@ void main() {
     // Today without the dark header: the classic one with the numbers.
     expect(find.text('Prime'), findsNothing);
     expect(find.text('Sales today'), findsOneWidget);
+    await seeOnToday(tester, find.text('2 new food orders'));
     expect(find.text('2 new food orders'), findsOneWidget);
   });
 

@@ -1,3 +1,4 @@
+import { appPhoneCode } from "../country-code";
 import { paymentsSetUp } from "../../catalog/settings";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import type { DeliverySettings, FoodOrder, HostedUser, Restaurant } from "../../data/types";
@@ -28,12 +29,12 @@ import {
 import { FOOD_REJECTIONS, type FoodRejection } from "../../data/types";
 import { parseAnyPhone } from "../phone";
 import { platformSetting } from "../../settings/platform";
-import { hostedSettings } from "../service";
 import { error, intParam } from "./common";
 import { handleMapRequest, isMapRequest, platformMapEndpoints } from "./maps";
 import { DeliveryConnector, type DeliveryDeps } from "./delivery";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
 import { isMarketPath, MarketConnector } from "./market";
+import { pauseJson, pauseMessage, placePause } from "../../shop/pause";
 
 export interface FoodDeps extends Omit<DeliveryDeps, "delivery"> {
   /** The plan has food delivery apps (default true). */
@@ -160,6 +161,7 @@ export class FoodConnector implements Connector {
     const quote = priced && at && settings.pricing !== "zone" ? deliveryQuote(settings, r, { address: "", details: null, lat: at.lat, lng: at.lng }, null) : null;
     return {
       state,
+      paused: pauseJson(placePause(this.deps.app, r.id, now)),
       distanceKm: km,
       feeCents: quote?.ok ? quote.cents : priced && settings.pricing === "fixed" ? settings.fixedCents : null,
       delivers: quote ? quote.ok : null,
@@ -200,6 +202,9 @@ export class FoodConnector implements Connector {
     if (!r || !r.active) return { error: restaurantNotFound() };
     const state = restaurantState(r, settings.timezone ?? DEFAULT_FOOD_TIMEZONE, now);
     if (!state.open) {
+      // 214 Paused from Yallapp Business or the dashboard: its own words.
+      const paused = placePause(this.deps.app, r.id, now);
+      if (paused) return { error: error(409, "restaurant_closed", pauseMessage(paused, r.name)) };
       return { error: error(409, "restaurant_closed", state.busy ? `${r.name} is very busy right now. Please try again in a little while.` : `${r.name} is closed now.`) };
     }
     const menu = (await this.deps.store.getRestaurantMenu(this.deps.app.id, r.id)) ?? EMPTY_MENU;
@@ -247,7 +252,7 @@ export class FoodConnector implements Connector {
     const read = readFoodOrder(request.body);
     if (!read.ok) return error(400, "invalid_request", read.error);
     const input = read.value;
-    const phone = input.phone ? parseAnyPhone(input.phone, hostedSettings(app).defaultCountryCode)?.e164 : request.user.phone;
+    const phone = input.phone ? parseAnyPhone(input.phone, appPhoneCode(app))?.e164 : request.user.phone;
     if (!phone) return error(400, "invalid_request", "Enter your mobile number so the courier can call you.");
     const settings = await this.settings();
     if (!pricesSet(settings)) return unavailable();

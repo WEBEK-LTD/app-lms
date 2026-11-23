@@ -250,7 +250,7 @@ class _JobList extends ConsumerWidget {
     return RefreshIndicator(
       onRefresh: notifier.refresh,
       child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+        padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
         itemCount: state.items.length,
         separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (context, i) => JobTile(

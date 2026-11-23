@@ -1,5 +1,6 @@
 "use server";
 
+import { appPhoneCode } from "@/lib/hosted/country-code";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
@@ -12,7 +13,6 @@ import { getStore } from "@/lib/data";
 import type { App, CourseSetup } from "@/lib/data/types";
 import { notifyDeps } from "@/lib/delivery/flow";
 import { formValues, type FormState } from "@/lib/forms";
-import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
 import { imageType } from "@/lib/images";
 import { publishCourse, returnCourse } from "@/lib/teachers/courses";
@@ -71,7 +71,7 @@ export async function saveTeacherAction(_: FormState, formData: FormData): Promi
   const id = formData.get("id") ? Number(formData.get("id")) : null;
   const existing = id !== null && Number.isSafeInteger(id) ? await store.getTeacher(app.id, id) : null;
   if (id !== null && !existing) return { message: "This teacher doesn't exist anymore." };
-  const parsed = parseTeacherForm(values, hostedSettings(app).defaultCountryCode, emailOnly(app));
+  const parsed = parseTeacherForm(values, appPhoneCode(app, context.client.country), emailOnly(app));
   if (!parsed.ok) return { errors: parsed.errors, values };
   if (!existing && (await store.listTeachers(app.id)).length >= TEACHERS_MAX) return { message: `You can have up to ${TEACHERS_MAX} teachers.`, values };
   const picture = await photo(context, formData.get("photo"), now);

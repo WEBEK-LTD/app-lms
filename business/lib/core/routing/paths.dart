@@ -48,6 +48,10 @@ abstract final class Paths {
   static const notifications = '/settings/notifications';
   // 207
   static const ringtones = '/settings/ringtones';
+  // 214 A day's summary (today unless [date], YYYY-MM-DD).
+  static String daySummary([String? date]) => date == null
+      ? '/day-summary'
+      : '/day-summary?date=${Uri.encodeComponent(date)}';
   static const devices = '/settings/devices';
 
   // 77 A chat conversation and the reported messages.

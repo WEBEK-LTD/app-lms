@@ -1,6 +1,8 @@
 import type { DataStore } from "../data/store";
 import type { App, CatalogOrder, CatalogOrderStatus, FulfilmentStatus } from "../data/types";
 import type { sendPush, ServiceAccount } from "../hosted/push";
+import { endOrderActivities } from "../owner/live-activity";
+import { pushOwnerSafely } from "../owner/push-env";
 import type { GuestMailer } from "../hosted/auto-notifications";
 import type { ProviderUrls } from "../payments/provider";
 import { notifyOrderUpdate } from "../hosted/auto-notifications";
@@ -89,6 +91,8 @@ export async function changeOrderStatus(
       console.error(`[orders] the order update failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 400));
     }
   }
+  // 214 Answered: the new order's Live Activity leaves the owners' iPhones.
+  if (moved) await pushOwnerSafely((d) => endOrderActivities(d, app, "new_order", String(order.id)), store);
   // 91.4 A completed order earns its points; a cancelled paid one gives back the points it used.
   if (moved && (status === "completed" || status === "cancelled")) {
     const fresh = (await store.getCatalogOrder(app.id, order.id)) ?? order;

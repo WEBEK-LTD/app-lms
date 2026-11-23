@@ -16,6 +16,8 @@ void main() {
     expect(find.text('₺2,425.00'), findsOneWidget); // 5 orders × ₺485
     expect(find.text('App opens'), findsOneWidget);
     expect(find.text('342'), findsOneWidget);
+    expect(find.byTooltip('Updates from Yallapp, 2 unread'), findsOneWidget);
+    await seeOnToday(tester, find.text('Needs you now'));
     expect(find.text('Needs you now'), findsOneWidget);
     expect(find.text('3 orders in progress'), findsOneWidget);
     expect(find.text('Kitchen mode'), findsOneWidget);
@@ -30,11 +32,11 @@ void main() {
     );
     expect(find.widgetWithText(NavigationDestination, 'Stats'), findsOneWidget);
     expect(find.widgetWithText(NavigationDestination, 'Inbox'), findsNothing);
-    expect(find.byTooltip('Updates from Yallapp, 2 unread'), findsOneWidget);
   });
 
   testWidgets('Needs you now opens the orders in progress', (tester) async {
     await TestApp().pump(tester);
+    await seeOnToday(tester, find.text('3 orders in progress'));
     await tapOn(tester, find.text('3 orders in progress'));
     expect(find.text('#1042'), findsOneWidget);
     expect(find.text('#1039'), findsNothing);
@@ -90,6 +92,7 @@ void main() {
     tester,
   ) async {
     await TestApp(language: 'ar').pump(tester);
+    await seeOnToday(tester, find.text('بحاجة إليك الآن'));
     expect(find.text('بحاجة إليك الآن'), findsOneWidget);
     expect(find.text('مبيعات اليوم'), findsOneWidget);
     final dir = Directionality.of(tester.element(find.text('مبيعات اليوم')));
@@ -102,6 +105,7 @@ void main() {
 
   testWidgets('Today in Turkish', (tester) async {
     await TestApp(language: 'tr').pump(tester);
+    await seeOnToday(tester, find.text('Şimdi sizi bekleyenler'));
     expect(find.text('Şimdi sizi bekleyenler'), findsOneWidget);
     expect(find.text('Bugünkü satışlar'), findsOneWidget);
   });
@@ -113,6 +117,7 @@ void main() {
     expect(find.text("You're offline"), findsOneWidget);
     expect(find.text('Check your connection and try again.'), findsOneWidget);
     await tapOn(tester, find.text('Try again'));
+    await seeOnToday(tester, find.text('Needs you now'));
     expect(find.text('Needs you now'), findsOneWidget);
   });
 
@@ -131,7 +136,7 @@ void main() {
     final app = TestApp();
     await app.pump(tester);
     app.api.failOn['today'] = const ApiException(code: ApiException.network);
-    await tester.fling(find.text('Needs you now'), const Offset(0, 500), 1000);
+    await tester.fling(find.text('Sales today'), const Offset(0, 500), 1000);
     await settle(tester, 30);
     expect(find.text('Sales today'), findsOneWidget);
     expect(find.text('Check your connection and try again.'), findsOneWidget);
