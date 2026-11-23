@@ -266,7 +266,7 @@
         "type": "categories",
         "name": "Categories",
         "source": "products",
-        "style": "tiles",
+        "style": "chips",
         "color": "#141816",
         "dark_color": "#EBF0EE",
         "padding": {

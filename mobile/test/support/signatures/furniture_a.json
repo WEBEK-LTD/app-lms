@@ -950,9 +950,9 @@
             "cross": "center",
             "radius": 12,
             "padding": {
-             "top": 3,
+             "top": 4,
              "end": 8,
-             "bottom": 3,
+             "bottom": 4,
              "start": 8
             },
             "margin": {
@@ -978,11 +978,13 @@
               "text": "Installments coming soon",
               "font": {
                "size": 10.5,
-               "weight": 700
+               "weight": 700,
+               "line_height": 1.25
               },
               "color": "#241D17",
               "dark_color": "#F4EEE7",
-              "max_lines": 1,
+              "max_lines": 2,
+              "text_align": "center",
               "translations": {
                "ar": {
                 "text": "التقسيط قريبًا"
@@ -1742,6 +1744,7 @@
             "id": "sig-80",
             "type": "row",
             "name": "Sofa",
+            "width": "hug",
             "height": 30,
             "radius": 15,
             "gap": 6,
@@ -1817,6 +1820,7 @@
             "id": "sig-84",
             "type": "row",
             "name": "Armchair",
+            "width": "hug",
             "height": 30,
             "radius": 15,
             "gap": 6,
@@ -1892,6 +1896,7 @@
             "id": "sig-88",
             "type": "row",
             "name": "Coffee table",
+            "width": "hug",
             "height": 30,
             "radius": 15,
             "gap": 6,
