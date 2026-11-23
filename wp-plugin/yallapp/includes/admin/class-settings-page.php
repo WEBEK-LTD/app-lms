@@ -1251,7 +1251,11 @@ class Settings_Page {
 				'gift'     => __( 'Gift checkout: the sender\'s name, phone and email, the recipient\'s name, phone and address, the delivery day and time (required) and the card', 'yallapp' ),
 			)
 		);
-		$this->textarea( 'store_gift_starters', __( 'Gift message beginnings, one a line (up to 6)', 'yallapp' ), __( 'Customers tap one to start their card. The card messages by occasion are managed in the Yallapp dashboard (Store › Card messages).', 'yallapp' ), '' );
+		$this->textarea( 'store_gift_starters', __( 'Gift message beginnings, one a line (up to 6)', 'yallapp' ), __( 'Customers tap one to start their card. The card messages by occasion are managed in the Yallapp dashboard (Store › Card messages).', 'yallapp' ) . ' ' . __( 'Shown in every language where the fields below are empty, and by older apps.', 'yallapp' ), '' );
+		// 222.4 (169.5) The same beginnings in each of the app's languages, Yallapp's own as the example.
+		$this->textarea( 'store_gift_starters_en', __( 'Beginnings in English', 'yallapp' ), __( 'Customers using the app in English see these.', 'yallapp' ), "Happy birthday!\nWith all my love\nCongratulations!" );
+		$this->textarea( 'store_gift_starters_ar', __( 'Beginnings in Arabic', 'yallapp' ), __( 'Customers using the app in Arabic see these.', 'yallapp' ), "عيد ميلاد سعيد!\nمع كلِّ حبّي\nتهانينا!" );
+		$this->textarea( 'store_gift_starters_tr', __( 'Beginnings in Turkish', 'yallapp' ), __( 'Customers using the app in Turkish see these.', 'yallapp' ), "Doğum günün kutlu olsun!\nTüm sevgimle\nTebrikler!" );
 		$this->toggle( 'store_gift_recipient', __( 'Ask for the recipient\'s name and phone', 'yallapp' ) );
 		$this->toggle( 'store_gift_anonymous', __( 'Let customers send it anonymously', 'yallapp' ) );
 		$this->close();

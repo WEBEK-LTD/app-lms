@@ -289,6 +289,47 @@ class Delivery_Rules {
 	}
 
 	/**
+	 * 222.4 (169.5) The languages the owner can write the card's beginnings in (the app's).
+	 */
+	const STARTER_LANGUAGES = array( 'en', 'ar', 'tr' );
+
+	/**
+	 * The card's beginnings as typed, one a line: at most 6, each at most 80 characters
+	 * (StoreConfig.gift_message.starters).
+	 *
+	 * @param string $text Lines.
+	 * @return string[]
+	 */
+	public static function starters( $text ) {
+		$out = array();
+		foreach ( preg_split( '/[\r\n]+/', (string) $text ) as $line ) {
+			$line = self::line( $line );
+			if ( '' !== $line ) {
+				$out[] = function_exists( 'mb_substr' ) ? mb_substr( $line, 0, 80 ) : substr( $line, 0, 80 );
+			}
+		}
+		return array_slice( $out, 0, 6 );
+	}
+
+	/**
+	 * 222.4 (169.5) The beginnings in each language (StoreConfig.gift_message.starters_by_language):
+	 * the languages with some, null when none has.
+	 *
+	 * @param array<string, string> $texts Language code → lines as typed.
+	 * @return array<string, string[]>|null
+	 */
+	public static function starters_by_language( array $texts ) {
+		$out = array();
+		foreach ( self::STARTER_LANGUAGES as $language ) {
+			$lines = self::starters( (string) ( $texts[ $language ] ?? '' ) );
+			if ( $lines ) {
+				$out[ $language ] = $lines;
+			}
+		}
+		return $out ? $out : null;
+	}
+
+	/**
 	 * A phone number as `+` and digits, or '' when it isn't one.
 	 *
 	 * @param mixed $value Value.
