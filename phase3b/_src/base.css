@@ -1,0 +1,18 @@
+*{box-sizing:border-box;margin:0;padding:0}
+i,em{font-style:normal}
+html,body{background:var(--bg)}
+body{width:390px;color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;direction:ltr;font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 350,'GRAD' 0,'opsz' 24;user-select:none}
+.ms.fill{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+.screen{position:relative;width:390px;padding-bottom:120px;overflow:hidden;background:var(--bg)}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.num{font-variant-numeric:tabular-nums}
+/* status bar */
+.status{height:54px;position:relative;direction:ltr;color:var(--ink)}
+.status .time{position:absolute;right:0;width:130px;text-align:center;top:17px;font:600 16.5px/1 -apple-system,'SF Pro Text',sans-serif;letter-spacing:-.2px}
+.status .island{position:absolute;left:50%;top:11px;width:122px;height:35px;margin-left:-61px;background:#000;border-radius:20px}
+.status .sys{position:absolute;left:0;width:130px;top:19px;display:flex;justify-content:center;gap:6px;align-items:center}
+.hscroll{display:flex;overflow:hidden;padding:0 16px}
+.homeind{position:absolute;bottom:8px;left:50%;width:134px;margin-left:-67px;height:5px;border-radius:3px;background:var(--ink)}
+.soon{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 9px;border-radius:11px;font-size:11px;font-weight:500;background:var(--soonbg);color:var(--soonfg);white-space:nowrap}
+.soon .ms{font-size:14px}
