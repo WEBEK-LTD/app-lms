@@ -4348,6 +4348,137 @@ class AppLocalizationsAr extends AppLocalizations {
       'اختر صوت كل نوع، واجعل الطلبات الجديدة ترن حتى تُفتح';
 
   @override
+  String get customOrders => 'الطلبات الخاصة';
+
+  @override
+  String get customOrdersText => 'طلبات مرسلة من نموذج الطلب الخاص في تطبيقك';
+
+  @override
+  String get requestStatusNew => 'جديد';
+
+  @override
+  String get requestStatusQuoted => 'أُرسل السعر';
+
+  @override
+  String get requestStatusAccepted => 'مقبول';
+
+  @override
+  String get requestStatusDeclined => 'مرفوض';
+
+  @override
+  String get requestStatusDone => 'مكتمل';
+
+  @override
+  String get requestsOpen => 'المفتوحة';
+
+  @override
+  String get requestsAll => 'الكل';
+
+  @override
+  String get noRequests => 'لا طلبات خاصة بعد';
+
+  @override
+  String get noRequestsText =>
+      'أضف صفحة أو نموذج الطلب الخاص إلى تطبيقك من Studio، وستظهر هنا الطلبات التي يرسلها عملاؤك.';
+
+  @override
+  String get noOpenRequests => 'لا طلبات بانتظارك';
+
+  @override
+  String get requestSomeone => 'عميل';
+
+  @override
+  String requestQuote(String price) {
+    return 'السعر $price';
+  }
+
+  @override
+  String get requestAsked => 'ما طلبه العميل';
+
+  @override
+  String get requestCustomer => 'العميل';
+
+  @override
+  String get requestAnswerTitle => 'ردّك';
+
+  @override
+  String get requestStatusLabel => 'حالة الطلب';
+
+  @override
+  String requestPrice(String currency) {
+    return 'السعر ($currency)';
+  }
+
+  @override
+  String get requestPriceHint => 'مثل 450 أو 450.50';
+
+  @override
+  String get requestReply => 'ردّك على العميل';
+
+  @override
+  String get requestReplyHint => 'السعر أو المدة أو سؤال';
+
+  @override
+  String get requestSave => 'حفظ الرد';
+
+  @override
+  String get requestSaved => 'تم حفظ الرد.';
+
+  @override
+  String requestSentOn(String title, String date) {
+    return '$title · $date';
+  }
+
+  @override
+  String get inboxProductReviews => 'تقييمات المنتجات';
+
+  @override
+  String onProduct(String product) {
+    return 'على $product';
+  }
+
+  @override
+  String get reviewsWithPhotos => 'بالصور';
+
+  @override
+  String get reviewPhotos => 'صور مع التقييم';
+
+  @override
+  String photoNumber(int n) {
+    return 'الصورة $n';
+  }
+
+  @override
+  String get noProductReviewsText =>
+      'يستطيع العملاء الذين اشتروا منتجًا تقييمه في تطبيقك، مع الصور.';
+
+  @override
+  String get shopWishes => 'المنتظرون والمحفوظ';
+
+  @override
+  String get shopWaiting => 'بانتظار المخزون';
+
+  @override
+  String get shopWaitingHint => 'حين يعود المنتج يصل إلى كل منهم إشعار واحد.';
+
+  @override
+  String get shopWaitingNone => 'لا أحد ينتظر منتجًا الآن.';
+
+  @override
+  String get shopSaved => 'المحفوظ في المفضلة';
+
+  @override
+  String get shopSavedNone => 'لم يحفظ أي عميل منتجًا بعد.';
+
+  @override
+  String variationNumber(int id) {
+    return 'الاختيار رقم $id';
+  }
+
+  @override
+  String get productNoLongerSold => 'منتج لم يعد يُباع';
+
+  @override
   String get ringtonesMoney => 'المال والمبيعات';
 
   @override
@@ -5271,88 +5402,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get customOrders => 'الطلبات الخاصة';
-
-  @override
-  String get customOrdersText => 'طلبات مرسلة من نموذج الطلب الخاص في تطبيقك';
-
-  @override
-  String get requestStatusNew => 'جديد';
-
-  @override
-  String get requestStatusQuoted => 'أُرسل السعر';
-
-  @override
-  String get requestStatusAccepted => 'مقبول';
-
-  @override
-  String get requestStatusDeclined => 'مرفوض';
-
-  @override
-  String get requestStatusDone => 'مكتمل';
-
-  @override
-  String get requestsOpen => 'المفتوحة';
-
-  @override
-  String get requestsAll => 'الكل';
-
-  @override
-  String get noRequests => 'لا طلبات خاصة بعد';
-
-  @override
-  String get noRequestsText =>
-      'أضف صفحة أو نموذج الطلب الخاص إلى تطبيقك من Studio، وستظهر هنا الطلبات التي يرسلها عملاؤك.';
-
-  @override
-  String get noOpenRequests => 'لا طلبات بانتظارك';
-
-  @override
-  String get requestSomeone => 'عميل';
-
-  @override
-  String requestQuote(String price) {
-    return 'السعر $price';
-  }
-
-  @override
-  String get requestAsked => 'ما طلبه العميل';
-
-  @override
-  String get requestCustomer => 'العميل';
-
-  @override
-  String get requestAnswerTitle => 'ردّك';
-
-  @override
-  String get requestStatusLabel => 'حالة الطلب';
-
-  @override
-  String requestPrice(String currency) {
-    return 'السعر ($currency)';
-  }
-
-  @override
-  String get requestPriceHint => 'مثل 450 أو 450.50';
-
-  @override
-  String get requestReply => 'ردّك على العميل';
-
-  @override
-  String get requestReplyHint => 'السعر أو المدة أو سؤال';
-
-  @override
-  String get requestSave => 'حفظ الرد';
-
-  @override
-  String get requestSaved => 'تم حفظ الرد.';
-
-  @override
-  String requestSentOn(String title, String date) {
-    return '$title · $date';
-  }
-
-  @override
   String requestsNewCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -5367,41 +5416,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get inboxProductReviews => 'تقييمات المنتجات';
-
-  @override
-  String onProduct(String product) {
-    return 'على $product';
-  }
-
-  @override
-  String get reviewsWithPhotos => 'بالصور';
-
-  @override
-  String get reviewPhotos => 'صور مع التقييم';
-
-  @override
-  String photoNumber(int n) {
-    return 'الصورة $n';
-  }
-
-  @override
-  String get noProductReviewsText =>
-      'يستطيع العملاء الذين اشتروا منتجًا تقييمه في تطبيقك، مع الصور.';
-
-  @override
-  String get shopWishes => 'المنتظرون والمحفوظ';
-
-  @override
-  String get shopWaiting => 'بانتظار المخزون';
-
-  @override
-  String get shopWaitingHint => 'حين يعود المنتج يصل إلى كل منهم إشعار واحد.';
-
-  @override
-  String get shopWaitingNone => 'لا أحد ينتظر منتجًا الآن.';
-
-  @override
   String shopWaitingCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -5413,12 +5427,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get shopSaved => 'المحفوظ في المفضلة';
-
-  @override
-  String get shopSavedNone => 'لم يحفظ أي عميل منتجًا بعد.';
-
-  @override
   String shopSavedCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -5428,12 +5436,4 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String variationNumber(int id) {
-    return 'الاختيار رقم $id';
-  }
-
-  @override
-  String get productNoLongerSold => 'منتج لم يعد يُباع';
 }

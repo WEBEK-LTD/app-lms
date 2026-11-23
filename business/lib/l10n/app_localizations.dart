@@ -7786,6 +7786,240 @@ abstract class AppLocalizations {
   /// **'Choose the sound of each kind, and let new orders ring until opened'**
   String get pushRingtonesLinkHelp;
 
+  /// No description provided for @customOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom orders'**
+  String get customOrders;
+
+  /// No description provided for @customOrdersText.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests sent from your app\'s custom-order form'**
+  String get customOrdersText;
+
+  /// No description provided for @requestStatusNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get requestStatusNew;
+
+  /// No description provided for @requestStatusQuoted.
+  ///
+  /// In en, this message translates to:
+  /// **'Quoted'**
+  String get requestStatusQuoted;
+
+  /// No description provided for @requestStatusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get requestStatusAccepted;
+
+  /// No description provided for @requestStatusDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get requestStatusDeclined;
+
+  /// No description provided for @requestStatusDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get requestStatusDone;
+
+  /// No description provided for @requestsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get requestsOpen;
+
+  /// No description provided for @requestsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get requestsAll;
+
+  /// No description provided for @noRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No custom orders yet'**
+  String get noRequests;
+
+  /// No description provided for @noRequestsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the custom-order page or form to your app in Studio, and the requests your customers send show here.'**
+  String get noRequestsText;
+
+  /// No description provided for @noOpenRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No requests waiting for you'**
+  String get noOpenRequests;
+
+  /// No description provided for @requestSomeone.
+  ///
+  /// In en, this message translates to:
+  /// **'A customer'**
+  String get requestSomeone;
+
+  /// No description provided for @requestQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Quoted {price}'**
+  String requestQuote(String price);
+
+  /// No description provided for @requestAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'What they asked for'**
+  String get requestAsked;
+
+  /// No description provided for @requestCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get requestCustomer;
+
+  /// No description provided for @requestAnswerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer'**
+  String get requestAnswerTitle;
+
+  /// No description provided for @requestStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it is'**
+  String get requestStatusLabel;
+
+  /// No description provided for @requestPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price ({currency})'**
+  String requestPrice(String currency);
+
+  /// No description provided for @requestPriceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Like 450 or 450.50'**
+  String get requestPriceHint;
+
+  /// No description provided for @requestReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Your reply'**
+  String get requestReply;
+
+  /// No description provided for @requestReplyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The price, the time, a question'**
+  String get requestReplyHint;
+
+  /// No description provided for @requestSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the answer'**
+  String get requestSave;
+
+  /// No description provided for @requestSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved the answer.'**
+  String get requestSaved;
+
+  /// No description provided for @requestSentOn.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} · {date}'**
+  String requestSentOn(String title, String date);
+
+  /// No description provided for @inboxProductReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Product reviews'**
+  String get inboxProductReviews;
+
+  /// No description provided for @onProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'on {product}'**
+  String onProduct(String product);
+
+  /// No description provided for @reviewsWithPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'With photos'**
+  String get reviewsWithPhotos;
+
+  /// No description provided for @reviewPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos with the review'**
+  String get reviewPhotos;
+
+  /// No description provided for @photoNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo {n}'**
+  String photoNumber(int n);
+
+  /// No description provided for @noProductReviewsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers who bought a product can review it in your app, with photos.'**
+  String get noProductReviewsText;
+
+  /// No description provided for @shopWishes.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting & saved'**
+  String get shopWishes;
+
+  /// No description provided for @shopWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for stock'**
+  String get shopWaiting;
+
+  /// No description provided for @shopWaitingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When it\'s back, each of them gets a notification once.'**
+  String get shopWaitingHint;
+
+  /// No description provided for @shopWaitingNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody is waiting for a product right now.'**
+  String get shopWaitingNone;
+
+  /// No description provided for @shopSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to wishlists'**
+  String get shopSaved;
+
+  /// No description provided for @shopSavedNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No customer saved a product yet.'**
+  String get shopSavedNone;
+
+  /// No description provided for @variationNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Choice #{id}'**
+  String variationNumber(int id);
+
+  /// No description provided for @productNoLongerSold.
+  ///
+  /// In en, this message translates to:
+  /// **'A product no longer sold'**
+  String get productNoLongerSold;
+
   /// No description provided for @ringtonesMoney.
   ///
   /// In en, this message translates to:
@@ -8464,221 +8698,11 @@ abstract class AppLocalizations {
   /// **'Bouquet · {stems, plural, =1{1 stem} other{{stems} stems}}'**
   String bouquetGroup(int stems);
 
-  /// No description provided for @customOrders.
-  ///
-  /// In en, this message translates to:
-  /// **'Custom orders'**
-  String get customOrders;
-
-  /// No description provided for @customOrdersText.
-  ///
-  /// In en, this message translates to:
-  /// **'Requests sent from your app\'s custom-order form'**
-  String get customOrdersText;
-
-  /// No description provided for @requestStatusNew.
-  ///
-  /// In en, this message translates to:
-  /// **'New'**
-  String get requestStatusNew;
-
-  /// No description provided for @requestStatusQuoted.
-  ///
-  /// In en, this message translates to:
-  /// **'Quoted'**
-  String get requestStatusQuoted;
-
-  /// No description provided for @requestStatusAccepted.
-  ///
-  /// In en, this message translates to:
-  /// **'Accepted'**
-  String get requestStatusAccepted;
-
-  /// No description provided for @requestStatusDeclined.
-  ///
-  /// In en, this message translates to:
-  /// **'Declined'**
-  String get requestStatusDeclined;
-
-  /// No description provided for @requestStatusDone.
-  ///
-  /// In en, this message translates to:
-  /// **'Done'**
-  String get requestStatusDone;
-
-  /// No description provided for @requestsOpen.
-  ///
-  /// In en, this message translates to:
-  /// **'Open'**
-  String get requestsOpen;
-
-  /// No description provided for @requestsAll.
-  ///
-  /// In en, this message translates to:
-  /// **'All'**
-  String get requestsAll;
-
-  /// No description provided for @noRequests.
-  ///
-  /// In en, this message translates to:
-  /// **'No custom orders yet'**
-  String get noRequests;
-
-  /// No description provided for @noRequestsText.
-  ///
-  /// In en, this message translates to:
-  /// **'Add the custom-order page or form to your app in Studio, and the requests your customers send show here.'**
-  String get noRequestsText;
-
-  /// No description provided for @noOpenRequests.
-  ///
-  /// In en, this message translates to:
-  /// **'No requests waiting for you'**
-  String get noOpenRequests;
-
-  /// No description provided for @requestSomeone.
-  ///
-  /// In en, this message translates to:
-  /// **'A customer'**
-  String get requestSomeone;
-
-  /// No description provided for @requestQuote.
-  ///
-  /// In en, this message translates to:
-  /// **'Quoted {price}'**
-  String requestQuote(String price);
-
-  /// No description provided for @requestAsked.
-  ///
-  /// In en, this message translates to:
-  /// **'What they asked for'**
-  String get requestAsked;
-
-  /// No description provided for @requestCustomer.
-  ///
-  /// In en, this message translates to:
-  /// **'Customer'**
-  String get requestCustomer;
-
-  /// No description provided for @requestAnswerTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Your answer'**
-  String get requestAnswerTitle;
-
-  /// No description provided for @requestStatusLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Where it is'**
-  String get requestStatusLabel;
-
-  /// No description provided for @requestPrice.
-  ///
-  /// In en, this message translates to:
-  /// **'Price ({currency})'**
-  String requestPrice(String currency);
-
-  /// No description provided for @requestPriceHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Like 450 or 450.50'**
-  String get requestPriceHint;
-
-  /// No description provided for @requestReply.
-  ///
-  /// In en, this message translates to:
-  /// **'Your reply'**
-  String get requestReply;
-
-  /// No description provided for @requestReplyHint.
-  ///
-  /// In en, this message translates to:
-  /// **'The price, the time, a question'**
-  String get requestReplyHint;
-
-  /// No description provided for @requestSave.
-  ///
-  /// In en, this message translates to:
-  /// **'Save the answer'**
-  String get requestSave;
-
-  /// No description provided for @requestSaved.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved the answer.'**
-  String get requestSaved;
-
-  /// No description provided for @requestSentOn.
-  ///
-  /// In en, this message translates to:
-  /// **'{title} · {date}'**
-  String requestSentOn(String title, String date);
-
   /// No description provided for @requestsNewCount.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 new request} other{{count} new requests}}'**
   String requestsNewCount(int count);
-
-  /// No description provided for @inboxProductReviews.
-  ///
-  /// In en, this message translates to:
-  /// **'Product reviews'**
-  String get inboxProductReviews;
-
-  /// No description provided for @onProduct.
-  ///
-  /// In en, this message translates to:
-  /// **'on {product}'**
-  String onProduct(String product);
-
-  /// No description provided for @reviewsWithPhotos.
-  ///
-  /// In en, this message translates to:
-  /// **'With photos'**
-  String get reviewsWithPhotos;
-
-  /// No description provided for @reviewPhotos.
-  ///
-  /// In en, this message translates to:
-  /// **'Photos with the review'**
-  String get reviewPhotos;
-
-  /// No description provided for @photoNumber.
-  ///
-  /// In en, this message translates to:
-  /// **'Photo {n}'**
-  String photoNumber(int n);
-
-  /// No description provided for @noProductReviewsText.
-  ///
-  /// In en, this message translates to:
-  /// **'Customers who bought a product can review it in your app, with photos.'**
-  String get noProductReviewsText;
-
-  /// No description provided for @shopWishes.
-  ///
-  /// In en, this message translates to:
-  /// **'Waiting & saved'**
-  String get shopWishes;
-
-  /// No description provided for @shopWaiting.
-  ///
-  /// In en, this message translates to:
-  /// **'Waiting for stock'**
-  String get shopWaiting;
-
-  /// No description provided for @shopWaitingHint.
-  ///
-  /// In en, this message translates to:
-  /// **'When it\'s back, each of them gets a notification once.'**
-  String get shopWaitingHint;
-
-  /// No description provided for @shopWaitingNone.
-  ///
-  /// In en, this message translates to:
-  /// **'Nobody is waiting for a product right now.'**
-  String get shopWaitingNone;
 
   /// No description provided for @shopWaitingCount.
   ///
@@ -8686,35 +8710,11 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 waits} other{{count} wait}}'**
   String shopWaitingCount(int count);
 
-  /// No description provided for @shopSaved.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved to wishlists'**
-  String get shopSaved;
-
-  /// No description provided for @shopSavedNone.
-  ///
-  /// In en, this message translates to:
-  /// **'No customer saved a product yet.'**
-  String get shopSavedNone;
-
   /// No description provided for @shopSavedCount.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1{Saved by 1} other{Saved by {count}}}'**
   String shopSavedCount(int count);
-
-  /// No description provided for @variationNumber.
-  ///
-  /// In en, this message translates to:
-  /// **'Choice #{id}'**
-  String variationNumber(int id);
-
-  /// No description provided for @productNoLongerSold.
-  ///
-  /// In en, this message translates to:
-  /// **'A product no longer sold'**
-  String get productNoLongerSold;
 }
 
 class _AppLocalizationsDelegate

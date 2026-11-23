@@ -2830,6 +2830,90 @@
   "pushCancelledHelp": "When a customer cancels a food or marketplace order",
   "pushRingtonesLink": "Ringtones",
   "pushRingtonesLinkHelp": "Choose the sound of each kind, and let new orders ring until opened",
+  "customOrders": "Custom orders",
+  "customOrdersText": "Requests sent from your app's custom-order form",
+  "requestStatusNew": "New",
+  "requestStatusQuoted": "Quoted",
+  "requestStatusAccepted": "Accepted",
+  "requestStatusDeclined": "Declined",
+  "requestStatusDone": "Done",
+  "requestsOpen": "Open",
+  "requestsAll": "All",
+  "noRequests": "No custom orders yet",
+  "noRequestsText": "Add the custom-order page or form to your app in Studio, and the requests your customers send show here.",
+  "noOpenRequests": "No requests waiting for you",
+  "requestSomeone": "A customer",
+  "requestQuote": "Quoted {price}",
+  "@requestQuote": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "requestAsked": "What they asked for",
+  "requestCustomer": "Customer",
+  "requestAnswerTitle": "Your answer",
+  "requestStatusLabel": "Where it is",
+  "requestPrice": "Price ({currency})",
+  "@requestPrice": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "requestPriceHint": "Like 450 or 450.50",
+  "requestReply": "Your reply",
+  "requestReplyHint": "The price, the time, a question",
+  "requestSave": "Save the answer",
+  "requestSaved": "Saved the answer.",
+  "requestSentOn": "{title} · {date}",
+  "@requestSentOn": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "inboxProductReviews": "Product reviews",
+  "onProduct": "on {product}",
+  "@onProduct": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewsWithPhotos": "With photos",
+  "reviewPhotos": "Photos with the review",
+  "photoNumber": "Photo {n}",
+  "@photoNumber": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "noProductReviewsText": "Customers who bought a product can review it in your app, with photos.",
+  "shopWishes": "Waiting & saved",
+  "shopWaiting": "Waiting for stock",
+  "shopWaitingHint": "When it's back, each of them gets a notification once.",
+  "shopWaitingNone": "Nobody is waiting for a product right now.",
+  "shopSaved": "Saved to wishlists",
+  "shopSavedNone": "No customer saved a product yet.",
+  "variationNumber": "Choice #{id}",
+  "@variationNumber": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "productNoLongerSold": "A product no longer sold",
   "ringtonesMoney": "Money and sales",
   "soundChaChing": "Cha-ching",
   "soundCoinDrop": "Coins dropping",
@@ -3412,55 +3496,6 @@
       }
     }
   },
-  "customOrders": "Custom orders",
-  "customOrdersText": "Requests sent from your app's custom-order form",
-  "requestStatusNew": "New",
-  "requestStatusQuoted": "Quoted",
-  "requestStatusAccepted": "Accepted",
-  "requestStatusDeclined": "Declined",
-  "requestStatusDone": "Done",
-  "requestsOpen": "Open",
-  "requestsAll": "All",
-  "noRequests": "No custom orders yet",
-  "noRequestsText": "Add the custom-order page or form to your app in Studio, and the requests your customers send show here.",
-  "noOpenRequests": "No requests waiting for you",
-  "requestSomeone": "A customer",
-  "requestQuote": "Quoted {price}",
-  "@requestQuote": {
-    "placeholders": {
-      "price": {
-        "type": "String"
-      }
-    }
-  },
-  "requestAsked": "What they asked for",
-  "requestCustomer": "Customer",
-  "requestAnswerTitle": "Your answer",
-  "requestStatusLabel": "Where it is",
-  "requestPrice": "Price ({currency})",
-  "@requestPrice": {
-    "placeholders": {
-      "currency": {
-        "type": "String"
-      }
-    }
-  },
-  "requestPriceHint": "Like 450 or 450.50",
-  "requestReply": "Your reply",
-  "requestReplyHint": "The price, the time, a question",
-  "requestSave": "Save the answer",
-  "requestSaved": "Saved the answer.",
-  "requestSentOn": "{title} · {date}",
-  "@requestSentOn": {
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "date": {
-        "type": "String"
-      }
-    }
-  },
   "requestsNewCount": "{count, plural, =1{1 new request} other{{count} new requests}}",
   "@requestsNewCount": {
     "placeholders": {
@@ -3469,30 +3504,6 @@
       }
     }
   },
-  "inboxProductReviews": "Product reviews",
-  "onProduct": "on {product}",
-  "@onProduct": {
-    "placeholders": {
-      "product": {
-        "type": "String"
-      }
-    }
-  },
-  "reviewsWithPhotos": "With photos",
-  "reviewPhotos": "Photos with the review",
-  "photoNumber": "Photo {n}",
-  "@photoNumber": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
-  "noProductReviewsText": "Customers who bought a product can review it in your app, with photos.",
-  "shopWishes": "Waiting & saved",
-  "shopWaiting": "Waiting for stock",
-  "shopWaitingHint": "When it's back, each of them gets a notification once.",
-  "shopWaitingNone": "Nobody is waiting for a product right now.",
   "shopWaitingCount": "{count, plural, =1{1 waits} other{{count} wait}}",
   "@shopWaitingCount": {
     "placeholders": {
@@ -3501,8 +3512,6 @@
       }
     }
   },
-  "shopSaved": "Saved to wishlists",
-  "shopSavedNone": "No customer saved a product yet.",
   "shopSavedCount": "{count, plural, =1{Saved by 1} other{Saved by {count}}}",
   "@shopSavedCount": {
     "placeholders": {
@@ -3510,14 +3519,5 @@
         "type": "int"
       }
     }
-  },
-  "variationNumber": "Choice #{id}",
-  "@variationNumber": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
-  "productNoLongerSold": "A product no longer sold"
+  }
 }

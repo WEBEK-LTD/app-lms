@@ -4366,6 +4366,139 @@ class AppLocalizationsEn extends AppLocalizations {
       'Choose the sound of each kind, and let new orders ring until opened';
 
   @override
+  String get customOrders => 'Custom orders';
+
+  @override
+  String get customOrdersText =>
+      'Requests sent from your app\'s custom-order form';
+
+  @override
+  String get requestStatusNew => 'New';
+
+  @override
+  String get requestStatusQuoted => 'Quoted';
+
+  @override
+  String get requestStatusAccepted => 'Accepted';
+
+  @override
+  String get requestStatusDeclined => 'Declined';
+
+  @override
+  String get requestStatusDone => 'Done';
+
+  @override
+  String get requestsOpen => 'Open';
+
+  @override
+  String get requestsAll => 'All';
+
+  @override
+  String get noRequests => 'No custom orders yet';
+
+  @override
+  String get noRequestsText =>
+      'Add the custom-order page or form to your app in Studio, and the requests your customers send show here.';
+
+  @override
+  String get noOpenRequests => 'No requests waiting for you';
+
+  @override
+  String get requestSomeone => 'A customer';
+
+  @override
+  String requestQuote(String price) {
+    return 'Quoted $price';
+  }
+
+  @override
+  String get requestAsked => 'What they asked for';
+
+  @override
+  String get requestCustomer => 'Customer';
+
+  @override
+  String get requestAnswerTitle => 'Your answer';
+
+  @override
+  String get requestStatusLabel => 'Where it is';
+
+  @override
+  String requestPrice(String currency) {
+    return 'Price ($currency)';
+  }
+
+  @override
+  String get requestPriceHint => 'Like 450 or 450.50';
+
+  @override
+  String get requestReply => 'Your reply';
+
+  @override
+  String get requestReplyHint => 'The price, the time, a question';
+
+  @override
+  String get requestSave => 'Save the answer';
+
+  @override
+  String get requestSaved => 'Saved the answer.';
+
+  @override
+  String requestSentOn(String title, String date) {
+    return '$title · $date';
+  }
+
+  @override
+  String get inboxProductReviews => 'Product reviews';
+
+  @override
+  String onProduct(String product) {
+    return 'on $product';
+  }
+
+  @override
+  String get reviewsWithPhotos => 'With photos';
+
+  @override
+  String get reviewPhotos => 'Photos with the review';
+
+  @override
+  String photoNumber(int n) {
+    return 'Photo $n';
+  }
+
+  @override
+  String get noProductReviewsText =>
+      'Customers who bought a product can review it in your app, with photos.';
+
+  @override
+  String get shopWishes => 'Waiting & saved';
+
+  @override
+  String get shopWaiting => 'Waiting for stock';
+
+  @override
+  String get shopWaitingHint =>
+      'When it\'s back, each of them gets a notification once.';
+
+  @override
+  String get shopWaitingNone => 'Nobody is waiting for a product right now.';
+
+  @override
+  String get shopSaved => 'Saved to wishlists';
+
+  @override
+  String get shopSavedNone => 'No customer saved a product yet.';
+
+  @override
+  String variationNumber(int id) {
+    return 'Choice #$id';
+  }
+
+  @override
+  String get productNoLongerSold => 'A product no longer sold';
+
+  @override
   String get ringtonesMoney => 'Money and sales';
 
   @override
@@ -5127,89 +5260,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get customOrders => 'Custom orders';
-
-  @override
-  String get customOrdersText =>
-      'Requests sent from your app\'s custom-order form';
-
-  @override
-  String get requestStatusNew => 'New';
-
-  @override
-  String get requestStatusQuoted => 'Quoted';
-
-  @override
-  String get requestStatusAccepted => 'Accepted';
-
-  @override
-  String get requestStatusDeclined => 'Declined';
-
-  @override
-  String get requestStatusDone => 'Done';
-
-  @override
-  String get requestsOpen => 'Open';
-
-  @override
-  String get requestsAll => 'All';
-
-  @override
-  String get noRequests => 'No custom orders yet';
-
-  @override
-  String get noRequestsText =>
-      'Add the custom-order page or form to your app in Studio, and the requests your customers send show here.';
-
-  @override
-  String get noOpenRequests => 'No requests waiting for you';
-
-  @override
-  String get requestSomeone => 'A customer';
-
-  @override
-  String requestQuote(String price) {
-    return 'Quoted $price';
-  }
-
-  @override
-  String get requestAsked => 'What they asked for';
-
-  @override
-  String get requestCustomer => 'Customer';
-
-  @override
-  String get requestAnswerTitle => 'Your answer';
-
-  @override
-  String get requestStatusLabel => 'Where it is';
-
-  @override
-  String requestPrice(String currency) {
-    return 'Price ($currency)';
-  }
-
-  @override
-  String get requestPriceHint => 'Like 450 or 450.50';
-
-  @override
-  String get requestReply => 'Your reply';
-
-  @override
-  String get requestReplyHint => 'The price, the time, a question';
-
-  @override
-  String get requestSave => 'Save the answer';
-
-  @override
-  String get requestSaved => 'Saved the answer.';
-
-  @override
-  String requestSentOn(String title, String date) {
-    return '$title · $date';
-  }
-
-  @override
   String requestsNewCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -5219,42 +5269,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get inboxProductReviews => 'Product reviews';
-
-  @override
-  String onProduct(String product) {
-    return 'on $product';
-  }
-
-  @override
-  String get reviewsWithPhotos => 'With photos';
-
-  @override
-  String get reviewPhotos => 'Photos with the review';
-
-  @override
-  String photoNumber(int n) {
-    return 'Photo $n';
-  }
-
-  @override
-  String get noProductReviewsText =>
-      'Customers who bought a product can review it in your app, with photos.';
-
-  @override
-  String get shopWishes => 'Waiting & saved';
-
-  @override
-  String get shopWaiting => 'Waiting for stock';
-
-  @override
-  String get shopWaitingHint =>
-      'When it\'s back, each of them gets a notification once.';
-
-  @override
-  String get shopWaitingNone => 'Nobody is waiting for a product right now.';
 
   @override
   String shopWaitingCount(int count) {
@@ -5268,12 +5282,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get shopSaved => 'Saved to wishlists';
-
-  @override
-  String get shopSavedNone => 'No customer saved a product yet.';
-
-  @override
   String shopSavedCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -5283,12 +5291,4 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String variationNumber(int id) {
-    return 'Choice #$id';
-  }
-
-  @override
-  String get productNoLongerSold => 'A product no longer sold';
 }
