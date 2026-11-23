@@ -161,7 +161,7 @@ describe("209 the size finder, swatches and quiz", () => {
     for (const type of ["size_finder", "swatches", "quiz"] as const) {
       expect(STUDIO_NODE_TYPES).toContain(type);
       expect(ELEMENTS.some((e) => e.type === type && e.group === "premium")).toBe(true);
-      for (const lang of [studioEn, studioAr, studioTr]) expect((lang as Record<string, string>)[`el_${type}`]).toBeTruthy();
+      for (const lang of [studioEn, studioAr, studioTr]) expect((lang as unknown as Record<string, string>)[`el_${type}`]).toBeTruthy();
     }
     expect(ELEMENTS.find((e) => e.type === "size_finder")!.only).toBe("store");
   });
