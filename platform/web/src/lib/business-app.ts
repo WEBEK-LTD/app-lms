@@ -11,10 +11,14 @@
 export const BUSINESS_APP_STORE_URL = "https://apps.apple.com/app/yallapp-business/id6827042925";
 export const BUSINESS_APP_PLAY_URL = "https://play.google.com/store/apps/details?id=tr.com.yallapp.business";
 
-/** Both links, in the order the buttons show them, each with its Material Symbols icon. */
+/**
+ * Both links, in the order the buttons show them, each with its store's mark
+ * (Apple's and Google Play's, lib/brands.ts STORES; the owner asked for the
+ * stores' own logos on the buttons).
+ */
 export const BUSINESS_APP_LINKS = [
-  { store: "appStore", url: BUSINESS_APP_STORE_URL, icon: "phone_iphone" },
-  { store: "googlePlay", url: BUSINESS_APP_PLAY_URL, icon: "android" },
+  { store: "appStore", url: BUSINESS_APP_STORE_URL, mark: "app_store" },
+  { store: "googlePlay", url: BUSINESS_APP_PLAY_URL, mark: "google_play" },
 ] as const;
 
 export type BusinessAppStore = (typeof BUSINESS_APP_LINKS)[number]["store"];

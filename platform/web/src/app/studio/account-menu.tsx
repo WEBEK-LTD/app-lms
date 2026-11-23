@@ -4,6 +4,7 @@ import { DashboardLanguage } from "@/components/dashboard-language";
 import { SignOutButton } from "@/components/sign-out";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { BUSINESS_APP_LINKS } from "@/lib/business-app";
+import { StoreMark } from "@/components/brand-marks";
 import { isStudioProject } from "@/lib/studio/section";
 import { pathPermission } from "@/lib/team/permissions";
 import { CloseOnNavigate } from "./close-on-navigate";
@@ -125,7 +126,7 @@ export async function StudioAccountMenu({ look = "bar" }: { look?: "bar" | "avat
                 className="flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] font-semibold no-underline hover:bg-[var(--sf-soft,#F4EFE6)]"
                 style={{ border: line, color: ink }}
               >
-                <Glyph name={link.icon} size={16} />
+                <StoreMark store={link.mark} size={15} />
                 <span dir="ltr">{link.store === "appStore" ? t("owner.appStore") : t("owner.googlePlay")}</span>
                 <span className="sr-only">{t("owner.newTab")}</span>
               </a>

@@ -4,7 +4,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { BUSINESS_APP_LINKS, BUSINESS_APP_PLAY_URL, BUSINESS_APP_STORE_URL } from "@/lib/business-app";
 import { BusinessAppButtons } from "@/components/business-app";
-import { ICON_NAMES } from "@/components/icon-names";
+import { STORES } from "@/lib/brands";
 import { BusinessAppSection } from "@/site/business-app";
 import { LANGS, messagesFor } from "@/i18n";
 import { dashboardTextFor } from "@/lib/dashboard-words";
@@ -16,7 +16,7 @@ describe("203 Yallapp Business on the App Store and Google Play", () => {
     expect(BUSINESS_APP_STORE_URL).toBe("https://apps.apple.com/app/yallapp-business/id6827042925");
     expect(BUSINESS_APP_PLAY_URL).toBe("https://play.google.com/store/apps/details?id=tr.com.yallapp.business");
     expect(BUSINESS_APP_LINKS.map((link) => link.url)).toEqual([BUSINESS_APP_STORE_URL, BUSINESS_APP_PLAY_URL]);
-    for (const link of BUSINESS_APP_LINKS) expect(ICON_NAMES as readonly string[]).toContain(link.icon);
+    expect(BUSINESS_APP_LINKS.map((link) => link.mark)).toEqual(["app_store", "google_play"]);
   });
 
   it("renders both buttons, opening in a new tab", () => {
@@ -27,6 +27,11 @@ describe("203 Yallapp Business on the App Store and Google Play", () => {
     expect(html).toContain("Download on the");
     expect(html).toContain("Get it on");
     expect(html).toContain("(opens in a new tab)");
+    // The owner: the stores' own logos on the buttons (Apple's, Google Play's).
+    expect(html).toContain('data-store-mark="app_store"');
+    expect(html).toContain('data-store-mark="google_play"');
+    expect(html).toContain(`d="${STORES.app_store.mark!.path}"`);
+    expect(html).toContain(`d="${STORES.google_play.mark!.path}"`);
   });
 
   it("has the home page's section in every language, with the links", () => {

@@ -1,5 +1,5 @@
-import { Icon } from "./icon";
 import { BUSINESS_APP_LINKS } from "@/lib/business-app";
+import { StoreMark } from "./brand-marks";
 
 /** The words of the two store buttons, from the site's or the dashboard's messages. */
 export type BusinessAppLabels = {
@@ -26,8 +26,8 @@ const SIZES = {
 
 /**
  * 203 "Download on the App Store" and "Get it on Google Play" for Yallapp
- * Business: buttons of our own (words and a Material Symbols icon, not the
- * stores' badges), each opening the store in a new tab.
+ * Business: buttons of our own, each with its store's mark (Apple's logo, Google
+ * Play's) in the words' colour, opening the store in a new tab.
  */
 export function BusinessAppButtons({
   labels,
@@ -55,7 +55,7 @@ export function BusinessAppButtons({
             data-business-app={link.store}
             className={`flex items-center no-underline transition-[translate,border-color,background-color] ${s.box} ${TONES[tone]}`}
           >
-            <Icon name={link.icon} size={s.icon} />
+            <StoreMark store={link.mark} size={s.icon} />
             <span className="flex flex-col items-start gap-[3px] leading-none">
               <span className={`${s.line} font-medium opacity-80`}>{link.store === "appStore" ? labels.appStoreLine : labels.googlePlayLine}</span>
               <span className={`${s.name} font-bold tracking-[-0.2px]`} dir="ltr">
