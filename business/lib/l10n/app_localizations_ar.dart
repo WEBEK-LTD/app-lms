@@ -1340,6 +1340,28 @@ class AppLocalizationsAr extends AppLocalizations {
   String get themeDark => 'داكن';
 
   @override
+  String get themeTitle => 'السمة';
+
+  @override
+  String get themeDefaultBadge => 'الافتراضي';
+
+  @override
+  String get themeDefaultHelp => 'المظهر الحالي للتطبيق';
+
+  @override
+  String get themePharaonic => 'فرعوني';
+
+  @override
+  String get themePharaonicHelp => 'ليلي وذهبي، بزخارف مصرية قديمة';
+
+  @override
+  String get themeModeTitle => 'فاتح أو داكن';
+
+  @override
+  String get themeModeHelp =>
+      'لكل سمة وضعها الفاتح والداكن، ويتبعان هذا الإعداد.';
+
+  @override
   String get changeTime => 'تغيير الموعد';
 
   @override

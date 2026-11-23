@@ -51,6 +51,8 @@ flutter:
 
   assets:
     - assets/sounds/
+    # 215 The Pharaonic theme's papyrus (an original texture).
+    - assets/images/pharaonic/
 
   fonts:
     # From github.com/google/fonts (SIL OFL 1.1, licence files next to each
@@ -69,6 +71,14 @@ flutter:
           weight: 600
         - asset: assets/fonts/ibmplexsansarabic/IBMPlexSansArabic-Bold.ttf
           weight: 700
+    # 215 The Pharaonic theme only: El Messiri for its headings (Arabic and
+    # Latin), Cinzel for its Latin small-caps labels.
+    - family: El Messiri
+      fonts:
+        - asset: assets/fonts/elmessiri/ElMessiri-Variable.ttf
+    - family: Cinzel
+      fonts:
+        - asset: assets/fonts/cinzel/Cinzel-Variable.ttf
 
 # Transitive packages held back to releases that are at least two weeks old
 # (project rule). Remove an entry once its newer release has aged.

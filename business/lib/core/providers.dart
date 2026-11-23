@@ -28,6 +28,7 @@ import 'services/ringtones.dart';
 import 'services/screen_wake.dart';
 import 'services/settings.dart';
 import 'session.dart';
+import 'theme/pharaonic.dart' show AppTheme;
 
 /// 59 The app's wiring. `main.dart` overrides the first ones with the real
 /// services; the widget tests with fakes.
@@ -216,6 +217,24 @@ class ThemeModeController extends Notifier<ThemeMode> {
 
 final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(
   ThemeModeController.new,
+);
+
+/// 215 The app's theme: the default look unless Pharaonic is chosen in
+/// Settings › Appearance (kept on this phone).
+class AppThemeController extends Notifier<AppTheme> {
+  @override
+  AppTheme build() => AppTheme.parse(ref.watch(settingsProvider).appTheme);
+
+  void set(AppTheme theme) {
+    state = theme;
+    ref
+        .read(settingsProvider)
+        .setAppTheme(theme == AppTheme.standard ? null : theme.name);
+  }
+}
+
+final appThemeProvider = NotifierProvider<AppThemeController, AppTheme>(
+  AppThemeController.new,
 );
 
 /// The language the app shows: the choice, else the phone's when it's one

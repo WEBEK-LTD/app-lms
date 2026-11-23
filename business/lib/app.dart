@@ -207,6 +207,8 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
     final arabic = locale.languageCode == 'ar';
     // 125 A Prime app's look (Classic otherwise).
     final look = ref.watch(activeLookProvider);
+    // 215 The default look or the Pharaonic theme.
+    final appTheme = ref.watch(appThemeProvider);
     return MaterialApp.router(
       title: 'Yallapp Business',
       debugShowCheckedModeBanner: false,
@@ -220,12 +222,13 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      theme: buildTheme(arabic: arabic, look: look),
+      theme: buildTheme(arabic: arabic, look: look, appTheme: appTheme),
       // 61 The dark theme, following the phone unless chosen in Settings.
       darkTheme: buildTheme(
         arabic: arabic,
         brightness: Brightness.dark,
         look: look,
+        appTheme: appTheme,
       ),
       themeMode: ref.watch(themeModeProvider),
       // 132 The cover over everything while the app isn't in front.

@@ -6,6 +6,7 @@ import '../../core/providers.dart';
 import '../../core/services/biometrics.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
+import '../../core/theme/pharaonic_widgets.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../launch/opening_screen.dart' show yMark;
@@ -125,7 +126,10 @@ class _LockScreenState extends ConsumerState<LockScreen> {
       // Nothing behind the lock: back stays here.
       canPop: false,
       child: Scaffold(
-        backgroundColor: c.background,
+        // 215 The Pharaonic theme's ground shows through.
+        backgroundColor: context.ornaments != null
+            ? Colors.transparent
+            : c.background,
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, box) => SingleChildScrollView(
@@ -137,6 +141,13 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Spacer(),
+                      // 215 The Pharaonic theme: the winged sun above.
+                      if (context.ornaments != null) ...[
+                        const Center(
+                          child: ExcludeSemantics(child: WingedSun(width: 200)),
+                        ),
+                        const SizedBox(height: 18),
+                      ],
                       const Center(child: AppMark(size: 76)),
                       const SizedBox(height: 16),
                       Text(

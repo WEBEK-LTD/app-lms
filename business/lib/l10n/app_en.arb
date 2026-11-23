@@ -754,6 +754,13 @@
   "themeSystemHelp": "Light or dark as your phone is set.",
   "themeLight": "Light",
   "themeDark": "Dark",
+  "themeTitle": "Theme",
+  "themeDefaultBadge": "Default",
+  "themeDefaultHelp": "The app's current look",
+  "themePharaonic": "Pharaonic",
+  "themePharaonicHelp": "Night and gold, with ancient Egyptian ornaments",
+  "themeModeTitle": "Light or dark",
+  "themeModeHelp": "Each theme has its own light and dark; both follow this setting.",
   "changeTime": "Change time",
   "moveNow": "Now on {day} at {time}",
   "@moveNow": {

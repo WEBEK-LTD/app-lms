@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'pharaonic.dart';
+import 'pharaonic_theme.dart';
+
+export 'pharaonic.dart' show AppTheme, YbOrnaments, YbOrnamentsTheme;
+
 /// 59 Yallapp's palette (docs/BRAND.md). Screens take their colors from the
 /// theme ([YbColors], `context.yb`) so they follow light and dark (61); the
 /// constants are for what looks the same in both (the dark door scanner).
@@ -381,9 +386,24 @@ ThemeData buildTheme({
   Brightness brightness = Brightness.light,
   // 125 A Prime app's look (Classic: the app's own colors).
   PrimeLook look = PrimeLook.classic,
+  // 215 The Pharaonic theme (its own colors; a Prime look doesn't apply).
+  AppTheme appTheme = AppTheme.standard,
+}) => appTheme == AppTheme.pharaonic
+    ? buildPharaonicTheme(arabic: arabic, brightness: brightness)
+    : themeFor(
+        arabic: arabic,
+        brightness: brightness,
+        c: YbColors.of(look, brightness),
+      );
+
+/// The theme drawn from [c]: the default theme, and (215) the base the
+/// Pharaonic theme starts from.
+ThemeData themeFor({
+  required bool arabic,
+  required Brightness brightness,
+  required YbColors c,
 }) {
   final dark = brightness == Brightness.dark;
-  final c = YbColors.of(look, brightness);
   const fallback = [arabicFont];
   double? tight(double value) => arabic ? 0 : value;
 

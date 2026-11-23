@@ -16,6 +16,7 @@ class LocalSettings {
   static const _language = 'yb.language';
   static const _uploads = 'yb.pending_uploads';
   static const _theme = 'yb.theme';
+  static const _appTheme = 'yb.app_theme';
   static const _lockAfter = 'yb.lock_after_minutes';
   static const _business = 'yb.business_name';
 
@@ -58,6 +59,12 @@ class LocalSettings {
   String? get theme => _prefs.getString(_theme);
   Future<void> setTheme(String? mode) =>
       mode == null ? _prefs.remove(_theme) : _prefs.setString(_theme, mode);
+
+  /// 215 The app's theme: null (the default look) or 'pharaonic'.
+  String? get appTheme => _prefs.getString(_appTheme);
+  Future<void> setAppTheme(String? theme) => theme == null
+      ? _prefs.remove(_appTheme)
+      : _prefs.setString(_appTheme, theme);
 
   /// 125 A Prime app's look (classic, midnightGold, ember, sage), per app.
   String? primeLook(String appId) => _prefs.getString('yb.prime_look.$appId');
