@@ -183,7 +183,6 @@ void main() {
     return app;
   }
 
-
   test('reads the product page elements and their looks', () {
     final gallery = StudioNode.tryParse({
       'id': 'g',
