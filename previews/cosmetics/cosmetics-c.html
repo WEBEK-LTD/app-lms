@@ -1,0 +1,101 @@
+<!doctype html><html lang="ar"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@300;400;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL@24,400,0&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+:root{--page:#F4F6F7;--surf:#FFFFFF;--glass:rgba(255,255,255,.62);--ink:#10171C;--mut:#5B6770;--line:#DDE3E7;--acc:#2C6E74;--accSoft:#E3EFF0;--onacc:#fff}
+.dark{--page:#0B1013;--surf:#141B20;--glass:rgba(22,30,36,.62);--ink:#EAF1F4;--mut:#93A3AD;--line:#24313A;--acc:#7FC7CC;--accSoft:#16292D;--onacc:#0B1013}
+body{background:var(--page);color:var(--ink);font-family:'Zain',sans-serif}
+.p{--b:file:///home/user/app-lms/platform/web/public/beauty-photos/}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 10px}
+.wm{font-weight:800;font-size:20px;letter-spacing:.5px}.wm small{display:block;font-weight:400;font-size:11px;color:var(--mut);letter-spacing:2px;direction:ltr;text-align:right}
+.ib{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;background:var(--surf)}
+.quiz{margin:6px 16px 0;height:300px;border-radius:24px;position:relative;overflow:hidden}
+.quiz img{position:absolute;inset:0;width:100%;height:100%;filter:saturate(.8)}
+.quiz .g{position:absolute;inset:auto 12px 12px 12px;background:var(--glass);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.5);border-radius:18px;padding:14px}
+.kick{font-size:11.5px;letter-spacing:2px;color:var(--acc);font-weight:700}
+.h1{font-size:25px;font-weight:800;line-height:1.15;margin:3px 0 10px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.opt{border:1px solid var(--line);background:var(--surf);border-radius:12px;padding:8px 10px;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.opt.on{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.btn{margin-top:10px;background:var(--ink);color:var(--page);border-radius:12px;height:44px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:15px}
+.sec{padding:26px 16px 10px;display:flex;justify-content:space-between;align-items:flex-end}
+.sec h2{font-size:22px;font-weight:800}.sec .n{font-size:12px;color:var(--mut);letter-spacing:1.5px;direction:ltr}
+.seg{margin:0 16px;display:flex;background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:4px}
+.seg div{flex:1;text-align:center;padding:8px;border-radius:10px;font-size:14.5px;display:flex;gap:5px;justify-content:center;align-items:center}
+.seg .on{background:var(--ink);color:var(--page)}
+.tl{margin:12px 16px 0;background:var(--surf);border:1px solid var(--line);border-radius:20px;padding:6px 14px}
+.st{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px dashed var(--line);position:relative}
+.st:last-child{border:0}
+.num{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--acc);color:var(--acc);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px;direction:ltr;flex:none}
+.st img{width:46px;height:46px;border-radius:10px}
+.st .t{flex:1}.st b{font-size:15px;display:block}.st span{font-size:12.5px;color:var(--mut)}
+.st .tm{font-size:11.5px;color:var(--mut);direction:ltr}
+.chips{display:flex;flex-wrap:wrap;gap:7px;padding:0 16px}
+.chip{border:1px solid var(--line);background:var(--surf);border-radius:999px;padding:6px 12px;font-size:13.5px;display:flex;gap:6px;align-items:center}
+.chip i{font-style:normal;color:var(--acc);font-weight:800;direction:ltr}
+.chip.on{background:var(--accSoft);border-color:transparent}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.lab{background:var(--surf);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.lab .top{display:flex;justify-content:space-between;padding:9px 11px;font-size:11px;color:var(--mut);letter-spacing:1px;direction:ltr;border-bottom:1px solid var(--line)}
+.lab img{width:100%;height:150px}
+.lab .b{padding:10px 11px}
+.lab b{font-size:15.5px;display:block;line-height:1.2}
+.lab .c{font-size:12px;color:var(--mut);margin:2px 0 7px}
+.bar{height:4px;border-radius:2px;background:var(--line);margin-bottom:8px}.bar>div{height:100%;background:var(--acc);border-radius:2px}
+.pr{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:16px}
+.add{width:30px;height:30px;border-radius:9px;background:var(--ink);color:var(--page);display:flex;align-items:center;justify-content:center}
+.note{margin:20px 16px 0;border-radius:20px;background:var(--accSoft);padding:16px;display:flex;gap:12px}
+.note img{width:58px;height:58px;border-radius:50%}
+.tabbar{margin:22px 16px 12px;background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:5px;display:flex}
+.tabbar div{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;color:var(--mut);padding:6px 0;border-radius:11px}
+.tabbar .on{background:var(--accSoft);color:var(--acc);font-weight:700}
+/* product */
+.pimg{margin:0 16px;height:400px;border-radius:24px;position:relative;overflow:hidden;background:#E9EDEF}
+.pimg img{width:100%;height:100%}
+.pimg .tag{position:absolute;top:12px;right:12px;background:var(--glass);backdrop-filter:blur(12px);border-radius:10px;padding:6px 10px;font-size:12px;direction:ltr;letter-spacing:1px}
+.spec{margin:12px 16px 0;background:var(--surf);border:1px solid var(--line);border-radius:18px}
+.spec div{display:flex;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--line);font-size:14px}
+.spec div:last-child{border:0}.spec span{color:var(--mut)}
+.cta{position:relative;background:var(--surf);border-top:1px solid var(--line);padding:12px 16px 22px;display:flex;gap:10px;align-items:center}
+</style></head><body>
+<div class="status"><span>9:41</span><span class="ms" style="font-size:18px">signal_cellular_alt wifi battery_full</span></div>
+<div id="home">
+<div class="hdr"><div class="ib"><span class="ms">menu</span></div><div class="wm" style="text-align:center">ڤيلور · العيادة<small>VELOURS CLINIC · Nº01</small></div><div class="ib"><span class="ms">shopping_bag</span></div></div>
+<div class="quiz"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/quiz.jpg">
+<div class="g"><div class="kick">اختبار البشرة · 60 ثانية</div><div class="h1">ما نوع بشرتك؟</div>
+<div class="opts"><div class="opt">جافة <span class="ms" style="font-size:18px">water_drop</span></div><div class="opt on">مختلطة <span class="ms" style="font-size:18px">contrast</span></div><div class="opt">دهنية <span class="ms" style="font-size:18px">opacity</span></div><div class="opt">حسّاسة <span class="ms" style="font-size:18px">spa</span></div></div>
+<div class="btn">ابدئي الاختبار <span class="ms" style="font-size:18px">arrow_back</span></div></div></div>
+<div class="sec"><h2>روتينك اليومي</h2><span class="n">ROUTINE · 05 STEPS</span></div>
+<div class="seg"><div class="on"><span class="ms" style="font-size:18px">light_mode</span>الصباح</div><div><span class="ms" style="font-size:18px">dark_mode</span>المساء</div></div>
+<div class="tl">
+<div class="st"><div class="num">01</div><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/olive-soap.jpg"><div class="t"><b>التنظيف</b><span>غسول لطيف بالشوفان</span></div><span class="tm">60s</span></div>
+<div class="st"><div class="num">02</div><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/vitamin-c.jpg"><div class="t"><b>السيروم</b><span>فيتامين C ‏15%</span></div><span class="tm">3 drops</span></div>
+<div class="st"><div class="num">03</div><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/gel-cream.jpg"><div class="t"><b>الترطيب</b><span>جل كريم بالسيراميد</span></div><span class="tm">pea</span></div>
+<div class="st"><div class="num">04</div><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/spf.jpg"><div class="t"><b>الحماية</b><span>واقي شمس SPF 50</span></div><span class="tm">2 fingers</span></div>
+</div>
+<div class="sec"><h2>حسب المكوّن</h2><span class="n">INGREDIENTS</span></div>
+<div class="chips"><div class="chip on"><i>10%</i>نياسيناميد</div><div class="chip"><i>2%</i>هيالورونيك</div><div class="chip"><i>0.3%</i>ريتينول</div><div class="chip"><i>15%</i>فيتامين C</div><div class="chip">سيراميد</div><div class="chip">سكوالان</div></div>
+<div class="sec"><h2>المختبر</h2><span class="n">LAB · 24 FORMULAS</span></div>
+<div class="grid">
+<div class="lab"><div class="top"><span>Nº 014</span><span>SERUM</span></div><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/niacinamide.jpg"><div class="b"><b>سيروم النياسيناميد</b><div class="c">للمسام والبقع · 30 مل</div><div class="bar"><div style="width:62%"></div></div><div class="pr"><span>420 ج.م</span><span class="add"><span class="ms" style="font-size:18px">add</span></span></div></div></div>
+<div class="lab"><div class="top"><span>Nº 022</span><span>CREAM</span></div><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/ceramide.jpg"><div class="b"><b>كريم السيراميد</b><div class="c">حاجز البشرة · 50 مل</div><div class="bar"><div style="width:40%"></div></div><div class="pr"><span>380 ج.م</span><span class="add"><span class="ms" style="font-size:18px">add</span></span></div></div></div>
+<div class="lab"><div class="top"><span>Nº 031</span><span>RETINOID</span></div><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/retinol.jpg"><div class="b"><b>ريتينول الليل</b><div class="c">للتجاعيد · 30 مل</div><div class="bar"><div style="width:30%"></div></div><div class="pr"><span>510 ج.م</span><span class="add"><span class="ms" style="font-size:18px">add</span></span></div></div></div>
+<div class="lab"><div class="top"><span>Nº 008</span><span>HYDRA</span></div><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/hyaluronic.jpg"><div class="b"><b>هيالورونيك 2%</b><div class="c">ترطيب عميق · 30 مل</div><div class="bar"><div style="width:20%"></div></div><div class="pr"><span>350 ج.م</span><span class="add"><span class="ms" style="font-size:18px">add</span></span></div></div></div>
+</div>
+<div class="note"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/routine-morning.jpg"><div><div class="kick">ملاحظة الخبيرة</div><div style="font-size:15px;line-height:1.45;margin-top:3px">ابدئي الريتينول مرتين أسبوعيًا فقط، ولا تنسي واقي الشمس صباحًا.</div></div></div>
+<div class="tabbar sticky"><div class="on"><span class="ms">home</span>الرئيسية</div><div><span class="ms">science</span>المختبر</div><div><span class="ms">shopping_bag</span>السلة</div><div><span class="ms">receipt_long</span>طلباتي</div><div><span class="ms">person</span>حسابي</div></div>
+</div>
+<div id="product" style="display:none">
+<div class="hdr"><div class="ib"><span class="ms">arrow_forward</span></div><div class="wm" style="font-size:15px">Nº 014 · SERUM</div><div class="ib"><span class="ms">favorite</span></div></div>
+<div class="pimg"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/niacinamide.jpg"><div class="tag">10% NIACINAMIDE</div></div>
+<div style="padding:16px 16px 0"><div class="kick">للمسام والبقع · كل أنواع البشرة</div><div class="h1" style="font-size:28px;margin:4px 0">سيروم النياسيناميد 10%</div><div class="pr" style="font-size:22px;justify-content:flex-start;gap:10px">420 ج.م <span style="font-size:14px;color:var(--mut);text-decoration:line-through;font-weight:400">490</span></div></div>
+<div class="sec" style="padding-top:18px"><h2 style="font-size:18px">المكوّنات الفعّالة</h2></div>
+<div class="chips"><div class="chip on"><i>10%</i>نياسيناميد</div><div class="chip"><i>1%</i>زنك</div><div class="chip">بانثينول</div></div>
+<div class="spec" style="margin-top:14px"><div><span>نوع البشرة</span>دهنية · مختلطة</div><div><span>الخطوة</span>02 · سيروم</div><div><span>الاستعمال</span>صباحًا ومساءً</div><div><span>الحجم</span>30 مل</div></div>
+<div class="sec" style="padding-top:18px"><h2 style="font-size:18px">أين يأتي في روتينك</h2></div>
+<div class="tl" style="margin-top:0"><div class="st"><div class="num">01</div><div class="t"><b>التنظيف</b></div></div><div class="st"><div class="num" style="background:var(--acc);color:var(--onacc)">02</div><div class="t"><b>هذا السيروم</b><span>3 قطرات على بشرة جافة</span></div></div><div class="st"><div class="num">03</div><div class="t"><b>الترطيب</b></div></div></div>
+<div style="height:24px"></div>
+<div class="cta"><div class="ib" style="width:48px;height:48px"><span class="ms">favorite</span></div><div class="btn" style="flex:1;margin:0;height:50px">أضيفي إلى السلة · 420 ج.م</div></div>
+</div>
+<script>const q=new URLSearchParams(location.search);if(q.get('mode')==='dark')document.body.classList.add('dark');if(q.get('screen')==='product'){home.style.display='none';product.style.display='block'}</script>
+</body></html>

@@ -1,0 +1,97 @@
+<!doctype html><html lang="ar"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Kufam:wght@400;600;800;900&family=Material+Symbols+Rounded:opsz,wght,FILL@24,400,1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+:root{--page:#FBF3F6;--surf:#FFFFFF;--ink:#2A0E22;--mut:#7A5A6E;--line:#EBD9E2;--acc:#9B1B5A;--gloss:linear-gradient(160deg,#5A1240,#2A0E22)}
+.dark{--page:#0A0508;--surf:#1A0D16;--ink:#FBEFF5;--mut:#B897AA;--line:#2E1626;--acc:#FF6FA8;--gloss:linear-gradient(160deg,#3A0C2A,#120610)}
+body{background:var(--page);color:var(--ink);font-family:'Kufam',sans-serif}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:4px 18px 8px}
+.wm{font-weight:900;font-size:24px;letter-spacing:-.5px;font-style:italic}
+.hb{display:flex;gap:8px}.hb span{width:38px;height:38px;border-radius:50%;background:var(--surf);display:flex;align-items:center;justify-content:center;border:1px solid var(--line)}
+.hero{margin:4px 0 0;background:var(--gloss);color:#fff;padding:18px 0 22px;position:relative;overflow:hidden;border-radius:0 0 34px 34px}
+.hero .shade{display:flex;gap:16px;padding:0 18px;align-items:flex-end}
+.hero img.face{width:150px;height:190px;border-radius:90px 90px 18px 18px}
+.big{font-weight:900;font-size:44px;line-height:.95;letter-spacing:-1px}
+.k{font-size:11.5px;letter-spacing:2.5px;color:#FFB3D1;font-weight:600}
+.sw{display:flex;gap:12px;padding:18px 18px 0;overflow:hidden}
+.dot{flex:none;width:58px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:#F3D6E4}
+.dot i{width:54px;height:54px;border-radius:50%;display:block;box-shadow:inset -6px -8px 14px rgba(0,0,0,.35),inset 6px 6px 12px rgba(255,255,255,.35)}
+.dot.on i{outline:2px solid #fff;outline-offset:3px}
+.pill{display:inline-flex;gap:6px;align-items:center;background:#fff;color:#2A0E22;border-radius:999px;padding:10px 16px;font-weight:800;font-size:14px;margin-top:12px}
+.sec{padding:26px 18px 12px;display:flex;justify-content:space-between;align-items:flex-end}
+.sec h2{font-size:26px;font-weight:900;letter-spacing:-.5px;line-height:1}.sec a{font-size:13px;color:var(--acc);font-weight:700}
+.reels{display:flex;gap:10px;padding:0 18px;overflow:hidden}
+.reel{flex:none;width:124px;height:220px;border-radius:20px;position:relative;overflow:hidden}
+.reel img{width:100%;height:100%}
+.reel::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(20,4,14,.85))}
+.reel .t{position:absolute;bottom:10px;right:10px;left:10px;color:#fff;font-weight:800;font-size:13px;z-index:2;line-height:1.25}
+.reel .pl{position:absolute;top:10px;left:10px;z-index:2;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.25);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:#fff}
+.reel .d{font-size:10.5px;font-weight:400;opacity:.8;display:block;direction:ltr;text-align:right}
+.ba{margin:0 18px;border-radius:26px;overflow:hidden;position:relative;height:250px;background:var(--surf)}
+.ba img{position:absolute;top:0;height:100%;width:100%}
+.ba .r{clip-path:inset(0 0 0 50%);filter:saturate(1.25) contrast(1.05)}
+.ba .l{filter:grayscale(.5) brightness(.95)}
+.ba .ln{position:absolute;left:50%;top:0;bottom:0;width:3px;background:#fff}
+.ba .kn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:#fff;color:#2A0E22;display:flex;align-items:center;justify-content:center}
+.ba .lb{position:absolute;bottom:12px;background:rgba(0,0,0,.5);color:#fff;font-size:12px;padding:4px 10px;border-radius:999px}
+.prods{display:flex;gap:12px;padding:0 18px;overflow:hidden}
+.pc{flex:none;width:168px}
+.pc .im{height:210px;border-radius:24px;overflow:hidden;position:relative;background:var(--surf)}
+.pc .im img{width:100%;height:100%}
+.pc .sws{position:absolute;bottom:10px;right:10px;display:flex;gap:4px;background:rgba(255,255,255,.85);padding:4px;border-radius:999px}
+.pc .sws i{width:14px;height:14px;border-radius:50%;display:block}
+.pc b{display:block;font-size:14.5px;margin-top:8px;font-weight:800}.pc .p{font-size:14px;color:var(--acc);font-weight:800}
+.pc .s{font-size:11.5px;color:var(--mut)}
+.mood{margin:0 18px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mood div{height:92px;border-radius:20px;color:#fff;padding:12px;font-weight:900;font-size:20px;display:flex;align-items:flex-end}
+.tabbar{margin:24px 50px 14px;background:#14070F;border-radius:999px;padding:8px 10px;display:flex;justify-content:space-around;box-shadow:0 0 0 1px rgba(255,111,168,.25),0 8px 30px rgba(255,111,168,.35)}
+.tabbar span{color:#9C7A8D;width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.tabbar .on{color:#fff;background:#FF3D8B;box-shadow:0 0 18px #FF3D8B}
+.pimg{height:430px;position:relative;overflow:hidden;border-radius:0 0 34px 34px}
+.pimg img{width:100%;height:100%}
+.pimg .top{position:absolute;top:8px;left:16px;right:16px;display:flex;justify-content:space-between}
+.pimg .top span{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.3);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;color:#fff}
+.sq{display:flex;gap:10px;padding:0 18px;flex-wrap:wrap}
+.sq div{width:58px;display:flex;flex-direction:column;gap:4px;align-items:center;font-size:11px;color:var(--mut)}
+.sq i{width:52px;height:52px;border-radius:16px;display:block;box-shadow:inset -5px -6px 12px rgba(0,0,0,.3),inset 5px 5px 10px rgba(255,255,255,.3)}
+.sq .on i{outline:2px solid var(--ink);outline-offset:3px}
+.cta{margin:22px 18px 18px;display:flex;gap:10px}
+.cta div{height:54px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:800}
+</style></head><body>
+<div class="status"><span>9:41</span><span class="ms" style="font-size:18px">signal_cellular_alt wifi battery_full</span></div>
+<div id="home">
+<div class="hdr"><div class="hb"><span class="ms">menu</span></div><div class="wm">VELOURS</div><div class="hb"><span class="ms">search</span><span class="ms">shopping_bag</span></div></div>
+<div class="hero">
+<div class="shade"><img class="face" src="file:///home/user/app-lms/platform/web/public/beauty-photos/velvet-lips.jpg"><div><div class="k">SHADE STUDIO · 24 ظلًّا</div><div class="big">تين<br>07</div><div style="font-size:13px;color:#F3D6E4;margin-top:6px">أحمر شفاه مخملي · لمسة نهائية مطفية</div><div class="pill">جرّبي الظل <span class="ms" style="font-size:18px">arrow_back</span></div></div></div>
+<div class="sw">
+<div class="dot"><i style="background:#E8A29A"></i>نود 01</div><div class="dot"><i style="background:#C2575F"></i>ورد 04</div><div class="dot on"><i style="background:#7B1E3E"></i>تين 07</div><div class="dot"><i style="background:#A3122A"></i>كرز 09</div><div class="dot"><i style="background:#4A1028"></i>توت 12</div><div class="dot"><i style="background:#D77B6A"></i>مرجان 03</div>
+</div></div>
+<div class="sec"><h2>شاهدي<br>وطبّقي</h2><a>كل الدروس</a></div>
+<div class="reels">
+<div class="reel"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/eyeliner.jpg"><span class="pl ms">play_arrow</span><div class="t">آيلاينر القطة في دقيقة<span class="d">0:58</span></div></div>
+<div class="reel"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/smoky-palette.jpg"><span class="pl ms">play_arrow</span><div class="t">سموكي للسهرة<span class="d">1:24</span></div></div>
+<div class="reel"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/shade-face.jpg"><span class="pl ms">play_arrow</span><div class="t">اختاري ظل الفاونديشن<span class="d">0:45</span></div></div>
+</div>
+<div class="sec"><h2>قبل وبعد</h2><a>اسحبي</a></div>
+<div class="ba"><img class="l" src="file:///home/user/app-lms/platform/web/public/beauty-photos/routine-morning.jpg"><img class="r" src="file:///home/user/app-lms/platform/web/public/beauty-photos/routine-morning.jpg"><div class="ln"></div><div class="kn ms">code</div><span class="lb" style="right:12px">قبل</span><span class="lb" style="left:12px">بعد · بلاشر وردي 04</span></div>
+<div class="sec"><h2>الأكثر لمعانًا</h2><a>المتجر</a></div>
+<div class="prods">
+<div class="pc"><div class="im"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/nail.jpg"><div class="sws"><i style="background:#E5246B"></i><i style="background:#7B1E3E"></i><i style="background:#F2B8C6"></i></div></div><b>طلاء جل لامع</b><div class="s">12 لونًا</div><div class="p">180 ج.م</div></div>
+<div class="pc"><div class="im"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/rose-palette.jpg"><div class="sws"><i style="background:#C98B8F"></i><i style="background:#8D4D5C"></i></div></div><b>باليت الوردة</b><div class="s">12 ظلًّا</div><div class="p">540 ج.م</div></div>
+<div class="pc"><div class="im"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/blush.jpg"></div><b>بلاشر مضغوط</b><div class="s">6 ألوان</div><div class="p">260 ج.م</div></div>
+</div>
+<div class="sec"><h2>حسب المزاج</h2></div>
+<div class="mood"><div style="background:linear-gradient(135deg,#E8A29A,#B5525C)">نهاري</div><div style="background:linear-gradient(135deg,#4A1028,#120610)">سهرة</div><div style="background:linear-gradient(135deg,#C2575F,#7B1E3E)">عروس</div><div style="background:linear-gradient(135deg,#D9B38C,#8A5A3C)">برونز</div></div>
+<div class="tabbar"><span class="on ms">home</span><span class="ms">palette</span><span class="ms">play_circle</span><span class="ms">shopping_bag</span><span class="ms">person</span></div>
+</div>
+<div id="product" style="display:none">
+<div class="pimg"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/velvet-lips.jpg"><div class="top"><span class="ms">favorite</span><span class="ms">arrow_forward</span></div></div>
+<div style="padding:18px 18px 0"><div style="font-size:12px;letter-spacing:2px;color:var(--acc);font-weight:700">VELVET MATTE</div><div class="big" style="font-size:34px;margin-top:4px">أحمر شفاه مخملي</div><div style="display:flex;gap:10px;align-items:center;margin-top:6px"><span style="font-weight:900;font-size:22px">320 ج.م</span><span style="color:var(--mut);font-size:13px">★ 4.8 · 1,240 تقييم</span></div></div>
+<div class="sec" style="padding-top:18px"><h2 style="font-size:18px">الظل: تين 07</h2><a>دليل الظلال</a></div>
+<div class="sq"><div><i style="background:#E8A29A"></i>01</div><div><i style="background:#C2575F"></i>04</div><div class="on"><i style="background:#7B1E3E"></i>07</div><div><i style="background:#A3122A"></i>09</div><div><i style="background:#4A1028"></i>12</div></div>
+<div class="sec" style="padding-top:22px"><h2 style="font-size:18px">على البشرة</h2></div>
+<div class="reels"><div class="reel" style="width:110px;height:150px"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/lip-cheek.jpg"></div><div class="reel" style="width:110px;height:150px"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/tinted-balm.jpg"></div><div class="reel" style="width:110px;height:150px"><img src="file:///home/user/app-lms/platform/web/public/beauty-photos/hero-lips.jpg"><span class="pl ms">play_arrow</span></div></div>
+<div class="cta"><div style="flex:1;background:var(--ink);color:var(--page)">أضيفي إلى السلة</div><div style="width:54px;border:1.5px solid var(--ink)"><span class="ms">favorite</span></div></div>
+</div>
+<script>const q=new URLSearchParams(location.search);if(q.get('mode')==='dark')document.body.classList.add('dark');if(q.get('screen')==='product'){home.style.display='none';product.style.display='block'}</script>
+</body></html>
