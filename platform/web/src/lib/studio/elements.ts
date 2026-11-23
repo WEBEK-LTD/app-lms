@@ -93,6 +93,10 @@ export const ELEMENTS: readonly ElementInfo[] = [
   // 208 The category menu (every main category a row of cards, its sub-categories in the row) and the shop's size chart.
   { type: "categories", group: "premium", icon: "menu_open", keywords: "category menu categories sub-categories rows sliders cards all header menu drawer", only: "store", preset: "category_menu" },
   { type: "size_chart", group: "premium", icon: "table_chart", keywords: "size chart guide sizes measurements bust waist hips length table clothes fashion", only: "store" },
+  // 209 The size finder (the size of the shop's chart for the age chosen), shade swatches and a quiz.
+  { type: "size_finder", group: "premium", icon: "straighten", keywords: "size finder age height which size fits child kids baby chart recommend", only: "store" },
+  { type: "swatches", group: "premium", icon: "palette", keywords: "swatches shades colours colors shade finder foundation lipstick tones palette" },
+  { type: "quiz", group: "premium", icon: "quiz", keywords: "quiz questions answers result skin type test gift finder recommend personality" },
 ];
 
 export function elementInfo(type: StudioNodeType): ElementInfo {
@@ -109,7 +113,7 @@ export function newNodeId(): string {
  * dropped. `source` is the app's main list for `items` and `categories`;
  * `brand` the app's main colour.
  */
-export type NewText = "text" | "button" | "search" | "ratings" | "field" | "question" | "answer" | "tab" | "ended" | "bullets" | "flash";
+export type NewText = "text" | "button" | "search" | "ratings" | "field" | "question" | "answer" | "tab" | "ended" | "bullets" | "flash" | "sizeFinder" | "sizeButton" | "swatches" | "swatchButton" | "quiz" | "quizQuestion" | "quizAnswers" | "quizResult" | "quizResultText" | "quizButton";
 
 export function newNode(
   type: StudioNodeType,
@@ -183,6 +187,43 @@ export function newNode(
     // 208 The shop's size chart, on a card.
     case "size_chart":
       return { id, type, radius: 18, padding: { top: 12, end: 12, bottom: 12, start: 12 }, margin: { top: 8, end: 16, bottom: 8, start: 16 }, border_color: "#E4DFD6", border_width: 1 };
+    // 209 The size finder: the shop's chart by age, a button to the shop.
+    case "size_finder":
+      return { id, type, text: options.text("sizeFinder"), title: options.text("sizeButton"), action: { type: "screen", screen: "search" }, radius: 22, padding: { top: 16, end: 16, bottom: 16, start: 16 }, margin: { top: 10, end: 16, bottom: 10, start: 16 }, background: "#F4EEE8", color: "#2A2420" };
+    // 209 Five shades from light to deep, the middle one chosen.
+    case "swatches":
+      return {
+        id,
+        type,
+        text: options.text("swatches"),
+        title: options.text("swatchButton"),
+        action: { type: "screen", screen: "search" },
+        entries: (
+          [
+            ["1N", "#F3D9C6"],
+            ["2W", "#E3B898"],
+            ["3W", "#D7A887"],
+            ["4N", "#B17A5A"],
+            ["5C", "#6B412D"],
+          ] as const
+        ).map(([title, color], i) => ({ title, color, ...(i === 2 ? { highlight: true } : {}) })),
+        radius: 22,
+        padding: { top: 16, end: 16, bottom: 16, start: 16 },
+        margin: { top: 10, end: 16, bottom: 10, start: 16 },
+      };
+    // 209 One question of two answers, each its result.
+    case "quiz":
+      return {
+        id,
+        type,
+        text: options.text("quiz"),
+        title: options.text("quizButton"),
+        quiz: { questions: [{ title: options.text("quizQuestion"), text: options.text("quizAnswers") }] },
+        entries: [1, 2].map((n) => ({ title: `${options.text("quizResult")} ${n}`, text: options.text("quizResultText"), action: { type: "screen", screen: "search" } })),
+        radius: 22,
+        padding: { top: 16, end: 16, bottom: 16, start: 16 },
+        margin: { top: 10, end: 16, bottom: 10, start: 16 },
+      };
     case "video":
       return { id, type, video_url: null, aspect_ratio: 16 / 9, radius: 14 };
     case "form":

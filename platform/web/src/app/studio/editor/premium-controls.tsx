@@ -22,6 +22,8 @@ import {
   STUDIO_TESTIMONIAL_STYLES,
   STUDIO_TIMELINE_STYLES,
   STUDIO_BENTO_CAPTIONS,
+  STUDIO_QUIZ_LIMITS,
+  STUDIO_SWATCH_SHAPES,
   STUDIO_PATTERNS,
   type Action,
   type LanguageCode,
@@ -138,6 +140,11 @@ const ENTRY_FIELDS: Record<string, { texts: { field: EntryField; key: string; ro
   // 129 A ring's photo, icon and chip; a step's chip and share on its card; a tile's chip.
   progress: { texts: [{ field: "title", key: "pm_label" }, { field: "subtitle", key: "pm_ringChip" }], value: { key: "pm_share", min: 0, max: 100, step: 1, unit: "%" }, picture: "pm_ringPhoto", icon: true, gradient: true, color: true },
   timeline: { texts: [{ field: "subtitle", key: "pm_date" }, { field: "title", key: "pm_stepTitle" }, { field: "text", key: "pm_stepText", rows: 2 }, { field: "label", key: "pm_stepChip" }], value: { key: "pm_stepShare", min: 0, max: 100, step: 1, unit: "%" }, icon: true, highlight: "pm_activeStep" },
+  // 209 A shade: its name, its short code under the swatch, its line; its colour; the one chosen first.
+  swatches: { texts: [{ field: "title", key: "pm_shadeName" }, { field: "subtitle", key: "pm_shadeCode" }, { field: "text", key: "pm_shadeLine", rows: 2 }], color: true, highlight: "pm_shadeChosen" },
+  // 209 A quiz's result (its words, its button and what it opens) and a question (its words, its answers one per line).
+  quiz: { texts: [{ field: "title", key: "pm_resultName" }, { field: "text", key: "pm_resultText", rows: 2 }, { field: "label", key: "pm_buttonWords" }], picture: "pm_tilePhoto", icon: true, action: true },
+  quiz_questions: { texts: [{ field: "title", key: "pm_questionWords" }, { field: "text", key: "pm_answers", rows: 4 }] },
   bento: { texts: [{ field: "title", key: "pm_tileTitle" }, { field: "text", key: "pm_tileText", rows: 2 }, { field: "subtitle", key: "pm_tileChip" }, { field: "label", key: "pm_linkWords" }], picture: "pm_tilePhoto", icon: true, size: true, gradient: true, color: true, action: true },
 };
 
@@ -159,6 +166,13 @@ function newEntry(type: StudioNode["type"], w: (word: AppWord) => string): Studi
     case "progress":
     case "timeline":
       return { title: w("pdGeStep1"), ...(type === "progress" ? { value: 50 } : {}) };
+    // 209 A shade, a quiz's result and its question.
+    case "swatches":
+      return { title: "6N", color: "#8F5C40" };
+    case "quiz":
+      return { title: w("newQuizResult"), text: w("newQuizResultText") };
+    case "quiz_questions" as StudioNode["type"]:
+      return { title: w("newQuizQuestion"), text: w("newQuizAnswers") };
     default:
       return { title: w("offerTitle") };
   }
@@ -238,7 +252,7 @@ function EntriesEditor({ node, onChange, lang, defaultLang, languages, appName, 
                   label={t(`studio.${spec.highlight}` as DashKey)}
                   checked={e.highlight === true}
                   // One most popular plan, one active step.
-                  onChange={(on) => onChange({ entries: entries.map((x, j) => (j === i ? { ...x, highlight: on || undefined } : node.type === "pricing" || node.type === "timeline" ? { ...x, highlight: undefined } : x)) })}
+                  onChange={(on) => onChange({ entries: entries.map((x, j) => (j === i ? { ...x, highlight: on || undefined } : node.type === "pricing" || node.type === "timeline" || node.type === "swatches" ? { ...x, highlight: undefined } : x)) })}
                 />
               ) : null}
               {spec.size ? <Choice label={t("studio.pm_tileSize")} value={e.size ?? "small"} options={STUDIO_ENTRY_SIZES.map((s) => ({ value: s, label: t(`studio.pm_size_${s}` as DashKey) }))} onChange={(size) => set(i, { size: size === "small" ? undefined : size })} /> : null}
@@ -448,6 +462,43 @@ export function PremiumControls(props: Props) {
           ) : null}
           <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
             {t("studio.pm_profileHint")}
+          </span>
+        </div>
+      );
+    }
+    // 209 The size finder: its heading and button (the sizes are the shop's size chart's, by its first column).
+    case "size_finder":
+      return (
+        <div className="flex flex-col gap-2" data-shop-helper="size_finder">
+          <OwnText {...props} field="text" label={t("studio.pm_heading")} max={120} />
+          <OwnText {...props} field="title" label={t("studio.pm_buttonWords")} max={40} />
+          <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
+            {t("studio.pm_sizeFinderHint")}
+          </span>
+        </div>
+      );
+    // 209 The swatches: heading, button, shape and size, and the shades.
+    case "swatches":
+      return (
+        <div className="flex flex-col gap-2" data-shop-helper="swatches">
+          <OwnText {...props} field="text" label={t("studio.pm_heading")} max={120} />
+          <OwnText {...props} field="title" label={t("studio.pm_buttonWords")} max={40} />
+          <Choice label={t("studio.pm_shape")} value={node.swatches?.shape ?? "circle"} options={styles("pm_swatch", STUDIO_SWATCH_SHAPES)} onChange={(shape) => onChange({ swatches: { ...node.swatches, shape: shape === "circle" ? undefined : shape } })} />
+          <RangeField label={t("studio.pm_swatchSize")} value={node.swatches?.size ?? 36} min={24} max={64} step={2} unit="px" fallback={36} onChange={(size) => onChange({ swatches: { ...node.swatches, size: size === 36 ? undefined : size } })} />
+          <EntriesEditor {...props} />
+        </div>
+      );
+    // 209 The quiz: heading, button, its questions (answers one per line) and its results (answer n counts for result n).
+    case "quiz": {
+      const questions = node.quiz?.questions ?? [];
+      return (
+        <div className="flex flex-col gap-2" data-shop-helper="quiz">
+          <OwnText {...props} field="text" label={t("studio.pm_heading")} max={120} />
+          <OwnText {...props} field="title" label={t("studio.pm_buttonWords")} max={40} />
+          <EntriesEditor {...props} node={{ ...node, type: "quiz_questions" as StudioNode["type"], entries: questions }} onChange={(patch) => (patch.entries ? onChange({ quiz: { questions: patch.entries.slice(0, STUDIO_QUIZ_LIMITS.questions) } }) : undefined)} />
+          <EntriesEditor {...props} />
+          <span className="text-xs" style={{ color: "var(--sf-muted)" }}>
+            {t("studio.pm_quizHint")}
           </span>
         </div>
       );

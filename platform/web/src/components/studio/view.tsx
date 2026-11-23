@@ -41,6 +41,7 @@ import { GiftCheckout } from "./gift-checkout";
 import { quickAddLabel } from "./quick-add";
 // 208 The category menu and the size chart.
 import { CategoryMenuCanvas, SizeChartCanvas } from "./category-menu";
+import { QuizCanvas, SizeFinderCanvas, SwatchesCanvas } from "./shop-helpers";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -852,6 +853,13 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "size_chart":
         // 208 The shop's size chart.
         return <SizeChartCanvas node={n} pickable={p.pickable} dark={dark} title={text || null} color={color} />;
+      // 209 The size finder, the swatches and the quiz, to tap through as people will.
+      case "size_finder":
+        return <SizeFinderCanvas node={n} pickable={p.pickable} dark={dark} brand={look.brand} color={color} title={text} button={titleIn(n, lang, defaultLang)} />;
+      case "swatches":
+        return <SwatchesCanvas node={n} lang={lang} def={defaultLang} dark={dark} brand={look.brand} color={color} title={text} button={titleIn(n, lang, defaultLang)} />;
+      case "quiz":
+        return <QuizCanvas node={n} lang={lang} def={defaultLang} dark={dark} brand={look.brand} color={color} title={text} button={titleIn(n, lang, defaultLang)} />;
       case "flash_sale":
         // 131 The flash sale: its products at their sale price, the live countdown and the stock bar.
         return <FlashSaleCanvas node={n} title={text} pickable={p.pickable} dark={dark} brand={look.brand} words={p.commerceWords ?? COMMERCE_WORDS_EN} />;
