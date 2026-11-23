@@ -1,3 +1,4 @@
+import { BEAUTY_PRODUCT_NAMES } from "@/lib/demo/product-names";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -287,6 +288,10 @@ describe("209 Velours, the cosmetics shop's demo", () => {
       const inVela = (await call("/store/products", { category: String(vela.id), per_page: "50" })).body as { items: unknown[] };
       expect(inVela.items).toHaveLength(BEAUTY_PRODUCTS.filter((p) => p.brand === "Vela").length);
       // In Arabic, as the shop named them.
+      // 224 Its products in Arabic too, each named.
+      const arProducts = (await call("/store/products", { per_page: "50" }, "ar")).body as { items: { name: string }[] };
+      expect(arProducts.items.map((p) => p.name)).toContain(BEAUTY_PRODUCT_NAMES["BT-101"]!.ar);
+      expect(BEAUTY_PRODUCTS.filter((p) => !BEAUTY_PRODUCT_NAMES[p.sku])).toEqual([]);
       const arabic = (await call("/store/categories", {}, "ar")).body as { items: { name: string }[] };
       expect(arabic.items.map((c) => c.name)).toEqual(expect.arrayContaining(["نوع البشرة", "مختلطة", "روزيه لاب"]));
       const foundation = (await store.listCatalogProducts(app.id)).find((p) => p.sku === "BT-201")!;

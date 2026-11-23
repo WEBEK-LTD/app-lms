@@ -832,113 +832,9 @@
        },
        {
         "id": "sig-55",
-        "type": "swatches",
+        "type": "column",
         "name": "Choose the yarn's colour",
-        "text": "Choose the yarn's colour",
-        "title": "Order a piece your way",
-        "translations": {
-         "ar": {
-          "text": "اختاري لون الخيط",
-          "title": "اطلبي قطعة على ذوقكِ"
-         },
-         "tr": {
-          "text": "İpin rengini seçin",
-          "title": "Size özel parça isteyin"
-         }
-        },
-        "action": {
-         "type": "page",
-         "page_slug": "custom-order"
-        },
-        "swatches": {
-         "shape": "square",
-         "size": 44
-        },
-        "entries": [
-         {
-          "title": "Camel",
-          "translations": {
-           "ar": {
-            "title": "جملي"
-           },
-           "tr": {
-            "title": "Deve tüyü"
-           }
-          },
-          "color": "#C9A27E"
-         },
-         {
-          "title": "Brick",
-          "translations": {
-           "ar": {
-            "title": "طوبي"
-           },
-           "tr": {
-            "title": "Kiremit"
-           }
-          },
-          "color": "#9A3B26",
-          "highlight": true
-         },
-         {
-          "title": "Olive",
-          "translations": {
-           "ar": {
-            "title": "زيتي"
-           },
-           "tr": {
-            "title": "Zeytin"
-           }
-          },
-          "color": "#7D8B6A"
-         },
-         {
-          "title": "Cream",
-          "translations": {
-           "ar": {
-            "title": "كريمي"
-           },
-           "tr": {
-            "title": "Krem"
-           }
-          },
-          "color": "#EFE6D6"
-         },
-         {
-          "title": "Navy",
-          "translations": {
-           "ar": {
-            "title": "كحلي"
-           },
-           "tr": {
-            "title": "Lacivert"
-           }
-          },
-          "color": "#2F3E55"
-         },
-         {
-          "title": "Rose",
-          "translations": {
-           "ar": {
-            "title": "وردي"
-           },
-           "tr": {
-            "title": "Gül"
-           }
-          },
-          "color": "#D9A1A0"
-         }
-        ],
-        "font": {
-         "family": "Noto Naskh Arabic"
-        },
-        "color": "#3A2A1E",
-        "dark_color": "#F1E6D6",
-        "background": "#FBF6EC",
-        "dark_background": "#27201A",
-        "border_color": "#C9B394",
-        "dark_border_color": "#5A4A3A",
-        "border_width": 1,
+        "gap": 12,
         "radius": 6,
         "padding": {
          "top": 14,
@@ -951,10 +847,151 @@
          "end": 16,
          "bottom": 0,
          "start": 16
-        }
+        },
+        "background": "#FBF6EC",
+        "dark_background": "#27201A",
+        "border_color": "#C9B394",
+        "dark_border_color": "#5A4A3A",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-56",
+          "type": "swatches",
+          "name": "Choose the yarn's colour",
+          "text": "Choose the yarn's colour",
+          "translations": {
+           "ar": {
+            "text": "اختاري لون الخيط"
+           },
+           "tr": {
+            "text": "İpin rengini seçin"
+           }
+          },
+          "action": {
+           "type": "page",
+           "page_slug": "custom-order"
+          },
+          "swatches": {
+           "shape": "square",
+           "size": 44
+          },
+          "entries": [
+           {
+            "title": "Camel",
+            "translations": {
+             "ar": {
+              "title": "جملي"
+             },
+             "tr": {
+              "title": "Deve tüyü"
+             }
+            },
+            "color": "#C9A27E"
+           },
+           {
+            "title": "Brick",
+            "translations": {
+             "ar": {
+              "title": "طوبي"
+             },
+             "tr": {
+              "title": "Kiremit"
+             }
+            },
+            "color": "#9A3B26",
+            "highlight": true
+           },
+           {
+            "title": "Olive",
+            "translations": {
+             "ar": {
+              "title": "زيتي"
+             },
+             "tr": {
+              "title": "Zeytin"
+             }
+            },
+            "color": "#7D8B6A"
+           },
+           {
+            "title": "Cream",
+            "translations": {
+             "ar": {
+              "title": "كريمي"
+             },
+             "tr": {
+              "title": "Krem"
+             }
+            },
+            "color": "#EFE6D6"
+           },
+           {
+            "title": "Navy",
+            "translations": {
+             "ar": {
+              "title": "كحلي"
+             },
+             "tr": {
+              "title": "Lacivert"
+             }
+            },
+            "color": "#2F3E55"
+           },
+           {
+            "title": "Rose",
+            "translations": {
+             "ar": {
+              "title": "وردي"
+             },
+             "tr": {
+              "title": "Gül"
+             }
+            },
+            "color": "#D9A1A0"
+           }
+          ],
+          "font": {
+           "family": "Noto Naskh Arabic"
+          },
+          "color": "#3A2A1E",
+          "dark_color": "#F1E6D6"
+         },
+         {
+          "id": "sig-57",
+          "type": "button",
+          "name": "Order a piece your way",
+          "text": "Order a piece your way",
+          "icon": "arrow_back",
+          "icon_position": "end",
+          "width": "fill",
+          "height": 46,
+          "radius": 4,
+          "background": "#3A2A1E",
+          "dark_background": "#F1E6D6",
+          "color": "#F1E8D8",
+          "dark_color": "#1C1611",
+          "font": {
+           "family": "Noto Naskh Arabic",
+           "size": 15,
+           "weight": 700
+          },
+          "action": {
+           "type": "page",
+           "page_slug": "custom-order"
+          },
+          "translations": {
+           "ar": {
+            "text": "اطلبي قطعة على ذوقكِ"
+           },
+           "tr": {
+            "text": "Size özel parça isteyin"
+           }
+          }
+         }
+        ]
        },
        {
-        "id": "sig-56",
+        "id": "sig-58",
         "type": "row",
         "name": "Who made it?",
         "cross": "end",
@@ -967,13 +1004,13 @@
         },
         "children": [
          {
-          "id": "sig-57",
+          "id": "sig-59",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-58",
+            "id": "sig-60",
             "type": "text",
             "text": "Who made it?",
             "font": {
@@ -997,7 +1034,7 @@
           ]
          },
          {
-          "id": "sig-59",
+          "id": "sig-61",
           "type": "text",
           "text": "All makers",
           "font": {
@@ -1025,7 +1062,7 @@
         ]
        },
        {
-        "id": "sig-60",
+        "id": "sig-62",
         "type": "row",
         "name": "Who made it?",
         "gap": 12,
@@ -1038,7 +1075,7 @@
         },
         "children": [
          {
-          "id": "sig-75",
+          "id": "sig-77",
           "type": "column",
           "name": "Umm Youssef",
           "width": 248,
@@ -1061,32 +1098,12 @@
           },
           "children": [
            {
-            "id": "sig-76",
+            "id": "sig-78",
             "type": "row",
             "align": "between",
             "cross": "center",
             "height": 4,
             "children": [
-             {
-              "id": "sig-77",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
-              "id": "sig-78",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
              {
               "id": "sig-79",
               "type": "row",
@@ -1266,17 +1283,37 @@
               "background": "#C9B394",
               "dark_background": "#5A4A3A",
               "children": []
+             },
+             {
+              "id": "sig-97",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-98",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
              }
             ]
            },
            {
-            "id": "sig-61",
+            "id": "sig-63",
             "type": "row",
             "gap": 10,
             "cross": "center",
             "children": [
              {
-              "id": "sig-62",
+              "id": "sig-64",
               "type": "image",
               "image_url": "http://localhost:3000/crochet-photos/cozy-sweater.jpg",
               "fit": "cover",
@@ -1288,13 +1325,13 @@
               "border_width": 2
              },
              {
-              "id": "sig-63",
+              "id": "sig-65",
               "type": "column",
               "width": "fill",
               "gap": 0,
               "children": [
                {
-                "id": "sig-64",
+                "id": "sig-66",
                 "type": "text",
                 "text": "Umm Youssef",
                 "font": {
@@ -1316,7 +1353,7 @@
                 }
                },
                {
-                "id": "sig-65",
+                "id": "sig-67",
                 "type": "text",
                 "text": "Mansoura · blankets and shawls",
                 "font": {
@@ -1340,12 +1377,12 @@
             ]
            },
            {
-            "id": "sig-66",
+            "id": "sig-68",
             "type": "row",
             "gap": 6,
             "children": [
              {
-              "id": "sig-67",
+              "id": "sig-69",
               "type": "image",
               "image_url": "http://localhost:3000/crochet-photos/scarves-stack.jpg",
               "fit": "cover",
@@ -1354,7 +1391,7 @@
               "radius": 3
              },
              {
-              "id": "sig-68",
+              "id": "sig-70",
               "type": "image",
               "image_url": "http://localhost:3000/crochet-photos/red-scarf.jpg",
               "fit": "cover",
@@ -1363,7 +1400,7 @@
               "radius": 3
              },
              {
-              "id": "sig-69",
+              "id": "sig-71",
               "type": "image",
               "image_url": "http://localhost:3000/crochet-photos/fluffy-blanket.jpg",
               "fit": "cover",
@@ -1374,13 +1411,13 @@
             ]
            },
            {
-            "id": "sig-70",
+            "id": "sig-72",
             "type": "row",
             "gap": 6,
             "cross": "center",
             "children": [
              {
-              "id": "sig-71",
+              "id": "sig-73",
               "type": "icon",
               "icon": "star",
               "icon_size": 14,
@@ -1388,7 +1425,7 @@
               "dark_color": "#E39B7C"
              },
              {
-              "id": "sig-72",
+              "id": "sig-74",
               "type": "text",
               "text": "212 pieces",
               "font": {
@@ -1409,7 +1446,7 @@
               }
              },
              {
-              "id": "sig-73",
+              "id": "sig-75",
               "type": "icon",
               "icon": "schedule",
               "icon_size": 14,
@@ -1417,7 +1454,7 @@
               "dark_color": "#BCA993"
              },
              {
-              "id": "sig-74",
+              "id": "sig-76",
               "type": "text",
               "text": "Makes in 8 days",
               "font": {
@@ -1439,32 +1476,12 @@
             ]
            },
            {
-            "id": "sig-97",
+            "id": "sig-99",
             "type": "row",
             "align": "between",
             "cross": "center",
             "height": 4,
             "children": [
-             {
-              "id": "sig-98",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
-              "id": "sig-99",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
              {
               "id": "sig-100",
               "type": "row",
@@ -1644,13 +1661,33 @@
               "background": "#C9B394",
               "dark_background": "#5A4A3A",
               "children": []
+             },
+             {
+              "id": "sig-118",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-119",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
              }
             ]
            }
           ]
          },
          {
-          "id": "sig-132",
+          "id": "sig-134",
           "type": "column",
           "name": "Salma",
           "width": 248,
@@ -1673,32 +1710,12 @@
           },
           "children": [
            {
-            "id": "sig-133",
+            "id": "sig-135",
             "type": "row",
             "align": "between",
             "cross": "center",
             "height": 4,
             "children": [
-             {
-              "id": "sig-134",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
-              "id": "sig-135",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
              {
               "id": "sig-136",
               "type": "row",
@@ -1878,17 +1895,37 @@
               "background": "#C9B394",
               "dark_background": "#5A4A3A",
               "children": []
+             },
+             {
+              "id": "sig-154",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-155",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
              }
             ]
            },
            {
-            "id": "sig-118",
+            "id": "sig-120",
             "type": "row",
             "gap": 10,
             "cross": "center",
             "children": [
              {
-              "id": "sig-119",
+              "id": "sig-121",
               "type": "image",
               "image_url": "http://localhost:3000/crochet-photos/beanie-girl.jpg",
               "fit": "cover",
@@ -1900,13 +1937,13 @@
               "border_width": 2
              },
              {
-              "id": "sig-120",
+              "id": "sig-122",
               "type": "column",
               "width": "fill",
               "gap": 0,
               "children": [
                {
-                "id": "sig-121",
+                "id": "sig-123",
                 "type": "text",
                 "text": "Salma",
                 "font": {
@@ -1928,7 +1965,7 @@
                 }
                },
                {
-                "id": "sig-122",
+                "id": "sig-124",
                 "type": "text",
                 "text": "Alexandria · amigurumi toys",
                 "font": {
@@ -1952,12 +1989,12 @@
             ]
            },
            {
-            "id": "sig-123",
+            "id": "sig-125",
             "type": "row",
             "gap": 6,
             "children": [
              {
-              "id": "sig-124",
+              "id": "sig-126",
               "type": "image",
               "image_url": "http://localhost:3000/crochet-photos/teddy-sweater.jpg",
               "fit": "cover",
@@ -1966,7 +2003,7 @@
               "radius": 3
              },
              {
-              "id": "sig-125",
+              "id": "sig-127",
               "type": "image",
               "image_url": "http://localhost:3000/crochet-photos/snowman-plush.jpg",
               "fit": "cover",
@@ -1975,7 +2012,7 @@
               "radius": 3
              },
              {
-              "id": "sig-126",
+              "id": "sig-128",
               "type": "image",
               "image_url": "http://localhost:3000/crochet-photos/bunny-knit.jpg",
               "fit": "cover",
@@ -1986,13 +2023,13 @@
             ]
            },
            {
-            "id": "sig-127",
+            "id": "sig-129",
             "type": "row",
             "gap": 6,
             "cross": "center",
             "children": [
              {
-              "id": "sig-128",
+              "id": "sig-130",
               "type": "icon",
               "icon": "star",
               "icon_size": 14,
@@ -2000,7 +2037,7 @@
               "dark_color": "#E39B7C"
              },
              {
-              "id": "sig-129",
+              "id": "sig-131",
               "type": "text",
               "text": "96 pieces",
               "font": {
@@ -2021,7 +2058,7 @@
               }
              },
              {
-              "id": "sig-130",
+              "id": "sig-132",
               "type": "icon",
               "icon": "schedule",
               "icon_size": 14,
@@ -2029,7 +2066,7 @@
               "dark_color": "#BCA993"
              },
              {
-              "id": "sig-131",
+              "id": "sig-133",
               "type": "text",
               "text": "Makes in 6 days",
               "font": {
@@ -2051,32 +2088,12 @@
             ]
            },
            {
-            "id": "sig-154",
+            "id": "sig-156",
             "type": "row",
             "align": "between",
             "cross": "center",
             "height": 4,
             "children": [
-             {
-              "id": "sig-155",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
-              "id": "sig-156",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
              {
               "id": "sig-157",
               "type": "row",
@@ -2256,13 +2273,33 @@
               "background": "#C9B394",
               "dark_background": "#5A4A3A",
               "children": []
+             },
+             {
+              "id": "sig-175",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-176",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
              }
             ]
            }
           ]
          },
          {
-          "id": "sig-189",
+          "id": "sig-191",
           "type": "column",
           "name": "Hoda",
           "width": 248,
@@ -2285,32 +2322,12 @@
           },
           "children": [
            {
-            "id": "sig-190",
+            "id": "sig-192",
             "type": "row",
             "align": "between",
             "cross": "center",
             "height": 4,
             "children": [
-             {
-              "id": "sig-191",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
-              "id": "sig-192",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
              {
               "id": "sig-193",
               "type": "row",
@@ -2490,17 +2507,37 @@
               "background": "#C9B394",
               "dark_background": "#5A4A3A",
               "children": []
+             },
+             {
+              "id": "sig-211",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-212",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
              }
             ]
            },
            {
-            "id": "sig-175",
+            "id": "sig-177",
             "type": "row",
             "gap": 10,
             "cross": "center",
             "children": [
              {
-              "id": "sig-176",
+              "id": "sig-178",
               "type": "image",
               "image_url": "http://localhost:3000/crochet-photos/green-sweater.jpg",
               "fit": "cover",
@@ -2512,13 +2549,13 @@
               "border_width": 2
              },
              {
-              "id": "sig-177",
+              "id": "sig-179",
               "type": "column",
               "width": "fill",
               "gap": 0,
               "children": [
                {
-                "id": "sig-178",
+                "id": "sig-180",
                 "type": "text",
                 "text": "Hoda",
                 "font": {
@@ -2540,7 +2577,7 @@
                 }
                },
                {
-                "id": "sig-179",
+                "id": "sig-181",
                 "type": "text",
                 "text": "Aswan · raffia hats and bags",
                 "font": {
@@ -2564,12 +2601,12 @@
             ]
            },
            {
-            "id": "sig-180",
+            "id": "sig-182",
             "type": "row",
             "gap": 6,
             "children": [
              {
-              "id": "sig-181",
+              "id": "sig-183",
               "type": "image",
               "image_url": "http://localhost:3000/crochet-photos/straw-close.jpg",
               "fit": "cover",
@@ -2578,7 +2615,7 @@
               "radius": 3
              },
              {
-              "id": "sig-182",
+              "id": "sig-184",
               "type": "image",
               "image_url": "http://localhost:3000/crochet-photos/basket-room.jpg",
               "fit": "cover",
@@ -2587,7 +2624,7 @@
               "radius": 3
              },
              {
-              "id": "sig-183",
+              "id": "sig-185",
               "type": "image",
               "image_url": "http://localhost:3000/crochet-photos/buttons.jpg",
               "fit": "cover",
@@ -2598,13 +2635,13 @@
             ]
            },
            {
-            "id": "sig-184",
+            "id": "sig-186",
             "type": "row",
             "gap": 6,
             "cross": "center",
             "children": [
              {
-              "id": "sig-185",
+              "id": "sig-187",
               "type": "icon",
               "icon": "star",
               "icon_size": 14,
@@ -2612,7 +2649,7 @@
               "dark_color": "#E39B7C"
              },
              {
-              "id": "sig-186",
+              "id": "sig-188",
               "type": "text",
               "text": "140 pieces",
               "font": {
@@ -2633,7 +2670,7 @@
               }
              },
              {
-              "id": "sig-187",
+              "id": "sig-189",
               "type": "icon",
               "icon": "schedule",
               "icon_size": 14,
@@ -2641,7 +2678,7 @@
               "dark_color": "#BCA993"
              },
              {
-              "id": "sig-188",
+              "id": "sig-190",
               "type": "text",
               "text": "Makes in 5 days",
               "font": {
@@ -2663,32 +2700,12 @@
             ]
            },
            {
-            "id": "sig-211",
+            "id": "sig-213",
             "type": "row",
             "align": "between",
             "cross": "center",
             "height": 4,
             "children": [
-             {
-              "id": "sig-212",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
-              "id": "sig-213",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
              {
               "id": "sig-214",
               "type": "row",
@@ -2868,6 +2885,26 @@
               "background": "#C9B394",
               "dark_background": "#5A4A3A",
               "children": []
+             },
+             {
+              "id": "sig-232",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-233",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
              }
             ]
            }
@@ -2876,7 +2913,7 @@
         ]
        },
        {
-        "id": "sig-232",
+        "id": "sig-234",
         "type": "row",
         "name": "How your piece is made",
         "cross": "end",
@@ -2889,13 +2926,13 @@
         },
         "children": [
          {
-          "id": "sig-233",
+          "id": "sig-235",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-234",
+            "id": "sig-236",
             "type": "text",
             "text": "How your piece is made",
             "font": {
@@ -2921,7 +2958,7 @@
         ]
        },
        {
-        "id": "sig-261",
+        "id": "sig-263",
         "type": "column",
         "name": "How your piece is made",
         "width": "fill",
@@ -2946,32 +2983,12 @@
         "border_width": 1,
         "children": [
          {
-          "id": "sig-262",
+          "id": "sig-264",
           "type": "row",
           "align": "between",
           "cross": "center",
           "height": 4,
           "children": [
-           {
-            "id": "sig-263",
-            "type": "row",
-            "width": 7,
-            "height": 2,
-            "radius": 1,
-            "background": "#C9B394",
-            "dark_background": "#5A4A3A",
-            "children": []
-           },
-           {
-            "id": "sig-264",
-            "type": "row",
-            "width": 7,
-            "height": 2,
-            "radius": 1,
-            "background": "#C9B394",
-            "dark_background": "#5A4A3A",
-            "children": []
-           },
            {
             "id": "sig-265",
             "type": "row",
@@ -3171,11 +3188,31 @@
             "background": "#C9B394",
             "dark_background": "#5A4A3A",
             "children": []
+           },
+           {
+            "id": "sig-285",
+            "type": "row",
+            "width": 7,
+            "height": 2,
+            "radius": 1,
+            "background": "#C9B394",
+            "dark_background": "#5A4A3A",
+            "children": []
+           },
+           {
+            "id": "sig-286",
+            "type": "row",
+            "width": 7,
+            "height": 2,
+            "radius": 1,
+            "background": "#C9B394",
+            "dark_background": "#5A4A3A",
+            "children": []
            }
           ]
          },
          {
-          "id": "sig-235",
+          "id": "sig-237",
           "type": "text",
           "text": "Made for you alone, stitch by stitch",
           "font": {
@@ -3201,12 +3238,12 @@
           }
          },
          {
-          "id": "sig-236",
+          "id": "sig-238",
           "type": "row",
           "gap": 0,
           "children": [
            {
-            "id": "sig-237",
+            "id": "sig-239",
             "type": "column",
             "name": "You order",
             "width": 78,
@@ -3214,7 +3251,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-238",
+              "id": "sig-240",
               "type": "row",
               "width": 46,
               "height": 46,
@@ -3225,7 +3262,7 @@
               "dark_background": "#C4623F",
               "children": [
                {
-                "id": "sig-239",
+                "id": "sig-241",
                 "type": "icon",
                 "icon": "edit_note",
                 "icon_size": 22,
@@ -3235,7 +3272,7 @@
               ]
              },
              {
-              "id": "sig-240",
+              "id": "sig-242",
               "type": "text",
               "text": "You order",
               "font": {
@@ -3257,7 +3294,7 @@
               }
              },
              {
-              "id": "sig-241",
+              "id": "sig-243",
               "type": "text",
               "text": "Today",
               "font": {
@@ -3280,34 +3317,34 @@
             ]
            },
            {
-            "id": "sig-242",
+            "id": "sig-244",
             "type": "row",
             "align": "between",
             "cross": "center",
             "height": 4,
             "children": [
              {
-              "id": "sig-243",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
-              "id": "sig-244",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
               "id": "sig-245",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-246",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-247",
               "type": "row",
               "width": 7,
               "height": 2,
@@ -3326,7 +3363,7 @@
             }
            },
            {
-            "id": "sig-246",
+            "id": "sig-248",
             "type": "column",
             "name": "We make it",
             "width": 78,
@@ -3334,7 +3371,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-247",
+              "id": "sig-249",
               "type": "row",
               "width": 46,
               "height": 46,
@@ -3345,7 +3382,7 @@
               "dark_background": "#2F2720",
               "children": [
                {
-                "id": "sig-248",
+                "id": "sig-250",
                 "type": "icon",
                 "icon": "content_cut",
                 "icon_size": 22,
@@ -3355,7 +3392,7 @@
               ]
              },
              {
-              "id": "sig-249",
+              "id": "sig-251",
               "type": "text",
               "text": "We make it",
               "font": {
@@ -3377,7 +3414,7 @@
               }
              },
              {
-              "id": "sig-250",
+              "id": "sig-252",
               "type": "text",
               "text": "7–10 days",
               "font": {
@@ -3400,34 +3437,34 @@
             ]
            },
            {
-            "id": "sig-251",
+            "id": "sig-253",
             "type": "row",
             "align": "between",
             "cross": "center",
             "height": 4,
             "children": [
              {
-              "id": "sig-252",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
-              "id": "sig-253",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
               "id": "sig-254",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-255",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-256",
               "type": "row",
               "width": 7,
               "height": 2,
@@ -3446,7 +3483,7 @@
             }
            },
            {
-            "id": "sig-255",
+            "id": "sig-257",
             "type": "column",
             "name": "We ship it",
             "width": 78,
@@ -3454,7 +3491,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-256",
+              "id": "sig-258",
               "type": "row",
               "width": 46,
               "height": 46,
@@ -3465,7 +3502,7 @@
               "dark_background": "#2F2720",
               "children": [
                {
-                "id": "sig-257",
+                "id": "sig-259",
                 "type": "icon",
                 "icon": "local_shipping",
                 "icon_size": 22,
@@ -3475,7 +3512,7 @@
               ]
              },
              {
-              "id": "sig-258",
+              "id": "sig-260",
               "type": "text",
               "text": "We ship it",
               "font": {
@@ -3497,7 +3534,7 @@
               }
              },
              {
-              "id": "sig-259",
+              "id": "sig-261",
               "type": "text",
               "text": "2 days",
               "font": {
@@ -3522,7 +3559,7 @@
           ]
          },
          {
-          "id": "sig-260",
+          "id": "sig-262",
           "type": "button",
           "name": "Order a piece your way",
           "text": "Order a piece your way",
@@ -3554,32 +3591,12 @@
           }
          },
          {
-          "id": "sig-285",
+          "id": "sig-287",
           "type": "row",
           "align": "between",
           "cross": "center",
           "height": 4,
           "children": [
-           {
-            "id": "sig-286",
-            "type": "row",
-            "width": 7,
-            "height": 2,
-            "radius": 1,
-            "background": "#C9B394",
-            "dark_background": "#5A4A3A",
-            "children": []
-           },
-           {
-            "id": "sig-287",
-            "type": "row",
-            "width": 7,
-            "height": 2,
-            "radius": 1,
-            "background": "#C9B394",
-            "dark_background": "#5A4A3A",
-            "children": []
-           },
            {
             "id": "sig-288",
             "type": "row",
@@ -3779,13 +3796,33 @@
             "background": "#C9B394",
             "dark_background": "#5A4A3A",
             "children": []
+           },
+           {
+            "id": "sig-308",
+            "type": "row",
+            "width": 7,
+            "height": 2,
+            "radius": 1,
+            "background": "#C9B394",
+            "dark_background": "#5A4A3A",
+            "children": []
+           },
+           {
+            "id": "sig-309",
+            "type": "row",
+            "width": 7,
+            "height": 2,
+            "radius": 1,
+            "background": "#C9B394",
+            "dark_background": "#5A4A3A",
+            "children": []
            }
           ]
          }
         ]
        },
        {
-        "id": "sig-308",
+        "id": "sig-310",
         "type": "row",
         "name": "From the workshop",
         "cross": "end",
@@ -3798,13 +3835,13 @@
         },
         "children": [
          {
-          "id": "sig-309",
+          "id": "sig-311",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-310",
+            "id": "sig-312",
             "type": "text",
             "text": "From the workshop",
             "font": {
@@ -3828,7 +3865,7 @@
           ]
          },
          {
-          "id": "sig-311",
+          "id": "sig-313",
           "type": "text",
           "text": "All pieces",
           "font": {
@@ -3856,7 +3893,7 @@
         ]
        },
        {
-        "id": "sig-312",
+        "id": "sig-314",
         "type": "items",
         "name": "From the workshop",
         "source": "products",
@@ -3877,19 +3914,19 @@
          "ids": []
         },
         "card": {
-         "id": "sig-313",
+         "id": "sig-315",
          "type": "column",
          "width": 171,
          "gap": 2,
          "children": [
           {
-           "id": "sig-314",
+           "id": "sig-316",
            "type": "stack",
            "width": 171,
            "height": 206,
            "children": [
             {
-             "id": "sig-315",
+             "id": "sig-317",
              "type": "image",
              "bind": "image",
              "width": 171,
@@ -3900,7 +3937,7 @@
              "dark_background": "#2F2720"
             },
             {
-             "id": "sig-316",
+             "id": "sig-318",
              "type": "text",
              "bind": "price",
              "max_lines": 1,
@@ -3933,7 +3970,7 @@
              }
             },
             {
-             "id": "sig-317",
+             "id": "sig-319",
              "type": "text",
              "bind": "sale",
              "font": {
@@ -3959,7 +3996,7 @@
            ]
           },
           {
-           "id": "sig-318",
+           "id": "sig-320",
            "type": "text",
            "bind": "title",
            "max_lines": 2,
@@ -3979,7 +4016,7 @@
            }
           },
           {
-           "id": "sig-319",
+           "id": "sig-321",
            "type": "text",
            "bind": "subtitle",
            "max_lines": 1,
@@ -4000,7 +4037,7 @@
         }
        },
        {
-        "id": "sig-320",
+        "id": "sig-322",
         "type": "column",
         "name": "Umm Youssef, a maker since 1998",
         "gap": 10,
@@ -4019,32 +4056,12 @@
         },
         "children": [
          {
-          "id": "sig-321",
+          "id": "sig-323",
           "type": "row",
           "align": "between",
           "cross": "center",
           "height": 4,
           "children": [
-           {
-            "id": "sig-322",
-            "type": "row",
-            "width": 7,
-            "height": 2,
-            "radius": 1,
-            "background": "#C9B394",
-            "dark_background": "#5A4A3A",
-            "children": []
-           },
-           {
-            "id": "sig-323",
-            "type": "row",
-            "width": 7,
-            "height": 2,
-            "radius": 1,
-            "background": "#C9B394",
-            "dark_background": "#5A4A3A",
-            "children": []
-           },
            {
             "id": "sig-324",
             "type": "row",
@@ -4284,11 +4301,31 @@
             "background": "#C9B394",
             "dark_background": "#5A4A3A",
             "children": []
+           },
+           {
+            "id": "sig-348",
+            "type": "row",
+            "width": 7,
+            "height": 2,
+            "radius": 1,
+            "background": "#C9B394",
+            "dark_background": "#5A4A3A",
+            "children": []
+           },
+           {
+            "id": "sig-349",
+            "type": "row",
+            "width": 7,
+            "height": 2,
+            "radius": 1,
+            "background": "#C9B394",
+            "dark_background": "#5A4A3A",
+            "children": []
            }
           ]
          },
          {
-          "id": "sig-348",
+          "id": "sig-350",
           "type": "text",
           "text": "“I like to know who I'm making it for: I write her name on the card before I start.”",
           "font": {
@@ -4311,7 +4348,7 @@
           }
          },
          {
-          "id": "sig-349",
+          "id": "sig-351",
           "type": "text",
           "text": "Umm Youssef, a maker since 1998",
           "font": {
@@ -4332,32 +4369,12 @@
           }
          },
          {
-          "id": "sig-350",
+          "id": "sig-352",
           "type": "row",
           "align": "between",
           "cross": "center",
           "height": 4,
           "children": [
-           {
-            "id": "sig-351",
-            "type": "row",
-            "width": 7,
-            "height": 2,
-            "radius": 1,
-            "background": "#C9B394",
-            "dark_background": "#5A4A3A",
-            "children": []
-           },
-           {
-            "id": "sig-352",
-            "type": "row",
-            "width": 7,
-            "height": 2,
-            "radius": 1,
-            "background": "#C9B394",
-            "dark_background": "#5A4A3A",
-            "children": []
-           },
            {
             "id": "sig-353",
             "type": "row",
@@ -4597,6 +4614,26 @@
             "background": "#C9B394",
             "dark_background": "#5A4A3A",
             "children": []
+           },
+           {
+            "id": "sig-377",
+            "type": "row",
+            "width": 7,
+            "height": 2,
+            "radius": 1,
+            "background": "#C9B394",
+            "dark_background": "#5A4A3A",
+            "children": []
+           },
+           {
+            "id": "sig-378",
+            "type": "row",
+            "width": 7,
+            "height": 2,
+            "radius": 1,
+            "background": "#C9B394",
+            "dark_background": "#5A4A3A",
+            "children": []
            }
           ]
          }
@@ -4619,11 +4656,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-532",
+      "id": "sig-534",
       "type": "column",
       "children": [
        {
-        "id": "sig-533",
+        "id": "sig-535",
         "type": "text",
         "text": "Every piece, signed by its maker",
         "font": {
@@ -4650,32 +4687,12 @@
         }
        },
        {
-        "id": "sig-534",
+        "id": "sig-536",
         "type": "row",
         "align": "between",
         "cross": "center",
         "height": 4,
         "children": [
-         {
-          "id": "sig-535",
-          "type": "row",
-          "width": 7,
-          "height": 2,
-          "radius": 1,
-          "background": "#C9B394",
-          "dark_background": "#5A4A3A",
-          "children": []
-         },
-         {
-          "id": "sig-536",
-          "type": "row",
-          "width": 7,
-          "height": 2,
-          "radius": 1,
-          "background": "#C9B394",
-          "dark_background": "#5A4A3A",
-          "children": []
-         },
          {
           "id": "sig-537",
           "type": "row",
@@ -4915,6 +4932,26 @@
           "background": "#C9B394",
           "dark_background": "#5A4A3A",
           "children": []
+         },
+         {
+          "id": "sig-561",
+          "type": "row",
+          "width": 7,
+          "height": 2,
+          "radius": 1,
+          "background": "#C9B394",
+          "dark_background": "#5A4A3A",
+          "children": []
+         },
+         {
+          "id": "sig-562",
+          "type": "row",
+          "width": 7,
+          "height": 2,
+          "radius": 1,
+          "background": "#C9B394",
+          "dark_background": "#5A4A3A",
+          "children": []
          }
         ],
         "margin": {
@@ -4925,7 +4962,7 @@
         }
        },
        {
-        "id": "sig-561",
+        "id": "sig-563",
         "type": "categories",
         "name": "Categories",
         "source": "products",
@@ -4980,11 +5017,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-562",
+      "id": "sig-564",
       "type": "column",
       "children": [
        {
-        "id": "sig-563",
+        "id": "sig-565",
         "type": "coupon",
         "name": "Your code",
         "code": "GHURZA10",
@@ -5002,7 +5039,7 @@
         }
        },
        {
-        "id": "sig-564",
+        "id": "sig-566",
         "type": "row",
         "name": "Each piece is wrapped by hand, with a card from its maker.",
         "gap": 12,
@@ -5024,7 +5061,7 @@
         "dark_background": "#2F2720",
         "children": [
          {
-          "id": "sig-565",
+          "id": "sig-567",
           "type": "icon",
           "icon": "redeem",
           "icon_size": 22,
@@ -5032,7 +5069,7 @@
           "dark_color": "#E39B7C"
          },
          {
-          "id": "sig-566",
+          "id": "sig-568",
           "type": "text",
           "text": "Each piece is wrapped by hand, with a card from its maker.",
           "font": {
@@ -5099,11 +5136,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-567",
+      "id": "sig-569",
       "type": "column",
       "children": [
        {
-        "id": "sig-568",
+        "id": "sig-570",
         "type": "text",
         "text": "Your order's journey",
         "font": {
@@ -5130,7 +5167,7 @@
         }
        },
        {
-        "id": "sig-569",
+        "id": "sig-571",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -5260,11 +5297,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-571",
+      "id": "sig-573",
       "type": "column",
       "children": [
        {
-        "id": "sig-570",
+        "id": "sig-572",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -5325,7 +5362,7 @@
      "background": "#F1E8D8",
      "dark_background": "#1C1611",
      "body": {
-      "id": "sig-377",
+      "id": "sig-379",
       "type": "column",
       "padding": {
        "top": 0,
@@ -5339,7 +5376,7 @@
       },
       "children": [
        {
-        "id": "sig-378",
+        "id": "sig-380",
         "type": "search",
         "name": "Search a piece, a maker, a yarn…",
         "text": "Search a piece, a maker, a yarn…",
@@ -5369,32 +5406,12 @@
         }
        },
        {
-        "id": "sig-379",
+        "id": "sig-381",
         "type": "row",
         "align": "between",
         "cross": "center",
         "height": 4,
         "children": [
-         {
-          "id": "sig-380",
-          "type": "row",
-          "width": 7,
-          "height": 2,
-          "radius": 1,
-          "background": "#C9B394",
-          "dark_background": "#5A4A3A",
-          "children": []
-         },
-         {
-          "id": "sig-381",
-          "type": "row",
-          "width": 7,
-          "height": 2,
-          "radius": 1,
-          "background": "#C9B394",
-          "dark_background": "#5A4A3A",
-          "children": []
-         },
          {
           "id": "sig-382",
           "type": "row",
@@ -5634,6 +5651,26 @@
           "background": "#C9B394",
           "dark_background": "#5A4A3A",
           "children": []
+         },
+         {
+          "id": "sig-406",
+          "type": "row",
+          "width": 7,
+          "height": 2,
+          "radius": 1,
+          "background": "#C9B394",
+          "dark_background": "#5A4A3A",
+          "children": []
+         },
+         {
+          "id": "sig-407",
+          "type": "row",
+          "width": 7,
+          "height": 2,
+          "radius": 1,
+          "background": "#C9B394",
+          "dark_background": "#5A4A3A",
+          "children": []
          }
         ],
         "margin": {
@@ -5644,7 +5681,7 @@
         }
        },
        {
-        "id": "sig-406",
+        "id": "sig-408",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -5664,32 +5701,12 @@
         }
        },
        {
-        "id": "sig-407",
+        "id": "sig-409",
         "type": "row",
         "align": "between",
         "cross": "center",
         "height": 4,
         "children": [
-         {
-          "id": "sig-408",
-          "type": "row",
-          "width": 7,
-          "height": 2,
-          "radius": 1,
-          "background": "#C9B394",
-          "dark_background": "#5A4A3A",
-          "children": []
-         },
-         {
-          "id": "sig-409",
-          "type": "row",
-          "width": 7,
-          "height": 2,
-          "radius": 1,
-          "background": "#C9B394",
-          "dark_background": "#5A4A3A",
-          "children": []
-         },
          {
           "id": "sig-410",
           "type": "row",
@@ -5929,6 +5946,26 @@
           "background": "#C9B394",
           "dark_background": "#5A4A3A",
           "children": []
+         },
+         {
+          "id": "sig-434",
+          "type": "row",
+          "width": 7,
+          "height": 2,
+          "radius": 1,
+          "background": "#C9B394",
+          "dark_background": "#5A4A3A",
+          "children": []
+         },
+         {
+          "id": "sig-435",
+          "type": "row",
+          "width": 7,
+          "height": 2,
+          "radius": 1,
+          "background": "#C9B394",
+          "dark_background": "#5A4A3A",
+          "children": []
          }
         ],
         "margin": {
@@ -5939,7 +5976,7 @@
         }
        },
        {
-        "id": "sig-434",
+        "id": "sig-436",
         "type": "row",
         "name": "Your account",
         "gap": 8,
@@ -5951,7 +5988,7 @@
         },
         "children": [
          {
-          "id": "sig-435",
+          "id": "sig-437",
           "type": "column",
           "name": "Account",
           "width": "fill",
@@ -5975,7 +6012,7 @@
           },
           "children": [
            {
-            "id": "sig-436",
+            "id": "sig-438",
             "type": "icon",
             "icon": "person",
             "icon_size": 22,
@@ -5983,7 +6020,7 @@
             "dark_color": "#E39B7C"
            },
            {
-            "id": "sig-437",
+            "id": "sig-439",
             "type": "text",
             "text": "Account",
             "font": {
@@ -6007,7 +6044,7 @@
           ]
          },
          {
-          "id": "sig-438",
+          "id": "sig-440",
           "type": "column",
           "name": "Orders",
           "width": "fill",
@@ -6031,7 +6068,7 @@
           },
           "children": [
            {
-            "id": "sig-439",
+            "id": "sig-441",
             "type": "icon",
             "icon": "package_2",
             "icon_size": 22,
@@ -6039,7 +6076,7 @@
             "dark_color": "#E39B7C"
            },
            {
-            "id": "sig-440",
+            "id": "sig-442",
             "type": "text",
             "text": "Orders",
             "font": {
@@ -6063,7 +6100,7 @@
           ]
          },
          {
-          "id": "sig-441",
+          "id": "sig-443",
           "type": "column",
           "name": "Wishlist",
           "width": "fill",
@@ -6087,7 +6124,7 @@
           },
           "children": [
            {
-            "id": "sig-442",
+            "id": "sig-444",
             "type": "icon",
             "icon": "favorite",
             "icon_size": 22,
@@ -6095,7 +6132,7 @@
             "dark_color": "#E39B7C"
            },
            {
-            "id": "sig-443",
+            "id": "sig-445",
             "type": "text",
             "text": "Wishlist",
             "font": {
@@ -6119,7 +6156,7 @@
           ]
          },
          {
-          "id": "sig-444",
+          "id": "sig-446",
           "type": "column",
           "name": "Language",
           "width": "fill",
@@ -6143,7 +6180,7 @@
           },
           "children": [
            {
-            "id": "sig-445",
+            "id": "sig-447",
             "type": "icon",
             "icon": "language",
             "icon_size": 22,
@@ -6151,7 +6188,7 @@
             "dark_color": "#E39B7C"
            },
            {
-            "id": "sig-446",
+            "id": "sig-448",
             "type": "text",
             "text": "Language",
             "font": {
@@ -6177,7 +6214,7 @@
         ]
        },
        {
-        "id": "sig-447",
+        "id": "sig-449",
         "type": "row",
         "name": "Contact us",
         "gap": 12,
@@ -6203,7 +6240,7 @@
         },
         "children": [
          {
-          "id": "sig-448",
+          "id": "sig-450",
           "type": "icon",
           "icon": "support_agent",
           "icon_size": 22,
@@ -6211,13 +6248,13 @@
           "dark_color": "#E39B7C"
          },
          {
-          "id": "sig-449",
+          "id": "sig-451",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-450",
+            "id": "sig-452",
             "type": "text",
             "text": "Contact us",
             "font": {
@@ -6237,7 +6274,7 @@
             }
            },
            {
-            "id": "sig-451",
+            "id": "sig-453",
             "type": "text",
             "text": "Write to the makers about your piece",
             "font": {
@@ -6259,7 +6296,7 @@
           ]
          },
          {
-          "id": "sig-452",
+          "id": "sig-454",
           "type": "icon",
           "icon": "chat",
           "icon_size": 20,
@@ -6311,7 +6348,7 @@
      "background": "#F1E8D8",
      "dark_background": "#1C1611",
      "body": {
-      "id": "sig-453",
+      "id": "sig-455",
       "type": "column",
       "padding": {
        "top": 0,
@@ -6325,7 +6362,7 @@
       },
       "children": [
        {
-        "id": "sig-454",
+        "id": "sig-456",
         "type": "text",
         "text": "Tell the makers what you want: the piece, its size and the yarn's colour. A maker writes back within a day with the price and the days it takes.",
         "font": {
@@ -6351,7 +6388,7 @@
         }
        },
        {
-        "id": "sig-481",
+        "id": "sig-483",
         "type": "column",
         "name": "How your piece is made",
         "width": "fill",
@@ -6376,32 +6413,12 @@
         "border_width": 1,
         "children": [
          {
-          "id": "sig-482",
+          "id": "sig-484",
           "type": "row",
           "align": "between",
           "cross": "center",
           "height": 4,
           "children": [
-           {
-            "id": "sig-483",
-            "type": "row",
-            "width": 7,
-            "height": 2,
-            "radius": 1,
-            "background": "#C9B394",
-            "dark_background": "#5A4A3A",
-            "children": []
-           },
-           {
-            "id": "sig-484",
-            "type": "row",
-            "width": 7,
-            "height": 2,
-            "radius": 1,
-            "background": "#C9B394",
-            "dark_background": "#5A4A3A",
-            "children": []
-           },
            {
             "id": "sig-485",
             "type": "row",
@@ -6601,11 +6618,31 @@
             "background": "#C9B394",
             "dark_background": "#5A4A3A",
             "children": []
+           },
+           {
+            "id": "sig-505",
+            "type": "row",
+            "width": 7,
+            "height": 2,
+            "radius": 1,
+            "background": "#C9B394",
+            "dark_background": "#5A4A3A",
+            "children": []
+           },
+           {
+            "id": "sig-506",
+            "type": "row",
+            "width": 7,
+            "height": 2,
+            "radius": 1,
+            "background": "#C9B394",
+            "dark_background": "#5A4A3A",
+            "children": []
            }
           ]
          },
          {
-          "id": "sig-455",
+          "id": "sig-457",
           "type": "text",
           "text": "Made for you alone, stitch by stitch",
           "font": {
@@ -6631,12 +6668,12 @@
           }
          },
          {
-          "id": "sig-456",
+          "id": "sig-458",
           "type": "row",
           "gap": 0,
           "children": [
            {
-            "id": "sig-457",
+            "id": "sig-459",
             "type": "column",
             "name": "You order",
             "width": 78,
@@ -6644,7 +6681,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-458",
+              "id": "sig-460",
               "type": "row",
               "width": 46,
               "height": 46,
@@ -6655,7 +6692,7 @@
               "dark_background": "#C4623F",
               "children": [
                {
-                "id": "sig-459",
+                "id": "sig-461",
                 "type": "icon",
                 "icon": "edit_note",
                 "icon_size": 22,
@@ -6665,7 +6702,7 @@
               ]
              },
              {
-              "id": "sig-460",
+              "id": "sig-462",
               "type": "text",
               "text": "You order",
               "font": {
@@ -6687,7 +6724,7 @@
               }
              },
              {
-              "id": "sig-461",
+              "id": "sig-463",
               "type": "text",
               "text": "Today",
               "font": {
@@ -6710,34 +6747,34 @@
             ]
            },
            {
-            "id": "sig-462",
+            "id": "sig-464",
             "type": "row",
             "align": "between",
             "cross": "center",
             "height": 4,
             "children": [
              {
-              "id": "sig-463",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
-              "id": "sig-464",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
               "id": "sig-465",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-466",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-467",
               "type": "row",
               "width": 7,
               "height": 2,
@@ -6756,7 +6793,7 @@
             }
            },
            {
-            "id": "sig-466",
+            "id": "sig-468",
             "type": "column",
             "name": "We make it",
             "width": 78,
@@ -6764,7 +6801,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-467",
+              "id": "sig-469",
               "type": "row",
               "width": 46,
               "height": 46,
@@ -6775,7 +6812,7 @@
               "dark_background": "#2F2720",
               "children": [
                {
-                "id": "sig-468",
+                "id": "sig-470",
                 "type": "icon",
                 "icon": "content_cut",
                 "icon_size": 22,
@@ -6785,7 +6822,7 @@
               ]
              },
              {
-              "id": "sig-469",
+              "id": "sig-471",
               "type": "text",
               "text": "We make it",
               "font": {
@@ -6807,7 +6844,7 @@
               }
              },
              {
-              "id": "sig-470",
+              "id": "sig-472",
               "type": "text",
               "text": "7–10 days",
               "font": {
@@ -6830,34 +6867,34 @@
             ]
            },
            {
-            "id": "sig-471",
+            "id": "sig-473",
             "type": "row",
             "align": "between",
             "cross": "center",
             "height": 4,
             "children": [
              {
-              "id": "sig-472",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
-              "id": "sig-473",
-              "type": "row",
-              "width": 7,
-              "height": 2,
-              "radius": 1,
-              "background": "#C9B394",
-              "dark_background": "#5A4A3A",
-              "children": []
-             },
-             {
               "id": "sig-474",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-475",
+              "type": "row",
+              "width": 7,
+              "height": 2,
+              "radius": 1,
+              "background": "#C9B394",
+              "dark_background": "#5A4A3A",
+              "children": []
+             },
+             {
+              "id": "sig-476",
               "type": "row",
               "width": 7,
               "height": 2,
@@ -6876,7 +6913,7 @@
             }
            },
            {
-            "id": "sig-475",
+            "id": "sig-477",
             "type": "column",
             "name": "We ship it",
             "width": 78,
@@ -6884,7 +6921,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-476",
+              "id": "sig-478",
               "type": "row",
               "width": 46,
               "height": 46,
@@ -6895,7 +6932,7 @@
               "dark_background": "#2F2720",
               "children": [
                {
-                "id": "sig-477",
+                "id": "sig-479",
                 "type": "icon",
                 "icon": "local_shipping",
                 "icon_size": 22,
@@ -6905,7 +6942,7 @@
               ]
              },
              {
-              "id": "sig-478",
+              "id": "sig-480",
               "type": "text",
               "text": "We ship it",
               "font": {
@@ -6927,7 +6964,7 @@
               }
              },
              {
-              "id": "sig-479",
+              "id": "sig-481",
               "type": "text",
               "text": "2 days",
               "font": {
@@ -6952,7 +6989,7 @@
           ]
          },
          {
-          "id": "sig-480",
+          "id": "sig-482",
           "type": "button",
           "name": "Order a piece your way",
           "text": "Order a piece your way",
@@ -6984,32 +7021,12 @@
           }
          },
          {
-          "id": "sig-505",
+          "id": "sig-507",
           "type": "row",
           "align": "between",
           "cross": "center",
           "height": 4,
           "children": [
-           {
-            "id": "sig-506",
-            "type": "row",
-            "width": 7,
-            "height": 2,
-            "radius": 1,
-            "background": "#C9B394",
-            "dark_background": "#5A4A3A",
-            "children": []
-           },
-           {
-            "id": "sig-507",
-            "type": "row",
-            "width": 7,
-            "height": 2,
-            "radius": 1,
-            "background": "#C9B394",
-            "dark_background": "#5A4A3A",
-            "children": []
-           },
            {
             "id": "sig-508",
             "type": "row",
@@ -7209,13 +7226,33 @@
             "background": "#C9B394",
             "dark_background": "#5A4A3A",
             "children": []
+           },
+           {
+            "id": "sig-528",
+            "type": "row",
+            "width": 7,
+            "height": 2,
+            "radius": 1,
+            "background": "#C9B394",
+            "dark_background": "#5A4A3A",
+            "children": []
+           },
+           {
+            "id": "sig-529",
+            "type": "row",
+            "width": 7,
+            "height": 2,
+            "radius": 1,
+            "background": "#C9B394",
+            "dark_background": "#5A4A3A",
+            "children": []
            }
           ]
          }
         ]
        },
        {
-        "id": "sig-528",
+        "id": "sig-530",
         "type": "row",
         "name": "Your request",
         "cross": "end",
@@ -7228,13 +7265,13 @@
         },
         "children": [
          {
-          "id": "sig-529",
+          "id": "sig-531",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-530",
+            "id": "sig-532",
             "type": "text",
             "text": "Your request",
             "font": {
@@ -7260,7 +7297,7 @@
         ]
        },
        {
-        "id": "sig-531",
+        "id": "sig-533",
         "type": "form",
         "name": "Your request",
         "form": {
@@ -7384,7 +7421,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-572",
+      "id": "sig-574",
       "type": "column",
       "children": []
      },
@@ -7426,7 +7463,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-573",
+      "id": "sig-575",
       "type": "column",
       "children": []
      },
@@ -7468,7 +7505,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-574",
+      "id": "sig-576",
       "type": "column",
       "children": []
      },
@@ -7510,7 +7547,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-575",
+      "id": "sig-577",
       "type": "column",
       "children": []
      },
@@ -7552,7 +7589,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-576",
+      "id": "sig-578",
       "type": "column",
       "children": []
      },
@@ -7586,7 +7623,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-577",
+      "id": "sig-579",
       "type": "column",
       "children": []
      },
@@ -7603,7 +7640,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-578",
+      "id": "sig-580",
       "type": "column",
       "children": []
      },

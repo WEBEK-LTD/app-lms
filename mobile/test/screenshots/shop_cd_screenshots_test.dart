@@ -92,11 +92,13 @@ DemoApi _shopApi(String demo, StudioDemo look, String primary, String lang) {
   final base = look.base;
   final currency = shop['currency'] as String;
   final categories = (shop['categories'] as List).cast<Map<String, dynamic>>();
+  String name(Map<String, dynamic> c) =>
+      (lang == 'ar' ? c['ar'] : (lang == 'tr' ? c['tr'] : c['name'])) as String;
   final products = [
     for (final p in (shop['products'] as List).cast<Map<String, dynamic>>())
       {
         'id': p['id'],
-        'name': p['name'],
+        'name': name(p),
         'type': 'simple',
         'image_url': '$base${(p['photos'] as List).first}',
         'price': _price(p['price'] as int, p['was'] as int?, currency, lang),
@@ -113,8 +115,6 @@ DemoApi _shopApi(String demo, StudioDemo look, String primary, String lang) {
   List<Map<String, dynamic>> clean(Iterable<Map<String, dynamic>> list) => [
     for (final p in list) {...p}..removeWhere((k, _) => k.startsWith('_')),
   ];
-  String name(Map<String, dynamic> c) =>
-      (lang == 'ar' ? c['ar'] : (lang == 'tr' ? c['tr'] : c['name'])) as String;
   final first = products.first;
   final api = DemoApi.store(primary: primary)
     ..shopProducts = clean(products)
@@ -270,6 +270,14 @@ List<_Pic> _pics(String demo, String look, String primary) {
       shot('$p-home-full-dark', dark: true, size: _tall),
     ),
     _Pic('$p-home-ar', shot('$p-home-ar', lang: 'ar', size: _tall)),
+    _Pic(
+      '$p-product-ar',
+      shot('$p-product-ar', lang: 'ar', location: '/product/100', size: _tall),
+    ),
+    _Pic(
+      '$p-listing-ar',
+      shot('$p-listing-ar', lang: 'ar', location: '/shop', size: _tall),
+    ),
     _Pic('$p-menu', shot('$p-menu', location: '/page/menu', size: _tall)),
     _Pic(
       '$p-menu-dark',

@@ -432,7 +432,7 @@ const SHADES: readonly [string, string, SectionWord, SectionWord][] = [
 /** The hero: a glossy plum card, the lips in an arch, the big shade name, and the shade carousel (`swatches`) under them. */
 function shadeHero(ctx: SectionContext, l: Look): StudioNode {
   const id = idOf(ctx);
-  const t = sigTexts(ctx, { text: "vdChooseShade", title: "vdTryShade" });
+  const t = sigTexts(ctx, { text: "vdChooseShade" });
   return {
     id: id(),
     type: "column",
@@ -488,8 +488,8 @@ function shadeHero(ctx: SectionContext, l: Look): StudioNode {
         id: id(),
         type: "swatches",
         name: ctx.w("vdChooseShade"),
+        // No button of its own: "Try the shade" above it opens the shop, in the look's face.
         text: t.text,
-        title: t.title,
         translations: t.translations,
         action: shop,
         swatches: { shape: "circle", size: 52 },

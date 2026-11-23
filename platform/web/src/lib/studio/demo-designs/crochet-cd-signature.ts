@@ -160,13 +160,28 @@ const YARNS: readonly [string, SectionWord][] = [
 
 /** The yarn-colour picker (`swatches`): the yarns as round swatches, the one tapped named, a button to order in it. */
 function yarnPicker(ctx: SectionContext, l: Look): StudioNode {
-  const t = sigTexts(ctx, { text: "gcYarnTitle", title: "gcOrderButton" });
+  const id = idOf(ctx);
+  const t = sigTexts(ctx, { text: "gcYarnTitle" });
+  // The swatches without a button of their own; the order button under them in the look's face.
   return {
-    id: idOf(ctx)(),
+    id: id(),
+    type: "column",
+    name: ctx.w("gcYarnTitle"),
+    gap: 12,
+    radius: 6,
+    padding: sides(14, 14, 14, 14),
+    margin: sides(0, 16, 0, 16),
+    background: l.k.surface,
+    dark_background: l.k.darkSurface,
+    border_color: l.k.line,
+    dark_border_color: l.k.darkLine,
+    border_width: 1,
+    children: [
+      {
+    id: id(),
     type: "swatches",
     name: ctx.w("gcYarnTitle"),
     text: t.text,
-    title: t.title,
     translations: t.translations,
     action: ownPage(ctx, GC_CUSTOM_PAGE),
     swatches: { shape: "square", size: 44 },
@@ -174,14 +189,25 @@ function yarnPicker(ctx: SectionContext, l: Look): StudioNode {
     font: { family: l.family },
     color: l.k.ink,
     dark_color: l.k.darkInk,
-    background: l.k.surface,
-    dark_background: l.k.darkSurface,
-    border_color: l.k.line,
-    dark_border_color: l.k.darkLine,
-    border_width: 1,
-    radius: 6,
-    padding: sides(14, 14, 14, 14),
-    margin: sides(0, 16, 0, 16),
+      },
+      {
+        id: id(),
+        type: "button",
+        name: ctx.w("gcOrderButton"),
+        text: ctx.w("gcOrderButton"),
+        icon: "arrow_back",
+        icon_position: "end",
+        width: "fill",
+        height: 46,
+        radius: 4,
+        background: l.k.ink,
+        dark_background: l.k.darkInk,
+        color: l.k.page,
+        dark_color: l.k.darkPage,
+        font: { family: l.family, size: 15, weight: 700 },
+        action: ownPage(ctx, GC_CUSTOM_PAGE),
+      },
+    ],
   };
 }
 

@@ -67,6 +67,16 @@ class StudioDemo {
         }
       }
     }
+    // 209 A quiz's questions, as the hosted API serves them (lib/hosted/pages).
+    if (out['quiz'] case final Map quiz when quiz['questions'] is List) {
+      out['quiz'] = {
+        ...quiz,
+        'questions': [
+          for (final q in quiz['questions'] as List)
+            q is Map<String, dynamic> ? localized(q) : q,
+        ],
+      };
+    }
     for (final list in _entryLists) {
       if (out[list] case final List entries) {
         out[list] = [

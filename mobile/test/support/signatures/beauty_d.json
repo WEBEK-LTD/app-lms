@@ -389,15 +389,12 @@
           "type": "swatches",
           "name": "Choose your shade",
           "text": "Choose your shade",
-          "title": "Try the shade",
           "translations": {
            "ar": {
-            "text": "اختاري ظلّكِ",
-            "title": "جرّبي الظل"
+            "text": "اختاري ظلّكِ"
            },
            "tr": {
-            "text": "Tonunuzu seçin",
-            "title": "Tonu deneyin"
+            "text": "Tonunuzu seçin"
            }
           },
           "action": {

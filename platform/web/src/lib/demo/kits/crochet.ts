@@ -1,3 +1,4 @@
+import { CROCHET_PRODUCT_NAMES } from "../product-names";
 import { giftBeginningsIn } from "../../selling/gift-starters";
 import type { KitProduct, ShopKit } from "../shop-kit";
 
@@ -72,6 +73,8 @@ const PRODUCTS: readonly KitProduct[] = [
 ];
 
 export const CROCHET_KIT: ShopKit = {
+  // 224 Its products named in Arabic and Turkish too.
+  productNames: CROCHET_PRODUCT_NAMES,
   demo: "crochet",
   photos: {
     dir: "crochet-photos",
