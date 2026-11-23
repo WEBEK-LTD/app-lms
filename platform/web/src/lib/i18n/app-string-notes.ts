@@ -3576,6 +3576,11 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "115 The payment section.": { ar: "قسم الدفع.", tr: "Ödeme bölümü." },
   "115 Payment method.": { ar: "طريقة الدفع.", tr: "Ödeme yöntemi." },
   "115 Payment method: all from the wallet.": { ar: "طريقة الدفع: كلها من المحفظة.", tr: "Ödeme yöntemi: tamamı cüzdandan." },
+  "220 Payment method: cash when the customer picks the order up (Pick up chosen at the checkout).": {
+    en: "Payment method: cash when the customer picks the order up (Pick up chosen at checkout).",
+    ar: "طريقة الدفع: كاش لما العميل يستلم الطلب بنفسه (اختار الاستلام في الدفع).",
+    tr: "Ödeme yöntemi: müşteri siparişi kendisi teslim alırken nakit (ödemede Gel al seçili).",
+  },
   "115 The order's notes field.": { ar: "حقل ملاحظات الطلب.", tr: "Siparişin not alanı." },
   "115 A shop item: what to do when it's out when picked.": { ar: "صنف من متجر: ما يُفعل إذا لم يتوفر عند التجهيز.", tr: "Mağaza ürünü: toplanırken yoksa ne yapılacağı." },
   "115 A shop item out of stock: substitute it.": { ar: "صنف غير متوفر في المتجر: يُستبدل.", tr: "Stokta olmayan mağaza ürünü: yerine başkası konur." },

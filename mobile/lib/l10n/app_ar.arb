@@ -2374,6 +2374,7 @@
   "marketUseWallet": "استخدم رصيد محفظتي",
   "marketPayWith": "الدفع بواسطة",
   "marketPayCash": "الدفع عند الاستلام",
+  "marketPayCashPickup": "الدفع نقدًا عند استلام الطلب بنفسك",
   "marketPayCard": "بطاقة",
   "marketPayApplePay": "Apple Pay",
   "marketPayGooglePay": "Google Pay",
