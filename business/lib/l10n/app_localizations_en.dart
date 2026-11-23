@@ -4191,10 +4191,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'If a sound doesn\'t play, check that notifications for Yallapp Business are allowed and the phone isn\'t on Do Not Disturb.';
 
   @override
-  String get ringSaveFailed =>
-      'Saved on this phone. It reaches your notifications once you\'re online.';
-
-  @override
   String get ringBannerOrder => 'New order';
 
   @override
@@ -4262,6 +4258,92 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get soundSilent => 'Silent';
+
+  @override
+  String get searchOrdersHint => 'Order number, name, phone or email';
+
+  @override
+  String get noOrdersFound => 'No orders match your search';
+
+  @override
+  String get shippingTitle => 'Shipping';
+
+  @override
+  String get shipWithTracking => 'Mark as shipped';
+
+  @override
+  String get shipWithTrackingHelp =>
+      'Add the carrier and the tracking. The customer gets an email with it.';
+
+  @override
+  String get carrierField => 'Carrier';
+
+  @override
+  String get trackingNumberField => 'Tracking number or waybill';
+
+  @override
+  String get shipNeedsTracking =>
+      'Enter the tracking number or the tracking link.';
+
+  @override
+  String get markShipped => 'Mark as shipped';
+
+  @override
+  String get saveTracking => 'Save tracking';
+
+  @override
+  String get changeTracking => 'Change tracking';
+
+  @override
+  String get shippedDone => 'Marked as shipped. The customer was emailed.';
+
+  @override
+  String get searchProductsHint => 'Find a product';
+
+  @override
+  String get noProductsFound => 'No products match your search';
+
+  @override
+  String get shareOrder => 'Share the order';
+
+  @override
+  String get copyOrder => 'Copy the details';
+
+  @override
+  String get sendOrderWhatsapp => 'Send on WhatsApp';
+
+  @override
+  String get orderCopied => 'The order\'s details were copied';
+
+  @override
+  String orderTextTitle(String number) {
+    return 'Order $number';
+  }
+
+  @override
+  String orderTextTotal(String amount) {
+    return 'Total: $amount';
+  }
+
+  @override
+  String orderTextName(String name) {
+    return 'Name: $name';
+  }
+
+  @override
+  String orderTextPhone(String phone) {
+    return 'Phone: $phone';
+  }
+
+  @override
+  String orderTextAddress(String address) {
+    return 'Address: $address';
+  }
+
+  @override
+  String orderTextNotes(String notes) {
+    return 'Notes: $notes';
+  }
 
   @override
   String get pushMarketOrder => 'New marketplace orders';

@@ -174,6 +174,7 @@ abstract final class AppIcons {
   static const cancelledOrder = Symbols.remove_shopping_cart_rounded;
   static const silent = Symbols.notifications_off_rounded;
   static const volume = Symbols.volume_up_rounded;
+  static const share = Symbols.share_rounded;
 }
 
 /// Icons that point a way (back, forward, send) turn round in Arabic.

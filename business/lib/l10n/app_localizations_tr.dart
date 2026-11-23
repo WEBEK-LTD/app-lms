@@ -4197,10 +4197,6 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bir ses çalmazsa Yallapp Business bildirimlerine izin verildiğinden ve telefonun Rahatsız Etmeyin modunda olmadığından emin olun.';
 
   @override
-  String get ringSaveFailed =>
-      'Bu telefona kaydedildi. Çevrimiçi olduğunuzda bildirimlerinize uygulanır.';
-
-  @override
   String get ringBannerOrder => 'Yeni sipariş';
 
   @override
@@ -4268,6 +4264,93 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get soundSilent => 'Sessiz';
+
+  @override
+  String get searchOrdersHint => 'Sipariş numarası, ad, telefon veya e-posta';
+
+  @override
+  String get noOrdersFound => 'Aramanızla eşleşen sipariş yok';
+
+  @override
+  String get shippingTitle => 'Kargo';
+
+  @override
+  String get shipWithTracking => 'Kargoya verildi olarak işaretle';
+
+  @override
+  String get shipWithTrackingHelp =>
+      'Kargo firmasını ve takip bilgisini ekleyin. Müşteriye bununla bir e-posta gider.';
+
+  @override
+  String get carrierField => 'Kargo firması';
+
+  @override
+  String get trackingNumberField => 'Takip numarası veya irsaliye';
+
+  @override
+  String get shipNeedsTracking =>
+      'Takip numarasını veya takip bağlantısını girin.';
+
+  @override
+  String get markShipped => 'Kargoya verildi olarak işaretle';
+
+  @override
+  String get saveTracking => 'Takibi kaydet';
+
+  @override
+  String get changeTracking => 'Takibi değiştir';
+
+  @override
+  String get shippedDone =>
+      'Kargoya verildi olarak işaretlendi. Müşteriye e-posta gönderildi.';
+
+  @override
+  String get searchProductsHint => 'Ürün bul';
+
+  @override
+  String get noProductsFound => 'Aramanızla eşleşen ürün yok';
+
+  @override
+  String get shareOrder => 'Siparişi paylaş';
+
+  @override
+  String get copyOrder => 'Ayrıntıları kopyala';
+
+  @override
+  String get sendOrderWhatsapp => 'WhatsApp ile gönder';
+
+  @override
+  String get orderCopied => 'Siparişin ayrıntıları kopyalandı';
+
+  @override
+  String orderTextTitle(String number) {
+    return 'Sipariş $number';
+  }
+
+  @override
+  String orderTextTotal(String amount) {
+    return 'Toplam: $amount';
+  }
+
+  @override
+  String orderTextName(String name) {
+    return 'Ad: $name';
+  }
+
+  @override
+  String orderTextPhone(String phone) {
+    return 'Telefon: $phone';
+  }
+
+  @override
+  String orderTextAddress(String address) {
+    return 'Adres: $address';
+  }
+
+  @override
+  String orderTextNotes(String notes) {
+    return 'Notlar: $notes';
+  }
 
   @override
   String get pushMarketOrder => 'Yeni pazar siparişleri';

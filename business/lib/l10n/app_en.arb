@@ -2735,7 +2735,6 @@
   "ringTestSent": "Sent. Lock the phone to hear it as it comes.",
   "ringIphoneNote": "On iPhone, when the app is closed an order rings for up to 25 seconds; open, it rings until you open it. Your phone's silent switch and Focus still apply.",
   "ringAndroidNote": "If a sound doesn't play, check that notifications for Yallapp Business are allowed and the phone isn't on Do Not Disturb.",
-  "ringSaveFailed": "Saved on this phone. It reaches your notifications once you're online.",
   "ringBannerOrder": "New order",
   "ringBannerBooking": "New booking",
   "ringSilence": "Silence",
@@ -2759,6 +2758,72 @@
   "soundKnock": "Knock",
   "soundDefault": "Phone's sound",
   "soundSilent": "Silent",
+  "searchOrdersHint": "Order number, name, phone or email",
+  "noOrdersFound": "No orders match your search",
+  "shippingTitle": "Shipping",
+  "shipWithTracking": "Mark as shipped",
+  "shipWithTrackingHelp": "Add the carrier and the tracking. The customer gets an email with it.",
+  "carrierField": "Carrier",
+  "trackingNumberField": "Tracking number or waybill",
+  "shipNeedsTracking": "Enter the tracking number or the tracking link.",
+  "markShipped": "Mark as shipped",
+  "saveTracking": "Save tracking",
+  "changeTracking": "Change tracking",
+  "shippedDone": "Marked as shipped. The customer was emailed.",
+  "searchProductsHint": "Find a product",
+  "noProductsFound": "No products match your search",
+  "shareOrder": "Share the order",
+  "copyOrder": "Copy the details",
+  "sendOrderWhatsapp": "Send on WhatsApp",
+  "orderCopied": "The order's details were copied",
+  "orderTextTitle": "Order {number}",
+  "@orderTextTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "orderTextTotal": "Total: {amount}",
+  "@orderTextTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "orderTextName": "Name: {name}",
+  "@orderTextName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "orderTextPhone": "Phone: {phone}",
+  "@orderTextPhone": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "orderTextAddress": "Address: {address}",
+  "@orderTextAddress": {
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "orderTextNotes": "Notes: {notes}",
+  "@orderTextNotes": {
+    "placeholders": {
+      "notes": {
+        "type": "String"
+      }
+    }
+  },
   "pushMarketOrder": "New marketplace orders",
   "pushMarketOrderHelp": "When an order reaches one of your vendors",
   "pushCancelled": "Cancelled orders",

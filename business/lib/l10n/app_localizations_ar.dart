@@ -4173,10 +4173,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'إذا لم يُسمع الصوت، فتأكد من السماح بإشعارات يلا اب بيزنس وأن الهاتف ليس في وضع عدم الإزعاج.';
 
   @override
-  String get ringSaveFailed =>
-      'حُفظ على هذا الهاتف، وسيُطبَّق على إشعاراتك عند الاتصال بالإنترنت.';
-
-  @override
   String get ringBannerOrder => 'طلب جديد';
 
   @override
@@ -4244,6 +4240,93 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get soundSilent => 'صامت';
+
+  @override
+  String get searchOrdersHint =>
+      'رقم الطلب أو الاسم أو الهاتف أو البريد الإلكتروني';
+
+  @override
+  String get noOrdersFound => 'لا توجد طلبات تطابق بحثك';
+
+  @override
+  String get shippingTitle => 'الشحن';
+
+  @override
+  String get shipWithTracking => 'تحديد كمشحون';
+
+  @override
+  String get shipWithTrackingHelp =>
+      'أضف شركة الشحن ورقم التتبع، وسيصل إلى العميل بريد إلكتروني بذلك.';
+
+  @override
+  String get carrierField => 'شركة الشحن';
+
+  @override
+  String get trackingNumberField => 'رقم التتبع أو بوليصة الشحن';
+
+  @override
+  String get shipNeedsTracking => 'أدخل رقم التتبع أو رابط التتبع.';
+
+  @override
+  String get markShipped => 'تحديد كمشحون';
+
+  @override
+  String get saveTracking => 'حفظ بيانات التتبع';
+
+  @override
+  String get changeTracking => 'تغيير بيانات التتبع';
+
+  @override
+  String get shippedDone =>
+      'تم التحديد كمشحون، وأُرسل بريد إلكتروني إلى العميل.';
+
+  @override
+  String get searchProductsHint => 'ابحث عن منتج';
+
+  @override
+  String get noProductsFound => 'لا توجد منتجات تطابق بحثك';
+
+  @override
+  String get shareOrder => 'مشاركة الطلب';
+
+  @override
+  String get copyOrder => 'نسخ التفاصيل';
+
+  @override
+  String get sendOrderWhatsapp => 'إرسال عبر واتساب';
+
+  @override
+  String get orderCopied => 'تم نسخ تفاصيل الطلب';
+
+  @override
+  String orderTextTitle(String number) {
+    return 'الطلب $number';
+  }
+
+  @override
+  String orderTextTotal(String amount) {
+    return 'الإجمالي: $amount';
+  }
+
+  @override
+  String orderTextName(String name) {
+    return 'الاسم: $name';
+  }
+
+  @override
+  String orderTextPhone(String phone) {
+    return 'الهاتف: $phone';
+  }
+
+  @override
+  String orderTextAddress(String address) {
+    return 'العنوان: $address';
+  }
+
+  @override
+  String orderTextNotes(String notes) {
+    return 'ملاحظات: $notes';
+  }
 
   @override
   String get pushMarketOrder => 'طلبات السوق الجديدة';

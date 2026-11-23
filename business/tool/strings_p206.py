@@ -45,7 +45,6 @@ S = [
 ("ringTestSent", "Sent. Lock the phone to hear it as it comes.", "تم الإرسال. اقفل الهاتف لتسمعه كما يصل.", "Gönderildi. Geldiği gibi duymak için telefonu kilitleyin."),
 ("ringIphoneNote", "On iPhone, when the app is closed an order rings for up to 25 seconds; open, it rings until you open it. Your phone's silent switch and Focus still apply.", "على آيفون، عندما يكون التطبيق مغلقًا يرن الطلب لمدة تصل إلى 25 ثانية، وعندما يكون مفتوحًا يرن حتى تفتحه. ويظل زر الوضع الصامت والتركيز في هاتفك ساريَين.", "iPhone'da uygulama kapalıyken bir sipariş en fazla 25 saniye çalar; açıkken siz açana kadar çalar. Telefonunuzun sessiz düğmesi ve Odak ayarları yine geçerlidir."),
 ("ringAndroidNote", "If a sound doesn't play, check that notifications for Yallapp Business are allowed and the phone isn't on Do Not Disturb.", "إذا لم يُسمع الصوت، فتأكد من السماح بإشعارات يلا اب بيزنس وأن الهاتف ليس في وضع عدم الإزعاج.", "Bir ses çalmazsa Yallapp Business bildirimlerine izin verildiğinden ve telefonun Rahatsız Etmeyin modunda olmadığından emin olun."),
-("ringSaveFailed", "Saved on this phone. It reaches your notifications once you're online.", "حُفظ على هذا الهاتف، وسيُطبَّق على إشعاراتك عند الاتصال بالإنترنت.", "Bu telefona kaydedildi. Çevrimiçi olduğunuzda bildirimlerinize uygulanır."),
 # The in-app ring
 ("ringBannerOrder", "New order", "طلب جديد", "Yeni sipariş"),
 ("ringBannerBooking", "New booking", "حجز جديد", "Yeni rezervasyon"),
@@ -71,6 +70,34 @@ S = [
 ("soundKnock", "Knock", "طرق", "Tıkırtı"),
 ("soundDefault", "Phone's sound", "صوت الهاتف", "Telefonun sesi"),
 ("soundSilent", "Silent", "صامت", "Sessiz"),
+# Orders: search
+("searchOrdersHint", "Order number, name, phone or email", "رقم الطلب أو الاسم أو الهاتف أو البريد الإلكتروني", "Sipariş numarası, ad, telefon veya e-posta"),
+("noOrdersFound", "No orders match your search", "لا توجد طلبات تطابق بحثك", "Aramanızla eşleşen sipariş yok"),
+# Orders: shipped with any carrier
+("shippingTitle", "Shipping", "الشحن", "Kargo"),
+("shipWithTracking", "Mark as shipped", "تحديد كمشحون", "Kargoya verildi olarak işaretle"),
+("shipWithTrackingHelp", "Add the carrier and the tracking. The customer gets an email with it.", "أضف شركة الشحن ورقم التتبع، وسيصل إلى العميل بريد إلكتروني بذلك.", "Kargo firmasını ve takip bilgisini ekleyin. Müşteriye bununla bir e-posta gider."),
+("carrierField", "Carrier", "شركة الشحن", "Kargo firması"),
+("trackingNumberField", "Tracking number or waybill", "رقم التتبع أو بوليصة الشحن", "Takip numarası veya irsaliye"),
+("shipNeedsTracking", "Enter the tracking number or the tracking link.", "أدخل رقم التتبع أو رابط التتبع.", "Takip numarasını veya takip bağlantısını girin."),
+("markShipped", "Mark as shipped", "تحديد كمشحون", "Kargoya verildi olarak işaretle"),
+("saveTracking", "Save tracking", "حفظ بيانات التتبع", "Takibi kaydet"),
+("changeTracking", "Change tracking", "تغيير بيانات التتبع", "Takibi değiştir"),
+("shippedDone", "Marked as shipped. The customer was emailed.", "تم التحديد كمشحون، وأُرسل بريد إلكتروني إلى العميل.", "Kargoya verildi olarak işaretlendi. Müşteriye e-posta gönderildi."),
+# Catalog: search
+("searchProductsHint", "Find a product", "ابحث عن منتج", "Ürün bul"),
+("noProductsFound", "No products match your search", "لا توجد منتجات تطابق بحثك", "Aramanızla eşleşen ürün yok"),
+# Orders: copy or send the details
+("shareOrder", "Share the order", "مشاركة الطلب", "Siparişi paylaş"),
+("copyOrder", "Copy the details", "نسخ التفاصيل", "Ayrıntıları kopyala"),
+("sendOrderWhatsapp", "Send on WhatsApp", "إرسال عبر واتساب", "WhatsApp ile gönder"),
+("orderCopied", "The order's details were copied", "تم نسخ تفاصيل الطلب", "Siparişin ayrıntıları kopyalandı"),
+("orderTextTitle", "Order {number}", "الطلب {number}", "Sipariş {number}"),
+("orderTextTotal", "Total: {amount}", "الإجمالي: {amount}", "Toplam: {amount}"),
+("orderTextName", "Name: {name}", "الاسم: {name}", "Ad: {name}"),
+("orderTextPhone", "Phone: {phone}", "الهاتف: {phone}", "Telefon: {phone}"),
+("orderTextAddress", "Address: {address}", "العنوان: {address}", "Adres: {address}"),
+("orderTextNotes", "Notes: {notes}", "ملاحظات: {notes}", "Notlar: {notes}"),
 # Push kinds
 ("pushMarketOrder", "New marketplace orders", "طلبات السوق الجديدة", "Yeni pazar siparişleri"),
 ("pushMarketOrderHelp", "When an order reaches one of your vendors", "عندما يصل طلب إلى أحد البائعين لديك", "Bir sipariş satıcılarınızdan birine ulaştığında"),

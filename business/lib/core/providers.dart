@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/foundation.dart' show mapEquals;
@@ -77,10 +79,13 @@ class RingSettingsController extends Notifier<RingSettings> {
   /// Saves a change on this phone, hands it to Android, and sends it to
   /// the server (tried again at the next start when that fails).
   Future<void> set(RingSettings next) async {
+    final before = state;
     state = next;
-    await ref.read(settingsProvider).setRingSettings(next);
+    // The in-app volume is this phone's alone: nothing to send for it.
+    final same = jsonEncode(before.toApiJson()) == jsonEncode(next.toApiJson());
+    await ref.read(settingsProvider).setRingSettings(next, sent: same);
     await ref.read(ringNativeProvider).configure(next, _words);
-    await sendToServer();
+    if (!same) await sendToServer();
   }
 
   /// The words of Android's channels and actions, in the app's language.

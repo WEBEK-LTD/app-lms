@@ -80,7 +80,13 @@ class RingtonesScreen extends ConsumerStatefulWidget {
 }
 
 class _RingtonesScreenState extends ConsumerState<RingtonesScreen> {
-  late final Ringer _ringer = ref.read(ringerProvider);
+  late final Ringer _ringer;
+
+  @override
+  void initState() {
+    super.initState();
+    _ringer = ref.read(ringerProvider);
+  }
 
   @override
   void dispose() {
@@ -359,7 +365,14 @@ class RingtonePickerScreen extends ConsumerStatefulWidget {
 }
 
 class _RingtonePickerScreenState extends ConsumerState<RingtonePickerScreen> {
-  late final Ringer _ringer = ref.read(ringerProvider);
+  late final Ringer _ringer;
+
+  @override
+  void initState() {
+    super.initState();
+    _ringer = ref.read(ringerProvider);
+  }
+
   String? _playing;
 
   @override

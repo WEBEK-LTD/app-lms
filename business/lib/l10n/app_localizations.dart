@@ -7468,12 +7468,6 @@ abstract class AppLocalizations {
   /// **'If a sound doesn\'t play, check that notifications for Yallapp Business are allowed and the phone isn\'t on Do Not Disturb.'**
   String get ringAndroidNote;
 
-  /// No description provided for @ringSaveFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved on this phone. It reaches your notifications once you\'re online.'**
-  String get ringSaveFailed;
-
   /// No description provided for @ringBannerOrder.
   ///
   /// In en, this message translates to:
@@ -7611,6 +7605,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Silent'**
   String get soundSilent;
+
+  /// No description provided for @searchOrdersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Order number, name, phone or email'**
+  String get searchOrdersHint;
+
+  /// No description provided for @noOrdersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders match your search'**
+  String get noOrdersFound;
+
+  /// No description provided for @shippingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipping'**
+  String get shippingTitle;
+
+  /// No description provided for @shipWithTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as shipped'**
+  String get shipWithTracking;
+
+  /// No description provided for @shipWithTrackingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the carrier and the tracking. The customer gets an email with it.'**
+  String get shipWithTrackingHelp;
+
+  /// No description provided for @carrierField.
+  ///
+  /// In en, this message translates to:
+  /// **'Carrier'**
+  String get carrierField;
+
+  /// No description provided for @trackingNumberField.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking number or waybill'**
+  String get trackingNumberField;
+
+  /// No description provided for @shipNeedsTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the tracking number or the tracking link.'**
+  String get shipNeedsTracking;
+
+  /// No description provided for @markShipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as shipped'**
+  String get markShipped;
+
+  /// No description provided for @saveTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Save tracking'**
+  String get saveTracking;
+
+  /// No description provided for @changeTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Change tracking'**
+  String get changeTracking;
+
+  /// No description provided for @shippedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as shipped. The customer was emailed.'**
+  String get shippedDone;
+
+  /// No description provided for @searchProductsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a product'**
+  String get searchProductsHint;
+
+  /// No description provided for @noProductsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No products match your search'**
+  String get noProductsFound;
+
+  /// No description provided for @shareOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the order'**
+  String get shareOrder;
+
+  /// No description provided for @copyOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the details'**
+  String get copyOrder;
+
+  /// No description provided for @sendOrderWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send on WhatsApp'**
+  String get sendOrderWhatsapp;
+
+  /// No description provided for @orderCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'The order\'s details were copied'**
+  String get orderCopied;
+
+  /// No description provided for @orderTextTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {number}'**
+  String orderTextTitle(String number);
+
+  /// No description provided for @orderTextTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {amount}'**
+  String orderTextTotal(String amount);
+
+  /// No description provided for @orderTextName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name: {name}'**
+  String orderTextName(String name);
+
+  /// No description provided for @orderTextPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone: {phone}'**
+  String orderTextPhone(String phone);
+
+  /// No description provided for @orderTextAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address: {address}'**
+  String orderTextAddress(String address);
+
+  /// No description provided for @orderTextNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes: {notes}'**
+  String orderTextNotes(String notes);
 
   /// No description provided for @pushMarketOrder.
   ///

@@ -210,8 +210,9 @@ class SessionController extends Notifier<SessionState> {
   }
 
   Future<void> signOutEverywhere() async {
-    _stopPush();
+    // 206 Offline, it fails here and the phone stays signed in with its pushes.
     await ref.read(apiProvider).signOutAll();
+    _stopPush();
     await _forget();
   }
 

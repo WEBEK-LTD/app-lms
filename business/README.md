@@ -194,6 +194,24 @@ and customers). An app given Prime as a gift by Yallapp
 (`AppSummary.prime_gift`) shows "Prime · Gift from Yallapp"; a regular app's
 Prime page lists all of it, with nothing to buy.
 
+Roadmap 206 (Yallapp Business 1.0.4): ringtones. Seventeen of Yallapp's
+own, made from code by `tool/ringtones.py` (AAC in `assets/sounds/` for the
+app, Vorbis in `android/app/src/main/res/raw/` for Android's channels, IMA4
+CAF in `ios/Runner/Sounds/` for iOS pushes, one ring and 25 seconds; run it
+again after changing a tone). Settings › Ringtones
+(`lib/features/more/ringtones_screen.dart`, `lib/core/services/ringtones.dart`)
+chooses a sound for new orders, bookings, cancelled orders, messages and the
+rest, how long orders and bookings ring until opened, vibration, Android's
+alarm volume, the in-app volume and quiet hours, with Test ring. The choices
+stay on the phone and go to the server (`PUT /me/push-sounds`); from then
+on the phone's pushes are worded for them: Android gets them as data only
+and the app shows them itself (`RingReceiver.kt`, `Ringing.kt`: a channel
+per sound, ringing with Silence until opened, for at most the minutes
+chosen), iOS gets the bundled sound in the push. While the app is open a
+new order rings with a card over every screen (Silence, Open). The review
+added order search, Mark as shipped with the carrier and tracking, copying
+or sending an order's details, and a product search.
+
 Each screen and quick action is shown only when the app has it
 (`AppSummary.features`): the second tab is the app's main tool (Events,
 Appointments, Orders, Donations or its catalog), Inbox and Stats appear when

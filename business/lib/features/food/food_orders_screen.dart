@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app.dart' show pushEventsProvider;
 import '../../core/api/models.dart';
 import '../../core/providers.dart';
 import '../../core/routing/paths.dart';
@@ -61,6 +62,13 @@ class _FoodOrdersScreenState extends ConsumerState<FoodOrdersScreen> {
     final l10n = context.l10n;
     final app = ref.watch(currentAppProvider);
     if (app == null) return const SizedBox.shrink();
+    // 206 A push about it while the list is open shows at once.
+    ref.listen(pushEventsProvider, (_, notice) {
+      final kind = notice?.data['kind'];
+      if ((kind == 'new_food_order' || kind == 'order_cancelled') && mounted) {
+        setState(() => _version++);
+      }
+    });
     final api = ref.watch(apiProvider);
     final filter = filters[_filter];
     final busy = [
@@ -311,7 +319,11 @@ class _FoodOrderCardState extends ConsumerState<FoodOrderCard> {
       if (o.distanceKm != null) km(context, o.distanceKm!),
     ];
     return Box(
-      onTap: () => context.push(Paths.foodOrder(o.id)),
+      // 206 Back from the order: the list shows what changed there.
+      onTap: () async {
+        await context.push(Paths.foodOrder(o.id));
+        widget.onChanged();
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

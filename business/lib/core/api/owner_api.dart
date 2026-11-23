@@ -61,13 +61,19 @@ abstract class OwnerApi {
   Future<Today> today(String appId);
 
   // Orders
+  /// 206 [query]: the order's number or who ordered (name, phone, email).
   Future<Paged<Order>> orders(
     String appId, {
     List<String> statuses = const [],
     int page = 1,
     int perPage = 20,
+    String? query,
   });
   Future<Order> order(String appId, int orderId);
+
+  /// 206 Marks it shipped with the carrier and the tracking; the customer
+  /// is emailed (80.4). Again changes the tracking.
+  Future<Order> shipOrder(String appId, int orderId, ShipmentInput shipment);
 
   /// 175 [refund]: with `cancelled`, the owner's choice for a paid order
   /// (`Order.cancelRefund`): refund what's left, or not.

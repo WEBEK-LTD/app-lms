@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app.dart' show pushEventsProvider;
 import '../../core/api/models.dart';
 import '../../core/providers.dart';
 import '../../core/routing/paths.dart';
@@ -11,7 +12,7 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/paged_list.dart';
 import '../../core/widgets/states.dart';
-import '../studio/studio_widgets.dart' show IconLine;
+import '../studio/studio_widgets.dart' show IconLine, SearchBarField;
 import 'order_actions.dart';
 import 'order_stages.dart';
 import 'order_screen.dart' show deliveryWhen;
@@ -37,6 +38,20 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
   );
   int _version = 0;
 
+  /// 206 Searching by number or who ordered.
+  bool _searching = false;
+  String? _query;
+
+  @override
+  void didUpdateWidget(OrdersScreen old) {
+    super.didUpdateWidget(old);
+    // 206 A link to another tab (?status=) on the same screen.
+    final i = statuses.indexOf(widget.initialStatus ?? '');
+    if (widget.initialStatus != old.initialStatus && i >= 0) {
+      _tabs.index = i;
+    }
+  }
+
   @override
   void dispose() {
     _tabs.dispose();
@@ -50,6 +65,12 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
     if (app == null) return const SizedBox.shrink();
     final appId = app.id;
     final api = ref.watch(apiProvider);
+    // 206 A new order while the list is open shows at once.
+    ref.listen(pushEventsProvider, (_, notice) {
+      if (notice?.data['kind'] == 'new_order' && mounted) {
+        setState(() => _version++);
+      }
+    });
     final labels = [
       l10n.tabInProgress,
       l10n.statusCompleted,
@@ -60,6 +81,18 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
       appBar: AppBar(
         title: Text(l10n.orders),
         actions: [
+          IconButton(
+            key: const ValueKey('orders-search'),
+            tooltip: l10n.searchAction,
+            icon: const Icon(AppIcons.search),
+            onPressed: () => setState(() {
+              _searching = !_searching;
+              if (!_searching && _query != null) {
+                _query = null;
+                _version++;
+              }
+            }),
+          ),
           if (app.features.kitchen)
             TextButton.icon(
               onPressed: () => context.push(Paths.kitchen),
@@ -73,31 +106,56 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
           tabs: [for (final label in labels) Tab(text: label)],
         ),
       ),
-      body: TabBarView(
-        controller: _tabs,
+      body: Column(
         children: [
-          for (final status in statuses)
-            PagedList<Order>(
-              key: ValueKey('$appId-$status-$_version'),
-              // 132 In progress lists the orders waiting for a bank transfer or the owner's own method too.
-              load: (page) => api.orders(
-                appId,
-                statuses: status == 'processing'
-                    ? const ['pending', 'processing']
-                    : [status],
-                page: page,
-              ),
-              empty: EmptyState(
-                icon: AppIcons.orders,
-                title: status == 'processing'
-                    ? l10n.noOrdersInProgress
-                    : l10n.noOrders,
-              ),
-              itemBuilder: (context, order) => OrderCard(
-                order: order,
-                onChanged: (_) => setState(() => _version++),
+          if (_searching)
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: SearchBarField(
+                hint: l10n.searchOrdersHint,
+                onSubmitted: (q) => setState(() {
+                  _query = q.trim().isEmpty ? null : q.trim();
+                  _version++;
+                }),
+                onClose: () => setState(() {
+                  _searching = false;
+                  if (_query != null) _version++;
+                  _query = null;
+                }),
               ),
             ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabs,
+              children: [
+                for (final status in statuses)
+                  PagedList<Order>(
+                    key: ValueKey('$appId-$status-$_version-${_query ?? ''}'),
+                    // 132 In progress lists the orders waiting for a bank transfer or the owner's own method too.
+                    load: (page) => api.orders(
+                      appId,
+                      statuses: status == 'processing'
+                          ? const ['pending', 'processing']
+                          : [status],
+                      page: page,
+                      query: _query,
+                    ),
+                    empty: EmptyState(
+                      icon: _query != null ? AppIcons.search : AppIcons.orders,
+                      title: _query != null
+                          ? l10n.noOrdersFound
+                          : status == 'processing'
+                          ? l10n.noOrdersInProgress
+                          : l10n.noOrders,
+                    ),
+                    itemBuilder: (context, order) => OrderCard(
+                      order: order,
+                      onChanged: (_) => setState(() => _version++),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -126,7 +184,11 @@ class OrderCard extends ConsumerWidget {
         : null;
     final to = order.deliverTo;
     return Panel(
-      onTap: () => context.push(Paths.order(order.id)),
+      // 206 Back from the order: the list shows what changed there.
+      onTap: () async {
+        await context.push(Paths.order(order.id));
+        onChanged(order);
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

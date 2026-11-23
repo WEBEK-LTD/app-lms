@@ -86,9 +86,13 @@ class LocalSettings {
     }
   }
 
-  Future<void> setRingSettings(RingSettings settings) async {
+  /// [sent]: nothing the server keeps changed (the in-app volume).
+  Future<void> setRingSettings(
+    RingSettings settings, {
+    bool sent = false,
+  }) async {
     await _prefs.setString(_ring, jsonEncode(settings.toJson()));
-    await _prefs.setBool(_ringSent, false);
+    if (!sent) await _prefs.setBool(_ringSent, false);
   }
 
   /// 206 Whether the server has this phone's latest choices.

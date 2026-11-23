@@ -16,6 +16,8 @@ import '../food/food_sheets.dart' show FootPanel;
 import '../studio/studio_widgets.dart' show IconLine;
 import 'order_actions.dart';
 import 'order_stages.dart';
+import 'order_text.dart';
+import 'ship_sheet.dart';
 
 final orderProvider = FutureProvider.autoDispose.family<Order, int>(
   (ref, id) => ref.watch(apiProvider).order(ref.watch(appIdProvider), id),
@@ -37,7 +39,11 @@ class OrderScreen extends ConsumerWidget {
     final order = ref.watch(orderProvider(orderId));
     final loaded = order.value;
     return Scaffold(
-      appBar: AppBar(title: Text(loaded?.label ?? l10n.order)),
+      appBar: AppBar(
+        title: Text(loaded?.label ?? l10n.order),
+        // 206 Copy or send the order's details.
+        actions: [if (loaded != null) OrderShareButton(order: loaded)],
+      ),
       bottomNavigationBar: loaded == null
           ? null
           // 132 A store order's delivery stages, Cancel order with them.
@@ -281,6 +287,27 @@ class _OrderBody extends ConsumerWidget {
           SectionTitle(l10n.notes),
           Panel(child: IconText(AppIcons.note, to!.notes!)),
         ],
+        // 206 Shipped with any carrier from the phone, as on the dashboard.
+        if (order.shipment == null &&
+            order.shippable &&
+            order.status == 'processing') ...[
+          SectionTitle(l10n.shippingTitle),
+          Panel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(l10n.shipWithTrackingHelp),
+                const SizedBox(height: 10),
+                FilledButton.icon(
+                  key: const ValueKey('ship-order'),
+                  icon: const Icon(AppIcons.shipping),
+                  label: Text(l10n.shipWithTracking),
+                  onPressed: () => _ship(context, ref, order),
+                ),
+              ],
+            ),
+          ),
+        ],
         if (order.shipment != null) ...[
           SectionTitle(l10n.shippedTitle),
           Panel(
@@ -305,6 +332,17 @@ class _OrderBody extends ConsumerWidget {
                       label: l10n.trackShipment,
                       onPressed: () =>
                           openLink(context, ref, order.shipment!.trackingUrl),
+                    ),
+                  ),
+                ],
+                if (order.shippable && order.status == 'processing') ...[
+                  const SizedBox(height: 6),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton(
+                      key: const ValueKey('ship-change'),
+                      onPressed: () => _ship(context, ref, order),
+                      child: Text(l10n.changeTracking),
                     ),
                   ),
                 ],
@@ -978,4 +1016,15 @@ String? signerOf(String? signedBy, String? buyer) {
     if (trimmed.isNotEmpty) return trimmed;
   }
   return null;
+}
+
+/// 206 The ship sheet; the order shows what changed.
+Future<void> _ship(BuildContext context, WidgetRef ref, Order order) async {
+  final updated = await showModalBottomSheet<Order>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (_) => ShipSheet(order: order),
+  );
+  if (updated != null) ref.invalidate(orderProvider(order.id));
 }

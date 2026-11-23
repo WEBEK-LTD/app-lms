@@ -273,24 +273,42 @@ String primaryStage(Order order) {
 }
 
 /// The foot of a store order with stages: the next stage filled, the
-/// others outlined, Cancel order last.
-class StageActions extends ConsumerWidget {
+/// others outlined, Cancel order last. 206 One tap at a time.
+class StageActions extends ConsumerStatefulWidget {
   const StageActions({super.key, required this.order, required this.onChanged});
 
   final Order order;
   final void Function(Order updated) onChanged;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<StageActions> createState() => _StageActionsState();
+}
+
+class _StageActionsState extends ConsumerState<StageActions> {
+  bool _busy = false;
+
+  /// Runs one change; the buttons wait meanwhile.
+  Future<void> _guard(Future<Order?> Function() change) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final updated = await change();
+      if (updated != null) widget.onChanged(updated);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final order = widget.order;
     final l10n = context.l10n;
     final primary = primaryStage(order);
     final others = order.nextStages.where((s) => s != primary).toList();
     final cancel = order.nextStatuses.contains('cancelled');
 
-    Future<void> run(String stage) async {
-      final updated = await moveStage(context, ref, order, stage);
-      if (updated != null) onChanged(updated);
-    }
+    Future<void> run(String stage) =>
+        _guard(() => moveStage(context, ref, order, stage));
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -299,7 +317,7 @@ class StageActions extends ConsumerWidget {
         FilledButton.icon(
           style: FilledButton.styleFrom(minimumSize: const Size(64, 56)),
           icon: Icon(stageIcon(primary)),
-          onPressed: () => run(primary),
+          onPressed: _busy ? null : () => run(primary),
           label: Text(stageActionLabel(context, primary)),
         ),
         const SizedBox(height: 10),
@@ -313,21 +331,18 @@ class StageActions extends ConsumerWidget {
                   minimumSize: const Size(48, 44),
                   foregroundColor: s == 'failed' ? context.yb.danger : null,
                 ),
-                onPressed: () => run(s),
+                onPressed: _busy ? null : () => run(s),
                 child: Text(stageActionLabel(context, s)),
               ),
             if (cancel)
               TextButton(
                 style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
-                onPressed: () async {
-                  final updated = await changeOrderStatus(
-                    context,
-                    ref,
-                    order,
-                    'cancelled',
-                  );
-                  if (updated != null) onChanged(updated);
-                },
+                onPressed: _busy
+                    ? null
+                    : () => _guard(
+                        () =>
+                            changeOrderStatus(context, ref, order, 'cancelled'),
+                      ),
                 child: Text(l10n.cancelOrder),
               ),
           ],
