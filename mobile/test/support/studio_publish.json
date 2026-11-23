@@ -106,7 +106,9 @@
    "returns": null,
    "loyalty": null,
    "size_chart": null,
-   "installments_soon": false
+   "installments_soon": false,
+   "trade_in": null,
+   "pc_builder": null
   },
   "appearance": {
    "template": "classic",
@@ -160,9 +162,9 @@
  },
  "first": {
   "en": {
-   "etag": "\"2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~te0a4a441.c146f4edc8a\"",
+   "etag": "\"2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~tf4132767.c146f4edc8a\"",
    "navigation": {
-    "version": "2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~te0a4a441.c146f4edc8a",
+    "version": "2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~tf4132767.c146f4edc8a",
     "tabs": [
      {
       "id": "home",
@@ -2261,9 +2263,9 @@
    }
   },
   "ar": {
-   "etag": "\"2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~te0a4a441.ar.c146f4edc8a\"",
+   "etag": "\"2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~tf4132767.ar.c146f4edc8a\"",
    "navigation": {
-    "version": "2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~te0a4a441.ar.c146f4edc8a",
+    "version": "2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~tf4132767.ar.c146f4edc8a",
     "tabs": [
      {
       "id": "home",
@@ -4364,9 +4366,9 @@
  },
  "second": {
   "en": {
-   "etag": "\"2026-11-18T10:05:00Z.2~f47ab6d0c~de3efb70b26d~te0a4a441.c146f4edc8a\"",
+   "etag": "\"2026-11-18T10:05:00Z.2~f47ab6d0c~de3efb70b26d~tf4132767.c146f4edc8a\"",
    "navigation": {
-    "version": "2026-11-18T10:05:00Z.2~f47ab6d0c~de3efb70b26d~te0a4a441.c146f4edc8a",
+    "version": "2026-11-18T10:05:00Z.2~f47ab6d0c~de3efb70b26d~tf4132767.c146f4edc8a",
     "tabs": [
      {
       "id": "home",

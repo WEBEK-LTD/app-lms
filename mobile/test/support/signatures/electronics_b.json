@@ -4371,6 +4371,48 @@
     "blocks": []
    },
    {
+    "slug": "favorites",
+    "title": "Wishlist",
+    "translations": {
+     "ar": {
+      "title": "المفضلة"
+     },
+     "tr": {
+      "title": "Favoriler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-206",
+      "type": "column",
+      "children": []
+     },
+     "screen": "favorites",
+     "header": {
+      "type": "title",
+      "title": "Wishlist",
+      "translations": {
+       "ar": {
+        "title": "المفضلة"
+       },
+       "tr": {
+        "title": "Favoriler"
+       }
+      },
+      "background": "#EEEFEA",
+      "color": "#121314",
+      "dark_background": "#09090A",
+      "dark_color": "#F1F2EE",
+      "style": "glass"
+     },
+     "background": "#EEEFEA",
+     "dark_background": "#09090A"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "edit-profile",
     "title": "Edit profile",
     "translations": {
@@ -4383,7 +4425,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-206",
+      "id": "sig-207",
       "type": "column",
       "children": []
      },
@@ -4425,7 +4467,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-207",
+      "id": "sig-208",
       "type": "column",
       "children": []
      },
@@ -4459,7 +4501,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-208",
+      "id": "sig-209",
       "type": "column",
       "children": []
      },
@@ -4476,7 +4518,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-209",
+      "id": "sig-210",
       "type": "column",
       "children": []
      },

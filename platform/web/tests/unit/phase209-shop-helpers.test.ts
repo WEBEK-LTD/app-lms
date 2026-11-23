@@ -211,7 +211,7 @@ describe("209 the size finder, swatches and quiz", () => {
 
   it("are drawn by the app, which reads them in the contract", () => {
     const api = readFileSync(join(ROOT, "../../docs/api/openapi.yaml"), "utf8");
-    for (const word of ["size_finder, swatches, quiz]", "age_months:", "swatch:", "name: max_price"]) expect(api).toContain(word);
+    for (const word of ["size_finder, swatches, quiz, ", "age_months:", "swatch:", "name: max_price"]) expect(api).toContain(word);
     expect(readFileSync(join(ROOT, "public/developers/openapi.yaml"), "utf8")).toBe(api);
     const page = readFileSync(join(ROOT, "../../mobile/lib/modules/shared/pages/studio_page.dart"), "utf8");
     for (const w of ["StudioSizeFinder(", "StudioSwatches(", "StudioQuiz("]) expect(page).toContain(w);

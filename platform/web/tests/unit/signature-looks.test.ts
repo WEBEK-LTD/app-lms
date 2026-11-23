@@ -1,11 +1,10 @@
-import { isStoreTemplateDemo } from "@/lib/demo/constants";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { ar as studioAr, en as studioEn, tr as studioTr } from "@/i18n/dashboard/studio";
 import { appWords } from "@/lib/studio/app-words";
-import { demoKind, DEMO_SLUGS, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
+import { demoKind, DEMO_SLUGS, isStoreTemplateDemo, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { studioDemoTemplate } from "@/lib/demo/picker";
 import { demoStudioScreens, demoTabBar } from "@/lib/demo/screens";
@@ -67,10 +66,11 @@ function started(demo: StudioDemoId, look: SignatureLook, lang: "en" | "ar" | "t
 const texts = (page: StudioPage) => allNodes(page).flatMap((n) => [n.text, n.title].filter((x): x is string => Boolean(x)));
 
 describe("130 the Signature looks: one registry, twenty looks", () => {
-  it("has looks A and B for each of the ten Studio demos (131.20 Leqaa's too), one template of its kind each, named in Studio's three languages", () => {
+  it("has looks A and B for each of the twenty Studio demos (131.20 Leqaa's too), one template of its kind each, named in Studio's three languages", () => {
     // 208 Lujain's two looks too.
-    // 209 And Velours's, Toota's and Toot's.
-    expect(LOOKS).toHaveLength(28);
+    // 209 And Velours's, Toota's and Toot's; 210 Sakan's, Ghurza's and Rukn's; 211 Madar's, Nova's and Nawah's: twenty demos, forty looks.
+    expect(LOOKS).toHaveLength(40);
+    expect(STUDIO_DEMO_TYPES).toHaveLength(20);
     for (const demo of STUDIO_DEMO_TYPES) expect(signatureLooksOf(demo), demo).toEqual(["a", "b"]);
     expect(signatureDesigns().map((d) => `${d.demo}_signature_${d.variant}`).sort()).toEqual(LOOKS.map(([demo, look]) => `${demo}_signature_${look}`).sort());
     for (const [demo, look] of LOOKS) {

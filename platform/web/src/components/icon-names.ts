@@ -210,11 +210,9 @@ export const ICON_NAMES = [
   "directions_car",
   "draw",
   "hub",
-  "package_2",
   "qr_code_2",
   "space_dashboard",
   "translate",
-  "two_wheeler",
   "verified_user",
   // 105.2 Ride hailing: vehicle types and drivers.
   "accessible",

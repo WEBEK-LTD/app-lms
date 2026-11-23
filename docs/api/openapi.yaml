@@ -15833,9 +15833,6 @@ components:
                       category_id: { type: integer }
                       required: { type: boolean, description: "False: the customer may skip it." }
             - { type: 'null' }
-        installments_soon:
-          type: boolean
-          description: "211 \"Installments coming soon\" under a product's price (the electronics, mobiles, computers and furniture shop types): a tag only, never a way to pay. Missing: false."
         bouquet:
           description: |
             162 Build your bouquet, when the store has it set up: an action

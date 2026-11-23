@@ -1,4 +1,3 @@
-import type { ProductReview } from "../data/types";
 import type { Lang } from "@/i18n/config";
 import { formatDate } from "@/i18n/format";
 import { getDashT, knownTranslator, type DashKey, type DashT } from "@/i18n/dashboard";
@@ -25,6 +24,7 @@ import type {
   OwnerDevice,
   OwnerNotice,
   OwnerPushKind,
+  ProductReview,
   SchoolLeave,
   SchoolPerson,
   Shipment,
