@@ -66,6 +66,31 @@ export interface PushMessage {
   image?: string | null;
   /** 136.40 Android only delivers it to this app's package (`android.restricted_package_name`): a shared project's other apps never get it. */
   restrictedPackage?: string | null;
+  /** 207 Android: data only (`yb_title`, `yb_body` in the data), for an app that shows its pushes itself (Yallapp Business's ringtones). */
+  dataOnly?: boolean;
+  /** 207 iOS: the sound bundled in the app, "default" (the default when missing), or null for none. */
+  apnsSound?: string | null;
+  /** 207 iOS: time-sensitive (shown at once, through a Focus that allows it). */
+  timeSensitive?: boolean;
+}
+
+/** 207 The `aps` of a push: its sound and, when asked, time-sensitive. */
+export function apsOf(message: Pick<PushMessage, "apnsSound" | "timeSensitive">): Record<string, string> {
+  const sound = message.apnsSound === undefined ? "default" : message.apnsSound;
+  return { ...(sound ? { sound } : {}), ...(message.timeSensitive ? { "interruption-level": "time-sensitive" } : {}) };
+}
+
+/** 207 The FCM v1 message for one token. */
+export function fcmMessage(deviceToken: string, message: PushMessage) {
+  const android = { priority: "high", ...(message.restrictedPackage ? { restricted_package_name: message.restrictedPackage } : {}) };
+  if (message.dataOnly) return { token: deviceToken, data: { ...message.data, yb_title: message.title, yb_body: message.body }, android };
+  return {
+    token: deviceToken,
+    notification: { title: message.title, body: message.body, ...(message.image ? { image: message.image } : {}) },
+    data: message.data,
+    android,
+    apns: { payload: { aps: apsOf(message) } },
+  };
 }
 
 export interface PushResult {
@@ -215,15 +240,7 @@ export async function sendPush(
     const response = await fetcher(url, {
       method: "POST",
       headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
-      body: JSON.stringify({
-        message: {
-          token: deviceToken,
-          notification: { title: message.title, body: message.body, ...(message.image ? { image: message.image } : {}) },
-          data: message.data,
-          android: { priority: "high", ...(message.restrictedPackage ? { restricted_package_name: message.restrictedPackage } : {}) },
-          apns: { payload: { aps: { sound: "default" } } },
-        },
-      }),
+      body: JSON.stringify({ message: fcmMessage(deviceToken, message) }),
       signal: AbortSignal.timeout(10_000),
     });
     if (response.ok) {

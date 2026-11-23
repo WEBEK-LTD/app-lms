@@ -87,7 +87,7 @@ class _VendorStockScreenState extends ConsumerState<VendorStockScreen> {
               header,
               Expanded(
                 child: MessageView(
-                  icon: Symbols.inventory_2,
+                  icon: Symbols.inventory_2_rounded,
                   title: l10n.notVendorTitle,
                   message: l10n.notVendorMessage,
                 ),
@@ -114,7 +114,7 @@ class _VendorStockScreenState extends ConsumerState<VendorStockScreen> {
                 controller: _search,
                 onChanged: _typed,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Symbols.search),
+                  prefixIcon: const Icon(Symbols.search_rounded),
                   hintText: l10n.vendorStockSearch,
                 ),
               ),
@@ -140,7 +140,7 @@ class _VendorStockScreenState extends ConsumerState<VendorStockScreen> {
                 ),
                 data: (page) => page.items.isEmpty
                     ? MessageView(
-                        icon: Symbols.inventory_2,
+                        icon: Symbols.inventory_2_rounded,
                         title: l10n.vendorStockEmpty,
                       )
                     : ListView.builder(

@@ -1,27 +1,74 @@
 import type { DataStore } from "../data/store";
+import type { App, MarketOrder } from "../data/types";
+import type { FlowDeps } from "../delivery/flow";
+import { notifyDeps } from "../delivery/flow";
 import { clubDue } from "./offers";
 import { releaseScheduled } from "./flow";
+import { remindClubRenewals } from "./notify";
+import { pushNewMarketOrder } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
+
+/** How the marketplace's jobs reach phones: tests pass a fake push and account; left out, each app's own. */
+export type MarketJobPush = Pick<FlowDeps, "send" | "account">;
+
+/** 207 A released order rings on the app owner's phones (a new order the vendor can take now). */
+function ownerRings(app: App, store: DataStore): (order: MarketOrder) => Promise<void> {
+  return (order) => pushOwnerSafely((d) => pushNewMarketOrder(d, app, order), store);
+}
+
+async function marketplaces(store: DataStore): Promise<App[]> {
+  return (await store.listApps()).filter((app) => app.connector?.kind === "restaurants");
+}
 
 /**
  * 115 The marketplace's daily work (the daily job): club memberships whose
  * paid period ended expire (renewals are counted for the payments layer),
- * vendors' web sign-ins past their time are forgotten, and orders for later
- * whose preparation is due reach their vendor (the frequent job does this
- * too, closer to the time).
+ * 115.22 members are reminded 3 days before their plan's period ends and on
+ * its last day (`club_renewal`, once each; nothing is charged), vendors' web
+ * sign-ins past their time are forgotten, and orders for later still due are
+ * released (115.21 the frequent job releases them on time; this only
+ * catches up after a gap, and each order is released once).
  */
-export async function runMarketDaily(store: DataStore, now: Date): Promise<{ apps: number; expired: number; renewals: number; released: number }> {
+export async function runMarketDaily(store: DataStore, now: Date, push: MarketJobPush = {}): Promise<{ apps: number; expired: number; renewals: number; reminded: number; released: number }> {
   await store.purgeVendorWeb(now);
   let apps = 0;
   let expired = 0;
   let renewals = 0;
+  let reminded = 0;
   let released = 0;
-  for (const app of await store.listApps()) {
-    if (app.connector?.kind !== "restaurants") continue;
+  for (const app of await marketplaces(store)) {
     apps++;
     const due = await clubDue(store, app.id, now);
     expired += due.expired;
     renewals += due.renewals.length;
-    released += await releaseScheduled(store, app.id, now);
+    reminded += await remindClubRenewals(notifyDeps({ store, app, now, ...push }), now).catch((e: unknown) => {
+      console.error(`[market] club reminders: ${e instanceof Error ? e.message : String(e)}`);
+      return 0;
+    });
+    // 207 Each released order rings on the owner's phones.
+    released += await releaseScheduled({ store, app, now, ...push }, ownerRings(app, store));
   }
-  return { apps, expired, renewals, released };
+  return { apps, expired, renewals, reminded, released };
+}
+
+/**
+ * 115.21 The marketplace's frequent work (the frequent job, every 5
+ * minutes): orders for later reach their vendor when their preparation
+ * should start (their time less the vendor's preparation), the vendor's staff
+ * and the customer told. Two runs at once release and announce each order
+ * once (lib/market/flow.ts `releaseScheduled`).
+ */
+export async function runMarketFrequent(store: DataStore, now: Date, push: MarketJobPush = {}): Promise<{ apps: number; released: number }> {
+  let apps = 0;
+  let released = 0;
+  for (const app of await marketplaces(store)) {
+    apps++;
+    try {
+      released += await releaseScheduled({ store, app, now, ...push }, ownerRings(app, store));
+    } catch (error) {
+      // One app's trouble never stops the others' orders.
+      console.error(`[market] orders for later of ${app.id}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  return { apps, released };
 }

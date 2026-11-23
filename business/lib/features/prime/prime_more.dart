@@ -13,6 +13,8 @@ import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
+import '../../core/widgets/digits.dart';
+import '../food/food_orders_screen.dart' show restaurantsProvider;
 import '../food/food_sheets.dart';
 import '../studio/studio_widgets.dart';
 import 'prime_widgets.dart';
@@ -731,7 +733,10 @@ class _BusyModeState extends ConsumerState<_BusyMode> {
       final until = await ref
           .read(apiProvider)
           .setRestaurantBusy(ref.read(appIdProvider), r.id, minutes);
+      if (!mounted) return;
       setState(() => _until[r.id] = until);
+      // 207 Food orders' busy banner says the same.
+      ref.invalidate(restaurantsProvider);
       if (mounted) {
         showMessage(
           context,
@@ -755,6 +760,22 @@ class _BusyModeState extends ConsumerState<_BusyMode> {
       title: l10n.busyMode,
       empty: l10n.noRestaurants,
       rows: [
+        // 207 Loading, or what went wrong with Try again; never "No
+        // restaurants" before they came.
+        if (!value.hasValue && value.isLoading)
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: LinearProgressIndicator(),
+          )
+        else if (!value.hasValue && value.hasError)
+          ListTile(
+            leading: Icon(AppIcons.error, color: context.yb.danger),
+            title: Text(errorMessage(context, value.error!)),
+            trailing: TextButton(
+              onPressed: () => ref.invalidate(_restaurantsProvider(appId)),
+              child: Text(l10n.tryAgain),
+            ),
+          ),
         for (final r in list)
           ListTile(
             title: Text(r.name),
@@ -811,7 +832,7 @@ class _CouponFormState extends ConsumerState<_CouponForm> {
         {
           'code': _code.text.trim(),
           'kind': _percent ? 'percent' : 'amount',
-          'value': _value.text.trim(),
+          'value': typedAmount(_value.text),
           'public': _public,
         },
       );
@@ -917,7 +938,7 @@ class _FlashSaleFormState extends ConsumerState<_FlashSaleForm> {
           'title': _title.text.trim(),
           'product_ids': [..._picked],
           'kind': 'percent',
-          'value': _value.text.trim(),
+          'value': typedAmount(_value.text),
           'starts_at': _local(start),
           'ends_at': _local(start.add(Duration(hours: _hours))),
         },

@@ -11,6 +11,7 @@ import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
+import '../../core/widgets/digits.dart';
 import '../shell/home_shell.dart';
 
 final productsProvider = FutureProvider.autoDispose<List<Product>>(
@@ -94,20 +95,64 @@ Widget _list<T>(
   ),
 );
 
-class _ProductsTab extends ConsumerWidget {
+class _ProductsTab extends ConsumerStatefulWidget {
   const _ProductsTab();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ProductsTab> createState() => _ProductsTabState();
+}
+
+class _ProductsTabState extends ConsumerState<_ProductsTab> {
+  /// 207 Find a product by its name, to mark it sold out quickly.
+  String _query = '';
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final restaurant = ref.watch(currentAppProvider)?.isRestaurant ?? false;
-    return _list(
-      ref,
-      ref.watch(productsProvider),
-      productsProvider,
-      () => ref.refresh(productsProvider.future),
-      EmptyState(icon: AppIcons.products, title: l10n.noProducts),
-      (p) => _ProductTile(product: p, restaurant: restaurant),
+    final value = ref.watch(productsProvider);
+    final q = _query.trim().toLowerCase();
+    final shown = q.isEmpty
+        ? value
+        : value.whenData(
+            (all) => [
+              for (final p in all)
+                if (p.name.toLowerCase().contains(q)) p,
+            ],
+          );
+    final many = (value.value?.length ?? 0) > 4;
+    return Column(
+      children: [
+        if (many || q.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: TextField(
+              key: const ValueKey('products-search'),
+              textInputAction: TextInputAction.search,
+              onChanged: (text) => setState(() => _query = text),
+              decoration: InputDecoration(
+                hintText: l10n.searchProductsHint,
+                prefixIcon: const Icon(AppIcons.search),
+                isDense: true,
+              ),
+            ),
+          ),
+        Expanded(
+          child: _list(
+            ref,
+            shown,
+            productsProvider,
+            () => ref.refresh(productsProvider.future),
+            q.isEmpty
+                ? EmptyState(icon: AppIcons.products, title: l10n.noProducts)
+                : EmptyState(
+                    icon: AppIcons.search,
+                    title: l10n.noProductsFound,
+                  ),
+            (p) => _ProductTile(product: p, restaurant: restaurant),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -223,13 +268,14 @@ class _ProductSheetState extends ConsumerState<ProductSheet> {
 
   Future<void> _save() async {
     final l10n = context.l10n;
-    final stockText = _stock.text.trim();
+    // 207 Digits typed on an Arabic keyboard too.
+    final stockText = latinDigits(_stock.text).trim();
     final stock = int.tryParse(stockText);
     if (stockText.isNotEmpty && stock == null) {
       setState(() => _errors = {'stock': l10n.stockInvalid});
       return;
     }
-    final sale = _sale.text.trim().replaceAll(',', '.');
+    final sale = typedAmount(_sale.text);
     setState(() {
       _busy = true;
       _errors = const {};
@@ -241,7 +287,7 @@ class _ProductSheetState extends ConsumerState<ProductSheet> {
             ref.read(appIdProvider),
             widget.product.id,
             ProductPatch(
-              price: _price.text.trim().replaceAll(',', '.'),
+              price: typedAmount(_price.text),
               salePrice: sale.isEmpty ? null : sale,
               clearSalePrice: sale.isEmpty && widget.product.salePrice != null,
               stock: stock,
@@ -359,7 +405,7 @@ class _CourseCard extends ConsumerWidget {
     final theme = Theme.of(context);
     final c = course;
     return Panel(
-      padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 8, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

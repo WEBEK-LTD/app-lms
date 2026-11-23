@@ -191,6 +191,14 @@ List<TabScreen> _screens() => [
     (state) => const MarketClubScreen(),
     ownBar: true,
   ),
+  // 177 The basket: a tab of Zad's approved bar, or a page on top. As a tab
+  // it had no branch (only a pushed page), so every tab after it opened
+  // the next one's screen and the last threw.
+  TabScreen(
+    Paths.marketCheckout,
+    (state) => const MarketCheckoutScreen(),
+    ownBar: true,
+  ),
   TabScreen(
     Paths.account,
     (state) => const ProfileScreen(),
@@ -233,11 +241,7 @@ List<RouteBase> _pushedRoutes() => [
     pageBuilder: (context, state) => appPage(state, const VendorHoursScreen()),
   ),
   // 115 The marketplace's basket, an order and the customer's orders.
-  GoRoute(
-    path: Paths.marketCheckout,
-    pageBuilder: (context, state) =>
-        appPage(state, const MarketCheckoutScreen()),
-  ),
+
   GoRoute(
     path: Paths.marketOrders,
     pageBuilder: (context, state) => appPage(

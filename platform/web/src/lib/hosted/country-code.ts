@@ -1,5 +1,7 @@
 import { getCountryCallingCode, isSupportedCountry } from "libphonenumber-js";
-import { DEFAULT_CATALOG_SETTINGS, DEFAULT_HOSTED_SETTINGS, type App, type HostedSettings } from "../data/types";
+import { DEFAULT_CATALOG_SETTINGS, DEFAULT_HOSTED_SETTINGS, type App, type DeliverySettings, type HostedSettings } from "../data/types";
+import { isMarketplaceApp } from "../market/plan";
+import { marketSettingsOf } from "../market/settings";
 
 /**
  * 160.8 The country code the app's sign-in shows first
@@ -17,7 +19,12 @@ import { DEFAULT_CATALOG_SETTINGS, DEFAULT_HOSTED_SETTINGS, type App, type Hoste
  * 2. The shop's country: the first country it delivers to (Delivery &
  *    offers' areas, in the owner's order), else the country of its
  *    currency (MAD: Morocco), unless it's the platform's default currency
- *    or one many countries share (EUR, the X… codes).
+ *    or one many countries share (EUR, the X… codes). 177 An app that
+ *    sells through the delivery settings instead of a catalog (a
+ *    marketplace, food, delivery): a marketplace's country (Marketplace
+ *    settings), else the country of the delivery settings' currency once
+ *    the owner saved them. Zad's projects opened their sign-in on +90 in a
+ *    marketplace in Egypt.
  * 3. The owner's own country (the account's, from sign-up and billing).
  * 4. The platform's default.
  */
@@ -61,16 +68,33 @@ export function shopCountryCode(app: Pick<App, "catalogSettings">): string | nul
   return callingCodeOf(countryOfCurrency(catalog.currency));
 }
 
+/** 177 The country code of an app that sells through its delivery settings: a marketplace's country, else the saved settings' currency's. */
+export function serviceCountryCode(app: Pick<App, "vertical" | "connector">, delivery: Pick<DeliverySettings, "currency" | "marketApp"> | null | undefined): string | null {
+  if (!delivery) return null;
+  if (isMarketplaceApp(app)) {
+    const code = callingCodeOf(marketSettingsOf(delivery).country);
+    if (code) return code;
+  }
+  return callingCodeOf(countryOfCurrency(delivery.currency));
+}
+
+/** What the app sells by, besides its catalog: its saved delivery settings (177). */
+export type CountryCodeApp = Pick<App, "hostedSettings" | "catalogSettings"> & Partial<Pick<App, "vertical" | "connector">>;
+
 /** The code the app's sign-in shows first, and where it comes from. */
-export function appCountryCode(app: Pick<App, "hostedSettings" | "catalogSettings">, ownerCountry?: string | null): { code: string; source: CountryCodeSource } {
+export function appCountryCode(app: CountryCodeApp, ownerCountry?: string | null, delivery?: Pick<DeliverySettings, "currency" | "marketApp"> | null): { code: string; source: CountryCodeSource } {
   const saved = app.hostedSettings;
   if (saved && countryCodeChosen(saved)) return { code: saved.defaultCountryCode, source: "chosen" };
-  return derivedCountryCode(app, ownerCountry);
+  return derivedCountryCode(app, ownerCountry, delivery);
 }
 
 /** The code the app would have without the owner's choice. */
-export function derivedCountryCode(app: Pick<App, "catalogSettings">, ownerCountry?: string | null): { code: string; source: Exclude<CountryCodeSource, "chosen"> } {
-  const shop = shopCountryCode(app);
+export function derivedCountryCode(
+  app: Pick<App, "catalogSettings"> & Partial<Pick<App, "vertical" | "connector">>,
+  ownerCountry?: string | null,
+  delivery?: Pick<DeliverySettings, "currency" | "marketApp"> | null,
+): { code: string; source: Exclude<CountryCodeSource, "chosen"> } {
+  const shop = shopCountryCode(app) ?? serviceCountryCode({ vertical: app.vertical ?? null, connector: app.connector ?? null }, delivery);
   if (shop) return { code: shop, source: "shop" };
   const owner = callingCodeOf(ownerCountry);
   if (owner) return { code: owner, source: "owner" };

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 207 The status-bar mark of Yallapp Business's notifications: the
+     launch screen's Ember dot as a ring around a dot, in one color (Android
+     tints it). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,2.5a9.5,9.5 0,1 0,0.001 0zM12,5a7,7 0,1 1,-0.001 0zM12,7.5a4.5,4.5 0,1 0,0.001 0z" />
+</vector>

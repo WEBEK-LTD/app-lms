@@ -171,7 +171,7 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
               header,
               Expanded(
                 child: MessageView(
-                  icon: Symbols.storefront,
+                  icon: Symbols.storefront_rounded,
                   title: l10n.notVendorTitle,
                   message: l10n.notVendorMessage,
                 ),
@@ -308,21 +308,21 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
                         onPressed: _switching
                             ? null
                             : () => _set(endDelay: true),
-                        icon: const Icon(Symbols.hourglass_disabled),
+                        icon: const Icon(Symbols.hourglass_disabled_rounded),
                         label: Text(l10n.vendorLateEnd),
                       )
                     else if (!d.paused)
                       TextButton.icon(
                         key: const ValueKey('vendor-late'),
                         onPressed: _switching ? null : _late,
-                        icon: const Icon(Symbols.hourglass_top),
+                        icon: const Icon(Symbols.hourglass_top_rounded),
                         label: Text(l10n.vendorLate),
                       ),
                     if (d.canEditPlace)
                       TextButton.icon(
                         key: const ValueKey('vendor-hours'),
                         onPressed: () => context.push(Paths.vendorHours),
-                        icon: const Icon(Symbols.schedule),
+                        icon: const Icon(Symbols.schedule_rounded),
                         label: Text(l10n.vendorHoursTitle),
                       ),
                     if (d.role == VendorRole.owner ||
@@ -330,13 +330,13 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
                       TextButton.icon(
                         key: const ValueKey('vendor-statements'),
                         onPressed: () => context.push(Paths.vendorStatements),
-                        icon: const Icon(Symbols.receipt_long),
+                        icon: const Icon(Symbols.receipt_long_rounded),
                         label: Text(l10n.vendorStatementsTitle),
                       ),
                     TextButton.icon(
                       key: const ValueKey('vendor-complaints'),
                       onPressed: () => context.push(Paths.vendorComplaints),
-                      icon: const Icon(Symbols.support_agent),
+                      icon: const Icon(Symbols.support_agent_rounded),
                       label: Text(l10n.vendorComplaintsTitle),
                     ),
                   ],
@@ -386,7 +386,7 @@ class _OrderList extends ConsumerWidget {
         child: ListView(
           children: [
             MessageView(
-              icon: Symbols.receipt_long,
+              icon: Symbols.receipt_long_rounded,
               title: l10n.noRestaurantOrdersTitle,
               message: l10n.vendorNoOrdersMessage,
             ),
@@ -429,7 +429,7 @@ class VendorOrderTile extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            o.pickup ? Symbols.storefront : Symbols.two_wheeler,
+            o.pickup ? Symbols.storefront_rounded : Symbols.two_wheeler_rounded,
             color: p.primary,
           ),
           const SizedBox(width: 12),

@@ -1,3 +1,4 @@
+import { syncClassSessions } from "../bookings/classes";
 import { bookingSetup } from "../bookings/setup";
 import { courseSetup } from "../courses/setup";
 import type { DataStore } from "../data/store";
@@ -88,19 +89,16 @@ const REMOVERS: Record<SampleList, (deps: RemoveDeps, app: App) => Promise<Remov
     const gone = new Set(samples.map((s) => s.id));
     const services = setup.services.filter((s) => !s.sample);
     const used = new Set(services.map((s) => s.categoryId));
-    await store.updateApp(
-      app.id,
-      {
-        bookingSetup: {
-          ...setup,
-          services,
-          categories: setup.categories.filter((c) => !c.sample || used.has(c.id)),
-          staff: setup.staff.map((m) => ({ ...m, serviceIds: m.serviceIds.filter((id) => !gone.has(id)) })),
-          classTemplates: setup.classTemplates.filter((t) => !gone.has(t.serviceId)),
-        },
-      },
-      now,
-    );
+    const next = {
+      ...setup,
+      services,
+      categories: setup.categories.filter((c) => !c.sample || used.has(c.id)),
+      staff: setup.staff.map((m) => ({ ...m, serviceIds: m.serviceIds.filter((id) => !gone.has(id)) })),
+      classTemplates: setup.classTemplates.filter((t) => !gone.has(t.serviceId)),
+    };
+    await store.updateApp(app.id, { bookingSetup: next }, now);
+    // 180.22 The sample timetable's classes go with it (empty ones; a booked one stays for the business to call off).
+    await syncClassSessions(store, { id: app.id, bookingSetup: next }, now);
     return { removed: samples.length, assets: samples.map((s) => s.imageAssetId).filter((id): id is string => !!id) };
   },
 
@@ -109,7 +107,9 @@ const REMOVERS: Record<SampleList, (deps: RemoveDeps, app: App) => Promise<Remov
     const samples = setup.staff.filter((m) => m.sample);
     if (!samples.length) return { removed: 0, assets: [] };
     const gone = new Set(samples.map((m) => m.id));
-    await store.updateApp(app.id, { bookingSetup: { ...setup, staff: setup.staff.filter((m) => !m.sample), classTemplates: setup.classTemplates.filter((t) => !gone.has(t.staffId)) } }, now);
+    const next = { ...setup, staff: setup.staff.filter((m) => !m.sample), classTemplates: setup.classTemplates.filter((t) => !gone.has(t.staffId)) };
+    await store.updateApp(app.id, { bookingSetup: next }, now);
+    await syncClassSessions(store, { id: app.id, bookingSetup: next }, now);
     return { removed: samples.length, assets: samples.map((m) => m.imageAssetId).filter((id): id is string => !!id) };
   },
 

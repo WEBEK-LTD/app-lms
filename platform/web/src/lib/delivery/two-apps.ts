@@ -51,7 +51,7 @@ export async function twoAppsOf(store: Pick<DataStore, "getDeliverySettings" | "
       iconUrl: dashboardAsset(settings.courierIconAssetId ?? app.iconAssetId),
     },
     onPlan: hasFeature(plan, "courier_app"),
-    before: workedInCustomersApp(settings),
+    before: workedInCustomersApp(settings, customers.length > 0),
     settingsPath: role === "driver" ? "/dashboard/ride-settings" : "/dashboard/delivery",
   };
 }

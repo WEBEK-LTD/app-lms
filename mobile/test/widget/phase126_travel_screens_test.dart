@@ -227,7 +227,8 @@ void main() {
         TravelPaths.map: 'Nile Garden Resort',
         TravelPaths.hotel(1): ar ? 'اختر غرفة' : 'Choose a room',
         TravelPaths.rooms(1): 'Deluxe Nile View · King',
-        TravelPaths.flightResults: '10:15 → 11:20',
+        // 180.10 In Arabic the arrow points the reading way (phase180_travel_qa_test.dart).
+        TravelPaths.flightResults: ar ? null : '10:15 → 11:20',
         TravelPaths.calendar: ar ? 'التقويم' : 'Calendar',
         TravelPaths.trips: 'Luxor',
         TravelPaths.trip(1): 'Luxor',

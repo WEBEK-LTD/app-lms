@@ -6,6 +6,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/format/dates.dart';
+import '../../../core/l10n/currency.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
@@ -992,7 +993,8 @@ class FlightsHomeScreen extends ConsumerWidget {
                         ),
                       ),
                       TravelPill(
-                        '${config.currency} · $lang',
+                        // 180.12 The customer's currency, as the prices.
+                        '${ref.watch(appCurrencyProvider) ?? config.currency} · $lang',
                         t: t,
                         tone: PillTone.glass,
                       ),
@@ -1258,12 +1260,19 @@ class FlightsHomeScreen extends ConsumerWidget {
                                   ],
                                 ),
                               ),
-                              Text(
-                                l.travelDirectOnly,
-                                style: t.ui(
-                                  12,
-                                  weight: FontWeight.w700,
-                                  color: const Color(0xFFC7CAD5),
+                              // 180.20 At most half the row, on two lines if it must: at
+                              // a larger text size in Arabic it left the travellers a
+                              // column a word wide ("السياحي/ة").
+                              Flexible(
+                                child: Text(
+                                  l.travelDirectOnly,
+                                  maxLines: 2,
+                                  textAlign: TextAlign.end,
+                                  style: t.ui(
+                                    12,
+                                    weight: FontWeight.w700,
+                                    color: const Color(0xFFC7CAD5),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 8),

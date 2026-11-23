@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'ringtones.dart';
+
 /// 59 What this phone remembers between launches (not secrets: the tokens
 /// are in [TokenStore]).
 class LocalSettings {
@@ -68,6 +70,36 @@ class LocalSettings {
   Future<void> setPrimeHeader(String appId, bool on) =>
       _prefs.setBool('yb.prime_header.$appId', on);
 
+  /// 207 Settings › Ringtones (kept on this phone, sent to the server).
+  static const _ring = 'yb.ring_settings';
+  static const _ringSent = 'yb.ring_settings_sent';
+
+  RingSettings get ringSettings {
+    final raw = _prefs.getString(_ring);
+    if (raw == null) return const RingSettings();
+    try {
+      return RingSettings.fromJson(
+        (jsonDecode(raw) as Map).cast<String, dynamic>(),
+      );
+    } on Object {
+      return const RingSettings();
+    }
+  }
+
+  /// [sent]: nothing the server keeps changed (the in-app volume).
+  Future<void> setRingSettings(
+    RingSettings settings, {
+    bool sent = false,
+  }) async {
+    await _prefs.setString(_ring, jsonEncode(settings.toJson()));
+    if (!sent) await _prefs.setBool(_ringSent, false);
+  }
+
+  /// 207 Whether the server has this phone's latest choices.
+  bool get ringSettingsSent => _prefs.getBool(_ringSent) ?? false;
+  Future<void> setRingSettingsSent(bool sent) =>
+      _prefs.setBool(_ringSent, sent);
+
   /// Uploads to Media that haven't finished, so they can carry on later.
   List<PendingUpload> get pendingUploads {
     final raw = _prefs.getString(_uploads);
@@ -93,6 +125,8 @@ class LocalSettings {
     await _prefs.remove(_app);
     await _prefs.remove(_business);
     await _prefs.remove(_uploads);
+    // 207 The ringtones stay on the phone; the next account gets them again.
+    await _prefs.remove(_ringSent);
   }
 }
 

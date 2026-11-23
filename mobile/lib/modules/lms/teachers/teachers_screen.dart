@@ -152,7 +152,8 @@ class _TeachersScreenState extends ConsumerState<TeachersScreen> {
         },
         child: ListView.separated(
           key: const ValueKey('teachers-list'),
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+          // 179 Above a tab bar floating over the list (roadmap 158).
+          padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
           itemCount: state.items.length,
           separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, i) => TeacherTile(

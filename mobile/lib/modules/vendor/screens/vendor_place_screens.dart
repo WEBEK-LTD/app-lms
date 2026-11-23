@@ -360,7 +360,7 @@ class _VendorHoursScreenState extends ConsumerState<VendorHoursScreen> {
                           IconButton(
                             key: ValueKey('vendor-day-add-$day'),
                             tooltip: l10n.vendorHoursAdd,
-                            icon: const Icon(Symbols.add),
+                            icon: const Icon(Symbols.add_rounded),
                             onPressed: () => _addPeriod(day, hours),
                           )
                         else
@@ -383,7 +383,7 @@ class _VendorHoursScreenState extends ConsumerState<VendorHoursScreen> {
                           const Spacer(),
                           IconButton(
                             tooltip: l10n.vendorHoursRemove,
-                            icon: const Icon(Symbols.close),
+                            icon: const Icon(Symbols.close_rounded),
                             onPressed: () => setState(
                               () => _hours = [
                                 for (final x in hours)
@@ -406,7 +406,7 @@ class _VendorHoursScreenState extends ConsumerState<VendorHoursScreen> {
             children: [
               IconButton.outlined(
                 key: const ValueKey('vendor-prep-less'),
-                icon: const Icon(Symbols.remove),
+                icon: const Icon(Symbols.remove_rounded),
                 onPressed: prep > 5
                     ? () => setState(() => _prep = (prep - 5).clamp(5, 180))
                     : null,
@@ -425,7 +425,7 @@ class _VendorHoursScreenState extends ConsumerState<VendorHoursScreen> {
               ),
               IconButton.outlined(
                 key: const ValueKey('vendor-prep-more'),
-                icon: const Icon(Symbols.add),
+                icon: const Icon(Symbols.add_rounded),
                 onPressed: prep < 180
                     ? () => setState(() => _prep = (prep + 5).clamp(5, 180))
                     : null,
@@ -465,7 +465,7 @@ class _VendorHoursScreenState extends ConsumerState<VendorHoursScreen> {
               padding: const EdgeInsets.fromLTRB(14, 4, 4, 4),
               child: Row(
                 children: [
-                  Icon(Symbols.event_busy, color: p.textSecondary),
+                  Icon(Symbols.event_busy_rounded, color: p.textSecondary),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -480,7 +480,7 @@ class _VendorHoursScreenState extends ConsumerState<VendorHoursScreen> {
                   ),
                   IconButton(
                     tooltip: l10n.vendorHoursRemove,
-                    icon: const Icon(Symbols.delete),
+                    icon: const Icon(Symbols.delete_rounded),
                     onPressed: _saving
                         ? null
                         : () => _save(
@@ -501,7 +501,7 @@ class _VendorHoursScreenState extends ConsumerState<VendorHoursScreen> {
           OutlinedButton.icon(
             key: const ValueKey('vendor-off-add'),
             onPressed: _saving ? null : () => _addDaysOff(d),
-            icon: const Icon(Symbols.event_busy),
+            icon: const Icon(Symbols.event_busy_rounded),
             label: Text(l10n.vendorDaysOffAdd),
           ),
         ],

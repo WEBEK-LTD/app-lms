@@ -224,13 +224,13 @@ class _MarketNewComplaintScreenState
             children: [
               for (final (i, photo) in _photos.indexed)
                 InputChip(
-                  avatar: const Icon(Symbols.image, size: 18),
+                  avatar: const Icon(Symbols.image_rounded, size: 18),
                   label: Text(photo.name, overflow: TextOverflow.ellipsis),
                   onDeleted: () => setState(() => _photos.removeAt(i)),
                 ),
               if (_photos.length < _photosMax)
                 ActionChip(
-                  avatar: const Icon(Symbols.add_a_photo, size: 18),
+                  avatar: const Icon(Symbols.add_a_photo_rounded, size: 18),
                   label: Text(l10n.marketAddPhoto),
                   onPressed: _addPhoto,
                 ),
@@ -310,7 +310,7 @@ class _MarketComplaintScreenState extends ConsumerState<MarketComplaintScreen> {
       body: complaint.when(
         loading: () => const SkeletonDetail(),
         error: (e, _) => MessageView(
-          icon: Symbols.error,
+          icon: Symbols.error_rounded,
           title: l10n.marketViewComplaint,
           message: '$e',
           actionLabel: l10n.marketBrowse,
@@ -407,7 +407,7 @@ class _MarketComplaintScreenState extends ConsumerState<MarketComplaintScreen> {
                           const SizedBox(width: 8),
                           IconButton.filled(
                             onPressed: _sending ? null : _send,
-                            icon: const Icon(Symbols.send),
+                            icon: const Icon(Symbols.send_rounded),
                             tooltip: l10n.marketSendComplaint,
                           ),
                         ],

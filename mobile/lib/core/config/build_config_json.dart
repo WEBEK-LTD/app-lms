@@ -47,6 +47,15 @@ BuildConfigData buildConfigFromJson(Map<String, dynamic> json) {
     vertical: AppVertical.fromWire(json['vertical']),
     // 104.8.4 Yallapp Courier's own build.
     courierHub: json['courier_hub'] == true,
+    // 178 The second app's preview (the drivers', couriers', vendors' or
+    // staff's app: lib/preview/config.ts in the platform), its own screens.
+    role: switch (json['role']) {
+      'courier' => AppRole.courier,
+      'driver' => AppRole.driver,
+      'vendor' => AppRole.vendor,
+      'staff' => AppRole.staff,
+      _ => AppRole.customer,
+    },
     appName: appName,
     shortName: text(json['short_name'], appName),
     siteUrl: normalizeSiteUrl(text(json['site_url'], '')),

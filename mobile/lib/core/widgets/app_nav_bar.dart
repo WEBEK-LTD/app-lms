@@ -1080,15 +1080,22 @@ class AppNavBar extends StatelessWidget {
                 child: icon(24, color, filled: selected),
               );
           }
-          content = Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              glyph,
-              if (showLabel) ...[
-                SizedBox(height: minimal ? 4 : 0),
-                name(color, size: minimal ? 11 : 12, bold: selected),
+          // 177 At a larger text size the name made the tab a point too
+          // tall for the bar (Zad's floating bar at 1.3; 178 Masar's frosted
+          // glass at 1.3, one point short): both shrink to the tab's room
+          // instead, never more, and are drawn as designed when they fit.
+          content = FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                glyph,
+                if (showLabel) ...[
+                  SizedBox(height: minimal ? 4 : 0),
+                  name(color, size: minimal ? 11 : 12, bold: selected),
+                ],
               ],
-            ],
+            ),
           );
       }
     }

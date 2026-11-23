@@ -15,10 +15,9 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../data/market_models.dart';
-import '../../delivery/data/delivery_providers.dart' show LocateProblem;
-import '../data/market_place.dart';
 import '../data/market_providers.dart';
 import '../screens/market_orders_screen.dart' show orderAgain;
+import 'market_address.dart';
 import 'market_compact.dart';
 // 130 The places as a deck of photo cards.
 import 'market_deck.dart';
@@ -271,18 +270,8 @@ class _AddressButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => GestureDetector(
     behavior: HitTestBehavior.opaque,
-    onTap: () async {
-      final l10n = context.l10n;
-      final problem = await ref
-          .read(marketPlaceProvider.notifier)
-          .useMyLocation();
-      if (problem == null || !context.mounted) return;
-      showMessage(context, switch (problem) {
-        LocateProblem.off => l10n.locateOff,
-        LocateProblem.denied => l10n.locateDenied,
-        _ => l10n.locateFailed,
-      });
-    },
+    // 177 The map's pin or the phone's position (only the position before).
+    onTap: () => chooseMarketPlace(context, ref),
     child: child,
   );
 }
@@ -519,7 +508,11 @@ class _KindTile extends StatelessWidget {
                     bottom: -14,
                     width: 116,
                     height: 88,
-                    child: Transform.rotate(angle: -0.08, child: picture),
+                    // 177 A picture cut by the tile's corner: decoration, the
+                    // whole tile is the tap (the template guard's rule).
+                    child: IgnorePointer(
+                      child: Transform.rotate(angle: -0.08, child: picture),
+                    ),
                   ),
                   if (kind.badge != null)
                     PositionedDirectional(
@@ -700,18 +693,21 @@ class _OfferCard extends StatelessWidget {
               end: -26,
               top: 14,
               bottom: 14,
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.18),
-                  ),
-                  padding: const EdgeInsets.all(10),
-                  child: ClipOval(
-                    child: AppNetworkImage(
-                      url: offer.imageUrl,
-                      seed: offer.id.hashCode,
+              // 177 Cut by the card's edge: decoration, the card is the tap.
+              child: IgnorePointer(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.18),
+                    ),
+                    padding: const EdgeInsets.all(10),
+                    child: ClipOval(
+                      child: AppNetworkImage(
+                        url: offer.imageUrl,
+                        seed: offer.id.hashCode,
+                      ),
                     ),
                   ),
                 ),
@@ -1096,20 +1092,23 @@ class _Vendors extends StatelessWidget {
 
 /// A restaurant or a shop: its picture with the offer and the time on it,
 /// its mark, name, rating and facts.
-class MarketVendorCard extends StatelessWidget {
+class MarketVendorCard extends ConsumerWidget {
   const MarketVendorCard({super.key, required this.vendor, this.tall = false});
 
   final MarketVendor vendor;
   final bool tall;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final l10n = context.l10n;
     final closed = vendor.state == MarketVendorState.closed;
     final look = MarketCardLook.of(context);
     final radius = BorderRadius.circular(look.radius ?? 24);
     final promo = look.shows(StudioMarketFact.offer) ? vendor.promo : null;
+    final saved =
+        vendor.favorited ||
+        ref.watch(marketSavedPlacesProvider).contains(vendor.id);
     return MarketPressable(
       onTap: () => _openVendor(context, vendor),
       child: Column(
@@ -1178,19 +1177,32 @@ class MarketVendorCard extends StatelessWidget {
                 PositionedDirectional(
                   top: 8,
                   end: 8,
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: p.surface.withValues(alpha: 0.94),
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: AppIcon(
-                      Symbols.favorite_rounded,
-                      size: 19,
-                      filled: vendor.favorited,
-                      color: vendor.favorited ? p.danger : p.text,
+                  // 177 The heart saves the place on the phone (it did nothing).
+                  child: Semantics(
+                    button: true,
+                    label: saved
+                        ? l10n.removeFromFavorites
+                        : l10n.saveToFavorites,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => ref
+                          .read(marketSavedPlacesProvider.notifier)
+                          .toggle(vendor.id),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: p.surface.withValues(alpha: 0.94),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: AppIcon(
+                          Symbols.favorite_rounded,
+                          size: 19,
+                          filled: saved,
+                          color: saved ? p.danger : p.text,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -1546,7 +1558,9 @@ class _Reorders extends ConsumerWidget {
       children: [
         MarketSectionHead(title: node.title, subtitle: node.text),
         SizedBox(
-          height: 128,
+          // 177 Taller with a larger text size (128 at 1.0): its words ran
+          // 12 points past the card at 1.3.
+          height: 72 + MediaQuery.textScalerOf(context).scale(56),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),

@@ -5671,6 +5671,8 @@ export interface RideQuery {
   userId?: number;
   /** Not this rider's (the store review account's). */
   notUserId?: number;
+  /** 178 Not the rides of a rider of this name (the review driver's sample rides, lib/rides/review.ts). */
+  notRiderName?: string;
   driverId?: number;
   offeredTo?: number;
   statuses?: RideStatus[];
@@ -5856,10 +5858,30 @@ export const OWNER_PUSH_KINDS = [
   "new_complaint",
   "prime_alert",
   "morning_brief",
+  // 207 A marketplace order reached its vendor; a customer cancelled an order.
+  "new_market_order",
+  "order_cancelled",
 ] as const;
 export type OwnerPushKind = (typeof OWNER_PUSH_KINDS)[number];
 /** Missing kinds are on. */
 export type OwnerPushPreferences = Partial<Record<OwnerPushKind, boolean>>;
+
+/** 207 A phone's ringtones (lib/owner/push-sounds.ts): a sound per group, the groups that ring until opened, the quiet hours. */
+export interface OwnerPushSounds {
+  /** Group (orders, bookings, cancelled, messages, other) → a ringtone's id, "default" or "silent"; missing: the group's default. */
+  sounds: Partial<Record<"orders" | "bookings" | "cancelled" | "messages" | "other", string>>;
+  /** The groups whose pushes ring on until opened (orders, bookings). */
+  ring: ("orders" | "bookings" | "cancelled" | "messages" | "other")[];
+  /** At most this long (1, 2, 3, 5 or 10 minutes). */
+  ringMinutes: number;
+  vibrate: boolean;
+  /** Android: ring at the alarm's volume. */
+  alarmVolume: boolean;
+  /** Everything but orders without a sound between these times (HH:MM, may run past midnight). */
+  quiet: { from: string; to: string } | null;
+  /** The phone's time zone, for the quiet hours. */
+  timeZone: string | null;
+}
 
 /**
  * 58 A device signed in to Yallapp Business with the dashboard's account:
@@ -5882,11 +5904,13 @@ export interface OwnerDevice {
   pushToken: string | null;
   pushProvider: PushProvider;
   pushPreferences: OwnerPushPreferences | null;
+  /** 207 Its ringtones; null or missing: it never chose (an older app), and gets pushes as before. */
+  pushSounds?: OwnerPushSounds | null;
   createdAt: Date;
   lastSeenAt: Date;
 }
 
-export type OwnerDevicePatch = Partial<Pick<OwnerDevice, "name" | "appVersion" | "language" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt" | "clientId">>;
+export type OwnerDevicePatch = Partial<Pick<OwnerDevice, "name" | "appVersion" | "language" | "pushToken" | "pushProvider" | "pushPreferences" | "pushSounds" | "lastSeenAt" | "clientId">>;
 
 // 104.8.2 Yallapp Courier: one courier app for every company that picks it (lib/courier-hub)
 

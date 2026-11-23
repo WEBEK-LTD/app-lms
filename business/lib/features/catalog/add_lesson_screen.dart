@@ -8,6 +8,7 @@ import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
+import '../../core/widgets/digits.dart';
 import '../media/media_screen.dart';
 import '../media/uploads.dart';
 import 'catalog_screen.dart';
@@ -103,7 +104,7 @@ class _AddLessonScreenState extends ConsumerState<AddLessonScreen> {
   Future<void> _save() async {
     final l10n = context.l10n;
     final title = _title.text.trim();
-    final minutesText = _minutes.text.trim();
+    final minutesText = latinDigits(_minutes.text).trim();
     final minutes = int.tryParse(minutesText);
     final errors = <String, String>{
       if (title.length < 2 || title.length > 120) 'title': l10n.lessonTitleRule,

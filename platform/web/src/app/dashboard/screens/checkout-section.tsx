@@ -3,6 +3,7 @@
 import { useDashT } from "@/components/dashboard-i18n";
 import { GiftCheckout } from "@/components/studio/gift-checkout";
 import type { CheckoutLook } from "@/lib/studio/checkout-look";
+import { ScreenTextState } from "./screen-text-state";
 
 /**
  * 131.25 Studio › Screens: the store's checkout look, for every store app.
@@ -64,6 +65,7 @@ export function CheckoutSection({ value, onChange, brand, lang, dark, languages 
                       }}
                       className="rounded-lg border border-line px-3 py-2"
                     />
+                    <ScreenTextState texts={value?.[key] ?? {}} lang={l.code} />
                   </label>
                 ))}
               </div>

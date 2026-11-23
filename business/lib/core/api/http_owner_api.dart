@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 
 import '../auth/token_manager.dart';
+import '../widgets/digits.dart';
 import 'api_exception.dart';
 import 'json.dart';
 import 'models.dart';
@@ -236,6 +237,11 @@ class HttpOwnerApi implements OwnerApi {
   );
 
   @override
+  Future<void> setPushSounds(Map<String, dynamic> sounds) async {
+    await _put('/me/push-sounds', sounds);
+  }
+
+  @override
   Future<AppSummary> app(String appId) async =>
       AppSummary.fromJson(await _get(_app(appId)));
 
@@ -271,11 +277,13 @@ class HttpOwnerApi implements OwnerApi {
     List<String> statuses = const [],
     int page = 1,
     int perPage = 20,
+    String? query,
   }) async => Paged.fromJson(
     await _get(
       '${_app(appId)}/orders',
       query: {
         'status': statuses.isEmpty ? null : statuses.join(','),
+        'q': _search(query),
         'page': page,
         'per_page': perPage,
       },
@@ -283,9 +291,24 @@ class HttpOwnerApi implements OwnerApi {
     Order.fromJson,
   );
 
+  /// 207 A search as typed, digits of an Arabic keyboard as Latin ones.
+  static String? _search(String? query) {
+    final q = latinDigits(query ?? '').trim();
+    return q.isEmpty ? null : q;
+  }
+
   @override
   Future<Order> order(String appId, int orderId) async =>
       Order.fromJson(await _get('${_app(appId)}/orders/$orderId'));
+
+  @override
+  Future<Order> shipOrder(
+    String appId,
+    int orderId,
+    ShipmentInput shipment,
+  ) async => Order.fromJson(
+    await _put('${_app(appId)}/orders/$orderId/shipment', shipment.toJson()),
+  );
 
   @override
   Future<Order> changeOrderStatus(
@@ -593,7 +616,7 @@ class HttpOwnerApi implements OwnerApi {
       query: {
         'unread': unread ? 'true' : null,
         'kind': kind,
-        'q': (query?.trim().isEmpty ?? true) ? null : query!.trim(),
+        'q': _search(query),
       },
     ),
   );
@@ -793,10 +816,7 @@ class HttpOwnerApi implements OwnerApi {
   }) async => MembersPage.fromJson(
     await _get(
       '${_app(appId)}/members',
-      query: {
-        'q': (query == null || query.trim().isEmpty) ? null : query.trim(),
-        'page': page,
-      },
+      query: {'q': _search(query), 'page': page},
     ),
   );
 
@@ -847,10 +867,7 @@ class HttpOwnerApi implements OwnerApi {
   }) async => AppUsersPage.fromJson(
     await _get(
       '${_app(appId)}/users',
-      query: {
-        'q': (query == null || query.trim().isEmpty) ? null : query.trim(),
-        'page': page,
-      },
+      query: {'q': _search(query), 'page': page},
     ),
   );
 
@@ -936,12 +953,7 @@ class HttpOwnerApi implements OwnerApi {
     String value,
     String? q,
     int page,
-  ) => {
-    key: value,
-    if (q != null && q.trim().isNotEmpty) 'q': q.trim(),
-    'page': page,
-    'per_page': 20,
-  };
+  ) => {key: value, 'q': ?_search(q), 'page': page, 'per_page': 20};
 
   Map<String, dynamic> _withNote(Map<String, dynamic> body, String? note) => {
     ...body,

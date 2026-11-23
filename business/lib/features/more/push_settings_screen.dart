@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/api/models.dart';
+
+import 'package:go_router/go_router.dart';
+
 import '../../core/providers.dart';
+import '../../core/routing/paths.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
@@ -44,6 +48,15 @@ class PushSettingsScreen extends ConsumerWidget {
         (PushKind.shipmentWaiting, l10n.pushShipment, l10n.pushShipmentHelp),
       if (any((f) => f.market))
         (PushKind.newComplaint, l10n.pushComplaint, l10n.pushComplaintHelp),
+      // 207 Marketplace orders, and orders a customer cancelled.
+      if (any((f) => f.market))
+        (
+          PushKind.newMarketOrder,
+          l10n.pushMarketOrder,
+          l10n.pushMarketOrderHelp,
+        ),
+      if (any((f) => f.foodOrders || f.market))
+        (PushKind.orderCancelled, l10n.pushCancelled, l10n.pushCancelledHelp),
       if (any((f) => f.prime)) ...[
         (PushKind.primeAlert, l10n.pushPrimeAlert, l10n.pushPrimeAlertHelp),
         (PushKind.morningBrief, l10n.pushBrief, l10n.pushBriefHelp),
@@ -71,6 +84,15 @@ class PushSettingsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
+            // 207 The sounds are on their own page.
+            ListTile(
+              key: const ValueKey('push-ringtones'),
+              leading: const Icon(AppIcons.ringtone),
+              title: Text(l10n.pushRingtonesLink),
+              subtitle: Text(l10n.pushRingtonesLinkHelp),
+              trailing: const DirectionalIcon(AppIcons.forward, size: 20),
+              onTap: () => context.push(Paths.ringtones),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
               child: Text(l10n.pushSettingsHelp),

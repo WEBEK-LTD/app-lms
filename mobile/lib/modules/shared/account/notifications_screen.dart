@@ -53,6 +53,11 @@ IconData _iconFor(NotificationType type) => switch (type) {
   NotificationType.courierJob => AppIcons.courier,
   NotificationType.foodOrderUpdate => AppIcons.foodDelivery,
   NotificationType.restaurantOrder => AppIcons.restaurant,
+  // 115.22 A marketplace's.
+  NotificationType.marketOrderUpdate => AppIcons.bag,
+  NotificationType.vendorOrder => AppIcons.shop,
+  NotificationType.complaintUpdate => AppIcons.help,
+  NotificationType.clubRenewal => AppIcons.membership,
   NotificationType.rideUpdate => AppIcons.ride,
   NotificationType.rideOffer => AppIcons.car,
   NotificationType.newCourse => AppIcons.courses,

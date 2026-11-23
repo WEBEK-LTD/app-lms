@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../widgets/digits.dart';
 import 'api_exception.dart';
 import 'models.dart';
 import 'owner_api.dart';
@@ -1168,6 +1169,15 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     return pushPreferences();
   }
 
+  /// 207 The ringtones this phone sent last.
+  Map<String, dynamic>? pushSounds;
+
+  @override
+  Future<void> setPushSounds(Map<String, dynamic> sounds) async {
+    await _call('setPushSounds', needsActive: false);
+    pushSounds = sounds;
+  }
+
   // 60 Team members
 
   String? _businessId;
@@ -1525,11 +1535,24 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     List<String> statuses = const [],
     int page = 1,
     int perPage = 20,
+    String? query,
   }) async {
     await _call('orders');
     _app(appId, (f) => f.orders);
+    // 207 As the server: the number, or who ordered.
+    final q = latinDigits(query ?? '').trim().toLowerCase().replaceAll('#', '');
+    bool found(Order o) =>
+        q.isEmpty ||
+        o.number.toLowerCase().contains(q) ||
+        (o.buyerName ?? '').toLowerCase().contains(q) ||
+        (o.customer?.email ?? '').toLowerCase().contains(q) ||
+        (q.length >= 4 &&
+            (o.customer?.phone ?? '')
+                .replaceAll(RegExp(r'\D'), '')
+                .contains(q));
     final all = (_orders[appId] ?? const [])
         .where((o) => statuses.isEmpty || statuses.contains(o.status))
+        .where(found)
         .map(_withCancel)
         .toList();
     return _page(all, page, perPage);
@@ -1632,7 +1655,58 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   Future<Order> order(String appId, int orderId) async {
     await _call('order');
     _app(appId, (f) => f.orders);
-    return _detail(appId, _find(appId, orderId));
+    return _detail(appId, _shippable(_find(appId, orderId)));
+  }
+
+  /// 207 The orders with something a carrier ships (the server knows from
+  /// their products; the tests choose).
+  final shippableOrders = <int>{};
+
+  Order _shippable(Order o) => o.copyWith(
+    shippable:
+        shippableOrders.contains(o.id) &&
+        (o.status == 'processing' || o.status == 'completed'),
+  );
+
+  @override
+  Future<Order> shipOrder(
+    String appId,
+    int orderId,
+    ShipmentInput shipment,
+  ) async {
+    await _call('shipOrder');
+    _app(appId, (f) => f.orders);
+    final o = _shippable(_find(appId, orderId));
+    if (!o.shippable) {
+      throw const ApiException(
+        code: 'not_shippable',
+        message: 'This order has nothing to ship.',
+        statusCode: 409,
+      );
+    }
+    final number = shipment.trackingNumber?.trim() ?? '';
+    final url = shipment.trackingUrl?.trim() ?? '';
+    if (number.isEmpty && url.isEmpty) {
+      throw const ApiException(
+        code: 'invalid_shipment',
+        message: 'Enter the tracking link, the tracking number or the waybill.',
+        statusCode: 400,
+        fieldErrors: {
+          'tracking_number':
+              'Enter the tracking link, the tracking number or the waybill.',
+        },
+      );
+    }
+    final updated = o.copyWith(
+      shipment: OrderShipment(
+        carrier: shipment.carrier,
+        trackingNumber: number.isEmpty ? null : number,
+        trackingUrl: url.isEmpty ? null : url,
+        shippedAt: DateTime.now(),
+      ),
+    );
+    _replace(appId, updated);
+    return _detail(appId, updated);
   }
 
   @override

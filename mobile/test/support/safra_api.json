@@ -12,6 +12,7 @@
   "member_off_percent": 10,
   "bundle_off_percent": 8,
   "transfer": {
+   "currency": "USD",
    "price": "48.00",
    "price_formatted": "$48.00",
    "note": "Driver waits with your name"
@@ -101,6 +102,8 @@
     "code": "DPS",
     "photo_url": "https://demo.yallapp.test/travel-photos/room.jpg",
     "hotels": 1,
+    "currency": "USD",
+    "stay_from_amount": "168.00",
     "stay_from_formatted": "$168.00",
     "trip_from": null,
     "trip_from_formatted": null
@@ -111,6 +114,8 @@
     "code": "DXB",
     "photo_url": "https://demo.yallapp.test/travel-photos/skyline.jpg",
     "hotels": 1,
+    "currency": "USD",
+    "stay_from_amount": "134.00",
     "stay_from_formatted": "$134.00",
     "trip_from": "1231.92",
     "trip_from_formatted": "$1,231.92"
@@ -121,6 +126,8 @@
     "code": "IST",
     "photo_url": "https://demo.yallapp.test/travel-photos/city.jpg",
     "hotels": 1,
+    "currency": "USD",
+    "stay_from_amount": "96.00",
     "stay_from_formatted": "$96.00",
     "trip_from": "851.28",
     "trip_from_formatted": "$851.28"
@@ -131,6 +138,8 @@
     "code": "JTR",
     "photo_url": "https://demo.yallapp.test/travel-photos/oia.jpg",
     "hotels": 1,
+    "currency": "USD",
+    "stay_from_amount": "262.00",
     "stay_from_formatted": "$262.00",
     "trip_from": "2028.08",
     "trip_from_formatted": "$2,028.08"
@@ -174,6 +183,8 @@
     "breakfast": true,
     "pay_at_hotel": true,
     "member_price": true,
+    "currency": "USD",
+    "from_nightly_amount": "168.00",
     "from_nightly_formatted": "$168.00",
     "price": null,
     "saved": false
@@ -213,6 +224,8 @@
     "breakfast": true,
     "pay_at_hotel": true,
     "member_price": true,
+    "currency": "USD",
+    "from_nightly_amount": "134.00",
     "from_nightly_formatted": "$134.00",
     "price": null,
     "saved": false
@@ -314,12 +327,17 @@
     "breakfast": true,
     "pay_at_hotel": true,
     "member_price": true,
+    "currency": "USD",
+    "from_nightly_amount": "168.00",
     "from_nightly_formatted": "$168.00",
     "price": {
+     "currency": "USD",
      "nights": 4,
      "total": "745.92",
      "total_formatted": "$745.92",
+     "nightly_amount": "186.48",
      "nightly_formatted": "$186.48",
+     "was_total_amount": "813.12",
      "was_total_formatted": "$813.12",
      "member": true
     },
@@ -360,12 +378,17 @@
     "breakfast": true,
     "pay_at_hotel": true,
     "member_price": true,
+    "currency": "USD",
+    "from_nightly_amount": "134.00",
     "from_nightly_formatted": "$134.00",
     "price": {
+     "currency": "USD",
      "nights": 4,
      "total": "562.80",
      "total_formatted": "$562.80",
+     "nightly_amount": "140.70",
      "nightly_formatted": "$140.70",
+     "was_total_amount": "616.40",
      "was_total_formatted": "$616.40",
      "member": true
     },
@@ -405,12 +428,17 @@
     "breakfast": true,
     "pay_at_hotel": true,
     "member_price": true,
+    "currency": "USD",
+    "from_nightly_amount": "262.00",
     "from_nightly_formatted": "$262.00",
     "price": {
+     "currency": "USD",
      "nights": 4,
      "total": "1089.92",
      "total_formatted": "$1,089.92",
+     "nightly_amount": "272.48",
      "nightly_formatted": "$272.48",
+     "was_total_amount": "1194.72",
      "was_total_formatted": "$1,194.72",
      "member": true
     },
@@ -447,12 +475,17 @@
     "breakfast": true,
     "pay_at_hotel": true,
     "member_price": true,
+    "currency": "USD",
+    "from_nightly_amount": "96.00",
     "from_nightly_formatted": "$96.00",
     "price": {
+     "currency": "USD",
      "nights": 4,
      "total": "384.00",
      "total_formatted": "$384.00",
+     "nightly_amount": "96.00",
      "nightly_formatted": "$96.00",
+     "was_total_amount": "422.40",
      "was_total_formatted": "$422.40",
      "member": true
     },
@@ -499,12 +532,17 @@
   "breakfast": true,
   "pay_at_hotel": true,
   "member_price": true,
+  "currency": "USD",
+  "from_nightly_amount": "168.00",
   "from_nightly_formatted": "$168.00",
   "price": {
+   "currency": "USD",
    "nights": 4,
    "total": "745.92",
    "total_formatted": "$745.92",
+   "nightly_amount": "186.48",
    "nightly_formatted": "$186.48",
+   "was_total_amount": "813.12",
    "was_total_formatted": "$813.12",
    "member": true
   },
@@ -581,10 +619,13 @@
       "pay_at_hotel": false,
       "popular": false,
       "price": {
+       "currency": "USD",
        "nights": 4,
        "total": "745.92",
        "total_formatted": "$745.92",
+       "nightly_amount": "186.48",
        "nightly_formatted": "$186.48",
+       "was_total_amount": "813.12",
        "was_total_formatted": "$813.12",
        "member": true
       }
@@ -599,10 +640,13 @@
       "pay_at_hotel": true,
       "popular": true,
       "price": {
+       "currency": "USD",
        "nights": 4,
        "total": "843.60",
        "total_formatted": "$843.60",
+       "nightly_amount": "210.90",
        "nightly_formatted": "$210.90",
+       "was_total_amount": "919.60",
        "was_total_formatted": "$919.60",
        "member": true
       }
@@ -617,10 +661,13 @@
       "pay_at_hotel": true,
       "popular": false,
       "price": {
+       "currency": "USD",
        "nights": 4,
        "total": "950.16",
        "total_formatted": "$950.16",
+       "nightly_amount": "237.54",
        "nightly_formatted": "$237.54",
+       "was_total_amount": "1035.76",
        "was_total_formatted": "$1,035.76",
        "member": true
       }
@@ -655,10 +702,13 @@
       "pay_at_hotel": false,
       "popular": false,
       "price": {
+       "currency": "USD",
        "nights": 4,
        "total": "1065.60",
        "total_formatted": "$1,065.60",
+       "nightly_amount": "266.40",
        "nightly_formatted": "$266.40",
+       "was_total_amount": "1161.60",
        "was_total_formatted": "$1,161.60",
        "member": true
       }
@@ -673,10 +723,13 @@
       "pay_at_hotel": true,
       "popular": true,
       "price": {
+       "currency": "USD",
        "nights": 4,
        "total": "1163.28",
        "total_formatted": "$1,163.28",
+       "nightly_amount": "290.82",
        "nightly_formatted": "$290.82",
+       "was_total_amount": "1268.08",
        "was_total_formatted": "$1,268.08",
        "member": true
       }
@@ -691,10 +744,13 @@
       "pay_at_hotel": true,
       "popular": false,
       "price": {
+       "currency": "USD",
        "nights": 4,
        "total": "1269.84",
        "total_formatted": "$1,269.84",
+       "nightly_amount": "317.46",
        "nightly_formatted": "$317.46",
+       "was_total_amount": "1384.24",
        "was_total_formatted": "$1,384.24",
        "member": true
       }
@@ -859,6 +915,8 @@
     "payment": {
      "method": "now",
      "status": "paid",
+     "currency": "USD",
+     "paid_amount": "3170.50",
      "paid_formatted": "$3,170.50",
      "due": null,
      "due_formatted": null
@@ -868,6 +926,8 @@
      {
       "kind": "fare",
       "count": 2,
+      "currency": "USD",
+      "unit_amount": "1072.00",
       "unit_formatted": "$1,072.00",
       "amount": "2144.00",
       "amount_formatted": "$2,144.00"
@@ -875,6 +935,8 @@
      {
       "kind": "nights",
       "count": 5,
+      "currency": "USD",
+      "unit_amount": "190.00",
       "unit_formatted": "$190.00",
       "amount": "950.00",
       "amount_formatted": "$950.00"
@@ -882,6 +944,8 @@
      {
       "kind": "taxes",
       "count": 1,
+      "currency": "USD",
+      "unit_amount": null,
       "unit_formatted": null,
       "amount": "199.50",
       "amount_formatted": "$199.50"
@@ -889,6 +953,8 @@
      {
       "kind": "member",
       "count": 1,
+      "currency": "USD",
+      "unit_amount": null,
       "unit_formatted": null,
       "amount": "-95.00",
       "amount_formatted": "−$95.00"
@@ -896,6 +962,8 @@
      {
       "kind": "bundle",
       "count": 1,
+      "currency": "USD",
+      "unit_amount": null,
       "unit_formatted": null,
       "amount": "-76.00",
       "amount_formatted": "−$76.00"
@@ -903,6 +971,8 @@
      {
       "kind": "transfer",
       "count": 1,
+      "currency": "USD",
+      "unit_amount": "48.00",
       "unit_formatted": "$48.00",
       "amount": "48.00",
       "amount_formatted": "$48.00"
@@ -912,6 +982,7 @@
     "total_formatted": "$3,170.50",
     "cancellation": null,
     "can_cancel": true,
+    "cancel_refund_amount": "3050.50",
     "cancel_refund_formatted": "$3,050.50",
     "can_change": true,
     "passes_open": false
@@ -1076,6 +1147,8 @@
   "payment": {
    "method": "now",
    "status": "paid",
+   "currency": "USD",
+   "paid_amount": "3170.50",
    "paid_formatted": "$3,170.50",
    "due": null,
    "due_formatted": null
@@ -1085,6 +1158,8 @@
    {
     "kind": "fare",
     "count": 2,
+    "currency": "USD",
+    "unit_amount": "1072.00",
     "unit_formatted": "$1,072.00",
     "amount": "2144.00",
     "amount_formatted": "$2,144.00"
@@ -1092,6 +1167,8 @@
    {
     "kind": "nights",
     "count": 5,
+    "currency": "USD",
+    "unit_amount": "190.00",
     "unit_formatted": "$190.00",
     "amount": "950.00",
     "amount_formatted": "$950.00"
@@ -1099,6 +1176,8 @@
    {
     "kind": "taxes",
     "count": 1,
+    "currency": "USD",
+    "unit_amount": null,
     "unit_formatted": null,
     "amount": "199.50",
     "amount_formatted": "$199.50"
@@ -1106,6 +1185,8 @@
    {
     "kind": "member",
     "count": 1,
+    "currency": "USD",
+    "unit_amount": null,
     "unit_formatted": null,
     "amount": "-95.00",
     "amount_formatted": "−$95.00"
@@ -1113,6 +1194,8 @@
    {
     "kind": "bundle",
     "count": 1,
+    "currency": "USD",
+    "unit_amount": null,
     "unit_formatted": null,
     "amount": "-76.00",
     "amount_formatted": "−$76.00"
@@ -1120,6 +1203,8 @@
    {
     "kind": "transfer",
     "count": 1,
+    "currency": "USD",
+    "unit_amount": "48.00",
     "unit_formatted": "$48.00",
     "amount": "48.00",
     "amount_formatted": "$48.00"
@@ -1129,6 +1214,7 @@
   "total_formatted": "$3,170.50",
   "cancellation": null,
   "can_cancel": true,
+  "cancel_refund_amount": "3050.50",
   "cancel_refund_formatted": "$3,050.50",
   "can_change": true,
   "passes_open": false

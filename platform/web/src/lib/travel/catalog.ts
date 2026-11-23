@@ -27,6 +27,8 @@ export interface TravelDeps {
 
 const money = (deps: Pick<TravelDeps, "settings">, cents: number) => formatCents(cents, deps.settings.currency);
 const amount = (cents: number) => centsToDecimal(cents);
+/** 180.12 The company's currency on an object with prices: with each `*_amount` (or `price`, `total`) beside its `*_formatted`, the hosted API adds `display` in the customer's currency (lib/money/display.ts). */
+const cur = (deps: Pick<TravelDeps, "settings">) => ({ currency: deps.settings.currency });
 
 export const AMENITY_ICONS: Record<(typeof TRAVEL_AMENITIES)[number], string> = {
   pool: "pool",
@@ -64,7 +66,7 @@ export async function travelConfig(deps: TravelDeps) {
     payment: { now: s.payNow, at_hotel: s.payAtHotel && s.hotels },
     member_off_percent: s.hotels ? s.memberOffPercent : 0,
     bundle_off_percent: s.hotels && s.flights ? s.bundleOffPercent : 0,
-    transfer: s.transfer && s.hotels && s.flights ? { price: amount(s.transfer.cents), price_formatted: money(deps, s.transfer.cents), note: s.transfer.note } : null,
+    transfer: s.transfer && s.hotels && s.flights ? { ...cur(deps), price: amount(s.transfer.cents), price_formatted: money(deps, s.transfer.cents), note: s.transfer.note } : null,
     display_font: s.displayFont && files.length ? { family: s.displayFont, files } : null,
     themes,
     amenities,
@@ -134,12 +136,17 @@ async function pricedRoom(deps: TravelDeps, hotel: TravelHotel, room: TravelRoom
 }
 
 function priceJson(deps: TravelDeps, p: RatePrice, member: boolean) {
+  const nightly = Math.round(p.totalCents / Math.max(1, p.nights));
+  const was = member && p.wasCents > p.totalCents;
   return {
+    ...cur(deps),
     nights: p.nights,
     total: amount(p.totalCents),
     total_formatted: money(deps, p.totalCents),
-    nightly_formatted: money(deps, Math.round(p.totalCents / Math.max(1, p.nights))),
-    was_total_formatted: member && p.wasCents > p.totalCents ? money(deps, p.wasCents) : null,
+    nightly_amount: amount(nightly),
+    nightly_formatted: money(deps, nightly),
+    was_total_amount: was ? amount(p.wasCents) : null,
+    was_total_formatted: was ? money(deps, p.wasCents) : null,
     member: member && p.wasCents > p.totalCents,
   };
 }
@@ -210,6 +217,8 @@ async function hotelCard(deps: TravelDeps, hotel: TravelHotel, rooms: readonly T
       breakfast: rates.some((r) => r.board !== "room_only") || hotel.amenities.includes("breakfast"),
       pay_at_hotel: deps.settings.payAtHotel && hotel.payAtHotel && rates.some((r) => r.payAtHotel),
       member_price: deps.settings.memberOffPercent > 0,
+      ...cur(deps),
+      from_nightly_amount: nightly === null ? null : amount(nightly),
       from_nightly_formatted: nightly === null ? null : money(deps, nightly),
       price: best ? priceJson(deps, best, member) : null,
       saved: saved.has(hotel.id),
@@ -385,6 +394,7 @@ function fareJson(deps: TravelDeps, offer: FareOffer, travellers: number) {
   return {
     id: f.id,
     name: f.name,
+    ...cur(deps),
     price: amount(offer.cents),
     price_formatted: money(deps, offer.cents),
     available: offer.left >= travellers,
@@ -500,6 +510,7 @@ export async function searchFlights(deps: TravelDeps, ask: FlightAsk) {
       outbound: legJson(p.outbound),
       inbound: p.inbound ? legJson(p.inbound) : null,
       fares: p.offers.map((o) => fareJson(deps, o, ask.adults)),
+      ...cur(deps),
       from_price: amount(p.cheapest ?? Math.min(...p.offers.map((o) => o.cents))),
       from_price_formatted: money(deps, p.cheapest ?? Math.min(...p.offers.map((o) => o.cents))),
       minutes: p.minutes,
@@ -525,14 +536,20 @@ export async function searchFlights(deps: TravelDeps, ask: FlightAsk) {
       level = {
         level: levelOf(cheapest, prices),
         position: max > min ? Math.min(1, Math.max(0, (cheapest - min) / (max - min))) : 0.5,
+        ...cur(deps),
+        usual_from_amount: amount(lo),
         usual_from_formatted: money(deps, lo),
+        usual_to_amount: amount(hi),
         usual_to_formatted: money(deps, hi),
       };
     }
   }
   return {
     items,
+    ...cur(deps),
+    best_amount: best?.cheapest != null ? amount(best.cheapest) : null,
     best_formatted: best?.cheapest != null ? money(deps, best.cheapest) : null,
+    cheapest_amount: cheapest === null ? null : amount(cheapest),
     cheapest_formatted: cheapest === null ? null : money(deps, cheapest),
     fastest_minutes: fastest,
     price_level: level,
@@ -554,12 +571,12 @@ export async function flightCalendar(deps: TravelDeps, from: string, to: string,
     const picked = days.find((d) => d.date === depart)?.cents ?? (await cheapestOn(deps, all, code(from), code(to), depart, nights, adults, holds))?.cents ?? null;
     if (picked !== null) {
       const near = days.filter((d) => d.cents !== null && d.date !== depart && Math.abs(daysBetween(depart, d.date)) <= 3).sort((a, b) => a.cents! - b.cents!)[0];
-      if (near && near.cents! < picked) tip = { date: near.date, saving_formatted: money(deps, (picked - near.cents!) * adults) };
+      if (near && near.cents! < picked) tip = { date: near.date, ...cur(deps), saving_amount: amount((picked - near.cents!) * adults), saving_formatted: money(deps, (picked - near.cents!) * adults) };
     }
   }
   return {
     month,
-    days: days.map((d) => ({ date: d.date, price: d.cents === null ? null : amount(d.cents), price_formatted: d.cents === null ? null : money(deps, d.cents), level: d.cents === null ? null : levelOf(d.cents, prices) })),
+    days: days.map((d) => ({ date: d.date, ...cur(deps), price: d.cents === null ? null : amount(d.cents), price_formatted: d.cents === null ? null : money(deps, d.cents), level: d.cents === null ? null : levelOf(d.cents, prices) })),
     tip,
   };
 }
@@ -576,7 +593,10 @@ export async function seatMapJson(deps: TravelDeps, flight: TravelFlight) {
     flight_id: flight.id,
     columns,
     rows: seatIds(map).map((r) => ({ number: r.row, extra_legroom: map.extraRows.includes(r.row), seats: r.seats.map((id) => ({ id, taken: taken.has(id) })) })),
+    ...cur(deps),
+    seat_price_amount: map.seatCents > 0 ? amount(map.seatCents) : null,
     seat_price_formatted: map.seatCents > 0 ? money(deps, map.seatCents) : null,
+    extra_price_amount: map.extraRows.length ? amount(map.extraCents) : null,
     extra_price_formatted: map.extraRows.length ? money(deps, map.extraCents) : null,
   };
 }
@@ -652,6 +672,8 @@ export async function explore(deps: TravelDeps, from: string | null, nights: num
       code: airport ? code(airport.code) : null,
       photo_url: cover ? deps.assetUrl(cover.photos[0]!) : null,
       hotels: there.length,
+      ...cur(deps),
+      stay_from_amount: nightly === null ? null : amount(nightly),
       stay_from_formatted: nightly === null ? null : money(deps, nightly),
       trip_from: trip === null ? null : amount(trip),
       trip_from_formatted: trip === null ? null : money(deps, trip),
