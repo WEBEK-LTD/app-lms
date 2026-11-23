@@ -1,4 +1,4 @@
-import type { LiabilityAcceptance } from "../data/types";
+import type { LiabilityAcceptance, ProductSpec, TradeInGrade, TradeInStatus } from "../data/types";
 import type { OrderMoney } from "../market/money";
 import type {
   AppAuthKey,
@@ -872,6 +872,8 @@ export const catalogProducts = mysqlTable(
     salesCount: int("sales_count").notNull().default(0),
     // 110.2 A sample entry (lib/samples).
     sample: boolean("sample").notNull().default(false),
+    // 211 Its specifications (JSON; null: none).
+    specs: jsonText<ProductSpec[]>("specs"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -2392,6 +2394,30 @@ export const listingFavorites = mysqlTable(
     createdAt: time("created_at").notNull(),
   },
   (t) => [primaryKey({ columns: [t.appId, t.userId, t.listingId] }), index("listing_favorites_user_idx").on(t.appId, t.userId, t.createdAt)],
+);
+
+/** 211 Trade-in requests sent from a store's app (Store › Trade-in). */
+export const tradeInRequests = mysqlTable(
+  "trade_in_requests",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    phone: varchar("phone", { length: 32 }).notNull(),
+    model: varchar("model", { length: 60 }).notNull(),
+    storage: varchar("storage", { length: 20 }).notNull(),
+    grade: varchar("grade", { length: 10 }).notNull().$type<TradeInGrade>(),
+    estimateCents: bigint("estimate_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    note: varchar("note", { length: 500 }),
+    status: varchar("status", { length: 10 }).notNull().$type<TradeInStatus>(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("trade_in_requests_app_idx").on(t.appId, t.createdAt)],
 );
 
 export const listingInquiries = mysqlTable(

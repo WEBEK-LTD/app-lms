@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { specsText } from "@/lib/selling/specs";
 import { deleteProductAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
@@ -67,6 +68,8 @@ export async function ProductPage({ id }: { id: number | null }) {
         sku: product.sku ?? "",
         // 131 Its weight in kg.
         weight: product.weightGrams ? String(product.weightGrams / 1000) : "",
+        // 211 Its specifications, one per line.
+        specs: specsText(product.specs ?? null),
         // 131 A gift add-on, and what it goes with.
         addon: Boolean(product.addon),
         addonOfferWith: product.addonFor?.offerWith ?? "all",

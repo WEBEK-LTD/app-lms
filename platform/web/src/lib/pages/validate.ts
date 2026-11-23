@@ -9,9 +9,11 @@ import { BLOCK_LABELS } from "./labels";
 import { ICON_NAME } from "./icons";
 import { innerScreen, innerScreensFor } from "./inner-screens";
 import { appOpensScreen, blockTypesFor, categorySourcesFor, itemSourcesFor, screenName, sortFor } from "./sources";
+import { isSpecKey } from "../selling/specs";
 import {
   OWN_TRANSLATIONS,
   ACTION_TYPES,
+  ACTION_FLOWS,
   APP_FONTS,
   APP_TEMPLATES,
   BUTTON_STYLES,
@@ -86,6 +88,8 @@ import {
   type StudioMarquee,
   STUDIO_CATEGORY_STYLES,
   STUDIO_CATEGORY_MENU_LOOKS,
+  STUDIO_TRADE_IN_LOOKS,
+  type StudioTech,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_DAYS,
@@ -453,8 +457,8 @@ function parseAction(ctx: Context, where: string, value: unknown, required: bool
       if (!oneOf(SCREENS, v.screen)) c.fail(where, "choose a screen.");
       // 31 Only screens the app's module opens: anything else would do nothing when tapped.
       else if (!appOpensScreen(ctx.app, v.screen)) c.fail(where, `this app has no "${screenName(v.screen)}" screen. Choose another screen.`);
-      // 162 Build your bouquet, a store's only, over its shop.
-      if (v.flow === "bouquet" && v.screen === "search" && ctx.app.appType === "store") return { type: "screen", screen: "search", flow: "bouquet" };
+      // 162 Build your bouquet, a store's only, over its shop; 211 and the trade-in estimator and Build your PC.
+      if (oneOf(ACTION_FLOWS, v.flow) && v.screen === "search" && ctx.app.appType === "store") return { type: "screen", screen: "search", flow: v.flow };
       // 157 The shop opened at one of its categories (a tile's, a ring's): its ID, or the shop as it is.
       if (v.screen === "search" && v.category_id !== undefined && v.category_id !== null && v.category_id !== "") {
         const category = String(v.category_id).trim();
@@ -2004,6 +2008,51 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
           if (Object.keys(menu).length) node.category_menu = menu;
         }
       }
+      break;
+    }
+    case "spec_table":
+    case "compare":
+    case "spec_filter":
+    case "trade_in":
+    case "pc_builder": {
+      // 211 An electronics shop's parts, a store's only: what each shows.
+      if (!ctx.sources.includes("products")) bad("only a shop has products to show this way.");
+      const o = v.tech !== undefined && v.tech !== null ? record(v.tech) : {};
+      if (!o) {
+        bad("the element's options aren't valid.");
+        break;
+      }
+      const tech: StudioTech = {};
+      if (o.ids !== undefined && o.ids !== null) {
+        const most = node.type === "compare" ? 3 : 1;
+        const ids = Array.isArray(o.ids) ? o.ids.map((x) => String(x).trim()) : null;
+        if (!ids || ids.some((x) => !/^\d{1,12}$/.test(x))) bad("choose the shop's products.");
+        else if (ids.length > most) bad(node.type === "compare" ? "compare two or three products." : "choose one product.");
+        else if (ids.length) tech.ids = [...new Set(ids)];
+      }
+      if (o.category_id !== undefined && o.category_id !== null && o.category_id !== "") {
+        const category = String(o.category_id).trim();
+        if (!CATEGORY_ID.test(category)) bad("choose one of the shop's categories.");
+        else tech.category_id = category;
+      }
+      const rows = studioNumber(o.rows, 1, 40);
+      if (rows !== undefined && Number.isNaN(rows)) bad("show 1 to 40 rows.");
+      else if (rows !== undefined && node.type === "spec_table") tech.rows = Math.round(rows);
+      if (node.type === "spec_filter") {
+        if (!isSpecKey(o.spec)) bad("choose the specification it filters by.");
+        else tech.spec = o.spec;
+      }
+      if (node.type === "trade_in" && o.look !== undefined && o.look !== null) {
+        if (!oneOf(STUDIO_TRADE_IN_LOOKS, o.look)) bad("choose how the trade-in looks.");
+        else tech.look = o.look;
+      }
+      const accent = optionalColor(c, where, o.accent, "the highlights' colour");
+      if (accent) tech.accent = accent;
+      node.tech = tech;
+      const text = c.optionalText(where, v.text, L.titleChars, "The title");
+      if (text) node.text = text;
+      const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.titleChars, title: L.titleChars });
+      if (translations) node.translations = translations;
       break;
     }
     case "size_chart": {

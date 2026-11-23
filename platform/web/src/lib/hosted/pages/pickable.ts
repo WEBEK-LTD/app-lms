@@ -1,5 +1,7 @@
 // 208 A clothes shop's size chart.
 import { fashionOf, sizeChartJson } from "../../selling/fashion";
+// 211 An electronics shop's trade-in and Build your PC.
+import { techOf, tradeInJson } from "../../selling/tech";
 import { readApiList } from "../../app/api-check";
 import type { DataStore } from "../../data/store";
 import { ENGINES, isAppType } from "../../app/kinds";
@@ -32,6 +34,8 @@ export interface PickableEntry {
   rating?: number | null;
   /** 131 A product's sale (`ProductSummary.sale`), for a card's `sale` and `was_price` elements and the flash sale. */
   sale?: { was: string; now: string; percentOff: number; endsAt: string | null; remaining: number | null; total: number | null } | null;
+  /** 211 A product's specs (Yallapp's catalog), for the tech elements on the canvas; missing: none. */
+  specs?: { key: string | null; label: string; value: string }[];
 }
 
 /** 131 A store's flash sales, coupons shown in the app and card messages, for Studio's inspector and canvas. */
@@ -46,6 +50,9 @@ export interface PickableCommerce {
   bouquet?: boolean;
   /** 208 The shop's size chart (its titles in the shop's language); null: none set up. */
   sizeChart?: { headers: string[]; rows: string[][]; unit: "cm" | "in" } | null;
+  /** 211 Trade-in's devices and grades, and Build your PC's parts in order (Store › Delivery & offers › Electronics); null: off. */
+  tradeIn?: { models: { name: string; storages: { label: string; cents: number }[] }[]; grades: Record<string, number> } | null;
+  pcBuilder?: { parts: string[] } | null;
 }
 
 /** Entries and categories the page editor offers to pick from. */
@@ -84,9 +91,11 @@ function cardFacts(x: Record<string, unknown>): Omit<PickableEntry, "id" | "titl
   return {
     imageUrl: text(x.image_url) ?? text(x.cover_url) ?? (Array.isArray(x.images) ? text(x.images[0]) : null),
     price: typeof price === "string" ? text(price) : text(price?.formatted),
-    subtitle: text((x.instructor as { name?: unknown } | undefined)?.name) ?? text(x.subtitle),
+    // 211 A product's main specs on one line.
+    subtitle: text((x.instructor as { name?: unknown } | undefined)?.name) ?? text(x.subtitle) ?? text(x.spec_line),
     rating: typeof x.rating === "number" && x.rating > 0 ? Math.round(x.rating * 10) / 10 : null,
     sale: saleFacts(x.sale),
+    ...(Array.isArray(x.specs) && x.specs.length ? { specs: (x.specs as Record<string, unknown>[]).map((sp) => ({ key: text(sp.key), label: String(sp.label ?? ""), value: String(sp.value ?? "") })) } : {}),
   };
 }
 
@@ -132,13 +141,16 @@ export async function pickableCommerce(store: DataStore, app: App, now: Date): P
     bouquet: bouquetOf(app) !== null,
     // 208 The size chart the `size_chart` element shows (Store › Delivery & offers › Clothes).
     sizeChart: sizeChartJson(fashionOf(app)?.sizeChart ?? null, null),
+    // 211 What the trade-in and Build your PC elements show.
+    tradeIn: tradeInJson(techOf(app)?.tradeIn ?? null),
+    pcBuilder: techOf(app)?.pcBuilder ? { parts: techOf(app)!.pcBuilder!.steps.map((s) => s.part) } : null,
   };
 }
 
 
 async function items(connector: Connector, path: string[], now: Date): Promise<Record<string, unknown>[]> {
   try {
-    const result = await connector.handle({ method: "GET", path, query: new URLSearchParams({ per_page: "50", platform: "android" }), body: undefined, user: null, now });
+    const result = await connector.handle({ method: "GET", path, query: new URLSearchParams({ per_page: "50", platform: "android", with_specs: "1" }), body: undefined, user: null, now });
     const list = (result?.status === 200 ? (result.body as { items?: unknown })?.items : null) ?? [];
     return Array.isArray(list) ? (list as Record<string, unknown>[]) : [];
   } catch {

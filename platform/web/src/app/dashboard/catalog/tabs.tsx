@@ -1,5 +1,6 @@
 import type { App } from "@/lib/data/types";
 import { getStore } from "@/lib/data";
+import { techOf } from "@/lib/selling/tech";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { AnchorRedirect, SectionTabs } from "@/components/manage-kit-client";
 
@@ -13,7 +14,9 @@ export async function CatalogTabs({ app }: { app: App }) {
   const restaurant = app.vertical === "restaurant";
   const kind = restaurant ? "restaurant" : "shop";
   const store = await getStore();
-  const [products, categories, coupons] = await Promise.all([store.listCatalogProducts(app.id), store.listCatalogCategories(app.id), store.listCatalogCoupons(app.id)]);
+  const [products, categories, coupons, tradeIns] = await Promise.all([store.listCatalogProducts(app.id), store.listCatalogCategories(app.id), store.listCatalogCoupons(app.id), restaurant ? 0 : store.countNewTradeInRequests(app.id)]);
+  // 211 Trade-in requests from the app, while the shop takes trade-ins (or has requests to answer).
+  const tradeIn = !restaurant && (techOf(app)?.tradeIn != null || tradeIns > 0);
   return (
     <SectionTabs
       label={t("shop.page", { kind })}
@@ -22,6 +25,7 @@ export async function CatalogTabs({ app }: { app: App }) {
         { href: "/dashboard/catalog/categories", label: t("shop.categories"), icon: "category", count: categories.length },
         { href: "/dashboard/catalog/coupons", label: t("shop.coupons"), icon: "local_offer", count: coupons.length },
         ...(restaurant ? [{ href: "/dashboard/catalog/delivery", label: t("shop.pickupDelivery"), icon: "delivery_dining" as const }] : []),
+        ...(tradeIn ? [{ href: "/dashboard/catalog/trade-in", label: t("tech.requests"), icon: "currency_exchange" as const, count: tradeIns }] : []),
         // 132.120 The one Payments page, a tab away (it isn't a copy).
         { href: "/dashboard/payments", label: t("manage.payments"), icon: "payments" },
         { href: "/dashboard/catalog/settings", label: t("manage.settings"), icon: "settings" },

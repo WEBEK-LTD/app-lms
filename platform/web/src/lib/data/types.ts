@@ -1438,7 +1438,7 @@ export interface TradeInRequest {
   id: number;
   appId: string;
   /** The app's user who sent it, when signed in. */
-  userId: string | null;
+  userId: number | null;
   name: string;
   phone: string;
   model: string;

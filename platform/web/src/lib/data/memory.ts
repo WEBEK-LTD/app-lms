@@ -238,6 +238,7 @@ import type { UniAttendance, UniCourse, UniDepartment, UniEnrolment, UniEnrolmen
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
+import type { TradeInRequest, TradeInStatus } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -5493,6 +5494,32 @@ export class MemoryStore implements DataStore {
       .filter((f) => f.appId === appId && f.userId === userId)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.listingId - a.listingId)
       .map(clone);
+  }
+
+  // 211 Trade-in requests.
+  private tradeIns = new Map<number, TradeInRequest>();
+  private nextTradeInId = 1;
+
+  async createTradeInRequest(input: Omit<TradeInRequest, "id">): Promise<TradeInRequest> {
+    const row: TradeInRequest = { ...clone(input), id: this.nextTradeInId++ };
+    this.tradeIns.set(row.id, clone(row));
+    return row;
+  }
+
+  async listTradeInRequests(input: { appId: string; status?: TradeInStatus; offset: number; limit: number }): Promise<{ items: TradeInRequest[]; total: number }> {
+    const all = [...this.tradeIns.values()]
+      .filter((r) => r.appId === input.appId && (!input.status || r.status === input.status))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
+  }
+
+  async updateTradeInRequest(appId: string, id: number, patch: Pick<TradeInRequest, "status" | "updatedAt">): Promise<void> {
+    const row = this.tradeIns.get(id);
+    if (row && row.appId === appId) this.tradeIns.set(id, { ...row, ...clone(patch) });
+  }
+
+  async countNewTradeInRequests(appId: string): Promise<number> {
+    return [...this.tradeIns.values()].filter((r) => r.appId === appId && r.status === "new").length;
   }
 
   async createListingInquiry(input: Omit<ListingInquiry, "id">): Promise<ListingInquiry> {

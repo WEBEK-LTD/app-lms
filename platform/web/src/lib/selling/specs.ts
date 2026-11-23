@@ -12,6 +12,13 @@ import type { ProductSpec } from "../data/types";
 
 export const SPEC_LIMITS = { count: 40, label: 40, value: 120 } as const;
 
+/** The form's messages, in the dashboard's words (translated as known texts, i18n/dashboard/tech.ts). */
+export const SPEC_FORM_ERRORS = {
+  many: "A product has at most 40 specifications.",
+  line: "Write each specification on its own line as Label: value.",
+  long: "A specification's label is at most 40 characters and its value at most 120.",
+} as const;
+
 /**
  * The specs Yallapp knows, in the order a table lists them when the owner's
  * order mixes them (never reordered otherwise). The PC parts' (socket,
@@ -144,14 +151,14 @@ export function parseSpecsText(text: string): { ok: true; specs: ProductSpec[] |
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean);
-  if (lines.length > SPEC_LIMITS.count) return { ok: false, error: "A product has at most 40 specifications." };
+  if (lines.length > SPEC_LIMITS.count) return { ok: false, error: SPEC_FORM_ERRORS.many };
   const specs: ProductSpec[] = [];
   for (const line of lines) {
     const at = line.search(/[:：]/);
     const label = at > 0 ? line.slice(0, at).trim() : "";
     const value = at > 0 ? line.slice(at + 1).trim() : "";
-    if (!label || !value) return { ok: false, error: "Write each specification on its own line as Label: value." };
-    if (label.length > SPEC_LIMITS.label || value.length > SPEC_LIMITS.value) return { ok: false, error: "A specification's label is at most 40 characters and its value at most 120." };
+    if (!label || !value) return { ok: false, error: SPEC_FORM_ERRORS.line };
+    if (label.length > SPEC_LIMITS.label || value.length > SPEC_LIMITS.value) return { ok: false, error: SPEC_FORM_ERRORS.long };
     const key = specKeyOf(label);
     specs.push({ ...(key ? { key } : {}), label, value });
   }
@@ -172,6 +179,15 @@ export function specValue(specs: readonly ProductSpec[] | null | undefined, key:
 export function specNumber(value: string | null | undefined): number | null {
   const m = value?.replace(/,/g, "").match(/\d+(?:\.\d+)?/);
   return m ? Number(m[0]) : null;
+}
+
+/** The specs a product's line under its name shows first, in this order (a used phone its grade first). */
+const LINE_KEYS: readonly SpecKey[] = ["grade", "storage", "ram", "screen", "cpu", "gpu", "refresh", "camera", "battery", "socket", "memory_type", "psu_watts", "form_factor", "connectivity", "weight"];
+
+/** A product's main specs on one line, at most three ("256 GB · 6.7″ OLED · 5G"); null: none known. */
+export function specLine(specs: readonly ProductSpec[] | null | undefined, most = 3): string | null {
+  const values = LINE_KEYS.map((k) => specValue(specs, k)).filter((v): v is string => Boolean(v));
+  return values.length ? values.slice(0, most).map((v) => (v.length > 28 ? `${v.slice(0, 27)}…` : v)).join(" · ") : null;
 }
 
 /** Whether a value matches a filter's: the same words, case and spaces aside. */

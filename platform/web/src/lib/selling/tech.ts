@@ -31,6 +31,7 @@ export const TECH_FORM_ERRORS = {
   many: "Trade-in takes at most 40 devices, each with at most 6 storages.",
   grades: "Each grade gets 0 to 100 percent of the top price, the better grades at least as much as the worse.",
   category: "Choose one of the shop's categories.",
+  parts: "Build your PC needs a category for at least two parts.",
 } as const;
 
 const text = (v: unknown, max: number): string | null => (typeof v === "string" && v.trim() && v.trim().length <= max ? v.trim() : null);
@@ -196,4 +197,56 @@ export function parseGrades(values: Partial<Record<TradeInGrade, string | null |
     last = grades[g];
   }
   return { ok: true, grades };
+}
+
+/**
+ * The dashboard's form (Store › Delivery & offers › Electronics):
+ * `accessoriesCategory` (a category's ID, or empty), `tradeInModels` (the
+ * devices' lines) and `grade_<grade>` (each grade's share), `part_<part>`
+ * (a category for each part of Build your PC, or empty) and
+ * `optional_<part>` (on: the customer may skip it). The categories are the
+ * shop's (`categoryIds`).
+ */
+export function parseTechForm(v: Record<string, string>, categoryIds: readonly number[]): { ok: true; value: TechSettings | null } | { ok: false; errors: Record<string, string> } {
+  const errors: Record<string, string> = {};
+  const category = (field: string): number | null => {
+    const raw = (v[field] ?? "").trim();
+    if (!raw) return null;
+    const n = Number(raw);
+    if (!Number.isSafeInteger(n) || !categoryIds.includes(n)) {
+      errors[field] = TECH_FORM_ERRORS.category;
+      return null;
+    }
+    return n;
+  };
+  const accessoriesCategoryId = category("accessoriesCategory");
+  let tradeIn: TradeInSettings | null = null;
+  const models = parseTradeInText(v.tradeInModels ?? "");
+  if (!models.ok) errors.tradeInModels = models.error;
+  const grades = parseGrades(Object.fromEntries(TRADE_IN_GRADES.map((g) => [g, v[`grade_${g}`]])) as Partial<Record<TradeInGrade, string>>);
+  if (!grades.ok) errors.grade_like_new = grades.error;
+  if (models.ok && grades.ok && models.models.length) tradeIn = { models: models.models, grades: grades.grades };
+  const steps: PcBuilderSettings["steps"] = [];
+  for (const part of PC_PARTS) {
+    const id = category(`part_${part}`);
+    if (id !== null) steps.push({ part, categoryId: id, required: v[`optional_${part}`] !== "on" });
+  }
+  if (steps.length === 1) errors[`part_${steps[0]!.part}`] = TECH_FORM_ERRORS.parts;
+  if (Object.keys(errors).length) return { ok: false, errors };
+  const pcBuilder = steps.length >= 2 ? { steps } : null;
+  return { ok: true, value: accessoriesCategoryId || tradeIn || pcBuilder ? { accessoriesCategoryId, tradeIn, pcBuilder } : null };
+}
+
+/** The form's values as saved. */
+export function techFormValues(settings: TechSettings | null): Record<string, string> {
+  const out: Record<string, string> = {
+    accessoriesCategory: settings?.accessoriesCategoryId ? String(settings.accessoriesCategoryId) : "",
+    tradeInModels: tradeInText(settings?.tradeIn ?? null),
+  };
+  for (const g of TRADE_IN_GRADES) out[`grade_${g}`] = String(settings?.tradeIn?.grades[g] ?? DEFAULT_GRADES[g]);
+  for (const s of settings?.pcBuilder?.steps ?? []) {
+    out[`part_${s.part}`] = String(s.categoryId);
+    if (!s.required) out[`optional_${s.part}`] = "on";
+  }
+  return out;
 }

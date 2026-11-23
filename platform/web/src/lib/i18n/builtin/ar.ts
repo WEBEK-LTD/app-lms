@@ -692,6 +692,12 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "Please sign in to order.": "يُرجى تسجيل الدخول لتتمكن من الطلب.",
   "Please try again.": "يُرجى المحاولة مرة أخرى.",
   "Please wait a moment before trying again.": "يُرجى الانتظار قليلًا قبل المحاولة مرة أخرى.",
+  // 211 Trade-in requests
+  "This shop doesn't take trade-ins.": "هذا المتجر لا يستبدل الأجهزة.",
+  "Choose one of the devices.": "اختر أحد الأجهزة.",
+  "Choose one of the storages.": "اختر إحدى السعات.",
+  "Keep it under 80 characters.": "اجعله أقل من 80 حرفًا.",
+  "Keep it under 500 characters.": "اجعله أقل من 500 حرف.",
   // 99.4 Form answers
   "The answers couldn't be sent. Please try again.": "يتعذّر إرسال الإجابات. يُرجى المحاولة مرة أخرى.",
   "Fill this in.": "يُرجى تعبئة هذا الحقل.",

@@ -278,6 +278,8 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   payment_refunds: "orders",
   travel_bookings: "orders",
   listing_inquiries: "orders",
+  // 211 Trade-in requests from a store's app.
+  trade_in_requests: "orders",
 
   // Messages.
   hosted_notifications: "messages",

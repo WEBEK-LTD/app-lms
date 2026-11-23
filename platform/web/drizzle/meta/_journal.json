@@ -1030,6 +1030,13 @@
       "when": 1795423507441,
       "tag": "0148_shop_types",
       "breakpoints": true
+    },
+    {
+      "idx": 151,
+      "version": "5",
+      "when": 1795425858180,
+      "tag": "0151_tech_shops",
+      "breakpoints": true
     }
   ]
 }

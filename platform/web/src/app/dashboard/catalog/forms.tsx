@@ -36,6 +36,8 @@ export interface ProductFormValues {
   sku: string;
   /** 131 Its weight in kg, as typed; missing: none. */
   weight?: string;
+  /** 211 Its specifications, one per line ("Storage: 256 GB"); missing: none. */
+  specs?: string;
   /** 131 Sold only as a gift add-on, and what it's offered with. */
   addon?: boolean;
   addonOfferWith?: "all" | "categories" | "products";
