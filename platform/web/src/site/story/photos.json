@@ -519,5 +519,85 @@
         "title": "White Sand"
       }
     }
+  ],
+  "computers": [
+    {
+      "slot": "computers-hero",
+      "src": "/stories/computers/computers-hero.jpg",
+      "width": 960,
+      "height": 540,
+      "credit": {
+        "creator": "Redd Angelo",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/computer-keyboard-V89HFPEFN3",
+        "title": "Computer Keyboard"
+      }
+    },
+    {
+      "slot": "computers-parts",
+      "src": "/stories/computers/computers-parts.jpg",
+      "width": 960,
+      "height": 641,
+      "credit": {
+        "creator": "Lenharth Systems",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/technology-motherboard-PUWNNLCU1C",
+        "title": "Technology Motherboard"
+      }
+    },
+    {
+      "slot": "computers-socket",
+      "src": "/stories/computers/computers-socket.jpg",
+      "width": 960,
+      "height": 641,
+      "credit": {
+        "creator": "Lenharth Systems",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/technology-motherboard-P5KFLBAYR2",
+        "title": "Technology Motherboard"
+      }
+    },
+    {
+      "slot": "computers-laptop",
+      "src": "/stories/computers/computers-laptop.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Burst",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/macbook-computer-JPZDGEMDH3",
+        "title": "Macbook Computer"
+      }
+    },
+    {
+      "slot": "computers-play",
+      "src": "/stories/computers/computers-play.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Maciej Korsan",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/sony-playstation-RCTXTLCXH6",
+        "title": "Sony Playstation"
+      }
+    },
+    {
+      "slot": "computers-desk",
+      "src": "/stories/computers/computers-desk.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Anita Peeples",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/guy-man-DO1KKRFQMB",
+        "title": "Guy Man"
+      }
+    }
   ]
 }

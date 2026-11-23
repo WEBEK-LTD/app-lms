@@ -95,11 +95,73 @@ export const CLOTHES_PHOTOS: ShopPhotoSet<ClothesPhotoName> = { dir: "clothes-ph
 /** A clothes photo as a demo's picture (`cl-<name>`). */
 export type ClothesPhoto = `cl-${ClothesPhotoName}`;
 
+/** 211 Nawah's photos (the computers and gaming shop), resized to 900 wide (the two wide banners 1200 wide). */
+export const COMPUTERS_PHOTO_NAMES = [
+  "arcade",
+  "chair-mesh",
+  "cooler",
+  "desk-city",
+  "desk-coder",
+  "desk-mouse",
+  "desk-terrarium",
+  "heatsink-purple",
+  "hero-glow",
+  "hp-dark",
+  "hp-side",
+  "hp-white",
+  "kb-backlit",
+  "kb-black",
+  "kb-keys",
+  "kb-macro",
+  "kb-rgb",
+  "lap-blue",
+  "lap-bw",
+  "lap-chart",
+  "lap-code",
+  "lap-desk-dark",
+  "lap-edge",
+  "lap-glass",
+  "lap-glow",
+  "lap-hands",
+  "lap-night",
+  "lap-plant",
+  "lap-top",
+  "lap-wood",
+  "mb-board",
+  "mb-cpu",
+  "mic-dark",
+  "mic-studio",
+  "monitor-studio",
+  "pad-blue",
+  "pad-buttons",
+  "pad-duo",
+  "pad-hands",
+  "pad-white",
+  "ram-dark",
+  "ram-macro",
+  "ram-slots",
+  "ram-studio",
+  "server",
+  "setup-purple",
+  "socket-blue",
+  "socket-gold",
+  "socket-silver",
+  "ssd-kit",
+  "usb-kit",
+  "usb-ports",
+  "zone-pad",
+] as const;
+export type ComputersPhotoName = (typeof COMPUTERS_PHOTO_NAMES)[number];
+export const COMPUTERS_PHOTOS: ShopPhotoSet<ComputersPhotoName> = { dir: "computers-photos", prefix: "pc-", names: COMPUTERS_PHOTO_NAMES };
+
+/** A computers photo as a demo's picture (`pc-<name>`). */
+export type ComputersPhoto = `pc-${ComputersPhotoName}`;
+
 /** Every set, for the pictures' lookup. */
-const SHOP_PHOTO_SETS: readonly ShopPhotoSet<string>[] = [CLOTHES_PHOTOS];
+const SHOP_PHOTO_SETS: readonly ShopPhotoSet<string>[] = [CLOTHES_PHOTOS, COMPUTERS_PHOTOS];
 
 /** A shop type's photo as a demo's picture: `cl-rust-1`. */
-export type ShopPhoto = ClothesPhoto;
+export type ShopPhoto = ClothesPhoto | ComputersPhoto;
 
 function setOf(name: string): { set: ShopPhotoSet<string>; file: string } | null {
   for (const set of SHOP_PHOTO_SETS) {

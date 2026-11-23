@@ -374,6 +374,35 @@ export const STORIES: Record<StoryId, StoryShape> = {
     bundle: ["smartphone", "dashboard_customize", "web"],
     finale: { photo: "clothes-walk", screen: "lujain-home" },
   },
+  // 211 Nawah, computers and gaming: a gaming PC built part by part in Jeddah, in its look A (NAWAH) by day and by night; look B (SILICA) in its section.
+  computers: {
+    id: "computers",
+    icon: "computer",
+    // NAWAH's blue, lighter on its graphite night.
+    accent: "#9DB4FF",
+    demos: ["computers"],
+    solutions: [],
+    hero: { photo: "computers-hero", screens: ["nawah-home", "nawah-product"] },
+    chapters: [
+      { screen: "nawah-home", icon: "home" },
+      { photo: "computers-socket", screen: "nawah-home", icon: "computer" },
+      { photo: "computers-parts", screen: "nawah-home", icon: "construction" },
+      { screen: "nawah-menu", icon: "tune" },
+      { photo: "computers-laptop", screen: "nawah-product", icon: "compare" },
+      { screen: "computers-sig-a-home-dark", icon: "package_2" },
+    ],
+    interlude: { photo: "computers-play" },
+    stats: [{ value: 8 }, { value: 4 }, { value: 14 }, { value: 3 }],
+    systems: [
+      { icon: "construction", screens: ["nawah-home"], features: ["computer", "category", "bolt", "check", "block", "add_shopping_cart"] },
+      { icon: "tune", screens: ["nawah-menu"], features: ["computer", "keyboard", "devices", "tune", "search", "dashboard_customize"] },
+      { icon: "compare", screens: ["nawah-product"], features: ["table_chart", "compare", "tune", "verified_user", "schedule"] },
+      { icon: "palette", screens: ["computers-sig-b-home", "computers-sig-b-home-dark"], features: ["computer", "format_list_numbered", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "computers-desk", screen: "nawah-home" },
+  },
 };
 
 /** Every photo slot of a story, each once. */

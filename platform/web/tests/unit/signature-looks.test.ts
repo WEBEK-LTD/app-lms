@@ -67,8 +67,8 @@ const texts = (page: StudioPage) => allNodes(page).flatMap((n) => [n.text, n.tit
 
 describe("130 the Signature looks: one registry, twenty looks", () => {
   it("has looks A and B for each of the ten Studio demos (131.20 Leqaa's too), one template of its kind each, named in Studio's three languages", () => {
-    // 208 Lujain's two looks too.
-    expect(LOOKS).toHaveLength(22);
+    // 208 Lujain's two looks too; 211 and Nawah's.
+    expect(LOOKS).toHaveLength(24);
     for (const demo of STUDIO_DEMO_TYPES) expect(signatureLooksOf(demo), demo).toEqual(["a", "b"]);
     expect(signatureDesigns().map((d) => `${d.demo}_signature_${d.variant}`).sort()).toEqual(LOOKS.map(([demo, look]) => `${demo}_signature_${look}`).sort());
     for (const [demo, look] of LOOKS) {
@@ -86,7 +86,7 @@ describe("130 the Signature looks: one registry, twenty looks", () => {
       const designs = designsFor({ type: kind.engine, vertical: kind.vertical });
       expect(designs.filter((d) => !d.demo).flatMap((d) => d.templates)).not.toContain(id);
       // (The premium academy and 131.20 Leqaa are no kind's own demo: their looks are an academy's and a store's first templates instead.)
-      const kindsOwn = demo !== "premium_academy" && demo !== "flowers" && demo !== "clothes";
+      const kindsOwn = demo !== "premium_academy" && demo !== "flowers" && demo !== "clothes" && demo !== "computers";
       if (kindsOwn) expect(designs.slice(0, 2).map((d) => d.templates)).toEqual([[`demo_${demo}`], [`${demo}_signature_b`]]);
       expect(designs.slice(kindsOwn ? 2 : 0).map((d) => d.id)).toEqual(["yallapp-warm", "yallapp-fresh", "yallapp-evening", "yallapp-ocean", "yallapp-classic", "yallapp-rose", "yallapp-mono"]);
     }

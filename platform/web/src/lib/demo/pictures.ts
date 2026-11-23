@@ -770,6 +770,17 @@ export const PICTURES = {
       r(30, 68, 40, 4, 2, "#F3F0EA", 0.55),
     ],
   },
+  // 211 Nawah, computers and gaming: a white processor on blue, its pins on every side, its core lit.
+  "icon-computers": {
+    from: "#3D66F0",
+    to: "#1C3BB8",
+    shapes: [
+      ...[34, 44, 54, 64].flatMap((x) => [r(x - 2, 18, 4, 10, 2, WHITE, 0.85), r(x - 2, 72, 4, 10, 2, WHITE, 0.85), r(18, x - 2, 10, 4, 2, WHITE, 0.85), r(72, x - 2, 10, 4, 2, WHITE, 0.85)]),
+      r(26, 26, 48, 48, 10, WHITE),
+      r(37, 37, 26, 26, 6, "#2F5BEA"),
+      c(50, 50, 5, "#AFC2FF"),
+    ],
+  },
   "icon-bookings": {
     from: "#3A8072",
     to: "#235449",

@@ -1,0 +1,57 @@
+# Photo credits
+
+211 Nawah's (the computers and gaming shop demo's) photos, for its looks A (NAWAH) and B (SILICA). All come from StockSnap (found through Openverse, `source=stocksnap`) and are dedicated to the public domain (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/); each file's StockSnap page has the terms. They were resized to 900 wide (the two wide banners to 1200 wide). The shop, its brands (VANTA, ORBIT, KESTREL, LUMEN, ECHO, NAWAH), its products and its prices they illustrate in the demo are fictional.
+
+- **arcade.jpg**: "Fun Games" by George Becker, CC0 1.0. https://stocksnap.io/photo/fun-games-NRI5VQ95W0
+- **chair-mesh.jpg**: "Man Smiling" by Bruce Mars, CC0 1.0. https://stocksnap.io/photo/man-smiling-M56YIGPICM
+- **cooler.jpg**: "Metal Abstract" by Lenharth Systems, CC0 1.0. https://stocksnap.io/photo/metal-abstract-HDPYTL8BJ3
+- **desk-city.jpg**: "Home Office" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/home-office-TTSZNHYKJD
+- **desk-coder.jpg**: "Guy Man" by Anita Peeples, CC0 1.0. https://stocksnap.io/photo/guy-man-DO1KKRFQMB
+- **desk-mouse.jpg**: "Monitor Mouse" by Taduuda, CC0 1.0. https://stocksnap.io/photo/monitor-mouse-RALDM02X8S
+- **desk-terrarium.jpg**: "Computer Keyboard" by Nielsen Ramon, CC0 1.0. https://stocksnap.io/photo/computer-keyboard-9MHDC2YZ9V
+- **heatsink-purple.jpg**: "Heatsink Motherboard" by Lenharth Systems, CC0 1.0. https://stocksnap.io/photo/heatsink-motherboard-PDISKMUAID
+- **hero-glow.jpg**: "Laptop Keyboard" by One Idea LLC, CC0 1.0. https://stocksnap.io/photo/laptop-keyboard-QGU10TMNPE Extended to a wide banner from lap-glow.jpg.
+- **hp-dark.jpg**: "Headphones Audio" by Corey Blaz, CC0 1.0. https://stocksnap.io/photo/headphones-audio-1Y69ONYCCZ
+- **hp-side.jpg**: "Headphones Headset" by Matthew Henry, CC0 1.0. https://stocksnap.io/photo/headphones-headset-674UH7HXHE
+- **hp-white.jpg**: "Wireless Headphones" by Burst, CC0 1.0. https://stocksnap.io/photo/wireless-headphones-EXCBJA3FFQ
+- **kb-backlit.jpg**: "Laptop Computer" by Kamil Kisiela, CC0 1.0. https://stocksnap.io/photo/laptop-computer-7NX0N5EDZ6
+- **kb-black.jpg**: "Keyboard Keys" by FOCA Stock, CC0 1.0. https://stocksnap.io/photo/keyboard-keys-9EJ2TLEMN1
+- **kb-keys.jpg**: "Macbook Keyboard" by Jeffrey Betts, CC0 1.0. https://stocksnap.io/photo/macbook-keyboard-KUVMY78S2R
+- **kb-macro.jpg**: "Keyboard Computer" by Jaroslaw%20Puszczy%u0144ski, CC0 1.0. https://stocksnap.io/photo/keyboard-computer-FFPJ3S8U5Y
+- **kb-rgb.jpg**: "Illuminated Keyboard" by Tom Swinnen, CC0 1.0. https://stocksnap.io/photo/illuminated-keyboard-VDOVPJ7HFK
+- **lap-blue.jpg**: "Macbook Laptop" by Negative Space, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-UNB7V2H5L4
+- **lap-bw.jpg**: "Macbook Laptop" by Negative Space, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-LZABBOPC51
+- **lap-chart.jpg**: "Macbook Laptop" by Marc Chouinard, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-DUAHA1V312
+- **lap-code.jpg**: "Macbook Laptop" by Negative Space, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-7ULJ7GRFDB
+- **lap-desk-dark.jpg**: "Macbook Computer" by Burst, CC0 1.0. https://stocksnap.io/photo/macbook-computer-JPZDGEMDH3
+- **lap-edge.jpg**: "Macbook Laptop" by Seth Schwiet, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-VPWK8EH9MZ
+- **lap-glass.jpg**: "Office Work" by Nao Triponez, CC0 1.0. https://stocksnap.io/photo/office-work-6IYCTEOYV8
+- **lap-glow.jpg**: "Laptop Keyboard" by One Idea LLC, CC0 1.0. https://stocksnap.io/photo/laptop-keyboard-QGU10TMNPE
+- **lap-hands.jpg**: "Office Work" by Fabian Irsara, CC0 1.0. https://stocksnap.io/photo/office-work-X4AAF4SU9Q
+- **lap-night.jpg**: "Desk Macbook" by Shotstash.com, CC0 1.0. https://stocksnap.io/photo/desk-macbook-UHR5UXPD7M
+- **lap-plant.jpg**: "Macbook Laptop" by Leeroy, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-UDIGU0A2SN
+- **lap-top.jpg**: "Macbook Laptop" by Lauren Mancke, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-F7OLW2SG0C
+- **lap-wood.jpg**: "Macbook Laptop" by Startup Stock Photos, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-XX6Z6PRZRM
+- **mb-board.jpg**: "Computer Connection" by Lenharth Systems, CC0 1.0. https://stocksnap.io/photo/computer-connection-LVVCYUPIC2
+- **mb-cpu.jpg**: "Technology Motherboard" by Lenharth Systems, CC0 1.0. https://stocksnap.io/photo/technology-motherboard-PUWNNLCU1C
+- **mic-dark.jpg**: "Microphone Music" by Erkan Utu, CC0 1.0. https://stocksnap.io/photo/microphone-music-VIGKZY2P20
+- **mic-studio.jpg**: "Mic Microphone" by AJ Montpetit, CC0 1.0. https://stocksnap.io/photo/mic-microphone-ZHNV9TMT7A
+- **monitor-studio.jpg**: "Apple Computer" by Tuur Tisseghem, CC0 1.0. https://stocksnap.io/photo/apple-computer-H60555LQD5 A small manufacturer mark was retouched out.
+- **pad-blue.jpg**: "Controller Videogames" by Pawel Kadysz, CC0 1.0. https://stocksnap.io/photo/controller-videogames-OZ4IBMDS8E
+- **pad-buttons.jpg**: "Game Controller" by 50Fish, CC0 1.0. https://stocksnap.io/photo/game-controller-B3FJDNOAMI
+- **pad-duo.jpg**: "Video Games" by JESHOOTS.com, CC0 1.0. https://stocksnap.io/photo/video-games-YU7ENGR6EK
+- **pad-hands.jpg**: "Sony Playstation" by Maciej Korsan, CC0 1.0. https://stocksnap.io/photo/sony-playstation-RCTXTLCXH6
+- **pad-white.jpg**: "People Woman" by Matthew Henry, CC0 1.0. https://stocksnap.io/photo/people-woman-3SB40Y1R8T
+- **ram-dark.jpg**: "Computer Ram" by Tim Sullivan, CC0 1.0. https://stocksnap.io/photo/computer-ram-9SGYANZ5IA
+- **ram-macro.jpg**: "Computer Chip" by Lenharth Systems, CC0 1.0. https://stocksnap.io/photo/computer-chip-IOZ1RNUBRY
+- **ram-slots.jpg**: "Macro Computer" by One Idea LLC, CC0 1.0. https://stocksnap.io/photo/macro-computer-O7NIMDXKMF
+- **ram-studio.jpg**: "Computer Ram" by Tim Sullivan, CC0 1.0. https://stocksnap.io/photo/computer-ram-CK6OQK6JVN
+- **server.jpg**: "Technology Components" by Thomas Kvistholt, CC0 1.0. https://stocksnap.io/photo/technology-components-Z7L87CLJVN
+- **setup-purple.jpg**: "Computer Keyboard" by Redd Angelo, CC0 1.0. https://stocksnap.io/photo/computer-keyboard-V89HFPEFN3 A small manufacturer mark was retouched out.
+- **socket-blue.jpg**: "Technology Motherboard" by Lenharth Systems, CC0 1.0. https://stocksnap.io/photo/technology-motherboard-OHPHM6IETL
+- **socket-gold.jpg**: "Technology Motherboard" by Lenharth Systems, CC0 1.0. https://stocksnap.io/photo/technology-motherboard-P5KFLBAYR2
+- **socket-silver.jpg**: "Technology Motherboard" by Lenharth Systems, CC0 1.0. https://stocksnap.io/photo/technology-motherboard-S1CE3IDD7Z
+- **ssd-kit.jpg**: "Technology Gadgets" by WDnet Studio, CC0 1.0. https://stocksnap.io/photo/technology-gadgets-G6WMPTMFDI
+- **usb-kit.jpg**: "Technology Gadgets" by WDnet Studio, CC0 1.0. https://stocksnap.io/photo/technology-gadgets-6DE23FZS8W
+- **usb-ports.jpg**: "Usb Connection" by Lenharth Systems, CC0 1.0. https://stocksnap.io/photo/usb-connection-STCUSDAI2D
+- **zone-pad.jpg**: "Controller Videogames" by Pawel Kadysz, CC0 1.0. https://stocksnap.io/photo/controller-videogames-OZ4IBMDS8E Extended to a wide banner from pad-blue.jpg.

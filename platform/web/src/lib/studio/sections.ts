@@ -18,6 +18,8 @@ import { LEQAA_SECTIONS } from "./demo-designs/leqaa-signature";
 // 208 Lujain's sections, and the installments tag.
 import { CLOTHES_SECTIONS } from "./demo-designs/clothes-signature";
 import { INSTALLMENTS_SECTION } from "./installments";
+// 211 Nawah's sections (Build your PC, the spec filters, ready builds, the device of the week).
+import { COMPUTERS_SECTIONS } from "./demo-designs/computers-signature";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -316,7 +318,9 @@ export type SectionWord =
   | Extract<AppWord, `lq${string}`>
   // 208 Lujain's looks, pages and sections (lib/studio/demo-designs/clothes-signature.ts), and the installments tag.
   | Extract<AppWord, `cl${string}`>
-  | "installmentsSoon";
+  | "installmentsSoon"
+  // 211 Nawah's looks, pages and sections (lib/studio/demo-designs/computers-signature.ts).
+  | Extract<AppWord, `pc${string}`>;
 
 export interface SectionContext {
   brand: string;
@@ -1108,6 +1112,8 @@ export const SECTIONS: readonly SectionInfo[] = [
   // 208 The clothes type's parts (the category menu, the peeking hero, the deal, shop the look, the size card and chart) and the installments tag.
   ...CLOTHES_SECTIONS,
   INSTALLMENTS_SECTION,
+  // 211 The computers type's parts: Build your PC, the spec filters, ready builds compared, the device of the week, the services.
+  ...COMPUTERS_SECTIONS,
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,
 ];

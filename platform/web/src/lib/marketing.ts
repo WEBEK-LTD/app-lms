@@ -169,6 +169,13 @@ export const APP_SCREENS = [
   "clothes-sig-b-home",
   "clothes-sig-a-home-dark",
   "clothes-sig-b-home-dark",
+  // 211 Nawah, computers and gaming: its guide's screens (look A) and its looks' homes.
+  "nawah-home",
+  "nawah-menu",
+  "nawah-product",
+  "computers-sig-b-home",
+  "computers-sig-a-home-dark",
+  "computers-sig-b-home-dark",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -311,6 +318,12 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "clothes-sig-b-home": "Lujain in its second look, NOUN's streetwear: the drop's hero, new this week, shop the look and the categories",
   "clothes-sig-a-home-dark": "Lujain in its first look, the boutique, by night: the search, the categories, the season's collections and what's new",
   "clothes-sig-b-home-dark": "Lujain in its second look, NOUN's streetwear, by night: the drop's hero, new this week, shop the look and the categories",
+  "nawah-home": "Nawah, a computers and gaming shop, in its first look: the search, the categories, the hero with the next card peeking, Build your PC part by part and the hour deals",
+  "nawah-menu": "Nawah's category menu: quick ways in, every category a row of cards that slides with its sub-categories, the account and the language at the foot",
+  "nawah-product": "A laptop in Nawah: its photos, its memory and storage to configure, its specifications as a table and Compare",
+  "computers-sig-b-home": "Nawah in its second look, SILICA: numbered sections, let us suggest your device, the device of the week with its specs and ready builds side by side",
+  "computers-sig-a-home-dark": "Nawah in its first look, NAWAH, by night: the search, the categories, the hero, Build your PC and the hour deals",
+  "computers-sig-b-home-dark": "Nawah in its second look, SILICA, by night: numbered sections, let us suggest your device and the device of the week with its specs",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",
