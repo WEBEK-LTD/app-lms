@@ -76,3 +76,15 @@ export function derivedCountryCode(app: Pick<App, "catalogSettings">, ownerCount
   if (owner) return { code: owner, source: "owner" };
   return { code: PLATFORM_COUNTRY_CODE, source: "platform" };
 }
+
+/**
+ * 206.2 The country code a phone number typed without one belongs to: the
+ * one the app's sign-in shows first (`appCountryCode`), so a courier,
+ * teacher, driver, student or buyer typed as "0612 345 678" in a Moroccan
+ * shop is +212, as they sign in, not the platform's +90. Where the owner's
+ * country isn't known (the app's own connectors), the shop's country, then
+ * the platform's.
+ */
+export function appPhoneCode(app: Pick<App, "hostedSettings" | "catalogSettings">, ownerCountry?: string | null): string {
+  return appCountryCode(app, ownerCountry).code;
+}
