@@ -4,9 +4,8 @@ import type { LanguageCode, LayoutTab, StudioPage, TabBarStyle } from "../pages/
 import type { StudioLook } from "@/components/studio/view";
 import { kindById } from "../app/kinds";
 import { designerInitials, designerTint } from "./designers";
-import { pageOpen, publicProfile, ratingStats, type RatingStats } from "./designer-page";
-import { assetUrl } from "../assets";
-import { safePhotoUrl } from "./photo-url";
+import { pageOpen, ratingStats, type RatingStats } from "./designer-page";
+import { designerPhotoUrl } from "./house-photo";
 import { getsUpdates, mayMove, nextMoveAt } from "./apply";
 import { templateText } from "./templates";
 import { offeredPlans, type PriceTag } from "./plans";
@@ -32,7 +31,7 @@ export interface DesignerChip {
   bg: string;
   fg: string;
   country: string;
-  /** 106.14 Their photo once the team approved it, else null (their initials show). */
+  /** 106.14 Their photo once the team approved it, else null (their initials show); 218 Yallapp's own, its logo when none was uploaded. */
   photoUrl: string | null;
   /** 106.14 Their public page /designers/<slug> is open (not locked by the team). */
   page: boolean;
@@ -40,8 +39,7 @@ export interface DesignerChip {
 
 export function designerChip(d: TemplateDesigner): DesignerChip {
   const tint = designerTint(d.slug);
-  const photo = publicProfile(d).photoAssetId;
-  return { id: d.id, name: d.name, slug: d.slug, initials: designerInitials(d.name), bg: tint.bg, fg: tint.fg, country: d.country, photoUrl: photo ? safePhotoUrl(assetUrl(photo)) : null, page: pageOpen(d) };
+  return { id: d.id, name: d.name, slug: d.slug, initials: designerInitials(d.name), bg: tint.bg, fg: tint.fg, country: d.country, photoUrl: designerPhotoUrl(d), page: pageOpen(d) };
 }
 
 export interface CoverView {
