@@ -526,7 +526,9 @@ void main() {
       expect(find.text('Ahmed'), findsOneWidget);
       expect(find.text('Delivery'), findsOneWidget);
       expect(
-        find.text('2 × Chicken shawarma • 2 × Fresh lemonade'),
+        find.text(
+          '\u20682 × Chicken shawarma\u2069 • \u20682 × Fresh lemonade\u2069',
+        ),
         findsOneWidget,
       );
       expect(find.byKey(const ValueKey('new-order-more')), findsNothing);
@@ -604,6 +606,13 @@ void main() {
         delta: 150,
       );
       expect(find.text('طلب جديد'), findsOneWidget);
+      // Each item isolated: its quantity stays beside its Latin name.
+      expect(
+        find.text(
+          '\u20682 × Chicken shawarma\u2069 • \u20682 × Fresh lemonade\u2069',
+        ),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     });
 
