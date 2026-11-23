@@ -117,10 +117,10 @@ function skills(ctx: SectionContext): StudioNode {
     gap: 10,
     padding: sides(0, 20, 0, 20),
     children: [
-      tile("tyMoCatMotor", "tyMoMotor", "tyMoMotorLine", "back_hand", true),
-      tile("tyMoCatStem", "tyMoStem", "tyMoStemLine", "science", false),
-      tile("tyMoCatLanguage", "tyMoLanguage", "tyMoLanguageLine", "translate", false),
-      tile("tyMoCatCreative", "tyMoCreative", "tyMoCreativeLine", "brush", false),
+      tile("tyMoCatMotor", "tyMoMotor", "tyMoMotorLine", "waving_hand", true),
+      tile("tyMoCatStem", "tyMoStem", "tyMoStemLine", "explore", false),
+      tile("tyMoCatLanguage", "tyMoLanguage", "tyMoLanguageLine", "language", false),
+      tile("tyMoCatCreative", "tyMoCreative", "tyMoCreativeLine", "auto_awesome", false),
     ],
   };
 }
@@ -308,7 +308,7 @@ function woodBand(ctx: SectionContext, margin = sides(34, 20, 0, 20)): StudioNod
     background: "#B98A5E",
     dark_background: "#4A3626",
     children: [
-      { id: id(), type: "icon", icon: "forest", icon_size: 32, color: "#FFF8EE", dark_color: "#FFF8EE" },
+      { id: id(), type: "icon", icon: "yard", icon_size: 32, color: "#FFF8EE", dark_color: "#FFF8EE" },
       { id: id(), type: "column", width: "fill", gap: 4, children: [say(ctx, "tyMoWood", font(16.5, 500, { line_height: 1.35 }), { color: "#FFF8EE", dark_color: "#FFF8EE", max_lines: 2 }), say(ctx, "tyMoWoodLine", font(12, 400), { color: "#FFF1E0", dark_color: "#E9D8C4", max_lines: 2 })] },
     ],
   };
@@ -389,7 +389,7 @@ function menuRow(ctx: SectionContext, word: SectionWord, icon: string, action: A
         children: [
           { id: id(), type: "icon", icon, icon_size: 22, color: WOOD.day, dark_color: WOOD.night },
           { id: id(), type: "column", width: "fill", gap: 2, children: [say(ctx, word, font(14.5, 500), { max_lines: 1 }), ...(line ? [say(ctx, line, font(11.5), { muted: true, max_lines: 2 })] : [])] },
-          { id: id(), type: "icon", icon: "chevron_forward", icon_size: 20, color: K.muted, dark_color: K.darkMuted },
+          { id: id(), type: "icon", icon: "arrow_forward", icon_size: 20, color: K.muted, dark_color: K.darkMuted },
         ],
       },
       rule(ctx),
@@ -428,7 +428,7 @@ export function montessoriMenuPage(ctx: SectionContext): StudioPage {
             menuRow(ctx, "tyAccount", "person", screen("account")),
             menuRow(ctx, "tyOrders", "package_2", screen("orders")),
             menuRow(ctx, "tyMoWishlist", "favorite", screen("favorites")),
-            menuRow(ctx, "tyLanguage", "translate", screen("settings")),
+            menuRow(ctx, "tyLanguage", "language", screen("settings")),
             menuRow(ctx, "tyContact", "support_agent", screen("account"), "tyContactLine"),
           ],
         },
@@ -491,12 +491,12 @@ const MONTESSORI_SCREENS = signatureScreens({
 });
 
 /** The bar: names only on the oat page, the open one in ink with a line over it. */
-export const MONTESSORI_BAR = signatureBar(K, { design: "text", background: K.page, dark_background: K.darkPage, active: K.ink, dark_active: K.darkInk, inactive: K.muted, dark_inactive: K.darkMuted, labels: "always", radius: 0, margin: 0 });
+export const MONTESSORI_BAR = signatureBar(K, { design: "text", background: K.page, dark_background: K.darkPage, active: K.ink, dark_active: K.darkInk, inactive: K.muted, dark_inactive: K.darkMuted, labels: "always" });
 
 export const MONTESSORI_D: SignatureDesign = {
   demo: "toys",
   variant: "d",
-  template: { id: "toys_signature_d", icon: "forest", fits: { types: ["store"], plain: true } },
+  template: { id: "toys_signature_d", icon: "yard", fits: { types: ["store"], plain: true } },
   home: montessoriHome,
   over,
   tabs: clothesTabs,
@@ -522,7 +522,7 @@ const one = (make: (ctx: SectionContext) => StudioNode | StudioNode[]) => (ctx: 
 
 export const TOYS_D_SECTIONS: readonly SectionInfo[] = [
   // By skill: four tiles, each opening its category.
-  { id: "ty_skill_filter", icon: "back_hand", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [label(ctx, "tyMoSkillsLabel"), skills(ctx)]) },
+  { id: "ty_skill_filter", icon: "waving_hand", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [label(ctx, "tyMoSkillsLabel"), skills(ctx)]) },
   // By age: a rail of pills.
   { id: "ty_age_rail", icon: "linear_scale", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [label(ctx, "tyMoAgeLabel"), ageRail(ctx)]) },
   // How to play: photo cards with numbered steps.
@@ -530,5 +530,5 @@ export const TOYS_D_SECTIONS: readonly SectionInfo[] = [
   // The toys as quiet rows.
   { id: "ty_quiet_list", icon: "view_agenda", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [head(ctx, "tyMoForMotor", { word: "tyMoAll", action: shop }), toyList(ctx, "tyMoForMotor", "newest")]) },
   // Natural wood and paint.
-  { id: "ty_wood_band", icon: "forest", isNew: true, fits: STORE_PLAIN, make: one((ctx) => woodBand(ctx, sides(16, 20, 0, 20))) },
+  { id: "ty_wood_band", icon: "yard", isNew: true, fits: STORE_PLAIN, make: one((ctx) => woodBand(ctx, sides(16, 20, 0, 20))) },
 ];

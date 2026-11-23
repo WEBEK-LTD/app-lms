@@ -55,16 +55,16 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   // 209 Kids' clothes: Toota is its Signature look A, soft pastels (lib/studio/demo-designs/kids-signature.ts).
   kids: "kids_signature_a",
   // 209 Toys
-  // 209 Toot, the toy shop, is its Signature look A, playful and colourful (lib/studio/demo-designs/toys-signature.ts).
-  toys: "toys_signature_a",
+  // 209 Toot, the toy shop; 226 now its main look C, the adventure map (lib/studio/demo-designs/toys-c-signature.ts).
+  toys: "toys_signature_c",
   // 210 Sakan, Ghurza and Rukn are their Signature looks A (lib/studio/demo-designs/decor-, crochet-, furniture-signature.ts).
   decor: "decor_signature_a",
   crochet: "crochet_signature_a",
   furniture: "furniture_signature_a",
   // 211 Madar, the electronics shop, is its Signature look A, MADAR (lib/studio/demo-designs/electronics-signature.ts).
   electronics: "electronics_signature_a",
-  // 211 Nova, the mobiles shop, is its Signature look A, NOVA (lib/studio/demo-designs/mobiles-signature.ts).
-  mobiles: "mobiles_signature_a",
+  // 211 Nova, the mobiles shop; 226 now its main look C, the keynote (lib/studio/demo-designs/mobiles-c-signature.ts).
+  mobiles: "mobiles_signature_c",
   // 211 Nawah, computers and gaming, is its Signature look A, NAWAH (lib/studio/demo-designs/computers-signature.ts).
   computers: "computers_signature_a",
 };
@@ -487,11 +487,11 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     mbKeySw4: { en: "Blue", ar: "أزرق", tr: "Mavi" },
     mbKeySwLine: { en: "A titanium frame, IP68", ar: "إطار من التيتانيوم ومقاومة IP68", tr: "Titanyum çerçeve, IP68" },
     mbKeyWhy: { en: "A camera to carry everywhere.", ar: "كاميرا ترافقك في كل مكان.", tr: "Her yere taşınacak bir kamera." },
-    mbKeySpec1: { en: "200 MP", ar: "200 MP", tr: "200 MP" },
+    mbKeySpec1: { en: "200 MP", ar: "200 ميغابكسل", tr: "200 MP" },
     mbKeySpec1Line: { en: "The main camera, with a 5x periscope", ar: "الكاميرا الرئيسية، مع تقريب بصري 5x", tr: "Ana kamera, 5x periskopla" },
-    mbKeySpec2: { en: "6.7″", ar: "6.7″", tr: "6.7″" },
+    mbKeySpec2: { en: "6.7″", ar: "6.7 بوصة", tr: "6.7″" },
     mbKeySpec2Line: { en: "An OLED display that reaches 2,600 nits outdoors", ar: "شاشة OLED تصل إلى 2,600 شمعة في الخارج", tr: "Dışarıda 2.600 nit'e ulaşan OLED ekran" },
-    mbKeySpec3: { en: "5,000 mAh", ar: "5,000 mAh", tr: "5.000 mAh" },
+    mbKeySpec3: { en: "5,000 mAh", ar: "5,000 مللي أمبير", tr: "5.000 mAh" },
     mbKeySpec3Line: { en: "Two days of ordinary use, 65 W charging", ar: "يومان من الاستخدام العادي، وشحن 65 واط", tr: "İki gün normal kullanım, 65 W şarj" },
     mbHubCartLine: { en: "Free delivery inside the city on orders over 5,000 EGP.", ar: "توصيل مجاني داخل المدينة للطلبات فوق 5,000 ج.م.", tr: "5.000 EGP üzerindeki siparişlerde şehir içi ücretsiz teslimat." },
   },

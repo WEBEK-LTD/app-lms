@@ -303,7 +303,7 @@ function bigLink(ctx: SectionContext, word: SectionWord, action: Action, line?: 
         padding: sides(16, 0, 16, 0),
         children: [
           { id: id(), type: "column", width: "fill", gap: 2, children: [say(ctx, word, font(22, 300), { max_lines: 1 }), ...(line ? [say(ctx, line, font(12, 400), { muted: true, max_lines: 2 })] : [])] },
-          { id: id(), type: "icon", icon: "arrow_outward", icon_size: 20, color: K.muted, dark_color: K.darkMuted },
+          { id: id(), type: "icon", icon: "north_east", icon_size: 20, color: K.muted, dark_color: K.darkMuted },
         ],
       },
       { id: id(), type: "divider", height: 1, background: K.line, dark_background: K.darkLine },
@@ -439,7 +439,7 @@ export const MOBILES_C_SECTIONS: readonly SectionInfo[] = [
   // The keynote stage: one device in the spotlight, its colours, two pills and its price.
   { id: "mb_spotlight", icon: "smartphone", isNew: true, fits: STORE_PLAIN, make: one((ctx) => stage(ctx)) },
   // The specs revealed one per row.
-  { id: "mb_spec_reveal", icon: "format_size", isNew: true, fits: STORE_PLAIN, make: one((ctx) => specRows(ctx)) },
+  { id: "mb_spec_reveal", icon: "straighten", isNew: true, fits: STORE_PLAIN, make: one((ctx) => specRows(ctx)) },
   // The trade-in on a dark card.
   { id: "mb_trade_dark", icon: "currency_exchange", isNew: true, fits: STORE_PLAIN, make: one((ctx) => trade(ctx)) },
   // The line-up as tall centred cards.

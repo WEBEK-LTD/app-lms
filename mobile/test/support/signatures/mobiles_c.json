@@ -724,7 +724,7 @@
          {
           "id": "sig-21",
           "type": "column",
-          "name": "[200 MP]",
+          "name": "[First figure]",
           "gap": 0,
           "motion": {
            "enter": "slide_up",
@@ -767,7 +767,7 @@
               "max_lines": 1,
               "translations": {
                "ar": {
-                "text": "200 MP"
+                "text": "200 ميغابكسل"
                },
                "tr": {
                 "text": "200 MP"
@@ -804,7 +804,7 @@
          {
           "id": "sig-26",
           "type": "column",
-          "name": "[6.8″]",
+          "name": "[Second figure]",
           "gap": 0,
           "motion": {
            "enter": "slide_up",
@@ -847,7 +847,7 @@
               "max_lines": 1,
               "translations": {
                "ar": {
-                "text": "6.7″"
+                "text": "6.7 بوصة"
                },
                "tr": {
                 "text": "6.7″"
@@ -884,7 +884,7 @@
          {
           "id": "sig-31",
           "type": "column",
-          "name": "[5,000 mAh]",
+          "name": "[Third figure]",
           "gap": 0,
           "motion": {
            "enter": "slide_up",
@@ -927,7 +927,7 @@
               "max_lines": 1,
               "translations": {
                "ar": {
-                "text": "5,000 mAh"
+                "text": "5,000 مللي أمبير"
                },
                "tr": {
                 "text": "5.000 mAh"
@@ -2054,7 +2054,7 @@
              {
               "id": "sig-64",
               "type": "icon",
-              "icon": "arrow_outward",
+              "icon": "north_east",
               "icon_size": 20,
               "color": "#6E6E73",
               "dark_color": "#9A9AA0"
@@ -2125,7 +2125,7 @@
              {
               "id": "sig-70",
               "type": "icon",
-              "icon": "arrow_outward",
+              "icon": "north_east",
               "icon_size": 20,
               "color": "#6E6E73",
               "dark_color": "#9A9AA0"
@@ -2196,7 +2196,7 @@
              {
               "id": "sig-76",
               "type": "icon",
-              "icon": "arrow_outward",
+              "icon": "north_east",
               "icon_size": 20,
               "color": "#6E6E73",
               "dark_color": "#9A9AA0"
@@ -2267,7 +2267,7 @@
              {
               "id": "sig-82",
               "type": "icon",
-              "icon": "arrow_outward",
+              "icon": "north_east",
               "icon_size": 20,
               "color": "#6E6E73",
               "dark_color": "#9A9AA0"
@@ -2360,7 +2360,7 @@
              {
               "id": "sig-89",
               "type": "icon",
-              "icon": "arrow_outward",
+              "icon": "north_east",
               "icon_size": 20,
               "color": "#6E6E73",
               "dark_color": "#9A9AA0"

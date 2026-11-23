@@ -199,10 +199,10 @@ function mapCard(ctx: SectionContext): StudioNode {
           width: "fill",
           height: 268,
           children: [
-            mark(ctx, "waves", 22, { x: 40, y: 2 }),
-            mark(ctx, "waves", 20, { x: 8, y: 44 }),
-            mark(ctx, "waves", 20, { x: 74, y: 46 }),
-            mark(ctx, "sailing", 30, { x: 44, y: 82 }, 0.9),
+            mark(ctx, "auto_awesome", 22, { x: 40, y: 2 }),
+            mark(ctx, "auto_awesome", 20, { x: 8, y: 44 }),
+            mark(ctx, "auto_awesome", 20, { x: 74, y: 46 }),
+            mark(ctx, "explore", 30, { x: 44, y: 82 }, 0.9),
             island(ctx, "tyMapCatWooden", "block-tower", SANDS[0], { x: 1, y: 0 }),
             island(ctx, "tyMapCatBuilding", "bricks-pile", SANDS[1], { x: 64, y: 3 }),
             island(ctx, "tyMapCatScience", "telescope-globe", SANDS[2], { x: 33, y: 31 }),
@@ -263,10 +263,10 @@ function stickers(ctx: SectionContext): StudioNode[] {
       scroll: true,
       padding: sides(0, 16, 4, 16),
       children: [
-        sticker("tyMapCatScience", "tyMapStk1", "rocket_launch", YELLOW, true),
+        sticker("tyMapCatScience", "tyMapStk1", "travel_explore", YELLOW, true),
         sticker("tyMapCatBuilding", "tyMapStk2", "construction", GREEN),
-        sticker("tyMapCatArts", "tyMapStk3", "palette", RED),
-        sticker("tyMapCatOutdoor", "tyMapStk4", "sports_soccer", BLUE),
+        sticker("tyMapCatArts", "tyMapStk3", "star", RED),
+        sticker("tyMapCatOutdoor", "tyMapStk4", "emoji_events", BLUE),
         sticker("tyMapCatPlush", "tyMapStk5", "favorite", GRAPE),
       ],
     },
@@ -292,7 +292,7 @@ function chest(ctx: SectionContext): StudioNode {
           gap: 10,
           cross: "center",
           children: [
-            { id: id(), type: "icon", icon: "featured_seasonal_and_gifts", icon_size: 34, ...onBright },
+            { id: id(), type: "icon", icon: "redeem", icon_size: 34, ...onBright },
             { id: id(), type: "column", width: "fill", gap: 2, children: [say(ctx, "tyMapChest", display(21), { ...onBright, max_lines: 1 }), say(ctx, "tyMapChestLine", text(12.5, 500), { ...onBright, max_lines: 1 })] },
           ],
         },
@@ -561,7 +561,7 @@ export function mapMenuPage(ctx: SectionContext): StudioPage {
           columns: 4,
           gap: 8,
           padding: sides(18, 16, 0, 16),
-          children: [menuTile(ctx, "tyAccount", "person", BLUE, screen("account")), menuTile(ctx, "tyOrders", "package_2", GREEN, screen("orders")), menuTile(ctx, "tyMapWishlist", "favorite", RED, screen("favorites")), menuTile(ctx, "tyLanguage", "translate", YELLOW, screen("settings"), true)],
+          children: [menuTile(ctx, "tyAccount", "person", BLUE, screen("account")), menuTile(ctx, "tyOrders", "package_2", GREEN, screen("orders")), menuTile(ctx, "tyMapWishlist", "favorite", RED, screen("favorites")), menuTile(ctx, "tyLanguage", "language", YELLOW, screen("settings"), true)],
         },
         chunky(
           ctx,
@@ -657,7 +657,7 @@ const MAP_SCREENS = signatureScreens({
 });
 
 /** The bar: white with a thick ink line over it, the bag a big red button raised in the middle. */
-export const MAP_BAR = signatureBar(K, { design: "notch", background: "#FFFFFF", dark_background: "#1B1D47", active: RED, dark_active: YELLOW, inactive: "#5C587A", dark_inactive: "#B9B6DA", labels: "always", radius: 0, margin: 0, center: "cart" });
+export const MAP_BAR = signatureBar(K, { design: "notch", background: "#FFFFFF", dark_background: "#1B1D47", active: RED, dark_active: YELLOW, inactive: "#5C587A", dark_inactive: "#B9B6DA", labels: "always", center: "cart" });
 
 export const MAP_C: SignatureDesign = {
   demo: "toys",
@@ -691,9 +691,9 @@ export const TOYS_C_SECTIONS: readonly SectionInfo[] = [
   // The adventure map: the shop's main categories as islands.
   { id: "ty_map", icon: "map", isNew: true, fits: STORE_PLAIN, make: one((ctx) => mapCard(alone(ctx))) },
   // The stickers: a chunky badge per category.
-  { id: "ty_stickers", icon: "sticky_note_2", isNew: true, fits: STORE_PLAIN, make: one((ctx) => stickers(ctx)) },
+  { id: "ty_stickers", icon: "star", isNew: true, fits: STORE_PLAIN, make: one((ctx) => stickers(ctx)) },
   // The treasure chest: the shop's code in a chunky card.
-  { id: "ty_chest", icon: "featured_seasonal_and_gifts", isNew: true, fits: STORE_PLAIN, make: one((ctx) => chest(ctx)) },
+  { id: "ty_chest", icon: "redeem", isNew: true, fits: STORE_PLAIN, make: one((ctx) => chest(ctx)) },
   // The ages as chunky blocks.
   { id: "ty_age_blocks", icon: "view_column", isNew: true, fits: STORE_PLAIN, make: one((ctx) => ages(ctx)) },
   // The gift quest.

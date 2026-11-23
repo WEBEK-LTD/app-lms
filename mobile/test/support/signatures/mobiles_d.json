@@ -566,7 +566,7 @@
            {
             "id": "sig-19",
             "type": "icon",
-            "icon": "timer",
+            "icon": "schedule",
             "icon_size": 22,
             "color": "#FFD60A",
             "dark_color": "#FFD60A",
@@ -2972,7 +2972,7 @@
            {
             "id": "sig-101",
             "type": "icon",
-            "icon": "translate",
+            "icon": "language",
             "icon_size": 24,
             "color": "#111318",
             "dark_color": "#F4F5F7"
@@ -3608,9 +3608,7 @@
    "inactive": "#5E6470",
    "dark_inactive": "#A3A8B3",
    "design": "square",
-   "labels": "always",
-   "radius": 0,
-   "margin": 0
+   "labels": "always"
   }
  }
 }

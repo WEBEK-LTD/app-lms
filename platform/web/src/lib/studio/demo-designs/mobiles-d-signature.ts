@@ -112,7 +112,7 @@ function deals(ctx: SectionContext, margin = sides(8, 12, 0, 12)): StudioNode {
         children: [
           { id: id(), type: "icon", icon: "bolt", icon_size: 26, color: ZAP, dark_color: ZAP },
           { id: id(), type: "column", width: "fill", gap: 0, children: [say(ctx, "mbHubDeals", font(18, 800), { ...white, max_lines: 1 }), say(ctx, "mbHubDealsLine", font(11.5, 400), { ...white, opacity: 0.9, max_lines: 1 })] },
-          { id: id(), type: "icon", icon: "timer", icon_size: 22, color: ZAP, dark_color: ZAP, motion: { loop: "pulse" } },
+          { id: id(), type: "icon", icon: "schedule", icon_size: 22, color: ZAP, dark_color: ZAP, motion: { loop: "pulse" } },
         ],
       },
       { id: id(), type: "flash_sale", name: ctx.w("mbDeal"), text: t.text, translations: t.translations, flash_sale: { look: "carousel", limit: 6, countdown: true, stock_bar: true, accent: HOT }, font: { family: FACE }, background: K.page, dark_background: K.darkPage, radius: 12, padding: sides(8, 8, 8, 8) },
@@ -302,7 +302,7 @@ export function hubMenuPage(ctx: SectionContext): StudioPage {
           columns: 4,
           gap: 8,
           padding: sides(16, 12, 0, 12),
-          children: [tile(ctx, "mbAccount", "person", screen("account")), tile(ctx, "mbOrders", "receipt_long", screen("orders")), tile(ctx, "mbHubWishlist", "favorite", screen("favorites")), tile(ctx, "mbLanguage", "translate", screen("settings"))],
+          children: [tile(ctx, "mbAccount", "person", screen("account")), tile(ctx, "mbOrders", "receipt_long", screen("orders")), tile(ctx, "mbHubWishlist", "favorite", screen("favorites")), tile(ctx, "mbLanguage", "language", screen("settings"))],
         },
         {
           id: id(),
@@ -399,7 +399,7 @@ const HUB_SCREENS = signatureScreens({
 });
 
 /** The bar: across the bottom on white, each tab a square, the open one filled pink. */
-export const HUB_BAR = signatureBar(K, { design: "square", background: K.page, dark_background: K.darkPage, active: HOT, dark_active: HOT, inactive: K.muted, dark_inactive: K.darkMuted, labels: "always", radius: 0, margin: 0 });
+export const HUB_BAR = signatureBar(K, { design: "square", background: K.page, dark_background: K.darkPage, active: HOT, dark_active: HOT, inactive: K.muted, dark_inactive: K.darkMuted, labels: "always" });
 
 export const HUB_D: SignatureDesign = {
   demo: "mobiles",
@@ -438,7 +438,7 @@ export const MOBILES_D_SECTIONS: readonly SectionInfo[] = [
   // Today's deals on a hot card.
   { id: "mb_deals_hot", icon: "bolt", isNew: true, fits: STORE_PLAIN, make: one((ctx) => deals(ctx)) },
   // The dense grid of three, installments-soon first.
-  { id: "mb_dense_grid", icon: "grid_on", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [head(ctx, "mbHubBest", { word: "mbHubSeeAll", action: shop }), denseGrid(ctx, "mbHubBest", "popular")]) },
+  { id: "mb_dense_grid", icon: "grid_view", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [head(ctx, "mbHubBest", { word: "mbHubSeeAll", action: shop }), denseGrid(ctx, "mbHubBest", "popular")]) },
   // The compare tray.
   { id: "mb_compare_tray", icon: "compare_arrows", isNew: true, fits: STORE_PLAIN, make: one((ctx) => tray(alone(ctx))) },
   // The installments notice.

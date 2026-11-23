@@ -227,431 +227,747 @@
         "id": "sig-2",
         "type": "column",
         "name": "Calm play, a skill that grows every day",
-        "gap": 8,
+        "gap": 0,
         "padding": {
-         "top": 14,
-         "end": 20,
-         "bottom": 0,
-         "start": 20
+         "top": 22,
+         "end": 0,
+         "bottom": 24,
+         "start": 0
+        },
+        "background": "#5F6F54",
+        "dark_background": "#232B1E",
+        "corners": {
+         "bottom_start": 28,
+         "bottom_end": 28
         },
         "children": [
          {
           "id": "sig-3",
-          "type": "text",
-          "text": "Calm play, a skill that grows every day",
-          "font": {
-           "family": "Playpen Sans Arabic",
-           "size": 28,
-           "weight": 500,
-           "line_height": 1.35
-          },
-          "color": "#3A3129",
-          "dark_color": "#EFE6D8",
-          "max_lines": 3,
-          "translations": {
-           "ar": {
-            "text": "لعب هادئ، ومهارة تكبر كل يوم"
-           },
-           "tr": {
-            "text": "Sakin oyun, her gün büyüyen bir beceri"
-           }
-          }
-         },
-         {
-          "id": "sig-4",
-          "type": "text",
-          "text": "Choose what your child is learning now and their age; we suggest the toys that fit.",
-          "font": {
-           "family": "Playpen Sans Arabic",
-           "size": 13.5,
-           "weight": 400,
-           "line_height": 1.7
-          },
-          "color": "#75695D",
-          "dark_color": "#B3A795",
-          "max_lines": 3,
-          "translations": {
-           "ar": {
-            "text": "اختر ما يتعلّمه طفلك الآن وعمره، ونقترح لك الألعاب المناسبة."
-           },
-           "tr": {
-            "text": "Çocuğunuzun şu an öğrendiğini ve yaşını seçin; uygun oyuncakları önerelim."
-           }
-          }
-         }
-        ]
-       },
-       {
-        "id": "sig-5",
-        "type": "text",
-        "text": "What are they learning now?",
-        "font": {
-         "family": "Playpen Sans Arabic",
-         "size": 12.5,
-         "weight": 500,
-         "line_height": 1.45
-        },
-        "color": "#75695D",
-        "dark_color": "#B3A795",
-        "max_lines": 1,
-        "padding": {
-         "top": 24,
-         "end": 20,
-         "bottom": 10,
-         "start": 20
-        },
-        "translations": {
-         "ar": {
-          "text": "ماذا يتعلّم الآن؟"
-         },
-         "tr": {
-          "text": "Şu an ne öğreniyor?"
-         }
-        }
-       },
-       {
-        "id": "sig-6",
-        "type": "grid",
-        "name": "What are they learning now?",
-        "columns": 2,
-        "gap": 10,
-        "padding": {
-         "top": 0,
-         "end": 20,
-         "bottom": 0,
-         "start": 20
-        },
-        "children": [
-         {
-          "id": "sig-7",
-          "type": "row",
-          "name": "Baby & toddler",
-          "gap": 10,
-          "cross": "center",
-          "radius": 6,
+          "type": "column",
+          "gap": 8,
           "padding": {
-           "top": 14,
-           "end": 12,
-           "bottom": 14,
-           "start": 12
+           "top": 0,
+           "end": 20,
+           "bottom": 0,
+           "start": 20
           },
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "background": "#3A3129",
-          "dark_background": "#E9DFCF",
           "children": [
            {
-            "id": "sig-8",
-            "type": "icon",
-            "icon": "back_hand",
-            "icon_size": 26,
-            "color": "#FBF8F2",
-            "dark_color": "#1A1612"
+            "id": "sig-4",
+            "type": "text",
+            "text": "Toys that grow with them",
+            "font": {
+             "family": "Playpen Sans Arabic",
+             "size": 12.5,
+             "weight": 600,
+             "line_height": 1.45
+            },
+            "color": "#D8E0C9",
+            "dark_color": "#A9B998",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ألعاب تكبر معهم"
+             },
+             "tr": {
+              "text": "Onlarla büyüyen oyuncaklar"
+             }
+            }
            },
            {
+            "id": "sig-5",
+            "type": "text",
+            "text": "Calm play, a skill that grows every day",
+            "font": {
+             "family": "Playpen Sans Arabic",
+             "size": 27,
+             "weight": 500,
+             "line_height": 1.35
+            },
+            "color": "#F6F0E4",
+            "dark_color": "#EFE6D8",
+            "max_lines": 3,
+            "translations": {
+             "ar": {
+              "text": "لعب هادئ، ومهارة تكبر كل يوم"
+             },
+             "tr": {
+              "text": "Sakin oyun, her gün büyüyen bir beceri"
+             }
+            }
+           },
+           {
+            "id": "sig-6",
+            "type": "text",
+            "text": "Choose what your child is learning now and their age; we suggest the toys that fit.",
+            "font": {
+             "family": "Playpen Sans Arabic",
+             "size": 13,
+             "weight": 400,
+             "line_height": 1.65
+            },
+            "color": "#E3E8D9",
+            "dark_color": "#C9D1BC",
+            "max_lines": 3,
+            "translations": {
+             "ar": {
+              "text": "اختر ما يتعلّمه طفلك الآن وعمره، ونقترح لك الألعاب المناسبة."
+             },
+             "tr": {
+              "text": "Çocuğunuzun şu an öğrendiğini ve yaşını seçin; uygun oyuncakları önerelim."
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-7",
+          "type": "text",
+          "text": "What are they learning now?",
+          "font": {
+           "family": "Playpen Sans Arabic",
+           "size": 12.5,
+           "weight": 500,
+           "line_height": 1.45
+          },
+          "color": "#D8E0C9",
+          "dark_color": "#A9B998",
+          "max_lines": 1,
+          "padding": {
+           "top": 20,
+           "end": 20,
+           "bottom": 10,
+           "start": 20
+          },
+          "translations": {
+           "ar": {
+            "text": "ماذا يتعلّم الآن؟"
+           },
+           "tr": {
+            "text": "Şu an ne öğreniyor?"
+           }
+          }
+         },
+         {
+          "id": "sig-8",
+          "type": "grid",
+          "name": "What are they learning now?",
+          "columns": 2,
+          "gap": 10,
+          "padding": {
+           "top": 0,
+           "end": 20,
+           "bottom": 0,
+           "start": 20
+          },
+          "children": [
+           {
             "id": "sig-9",
-            "type": "column",
-            "width": "fill",
-            "gap": 0,
+            "type": "row",
+            "name": "Baby & toddler",
+            "gap": 10,
+            "cross": "center",
+            "radius": 6,
+            "padding": {
+             "top": 14,
+             "end": 12,
+             "bottom": 14,
+             "start": 12
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#3A3129",
+            "dark_background": "#E9DFCF",
             "children": [
              {
               "id": "sig-10",
-              "type": "text",
-              "text": "Movement",
-              "font": {
-               "family": "Playpen Sans Arabic",
-               "size": 14,
-               "weight": 600,
-               "line_height": 1.3
-              },
+              "type": "icon",
+              "icon": "waving_hand",
+              "icon_size": 26,
               "color": "#FBF8F2",
-              "dark_color": "#1A1612",
-              "max_lines": 1,
-              "translations": {
-               "ar": {
-                "text": "الحركة"
-               },
-               "tr": {
-                "text": "Hareket"
-               }
-              }
+              "dark_color": "#1A1612"
              },
              {
               "id": "sig-11",
-              "type": "text",
-              "text": "Hands and balance",
-              "font": {
-               "family": "Playpen Sans Arabic",
-               "size": 11,
-               "weight": 400,
-               "line_height": 1.3
-              },
-              "color": "#D9CFC2",
-              "dark_color": "#5A4F44",
-              "max_lines": 1,
-              "translations": {
-               "ar": {
-                "text": "اليد والتوازن"
+              "type": "column",
+              "width": "fill",
+              "gap": 0,
+              "children": [
+               {
+                "id": "sig-12",
+                "type": "text",
+                "text": "Movement",
+                "font": {
+                 "family": "Playpen Sans Arabic",
+                 "size": 14,
+                 "weight": 600,
+                 "line_height": 1.3
+                },
+                "color": "#FBF8F2",
+                "dark_color": "#1A1612",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "الحركة"
+                 },
+                 "tr": {
+                  "text": "Hareket"
+                 }
+                }
                },
-               "tr": {
-                "text": "Eller ve denge"
+               {
+                "id": "sig-13",
+                "type": "text",
+                "text": "Hands and balance",
+                "font": {
+                 "family": "Playpen Sans Arabic",
+                 "size": 11,
+                 "weight": 400,
+                 "line_height": 1.3
+                },
+                "color": "#D9CFC2",
+                "dark_color": "#5A4F44",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "اليد والتوازن"
+                 },
+                 "tr": {
+                  "text": "Eller ve denge"
+                 }
+                }
                }
-              }
+              ]
              }
             ]
-           }
-          ]
-         },
-         {
-          "id": "sig-12",
-          "type": "row",
-          "name": "Science & STEM",
-          "gap": 10,
-          "cross": "center",
-          "radius": 6,
-          "padding": {
-           "top": 14,
-           "end": 12,
-           "bottom": 14,
-           "start": 12
-          },
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "background": "#FBF8F2",
-          "dark_background": "#241F1A",
-          "border_color": "#DDD2C2",
-          "dark_border_color": "#3A322A",
-          "border_width": 1,
-          "children": [
-           {
-            "id": "sig-13",
-            "type": "icon",
-            "icon": "science",
-            "icon_size": 26,
-            "color": "#A87A4F",
-            "dark_color": "#D2A273"
            },
            {
             "id": "sig-14",
-            "type": "column",
-            "width": "fill",
-            "gap": 0,
+            "type": "row",
+            "name": "Science & STEM",
+            "gap": 10,
+            "cross": "center",
+            "radius": 6,
+            "padding": {
+             "top": 14,
+             "end": 12,
+             "bottom": 14,
+             "start": 12
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FBF8F2",
+            "dark_background": "#241F1A",
+            "border_color": "#DDD2C2",
+            "dark_border_color": "#3A322A",
+            "border_width": 1,
             "children": [
              {
               "id": "sig-15",
-              "type": "text",
-              "text": "Science",
-              "font": {
-               "family": "Playpen Sans Arabic",
-               "size": 14,
-               "weight": 600,
-               "line_height": 1.3
-              },
-              "color": "#3A3129",
-              "dark_color": "#EFE6D8",
-              "max_lines": 1,
-              "translations": {
-               "ar": {
-                "text": "العلوم"
-               },
-               "tr": {
-                "text": "Bilim"
-               }
-              }
+              "type": "icon",
+              "icon": "explore",
+              "icon_size": 26,
+              "color": "#A87A4F",
+              "dark_color": "#D2A273"
              },
              {
               "id": "sig-16",
-              "type": "text",
-              "text": "Discovery and logic",
-              "font": {
-               "family": "Playpen Sans Arabic",
-               "size": 11,
-               "weight": 400,
-               "line_height": 1.3
-              },
-              "color": "#75695D",
-              "dark_color": "#B3A795",
-              "max_lines": 1,
-              "translations": {
-               "ar": {
-                "text": "الاكتشاف والمنطق"
+              "type": "column",
+              "width": "fill",
+              "gap": 0,
+              "children": [
+               {
+                "id": "sig-17",
+                "type": "text",
+                "text": "Science",
+                "font": {
+                 "family": "Playpen Sans Arabic",
+                 "size": 14,
+                 "weight": 600,
+                 "line_height": 1.3
+                },
+                "color": "#3A3129",
+                "dark_color": "#EFE6D8",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "العلوم"
+                 },
+                 "tr": {
+                  "text": "Bilim"
+                 }
+                }
                },
-               "tr": {
-                "text": "Keşif ve mantık"
+               {
+                "id": "sig-18",
+                "type": "text",
+                "text": "Discovery and logic",
+                "font": {
+                 "family": "Playpen Sans Arabic",
+                 "size": 11,
+                 "weight": 400,
+                 "line_height": 1.3
+                },
+                "color": "#75695D",
+                "dark_color": "#B3A795",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "الاكتشاف والمنطق"
+                 },
+                 "tr": {
+                  "text": "Keşif ve mantık"
+                 }
+                }
                }
-              }
+              ]
              }
             ]
-           }
-          ]
-         },
-         {
-          "id": "sig-17",
-          "type": "row",
-          "name": "Letters & numbers",
-          "gap": 10,
-          "cross": "center",
-          "radius": 6,
-          "padding": {
-           "top": 14,
-           "end": 12,
-           "bottom": 14,
-           "start": 12
-          },
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "background": "#FBF8F2",
-          "dark_background": "#241F1A",
-          "border_color": "#DDD2C2",
-          "dark_border_color": "#3A322A",
-          "border_width": 1,
-          "children": [
-           {
-            "id": "sig-18",
-            "type": "icon",
-            "icon": "translate",
-            "icon_size": 26,
-            "color": "#A87A4F",
-            "dark_color": "#D2A273"
            },
            {
             "id": "sig-19",
-            "type": "column",
-            "width": "fill",
-            "gap": 0,
+            "type": "row",
+            "name": "Letters & numbers",
+            "gap": 10,
+            "cross": "center",
+            "radius": 6,
+            "padding": {
+             "top": 14,
+             "end": 12,
+             "bottom": 14,
+             "start": 12
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FBF8F2",
+            "dark_background": "#241F1A",
+            "border_color": "#DDD2C2",
+            "dark_border_color": "#3A322A",
+            "border_width": 1,
             "children": [
              {
               "id": "sig-20",
-              "type": "text",
-              "text": "Language",
-              "font": {
-               "family": "Playpen Sans Arabic",
-               "size": 14,
-               "weight": 600,
-               "line_height": 1.3
-              },
-              "color": "#3A3129",
-              "dark_color": "#EFE6D8",
-              "max_lines": 1,
-              "translations": {
-               "ar": {
-                "text": "اللغة"
-               },
-               "tr": {
-                "text": "Dil"
-               }
-              }
+              "type": "icon",
+              "icon": "language",
+              "icon_size": 26,
+              "color": "#A87A4F",
+              "dark_color": "#D2A273"
              },
              {
               "id": "sig-21",
-              "type": "text",
-              "text": "Letters and words",
-              "font": {
-               "family": "Playpen Sans Arabic",
-               "size": 11,
-               "weight": 400,
-               "line_height": 1.3
-              },
-              "color": "#75695D",
-              "dark_color": "#B3A795",
-              "max_lines": 1,
-              "translations": {
-               "ar": {
-                "text": "الحروف والكلمات"
+              "type": "column",
+              "width": "fill",
+              "gap": 0,
+              "children": [
+               {
+                "id": "sig-22",
+                "type": "text",
+                "text": "Language",
+                "font": {
+                 "family": "Playpen Sans Arabic",
+                 "size": 14,
+                 "weight": 600,
+                 "line_height": 1.3
+                },
+                "color": "#3A3129",
+                "dark_color": "#EFE6D8",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "اللغة"
+                 },
+                 "tr": {
+                  "text": "Dil"
+                 }
+                }
                },
-               "tr": {
-                "text": "Harfler ve kelimeler"
+               {
+                "id": "sig-23",
+                "type": "text",
+                "text": "Letters and words",
+                "font": {
+                 "family": "Playpen Sans Arabic",
+                 "size": 11,
+                 "weight": 400,
+                 "line_height": 1.3
+                },
+                "color": "#75695D",
+                "dark_color": "#B3A795",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "الحروف والكلمات"
+                 },
+                 "tr": {
+                  "text": "Harfler ve kelimeler"
+                 }
+                }
                }
-              }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "sig-24",
+            "type": "row",
+            "name": "Arts & music",
+            "gap": 10,
+            "cross": "center",
+            "radius": 6,
+            "padding": {
+             "top": 14,
+             "end": 12,
+             "bottom": 14,
+             "start": 12
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FBF8F2",
+            "dark_background": "#241F1A",
+            "border_color": "#DDD2C2",
+            "dark_border_color": "#3A322A",
+            "border_width": 1,
+            "children": [
+             {
+              "id": "sig-25",
+              "type": "icon",
+              "icon": "auto_awesome",
+              "icon_size": 26,
+              "color": "#A87A4F",
+              "dark_color": "#D2A273"
+             },
+             {
+              "id": "sig-26",
+              "type": "column",
+              "width": "fill",
+              "gap": 0,
+              "children": [
+               {
+                "id": "sig-27",
+                "type": "text",
+                "text": "Creativity",
+                "font": {
+                 "family": "Playpen Sans Arabic",
+                 "size": 14,
+                 "weight": 600,
+                 "line_height": 1.3
+                },
+                "color": "#3A3129",
+                "dark_color": "#EFE6D8",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "الإبداع"
+                 },
+                 "tr": {
+                  "text": "Yaratıcılık"
+                 }
+                }
+               },
+               {
+                "id": "sig-28",
+                "type": "text",
+                "text": "Drawing and music",
+                "font": {
+                 "family": "Playpen Sans Arabic",
+                 "size": 11,
+                 "weight": 400,
+                 "line_height": 1.3
+                },
+                "color": "#75695D",
+                "dark_color": "#B3A795",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "الرسم والموسيقى"
+                 },
+                 "tr": {
+                  "text": "Resim ve müzik"
+                 }
+                }
+               }
+              ]
              }
             ]
            }
           ]
          },
          {
-          "id": "sig-22",
-          "type": "row",
-          "name": "Arts & music",
-          "gap": 10,
-          "cross": "center",
-          "radius": 6,
+          "id": "sig-29",
+          "type": "text",
+          "text": "Their age",
+          "font": {
+           "family": "Playpen Sans Arabic",
+           "size": 12.5,
+           "weight": 500,
+           "line_height": 1.45
+          },
+          "color": "#D8E0C9",
+          "dark_color": "#A9B998",
+          "max_lines": 1,
           "padding": {
-           "top": 14,
-           "end": 12,
-           "bottom": 14,
-           "start": 12
+           "top": 18,
+           "end": 20,
+           "bottom": 10,
+           "start": 20
           },
-          "action": {
-           "type": "screen",
-           "screen": "search"
+          "translations": {
+           "ar": {
+            "text": "العمر"
+           },
+           "tr": {
+            "text": "Yaşı"
+           }
+          }
+         },
+         {
+          "id": "sig-30",
+          "type": "row",
+          "name": "Their age",
+          "gap": 6,
+          "scroll": true,
+          "padding": {
+           "top": 0,
+           "end": 20,
+           "bottom": 0,
+           "start": 20
           },
-          "background": "#FBF8F2",
-          "dark_background": "#241F1A",
-          "border_color": "#DDD2C2",
-          "dark_border_color": "#3A322A",
-          "border_width": 1,
           "children": [
            {
-            "id": "sig-23",
-            "type": "icon",
-            "icon": "brush",
-            "icon_size": 26,
-            "color": "#A87A4F",
-            "dark_color": "#D2A273"
-           },
-           {
-            "id": "sig-24",
-            "type": "column",
-            "width": "fill",
-            "gap": 0,
+            "id": "sig-31",
+            "type": "row",
+            "name": "0–12 months",
+            "height": 38,
+            "radius": 19,
+            "cross": "center",
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "border_color": "#DDD2C2",
+            "dark_border_color": "#3A322A",
+            "border_width": 1,
+            "background": "#FBF8F2",
+            "dark_background": "#241F1A",
             "children": [
              {
-              "id": "sig-25",
+              "id": "sig-32",
               "type": "text",
-              "text": "Creativity",
+              "text": "0–12 months",
               "font": {
                "family": "Playpen Sans Arabic",
-               "size": 14,
-               "weight": 600,
-               "line_height": 1.3
+               "size": 13,
+               "weight": 500,
+               "line_height": 1.45
               },
               "color": "#3A3129",
               "dark_color": "#EFE6D8",
               "max_lines": 1,
               "translations": {
                "ar": {
-                "text": "الإبداع"
+                "text": "0‎–‎12 شهرًا"
                },
                "tr": {
-                "text": "Yaratıcılık"
+                "text": "0–12 ay"
                }
               }
-             },
+             }
+            ]
+           },
+           {
+            "id": "sig-33",
+            "type": "row",
+            "name": "1–2 years",
+            "height": 38,
+            "radius": 19,
+            "cross": "center",
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#7D8F6E",
+            "dark_background": "#7F9070",
+            "children": [
              {
-              "id": "sig-26",
+              "id": "sig-34",
               "type": "text",
-              "text": "Drawing and music",
+              "text": "1–2 years",
               "font": {
                "family": "Playpen Sans Arabic",
-               "size": 11,
-               "weight": 400,
-               "line_height": 1.3
+               "size": 13,
+               "weight": 500,
+               "line_height": 1.45
               },
-              "color": "#75695D",
-              "dark_color": "#B3A795",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
               "max_lines": 1,
               "translations": {
                "ar": {
-                "text": "الرسم والموسيقى"
+                "text": "1‎–‎2 سنة"
                },
                "tr": {
-                "text": "Resim ve müzik"
+                "text": "1–2 yaş"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-35",
+            "type": "row",
+            "name": "3–5 years",
+            "height": 38,
+            "radius": 19,
+            "cross": "center",
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "border_color": "#DDD2C2",
+            "dark_border_color": "#3A322A",
+            "border_width": 1,
+            "background": "#FBF8F2",
+            "dark_background": "#241F1A",
+            "children": [
+             {
+              "id": "sig-36",
+              "type": "text",
+              "text": "3–5 years",
+              "font": {
+               "family": "Playpen Sans Arabic",
+               "size": 13,
+               "weight": 500,
+               "line_height": 1.45
+              },
+              "color": "#3A3129",
+              "dark_color": "#EFE6D8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "3‎–‎5 سنوات"
+               },
+               "tr": {
+                "text": "3–5 yaş"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-37",
+            "type": "row",
+            "name": "6–8 years",
+            "height": 38,
+            "radius": 19,
+            "cross": "center",
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "border_color": "#DDD2C2",
+            "dark_border_color": "#3A322A",
+            "border_width": 1,
+            "background": "#FBF8F2",
+            "dark_background": "#241F1A",
+            "children": [
+             {
+              "id": "sig-38",
+              "type": "text",
+              "text": "6–8 years",
+              "font": {
+               "family": "Playpen Sans Arabic",
+               "size": 13,
+               "weight": 500,
+               "line_height": 1.45
+              },
+              "color": "#3A3129",
+              "dark_color": "#EFE6D8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "6‎–‎8 سنوات"
+               },
+               "tr": {
+                "text": "6–8 yaş"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-39",
+            "type": "row",
+            "name": "9+ years",
+            "height": 38,
+            "radius": 19,
+            "cross": "center",
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "border_color": "#DDD2C2",
+            "dark_border_color": "#3A322A",
+            "border_width": 1,
+            "background": "#FBF8F2",
+            "dark_background": "#241F1A",
+            "children": [
+             {
+              "id": "sig-40",
+              "type": "text",
+              "text": "9+ years",
+              "font": {
+               "family": "Playpen Sans Arabic",
+               "size": 13,
+               "weight": 500,
+               "line_height": 1.45
+              },
+              "color": "#3A3129",
+              "dark_color": "#EFE6D8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "9‎+‎ سنوات"
+               },
+               "tr": {
+                "text": "9+ yaş"
                }
               }
              }
@@ -662,282 +978,7 @@
         ]
        },
        {
-        "id": "sig-27",
-        "type": "text",
-        "text": "Their age",
-        "font": {
-         "family": "Playpen Sans Arabic",
-         "size": 12.5,
-         "weight": 500,
-         "line_height": 1.45
-        },
-        "color": "#75695D",
-        "dark_color": "#B3A795",
-        "max_lines": 1,
-        "padding": {
-         "top": 24,
-         "end": 20,
-         "bottom": 10,
-         "start": 20
-        },
-        "translations": {
-         "ar": {
-          "text": "العمر"
-         },
-         "tr": {
-          "text": "Yaşı"
-         }
-        }
-       },
-       {
-        "id": "sig-28",
-        "type": "row",
-        "name": "Their age",
-        "gap": 6,
-        "scroll": true,
-        "padding": {
-         "top": 0,
-         "end": 20,
-         "bottom": 0,
-         "start": 20
-        },
-        "children": [
-         {
-          "id": "sig-29",
-          "type": "row",
-          "name": "0–12 months",
-          "height": 38,
-          "radius": 19,
-          "cross": "center",
-          "padding": {
-           "top": 0,
-           "end": 16,
-           "bottom": 0,
-           "start": 16
-          },
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "border_color": "#DDD2C2",
-          "dark_border_color": "#3A322A",
-          "border_width": 1,
-          "background": "#FBF8F2",
-          "dark_background": "#241F1A",
-          "children": [
-           {
-            "id": "sig-30",
-            "type": "text",
-            "text": "0–12 months",
-            "font": {
-             "family": "Playpen Sans Arabic",
-             "size": 13,
-             "weight": 500,
-             "line_height": 1.45
-            },
-            "color": "#3A3129",
-            "dark_color": "#EFE6D8",
-            "max_lines": 1,
-            "translations": {
-             "ar": {
-              "text": "0‎–‎12 شهرًا"
-             },
-             "tr": {
-              "text": "0–12 ay"
-             }
-            }
-           }
-          ]
-         },
-         {
-          "id": "sig-31",
-          "type": "row",
-          "name": "1–2 years",
-          "height": 38,
-          "radius": 19,
-          "cross": "center",
-          "padding": {
-           "top": 0,
-           "end": 16,
-           "bottom": 0,
-           "start": 16
-          },
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "background": "#7D8F6E",
-          "dark_background": "#7F9070",
-          "children": [
-           {
-            "id": "sig-32",
-            "type": "text",
-            "text": "1–2 years",
-            "font": {
-             "family": "Playpen Sans Arabic",
-             "size": 13,
-             "weight": 500,
-             "line_height": 1.45
-            },
-            "color": "#FFFFFF",
-            "dark_color": "#FFFFFF",
-            "max_lines": 1,
-            "translations": {
-             "ar": {
-              "text": "1‎–‎2 سنة"
-             },
-             "tr": {
-              "text": "1–2 yaş"
-             }
-            }
-           }
-          ]
-         },
-         {
-          "id": "sig-33",
-          "type": "row",
-          "name": "3–5 years",
-          "height": 38,
-          "radius": 19,
-          "cross": "center",
-          "padding": {
-           "top": 0,
-           "end": 16,
-           "bottom": 0,
-           "start": 16
-          },
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "border_color": "#DDD2C2",
-          "dark_border_color": "#3A322A",
-          "border_width": 1,
-          "background": "#FBF8F2",
-          "dark_background": "#241F1A",
-          "children": [
-           {
-            "id": "sig-34",
-            "type": "text",
-            "text": "3–5 years",
-            "font": {
-             "family": "Playpen Sans Arabic",
-             "size": 13,
-             "weight": 500,
-             "line_height": 1.45
-            },
-            "color": "#3A3129",
-            "dark_color": "#EFE6D8",
-            "max_lines": 1,
-            "translations": {
-             "ar": {
-              "text": "3‎–‎5 سنوات"
-             },
-             "tr": {
-              "text": "3–5 yaş"
-             }
-            }
-           }
-          ]
-         },
-         {
-          "id": "sig-35",
-          "type": "row",
-          "name": "6–8 years",
-          "height": 38,
-          "radius": 19,
-          "cross": "center",
-          "padding": {
-           "top": 0,
-           "end": 16,
-           "bottom": 0,
-           "start": 16
-          },
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "border_color": "#DDD2C2",
-          "dark_border_color": "#3A322A",
-          "border_width": 1,
-          "background": "#FBF8F2",
-          "dark_background": "#241F1A",
-          "children": [
-           {
-            "id": "sig-36",
-            "type": "text",
-            "text": "6–8 years",
-            "font": {
-             "family": "Playpen Sans Arabic",
-             "size": 13,
-             "weight": 500,
-             "line_height": 1.45
-            },
-            "color": "#3A3129",
-            "dark_color": "#EFE6D8",
-            "max_lines": 1,
-            "translations": {
-             "ar": {
-              "text": "6‎–‎8 سنوات"
-             },
-             "tr": {
-              "text": "6–8 yaş"
-             }
-            }
-           }
-          ]
-         },
-         {
-          "id": "sig-37",
-          "type": "row",
-          "name": "9+ years",
-          "height": 38,
-          "radius": 19,
-          "cross": "center",
-          "padding": {
-           "top": 0,
-           "end": 16,
-           "bottom": 0,
-           "start": 16
-          },
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "border_color": "#DDD2C2",
-          "dark_border_color": "#3A322A",
-          "border_width": 1,
-          "background": "#FBF8F2",
-          "dark_background": "#241F1A",
-          "children": [
-           {
-            "id": "sig-38",
-            "type": "text",
-            "text": "9+ years",
-            "font": {
-             "family": "Playpen Sans Arabic",
-             "size": 13,
-             "weight": 500,
-             "line_height": 1.45
-            },
-            "color": "#3A3129",
-            "dark_color": "#EFE6D8",
-            "max_lines": 1,
-            "translations": {
-             "ar": {
-              "text": "9‎+‎ سنوات"
-             },
-             "tr": {
-              "text": "9+ yaş"
-             }
-            }
-           }
-          ]
-         }
-        ]
-       },
-       {
-        "id": "sig-39",
+        "id": "sig-41",
         "type": "column",
         "name": "Free play: setting up a play corner at home",
         "gap": 12,
@@ -953,7 +994,7 @@
         },
         "children": [
          {
-          "id": "sig-40",
+          "id": "sig-42",
           "type": "image",
           "image_url": "http://localhost:3000/toys-photos/toddler-play.jpg",
           "fit": "cover",
@@ -964,13 +1005,13 @@
           "dark_background": "#2D2720"
          },
          {
-          "id": "sig-41",
+          "id": "sig-43",
           "type": "row",
           "gap": 12,
           "cross": "start",
           "children": [
            {
-            "id": "sig-42",
+            "id": "sig-44",
             "type": "text",
             "text": "Free play: setting up a play corner at home",
             "font": {
@@ -993,7 +1034,7 @@
             }
            },
            {
-            "id": "sig-43",
+            "id": "sig-45",
             "type": "text",
             "text": "Read the guide",
             "font": {
@@ -1021,7 +1062,7 @@
         ]
        },
        {
-        "id": "sig-44",
+        "id": "sig-46",
         "type": "row",
         "name": "For little hands",
         "gap": 12,
@@ -1034,7 +1075,7 @@
         },
         "children": [
          {
-          "id": "sig-45",
+          "id": "sig-47",
           "type": "text",
           "text": "For little hands",
           "font": {
@@ -1056,7 +1097,7 @@
           }
          },
          {
-          "id": "sig-46",
+          "id": "sig-48",
           "type": "divider",
           "width": "fill",
           "height": 1,
@@ -1064,7 +1105,7 @@
           "dark_background": "#3A322A"
          },
          {
-          "id": "sig-47",
+          "id": "sig-49",
           "type": "text",
           "text": "All",
           "font": {
@@ -1092,7 +1133,7 @@
         ]
        },
        {
-        "id": "sig-48",
+        "id": "sig-50",
         "type": "items",
         "name": "For little hands",
         "source": "products",
@@ -1112,12 +1153,12 @@
          "ids": []
         },
         "card": {
-         "id": "sig-49",
+         "id": "sig-51",
          "type": "column",
          "gap": 0,
          "children": [
           {
-           "id": "sig-50",
+           "id": "sig-52",
            "type": "row",
            "gap": 14,
            "cross": "center",
@@ -1129,7 +1170,7 @@
            },
            "children": [
             {
-             "id": "sig-51",
+             "id": "sig-53",
              "type": "image",
              "bind": "image",
              "width": 92,
@@ -1140,13 +1181,13 @@
              "dark_background": "#2D2720"
             },
             {
-             "id": "sig-52",
+             "id": "sig-54",
              "type": "column",
              "width": "fill",
              "gap": 4,
              "children": [
               {
-               "id": "sig-53",
+               "id": "sig-55",
                "type": "text",
                "bind": "title",
                "max_lines": 2,
@@ -1160,13 +1201,13 @@
                }
               },
               {
-               "id": "sig-54",
+               "id": "sig-56",
                "type": "row",
                "gap": 6,
                "cross": "center",
                "children": [
                 {
-                 "id": "sig-55",
+                 "id": "sig-57",
                  "type": "text",
                  "bind": "price",
                  "max_lines": 1,
@@ -1180,7 +1221,7 @@
                  }
                 },
                 {
-                 "id": "sig-56",
+                 "id": "sig-58",
                  "type": "text",
                  "bind": "was_price",
                  "max_lines": 1,
@@ -1194,7 +1235,7 @@
                  }
                 },
                 {
-                 "id": "sig-57",
+                 "id": "sig-59",
                  "type": "text",
                  "bind": "sale",
                  "max_lines": 1,
@@ -1212,7 +1253,7 @@
              ]
             },
             {
-             "id": "sig-58",
+             "id": "sig-60",
              "type": "icon",
              "icon": "add",
              "icon_size": 22,
@@ -1222,7 +1263,7 @@
            ]
           },
           {
-           "id": "sig-59",
+           "id": "sig-61",
            "type": "divider",
            "height": 1,
            "background": "#DDD2C2",
@@ -1238,7 +1279,7 @@
         }
        },
        {
-        "id": "sig-60",
+        "id": "sig-62",
         "type": "row",
         "name": "How to play",
         "gap": 12,
@@ -1251,7 +1292,7 @@
         },
         "children": [
          {
-          "id": "sig-61",
+          "id": "sig-63",
           "type": "text",
           "text": "How to play",
           "font": {
@@ -1273,7 +1314,7 @@
           }
          },
          {
-          "id": "sig-62",
+          "id": "sig-64",
           "type": "divider",
           "width": "fill",
           "height": 1,
@@ -1283,7 +1324,7 @@
         ]
        },
        {
-        "id": "sig-63",
+        "id": "sig-65",
         "type": "row",
         "name": "How to play",
         "gap": 12,
@@ -1296,7 +1337,7 @@
         },
         "children": [
          {
-          "id": "sig-64",
+          "id": "sig-66",
           "type": "column",
           "name": "Wooden toys",
           "width": 268,
@@ -1313,7 +1354,7 @@
           },
           "children": [
            {
-            "id": "sig-65",
+            "id": "sig-67",
             "type": "image",
             "image_url": "http://localhost:3000/toys-photos/block-tower.jpg",
             "fit": "cover",
@@ -1327,7 +1368,7 @@
             "dark_background": "#2D2720"
            },
            {
-            "id": "sig-66",
+            "id": "sig-68",
             "type": "column",
             "gap": 10,
             "padding": {
@@ -1338,7 +1379,7 @@
             },
             "children": [
              {
-              "id": "sig-67",
+              "id": "sig-69",
               "type": "text",
               "text": "The little architect's tower",
               "font": {
@@ -1360,13 +1401,13 @@
               }
              },
              {
-              "id": "sig-68",
+              "id": "sig-70",
               "type": "row",
               "gap": 10,
               "cross": "start",
               "children": [
                {
-                "id": "sig-69",
+                "id": "sig-71",
                 "type": "row",
                 "width": 22,
                 "height": 22,
@@ -1378,7 +1419,7 @@
                 "border_width": 1,
                 "children": [
                  {
-                  "id": "sig-70",
+                  "id": "sig-72",
                   "type": "text",
                   "text": "1",
                   "font": {
@@ -1393,7 +1434,7 @@
                 ]
                },
                {
-                "id": "sig-71",
+                "id": "sig-73",
                 "type": "text",
                 "text": "Start with three big pieces only",
                 "font": {
@@ -1418,13 +1459,13 @@
               ]
              },
              {
-              "id": "sig-72",
+              "id": "sig-74",
               "type": "row",
               "gap": 10,
               "cross": "start",
               "children": [
                {
-                "id": "sig-73",
+                "id": "sig-75",
                 "type": "row",
                 "width": 22,
                 "height": 22,
@@ -1436,7 +1477,7 @@
                 "border_width": 1,
                 "children": [
                  {
-                  "id": "sig-74",
+                  "id": "sig-76",
                   "type": "text",
                   "text": "2",
                   "font": {
@@ -1451,7 +1492,7 @@
                 ]
                },
                {
-                "id": "sig-75",
+                "id": "sig-77",
                 "type": "text",
                 "text": "Let them build and knock down alone",
                 "font": {
@@ -1476,13 +1517,13 @@
               ]
              },
              {
-              "id": "sig-76",
+              "id": "sig-78",
               "type": "row",
               "gap": 10,
               "cross": "start",
               "children": [
                {
-                "id": "sig-77",
+                "id": "sig-79",
                 "type": "row",
                 "width": 22,
                 "height": 22,
@@ -1494,7 +1535,7 @@
                 "border_width": 1,
                 "children": [
                  {
-                  "id": "sig-78",
+                  "id": "sig-80",
                   "type": "text",
                   "text": "3",
                   "font": {
@@ -1509,7 +1550,7 @@
                 ]
                },
                {
-                "id": "sig-79",
+                "id": "sig-81",
                 "type": "text",
                 "text": "Add one piece each day",
                 "font": {
@@ -1538,7 +1579,7 @@
           ]
          },
          {
-          "id": "sig-80",
+          "id": "sig-82",
           "type": "column",
           "name": "Letters & numbers",
           "width": 268,
@@ -1555,7 +1596,7 @@
           },
           "children": [
            {
-            "id": "sig-81",
+            "id": "sig-83",
             "type": "image",
             "image_url": "http://localhost:3000/toys-photos/letters.jpg",
             "fit": "cover",
@@ -1569,7 +1610,7 @@
             "dark_background": "#2D2720"
            },
            {
-            "id": "sig-82",
+            "id": "sig-84",
             "type": "column",
             "gap": 10,
             "padding": {
@@ -1580,7 +1621,7 @@
             },
             "children": [
              {
-              "id": "sig-83",
+              "id": "sig-85",
               "type": "text",
               "text": "Letter stamps",
               "font": {
@@ -1602,13 +1643,13 @@
               }
              },
              {
-              "id": "sig-84",
+              "id": "sig-86",
               "type": "row",
               "gap": 10,
               "cross": "start",
               "children": [
                {
-                "id": "sig-85",
+                "id": "sig-87",
                 "type": "row",
                 "width": 22,
                 "height": 22,
@@ -1620,7 +1661,7 @@
                 "border_width": 1,
                 "children": [
                  {
-                  "id": "sig-86",
+                  "id": "sig-88",
                   "type": "text",
                   "text": "1",
                   "font": {
@@ -1635,7 +1676,7 @@
                 ]
                },
                {
-                "id": "sig-87",
+                "id": "sig-89",
                 "type": "text",
                 "text": "Start with the first letter of their name",
                 "font": {
@@ -1660,13 +1701,13 @@
               ]
              },
              {
-              "id": "sig-88",
+              "id": "sig-90",
               "type": "row",
               "gap": 10,
               "cross": "start",
               "children": [
                {
-                "id": "sig-89",
+                "id": "sig-91",
                 "type": "row",
                 "width": 22,
                 "height": 22,
@@ -1678,7 +1719,7 @@
                 "border_width": 1,
                 "children": [
                  {
-                  "id": "sig-90",
+                  "id": "sig-92",
                   "type": "text",
                   "text": "2",
                   "font": {
@@ -1693,7 +1734,7 @@
                 ]
                },
                {
-                "id": "sig-91",
+                "id": "sig-93",
                 "type": "text",
                 "text": "Stamp on a large sheet of paper",
                 "font": {
@@ -1718,13 +1759,13 @@
               ]
              },
              {
-              "id": "sig-92",
+              "id": "sig-94",
               "type": "row",
               "gap": 10,
               "cross": "start",
               "children": [
                {
-                "id": "sig-93",
+                "id": "sig-95",
                 "type": "row",
                 "width": 22,
                 "height": 22,
@@ -1736,7 +1777,7 @@
                 "border_width": 1,
                 "children": [
                  {
-                  "id": "sig-94",
+                  "id": "sig-96",
                   "type": "text",
                   "text": "3",
                   "font": {
@@ -1751,7 +1792,7 @@
                 ]
                },
                {
-                "id": "sig-95",
+                "id": "sig-97",
                 "type": "text",
                 "text": "Say the sound as they press",
                 "font": {
@@ -1780,7 +1821,7 @@
           ]
          },
          {
-          "id": "sig-96",
+          "id": "sig-98",
           "type": "column",
           "name": "Baby & toddler",
           "width": 268,
@@ -1797,7 +1838,7 @@
           },
           "children": [
            {
-            "id": "sig-97",
+            "id": "sig-99",
             "type": "image",
             "image_url": "http://localhost:3000/toys-photos/bead-maze.jpg",
             "fit": "cover",
@@ -1811,7 +1852,7 @@
             "dark_background": "#2D2720"
            },
            {
-            "id": "sig-98",
+            "id": "sig-100",
             "type": "column",
             "gap": 10,
             "padding": {
@@ -1822,7 +1863,7 @@
             },
             "children": [
              {
-              "id": "sig-99",
+              "id": "sig-101",
               "type": "text",
               "text": "The rolling bead maze",
               "font": {
@@ -1844,13 +1885,13 @@
               }
              },
              {
-              "id": "sig-100",
+              "id": "sig-102",
               "type": "row",
               "gap": 10,
               "cross": "start",
               "children": [
                {
-                "id": "sig-101",
+                "id": "sig-103",
                 "type": "row",
                 "width": 22,
                 "height": 22,
@@ -1862,7 +1903,7 @@
                 "border_width": 1,
                 "children": [
                  {
-                  "id": "sig-102",
+                  "id": "sig-104",
                   "type": "text",
                   "text": "1",
                   "font": {
@@ -1877,7 +1918,7 @@
                 ]
                },
                {
-                "id": "sig-103",
+                "id": "sig-105",
                 "type": "text",
                 "text": "Move one bead slowly beside them",
                 "font": {
@@ -1902,13 +1943,13 @@
               ]
              },
              {
-              "id": "sig-104",
+              "id": "sig-106",
               "type": "row",
               "gap": 10,
               "cross": "start",
               "children": [
                {
-                "id": "sig-105",
+                "id": "sig-107",
                 "type": "row",
                 "width": 22,
                 "height": 22,
@@ -1920,7 +1961,7 @@
                 "border_width": 1,
                 "children": [
                  {
-                  "id": "sig-106",
+                  "id": "sig-108",
                   "type": "text",
                   "text": "2",
                   "font": {
@@ -1935,7 +1976,7 @@
                 ]
                },
                {
-                "id": "sig-107",
+                "id": "sig-109",
                 "type": "text",
                 "text": "Let them try, without correcting",
                 "font": {
@@ -1960,13 +2001,13 @@
               ]
              },
              {
-              "id": "sig-108",
+              "id": "sig-110",
               "type": "row",
               "gap": 10,
               "cross": "start",
               "children": [
                {
-                "id": "sig-109",
+                "id": "sig-111",
                 "type": "row",
                 "width": 22,
                 "height": 22,
@@ -1978,7 +2019,7 @@
                 "border_width": 1,
                 "children": [
                  {
-                  "id": "sig-110",
+                  "id": "sig-112",
                   "type": "text",
                   "text": "3",
                   "font": {
@@ -1993,7 +2034,7 @@
                 ]
                },
                {
-                "id": "sig-111",
+                "id": "sig-113",
                 "type": "text",
                 "text": "Name the colours as they go",
                 "font": {
@@ -2024,7 +2065,7 @@
         ]
        },
        {
-        "id": "sig-112",
+        "id": "sig-114",
         "type": "row",
         "name": "Quiet favourites",
         "gap": 12,
@@ -2037,7 +2078,7 @@
         },
         "children": [
          {
-          "id": "sig-113",
+          "id": "sig-115",
           "type": "text",
           "text": "Quiet favourites",
           "font": {
@@ -2059,7 +2100,7 @@
           }
          },
          {
-          "id": "sig-114",
+          "id": "sig-116",
           "type": "divider",
           "width": "fill",
           "height": 1,
@@ -2067,7 +2108,7 @@
           "dark_background": "#3A322A"
          },
          {
-          "id": "sig-115",
+          "id": "sig-117",
           "type": "text",
           "text": "All",
           "font": {
@@ -2095,7 +2136,7 @@
         ]
        },
        {
-        "id": "sig-116",
+        "id": "sig-118",
         "type": "items",
         "name": "Quiet favourites",
         "source": "products",
@@ -2116,13 +2157,13 @@
          "ids": []
         },
         "card": {
-         "id": "sig-117",
+         "id": "sig-119",
          "type": "column",
          "width": "fill",
          "gap": 4,
          "children": [
           {
-           "id": "sig-118",
+           "id": "sig-120",
            "type": "image",
            "bind": "image",
            "width": "fill",
@@ -2133,7 +2174,7 @@
            "dark_background": "#2D2720"
           },
           {
-           "id": "sig-119",
+           "id": "sig-121",
            "type": "text",
            "bind": "title",
            "max_lines": 1,
@@ -2153,7 +2194,7 @@
            }
           },
           {
-           "id": "sig-120",
+           "id": "sig-122",
            "type": "text",
            "bind": "price",
            "max_lines": 1,
@@ -2170,7 +2211,7 @@
         }
        },
        {
-        "id": "sig-121",
+        "id": "sig-123",
         "type": "row",
         "name": "Natural beech, water-based paints",
         "gap": 16,
@@ -2197,21 +2238,21 @@
         "dark_background": "#4A3626",
         "children": [
          {
-          "id": "sig-122",
+          "id": "sig-124",
           "type": "icon",
-          "icon": "forest",
+          "icon": "yard",
           "icon_size": 32,
           "color": "#FFF8EE",
           "dark_color": "#FFF8EE"
          },
          {
-          "id": "sig-123",
+          "id": "sig-125",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-124",
+            "id": "sig-126",
             "type": "text",
             "text": "Natural beech, water-based paints",
             "font": {
@@ -2233,7 +2274,7 @@
             }
            },
            {
-            "id": "sig-125",
+            "id": "sig-127",
             "type": "text",
             "text": "Every toy is tested and comes with its safety sheet.",
             "font": {
@@ -2275,11 +2316,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-167",
+      "id": "sig-169",
       "type": "column",
       "children": [
        {
-        "id": "sig-168",
+        "id": "sig-170",
         "type": "column",
         "name": "The shelf",
         "gap": 4,
@@ -2291,7 +2332,7 @@
         },
         "children": [
          {
-          "id": "sig-169",
+          "id": "sig-171",
           "type": "text",
           "text": "The shelf",
           "font": {
@@ -2313,7 +2354,7 @@
           }
          },
          {
-          "id": "sig-170",
+          "id": "sig-172",
           "type": "text",
           "text": "Every toy, chosen to be played with for years",
           "font": {
@@ -2337,7 +2378,7 @@
         ]
        },
        {
-        "id": "sig-171",
+        "id": "sig-173",
         "type": "categories",
         "name": "Categories",
         "source": "products",
@@ -2352,7 +2393,7 @@
         }
        },
        {
-        "id": "sig-172",
+        "id": "sig-174",
         "type": "listing_filters",
         "name": "The shelf",
         "padding": {
@@ -2363,7 +2404,7 @@
         }
        },
        {
-        "id": "sig-173",
+        "id": "sig-175",
         "type": "divider",
         "height": 1,
         "background": "#DDD2C2",
@@ -2418,11 +2459,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-174",
+      "id": "sig-176",
       "type": "column",
       "children": [
        {
-        "id": "sig-175",
+        "id": "sig-177",
         "type": "coupon",
         "name": "Your code",
         "code": "TOOT10",
@@ -2440,7 +2481,7 @@
         }
        },
        {
-        "id": "sig-176",
+        "id": "sig-178",
         "type": "row",
         "name": "Wrapped in kraft paper with a card in your words, if you like.",
         "gap": 12,
@@ -2463,7 +2504,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "sig-177",
+          "id": "sig-179",
           "type": "icon",
           "icon": "redeem",
           "icon_size": 22,
@@ -2471,7 +2512,7 @@
           "dark_color": "#D2A273"
          },
          {
-          "id": "sig-178",
+          "id": "sig-180",
           "type": "text",
           "text": "Wrapped in kraft paper with a card in your words, if you like.",
           "font": {
@@ -2538,11 +2579,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-179",
+      "id": "sig-181",
       "type": "column",
       "children": [
        {
-        "id": "sig-180",
+        "id": "sig-182",
         "type": "row",
         "name": "Your order, step by step",
         "gap": 12,
@@ -2555,7 +2596,7 @@
         },
         "children": [
          {
-          "id": "sig-181",
+          "id": "sig-183",
           "type": "text",
           "text": "Your order, step by step",
           "font": {
@@ -2577,7 +2618,7 @@
           }
          },
          {
-          "id": "sig-182",
+          "id": "sig-184",
           "type": "divider",
           "width": "fill",
           "height": 1,
@@ -2587,7 +2628,7 @@
         ]
        },
        {
-        "id": "sig-183",
+        "id": "sig-185",
         "type": "timeline",
         "name": "Your order, step by step",
         "timeline": {
@@ -2718,11 +2759,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-185",
+      "id": "sig-187",
       "type": "column",
       "children": [
        {
-        "id": "sig-184",
+        "id": "sig-186",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -2783,7 +2824,7 @@
      "background": "#F3EDE3",
      "dark_background": "#1A1612",
      "body": {
-      "id": "sig-126",
+      "id": "sig-128",
       "type": "column",
       "padding": {
        "top": 0,
@@ -2793,7 +2834,7 @@
       },
       "children": [
        {
-        "id": "sig-127",
+        "id": "sig-129",
         "type": "search",
         "name": "Search every category…",
         "text": "Search every category…",
@@ -2823,7 +2864,7 @@
         }
        },
        {
-        "id": "sig-128",
+        "id": "sig-130",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -2845,7 +2886,7 @@
         }
        },
        {
-        "id": "sig-129",
+        "id": "sig-131",
         "type": "column",
         "name": "Your account",
         "gap": 0,
@@ -2857,7 +2898,7 @@
         },
         "children": [
          {
-          "id": "sig-130",
+          "id": "sig-132",
           "type": "divider",
           "height": 1,
           "background": "#DDD2C2",
@@ -2870,7 +2911,7 @@
           }
          },
          {
-          "id": "sig-131",
+          "id": "sig-133",
           "type": "column",
           "name": "My account",
           "gap": 0,
@@ -2880,7 +2921,7 @@
           },
           "children": [
            {
-            "id": "sig-132",
+            "id": "sig-134",
             "type": "row",
             "gap": 14,
             "cross": "center",
@@ -2892,7 +2933,7 @@
             },
             "children": [
              {
-              "id": "sig-133",
+              "id": "sig-135",
               "type": "icon",
               "icon": "person",
               "icon_size": 22,
@@ -2900,13 +2941,13 @@
               "dark_color": "#D2A273"
              },
              {
-              "id": "sig-134",
+              "id": "sig-136",
               "type": "column",
               "width": "fill",
               "gap": 2,
               "children": [
                {
-                "id": "sig-135",
+                "id": "sig-137",
                 "type": "text",
                 "text": "My account",
                 "font": {
@@ -2930,9 +2971,9 @@
               ]
              },
              {
-              "id": "sig-136",
+              "id": "sig-138",
               "type": "icon",
-              "icon": "chevron_forward",
+              "icon": "arrow_forward",
               "icon_size": 20,
               "color": "#75695D",
               "dark_color": "#B3A795"
@@ -2940,7 +2981,7 @@
             ]
            },
            {
-            "id": "sig-137",
+            "id": "sig-139",
             "type": "divider",
             "height": 1,
             "background": "#DDD2C2",
@@ -2955,7 +2996,7 @@
           ]
          },
          {
-          "id": "sig-138",
+          "id": "sig-140",
           "type": "column",
           "name": "My orders",
           "gap": 0,
@@ -2965,7 +3006,7 @@
           },
           "children": [
            {
-            "id": "sig-139",
+            "id": "sig-141",
             "type": "row",
             "gap": 14,
             "cross": "center",
@@ -2977,7 +3018,7 @@
             },
             "children": [
              {
-              "id": "sig-140",
+              "id": "sig-142",
               "type": "icon",
               "icon": "package_2",
               "icon_size": 22,
@@ -2985,13 +3026,13 @@
               "dark_color": "#D2A273"
              },
              {
-              "id": "sig-141",
+              "id": "sig-143",
               "type": "column",
               "width": "fill",
               "gap": 2,
               "children": [
                {
-                "id": "sig-142",
+                "id": "sig-144",
                 "type": "text",
                 "text": "My orders",
                 "font": {
@@ -3015,9 +3056,9 @@
               ]
              },
              {
-              "id": "sig-143",
+              "id": "sig-145",
               "type": "icon",
-              "icon": "chevron_forward",
+              "icon": "arrow_forward",
               "icon_size": 20,
               "color": "#75695D",
               "dark_color": "#B3A795"
@@ -3025,7 +3066,7 @@
             ]
            },
            {
-            "id": "sig-144",
+            "id": "sig-146",
             "type": "divider",
             "height": 1,
             "background": "#DDD2C2",
@@ -3040,7 +3081,7 @@
           ]
          },
          {
-          "id": "sig-145",
+          "id": "sig-147",
           "type": "column",
           "name": "Wishlist",
           "gap": 0,
@@ -3050,7 +3091,7 @@
           },
           "children": [
            {
-            "id": "sig-146",
+            "id": "sig-148",
             "type": "row",
             "gap": 14,
             "cross": "center",
@@ -3062,7 +3103,7 @@
             },
             "children": [
              {
-              "id": "sig-147",
+              "id": "sig-149",
               "type": "icon",
               "icon": "favorite",
               "icon_size": 22,
@@ -3070,13 +3111,13 @@
               "dark_color": "#D2A273"
              },
              {
-              "id": "sig-148",
+              "id": "sig-150",
               "type": "column",
               "width": "fill",
               "gap": 2,
               "children": [
                {
-                "id": "sig-149",
+                "id": "sig-151",
                 "type": "text",
                 "text": "Wishlist",
                 "font": {
@@ -3100,9 +3141,9 @@
               ]
              },
              {
-              "id": "sig-150",
+              "id": "sig-152",
               "type": "icon",
-              "icon": "chevron_forward",
+              "icon": "arrow_forward",
               "icon_size": 20,
               "color": "#75695D",
               "dark_color": "#B3A795"
@@ -3110,7 +3151,7 @@
             ]
            },
            {
-            "id": "sig-151",
+            "id": "sig-153",
             "type": "divider",
             "height": 1,
             "background": "#DDD2C2",
@@ -3125,7 +3166,7 @@
           ]
          },
          {
-          "id": "sig-152",
+          "id": "sig-154",
           "type": "column",
           "name": "Language",
           "gap": 0,
@@ -3135,7 +3176,7 @@
           },
           "children": [
            {
-            "id": "sig-153",
+            "id": "sig-155",
             "type": "row",
             "gap": 14,
             "cross": "center",
@@ -3147,21 +3188,21 @@
             },
             "children": [
              {
-              "id": "sig-154",
+              "id": "sig-156",
               "type": "icon",
-              "icon": "translate",
+              "icon": "language",
               "icon_size": 22,
               "color": "#A87A4F",
               "dark_color": "#D2A273"
              },
              {
-              "id": "sig-155",
+              "id": "sig-157",
               "type": "column",
               "width": "fill",
               "gap": 2,
               "children": [
                {
-                "id": "sig-156",
+                "id": "sig-158",
                 "type": "text",
                 "text": "Language",
                 "font": {
@@ -3185,9 +3226,9 @@
               ]
              },
              {
-              "id": "sig-157",
+              "id": "sig-159",
               "type": "icon",
-              "icon": "chevron_forward",
+              "icon": "arrow_forward",
               "icon_size": 20,
               "color": "#75695D",
               "dark_color": "#B3A795"
@@ -3195,7 +3236,7 @@
             ]
            },
            {
-            "id": "sig-158",
+            "id": "sig-160",
             "type": "divider",
             "height": 1,
             "background": "#DDD2C2",
@@ -3210,7 +3251,7 @@
           ]
          },
          {
-          "id": "sig-159",
+          "id": "sig-161",
           "type": "column",
           "name": "Contact us",
           "gap": 0,
@@ -3220,7 +3261,7 @@
           },
           "children": [
            {
-            "id": "sig-160",
+            "id": "sig-162",
             "type": "row",
             "gap": 14,
             "cross": "center",
@@ -3232,7 +3273,7 @@
             },
             "children": [
              {
-              "id": "sig-161",
+              "id": "sig-163",
               "type": "icon",
               "icon": "support_agent",
               "icon_size": 22,
@@ -3240,13 +3281,13 @@
               "dark_color": "#D2A273"
              },
              {
-              "id": "sig-162",
+              "id": "sig-164",
               "type": "column",
               "width": "fill",
               "gap": 2,
               "children": [
                {
-                "id": "sig-163",
+                "id": "sig-165",
                 "type": "text",
                 "text": "Contact us",
                 "font": {
@@ -3268,7 +3309,7 @@
                 }
                },
                {
-                "id": "sig-164",
+                "id": "sig-166",
                 "type": "text",
                 "text": "Every day, 9 am to 10 pm",
                 "font": {
@@ -3292,9 +3333,9 @@
               ]
              },
              {
-              "id": "sig-165",
+              "id": "sig-167",
               "type": "icon",
-              "icon": "chevron_forward",
+              "icon": "arrow_forward",
               "icon_size": 20,
               "color": "#75695D",
               "dark_color": "#B3A795"
@@ -3302,7 +3343,7 @@
             ]
            },
            {
-            "id": "sig-166",
+            "id": "sig-168",
             "type": "divider",
             "height": 1,
             "background": "#DDD2C2",
@@ -3358,7 +3399,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-186",
+      "id": "sig-188",
       "type": "column",
       "children": []
      },
@@ -3400,7 +3441,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-187",
+      "id": "sig-189",
       "type": "column",
       "children": []
      },
@@ -3442,7 +3483,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-188",
+      "id": "sig-190",
       "type": "column",
       "children": []
      },
@@ -3484,7 +3525,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-189",
+      "id": "sig-191",
       "type": "column",
       "children": []
      },
@@ -3526,7 +3567,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-190",
+      "id": "sig-192",
       "type": "column",
       "children": []
      },
@@ -3560,7 +3601,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-191",
+      "id": "sig-193",
       "type": "column",
       "children": []
      },
@@ -3577,7 +3618,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-192",
+      "id": "sig-194",
       "type": "column",
       "children": []
      },
@@ -3598,9 +3639,7 @@
    "inactive": "#75695D",
    "dark_inactive": "#B3A795",
    "design": "text",
-   "labels": "always",
-   "radius": 0,
-   "margin": 0
+   "labels": "always"
   }
  }
 }

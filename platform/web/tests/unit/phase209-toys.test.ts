@@ -68,7 +68,9 @@ describe("209 the toys type", () => {
     const toys = shopTypeById("toys")!;
     expect(shopTypeReady(toys)).toBe(true);
     expect(toys.demo).toBe(TOYS_DEMO);
-    expect(shopTypeTemplate(toys)).toBe("toys_signature_a");
+    // 226 Its main template is its look C, the adventure map.
+    expect(shopTypeTemplate(toys)).toBe("toys_signature_c");
+    expect(shopTypeTemplate(toys, "a")).toBe("toys_signature_a");
     expect(shopTypeTemplate(toys, "b")).toBe("toys_signature_b");
     expect(shopTypesIn("kids").map((t) => t.id)).toContain("toys");
     // Beside kids' clothes, the section's other ready type.
@@ -77,7 +79,7 @@ describe("209 the toys type", () => {
     expect(store).toEqual(expect.arrayContaining(["toys_signature_a", "toys_signature_b"]));
     expect(templatesFor({ type: "store", vertical: "restaurant" }).map((t) => t.id)).not.toContain("toys_signature_a");
     expect(shopTypeOfDesign("toys_signature_b")?.id).toBe("toys");
-    expect(TEMPLATES.filter((t) => t.demo === TOYS_DEMO).map((t) => t.id)).toEqual(["toys_signature_a", "toys_signature_b"]);
+    expect(TEMPLATES.filter((t) => t.demo === TOYS_DEMO).map((t) => t.id)).toEqual(["toys_signature_c", "toys_signature_d", "toys_signature_a", "toys_signature_b"]);
   });
 
   it("asks its owner to accept the kids' notice once: child-safety standards and age warnings, sold to parents", () => {
@@ -202,7 +204,7 @@ describe("209 Toot, the toy shop's demo", () => {
     }
 
     it("keeps its categories, its toys with their details, the add-ons, the card at checkout, the sale and the code", async () => {
-      expect(app.design).toBe("toys_signature_a");
+      expect(app.design).toBe("toys_signature_c");
       expect(app.catalogSettings?.currency).toBe("AED");
       expect(app.catalogSettings?.returnDays).toBe(30);
       expect(app.catalogSettings?.gifts).toMatchObject({ message: true, recipient: true, starterTexts: { ar: TOYS_COMMERCE.gifts!.starterTexts!.ar } });
