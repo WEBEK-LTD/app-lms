@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -16,6 +17,7 @@ import 'package:yallapp_business/core/services/chime.dart';
 import 'package:yallapp_business/core/services/media_picker.dart';
 import 'package:yallapp_business/core/services/privacy.dart';
 import 'package:yallapp_business/core/services/push.dart';
+import 'package:yallapp_business/core/services/ringtones.dart';
 import 'package:yallapp_business/core/services/screen_wake.dart';
 import 'package:yallapp_business/features/events/camera_scanner.dart';
 import 'package:yallapp_business/features/launch/opening_screen.dart';
@@ -55,6 +57,8 @@ class TestApp {
   final opened = <String>[];
   final privacy = FakePrivacy();
   final chime = FakeChime();
+  final ringer = FakeRinger();
+  final ringNative = FakeRingNative();
   final wake = FakeWake();
   final picker = FakePicker();
   final scanner = FakeScanner();
@@ -91,6 +95,8 @@ class TestApp {
       return true;
     }),
     chimeProvider.overrideWithValue(chime),
+    ringerProvider.overrideWithValue(ringer),
+    ringNativeProvider.overrideWithValue(ringNative),
     screenWakeProvider.overrideWithValue(wake),
     mediaPickerProvider.overrideWithValue(picker),
     cameraScannerProvider.overrideWithValue(() => scanner),
@@ -243,6 +249,84 @@ class FakeWake implements ScreenWake {
 
   @override
   Future<void> release() async => on = false;
+}
+
+/// 206 The in-app ringer: what it played and whether it rings on.
+class FakeRinger implements Ringer {
+  final played = <String>[];
+  final rang = <(String, Duration)>[];
+  final _ringing = ValueNotifier<bool>(false);
+  int stops = 0;
+
+  @override
+  ValueListenable<bool> get ringing => _ringing;
+
+  @override
+  Future<void> play(String sound, {double volume = 1}) async =>
+      played.add(sound);
+
+  @override
+  Future<void> ring(
+    String sound, {
+    required Duration max,
+    double volume = 1,
+  }) async {
+    rang.add((sound, max));
+    _ringing.value = true;
+  }
+
+  @override
+  Future<void> stop() async {
+    stops += 1;
+    _ringing.value = false;
+  }
+}
+
+/// 206 Android's side: what it was told.
+class FakeRingNative implements RingNative {
+  RingSettings? configured;
+  Map<String, String> words = const {};
+  int stops = 0;
+  final tests = <SoundGroup>[];
+  Map<String, dynamic>? launch;
+  final _opened = StreamController<Map<String, dynamic>>.broadcast();
+
+  void tap(Map<String, dynamic> data) => _opened.add(data);
+
+  @override
+  Future<void> configure(
+    RingSettings settings,
+    Map<String, String> words,
+  ) async {
+    configured = settings;
+    this.words = words;
+  }
+
+  @override
+  Future<void> stopRinging() async => stops += 1;
+
+  @override
+  Future<bool> testNotification(
+    SoundGroup group,
+    String title,
+    String body,
+  ) async {
+    tests.add(group);
+    return true;
+  }
+
+  @override
+  Future<String?> timeZone() async => 'Europe/Istanbul';
+
+  @override
+  Future<Map<String, dynamic>?> initial() async {
+    final data = launch;
+    launch = null;
+    return data;
+  }
+
+  @override
+  Stream<Map<String, dynamic>> get opened => _opened.stream;
 }
 
 class FakeChime implements Chime {

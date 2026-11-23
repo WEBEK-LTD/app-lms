@@ -164,6 +164,16 @@ abstract final class AppIcons {
   static const face = Symbols.face_rounded;
   static const pin = Symbols.pin_rounded;
   static const timer = Symbols.timer_rounded;
+  // 206 Ringtones.
+  static const ringtone = Symbols.music_note_rounded;
+  static const ringing = Symbols.notifications_active_rounded;
+  static const vibrate = Symbols.vibration_rounded;
+  static const quietHours = Symbols.bedtime_rounded;
+  static const stop = Symbols.stop_rounded;
+  static const alarmVolume = Symbols.alarm_rounded;
+  static const cancelledOrder = Symbols.remove_shopping_cart_rounded;
+  static const silent = Symbols.notifications_off_rounded;
+  static const volume = Symbols.volume_up_rounded;
 }
 
 /// Icons that point a way (back, forward, send) turn round in Arabic.

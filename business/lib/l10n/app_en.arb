@@ -2671,6 +2671,100 @@
   "cancelWithoutRefundHint": "You keep the payment. You can still refund it later.",
   "keepOrder": "Keep the order",
   "signedNoName": "Signed, with no name given",
+  "ringtones": "Ringtones",
+  "ringtonesSubtitle": "New orders: {sound}",
+  "@ringtonesSubtitle": {
+    "placeholders": {
+      "sound": {
+        "type": "String"
+      }
+    }
+  },
+  "ringtonesHelp": "Choose how each kind of notification sounds on this phone. New orders can keep ringing until you open them, like a phone call.",
+  "ringSoundsTitle": "Sounds",
+  "ringGroupOrders": "New orders",
+  "ringGroupOrdersHelp": "Shop, restaurant and market orders, and deliveries waiting for a courier",
+  "ringGroupBookings": "New bookings",
+  "ringGroupBookingsHelp": "Appointments booked in your app",
+  "ringGroupCancelled": "Cancelled orders",
+  "ringGroupCancelledHelp": "An order the customer cancelled",
+  "ringGroupMessages": "Messages and reviews",
+  "ringGroupMessagesHelp": "Chat, questions, reviews and complaints",
+  "ringGroupOther": "Everything else",
+  "ringGroupOtherHelp": "Payments, builds, alerts and news from Yallapp",
+  "ringtonePlay": "Play {name}",
+  "@ringtonePlay": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ringtoneStop": "Stop",
+  "ringtoneChosen": "Chosen",
+  "ringtonesYours": "Yallapp's ringtones",
+  "ringtonesOther": "Other",
+  "ringRingingTitle": "Ringing",
+  "ringUntilOpenedOrders": "New orders ring until opened",
+  "ringUntilOpenedBookings": "New bookings ring until opened",
+  "ringUntilOpenedHelp": "The sound repeats until you open the notification or the app.",
+  "ringForAtMost": "Ring for at most",
+  "ringMinutes": "{minutes} min",
+  "@ringMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "ringSoundTitle": "Sound and vibration",
+  "ringVibrate": "Vibrate",
+  "ringAlarmVolume": "Ring at alarm volume",
+  "ringAlarmVolumeHelp": "Orders are loud even when the notification volume is low.",
+  "ringVolume": "Volume in the app",
+  "ringQuietTitle": "Quiet hours",
+  "ringQuietOn": "Quiet hours",
+  "ringQuietHelp": "Messages and other notifications arrive without a sound. New orders still ring.",
+  "ringQuietFrom": "From",
+  "ringQuietTo": "To",
+  "ringTest": "Test ring",
+  "ringTestHelp": "Rings like a new order does, with the sound and time you chose.",
+  "ringTestNotification": "Send a test notification",
+  "ringTestNotificationTitle": "Test order",
+  "ringTestNotificationBody": "This is how a new order sounds on this phone.",
+  "ringTestSent": "Sent. Lock the phone to hear it as it comes.",
+  "ringIphoneNote": "On iPhone, when the app is closed an order rings for up to 25 seconds; open, it rings until you open it. Your phone's silent switch and Focus still apply.",
+  "ringAndroidNote": "If a sound doesn't play, check that notifications for Yallapp Business are allowed and the phone isn't on Do Not Disturb.",
+  "ringSaveFailed": "Saved on this phone. It reaches your notifications once you're online.",
+  "ringBannerOrder": "New order",
+  "ringBannerBooking": "New booking",
+  "ringSilence": "Silence",
+  "ringQuietChannel": "Rang",
+  "soundChime": "Yallapp chime",
+  "soundCounterBell": "Counter bell",
+  "soundKitchenTicket": "Kitchen ticket",
+  "soundMarimba": "Marimba",
+  "soundHarp": "Harp",
+  "soundDigital": "Digital beep",
+  "soundRushHour": "Rush hour",
+  "soundCashDrawer": "Cash drawer",
+  "soundDoorbell": "Doorbell",
+  "soundXylophone": "Xylophone",
+  "soundSoftPulse": "Soft pulse",
+  "soundChirp": "Chirp",
+  "soundSunrise": "Sunrise",
+  "soundArcade": "Arcade",
+  "soundDrop": "Drop",
+  "soundPop": "Pop",
+  "soundKnock": "Knock",
+  "soundDefault": "Phone's sound",
+  "soundSilent": "Silent",
+  "pushMarketOrder": "New marketplace orders",
+  "pushMarketOrderHelp": "When an order reaches one of your vendors",
+  "pushCancelled": "Cancelled orders",
+  "pushCancelledHelp": "When a customer cancels a food or marketplace order",
+  "pushRingtonesLink": "Ringtones",
+  "pushRingtonesLinkHelp": "Choose the sound of each kind, and let new orders ring until opened",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {

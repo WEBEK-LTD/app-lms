@@ -1,6 +1,8 @@
 import type { DataStore } from "../data/store";
 import { clubDue } from "./offers";
 import { releaseScheduled } from "./flow";
+import { pushNewMarketOrder } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
 
 /**
  * 115 The marketplace's daily work (the daily job): club memberships whose
@@ -21,7 +23,8 @@ export async function runMarketDaily(store: DataStore, now: Date): Promise<{ app
     const due = await clubDue(store, app.id, now);
     expired += due.expired;
     renewals += due.renewals.length;
-    released += await releaseScheduled(store, app.id, now);
+    // 206 Each released order rings on the owner's phones.
+    released += await releaseScheduled(store, app.id, now, (order) => pushOwnerSafely((d) => pushNewMarketOrder(d, app, order), store));
   }
   return { apps, expired, renewals, released };
 }

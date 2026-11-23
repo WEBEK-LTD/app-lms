@@ -250,6 +250,8 @@ class SessionController extends Notifier<SessionState> {
     if (token != null) {
       try {
         await api.setPushToken(token);
+        // 206 And the phone's ringtones, so its pushes ring with them.
+        await ref.read(ringSettingsProvider.notifier).sendToServer();
       } on ApiException {
         // Tried again on the next start.
       }

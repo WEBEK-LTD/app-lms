@@ -20,6 +20,7 @@ import { businessName } from "../team/service";
 import { isPrimeLicense, ownerAreas, primeGiftOf } from "./sales";
 import { primeGiftActive } from "../admin/prime-gift";
 import { accountManagerJson } from "./vip";
+import { pushSoundsJson, readPushSounds } from "./push-sounds";
 
 /**
  * 58 The account: who is signed in, their apps (with what each has, as the
@@ -254,6 +255,19 @@ export async function setPushPreferences(ctx: OwnerContext): Promise<OwnerResult
   }
   await ctx.deps.store.updateOwnerDevice(ctx.device.id, { pushPreferences: next });
   return { status: 200, body: preferencesJson(next) };
+}
+
+/** 206 This phone's ringtones (Settings › Ringtones); `saved: false` until it chose. */
+export async function getPushSounds(ctx: OwnerContext): Promise<OwnerResult> {
+  return { status: 200, body: pushSoundsJson(ctx.device.pushSounds ?? null) };
+}
+
+/** 206 Saves this phone's ringtones (only the fields sent change); from then on its pushes carry them. */
+export async function setPushSounds(ctx: OwnerContext): Promise<OwnerResult> {
+  const read = readPushSounds(bodyObject(ctx.req.body), ctx.device.pushSounds ?? null);
+  if (!read.ok) throw invalid({ [read.field]: read.error });
+  await ctx.deps.store.updateOwnerDevice(ctx.device.id, { pushSounds: read.value });
+  return { status: 200, body: pushSoundsJson(read.value) };
 }
 
 // 57 The bell: "Updates from Yallapp"

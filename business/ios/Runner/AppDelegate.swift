@@ -39,6 +39,24 @@ import UIKit
         }
       }
     }
+    // 206 The ringtones (lib/core/services/ringtones.dart): pushes carry the
+    // sounds bundled in Runner/Sounds; the app asks for the time zone of the
+    // quiet hours. The rest is Android's.
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "YallappRing") {
+      let channel = FlutterMethodChannel(
+        name: "tr.com.yallapp.business/ring", binaryMessenger: registrar.messenger())
+      channel.setMethodCallHandler { call, result in
+        switch call.method {
+        case "timeZone":
+          result(TimeZone.current.identifier)
+        case "stopRinging":
+          // iOS stops a notification's sound once the app is open.
+          result(nil)
+        default:
+          result(FlutterMethodNotImplemented)
+        }
+      }
+    }
   }
 }
 

@@ -669,7 +669,10 @@ enum PushKind {
   shipmentWaiting('shipment_waiting'),
   newComplaint('new_complaint'),
   primeAlert('prime_alert'),
-  morningBrief('morning_brief');
+  morningBrief('morning_brief'),
+  // 206 A marketplace order reached its vendor; a customer cancelled one.
+  newMarketOrder('new_market_order'),
+  orderCancelled('order_cancelled');
 
   const PushKind(this.wire);
   final String wire;

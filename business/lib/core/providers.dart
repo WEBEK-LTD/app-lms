@@ -1,5 +1,6 @@
 import 'dart:ui' show PlatformDispatcher;
 
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,6 +20,7 @@ import 'services/links.dart';
 import 'services/media_picker.dart';
 import 'services/privacy.dart';
 import 'services/push.dart';
+import 'services/ringtones.dart';
 import 'services/screen_wake.dart';
 import 'services/settings.dart';
 import 'session.dart';
@@ -53,7 +55,63 @@ final pushServiceProvider = Provider<PushService>(
 
 final openExternalProvider = Provider<OpenExternal>((ref) => openExternal);
 
-final chimeProvider = Provider<Chime>((ref) => AssetChime());
+final chimeProvider = Provider<Chime>(
+  (ref) => AssetChime(
+    ref.watch(ringerProvider),
+    () => ref.read(ringSettingsProvider),
+  ),
+);
+
+/// 206 The ringtones: the native side (Android shows its pushes itself),
+/// the in-app ringer, and the choices.
+final ringNativeProvider = Provider<RingNative>((ref) => const NoRingNative());
+
+final ringerProvider = Provider<Ringer>((ref) => AssetRinger());
+
+class RingSettingsController extends Notifier<RingSettings> {
+  Map<String, String> _words = const {};
+
+  @override
+  RingSettings build() => ref.watch(settingsProvider).ringSettings;
+
+  /// Saves a change on this phone, hands it to Android, and sends it to
+  /// the server (tried again at the next start when that fails).
+  Future<void> set(RingSettings next) async {
+    state = next;
+    await ref.read(settingsProvider).setRingSettings(next);
+    await ref.read(ringNativeProvider).configure(next, _words);
+    await sendToServer();
+  }
+
+  /// The words of Android's channels and actions, in the app's language.
+  Future<void> setWords(Map<String, String> words) async {
+    if (mapEquals(words, _words)) return;
+    _words = words;
+    await ref.read(ringNativeProvider).configure(state, words);
+  }
+
+  /// Sends the choices unless the server has them (after sign-in, and after
+  /// each change while signed in).
+  Future<void> sendToServer({bool force = false}) async {
+    final settings = ref.read(settingsProvider);
+    if (!force && settings.ringSettingsSent) return;
+    if (ref.read(sessionProvider) is! SignedIn) return;
+    try {
+      final zone = await ref.read(ringNativeProvider).timeZone();
+      await ref
+          .read(apiProvider)
+          .setPushSounds(state.toApiJson(timeZone: zone));
+      await settings.setRingSettingsSent(true);
+    } on Object {
+      // Tried again at the next start.
+    }
+  }
+}
+
+final ringSettingsProvider =
+    NotifierProvider<RingSettingsController, RingSettings>(
+      RingSettingsController.new,
+    );
 
 /// 61 Kitchen mode keeps the screen on.
 final screenWakeProvider = Provider<ScreenWake>((ref) => WakelockScreenWake());

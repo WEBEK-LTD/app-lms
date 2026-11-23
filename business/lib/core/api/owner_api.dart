@@ -27,6 +27,10 @@ abstract class OwnerApi {
   Future<void> deletePushToken();
   Future<PushPreferences> pushPreferences();
   Future<PushPreferences> setPushPreferences(PushPreferences preferences);
+
+  /// 206 This phone's ringtones on the server (`PUT /me/push-sounds`):
+  /// from then on its pushes carry them.
+  Future<void> setPushSounds(Map<String, dynamic> sounds);
   Future<AppSummary> app(String appId);
 
   // 60 Team members: the business this phone works on, and the owner's team.

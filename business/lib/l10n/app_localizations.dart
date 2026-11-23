@@ -7210,6 +7210,444 @@ abstract class AppLocalizations {
   /// **'Signed, with no name given'**
   String get signedNoName;
 
+  /// No description provided for @ringtones.
+  ///
+  /// In en, this message translates to:
+  /// **'Ringtones'**
+  String get ringtones;
+
+  /// No description provided for @ringtonesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New orders: {sound}'**
+  String ringtonesSubtitle(String sound);
+
+  /// No description provided for @ringtonesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how each kind of notification sounds on this phone. New orders can keep ringing until you open them, like a phone call.'**
+  String get ringtonesHelp;
+
+  /// No description provided for @ringSoundsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sounds'**
+  String get ringSoundsTitle;
+
+  /// No description provided for @ringGroupOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'New orders'**
+  String get ringGroupOrders;
+
+  /// No description provided for @ringGroupOrdersHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop, restaurant and market orders, and deliveries waiting for a courier'**
+  String get ringGroupOrdersHelp;
+
+  /// No description provided for @ringGroupBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'New bookings'**
+  String get ringGroupBookings;
+
+  /// No description provided for @ringGroupBookingsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointments booked in your app'**
+  String get ringGroupBookingsHelp;
+
+  /// No description provided for @ringGroupCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled orders'**
+  String get ringGroupCancelled;
+
+  /// No description provided for @ringGroupCancelledHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'An order the customer cancelled'**
+  String get ringGroupCancelledHelp;
+
+  /// No description provided for @ringGroupMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages and reviews'**
+  String get ringGroupMessages;
+
+  /// No description provided for @ringGroupMessagesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat, questions, reviews and complaints'**
+  String get ringGroupMessagesHelp;
+
+  /// No description provided for @ringGroupOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything else'**
+  String get ringGroupOther;
+
+  /// No description provided for @ringGroupOtherHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments, builds, alerts and news from Yallapp'**
+  String get ringGroupOtherHelp;
+
+  /// No description provided for @ringtonePlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play {name}'**
+  String ringtonePlay(String name);
+
+  /// No description provided for @ringtoneStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get ringtoneStop;
+
+  /// No description provided for @ringtoneChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen'**
+  String get ringtoneChosen;
+
+  /// No description provided for @ringtonesYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Yallapp\'s ringtones'**
+  String get ringtonesYours;
+
+  /// No description provided for @ringtonesOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get ringtonesOther;
+
+  /// No description provided for @ringRingingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ringing'**
+  String get ringRingingTitle;
+
+  /// No description provided for @ringUntilOpenedOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'New orders ring until opened'**
+  String get ringUntilOpenedOrders;
+
+  /// No description provided for @ringUntilOpenedBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'New bookings ring until opened'**
+  String get ringUntilOpenedBookings;
+
+  /// No description provided for @ringUntilOpenedHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The sound repeats until you open the notification or the app.'**
+  String get ringUntilOpenedHelp;
+
+  /// No description provided for @ringForAtMost.
+  ///
+  /// In en, this message translates to:
+  /// **'Ring for at most'**
+  String get ringForAtMost;
+
+  /// No description provided for @ringMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String ringMinutes(String minutes);
+
+  /// No description provided for @ringSoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound and vibration'**
+  String get ringSoundTitle;
+
+  /// No description provided for @ringVibrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibrate'**
+  String get ringVibrate;
+
+  /// No description provided for @ringAlarmVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Ring at alarm volume'**
+  String get ringAlarmVolume;
+
+  /// No description provided for @ringAlarmVolumeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders are loud even when the notification volume is low.'**
+  String get ringAlarmVolumeHelp;
+
+  /// No description provided for @ringVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume in the app'**
+  String get ringVolume;
+
+  /// No description provided for @ringQuietTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiet hours'**
+  String get ringQuietTitle;
+
+  /// No description provided for @ringQuietOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiet hours'**
+  String get ringQuietOn;
+
+  /// No description provided for @ringQuietHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages and other notifications arrive without a sound. New orders still ring.'**
+  String get ringQuietHelp;
+
+  /// No description provided for @ringQuietFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get ringQuietFrom;
+
+  /// No description provided for @ringQuietTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get ringQuietTo;
+
+  /// No description provided for @ringTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Test ring'**
+  String get ringTest;
+
+  /// No description provided for @ringTestHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Rings like a new order does, with the sound and time you chose.'**
+  String get ringTestHelp;
+
+  /// No description provided for @ringTestNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a test notification'**
+  String get ringTestNotification;
+
+  /// No description provided for @ringTestNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Test order'**
+  String get ringTestNotificationTitle;
+
+  /// No description provided for @ringTestNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This is how a new order sounds on this phone.'**
+  String get ringTestNotificationBody;
+
+  /// No description provided for @ringTestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. Lock the phone to hear it as it comes.'**
+  String get ringTestSent;
+
+  /// No description provided for @ringIphoneNote.
+  ///
+  /// In en, this message translates to:
+  /// **'On iPhone, when the app is closed an order rings for up to 25 seconds; open, it rings until you open it. Your phone\'s silent switch and Focus still apply.'**
+  String get ringIphoneNote;
+
+  /// No description provided for @ringAndroidNote.
+  ///
+  /// In en, this message translates to:
+  /// **'If a sound doesn\'t play, check that notifications for Yallapp Business are allowed and the phone isn\'t on Do Not Disturb.'**
+  String get ringAndroidNote;
+
+  /// No description provided for @ringSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this phone. It reaches your notifications once you\'re online.'**
+  String get ringSaveFailed;
+
+  /// No description provided for @ringBannerOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'New order'**
+  String get ringBannerOrder;
+
+  /// No description provided for @ringBannerBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'New booking'**
+  String get ringBannerBooking;
+
+  /// No description provided for @ringSilence.
+  ///
+  /// In en, this message translates to:
+  /// **'Silence'**
+  String get ringSilence;
+
+  /// No description provided for @ringQuietChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rang'**
+  String get ringQuietChannel;
+
+  /// No description provided for @soundChime.
+  ///
+  /// In en, this message translates to:
+  /// **'Yallapp chime'**
+  String get soundChime;
+
+  /// No description provided for @soundCounterBell.
+  ///
+  /// In en, this message translates to:
+  /// **'Counter bell'**
+  String get soundCounterBell;
+
+  /// No description provided for @soundKitchenTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'Kitchen ticket'**
+  String get soundKitchenTicket;
+
+  /// No description provided for @soundMarimba.
+  ///
+  /// In en, this message translates to:
+  /// **'Marimba'**
+  String get soundMarimba;
+
+  /// No description provided for @soundHarp.
+  ///
+  /// In en, this message translates to:
+  /// **'Harp'**
+  String get soundHarp;
+
+  /// No description provided for @soundDigital.
+  ///
+  /// In en, this message translates to:
+  /// **'Digital beep'**
+  String get soundDigital;
+
+  /// No description provided for @soundRushHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Rush hour'**
+  String get soundRushHour;
+
+  /// No description provided for @soundCashDrawer.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash drawer'**
+  String get soundCashDrawer;
+
+  /// No description provided for @soundDoorbell.
+  ///
+  /// In en, this message translates to:
+  /// **'Doorbell'**
+  String get soundDoorbell;
+
+  /// No description provided for @soundXylophone.
+  ///
+  /// In en, this message translates to:
+  /// **'Xylophone'**
+  String get soundXylophone;
+
+  /// No description provided for @soundSoftPulse.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft pulse'**
+  String get soundSoftPulse;
+
+  /// No description provided for @soundChirp.
+  ///
+  /// In en, this message translates to:
+  /// **'Chirp'**
+  String get soundChirp;
+
+  /// No description provided for @soundSunrise.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise'**
+  String get soundSunrise;
+
+  /// No description provided for @soundArcade.
+  ///
+  /// In en, this message translates to:
+  /// **'Arcade'**
+  String get soundArcade;
+
+  /// No description provided for @soundDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop'**
+  String get soundDrop;
+
+  /// No description provided for @soundPop.
+  ///
+  /// In en, this message translates to:
+  /// **'Pop'**
+  String get soundPop;
+
+  /// No description provided for @soundKnock.
+  ///
+  /// In en, this message translates to:
+  /// **'Knock'**
+  String get soundKnock;
+
+  /// No description provided for @soundDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone\'s sound'**
+  String get soundDefault;
+
+  /// No description provided for @soundSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Silent'**
+  String get soundSilent;
+
+  /// No description provided for @pushMarketOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'New marketplace orders'**
+  String get pushMarketOrder;
+
+  /// No description provided for @pushMarketOrderHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'When an order reaches one of your vendors'**
+  String get pushMarketOrderHelp;
+
+  /// No description provided for @pushCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled orders'**
+  String get pushCancelled;
+
+  /// No description provided for @pushCancelledHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'When a customer cancels a food or marketplace order'**
+  String get pushCancelledHelp;
+
+  /// No description provided for @pushRingtonesLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Ringtones'**
+  String get pushRingtonesLink;
+
+  /// No description provided for @pushRingtonesLinkHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the sound of each kind, and let new orders ring until opened'**
+  String get pushRingtonesLinkHelp;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

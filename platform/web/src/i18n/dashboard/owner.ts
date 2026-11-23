@@ -88,6 +88,11 @@ export const en = {
     shipmentWaitingBody: "{from} → {to}",
     newComplaint: "New complaint on {reference}",
     leave: "{name} asked for leave",
+    // 206
+    newMarketOrder: "New order {reference}",
+    newMarketOrderBody: "{vendor}: {total}",
+    orderCancelled: "{reference} was cancelled",
+    orderCancelledBody: "The customer cancelled the order at {place}.",
   },
   // 125 Prime: today's comparison, insights, smart alerts and the morning brief.
   prime: {
@@ -249,6 +254,11 @@ export const ar: Messages = {
     shipmentWaitingBody: "من {from} إلى {to}",
     newComplaint: "شكوى جديدة على الطلب {reference}",
     leave: "طلب {name} إجازة",
+    // 206
+    newMarketOrder: "طلب جديد {reference}",
+    newMarketOrderBody: "{vendor}: {total}",
+    orderCancelled: "تم إلغاء {reference}",
+    orderCancelledBody: "ألغى العميل الطلب لدى {place}.",
   },
   prime: {
     vsLast: "مقارنةً بيوم {day} الماضي",
@@ -400,6 +410,11 @@ export const tr: Messages = {
     shipmentWaitingBody: "{from} → {to}",
     newComplaint: "{reference} için yeni şikâyet",
     leave: "{name} izin istedi",
+    // 206
+    newMarketOrder: "Yeni sipariş {reference}",
+    newMarketOrderBody: "{vendor}: {total}",
+    orderCancelled: "{reference} iptal edildi",
+    orderCancelledBody: "Müşteri {place} siparişini iptal etti.",
   },
   prime: {
     vsLast: "geçen {day} gününe göre",

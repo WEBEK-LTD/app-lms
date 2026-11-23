@@ -5,6 +5,8 @@ import { payShipmentOrder } from "../delivery/payment";
 import { announceOrder } from "../food/flow";
 import { payFoodOrder } from "../food/payment";
 import { payClubMembership, payMarketOrder } from "../market/flow";
+import { pushNewMarketOrder } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
 import { payFee } from "../school/fees";
 import { tellFeePaid } from "../school/flow";
 import { settleFee } from "../rides/flow";
@@ -491,7 +493,9 @@ export async function deliverPaidOrder(store: DataStore, app: App, order: Catalo
   const placed = await payFoodOrder(store, app, order, now);
   if (placed) await announceOrder({ store, app, now }, placed);
   // 115 A marketplace order paid online reaches its vendor.
-  await payMarketOrder(store, app, order, now);
+  const marketOrder = await payMarketOrder(store, app, order, now);
+  // 206 And its owner's phones ring (an order for later rings when it is released).
+  if (marketOrder?.status === "placed") await pushOwnerSafely((d) => pushNewMarketOrder(d, app, marketOrder), store);
   // 115.11 And a club plan paid online starts the membership.
   await payClubMembership(store, app, order, now);
   // 105.2 A card ride's fare is paid, and the cancellation fee it carried with it.

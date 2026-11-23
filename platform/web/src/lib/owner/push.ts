@@ -39,6 +39,7 @@ import { pushTarget, sendPush, type ServiceAccount } from "../hosted/push";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
 import { summaryOf } from "../updates";
 import { ownerLang } from "./lang";
+import { pushDelivery, type PushDelivery } from "./push-sounds";
 
 /**
  * 58 Pushes to the owners' phones (Yallapp Business), from Yallapp Business's
@@ -54,6 +55,10 @@ export interface OwnerPushMessage {
   title: string;
   body: string;
   data: Record<string, string>;
+  /** 206 How it sounds on the phones it goes to (lib/owner/push-sounds.ts); missing on phones that never chose. */
+  dataOnly?: boolean;
+  apnsSound?: string | null;
+  timeSensitive?: boolean;
 }
 
 export interface OwnerPushDeps {
@@ -137,17 +142,19 @@ export async function pushToOwner(
     const found = await devicesFor(deps.store, clientId, kind, permission, data.app_id ?? null, deps.now, only);
     if (found.length === 0) return 0;
     // 64 One message per language and business name, with the name first on phones working on another business.
-    const groups = new Map<string, { lang: Lang; business: string; other: boolean; devices: OwnerDevice[] }>();
+    // 206 And per sound: each phone's ringtones (as before for a phone that never chose).
+    const groups = new Map<string, { lang: Lang; business: string; other: boolean; delivery: PushDelivery | null; devices: OwnerDevice[] }>();
     for (const { language, device, business } of found) {
       const lang = ownerLang(language, device.language);
       const other = device.clientId !== clientId;
-      const key = JSON.stringify([lang, business, other]);
-      const group = groups.get(key) ?? { lang, business, other, devices: [] };
+      const delivery = pushDelivery(device, kind, deps.now);
+      const key = JSON.stringify([lang, business, other, delivery]);
+      const group = groups.get(key) ?? { lang, business, other, delivery, devices: [] };
       group.devices.push(device);
       groups.set(key, group);
     }
     let sent = 0;
-    for (const { lang, business, other, devices } of groups.values()) {
+    for (const { lang, business, other, delivery, devices } of groups.values()) {
       const words = wordsFor(lang);
       const text = word(words);
       const name = business === "Untitled app" ? words.k(business) : business;
@@ -155,7 +162,8 @@ export async function pushToOwner(
       const message: OwnerPushMessage = {
         title: clip(title, NOTIFICATION_TITLE_MAX),
         body: clip(text.body, NOTIFICATION_BODY_MAX),
-        data: { type: "owner", kind, ...data, business_id: clientId, business_name: name },
+        data: { type: "owner", kind, ...data, ...(delivery?.data ?? {}), business_id: clientId, business_name: name },
+        ...(delivery ? { dataOnly: delivery.dataOnly, apnsSound: delivery.apnsSound, timeSensitive: delivery.timeSensitive } : {}),
       };
       await deps.capture?.({ to: devices.map((d) => d.id), message });
       if (!deps.account) continue;
@@ -442,4 +450,33 @@ export function pushPrimeAlert(deps: OwnerPushDeps, app: App, userId: string, al
 /** 125 A person's morning brief, to them only. */
 export function pushMorningBrief(deps: OwnerPushDeps, app: App, userId: string, word: (words: Words) => { title: string; body: string }): Promise<number> {
   return pushToOwner(deps, app.clientId, "morning_brief", word, { app_id: app.id, alert: "morning_brief" }, PUSH_PERMISSION.morning_brief, [userId]);
+}
+
+// 206 Marketplace orders, and orders a customer cancelled
+
+/** A marketplace order reached its vendor (placed with cash or the wallet, paid online, or a scheduled one released). */
+export function pushNewMarketOrder(deps: OwnerPushDeps, app: App, order: Pick<MarketOrder, "id" | "vendorName" | "money" | "currency">): Promise<number> {
+  if (app.demo) return Promise.resolve(0);
+  return pushToOwner(
+    deps,
+    app.clientId,
+    "new_market_order",
+    (w) => ({
+      title: w.t("owner.push.newMarketOrder", { reference: marketOrderReference(order) }),
+      body: w.t("owner.push.newMarketOrderBody", { vendor: order.vendorName, total: formatCents(order.money.total, order.currency, w.lang) }),
+    }),
+    { app_id: app.id, market_order_id: String(order.id) },
+  );
+}
+
+/** A customer cancelled a food or marketplace order before it was made. */
+export function pushOrderCancelled(deps: OwnerPushDeps, app: App, order: { reference: string; place: string; ids: Record<string, string> }): Promise<number> {
+  if (app.demo) return Promise.resolve(0);
+  return pushToOwner(
+    deps,
+    app.clientId,
+    "order_cancelled",
+    (w) => ({ title: w.t("owner.push.orderCancelled", { reference: order.reference }), body: w.t("owner.push.orderCancelledBody", { place: order.place }) }),
+    { app_id: app.id, ...order.ids },
+  );
 }

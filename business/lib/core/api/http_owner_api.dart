@@ -236,6 +236,11 @@ class HttpOwnerApi implements OwnerApi {
   );
 
   @override
+  Future<void> setPushSounds(Map<String, dynamic> sounds) async {
+    await _put('/me/push-sounds', sounds);
+  }
+
+  @override
   Future<AppSummary> app(String appId) async =>
       AppSummary.fromJson(await _get(_app(appId)));
 

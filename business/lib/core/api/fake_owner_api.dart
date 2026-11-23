@@ -1168,6 +1168,15 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     return pushPreferences();
   }
 
+  /// 206 The ringtones this phone sent last.
+  Map<String, dynamic>? pushSounds;
+
+  @override
+  Future<void> setPushSounds(Map<String, dynamic> sounds) async {
+    await _call('setPushSounds', needsActive: false);
+    pushSounds = sounds;
+  }
+
   // 60 Team members
 
   String? _businessId;

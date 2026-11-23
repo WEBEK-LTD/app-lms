@@ -16,6 +16,40 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		82F191293B838EB8C29F8FA9 /* yb_ring_arcade.caf in Resources */ = {isa = PBXBuildFile; fileRef = 9DDB8D98167DFB1FC0AAA09A /* yb_ring_arcade.caf */; };
+		801BA8C05427704E20FD3BE5 /* yb_ring_arcade_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = A298BA141A35D43BBB71084D /* yb_ring_arcade_long.caf */; };
+		03EBA56EC052272FED8113F7 /* yb_ring_cash_drawer.caf in Resources */ = {isa = PBXBuildFile; fileRef = 3F5E84ACE07967562F2FF97D /* yb_ring_cash_drawer.caf */; };
+		EEF62602AF299907789997E7 /* yb_ring_cash_drawer_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = C30138E46C354C4802E681B7 /* yb_ring_cash_drawer_long.caf */; };
+		75DF73E53953345EA3E5721D /* yb_ring_chime.caf in Resources */ = {isa = PBXBuildFile; fileRef = 3B19189F38DB8B00C547AD23 /* yb_ring_chime.caf */; };
+		015454CF2DAB9CE61BEDD7CD /* yb_ring_chime_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = 3F89FE6D2B5DEADDC5B49FEA /* yb_ring_chime_long.caf */; };
+		23CA59FF40CE032754181DE3 /* yb_ring_chirp.caf in Resources */ = {isa = PBXBuildFile; fileRef = F4784AE7843A26D442A60BA5 /* yb_ring_chirp.caf */; };
+		E724A5FF591F742DCF9D5BF7 /* yb_ring_chirp_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = C8F50A3D35BE6493E331A885 /* yb_ring_chirp_long.caf */; };
+		502660E8F0E3494F6A27B6EA /* yb_ring_counter_bell.caf in Resources */ = {isa = PBXBuildFile; fileRef = ABC7E6CF3D8004BBE36FA54A /* yb_ring_counter_bell.caf */; };
+		DF50426D46AB81393F1BA713 /* yb_ring_counter_bell_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = E47544F38D9CBB744BD983F3 /* yb_ring_counter_bell_long.caf */; };
+		8CCFD5CEC4D44003D1140CDD /* yb_ring_digital.caf in Resources */ = {isa = PBXBuildFile; fileRef = 48F50C55AD53FEACF72C15B1 /* yb_ring_digital.caf */; };
+		3D173AC61128AFDE89772157 /* yb_ring_digital_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = E5EC55B3CBCC9671BBEA5799 /* yb_ring_digital_long.caf */; };
+		7EDCFA159DDFDD013CD56DF9 /* yb_ring_doorbell.caf in Resources */ = {isa = PBXBuildFile; fileRef = 31F79563C26B37A0FA8C8B11 /* yb_ring_doorbell.caf */; };
+		84C4D5FD4BD029265AD3271F /* yb_ring_doorbell_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = A93424644EE6C15C7AC5AE50 /* yb_ring_doorbell_long.caf */; };
+		20A62F142C550DA0B435FA65 /* yb_ring_harp.caf in Resources */ = {isa = PBXBuildFile; fileRef = 9DFFE2037BD0B11A9C387C2C /* yb_ring_harp.caf */; };
+		449544AE90633F16EC5878FB /* yb_ring_harp_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = 5AE2D2766ED22FD51C635EC9 /* yb_ring_harp_long.caf */; };
+		A691406C16037EF48EE82ACE /* yb_ring_kitchen_ticket.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1524F36D9AD2BD7F6B36A73F /* yb_ring_kitchen_ticket.caf */; };
+		EDF6D57549E0B3A11BF750D4 /* yb_ring_kitchen_ticket_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = 8EE9B6D6D85E2744CFA88E50 /* yb_ring_kitchen_ticket_long.caf */; };
+		79C4A8239B67C01A07F55772 /* yb_ring_knock.caf in Resources */ = {isa = PBXBuildFile; fileRef = 4197CEC59EBF1F980E7A47F3 /* yb_ring_knock.caf */; };
+		5D0ADC37ADFCC10CB8A42B1D /* yb_ring_knock_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = 431A7E239BBF30C050AAEC94 /* yb_ring_knock_long.caf */; };
+		33CDAA78F48E1224AB43D416 /* yb_ring_marimba.caf in Resources */ = {isa = PBXBuildFile; fileRef = 45AC223812D9C692AB93A4D2 /* yb_ring_marimba.caf */; };
+		3A1A50C8F998B4C721C983C4 /* yb_ring_marimba_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = 4E9621D3F7AAF74DF0309D9D /* yb_ring_marimba_long.caf */; };
+		BDA8613E2EC78A335C629A2A /* yb_ring_pop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 9EA1E6342E99B29E2A9B2889 /* yb_ring_pop.caf */; };
+		B83FA2FF0B6DAE9C3B03C8FE /* yb_ring_pop_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = 59640A16EEBDFAAC05CFAE45 /* yb_ring_pop_long.caf */; };
+		F0676E41998F5ABF1ED75C54 /* yb_ring_rush_hour.caf in Resources */ = {isa = PBXBuildFile; fileRef = 82CAF586919BBF59B80D4F79 /* yb_ring_rush_hour.caf */; };
+		28E70553F1AF8D3686A750A9 /* yb_ring_rush_hour_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = 9029242CE09FAC188521D0DA /* yb_ring_rush_hour_long.caf */; };
+		438DDD1D6F80555096D1658C /* yb_ring_soft_drop.caf in Resources */ = {isa = PBXBuildFile; fileRef = B8854045447E0F49A0CD4128 /* yb_ring_soft_drop.caf */; };
+		7112562330D5B91BED12A8EC /* yb_ring_soft_drop_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = 64555DA28D2F771A5548A89A /* yb_ring_soft_drop_long.caf */; };
+		D1D883E7F45022EC47BAD4C7 /* yb_ring_soft_pulse.caf in Resources */ = {isa = PBXBuildFile; fileRef = 703E6F6C9BB25BB7F5115163 /* yb_ring_soft_pulse.caf */; };
+		2E06580F4EC607FD69396347 /* yb_ring_soft_pulse_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = B361E95BE8F1AA64ED690452 /* yb_ring_soft_pulse_long.caf */; };
+		9574D96FF1AB68B1DE57C8AF /* yb_ring_sunrise.caf in Resources */ = {isa = PBXBuildFile; fileRef = 499F93A35EC917E6C3583298 /* yb_ring_sunrise.caf */; };
+		05E304752E9D659832A318D3 /* yb_ring_sunrise_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = D425D49002E7E546DFDFB53D /* yb_ring_sunrise_long.caf */; };
+		D1772B01C2074B52F5A77FA1 /* yb_ring_xylophone.caf in Resources */ = {isa = PBXBuildFile; fileRef = 39F88D38D36134BF6ED9E704 /* yb_ring_xylophone.caf */; };
+		CF03DCD456B6B9F160E56D89 /* yb_ring_xylophone_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = BFF9B7C869B775A57D126018 /* yb_ring_xylophone_long.caf */; };
 		A33A98102517CFD6B46FFA0E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 4A0203815D6699792BE2E0AC /* PrivacyInfo.xcprivacy */; };
 		A719C0C687E9229CBB775C78 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3CD5478E326349514FE92CC4 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
@@ -49,6 +83,40 @@
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		9DDB8D98167DFB1FC0AAA09A /* yb_ring_arcade.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_arcade.caf; sourceTree = "<group>"; };
+		A298BA141A35D43BBB71084D /* yb_ring_arcade_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_arcade_long.caf; sourceTree = "<group>"; };
+		3F5E84ACE07967562F2FF97D /* yb_ring_cash_drawer.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_cash_drawer.caf; sourceTree = "<group>"; };
+		C30138E46C354C4802E681B7 /* yb_ring_cash_drawer_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_cash_drawer_long.caf; sourceTree = "<group>"; };
+		3B19189F38DB8B00C547AD23 /* yb_ring_chime.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_chime.caf; sourceTree = "<group>"; };
+		3F89FE6D2B5DEADDC5B49FEA /* yb_ring_chime_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_chime_long.caf; sourceTree = "<group>"; };
+		F4784AE7843A26D442A60BA5 /* yb_ring_chirp.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_chirp.caf; sourceTree = "<group>"; };
+		C8F50A3D35BE6493E331A885 /* yb_ring_chirp_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_chirp_long.caf; sourceTree = "<group>"; };
+		ABC7E6CF3D8004BBE36FA54A /* yb_ring_counter_bell.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_counter_bell.caf; sourceTree = "<group>"; };
+		E47544F38D9CBB744BD983F3 /* yb_ring_counter_bell_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_counter_bell_long.caf; sourceTree = "<group>"; };
+		48F50C55AD53FEACF72C15B1 /* yb_ring_digital.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_digital.caf; sourceTree = "<group>"; };
+		E5EC55B3CBCC9671BBEA5799 /* yb_ring_digital_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_digital_long.caf; sourceTree = "<group>"; };
+		31F79563C26B37A0FA8C8B11 /* yb_ring_doorbell.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_doorbell.caf; sourceTree = "<group>"; };
+		A93424644EE6C15C7AC5AE50 /* yb_ring_doorbell_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_doorbell_long.caf; sourceTree = "<group>"; };
+		9DFFE2037BD0B11A9C387C2C /* yb_ring_harp.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_harp.caf; sourceTree = "<group>"; };
+		5AE2D2766ED22FD51C635EC9 /* yb_ring_harp_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_harp_long.caf; sourceTree = "<group>"; };
+		1524F36D9AD2BD7F6B36A73F /* yb_ring_kitchen_ticket.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_kitchen_ticket.caf; sourceTree = "<group>"; };
+		8EE9B6D6D85E2744CFA88E50 /* yb_ring_kitchen_ticket_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_kitchen_ticket_long.caf; sourceTree = "<group>"; };
+		4197CEC59EBF1F980E7A47F3 /* yb_ring_knock.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_knock.caf; sourceTree = "<group>"; };
+		431A7E239BBF30C050AAEC94 /* yb_ring_knock_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_knock_long.caf; sourceTree = "<group>"; };
+		45AC223812D9C692AB93A4D2 /* yb_ring_marimba.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_marimba.caf; sourceTree = "<group>"; };
+		4E9621D3F7AAF74DF0309D9D /* yb_ring_marimba_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_marimba_long.caf; sourceTree = "<group>"; };
+		9EA1E6342E99B29E2A9B2889 /* yb_ring_pop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_pop.caf; sourceTree = "<group>"; };
+		59640A16EEBDFAAC05CFAE45 /* yb_ring_pop_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_pop_long.caf; sourceTree = "<group>"; };
+		82CAF586919BBF59B80D4F79 /* yb_ring_rush_hour.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_rush_hour.caf; sourceTree = "<group>"; };
+		9029242CE09FAC188521D0DA /* yb_ring_rush_hour_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_rush_hour_long.caf; sourceTree = "<group>"; };
+		B8854045447E0F49A0CD4128 /* yb_ring_soft_drop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_soft_drop.caf; sourceTree = "<group>"; };
+		64555DA28D2F771A5548A89A /* yb_ring_soft_drop_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_soft_drop_long.caf; sourceTree = "<group>"; };
+		703E6F6C9BB25BB7F5115163 /* yb_ring_soft_pulse.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_soft_pulse.caf; sourceTree = "<group>"; };
+		B361E95BE8F1AA64ED690452 /* yb_ring_soft_pulse_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_soft_pulse_long.caf; sourceTree = "<group>"; };
+		499F93A35EC917E6C3583298 /* yb_ring_sunrise.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_sunrise.caf; sourceTree = "<group>"; };
+		D425D49002E7E546DFDFB53D /* yb_ring_sunrise_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_sunrise_long.caf; sourceTree = "<group>"; };
+		39F88D38D36134BF6ED9E704 /* yb_ring_xylophone.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_xylophone.caf; sourceTree = "<group>"; };
+		BFF9B7C869B775A57D126018 /* yb_ring_xylophone_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_xylophone_long.caf; sourceTree = "<group>"; };
 		4A0203815D6699792BE2E0AC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		4F1BBC32DE72F082D39A65DF /* ar */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -136,8 +204,50 @@
 				7DFFFA65EB27FE60F390C5FB /* RunnerDebug.entitlements */,
 				4A0203815D6699792BE2E0AC /* PrivacyInfo.xcprivacy */,
 				3CD5478E326349514FE92CC4 /* InfoPlist.strings */,
+				E12855D51ABE5E2CD83FEAF6 /* Sounds */,
 			);
 			path = Runner;
+			sourceTree = "<group>";
+		};
+		E12855D51ABE5E2CD83FEAF6 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				9DDB8D98167DFB1FC0AAA09A /* yb_ring_arcade.caf */,
+				A298BA141A35D43BBB71084D /* yb_ring_arcade_long.caf */,
+				3F5E84ACE07967562F2FF97D /* yb_ring_cash_drawer.caf */,
+				C30138E46C354C4802E681B7 /* yb_ring_cash_drawer_long.caf */,
+				3B19189F38DB8B00C547AD23 /* yb_ring_chime.caf */,
+				3F89FE6D2B5DEADDC5B49FEA /* yb_ring_chime_long.caf */,
+				F4784AE7843A26D442A60BA5 /* yb_ring_chirp.caf */,
+				C8F50A3D35BE6493E331A885 /* yb_ring_chirp_long.caf */,
+				ABC7E6CF3D8004BBE36FA54A /* yb_ring_counter_bell.caf */,
+				E47544F38D9CBB744BD983F3 /* yb_ring_counter_bell_long.caf */,
+				48F50C55AD53FEACF72C15B1 /* yb_ring_digital.caf */,
+				E5EC55B3CBCC9671BBEA5799 /* yb_ring_digital_long.caf */,
+				31F79563C26B37A0FA8C8B11 /* yb_ring_doorbell.caf */,
+				A93424644EE6C15C7AC5AE50 /* yb_ring_doorbell_long.caf */,
+				9DFFE2037BD0B11A9C387C2C /* yb_ring_harp.caf */,
+				5AE2D2766ED22FD51C635EC9 /* yb_ring_harp_long.caf */,
+				1524F36D9AD2BD7F6B36A73F /* yb_ring_kitchen_ticket.caf */,
+				8EE9B6D6D85E2744CFA88E50 /* yb_ring_kitchen_ticket_long.caf */,
+				4197CEC59EBF1F980E7A47F3 /* yb_ring_knock.caf */,
+				431A7E239BBF30C050AAEC94 /* yb_ring_knock_long.caf */,
+				45AC223812D9C692AB93A4D2 /* yb_ring_marimba.caf */,
+				4E9621D3F7AAF74DF0309D9D /* yb_ring_marimba_long.caf */,
+				9EA1E6342E99B29E2A9B2889 /* yb_ring_pop.caf */,
+				59640A16EEBDFAAC05CFAE45 /* yb_ring_pop_long.caf */,
+				82CAF586919BBF59B80D4F79 /* yb_ring_rush_hour.caf */,
+				9029242CE09FAC188521D0DA /* yb_ring_rush_hour_long.caf */,
+				B8854045447E0F49A0CD4128 /* yb_ring_soft_drop.caf */,
+				64555DA28D2F771A5548A89A /* yb_ring_soft_drop_long.caf */,
+				703E6F6C9BB25BB7F5115163 /* yb_ring_soft_pulse.caf */,
+				B361E95BE8F1AA64ED690452 /* yb_ring_soft_pulse_long.caf */,
+				499F93A35EC917E6C3583298 /* yb_ring_sunrise.caf */,
+				D425D49002E7E546DFDFB53D /* yb_ring_sunrise_long.caf */,
+				39F88D38D36134BF6ED9E704 /* yb_ring_xylophone.caf */,
+				BFF9B7C869B775A57D126018 /* yb_ring_xylophone_long.caf */,
+			);
+			path = Sounds;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -245,6 +355,40 @@
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				A33A98102517CFD6B46FFA0E /* PrivacyInfo.xcprivacy in Resources */,
 				A719C0C687E9229CBB775C78 /* InfoPlist.strings in Resources */,
+				82F191293B838EB8C29F8FA9 /* yb_ring_arcade.caf in Resources */,
+				801BA8C05427704E20FD3BE5 /* yb_ring_arcade_long.caf in Resources */,
+				03EBA56EC052272FED8113F7 /* yb_ring_cash_drawer.caf in Resources */,
+				EEF62602AF299907789997E7 /* yb_ring_cash_drawer_long.caf in Resources */,
+				75DF73E53953345EA3E5721D /* yb_ring_chime.caf in Resources */,
+				015454CF2DAB9CE61BEDD7CD /* yb_ring_chime_long.caf in Resources */,
+				23CA59FF40CE032754181DE3 /* yb_ring_chirp.caf in Resources */,
+				E724A5FF591F742DCF9D5BF7 /* yb_ring_chirp_long.caf in Resources */,
+				502660E8F0E3494F6A27B6EA /* yb_ring_counter_bell.caf in Resources */,
+				DF50426D46AB81393F1BA713 /* yb_ring_counter_bell_long.caf in Resources */,
+				8CCFD5CEC4D44003D1140CDD /* yb_ring_digital.caf in Resources */,
+				3D173AC61128AFDE89772157 /* yb_ring_digital_long.caf in Resources */,
+				7EDCFA159DDFDD013CD56DF9 /* yb_ring_doorbell.caf in Resources */,
+				84C4D5FD4BD029265AD3271F /* yb_ring_doorbell_long.caf in Resources */,
+				20A62F142C550DA0B435FA65 /* yb_ring_harp.caf in Resources */,
+				449544AE90633F16EC5878FB /* yb_ring_harp_long.caf in Resources */,
+				A691406C16037EF48EE82ACE /* yb_ring_kitchen_ticket.caf in Resources */,
+				EDF6D57549E0B3A11BF750D4 /* yb_ring_kitchen_ticket_long.caf in Resources */,
+				79C4A8239B67C01A07F55772 /* yb_ring_knock.caf in Resources */,
+				5D0ADC37ADFCC10CB8A42B1D /* yb_ring_knock_long.caf in Resources */,
+				33CDAA78F48E1224AB43D416 /* yb_ring_marimba.caf in Resources */,
+				3A1A50C8F998B4C721C983C4 /* yb_ring_marimba_long.caf in Resources */,
+				BDA8613E2EC78A335C629A2A /* yb_ring_pop.caf in Resources */,
+				B83FA2FF0B6DAE9C3B03C8FE /* yb_ring_pop_long.caf in Resources */,
+				F0676E41998F5ABF1ED75C54 /* yb_ring_rush_hour.caf in Resources */,
+				28E70553F1AF8D3686A750A9 /* yb_ring_rush_hour_long.caf in Resources */,
+				438DDD1D6F80555096D1658C /* yb_ring_soft_drop.caf in Resources */,
+				7112562330D5B91BED12A8EC /* yb_ring_soft_drop_long.caf in Resources */,
+				D1D883E7F45022EC47BAD4C7 /* yb_ring_soft_pulse.caf in Resources */,
+				2E06580F4EC607FD69396347 /* yb_ring_soft_pulse_long.caf in Resources */,
+				9574D96FF1AB68B1DE57C8AF /* yb_ring_sunrise.caf in Resources */,
+				05E304752E9D659832A318D3 /* yb_ring_sunrise_long.caf in Resources */,
+				D1772B01C2074B52F5A77FA1 /* yb_ring_xylophone.caf in Resources */,
+				CF03DCD456B6B9F160E56D89 /* yb_ring_xylophone_long.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

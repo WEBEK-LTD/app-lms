@@ -104,6 +104,7 @@ void main() {
   });
 
   testWidgets('a push while the app is open shows with Open', (tester) async {
+    // 206 A message shows at the bottom; a new order rings with its banner.
     final push = FakePush();
     final app = TestApp(push: push);
     await app.pump(tester);
@@ -119,8 +120,19 @@ void main() {
       ),
     );
     await settle(tester, 3);
-    expect(find.text('New order: Order 1050 was paid.'), findsOneWidget);
+    expect(find.text('New order\nOrder 1050 was paid.'), findsOneWidget);
+    expect(app.ringer.rang, hasLength(1));
     await tapOn(tester, find.text('Open'));
     expect(find.text('#1040'), findsOneWidget);
+    expect(app.ringer.ringing.value, isFalse);
+    push.foregroundController.add(
+      const RemoteNotice(
+        title: 'Build 7 is ready',
+        body: 'Moda Café 1.2.0',
+        data: {'kind': 'build_finished', 'build_id': 'b'},
+      ),
+    );
+    await settle(tester, 3);
+    expect(find.text('Build 7 is ready: Moda Café 1.2.0'), findsOneWidget);
   });
 }

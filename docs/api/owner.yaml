@@ -514,6 +514,46 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
+  /me/push-sounds:
+    get:
+      tags: [Account]
+      operationId: getPushSounds
+      summary: This device's ringtones
+      responses:
+        '200':
+          description: The choices (each group's default until saved)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PushSounds' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    put:
+      tags: [Account]
+      operationId: setPushSounds
+      summary: Choose this device's ringtones
+      description: Fields left out keep their choice. From then on, this device's pushes carry its sounds.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sounds: { type: object, additionalProperties: { $ref: '#/components/schemas/SoundChoice' } }
+                ring: { type: array, items: { type: string, enum: [orders, bookings] } }
+                ring_minutes: { type: integer, enum: [1, 2, 3, 5, 10] }
+                vibrate: { type: boolean }
+                alarm_volume: { type: boolean }
+                quiet: { type: [object, 'null'] }
+                time_zone: { type: [string, 'null'] }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PushSounds' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
   /updates:
     get:
       tags: [Updates]
@@ -625,6 +665,10 @@ paths:
           in: query
           description: Only orders in these statuses (comma-separated); paid orders of every status, and those waiting for a payment outside the app, by default. `pending` is those waiting.
           schema: { type: string, example: processing }
+        - name: q
+          in: query
+          description: '206 Search the latest 500 orders by number (with or without #) or by who ordered: name, email, or at least 4 digits of the phone. Arabic-Indic digits work too.'
+          schema: { type: string, maxLength: 100, example: '1042' }
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
       responses:
@@ -4586,7 +4630,7 @@ components:
 
     PushKind:
       type: string
-      enum: [new_order, new_booking, new_message, new_chat_message, new_review, payment_received, build_finished, yallapp_updates, account_notices, new_food_order, shipment_waiting, new_complaint, prime_alert, morning_brief]
+      enum: [new_order, new_booking, new_message, new_chat_message, new_review, payment_received, build_finished, yallapp_updates, account_notices, new_food_order, shipment_waiting, new_complaint, prime_alert, morning_brief, new_market_order, order_cancelled]
       description: |
         `new_order` a catalog order was paid (125: never for a delivery, food,
         ride or school app's payment links; a school fee paid by card is
@@ -4608,7 +4652,13 @@ components:
         `food_order_id`, `market_order_id`, `shipment_id`, `ride_id`,
         `complaint_id`, `inquiry_id`, `review_id`); `morning_brief` the
         person's morning brief (`alert: morning_brief`). School pushes carry
-        `school_excuse_id`, `school_report_id` and `leave_id`.
+        `school_excuse_id`, `school_report_id` and `leave_id`. Roadmap 206:
+        `new_market_order` a marketplace order reached its vendor
+        (`market_order_id`); `order_cancelled` a customer cancelled a food or
+        marketplace order (`food_order_id` or `market_order_id`). A device that
+        saved its ringtones (`PUT /me/push-sounds`) also gets `yb_group`,
+        `yb_sound`, `yb_ring` and `yb_ring_minutes`; on Android it gets the push
+        as data only, with `yb_title` and `yb_body`, and shows it itself.
 
     PushPreferences:
       type: object
@@ -4629,6 +4679,49 @@ components:
         new_complaint: { type: boolean }
         prime_alert: { type: boolean }
         morning_brief: { type: boolean }
+        new_market_order: { type: boolean }
+        order_cancelled: { type: boolean }
+
+    SoundChoice:
+      type: string
+      description: 'A ringtone of the app (`ringtones`), `default` (the phone''s own sound) or `silent`.'
+      enum: [chime, counter_bell, kitchen_ticket, marimba, harp, digital, rush_hour, cash_drawer, doorbell, xylophone, soft_pulse, chirp, sunrise, arcade, soft_drop, pop, knock, default, silent]
+
+    PushSounds:
+      type: object
+      description: |
+        206 This device's ringtones: a sound for each group of pushes (orders:
+        new_order, new_food_order, new_market_order, shipment_waiting;
+        bookings; cancelled: order_cancelled; messages: new_message,
+        new_chat_message, new_review, new_complaint; other: the rest), the
+        groups that ring on until opened and for how long at most, and the
+        quiet hours (everything but orders without a sound, in `time_zone`).
+      required: [saved, sounds, ring, ring_minutes, vibrate, alarm_volume, quiet, time_zone, ringtones]
+      properties:
+        saved: { type: boolean, description: False until this device saved its choices (it gets pushes as before). }
+        sounds:
+          type: object
+          required: [orders, bookings, cancelled, messages, other]
+          properties:
+            orders: { $ref: '#/components/schemas/SoundChoice' }
+            bookings: { $ref: '#/components/schemas/SoundChoice' }
+            cancelled: { $ref: '#/components/schemas/SoundChoice' }
+            messages: { $ref: '#/components/schemas/SoundChoice' }
+            other: { $ref: '#/components/schemas/SoundChoice' }
+        ring: { type: array, items: { type: string, enum: [orders, bookings] } }
+        ring_minutes: { type: integer, enum: [1, 2, 3, 5, 10] }
+        vibrate: { type: boolean }
+        alarm_volume: { type: boolean, description: Android rings at the alarm's volume. }
+        quiet:
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [from, to]
+              properties:
+                from: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$' }
+                to: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$' }
+        time_zone: { type: [string, 'null'], example: Europe/Istanbul }
+        ringtones: { type: array, items: { type: string } }
 
     Update:
       type: object

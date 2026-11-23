@@ -26,6 +26,7 @@ import '../../features/media/media_screen.dart';
 import '../../features/team/team_screen.dart';
 import '../../features/more/devices_screen.dart';
 import '../../features/more/appearance_screen.dart';
+import '../../features/more/ringtones_screen.dart';
 import '../../features/more/language_screen.dart';
 import '../../features/more/more_screen.dart';
 import '../../features/more/plan_screen.dart';
@@ -331,6 +332,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       full(Paths.language, (_) => const LanguageScreen()),
       full(Paths.appearance, (_) => const AppearanceScreen()),
       full(Paths.notifications, (_) => const PushSettingsScreen()),
+      full(Paths.ringtones, (_) => const RingtonesScreen()),
       full(Paths.devices, (_) => const DevicesScreen()),
       full(Paths.team, (_) => const TeamScreen()),
       // 125 Studio apps' screens, Prime and VIP.
