@@ -381,11 +381,37 @@ function booking(ctx: SectionContext): StudioNode {
   };
 }
 
-function home(ctx: SectionContext): StudioPage {
-  const t = sigTexts(ctx, { title: "fuWordmark" });
+/** A square outlined button of the drawing's top: its icon, opening `action`. */
+function squareButton(ctx: SectionContext, icon: string, name: SectionWord, action: Action): StudioNode {
+  const id = idOf(ctx);
+  return { id: id(), type: "row", name: ctx.w(name), width: 38, height: 38, align: "center", cross: "center", self_align: "center", border_color: K.line, dark_border_color: K.darkLine, border_width: 1, action, children: [{ id: id(), type: "icon", icon, icon_size: 21, color: K.ink, dark_color: K.darkInk }] };
+}
+
+/** The drawing's own top in place of the app's bar: the menu, the spaced wordmark in the middle, the search and the bag in square outlined buttons, a hairline under them. */
+function sheetTop(ctx: SectionContext): StudioNode {
   const id = idOf(ctx);
   return {
-    header: { type: "logo_actions", ...t, buttons: ["menu", "search", "cart"], menu_page: MENU_PAGE, background: K.page, dark_background: K.darkPage, color: K.ink, dark_color: K.darkInk },
+    id: id(),
+    type: "row",
+    name: ctx.w("fuWordmark"),
+    gap: 6,
+    cross: "center",
+    padding: sides(8, 16, 10, 16),
+    border_color: K.line,
+    dark_border_color: K.darkLine,
+    children: [
+      squareButton(ctx, "menu_open", "skCategoryMenu", ownPage(ctx, MENU_PAGE)),
+      say(ctx, L, "fuWordmark", font(15, 900, { letter_spacing: 5, uppercase: true }), { width: "fill", text_align: "center", max_lines: 1 }),
+      squareButton(ctx, "search", "mzMenuSearch", screen("search")),
+      squareButton(ctx, "shopping_bag", "tabCart", screen("cart")),
+    ],
+  };
+}
+
+function home(ctx: SectionContext): StudioPage {
+  const id = idOf(ctx);
+  return {
+    // No bar of the app's: the drawing's own top (`sheetTop`).
     background: K.page,
     dark_background: K.darkPage,
     body: {
@@ -393,6 +419,8 @@ function home(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 40, 0),
       children: [
+        sheetTop(ctx),
+        hair(ctx, sides(0, 0, 0, 0)),
         titleBlock(ctx, [
           ["mzSheet", "fuRoomLiving"],
           ["mzScale", "mzScaleLabel"],

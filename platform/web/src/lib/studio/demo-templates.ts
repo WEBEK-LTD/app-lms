@@ -421,6 +421,8 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     fuShowroom: { en: "Rukn showroom, Al Yasmin, Riyadh", ar: "معرض ركن، حي الياسمين، الرياض", tr: "Rukn showroomu, Al Yasmin, Riyad" },
     fuShowroomLine: { en: "Open today until 11 pm", ar: "مفتوح اليوم حتى 11 مساءً", tr: "Bugün 23.00'e kadar açık" },
     fuContactLine: { en: "Customer care every day, 9 am to 11 pm", ar: "خدمة العملاء يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Müşteri hizmetleri her gün 09.00–23.00" },
+    // 225 The shop's name in each language (ركن in Arabic), wherever a look writes it.
+    fuWordmark: { en: "Rukn", ar: "ركن", tr: "Rukn" },
     // 225 Looks C and D's.
     mzPlanStep2Text: { en: "Within 2 working days, with each piece to scale.", ar: "خلال يومَي عمل، وكل قطعة بمقياسها.", tr: "2 iş günü içinde, her parça ölçeğinde." },
     mzNoteDeliveryValue: { en: "Free, with assembly, in 5–7 days", ar: "مجاني مع التركيب، خلال 5–7 أيام", tr: "Kurulumla ücretsiz, 5–7 gün" },
@@ -440,6 +442,8 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     dcStatStudios: { en: "30", ar: "30", tr: "30" },
     dcStatRating: { en: "4.8", ar: "4.8", tr: "4.8" },
     dcContactLine: { en: "Customer care every day, 9 am to 11 pm", ar: "خدمة العملاء يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Müşteri hizmetleri her gün 09.00–23.00" },
+    // 225 The shop's name in each language (سكن in Arabic), wherever a look writes it.
+    dcWordmark: { en: "Sakan", ar: "سكن", tr: "Sakan" },
     // 225 Looks C and D's.
     atDates: { en: "The autumn exhibition · until 30 December", ar: "معرض الخريف · حتى 30 ديسمبر", tr: "Sonbahar sergisi · 30 Aralık'a kadar" },
     atPieceMaker: { en: "Maker: Sakan's ceramics studio", ar: "الصانع: مشغل سكن للخزف", tr: "Yapan: Sakan seramik atölyesi" },

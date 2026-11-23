@@ -3,7 +3,7 @@ import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { sides, sigEntry, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
-import { kitPhoto, say, shop, type KitLook } from "./shop-kit-parts";
+import { kitPhoto, ownPage, say, shop, type KitLook } from "./shop-kit-parts";
 
 /**
  * 225 Sakan's look C, ATHAR (أثر), the gallery: the decor house hung as a
@@ -260,11 +260,36 @@ function filmstrip(ctx: SectionContext): StudioNode {
   return { id: idOf(ctx)(), type: "items", name: ctx.w("atNew"), source: "products", layout: "carousel", gap: 22, padding: sides(0, 28, 0, 28), query: { limit: 8, category_id: null, featured: false, sort: "newest", ids: [] }, card: framedCard(ctx, 132, 132) };
 }
 
+/** The gallery's own top in place of the app's bar: a thin menu line, the tiny centred wordmark in Amiri over its spaced line, the bag. */
+function galleryTop(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  const plain = (icon: string, name: SectionWord, action: Action): StudioNode => ({ id: id(), type: "row", name: ctx.w(name), width: 36, height: 36, align: "center", cross: "center", self_align: "center", action, children: [{ id: id(), type: "icon", icon, icon_size: 22, color: K.ink, dark_color: K.darkInk }] });
+  return {
+    id: id(),
+    type: "row",
+    name: ctx.w("dcWordmark"),
+    gap: 8,
+    cross: "center",
+    padding: sides(10, 18, 6, 18),
+    children: [
+      plain("menu_open", "skCategoryMenu", ownPage(ctx, MENU_PAGE)),
+      {
+        id: id(),
+        type: "column",
+        width: "fill",
+        gap: 2,
+        cross: "center",
+        children: [say(ctx, L, "dcWordmark", display(20, 400, { line_height: 1.1 }), { text_align: "center", max_lines: 1 }), say(ctx, L, "atWordmarkLine", text(9, 500, { letter_spacing: 3, uppercase: true }), { muted: true, text_align: "center", max_lines: 1 })],
+      },
+      plain("shopping_bag", "tabCart", screen("cart")),
+    ],
+  };
+}
+
 function home(ctx: SectionContext): StudioPage {
   const id = idOf(ctx);
-  const t = sigTexts(ctx, { title: "dcWordmark", subtitle: "atWordmarkLine" });
   return {
-    header: { type: "logo_center", ...t, buttons: ["menu", "cart"], menu_page: MENU_PAGE, background: K.page, dark_background: K.darkPage, color: K.ink, dark_color: K.darkInk },
+    // No bar of the app's: the gallery's own top (`galleryTop`).
     background: K.page,
     dark_background: K.darkPage,
     body: {
@@ -272,6 +297,7 @@ function home(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 60, 0),
       children: [
+        galleryTop(ctx),
         ...exhibition(ctx),
         head(ctx, "atCollectionKicker", "atCollection", { word: "skSeeAll", action: shop }),
         masonry(ctx),

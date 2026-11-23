@@ -188,32 +188,6 @@
     "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
-     "header": {
-      "type": "title",
-      "title": "Rukn",
-      "subtitle": "Room by room, a whole home",
-      "translations": {
-       "ar": {
-        "title": "Rukn",
-        "subtitle": "غرفة غرفة، بيت كامل"
-       },
-       "tr": {
-        "title": "Rukn",
-        "subtitle": "Oda oda, koca bir ev"
-       }
-      },
-      "buttons": [
-       "menu",
-       "search",
-       "cart"
-      ],
-      "menu_page": "menu",
-      "background": "#F3F1EC",
-      "dark_background": "#0F131C",
-      "color": "#1B2233",
-      "dark_color": "#EEF0F5",
-      "style": "glass"
-     },
      "background": "#F3F1EC",
      "dark_background": "#0F131C",
      "body": {
@@ -228,6 +202,158 @@
       "children": [
        {
         "id": "sig-2",
+        "type": "row",
+        "name": "Rukn",
+        "gap": 10,
+        "cross": "center",
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "row",
+          "name": "All categories",
+          "width": 42,
+          "height": 42,
+          "radius": 21,
+          "align": "center",
+          "cross": "center",
+          "self_align": "center",
+          "action": {
+           "type": "page",
+           "page_slug": "menu"
+          },
+          "background": "#1F2A44",
+          "dark_background": "#E3B868",
+          "children": [
+           {
+            "id": "sig-4",
+            "type": "icon",
+            "icon": "menu_open",
+            "icon_size": 21,
+            "color": "#FFFFFF",
+            "dark_color": "#1A1408"
+           }
+          ]
+         },
+         {
+          "id": "sig-5",
+          "type": "column",
+          "width": "fill",
+          "gap": 0,
+          "children": [
+           {
+            "id": "sig-6",
+            "type": "text",
+            "text": "Rukn",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 22,
+             "weight": 800
+            },
+            "color": "#1B2233",
+            "dark_color": "#EEF0F5",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ركن"
+             },
+             "tr": {
+              "text": "Rukn"
+             }
+            }
+           },
+           {
+            "id": "sig-7",
+            "type": "text",
+            "text": "Room by room, a whole home",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 11.5,
+             "weight": 400
+            },
+            "color": "#596071",
+            "dark_color": "#AAB0BF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "غرفة غرفة، بيت كامل"
+             },
+             "tr": {
+              "text": "Oda oda, koca bir ev"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-8",
+          "type": "row",
+          "name": "Search every room…",
+          "width": 42,
+          "height": 42,
+          "radius": 21,
+          "align": "center",
+          "cross": "center",
+          "self_align": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#181E2B",
+          "border_color": "#E2DED5",
+          "dark_border_color": "#283042",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-9",
+            "type": "icon",
+            "icon": "search",
+            "icon_size": 21,
+            "color": "#1B2233",
+            "dark_color": "#EEF0F5"
+           }
+          ]
+         },
+         {
+          "id": "sig-10",
+          "type": "row",
+          "name": "Cart",
+          "width": 42,
+          "height": 42,
+          "radius": 21,
+          "align": "center",
+          "cross": "center",
+          "self_align": "center",
+          "action": {
+           "type": "screen",
+           "screen": "cart"
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#181E2B",
+          "border_color": "#E2DED5",
+          "dark_border_color": "#283042",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-11",
+            "type": "icon",
+            "icon": "shopping_bag",
+            "icon_size": 21,
+            "color": "#1B2233",
+            "dark_color": "#EEF0F5"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-12",
         "type": "row",
         "name": "Rooms",
         "pin": "top",
@@ -250,7 +376,7 @@
         "shadow": "light",
         "children": [
          {
-          "id": "sig-3",
+          "id": "sig-13",
           "type": "column",
           "name": "Living room",
           "width": "fill",
@@ -271,7 +397,7 @@
           "dark_background": "#E3B868",
           "children": [
            {
-            "id": "sig-4",
+            "id": "sig-14",
             "type": "icon",
             "icon": "airline_seat_recline_extra",
             "icon_size": 20,
@@ -279,7 +405,7 @@
             "dark_color": "#1A1408"
            },
            {
-            "id": "sig-5",
+            "id": "sig-15",
             "type": "text",
             "text": "Living",
             "max_lines": 1,
@@ -303,7 +429,7 @@
           ]
          },
          {
-          "id": "sig-6",
+          "id": "sig-16",
           "type": "column",
           "name": "Bedroom",
           "width": "fill",
@@ -322,7 +448,7 @@
           },
           "children": [
            {
-            "id": "sig-7",
+            "id": "sig-17",
             "type": "icon",
             "icon": "bed",
             "icon_size": 20,
@@ -330,7 +456,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-8",
+            "id": "sig-18",
             "type": "text",
             "text": "Bedroom",
             "max_lines": 1,
@@ -354,7 +480,7 @@
           ]
          },
          {
-          "id": "sig-9",
+          "id": "sig-19",
           "type": "column",
           "name": "Dining room",
           "width": "fill",
@@ -373,7 +499,7 @@
           },
           "children": [
            {
-            "id": "sig-10",
+            "id": "sig-20",
             "type": "icon",
             "icon": "restaurant",
             "icon_size": 20,
@@ -381,7 +507,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-11",
+            "id": "sig-21",
             "type": "text",
             "text": "Dining",
             "max_lines": 1,
@@ -405,7 +531,7 @@
           ]
          },
          {
-          "id": "sig-12",
+          "id": "sig-22",
           "type": "column",
           "name": "Office",
           "width": "fill",
@@ -424,7 +550,7 @@
           },
           "children": [
            {
-            "id": "sig-13",
+            "id": "sig-23",
             "type": "icon",
             "icon": "computer",
             "icon_size": 20,
@@ -432,7 +558,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-14",
+            "id": "sig-24",
             "type": "text",
             "text": "Office",
             "max_lines": 1,
@@ -456,7 +582,7 @@
           ]
          },
          {
-          "id": "sig-15",
+          "id": "sig-25",
           "type": "column",
           "name": "Outdoor",
           "width": "fill",
@@ -475,7 +601,7 @@
           },
           "children": [
            {
-            "id": "sig-16",
+            "id": "sig-26",
             "type": "icon",
             "icon": "yard",
             "icon_size": 20,
@@ -483,7 +609,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-17",
+            "id": "sig-27",
             "type": "text",
             "text": "Outdoor",
             "max_lines": 1,
@@ -509,7 +635,7 @@
         ]
        },
        {
-        "id": "sig-18",
+        "id": "sig-28",
         "type": "slider",
         "name": "Every room",
         "height": 372,
@@ -525,7 +651,7 @@
         },
         "children": [
          {
-          "id": "sig-19",
+          "id": "sig-29",
           "type": "column",
           "name": "Living",
           "title": "Living",
@@ -535,7 +661,7 @@
           "dark_background": "#181E2B",
           "children": [
            {
-            "id": "sig-20",
+            "id": "sig-30",
             "type": "image",
             "name": "Living room",
             "image_url": "http://localhost:3000/furniture-photos/room-living.jpg",
@@ -548,7 +674,7 @@
             }
            },
            {
-            "id": "sig-21",
+            "id": "sig-31",
             "type": "column",
             "gap": 3,
             "padding": {
@@ -559,7 +685,7 @@
             },
             "children": [
              {
-              "id": "sig-22",
+              "id": "sig-32",
               "type": "text",
               "text": "Living room",
               "font": {
@@ -585,7 +711,7 @@
               }
              },
              {
-              "id": "sig-23",
+              "id": "sig-33",
               "type": "text",
               "text": "Sofas, armchairs, coffee tables and TV units",
               "font": {
@@ -606,7 +732,7 @@
               }
              },
              {
-              "id": "sig-24",
+              "id": "sig-34",
               "type": "row",
               "gap": 6,
               "scroll": true,
@@ -618,7 +744,7 @@
               },
               "children": [
                {
-                "id": "sig-25",
+                "id": "sig-35",
                 "type": "row",
                 "name": "Sofas",
                 "radius": 11,
@@ -637,7 +763,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-26",
+                  "id": "sig-36",
                   "type": "text",
                   "text": "Sofas",
                   "font": {
@@ -660,7 +786,7 @@
                 ]
                },
                {
-                "id": "sig-27",
+                "id": "sig-37",
                 "type": "row",
                 "name": "Armchairs",
                 "radius": 11,
@@ -679,7 +805,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-28",
+                  "id": "sig-38",
                   "type": "text",
                   "text": "Armchairs",
                   "font": {
@@ -702,7 +828,7 @@
                 ]
                },
                {
-                "id": "sig-29",
+                "id": "sig-39",
                 "type": "row",
                 "name": "Coffee & side tables",
                 "radius": 11,
@@ -721,7 +847,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-30",
+                  "id": "sig-40",
                   "type": "text",
                   "text": "Coffee & side tables",
                   "font": {
@@ -744,7 +870,7 @@
                 ]
                },
                {
-                "id": "sig-31",
+                "id": "sig-41",
                 "type": "row",
                 "name": "TV units",
                 "radius": 11,
@@ -763,7 +889,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-32",
+                  "id": "sig-42",
                   "type": "text",
                   "text": "TV units",
                   "font": {
@@ -800,7 +926,7 @@
           }
          },
          {
-          "id": "sig-33",
+          "id": "sig-43",
           "type": "column",
           "name": "Bedroom",
           "title": "Bedroom",
@@ -810,7 +936,7 @@
           "dark_background": "#181E2B",
           "children": [
            {
-            "id": "sig-34",
+            "id": "sig-44",
             "type": "image",
             "name": "Bedroom",
             "image_url": "http://localhost:3000/furniture-photos/room-bedroom.jpg",
@@ -823,7 +949,7 @@
             }
            },
            {
-            "id": "sig-35",
+            "id": "sig-45",
             "type": "column",
             "gap": 3,
             "padding": {
@@ -834,7 +960,7 @@
             },
             "children": [
              {
-              "id": "sig-36",
+              "id": "sig-46",
               "type": "text",
               "text": "Bedroom",
               "font": {
@@ -860,7 +986,7 @@
               }
              },
              {
-              "id": "sig-37",
+              "id": "sig-47",
               "type": "text",
               "text": "Beds, wardrobes and nightstands",
               "font": {
@@ -881,7 +1007,7 @@
               }
              },
              {
-              "id": "sig-38",
+              "id": "sig-48",
               "type": "row",
               "gap": 6,
               "scroll": true,
@@ -893,7 +1019,7 @@
               },
               "children": [
                {
-                "id": "sig-39",
+                "id": "sig-49",
                 "type": "row",
                 "name": "Beds",
                 "radius": 11,
@@ -912,7 +1038,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-40",
+                  "id": "sig-50",
                   "type": "text",
                   "text": "Beds",
                   "font": {
@@ -935,7 +1061,7 @@
                 ]
                },
                {
-                "id": "sig-41",
+                "id": "sig-51",
                 "type": "row",
                 "name": "Wardrobes",
                 "radius": 11,
@@ -954,7 +1080,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-42",
+                  "id": "sig-52",
                   "type": "text",
                   "text": "Wardrobes",
                   "font": {
@@ -977,7 +1103,7 @@
                 ]
                },
                {
-                "id": "sig-43",
+                "id": "sig-53",
                 "type": "row",
                 "name": "Nightstands",
                 "radius": 11,
@@ -996,7 +1122,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-44",
+                  "id": "sig-54",
                   "type": "text",
                   "text": "Nightstands",
                   "font": {
@@ -1033,7 +1159,7 @@
           }
          },
          {
-          "id": "sig-45",
+          "id": "sig-55",
           "type": "column",
           "name": "Dining",
           "title": "Dining",
@@ -1043,7 +1169,7 @@
           "dark_background": "#181E2B",
           "children": [
            {
-            "id": "sig-46",
+            "id": "sig-56",
             "type": "image",
             "name": "Dining room",
             "image_url": "http://localhost:3000/furniture-photos/room-dining.jpg",
@@ -1056,7 +1182,7 @@
             }
            },
            {
-            "id": "sig-47",
+            "id": "sig-57",
             "type": "column",
             "gap": 3,
             "padding": {
@@ -1067,7 +1193,7 @@
             },
             "children": [
              {
-              "id": "sig-48",
+              "id": "sig-58",
               "type": "text",
               "text": "Dining room",
               "font": {
@@ -1093,7 +1219,7 @@
               }
              },
              {
-              "id": "sig-49",
+              "id": "sig-59",
               "type": "text",
               "text": "Dining tables and chairs for every gathering",
               "font": {
@@ -1114,7 +1240,7 @@
               }
              },
              {
-              "id": "sig-50",
+              "id": "sig-60",
               "type": "row",
               "gap": 6,
               "scroll": true,
@@ -1126,7 +1252,7 @@
               },
               "children": [
                {
-                "id": "sig-51",
+                "id": "sig-61",
                 "type": "row",
                 "name": "Dining tables",
                 "radius": 11,
@@ -1145,7 +1271,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-52",
+                  "id": "sig-62",
                   "type": "text",
                   "text": "Dining tables",
                   "font": {
@@ -1168,7 +1294,7 @@
                 ]
                },
                {
-                "id": "sig-53",
+                "id": "sig-63",
                 "type": "row",
                 "name": "Dining chairs",
                 "radius": 11,
@@ -1187,7 +1313,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-54",
+                  "id": "sig-64",
                   "type": "text",
                   "text": "Dining chairs",
                   "font": {
@@ -1224,7 +1350,7 @@
           }
          },
          {
-          "id": "sig-55",
+          "id": "sig-65",
           "type": "column",
           "name": "Office",
           "title": "Office",
@@ -1234,7 +1360,7 @@
           "dark_background": "#181E2B",
           "children": [
            {
-            "id": "sig-56",
+            "id": "sig-66",
             "type": "image",
             "name": "Office",
             "image_url": "http://localhost:3000/furniture-photos/room-office.jpg",
@@ -1247,7 +1373,7 @@
             }
            },
            {
-            "id": "sig-57",
+            "id": "sig-67",
             "type": "column",
             "gap": 3,
             "padding": {
@@ -1258,7 +1384,7 @@
             },
             "children": [
              {
-              "id": "sig-58",
+              "id": "sig-68",
               "type": "text",
               "text": "Office",
               "font": {
@@ -1284,7 +1410,7 @@
               }
              },
              {
-              "id": "sig-59",
+              "id": "sig-69",
               "type": "text",
               "text": "Desks and chairs for long working days",
               "font": {
@@ -1305,7 +1431,7 @@
               }
              },
              {
-              "id": "sig-60",
+              "id": "sig-70",
               "type": "row",
               "gap": 6,
               "scroll": true,
@@ -1317,7 +1443,7 @@
               },
               "children": [
                {
-                "id": "sig-61",
+                "id": "sig-71",
                 "type": "row",
                 "name": "Desks",
                 "radius": 11,
@@ -1336,7 +1462,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-62",
+                  "id": "sig-72",
                   "type": "text",
                   "text": "Desks",
                   "font": {
@@ -1359,7 +1485,7 @@
                 ]
                },
                {
-                "id": "sig-63",
+                "id": "sig-73",
                 "type": "row",
                 "name": "Office chairs",
                 "radius": 11,
@@ -1378,7 +1504,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-64",
+                  "id": "sig-74",
                   "type": "text",
                   "text": "Office chairs",
                   "font": {
@@ -1415,7 +1541,7 @@
           }
          },
          {
-          "id": "sig-65",
+          "id": "sig-75",
           "type": "column",
           "name": "Outdoor",
           "title": "Outdoor",
@@ -1425,7 +1551,7 @@
           "dark_background": "#181E2B",
           "children": [
            {
-            "id": "sig-66",
+            "id": "sig-76",
             "type": "image",
             "name": "Outdoor",
             "image_url": "http://localhost:3000/furniture-photos/room-outdoor.jpg",
@@ -1438,7 +1564,7 @@
             }
            },
            {
-            "id": "sig-67",
+            "id": "sig-77",
             "type": "column",
             "gap": 3,
             "padding": {
@@ -1449,7 +1575,7 @@
             },
             "children": [
              {
-              "id": "sig-68",
+              "id": "sig-78",
               "type": "text",
               "text": "Outdoor",
               "font": {
@@ -1475,7 +1601,7 @@
               }
              },
              {
-              "id": "sig-69",
+              "id": "sig-79",
               "type": "text",
               "text": "Lounges and tables for the garden and balcony",
               "font": {
@@ -1496,7 +1622,7 @@
               }
              },
              {
-              "id": "sig-70",
+              "id": "sig-80",
               "type": "row",
               "gap": 6,
               "scroll": true,
@@ -1508,7 +1634,7 @@
               },
               "children": [
                {
-                "id": "sig-71",
+                "id": "sig-81",
                 "type": "row",
                 "name": "Outdoor lounge",
                 "radius": 11,
@@ -1527,7 +1653,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-72",
+                  "id": "sig-82",
                   "type": "text",
                   "text": "Outdoor lounge",
                   "font": {
@@ -1550,7 +1676,7 @@
                 ]
                },
                {
-                "id": "sig-73",
+                "id": "sig-83",
                 "type": "row",
                 "name": "Outdoor dining",
                 "radius": 11,
@@ -1569,7 +1695,7 @@
                 },
                 "children": [
                  {
-                  "id": "sig-74",
+                  "id": "sig-84",
                   "type": "text",
                   "text": "Outdoor dining",
                   "font": {
@@ -1608,7 +1734,7 @@
         ]
        },
        {
-        "id": "sig-75",
+        "id": "sig-85",
         "type": "row",
         "name": "Choose the material first",
         "gap": 12,
@@ -1621,13 +1747,13 @@
         },
         "children": [
          {
-          "id": "sig-76",
+          "id": "sig-86",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-77",
+            "id": "sig-87",
             "type": "text",
             "text": "Choose the material first",
             "font": {
@@ -1648,7 +1774,7 @@
             }
            },
            {
-            "id": "sig-78",
+            "id": "sig-88",
             "type": "text",
             "text": "Free samples before you decide",
             "font": {
@@ -1673,7 +1799,7 @@
         ]
        },
        {
-        "id": "sig-79",
+        "id": "sig-89",
         "type": "row",
         "name": "Choose the material first",
         "gap": 10,
@@ -1686,7 +1812,7 @@
         },
         "children": [
          {
-          "id": "sig-80",
+          "id": "sig-90",
           "type": "column",
           "name": "Oak",
           "width": 88,
@@ -1697,7 +1823,7 @@
           },
           "children": [
            {
-            "id": "sig-81",
+            "id": "sig-91",
             "type": "row",
             "width": 88,
             "height": 88,
@@ -1713,7 +1839,7 @@
             "children": []
            },
            {
-            "id": "sig-82",
+            "id": "sig-92",
             "type": "text",
             "text": "Oak",
             "font": {
@@ -1740,7 +1866,7 @@
             }
            },
            {
-            "id": "sig-83",
+            "id": "sig-93",
             "type": "text",
             "text": "Solid wood",
             "font": {
@@ -1763,7 +1889,7 @@
           ]
          },
          {
-          "id": "sig-84",
+          "id": "sig-94",
           "type": "column",
           "name": "Walnut",
           "width": 88,
@@ -1774,7 +1900,7 @@
           },
           "children": [
            {
-            "id": "sig-85",
+            "id": "sig-95",
             "type": "row",
             "width": 88,
             "height": 88,
@@ -1790,7 +1916,7 @@
             "children": []
            },
            {
-            "id": "sig-86",
+            "id": "sig-96",
             "type": "text",
             "text": "Walnut",
             "font": {
@@ -1817,7 +1943,7 @@
             }
            },
            {
-            "id": "sig-87",
+            "id": "sig-97",
             "type": "text",
             "text": "Natural veneer",
             "font": {
@@ -1840,7 +1966,7 @@
           ]
          },
          {
-          "id": "sig-88",
+          "id": "sig-98",
           "type": "column",
           "name": "Linen",
           "width": 88,
@@ -1851,7 +1977,7 @@
           },
           "children": [
            {
-            "id": "sig-89",
+            "id": "sig-99",
             "type": "row",
             "width": 88,
             "height": 88,
@@ -1867,7 +1993,7 @@
             "children": []
            },
            {
-            "id": "sig-90",
+            "id": "sig-100",
             "type": "text",
             "text": "Linen",
             "font": {
@@ -1894,7 +2020,7 @@
             }
            },
            {
-            "id": "sig-91",
+            "id": "sig-101",
             "type": "text",
             "text": "Washable",
             "font": {
@@ -1917,7 +2043,7 @@
           ]
          },
          {
-          "id": "sig-92",
+          "id": "sig-102",
           "type": "column",
           "name": "Bouclé",
           "width": 88,
@@ -1928,7 +2054,7 @@
           },
           "children": [
            {
-            "id": "sig-93",
+            "id": "sig-103",
             "type": "row",
             "width": 88,
             "height": 88,
@@ -1944,7 +2070,7 @@
             "children": []
            },
            {
-            "id": "sig-94",
+            "id": "sig-104",
             "type": "text",
             "text": "Bouclé",
             "font": {
@@ -1971,7 +2097,7 @@
             }
            },
            {
-            "id": "sig-95",
+            "id": "sig-105",
             "type": "text",
             "text": "Soft texture",
             "font": {
@@ -1994,7 +2120,7 @@
           ]
          },
          {
-          "id": "sig-96",
+          "id": "sig-106",
           "type": "column",
           "name": "Velvet",
           "width": 88,
@@ -2005,7 +2131,7 @@
           },
           "children": [
            {
-            "id": "sig-97",
+            "id": "sig-107",
             "type": "row",
             "width": 88,
             "height": 88,
@@ -2021,7 +2147,7 @@
             "children": []
            },
            {
-            "id": "sig-98",
+            "id": "sig-108",
             "type": "text",
             "text": "Velvet",
             "font": {
@@ -2048,7 +2174,7 @@
             }
            },
            {
-            "id": "sig-99",
+            "id": "sig-109",
             "type": "text",
             "text": "Deep colours",
             "font": {
@@ -2073,7 +2199,7 @@
         ]
        },
        {
-        "id": "sig-100",
+        "id": "sig-110",
         "type": "row",
         "name": "Pieces worth their place",
         "gap": 12,
@@ -2086,13 +2212,13 @@
         },
         "children": [
          {
-          "id": "sig-101",
+          "id": "sig-111",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-102",
+            "id": "sig-112",
             "type": "text",
             "text": "Pieces worth their place",
             "font": {
@@ -2113,7 +2239,7 @@
             }
            },
            {
-            "id": "sig-103",
+            "id": "sig-113",
             "type": "text",
             "text": "Large photos, clearer details",
             "font": {
@@ -2136,7 +2262,7 @@
           ]
          },
          {
-          "id": "sig-104",
+          "id": "sig-114",
           "type": "text",
           "text": "See all",
           "font": {
@@ -2164,7 +2290,7 @@
         ]
        },
        {
-        "id": "sig-105",
+        "id": "sig-115",
         "type": "items",
         "name": "Pieces worth their place",
         "source": "products",
@@ -2184,7 +2310,7 @@
          "ids": []
         },
         "card": {
-         "id": "sig-106",
+         "id": "sig-116",
          "type": "column",
          "width": 296,
          "gap": 0,
@@ -2196,13 +2322,13 @@
          "border_width": 1,
          "children": [
           {
-           "id": "sig-107",
+           "id": "sig-117",
            "type": "stack",
            "width": 296,
            "height": 172,
            "children": [
             {
-             "id": "sig-108",
+             "id": "sig-118",
              "type": "image",
              "bind": "image",
              "width": 296,
@@ -2213,7 +2339,7 @@
              "dark_background": "#1F2636"
             },
             {
-             "id": "sig-109",
+             "id": "sig-119",
              "type": "text",
              "bind": "sale",
              "font": {
@@ -2240,7 +2366,7 @@
            ]
           },
           {
-           "id": "sig-110",
+           "id": "sig-120",
            "type": "row",
            "gap": 10,
            "cross": "center",
@@ -2252,13 +2378,13 @@
            },
            "children": [
             {
-             "id": "sig-111",
+             "id": "sig-121",
              "type": "column",
              "width": "fill",
              "gap": 2,
              "children": [
               {
-               "id": "sig-112",
+               "id": "sig-122",
                "type": "text",
                "bind": "title",
                "max_lines": 1,
@@ -2271,7 +2397,7 @@
                }
               },
               {
-               "id": "sig-113",
+               "id": "sig-123",
                "type": "text",
                "bind": "subtitle",
                "max_lines": 1,
@@ -2286,13 +2412,13 @@
              ]
             },
             {
-             "id": "sig-114",
+             "id": "sig-124",
              "type": "column",
              "gap": 0,
              "cross": "end",
              "children": [
               {
-               "id": "sig-115",
+               "id": "sig-125",
                "type": "text",
                "bind": "price",
                "max_lines": 1,
@@ -2305,7 +2431,7 @@
                }
               },
               {
-               "id": "sig-116",
+               "id": "sig-126",
                "type": "text",
                "bind": "was_price",
                "max_lines": 1,
@@ -2325,7 +2451,7 @@
         }
        },
        {
-        "id": "sig-117",
+        "id": "sig-127",
         "type": "row",
         "name": "From the order to the assembly",
         "gap": 12,
@@ -2338,13 +2464,13 @@
         },
         "children": [
          {
-          "id": "sig-118",
+          "id": "sig-128",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-119",
+            "id": "sig-129",
             "type": "text",
             "text": "From the order to the assembly",
             "font": {
@@ -2369,7 +2495,7 @@
         ]
        },
        {
-        "id": "sig-120",
+        "id": "sig-130",
         "type": "column",
         "name": "From the order to the assembly",
         "gap": 14,
@@ -2390,12 +2516,12 @@
         "dark_background": "#181E2B",
         "children": [
          {
-          "id": "sig-121",
+          "id": "sig-131",
           "type": "column",
           "gap": 3,
           "children": [
            {
-            "id": "sig-122",
+            "id": "sig-132",
             "type": "text",
             "text": "You choose your delivery day",
             "font": {
@@ -2416,7 +2542,7 @@
             }
            },
            {
-            "id": "sig-123",
+            "id": "sig-133",
             "type": "text",
             "text": "The team delivers, assembles and takes the boxes away",
             "font": {
@@ -2440,13 +2566,13 @@
           ]
          },
          {
-          "id": "sig-124",
+          "id": "sig-134",
           "type": "row",
           "name": "From the order to the assembly",
           "gap": 4,
           "children": [
            {
-            "id": "sig-125",
+            "id": "sig-135",
             "type": "column",
             "name": "Order",
             "width": "fill",
@@ -2454,7 +2580,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-126",
+              "id": "sig-136",
               "type": "row",
               "width": 40,
               "height": 40,
@@ -2465,7 +2591,7 @@
               "dark_background": "#E3B868",
               "children": [
                {
-                "id": "sig-127",
+                "id": "sig-137",
                 "type": "icon",
                 "icon": "shopping_cart",
                 "icon_size": 20,
@@ -2475,7 +2601,7 @@
               ]
              },
              {
-              "id": "sig-128",
+              "id": "sig-138",
               "type": "text",
               "text": "Order",
               "font": {
@@ -2503,7 +2629,7 @@
               }
              },
              {
-              "id": "sig-129",
+              "id": "sig-139",
               "type": "text",
               "text": "Today",
               "font": {
@@ -2528,7 +2654,7 @@
             ]
            },
            {
-            "id": "sig-130",
+            "id": "sig-140",
             "type": "column",
             "name": "Prepared",
             "width": "fill",
@@ -2536,7 +2662,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-131",
+              "id": "sig-141",
               "type": "row",
               "width": 40,
               "height": 40,
@@ -2547,7 +2673,7 @@
               "dark_background": "#283042",
               "children": [
                {
-                "id": "sig-132",
+                "id": "sig-142",
                 "type": "icon",
                 "icon": "inventory_2",
                 "icon_size": 20,
@@ -2557,7 +2683,7 @@
               ]
              },
              {
-              "id": "sig-133",
+              "id": "sig-143",
               "type": "text",
               "text": "Prepared",
               "font": {
@@ -2585,7 +2711,7 @@
               }
              },
              {
-              "id": "sig-134",
+              "id": "sig-144",
               "type": "text",
               "text": "2–4 days",
               "font": {
@@ -2610,7 +2736,7 @@
             ]
            },
            {
-            "id": "sig-135",
+            "id": "sig-145",
             "type": "column",
             "name": "Delivered",
             "width": "fill",
@@ -2618,7 +2744,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-136",
+              "id": "sig-146",
               "type": "row",
               "width": 40,
               "height": 40,
@@ -2629,7 +2755,7 @@
               "dark_background": "#283042",
               "children": [
                {
-                "id": "sig-137",
+                "id": "sig-147",
                 "type": "icon",
                 "icon": "local_shipping",
                 "icon_size": 20,
@@ -2639,7 +2765,7 @@
               ]
              },
              {
-              "id": "sig-138",
+              "id": "sig-148",
               "type": "text",
               "text": "Delivered",
               "font": {
@@ -2667,7 +2793,7 @@
               }
              },
              {
-              "id": "sig-139",
+              "id": "sig-149",
               "type": "text",
               "text": "On your day",
               "font": {
@@ -2692,7 +2818,7 @@
             ]
            },
            {
-            "id": "sig-140",
+            "id": "sig-150",
             "type": "column",
             "name": "Assembled",
             "width": "fill",
@@ -2700,7 +2826,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-141",
+              "id": "sig-151",
               "type": "row",
               "width": 40,
               "height": 40,
@@ -2711,7 +2837,7 @@
               "dark_background": "#283042",
               "children": [
                {
-                "id": "sig-142",
+                "id": "sig-152",
                 "type": "icon",
                 "icon": "build",
                 "icon_size": 20,
@@ -2721,7 +2847,7 @@
               ]
              },
              {
-              "id": "sig-143",
+              "id": "sig-153",
               "type": "text",
               "text": "Assembled",
               "font": {
@@ -2749,7 +2875,7 @@
               }
              },
              {
-              "id": "sig-144",
+              "id": "sig-154",
               "type": "text",
               "text": "Free",
               "font": {
@@ -2778,7 +2904,7 @@
         ]
        },
        {
-        "id": "sig-145",
+        "id": "sig-155",
         "type": "row",
         "name": "Most loved",
         "gap": 12,
@@ -2791,13 +2917,13 @@
         },
         "children": [
          {
-          "id": "sig-146",
+          "id": "sig-156",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-147",
+            "id": "sig-157",
             "type": "text",
             "text": "Most loved",
             "font": {
@@ -2818,7 +2944,7 @@
             }
            },
            {
-            "id": "sig-148",
+            "id": "sig-158",
             "type": "text",
             "text": "What customers order again and again",
             "font": {
@@ -2841,7 +2967,7 @@
           ]
          },
          {
-          "id": "sig-149",
+          "id": "sig-159",
           "type": "text",
           "text": "See all",
           "font": {
@@ -2869,7 +2995,7 @@
         ]
        },
        {
-        "id": "sig-150",
+        "id": "sig-160",
         "type": "items",
         "name": "Most loved",
         "source": "products",
@@ -2889,7 +3015,7 @@
          "ids": []
         },
         "card": {
-         "id": "sig-151",
+         "id": "sig-161",
          "type": "row",
          "gap": 12,
          "cross": "center",
@@ -2907,7 +3033,7 @@
          "border_width": 1,
          "children": [
           {
-           "id": "sig-152",
+           "id": "sig-162",
            "type": "image",
            "bind": "image",
            "width": 124,
@@ -2918,13 +3044,13 @@
            "dark_background": "#1F2636"
           },
           {
-           "id": "sig-153",
+           "id": "sig-163",
            "type": "column",
            "width": "fill",
            "gap": 2,
            "children": [
             {
-             "id": "sig-154",
+             "id": "sig-164",
              "type": "text",
              "bind": "title",
              "max_lines": 2,
@@ -2937,7 +3063,7 @@
              }
             },
             {
-             "id": "sig-155",
+             "id": "sig-165",
              "type": "text",
              "bind": "subtitle",
              "max_lines": 1,
@@ -2950,7 +3076,7 @@
              }
             },
             {
-             "id": "sig-156",
+             "id": "sig-166",
              "type": "text",
              "bind": "price",
              "max_lines": 1,
@@ -2971,7 +3097,7 @@
            ]
           },
           {
-           "id": "sig-157",
+           "id": "sig-167",
            "type": "icon",
            "icon": "add_circle",
            "icon_size": 28,
@@ -2982,7 +3108,7 @@
         }
        },
        {
-        "id": "sig-158",
+        "id": "sig-168",
         "type": "row",
         "name": "For the evenings outside",
         "gap": 12,
@@ -2995,13 +3121,13 @@
         },
         "children": [
          {
-          "id": "sig-159",
+          "id": "sig-169",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-160",
+            "id": "sig-170",
             "type": "text",
             "text": "For the evenings outside",
             "font": {
@@ -3022,7 +3148,7 @@
             }
            },
            {
-            "id": "sig-161",
+            "id": "sig-171",
             "type": "text",
             "text": "Rattan, teak and cushions that dry fast",
             "font": {
@@ -3045,7 +3171,7 @@
           ]
          },
          {
-          "id": "sig-162",
+          "id": "sig-172",
           "type": "text",
           "text": "See all",
           "font": {
@@ -3073,7 +3199,7 @@
         ]
        },
        {
-        "id": "sig-163",
+        "id": "sig-173",
         "type": "items",
         "name": "For the evenings outside",
         "source": "products",
@@ -3093,7 +3219,7 @@
          "ids": []
         },
         "card": {
-         "id": "sig-164",
+         "id": "sig-174",
          "type": "column",
          "width": 296,
          "gap": 0,
@@ -3105,13 +3231,13 @@
          "border_width": 1,
          "children": [
           {
-           "id": "sig-165",
+           "id": "sig-175",
            "type": "stack",
            "width": 296,
            "height": 172,
            "children": [
             {
-             "id": "sig-166",
+             "id": "sig-176",
              "type": "image",
              "bind": "image",
              "width": 296,
@@ -3122,7 +3248,7 @@
              "dark_background": "#1F2636"
             },
             {
-             "id": "sig-167",
+             "id": "sig-177",
              "type": "text",
              "bind": "sale",
              "font": {
@@ -3149,7 +3275,7 @@
            ]
           },
           {
-           "id": "sig-168",
+           "id": "sig-178",
            "type": "row",
            "gap": 10,
            "cross": "center",
@@ -3161,13 +3287,13 @@
            },
            "children": [
             {
-             "id": "sig-169",
+             "id": "sig-179",
              "type": "column",
              "width": "fill",
              "gap": 2,
              "children": [
               {
-               "id": "sig-170",
+               "id": "sig-180",
                "type": "text",
                "bind": "title",
                "max_lines": 1,
@@ -3180,7 +3306,7 @@
                }
               },
               {
-               "id": "sig-171",
+               "id": "sig-181",
                "type": "text",
                "bind": "subtitle",
                "max_lines": 1,
@@ -3195,13 +3321,13 @@
              ]
             },
             {
-             "id": "sig-172",
+             "id": "sig-182",
              "type": "column",
              "gap": 0,
              "cross": "end",
              "children": [
               {
-               "id": "sig-173",
+               "id": "sig-183",
                "type": "text",
                "bind": "price",
                "max_lines": 1,
@@ -3214,7 +3340,7 @@
                }
               },
               {
-               "id": "sig-174",
+               "id": "sig-184",
                "type": "text",
                "bind": "was_price",
                "max_lines": 1,
@@ -3250,11 +3376,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-220",
+      "id": "sig-230",
       "type": "column",
       "children": [
        {
-        "id": "sig-221",
+        "id": "sig-231",
         "type": "row",
         "name": "Rooms",
         "pin": "none",
@@ -3277,7 +3403,7 @@
         "shadow": "light",
         "children": [
          {
-          "id": "sig-222",
+          "id": "sig-232",
           "type": "column",
           "name": "Living room",
           "width": "fill",
@@ -3298,7 +3424,7 @@
           "dark_background": "#E3B868",
           "children": [
            {
-            "id": "sig-223",
+            "id": "sig-233",
             "type": "icon",
             "icon": "airline_seat_recline_extra",
             "icon_size": 20,
@@ -3306,7 +3432,7 @@
             "dark_color": "#1A1408"
            },
            {
-            "id": "sig-224",
+            "id": "sig-234",
             "type": "text",
             "text": "Living",
             "max_lines": 1,
@@ -3330,7 +3456,7 @@
           ]
          },
          {
-          "id": "sig-225",
+          "id": "sig-235",
           "type": "column",
           "name": "Bedroom",
           "width": "fill",
@@ -3349,7 +3475,7 @@
           },
           "children": [
            {
-            "id": "sig-226",
+            "id": "sig-236",
             "type": "icon",
             "icon": "bed",
             "icon_size": 20,
@@ -3357,7 +3483,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-227",
+            "id": "sig-237",
             "type": "text",
             "text": "Bedroom",
             "max_lines": 1,
@@ -3381,7 +3507,7 @@
           ]
          },
          {
-          "id": "sig-228",
+          "id": "sig-238",
           "type": "column",
           "name": "Dining room",
           "width": "fill",
@@ -3400,7 +3526,7 @@
           },
           "children": [
            {
-            "id": "sig-229",
+            "id": "sig-239",
             "type": "icon",
             "icon": "restaurant",
             "icon_size": 20,
@@ -3408,7 +3534,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-230",
+            "id": "sig-240",
             "type": "text",
             "text": "Dining",
             "max_lines": 1,
@@ -3432,7 +3558,7 @@
           ]
          },
          {
-          "id": "sig-231",
+          "id": "sig-241",
           "type": "column",
           "name": "Office",
           "width": "fill",
@@ -3451,7 +3577,7 @@
           },
           "children": [
            {
-            "id": "sig-232",
+            "id": "sig-242",
             "type": "icon",
             "icon": "computer",
             "icon_size": 20,
@@ -3459,7 +3585,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-233",
+            "id": "sig-243",
             "type": "text",
             "text": "Office",
             "max_lines": 1,
@@ -3483,7 +3609,7 @@
           ]
          },
          {
-          "id": "sig-234",
+          "id": "sig-244",
           "type": "column",
           "name": "Outdoor",
           "width": "fill",
@@ -3502,7 +3628,7 @@
           },
           "children": [
            {
-            "id": "sig-235",
+            "id": "sig-245",
             "type": "icon",
             "icon": "yard",
             "icon_size": 20,
@@ -3510,7 +3636,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-236",
+            "id": "sig-246",
             "type": "text",
             "text": "Outdoor",
             "max_lines": 1,
@@ -3578,11 +3704,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-237",
+      "id": "sig-247",
       "type": "column",
       "children": [
        {
-        "id": "sig-238",
+        "id": "sig-248",
         "type": "coupon",
         "name": "Your code",
         "code": "RUKN10",
@@ -3600,7 +3726,7 @@
         }
        },
        {
-        "id": "sig-239",
+        "id": "sig-249",
         "type": "row",
         "name": "The team assembles your pieces on the delivery day and takes the boxes away.",
         "gap": 12,
@@ -3622,7 +3748,7 @@
         "dark_background": "#1F2636",
         "children": [
          {
-          "id": "sig-240",
+          "id": "sig-250",
           "type": "icon",
           "icon": "build",
           "icon_size": 22,
@@ -3630,7 +3756,7 @@
           "dark_color": "#E3B868"
          },
          {
-          "id": "sig-241",
+          "id": "sig-251",
           "type": "text",
           "text": "The team assembles your pieces on the delivery day and takes the boxes away.",
           "font": {
@@ -3697,11 +3823,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-242",
+      "id": "sig-252",
       "type": "column",
       "children": [
        {
-        "id": "sig-243",
+        "id": "sig-253",
         "type": "row",
         "name": "Your order's journey",
         "gap": 12,
@@ -3714,13 +3840,13 @@
         },
         "children": [
          {
-          "id": "sig-244",
+          "id": "sig-254",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-245",
+            "id": "sig-255",
             "type": "text",
             "text": "Your order's journey",
             "font": {
@@ -3745,7 +3871,7 @@
         ]
        },
        {
-        "id": "sig-246",
+        "id": "sig-256",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -3872,11 +3998,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-248",
+      "id": "sig-258",
       "type": "column",
       "children": [
        {
-        "id": "sig-247",
+        "id": "sig-257",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -3937,7 +4063,7 @@
      "background": "#F3F1EC",
      "dark_background": "#0F131C",
      "body": {
-      "id": "sig-175",
+      "id": "sig-185",
       "type": "column",
       "padding": {
        "top": 0,
@@ -3947,7 +4073,7 @@
       },
       "children": [
        {
-        "id": "sig-176",
+        "id": "sig-186",
         "type": "search",
         "name": "Search every room…",
         "text": "Search every room…",
@@ -3977,7 +4103,7 @@
         }
        },
        {
-        "id": "sig-177",
+        "id": "sig-187",
         "type": "row",
         "name": "Rooms",
         "pin": "none",
@@ -4000,7 +4126,7 @@
         "shadow": "light",
         "children": [
          {
-          "id": "sig-178",
+          "id": "sig-188",
           "type": "column",
           "name": "Living room",
           "width": "fill",
@@ -4021,7 +4147,7 @@
           "dark_background": "#E3B868",
           "children": [
            {
-            "id": "sig-179",
+            "id": "sig-189",
             "type": "icon",
             "icon": "airline_seat_recline_extra",
             "icon_size": 20,
@@ -4029,7 +4155,7 @@
             "dark_color": "#1A1408"
            },
            {
-            "id": "sig-180",
+            "id": "sig-190",
             "type": "text",
             "text": "Living",
             "max_lines": 1,
@@ -4053,7 +4179,7 @@
           ]
          },
          {
-          "id": "sig-181",
+          "id": "sig-191",
           "type": "column",
           "name": "Bedroom",
           "width": "fill",
@@ -4072,7 +4198,7 @@
           },
           "children": [
            {
-            "id": "sig-182",
+            "id": "sig-192",
             "type": "icon",
             "icon": "bed",
             "icon_size": 20,
@@ -4080,7 +4206,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-183",
+            "id": "sig-193",
             "type": "text",
             "text": "Bedroom",
             "max_lines": 1,
@@ -4104,7 +4230,7 @@
           ]
          },
          {
-          "id": "sig-184",
+          "id": "sig-194",
           "type": "column",
           "name": "Dining room",
           "width": "fill",
@@ -4123,7 +4249,7 @@
           },
           "children": [
            {
-            "id": "sig-185",
+            "id": "sig-195",
             "type": "icon",
             "icon": "restaurant",
             "icon_size": 20,
@@ -4131,7 +4257,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-186",
+            "id": "sig-196",
             "type": "text",
             "text": "Dining",
             "max_lines": 1,
@@ -4155,7 +4281,7 @@
           ]
          },
          {
-          "id": "sig-187",
+          "id": "sig-197",
           "type": "column",
           "name": "Office",
           "width": "fill",
@@ -4174,7 +4300,7 @@
           },
           "children": [
            {
-            "id": "sig-188",
+            "id": "sig-198",
             "type": "icon",
             "icon": "computer",
             "icon_size": 20,
@@ -4182,7 +4308,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-189",
+            "id": "sig-199",
             "type": "text",
             "text": "Office",
             "max_lines": 1,
@@ -4206,7 +4332,7 @@
           ]
          },
          {
-          "id": "sig-190",
+          "id": "sig-200",
           "type": "column",
           "name": "Outdoor",
           "width": "fill",
@@ -4225,7 +4351,7 @@
           },
           "children": [
            {
-            "id": "sig-191",
+            "id": "sig-201",
             "type": "icon",
             "icon": "yard",
             "icon_size": 20,
@@ -4233,7 +4359,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-192",
+            "id": "sig-202",
             "type": "text",
             "text": "Outdoor",
             "max_lines": 1,
@@ -4259,7 +4385,7 @@
         ]
        },
        {
-        "id": "sig-193",
+        "id": "sig-203",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -4278,7 +4404,7 @@
         }
        },
        {
-        "id": "sig-194",
+        "id": "sig-204",
         "type": "column",
         "name": "Your account",
         "gap": 0,
@@ -4299,7 +4425,7 @@
         "dark_background": "#181E2B",
         "children": [
          {
-          "id": "sig-195",
+          "id": "sig-205",
           "type": "row",
           "name": "Account",
           "gap": 12,
@@ -4316,7 +4442,7 @@
           },
           "children": [
            {
-            "id": "sig-196",
+            "id": "sig-206",
             "type": "row",
             "width": 38,
             "height": 38,
@@ -4327,7 +4453,7 @@
             "dark_background": "#1F2636",
             "children": [
              {
-              "id": "sig-197",
+              "id": "sig-207",
               "type": "icon",
               "icon": "person",
               "icon_size": 20,
@@ -4337,7 +4463,7 @@
             ]
            },
            {
-            "id": "sig-198",
+            "id": "sig-208",
             "type": "text",
             "text": "Account",
             "font": {
@@ -4359,7 +4485,7 @@
             }
            },
            {
-            "id": "sig-199",
+            "id": "sig-209",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 20,
@@ -4369,7 +4495,7 @@
           ]
          },
          {
-          "id": "sig-200",
+          "id": "sig-210",
           "type": "row",
           "name": "Orders",
           "gap": 12,
@@ -4386,7 +4512,7 @@
           },
           "children": [
            {
-            "id": "sig-201",
+            "id": "sig-211",
             "type": "row",
             "width": 38,
             "height": 38,
@@ -4397,7 +4523,7 @@
             "dark_background": "#1F2636",
             "children": [
              {
-              "id": "sig-202",
+              "id": "sig-212",
               "type": "icon",
               "icon": "package_2",
               "icon_size": 20,
@@ -4407,7 +4533,7 @@
             ]
            },
            {
-            "id": "sig-203",
+            "id": "sig-213",
             "type": "text",
             "text": "Orders",
             "font": {
@@ -4429,7 +4555,7 @@
             }
            },
            {
-            "id": "sig-204",
+            "id": "sig-214",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 20,
@@ -4439,7 +4565,7 @@
           ]
          },
          {
-          "id": "sig-205",
+          "id": "sig-215",
           "type": "row",
           "name": "Wishlist",
           "gap": 12,
@@ -4456,7 +4582,7 @@
           },
           "children": [
            {
-            "id": "sig-206",
+            "id": "sig-216",
             "type": "row",
             "width": 38,
             "height": 38,
@@ -4467,7 +4593,7 @@
             "dark_background": "#1F2636",
             "children": [
              {
-              "id": "sig-207",
+              "id": "sig-217",
               "type": "icon",
               "icon": "favorite",
               "icon_size": 20,
@@ -4477,7 +4603,7 @@
             ]
            },
            {
-            "id": "sig-208",
+            "id": "sig-218",
             "type": "text",
             "text": "Wishlist",
             "font": {
@@ -4499,7 +4625,7 @@
             }
            },
            {
-            "id": "sig-209",
+            "id": "sig-219",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 20,
@@ -4509,7 +4635,7 @@
           ]
          },
          {
-          "id": "sig-210",
+          "id": "sig-220",
           "type": "row",
           "name": "Language",
           "gap": 12,
@@ -4526,7 +4652,7 @@
           },
           "children": [
            {
-            "id": "sig-211",
+            "id": "sig-221",
             "type": "row",
             "width": 38,
             "height": 38,
@@ -4537,7 +4663,7 @@
             "dark_background": "#1F2636",
             "children": [
              {
-              "id": "sig-212",
+              "id": "sig-222",
               "type": "icon",
               "icon": "language",
               "icon_size": 20,
@@ -4547,7 +4673,7 @@
             ]
            },
            {
-            "id": "sig-213",
+            "id": "sig-223",
             "type": "text",
             "text": "Language",
             "font": {
@@ -4569,7 +4695,7 @@
             }
            },
            {
-            "id": "sig-214",
+            "id": "sig-224",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 20,
@@ -4579,7 +4705,7 @@
           ]
          },
          {
-          "id": "sig-215",
+          "id": "sig-225",
           "type": "row",
           "name": "Contact us",
           "gap": 12,
@@ -4596,7 +4722,7 @@
           },
           "children": [
            {
-            "id": "sig-216",
+            "id": "sig-226",
             "type": "row",
             "width": 38,
             "height": 38,
@@ -4607,7 +4733,7 @@
             "dark_background": "#1F2636",
             "children": [
              {
-              "id": "sig-217",
+              "id": "sig-227",
               "type": "icon",
               "icon": "support_agent",
               "icon_size": 20,
@@ -4617,7 +4743,7 @@
             ]
            },
            {
-            "id": "sig-218",
+            "id": "sig-228",
             "type": "text",
             "text": "Contact us",
             "font": {
@@ -4639,7 +4765,7 @@
             }
            },
            {
-            "id": "sig-219",
+            "id": "sig-229",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 20,
@@ -4690,7 +4816,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-249",
+      "id": "sig-259",
       "type": "column",
       "children": []
      },
@@ -4732,7 +4858,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-250",
+      "id": "sig-260",
       "type": "column",
       "children": []
      },
@@ -4774,7 +4900,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-251",
+      "id": "sig-261",
       "type": "column",
       "children": []
      },
@@ -4816,7 +4942,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-252",
+      "id": "sig-262",
       "type": "column",
       "children": []
      },
@@ -4858,7 +4984,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-253",
+      "id": "sig-263",
       "type": "column",
       "children": []
      },
@@ -4892,7 +5018,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-254",
+      "id": "sig-264",
       "type": "column",
       "children": []
      },
@@ -4909,7 +5035,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-255",
+      "id": "sig-265",
       "type": "column",
       "children": []
      },

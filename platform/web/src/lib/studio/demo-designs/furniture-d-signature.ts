@@ -3,7 +3,7 @@ import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { sides, sigEntry, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
-import { kitPhoto, say, shop, type KitLook } from "./shop-kit-parts";
+import { kitPhoto, ownPage, say, shop, type KitLook } from "./shop-kit-parts";
 
 /**
  * 225 Rukn's look D, MANZIL (منزل), room by room: the house walked through
@@ -356,11 +356,48 @@ function journey(ctx: SectionContext): StudioNode {
   };
 }
 
+/** A round button on the surface: its icon, opening `action`. */
+function roundButton(ctx: SectionContext, icon: string, name: SectionWord, action: Action, lit = false): StudioNode {
+  const id = idOf(ctx);
+  return {
+    id: id(),
+    type: "row",
+    name: ctx.w(name),
+    width: 42,
+    height: 42,
+    radius: 21,
+    align: "center",
+    cross: "center",
+    self_align: "center",
+    action,
+    ...(lit ? { background: K.fill, dark_background: K.darkFill } : { background: K.surface, dark_background: K.darkSurface, border_color: K.line, dark_border_color: K.darkLine, border_width: 1 }),
+    children: [{ id: id(), type: "icon", icon, icon_size: 21, color: lit ? K.onFill : K.ink, dark_color: lit ? K.darkOnFill : K.darkInk }],
+  };
+}
+
+/** The house's own top in place of the app's bar: the menu first (navy), the name and its line on the start side, the search and the bag at the end. */
+function houseTop(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  return {
+    id: id(),
+    type: "row",
+    name: ctx.w("fuWordmark"),
+    gap: 10,
+    cross: "center",
+    padding: sides(8, 16, 6, 16),
+    children: [
+      roundButton(ctx, "menu_open", "skCategoryMenu", ownPage(ctx, MENU_PAGE), true),
+      { id: id(), type: "column", width: "fill", gap: 0, children: [say(ctx, L, "fuWordmark", font(22, 800), { max_lines: 1 }), say(ctx, L, "mnTagline", font(11.5), { muted: true, max_lines: 1 })] },
+      roundButton(ctx, "search", "mnMenuSearch", screen("search")),
+      roundButton(ctx, "shopping_bag", "tabCart", screen("cart")),
+    ],
+  };
+}
+
 function home(ctx: SectionContext): StudioPage {
   const id = idOf(ctx);
-  const t = sigTexts(ctx, { title: "fuWordmark", subtitle: "mnTagline" });
   return {
-    header: { type: "title", ...t, buttons: ["menu", "search", "cart"], menu_page: MENU_PAGE, background: K.page, dark_background: K.darkPage, color: K.ink, dark_color: K.darkInk },
+    // No bar of the app's: the house's own top (`houseTop`), the room switcher pinned under it.
     background: K.page,
     dark_background: K.darkPage,
     body: {
@@ -368,6 +405,7 @@ function home(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 100, 0),
       children: [
+        houseTop(ctx),
         switcher(ctx),
         rooms(ctx),
         head(ctx, "mnMaterials", "mnMaterialsLine"),

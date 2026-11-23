@@ -3,6 +3,7 @@ import path from "node:path";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { DEMO_SLUGS, type DemoId } from "../../src/lib/demo/constants";
+import { createPreviewToken, previewAppPath, previewKey } from "../../src/lib/preview/token";
 import { DEMO_BRANDS } from "../../src/lib/demo/content";
 import { LIVE_PHONE } from "../../src/lib/demo/live";
 import { PREVIEW_HEADER } from "../../src/lib/preview/token";
@@ -161,3 +162,38 @@ for (const t of shown) {
     });
   }
 }
+
+/**
+ * The demo apps themselves (their main look, C), made in Admin › Demo apps:
+ * their homes in Arabic by day and by night, with the shop's Arabic name
+ * (the demo's own words), for review. `SHOTS_DEMO=1` runs them.
+ */
+test.describe("the demo apps, in their main look", () => {
+  test.skip(!process.env.SHOTS_DEMO, "SHOTS_DEMO=1 shoots the demo apps");
+  test("Sakan and Rukn in Arabic", async ({ browser }) => {
+    test.setTimeout(600_000);
+    mkdirSync(REVIEW, { recursive: true });
+    const admin = await browser.newPage({ extraHTTPHeaders: { "x-forwarded-for": "203.0.113.151" } });
+    await admin.goto("/sign-in");
+    await admin.getByLabel("Email").fill(E2E.demosAdminEmail);
+    await admin.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
+    await admin.getByRole("button", { name: "Sign in" }).click();
+    await admin.waitForURL((url) => url.pathname.startsWith("/admin"));
+    admin.on("dialog", (dialog) => void dialog.accept());
+    await admin.goto("/admin/demos?family=studio");
+    await admin.getByRole("button", { name: /Create Studio's demo apps|Refresh all of Studio's demo apps/ }).click();
+    await expect(admin.getByRole("status")).toContainText("up to date", { timeout: 300_000 });
+    for (const t of shown) {
+      const name = DEMO_BRANDS[t].appName;
+      const button = admin.getByRole("button", { name: `Start a build of ${name}`, exact: true });
+      const appId = await admin.locator('form:not(:has(input[name="variant"]))').filter({ has: button }).locator('input[name="appId"]').first().inputValue();
+      const address = previewAppPath(createPreviewToken({ appId, draft: false }, previewKey(E2E.signingSecret)));
+      for (const dark of [false, true]) {
+        const page = await phone(browser, appId, address, { lang: "ar", dark, review: true });
+        await page.screenshot({ path: path.join(REVIEW, `${t}-demo-ar-${dark ? "dark" : "light"}-home-0.png`) });
+        await page.context().close();
+      }
+    }
+    await admin.close();
+  });
+});
