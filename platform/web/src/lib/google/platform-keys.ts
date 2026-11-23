@@ -20,6 +20,12 @@ export const PLATFORM_KEY_ALG = ES256;
 export const RETIRED_PLATFORM_KEY_SECONDS = 2 * 86_400;
 /** How long the key set and the discovery document may be cached (Cache-Control max-age). */
 export const OIDC_MAX_AGE_SECONDS = 300;
+/** 216 How long after that a cache may still serve them while it fetches them again (stale-while-revalidate). */
+export const OIDC_STALE_SECONDS = 3600;
+/** 216 Cache-Control of the discovery document and the key set. */
+export const OIDC_CACHE_CONTROL = `public, max-age=${OIDC_MAX_AGE_SECONDS}, stale-while-revalidate=${OIDC_STALE_SECONDS}`;
+/** 216 How long one server keeps the key set it computed (`/oidc/jwks.json` reads no database meanwhile). */
+export const JWKS_MEMORY_SECONDS = 60;
 
 export const platformKeyContext = (purpose: PlatformKeyPurpose) => `platform-signing-key:${purpose}`;
 
@@ -56,7 +62,35 @@ export async function ensurePlatformKey(store: DataStore, purpose: PlatformKeyPu
   if (current) return current;
   const key = await newPlatformKey(purpose, encryptionKey, now);
   await store.createPlatformSigningKey(key);
+  forgetPublishedJwks();
   return key;
+}
+
+/** 216 The key set `/oidc/jwks.json` served last, per purpose, and when it was computed. */
+const published = new Map<PlatformKeyPurpose, { at: number; jwks: { keys: JWK[] } }>();
+
+/**
+ * 216 The key set to publish, kept JWKS_MEMORY_SECONDS by this server so
+ * Google's reads cost no database query; the first key is made when there is
+ * none. A key made or rotated here forgets it at once.
+ */
+export async function publishedPlatformJwks(load: () => Promise<DataStore>, encryptionKey: () => Buffer, now: Date, purpose: PlatformKeyPurpose = "gcp-wif"): Promise<{ keys: JWK[] }> {
+  const kept = published.get(purpose);
+  if (kept && now.getTime() - kept.at >= 0 && now.getTime() - kept.at < JWKS_MEMORY_SECONDS * 1000) return kept.jwks;
+  const store = await load();
+  let keys = await store.listPlatformSigningKeys(purpose);
+  if (!keys.some((k) => k.retiredAt === null)) {
+    await ensurePlatformKey(store, purpose, encryptionKey(), now);
+    keys = await store.listPlatformSigningKeys(purpose);
+  }
+  const jwks = platformJwks(keys, now);
+  if (jwks.keys.length > 0) published.set(purpose, { at: now.getTime(), jwks });
+  return jwks;
+}
+
+/** 216 Forgets the kept key set (a key made or rotated; tests). */
+export function forgetPublishedJwks(): void {
+  published.clear();
 }
 
 /** Replaces the signing key: the current one is retired (still published two days), older retired ones are deleted. */
@@ -65,6 +99,7 @@ export async function rotatePlatformKey(store: DataStore, purpose: PlatformKeyPu
   const key = await newPlatformKey(purpose, encryptionKey, now);
   await store.retirePlatformSigningKeys(purpose, now);
   await store.createPlatformSigningKey(key);
+  forgetPublishedJwks();
   return key;
 }
 
