@@ -26,6 +26,10 @@ const nextConfig: NextConfig = {
   // 32 The share images (opengraph-image) and 71 the receipts' PDFs read their font files at runtime,
   // and the Zad demo its photos (lib/demo/zad-photos.ts), the academy its (lib/demo/academy-photos.ts), Safra its hotels' (lib/demo/travel.ts).
   outputFileTracingIncludes: { "/**": ["./src/app/fonts/og/*.ttf", "./public/demo-photos/*.jpg", "./public/stories/academy/*.jpg", "./public/travel-photos/*.jpg", "./public/flower-photos/*.jpg", "./public/clothes-photos/*.jpg", "./public/kids-photos/*.jpg", "./public/beauty-photos/*.jpg", "./public/toys-photos/*.jpg", "./public/decor-photos/*.jpg", "./public/crochet-photos/*.jpg", "./public/furniture-photos/*.jpg", "./public/electronics-photos/*.jpg", "./public/mobiles-photos/*.jpg", "./public/computers-photos/*.jpg"] },
+  // 209–212 The server function stays under the 250 MB a Netlify (AWS Lambda) function may hold unzipped: the shop
+  // types' photos above took it to the edge, so sharp's builds for musl and WebAssembly, which Netlify's glibc
+  // x64 functions never load, are left out (sharp-libvips-linux-x64 is the one they use).
+  outputFileTracingExcludes: { "/**": ["./node_modules/@img/sharp-libvips-linuxmusl-x64/**", "./node_modules/@img/sharp-linuxmusl-x64/**", "./node_modules/@img/sharp-wasm32/**"] },
   experimental: {
     // Turbopack's build cache stores a snapshot of the environment, secrets included.
     // Builds are fast enough without it, and no secret is ever written to disk.

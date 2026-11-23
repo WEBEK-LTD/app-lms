@@ -34,6 +34,7 @@ class WishlistHeart extends ConsumerWidget {
     required this.productId,
     this.size = 20,
     this.onImage = true,
+    this.tile = false,
   });
 
   final int productId;
@@ -41,6 +42,10 @@ class WishlistHeart extends ConsumerWidget {
 
   /// Over a picture: on a round chip of the card's colour.
   final bool onImage;
+
+  /// In a product page's top bar: the same bordered square tile as the
+  /// back, share and cart buttons beside it, in both themes.
+  final bool tile;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,6 +56,30 @@ class WishlistHeart extends ConsumerWidget {
     final label = saved
         ? context.l10n.removeFromWishlist
         : context.l10n.saveToWishlist;
+    Future<void> toggle() async {
+      try {
+        await ref.read(shopWishlistProvider.notifier).toggle(productId);
+      } on Object {
+        if (context.mounted) {
+          showMessage(context, context.l10n.wishlistFailed);
+        }
+      }
+    }
+
+    if (tile) {
+      return Semantics(
+        toggled: saved,
+        child: SquareIconButton(
+          key: ValueKey('wishlist-heart-$productId'),
+          icon: AppIcons.favorite,
+          label: label,
+          iconSize: 21,
+          filled: saved,
+          foreground: saved ? p.danger : null,
+          onPressed: toggle,
+        ),
+      );
+    }
     final icon = AppIcon(
       AppIcons.favorite,
       size: size,
@@ -67,15 +96,7 @@ class WishlistHeart extends ConsumerWidget {
         child: InkResponse(
           key: ValueKey('wishlist-heart-$productId'),
           radius: size + 6,
-          onTap: () async {
-            try {
-              await ref.read(shopWishlistProvider.notifier).toggle(productId);
-            } on Object {
-              if (context.mounted) {
-                showMessage(context, context.l10n.wishlistFailed);
-              }
-            }
-          },
+          onTap: toggle,
           // A tap target of at least 44 points.
           child: SizedBox.square(
             dimension: 44,

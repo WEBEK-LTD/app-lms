@@ -368,8 +368,8 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             backgroundColor: p.surface,
             leading: const AppBarBackButton(),
             actions: [
-              // 212 The wishlist's heart.
-              WishlistHeart(productId: product.id, onImage: false, size: 24),
+              // 212 The wishlist's heart, a tile like the share and cart buttons.
+              WishlistHeart(productId: product.id, tile: true),
               // 46 A link that opens the product in the app.
               ShareLinkButton(
                 kind: 'product',

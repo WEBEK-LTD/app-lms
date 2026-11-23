@@ -6,6 +6,7 @@ import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
 import 'package:yallapp/core/services/push_service.dart';
+import 'package:yallapp/core/widgets/buttons.dart';
 import 'package:yallapp/modules/store/data/wishlist.dart';
 import 'package:yallapp/modules/store/widgets/shop_features.dart';
 
@@ -78,6 +79,18 @@ void main() {
     await go(tester, app, Paths.product(21));
     final heart = find.byKey(const ValueKey('wishlist-heart-21'));
     expect(heart, findsWidgets);
+    // On the product's page, the same square tile as share and cart.
+    expect(
+      find.descendant(
+        of: find.byType(SliverAppBar),
+        matching: find.byWidgetPredicate(
+          (w) =>
+              w is SquareIconButton &&
+              w.key == const ValueKey('wishlist-heart-21'),
+        ),
+      ),
+      findsOneWidget,
+    );
     await tester.tap(heart.first);
     await TestApp.settle(tester);
     expect(apiOf(app).calls, contains('addToShopWishlist'));
