@@ -74,6 +74,7 @@ export const OWNER_SOUND_GROUP_OF: Record<OwnerPushKind, OwnerSoundGroup> = {
   account_notices: "other",
   prime_alert: "other",
   morning_brief: "other",
+  daily_summary: "other",
 };
 
 /** What a phone hears when it chose nothing for a group. */
@@ -86,6 +87,10 @@ export const OWNER_SOUND_DEFAULTS: Record<OwnerSoundGroup, OwnerSoundChoice> = {
 };
 
 export const OWNER_RING_MINUTES = [1, 2, 3, 5, 10] as const;
+/** 214 At most this many value bands. */
+export const OWNER_VALUE_BANDS = 3;
+/** 214 The end-of-day summary's time when the phone chose none. */
+export const OWNER_SUMMARY_AT = "23:00";
 
 /** The settings of a phone that saved none (only for reading back: such a phone gets pushes as before). */
 export function defaultPushSounds(): OwnerPushSounds {
@@ -141,6 +146,31 @@ export function readPushSounds(body: Record<string, unknown>, saved: OwnerPushSo
       next.quiet = { from: q.from, to: q.to };
     }
   }
+  // 214 Ring by order value.
+  if (body.by_value !== undefined) {
+    if (body.by_value === null) next.byValue = null;
+    else {
+      const bands = body.by_value;
+      if (!Array.isArray(bands) || bands.length < 2 || bands.length > OWNER_VALUE_BANDS) return { ok: false, field: "by_value", error: `Send 2 to ${OWNER_VALUE_BANDS} bands, or null.` };
+      const read: { from: number; sound: string }[] = [];
+      for (const [i, band] of bands.entries()) {
+        const b = band as Record<string, unknown>;
+        const from = b?.from;
+        if (typeof from !== "number" || !Number.isFinite(from) || from < 0 || from > 1e9) return { ok: false, field: `by_value.${i}.from`, error: "Send the amount the band starts from." };
+        if (i === 0 && from !== 0) return { ok: false, field: "by_value.0.from", error: "The first band starts from 0." };
+        if (i > 0 && from <= read[i - 1]!.from) return { ok: false, field: `by_value.${i}.from`, error: "Each band starts above the one before." };
+        if (!isChoice(b.sound)) return { ok: false, field: `by_value.${i}.sound`, error: "Unknown sound." };
+        read.push({ from, sound: b.sound });
+      }
+      next.byValue = read;
+    }
+  }
+  // 214 The end-of-day summary.
+  if (body.summary !== undefined) {
+    const s = body.summary as Record<string, unknown> | null;
+    if (!s || typeof s !== "object" || typeof s.on !== "boolean" || typeof s.at !== "string" || !HHMM.test(s.at)) return { ok: false, field: "summary", error: "Send the summary as on (true or false) and at (HH:MM)." };
+    next.summary = { on: s.on, at: s.at };
+  }
   if (body.time_zone !== undefined) {
     if (body.time_zone !== null && (typeof body.time_zone !== "string" || body.time_zone.length > 64 || !validTimeZone(body.time_zone))) return { ok: false, field: "time_zone", error: "Unknown time zone." };
     next.timeZone = (body.time_zone as string | null) ?? null;
@@ -159,6 +189,8 @@ export function pushSoundsJson(saved: OwnerPushSounds | null) {
     alarm_volume: s.alarmVolume,
     quiet: s.quiet,
     time_zone: s.timeZone,
+    by_value: s.byValue ?? null,
+    summary: s.summary ?? { on: true, at: OWNER_SUMMARY_AT },
     ringtones: OWNER_RINGTONES,
   };
 }
@@ -195,13 +227,23 @@ export interface PushDelivery {
   data: Record<string, string>;
 }
 
-export function pushDelivery(device: Pick<OwnerDevice, "platform" | "pushProvider" | "pushSounds">, kind: OwnerPushKind, now: Date): PushDelivery | null {
+/** 214 The sound of a new order of this value, by the phone's bands (null: no bands, or no value). */
+export function soundByValue(bands: OwnerPushSounds["byValue"], value: number | null | undefined): OwnerSoundChoice | null {
+  if (!bands?.length || value === null || value === undefined || !Number.isFinite(value)) return null;
+  let chosen: string | null = null;
+  for (const band of bands) if (value >= band.from) chosen = band.sound;
+  return isChoice(chosen) ? chosen : null;
+}
+
+/** `value`: 214 a new order's total in whole units, for ringing by order value. */
+export function pushDelivery(device: Pick<OwnerDevice, "platform" | "pushProvider" | "pushSounds">, kind: OwnerPushKind, now: Date, value: number | null = null): PushDelivery | null {
   const saved = device.pushSounds ?? null;
   if (!saved) return null;
   const group = OWNER_SOUND_GROUP_OF[kind];
   const quiet = group !== "orders" && inQuietHours(saved, now);
   const savedChoice = saved.sounds[group];
-  const choice: OwnerSoundChoice = quiet ? "silent" : isChoice(savedChoice) ? savedChoice : OWNER_SOUND_DEFAULTS[group];
+  const byValue = group === "orders" ? soundByValue(saved.byValue, value) : null;
+  const choice: OwnerSoundChoice = quiet ? "silent" : (byValue ?? (isChoice(savedChoice) ? savedChoice : OWNER_SOUND_DEFAULTS[group]));
   const ring = !quiet && choice !== "silent" && saved.ring.includes(group);
   const data = {
     yb_group: group,

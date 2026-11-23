@@ -97,6 +97,8 @@ Future<Order?> changeOrderStatus(
           status,
           refund: refund,
         );
+    // 214 Moved on: its ongoing notification goes, the widget reads again.
+    orderAnswered(ref, {'order_id': '${order.id}', 'kind': 'new_order'});
     if (context.mounted) {
       showMessage(
         context,

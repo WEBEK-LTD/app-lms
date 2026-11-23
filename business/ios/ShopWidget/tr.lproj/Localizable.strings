@@ -1,0 +1,13 @@
+/* 214 Ana ekran widget'ı ve yeni siparişin Canlı Etkinliği. */
+"widget.name" = "Bugünkü satışlar";
+"widget.description" = "Bugünkü satışlar, bugünkü siparişler ve bekleyen yeni siparişler.";
+"widget.choose" = "Mağazayı seçin";
+"widget.shop" = "Mağaza";
+"widget.sales" = "Bugünkü satışlar";
+"widget.orders" = "Bugünkü siparişler";
+"widget.waiting" = "Bekleyen";
+"widget.signIn" = "Gününüzü görmek için Yallapp Business'a giriş yapın.";
+"widget.offline" = "Güncellenemedi. Son rakamlar gösteriliyor.";
+"widget.updated" = "Güncellendi %@";
+"live.newOrder" = "Yeni sipariş %@";
+"live.waiting" = "bekliyor";

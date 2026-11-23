@@ -16,6 +16,7 @@ void main() {
     ) async {
       final app = TestApp(appId: FakeOwnerApi.academyId);
       await app.pump(tester);
+      await seeOnToday(tester, find.text('2 course questions to answer'));
       expect(find.text('2 course questions to answer'), findsOneWidget);
       await go(tester, app, '/inbox');
       await tapOn(tester, find.text('Omar Said'));
@@ -34,6 +35,7 @@ void main() {
       expect(find.text('Unknown visitor'), findsOneWidget);
       expect(find.text('Hidden from others'), findsNWidgets(2));
       await go(tester, app, '/today');
+      await seeOnToday(tester, find.text('1 course question to answer'));
       expect(find.text('1 course question to answer'), findsOneWidget);
     });
 

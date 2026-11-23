@@ -11,6 +11,7 @@ import { tellMarketCustomer, tellVendor } from "./notify";
 import { prepWithDelay } from "./vendor-controls";
 import { pushOrderCancelled } from "../owner/push";
 import { pushOwnerSafely } from "../owner/push-env";
+import { endOrderActivities } from "../owner/live-activity";
 
 /**
  * 115 How a marketplace order moves. The customer places it (cash, the
@@ -29,6 +30,11 @@ import { pushOwnerSafely } from "../owner/push-env";
 
 /** 115.22 Who is told of a move; `quiet` for a move nobody should hear of (an order undone while it was being placed). */
 export type MarketFlowDeps = FlowDeps & { quiet?: boolean };
+
+/** 214 Answered: the new order's Live Activity leaves the owners' iPhones. */
+async function endLive(deps: FlowDeps, order: MarketOrder): Promise<void> {
+  await pushOwnerSafely((d) => endOrderActivities(d, deps.app, "new_market_order", String(order.id)), deps.store).catch(() => undefined);
+}
 
 /** Tells the customer of the move just made; never fails the move. */
 async function told(deps: MarketFlowDeps, result: MoveResult, moment?: MarketOrderStatus | "picked"): Promise<MoveResult> {
@@ -118,6 +124,7 @@ export async function acceptMarketOrder(deps: MarketFlowDeps, order: MarketOrder
   const picking = order.vendorKind !== "restaurant";
   const moved = await move(deps.store, order, { status: picking ? "picking" : "accepted", prepMinutes, readyAt: new Date(deps.now.getTime() + prepMinutes * 60_000) }, "vendor", deps.now);
   if (!moved.ok) return moved;
+  await endLive(deps, moved.order);
   const job = await makeMarketCourierJob(deps, moved.order);
   if (job) moved.order.shipmentId = job.id;
   return told(deps, moved);
@@ -130,6 +137,7 @@ export async function rejectMarketOrder(deps: MarketFlowDeps, order: MarketOrder
   if (order.status !== "placed") return { ok: false, reason: "changed" };
   const moved = await move(deps.store, order, { status: "rejected", rejection: { reason, note } }, "vendor", deps.now);
   if (moved.ok) await giveBack(deps.store, moved.order, deps.now);
+  if (moved.ok) await endLive(deps, moved.order);
   return told(deps, moved);
 }
 
@@ -140,6 +148,7 @@ export async function cancelMarketOrder(deps: MarketFlowDeps, order: MarketOrder
   const moved = await move(deps.store, order, { status: "cancelled" }, by, deps.now);
   if (!moved.ok) return moved;
   await giveBack(deps.store, moved.order, deps.now);
+  await endLive(deps, moved.order);
   // 207 A customer's cancellation reaches the owner's phones (not one still waiting for its payment).
   if (by === "customer" && order.status !== "awaiting_payment") {
     await (deps.pushOwner ?? pushOwnerSafely)((d) => pushOrderCancelled(d, deps.app, { reference: marketOrderReference(order), place: order.vendorName, ids: { market_order_id: String(order.id) } }), deps.store).catch(() => undefined);

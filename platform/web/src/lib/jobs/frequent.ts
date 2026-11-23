@@ -19,6 +19,7 @@ import type { sendPush, ServiceAccount } from "../hosted/push";
 import { refreshEndedSites, type EndedRefreshResult, type RefreshDeps } from "../license/refresh";
 import { pushStartedAnnouncements, type OwnerPushDeps } from "../owner/push";
 import { runPrimeChecks, type PrimeRunReport } from "../owner/prime-jobs";
+import { runDailySummaries, type SummaryRunReport } from "../owner/daily-summary";
 import { planHasStoreBilling } from "../store-billing/access";
 import { runStoreProductSync, type StoreProductsRunReport } from "../store-billing/sync";
 import { runStorePurchases, type PurchasesRunReport } from "../store-billing/jobs";
@@ -82,6 +83,8 @@ export interface FrequentReport {
   mail: MailRunReport | null;
   /** 125 Prime: the people whose smart alerts were checked, the alerts pushed and the morning briefs sent. */
   prime: PrimeRunReport;
+  /** 214 The end-of-day summaries: the apps with a phone that wants one, and the phones it went to. */
+  summaries?: SummaryRunReport;
   /** 136 Yallapp's Firebase, when it's set up: apps registered further, and the pool's next project being made. */
   firebase?: { registrations: FirebaseRunReport; projects: ProjectRunReport | null };
 }
@@ -275,6 +278,13 @@ export async function runFrequentJobs(deps: {
   } catch (error) {
     console.error("[frequent] prime", error instanceof Error ? error.message : String(error));
   }
+  // 214 Each phone's end-of-day summary at its time, once a day.
+  let summaries: SummaryRunReport = { apps: 0, sent: 0 };
+  try {
+    summaries = await runDailySummaries(deps.ownerPush);
+  } catch (error) {
+    console.error("[frequent] daily summaries", error instanceof Error ? error.message : String(error));
+  }
   // 131 The deliveries asked for in the apps of connected shops are kept 60 days.
   try {
     await deps.store.deleteStoreDeliveriesBefore(new Date(deps.now.getTime() - 60 * 86_400_000));
@@ -315,5 +325,5 @@ export async function runFrequentJobs(deps: {
       );
     }
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, screenshots, reviews, appReview, appRelease, pipeline, orders, storeProducts, storePurchases, rides, market, library, school, mail, prime, ...(firebase ? { firebase } : {}) };
+  return { notifications, announcements, ended, campaigns, automatic, builds, screenshots, reviews, appReview, appRelease, pipeline, orders, storeProducts, storePurchases, rides, market, library, school, mail, prime, summaries, ...(firebase ? { firebase } : {}) };
 }

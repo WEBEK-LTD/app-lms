@@ -45,6 +45,21 @@ class MainActivity : FlutterFragmentActivity() {
                     result.notImplemented()
                 }
             }
+        // 214 The home-screen widget (ShopWidget.kt): its token, the API, the language; refreshed now.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "tr.com.yallapp.business/widget")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "configure" -> {
+                        WidgetData.configure(this, call.argument<String>("api"), call.argument<String>("token"), call.argument<String>("lang"))
+                        result.success(null)
+                    }
+                    "refresh" -> {
+                        WidgetData.refreshAll(this)
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
         // 207 The ringtones (lib/core/services/ringtones.dart, Ringing.kt).
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "tr.com.yallapp.business/ring")
         ring = channel
@@ -62,6 +77,11 @@ class MainActivity : FlutterFragmentActivity() {
                     Ringing.test(this, call.argument<String>("group") ?: "orders", call.argument<String>("title") ?: "", call.argument<String>("body") ?: ""),
                 )
                 "timeZone" -> result.success(TimeZone.getDefault().id)
+                // 214 The order was accepted or opened in the app: its notification goes.
+                "orderDone" -> {
+                    Ringing.cancelFor(this, call.argument<Map<String, String>>("data") ?: emptyMap())
+                    result.success(null)
+                }
                 "initial" -> {
                     result.success(launchPush)
                     launchPush = null
@@ -93,7 +113,11 @@ class MainActivity : FlutterFragmentActivity() {
     private fun pushOf(intent: Intent?): Map<String, String>? {
         val raw = intent?.getStringExtra(Ringing.EXTRA_PUSH) ?: return null
         val id = intent.getIntExtra(Ringing.EXTRA_ID, 0)
-        if (id != 0) Ringing.forget(this, id)
+        if (id != 0) {
+            Ringing.forget(this, id)
+            // 214 Opened or accepted: an ongoing order notification ends.
+            (getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager).cancel(id)
+        }
         intent.removeExtra(Ringing.EXTRA_PUSH)
         return runCatching { Ringing.toMap(JSONObject(raw)) }.getOrNull()
     }

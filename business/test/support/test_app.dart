@@ -14,6 +14,8 @@ import 'package:yallapp_business/core/config.dart';
 import 'package:yallapp_business/core/providers.dart';
 import 'package:yallapp_business/core/services/biometrics.dart';
 import 'package:yallapp_business/core/services/chime.dart';
+import 'package:yallapp_business/core/services/home_widget.dart';
+import 'package:yallapp_business/core/services/live_activity.dart';
 import 'package:yallapp_business/core/services/media_picker.dart';
 import 'package:yallapp_business/core/services/privacy.dart';
 import 'package:yallapp_business/core/services/push.dart';
@@ -59,6 +61,8 @@ class TestApp {
   final chime = FakeChime();
   final ringer = FakeRinger();
   final ringNative = FakeRingNative();
+  final homeWidget = FakeHomeWidget();
+  final live = FakeLiveActivities();
   final wake = FakeWake();
   final picker = FakePicker();
   final scanner = FakeScanner();
@@ -97,6 +101,8 @@ class TestApp {
     chimeProvider.overrideWithValue(chime),
     ringerProvider.overrideWithValue(ringer),
     ringNativeProvider.overrideWithValue(ringNative),
+    homeWidgetProvider.overrideWithValue(homeWidget),
+    liveActivitiesProvider.overrideWithValue(live),
     screenWakeProvider.overrideWithValue(wake),
     mediaPickerProvider.overrideWithValue(picker),
     cameraScannerProvider.overrideWithValue(() => scanner),
@@ -174,6 +180,23 @@ Future<void> settle(WidgetTester tester, [int frames = 12]) async {
   for (var i = 0; i < frames; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
+}
+
+/// 214 Scrolls Today down until [finder] is on screen: its cards (Pause
+/// new orders, the New order card) can put the rest below the fold.
+Future<void> seeOnToday(WidgetTester tester, Finder finder) async {
+  if (finder.evaluate().isNotEmpty) return;
+  await tester.scrollUntilVisible(
+    finder,
+    200,
+    scrollable: find
+        .descendant(
+          of: find.byType(CustomScrollView),
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
+  await tester.pump();
 }
 
 /// Taps [finder] after scrolling it into view.
@@ -282,6 +305,48 @@ class FakeRinger implements Ringer {
   }
 }
 
+/// 214 The home-screen widget: what it was told.
+class FakeHomeWidget implements HomeWidget {
+  final configured = <({String api, String? token, String lang})>[];
+  int refreshes = 0;
+
+  @override
+  Future<void> configure({
+    required String api,
+    required String? token,
+    required String lang,
+  }) async => configured.add((api: api, token: token, lang: lang));
+
+  @override
+  Future<void> refresh() async => refreshes += 1;
+}
+
+/// 214 The iPhone's Live Activities: what it was told, and its tokens.
+class FakeLiveActivities implements LiveActivities {
+  LiveTokens? tokensNow = const LiveTokens(
+    start: 'a1a1a1a1a1a1a1a1',
+    orders: [
+      LiveOrderToken(
+        appId: 'app',
+        kind: 'new_order',
+        orderId: '1040',
+        token: 'b2b2b2b2b2b2b2b2',
+      ),
+    ],
+  );
+  final started = <Map<String, Object?>>[];
+  final changes = StreamController<void>.broadcast();
+
+  @override
+  Future<LiveTokens?> tokens() async => tokensNow;
+
+  @override
+  Future<void> start(Map<String, Object?> data) async => started.add(data);
+
+  @override
+  Stream<void> get changed => changes.stream;
+}
+
 /// 207 Android's side: what it was told.
 class FakeRingNative implements RingNative {
   RingSettings? configured;
@@ -317,6 +382,17 @@ class FakeRingNative implements RingNative {
 
   @override
   Future<String?> timeZone() async => 'Europe/Istanbul';
+
+  /// 214 The orders whose ongoing notification went.
+  final done = <Map<String, String>>[];
+
+  @override
+  Future<void> orderDone(Map<String, String> data) async => done.add(data);
+
+  int settingsOpened = 0;
+
+  @override
+  Future<void> openNotificationSettings() async => settingsOpened += 1;
 
   @override
   Future<Map<String, dynamic>?> initial() async {
