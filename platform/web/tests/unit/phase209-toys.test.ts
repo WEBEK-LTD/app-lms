@@ -234,7 +234,7 @@ describe("209 Toot, the toy shop's demo", () => {
       expect(toddlers.parent_id).toBe(byAge.id);
       expect(byAge.count).toBe(TOYS_PRODUCTS.length);
       const arabic = (await call("/store/categories", {}, "ar")).body as { items: { name: string }[] };
-      expect(arabic.items.map((c) => c.name)).toEqual(expect.arrayContaining(["حسب العمر", "1–2 سنة", "هدايا أعياد الميلاد"]));
+      expect(arabic.items.map((c) => c.name)).toEqual(expect.arrayContaining(["حسب العمر", "1\u200e–\u200e2 سنة", "هدايا أعياد الميلاد"]));
       const under = (await call("/store/products", { max_price: "100", per_page: "50" })).body as { items: { name: string }[] };
       const cheap = TOYS_PRODUCTS.filter((p) => (p.salePriceCents ?? p.priceCents) <= 100_00).map((p) => p.name);
       expect(under.items.map((p) => p.name).sort()).toEqual(expect.arrayContaining(cheap.sort()));

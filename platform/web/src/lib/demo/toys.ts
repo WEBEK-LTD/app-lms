@@ -54,11 +54,11 @@ const named = (name: string, ar: string, tr: string) => ({ name, names: { ar, tr
  * finder's results open them in every language.
  */
 export const TOYS_AGES = [
-  { ...named("0–12 months", "0–12 شهرًا", "0–12 ay"), from: 0, to: 12 },
-  { ...named("1–2 years", "1–2 سنة", "1–2 yaş"), from: 12, to: 36 },
-  { ...named("3–5 years", "3–5 سنوات", "3–5 yaş"), from: 36, to: 72 },
-  { ...named("6–8 years", "6–8 سنوات", "6–8 yaş"), from: 72, to: 108 },
-  { ...named("9+ years", "9+ سنوات", "9+ yaş"), from: 108, to: null },
+  { ...named("0–12 months", "0\u200e–\u200e12 شهرًا", "0–12 ay"), from: 0, to: 12 },
+  { ...named("1–2 years", "1\u200e–\u200e2 سنة", "1–2 yaş"), from: 12, to: 36 },
+  { ...named("3–5 years", "3\u200e–\u200e5 سنوات", "3–5 yaş"), from: 36, to: 72 },
+  { ...named("6–8 years", "6\u200e–\u200e8 سنوات", "6–8 yaş"), from: 72, to: 108 },
+  { ...named("9+ years", "9\u200e+\u200e سنوات", "9+ yaş"), from: 108, to: null },
 ] as const;
 export const TOYS_BY_AGE = "By age";
 export const TOYS_BIRTHDAY = "Birthday gifts";

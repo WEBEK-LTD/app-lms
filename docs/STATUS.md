@@ -8,6 +8,26 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 209 (Studio's shop types, stage 2 A: kids' clothes, cosmetics and
+toys): three more types are ready, each a Studio demo of the store kind with
+its two approved looks, light and dark, CC0 StockSnap photos, its live demo
+and its story page: Toota (kids' clothes, EGP: sizes by age from 0–3 months
+to 12 years, girls, boys and baby, newborn gift boxes with wrapping and a
+card, ready-made sets; looks TOOTA and MINIMO), Velours (cosmetics, AED:
+shades with swatch colours, skin types and brands, ingredients and how to
+use, routine bundles, the skin quiz, genuine and expiry; looks VELOURS and
+NAQA LAB) and Toot (toys, AED: by age and by type, safety and materials,
+birthday gifts with wraps and a card, the gift finder, gifts under 100 and
+200; looks TOOT and MUKAAB). New for every app: a product's details
+(migration 0149: facts, ingredients, how to use, safety, materials, care,
+badges, expiry, ages and swatches; Products › More about it, the product's
+page in the app), the size finder, swatches and quiz elements, a product
+list's highest price (also in the WordPress plugin), and elements named
+like a sub-category opening it. The app's preview is rebuilt; no
+`CLIENT_APP_RELEASE` change (older apps skip what is new). Not yet: product
+names in the app's other languages, an age filter on the shop's screen, and
+the designs' loyalty club, skin scan and children's profiles.
+
 Roadmap 208 (Studio's shop types, stage 1: the foundation and Clothes):
 the planning doc's shop types are in one registry (`lib/studio/shop-types.ts`)
 by section (Fashion; Beauty & care; Home & living; Kids & toys; Shopping &

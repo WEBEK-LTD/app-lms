@@ -67,7 +67,8 @@ export const CATEGORY_ICON = "local_florist";
 /** At most this many entries in a list that scrolls (rings, chips, arches, cards). */
 export const TEMPLATE_CATEGORIES_MAX = 12;
 
-const norm = (text: string) => text.normalize("NFC").replace(/\s+/g, " ").trim().toLocaleLowerCase();
+// 209 Without the marks that keep a range left to right in Arabic ("0\u200e–\u200e6"): an owner's "0–6" is the same name.
+const norm = (text: string) => text.normalize("NFC").replace(/[\u200e\u200f\u2066-\u2069]/g, "").replace(/\s+/g, " ").trim().toLocaleLowerCase();
 const LANGS = Object.keys(APP_WORDS) as (keyof typeof APP_WORDS)[];
 
 /** Each of the words in every language, to the word. */

@@ -325,7 +325,7 @@
               "text_align": "center",
               "translations": {
                "ar": {
-                "text": "0–12 شهرًا"
+                "text": "0‎–‎12 شهرًا"
                },
                "tr": {
                 "text": "0–12 ay"
@@ -375,7 +375,7 @@
               "text_align": "center",
               "translations": {
                "ar": {
-                "text": "1–2 سنة"
+                "text": "1‎–‎2 سنة"
                },
                "tr": {
                 "text": "1–2 yaş"
@@ -422,7 +422,7 @@
               "text_align": "center",
               "translations": {
                "ar": {
-                "text": "3–5 سنوات"
+                "text": "3‎–‎5 سنوات"
                },
                "tr": {
                 "text": "3–5 yaş"
@@ -472,7 +472,7 @@
               "text_align": "center",
               "translations": {
                "ar": {
-                "text": "6–8 سنوات"
+                "text": "6‎–‎8 سنوات"
                },
                "tr": {
                 "text": "6–8 yaş"
@@ -522,7 +522,7 @@
               "text_align": "center",
               "translations": {
                "ar": {
-                "text": "9+ سنوات"
+                "text": "9‎+‎ سنوات"
                },
                "tr": {
                 "text": "9+ yaş"
@@ -1781,7 +1781,7 @@
             "label": "Show the toys",
             "translations": {
              "ar": {
-              "title": "0–12 شهرًا",
+              "title": "0‎–‎12 شهرًا",
               "text": "دمى ناعمة ومعلّقات للمهد، آمنة منذ الولادة.",
               "label": "اعرض الألعاب"
              },
@@ -1804,7 +1804,7 @@
             "label": "Show the toys",
             "translations": {
              "ar": {
-              "title": "1–2 سنة",
+              "title": "1‎–‎2 سنة",
               "text": "مكعبات وألعاب فرز ومتاهات خرز لأيدٍ لا تهدأ.",
               "label": "اعرض الألعاب"
              },
@@ -1827,7 +1827,7 @@
             "label": "Show the toys",
             "translations": {
              "ar": {
-              "title": "3–5 سنوات",
+              "title": "3‎–‎5 سنوات",
               "text": "شخصيات ومكعبات تركيب وخيام لعب للحكايات والبناء.",
               "label": "اعرض الألعاب"
              },
@@ -1850,7 +1850,7 @@
             "label": "Show the toys",
             "translations": {
              "ar": {
-              "title": "6–8 سنوات",
+              "title": "6‎–‎8 سنوات",
               "text": "حقائب وطائرات ورقية وآلات للصنع والاكتشاف.",
               "label": "اعرض الألعاب"
              },
@@ -1873,7 +1873,7 @@
             "label": "Show the toys",
             "translations": {
              "ar": {
-              "title": "9+ سنوات",
+              "title": "9‎+‎ سنوات",
               "text": "تلسكوبات وشطرنج ومجموعات بناء كبيرة للعقول الفضولية.",
               "label": "اعرض الألعاب"
              },

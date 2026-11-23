@@ -779,12 +779,13 @@ function concernTiles(ctx: SectionContext, l: Look): StudioNode {
         align: "center" as const,
         cross: "center" as const,
         radius: 16,
-        padding: sides(10, 4, 10, 4),
+        padding: sides(10, 2, 10, 2),
         action: shop,
         ...(lit ? { background: B_INV.day, dark_background: B_INV.night } : { background: B.surface, dark_background: B.darkSurface, border_color: B.line, dark_border_color: B.darkLine, border_width: 1 }),
         children: [
           { id: id(), type: "icon" as const, icon, icon_size: 22, color: lit ? B_INV.onDay : B.accent, dark_color: lit ? B_INV.onNight : B.darkAccent },
-          say(ctx, l, name, { size: 11.5, weight: 600 }, lit ? { color: B_INV.onDay, dark_color: B_INV.onNight, max_lines: 2, text_align: "center" } : { max_lines: 2, text_align: "center" }),
+          // 10.5 so the longest names (Combination, Moisturisers) fit a quarter of the width without breaking.
+          say(ctx, l, name, { size: 10.5, weight: 600, line_height: 1.15 }, lit ? { color: B_INV.onDay, dark_color: B_INV.onNight, max_lines: 2, text_align: "center" } : { max_lines: 2, text_align: "center" }),
         ],
       };
     }),

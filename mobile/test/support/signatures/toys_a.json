@@ -763,10 +763,12 @@
        },
        {
         "id": "sig-23",
-        "type": "row",
+        "type": "slider",
         "name": "Shop by age",
+        "height": 150,
+        "per_view": 2.6,
         "gap": 10,
-        "scroll": true,
+        "dots": false,
         "padding": {
          "top": 0,
          "end": 16,
@@ -779,7 +781,6 @@
           "type": "photo_hero",
           "name": "0–12 months",
           "image_url": "http://localhost:3000/toys-photos/sleeping-baby.jpg",
-          "width": 118,
           "height": 150,
           "radius": 22,
           "background": "#F1E9DD",
@@ -817,7 +818,7 @@
             "max_lines": 2,
             "translations": {
              "ar": {
-              "text": "0–12 شهرًا"
+              "text": "0‎–‎12 شهرًا"
              },
              "tr": {
               "text": "0–12 ay"
@@ -831,7 +832,6 @@
           "type": "photo_hero",
           "name": "1–2 years",
           "image_url": "http://localhost:3000/toys-photos/toddler-play.jpg",
-          "width": 118,
           "height": 150,
           "radius": 22,
           "background": "#F1E9DD",
@@ -869,7 +869,7 @@
             "max_lines": 2,
             "translations": {
              "ar": {
-              "text": "1–2 سنة"
+              "text": "1‎–‎2 سنة"
              },
              "tr": {
               "text": "1–2 yaş"
@@ -883,7 +883,6 @@
           "type": "photo_hero",
           "name": "3–5 years",
           "image_url": "http://localhost:3000/toys-photos/toddler-bear.jpg",
-          "width": 118,
           "height": 150,
           "radius": 22,
           "background": "#F1E9DD",
@@ -921,7 +920,7 @@
             "max_lines": 2,
             "translations": {
              "ar": {
-              "text": "3–5 سنوات"
+              "text": "3‎–‎5 سنوات"
              },
              "tr": {
               "text": "3–5 yaş"
@@ -935,7 +934,6 @@
           "type": "photo_hero",
           "name": "6–8 years",
           "image_url": "http://localhost:3000/toys-photos/girl-drawing.jpg",
-          "width": 118,
           "height": 150,
           "radius": 22,
           "background": "#F1E9DD",
@@ -973,7 +971,7 @@
             "max_lines": 2,
             "translations": {
              "ar": {
-              "text": "6–8 سنوات"
+              "text": "6‎–‎8 سنوات"
              },
              "tr": {
               "text": "6–8 yaş"
@@ -987,7 +985,6 @@
           "type": "photo_hero",
           "name": "9+ years",
           "image_url": "http://localhost:3000/toys-photos/football-boy.jpg",
-          "width": 118,
           "height": 150,
           "radius": 22,
           "background": "#F1E9DD",
@@ -1025,7 +1022,7 @@
             "max_lines": 2,
             "translations": {
              "ar": {
-              "text": "9+ سنوات"
+              "text": "9‎+‎ سنوات"
              },
              "tr": {
               "text": "9+ yaş"
@@ -1720,7 +1717,7 @@
             "label": "Show the toys",
             "translations": {
              "ar": {
-              "title": "0–12 شهرًا",
+              "title": "0‎–‎12 شهرًا",
               "text": "دمى ناعمة ومعلّقات للمهد، آمنة منذ الولادة.",
               "label": "اعرض الألعاب"
              },
@@ -1743,7 +1740,7 @@
             "label": "Show the toys",
             "translations": {
              "ar": {
-              "title": "1–2 سنة",
+              "title": "1‎–‎2 سنة",
               "text": "مكعبات وألعاب فرز ومتاهات خرز لأيدٍ لا تهدأ.",
               "label": "اعرض الألعاب"
              },
@@ -1766,7 +1763,7 @@
             "label": "Show the toys",
             "translations": {
              "ar": {
-              "title": "3–5 سنوات",
+              "title": "3‎–‎5 سنوات",
               "text": "شخصيات ومكعبات تركيب وخيام لعب للحكايات والبناء.",
               "label": "اعرض الألعاب"
              },
@@ -1789,7 +1786,7 @@
             "label": "Show the toys",
             "translations": {
              "ar": {
-              "title": "6–8 سنوات",
+              "title": "6‎–‎8 سنوات",
               "text": "حقائب وطائرات ورقية وآلات للصنع والاكتشاف.",
               "label": "اعرض الألعاب"
              },
@@ -1812,7 +1809,7 @@
             "label": "Show the toys",
             "translations": {
              "ar": {
-              "title": "9+ سنوات",
+              "title": "9‎+‎ سنوات",
               "text": "تلسكوبات وشطرنج ومجموعات بناء كبيرة للعقول الفضولية.",
               "label": "اعرض الألعاب"
              },

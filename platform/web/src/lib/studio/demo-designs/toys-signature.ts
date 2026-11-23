@@ -341,19 +341,21 @@ function dealCard(ctx: SectionContext, l: Look, look: "banner" | "carousel"): St
 function ageTiles(ctx: SectionContext, l: Look): StudioNode {
   const id = idOf(ctx);
   const photos = ["sleeping-baby", "toddler-play", "toddler-bear", "girl-drawing", "football-boy"];
+  // A slider of photo tiles, a little over two and a half in view (photo tiles in a scrolling row aren't drawn by the app).
   return {
     id: id(),
-    type: "row",
+    type: "slider",
     name: ctx.w("tyByAgeTitle"),
+    height: 150,
+    per_view: 2.6,
     gap: 10,
-    scroll: true,
+    dots: false,
     padding: sides(0, 16, 0, 16),
     children: TOYS_AGE_WORDS.map((word, i) => ({
       id: id(),
       type: "photo_hero" as const,
       name: ctx.w(word),
       image_url: sigPhoto(ctx, P(photos[i]!)),
-      width: 118,
       height: 150,
       radius: 22,
       background: l.tile.day,
