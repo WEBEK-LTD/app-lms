@@ -4491,3 +4491,11 @@ The owner (23 November): Yallapp Business is on the App Store and Google Play; p
 | [x] | 203.2 The home page, under the dashboard: a Yallapp Business section (`site/business-app.tsx`): what it does for the owner and their team (orders, appointments and tickets; chat and a notification for every new order and message; today's sales and what needs them), a drawing of its Today screen, the two buttons and "sign in with your dashboard's email and password". The footer has a Yallapp Business group with the two buttons, and the docs article "Yallapp Business, the app for you" has them under its introduction. In English, Arabic and Turkish, light and dark | `phase203-business-app`, `site-i18n`, `home-hero` |
 | [x] | 203.3 The dashboard: Your phones (dashboard and Studio) has "Get Yallapp Business" with the two buttons, and Studio's account menu its two links; in English, Egyptian Arabic and Turkish | `phase203-business-app`, `dashboard-i18n` |
 | [x] | 203.4 The owner asked for the stores' own logos on the buttons: Apple's logo and Google Play's mark (the unaltered simple-icons paths of `lib/brands.ts` STORES, `StoreMark` in `components/brand-marks.tsx`) in the button's text color take the place of the Material Symbols icons, on every button and in Studio's account menu (docs/BRAND.md, Third-party brand marks) | `phase203-business-app` |
+
+## Phase 204: Studio's own plans on the website, a premium look
+
+The owner found the Studio plans section of the home page plain ("شكله وحش اوي").
+
+| | Item | Tests |
+|---|---|---|
+| [x] | 204.1 What every Studio plan has and what changes plan by plan (`StudioPlanBasics`, on the home page, Yallapp Studio's page and the story pages): a night panel under an ember glow, as the home page's Studio band; each thing every plan has a tile with its icon, what changes plan by plan as chips. On request (no Studio plan shown to clients yet), a card of its own with a "Message us on WhatsApp" button. Light and dark, phones and computers | `pricing-studio` |
