@@ -41,6 +41,18 @@ by side with every other template's home (header, hero, card shape, section
 order, tab bar, type scale) before it ships; one that could be made by
 recolouring another has failed.
 
+Roadmap 216 (Yallapp's Firebase rides out a moment when Google can't
+reach the platform's issuer): the token exchange is tried up to 3 times
+(about 1 s, then 3 s) on a passing failure only (unreachable, 429, 5xx,
+or `invalid_grant` saying Google couldn't connect to the issuer), with a
+fresh assertion each time; the daily check tells the owner about
+`yallapp_push_refused` only when it fails again at a second look at the
+next frequent run; `/oidc/jwks.json` is kept a minute in memory and both
+OIDC endpoints allow `stale-while-revalidate`. Optional owner step, not
+done: upload the key set to the Google provider (`jwksJson`) so Google
+needs no call to the site, at the cost of uploading it again on every
+key rotation.
+
 Roadmap 222 (the plugin's follow-ups): plugin 0.4.54 (after 0.4.53, #496)
 serves WordPress apps' Studio pages without an empty section, as hosted
 shops' are (164.7): a list of products with nothing to show shows the
