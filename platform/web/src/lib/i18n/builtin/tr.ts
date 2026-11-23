@@ -694,6 +694,8 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "Please try again.": "Lütfen tekrar deneyin.",
   "Please wait a moment before trying again.": "Tekrar denemeden önce lütfen biraz bekleyin.",
   // 211 Trade-in requests
+  "Unknown specification.": "Bilinmeyen özellik.",
+  "Use POST.": "POST kullanın.",
   "This shop doesn't take trade-ins.": "Bu mağaza takas kabul etmiyor.",
   "Choose one of the devices.": "Cihazlardan birini seçin.",
   "Choose one of the storages.": "Depolama seçeneklerinden birini seçin.",

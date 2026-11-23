@@ -693,6 +693,8 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "Please try again.": "يُرجى المحاولة مرة أخرى.",
   "Please wait a moment before trying again.": "يُرجى الانتظار قليلًا قبل المحاولة مرة أخرى.",
   // 211 Trade-in requests
+  "Unknown specification.": "مواصفة غير معروفة.",
+  "Use POST.": "استخدم POST.",
   "This shop doesn't take trade-ins.": "هذا المتجر لا يستبدل الأجهزة.",
   "Choose one of the devices.": "اختر أحد الأجهزة.",
   "Choose one of the storages.": "اختر إحدى السعات.",

@@ -41,8 +41,9 @@ async function productsFor(fetch: Fetch, node: StudioNode, count: number): Promi
   const ids = (node.tech?.ids ?? []).filter((id) => /^\d{1,12}$/.test(id));
   const own = (list: Record<string, unknown>[]) => list.map(techProduct).filter((p): p is StudioTechProduct => p !== null);
   if (ids.length) {
-    const picked = own(items(await fetch(["store", "products"], { ids: ids.join(","), per_page: ids.length, with_specs: 1 })));
-    if (picked.length >= Math.min(count, ids.length) && picked.length > 0) return picked.slice(0, count);
+    // The products picked that the shop still has: those (with specs) only; none of them left (a template's in another shop), the shop's own.
+    const found = items(await fetch(["store", "products"], { ids: ids.join(","), per_page: ids.length, with_specs: 1 }));
+    if (found.length) return own(found).slice(0, count);
   }
   const category = node.tech?.category_id && /^\d+$/.test(node.tech.category_id) ? node.tech.category_id : null;
   for (const featured of ["true", null]) {
