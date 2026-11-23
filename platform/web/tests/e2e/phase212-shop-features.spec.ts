@@ -59,8 +59,8 @@ test("a product in Arabic with its brand, served in the customer's language with
   // 212 Its Arabic name and description, and its brand.
   const langs = page.locator("#p-langs");
   await langs.getByText("Arabic", { exact: true }).click();
-  await langs.getByLabel("Name in Arabic").fill("قميص كتان");
-  await langs.getByLabel("Description in Arabic").fill("كتان خفيف.");
+  await langs.getByLabel("Title in Arabic").fill("قميص كتان");
+  await langs.getByLabel("About it in Arabic").fill("كتان خفيف.");
   await langs.getByLabel("Brand").fill("Noun");
   await page.getByRole("button", { name: "Add product" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Linen Shirt”.");
@@ -71,7 +71,7 @@ test("a product in Arabic with its brand, served in the customer's language with
   const [, appId] = /\/shop\/([0-9a-f-]{36})\/\d+$/.exec(share)!;
   api = `${E2E.baseURL}/api/app/${appId}`;
   // Saved: the Arabic fold opens with its words.
-  await expect(page.locator("#p-langs").getByLabel("Name in Arabic")).toHaveValue("قميص كتان");
+  await expect(page.locator("#p-langs").getByLabel("Title in Arabic")).toHaveValue("قميص كتان");
 
   const arabic = await request.get(`${api}/store/products?platform=android`, { headers: { "accept-language": "ar" } });
   expect(arabic.status()).toBe(200);
