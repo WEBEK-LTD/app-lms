@@ -103,6 +103,8 @@ better ornaments, gold only on the key moments, one hairline weight.
 - **Material depth:** lapis with a fine mineral grain (`svg/grain.svg`,
   7%) and a vignette; the stars now fade from the ceiling down, so the lower
   half (where the numbers are) stays calm. Papyrus gets a warm vignette.
+  On the welcome screen the stars stay strong at the top and down the
+  edges and fade under the form (a soft veil in the ground colour).
   Ornaments are embossed (dark) or debossed (light) with 1px drop shadows,
   so they read as carved, not pasted.
 - **Calm:** corner pieces only on the one hero card of a screen; the painted

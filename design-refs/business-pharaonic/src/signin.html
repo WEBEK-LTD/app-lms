@@ -42,11 +42,17 @@
   .mark .sun { position: relative; }
   .frieze .motif-row { position: absolute; inset: 4px 0 auto; }
   .backdrop .relief { display: none; }
+  :root[data-mode="light"] .calm { display: none; }
+  /* Stars stay strong at the top and down the edges; a soft veil in the
+     ground colour calms them under the form. */
+  .calm { position: absolute !important; z-index: 0 !important; left: 0; right: 0; top: 300px; bottom: 40px; pointer-events: none;
+    background: radial-gradient(70% 58% at 50% 50%, rgba(10, 15, 30, .86) 0%, rgba(10, 15, 30, .78) 55%, transparent 100%); }
   .dots { letter-spacing: 3px; font-size: 18px; }
 </style>
 </head>
 <body>
 <div class="screen">
+  <div class="calm"></div>
   <div class="hero"><div class="glyphs"></div></div>
   <div class="status"><span class="num">21:42</span><span class="icons"><span class="ms fill">signal_cellular_alt</span><span class="ms fill">wifi</span><span class="ms fill">battery_full</span></span></div>
 
