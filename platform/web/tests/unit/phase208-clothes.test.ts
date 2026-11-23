@@ -81,7 +81,8 @@ describe("208 the shop types: sections, then types, then templates", () => {
 
   it("offers a ready type's two looks as store templates, and nothing for a coming one", () => {
     const clothes = shopTypeById("clothes")!;
-    expect(shopTypeTemplate(clothes)).toBe("clothes_signature_a");
+    // 223 Its main template is C, RUNWAY.
+    expect(shopTypeTemplate(clothes)).toBe("clothes_signature_c");
     expect(shopTypeTemplate(clothes, "b")).toBe("clothes_signature_b");
     // 210 Furniture is ready now; a type without a demo still has no template.
     expect(shopTypeTemplate(shopTypeById("furniture")!)).toBe("furniture_signature_a");
@@ -252,7 +253,8 @@ describe("208 Lujain, the clothes shop's demo", () => {
     }
 
     it("keeps its categories and sub-categories, its pieces and settings", async () => {
-      expect(app.design).toBe("clothes_signature_a");
+      // 223 The demo is its main template, C.
+      expect(app.design).toBe("clothes_signature_c");
       expect(app.catalogSettings?.currency).toBe("SAR");
       expect(app.catalogSettings?.returnDays).toBe(14);
       expect(fashionOf(app)).toEqual({ sizeChart: CLOTHES_SIZE_CHART, completeLook: true });
@@ -355,7 +357,8 @@ describe("208 Lujain's two looks: LUJAIN the boutique and NOUN streetwear", () =
     const words = () => "x";
     expect(newNode("categories", { source: "products", brand: "#000000", text: words, preset: "category_menu" })).toMatchObject({ style: "rows", category_menu: { look: "lead" } });
     expect(newNode("size_chart", { source: "products", brand: "#000000", text: words }).type).toBe("size_chart");
-    expect(TEMPLATES.filter((t) => t.demo === CLOTHES_DEMO).map((t) => t.id)).toEqual(["clothes_signature_a", "clothes_signature_b"]);
+    // 223 C and D first, A and B kept after them.
+    expect(TEMPLATES.filter((t) => t.demo === CLOTHES_DEMO).map((t) => t.id)).toEqual(["clothes_signature_c", "clothes_signature_d", "clothes_signature_a", "clothes_signature_b"]);
   });
 
   it("draws the canvas's rows from the shop's categories: each main one with its sub-categories", () => {

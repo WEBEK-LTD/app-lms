@@ -1,3 +1,4 @@
+import { mainTemplateOf, signatureDesign } from "@/lib/studio/demo-designs";
 import { createHash } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withoutDemo } from "@/lib/admin/overview";
@@ -116,11 +117,11 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
     // 131.20 Leqaa, the flower shop: a shop that keeps its Signature look A.
     expect(apps.at(-11)?.design).toBe("flowers_signature_a");
     // 208 Lujain, the clothes shop: a shop that keeps its look A (LUJAIN).
-    expect(apps.at(-10)?.design).toBe("clothes_signature_a");
+    expect(apps.at(-10)?.design).toBe(mainTemplateOf("clothes"));
     // 209 Velours, the cosmetics shop: its look A (VELOURS).
     expect(apps.at(-9)?.design).toBe("beauty_signature_a");
     // 209 Toota, the kids' clothes shop: its look A (TOOTA).
-    expect(apps.at(-8)?.design).toBe("kids_signature_a");
+    expect(apps.at(-8)?.design).toBe(mainTemplateOf("kids"));
     // 209 Toot, the toy shop: a shop that keeps its look A (Toot).
     expect(apps.at(-7)?.design).toBe("toys_signature_a");
     // 210 Sakan, Ghurza and Rukn, 211 Madar, Nova and Nawah: each keeps its look A.
@@ -636,8 +637,9 @@ describe("signing in to a demo app", () => {
       expect(bar?.design, id).toBe(DEMO_TAB_BARS[id].design);
       bars.add(bar!.design!);
     }
-    // 130 Each demo's look A's premium bar: glass, a floating pill or a dock, never the classic one; 131.22 Leqaa's the petal.
-    expect([...bars].sort()).toEqual(["dock", "float", "glass", "petal"]);
+    // 130 Each demo's main look's premium bar (223 C's where it has one), never the classic one; 131.22 Leqaa's the petal.
+    expect([...bars].sort()).toEqual([...new Set(STUDIO_DEMO_TYPES.map((id) => signatureDesign(id)!.bar.design!))].sort());
+    expect([...bars]).not.toContain("classic");
     expect(await config("store")).toBeUndefined();
     for (const d of Object.values(DEMO_SCREENS)) if (d.photo) expect(existsSync(join(process.cwd(), "public", d.photo)), d.photo).toBe(true);
   });

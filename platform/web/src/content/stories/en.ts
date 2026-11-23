@@ -1165,9 +1165,9 @@ export const STORIES_EN: StoryCopy = {
         },
         {
           time: "21:24",
-          kicker: "Deal of the day",
+          kicker: "On sale",
           title: "The heels, 30% off",
-          text: "Back on the home, a dark card says Deal of the day, its timer counting down. The strappy heels are in it, the old price struck through. She adds them in her size, 38, and copies the shop's code, LUJAIN10, at checkout."
+          text: "By night the app turns near black, the looks still edge to edge. In the shop the strappy heels are on sale, the old price struck through. She adds them in her size, 38, and copies the shop's code, LUJAIN10, at checkout."
         },
         {
           time: "09:30",
@@ -1286,28 +1286,32 @@ export const STORIES_EN: StoryCopy = {
         },
         {
           name: "Designed in Yallapp Studio",
-          title: "Two looks, every part yours to change",
-          text: "Lujain comes in two premium looks, built only from Studio's elements.",
+          title: "Four templates, every part yours to change",
+          text: "Lujain comes in four premium templates, built only from Studio's elements.",
           features: [
             [
-              "LUJAIN",
-              "Look A: a boutique in black and white, big photos and a quiet type."
+              "RUNWAY",
+              "Template C, the demo: the season's looks edge to edge, ivory and black with one burgundy."
             ],
             [
-              "NOUN",
-              "Look B: streetwear, electric blue on concrete grey, drops and a ticker."
+              "The outfit builder",
+              "Template D: an outfit built from a top, a bottom and shoes, a dock and a round bag button."
+            ],
+            [
+              "LUJAIN and NOUN",
+              "Templates A and B, kept: a black and white boutique, and streetwear in electric blue."
             ],
             [
               "Light and dark",
-              "Both looks have a designed night."
+              "Every template has a designed night."
             ],
             [
-              "A compact hero",
-              "The collections in cards about 210 points tall, the next one peeking."
+              "A lookbook",
+              "The season's looks 640 points tall under a tiny wordmark, the pieces tall and boxless."
             ],
             [
-              "A floating bar",
-              "Home, Shop, Cart, Orders and Account, the open one a pill with its name."
+              "A minimal bar",
+              "Home, Discover, Wishlist, Bag and Account, thin icons over their words."
             ],
             [
               "Ready sections",
@@ -1582,9 +1586,9 @@ export const STORIES_EN: StoryCopy = {
         },
         {
           time: "20:58",
-          kicker: "Weekend deals",
+          kicker: "On sale",
           title: "The hoodie, 30% off",
-          text: "Back on the home, the weekend's deals count down. The grey fleece hoodie is in it in Youssef's size, the old price struck through. She adds it with the raincoat, and the shop's code, TOOTA10, takes ten per cent off the order."
+          text: "By night the app turns deep violet, Tooti still smiling. In the shop the grey fleece hoodie is on sale in Youssef's size, the old price struck through. She adds it with the raincoat, and the shop's code, TOOTA10, takes ten per cent off the order."
         },
         {
           time: "10:15",
@@ -1707,24 +1711,24 @@ export const STORIES_EN: StoryCopy = {
         },
         {
           name: "Designed in Yallapp Studio",
-          title: "Two looks, every part yours to change",
-          text: "Toota comes in two premium looks, built only from Studio's elements.",
+          title: "Four templates, every part yours to change",
+          text: "Toota comes in four premium templates, built only from Studio's elements.",
           features: [
             [
-              "TOOTA and MINIMO",
-              "Look A in soft pastels, terracotta and cream; look B in playful navy, its sections numbered."
+              "The story world and the nursery",
+              "Template C, the demo: Tooti the mascot, the ages as bubbles and wavy edges; template D: linen and sage, a size ruler and the baby gift list. TOOTA and MINIMO, A and B, kept."
             ],
             [
               "Light and dark",
-              "Both looks have a designed night."
+              "Every template has a designed night."
             ],
             [
-              "A compact hero",
-              "The collections in cards about 210 points tall, the next one peeking."
+              "Toota's worlds",
+              "Girls, boys, baby and newborn gifts as soft cards, each opening its category."
             ],
             [
-              "A floating bar",
-              "Home, Shop, Cart, Orders and Account, the open one with its name."
+              "A bubble bar",
+              "Home, Shop, Favourites, Cart and Me, the open one a bubble with its name."
             ],
             [
               "Ready sections",

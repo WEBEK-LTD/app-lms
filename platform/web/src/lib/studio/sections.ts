@@ -348,7 +348,9 @@ export type SectionWord =
   // 211 Nawah's looks, pages and sections (lib/studio/demo-designs/computers-signature.ts).
   | Extract<AppWord, `pc${string}`>
   // 211 Madar's looks, pages and sections (lib/studio/demo-designs/electronics-signature.ts).
-  | Extract<AppWord, `el${string}`>;
+  | Extract<AppWord, `el${string}`>
+  // 223 Lujain's templates C and D (RUNWAY, the outfit builder); Toota's (the story world, the nursery).
+  | Extract<AppWord, `rwy${string}` | `obd${string}` | `stw${string}` | `nrs${string}`>;
 
 export interface SectionContext {
   brand: string;

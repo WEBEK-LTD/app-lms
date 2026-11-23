@@ -1,3 +1,4 @@
+import { signatureLooksOf } from "@/lib/studio/demo-designs";
 import { describe, expect, it } from "vitest";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
@@ -22,7 +23,10 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     expect(templatesFor(kindOf("taxi"))[0]!.id).toBe("demo_taxi");
     // 131.20 A store has no demo of its own kind; Leqaa's two looks (the flower shop's, a template's demo) come first.
     // 208 Then Lujain's, the clothes shop's; then each shop type's two looks (209, 210, 211), in the types' order.
-    expect(templatesFor(kindOf("store")).filter((t) => t.demo).map((t) => t.id)).toEqual(["flowers_signature_a", "flowers_signature_b", "clothes_signature_a", "clothes_signature_b", "beauty_signature_a", "beauty_signature_b", "kids_signature_a", "kids_signature_b", "toys_signature_a", "toys_signature_b", "decor_signature_a", "decor_signature_b", "crochet_signature_a", "crochet_signature_b", "furniture_signature_a", "furniture_signature_b", "electronics_signature_a", "electronics_signature_b", "mobiles_signature_a", "mobiles_signature_b", "computers_signature_a", "computers_signature_b"]);
+    // 223 Each with its looks in Studio's order: C and D (its main template first) where it has them, then A and B.
+    const storeDemos = ["flowers", "clothes", "beauty", "kids", "toys", "decor", "crochet", "furniture", "electronics", "mobiles", "computers"] as const;
+    expect(templatesFor(kindOf("store")).filter((t) => t.demo).map((t) => t.id)).toEqual(storeDemos.flatMap((demo) => signatureLooksOf(demo).map((look) => `${demo}_signature_${look}`)));
+    for (const demo of storeDemos) expect(signatureLooksOf(demo).slice(-2)).toEqual(["a", "b"]);
     expect(templatesFor(kindOf("restaurant")).some((t) => t.demo)).toBe(false);
     // 112.4 A store's three.
     expect(ownTemplates(kindOf("store")).map((t) => t.id)).toEqual(["shop", "shop_deals", "shop_looks", "brand", "contact", "blank"]);

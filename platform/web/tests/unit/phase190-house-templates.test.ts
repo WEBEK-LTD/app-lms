@@ -1,3 +1,4 @@
+import { signatureLooksOf } from "@/lib/studio/demo-designs";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -89,10 +90,10 @@ async function demoAccount(): Promise<string> {
 const houseIds = () => houseLooks().map((l) => houseTemplateId(l.demo, l.look));
 
 describe("190 every Studio demo look, made in code", () => {
-  it("is every look /start?for=studio starts a Studio project from: each demo's looks A and B", () => {
+  it("is every look /start?for=studio starts a Studio project from: each demo's looks (A and B; 223 a shop type's C and D too)", () => {
     const fromStart = pickerSections().studio.flatMap((demo) => startLooks(demo).map((look) => `${demo}:${look}`));
     expect(houseLooks().map((l) => `${l.demo}:${l.look}`).sort()).toEqual([...fromStart].sort());
-    expect(houseLooks()).toHaveLength(STUDIO_DEMO_TYPES.length * 2);
+    expect(houseLooks()).toHaveLength(STUDIO_DEMO_TYPES.reduce((n, demo) => n + signatureLooksOf(demo).length, 0));
     // Every one makes a design that passes the page checker: none is left out.
     expect(houseVersions().map((v) => `${v.demo}:${v.look}`)).toEqual(houseLooks().map((l) => `${l.demo}:${l.look}`));
   });

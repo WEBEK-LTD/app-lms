@@ -12,7 +12,12 @@ Roadmap 223 (Studio shop types, round 3, the shared base): Studio offers
 every demo's looks in one order, C, D, A, B, its main look first (C for a
 shop type that has one, else A), on /start, Studio's new project, the
 editor's whole designs, Studio Market and the website; the demo app opens
-on the main look. Templates C and D themselves come per type.
+on the main look. Templates C and D themselves come per type: the clothes
+type's C RUNWAY (an edge-to-edge lookbook, Reem Kufi) and D the outfit
+builder (Tajawal, a dock and a round bag button), and the kids' clothes
+type's C the story world (Tooti the mascot, age bubbles, wavy edges,
+Lemonada) and D the nursery (linen and sage, a size ruler, the baby gift
+list, Vazirmatn); Lujain's and Toota's demos are now their C.
 
 Distinct templates (the owner's standing rule, 23 November 2026): no app,
 type or template may resemble another. Every new template is compared side

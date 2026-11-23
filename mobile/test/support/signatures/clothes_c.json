@@ -1,0 +1,4177 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/clothes-photos/hero-green.jpg",
+   "title": {
+    "en": "Welcome to the runway",
+    "ar": "أهلًا بكِ على المنصّة",
+    "tr": "Podyuma hoş geldiniz"
+   },
+   "subtitle": {
+    "en": "Sign in to keep your looks, your sizes and your orders.",
+    "ar": "سجّلي الدخول لتحتفظي بإطلالاتكِ ومقاساتكِ وطلباتكِ.",
+    "tr": "Görünümlerinizi, bedenlerinizi ve siparişlerinizi saklamak için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "cover",
+   "items": [
+    {
+     "key": "orders",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "wishlist",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "photo",
+   "image_url": "http://localhost:3000/clothes-photos/hero-green.jpg"
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "minimal",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "DM Sans",
+   "corners": "round",
+   "cards": "outlined",
+   "secondary_color": "#7A1F30",
+   "font_family": "Reem Kufi",
+   "arabic_font": "Reem Kufi",
+   "dark_background": "#0D0C0B",
+   "dark_surface": "#171513",
+   "font_files": [
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/reemkufi/ReemKufi%5Bwght%5D.ttf",
+     "weight": null
+    }
+   ],
+   "arabic_font_files": [
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/reemkufi/ReemKufi%5Bwght%5D.ttf",
+     "weight": null
+    }
+   ]
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "shop",
+    "label": "Discover",
+    "icon": "search",
+    "target": {
+     "type": "page",
+     "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "اكتشفي"
+     },
+     "tr": {
+      "label": "Keşfet"
+     }
+    }
+   },
+   {
+    "id": "wishlist",
+    "label": "Wishlist",
+    "icon": "favorite",
+    "target": {
+     "type": "page",
+     "page_slug": "wishlist"
+    }
+   },
+   {
+    "id": "cart",
+    "label": "Bag",
+    "icon": "shopping_bag",
+    "target": {
+     "type": "page",
+     "page_slug": "cart"
+    },
+    "translations": {
+     "ar": {
+      "label": "الحقيبة"
+     },
+     "tr": {
+      "label": "Çanta"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "transparent",
+      "title": "Lujain",
+      "translations": {
+       "ar": {
+        "title": "Lujain"
+       },
+       "tr": {
+        "title": "Lujain"
+       }
+      },
+      "buttons": [
+       "menu",
+       "search",
+       "cart"
+      ],
+      "menu_page": "menu",
+      "color": "#FFFFFF",
+      "dark_color": "#FFFFFF"
+     },
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 110,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "slider",
+        "name": "The season's looks",
+        "height": 640,
+        "per_view": 1,
+        "gap": 0,
+        "autoplay": true,
+        "interval_ms": 6000,
+        "indicator": "progress",
+        "indicator_look": {
+         "at": "bottom",
+         "inset": 22,
+         "color": "#FFFFFF",
+         "count": "padded"
+        },
+        "background": "#141211",
+        "image_background_url": "http://localhost:3000/clothes-photos/hero-green.jpg",
+        "scrim": {
+         "color": "#000000",
+         "from": 0.34,
+         "middle": 0,
+         "at": 30,
+         "to": 0.66
+        },
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "photo_hero",
+          "name": "Green, in full bloom",
+          "image_url": "http://localhost:3000/clothes-photos/hero-green.jpg",
+          "height": 640,
+          "radius": 0,
+          "background": "#141211",
+          "scrim": {
+           "color": "#000000",
+           "from": 0.34,
+           "middle": 0,
+           "at": 30,
+           "to": 0.66
+          },
+          "align": "end",
+          "padding": {
+           "top": 0,
+           "end": 24,
+           "bottom": 64,
+           "start": 24
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-4",
+            "type": "text",
+            "text": "Spring 2027 · Look 01",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 11,
+             "weight": 500,
+             "letter_spacing": 2.4,
+             "uppercase": true
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ربيع 2027 · الإطلالة 01"
+             },
+             "tr": {
+              "text": "İlkbahar 2027 · Görünüm 01"
+             }
+            }
+           },
+           {
+            "id": "sig-5",
+            "type": "text",
+            "text": "Green, in full bloom",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 38,
+             "weight": 400,
+             "line_height": 1.14
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 3,
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 14,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "أخضر في كامل تفتّحه"
+             },
+             "tr": {
+              "text": "Tam açmış bir yeşil"
+             }
+            }
+           },
+           {
+            "id": "sig-6",
+            "type": "row",
+            "name": "Discover the look",
+            "width": "hug",
+            "gap": 8,
+            "cross": "center",
+            "self_align": "start",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-7",
+              "type": "text",
+              "text": "Discover the look",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 13.5,
+               "weight": 500,
+               "letter_spacing": 0.8
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "اكتشفي الإطلالة"
+               },
+               "tr": {
+                "text": "Görünümü keşfet"
+               }
+              }
+             },
+             {
+              "id": "sig-8",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 18,
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-9",
+          "type": "photo_hero",
+          "name": "The abaya, unhurried",
+          "image_url": "http://localhost:3000/clothes-photos/abaya-road.jpg",
+          "height": 640,
+          "radius": 0,
+          "background": "#141211",
+          "scrim": {
+           "color": "#000000",
+           "from": 0.34,
+           "middle": 0,
+           "at": 30,
+           "to": 0.66
+          },
+          "align": "end",
+          "padding": {
+           "top": 0,
+           "end": 24,
+           "bottom": 64,
+           "start": 24
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-10",
+            "type": "text",
+            "text": "Spring 2027 · Look 02",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 11,
+             "weight": 500,
+             "letter_spacing": 2.4,
+             "uppercase": true
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ربيع 2027 · الإطلالة 02"
+             },
+             "tr": {
+              "text": "İlkbahar 2027 · Görünüm 02"
+             }
+            }
+           },
+           {
+            "id": "sig-11",
+            "type": "text",
+            "text": "The abaya, unhurried",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 38,
+             "weight": 400,
+             "line_height": 1.14
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 3,
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 14,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "العباءة، بلا عجلة"
+             },
+             "tr": {
+              "text": "Acelesiz bir abaya"
+             }
+            }
+           },
+           {
+            "id": "sig-12",
+            "type": "row",
+            "name": "Discover the look",
+            "width": "hug",
+            "gap": 8,
+            "cross": "center",
+            "self_align": "start",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-13",
+              "type": "text",
+              "text": "Discover the look",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 13.5,
+               "weight": 500,
+               "letter_spacing": 0.8
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "اكتشفي الإطلالة"
+               },
+               "tr": {
+                "text": "Görünümü keşfet"
+               }
+              }
+             },
+             {
+              "id": "sig-14",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 18,
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-15",
+          "type": "photo_hero",
+          "name": "Cream for long evenings",
+          "image_url": "http://localhost:3000/clothes-photos/cream-maxi.jpg",
+          "height": 640,
+          "radius": 0,
+          "background": "#141211",
+          "scrim": {
+           "color": "#000000",
+           "from": 0.34,
+           "middle": 0,
+           "at": 30,
+           "to": 0.66
+          },
+          "align": "end",
+          "padding": {
+           "top": 0,
+           "end": 24,
+           "bottom": 64,
+           "start": 24
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-16",
+            "type": "text",
+            "text": "Spring 2027 · Look 03",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 11,
+             "weight": 500,
+             "letter_spacing": 2.4,
+             "uppercase": true
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ربيع 2027 · الإطلالة 03"
+             },
+             "tr": {
+              "text": "İlkbahar 2027 · Görünüm 03"
+             }
+            }
+           },
+           {
+            "id": "sig-17",
+            "type": "text",
+            "text": "Cream for long evenings",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 38,
+             "weight": 400,
+             "line_height": 1.14
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 3,
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 14,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "لونٌ كريمي للأمسيات الطويلة"
+             },
+             "tr": {
+              "text": "Uzun akşamlar için krem"
+             }
+            }
+           },
+           {
+            "id": "sig-18",
+            "type": "row",
+            "name": "Discover the look",
+            "width": "hug",
+            "gap": 8,
+            "cross": "center",
+            "self_align": "start",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-19",
+              "type": "text",
+              "text": "Discover the look",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 13.5,
+               "weight": 500,
+               "letter_spacing": 0.8
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "اكتشفي الإطلالة"
+               },
+               "tr": {
+                "text": "Görünümü keşfet"
+               }
+              }
+             },
+             {
+              "id": "sig-20",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 18,
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-21",
+          "type": "photo_hero",
+          "name": "Dark wool, quiet steps",
+          "image_url": "http://localhost:3000/clothes-photos/dark-coat.jpg",
+          "height": 640,
+          "radius": 0,
+          "background": "#141211",
+          "scrim": {
+           "color": "#000000",
+           "from": 0.34,
+           "middle": 0,
+           "at": 30,
+           "to": 0.66
+          },
+          "align": "end",
+          "padding": {
+           "top": 0,
+           "end": 24,
+           "bottom": 64,
+           "start": 24
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-22",
+            "type": "text",
+            "text": "Spring 2027 · Look 04",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 11,
+             "weight": 500,
+             "letter_spacing": 2.4,
+             "uppercase": true
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ربيع 2027 · الإطلالة 04"
+             },
+             "tr": {
+              "text": "İlkbahar 2027 · Görünüm 04"
+             }
+            }
+           },
+           {
+            "id": "sig-23",
+            "type": "text",
+            "text": "Dark wool, quiet steps",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 38,
+             "weight": 400,
+             "line_height": 1.14
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 3,
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 14,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "صوفٌ داكن وخطوات هادئة"
+             },
+             "tr": {
+              "text": "Koyu yün, sessiz adımlar"
+             }
+            }
+           },
+           {
+            "id": "sig-24",
+            "type": "row",
+            "name": "Discover the look",
+            "width": "hug",
+            "gap": 8,
+            "cross": "center",
+            "self_align": "start",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-25",
+              "type": "text",
+              "text": "Discover the look",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 13.5,
+               "weight": 500,
+               "letter_spacing": 0.8
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "اكتشفي الإطلالة"
+               },
+               "tr": {
+                "text": "Görünümü keşfet"
+               }
+              }
+             },
+             {
+              "id": "sig-26",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 18,
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-27",
+        "type": "column",
+        "name": "The collection",
+        "padding": {
+         "top": 22,
+         "end": 0,
+         "bottom": 0,
+         "start": 0
+        },
+        "children": [
+         {
+          "id": "sig-28",
+          "type": "row",
+          "gap": 26,
+          "scroll": true,
+          "padding": {
+           "top": 0,
+           "end": 22,
+           "bottom": 0,
+           "start": 22
+          },
+          "children": [
+           {
+            "id": "sig-29",
+            "type": "column",
+            "name": "Dresses",
+            "width": "hug",
+            "gap": 10,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-30",
+              "type": "text",
+              "text": "Dresses",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 15,
+               "weight": 600
+              },
+              "color": "#141211",
+              "dark_color": "#F2EDE4",
+              "translations": {
+               "ar": {
+                "text": "فساتين"
+               },
+               "tr": {
+                "text": "Elbiseler"
+               }
+              }
+             },
+             {
+              "id": "sig-31",
+              "type": "divider",
+              "height": 1.5,
+              "background": "#7A1F30",
+              "dark_background": "#D9798A"
+             }
+            ]
+           },
+           {
+            "id": "sig-32",
+            "type": "column",
+            "name": "Abayas",
+            "width": "hug",
+            "gap": 10,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-33",
+              "type": "text",
+              "text": "Abayas",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 15,
+               "weight": 400
+              },
+              "color": "#5F5850",
+              "dark_color": "#A89E92",
+              "translations": {
+               "ar": {
+                "text": "عبايات"
+               },
+               "tr": {
+                "text": "Abayalar"
+               }
+              }
+             },
+             {
+              "id": "sig-34",
+              "type": "divider",
+              "height": 1.5,
+              "background": "#F6F2EA",
+              "dark_background": "#0D0C0B"
+             }
+            ]
+           },
+           {
+            "id": "sig-35",
+            "type": "column",
+            "name": "Coats & jackets",
+            "width": "hug",
+            "gap": 10,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-36",
+              "type": "text",
+              "text": "Coats & jackets",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 15,
+               "weight": 400
+              },
+              "color": "#5F5850",
+              "dark_color": "#A89E92",
+              "translations": {
+               "ar": {
+                "text": "معاطف وجاكيتات"
+               },
+               "tr": {
+                "text": "Mont ve ceketler"
+               }
+              }
+             },
+             {
+              "id": "sig-37",
+              "type": "divider",
+              "height": 1.5,
+              "background": "#F6F2EA",
+              "dark_background": "#0D0C0B"
+             }
+            ]
+           },
+           {
+            "id": "sig-38",
+            "type": "column",
+            "name": "Shoes",
+            "width": "hug",
+            "gap": 10,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-39",
+              "type": "text",
+              "text": "Shoes",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 15,
+               "weight": 400
+              },
+              "color": "#5F5850",
+              "dark_color": "#A89E92",
+              "translations": {
+               "ar": {
+                "text": "أحذية"
+               },
+               "tr": {
+                "text": "Ayakkabılar"
+               }
+              }
+             },
+             {
+              "id": "sig-40",
+              "type": "divider",
+              "height": 1.5,
+              "background": "#F6F2EA",
+              "dark_background": "#0D0C0B"
+             }
+            ]
+           },
+           {
+            "id": "sig-41",
+            "type": "column",
+            "name": "Bags",
+            "width": "hug",
+            "gap": 10,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-42",
+              "type": "text",
+              "text": "Bags",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 15,
+               "weight": 400
+              },
+              "color": "#5F5850",
+              "dark_color": "#A89E92",
+              "translations": {
+               "ar": {
+                "text": "حقائب"
+               },
+               "tr": {
+                "text": "Çantalar"
+               }
+              }
+             },
+             {
+              "id": "sig-43",
+              "type": "divider",
+              "height": 1.5,
+              "background": "#F6F2EA",
+              "dark_background": "#0D0C0B"
+             }
+            ]
+           },
+           {
+            "id": "sig-44",
+            "type": "column",
+            "name": "Accessories",
+            "width": "hug",
+            "gap": 10,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-45",
+              "type": "text",
+              "text": "Accessories",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 15,
+               "weight": 400
+              },
+              "color": "#5F5850",
+              "dark_color": "#A89E92",
+              "translations": {
+               "ar": {
+                "text": "إكسسوارات"
+               },
+               "tr": {
+                "text": "Aksesuarlar"
+               }
+              }
+             },
+             {
+              "id": "sig-46",
+              "type": "divider",
+              "height": 1.5,
+              "background": "#F6F2EA",
+              "dark_background": "#0D0C0B"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-47",
+          "type": "divider",
+          "height": 1,
+          "background": "#E2DBCF",
+          "dark_background": "#2A2622"
+         }
+        ]
+       },
+       {
+        "id": "sig-48",
+        "type": "row",
+        "name": "New in",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 38,
+         "end": 22,
+         "bottom": 16,
+         "start": 22
+        },
+        "children": [
+         {
+          "id": "sig-49",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-50",
+            "type": "text",
+            "text": "New in",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 28,
+             "weight": 300,
+             "line_height": 1.15
+            },
+            "color": "#141211",
+            "dark_color": "#F2EDE4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "وصل حديثًا"
+             },
+             "tr": {
+              "text": "Yeni gelenler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-51",
+          "type": "column",
+          "name": "View all",
+          "width": "hug",
+          "gap": 4,
+          "self_align": "start",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-52",
+            "type": "text",
+            "text": "View all",
+            "max_lines": 1,
+            "font": {
+             "family": "Reem Kufi",
+             "size": 13,
+             "weight": 500,
+             "letter_spacing": 0.6
+            },
+            "color": "#5F5850",
+            "dark_color": "#A89E92",
+            "translations": {
+             "ar": {
+              "text": "عرض الكل"
+             },
+             "tr": {
+              "text": "Tümünü gör"
+             }
+            }
+           },
+           {
+            "id": "sig-53",
+            "type": "divider",
+            "height": 1,
+            "background": "#5F5850",
+            "dark_background": "#A89E92"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-54",
+        "type": "items",
+        "name": "New in",
+        "source": "products",
+        "layout": "grid",
+        "columns": 2,
+        "gap": 14,
+        "padding": {
+         "top": 0,
+         "end": 22,
+         "bottom": 0,
+         "start": 22
+        },
+        "query": {
+         "limit": 4,
+         "category_id": null,
+         "featured": false,
+         "sort": "newest",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-55",
+         "type": "column",
+         "width": "fill",
+         "gap": 4,
+         "children": [
+          {
+           "id": "sig-56",
+           "type": "image",
+           "bind": "image",
+           "width": "fill",
+           "aspect_ratio": 0.75,
+           "radius": 0,
+           "fit": "cover",
+           "background": "#E2DBCF",
+           "dark_background": "#2A2622"
+          },
+          {
+           "id": "sig-57",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "margin": {
+            "top": 8,
+            "end": 0,
+            "bottom": 0,
+            "start": 0
+           },
+           "children": [
+            {
+             "id": "sig-58",
+             "type": "text",
+             "bind": "title",
+             "width": "fill",
+             "max_lines": 1,
+             "font": {
+              "family": "Reem Kufi",
+              "size": 13,
+              "weight": 400
+             },
+             "color": "#141211",
+             "dark_color": "#F2EDE4"
+            },
+            {
+             "id": "sig-59",
+             "type": "icon",
+             "icon": "favorite",
+             "icon_size": 18,
+             "color": "#141211",
+             "dark_color": "#F2EDE4"
+            }
+           ]
+          },
+          {
+           "id": "sig-60",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-61",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "font": {
+              "family": "Reem Kufi",
+              "size": 13,
+              "weight": 600
+             },
+             "color": "#141211",
+             "dark_color": "#F2EDE4"
+            },
+            {
+             "id": "sig-62",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "font": {
+              "family": "Reem Kufi",
+              "size": 11.5
+             },
+             "color": "#5F5850",
+             "dark_color": "#A89E92"
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-63",
+        "type": "photo_hero",
+        "name": "The editor",
+        "image_url": "http://localhost:3000/clothes-photos/walk-white.jpg",
+        "height": 440,
+        "radius": 0,
+        "background": "#141211",
+        "scrim": {
+         "color": "#000000",
+         "from": 0,
+         "middle": 0.1,
+         "at": 50,
+         "to": 0.7
+        },
+        "align": "end",
+        "padding": {
+         "top": 0,
+         "end": 24,
+         "bottom": 30,
+         "start": 24
+        },
+        "margin": {
+         "top": 42,
+         "end": 0,
+         "bottom": 0,
+         "start": 0
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "children": [
+         {
+          "id": "sig-64",
+          "type": "text",
+          "text": "The editor",
+          "font": {
+           "family": "Reem Kufi",
+           "size": 11,
+           "weight": 500,
+           "letter_spacing": 2.4,
+           "uppercase": true
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "opacity": 0.88,
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "المحرّرة"
+           },
+           "tr": {
+            "text": "Editör"
+           }
+          }
+         },
+         {
+          "id": "sig-65",
+          "type": "text",
+          "text": "Elegance is saying a great deal with a single piece.",
+          "font": {
+           "family": "Reem Kufi",
+           "size": 24,
+           "weight": 300,
+           "line_height": 1.35
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "max_lines": 4,
+          "margin": {
+           "top": 10,
+           "end": 0,
+           "bottom": 16,
+           "start": 0
+          },
+          "translations": {
+           "ar": {
+            "text": "الأناقة أن تقولي الكثير بقطعة واحدة."
+           },
+           "tr": {
+            "text": "Zarafet, tek bir parçayla çok şey söylemektir."
+           }
+          }
+         },
+         {
+          "id": "sig-66",
+          "type": "row",
+          "name": "Read the edit",
+          "width": "hug",
+          "gap": 8,
+          "cross": "center",
+          "self_align": "start",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-67",
+            "type": "text",
+            "text": "Read the edit",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 13.5,
+             "weight": 500,
+             "letter_spacing": 0.8
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "اقرئي المختارات"
+             },
+             "tr": {
+              "text": "Seçkiyi oku"
+             }
+            }
+           },
+           {
+            "id": "sig-68",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-69",
+        "type": "row",
+        "name": "Most wanted",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 38,
+         "end": 22,
+         "bottom": 16,
+         "start": 22
+        },
+        "children": [
+         {
+          "id": "sig-70",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-71",
+            "type": "text",
+            "text": "Most wanted",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 28,
+             "weight": 300,
+             "line_height": 1.15
+            },
+            "color": "#141211",
+            "dark_color": "#F2EDE4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "الأكثر طلبًا"
+             },
+             "tr": {
+              "text": "En çok istenenler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-72",
+          "type": "column",
+          "name": "View all",
+          "width": "hug",
+          "gap": 4,
+          "self_align": "start",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-73",
+            "type": "text",
+            "text": "View all",
+            "max_lines": 1,
+            "font": {
+             "family": "Reem Kufi",
+             "size": 13,
+             "weight": 500,
+             "letter_spacing": 0.6
+            },
+            "color": "#5F5850",
+            "dark_color": "#A89E92",
+            "translations": {
+             "ar": {
+              "text": "عرض الكل"
+             },
+             "tr": {
+              "text": "Tümünü gör"
+             }
+            }
+           },
+           {
+            "id": "sig-74",
+            "type": "divider",
+            "height": 1,
+            "background": "#5F5850",
+            "dark_background": "#A89E92"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-75",
+        "type": "items",
+        "name": "Most wanted",
+        "source": "products",
+        "layout": "carousel",
+        "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 22,
+         "bottom": 0,
+         "start": 22
+        },
+        "query": {
+         "limit": 8,
+         "category_id": null,
+         "featured": true,
+         "sort": "popular",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-76",
+         "type": "column",
+         "width": 150,
+         "gap": 4,
+         "children": [
+          {
+           "id": "sig-77",
+           "type": "image",
+           "bind": "image",
+           "width": "fill",
+           "aspect_ratio": 0.75,
+           "radius": 0,
+           "fit": "cover",
+           "background": "#E2DBCF",
+           "dark_background": "#2A2622"
+          },
+          {
+           "id": "sig-78",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "margin": {
+            "top": 8,
+            "end": 0,
+            "bottom": 0,
+            "start": 0
+           },
+           "children": [
+            {
+             "id": "sig-79",
+             "type": "text",
+             "bind": "title",
+             "width": "fill",
+             "max_lines": 1,
+             "font": {
+              "family": "Reem Kufi",
+              "size": 13,
+              "weight": 400
+             },
+             "color": "#141211",
+             "dark_color": "#F2EDE4"
+            },
+            {
+             "id": "sig-80",
+             "type": "icon",
+             "icon": "favorite",
+             "icon_size": 18,
+             "color": "#141211",
+             "dark_color": "#F2EDE4"
+            }
+           ]
+          },
+          {
+           "id": "sig-81",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-82",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "font": {
+              "family": "Reem Kufi",
+              "size": 13,
+              "weight": 600
+             },
+             "color": "#141211",
+             "dark_color": "#F2EDE4"
+            },
+            {
+             "id": "sig-83",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "font": {
+              "family": "Reem Kufi",
+              "size": 11.5
+             },
+             "color": "#5F5850",
+             "dark_color": "#A89E92"
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-84",
+        "type": "row",
+        "name": "The index",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 38,
+         "end": 22,
+         "bottom": 16,
+         "start": 22
+        },
+        "children": [
+         {
+          "id": "sig-85",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-86",
+            "type": "text",
+            "text": "The index",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 28,
+             "weight": 300,
+             "line_height": 1.15
+            },
+            "color": "#141211",
+            "dark_color": "#F2EDE4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "الفهرس"
+             },
+             "tr": {
+              "text": "Dizin"
+             }
+            }
+           },
+           {
+            "id": "sig-87",
+            "type": "text",
+            "text": "Every category, quietly",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 12.5
+            },
+            "color": "#5F5850",
+            "dark_color": "#A89E92",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "كل الأقسام، بهدوء"
+             },
+             "tr": {
+              "text": "Tüm kategoriler, sakince"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-88",
+        "type": "column",
+        "name": "The index",
+        "padding": {
+         "top": 0,
+         "end": 22,
+         "bottom": 0,
+         "start": 22
+        },
+        "children": [
+         {
+          "id": "sig-89",
+          "type": "divider",
+          "height": 1,
+          "background": "#E2DBCF",
+          "dark_background": "#2A2622"
+         },
+         {
+          "id": "sig-90",
+          "type": "column",
+          "name": "Dresses",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-91",
+            "type": "row",
+            "gap": 14,
+            "cross": "center",
+            "padding": {
+             "top": 16,
+             "end": 0,
+             "bottom": 16,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-92",
+              "type": "text",
+              "text": "01",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 11,
+               "weight": 500,
+               "letter_spacing": 1.6
+              },
+              "color": "#7A1F30",
+              "dark_color": "#D9798A"
+             },
+             {
+              "id": "sig-93",
+              "type": "text",
+              "text": "Dresses",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 20,
+               "weight": 300,
+               "line_height": 1.2
+              },
+              "color": "#141211",
+              "dark_color": "#F2EDE4",
+              "width": "fill",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "فساتين"
+               },
+               "tr": {
+                "text": "Elbiseler"
+               }
+              }
+             },
+             {
+              "id": "sig-94",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 20,
+              "color": "#141211",
+              "dark_color": "#F2EDE4"
+             }
+            ]
+           },
+           {
+            "id": "sig-95",
+            "type": "divider",
+            "height": 1,
+            "background": "#E2DBCF",
+            "dark_background": "#2A2622"
+           }
+          ]
+         },
+         {
+          "id": "sig-96",
+          "type": "column",
+          "name": "Abayas",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-97",
+            "type": "row",
+            "gap": 14,
+            "cross": "center",
+            "padding": {
+             "top": 16,
+             "end": 0,
+             "bottom": 16,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-98",
+              "type": "text",
+              "text": "02",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 11,
+               "weight": 500,
+               "letter_spacing": 1.6
+              },
+              "color": "#7A1F30",
+              "dark_color": "#D9798A"
+             },
+             {
+              "id": "sig-99",
+              "type": "text",
+              "text": "Abayas",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 20,
+               "weight": 300,
+               "line_height": 1.2
+              },
+              "color": "#141211",
+              "dark_color": "#F2EDE4",
+              "width": "fill",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "عبايات"
+               },
+               "tr": {
+                "text": "Abayalar"
+               }
+              }
+             },
+             {
+              "id": "sig-100",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 20,
+              "color": "#141211",
+              "dark_color": "#F2EDE4"
+             }
+            ]
+           },
+           {
+            "id": "sig-101",
+            "type": "divider",
+            "height": 1,
+            "background": "#E2DBCF",
+            "dark_background": "#2A2622"
+           }
+          ]
+         },
+         {
+          "id": "sig-102",
+          "type": "column",
+          "name": "Coats & jackets",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-103",
+            "type": "row",
+            "gap": 14,
+            "cross": "center",
+            "padding": {
+             "top": 16,
+             "end": 0,
+             "bottom": 16,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-104",
+              "type": "text",
+              "text": "03",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 11,
+               "weight": 500,
+               "letter_spacing": 1.6
+              },
+              "color": "#7A1F30",
+              "dark_color": "#D9798A"
+             },
+             {
+              "id": "sig-105",
+              "type": "text",
+              "text": "Coats & jackets",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 20,
+               "weight": 300,
+               "line_height": 1.2
+              },
+              "color": "#141211",
+              "dark_color": "#F2EDE4",
+              "width": "fill",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "معاطف وجاكيتات"
+               },
+               "tr": {
+                "text": "Mont ve ceketler"
+               }
+              }
+             },
+             {
+              "id": "sig-106",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 20,
+              "color": "#141211",
+              "dark_color": "#F2EDE4"
+             }
+            ]
+           },
+           {
+            "id": "sig-107",
+            "type": "divider",
+            "height": 1,
+            "background": "#E2DBCF",
+            "dark_background": "#2A2622"
+           }
+          ]
+         },
+         {
+          "id": "sig-108",
+          "type": "column",
+          "name": "Shoes",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-109",
+            "type": "row",
+            "gap": 14,
+            "cross": "center",
+            "padding": {
+             "top": 16,
+             "end": 0,
+             "bottom": 16,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-110",
+              "type": "text",
+              "text": "04",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 11,
+               "weight": 500,
+               "letter_spacing": 1.6
+              },
+              "color": "#7A1F30",
+              "dark_color": "#D9798A"
+             },
+             {
+              "id": "sig-111",
+              "type": "text",
+              "text": "Shoes",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 20,
+               "weight": 300,
+               "line_height": 1.2
+              },
+              "color": "#141211",
+              "dark_color": "#F2EDE4",
+              "width": "fill",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "أحذية"
+               },
+               "tr": {
+                "text": "Ayakkabılar"
+               }
+              }
+             },
+             {
+              "id": "sig-112",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 20,
+              "color": "#141211",
+              "dark_color": "#F2EDE4"
+             }
+            ]
+           },
+           {
+            "id": "sig-113",
+            "type": "divider",
+            "height": 1,
+            "background": "#E2DBCF",
+            "dark_background": "#2A2622"
+           }
+          ]
+         },
+         {
+          "id": "sig-114",
+          "type": "column",
+          "name": "Bags",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-115",
+            "type": "row",
+            "gap": 14,
+            "cross": "center",
+            "padding": {
+             "top": 16,
+             "end": 0,
+             "bottom": 16,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-116",
+              "type": "text",
+              "text": "05",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 11,
+               "weight": 500,
+               "letter_spacing": 1.6
+              },
+              "color": "#7A1F30",
+              "dark_color": "#D9798A"
+             },
+             {
+              "id": "sig-117",
+              "type": "text",
+              "text": "Bags",
+              "font": {
+               "family": "Reem Kufi",
+               "size": 20,
+               "weight": 300,
+               "line_height": 1.2
+              },
+              "color": "#141211",
+              "dark_color": "#F2EDE4",
+              "width": "fill",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "حقائب"
+               },
+               "tr": {
+                "text": "Çantalar"
+               }
+              }
+             },
+             {
+              "id": "sig-118",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 20,
+              "color": "#141211",
+              "dark_color": "#F2EDE4"
+             }
+            ]
+           },
+           {
+            "id": "sig-119",
+            "type": "divider",
+            "height": 1,
+            "background": "#E2DBCF",
+            "dark_background": "#2A2622"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-120",
+        "type": "row",
+        "name": "Find your size",
+        "gap": 14,
+        "cross": "start",
+        "padding": {
+         "top": 22,
+         "end": 0,
+         "bottom": 22,
+         "start": 0
+        },
+        "margin": {
+         "top": 34,
+         "end": 22,
+         "bottom": 0,
+         "start": 22
+        },
+        "border_color": "#141211",
+        "dark_border_color": "#F2EDE4",
+        "border_width": 1,
+        "action": {
+         "type": "page",
+         "page_slug": "size-guide"
+        },
+        "children": [
+         {
+          "id": "sig-121",
+          "type": "icon",
+          "icon": "straighten",
+          "icon_size": 24,
+          "color": "#141211",
+          "dark_color": "#F2EDE4",
+          "margin": {
+           "top": 0,
+           "end": 0,
+           "bottom": 0,
+           "start": 18
+          }
+         },
+         {
+          "id": "sig-122",
+          "type": "column",
+          "width": "fill",
+          "gap": 6,
+          "padding": {
+           "top": 0,
+           "end": 18,
+           "bottom": 0,
+           "start": 0
+          },
+          "children": [
+           {
+            "id": "sig-123",
+            "type": "text",
+            "text": "Find your size",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 19,
+             "weight": 400,
+             "line_height": 1.2
+            },
+            "color": "#141211",
+            "dark_color": "#F2EDE4",
+            "translations": {
+             "ar": {
+              "text": "اعثري على مقاسكِ"
+             },
+             "tr": {
+              "text": "Bedeninizi bulun"
+             }
+            }
+           },
+           {
+            "id": "sig-124",
+            "type": "text",
+            "text": "Measurements for every piece, and how each one falls.",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 12.5,
+             "line_height": 1.5
+            },
+            "color": "#5F5850",
+            "dark_color": "#A89E92",
+            "max_lines": 3,
+            "translations": {
+             "ar": {
+              "text": "قياسات كل قطعة، وكيف تنسدل كل واحدة."
+             },
+             "tr": {
+              "text": "Her parçanın ölçüleri ve nasıl durduğu."
+             }
+            }
+           },
+           {
+            "id": "sig-125",
+            "type": "column",
+            "name": "Size guide",
+            "width": "hug",
+            "gap": 4,
+            "self_align": "start",
+            "action": {
+             "type": "page",
+             "page_slug": "size-guide"
+            },
+            "children": [
+             {
+              "id": "sig-126",
+              "type": "text",
+              "text": "Size guide",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 13,
+               "weight": 500,
+               "letter_spacing": 0.6
+              },
+              "color": "#141211",
+              "dark_color": "#F2EDE4",
+              "translations": {
+               "ar": {
+                "text": "دليل المقاسات"
+               },
+               "tr": {
+                "text": "Beden rehberi"
+               }
+              }
+             },
+             {
+              "id": "sig-127",
+              "type": "divider",
+              "height": 1,
+              "background": "#141211",
+              "dark_background": "#F2EDE4"
+             }
+            ],
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-128",
+        "type": "row",
+        "name": "Seen lately",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 38,
+         "end": 22,
+         "bottom": 16,
+         "start": 22
+        },
+        "children": [
+         {
+          "id": "sig-129",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-130",
+            "type": "text",
+            "text": "Seen lately",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 28,
+             "weight": 300,
+             "line_height": 1.15
+            },
+            "color": "#141211",
+            "dark_color": "#F2EDE4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "شاهدتِها مؤخرًا"
+             },
+             "tr": {
+              "text": "Son baktıklarınız"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-131",
+        "type": "items",
+        "name": "Seen lately",
+        "source": "products",
+        "layout": "carousel",
+        "recent": true,
+        "gap": 10,
+        "padding": {
+         "top": 0,
+         "end": 22,
+         "bottom": 0,
+         "start": 22
+        },
+        "query": {
+         "limit": 10,
+         "category_id": null,
+         "featured": false,
+         "sort": "newest",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-132",
+         "type": "column",
+         "width": 112,
+         "gap": 4,
+         "children": [
+          {
+           "id": "sig-133",
+           "type": "image",
+           "bind": "image",
+           "width": "fill",
+           "aspect_ratio": 0.75,
+           "radius": 0,
+           "fit": "cover",
+           "background": "#E2DBCF",
+           "dark_background": "#2A2622"
+          },
+          {
+           "id": "sig-134",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "margin": {
+            "top": 8,
+            "end": 0,
+            "bottom": 0,
+            "start": 0
+           },
+           "children": [
+            {
+             "id": "sig-135",
+             "type": "text",
+             "bind": "title",
+             "width": "fill",
+             "max_lines": 1,
+             "font": {
+              "family": "Reem Kufi",
+              "size": 13,
+              "weight": 400
+             },
+             "color": "#141211",
+             "dark_color": "#F2EDE4"
+            },
+            {
+             "id": "sig-136",
+             "type": "icon",
+             "icon": "favorite",
+             "icon_size": 18,
+             "color": "#141211",
+             "dark_color": "#F2EDE4"
+            }
+           ]
+          },
+          {
+           "id": "sig-137",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-138",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "font": {
+              "family": "Reem Kufi",
+              "size": 13,
+              "weight": 600
+             },
+             "color": "#141211",
+             "dark_color": "#F2EDE4"
+            },
+            {
+             "id": "sig-139",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "font": {
+              "family": "Reem Kufi",
+              "size": 11.5
+             },
+             "color": "#5F5850",
+             "dark_color": "#A89E92"
+            }
+           ]
+          }
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "shop",
+    "title": "Discover",
+    "translations": {
+     "ar": {
+      "title": "اكتشفي"
+     },
+     "tr": {
+      "title": "Keşfet"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-188",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-189",
+        "type": "text",
+        "text": "Every piece of the season, newest first",
+        "font": {
+         "family": "Reem Kufi",
+         "size": 13
+        },
+        "color": "#5F5850",
+        "dark_color": "#A89E92",
+        "max_lines": 2,
+        "padding": {
+         "top": 14,
+         "end": 22,
+         "bottom": 0,
+         "start": 22
+        },
+        "translations": {
+         "ar": {
+          "text": "كل قطع الموسم، الأحدث أولًا"
+         },
+         "tr": {
+          "text": "Sezonun tüm parçaları, en yeniler önce"
+         }
+        }
+       },
+       {
+        "id": "sig-190",
+        "type": "column",
+        "name": "The collection",
+        "padding": {
+         "top": 22,
+         "end": 0,
+         "bottom": 0,
+         "start": 0
+        },
+        "children": [
+         {
+          "id": "sig-191",
+          "type": "row",
+          "gap": 26,
+          "scroll": true,
+          "padding": {
+           "top": 0,
+           "end": 22,
+           "bottom": 0,
+           "start": 22
+          },
+          "children": [
+           {
+            "id": "sig-192",
+            "type": "column",
+            "name": "Dresses",
+            "width": "hug",
+            "gap": 10,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-193",
+              "type": "text",
+              "text": "Dresses",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 15,
+               "weight": 600
+              },
+              "color": "#141211",
+              "dark_color": "#F2EDE4",
+              "translations": {
+               "ar": {
+                "text": "فساتين"
+               },
+               "tr": {
+                "text": "Elbiseler"
+               }
+              }
+             },
+             {
+              "id": "sig-194",
+              "type": "divider",
+              "height": 1.5,
+              "background": "#7A1F30",
+              "dark_background": "#D9798A"
+             }
+            ]
+           },
+           {
+            "id": "sig-195",
+            "type": "column",
+            "name": "Abayas",
+            "width": "hug",
+            "gap": 10,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-196",
+              "type": "text",
+              "text": "Abayas",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 15,
+               "weight": 400
+              },
+              "color": "#5F5850",
+              "dark_color": "#A89E92",
+              "translations": {
+               "ar": {
+                "text": "عبايات"
+               },
+               "tr": {
+                "text": "Abayalar"
+               }
+              }
+             },
+             {
+              "id": "sig-197",
+              "type": "divider",
+              "height": 1.5,
+              "background": "#F6F2EA",
+              "dark_background": "#0D0C0B"
+             }
+            ]
+           },
+           {
+            "id": "sig-198",
+            "type": "column",
+            "name": "Coats & jackets",
+            "width": "hug",
+            "gap": 10,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-199",
+              "type": "text",
+              "text": "Coats & jackets",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 15,
+               "weight": 400
+              },
+              "color": "#5F5850",
+              "dark_color": "#A89E92",
+              "translations": {
+               "ar": {
+                "text": "معاطف وجاكيتات"
+               },
+               "tr": {
+                "text": "Mont ve ceketler"
+               }
+              }
+             },
+             {
+              "id": "sig-200",
+              "type": "divider",
+              "height": 1.5,
+              "background": "#F6F2EA",
+              "dark_background": "#0D0C0B"
+             }
+            ]
+           },
+           {
+            "id": "sig-201",
+            "type": "column",
+            "name": "Shoes",
+            "width": "hug",
+            "gap": 10,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-202",
+              "type": "text",
+              "text": "Shoes",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 15,
+               "weight": 400
+              },
+              "color": "#5F5850",
+              "dark_color": "#A89E92",
+              "translations": {
+               "ar": {
+                "text": "أحذية"
+               },
+               "tr": {
+                "text": "Ayakkabılar"
+               }
+              }
+             },
+             {
+              "id": "sig-203",
+              "type": "divider",
+              "height": 1.5,
+              "background": "#F6F2EA",
+              "dark_background": "#0D0C0B"
+             }
+            ]
+           },
+           {
+            "id": "sig-204",
+            "type": "column",
+            "name": "Bags",
+            "width": "hug",
+            "gap": 10,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-205",
+              "type": "text",
+              "text": "Bags",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 15,
+               "weight": 400
+              },
+              "color": "#5F5850",
+              "dark_color": "#A89E92",
+              "translations": {
+               "ar": {
+                "text": "حقائب"
+               },
+               "tr": {
+                "text": "Çantalar"
+               }
+              }
+             },
+             {
+              "id": "sig-206",
+              "type": "divider",
+              "height": 1.5,
+              "background": "#F6F2EA",
+              "dark_background": "#0D0C0B"
+             }
+            ]
+           },
+           {
+            "id": "sig-207",
+            "type": "column",
+            "name": "Accessories",
+            "width": "hug",
+            "gap": 10,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-208",
+              "type": "text",
+              "text": "Accessories",
+              "max_lines": 1,
+              "font": {
+               "family": "Reem Kufi",
+               "size": 15,
+               "weight": 400
+              },
+              "color": "#5F5850",
+              "dark_color": "#A89E92",
+              "translations": {
+               "ar": {
+                "text": "إكسسوارات"
+               },
+               "tr": {
+                "text": "Aksesuarlar"
+               }
+              }
+             },
+             {
+              "id": "sig-209",
+              "type": "divider",
+              "height": 1.5,
+              "background": "#F6F2EA",
+              "dark_background": "#0D0C0B"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-210",
+          "type": "divider",
+          "height": 1,
+          "background": "#E2DBCF",
+          "dark_background": "#2A2622"
+         }
+        ]
+       },
+       {
+        "id": "sig-211",
+        "type": "listing_filters",
+        "name": "The size chart",
+        "color": "#141211",
+        "dark_color": "#F2EDE4",
+        "padding": {
+         "top": 10,
+         "end": 22,
+         "bottom": 6,
+         "start": 22
+        }
+       }
+      ]
+     },
+     "screen": "search",
+     "header": {
+      "type": "title",
+      "title": "Discover",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "اكتشفي"
+       },
+       "tr": {
+        "title": "Keşfet"
+       }
+      },
+      "background": "#141211",
+      "color": "#F6F2EA",
+      "dark_background": "#171513",
+      "dark_color": "#F2EDE4",
+      "style": "photo"
+     },
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "wishlist",
+    "title": "Wishlist",
+    "studio": {
+     "body": {
+      "id": "sig-212",
+      "type": "column",
+      "children": []
+     },
+     "screen": "favorites",
+     "header": {
+      "type": "title",
+      "title": "Wishlist",
+      "buttons": [
+       "notifications"
+      ],
+      "background": "#141211",
+      "color": "#F6F2EA",
+      "dark_background": "#171513",
+      "dark_color": "#F2EDE4",
+      "style": "photo"
+     },
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "cart",
+    "title": "Bag",
+    "translations": {
+     "ar": {
+      "title": "الحقيبة"
+     },
+     "tr": {
+      "title": "Çanta"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-213",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-214",
+        "type": "row",
+        "name": "Free exchanges within 14 days, with the tag still on.",
+        "gap": 12,
+        "cross": "center",
+        "padding": {
+         "top": 14,
+         "end": 0,
+         "bottom": 14,
+         "start": 0
+        },
+        "margin": {
+         "top": 8,
+         "end": 22,
+         "bottom": 4,
+         "start": 22
+        },
+        "border_color": "#E2DBCF",
+        "dark_border_color": "#2A2622",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-215",
+          "type": "icon",
+          "icon": "sync",
+          "icon_size": 20,
+          "color": "#7A1F30",
+          "dark_color": "#D9798A",
+          "margin": {
+           "top": 0,
+           "end": 0,
+           "bottom": 0,
+           "start": 14
+          }
+         },
+         {
+          "id": "sig-216",
+          "type": "text",
+          "text": "Free exchanges within 14 days, with the tag still on.",
+          "font": {
+           "family": "Reem Kufi",
+           "size": 13,
+           "line_height": 1.45
+          },
+          "color": "#141211",
+          "dark_color": "#F2EDE4",
+          "width": "fill",
+          "max_lines": 3,
+          "padding": {
+           "top": 0,
+           "end": 14,
+           "bottom": 0,
+           "start": 0
+          },
+          "translations": {
+           "ar": {
+            "text": "استبدال مجاني خلال 14 يومًا ما دامت البطاقة عليها."
+           },
+           "tr": {
+            "text": "Etiketi üzerindeyken 14 gün içinde ücretsiz değişim."
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-217",
+        "type": "row",
+        "name": "A finishing touch",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 38,
+         "end": 22,
+         "bottom": 16,
+         "start": 22
+        },
+        "children": [
+         {
+          "id": "sig-218",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-219",
+            "type": "text",
+            "text": "A finishing touch",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 28,
+             "weight": 300,
+             "line_height": 1.15
+            },
+            "color": "#141211",
+            "dark_color": "#F2EDE4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "لمسة أخيرة"
+             },
+             "tr": {
+              "text": "Son bir dokunuş"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-220",
+        "type": "items",
+        "name": "A finishing touch",
+        "source": "products",
+        "layout": "carousel",
+        "gap": 10,
+        "padding": {
+         "top": 0,
+         "end": 22,
+         "bottom": 6,
+         "start": 22
+        },
+        "query": {
+         "limit": 6,
+         "category_id": null,
+         "featured": false,
+         "sort": "popular",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-221",
+         "type": "column",
+         "width": 112,
+         "gap": 4,
+         "children": [
+          {
+           "id": "sig-222",
+           "type": "image",
+           "bind": "image",
+           "width": "fill",
+           "aspect_ratio": 0.75,
+           "radius": 0,
+           "fit": "cover",
+           "background": "#E2DBCF",
+           "dark_background": "#2A2622"
+          },
+          {
+           "id": "sig-223",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "margin": {
+            "top": 8,
+            "end": 0,
+            "bottom": 0,
+            "start": 0
+           },
+           "children": [
+            {
+             "id": "sig-224",
+             "type": "text",
+             "bind": "title",
+             "width": "fill",
+             "max_lines": 1,
+             "font": {
+              "family": "Reem Kufi",
+              "size": 13,
+              "weight": 400
+             },
+             "color": "#141211",
+             "dark_color": "#F2EDE4"
+            },
+            {
+             "id": "sig-225",
+             "type": "icon",
+             "icon": "favorite",
+             "icon_size": 18,
+             "color": "#141211",
+             "dark_color": "#F2EDE4"
+            }
+           ]
+          },
+          {
+           "id": "sig-226",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-227",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "font": {
+              "family": "Reem Kufi",
+              "size": 13,
+              "weight": 600
+             },
+             "color": "#141211",
+             "dark_color": "#F2EDE4"
+            },
+            {
+             "id": "sig-228",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "font": {
+              "family": "Reem Kufi",
+              "size": 11.5
+             },
+             "color": "#5F5850",
+             "dark_color": "#A89E92"
+            }
+           ]
+          }
+         ]
+        }
+       }
+      ]
+     },
+     "screen": "cart",
+     "header": {
+      "type": "title",
+      "title": "Bag",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الحقيبة"
+       },
+       "tr": {
+        "title": "Çanta"
+       }
+      },
+      "background": "#141211",
+      "color": "#F6F2EA",
+      "dark_background": "#171513",
+      "dark_color": "#F2EDE4",
+      "style": "photo"
+     },
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-230",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-229",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "account",
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "menu",
+    "title": "The house",
+    "translations": {
+     "ar": {
+      "title": "الدار"
+     },
+     "tr": {
+      "title": "Ev"
+     }
+    },
+    "studio": {
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B",
+     "body": {
+      "id": "sig-140",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 36,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-141",
+        "type": "search",
+        "name": "Search the collection",
+        "text": "Search the collection",
+        "source": "products",
+        "radius": 25,
+        "height": 50,
+        "background": "#FFFFFF",
+        "dark_background": "#171513",
+        "color": "#5F5850",
+        "dark_color": "#A89E92",
+        "margin": {
+         "top": 14,
+         "end": 22,
+         "bottom": 8,
+         "start": 22
+        },
+        "translations": {
+         "ar": {
+          "text": "ابحثي في المجموعة"
+         },
+         "tr": {
+          "text": "Koleksiyonda ara"
+         }
+        }
+       },
+       {
+        "id": "sig-142",
+        "type": "categories",
+        "name": "The house",
+        "source": "products",
+        "style": "rows",
+        "category_menu": {
+         "look": "lead",
+         "radius": 0,
+         "numbers": true
+        },
+        "color": "#141211",
+        "dark_color": "#F2EDE4",
+        "padding": {
+         "top": 10,
+         "end": 0,
+         "bottom": 10,
+         "start": 0
+        }
+       },
+       {
+        "id": "sig-143",
+        "type": "column",
+        "name": "My account",
+        "padding": {
+         "top": 16,
+         "end": 22,
+         "bottom": 0,
+         "start": 22
+        },
+        "children": [
+         {
+          "id": "sig-144",
+          "type": "divider",
+          "height": 1,
+          "background": "#E2DBCF",
+          "dark_background": "#2A2622"
+         },
+         {
+          "id": "sig-145",
+          "type": "column",
+          "name": "My account",
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-146",
+            "type": "row",
+            "gap": 14,
+            "cross": "center",
+            "padding": {
+             "top": 15,
+             "end": 0,
+             "bottom": 15,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-147",
+              "type": "icon",
+              "icon": "person",
+              "icon_size": 22,
+              "color": "#141211",
+              "dark_color": "#F2EDE4"
+             },
+             {
+              "id": "sig-148",
+              "type": "column",
+              "width": "fill",
+              "gap": 3,
+              "children": [
+               {
+                "id": "sig-149",
+                "type": "text",
+                "text": "My account",
+                "font": {
+                 "family": "Reem Kufi",
+                 "size": 15,
+                 "weight": 500
+                },
+                "color": "#141211",
+                "dark_color": "#F2EDE4",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "حسابي"
+                 },
+                 "tr": {
+                  "text": "Hesabım"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-150",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 18,
+              "color": "#5F5850",
+              "dark_color": "#A89E92"
+             }
+            ]
+           },
+           {
+            "id": "sig-151",
+            "type": "divider",
+            "height": 1,
+            "background": "#E2DBCF",
+            "dark_background": "#2A2622"
+           }
+          ]
+         },
+         {
+          "id": "sig-152",
+          "type": "column",
+          "name": "My orders",
+          "action": {
+           "type": "screen",
+           "screen": "orders"
+          },
+          "children": [
+           {
+            "id": "sig-153",
+            "type": "row",
+            "gap": 14,
+            "cross": "center",
+            "padding": {
+             "top": 15,
+             "end": 0,
+             "bottom": 15,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-154",
+              "type": "icon",
+              "icon": "package_2",
+              "icon_size": 22,
+              "color": "#141211",
+              "dark_color": "#F2EDE4"
+             },
+             {
+              "id": "sig-155",
+              "type": "column",
+              "width": "fill",
+              "gap": 3,
+              "children": [
+               {
+                "id": "sig-156",
+                "type": "text",
+                "text": "My orders",
+                "font": {
+                 "family": "Reem Kufi",
+                 "size": 15,
+                 "weight": 500
+                },
+                "color": "#141211",
+                "dark_color": "#F2EDE4",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "طلباتي"
+                 },
+                 "tr": {
+                  "text": "Siparişlerim"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-157",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 18,
+              "color": "#5F5850",
+              "dark_color": "#A89E92"
+             }
+            ]
+           },
+           {
+            "id": "sig-158",
+            "type": "divider",
+            "height": 1,
+            "background": "#E2DBCF",
+            "dark_background": "#2A2622"
+           }
+          ]
+         },
+         {
+          "id": "sig-159",
+          "type": "column",
+          "name": "Wishlist",
+          "action": {
+           "type": "screen",
+           "screen": "favorites"
+          },
+          "children": [
+           {
+            "id": "sig-160",
+            "type": "row",
+            "gap": 14,
+            "cross": "center",
+            "padding": {
+             "top": 15,
+             "end": 0,
+             "bottom": 15,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-161",
+              "type": "icon",
+              "icon": "favorite",
+              "icon_size": 22,
+              "color": "#141211",
+              "dark_color": "#F2EDE4"
+             },
+             {
+              "id": "sig-162",
+              "type": "column",
+              "width": "fill",
+              "gap": 3,
+              "children": [
+               {
+                "id": "sig-163",
+                "type": "text",
+                "text": "Wishlist",
+                "font": {
+                 "family": "Reem Kufi",
+                 "size": 15,
+                 "weight": 500
+                },
+                "color": "#141211",
+                "dark_color": "#F2EDE4",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "المفضّلة"
+                 },
+                 "tr": {
+                  "text": "Favoriler"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-164",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 18,
+              "color": "#5F5850",
+              "dark_color": "#A89E92"
+             }
+            ]
+           },
+           {
+            "id": "sig-165",
+            "type": "divider",
+            "height": 1,
+            "background": "#E2DBCF",
+            "dark_background": "#2A2622"
+           }
+          ]
+         },
+         {
+          "id": "sig-166",
+          "type": "column",
+          "name": "Language",
+          "action": {
+           "type": "screen",
+           "screen": "settings"
+          },
+          "children": [
+           {
+            "id": "sig-167",
+            "type": "row",
+            "gap": 14,
+            "cross": "center",
+            "padding": {
+             "top": 15,
+             "end": 0,
+             "bottom": 15,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-168",
+              "type": "icon",
+              "icon": "language",
+              "icon_size": 22,
+              "color": "#141211",
+              "dark_color": "#F2EDE4"
+             },
+             {
+              "id": "sig-169",
+              "type": "column",
+              "width": "fill",
+              "gap": 3,
+              "children": [
+               {
+                "id": "sig-170",
+                "type": "text",
+                "text": "Language",
+                "font": {
+                 "family": "Reem Kufi",
+                 "size": 15,
+                 "weight": 500
+                },
+                "color": "#141211",
+                "dark_color": "#F2EDE4",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "اللغة"
+                 },
+                 "tr": {
+                  "text": "Dil"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-171",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 18,
+              "color": "#5F5850",
+              "dark_color": "#A89E92"
+             }
+            ]
+           },
+           {
+            "id": "sig-172",
+            "type": "divider",
+            "height": 1,
+            "background": "#E2DBCF",
+            "dark_background": "#2A2622"
+           }
+          ]
+         },
+         {
+          "id": "sig-173",
+          "type": "column",
+          "name": "Talk to a stylist",
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-174",
+            "type": "row",
+            "gap": 14,
+            "cross": "center",
+            "padding": {
+             "top": 15,
+             "end": 0,
+             "bottom": 15,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-175",
+              "type": "icon",
+              "icon": "support_agent",
+              "icon_size": 22,
+              "color": "#141211",
+              "dark_color": "#F2EDE4"
+             },
+             {
+              "id": "sig-176",
+              "type": "column",
+              "width": "fill",
+              "gap": 3,
+              "children": [
+               {
+                "id": "sig-177",
+                "type": "text",
+                "text": "Talk to a stylist",
+                "font": {
+                 "family": "Reem Kufi",
+                 "size": 15,
+                 "weight": 500
+                },
+                "color": "#141211",
+                "dark_color": "#F2EDE4",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "تحدّثي مع منسّقة"
+                 },
+                 "tr": {
+                  "text": "Bir stilistle konuşun"
+                 }
+                }
+               },
+               {
+                "id": "sig-178",
+                "type": "text",
+                "text": "Questions about a size or a fit, answered by a person.",
+                "font": {
+                 "family": "Reem Kufi",
+                 "size": 12
+                },
+                "color": "#5F5850",
+                "dark_color": "#A89E92",
+                "max_lines": 2,
+                "translations": {
+                 "ar": {
+                  "text": "أسئلة المقاس والقصّة يجيب عنها شخص حقيقي."
+                 },
+                 "tr": {
+                  "text": "Beden ve kalıp sorularını bir insan yanıtlar."
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-179",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 18,
+              "color": "#5F5850",
+              "dark_color": "#A89E92"
+             }
+            ]
+           },
+           {
+            "id": "sig-180",
+            "type": "divider",
+            "height": 1,
+            "background": "#E2DBCF",
+            "dark_background": "#2A2622"
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "The house",
+      "translations": {
+       "ar": {
+        "title": "الدار"
+       },
+       "tr": {
+        "title": "Ev"
+       }
+      },
+      "buttons": [
+       "search",
+       "cart"
+      ],
+      "background": "#141211",
+      "color": "#F6F2EA",
+      "dark_background": "#171513",
+      "dark_color": "#F2EDE4",
+      "style": "photo"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "size-guide",
+    "title": "Size guide",
+    "translations": {
+     "ar": {
+      "title": "دليل المقاسات"
+     },
+     "tr": {
+      "title": "Beden rehberi"
+     }
+    },
+    "studio": {
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B",
+     "body": {
+      "id": "sig-181",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 36,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-182",
+        "type": "text",
+        "text": "Measurements for every piece, and how each one falls.",
+        "font": {
+         "family": "Reem Kufi",
+         "size": 14,
+         "line_height": 1.6
+        },
+        "color": "#5F5850",
+        "dark_color": "#A89E92",
+        "padding": {
+         "top": 16,
+         "end": 22,
+         "bottom": 6,
+         "start": 22
+        },
+        "translations": {
+         "ar": {
+          "text": "قياسات كل قطعة، وكيف تنسدل كل واحدة."
+         },
+         "tr": {
+          "text": "Her parçanın ölçüleri ve nasıl durduğu."
+         }
+        }
+       },
+       {
+        "id": "sig-183",
+        "type": "size_chart",
+        "name": "The size chart",
+        "text": "The size chart",
+        "color": "#141211",
+        "dark_color": "#F2EDE4",
+        "background": "#F6F2EA",
+        "dark_background": "#0D0C0B",
+        "border_color": "#141211",
+        "dark_border_color": "#F2EDE4",
+        "border_width": 1,
+        "radius": 0,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 12,
+         "end": 22,
+         "bottom": 4,
+         "start": 22
+        },
+        "translations": {
+         "ar": {
+          "text": "جدول المقاسات"
+         },
+         "tr": {
+          "text": "Beden tablosu"
+         }
+        }
+       },
+       {
+        "id": "sig-184",
+        "type": "row",
+        "name": "How to measure",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 38,
+         "end": 22,
+         "bottom": 16,
+         "start": 22
+        },
+        "children": [
+         {
+          "id": "sig-185",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-186",
+            "type": "text",
+            "text": "How to measure",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 28,
+             "weight": 300,
+             "line_height": 1.15
+            },
+            "color": "#141211",
+            "dark_color": "#F2EDE4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "كيف تقيسين"
+             },
+             "tr": {
+              "text": "Nasıl ölçülür"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-187",
+        "type": "timeline",
+        "name": "How to measure",
+        "timeline": {
+         "style": "vertical"
+        },
+        "color": "#141211",
+        "dark_color": "#F2EDE4",
+        "background": "#F6F2EA",
+        "dark_background": "#0D0C0B",
+        "padding": {
+         "top": 0,
+         "end": 22,
+         "bottom": 0,
+         "start": 22
+        },
+        "entries": [
+         {
+          "title": "Bust",
+          "text": "Around the fullest part, the tape level.",
+          "translations": {
+           "ar": {
+            "title": "الصدر",
+            "text": "حول أعرض جزء، والشريط مستوٍ."
+           },
+           "tr": {
+            "title": "Göğüs",
+            "text": "En dolgun yerden, mezura düz."
+           }
+          }
+         },
+         {
+          "title": "Waist",
+          "text": "At the narrowest point, without pulling.",
+          "translations": {
+           "ar": {
+            "title": "الخصر",
+            "text": "عند أضيق نقطة، دون شدّ."
+           },
+           "tr": {
+            "title": "Bel",
+            "text": "En ince noktadan, germeden."
+           }
+          }
+         },
+         {
+          "title": "Hips",
+          "text": "Around the widest part, feet together.",
+          "translations": {
+           "ar": {
+            "title": "الورك",
+            "text": "حول أعرض جزء، والقدمان متلاصقتان."
+           },
+           "tr": {
+            "title": "Kalça",
+            "text": "En geniş yerden, ayaklar bitişik."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Size guide",
+      "translations": {
+       "ar": {
+        "title": "دليل المقاسات"
+       },
+       "tr": {
+        "title": "Beden rehberi"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#141211",
+      "color": "#F6F2EA",
+      "dark_background": "#171513",
+      "dark_color": "#F2EDE4",
+      "style": "photo"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "My orders",
+    "translations": {
+     "ar": {
+      "title": "طلباتي"
+     },
+     "tr": {
+      "title": "Siparişlerim"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-231",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-238",
+        "type": "row",
+        "name": "Your order",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 38,
+         "end": 22,
+         "bottom": 16,
+         "start": 22
+        },
+        "children": [
+         {
+          "id": "sig-239",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-240",
+            "type": "text",
+            "text": "Your order",
+            "font": {
+             "family": "Reem Kufi",
+             "size": 28,
+             "weight": 300,
+             "line_height": 1.15
+            },
+            "color": "#141211",
+            "dark_color": "#F2EDE4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "طلبكِ"
+             },
+             "tr": {
+              "text": "Siparişiniz"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-241",
+        "type": "timeline",
+        "name": "Your order",
+        "timeline": {
+         "style": "bars",
+         "source": "latest_order"
+        },
+        "color": "#141211",
+        "dark_color": "#F2EDE4",
+        "background": "#F6F2EA",
+        "dark_background": "#0D0C0B",
+        "padding": {
+         "top": 0,
+         "end": 22,
+         "bottom": 8,
+         "start": 22
+        },
+        "entries": [
+         {
+          "title": "Ordered",
+          "text": "We have your order.",
+          "highlight": true,
+          "translations": {
+           "ar": {
+            "title": "تم الطلب",
+            "text": "استلمنا طلبكِ."
+           },
+           "tr": {
+            "title": "Sipariş verildi",
+            "text": "Siparişinizi aldık."
+           }
+          }
+         },
+         {
+          "title": "Packed",
+          "text": "Folded, checked and packed with care.",
+          "translations": {
+           "ar": {
+            "title": "جاهز للشحن",
+            "text": "مطويّ ومفحوص ومغلّف بعناية."
+           },
+           "tr": {
+            "title": "Paketlendi",
+            "text": "Katlandı, kontrol edildi, özenle paketlendi."
+           }
+          }
+         },
+         {
+          "title": "On its way",
+          "text": "With the courier, on its way to you.",
+          "translations": {
+           "ar": {
+            "title": "في الطريق",
+            "text": "مع المندوب في طريقه إليكِ."
+           },
+           "tr": {
+            "title": "Yolda",
+            "text": "Kuryede, size geliyor."
+           }
+          }
+         },
+         {
+          "title": "Delivered",
+          "text": "Enjoy it. Exchanges are easy from your orders.",
+          "translations": {
+           "ar": {
+            "title": "تم التوصيل",
+            "text": "استمتعي بها. الاستبدال سهل من طلباتكِ."
+           },
+           "tr": {
+            "title": "Teslim edildi",
+            "text": "Keyfini çıkarın. Değişim siparişlerinizden kolayca yapılır."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "orders",
+     "header": {
+      "type": "title",
+      "title": "My orders",
+      "translations": {
+       "ar": {
+        "title": "طلباتي"
+       },
+       "tr": {
+        "title": "Siparişlerim"
+       }
+      },
+      "background": "#141211",
+      "color": "#F6F2EA",
+      "dark_background": "#171513",
+      "dark_color": "#F2EDE4",
+      "style": "photo"
+     },
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-232",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#141211",
+      "color": "#F6F2EA",
+      "dark_background": "#171513",
+      "dark_color": "#F2EDE4",
+      "style": "photo"
+     },
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-233",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#141211",
+      "color": "#F6F2EA",
+      "dark_background": "#171513",
+      "dark_color": "#F2EDE4",
+      "style": "photo"
+     },
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-234",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#141211",
+      "color": "#F6F2EA",
+      "dark_background": "#171513",
+      "dark_color": "#F2EDE4",
+      "style": "photo"
+     },
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-235",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#141211",
+      "color": "#F6F2EA",
+      "dark_background": "#171513",
+      "dark_color": "#F2EDE4",
+      "style": "photo"
+     },
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-236",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-237",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#F6F2EA",
+     "dark_background": "#0D0C0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "background": "#F6F2EA",
+   "dark_background": "#0D0C0B",
+   "active": "#141211",
+   "dark_active": "#F2EDE4",
+   "inactive": "#5F5850",
+   "dark_inactive": "#A89E92",
+   "design": "minimal",
+   "labels": "always",
+   "font": "Reem Kufi"
+  }
+ }
+}
