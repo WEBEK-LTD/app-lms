@@ -290,13 +290,19 @@ class _TradeInEstimatorState extends ConsumerState<TradeInEstimator> {
                       style: TextStyle(fontSize: 12.5, color: p.textSecondary),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      context.l10n.tradeInUpTo(estimate),
-                      key: const ValueKey('trade-in-estimate'),
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: p.text,
+                    // 211 On one line, smaller when the amount is long.
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        context.l10n.tradeInUpTo(estimate),
+                        key: const ValueKey('trade-in-estimate'),
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: p.text,
+                        ),
                       ),
                     ),
                   ],

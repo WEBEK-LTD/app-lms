@@ -72,7 +72,15 @@ export async function servedTech(app: App, ownCatalog: boolean, node: StudioNode
       if (!ownCatalog) return null;
       const wanted = Math.min(Math.max(node.tech?.ids?.length ?? 2, 2), 3);
       const products = await productsFor(fetch, node, wanted);
-      return products.length >= 2 ? { ...node, tech_served: { products } } : null;
+      if (products.length < 2) return null;
+      // At most `rows` specs: those every product has first, in the first product's order.
+      const rows = node.tech?.rows;
+      if (!rows) return { ...node, tech_served: { products } };
+      const keyOf = (s: { key: string | null; label: string }) => s.key ?? s.label;
+      const all = [...new Set(products.flatMap((p) => p.specs.map(keyOf)))];
+      const shared = all.filter((k) => products.every((p) => p.specs.some((s) => keyOf(s) === k)));
+      const kept = new Set([...shared, ...all.filter((k) => !shared.includes(k))].slice(0, rows));
+      return { ...node, tech_served: { products: products.map((p) => ({ ...p, specs: p.specs.filter((s) => kept.has(keyOf(s))) })) } };
     }
     case "spec_filter": {
       const key = node.tech?.spec;
@@ -80,7 +88,7 @@ export async function servedTech(app: App, ownCatalog: boolean, node: StudioNode
       const category = node.tech?.category_id && /^\d+$/.test(node.tech.category_id) ? node.tech.category_id : null;
       const body = await fetch(["store", "spec-values"], { spec: key, category });
       const values = Array.isArray(body?.values) ? (body.values as { value?: unknown; count?: unknown }[]).filter((v) => typeof v.value === "string" && Number.isInteger(v.count)).map((v) => ({ value: v.value as string, count: v.count as number })) : [];
-      return values.length ? { ...node, tech_served: { spec: { key, label: str(body?.label) ?? key, values } } } : null;
+      return values.length ? { ...node, tech_served: { spec: { key, label: str(body?.label) ?? key, values: values.slice(0, node.tech?.rows ?? 12) } } } : null;
     }
     default:
       return node;

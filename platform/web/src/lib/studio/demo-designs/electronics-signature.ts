@@ -334,7 +334,7 @@ function serviceTile(ctx: SectionContext, l: Look, icon: string, title: SectionW
     padding: sides(12, 4, 12, 4),
     children: [
       { id: id(), type: "icon", icon, icon_size: 22, color: soon ? l.k.muted : l.k.accent, dark_color: soon ? l.k.darkMuted : l.k.darkAccent },
-      say(ctx, l, title, { size: 12, weight: 700 }, { text_align: "center", max_lines: 1 }),
+      say(ctx, l, title, { size: 10.5, weight: 700, line_height: 1.2 }, { text_align: "center", max_lines: 2 }),
       say(ctx, l, line, { size: 10.5, weight: 500 }, { muted: true, text_align: "center", max_lines: 2 }),
     ],
   };
@@ -482,14 +482,12 @@ function tradeCard(ctx: SectionContext, l: Look, title: SectionWord): StudioNode
 
 /** Two of the shop's products side by side, spec by spec (the `compare` element). */
 function compareBlock(ctx: SectionContext, l: Look): StudioNode {
-  const t = sigTexts(ctx, { text: "elCompare" });
+  // Its title is the section's over it; five specs, those both share first.
   return {
     id: idOf(ctx)(),
     type: "compare",
     name: ctx.w("elCompare"),
-    text: t.text,
-    translations: t.translations,
-    tech: { accent: l.look === "a" ? A.fill : "#3D6000" },
+    tech: { accent: l.look === "a" ? A.fill : "#3D6000", rows: 5 },
     color: l.k.ink,
     dark_color: l.k.darkInk,
     background: l.k.surface,
@@ -1144,7 +1142,7 @@ const NABD_SCREENS = signatureScreens({
 });
 
 /** A's floating bar: white by day, near black by night, the open tab deep blue with its name. */
-export const MADAR_BAR = signatureBar(A, { design: "float", background: "#FFFFFF", dark_background: "#1C1E23", active: A.fill, dark_active: "#93AEFF", inactive: "#5B6270", dark_inactive: "#A0A6B0", labels: "active", radius: 30, margin: 12 });
+export const MADAR_BAR = signatureBar(A, { design: "float", background: "#FFFFFF", dark_background: "#1C1E23", active: A.fill, dark_active: "#3D6BFF", inactive: "#5B6270", dark_inactive: "#A0A6B0", labels: "active", radius: 30, margin: 12 });
 /** B's floating bar: near black by day and by night, the open tab lime. */
 export const NABD_BAR = signatureBar(B, { design: "float", background: B_CARD.day, dark_background: "#1E1F22", active: LIME, dark_active: LIME, inactive: "#B3B6B1", dark_inactive: "#878B87", labels: "active", radius: 30, margin: 12 });
 

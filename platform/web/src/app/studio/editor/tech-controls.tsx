@@ -69,7 +69,7 @@ export function TechControls({ node, onChange, pickable, lang }: { node: StudioN
           </select>
         </label>
       ) : null}
-      {node.type === "spec_table" ? (
+      {node.type === "spec_table" || node.type === "compare" || node.type === "spec_filter" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.techRows")}
           <input type="number" min={1} max={40} value={tech.rows ?? ""} placeholder={t("studio.techAllRows")} onChange={(e) => set({ rows: e.target.value ? Math.max(1, Math.min(40, Number(e.target.value))) : undefined })} className="h-9 rounded-lg px-2.5 font-normal" style={FIELD} />

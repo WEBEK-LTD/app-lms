@@ -17182,9 +17182,9 @@ components:
             them): `spec_table` a product's specs as a table (`ids` its
             product, else the shop's first featured one with specs; `rows` at
             most); `compare` two or three products side by side, spec by spec
-            (`ids`, else the first featured ones with specs of `category_id`);
+            (`ids`, else the first featured ones with specs of `category_id`; `rows` the specs compared, those all share first);
             `spec_filter` the values `spec` takes in the shop (or
-            `category_id`) as chips, each opening the shop filtered by it;
+            `category_id`) as chips, each opening the shop filtered by it (`rows` at most);
             `trade_in` the trade-in estimator, `look` `card` (a card that opens
             it) or `full` (inline), shown while `StoreConfig.trade_in` is set;
             `pc_builder` Build your PC's parts and a start button, shown while

@@ -74,7 +74,7 @@ export function CompareCanvas({ node, pickable, dark, lang, title, color }: { no
   const labels: { key: string; label: string }[] = [];
   for (const prod of products) for (const s of prod.specs) if (!labels.some((l) => l.key === (s.key ?? s.label))) labels.push({ key: s.key ?? s.label, label: s.label });
   const shared = labels.filter((l) => products.every((x) => x.specs.some((s) => (s.key ?? s.label) === l.key)));
-  const rows = [...shared, ...labels.filter((l) => !shared.includes(l))].slice(0, 8);
+  const rows = [...shared, ...labels.filter((l) => !shared.includes(l))].slice(0, node.tech?.rows ?? 8);
   const grid = `minmax(0, 0.9fr) repeat(${products.length}, minmax(0, 1fr))`;
   return (
     <span data-studio-tech="compare" style={{ display: "flex", flexDirection: "column", gap: 8, color: p.ink, opacity: own.length >= 2 ? 1 : 0.6 }}>
@@ -110,7 +110,7 @@ export function SpecFilterCanvas({ node, pickable, dark, lang, title, color }: {
     const v = e.specs?.find((s) => s.key === key)?.value;
     if (v) counts.set(v, (counts.get(v) ?? 0) + 1);
   }
-  const own = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const own = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, node.tech?.rows ?? 8);
   const values = own.length ? own : ["[1]", "[2]", "[3]", "[4]"].map((v) => [v, 0] as [string, number]);
   const p = palette(dark, node.tech?.accent ?? color);
   const label = specLabel({ key, label: key }, lang);

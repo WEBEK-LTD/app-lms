@@ -2037,7 +2037,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       }
       const rows = studioNumber(o.rows, 1, 40);
       if (rows !== undefined && Number.isNaN(rows)) bad("show 1 to 40 rows.");
-      else if (rows !== undefined && node.type === "spec_table") tech.rows = Math.round(rows);
+      else if (rows !== undefined && node.type !== "trade_in" && node.type !== "pc_builder") tech.rows = Math.round(rows);
       if (node.type === "spec_filter") {
         if (!isSpecKey(o.spec)) bad("choose the specification it filters by.");
         else tech.spec = o.spec;

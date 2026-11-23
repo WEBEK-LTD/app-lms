@@ -179,7 +179,7 @@ function searchPill(ctx: SectionContext, l: Look, word: SectionWord, margin = si
 function categoryRow(ctx: SectionContext, l: Look): StudioNode {
   return l.look === "a"
     ? { id: idOf(ctx)(), type: "categories", name: ctx.w("mbCategories"), source: "products", style: "circles", color: l.k.ink, dark_color: l.k.darkInk, padding: sides(10, 12, 4, 12) }
-    : { id: idOf(ctx)(), type: "categories", name: ctx.w("mbCategories"), source: "products", style: "pictures", columns: 4, color: l.k.ink, dark_color: l.k.darkInk, padding: sides(10, 16, 4, 16) };
+    : { id: idOf(ctx)(), type: "categories", name: ctx.w("mbCategories"), source: "products", style: "pictures", columns: 3, color: l.k.ink, dark_color: l.k.darkInk, padding: sides(10, 16, 4, 16) };
 }
 
 /** One hero card: a photo under a shade from its start, its kicker, headline and a button. */
@@ -293,7 +293,7 @@ function trustStrip(ctx: SectionContext, l: Look): StudioNode {
     padding: sides(14, 8, 12, 8),
     ...card(l, { radius: 18 }),
     ...(action ? { action } : {}),
-    children: [softIcon(ctx, l, icon), say(ctx, l, title, { size: 12.5, weight: 700 }, { text_align: "center", max_lines: 2 }), say(ctx, l, line, { size: 11 }, { muted: true, text_align: "center", max_lines: 1 })],
+    children: [softIcon(ctx, l, icon), say(ctx, l, title, { size: 12.5, weight: 700 }, { text_align: "center", max_lines: 2 }), say(ctx, l, line, { size: 11 }, { muted: true, text_align: "center", max_lines: 2 })],
   });
   return { id: id(), type: "row", name: ctx.w("mbTrust1"), gap: 8, padding: sides(16, 16, 0, 16), children: [tile("sync", "mbTrust1", "mbTrust1Line", tradeIn), tile("fact_check", "mbTrust2", "mbTrust2Line", null), tile("verified", "mbTrust3", "mbTrust3Line", null)] };
 }
@@ -424,8 +424,8 @@ function usedList(ctx: SectionContext, l: Look): StudioNode {
 
 /** Two phones compared spec by spec (`compare`: the owner's two, else the shop's first two with specs). */
 function comparePair(ctx: SectionContext, l: Look, margin = sides(0, 16, 0, 16)): StudioNode {
-  const t = sigTexts(ctx, { text: "mbCompare" });
-  return { id: idOf(ctx)(), type: "compare", name: ctx.w("mbCompare"), text: t.text, translations: t.translations, tech: { accent: l.k.fill }, color: l.k.ink, dark_color: l.k.darkInk, ...card(l), padding: sides(14, 12, 14, 12), margin };
+  // Its title is the section's over it; six specs, those both share first.
+  return { id: idOf(ctx)(), type: "compare", name: ctx.w("mbCompare"), tech: { accent: l.k.fill, rows: 6 }, color: l.k.ink, dark_color: l.k.darkInk, ...card(l), padding: sides(14, 12, 14, 12), margin };
 }
 
 /** The shop by storage (`spec_filter`: the storages its devices come in, each opening them). */

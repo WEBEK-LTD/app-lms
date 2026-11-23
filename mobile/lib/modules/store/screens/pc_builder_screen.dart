@@ -16,6 +16,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/cart_controller.dart';
 import '../widgets/tech_widgets.dart';
+import '../../../core/format/bidi.dart';
 
 /// 211 Build your PC (`StoreConfig.pc_builder`, a `flow: pc_builder`
 /// action, the `pc_builder` element's button): one step per part in the
@@ -509,7 +510,7 @@ class _CandidateTile extends StatelessWidget {
                       if (product.specLine != null) ...[
                         const SizedBox(height: 2),
                         Text(
-                          product.specLine!,
+                          isolate(product.specLine!),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

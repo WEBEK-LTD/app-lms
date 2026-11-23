@@ -113,41 +113,43 @@ class StudioTechView extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ?_heading((title ?? '').trim().isEmpty ? spec.label : title, ink),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final v in spec.values)
-                  ActionChip(
-                    key: ValueKey('spec-filter-${v.value}'),
-                    onPressed: () =>
-                        context.push(Paths.specProducts(spec.key, v.value)),
-                    shape: const StadiumBorder(),
-                    side: BorderSide(color: p.border),
-                    backgroundColor: p.surface,
-                    label: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: v.value,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: p.text,
-                            ),
-                          ),
-                          if (v.count > 0)
+            // 211 One row that slides, at most `rows` values (8 by default).
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final v in spec.values.take(node.tech.rows ?? 8))
+                    ActionChip(
+                      key: ValueKey('spec-filter-${v.value}'),
+                      onPressed: () =>
+                          context.push(Paths.specProducts(spec.key, v.value)),
+                      shape: const StadiumBorder(),
+                      side: BorderSide(color: p.border),
+                      backgroundColor: p.surface,
+                      label: Text.rich(
+                        TextSpan(
+                          children: [
                             TextSpan(
-                              text: '  ${v.count}',
+                              text: v.value,
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
-                                color: tint,
+                                color: p.text,
                               ),
                             ),
-                        ],
+                            if (v.count > 0)
+                              TextSpan(
+                                text: '  ${v.count}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: tint,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ].expand((w) => [w, const SizedBox(width: 8)]).toList(),
+              ),
             ),
           ],
         );

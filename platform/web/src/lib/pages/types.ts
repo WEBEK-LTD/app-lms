@@ -276,7 +276,8 @@ export interface StudioCategoryMenu {
 /**
  * 211 What a tech element shows (`STUDIO_TECH_TYPES`).
  * - `spec_table`: `ids` its product (one), else the shop's first featured
- *   product with specs; `rows` at most (missing, all).
+ *   product with specs; `rows` at most (missing, all; for `compare` the
+ *   specs compared, for `spec_filter` the values shown).
  * - `compare`: `ids` two or three products, else the first two featured
  *   products with specs of `category_id` (or the shop); the specs they
  *   share first.

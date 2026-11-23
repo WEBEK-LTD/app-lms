@@ -11,6 +11,7 @@ import '../../../core/storage/local_settings.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/format/bidi.dart';
 
 /// 211 An electronics shop's parts on a product's page and in its Studio
 /// elements: the specifications table, the compare table and the compare
@@ -63,7 +64,7 @@ class SpecsTable extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    s.value,
+                    isolate(s.value),
                     style: TextStyle(
                       fontSize: 13.5,
                       fontWeight: FontWeight.w700,
@@ -285,7 +286,7 @@ class CompareTable extends StatelessWidget {
                   for (final (i, v) in row.values.indexed)
                     cell(
                       Text(
-                        v ?? '—',
+                        isolate(v ?? '—'),
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 13,
@@ -539,8 +540,8 @@ class AccessoriesPicker extends StatelessWidget {
                   ),
                   subtitle: Text(
                     [
-                      ?a.specLine,
-                      a.sale?.nowFormatted ?? a.price.shown,
+                      if (a.specLine != null) isolate(a.specLine!),
+                      isolate(a.sale?.nowFormatted ?? a.price.shown),
                     ].join(' · '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
