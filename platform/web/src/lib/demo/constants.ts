@@ -87,9 +87,12 @@ export const FLOWER_SHOP_TEMPLATE = "flowers_signature_a";
 export const SHOP_TYPE_DEMOS = {
   // 208 Lujain (لجين), the clothes shop: A a black and white boutique, B streetwear (NOUN).
   clothes: "clothes_signature_a",
+  // 211 Madar (مدار), the electronics shop: A MADAR in white and deep blue, B NABD in lime on near black.
+  electronics: "electronics_signature_a",
 } as const;
 export type ShopTypeDemo = keyof typeof SHOP_TYPE_DEMOS;
 export const CLOTHES_DEMO = "clothes" as const satisfies ShopTypeDemo;
+export const ELECTRONICS_DEMO = "electronics" as const satisfies ShopTypeDemo;
 
 export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school" | "travel"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace"> | typeof PREMIUM_ACADEMY_DEMO | typeof FLOWER_SHOP_DEMO | ShopTypeDemo;
 

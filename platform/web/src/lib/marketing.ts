@@ -169,6 +169,13 @@ export const APP_SCREENS = [
   "clothes-sig-b-home",
   "clothes-sig-a-home-dark",
   "clothes-sig-b-home-dark",
+  // 211 Madar, the electronics shop: its guide's screens (look A) and its looks' homes.
+  "madar-home",
+  "madar-menu",
+  "madar-product",
+  "electronics-sig-b-home",
+  "electronics-sig-a-home-dark",
+  "electronics-sig-b-home-dark",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -311,6 +318,12 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "clothes-sig-b-home": "Lujain in its second look, NOUN's streetwear: the drop's hero, new this week, shop the look and the categories",
   "clothes-sig-a-home-dark": "Lujain in its first look, the boutique, by night: the search, the categories, the season's collections and what's new",
   "clothes-sig-b-home-dark": "Lujain in its second look, NOUN's streetwear, by night: the drop's hero, new this week, shop the look and the categories",
+  "madar-home": "Madar, an electronics shop, in its first look: the search, the categories, the launches with the next card peeking, the services with installments coming soon, and what just arrived",
+  "madar-menu": "Madar's category menu: every category a row of cards that slides, its sub-categories after it, trade-in and the account at the foot",
+  "madar-product": "A phone in Madar: its colours and storages, each storage its price, its specifications as a table, more warranty to add and the matching accessories",
+  "electronics-sig-b-home": "Madar in its second look, NABD: lime on near black, the top five, the creator's bundle and the trade-in card",
+  "electronics-sig-a-home-dark": "Madar in its first look by night: the search, the categories, the launches and the services",
+  "electronics-sig-b-home-dark": "Madar in its second look, NABD, by night: the launches, the categories as photos and the deal of the day",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",

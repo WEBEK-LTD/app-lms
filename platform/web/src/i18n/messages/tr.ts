@@ -49,6 +49,8 @@ export const tr: Messages = {
     storyFlowersText: "Teslimat saatleri, kart mesajları ve flaş indirimler",
     storyClothes: "Giyim mağazası uygulaması",
     storyClothesText: "Beden ve renkler, kategori menüsü ve görünümü tamamla",
+    storyElectronics: "Elektronik mağazası uygulaması",
+    storyElectronicsText: "Özellikler, karşılaştırma, garanti ve takas",
     studioDemo: "Studio demosu",
     studioDemoText: "Studio uygulamalarını telefonunda dene",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -800,6 +802,8 @@ export const tr: Messages = {
       flowers_b: { name: "Botanik baskı", text: "Tüm çiçekçi: taç yaprağı başlık, çiçeklerin kime olduğu, kartlar halinde seçki, bilet olarak Bugün gönder, orman yeşilinde flaş indirim, kemerler halinde koleksiyonlar, atölye ve fiyat listesi; her sayfa, çubuk, hesap ve hediye ödemesi adaçayı ve şeftalide." },
       clothes_a: { name: "LUJAIN, butik", text: "Siyah beyaz tüm giyim mağazası: menüsü kategori menüsünü açan küçük başlık, arama, yuvarlak kategoriler, sonraki kartı görünen vitrin, yeni gelenler, günün fırsatı, numaralı noktalarla kombini al, fotoğraf kutuları halinde koleksiyonlar ve beden kartı; kategori menüsü, beden rehberi, mağaza, sepet ve siparişler sıcak kâğıt ve mürekkep tonlarında, kömür rengi bir gece moduyla." },
       clothes_b: { name: "NOUN, sokak modası", text: "Sokak modası olarak tüm giyim mağazası: beton grisi ve elektrik mavisi, numaralı satırlarla kategori menüsü, haftanın yenileri, kayan yazı, numaralı çok satanlar, kombini al ve günün fırsatı; her sayfa, çubuk, hesap, mağaza, sepet ve siparişler aynı görünümde, siyaha yakın bir gece moduyla." },
+      electronics_a: { name: "MADAR, hepsi bir arada", text: "Temiz beyaz ve tek bir koyu mavi ile tüm elektronik mağazası: menüsü kategori menüsünü açan küçük başlık, arama, kategoriler, bir sonraki kartı görünen lansmanlar, taksit yakında ile hizmetler, yeni gelenler, günün fırsatları, ilgi alanına göre alışveriş, sezonun yıldızı, takas kartı, markalar, çok satanlar ve özellik özellik karşılaştırılan iki ürün; kategori menüsü, takas ve karşılaştırma sayfaları, mağaza, sepet ve siparişler aynı görünümde, neredeyse siyah bir gece ile." },
+      electronics_b: { name: "NABD, siyah üzerinde limon", text: "Sıcak taş üzerinde neredeyse siyah kartlarda limon yeşiliyle tüm elektronik mağazası: teslimat bölgesi, filtreli arama, lansmanlar, fotoğraflı kategoriler, günün fırsatı, ilk 5, üretici paketi, takas kartı, karşılaştırma ve hizmetler; her sayfa, çubuk, hesap, mağaza, sepet ve siparişler aynı görünümde, neredeyse siyah bir gece ile." },
     },
   },
   meta: {

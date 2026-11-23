@@ -95,11 +95,84 @@ export const CLOTHES_PHOTOS: ShopPhotoSet<ClothesPhotoName> = { dir: "clothes-ph
 /** A clothes photo as a demo's picture (`cl-<name>`). */
 export type ClothesPhoto = `cl-${ClothesPhotoName}`;
 
+/** 211 Madar's photos (the electronics shop), cut to 4:5 at 720 × 900; the `w-` banners 3:2 at 900 × 600. */
+export const ELECTRONICS_PHOTO_NAMES = [
+  "buds-carpet",
+  "buds-plant",
+  "camera-night",
+  "drone-mini",
+  "drone-sky",
+  "espresso",
+  "gamepad-blue",
+  "gamepad-hands",
+  "home-cam",
+  "hp-dark",
+  "hp-leather",
+  "hp-studio",
+  "hp-white",
+  "keyboard-rgb",
+  "keyboard-slim",
+  "laptop-chart",
+  "laptop-close",
+  "laptop-desk",
+  "laptop-glow",
+  "laptop-night",
+  "laptop-plant",
+  "laptop-silver",
+  "laptop-sun",
+  "laptop-table",
+  "laptop-wood",
+  "lens-gold",
+  "lens-top",
+  "lens-white",
+  "microwave",
+  "oven",
+  "phone-black",
+  "phone-box",
+  "phone-buds",
+  "phone-camera",
+  "phone-hand",
+  "phone-table",
+  "phone-unbox",
+  "phone-wood",
+  "screen-wave",
+  "storage-kit",
+  "tablet-pen",
+  "tablet-phone",
+  "tv-room",
+  "vr-headset",
+  "w-camera-night",
+  "w-espresso",
+  "w-gamepad-blue",
+  "w-gamepad-hands",
+  "w-laptop-chart",
+  "w-laptop-glow",
+  "w-laptop-plant",
+  "w-phone-box",
+  "w-phone-camera",
+  "w-screen-forest",
+  "w-screen-sea",
+  "w-screen-wave",
+  "w-tv-room",
+  "w-vr-headset",
+  "w-washer",
+  "washer",
+  "watch-blush",
+  "watch-grey",
+  "watch-lens",
+  "watch-phone",
+  "watch-white",
+] as const;
+export type ElectronicsPhotoName = (typeof ELECTRONICS_PHOTO_NAMES)[number];
+export const ELECTRONICS_PHOTOS: ShopPhotoSet<ElectronicsPhotoName> = { dir: "electronics-photos", prefix: "el-", names: ELECTRONICS_PHOTO_NAMES };
+/** An electronics photo as a demo's picture (`el-<name>`). */
+export type ElectronicsPhoto = `el-${ElectronicsPhotoName}`;
+
 /** Every set, for the pictures' lookup. */
-const SHOP_PHOTO_SETS: readonly ShopPhotoSet<string>[] = [CLOTHES_PHOTOS];
+const SHOP_PHOTO_SETS: readonly ShopPhotoSet<string>[] = [CLOTHES_PHOTOS, ELECTRONICS_PHOTOS];
 
 /** A shop type's photo as a demo's picture: `cl-rust-1`. */
-export type ShopPhoto = ClothesPhoto;
+export type ShopPhoto = ClothesPhoto | ElectronicsPhoto;
 
 function setOf(name: string): { set: ShopPhotoSet<string>; file: string } | null {
   for (const set of SHOP_PHOTO_SETS) {

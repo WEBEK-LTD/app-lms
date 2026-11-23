@@ -386,6 +386,16 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["lujain-home", "lujain-menu", "lujain-product"],
   },
+  // 211 Madar, the electronics shop: a store in Studio, its two Signature looks, specs, compare, trade-in and the warranty.
+  electronics: {
+    summary: "An all-in-one electronics store in Riyadh: phones, laptops, tablets and watches, TVs, audio, cameras and drones, gaming and home appliances, each with its specifications, its colours and storages, its warranty and more cover to add. Its photos are CC0, from StockSnap.",
+    tryThis: [
+      "Open a phone, choose its colour and storage (each storage its own price), read its specifications and add a year more of warranty",
+      "Compare two phones side by side, spec by spec, and see what your old phone is worth on the trade-in page",
+      "Check out with the shop's code, follow your order in Orders, and switch the app to Arabic or to dark mode in the account",
+    ],
+    screens: ["madar-home", "madar-menu", "madar-product"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -798,6 +808,26 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Dresses, abayas, coats, shoes and bags in your size, delivered across Riyadh.",
     fullDescription: `Lujain is a house of women's fashion: dresses, abayas, coats and jackets, tops, denim, shoes, bags and accessories.\n\nBrowse every category from the menu, choose your size and colour with the size guide at hand, and complete the look in a few taps. Exchanges are free within 14 days.\n\n${PRIVACY_NOTE}`,
     welcome: "Dresses, abayas and coats in your size, with the size guide at hand.",
+  },
+  // 211 Madar (مدار, "orbit"), the electronics shop: its look A's white and deep blue.
+  electronics: {
+    appName: "Madar",
+    shortName: "Madar",
+    primaryColor: "#2F5BEA",
+    splashColor: "#F4F5F7",
+    secondaryColor: "#0E1116",
+    template: "minimal",
+    font: "DM Sans",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-electronics",
+    banner: { picture: "banner-store", heading: "Electronics, all in one place", subheading: "Phones, laptops, screens and appliances with their warranty, delivered across Riyadh." },
+    androidPackage: "com.yallapp.demo.electronics",
+    storeTitle: "Madar Electronics",
+    shortDescription: "Phones, laptops, TVs, audio and appliances with their specs and warranty, delivered across Riyadh.",
+    fullDescription: `Madar is an all-in-one electronics store: phones, laptops, tablets and watches, TVs, audio, cameras and drones, gaming and home appliances.\n\nRead every product's specifications, compare two side by side, choose its colour and storage, add a year more of warranty, and see what your old phone is worth on trade-in. Returns within 14 days.\n\n${PRIVACY_NOTE}`,
+    welcome: "Phones, laptops and screens with their specs and warranty, delivered across Riyadh.",
   },
 };
 

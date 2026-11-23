@@ -86,7 +86,7 @@ describe("130 the Signature looks: one registry, twenty looks", () => {
       const designs = designsFor({ type: kind.engine, vertical: kind.vertical });
       expect(designs.filter((d) => !d.demo).flatMap((d) => d.templates)).not.toContain(id);
       // (The premium academy and 131.20 Leqaa are no kind's own demo: their looks are an academy's and a store's first templates instead.)
-      const kindsOwn = demo !== "premium_academy" && demo !== "flowers" && demo !== "clothes";
+      const kindsOwn = demo !== "premium_academy" && demo !== "flowers" && demo !== "clothes" && demo !== "electronics";
       if (kindsOwn) expect(designs.slice(0, 2).map((d) => d.templates)).toEqual([[`demo_${demo}`], [`${demo}_signature_b`]]);
       expect(designs.slice(kindsOwn ? 2 : 0).map((d) => d.id)).toEqual(["yallapp-warm", "yallapp-fresh", "yallapp-evening", "yallapp-ocean", "yallapp-classic", "yallapp-rose", "yallapp-mono"]);
     }

@@ -23,8 +23,10 @@ import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
-import { ALL_DEMO_TYPES, CLOTHES_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, type DemoId } from "./constants";
+import { ALL_DEMO_TYPES, CLOTHES_DEMO, ELECTRONICS_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, type DemoId } from "./constants";
 import { CLOTHES_COMMERCE, CLOTHES_CURRENCY, CLOTHES_FREE_SHIPPING_OVER_CENTS, CLOTHES_SHIPPING_CENTS } from "./clothes";
+import { ELECTRONICS_COMMERCE, ELECTRONICS_CURRENCY, ELECTRONICS_FREE_SHIPPING_OVER_CENTS, ELECTRONICS_SHIPPING_CENTS } from "./electronics";
+import { demoElectronicsCommerce, demoElectronicsProducts } from "./electronics-entries";
 import { FLOWER_COMMERCE, FLOWER_CURRENCY, FLOWER_FREE_SHIPPING_OVER_CENTS, FLOWER_SHIPPING_CENTS } from "./flowers";
 import {
   BOOKING_RULES,
@@ -226,6 +228,16 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   } else if (content === "catalog" && id === CLOTHES_DEMO) {
     // 208 Lujain in Riyadh: Saudi riyals, free from a bigger order, exchanges within 14 days, its size chart and "Complete the look".
     patch.catalogSettings = { currency: CLOTHES_CURRENCY, shippingCents: CLOTHES_SHIPPING_CENTS, freeShippingOverCents: CLOTHES_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(CLOTHES_COMMERCE) };
+  } else if (content === "catalog" && id === ELECTRONICS_DEMO) {
+    // 211 Madar in Riyadh: Saudi riyals, free from a bigger order, exchanges within 14 days; its accessories and trade-in kept through a refresh (electronics-entries.ts writes them).
+    patch.catalogSettings = {
+      currency: ELECTRONICS_CURRENCY,
+      shippingCents: ELECTRONICS_SHIPPING_CENTS,
+      freeShippingOverCents: ELECTRONICS_FREE_SHIPPING_OVER_CENTS,
+      payment: null,
+      ...structuredClone(ELECTRONICS_COMMERCE),
+      ...(app.catalogSettings?.tech ? { tech: app.catalogSettings.tech } : {}),
+    };
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
   } else if (content === "bookings" && id === "fitness") {
@@ -259,6 +271,10 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     // 208 Lujain's clothes, their sizes and colours with the stock of each, its categories and their sub-categories, its flash sale and code.
     await demoClothesProducts(entryDeps(deps, client.id), saved);
     await demoClothesCommerce(entryDeps(deps, client.id), saved);
+  } else if (content === "catalog" && id === ELECTRONICS_DEMO) {
+    // 211 Madar's products with their specs, colours and storages, its categories and sub-categories, its accessories and trade-in, its flash sale and code.
+    await demoElectronicsProducts(entryDeps(deps, client.id), saved);
+    await demoElectronicsCommerce(entryDeps(deps, client.id), saved);
   }
   else if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
   // Studio's demos: a parcel company, food delivery from three restaurants, rides.

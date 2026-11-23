@@ -50,6 +50,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   flowers: "flowers_signature_a",
   // 208 Lujain, the clothes shop, is its Signature look A, the boutique (lib/studio/demo-designs/clothes-signature.ts).
   clothes: "clothes_signature_a",
+  // 211 Madar, the electronics shop, is its Signature look A, MADAR (lib/studio/demo-designs/electronics-signature.ts).
+  electronics: "electronics_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -112,6 +114,8 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   flowers: { surface: "#FFFFFF", nightSurface: "#21121A", line: "#F0DDD9", nightLine: "#3A2530", muted: "#7B5E67", nightMuted: "#C9AEB6" },
   // 208 Lujain's, its look A's (lib/studio/demo-designs/clothes-signature.ts LUJAIN_INK).
   clothes: { surface: "#FFFFFF", nightSurface: "#191917", line: "#E4DFD6", nightLine: "#2E2C28", muted: "#5F5B55", nightMuted: "#B6B0A6" },
+  // 211 Madar's, its look A's (lib/studio/demo-designs/electronics-signature.ts MADAR_INK).
+  electronics: { surface: "#FFFFFF", nightSurface: "#15171B", line: "#E2E5EA", nightLine: "#25282E", muted: "#4E5561", nightMuted: "#B4BAC4" },
 };
 
 /**
@@ -315,6 +319,16 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     clEditTitle: { en: "Day dresses, the new season", ar: "فساتين النهار للموسم الجديد", tr: "Yeni sezonun gündüz elbiseleri" },
     clExchangeNote: { en: "Free exchange within 14 days, picked up from your door.", ar: "استبدال مجاني خلال 14 يومًا، نستلم القطعة من باب منزلكِ.", tr: "14 gün içinde ücretsiz değişim, kapınızdan alınır." },
   },
+  // 211 Madar's own words where its looks leave the owner brackets: its launch, its star of the season, its area, its hours, its offer and its returns (lib/demo/electronics.ts).
+  electronics: {
+    elHeroKicker1: { en: "New launch · ZENRA", ar: "إطلاق جديد · ZENRA", tr: "Yeni lansman · ZENRA" },
+    elStarKicker: { en: "LUMORA · OLED C5", ar: "LUMORA · OLED C5", tr: "LUMORA · OLED C5" },
+    elStarTitle: { en: "True black and colours that never fade, 65 inches", ar: "سواد حقيقي وألوان لا تنطفئ بشاشة 65 بوصة", tr: "Gerçek siyah ve solmayan renkler, 65 inç" },
+    elDeliverTo: { en: "Delivering to Riyadh, Al Malqa", ar: "التوصيل إلى الرياض، حي الملقا", tr: "Teslimat: Riyad, Al Malqa" },
+    elContactLine: { en: "Every day, 9 am to 11 pm", ar: "يوميًا من 9 صباحًا حتى 11 مساءً", tr: "Her gün 09.00–23.00" },
+    elEditTitle: { en: "Laptops for work and study, up to 15% off", ar: "لابتوبات للعمل والدراسة بخصم حتى 15%", tr: "İş ve okul için dizüstüler, %15'e varan indirim" },
+    elReturnsNote: { en: "Returns within 14 days in the original box; the maker's warranty through us.", ar: "إرجاع خلال 14 يومًا في العلبة الأصلية، وضمان الوكيل عن طريقنا.", tr: "Orijinal kutusunda 14 gün içinde iade; üretici garantisi bizim üzerimizden." },
+  },
   // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
   travel: {
     sigStayOne: { en: "Safra Caldera Suites", ar: "Safra Caldera Suites", tr: "Safra Caldera Suites" },
@@ -372,4 +386,4 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
 }
 
 /** 131.20 The demos whose words carry the app's name, by that name (the demo app's). */
-const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain" };
+const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", electronics: "Madar" };

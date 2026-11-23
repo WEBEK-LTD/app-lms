@@ -54,6 +54,8 @@ export const en = {
     storyFlowersText: "Delivery slots, card messages and flash sales",
     storyClothes: "Clothes shop app",
     storyClothesText: "Sizes and colours, a category menu and complete the look",
+    storyElectronics: "Electronics shop app",
+    storyElectronicsText: "Specs, compare, warranty and trade-in",
     studioDemo: "Studio demo",
     studioDemoText: "Try Studio's apps on your phone",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -821,6 +823,8 @@ export const en = {
       flowers_b: { name: "Botanical press", text: "The whole flower shop: the petal header, who the flowers are for, the edit as cards, Send today as a ticket, the flash sale on forest green, the collections as arches, the atelier and the price list; every page, the bar, the account and the gift checkout in sage and peach." },
       clothes_a: { name: "LUJAIN, the boutique", text: "The whole clothes shop in black and white: the small header whose menu opens the category menu, the search, the categories in circles, the hero carousel with the next card peeking, what's new, the deal of the day, shop the look with numbered spots, the collections as photo tiles and the size card; the category menu, the size guide, the shop, the cart and orders in warm paper and ink, with a charcoal night." },
       clothes_b: { name: "NOUN, streetwear", text: "The whole clothes shop as streetwear: concrete grey and electric blue, the category menu with numbered rows, the drop of the week, the ticker, the numbered best sellers, shop the fit and the deal of the day; every page, the bar, the account, the shop, the cart and orders in the look, with a near-black night." },
+      electronics_a: { name: "MADAR, all in one", text: "The whole electronics shop in clean white and one deep blue: the small header whose menu opens the category menu, the search, the categories, the launches with the next card peeking, the services with installments coming soon, what just arrived, the deal of the day, shop by interest, the star of the season, the trade-in card, the brands, the best sellers and two products compared spec by spec; the category menu, trade-in and compare pages, the shop, the cart and orders in the look, with a near-black night." },
+      electronics_b: { name: "NABD, lime on black", text: "The whole electronics shop in lime on near-black cards over warm stone: where it delivers, the search with its filters, the launches, the categories as photos, the deal of the day, the top five, the creator's bundle, the trade-in card, compare and the services; every page, the bar, the account, the shop, the cart and orders in the look, with a near-black night." },
     },
   },
   meta: {

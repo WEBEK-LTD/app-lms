@@ -13,6 +13,8 @@
 import type { PremiumText } from "./premium-content";
 import type { PremiumMapWords } from "./premium-maps";
 import type { PremiumWord } from "./premium-motion";
+// 211 Madar's words (the electronics type), in a file of their own.
+import { EL_AR, EL_EN, EL_TR } from "./demo-designs/electronics-words";
 
 export const en = {
   seeAll: "See all",
@@ -1011,6 +1013,8 @@ export const en = {
   // 208 The category menu's first card in each row (the main category itself).
   categoryAll: "All",
   // ——— end 208 ———
+  // 211 Madar, the electronics shop (lib/studio/demo-designs/electronics-words.ts).
+  ...EL_EN,
 } as const;
 
 /** A word a template writes into the app. */
@@ -2007,6 +2011,7 @@ export const ar: Record<AppWord, string> = {
   installmentsSoon: "التقسيط قريبًا",
   categoryAll: "الكل",
   // ——— end 208 ———
+  ...EL_AR,
 };
 
 export const tr: Record<AppWord, string> = {
@@ -2999,6 +3004,7 @@ export const tr: Record<AppWord, string> = {
   installmentsSoon: "Taksit yakında",
   categoryAll: "Tümü",
   // ——— end 208 ———
+  ...EL_TR,
 };
 
 /** The languages templates are written in; another one gets English. */

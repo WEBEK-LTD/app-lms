@@ -374,6 +374,35 @@ export const STORIES: Record<StoryId, StoryShape> = {
     bundle: ["smartphone", "dashboard_customize", "web"],
     finale: { photo: "clothes-walk", screen: "lujain-home" },
   },
+  // 211 Madar, the electronics shop: a laptop for a new job and a phone traded in, in its look A (MADAR) by day and by night; look B (NABD) in its section.
+  electronics: {
+    id: "electronics",
+    icon: "devices",
+    // MADAR's blue, lighter on its night.
+    accent: "#93AEFF",
+    demos: ["electronics"],
+    solutions: [],
+    hero: { photo: "electronics-hero", screens: ["madar-home", "madar-product"] },
+    chapters: [
+      { screen: "madar-home", icon: "home" },
+      { screen: "madar-menu", icon: "menu_open" },
+      { photo: "electronics-desk", screen: "madar-product", icon: "list_alt" },
+      { photo: "electronics-compare", screen: "madar-product", icon: "compare" },
+      { photo: "electronics-phone", screen: "electronics-sig-a-home-dark", icon: "sync" },
+      { screen: "madar-home", icon: "verified_user" },
+    ],
+    interlude: { photo: "electronics-glow" },
+    stats: [{ value: 9 }, { value: 3 }, { value: 14 }, { value: 3 }],
+    systems: [
+      { icon: "list_alt", screens: ["madar-product"], features: ["list_alt", "compare", "translate", "search", "dashboard_customize"] },
+      { icon: "palette", screens: ["madar-product"], features: ["palette", "inventory_2", "verified_user", "add", "schedule"] },
+      { icon: "sync", screens: [], features: ["sync", "payments", "chat", "check"] },
+      { icon: "palette", screens: ["electronics-sig-b-home", "electronics-sig-b-home-dark"], features: ["devices", "bolt", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "electronics-buds", screen: "madar-home" },
+  },
 };
 
 /** Every photo slot of a story, each once. */

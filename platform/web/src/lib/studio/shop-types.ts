@@ -1,5 +1,5 @@
 import type { IconName } from "../../components/icon-names";
-import { CLOTHES_DEMO, type StudioDemoId } from "../demo/constants";
+import { CLOTHES_DEMO, ELECTRONICS_DEMO, type StudioDemoId } from "../demo/constants";
 
 /**
  * 208 Yallapp Studio's premium shop types (the owner's planning doc, 23
@@ -49,7 +49,7 @@ export const SHOP_TYPES: readonly ShopType[] = [
   { id: "decor", sections: ["home"], icon: "living", liability: "general" },
   { id: "crochet", sections: ["home"], icon: "palette", liability: "general" },
   { id: "toys", sections: ["kids"], icon: "toys", liability: "kids" },
-  { id: "electronics", sections: ["shopping"], icon: "devices", liability: "warranty", installmentsSoon: true },
+  { id: "electronics", sections: ["shopping"], icon: "devices", demo: ELECTRONICS_DEMO, liability: "warranty", installmentsSoon: true },
   { id: "mobiles", sections: ["shopping"], icon: "smartphone", liability: "warranty", installmentsSoon: true },
   { id: "computers", sections: ["shopping"], icon: "computer", liability: "warranty", installmentsSoon: true },
 ];

@@ -18,6 +18,8 @@ import { LEQAA_SECTIONS } from "./demo-designs/leqaa-signature";
 // 208 Lujain's sections, and the installments tag.
 import { CLOTHES_SECTIONS } from "./demo-designs/clothes-signature";
 import { INSTALLMENTS_SECTION } from "./installments";
+// 211 Madar's sections.
+import { ELECTRONICS_SECTIONS } from "./demo-designs/electronics-signature";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -316,6 +318,8 @@ export type SectionWord =
   | Extract<AppWord, `lq${string}`>
   // 208 Lujain's looks, pages and sections (lib/studio/demo-designs/clothes-signature.ts), and the installments tag.
   | Extract<AppWord, `cl${string}`>
+  // 211 Madar's looks, pages and sections (lib/studio/demo-designs/electronics-signature.ts).
+  | Extract<AppWord, `el${string}`>
   | "installmentsSoon";
 
 export interface SectionContext {
@@ -1107,6 +1111,8 @@ export const SECTIONS: readonly SectionInfo[] = [
   ...LEQAA_SECTIONS,
   // 208 The clothes type's parts (the category menu, the peeking hero, the deal, shop the look, the size card and chart) and the installments tag.
   ...CLOTHES_SECTIONS,
+  // 211 The electronics type's parts (trade-in, compare, specs, the services, the star, the brands, the top five, the bundle).
+  ...ELECTRONICS_SECTIONS,
   INSTALLMENTS_SECTION,
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,
