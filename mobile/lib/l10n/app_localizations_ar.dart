@@ -12809,4 +12809,44 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get paySheetOpenAgain => 'افتح صفحة الدفع';
+
+  @override
+  String get sizeGuide => 'دليل المقاسات';
+
+  @override
+  String sizeChartIn(String unit) {
+    return 'جدول المقاسات ($unit)';
+  }
+
+  @override
+  String get completeTheLook => 'أكمل الإطلالة';
+
+  @override
+  String exchangeWithin(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'الاستبدال أو الإرجاع خلال $days يوم',
+      many: 'الاستبدال أو الإرجاع خلال $days يومًا',
+      few: 'الاستبدال أو الإرجاع خلال $days أيام',
+      two: 'الاستبدال أو الإرجاع خلال يومين',
+      one: 'الاستبدال أو الإرجاع خلال يوم واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String optionSoldOut(String option) {
+    return '$option، نفدت الكمية';
+  }
+
+  @override
+  String categoryAllOf(String name) {
+    return 'كل $name';
+  }
+
+  @override
+  String categoryMenuRow(String name, String count) {
+    return '$name، $count';
+  }
 }

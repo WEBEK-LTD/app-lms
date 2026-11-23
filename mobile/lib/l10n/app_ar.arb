@@ -3295,5 +3295,12 @@
   "paySheetCheckFailedTitle": "تعذّر التحقق من الدفع",
   "paySheetCheckFailedBody": "تحقّق من اتصالك وحاول مرة أخرى. إذا كنت قد دفعت، فطلبك محفوظ.",
   "paySheetCheckAgain": "تحقّق من الدفع",
-  "paySheetOpenAgain": "افتح صفحة الدفع"
+  "paySheetOpenAgain": "افتح صفحة الدفع",
+  "sizeGuide": "دليل المقاسات",
+  "sizeChartIn": "جدول المقاسات ({unit})",
+  "completeTheLook": "أكمل الإطلالة",
+  "exchangeWithin": "{days, plural, =1{الاستبدال أو الإرجاع خلال يوم واحد} =2{الاستبدال أو الإرجاع خلال يومين} few{الاستبدال أو الإرجاع خلال {days} أيام} many{الاستبدال أو الإرجاع خلال {days} يومًا} other{الاستبدال أو الإرجاع خلال {days} يوم}}",
+  "optionSoldOut": "{option}، نفدت الكمية",
+  "categoryAllOf": "كل {name}",
+  "categoryMenuRow": "{name}، {count}"
 }

@@ -193,6 +193,15 @@ const symbolsByName = <String, IconData>{
   'visibility_off': Symbols.visibility_off_rounded,
   'format_quote': Symbols.format_quote_rounded,
   'auto_awesome': Symbols.auto_awesome_rounded,
+  // 206 Lujain, the clothes shop: its looks, menu and sections.
+  'straighten': AppIcons.sizeGuide,
+  'sync': AppIcons.exchange,
+  'apparel': Symbols.apparel_rounded,
+  'menu_open': Symbols.menu_open_rounded,
+  'table_chart': Symbols.table_chart_rounded,
+  'view_list': Symbols.view_list_rounded,
+  'format_list_numbered': Symbols.format_list_numbered_rounded,
+  'new_releases': Symbols.new_releases_rounded,
 };
 
 /// Shown for a name the app doesn't have.

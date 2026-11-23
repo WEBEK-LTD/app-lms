@@ -3295,5 +3295,12 @@
   "paySheetCheckFailedTitle": "Ödemeniz kontrol edilemedi",
   "paySheetCheckFailedBody": "Bağlantınızı kontrol edip yeniden deneyin. Ödediyseniz siparişiniz güvende.",
   "paySheetCheckAgain": "Ödemeyi kontrol et",
-  "paySheetOpenAgain": "Ödeme sayfasını aç"
+  "paySheetOpenAgain": "Ödeme sayfasını aç",
+  "sizeGuide": "Beden rehberi",
+  "sizeChartIn": "Beden tablosu ({unit})",
+  "completeTheLook": "Görünümü tamamla",
+  "exchangeWithin": "{days, plural, =1{1 gün içinde değişim veya iade} other{{days} gün içinde değişim veya iade}}",
+  "optionSoldOut": "{option}, tükendi",
+  "categoryAllOf": "Tüm {name}",
+  "categoryMenuRow": "{name}, {count}"
 }

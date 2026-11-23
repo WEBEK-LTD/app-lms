@@ -46,6 +46,7 @@ class Category {
     required this.name,
     required this.count,
     this.imageUrl,
+    this.children = const [],
   });
 
   factory Category.fromJson(Json json) => Category(
@@ -53,7 +54,23 @@ class Category {
     name: reqString(json, 'name'),
     count: reqInt(json, 'count'),
     imageUrl: optString(json, 'image_url'),
+    children: [
+      for (final c
+          in json['children'] is List ? json['children'] as List : const [])
+        if (c is Map) ?_childOrNull(asJson(c)),
+    ],
   );
+
+  static Category? _childOrNull(Json json) {
+    try {
+      return Category.fromJson(json);
+    } on FormatException {
+      return null;
+    }
+  }
+
+  /// 206 Its sub-categories, for the category menu (`rows`); empty elsewhere.
+  final List<Category> children;
 
   final int id;
   final String name;

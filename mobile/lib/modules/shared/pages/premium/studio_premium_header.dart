@@ -14,6 +14,7 @@ import '../../../../core/widgets/common.dart';
 import '../../../../core/widgets/premium_chrome.dart';
 import '../../../lms/data/lms_providers.dart' show unreadNotificationsProvider;
 import '../app_header.dart';
+import '../page_actions.dart' show headerMenuPage, openHeaderMenuPage;
 import '../side_menu.dart';
 
 /// 130.20 The look each premium header style draws.
@@ -95,7 +96,18 @@ class StudioPremiumHeader extends ConsumerWidget {
           onPressed: () =>
               context.canPop() ? context.pop() : context.go(Paths.home),
         ),
+      // 206 A menu that opens a page (the category menu), else the side menu.
       if (header.buttons.contains(StudioHeaderButton.menu) &&
+          headerMenuPage(header) != null)
+        ChromeGlassButton(
+          key: const ValueKey('studio-header-menu-page'),
+          icon: AppIcons.sideMenu,
+          label: l10n.sideMenuOpen,
+          onColour: onColour,
+          onPressed: () =>
+              openHeaderMenuPage(context, ref, headerMenuPage(header)!),
+        )
+      else if (header.buttons.contains(StudioHeaderButton.menu) &&
           sideMenuEntries(ref).isNotEmpty)
         ChromeGlassButton(
           key: const ValueKey('studio-header-menu'),

@@ -12415,4 +12415,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paySheetOpenAgain => 'Open the payment page';
+
+  @override
+  String get sizeGuide => 'Size guide';
+
+  @override
+  String sizeChartIn(String unit) {
+    return 'Size chart ($unit)';
+  }
+
+  @override
+  String get completeTheLook => 'Complete the look';
+
+  @override
+  String exchangeWithin(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Exchange or return within $days days',
+      one: 'Exchange or return within a day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String optionSoldOut(String option) {
+    return '$option, out of stock';
+  }
+
+  @override
+  String categoryAllOf(String name) {
+    return 'All $name';
+  }
+
+  @override
+  String categoryMenuRow(String name, String count) {
+    return '$name, $count';
+  }
 }
