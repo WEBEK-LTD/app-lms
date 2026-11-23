@@ -853,9 +853,11 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     return "shop";
   }
 
+  /** Customers made so far: each gets a number of its own (a random one could repeat, and the app refuses a number twice). */
+  let customers = 0;
   /** A signed-in customer of this app (a new one each time). */
   async function customerOf(app: App): Promise<string> {
-    const user = (await store.createHostedUser({ appId: app.id, phone: `+9053${Math.floor(Math.random() * 1e8).toString().padStart(8, "0")}`, name: "Intruder", email: null, city: null, now: NOW }))!;
+    const user = (await store.createHostedUser({ appId: app.id, phone: `+9055${String(++customers).padStart(8, "0")}`, name: "Intruder", email: null, city: null, now: NOW }))!;
     const device = randomUUID();
     await store.createHostedDevice({ id: device, appId: app.id, userId: user.id, deviceId: device, platform: "android", name: "Pixel", appVersion: "1.0.0", pushToken: null, pushPreferences: null, createdAt: NOW, lastSeenAt: NOW });
     // 105.4 At a school: its student, a parent and a teacher with a class of their own, so the paths go past who they are.
