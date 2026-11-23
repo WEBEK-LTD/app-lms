@@ -50,6 +50,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   flowers: "flowers_signature_a",
   // 208 Lujain, the clothes shop, is its Signature look A, the boutique (lib/studio/demo-designs/clothes-signature.ts).
   clothes: "clothes_signature_a",
+  // 209 Cosmetics: Velours is its Signature look A, plum and gold (lib/studio/demo-designs/beauty-signature.ts).
+  beauty: "beauty_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -112,6 +114,8 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   flowers: { surface: "#FFFFFF", nightSurface: "#21121A", line: "#F0DDD9", nightLine: "#3A2530", muted: "#7B5E67", nightMuted: "#C9AEB6" },
   // 208 Lujain's, its look A's (lib/studio/demo-designs/clothes-signature.ts LUJAIN_INK).
   clothes: { surface: "#FFFFFF", nightSurface: "#191917", line: "#E4DFD6", nightLine: "#2E2C28", muted: "#5F5B55", nightMuted: "#B6B0A6" },
+  // 209 Cosmetics: Velours's, its look A's (lib/studio/demo-designs/beauty-signature.ts VELOURS_INK).
+  beauty: { surface: "#FFFFFF", nightSurface: "#1E1A1C", line: "#EFE3DF", nightLine: "#2E2629", muted: "#6F5F63", nightMuted: "#C7B9BD" },
 };
 
 /**
@@ -315,6 +319,14 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     clEditTitle: { en: "Day dresses, the new season", ar: "فساتين النهار للموسم الجديد", tr: "Yeni sezonun gündüz elbiseleri" },
     clExchangeNote: { en: "Free exchange within 14 days, picked up from your door.", ar: "استبدال مجاني خلال 14 يومًا، نستلم القطعة من باب منزلكِ.", tr: "14 gün içinde ücretsiz değişim, kapınızdan alınır." },
   },
+  // 209 Cosmetics: Velours's own words where its looks leave the owner brackets: its delivery, its returns, its hours and its edit (lib/demo/beauty.ts).
+  beauty: {
+    btTrustDeliveryText: { en: "Free over 150 AED", ar: "مجاني فوق 150 د.إ", tr: "150 AED üzeri ücretsiz" },
+    btTrustReturnsText: { en: "Unopened, within 14 days", ar: "غير مفتوحة، خلال 14 يومًا", tr: "Açılmamış, 14 gün içinde" },
+    btContactLine: { en: "Beauty advisers every day, 10 am to 11 pm", ar: "مستشارات الجمال يوميًا من 10 صباحًا إلى 11 مساءً", tr: "Güzellik danışmanları her gün 10.00–23.00" },
+    btEditTitle: { en: "Glow serums at their best prices", ar: "سيرومات الإشراق بأفضل أسعارها", tr: "Işıltı serumları en iyi fiyatlarıyla" },
+    btReturnsNote: { en: "Unopened products go back within 14 days, collected from your door.", ar: "تُرجع المنتجات غير المفتوحة خلال 14 يومًا، ونستلمها من باب منزلكِ.", tr: "Açılmamış ürünler 14 gün içinde kapınızdan alınarak iade edilir." },
+  },
   // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
   travel: {
     sigStayOne: { en: "Safra Caldera Suites", ar: "Safra Caldera Suites", tr: "Safra Caldera Suites" },
@@ -372,4 +384,4 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
 }
 
 /** 131.20 The demos whose words carry the app's name, by that name (the demo app's). */
-const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain" };
+const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", beauty: "Velours" };

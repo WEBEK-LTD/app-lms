@@ -54,6 +54,8 @@ export const en = {
     storyFlowersText: "Delivery slots, card messages and flash sales",
     storyClothes: "Clothes shop app",
     storyClothesText: "Sizes and colours, a category menu and complete the look",
+    storyBeauty: "Cosmetics shop app",
+    storyBeautyText: "Shades, a skin quiz, routines and ingredients",
     studioDemo: "Studio demo",
     studioDemoText: "Try Studio's apps on your phone",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -821,6 +823,8 @@ export const en = {
       flowers_b: { name: "Botanical press", text: "The whole flower shop: the petal header, who the flowers are for, the edit as cards, Send today as a ticket, the flash sale on forest green, the collections as arches, the atelier and the price list; every page, the bar, the account and the gift checkout in sage and peach." },
       clothes_a: { name: "LUJAIN, the boutique", text: "The whole clothes shop in black and white: the small header whose menu opens the category menu, the search, the categories in circles, the hero carousel with the next card peeking, what's new, the deal of the day, shop the look with numbered spots, the collections as photo tiles and the size card; the category menu, the size guide, the shop, the cart and orders in warm paper and ink, with a charcoal night." },
       clothes_b: { name: "NOUN, streetwear", text: "The whole clothes shop as streetwear: concrete grey and electric blue, the category menu with numbered rows, the drop of the week, the ticker, the numbered best sellers, shop the fit and the deal of the day; every page, the bar, the account, the shop, the cart and orders in the look, with a near-black night." },
+      beauty_a: { name: "VELOURS, plum and gold", text: "The whole cosmetics shop in plum, blush and gold: the small header whose menu opens the category menu, the search, the categories as chips, the hero carousel with the next card peeking, the flash deals, the best sellers, the shade finder, the skin quiz, the daily routine with ready-made routines, the care rituals, the brands and the trust strip; the category menu, the skin quiz page, the shop, the cart and orders in blush, with a plum-black night." },
+      beauty_b: { name: "NAQA LAB, the clinic", text: "The whole cosmetics shop as a clinic: ink and cobalt on porcelain, shopping by skin and need, the skin quiz, the active ingredients, the most wanted two by two, the routine step by step, the shade finder, the flash deals and the SPF banner; every page, the bar, the account, the shop, the cart and orders in the look, with a near-black night." },
     },
   },
   meta: {

@@ -43,6 +43,8 @@ export interface ShopCategory {
 export interface ShopCategories {
   list: readonly ShopCategory[];
   own: boolean;
+  /** 209 The sub-categories, for the elements named like one (a skin quiz's result, a brand's mark) only; never a list's entries. */
+  subs?: readonly ShopCategory[];
 }
 
 /** The words the templates write as the shop's categories: Leqaa's occasions and collections. */
@@ -265,5 +267,7 @@ export function showsShopCategories(body: StudioNode): boolean {
 export function withShopCategoriesIn(body: StudioNode, shop: ShopCategories | null): StudioNode {
   if (!shop) return body;
   const lists = mapTree(body, (n) => withShopCategories(n, shop)) ?? body;
-  return mapTree(lists, (n) => (n.hidden ? n : withCategoryLinks(n, shop.list))) ?? lists;
+  // 209 An element named like a sub-category (a skin type, a brand) opens it too.
+  const named = shop.subs?.length ? [...shop.list, ...shop.subs] : shop.list;
+  return mapTree(lists, (n) => (n.hidden ? n : withCategoryLinks(n, named))) ?? lists;
 }

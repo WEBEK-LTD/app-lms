@@ -1372,5 +1372,174 @@ export const STORIES_TR: StoryCopy = {
         "clothes-walk": "Beyaz kum tepelerinde yürüyen beyazlar içinde bir kadın"
       }
     },
+    // 209 Velours, kozmetik mağazası: bir partiden önce doğru fondöten, birinci görünümüyle (VELOURS); ikinci görünüm (NAQA LAB) kendi bölümünde.
+    beauty: {
+      navName: "Kozmetik mağazası uygulaması",
+      metaTitle: "Tonlar, cilt testi, rutinler ve içeriklerle bir kozmetik mağazası uygulaması, Yallapp Studio'da tasarlandı",
+      metaDescription: "Velours ile bir gün: biten bir fondöten, ton bulucu, cilt testi, hazır bir rutin ve her ürünün içeriği ile son kullanma tarihi.",
+      summary: "Her birinin stoğuyla renk renk tonlar, cilt testi, cilt tipine ve markaya göre filtre, içerik ve kullanım, son kullanma tarihiyle orijinal ürünler ve hazır rutinler, iki premium görünümde.",
+      eyebrow: "Yallapp Studio · Kozmetik mağazası",
+      title: "Cuma, sıcak bejle",
+      intro: "Leyla'nın fondöteni çarşamba günü bitti, kuzeninin nişanı cuma. Dubai'de çarşamba gecesi. Telefonuyla geçen birkaç dakika böyle doğru tona ve cildine uygun bir rutine dönüşüyor.",
+      cast: "Leyla, Dubai'de bir güzellik evi olan Velours'tan alışveriş yapıyor. Velours, kozmetik mağazası şablonunun demosu: markaları, ürünleri ve fiyatları uydurma, fotoğrafları gerçek; aşağıdaki her ekran gerçek uygulama.",
+      chapters: [
+        {
+          time: "22:05",
+          kicker: "Dubai, akşamın sonu",
+          title: "Boş bir kutu",
+          text: "Leyla yatağında Velours'u açıyor. Ana sayfa küçük ve hızlı: arama, çipler halinde kategoriler, kayan kartlarda haftanın seçkileri, kenardan bir sonrakinin ucu görünüyor, bir de sayacıyla saatin fırsatları."
+        },
+        {
+          time: "22:08",
+          kicker: "Ton bulucu",
+          title: "On iki ton, tek dokunuş",
+          text: "Aşağıda ton bulucu, kuşon fondötenin tonlarını kendi renklerinde yuvarlaklar olarak gösteriyor. Sıcak bej, 3W, zaten seçili: sıcak alt tonlu açık ve orta ten, kadınların en çok seçtiği ton. Fondöteni incele'ye dokunuyor."
+        },
+        {
+          time: "22:11",
+          kicker: "Fondötenin sayfası",
+          title: "Orijinal, 2027'ye kadar",
+          text: "Tonları fiyatın altında renkli yuvarlaklar; 6C'den hiç kalmamış, soluk görünüyor. Altında içeriği, kullanımı ve bilgileri: Rosé Lab, tüm cilt tipleri, 15 g, SPF 25. Bir rozet orijinal diyor, partinin son kullanma tarihi açıkça yazıyor."
+        },
+        {
+          time: "22:15",
+          kicker: "Cilt tipinizi öğrenin",
+          title: "Karma, diyor",
+          text: "Cildinden hiç emin olmamıştı. Test dört soruyu tek tek soruyor: yıkadıktan sonra his, gözenekler, yeni bir krem, günün sonu. Karma. Tek dokunuş, mağazanın karma cilde uygun tüm ürünlerini açıyor."
+        },
+        {
+          time: "22:19",
+          kicker: "Hazır bir rutin",
+          title: "Dört adım, daha uygun",
+          text: "Günlük rutinde karma cilt için sabah rutini: bir temizleme sabunu, C vitamini, hafif bir jel ve SPF 50+, dördünün tek tek fiyatından daha uyguna birlikte. Fondötenle birlikte sepete ekliyor, ödemede mağazanın kodu VELOURS10."
+        },
+        {
+          time: "09:40",
+          kicker: "Perşembe, mağazada",
+          title: "3W ve rutin",
+          text: "Velours'ta Hind sabahın siparişlerini açıyor. Leyla'nınkinde 3W fondöten ve sabah rutini var. 3W'nin stoğu bir azalıyor, kimse olmayan bir tonu alamıyor; paket öğleden önce yola çıkıyor.",
+          push: {
+            app: "Velours",
+            title: "Sipariş 3307",
+            body: "Siparişiniz yolda. Açılmamış ürünler 14 gün içinde iade edilebilir."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Çarşamba saat onda. Cuma sıcak bejle.",
+        text: "Aradaki her şey mağazanın kendisindendi: tonları ve her birinin stoğu, cilt tipleri ve markaları, her ürünün içeriği ve son kullanma tarihi, rutinleri ve fırsatları; panelden bir kez ayarlandı."
+      },
+      statsTitle: "Tek bir tonun ardındaki küçük gerçekler",
+      stats: [
+        "demonun menüsünde ana kategori, cilt tipine ve markaya göre olanlar dahil",
+        "fondöten tonu, her birinin stoğu ve rengiyle",
+        "cilt tipi testte, her biri kendi ürünlerini açar",
+        "dil, Arapça sağdan sola"
+      ],
+      systemsTitle: "Her parça, açıklamasıyla",
+      systemsText: "Tonlar, cilt testi ve filtreler, bir ürün sayfasının anlattıkları, rutinler ve fırsatlar, iki görünüm ve ürünlerin nereden geldiği.",
+      systems: [
+        {
+          name: "Tonlar",
+          title: "Her ton, rengi ve stoğuyla",
+          text: "Bir fondöten ya da ruj tonlarıyla gelir, her biri kendi renginde çizilir.",
+          features: [
+            ["Renk yuvarlakları", "Her ton, ürün sayfasında kendi renginde bir yuvarlak."],
+            ["Açılışta seçili", "Mağazanın seçtiği ton, sayfa açıldığında hazır."],
+            ["Biten bitti", "Hiç kalmayan ton soluk görünür ve seçilemez."],
+            ["Ton başına stok", "Mağaza her tonun stoğunu ayrı tutar."],
+            ["Ton bulucu", "Ana sayfada tonlar yan yana, dokunulanı kendi sözleriyle."]
+          ]
+        },
+        {
+          name: "Cilt testi ve filtreler",
+          title: "Cilt tipine ve markaya göre",
+          text: "Müşteriler her etiketi okumadan cildine uyanı bulur.",
+          features: [
+            ["Cilt tipinizi öğrenin", "Tek tek birkaç soru, ardından en çok yanıtı alan cilt tipi."],
+            ["Açılan sonuçlar", "Her cilt tipi, mağazanın ona uygun ürünlerini açar."],
+            ["Markalar", "Mağazanın markaları menüde ve ana sayfada, her biri kendi ürünlerini açar."],
+            ["Üç dilde", "Sorular, yanıtlar ve sonuçlar İngilizce, Arapça ve Türkçe."],
+            ["Editörde de", "Test ve ton bulucu, her mağaza için Studio kütüphanesinin öğeleri."]
+          ]
+        },
+        {
+          name: "Bir ürün sayfasının anlattıkları",
+          title: "İçerik, kullanım, son kullanma",
+          text: "Her ürün sayfası, dikkatli bir müşterinin almadan önce sorduklarını yanıtlar.",
+          features: [
+            ["İçerik", "Tam liste, ürünün kendi sözleriyle."],
+            ["Kullanım", "Ne zaman ve ne kadar, adım adım."],
+            ["Orijinal", "Doğrudan markalardan alınan ürünler için bir rozet."],
+            ["Son kullanma", "Partinin ayı ve yılı, açıkça."],
+            ["Hayvanlar üzerinde denenmedi", "Hayvanlar üzerinde denenmeyen ürünlerde bir rozet."],
+            ["Bilgiler", "Marka, cilt tipi, hacim ve bitiş, küçük bir tabloda."]
+          ]
+        },
+        {
+          name: "Rutinler ve fırsatlar",
+          title: "Yalnızca krem değil, bütün rutin",
+          text: "Mağaza birbirini tamamlayan adımları satar.",
+          features: [
+            ["Hazır rutinler", "Birlikte daha uyguna satılan ürünler, adımları açıklamada."],
+            ["Günlük rutin", "Ana sayfada sabah ve akşam adımları, altında mağazanın rutinleri."],
+            ["Saatin fırsatları", "Geri sayımı ve kalan adediyle bir indirim."],
+            ["Kodlar", "Mağazanın kodu bir bilette, tek dokunuşla kopyalanır."],
+            ["İade göz önünde", "Mağazanın iade günleri her üründe."]
+          ]
+        },
+        {
+          name: "Yallapp Studio'da tasarlandı",
+          title: "İki görünüm, her parçası sizin",
+          text: "Velours, yalnızca Studio öğeleriyle yapılmış iki premium görünümle gelir.",
+          features: [
+            ["VELOURS", "A görünümü: mürdüm, pudra ve altınla lüks."],
+            ["NAQA LAB", "B görünümü: porselen üstünde mürekkep ve kobaltla bir klinik, aktif içeriklerle."],
+            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var."],
+            ["Kompakt vitrin", "Seçkiler yaklaşık 210 punto yüksekliğinde kartlarda, sonrakinin ucu görünür."],
+            ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan adıyla bir hap."],
+            ["Hazır bölümler", "Ton bulucu, cilt testi, rutin, markalar ve dahası, her mağaza için."],
+            ["Üç dil", "İngilizce, sağdan sola Arapça ve Türkçe."]
+          ]
+        },
+        {
+          name: "Ürünler nereden gelir",
+          title: "Ürünleriniz ya da mağazanızın platformu",
+          text: "Velours, Yallapp'te tutulan ürünlerle ya da zaten sahip olduğunuz online mağazayla çalışır.",
+          features: [
+            ["Yallapp'te ürünler", "Bu sayfadaki her şey: tonlar ve renkleri, içerik, son kullanma ve rutinler."],
+            ["WordPress ve diğer platformlar", "Kategorileri menüde, tonları ve stoğu sayfada."],
+            ["Sırada", "Bağlı bir platformdan içerik ve son kullanma tarihi."]
+          ]
+        }
+      ],
+      bundleTitle: "Tek uygulama, paneliniz ve varsa mağazanız",
+      bundleText: "Müşteri uygulaması tek bir Studio projesinden mağazanın adıyla yapılır ve yayımlanır. Ürünleri Yallapp'ten ya da mağazanın kendi platformundan gelir.",
+      bundleNodes: [
+        ["Velours", "Müşteriler, Android ve iPhone'da"],
+        ["Yallapp Studio", "Mağaza: görünümü, kategorileri, tonları ve fırsatları"],
+        ["Mağazanın sitesi", "Varsa WooCommerce, Shopify ya da bir başkası"]
+      ],
+      bundleFlows: [
+        "Yeni bir ton uygulamada rengiyle görünür",
+        "Tükenen ton soluk görünür",
+        "İçerik ürünün sözleriyle görünür",
+        "Sipariş tonuyla gelir"
+      ],
+      compareTitle: "Karşılaştırma",
+      compareText: "Online mağazalar için uygulama yapan şirketler, kendi sitelerinin anlattığı gibi; yanında Yallapp ve bir ajansa uygulama yaptırmak.",
+      finale: {
+        title: "Cuma, saat sekizde",
+        text: "Ton tam yerinde; cildinin nerede bitip fondötenin nerede başladığını kimse anlamıyor. Hind, Dudaklar sırasına yeni bir ruj eklemiş bile, Dubai'nin bir yerinde başka biri cilt testini yapıyor."
+      },
+      photos: {
+        "beauty-hero": "Sıcak bej bir duvarın önünde krem kavanozu tutan bir kadın",
+        "beauty-shades": "Işıltılı, sade cildiyle yüzüne dokunan bir kadın",
+        "beauty-serum": "Serum damlalığını yanağına yaklaştıran bir kadın",
+        "beauty-routine": "Sıcak ışıkta gözleri kapalı, yumuşak ciltli bir kadın",
+        "beauty-bath": "Banyo tepsisinde bir mum, banyo bombası ve rulo havlu",
+        "beauty-candle": "Küçük bir kutunun yanında cam kavanozda yanan bir mum"
+      }
+    },
   },
 };

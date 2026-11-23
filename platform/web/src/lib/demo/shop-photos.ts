@@ -95,11 +95,74 @@ export const CLOTHES_PHOTOS: ShopPhotoSet<ClothesPhotoName> = { dir: "clothes-ph
 /** A clothes photo as a demo's picture (`cl-<name>`). */
 export type ClothesPhoto = `cl-${ClothesPhotoName}`;
 
+// 209 Cosmetics
+/** 209 Velours's photos (the cosmetics shop), cut to 4:5 at 720 × 900, the banners cut to 900 × 560. */
+export const BEAUTY_PHOTO_NAMES = [
+  "argan",
+  "balm-stick",
+  "bath-salts",
+  "bath-set",
+  "beard",
+  "blush",
+  "brush-set",
+  "candle-amber",
+  "candle-fig",
+  "ceramide",
+  "coconut-balm",
+  "deep-cream",
+  "eyeliner",
+  "foundation",
+  "gel-cream",
+  "hero-calm",
+  "hero-cream",
+  "hero-glow",
+  "hero-lab",
+  "hero-lips",
+  "hyaluronic",
+  "kabuki",
+  "lip-cheek",
+  "nail",
+  "niacinamide",
+  "nude-palette",
+  "oat-bar",
+  "olive-soap",
+  "oud",
+  "perfume",
+  "quiz",
+  "retinol",
+  "rose-oil",
+  "rose-palette",
+  "rose-perfume",
+  "routine-calm",
+  "routine-dry",
+  "routine-morning",
+  "routine-oily",
+  "scalp",
+  "shade-face",
+  "shampoo",
+  "shave",
+  "smoky-palette",
+  "spa-ritual",
+  "spa-soap",
+  "spf",
+  "spf-banner",
+  "squalane",
+  "tinted-balm",
+  "velvet-lips",
+  "vitamin-c",
+  "welcome",
+] as const;
+export type BeautyPhotoName = (typeof BEAUTY_PHOTO_NAMES)[number];
+export const BEAUTY_PHOTOS: ShopPhotoSet<BeautyPhotoName> = { dir: "beauty-photos", prefix: "bt-", names: BEAUTY_PHOTO_NAMES };
+
+/** A cosmetics photo as a demo's picture (`bt-<name>`). */
+export type BeautyPhoto = `bt-${BeautyPhotoName}`;
+
 /** Every set, for the pictures' lookup. */
-const SHOP_PHOTO_SETS: readonly ShopPhotoSet<string>[] = [CLOTHES_PHOTOS];
+const SHOP_PHOTO_SETS: readonly ShopPhotoSet<string>[] = [CLOTHES_PHOTOS, BEAUTY_PHOTOS];
 
 /** A shop type's photo as a demo's picture: `cl-rust-1`. */
-export type ShopPhoto = ClothesPhoto;
+export type ShopPhoto = ClothesPhoto | BeautyPhoto;
 
 function setOf(name: string): { set: ShopPhotoSet<string>; file: string } | null {
   for (const set of SHOP_PHOTO_SETS) {

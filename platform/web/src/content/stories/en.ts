@@ -1376,5 +1376,174 @@ export const STORIES_EN: StoryCopy = {
         "clothes-walk": "A woman in white walking over white sand dunes"
       }
     },
+    // 209 Velours, the cosmetics shop: the right foundation before a party, in its look A (VELOURS); look B (NAQA LAB) in its section.
+    beauty: {
+      navName: "Cosmetics shop app",
+      metaTitle: "A cosmetics shop app with shades, a skin quiz, routines and ingredients, designed in Yallapp Studio",
+      metaDescription: "A day with Velours: a foundation that ran out, the shade finder, the skin quiz, a ready-made routine, and every product's ingredients and expiry.",
+      summary: "Shades as swatches with the stock of each, a skin quiz, filters by skin type and brand, ingredients and how to use, genuine products with their expiry and ready-made routines, in two premium looks.",
+      eyebrow: "Yallapp Studio · The cosmetics shop",
+      title: "Friday, in warm beige",
+      intro: "Layla's foundation ran out on Wednesday, and her cousin's engagement party is on Friday. It's Wednesday night in Dubai. This is how a few minutes with her phone become the right shade, and a routine for her skin.",
+      cast: "Layla shops at Velours, a beauty house in Dubai. Velours is the cosmetics shop template's demo: its brands, products and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "22:05",
+          kicker: "Dubai, late evening",
+          title: "An empty compact",
+          text: "Layla opens Velours on her bed. The home is small and quick: the search, the categories as chips, this week's edits in cards that slide, the next one peeking from the edge, and the flash deals with their timer."
+        },
+        {
+          time: "22:08",
+          kicker: "The shade finder",
+          title: "Twelve shades, one tap",
+          text: "Further down, the shade finder shows the cushion foundation's shades as round swatches. Warm beige, 3W, is already chosen: light to medium skin with a warm undertone, the shade most women pick. She taps Shop the foundation."
+        },
+        {
+          time: "22:11",
+          kicker: "The foundation's page",
+          title: "Genuine, until 2027",
+          text: "Its shades are swatches under the price; 6C has none left and is greyed out. Under them, its ingredients, how to use it, and its facts: Rosé Lab, all skin types, 15 g, SPF 25. A badge says genuine, and the batch's expiry is written in the open."
+        },
+        {
+          time: "22:15",
+          kicker: "Know your skin type",
+          title: "Combination, it says",
+          text: "She has never been sure about her skin. The quiz asks four questions, one at a time: how it feels after washing, the pores, a new cream, the end of the day. Combination. One tap opens every product the shop has for combination skin."
+        },
+        {
+          time: "22:19",
+          kicker: "A ready-made routine",
+          title: "Four steps, for less",
+          text: "In the daily routine, the morning routine for combination skin: a cleansing bar, vitamin C, a light gel and SPF 50+, sold together for less than the four on their own. She adds it, with the foundation, and the shop's code VELOURS10 at checkout."
+        },
+        {
+          time: "09:40",
+          kicker: "Thursday, at the shop",
+          title: "3W, and the routine",
+          text: "At Velours, Hind opens the morning's orders. Layla's says the foundation in 3W and the morning routine. The stock of 3W goes down by one, so no one can buy a shade that isn't there, and the parcel leaves before noon.",
+          push: {
+            app: "Velours",
+            title: "Order 3307",
+            body: "Your order is on its way. Unopened products can go back within 14 days."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Wednesday at ten. Friday in warm beige.",
+        text: "Everything in between was the shop's own: its shades and the stock of each, its skin types and brands, every product's ingredients and expiry, its routines and its offers, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one shade",
+      stats: [
+        "main categories in the demo's menu, by skin type and by brand among them",
+        "shades of the foundation, each with its stock and its colour",
+        "skin types in the quiz, each opening its products",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Shades, the skin quiz and the filters, what a product's page tells, routines and offers, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Shades",
+          title: "Every shade, its colour and its stock",
+          text: "A foundation or a lipstick comes in its shades, each drawn in its own colour.",
+          features: [
+            ["Swatches", "Each shade is a round swatch in its colour on the product's page."],
+            ["Chosen when it opens", "The shade the shop picked is ready when the page opens."],
+            ["Gone is gone", "A shade with none left is greyed out and can't be chosen."],
+            ["Stock per shade", "The shop keeps the stock of every shade on its own."],
+            ["The shade finder", "On the home, the shades side by side, the one tapped with its words."]
+          ]
+        },
+        {
+          name: "The skin quiz and the filters",
+          title: "By skin type, and by brand",
+          text: "Customers find what suits their skin without reading every label.",
+          features: [
+            ["Know your skin type", "A few questions, one at a time, and the skin type with the most answers."],
+            ["Results that open", "Each skin type opens the shop's products for it."],
+            ["Brands", "The shop's brands in the menu and on the home, each opening its products."],
+            ["In three languages", "The questions, the answers and the results in English, Arabic and Turkish."],
+            ["In the editor too", "The quiz and the shade finder are elements of Studio's library, for any store."]
+          ]
+        },
+        {
+          name: "What a product's page tells",
+          title: "Ingredients, how to use, expiry",
+          text: "Every product's page answers what a careful customer asks before she buys.",
+          features: [
+            ["Ingredients", "The full list, in the product's own words."],
+            ["How to use", "When and how much, step by step."],
+            ["Genuine", "A badge for products bought from the brands themselves."],
+            ["Expiry", "The batch's month and year, in the open."],
+            ["Cruelty-free", "A badge on the products not tested on animals."],
+            ["Facts", "Brand, skin type, volume and finish, as a small table."]
+          ]
+        },
+        {
+          name: "Routines and offers",
+          title: "The whole routine, not only the cream",
+          text: "The shop sells steps that go together.",
+          features: [
+            ["Ready-made routines", "Products sold together for less, their steps in the description."],
+            ["The daily routine", "Morning and evening steps on the home, with the shop's routines under them."],
+            ["Flash deals", "A sale with its countdown and how many are left."],
+            ["Codes", "The shop's code on a ticket, copied in one tap."],
+            ["Returns in sight", "The shop's return days on every product."]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Velours comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["VELOURS", "Look A: luxury in plum, blush and gold."],
+            ["NAQA LAB", "Look B: a clinic in ink and cobalt on porcelain, with the active ingredients."],
+            ["Light and dark", "Both looks have a designed night."],
+            ["A compact hero", "The edits in cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one a pill with its name."],
+            ["Ready sections", "The shade finder, the skin quiz, the routine, the brands and more, for any store."],
+            ["Three languages", "English, Arabic right to left, and Turkish."]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Velours works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            ["Products in Yallapp", "Everything on this page: shades and their colours, ingredients, expiry and routines."],
+            ["WordPress and other platforms", "Their categories in the menu, their shades and stock on the page."],
+            ["Coming next", "Ingredients and expiry from a connected platform."]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Velours", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, categories, shades and offers"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"]
+      ],
+      bundleFlows: [
+        "A new shade shows as its swatch in the app",
+        "A shade sold out is greyed out",
+        "The ingredients show in the product's words",
+        "An order arrives with its shade"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Friday, at eight",
+        text: "The shade is right; no one can tell where her skin ends and the foundation begins. Hind has already added a new lipstick to the Lips row, and somewhere in Dubai someone else is taking the skin quiz."
+      },
+      photos: {
+        "beauty-hero": "A woman holding a jar of cream against a warm beige wall",
+        "beauty-shades": "A woman with bare, glowing skin touching her face",
+        "beauty-serum": "A woman holding a serum dropper to her cheek",
+        "beauty-routine": "A woman with soft skin and her eyes closed, in warm light",
+        "beauty-bath": "A candle, a bath bomb and a rolled towel on a bath tray",
+        "beauty-candle": "A lit candle in a glass jar beside a small tin"
+      }
+    },
   },
 };

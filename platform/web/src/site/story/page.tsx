@@ -51,6 +51,8 @@ const VEHICLE: Record<StoryId, "two_wheeler" | "local_taxi" | "directions_bus" |
   flowers: "two_wheeler",
   // 208 Nor the clothes shop's.
   clothes: "two_wheeler",
+  // 209 Nor the cosmetics shop's.
+  beauty: "two_wheeler",
 };
 
 const primary =

@@ -140,6 +140,13 @@ export const TR_MARKETING: MarketingTranslation = {
     "clothes-sig-b-home": "Lujain ikinci görünümüyle, NOUN'un sokak stili: drop'un vitrini, bu haftanın yenileri, görünümü al ve kategoriler",
     "clothes-sig-a-home-dark": "Lujain birinci görünümüyle, butik, karanlık modda: arama, kategoriler, sezon koleksiyonları ve yeniler",
     "clothes-sig-b-home-dark": "Lujain ikinci görünümüyle, NOUN'un sokak stili, karanlık modda: drop'un vitrini, bu haftanın yenileri, görünümü al ve kategoriler",
+    // 209 Cosmetics
+    "velours-home": "Velours kozmetik mağazası birinci görünümüyle, mürdüm ve altın: arama, kategoriler, bir sonrakinin göründüğü haftanın seçkileri, saatin fırsatları, ton bulucu ve cilt testi",
+    "velours-menu": "Velours'un kategori menüsü: her kategori kaydırılan bir kart sırası, cilt tipine ve markaya göre de, hesap ve dil en altta",
+    "velours-product": "Velours'ta bir fondöten: renkleriyle tonları, içeriği, kullanımı, son kullanma tarihi ve orijinal rozeti",
+    "beauty-sig-b-home": "Velours ikinci görünümüyle, NAQA LAB'ın kliniği: vitrin, cilde ve ihtiyaca göre alışveriş, cilt testi, aktif içerikler ve rutin",
+    "beauty-sig-a-home-dark": "Velours birinci görünümüyle, mürdüm ve altın, karanlık modda: arama, kategoriler, haftanın seçkileri, saatin fırsatları ve ton bulucu",
+    "beauty-sig-b-home-dark": "Velours ikinci görünümüyle, NAQA LAB'ın kliniği, karanlık modda: vitrin, cilde ve ihtiyaca göre alışveriş, cilt testi ve aktif içerikler",
     "studio-editor": "Yallapp Studio düzenleyicisi: solda öğeler, telefonda sayfa, sağda ayarları",
     "studio-home": "Hesabın projeleriyle Yallapp Studio ana sayfası",
     "studio-project": "Bir Studio projesinin paneli",
@@ -1821,6 +1828,16 @@ export const TR_MARKETING: MarketingTranslation = {
       tryThis: [
         "Üstteki menüye dokunun ve kategoriler arasında kaydırın, her birinin alt kategorileri var",
         "Bir elbise açın, bedenini ve rengini seçin (biten beden öyle görünür), beden rehberine ve görünümü tamamlayanlara bakın",
+        "Mağazanın koduyla ödeyin, siparişinizi Siparişler'de izleyin, uygulamayı hesaptan Arapçaya ya da koyu moda geçirin",
+      ],
+    },
+    // 209 Cosmetics
+    beauty: {
+      summary: "Dubai'de bir güzellik evi: kendi altı markasından cilt bakımı, makyaj, parfüm, vücut ve saç bakımı ile hazır rutinler; her ürün orijinal, içeriği, kullanımı ve son kullanma tarihiyle. Fotoğrafları StockSnap'ten, CC0.",
+      tryThis: [
+        "Üstteki menüye dokunun ve kategoriler arasında kaydırın, ardından cilt tipine ve markaya göre",
+        "Ana sayfada tonunuzu bulun, cilt testini yapın ve cilt tipinize uygun ürünleri açın",
+        "Kuşon fondöteni açın, bir ton seçin (biten ton öyle görünür), içeriğini ve son kullanma tarihini okuyun, sepete hazır bir rutin ekleyin",
         "Mağazanın koduyla ödeyin, siparişinizi Siparişler'de izleyin, uygulamayı hesaptan Arapçaya ya da koyu moda geçirin",
       ],
     },

@@ -1,0 +1,57 @@
+# Photo credits
+
+209 Velours's (the cosmetics shop demo's) photos, for its looks A (VELOURS) and B (NAQA LAB). All come from StockSnap (found through Openverse, `source=stocksnap`) and are dedicated to the public domain (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/); each file's StockSnap page has the terms. They were cut to 4:5 around the part the approved designs show and resized to 720 × 900; the wide ones used as banners were cut to 900 × 560. The shop, its brands, its products and its prices they illustrate in the demo are fictional; no brand name or logo shows in them.
+
+- **argan.jpg**: "Blonde Hair" by Snufkin, CC0 1.0. https://stocksnap.io/photo/blonde-hair-2A6E9NMC3B
+- **balm-stick.jpg**: "Woman Lipstick" by Burst, CC0 1.0. https://stocksnap.io/photo/woman-lipstick-UUW7JAWUU1
+- **bath-salts.jpg**: "Aromatherapy Spa" by Marina Pershina, CC0 1.0. https://stocksnap.io/photo/aromatherapy-spa-SJX0UPY4VO
+- **bath-set.jpg**: "Candle Cloth" by Matthew Henry, CC0 1.0. https://stocksnap.io/photo/candle-cloth-KN1OH31KH5
+- **beard.jpg**: "Beard Hair" by Ryan McGuire, CC0 1.0. https://stocksnap.io/photo/beard-hair-4EF3FFEA23
+- **blush.jpg**: "Cosmetics Makeup" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/cosmetics-makeup-J5SNYQ3FQK
+- **brush-set.jpg**: "Brush Makeup" by kinkate, CC0 1.0. https://stocksnap.io/photo/brush-makeup-N3KQANR4GO
+- **candle-amber.jpg**: "Candle Table" by Christian Mackie, CC0 1.0. https://stocksnap.io/photo/candle-table-OEYUISMDPN
+- **candle-fig.jpg**: "Burning Candle" by Burst, CC0 1.0. https://stocksnap.io/photo/burning-candle-DYFPZ3PKAY
+- **ceramide.jpg**: "Woman Skin" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/woman-skin-VWXKIBZZYP
+- **coconut-balm.jpg**: "Oil Coconut" by Dana Tentis, CC0 1.0. https://stocksnap.io/photo/oil-coconut-QYF5HNIQ7Z
+- **deep-cream.jpg**: "Woman Skin" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/woman-skin-ZD257KAS8U
+- **eyeliner.jpg**: "Eye Closeup" by Lisa Fotios, CC0 1.0. https://stocksnap.io/photo/eye-closeup-LXZ77IYCTB
+- **foundation.jpg**: "Makeup Brush" by Studio 7042, CC0 1.0. https://stocksnap.io/photo/makeup-brush-K00RNBNJGC
+- **gel-cream.jpg**: "Woman Skin" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/woman-skin-FXNCQS1ZDO
+- **hero-calm.jpg**: "Beauty Skincare" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/beauty-skincare-PBIACLTCLJ
+- **hero-cream.jpg**: "Woman Skin" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/woman-skin-VEP8AYJMNI
+- **hero-glow.jpg**: "Beauty Skincare" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/beauty-skincare-CC9TYE8VJY
+- **hero-lab.jpg**: "Beauty Skincare" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/beauty-skincare-BSXHIPGGHI
+- **hero-lips.jpg**: "Makeup People" by Freestocks.org, CC0 1.0. https://stocksnap.io/photo/makeup-people-G40JKFC5I5
+- **hyaluronic.jpg**: "Beauty Skincare" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/beauty-skincare-OWEFBCWPTH
+- **kabuki.jpg**: "Makeup Brush" by Pawel Kadysz, CC0 1.0. https://stocksnap.io/photo/makeup-brush-IJSBS0EFPO
+- **lip-cheek.jpg**: "Woman Holding" by Burst, CC0 1.0. https://stocksnap.io/photo/woman-holding-NYJPMAXPAK
+- **nail.jpg**: "Pink Nail" by Jess Watters, CC0 1.0. https://stocksnap.io/photo/pink-nail-P9PJ0EGPGJ
+- **niacinamide.jpg**: "Beauty Skincare" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/beauty-skincare-BSXHIPGGHI
+- **nude-palette.jpg**: "Makeup Pack" by Studio 7042, CC0 1.0. https://stocksnap.io/photo/makeup-pack-OGMJFZVCP3
+- **oat-bar.jpg**: "Bath Soap" by Healthy Living, CC0 1.0. https://stocksnap.io/photo/bath-soap-JTZVBAZR80
+- **olive-soap.jpg**: "Bath Soap" by Healthy Living, CC0 1.0. https://stocksnap.io/photo/bath-soap-BXMC5UNN4G
+- **oud.jpg**: "Incense Scent" by Jay Mantri, CC0 1.0. https://stocksnap.io/photo/incense-scent-5C9084CBEA
+- **perfume.jpg**: "Diamond Gems" by Beauty and Fashion, CC0 1.0. https://stocksnap.io/photo/diamond-gems-7HKWIHL9FL
+- **quiz.jpg**: "Woman Skin" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/woman-skin-L98SVEZOVY
+- **retinol.jpg**: "Smiling Woman" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/smiling-woman-TP4QZRQ123
+- **rose-oil.jpg**: "Aromatherapy Spa" by Marina Pershina, CC0 1.0. https://stocksnap.io/photo/aromatherapy-spa-5A5JLDXM4R
+- **rose-palette.jpg**: "Makeup Beauty" by Freestocks.org, CC0 1.0. https://stocksnap.io/photo/makeup-beauty-SSSLXNZ1RQ
+- **rose-perfume.jpg**: "Pink White" by Jess Watters, CC0 1.0. https://stocksnap.io/photo/pink-white-8SRFCFK023
+- **routine-calm.jpg**: "Smiling Woman" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/smiling-woman-3WMJWQPS9L
+- **routine-dry.jpg**: "Woman Skin" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/woman-skin-J8ZJI2D5UQ
+- **routine-morning.jpg**: "Beauty Skincare" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/beauty-skincare-LRSAT4NCLS
+- **routine-oily.jpg**: "Woman Skin" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/woman-skin-FA7UVQPL7W
+- **scalp.jpg**: "Bun Hair" by Kasia Serbin, CC0 1.0. https://stocksnap.io/photo/bun-hair-I9AW11TY89
+- **shade-face.jpg**: "Beauty Woman" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/beauty-woman-6N8ZMJNQU6
+- **shampoo.jpg**: "Woman Hair" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/woman-hair-XIEZSFATU3
+- **shave.jpg**: "Man Shaving" by Direct Media, CC0 1.0. https://stocksnap.io/photo/man-shaving-BFASQPNDEK
+- **smoky-palette.jpg**: "Brush Makeup" by kinkate, CC0 1.0. https://stocksnap.io/photo/brush-makeup-W55QEDBEXB
+- **spa-ritual.jpg**: "Spa Wellness" by Healthy Living, CC0 1.0. https://stocksnap.io/photo/spa-wellness-PL9R5H2KKH
+- **spa-soap.jpg**: "Soap Bath" by Healthy Living, CC0 1.0. https://stocksnap.io/photo/soap-bath-AULHEZDSCC
+- **spf.jpg**: "Woman Skin" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/woman-skin-FVCPNF1M0Q
+- **spf-banner.jpg**: "Beauty Woman" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/beauty-woman-K3V44MLA0J
+- **squalane.jpg**: "Essentialoil Cosmeticoil" by Marina Pershina, CC0 1.0. https://stocksnap.io/photo/essentialoil-cosmeticoil-YWGBUF1QKI
+- **tinted-balm.jpg**: "People Woman" by Matthew Henry, CC0 1.0. https://stocksnap.io/photo/people-woman-OKG3OV0B05
+- **velvet-lips.jpg**: "Makeup People" by Freestocks.org, CC0 1.0. https://stocksnap.io/photo/makeup-people-G40JKFC5I5
+- **vitamin-c.jpg**: "Beauty Skincare" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/beauty-skincare-CC9TYE8VJY
+- **welcome.jpg**: "Smiling Woman" by Authentic Stock, CC0 1.0. https://stocksnap.io/photo/smiling-woman-MYUJO5PVDC

@@ -770,6 +770,12 @@ export const PICTURES = {
       r(30, 68, 40, 4, 2, "#F3F0EA", 0.55),
     ],
   },
+  // 209 Cosmetics: Velours, a serum bottle in blush with its gold dropper, on plum.
+  "icon-beauty": {
+    from: "#9B3A60",
+    to: "#4A1028",
+    shapes: [r(45, 16, 10, 14, 5, "#D9A85E"), r(42, 29, 16, 8, 2, "#D9A85E"), r(34, 37, 32, 40, 9, "#F4ECEE"), r(40, 52, 20, 3, 1.5, "#9B3A60", 0.7), r(40, 58, 14, 3, 1.5, "#9B3A60", 0.45)],
+  },
   "icon-bookings": {
     from: "#3A8072",
     to: "#235449",

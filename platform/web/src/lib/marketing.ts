@@ -169,6 +169,13 @@ export const APP_SCREENS = [
   "clothes-sig-b-home",
   "clothes-sig-a-home-dark",
   "clothes-sig-b-home-dark",
+  // 209 Cosmetics: Velours, its guide's screens (look A) and its looks' homes.
+  "velours-home",
+  "velours-menu",
+  "velours-product",
+  "beauty-sig-b-home",
+  "beauty-sig-a-home-dark",
+  "beauty-sig-b-home-dark",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -311,6 +318,13 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "clothes-sig-b-home": "Lujain in its second look, NOUN's streetwear: the drop's hero, new this week, shop the look and the categories",
   "clothes-sig-a-home-dark": "Lujain in its first look, the boutique, by night: the search, the categories, the season's collections and what's new",
   "clothes-sig-b-home-dark": "Lujain in its second look, NOUN's streetwear, by night: the drop's hero, new this week, shop the look and the categories",
+  // 209 Cosmetics
+  "velours-home": "Velours, a cosmetics shop, in its first look, plum and gold: the search, the categories, the week's edits with the next one peeking, the flash deals, the shade finder and the skin quiz",
+  "velours-menu": "Velours's category menu: every category a row of cards that slides, by skin type and by brand too, the account and the language at the foot",
+  "velours-product": "A foundation in Velours: its shades as swatches, its ingredients, how to use it, its expiry and the genuine badge",
+  "beauty-sig-b-home": "Velours in its second look, NAQA LAB's clinic: the hero, shopping by skin and need, the skin quiz, the active ingredients and the routine",
+  "beauty-sig-a-home-dark": "Velours in its first look, plum and gold, by night: the search, the categories, the week's edits, the flash deals and the shade finder",
+  "beauty-sig-b-home-dark": "Velours in its second look, NAQA LAB's clinic, by night: the hero, shopping by skin and need, the skin quiz and the active ingredients",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",

@@ -8,6 +8,8 @@ import { deliverySettingsOf } from "../delivery/settings";
 import { isStudioDemo, type DemoId } from "../demo/constants";
 import { studioDemoOf } from "../studio/demo-templates";
 import { clothesPartsForSamples, demoClothesProducts } from "../demo/clothes-entries";
+// 209 Cosmetics
+import { demoBeautyProducts } from "../demo/beauty-entries";
 import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
 import { marketCuisines, marketplaceSamples, savingZadPictures } from "../demo/marketplace";
 import { savePicture } from "../demo/picture-assets";
@@ -110,6 +112,8 @@ const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   flowers: { products: async (m) => (await demoFlowerProducts(m.entries, m.app), true) },
   // 208 Lujain's clothes, their categories and sub-categories.
   clothes: { products: async (m) => (await demoClothesProducts(m.entries, m.app), await clothesPartsForSamples(m.entries, m.app), true) },
+  // 209 Velours's products, their shades and details, its categories, skin types and brands.
+  beauty: { products: async (m) => (await demoBeautyProducts(m.entries, m.app), true) },
   restaurant: { products: products(true) },
   booking: { services: bookings("salon") },
   clinic: { services: bookings("clinic") },

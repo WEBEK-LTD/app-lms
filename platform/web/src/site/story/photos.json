@@ -519,5 +519,85 @@
         "title": "White Sand"
       }
     }
+  ],
+  "beauty": [
+    {
+      "slot": "beauty-hero",
+      "src": "/stories/beauty/beauty-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Authentic Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/woman-skin-VEP8AYJMNI",
+        "title": "Woman Skin"
+      }
+    },
+    {
+      "slot": "beauty-shades",
+      "src": "/stories/beauty/beauty-shades.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Authentic Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/beauty-woman-6N8ZMJNQU6",
+        "title": "Beauty Woman"
+      }
+    },
+    {
+      "slot": "beauty-serum",
+      "src": "/stories/beauty/beauty-serum.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Authentic Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/beauty-skincare-CC9TYE8VJY",
+        "title": "Beauty Skincare"
+      }
+    },
+    {
+      "slot": "beauty-routine",
+      "src": "/stories/beauty/beauty-routine.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Authentic Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/beauty-skincare-LRSAT4NCLS",
+        "title": "Beauty Skincare"
+      }
+    },
+    {
+      "slot": "beauty-bath",
+      "src": "/stories/beauty/beauty-bath.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Matthew Henry",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/candle-cloth-KN1OH31KH5",
+        "title": "Candle Cloth"
+      }
+    },
+    {
+      "slot": "beauty-candle",
+      "src": "/stories/beauty/beauty-candle.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Burst",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/burning-candle-DYFPZ3PKAY",
+        "title": "Burning Candle"
+      }
+    }
   ]
 }

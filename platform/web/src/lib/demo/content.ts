@@ -386,6 +386,17 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["lujain-home", "lujain-menu", "lujain-product"],
   },
+  // 209 Cosmetics: Velours, a store in Studio, its two Signature looks, shades, the skin quiz and routines.
+  beauty: {
+    summary: "A beauty house in Dubai: skincare, makeup, fragrance, body and bath, hair and ready-made routines by six brands of its own, every product genuine with its ingredients, how to use it and its expiry. Its photos are CC0, from StockSnap.",
+    tryThis: [
+      "Tap the menu at the top and slide through the categories, then by skin type and by brand",
+      "On the home, find your shade, take the skin quiz and open the products for your skin type",
+      "Open the cushion foundation, choose a shade (one that's gone says so), read its ingredients and expiry, and add a ready-made routine to the cart",
+      "Check out with the shop's code, follow your order in Orders, and switch the app to Arabic or to dark mode in the account",
+    ],
+    screens: ["velours-home", "velours-menu", "velours-product"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -798,6 +809,26 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Dresses, abayas, coats, shoes and bags in your size, delivered across Riyadh.",
     fullDescription: `Lujain is a house of women's fashion: dresses, abayas, coats and jackets, tops, denim, shoes, bags and accessories.\n\nBrowse every category from the menu, choose your size and colour with the size guide at hand, and complete the look in a few taps. Exchanges are free within 14 days.\n\n${PRIVACY_NOTE}`,
     welcome: "Dresses, abayas and coats in your size, with the size guide at hand.",
+  },
+  // 209 Cosmetics: Velours (فيلور, "velvet"), the beauty house: its look A's plum and gold.
+  beauty: {
+    appName: "Velours",
+    shortName: "Velours",
+    primaryColor: "#6D1B3B",
+    splashColor: "#FBF7F5",
+    secondaryColor: "#B9853F",
+    template: "classic",
+    font: "Lexend",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-beauty",
+    banner: { picture: "banner-store", heading: "Your beauty house", subheading: "Skincare, makeup and fragrance, genuine and delivered across Dubai." },
+    androidPackage: "com.yallapp.demo.beauty",
+    storeTitle: "Velours Beauty",
+    shortDescription: "Genuine skincare, makeup and fragrance, with your shade and your skin type a tap away.",
+    fullDescription: `Velours is a beauty house: skincare, makeup, fragrance, body and bath, hair, gifts and ready-made routines.\n\nFind your foundation's shade, take the skin quiz and see what suits your skin, and read every product's ingredients, how to use it and its expiry before you buy. Every product is genuine.\n\n${PRIVACY_NOTE}`,
+    welcome: "Genuine skincare and makeup, with your shade and your skin type a tap away.",
   },
 };
 
