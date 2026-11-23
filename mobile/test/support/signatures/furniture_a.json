@@ -4282,30 +4282,14 @@
            "kind": "text",
            "label": "Which piece? (a sofa, a wardrobe, a table…)",
            "required": true,
-           "options": null,
-           "translations": {
-            "ar": {
-             "label": "ما القطعة؟ (كنبة، خزانة، طاولة…)"
-            },
-            "tr": {
-             "label": "Hangi parça? (kanepe, gardırop, masa…)"
-            }
-           }
+           "options": null
           },
           {
            "id": "f2",
            "kind": "text",
            "label": "Size in cm (W × D × H)",
            "required": true,
-           "options": null,
-           "translations": {
-            "ar": {
-             "label": "المقاس بالسنتيمتر (العرض × العمق × الارتفاع)"
-            },
-            "tr": {
-             "label": "Ölçü, cm (G × D × Y)"
-            }
-           }
+           "options": null
           },
           {
            "id": "f3",
@@ -4318,93 +4302,41 @@
             "Velvet",
             "Brown leather",
             "Solid wood"
-           ],
-           "translations": {
-            "ar": {
-             "label": "الخامة أو القماش",
-             "options": "بوكليه عاجي\nكتان رملي\nمخمل\nجلد بني\nخشب طبيعي"
-            },
-            "tr": {
-             "label": "Malzeme veya kumaş",
-             "options": "Fildişi bukle\nKum rengi keten\nKadife\nKahverengi deri\nMasif ahşap"
-            }
-           }
+           ]
           },
           {
            "id": "f4",
            "kind": "text",
            "label": "Colour",
            "required": false,
-           "options": null,
-           "translations": {
-            "ar": {
-             "label": "اللون"
-            },
-            "tr": {
-             "label": "Renk"
-            }
-           }
+           "options": null
           },
           {
            "id": "f5",
            "kind": "long_text",
            "label": "The details",
            "required": true,
-           "options": null,
-           "translations": {
-            "ar": {
-             "label": "التفاصيل"
-            },
-            "tr": {
-             "label": "Ayrıntılar"
-            }
-           }
+           "options": null
           },
           {
            "id": "f6",
            "kind": "text",
            "label": "Your name",
            "required": true,
-           "options": null,
-           "translations": {
-            "ar": {
-             "label": "اسمك"
-            },
-            "tr": {
-             "label": "Adınız"
-            }
-           }
+           "options": null
           },
           {
            "id": "f7",
            "kind": "phone",
            "label": "Your phone",
            "required": true,
-           "options": null,
-           "translations": {
-            "ar": {
-             "label": "رقم هاتفك"
-            },
-            "tr": {
-             "label": "Telefonunuz"
-            }
-           }
+           "options": null
           }
          ],
          "submit_label": "Send my request",
          "success_text": "Thank you! We will call you within a day with the price and the time.",
          "send_to": "email",
          "request": "custom_order"
-        },
-        "translations": {
-         "ar": {
-          "submit_label": "أرسل طلبي",
-          "success_text": "شكرًا لك! سنتصل بك خلال يوم بالسعر ومدة التنفيذ."
-         },
-         "tr": {
-          "submit_label": "Talebimi gönder",
-          "success_text": "Teşekkürler! Bir gün içinde fiyat ve süreyle sizi arayacağız."
-         }
         },
         "color": "#241D17",
         "dark_color": "#F4EEE7",

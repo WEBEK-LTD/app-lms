@@ -517,6 +517,8 @@ function kanafHome(ctx: SectionContext): StudioPage {
         kitHead(ctx, l, "fuLove", ALL, undefined, "fuLoveKicker"),
         kitProducts(ctx, l, { word: "fuLove", sort: "popular", size: [170, 170] }),
         services(ctx, l),
+        // The delivery and assembly booking: the shop's next days and times, kept for the checkout.
+        kitDeliverySlots(ctx, l, { title: "fuSlotsTitle", text: "fuSlotsText", assembly: true }),
         kitHead(ctx, l, "fuInspo", ALL, undefined, "fuInspoKicker"),
         inspiration(ctx, l),
         kitHead(ctx, l, "fuPieces", ALL, undefined, "fuPiecesKicker"),

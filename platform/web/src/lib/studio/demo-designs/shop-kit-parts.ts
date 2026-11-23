@@ -21,7 +21,7 @@ import { clothesTabs } from "./clothes-signature";
  * - the delivery and assembly booking: the `delivery_slots` element, the
  *   shop's next delivery days and times kept for the checkout;
  * - the maker's story, the promises row, gifts with wrapping and a card,
- *   the seasons' banners, the workshops (the academy's courses), reviews.
+ *   the seasons' banners, reviews.
  *
  * A look is its ink, its tint, its face and its photos' folder (`KitLook`).
  * Nothing is made up: lists, categories, sales and prices are the shop's;
@@ -614,26 +614,14 @@ export function kitCustomCard(ctx: SectionContext, l: KitLook, o: { title: Secti
 
 /** The custom-order request: the `form` element as a custom-order request (kept as the shop's request; emailed too). */
 export function kitCustomForm(ctx: SectionContext, l: KitLook, o: { fields: readonly { kind: FormField["kind"]; label: SectionWord; required?: boolean; options?: readonly SectionWord[] }[]; submit: SectionWord; success: SectionWord }): StudioNode {
-  const t = sigTexts(ctx, { submit: o.submit, success: o.success });
-  const fields: FormField[] = o.fields.map((f, i) => {
-    const words = sigTexts(ctx, { label: f.label });
-    return {
-      id: `f${i + 1}`,
-      kind: f.kind,
-      label: words.label,
-      required: Boolean(f.required),
-      options: f.options ? f.options.map((w) => ctx.w(w)) : null,
-      translations: Object.fromEntries(
-        Object.entries(words.translations).map(([lang, tr]) => [lang, { ...(tr as Record<string, string>), ...(f.options ? { options: f.options.map((w) => sigTexts(ctx, { o: w }).translations[lang]?.o ?? ctx.w(w)).join("\n") } : {}) }]),
-      ),
-    } as FormField;
-  });
+  // The form is written in the project's main language, as the editor's forms are.
+  const t = { submit: ctx.w(o.submit), success: ctx.w(o.success) };
+  const fields: FormField[] = o.fields.map((f, i) => ({ id: `f${i + 1}`, kind: f.kind, label: ctx.w(f.label), required: Boolean(f.required), options: f.options ? f.options.map((w) => ctx.w(w)) : null }));
   return {
     id: idOf(ctx)(),
     type: "form",
     name: ctx.w("skCustomForm"),
     form: { fields, submit_label: t.submit, success_text: t.success, send_to: "email", request: "custom_order" },
-    translations: Object.fromEntries(Object.entries(t.translations).map(([lang, tr]) => [lang, { submit_label: (tr as Record<string, string>).submit ?? "", success_text: (tr as Record<string, string>).success ?? "" }])),
     color: l.k.ink,
     dark_color: l.k.darkInk,
     background: l.k.surface,
@@ -772,46 +760,6 @@ export function kitGift(ctx: SectionContext, l: KitLook, o: { title: SectionWord
   };
 }
 
-/** The workshops: the app's courses (the academy's courses system), as cards with their price. */
-export function kitCourses(ctx: SectionContext, l: KitLook, word: SectionWord): StudioNode {
-  const id = idOf(ctx);
-  return {
-    id: id(),
-    type: "items",
-    name: ctx.w(word),
-    source: "courses",
-    layout: "carousel",
-    gap: 12,
-    padding: sides(0, 16, 0, 16),
-    query: { limit: 6, category_id: null, featured: false, sort: "newest", ids: [] },
-    card: {
-      id: id(),
-      type: "column",
-      width: 250,
-      gap: 0,
-      radius: l.radius + 4,
-      background: l.k.surface,
-      dark_background: l.k.darkSurface,
-      border_color: l.k.line,
-      dark_border_color: l.k.darkLine,
-      border_width: 1,
-        children: [
-        { id: id(), type: "image", bind: "image", width: 250, height: 130, fit: "cover", background: l.tint.day, dark_background: l.tint.night },
-        {
-          id: id(),
-          type: "column",
-          gap: 4,
-          padding: sides(12, 12, 12, 12),
-          children: [
-            { id: id(), type: "text", bind: "title", max_lines: 2, color: l.k.ink, dark_color: l.k.darkInk, font: { family: l.family, size: 14.5, weight: 700 } },
-            { id: id(), type: "text", bind: "subtitle", max_lines: 1, color: l.k.muted, dark_color: l.k.darkMuted, font: { size: 12 } },
-            { id: id(), type: "text", bind: "price", max_lines: 1, color: l.k.accent, dark_color: l.k.darkAccent, font: { family: l.family, size: 14, weight: 800 } },
-          ],
-        },
-      ],
-    },
-  };
-}
 
 /** What customers say: the shop's quotes (the owner's to change) with their stars. */
 export function kitReviews(ctx: SectionContext, l: KitLook, entries: readonly { quote: SectionWord; name: SectionWord; place: SectionWord }[]): StudioNode {
@@ -1076,8 +1024,6 @@ export const SHOP_KIT_SECTIONS: readonly SectionInfo[] = [
   { id: "sk_gift", icon: "redeem", isNew: true, fits: STORE_PLAIN, make: one((ctx) => kitGift(ctx, SECTION_LOOK, { title: "skGiftTitle", line: "skGiftLine", photo: "table-setting" })) },
   // The seasons' banners.
   { id: "sk_seasons", icon: "celebration", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [kitHead(ctx, SECTION_LOOK, "skSeasons", null), kitSeasons(ctx, SECTION_LOOK, [{ photo: "brass-lantern", kicker: "skSeasonKicker1", title: "skSeasonTitle1" }, { photo: "hero-autumn", kicker: "skSeasonKicker2", title: "skSeasonTitle2" }])]) },
-  // The workshops: the app's courses.
-  { id: "sk_courses", icon: "school", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [kitHead(ctx, SECTION_LOOK, "skCourses", { word: "skSeeAll", action: screen("courses") }, "skCoursesLine"), kitCourses(ctx, SECTION_LOOK, "skCourses")]) },
 ];
 
 /** The custom-order request's fields (the owner's to change): the piece, its size, its colour, the details, the name and phone. */

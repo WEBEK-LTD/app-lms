@@ -2463,6 +2463,112 @@
        },
        {
         "id": "sig-123",
+        "type": "column",
+        "name": "Book your delivery and assembly",
+        "gap": 12,
+        "radius": 22,
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 18,
+         "start": 16
+        },
+        "margin": {
+         "top": 22,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#161B1A",
+        "border_color": "#E0E3DE",
+        "dark_border_color": "#242C2A",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-124",
+          "type": "row",
+          "gap": 12,
+          "cross": "start",
+          "children": [
+           {
+            "id": "sig-125",
+            "type": "column",
+            "width": "fill",
+            "gap": 4,
+            "children": [
+             {
+              "id": "sig-126",
+              "type": "text",
+              "text": "Book your delivery and assembly",
+              "font": {
+               "family": "IBM Plex Sans Arabic",
+               "size": 18,
+               "weight": 700,
+               "line_height": 1.2
+              },
+              "color": "#141816",
+              "dark_color": "#EBF0EE",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "احجز موعد التوصيل والتركيب"
+               },
+               "tr": {
+                "text": "Teslimat ve kurulum gününüzü seçin"
+               }
+              }
+             },
+             {
+              "id": "sig-127",
+              "type": "text",
+              "text": "The Rukn team assembles your piece and takes the boxes away, at no extra cost.",
+              "font": {
+               "size": 12.5,
+               "line_height": 1.45
+              },
+              "color": "#141816",
+              "dark_color": "#EBF0EE",
+              "max_lines": 3,
+              "opacity": 0.8,
+              "translations": {
+               "ar": {
+                "text": "فريق Rukn يركّب القطعة ويأخذ الكراتين معه، بلا رسوم إضافية."
+               },
+               "tr": {
+                "text": "Rukn ekibi parçanızı kurar ve kutuları götürür; ek ücret yok."
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-128",
+            "type": "icon",
+            "icon": "event_available",
+            "icon_size": 24,
+            "color": "#141816",
+            "dark_color": "#EBF0EE"
+           }
+          ]
+         },
+         {
+          "id": "sig-129",
+          "type": "delivery_slots",
+          "name": "Delivery days",
+          "delivery_slots": {
+           "days": 5,
+           "assembly": true
+          },
+          "color": "#141816",
+          "dark_color": "#EBF0EE",
+          "border_color": "#1D4842",
+          "dark_border_color": "#8DCBBB"
+         }
+        ]
+       },
+       {
+        "id": "sig-130",
         "type": "row",
         "name": "Inspiration from our customers",
         "cross": "end",
@@ -2475,13 +2581,13 @@
         },
         "children": [
          {
-          "id": "sig-124",
+          "id": "sig-131",
           "type": "column",
           "width": "fill",
           "gap": 3,
           "children": [
            {
-            "id": "sig-125",
+            "id": "sig-132",
             "type": "text",
             "text": "From real homes",
             "font": {
@@ -2502,7 +2608,7 @@
             }
            },
            {
-            "id": "sig-126",
+            "id": "sig-133",
             "type": "text",
             "text": "Inspiration from our customers",
             "font": {
@@ -2526,7 +2632,7 @@
           ]
          },
          {
-          "id": "sig-127",
+          "id": "sig-134",
           "type": "row",
           "name": "See all",
           "gap": 2,
@@ -2543,7 +2649,7 @@
           },
           "children": [
            {
-            "id": "sig-128",
+            "id": "sig-135",
             "type": "text",
             "text": "See all",
             "font": {
@@ -2563,7 +2669,7 @@
             }
            },
            {
-            "id": "sig-129",
+            "id": "sig-136",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 18,
@@ -2575,7 +2681,7 @@
         ]
        },
        {
-        "id": "sig-130",
+        "id": "sig-137",
         "type": "row",
         "name": "Inspiration from our customers",
         "gap": 10,
@@ -2588,7 +2694,7 @@
         },
         "children": [
          {
-          "id": "sig-131",
+          "id": "sig-138",
           "type": "photo_hero",
           "name": "A warm wooden bedroom",
           "width": 170,
@@ -2616,7 +2722,7 @@
           },
           "children": [
            {
-            "id": "sig-132",
+            "id": "sig-139",
             "type": "text",
             "text": "A warm wooden bedroom",
             "font": {
@@ -2638,7 +2744,7 @@
             }
            },
            {
-            "id": "sig-133",
+            "id": "sig-140",
             "type": "text",
             "text": "Sadu bed · oak headboard",
             "font": {
@@ -2660,7 +2766,7 @@
           ]
          },
          {
-          "id": "sig-134",
+          "id": "sig-141",
           "type": "photo_hero",
           "name": "A classic family dining room",
           "width": 170,
@@ -2688,7 +2794,7 @@
           },
           "children": [
            {
-            "id": "sig-135",
+            "id": "sig-142",
             "type": "text",
             "text": "A classic family dining room",
             "font": {
@@ -2710,7 +2816,7 @@
             }
            },
            {
-            "id": "sig-136",
+            "id": "sig-143",
             "type": "text",
             "text": "Diwan table · 8 seats",
             "font": {
@@ -2732,7 +2838,7 @@
           ]
          },
          {
-          "id": "sig-137",
+          "id": "sig-144",
           "type": "photo_hero",
           "name": "A winter terrace",
           "width": 170,
@@ -2760,7 +2866,7 @@
           },
           "children": [
            {
-            "id": "sig-138",
+            "id": "sig-145",
             "type": "text",
             "text": "A winter terrace",
             "font": {
@@ -2782,7 +2888,7 @@
             }
            },
            {
-            "id": "sig-139",
+            "id": "sig-146",
             "type": "text",
             "text": "Majlis outdoor set",
             "font": {
@@ -2806,7 +2912,7 @@
         ]
        },
        {
-        "id": "sig-140",
+        "id": "sig-147",
         "type": "row",
         "name": "Pieces worth their place",
         "cross": "end",
@@ -2819,13 +2925,13 @@
         },
         "children": [
          {
-          "id": "sig-141",
+          "id": "sig-148",
           "type": "column",
           "width": "fill",
           "gap": 3,
           "children": [
            {
-            "id": "sig-142",
+            "id": "sig-149",
             "type": "text",
             "text": "Selected",
             "font": {
@@ -2846,7 +2952,7 @@
             }
            },
            {
-            "id": "sig-143",
+            "id": "sig-150",
             "type": "text",
             "text": "Pieces worth their place",
             "font": {
@@ -2870,7 +2976,7 @@
           ]
          },
          {
-          "id": "sig-144",
+          "id": "sig-151",
           "type": "row",
           "name": "See all",
           "gap": 2,
@@ -2887,7 +2993,7 @@
           },
           "children": [
            {
-            "id": "sig-145",
+            "id": "sig-152",
             "type": "text",
             "text": "See all",
             "font": {
@@ -2907,7 +3013,7 @@
             }
            },
            {
-            "id": "sig-146",
+            "id": "sig-153",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 18,
@@ -2919,7 +3025,7 @@
         ]
        },
        {
-        "id": "sig-147",
+        "id": "sig-154",
         "type": "items",
         "name": "Pieces worth their place",
         "source": "products",
@@ -2940,19 +3046,19 @@
          "ids": []
         },
         "card": {
-         "id": "sig-148",
+         "id": "sig-155",
          "type": "column",
          "width": 170,
          "gap": 5,
          "children": [
           {
-           "id": "sig-149",
+           "id": "sig-156",
            "type": "stack",
            "width": 170,
            "height": 180,
            "children": [
             {
-             "id": "sig-150",
+             "id": "sig-157",
              "type": "image",
              "bind": "image",
              "width": 170,
@@ -2963,7 +3069,7 @@
              "dark_background": "#1E2523"
             },
             {
-             "id": "sig-151",
+             "id": "sig-158",
              "type": "text",
              "bind": "sale",
              "font": {
@@ -2987,7 +3093,7 @@
              }
             },
             {
-             "id": "sig-152",
+             "id": "sig-159",
              "type": "row",
              "name": "Add",
              "width": 34,
@@ -3004,7 +3110,7 @@
              },
              "children": [
               {
-               "id": "sig-153",
+               "id": "sig-160",
                "type": "icon",
                "icon": "add",
                "icon_size": 20,
@@ -3016,7 +3122,7 @@
            ]
           },
           {
-           "id": "sig-154",
+           "id": "sig-161",
            "type": "text",
            "bind": "title",
            "max_lines": 1,
@@ -3029,7 +3135,7 @@
            }
           },
           {
-           "id": "sig-155",
+           "id": "sig-162",
            "type": "text",
            "bind": "subtitle",
            "max_lines": 1,
@@ -3040,13 +3146,13 @@
            }
           },
           {
-           "id": "sig-156",
+           "id": "sig-163",
            "type": "row",
            "gap": 6,
            "cross": "center",
            "children": [
             {
-             "id": "sig-157",
+             "id": "sig-164",
              "type": "text",
              "bind": "price",
              "max_lines": 1,
@@ -3059,7 +3165,7 @@
              }
             },
             {
-             "id": "sig-158",
+             "id": "sig-165",
              "type": "text",
              "bind": "was_price",
              "max_lines": 1,
@@ -3075,7 +3181,7 @@
         }
        },
        {
-        "id": "sig-159",
+        "id": "sig-166",
         "type": "row",
         "name": "[Your customers' rating]",
         "gap": 14,
@@ -3097,7 +3203,7 @@
         "dark_background": "#1E2523",
         "children": [
          {
-          "id": "sig-160",
+          "id": "sig-167",
           "type": "text",
           "text": "4.8",
           "font": {
@@ -3119,13 +3225,13 @@
           }
          },
          {
-          "id": "sig-161",
+          "id": "sig-168",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-162",
+            "id": "sig-169",
             "type": "text",
             "text": "From more than 2,400 verified ratings",
             "font": {
@@ -3145,7 +3251,7 @@
             }
            },
            {
-            "id": "sig-163",
+            "id": "sig-170",
             "type": "text",
             "text": "“The assembly was quick and the team very professional.” Lama, Riyadh",
             "font": {
@@ -3165,12 +3271,12 @@
             }
            },
            {
-            "id": "sig-164",
+            "id": "sig-171",
             "type": "row",
             "gap": 2,
             "children": [
              {
-              "id": "sig-165",
+              "id": "sig-172",
               "type": "icon",
               "icon": "star",
               "icon_size": 15,
@@ -3178,7 +3284,7 @@
               "dark_color": "#96D4C4"
              },
              {
-              "id": "sig-166",
+              "id": "sig-173",
               "type": "icon",
               "icon": "star",
               "icon_size": 15,
@@ -3186,7 +3292,7 @@
               "dark_color": "#96D4C4"
              },
              {
-              "id": "sig-167",
+              "id": "sig-174",
               "type": "icon",
               "icon": "star",
               "icon_size": 15,
@@ -3194,7 +3300,7 @@
               "dark_color": "#96D4C4"
              },
              {
-              "id": "sig-168",
+              "id": "sig-175",
               "type": "icon",
               "icon": "star",
               "icon_size": 15,
@@ -3202,7 +3308,7 @@
               "dark_color": "#96D4C4"
              },
              {
-              "id": "sig-169",
+              "id": "sig-176",
               "type": "icon",
               "icon": "star",
               "icon_size": 15,
@@ -3216,7 +3322,7 @@
         ]
        },
        {
-        "id": "sig-170",
+        "id": "sig-177",
         "type": "column",
         "name": "[Your showroom and its district]",
         "gap": 0,
@@ -3234,7 +3340,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "sig-171",
+          "id": "sig-178",
           "type": "map",
           "name": "[Your showroom and its district]",
           "map": {
@@ -3245,7 +3351,7 @@
           "height": 140
          },
          {
-          "id": "sig-172",
+          "id": "sig-179",
           "type": "row",
           "gap": 12,
           "cross": "center",
@@ -3257,13 +3363,13 @@
           },
           "children": [
            {
-            "id": "sig-173",
+            "id": "sig-180",
             "type": "column",
             "width": "fill",
             "gap": 3,
             "children": [
              {
-              "id": "sig-174",
+              "id": "sig-181",
               "type": "text",
               "text": "Rukn showroom, Al Yasmin, Riyadh",
               "font": {
@@ -3283,7 +3389,7 @@
               }
              },
              {
-              "id": "sig-175",
+              "id": "sig-182",
               "type": "text",
               "text": "Open today until 11 pm",
               "font": {
@@ -3304,7 +3410,7 @@
             ]
            },
            {
-            "id": "sig-176",
+            "id": "sig-183",
             "type": "button",
             "name": "Directions",
             "text": "Directions",
@@ -3364,11 +3470,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-214",
+      "id": "sig-221",
       "type": "column",
       "children": [
        {
-        "id": "sig-215",
+        "id": "sig-222",
         "type": "categories",
         "name": "Categories",
         "source": "products",
@@ -3380,7 +3486,7 @@
         }
        },
        {
-        "id": "sig-216",
+        "id": "sig-223",
         "type": "photo_hero",
         "name": "Sofas and armchairs for long evenings",
         "image_url": "http://localhost:3000/furniture-photos/hero-garden.jpg",
@@ -3407,7 +3513,7 @@
         },
         "children": [
          {
-          "id": "sig-217",
+          "id": "sig-224",
           "type": "text",
           "text": "The winter collection",
           "font": {
@@ -3429,7 +3535,7 @@
           }
          },
          {
-          "id": "sig-218",
+          "id": "sig-225",
           "type": "text",
           "text": "Sofas and armchairs for long evenings",
           "font": {
@@ -3457,7 +3563,7 @@
           }
          },
          {
-          "id": "sig-219",
+          "id": "sig-226",
           "type": "button",
           "name": "Shop now",
           "text": "Shop now",
@@ -3554,11 +3660,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-220",
+      "id": "sig-227",
       "type": "column",
       "children": [
        {
-        "id": "sig-221",
+        "id": "sig-228",
         "type": "coupon",
         "name": "Your code",
         "code": "RUKN10",
@@ -3576,7 +3682,7 @@
         }
        },
        {
-        "id": "sig-222",
+        "id": "sig-229",
         "type": "row",
         "name": "Pick the day and the time of delivery and assembly at checkout.",
         "gap": 12,
@@ -3598,7 +3704,7 @@
         "dark_background": "#1E2523",
         "children": [
          {
-          "id": "sig-223",
+          "id": "sig-230",
           "type": "icon",
           "icon": "event_available",
           "icon_size": 22,
@@ -3606,7 +3712,7 @@
           "dark_color": "#EBF0EE"
          },
          {
-          "id": "sig-224",
+          "id": "sig-231",
           "type": "text",
           "text": "Pick the day and the time of delivery and assembly at checkout.",
           "font": {
@@ -3672,11 +3778,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-225",
+      "id": "sig-232",
       "type": "column",
       "children": [
        {
-        "id": "sig-226",
+        "id": "sig-233",
         "type": "row",
         "name": "Your order's journey",
         "cross": "end",
@@ -3689,13 +3795,13 @@
         },
         "children": [
          {
-          "id": "sig-227",
+          "id": "sig-234",
           "type": "column",
           "width": "fill",
           "gap": 3,
           "children": [
            {
-            "id": "sig-228",
+            "id": "sig-235",
             "type": "text",
             "text": "Your order's journey",
             "font": {
@@ -3721,7 +3827,7 @@
         ]
        },
        {
-        "id": "sig-229",
+        "id": "sig-236",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -3851,11 +3957,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-231",
+      "id": "sig-238",
       "type": "column",
       "children": [
        {
-        "id": "sig-230",
+        "id": "sig-237",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -3916,7 +4022,7 @@
      "background": "#F1F2EF",
      "dark_background": "#0D1110",
      "body": {
-      "id": "sig-177",
+      "id": "sig-184",
       "type": "column",
       "padding": {
        "top": 0,
@@ -3926,7 +4032,7 @@
       },
       "children": [
        {
-        "id": "sig-178",
+        "id": "sig-185",
         "type": "search",
         "name": "Search every category…",
         "text": "Search every category…",
@@ -3956,7 +4062,7 @@
         }
        },
        {
-        "id": "sig-179",
+        "id": "sig-186",
         "type": "row",
         "name": "Quick links",
         "gap": 8,
@@ -3969,7 +4075,7 @@
         },
         "children": [
          {
-          "id": "sig-180",
+          "id": "sig-187",
           "type": "row",
           "name": "Offers",
           "height": 42,
@@ -3990,7 +4096,7 @@
           "dark_background": "#8DCBBB",
           "children": [
            {
-            "id": "sig-181",
+            "id": "sig-188",
             "type": "icon",
             "icon": "local_offer",
             "icon_size": 18,
@@ -3998,7 +4104,7 @@
             "dark_color": "#0C221E"
            },
            {
-            "id": "sig-182",
+            "id": "sig-189",
             "type": "text",
             "text": "Offers",
             "max_lines": 1,
@@ -4020,7 +4126,7 @@
           ]
          },
          {
-          "id": "sig-183",
+          "id": "sig-190",
           "type": "row",
           "name": "New in",
           "height": 42,
@@ -4044,7 +4150,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-184",
+            "id": "sig-191",
             "type": "icon",
             "icon": "new_releases",
             "icon_size": 18,
@@ -4052,7 +4158,7 @@
             "dark_color": "#EBF0EE"
            },
            {
-            "id": "sig-185",
+            "id": "sig-192",
             "type": "text",
             "text": "New in",
             "max_lines": 1,
@@ -4074,7 +4180,7 @@
           ]
          },
          {
-          "id": "sig-186",
+          "id": "sig-193",
           "type": "row",
           "name": "Sets",
           "height": 42,
@@ -4098,7 +4204,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-187",
+            "id": "sig-194",
             "type": "icon",
             "icon": "category",
             "icon_size": 18,
@@ -4106,7 +4212,7 @@
             "dark_color": "#EBF0EE"
            },
            {
-            "id": "sig-188",
+            "id": "sig-195",
             "type": "text",
             "text": "Sets",
             "max_lines": 1,
@@ -4130,7 +4236,7 @@
         ]
        },
        {
-        "id": "sig-189",
+        "id": "sig-196",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -4149,7 +4255,7 @@
         }
        },
        {
-        "id": "sig-190",
+        "id": "sig-197",
         "type": "divider",
         "height": 1,
         "background": "#E0E3DE",
@@ -4162,7 +4268,7 @@
         }
        },
        {
-        "id": "sig-191",
+        "id": "sig-198",
         "type": "row",
         "name": "Your account",
         "gap": 8,
@@ -4174,7 +4280,7 @@
         },
         "children": [
          {
-          "id": "sig-192",
+          "id": "sig-199",
           "type": "column",
           "name": "Account",
           "width": "fill",
@@ -4198,7 +4304,7 @@
           },
           "children": [
            {
-            "id": "sig-193",
+            "id": "sig-200",
             "type": "icon",
             "icon": "person",
             "icon_size": 22,
@@ -4206,7 +4312,7 @@
             "dark_color": "#EBF0EE"
            },
            {
-            "id": "sig-194",
+            "id": "sig-201",
             "type": "text",
             "text": "Account",
             "max_lines": 1,
@@ -4229,7 +4335,7 @@
           ]
          },
          {
-          "id": "sig-195",
+          "id": "sig-202",
           "type": "column",
           "name": "Orders",
           "width": "fill",
@@ -4253,7 +4359,7 @@
           },
           "children": [
            {
-            "id": "sig-196",
+            "id": "sig-203",
             "type": "icon",
             "icon": "package_2",
             "icon_size": 22,
@@ -4261,7 +4367,7 @@
             "dark_color": "#EBF0EE"
            },
            {
-            "id": "sig-197",
+            "id": "sig-204",
             "type": "text",
             "text": "Orders",
             "max_lines": 1,
@@ -4284,7 +4390,7 @@
           ]
          },
          {
-          "id": "sig-198",
+          "id": "sig-205",
           "type": "column",
           "name": "Language",
           "width": "fill",
@@ -4308,7 +4414,7 @@
           },
           "children": [
            {
-            "id": "sig-199",
+            "id": "sig-206",
             "type": "icon",
             "icon": "language",
             "icon_size": 22,
@@ -4316,7 +4422,7 @@
             "dark_color": "#EBF0EE"
            },
            {
-            "id": "sig-200",
+            "id": "sig-207",
             "type": "text",
             "text": "Language",
             "max_lines": 1,
@@ -4341,7 +4447,7 @@
         ]
        },
        {
-        "id": "sig-201",
+        "id": "sig-208",
         "type": "row",
         "name": "Contact us",
         "gap": 12,
@@ -4367,7 +4473,7 @@
         },
         "children": [
          {
-          "id": "sig-202",
+          "id": "sig-209",
           "type": "icon",
           "icon": "support_agent",
           "icon_size": 22,
@@ -4375,13 +4481,13 @@
           "dark_color": "#EBF0EE"
          },
          {
-          "id": "sig-203",
+          "id": "sig-210",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-204",
+            "id": "sig-211",
             "type": "text",
             "text": "Contact us",
             "font": {
@@ -4400,7 +4506,7 @@
             }
            },
            {
-            "id": "sig-205",
+            "id": "sig-212",
             "type": "text",
             "text": "Customer care every day, 9 am to 11 pm",
             "font": {
@@ -4421,7 +4527,7 @@
           ]
          },
          {
-          "id": "sig-206",
+          "id": "sig-213",
           "type": "icon",
           "icon": "chat",
           "icon_size": 20,
@@ -4472,7 +4578,7 @@
      "background": "#F1F2EF",
      "dark_background": "#0D1110",
      "body": {
-      "id": "sig-207",
+      "id": "sig-214",
       "type": "column",
       "padding": {
        "top": 0,
@@ -4482,7 +4588,7 @@
       },
       "children": [
        {
-        "id": "sig-208",
+        "id": "sig-215",
         "type": "text",
         "text": "A sofa for your corner, a wardrobe for your wall or a table for your family: tell us the size and the fabric, and our workshop makes it for you.",
         "font": {
@@ -4507,7 +4613,7 @@
         }
        },
        {
-        "id": "sig-209",
+        "id": "sig-216",
         "type": "timeline",
         "name": "How it works",
         "timeline": {
@@ -4591,7 +4697,7 @@
         ]
        },
        {
-        "id": "sig-210",
+        "id": "sig-217",
         "type": "row",
         "name": "Your custom order",
         "cross": "end",
@@ -4604,13 +4710,13 @@
         },
         "children": [
          {
-          "id": "sig-211",
+          "id": "sig-218",
           "type": "column",
           "width": "fill",
           "gap": 3,
           "children": [
            {
-            "id": "sig-212",
+            "id": "sig-219",
             "type": "text",
             "text": "Your custom order",
             "font": {
@@ -4636,7 +4742,7 @@
         ]
        },
        {
-        "id": "sig-213",
+        "id": "sig-220",
         "type": "form",
         "name": "Your custom order",
         "form": {
@@ -4646,30 +4752,14 @@
            "kind": "text",
            "label": "Which piece? (a sofa, a wardrobe, a table…)",
            "required": true,
-           "options": null,
-           "translations": {
-            "ar": {
-             "label": "ما القطعة؟ (كنبة، خزانة، طاولة…)"
-            },
-            "tr": {
-             "label": "Hangi parça? (kanepe, gardırop, masa…)"
-            }
-           }
+           "options": null
           },
           {
            "id": "f2",
            "kind": "text",
            "label": "Size in cm (W × D × H)",
            "required": true,
-           "options": null,
-           "translations": {
-            "ar": {
-             "label": "المقاس بالسنتيمتر (العرض × العمق × الارتفاع)"
-            },
-            "tr": {
-             "label": "Ölçü, cm (G × D × Y)"
-            }
-           }
+           "options": null
           },
           {
            "id": "f3",
@@ -4682,93 +4772,41 @@
             "Velvet",
             "Brown leather",
             "Solid wood"
-           ],
-           "translations": {
-            "ar": {
-             "label": "الخامة أو القماش",
-             "options": "بوكليه عاجي\nكتان رملي\nمخمل\nجلد بني\nخشب طبيعي"
-            },
-            "tr": {
-             "label": "Malzeme veya kumaş",
-             "options": "Fildişi bukle\nKum rengi keten\nKadife\nKahverengi deri\nMasif ahşap"
-            }
-           }
+           ]
           },
           {
            "id": "f4",
            "kind": "text",
            "label": "Colour",
            "required": false,
-           "options": null,
-           "translations": {
-            "ar": {
-             "label": "اللون"
-            },
-            "tr": {
-             "label": "Renk"
-            }
-           }
+           "options": null
           },
           {
            "id": "f5",
            "kind": "long_text",
            "label": "The details",
            "required": true,
-           "options": null,
-           "translations": {
-            "ar": {
-             "label": "التفاصيل"
-            },
-            "tr": {
-             "label": "Ayrıntılar"
-            }
-           }
+           "options": null
           },
           {
            "id": "f6",
            "kind": "text",
            "label": "Your name",
            "required": true,
-           "options": null,
-           "translations": {
-            "ar": {
-             "label": "اسمك"
-            },
-            "tr": {
-             "label": "Adınız"
-            }
-           }
+           "options": null
           },
           {
            "id": "f7",
            "kind": "phone",
            "label": "Your phone",
            "required": true,
-           "options": null,
-           "translations": {
-            "ar": {
-             "label": "رقم هاتفك"
-            },
-            "tr": {
-             "label": "Telefonunuz"
-            }
-           }
+           "options": null
           }
          ],
          "submit_label": "Send my request",
          "success_text": "Thank you! We will call you within a day with the price and the time.",
          "send_to": "email",
          "request": "custom_order"
-        },
-        "translations": {
-         "ar": {
-          "submit_label": "أرسل طلبي",
-          "success_text": "شكرًا لك! سنتصل بك خلال يوم بالسعر ومدة التنفيذ."
-         },
-         "tr": {
-          "submit_label": "Talebimi gönder",
-          "success_text": "Teşekkürler! Bir gün içinde fiyat ve süreyle sizi arayacağız."
-         }
         },
         "color": "#141816",
         "dark_color": "#EBF0EE",
@@ -4831,7 +4869,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-232",
+      "id": "sig-239",
       "type": "column",
       "children": []
      },
@@ -4873,7 +4911,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-233",
+      "id": "sig-240",
       "type": "column",
       "children": []
      },
@@ -4915,7 +4953,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-234",
+      "id": "sig-241",
       "type": "column",
       "children": []
      },
@@ -4957,7 +4995,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-235",
+      "id": "sig-242",
       "type": "column",
       "children": []
      },
@@ -4991,7 +5029,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-236",
+      "id": "sig-243",
       "type": "column",
       "children": []
      },
@@ -5008,7 +5046,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-237",
+      "id": "sig-244",
       "type": "column",
       "children": []
      },
