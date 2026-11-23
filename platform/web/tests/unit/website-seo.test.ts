@@ -60,6 +60,7 @@ describe("32 the website's menu", () => {
       "/yallapp-studio/clothes",
       "/yallapp-studio/beauty",
       "/yallapp-studio/kids",
+      "/yallapp-studio/toys",
       "/demo/studio",
       // 106.13 Studio Market's public page.
       "/templates",

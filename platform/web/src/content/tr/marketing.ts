@@ -154,6 +154,13 @@ export const TR_MARKETING: MarketingTranslation = {
     "kids-sig-b-home": "Toota ikinci görünümüyle, MINIMO'nun neşeli lacivert tonu: sonbahar vitrini, yaşa göre alışveriş, bu haftanın yenileri ve haftanın kombini",
     "kids-sig-a-home-dark": "Toota birinci görünümüyle, karanlık modda: arama, kategoriler, sezonun koleksiyonu, yaşa göre alışveriş ve yeniler",
     "kids-sig-b-home-dark": "Toota ikinci görünümüyle, MINIMO, karanlık modda: sonbahar vitrini, yaşa göre alışveriş, bu haftanın yenileri ve haftanın kombini",
+    // 209 Toys
+    "toot-home": "Bir oyuncak mağazası olan Toot ilk görünümüyle, neşeli ve renkli: arama, yuvarlak kategoriler, bir sonrakinin göründüğü koleksiyonlar, yaşa göre alışveriş ve önce güvenlik",
+    "toot-menu": "Toot'un kategori menüsü: her oyuncak türü kaydırılan bir kart sırası, ardından alt kategorileri, yaşlar ve doğum günü hediyeleri, altta hesap ve dil",
+    "toot-product": "Toot'ta bir oyuncak: fotoğrafları, yaşı, güvenliği ve malzemeleri, hediye paketi ve doğum günü kartı",
+    "toys-sig-b-home": "Toot ikinci görünümüyle, Mukaab, sakin ve eğitici: çocuğun yaşı, kâşifler koleksiyonu, kare kategoriler ve bilim laboratuvarı",
+    "toys-sig-a-home-dark": "Toot ilk görünümüyle, karanlık modda: arama, yuvarlak kategoriler, koleksiyonlar ve yaşa göre alışveriş",
+    "toys-sig-b-home-dark": "Toot ikinci görünümüyle, Mukaab, karanlık modda: çocuğun yaşı, kâşifler koleksiyonu, kare kategoriler ve bilim laboratuvarı",
     "studio-editor": "Yallapp Studio düzenleyicisi: solda öğeler, telefonda sayfa, sağda ayarları",
     "studio-home": "Hesabın projeleriyle Yallapp Studio ana sayfası",
     "studio-project": "Bir Studio projesinin paneli",
@@ -1855,6 +1862,15 @@ export const TR_MARKETING: MarketingTranslation = {
         "Ana sayfadaki beden bulucuda çocuğunuzun yaşını seçin, boyu, kilosu ve göğsüyle uyan bedeni görün",
         "Üstteki menüye dokunun, Kız, Erkek ve Bebek ve yenidoğan arasında kaydırın; her birinin alt kategorileri var",
         "İlk yenidoğan kutusunu açın, hediye paketi ve kart ekleyin, kartın mesajını ödemede yazın",
+      ],
+    },
+    // 209 Toys
+    toys: {
+      summary: "Dubai'de bir oyuncak mağazası: ahşap oyuncaklar, pelüşler, yapı setleri, bulmacalar, bilim setleri ve açık hava oyuncakları; her birinin yaşı, güvenliği ve malzemeleriyle, yaşa ya da türe göre, hediye paketi ve doğum günü kartıyla. Fotoğrafları StockSnap'ten, CC0.",
+      tryThis: [
+        "Ana sayfada bir yaşa ya da üstteki menüye dokunun ve kategoriler arasında kaydırın: oyuncak türüne göre, yaşa göre ve doğum günü hediyeleri",
+        "Hediye bulucunun üç sorusunu yanıtlayın, bir oyuncak açın ve yaşını, güvenliğini ve malzemelerini okuyun",
+        "Sepette hediye paketi ve kart ekleyin, ödemede kartın mesajını mağazanın koduyla yazın, sonra siparişinizi Siparişler'de izleyin",
       ],
     },
   },

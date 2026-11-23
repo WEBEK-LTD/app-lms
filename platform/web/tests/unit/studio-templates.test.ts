@@ -22,7 +22,7 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     expect(templatesFor(kindOf("taxi"))[0]!.id).toBe("demo_taxi");
     // 131.20 A store has no demo of its own kind; Leqaa's two looks (the flower shop's, a template's demo) come first.
     // 208 Then Lujain's, the clothes shop's.
-    expect(templatesFor(kindOf("store")).filter((t) => t.demo).map((t) => t.id)).toEqual(["flowers_signature_a", "flowers_signature_b", "clothes_signature_a", "clothes_signature_b", "beauty_signature_a", "beauty_signature_b", "kids_signature_a", "kids_signature_b"]);
+    expect(templatesFor(kindOf("store")).filter((t) => t.demo).map((t) => t.id)).toEqual(["flowers_signature_a", "flowers_signature_b", "clothes_signature_a", "clothes_signature_b", "beauty_signature_a", "beauty_signature_b", "kids_signature_a", "kids_signature_b", "toys_signature_a", "toys_signature_b"]);
     expect(templatesFor(kindOf("restaurant")).some((t) => t.demo)).toBe(false);
     // 112.4 A store's three.
     expect(ownTemplates(kindOf("store")).map((t) => t.id)).toEqual(["shop", "shop_deals", "shop_looks", "brand", "contact", "blank"]);

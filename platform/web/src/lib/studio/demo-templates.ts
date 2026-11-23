@@ -54,6 +54,9 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   beauty: "beauty_signature_a",
   // 209 Kids' clothes: Toota is its Signature look A, soft pastels (lib/studio/demo-designs/kids-signature.ts).
   kids: "kids_signature_a",
+  // 209 Toys
+  // 209 Toot, the toy shop, is its Signature look A, playful and colourful (lib/studio/demo-designs/toys-signature.ts).
+  toys: "toys_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -120,6 +123,9 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   beauty: { surface: "#FFFFFF", nightSurface: "#1E1A1C", line: "#EFE3DF", nightLine: "#2E2629", muted: "#6F5F63", nightMuted: "#C7B9BD" },
   // 209 Kids' clothes: Toota's, its look A's (lib/studio/demo-designs/kids-signature.ts TOOTA_INK).
   kids: { surface: "#FFFDF9", nightSurface: "#1F1916", line: "#EADFD3", nightLine: "#30271F", muted: "#6B5D55", nightMuted: "#C7B9AF" },
+  // 209 Toys
+  // 209 Toot's, its look A's (lib/studio/demo-designs/toys-signature.ts TOOT_INK).
+  toys: { surface: "#FFFCF7", nightSurface: "#1E1A1D", line: "#E9E0D3", nightLine: "#2E282B", muted: "#685D57", nightMuted: "#BCB2AD" },
 };
 
 /**
@@ -234,7 +240,7 @@ export function translating(ctx: SectionContext): { ctx: SectionContext; transla
 
 /** The demos' own templates; 123 the premium academy is a template already (lib/studio/sections.ts academy_premium). */
 /** 131.20 Leqaa (a template's demo, as the premium academy) has none: its looks are a store's first templates. */
-/** 208 Nor the shop types' demos (Lujain): their looks are a store's first templates too. */
+/** 208 Nor the shop types' demos (Lujain; 209 Toot): their looks are a store's first templates too. */
 export const DEMO_ICONS: Record<Exclude<StudioDemoId, "premium_academy" | "flowers" | ShopTypeDemo>, string> = {
   delivery: "local_shipping",
   food: "delivery_dining",
@@ -340,6 +346,17 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     kdExchangeNote: { en: "Free exchange within 30 days if the size isn't right.", ar: "استبدال مجاني خلال 30 يومًا إن لم يناسب المقاس.", tr: "Beden uymazsa 30 gün içinde ücretsiz değişim." },
     kdGiftNote: { en: "A newborn gift? Add gift wrapping and a card, and write its message at checkout.", ar: "هدية لمولود؟ أضيفي التغليف وبطاقة، واكتبي رسالتها عند الدفع.", tr: "Yenidoğan hediyesi mi? Hediye paketi ve kart ekleyin, mesajını ödemede yazın." },
   },
+  // 209 Toys
+  // 209 Toot's own words where its looks leave the owner brackets: its wraps, its newborn box, its returns and its offer (lib/demo/toys.ts).
+  toys: {
+    tyWrapBLine: { en: "A black box with a gold ribbon and a card, from 15 AED", ar: "صندوق أسود بشريط ذهبي وبطاقة، من 15 د.إ", tr: "Altın kurdeleli siyah kutu ve kart, 15 AED'den" },
+    tyBoxPrice: { en: "399 AED", ar: "399 د.إ", tr: "399 AED" },
+    tyStat4: { en: "30", ar: "30", tr: "30" },
+    tyStat4Text: { en: "Days to return a toy for free, picked up from your door", ar: "يومًا لإرجاع اللعبة مجانًا من باب بيتك", tr: "Oyuncağı ücretsiz iade için gün, kapınızdan alınır" },
+    tyContactLine: { en: "Every day, 9 am to 10 pm", ar: "يوميًا من 9 صباحًا إلى 10 مساءً", tr: "Her gün 09.00–22.00" },
+    tyEditTitle: { en: "Free delivery over 200 AED", ar: "توصيل مجاني فوق 200 د.إ", tr: "200 AED üzeri ücretsiz teslimat" },
+    tyCartNote: { en: "Gift wrapping and a card in the cart · Free returns within 30 days", ar: "التغليف والبطاقة من السلة · إرجاع مجاني خلال 30 يومًا", tr: "Hediye paketi ve kart sepette · 30 gün içinde ücretsiz iade" },
+  },
   // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
   travel: {
     sigStayOne: { en: "Safra Caldera Suites", ar: "Safra Caldera Suites", tr: "Safra Caldera Suites" },
@@ -397,5 +414,5 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
 }
 
 /** 131.20 The demos whose words carry the app's name, by that name (the demo app's). */
-// 209 Kids' clothes and cosmetics: Toota's and Velours' too.
-const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", kids: "Toota", beauty: "Velours" };
+// 209 Kids' clothes and cosmetics: Toota's, Velours' and Toot's too.
+const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", kids: "Toota", beauty: "Velours", toys: "Toot" };

@@ -59,6 +59,9 @@ export const en = {
     // 209 Kids' clothes
     storyKids: "Kids' clothes shop app",
     storyKidsText: "Sizes by age, newborn gifts and ready sets",
+    // 209 Toys
+    storyToys: "Toy shop app",
+    storyToysText: "Shop by age, safety and materials, birthday gifts with a card",
     studioDemo: "Studio demo",
     studioDemoText: "Try Studio's apps on your phone",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -831,6 +834,9 @@ export const en = {
       // 209 Kids' clothes
       kids_a: { name: "TOOTA, soft pastels", text: "The whole kids' clothes shop in soft pastels: the small header whose menu opens the category menu, the search, the categories in circles, the hero carousel with the next card peeking, shopping by age in pastel tiles, what's new, girls, boys and baby, the gift sets, school and occasions, the weekend's deals, the size finder by age, the most loved and the promises; the category menu, the size guide, the shop, the cart and orders in cream and terracotta, with a warm cocoa night." },
       kids_b: { name: "MINIMO, playful navy", text: "The whole kids' clothes shop in playful navy, its sections numbered: the category chips, the autumn hero, shopping by age in a grid, new this week, the look of the week with numbered spots, who you're shopping for, the newborn box, little gifts under a price, the occasions, the weekend's deals and the size finder; every page, the bar, the account, the shop, the cart and orders in the look, with a blue-black night." },
+      // 209 Toys
+      toys_a: { name: "TOOT, playful", text: "The whole toy shop, playful and colourful: plum and gold on cream, the small header whose menu opens the category menu, the search, the categories in circles, the hero carousel with the next card peeking, shop by age, safety first, what's new, the toy of the day, the perfect gift in 3 steps with the wraps, the most loved, gifts under 100, learn through play and the parents' guide; every page, the floating bar and the account." },
+      toys_b: { name: "MUKAAB, Montessori", text: "The whole toy shop, calm and educational: one clear blue on grey, your child's age under the search, the explorers' collection, the categories as tiles, the science lab, trending now, the toy of the day, the birthday gift assistant, the top rated, gifts under 200, the newborn box and the safety promises; the category menu, every page, the floating bar and the account." },
     },
   },
   meta: {

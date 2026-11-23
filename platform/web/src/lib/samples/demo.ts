@@ -12,6 +12,8 @@ import { clothesPartsForSamples, demoClothesProducts } from "../demo/clothes-ent
 import { demoBeautyProducts } from "../demo/beauty-entries";
 // 209 Kids' clothes
 import { demoKidsProducts, kidsPartsForSamples } from "../demo/kids-entries";
+// 209 Toys
+import { demoToysProducts, toysPartsForSamples } from "../demo/toys-entries";
 import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
 import { marketCuisines, marketplaceSamples, savingZadPictures } from "../demo/marketplace";
 import { savePicture } from "../demo/picture-assets";
@@ -118,6 +120,9 @@ const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   beauty: { products: async (m) => (await demoBeautyProducts(m.entries, m.app), true) },
   // 209 Kids' clothes: Toota's pieces, their categories and sub-categories, its gift add-ons, size chart and card message.
   kids: { products: async (m) => (await demoKidsProducts(m.entries, m.app), await kidsPartsForSamples(m.entries, m.app), true) },
+  // 209 Toys
+  // 209 Toot's toys, their ages and categories, the wraps and the card; the birthday card's message at checkout.
+  toys: { products: async (m) => (await demoToysProducts(m.entries, m.app), await toysPartsForSamples(m.entries, m.app), true) },
   restaurant: { products: products(true) },
   booking: { services: bookings("salon") },
   clinic: { services: bookings("clinic") },

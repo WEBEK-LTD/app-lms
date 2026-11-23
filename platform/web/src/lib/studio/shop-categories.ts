@@ -43,12 +43,20 @@ export interface ShopCategory {
 export interface ShopCategories {
   list: readonly ShopCategory[];
   own: boolean;
-  /** 209 The sub-categories, for the elements named like one (a skin quiz's result, a brand's mark) only; never a list's entries. */
+  /** 209 The sub-categories, for the elements named like one (a skin quiz's result, a brand's mark, Toot's ages) only; never a list's entries; missing: `list` only. */
   subs?: readonly ShopCategory[];
 }
 
 /** The words the templates write as the shop's categories: Leqaa's occasions and collections. */
 export const TEMPLATE_CATEGORY_WORDS = ["lqLove", "lqBirthday", "lqSympathy", "lqNewBaby", "lqCongrats", "lqSignature", "lqRoses", "lqSeasonal", "lqPlants", "lqGiftSets", "lqTulips"] as const satisfies readonly AppWord[];
+/**
+ * 209 Words the templates write as the name of one of the demo's
+ * categories that open it in any of Studio's languages (Toot's ages: a
+ * tile, a chip, a gift finder's result; its birthday gifts, gift boxes,
+ * science and play tents), never a list the owner's categories replace
+ * (lib/studio/demo-designs/toys-signature.ts).
+ */
+export const TEMPLATE_CATEGORY_LINK_WORDS = ["tyAge0", "tyAge1", "tyAge3", "tyAge6", "tyAge9", "tyByAge", "tyBirthday", "tyGiftBoxes", "tyStem", "tyPlayTents"] as const satisfies readonly AppWord[];
 /** A ticker of the occasions' words (Leqaa's), one per line. */
 export const TEMPLATE_CATEGORY_TICKERS = ["lqTicker"] as const satisfies readonly AppWord[];
 
@@ -64,6 +72,8 @@ const LANGS = Object.keys(APP_WORDS) as (keyof typeof APP_WORDS)[];
 
 /** Each of the words in every language, to the word. */
 const WORD_OF = new Map<string, AppWord>(TEMPLATE_CATEGORY_WORDS.flatMap((word) => LANGS.map((lang) => [norm(APP_WORDS[lang][word]), word] as const)));
+// 209 And the words that only link (Toot's ages).
+const LINK_WORD_OF = new Map<string, AppWord>(TEMPLATE_CATEGORY_LINK_WORDS.flatMap((word) => LANGS.map((lang) => [norm(APP_WORDS[lang][word]), word] as const)));
 const TICKERS = new Set(TEMPLATE_CATEGORY_TICKERS.flatMap((word) => LANGS.map((lang) => norm(APP_WORDS[lang][word]))));
 
 /** The template's category word a text is, in any of its languages; null for any other text. */
@@ -134,7 +144,7 @@ export function namesakeOf(text: string | null | undefined, list: readonly ShopC
   if (typeof text !== "string" || !text.trim()) return null;
   const own = list.find((c) => norm(c.name) === norm(text));
   if (own) return own;
-  const word = categoryWordOf(text);
+  const word = categoryWordOf(text) ?? (typeof text === "string" ? (LINK_WORD_OF.get(norm(text)) ?? null) : null);
   if (!word) return null;
   const names = new Set(LANGS.map((lang) => norm(APP_WORDS[lang][word])));
   return list.find((c) => names.has(norm(c.name))) ?? null;
@@ -284,7 +294,7 @@ export function showsShopCategories(body: StudioNode): boolean {
 export function withShopCategoriesIn(body: StudioNode, shop: ShopCategories | null): StudioNode {
   if (!shop) return body;
   const lists = mapTree(body, (n) => withShopCategories(n, shop)) ?? body;
-  // 209 An element named like a sub-category (a skin type, a brand) opens it too.
+  // 209 An element named like a sub-category (a skin type, a brand, an age) opens it too.
   const named = shop.subs?.length ? [...shop.list, ...shop.subs] : shop.list;
   return mapTree(lists, (n) => (n.hidden ? n : withCategoryLinks(n, named))) ?? lists;
 }

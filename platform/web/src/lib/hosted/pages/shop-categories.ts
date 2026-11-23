@@ -28,7 +28,7 @@ export async function readShopCategories(
     const shown = (rows: Record<string, unknown>[]): ShopCategory[] =>
       rows.map((c) => ({ id: Number(c.id), name: typeof c.name === "string" ? c.name.trim() : "", image_url: typeof c.image_url === "string" && c.image_url ? c.image_url : null })).filter((c) => Number.isSafeInteger(c.id) && c.id > 0 && c.name !== "");
     const list = shown(listed.filter(top));
-    // 209 The sub-categories too, for the elements named like one (a skin type, a brand), never for the lists.
+    // 209 The sub-categories too, for the elements named like one (a skin type, a brand, an age), never for the lists.
     const found = shown(listed.filter((c) => !top(c)));
     // Left out when there are none, so a shop without sub-categories reads as before.
     const subs = found.length ? { subs: found } : {};

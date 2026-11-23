@@ -32,6 +32,9 @@ import { LUJAIN_A, NOUN_B } from "./clothes-signature";
 import { VELOURS_A, NAQA_B } from "./beauty-signature";
 // 209 Kids' clothes: Toota, A TOOTA soft pastels, B MINIMO playful navy.
 import { MINIMO_B, TOOTA_A } from "./kids-signature";
+// 209 Toys
+// 209 Toot, the toy shop: A Toot playful and colourful, B Mukaab calm and educational.
+import { MUKAAB_B, TOOT_A } from "./toys-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -173,6 +176,9 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   beauty: { a: VELOURS_A, b: NAQA_B },
   // 209 Kids' clothes: Toota (a store): A TOOTA's soft pastels, B MINIMO's playful navy.
   kids: { a: TOOTA_A, b: MINIMO_B },
+  // 209 Toys
+  // 209 Toot, the toy shop (a store): A Toot, playful and colourful; B Mukaab, calm and educational.
+  toys: { a: TOOT_A, b: MUKAAB_B },
 };
 
 /** A look with its demo's own tabs when it has none of its own. */

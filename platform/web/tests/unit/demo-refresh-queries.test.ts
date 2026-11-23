@@ -35,8 +35,8 @@ function deps(store: MemoryStore, now: Date = NOW): DemoSetupDeps {
 }
 
 /** Store calls a demo's refresh may make: the school and the marketplace do the most (the marketplace's 55 photos, one look each); 208 Lujain's 54 photos the same way. */
-// 209 Toota's 37 photos the same way.
-const BUDGET: Partial<Record<DemoId, number>> = { school: 125, marketplace: 160, clothes: 80, beauty: 80, kids: 70 };
+// 209 Toota's 37 photos the same way, Velours' and Toot's too.
+const BUDGET: Partial<Record<DemoId, number>> = { school: 125, marketplace: 160, clothes: 80, beauty: 80, kids: 70, toys: 80 };
 
 beforeEach(() => clearPlatformSettingsCache());
 

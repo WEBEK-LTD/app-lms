@@ -54,6 +54,9 @@ export const tr: Messages = {
     // 209 Kids' clothes
     storyKids: "Çocuk giyim mağazası uygulaması",
     storyKidsText: "Yaşa göre bedenler, yenidoğan hediyeleri ve hazır takımlar",
+    // 209 Toys
+    storyToys: "Oyuncak mağazası uygulaması",
+    storyToysText: "Yaşa göre alışveriş, güvenlik ve malzemeler, kartlı doğum günü hediyeleri",
     studioDemo: "Studio demosu",
     studioDemoText: "Studio uygulamalarını telefonunda dene",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -810,6 +813,9 @@ export const tr: Messages = {
       // 209 Kids' clothes
       kids_a: { name: "TOOTA, yumuşak pasteller", text: "Yumuşak pastellerle tüm çocuk giyim mağazası: menüsü kategori menüsünü açan küçük başlık, arama, yuvarlak kategoriler, sonraki kartı görünen vitrin, pastel kutularda yaşa göre alışveriş, yeni gelenler, kızlar, erkekler ve bebekler, hediye setleri, okul ve özel günler, hafta sonu fırsatları, yaşa göre beden bulucu, en sevilenler ve sözler; kategori menüsü, beden rehberi, mağaza, sepet ve siparişler krem ve kiremit tonlarında, sıcak kakao rengi bir gece moduyla." },
       kids_b: { name: "MINIMO, neşeli lacivert", text: "Neşeli lacivertle, bölümleri numaralı tüm çocuk giyim mağazası: kategori çipleri, sonbahar vitrini, ızgarada yaşa göre alışveriş, bu haftanın yenileri, numaralı noktalarla haftanın kombini, kimin için alışveriş, yenidoğan kutusu, bir fiyatın altında küçük hediyeler, özel günler, hafta sonu fırsatları ve beden bulucu; her sayfa, çubuk, hesap, mağaza, sepet ve siparişler aynı görünümde, mavi-siyah bir gece moduyla." },
+      // 209 Toys
+      toys_a: { name: "TOOT, neşeli", text: "Neşeli ve renkli bütün oyuncak mağazası: krem üstünde mürdüm ve altın, menüsü kategori menüsünü açan küçük başlık, arama, yuvarlak kategoriler, bir sonraki kartın göründüğü vitrin, yaşa göre alışveriş, önce güvenlik, yeniler, günün oyuncağı, paketleriyle 3 adımda mükemmel hediye, en sevilenler, 100'ün altında hediyeler, oynayarak öğren ve ebeveyn rehberi; her sayfa, yüzen çubuk ve hesap." },
+      toys_b: { name: "MUKAAB, Montessori", text: "Sakin ve eğitici bütün oyuncak mağazası: gri üstünde tek bir berrak mavi, aramanın altında çocuğunuzun yaşı, kâşifler koleksiyonu, kare kategoriler, bilim laboratuvarı, şu an popüler olanlar, günün oyuncağı, doğum günü hediye asistanı, en beğenilenler, 200'ün altında hediyeler, yenidoğan kutusu ve güvenlik sözleri; kategori menüsü, her sayfa, yüzen çubuk ve hesap." },
     },
   },
   meta: {

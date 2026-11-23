@@ -193,6 +193,9 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   beauty: demoDesignBar("beauty"),
   // 209 Kids' clothes: Toota's is its look A's floating bar (lib/studio/demo-designs/kids-signature.ts).
   kids: demoDesignBar("kids"),
+  // 209 Toys
+  // 209 Toot's is its look A's floating bar (lib/studio/demo-designs/toys-signature.ts).
+  toys: demoDesignBar("toys"),
 };
 
 /** 130 A demo's bar in one of its Signature looks (its look's premium bar); without a look, the demo's own (DEMO_TAB_BARS). */

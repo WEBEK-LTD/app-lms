@@ -1,0 +1,4781 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/toys-photos/teepee.jpg",
+   "title": {
+    "en": "Welcome, let's play",
+    "ar": "أهلًا بك، هيا نلعب",
+    "tr": "Hoş geldiniz, hadi oynayalım"
+   },
+   "subtitle": {
+    "en": "Sign in to follow your orders and your gifts.",
+    "ar": "سجّل الدخول لتتابع طلباتك وهداياك.",
+    "tr": "Siparişlerinizi ve hediyelerinizi takip etmek için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "cover",
+   "items": [
+    {
+     "key": "orders",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "glass"
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "classic",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "Lexend",
+   "corners": "round",
+   "cards": "outlined",
+   "secondary_color": "#C08A3E",
+   "font_family": "Baloo Bhaijaan 2",
+   "dark_background": "#141113",
+   "dark_surface": "#1E1A1D",
+   "font_files": [
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/baloobhaijaan2/BalooBhaijaan2%5Bwght%5D.ttf",
+     "weight": null
+    }
+   ]
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "shop",
+    "label": "Shop",
+    "icon": "grid_view",
+    "target": {
+     "type": "page",
+     "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "المتجر"
+     },
+     "tr": {
+      "label": "Mağaza"
+     }
+    }
+   },
+   {
+    "id": "cart",
+    "label": "Cart",
+    "icon": "shopping_bag",
+    "target": {
+     "type": "page",
+     "page_slug": "cart"
+    },
+    "translations": {
+     "ar": {
+      "label": "السلة"
+     },
+     "tr": {
+      "label": "Sepet"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "Orders",
+    "icon": "package_2",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطلبات"
+     },
+     "tr": {
+      "label": "Siparişler"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_actions",
+      "title": "Toot",
+      "translations": {
+       "ar": {
+        "title": "Toot"
+       },
+       "tr": {
+        "title": "Toot"
+       }
+      },
+      "buttons": [
+       "menu",
+       "notifications"
+      ],
+      "menu_page": "menu",
+      "background": "#F7F2EA",
+      "dark_background": "#141113",
+      "color": "#2B2421",
+      "dark_color": "#F3EDE9",
+      "style": "glass"
+     },
+     "background": "#F7F2EA",
+     "dark_background": "#141113",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 96,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "search",
+        "name": "Search bears, blocks, puzzles…",
+        "text": "Search bears, blocks, puzzles…",
+        "source": "products",
+        "radius": 25,
+        "height": 50,
+        "background": "#FFFCF7",
+        "dark_background": "#1E1A1D",
+        "color": "#685D57",
+        "dark_color": "#BCB2AD",
+        "border_color": "#E9E0D3",
+        "dark_border_color": "#2E282B",
+        "border_width": 1,
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "ابحث عن دب، مكعبات، لغز…"
+         },
+         "tr": {
+          "text": "Ayıcık, blok, yapboz ara…"
+         }
+        }
+       },
+       {
+        "id": "sig-3",
+        "type": "categories",
+        "name": "Categories",
+        "source": "products",
+        "style": "circles",
+        "color": "#2B2421",
+        "dark_color": "#F3EDE9",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-4",
+        "type": "slider",
+        "name": "The collections",
+        "height": 210,
+        "per_view": 1.12,
+        "gap": 10,
+        "autoplay": true,
+        "interval_ms": 5000,
+        "dots": true,
+        "indicator": "dots",
+        "padding": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-5",
+          "type": "photo_hero",
+          "name": "A small corner for a big imagination",
+          "image_url": "http://localhost:3000/toys-photos/teepee.jpg",
+          "height": 210,
+          "radius": 26,
+          "background": "#2B2421",
+          "scrim": {
+           "color": "#2B2421",
+           "from": 0.15,
+           "middle": 0.2,
+           "at": 45,
+           "to": 0.75
+          },
+          "align": "end",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-6",
+            "type": "text",
+            "text": "Winter collection",
+            "font": {
+             "size": 11.5,
+             "weight": 600,
+             "letter_spacing": 0.4
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.92,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "مجموعة الشتاء"
+             },
+             "tr": {
+              "text": "Kış koleksiyonu"
+             }
+            }
+           },
+           {
+            "id": "sig-7",
+            "type": "text",
+            "text": "A small corner for a big imagination",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 24,
+             "weight": 700,
+             "line_height": 1.15
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "ركنٌ صغير لخيالٍ كبير"
+             },
+             "tr": {
+              "text": "Büyük hayaller için küçük bir köşe"
+             }
+            }
+           },
+           {
+            "id": "sig-8",
+            "type": "button",
+            "name": "Shop the collection",
+            "text": "Shop the collection",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 38,
+            "radius": 19,
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 12,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#7B2D4E",
+            "dark_background": "#97436C",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "تسوّق المجموعة"
+             },
+             "tr": {
+              "text": "Koleksiyonu keşfet"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-9",
+          "type": "photo_hero",
+          "name": "Pencils and paper for little artists",
+          "image_url": "http://localhost:3000/toys-photos/girl-drawing-wide.jpg",
+          "height": 210,
+          "radius": 26,
+          "background": "#2B2421",
+          "scrim": {
+           "color": "#2B2421",
+           "from": 0.15,
+           "middle": 0.2,
+           "at": 45,
+           "to": 0.75
+          },
+          "align": "end",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-10",
+            "type": "text",
+            "text": "Draw, colour, create",
+            "font": {
+             "size": 11.5,
+             "weight": 600,
+             "letter_spacing": 0.4
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.92,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ارسم، لوّن، اصنع"
+             },
+             "tr": {
+              "text": "Çiz, boya, yarat"
+             }
+            }
+           },
+           {
+            "id": "sig-11",
+            "type": "text",
+            "text": "Pencils and paper for little artists",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 24,
+             "weight": 700,
+             "line_height": 1.15
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "أقلام وأوراق للفنانين الصغار"
+             },
+             "tr": {
+              "text": "Küçük sanatçılar için kalem ve kâğıt"
+             }
+            }
+           },
+           {
+            "id": "sig-12",
+            "type": "button",
+            "name": "Shop the collection",
+            "text": "Shop the collection",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 38,
+            "radius": 19,
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 12,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#7B2D4E",
+            "dark_background": "#97436C",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "تسوّق المجموعة"
+             },
+             "tr": {
+              "text": "Koleksiyonu keşfet"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-13",
+          "type": "photo_hero",
+          "name": "Kites and bubbles for sunny days",
+          "image_url": "http://localhost:3000/toys-photos/kite-wide.jpg",
+          "height": 210,
+          "radius": 26,
+          "background": "#2B2421",
+          "scrim": {
+           "color": "#2B2421",
+           "from": 0.15,
+           "middle": 0.2,
+           "at": 45,
+           "to": 0.75
+          },
+          "align": "end",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-14",
+            "type": "text",
+            "text": "Into the garden",
+            "font": {
+             "size": 11.5,
+             "weight": 600,
+             "letter_spacing": 0.4
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.92,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "إلى الحديقة"
+             },
+             "tr": {
+              "text": "Bahçeye çık"
+             }
+            }
+           },
+           {
+            "id": "sig-15",
+            "type": "text",
+            "text": "Kites and bubbles for sunny days",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 24,
+             "weight": 700,
+             "line_height": 1.15
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "طائرات ورقية وفقاعات للأيام المشمسة"
+             },
+             "tr": {
+              "text": "Güneşli günler için uçurtma ve köpük"
+             }
+            }
+           },
+           {
+            "id": "sig-16",
+            "type": "button",
+            "name": "Shop the collection",
+            "text": "Shop the collection",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 38,
+            "radius": 19,
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 12,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#7B2D4E",
+            "dark_background": "#97436C",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "تسوّق المجموعة"
+             },
+             "tr": {
+              "text": "Koleksiyonu keşfet"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-17",
+        "type": "row",
+        "name": "Shop by age",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-18",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-19",
+            "type": "text",
+            "text": "Shop by age",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "تسوّق حسب العمر"
+             },
+             "tr": {
+              "text": "Yaşa göre alışveriş"
+             }
+            }
+           },
+           {
+            "id": "sig-20",
+            "type": "text",
+            "text": "Toys picked for every stage",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#685D57",
+            "dark_color": "#BCB2AD",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "ألعاب مختارة لكل مرحلة نمو"
+             },
+             "tr": {
+              "text": "Her gelişim dönemi için seçilmiş oyuncaklar"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-21",
+          "type": "row",
+          "name": "By age",
+          "height": 30,
+          "radius": 15,
+          "gap": 4,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 12,
+           "bottom": 0,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-22",
+            "type": "text",
+            "text": "By age",
+            "font": {
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5",
+            "translations": {
+             "ar": {
+              "text": "حسب العمر"
+             },
+             "tr": {
+              "text": "Yaşa göre"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-23",
+        "type": "row",
+        "name": "Shop by age",
+        "gap": 10,
+        "scroll": true,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-24",
+          "type": "photo_hero",
+          "name": "0–12 months",
+          "image_url": "http://localhost:3000/toys-photos/sleeping-baby.jpg",
+          "width": 118,
+          "height": 150,
+          "radius": 22,
+          "background": "#F1E9DD",
+          "scrim": {
+           "color": "#2B2421",
+           "from": 0,
+           "middle": 0.05,
+           "at": 55,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-25",
+            "type": "text",
+            "text": "0–12 months",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 16,
+             "weight": 700,
+             "line_height": 1.1
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "0–12 شهرًا"
+             },
+             "tr": {
+              "text": "0–12 ay"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-26",
+          "type": "photo_hero",
+          "name": "1–2 years",
+          "image_url": "http://localhost:3000/toys-photos/toddler-play.jpg",
+          "width": 118,
+          "height": 150,
+          "radius": 22,
+          "background": "#F1E9DD",
+          "scrim": {
+           "color": "#2B2421",
+           "from": 0,
+           "middle": 0.05,
+           "at": 55,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-27",
+            "type": "text",
+            "text": "1–2 years",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 16,
+             "weight": 700,
+             "line_height": 1.1
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "1–2 سنة"
+             },
+             "tr": {
+              "text": "1–2 yaş"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-28",
+          "type": "photo_hero",
+          "name": "3–5 years",
+          "image_url": "http://localhost:3000/toys-photos/toddler-bear.jpg",
+          "width": 118,
+          "height": 150,
+          "radius": 22,
+          "background": "#F1E9DD",
+          "scrim": {
+           "color": "#2B2421",
+           "from": 0,
+           "middle": 0.05,
+           "at": 55,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-29",
+            "type": "text",
+            "text": "3–5 years",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 16,
+             "weight": 700,
+             "line_height": 1.1
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "3–5 سنوات"
+             },
+             "tr": {
+              "text": "3–5 yaş"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-30",
+          "type": "photo_hero",
+          "name": "6–8 years",
+          "image_url": "http://localhost:3000/toys-photos/girl-drawing.jpg",
+          "width": 118,
+          "height": 150,
+          "radius": 22,
+          "background": "#F1E9DD",
+          "scrim": {
+           "color": "#2B2421",
+           "from": 0,
+           "middle": 0.05,
+           "at": 55,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-31",
+            "type": "text",
+            "text": "6–8 years",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 16,
+             "weight": 700,
+             "line_height": 1.1
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "6–8 سنوات"
+             },
+             "tr": {
+              "text": "6–8 yaş"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-32",
+          "type": "photo_hero",
+          "name": "9+ years",
+          "image_url": "http://localhost:3000/toys-photos/football-boy.jpg",
+          "width": 118,
+          "height": 150,
+          "radius": 22,
+          "background": "#F1E9DD",
+          "scrim": {
+           "color": "#2B2421",
+           "from": 0,
+           "middle": 0.05,
+           "at": 55,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-33",
+            "type": "text",
+            "text": "9+ years",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 16,
+             "weight": 700,
+             "line_height": 1.1
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "9+ سنوات"
+             },
+             "tr": {
+              "text": "9+ yaş"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-34",
+        "type": "column",
+        "name": "Their safety first",
+        "gap": 12,
+        "radius": 26,
+        "padding": {
+         "top": 16,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 24,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#FFFCF7",
+        "dark_background": "#1E1A1D",
+        "border_color": "#E9E0D3",
+        "dark_border_color": "#2E282B",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-35",
+          "type": "row",
+          "gap": 12,
+          "cross": "center",
+          "children": [
+           {
+            "id": "sig-36",
+            "type": "icon",
+            "icon": "verified",
+            "icon_size": 24,
+            "color": "#3E7A5C",
+            "dark_color": "#86C9A4",
+            "background": "#E3EFE6",
+            "dark_background": "#1D2B23",
+            "radius": 99,
+            "padding": {
+             "top": 10,
+             "end": 10,
+             "bottom": 10,
+             "start": 10
+            }
+           },
+           {
+            "id": "sig-37",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "sig-38",
+              "type": "text",
+              "text": "Their safety first",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 18,
+               "weight": 700,
+               "line_height": 1.2
+              },
+              "color": "#2B2421",
+              "dark_color": "#F3EDE9",
+              "translations": {
+               "ar": {
+                "text": "أمانهم أولًا"
+               },
+               "tr": {
+                "text": "Önce onların güvenliği"
+               }
+              }
+             },
+             {
+              "id": "sig-39",
+              "type": "text",
+              "text": "Every toy passes a safety check before it reaches you",
+              "font": {
+               "size": 12.5
+              },
+              "color": "#685D57",
+              "dark_color": "#BCB2AD",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "كل لعبة تمرّ بفحص سلامة قبل أن تصل إليك"
+               },
+               "tr": {
+                "text": "Her oyuncak size ulaşmadan önce güvenlik kontrolünden geçer"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-40",
+          "type": "grid",
+          "columns": 2,
+          "gap": 8,
+          "children": [
+           {
+            "id": "sig-41",
+            "type": "row",
+            "name": "Wood from sustainable forests",
+            "gap": 8,
+            "cross": "center",
+            "radius": 16,
+            "padding": {
+             "top": 12,
+             "end": 12,
+             "bottom": 12,
+             "start": 12
+            },
+            "background": "#F7F2EA",
+            "dark_background": "#141113",
+            "children": [
+             {
+              "id": "sig-42",
+              "type": "icon",
+              "icon": "yard",
+              "icon_size": 20,
+              "color": "#3E7A5C",
+              "dark_color": "#86C9A4"
+             },
+             {
+              "id": "sig-43",
+              "type": "text",
+              "text": "Wood from sustainable forests",
+              "font": {
+               "size": 12.5,
+               "weight": 500,
+               "line_height": 1.3
+              },
+              "color": "#2B2421",
+              "dark_color": "#F3EDE9",
+              "width": "fill",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "خشب من غابات مستدامة"
+               },
+               "tr": {
+                "text": "Sürdürülebilir ormanlardan ahşap"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-44",
+            "type": "row",
+            "name": "Non-toxic, water-based paint",
+            "gap": 8,
+            "cross": "center",
+            "radius": 16,
+            "padding": {
+             "top": 12,
+             "end": 12,
+             "bottom": 12,
+             "start": 12
+            },
+            "background": "#F7F2EA",
+            "dark_background": "#141113",
+            "children": [
+             {
+              "id": "sig-45",
+              "type": "icon",
+              "icon": "check_circle",
+              "icon_size": 20,
+              "color": "#3E7A5C",
+              "dark_color": "#86C9A4"
+             },
+             {
+              "id": "sig-46",
+              "type": "text",
+              "text": "Non-toxic, water-based paint",
+              "font": {
+               "size": 12.5,
+               "weight": 500,
+               "line_height": 1.3
+              },
+              "color": "#2B2421",
+              "dark_color": "#F3EDE9",
+              "width": "fill",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "طلاء مائي غير سام"
+               },
+               "tr": {
+                "text": "Toksik olmayan su bazlı boya"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-47",
+            "type": "row",
+            "name": "Free of BPA and phthalates",
+            "gap": 8,
+            "cross": "center",
+            "radius": 16,
+            "padding": {
+             "top": 12,
+             "end": 12,
+             "bottom": 12,
+             "start": 12
+            },
+            "background": "#F7F2EA",
+            "dark_background": "#141113",
+            "children": [
+             {
+              "id": "sig-48",
+              "type": "icon",
+              "icon": "task_alt",
+              "icon_size": 20,
+              "color": "#3E7A5C",
+              "dark_color": "#86C9A4"
+             },
+             {
+              "id": "sig-49",
+              "type": "text",
+              "text": "Free of BPA and phthalates",
+              "font": {
+               "size": 12.5,
+               "weight": 500,
+               "line_height": 1.3
+              },
+              "color": "#2B2421",
+              "dark_color": "#F3EDE9",
+              "width": "fill",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "خالٍ من BPA والفثالات"
+               },
+               "tr": {
+                "text": "BPA ve ftalat içermez"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-50",
+            "type": "row",
+            "name": "Tested to EN 71",
+            "gap": 8,
+            "cross": "center",
+            "radius": 16,
+            "padding": {
+             "top": 12,
+             "end": 12,
+             "bottom": 12,
+             "start": 12
+            },
+            "background": "#F7F2EA",
+            "dark_background": "#141113",
+            "children": [
+             {
+              "id": "sig-51",
+              "type": "icon",
+              "icon": "workspace_premium",
+              "icon_size": 20,
+              "color": "#3E7A5C",
+              "dark_color": "#86C9A4"
+             },
+             {
+              "id": "sig-52",
+              "type": "text",
+              "text": "Tested to EN 71",
+              "font": {
+               "size": 12.5,
+               "weight": 500,
+               "line_height": 1.3
+              },
+              "color": "#2B2421",
+              "dark_color": "#F3EDE9",
+              "width": "fill",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "مطابق لمعايير EN 71"
+               },
+               "tr": {
+                "text": "EN 71'e göre test edildi"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-53",
+        "type": "row",
+        "name": "New in",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-54",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-55",
+            "type": "text",
+            "text": "New in",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "وصل حديثًا"
+             },
+             "tr": {
+              "text": "Yeni gelenler"
+             }
+            }
+           },
+           {
+            "id": "sig-56",
+            "type": "text",
+            "text": "New pieces from our workshops this week",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#685D57",
+            "dark_color": "#BCB2AD",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "قطع جديدة من ورشنا هذا الأسبوع"
+             },
+             "tr": {
+              "text": "Bu hafta atölyelerimizden yeni parçalar"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-57",
+          "type": "row",
+          "name": "See all",
+          "height": 30,
+          "radius": 15,
+          "gap": 4,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 12,
+           "bottom": 0,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-58",
+            "type": "text",
+            "text": "See all",
+            "font": {
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5",
+            "translations": {
+             "ar": {
+              "text": "عرض الكل"
+             },
+             "tr": {
+              "text": "Tümünü gör"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-59",
+        "type": "items",
+        "name": "New in",
+        "source": "products",
+        "layout": "carousel",
+        "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "query": {
+         "limit": 8,
+         "category_id": null,
+         "featured": false,
+         "sort": "newest",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-60",
+         "type": "column",
+         "width": 156,
+         "gap": 4,
+         "children": [
+          {
+           "id": "sig-61",
+           "type": "stack",
+           "width": 156,
+           "height": 190,
+           "children": [
+            {
+             "id": "sig-62",
+             "type": "image",
+             "bind": "image",
+             "width": 156,
+             "height": 190,
+             "radius": 22,
+             "fit": "cover",
+             "background": "#F1E9DD",
+             "dark_background": "#282326"
+            },
+            {
+             "id": "sig-63",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "size": 11,
+              "weight": 700
+             },
+             "color": "#FFFFFF",
+             "dark_color": "#FFFFFF",
+             "background": "#7B2D4E",
+             "dark_background": "#97436C",
+             "radius": 10,
+             "padding": {
+              "top": 3,
+              "end": 8,
+              "bottom": 3,
+              "start": 8
+             },
+             "place": {
+              "x": 6,
+              "y": 5
+             }
+            }
+           ]
+          },
+          {
+           "id": "sig-64",
+           "type": "text",
+           "bind": "title",
+           "max_lines": 1,
+           "color": "#2B2421",
+           "dark_color": "#F3EDE9",
+           "font": {
+            "family": "Baloo Bhaijaan 2",
+            "size": 15,
+            "weight": 600
+           },
+           "margin": {
+            "top": 4,
+            "end": 0,
+            "bottom": 0,
+            "start": 0
+           }
+          },
+          {
+           "id": "sig-65",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-66",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "color": "#2B2421",
+             "dark_color": "#F3EDE9",
+             "font": {
+              "family": "Baloo Bhaijaan 2",
+              "size": 15,
+              "weight": 700
+             }
+            },
+            {
+             "id": "sig-67",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "color": "#685D57",
+             "dark_color": "#BCB2AD",
+             "font": {
+              "size": 12
+             }
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-68",
+        "type": "flash_sale",
+        "name": "Toy of the day",
+        "text": "Toy of the day",
+        "translations": {
+         "ar": {
+          "text": "لعبة اليوم"
+         },
+         "tr": {
+          "text": "Günün oyuncağı"
+         }
+        },
+        "flash_sale": {
+         "look": "carousel",
+         "limit": 6,
+         "countdown": true,
+         "stock_bar": true,
+         "accent": "#7B2D4E"
+        },
+        "radius": 26,
+        "margin": {
+         "top": 22,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-69",
+        "type": "column",
+        "name": "The perfect gift in 3 steps",
+        "gap": 14,
+        "radius": 28,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 16,
+         "start": 14
+        },
+        "margin": {
+         "top": 24,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#F4E4EA",
+        "dark_background": "#36202B",
+        "children": [
+         {
+          "id": "sig-70",
+          "type": "row",
+          "gap": 12,
+          "cross": "center",
+          "children": [
+           {
+            "id": "sig-71",
+            "type": "image",
+            "image_url": "http://localhost:3000/toys-photos/gift-confetti.jpg",
+            "fit": "cover",
+            "width": 92,
+            "height": 92,
+            "radius": 20
+           },
+           {
+            "id": "sig-72",
+            "type": "column",
+            "width": "fill",
+            "gap": 3,
+            "children": [
+             {
+              "id": "sig-73",
+              "type": "text",
+              "text": "Birthday gifts",
+              "font": {
+               "size": 12,
+               "weight": 600
+              },
+              "color": "#7B2D4E",
+              "dark_color": "#EAA9C5",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "هدايا أعياد الميلاد"
+               },
+               "tr": {
+                "text": "Doğum günü hediyeleri"
+               }
+              }
+             },
+             {
+              "id": "sig-74",
+              "type": "text",
+              "text": "The perfect gift in 3 steps",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 19,
+               "weight": 700,
+               "line_height": 1.2
+              },
+              "color": "#2B2421",
+              "dark_color": "#F3EDE9",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "هدية مثالية في 3 خطوات"
+               },
+               "tr": {
+                "text": "3 adımda mükemmel hediye"
+               }
+              }
+             },
+             {
+              "id": "sig-75",
+              "type": "text",
+              "text": "We choose it, wrap it and add a handwritten card",
+              "font": {
+               "size": 12.5
+              },
+              "color": "#685D57",
+              "dark_color": "#BCB2AD",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "نختارها ونغلّفها ونرفق بطاقة بخط اليد"
+               },
+               "tr": {
+                "text": "Seçer, paketler ve elle yazılmış bir kart ekleriz"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-76",
+          "type": "quiz",
+          "name": "The perfect gift in 3 steps",
+          "text": "The perfect gift in 3 steps",
+          "title": "Find the gift",
+          "translations": {
+           "ar": {
+            "text": "هدية مثالية في 3 خطوات",
+            "title": "اقترح لي هدية"
+           },
+           "tr": {
+            "text": "3 adımda mükemmel hediye",
+            "title": "Hediyeyi bul"
+           }
+          },
+          "entries": [
+           {
+            "title": "0–12 months",
+            "text": "Soft toys and crib mobiles, safe from birth.",
+            "label": "Show the toys",
+            "translations": {
+             "ar": {
+              "title": "0–12 شهرًا",
+              "text": "دمى ناعمة ومعلّقات للمهد، آمنة منذ الولادة.",
+              "label": "اعرض الألعاب"
+             },
+             "tr": {
+              "title": "0–12 ay",
+              "text": "Doğumdan itibaren güvenli yumuşak oyuncaklar ve beşik dönenceleri.",
+              "label": "Oyuncakları göster"
+             }
+            },
+            "icon": "child_care",
+            "image_url": "http://localhost:3000/toys-photos/sleeping-baby.jpg",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            }
+           },
+           {
+            "title": "1–2 years",
+            "text": "Blocks, sorters and bead mazes for busy hands.",
+            "label": "Show the toys",
+            "translations": {
+             "ar": {
+              "title": "1–2 سنة",
+              "text": "مكعبات وألعاب فرز ومتاهات خرز لأيدٍ لا تهدأ.",
+              "label": "اعرض الألعاب"
+             },
+             "tr": {
+              "title": "1–2 yaş",
+              "text": "Meraklı eller için bloklar, ayırma oyunları ve boncuk labirentleri.",
+              "label": "Oyuncakları göster"
+             }
+            },
+            "icon": "category",
+            "image_url": "http://localhost:3000/toys-photos/toddler-play.jpg",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            }
+           },
+           {
+            "title": "3–5 years",
+            "text": "Figures, bricks and play tents for stories and building.",
+            "label": "Show the toys",
+            "translations": {
+             "ar": {
+              "title": "3–5 سنوات",
+              "text": "شخصيات ومكعبات تركيب وخيام لعب للحكايات والبناء.",
+              "label": "اعرض الألعاب"
+             },
+             "tr": {
+              "title": "3–5 yaş",
+              "text": "Hikâyeler ve inşa için figürler, tuğlalar ve oyun çadırları.",
+              "label": "Oyuncakları göster"
+             }
+            },
+            "icon": "celebration",
+            "image_url": "http://localhost:3000/toys-photos/toddler-bear.jpg",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            }
+           },
+           {
+            "title": "6–8 years",
+            "text": "Kits, kites and instruments to make and discover.",
+            "label": "Show the toys",
+            "translations": {
+             "ar": {
+              "title": "6–8 سنوات",
+              "text": "حقائب وطائرات ورقية وآلات للصنع والاكتشاف.",
+              "label": "اعرض الألعاب"
+             },
+             "tr": {
+              "title": "6–8 yaş",
+              "text": "Yapmak ve keşfetmek için setler, uçurtmalar ve çalgılar.",
+              "label": "Oyuncakları göster"
+             }
+            },
+            "icon": "auto_stories",
+            "image_url": "http://localhost:3000/toys-photos/girl-drawing.jpg",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            }
+           },
+           {
+            "title": "9+ years",
+            "text": "Telescopes, chess and big builds for curious minds.",
+            "label": "Show the toys",
+            "translations": {
+             "ar": {
+              "title": "9+ سنوات",
+              "text": "تلسكوبات وشطرنج ومجموعات بناء كبيرة للعقول الفضولية.",
+              "label": "اعرض الألعاب"
+             },
+             "tr": {
+              "title": "9+ yaş",
+              "text": "Meraklı zihinler için teleskoplar, satranç ve büyük yapılar.",
+              "label": "Oyuncakları göster"
+             }
+            },
+            "icon": "travel_explore",
+            "image_url": "http://localhost:3000/toys-photos/football-boy.jpg",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            }
+           }
+          ],
+          "quiz": {
+           "questions": [
+            {
+             "title": "How old is the child?",
+             "text": "Under 1\n1 to 2\n3 to 5\n6 to 8\n9 and up",
+             "translations": {
+              "ar": {
+               "title": "كم عمر الطفل؟",
+               "text": "أقل من سنة\nمن 1 إلى 2\nمن 3 إلى 5\nمن 6 إلى 8\n9 فما فوق"
+              },
+              "tr": {
+               "title": "Çocuk kaç yaşında?",
+               "text": "1 yaşından küçük\n1–2 yaş\n3–5 yaş\n6–8 yaş\n9 yaş ve üstü"
+              }
+             }
+            },
+            {
+             "title": "What do they love most?",
+             "text": "Soft, cuddly friends\nStacking and sorting\nPretend play and building\nMaking and discovering\nScience and strategy",
+             "translations": {
+              "ar": {
+               "title": "ماذا يحب أكثر؟",
+               "text": "الأصدقاء الناعمون\nالتركيب والفرز\nالتمثيل والبناء\nالصنع والاكتشاف\nالعلوم والتخطيط"
+              },
+              "tr": {
+               "title": "En çok neyi sever?",
+               "text": "Yumuşak, sarılmalık dostlar\nDizme ve ayırma\nRol yapma ve inşa\nYapma ve keşfetme\nBilim ve strateji"
+              }
+             }
+            },
+            {
+             "title": "Your budget?",
+             "text": "Up to 100\n100 to 200\n200 to 300\n300 to 500\nOver 500",
+             "translations": {
+              "ar": {
+               "title": "ما ميزانيتك؟",
+               "text": "حتى 100\nمن 100 إلى 200\nمن 200 إلى 300\nمن 300 إلى 500\nأكثر من 500"
+              },
+              "tr": {
+               "title": "Bütçeniz?",
+               "text": "100'e kadar\n100–200\n200–300\n300–500\n500'den fazla"
+              }
+             }
+            }
+           ]
+          },
+          "color": "#2B2421",
+          "dark_color": "#F3EDE9",
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "radius": 20,
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 14
+          },
+          "font": {
+           "family": "Baloo Bhaijaan 2"
+          }
+         },
+         {
+          "id": "sig-77",
+          "type": "column",
+          "name": "Choose the wrapping",
+          "gap": 8,
+          "children": [
+           {
+            "id": "sig-78",
+            "type": "row",
+            "cross": "end",
+            "gap": 8,
+            "children": [
+             {
+              "id": "sig-79",
+              "type": "text",
+              "text": "Choose the wrapping",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 15,
+               "weight": 700,
+               "line_height": 1.2
+              },
+              "color": "#2B2421",
+              "dark_color": "#F3EDE9",
+              "width": "fill",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "اختر التغليف"
+               },
+               "tr": {
+                "text": "Paketi seçin"
+               }
+              }
+             },
+             {
+              "id": "sig-80",
+              "type": "text",
+              "text": "With a card in your words",
+              "font": {
+               "size": 11.5
+              },
+              "color": "#685D57",
+              "dark_color": "#BCB2AD",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "مع بطاقة بكلماتك"
+               },
+               "tr": {
+                "text": "Sizin sözlerinizle bir kartla"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-81",
+            "type": "row",
+            "gap": 8,
+            "children": [
+             {
+              "id": "sig-82",
+              "type": "column",
+              "name": "Kraft and blush",
+              "width": "fill",
+              "gap": 6,
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "sig-83",
+                "type": "image",
+                "image_url": "http://localhost:3000/toys-photos/gift-kraft.jpg",
+                "fit": "cover",
+                "width": "fill",
+                "height": 86,
+                "radius": 16,
+                "background": "#F1E9DD",
+                "dark_background": "#282326",
+                "border_color": "#7B2D4E",
+                "dark_border_color": "#EAA9C5",
+                "border_width": 2
+               },
+               {
+                "id": "sig-84",
+                "type": "text",
+                "text": "Kraft and blush",
+                "font": {
+                 "size": 12.5,
+                 "weight": 600
+                },
+                "color": "#2B2421",
+                "dark_color": "#F3EDE9",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "كرافت ووردي"
+                 },
+                 "tr": {
+                  "text": "Kraft ve pembe"
+                 }
+                }
+               },
+               {
+                "id": "sig-85",
+                "type": "text",
+                "text": "Added in the cart",
+                "font": {
+                 "size": 11
+                },
+                "color": "#685D57",
+                "dark_color": "#BCB2AD",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "يُضاف في السلة"
+                 },
+                 "tr": {
+                  "text": "Sepette eklenir"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-86",
+              "type": "column",
+              "name": "Black and gold",
+              "width": "fill",
+              "gap": 6,
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "sig-87",
+                "type": "image",
+                "image_url": "http://localhost:3000/toys-photos/gift-black.jpg",
+                "fit": "cover",
+                "width": "fill",
+                "height": 86,
+                "radius": 16,
+                "background": "#F1E9DD",
+                "dark_background": "#282326"
+               },
+               {
+                "id": "sig-88",
+                "type": "text",
+                "text": "Black and gold",
+                "font": {
+                 "size": 12.5,
+                 "weight": 600
+                },
+                "color": "#2B2421",
+                "dark_color": "#F3EDE9",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "أسود وذهبي"
+                 },
+                 "tr": {
+                  "text": "Siyah ve altın"
+                 }
+                }
+               },
+               {
+                "id": "sig-89",
+                "type": "text",
+                "text": "Added in the cart",
+                "font": {
+                 "size": 11
+                },
+                "color": "#685D57",
+                "dark_color": "#BCB2AD",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "يُضاف في السلة"
+                 },
+                 "tr": {
+                  "text": "Sepette eklenir"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-90",
+              "type": "column",
+              "name": "White celebration",
+              "width": "fill",
+              "gap": 6,
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "sig-91",
+                "type": "image",
+                "image_url": "http://localhost:3000/toys-photos/gift-white.jpg",
+                "fit": "cover",
+                "width": "fill",
+                "height": 86,
+                "radius": 16,
+                "background": "#F1E9DD",
+                "dark_background": "#282326"
+               },
+               {
+                "id": "sig-92",
+                "type": "text",
+                "text": "White celebration",
+                "font": {
+                 "size": 12.5,
+                 "weight": 600
+                },
+                "color": "#2B2421",
+                "dark_color": "#F3EDE9",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "أبيض احتفالي"
+                 },
+                 "tr": {
+                  "text": "Beyaz kutlama"
+                 }
+                }
+               },
+               {
+                "id": "sig-93",
+                "type": "text",
+                "text": "Added in the cart",
+                "font": {
+                 "size": 11
+                },
+                "color": "#685D57",
+                "dark_color": "#BCB2AD",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "يُضاف في السلة"
+                 },
+                 "tr": {
+                  "text": "Sepette eklenir"
+                 }
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-94",
+        "type": "row",
+        "name": "Most loved",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-95",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-96",
+            "type": "text",
+            "text": "Most loved",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "الأكثر حبًّا"
+             },
+             "tr": {
+              "text": "En sevilenler"
+             }
+            }
+           },
+           {
+            "id": "sig-97",
+            "type": "text",
+            "text": "Parents' picks this month",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#685D57",
+            "dark_color": "#BCB2AD",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "اختيارات الأهل هذا الشهر"
+             },
+             "tr": {
+              "text": "Bu ay ebeveynlerin seçtikleri"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-98",
+          "type": "row",
+          "name": "See all",
+          "height": 30,
+          "radius": 15,
+          "gap": 4,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 12,
+           "bottom": 0,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-99",
+            "type": "text",
+            "text": "See all",
+            "font": {
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5",
+            "translations": {
+             "ar": {
+              "text": "عرض الكل"
+             },
+             "tr": {
+              "text": "Tümünü gör"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-100",
+        "type": "items",
+        "name": "Most loved",
+        "source": "products",
+        "layout": "grid",
+        "columns": 2,
+        "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "query": {
+         "limit": 4,
+         "category_id": null,
+         "featured": true,
+         "sort": "popular",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-101",
+         "type": "column",
+         "width": "fill",
+         "gap": 4,
+         "children": [
+          {
+           "id": "sig-102",
+           "type": "stack",
+           "width": "fill",
+           "height": 196,
+           "children": [
+            {
+             "id": "sig-103",
+             "type": "image",
+             "bind": "image",
+             "width": "fill",
+             "height": 196,
+             "radius": 22,
+             "fit": "cover",
+             "background": "#F1E9DD",
+             "dark_background": "#282326"
+            },
+            {
+             "id": "sig-104",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "size": 11,
+              "weight": 700
+             },
+             "color": "#FFFFFF",
+             "dark_color": "#FFFFFF",
+             "background": "#7B2D4E",
+             "dark_background": "#97436C",
+             "radius": 10,
+             "padding": {
+              "top": 3,
+              "end": 8,
+              "bottom": 3,
+              "start": 8
+             },
+             "place": {
+              "x": 6,
+              "y": 5
+             }
+            }
+           ]
+          },
+          {
+           "id": "sig-105",
+           "type": "text",
+           "bind": "title",
+           "max_lines": 1,
+           "color": "#2B2421",
+           "dark_color": "#F3EDE9",
+           "font": {
+            "family": "Baloo Bhaijaan 2",
+            "size": 15,
+            "weight": 600
+           },
+           "margin": {
+            "top": 4,
+            "end": 0,
+            "bottom": 0,
+            "start": 0
+           }
+          },
+          {
+           "id": "sig-106",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-107",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "color": "#2B2421",
+             "dark_color": "#F3EDE9",
+             "font": {
+              "family": "Baloo Bhaijaan 2",
+              "size": 15,
+              "weight": 700
+             }
+            },
+            {
+             "id": "sig-108",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "color": "#685D57",
+             "dark_color": "#BCB2AD",
+             "font": {
+              "size": 12
+             }
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-109",
+        "type": "row",
+        "name": "Gifts under 100",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-110",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-111",
+            "type": "text",
+            "text": "Gifts under 100",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "هدايا بأقل من 100"
+             },
+             "tr": {
+              "text": "100'ün altında hediyeler"
+             }
+            }
+           },
+           {
+            "id": "sig-112",
+            "type": "text",
+            "text": "Wrapped with a card, ready to give",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#685D57",
+            "dark_color": "#BCB2AD",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "مغلّفة مع بطاقة وجاهزة للإهداء"
+             },
+             "tr": {
+              "text": "Kartıyla paketli, vermeye hazır"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-113",
+          "type": "row",
+          "name": "See all",
+          "height": 30,
+          "radius": 15,
+          "gap": 4,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 12,
+           "bottom": 0,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-114",
+            "type": "text",
+            "text": "See all",
+            "font": {
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5",
+            "translations": {
+             "ar": {
+              "text": "عرض الكل"
+             },
+             "tr": {
+              "text": "Tümünü gör"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-115",
+        "type": "items",
+        "name": "Gifts under 100",
+        "source": "products",
+        "layout": "carousel",
+        "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "query": {
+         "limit": 8,
+         "category_id": null,
+         "featured": false,
+         "sort": "popular",
+         "ids": [],
+         "max_price": 100
+        },
+        "card": {
+         "id": "sig-116",
+         "type": "column",
+         "width": 156,
+         "gap": 4,
+         "children": [
+          {
+           "id": "sig-117",
+           "type": "stack",
+           "width": 156,
+           "height": 190,
+           "children": [
+            {
+             "id": "sig-118",
+             "type": "image",
+             "bind": "image",
+             "width": 156,
+             "height": 190,
+             "radius": 22,
+             "fit": "cover",
+             "background": "#F1E9DD",
+             "dark_background": "#282326"
+            },
+            {
+             "id": "sig-119",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "size": 11,
+              "weight": 700
+             },
+             "color": "#FFFFFF",
+             "dark_color": "#FFFFFF",
+             "background": "#7B2D4E",
+             "dark_background": "#97436C",
+             "radius": 10,
+             "padding": {
+              "top": 3,
+              "end": 8,
+              "bottom": 3,
+              "start": 8
+             },
+             "place": {
+              "x": 6,
+              "y": 5
+             }
+            }
+           ]
+          },
+          {
+           "id": "sig-120",
+           "type": "text",
+           "bind": "title",
+           "max_lines": 1,
+           "color": "#2B2421",
+           "dark_color": "#F3EDE9",
+           "font": {
+            "family": "Baloo Bhaijaan 2",
+            "size": 15,
+            "weight": 600
+           },
+           "margin": {
+            "top": 4,
+            "end": 0,
+            "bottom": 0,
+            "start": 0
+           }
+          },
+          {
+           "id": "sig-121",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-122",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "color": "#2B2421",
+             "dark_color": "#F3EDE9",
+             "font": {
+              "family": "Baloo Bhaijaan 2",
+              "size": 15,
+              "weight": 700
+             }
+            },
+            {
+             "id": "sig-123",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "color": "#685D57",
+             "dark_color": "#BCB2AD",
+             "font": {
+              "size": 12
+             }
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-124",
+        "type": "row",
+        "name": "Learn through play",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-125",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-126",
+            "type": "text",
+            "text": "Learn through play",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "تعلّم باللعب"
+             },
+             "tr": {
+              "text": "Oynayarak öğren"
+             }
+            }
+           },
+           {
+            "id": "sig-127",
+            "type": "text",
+            "text": "Shop by the skill you want to grow",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#685D57",
+            "dark_color": "#BCB2AD",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "تسوّق حسب المهارة التي تريد تنميتها"
+             },
+             "tr": {
+              "text": "Geliştirmek istediğiniz beceriye göre alışveriş"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-128",
+        "type": "grid",
+        "name": "Learn through play",
+        "columns": 3,
+        "gap": 8,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-129",
+          "type": "column",
+          "name": "Motor skills",
+          "gap": 8,
+          "cross": "center",
+          "radius": 20,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "border_color": "#E9E0D3",
+          "dark_border_color": "#2E282B",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-130",
+            "type": "icon",
+            "icon": "waving_hand",
+            "icon_size": 22,
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5",
+            "background": "#F4E4EA",
+            "dark_background": "#36202B",
+            "radius": 99,
+            "padding": {
+             "top": 10,
+             "end": 10,
+             "bottom": 10,
+             "start": 10
+            }
+           },
+           {
+            "id": "sig-131",
+            "type": "text",
+            "text": "Motor skills",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "المهارات الحركية"
+             },
+             "tr": {
+              "text": "Motor beceriler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-132",
+          "type": "column",
+          "name": "Logic and thinking",
+          "gap": 8,
+          "cross": "center",
+          "radius": 20,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "border_color": "#E9E0D3",
+          "dark_border_color": "#2E282B",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-133",
+            "type": "icon",
+            "icon": "quiz",
+            "icon_size": 22,
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5",
+            "background": "#F4E4EA",
+            "dark_background": "#36202B",
+            "radius": 99,
+            "padding": {
+             "top": 10,
+             "end": 10,
+             "bottom": 10,
+             "start": 10
+            }
+           },
+           {
+            "id": "sig-134",
+            "type": "text",
+            "text": "Logic and thinking",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "المنطق والتفكير"
+             },
+             "tr": {
+              "text": "Mantık ve düşünme"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-135",
+          "type": "column",
+          "name": "Language",
+          "gap": 8,
+          "cross": "center",
+          "radius": 20,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "border_color": "#E9E0D3",
+          "dark_border_color": "#2E282B",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-136",
+            "type": "icon",
+            "icon": "forum",
+            "icon_size": 22,
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5",
+            "background": "#F4E4EA",
+            "dark_background": "#36202B",
+            "radius": 99,
+            "padding": {
+             "top": 10,
+             "end": 10,
+             "bottom": 10,
+             "start": 10
+            }
+           },
+           {
+            "id": "sig-137",
+            "type": "text",
+            "text": "Language",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "اللغة والتواصل"
+             },
+             "tr": {
+              "text": "Dil ve iletişim"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-138",
+          "type": "column",
+          "name": "Imagination",
+          "gap": 8,
+          "cross": "center",
+          "radius": 20,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "border_color": "#E9E0D3",
+          "dark_border_color": "#2E282B",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-139",
+            "type": "icon",
+            "icon": "auto_stories",
+            "icon_size": 22,
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5",
+            "background": "#F4E4EA",
+            "dark_background": "#36202B",
+            "radius": 99,
+            "padding": {
+             "top": 10,
+             "end": 10,
+             "bottom": 10,
+             "start": 10
+            }
+           },
+           {
+            "id": "sig-140",
+            "type": "text",
+            "text": "Imagination",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "الخيال والإبداع"
+             },
+             "tr": {
+              "text": "Hayal gücü"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-141",
+          "type": "column",
+          "name": "Science",
+          "gap": 8,
+          "cross": "center",
+          "radius": 20,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "border_color": "#E9E0D3",
+          "dark_border_color": "#2E282B",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-142",
+            "type": "icon",
+            "icon": "travel_explore",
+            "icon_size": 22,
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5",
+            "background": "#F4E4EA",
+            "dark_background": "#36202B",
+            "radius": 99,
+            "padding": {
+             "top": 10,
+             "end": 10,
+             "bottom": 10,
+             "start": 10
+            }
+           },
+           {
+            "id": "sig-143",
+            "type": "text",
+            "text": "Science",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "العلوم"
+             },
+             "tr": {
+              "text": "Bilim"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-144",
+          "type": "column",
+          "name": "Playing together",
+          "gap": 8,
+          "cross": "center",
+          "radius": 20,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "border_color": "#E9E0D3",
+          "dark_border_color": "#2E282B",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-145",
+            "type": "icon",
+            "icon": "groups",
+            "icon_size": 22,
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5",
+            "background": "#F4E4EA",
+            "dark_background": "#36202B",
+            "radius": 99,
+            "padding": {
+             "top": 10,
+             "end": 10,
+             "bottom": 10,
+             "start": 10
+            }
+           },
+           {
+            "id": "sig-146",
+            "type": "text",
+            "text": "Playing together",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "اللعب الجماعي"
+             },
+             "tr": {
+              "text": "Birlikte oyun"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-147",
+        "type": "row",
+        "name": "Parents' guide",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-148",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-149",
+            "type": "text",
+            "text": "Parents' guide",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "دليل الأهل"
+             },
+             "tr": {
+              "text": "Ebeveyn rehberi"
+             }
+            }
+           },
+           {
+            "id": "sig-150",
+            "type": "text",
+            "text": "Play ideas from childhood experts",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#685D57",
+            "dark_color": "#BCB2AD",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "أفكار لعب من مختصّي الطفولة"
+             },
+             "tr": {
+              "text": "Çocukluk uzmanlarından oyun fikirleri"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-151",
+        "type": "row",
+        "name": "Parents' guide",
+        "gap": 12,
+        "scroll": true,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-152",
+          "type": "column",
+          "name": "A reading tent: 5 ideas for winter evenings",
+          "width": 236,
+          "gap": 6,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-153",
+            "type": "stack",
+            "width": 236,
+            "height": 148,
+            "children": [
+             {
+              "id": "sig-154",
+              "type": "image",
+              "image_url": "http://localhost:3000/toys-photos/tent-family.jpg",
+              "fit": "cover",
+              "width": 236,
+              "height": 148,
+              "radius": 20,
+              "background": "#F1E9DD",
+              "dark_background": "#282326"
+             },
+             {
+              "id": "sig-155",
+              "type": "text",
+              "text": "Play tents",
+              "font": {
+               "size": 11,
+               "weight": 600
+              },
+              "color": "#2B2421",
+              "dark_color": "#2B2421",
+              "max_lines": 1,
+              "background": "#FFFFFF",
+              "dark_background": "#FFFFFF",
+              "radius": 10,
+              "padding": {
+               "top": 3,
+               "end": 9,
+               "bottom": 3,
+               "start": 9
+              },
+              "place": {
+               "x": 5,
+               "y": 6
+              },
+              "translations": {
+               "ar": {
+                "text": "خيام لعب"
+               },
+               "tr": {
+                "text": "Oyun çadırları"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-156",
+            "type": "text",
+            "text": "A reading tent: 5 ideas for winter evenings",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 14.5,
+             "weight": 600,
+             "line_height": 1.2
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "خيمة القراءة: 5 أفكار لأمسيات الشتاء"
+             },
+             "tr": {
+              "text": "Okuma çadırı: kış akşamları için 5 fikir"
+             }
+            }
+           },
+           {
+            "id": "sig-157",
+            "type": "row",
+            "gap": 4,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-158",
+              "type": "icon",
+              "icon": "schedule",
+              "icon_size": 14,
+              "color": "#685D57",
+              "dark_color": "#BCB2AD"
+             },
+             {
+              "id": "sig-159",
+              "type": "text",
+              "text": "4 min read",
+              "font": {
+               "size": 11.5
+              },
+              "color": "#685D57",
+              "dark_color": "#BCB2AD",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "قراءة 4 دقائق"
+               },
+               "tr": {
+                "text": "4 dakikalık okuma"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-160",
+          "type": "column",
+          "name": "How to choose a toy for your child's age",
+          "width": 236,
+          "gap": 6,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-161",
+            "type": "stack",
+            "width": 236,
+            "height": 148,
+            "children": [
+             {
+              "id": "sig-162",
+              "type": "image",
+              "image_url": "http://localhost:3000/toys-photos/family-play.jpg",
+              "fit": "cover",
+              "width": 236,
+              "height": 148,
+              "radius": 20,
+              "background": "#F1E9DD",
+              "dark_background": "#282326"
+             },
+             {
+              "id": "sig-163",
+              "type": "text",
+              "text": "By age",
+              "font": {
+               "size": 11,
+               "weight": 600
+              },
+              "color": "#2B2421",
+              "dark_color": "#2B2421",
+              "max_lines": 1,
+              "background": "#FFFFFF",
+              "dark_background": "#FFFFFF",
+              "radius": 10,
+              "padding": {
+               "top": 3,
+               "end": 9,
+               "bottom": 3,
+               "start": 9
+              },
+              "place": {
+               "x": 5,
+               "y": 6
+              },
+              "translations": {
+               "ar": {
+                "text": "حسب العمر"
+               },
+               "tr": {
+                "text": "Yaşa göre"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-164",
+            "type": "text",
+            "text": "How to choose a toy for your child's age",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 14.5,
+             "weight": 600,
+             "line_height": 1.2
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "كيف تختار لعبة تناسب عمر طفلك؟"
+             },
+             "tr": {
+              "text": "Çocuğunuzun yaşına uygun oyuncak nasıl seçilir?"
+             }
+            }
+           },
+           {
+            "id": "sig-165",
+            "type": "row",
+            "gap": 4,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-166",
+              "type": "icon",
+              "icon": "schedule",
+              "icon_size": 14,
+              "color": "#685D57",
+              "dark_color": "#BCB2AD"
+             },
+             {
+              "id": "sig-167",
+              "type": "text",
+              "text": "6 min read",
+              "font": {
+               "size": 11.5
+              },
+              "color": "#685D57",
+              "dark_color": "#BCB2AD",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "قراءة 6 دقائق"
+               },
+               "tr": {
+                "text": "6 dakikalık okuma"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "shop",
+    "title": "Shop",
+    "translations": {
+     "ar": {
+      "title": "المتجر"
+     },
+     "tr": {
+      "title": "Mağaza"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-201",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-202",
+        "type": "categories",
+        "name": "Categories",
+        "source": "products",
+        "padding": {
+         "top": 4,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-203",
+        "type": "photo_hero",
+        "name": "[Your offer in a line]",
+        "image_url": "http://localhost:3000/toys-photos/wooden-figures.jpg",
+        "height": 160,
+        "radius": 26,
+        "background": "#2B2421",
+        "scrim": {
+         "color": "#2B2421",
+         "from": 0.15,
+         "middle": 0.2,
+         "at": 45,
+         "to": 0.75
+        },
+        "align": "end",
+        "padding": {
+         "top": 16,
+         "end": 18,
+         "bottom": 16,
+         "start": 18
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "children": [
+         {
+          "id": "sig-204",
+          "type": "text",
+          "text": "Gift wrapping on every toy",
+          "font": {
+           "size": 11.5,
+           "weight": 600,
+           "letter_spacing": 0.4
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "opacity": 0.92,
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "تغليف هدايا لكل لعبة"
+           },
+           "tr": {
+            "text": "Her oyuncağa hediye paketi"
+           }
+          }
+         },
+         {
+          "id": "sig-205",
+          "type": "text",
+          "text": "Free delivery over 200 AED",
+          "font": {
+           "family": "Baloo Bhaijaan 2",
+           "size": 24,
+           "weight": 700,
+           "line_height": 1.15
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "max_lines": 2,
+          "margin": {
+           "top": 6,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "translations": {
+           "ar": {
+            "text": "توصيل مجاني فوق 200 د.إ"
+           },
+           "tr": {
+            "text": "200 AED üzeri ücretsiz teslimat"
+           }
+          }
+         },
+         {
+          "id": "sig-206",
+          "type": "button",
+          "name": "Shop now",
+          "text": "Shop now",
+          "icon": "arrow_forward",
+          "icon_position": "end",
+          "width": "hug",
+          "height": 38,
+          "radius": 19,
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 16
+          },
+          "self_align": "start",
+          "margin": {
+           "top": 12,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "background": "#7B2D4E",
+          "dark_background": "#97436C",
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "font": {
+           "size": 13.5,
+           "weight": 700
+          },
+          "motion": {
+           "press": "shrink"
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "تسوّق الآن"
+           },
+           "tr": {
+            "text": "Alışverişe başla"
+           }
+          }
+         }
+        ],
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "search",
+     "header": {
+      "type": "title",
+      "title": "Shop",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المتجر"
+       },
+       "tr": {
+        "title": "Mağaza"
+       }
+      },
+      "background": "#F7F2EA",
+      "color": "#2B2421",
+      "dark_background": "#141113",
+      "dark_color": "#F3EDE9",
+      "style": "glass"
+     },
+     "background": "#F7F2EA",
+     "dark_background": "#141113"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "cart",
+    "title": "Cart",
+    "translations": {
+     "ar": {
+      "title": "السلة"
+     },
+     "tr": {
+      "title": "Sepet"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-207",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-208",
+        "type": "coupon",
+        "name": "Your code",
+        "code": "TOOT10",
+        "coupon": {
+         "look": "ticket",
+         "bind": "public"
+        },
+        "radius": 18,
+        "color": "#7B2D4E",
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-209",
+        "type": "row",
+        "name": "[Your gift wrapping and returns, like: free returns within 30 days]",
+        "gap": 12,
+        "cross": "center",
+        "radius": 18,
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#F4E4EA",
+        "dark_background": "#36202B",
+        "children": [
+         {
+          "id": "sig-210",
+          "type": "icon",
+          "icon": "redeem",
+          "icon_size": 22,
+          "color": "#7B2D4E",
+          "dark_color": "#EAA9C5"
+         },
+         {
+          "id": "sig-211",
+          "type": "text",
+          "text": "Gift wrapping and a card in the cart · Free returns within 30 days",
+          "font": {
+           "size": 13,
+           "weight": 600,
+           "line_height": 1.4
+          },
+          "color": "#2B2421",
+          "dark_color": "#F3EDE9",
+          "width": "fill",
+          "max_lines": 3,
+          "translations": {
+           "ar": {
+            "text": "التغليف والبطاقة من السلة · إرجاع مجاني خلال 30 يومًا"
+           },
+           "tr": {
+            "text": "Hediye paketi ve kart sepette · 30 gün içinde ücretsiz iade"
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "cart",
+     "header": {
+      "type": "title",
+      "title": "Cart",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "السلة"
+       },
+       "tr": {
+        "title": "Sepet"
+       }
+      },
+      "background": "#F7F2EA",
+      "color": "#2B2421",
+      "dark_background": "#141113",
+      "dark_color": "#F3EDE9",
+      "style": "glass"
+     },
+     "background": "#F7F2EA",
+     "dark_background": "#141113"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "Orders",
+    "translations": {
+     "ar": {
+      "title": "الطلبات"
+     },
+     "tr": {
+      "title": "Siparişler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-212",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-213",
+        "type": "row",
+        "name": "Your order, step by step",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-214",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-215",
+            "type": "text",
+            "text": "Your order, step by step",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "طلبك خطوة بخطوة"
+             },
+             "tr": {
+              "text": "Siparişiniz adım adım"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-216",
+        "type": "timeline",
+        "name": "Your order, step by step",
+        "timeline": {
+         "style": "vertical",
+         "source": "latest_order"
+        },
+        "color": "#2B2421",
+        "dark_color": "#F3EDE9",
+        "background": "#FFFCF7",
+        "dark_background": "#1E1A1D",
+        "radius": 22,
+        "padding": {
+         "top": 16,
+         "end": 14,
+         "bottom": 16,
+         "start": 14
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "border_color": "#E9E0D3",
+        "dark_border_color": "#2E282B",
+        "border_width": 1,
+        "entries": [
+         {
+          "title": "Ordered",
+          "text": "We have your order.",
+          "highlight": true,
+          "translations": {
+           "ar": {
+            "title": "تم الطلب",
+            "text": "استلمنا طلبك."
+           },
+           "tr": {
+            "title": "Sipariş alındı",
+            "text": "Siparişinizi aldık."
+           }
+          }
+         },
+         {
+          "title": "Wrapped",
+          "text": "Checked, wrapped and your card written.",
+          "translations": {
+           "ar": {
+            "title": "تم التغليف",
+            "text": "فُحصت وغُلّفت وكُتبت بطاقتك."
+           },
+           "tr": {
+            "title": "Paketlendi",
+            "text": "Kontrol edildi, paketlendi ve kartınız yazıldı."
+           }
+          }
+         },
+         {
+          "title": "On its way",
+          "text": "With the courier, on its way to you.",
+          "translations": {
+           "ar": {
+            "title": "في الطريق",
+            "text": "مع المندوب في طريقه إليك."
+           },
+           "tr": {
+            "title": "Yolda",
+            "text": "Kuryede, size doğru yolda."
+           }
+          }
+         },
+         {
+          "title": "Delivered",
+          "text": "Time to play. Returns are easy from your orders.",
+          "translations": {
+           "ar": {
+            "title": "تم التوصيل",
+            "text": "حان وقت اللعب. الإرجاع سهل من طلباتك."
+           },
+           "tr": {
+            "title": "Teslim edildi",
+            "text": "Oyun zamanı. İadeler siparişlerinizden kolayca yapılır."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "orders",
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطلبات"
+       },
+       "tr": {
+        "title": "Siparişler"
+       }
+      },
+      "background": "#F7F2EA",
+      "color": "#2B2421",
+      "dark_background": "#141113",
+      "dark_color": "#F3EDE9",
+      "style": "glass"
+     },
+     "background": "#F7F2EA",
+     "dark_background": "#141113"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-218",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-217",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "account",
+     "background": "#F7F2EA",
+     "dark_background": "#141113"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "menu",
+    "title": "All categories",
+    "translations": {
+     "ar": {
+      "title": "كل الأقسام"
+     },
+     "tr": {
+      "title": "Tüm kategoriler"
+     }
+    },
+    "studio": {
+     "background": "#F7F2EA",
+     "dark_background": "#141113",
+     "body": {
+      "id": "sig-168",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-169",
+        "type": "search",
+        "name": "Search every category…",
+        "text": "Search every category…",
+        "source": "products",
+        "radius": 25,
+        "height": 50,
+        "background": "#FFFCF7",
+        "dark_background": "#1E1A1D",
+        "color": "#685D57",
+        "dark_color": "#BCB2AD",
+        "border_color": "#E9E0D3",
+        "dark_border_color": "#2E282B",
+        "border_width": 1,
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "ابحث في كل الأقسام…"
+         },
+         "tr": {
+          "text": "Tüm kategorilerde ara…"
+         }
+        }
+       },
+       {
+        "id": "sig-170",
+        "type": "row",
+        "name": "Quick ways in",
+        "gap": 8,
+        "scroll": true,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-171",
+          "type": "row",
+          "name": "By age",
+          "height": 42,
+          "radius": 21,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#7B2D4E",
+          "dark_background": "#97436C",
+          "children": [
+           {
+            "id": "sig-172",
+            "type": "icon",
+            "icon": "child_care",
+            "icon_size": 18,
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF"
+           },
+           {
+            "id": "sig-173",
+            "type": "text",
+            "text": "By age",
+            "max_lines": 1,
+            "font": {
+             "size": 13.5,
+             "weight": 600
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "translations": {
+             "ar": {
+              "text": "حسب العمر"
+             },
+             "tr": {
+              "text": "Yaşa göre"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-174",
+          "type": "row",
+          "name": "Birthday gifts",
+          "height": 42,
+          "radius": 21,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "border_color": "#E9E0D3",
+          "dark_border_color": "#2E282B",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-175",
+            "type": "icon",
+            "icon": "cake",
+            "icon_size": 18,
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9"
+           },
+           {
+            "id": "sig-176",
+            "type": "text",
+            "text": "Birthday gifts",
+            "max_lines": 1,
+            "font": {
+             "size": 13.5,
+             "weight": 600
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "translations": {
+             "ar": {
+              "text": "هدايا أعياد الميلاد"
+             },
+             "tr": {
+              "text": "Doğum günü hediyeleri"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-177",
+          "type": "row",
+          "name": "New in",
+          "height": 42,
+          "radius": 21,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "border_color": "#E9E0D3",
+          "dark_border_color": "#2E282B",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-178",
+            "type": "icon",
+            "icon": "new_releases",
+            "icon_size": 18,
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9"
+           },
+           {
+            "id": "sig-179",
+            "type": "text",
+            "text": "New in",
+            "max_lines": 1,
+            "font": {
+             "size": 13.5,
+             "weight": 600
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "translations": {
+             "ar": {
+              "text": "وصل حديثًا"
+             },
+             "tr": {
+              "text": "Yeni gelenler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-180",
+          "type": "row",
+          "name": "Offers",
+          "height": 42,
+          "radius": 21,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "border_color": "#E9E0D3",
+          "dark_border_color": "#2E282B",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-181",
+            "type": "icon",
+            "icon": "percent",
+            "icon_size": 18,
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9"
+           },
+           {
+            "id": "sig-182",
+            "type": "text",
+            "text": "Offers",
+            "max_lines": 1,
+            "font": {
+             "size": 13.5,
+             "weight": 600
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "translations": {
+             "ar": {
+              "text": "العروض"
+             },
+             "tr": {
+              "text": "Fırsatlar"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-183",
+        "type": "categories",
+        "name": "All categories",
+        "source": "products",
+        "style": "rows",
+        "category_menu": {
+         "look": "lead",
+         "radius": 22
+        },
+        "color": "#2B2421",
+        "dark_color": "#F3EDE9",
+        "padding": {
+         "top": 6,
+         "end": 0,
+         "bottom": 6,
+         "start": 0
+        }
+       },
+       {
+        "id": "sig-184",
+        "type": "divider",
+        "height": 1,
+        "background": "#E9E0D3",
+        "dark_background": "#2E282B",
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-185",
+        "type": "row",
+        "name": "Your account",
+        "gap": 8,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-186",
+          "type": "column",
+          "name": "My account",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "radius": 20,
+          "padding": {
+           "top": 14,
+           "end": 4,
+           "bottom": 12,
+           "start": 4
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "border_color": "#E9E0D3",
+          "dark_border_color": "#2E282B",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-187",
+            "type": "icon",
+            "icon": "person",
+            "icon_size": 22,
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5"
+           },
+           {
+            "id": "sig-188",
+            "type": "text",
+            "text": "My account",
+            "max_lines": 1,
+            "text_align": "center",
+            "font": {
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "translations": {
+             "ar": {
+              "text": "حسابي"
+             },
+             "tr": {
+              "text": "Hesabım"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-189",
+          "type": "column",
+          "name": "My orders",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "radius": 20,
+          "padding": {
+           "top": 14,
+           "end": 4,
+           "bottom": 12,
+           "start": 4
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "border_color": "#E9E0D3",
+          "dark_border_color": "#2E282B",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "orders"
+          },
+          "children": [
+           {
+            "id": "sig-190",
+            "type": "icon",
+            "icon": "package_2",
+            "icon_size": 22,
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5"
+           },
+           {
+            "id": "sig-191",
+            "type": "text",
+            "text": "My orders",
+            "max_lines": 1,
+            "text_align": "center",
+            "font": {
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "translations": {
+             "ar": {
+              "text": "طلباتي"
+             },
+             "tr": {
+              "text": "Siparişlerim"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-192",
+          "type": "column",
+          "name": "Language",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "radius": 20,
+          "padding": {
+           "top": 14,
+           "end": 4,
+           "bottom": 12,
+           "start": 4
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#1E1A1D",
+          "border_color": "#E9E0D3",
+          "dark_border_color": "#2E282B",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "settings"
+          },
+          "children": [
+           {
+            "id": "sig-193",
+            "type": "icon",
+            "icon": "language",
+            "icon_size": 22,
+            "color": "#7B2D4E",
+            "dark_color": "#EAA9C5"
+           },
+           {
+            "id": "sig-194",
+            "type": "text",
+            "text": "Language",
+            "max_lines": 1,
+            "text_align": "center",
+            "font": {
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "translations": {
+             "ar": {
+              "text": "اللغة"
+             },
+             "tr": {
+              "text": "Dil"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-195",
+        "type": "row",
+        "name": "Contact us",
+        "gap": 12,
+        "cross": "center",
+        "radius": 20,
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#F4E4EA",
+        "dark_background": "#36202B",
+        "action": {
+         "type": "screen",
+         "screen": "account"
+        },
+        "children": [
+         {
+          "id": "sig-196",
+          "type": "icon",
+          "icon": "support_agent",
+          "icon_size": 22,
+          "color": "#7B2D4E",
+          "dark_color": "#EAA9C5"
+         },
+         {
+          "id": "sig-197",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-198",
+            "type": "text",
+            "text": "Contact us",
+            "font": {
+             "size": 14,
+             "weight": 700
+            },
+            "color": "#2B2421",
+            "dark_color": "#F3EDE9",
+            "translations": {
+             "ar": {
+              "text": "تواصل معنا"
+             },
+             "tr": {
+              "text": "Bize ulaşın"
+             }
+            }
+           },
+           {
+            "id": "sig-199",
+            "type": "text",
+            "text": "Every day, 9 am to 10 pm",
+            "font": {
+             "size": 12
+            },
+            "color": "#685D57",
+            "dark_color": "#BCB2AD",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "يوميًا من 9 صباحًا إلى 10 مساءً"
+             },
+             "tr": {
+              "text": "Her gün 09.00–22.00"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-200",
+          "type": "icon",
+          "icon": "chat",
+          "icon_size": 20,
+          "color": "#2B2421",
+          "dark_color": "#F3EDE9"
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "All categories",
+      "translations": {
+       "ar": {
+        "title": "كل الأقسام"
+       },
+       "tr": {
+        "title": "Tüm kategoriler"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#F7F2EA",
+      "color": "#2B2421",
+      "dark_background": "#141113",
+      "dark_color": "#F3EDE9",
+      "style": "glass"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-219",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#F7F2EA",
+      "color": "#2B2421",
+      "dark_background": "#141113",
+      "dark_color": "#F3EDE9",
+      "style": "glass"
+     },
+     "background": "#F7F2EA",
+     "dark_background": "#141113"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-220",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#F7F2EA",
+      "color": "#2B2421",
+      "dark_background": "#141113",
+      "dark_color": "#F3EDE9",
+      "style": "glass"
+     },
+     "background": "#F7F2EA",
+     "dark_background": "#141113"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-221",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#F7F2EA",
+      "color": "#2B2421",
+      "dark_background": "#141113",
+      "dark_color": "#F3EDE9",
+      "style": "glass"
+     },
+     "background": "#F7F2EA",
+     "dark_background": "#141113"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-222",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#F7F2EA",
+      "color": "#2B2421",
+      "dark_background": "#141113",
+      "dark_color": "#F3EDE9",
+      "style": "glass"
+     },
+     "background": "#F7F2EA",
+     "dark_background": "#141113"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-223",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#F7F2EA",
+     "dark_background": "#141113"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-224",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#F7F2EA",
+     "dark_background": "#141113"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "background": "#2B2421",
+   "dark_background": "#2C2629",
+   "active": "#7B2D4E",
+   "dark_active": "#97436C",
+   "inactive": "#D9CFC1",
+   "dark_inactive": "#BCB2AD",
+   "design": "float",
+   "labels": "active",
+   "radius": 30,
+   "margin": 12
+  }
+ }
+}

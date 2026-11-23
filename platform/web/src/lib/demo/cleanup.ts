@@ -1,12 +1,14 @@
 import type { DataStore } from "../data/store";
 import type { App, DemoPurgeCounts, ListingInquiry } from "../data/types";
 import { listDemoApps } from "./apps";
-import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_USER_NAME, BEAUTY_DEMO, CLOTHES_DEMO, KIDS_DEMO, demoIdOf, FLOWER_SHOP_DEMO } from "./constants";
+import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_USER_NAME, BEAUTY_DEMO, CLOTHES_DEMO, KIDS_DEMO, TOYS_DEMO, demoIdOf, FLOWER_SHOP_DEMO } from "./constants";
 import { refreshClothesSale } from "./clothes-entries";
 // 209 Cosmetics
 import { refreshBeautySale } from "./beauty-entries";
 // 209 Kids' clothes
 import { refreshKidsSale } from "./kids-entries";
+// 209 Toys
+import { refreshToysSale } from "./toys-entries";
 import { refreshFlowerSale } from "./entries";
 import { refreshMarketplaceDemo, savedZadPictures } from "./marketplace";
 import { refreshSchoolDay } from "./school";
@@ -53,6 +55,9 @@ export async function cleanDemoActivity(store: DataStore, now: Date): Promise<De
     if (id === BEAUTY_DEMO) await refreshBeautySale(store, app, now);
     // 209 Kids' clothes: Toota's weekend deals from today.
     if (id === KIDS_DEMO) await refreshKidsSale(store, app, now);
+    // 209 Toys
+    // 209 Toot: its toy of the day from today.
+    if (id === TOYS_DEMO) await refreshToysSale(store, app, now);
     // 126 Safra: the flights twelve weeks ahead, and the demo number's trip from today.
     if (id === "travel") report.deleted += await refreshTravelDemo(store, app, await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164), now);
     // The shared account goes back to its name, should anything have changed it.

@@ -407,6 +407,17 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["toota-home", "toota-menu", "toota-product"],
   },
+  // 209 Toys
+  // 209 Toot, the toy shop: a store in Studio, its two Signature looks, shopping by age, the gift finder and the birthday card.
+  toys: {
+    summary: "A toy shop in Dubai: wooden toys, plush, building sets, puzzles, science kits and outdoor toys, each with its age, safety and materials, shopped by age or by type, with gift wrapping and a birthday card. Its photos are CC0, from StockSnap.",
+    tryThis: [
+      "Tap an age on the home, or the menu at the top, and slide through the categories: by type of toy, by age and the birthday gifts",
+      "Answer the gift finder's three questions, open a toy and read its age, safety and materials",
+      "Add a gift wrap and a card in the cart, write the card's message at checkout with the shop's code, then follow your order in Orders",
+    ],
+    screens: ["toot-home", "toot-menu", "toot-product"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -859,6 +870,27 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Baby, girls' and boys' clothes in sizes by age, newborn gifts and ready sets.",
     fullDescription: `Toota dresses children from birth to 12: baby and newborn sets, girls' and boys' clothes, shoes and accessories, newborn gift boxes and ready-made sets.\n\nFind the size that fits by your child's age, browse every category from the menu, and send a newborn gift wrapped, with a card in your words. Exchanges are free within 30 days.\n\n${PRIVACY_NOTE}`,
     welcome: "Soft clothes from birth to 12, in the size that fits.",
+  },
+  // 209 Toys
+  // 209 Toot (تُوت, "mulberry"), the toy shop: its look A's plum and gold on cream.
+  toys: {
+    appName: "Toot",
+    shortName: "Toot",
+    primaryColor: "#7B2D4E",
+    splashColor: "#F7F2EA",
+    secondaryColor: "#C08A3E",
+    template: "classic",
+    font: "Lexend",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-toys",
+    banner: { picture: "banner-store", heading: "Toys that grow with them", subheading: "Wooden toys, plush, building sets and science kits for every age, gift-wrapped across Dubai." },
+    androidPackage: "com.yallapp.demo.toys",
+    storeTitle: "Toot Toys",
+    shortDescription: "Safe, beautiful toys for every age, gift-wrapped with a card and delivered across Dubai.",
+    fullDescription: `Toot is a toy shop for every age: wooden toys, plush friends, building sets, puzzles and games, science kits, arts and music, and toys for outdoors.\n\nShop by your child's age or by the type of toy, read each toy's age, safety and materials, and let the gift finder suggest a birthday present. Add gift wrapping and a card in your words; returns are free within 30 days.\n\n${PRIVACY_NOTE}`,
+    welcome: "Safe, beautiful toys for every age, wrapped with a card.",
   },
 };
 

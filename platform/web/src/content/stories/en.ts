@@ -1793,5 +1793,254 @@ export const STORIES_EN: StoryCopy = {
         "kids-walk": "A little boy in a denim jacket, seen from behind"
       }
     },
+    // 209 Toys
+    // 209 Toot, the toy shop: a fourth birthday on Saturday, in its look A (Toot); look B (Mukaab) in its section.
+    toys: {
+      navName: "Toy shop app",
+      metaTitle: "A toy shop app with shopping by age, safety and materials and birthday gifts with a card, designed in Yallapp Studio",
+      metaDescription: "A day with Toot: a fourth birthday on Saturday, the toys for 3 to 5 years, a bear's safety and materials, the gift finder, the wrapping and the card in her words.",
+      summary: "Shopping by age and by type of toy, each toy's age, safety and materials, a gift finder, gift wrapping and a birthday card, gifts under a price, in two premium looks.",
+      eyebrow: "Yallapp Studio · The toy shop",
+      title: "Four candles and a bear",
+      intro: "Huda's nephew Adam turns four on Saturday, and she is at work until Friday night. It's Wednesday evening in Dubai. This is how a few minutes with her phone become a wrapped present, with a card in her words.",
+      cast: "Huda shops at Toot, a toy shop in Dubai. Toot is the toy shop template's demo: its toys, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Dubai, after dinner",
+          title: "A birthday on Saturday",
+          text: "Huda opens Toot on the balcony. The home is small and quick: the search, the categories in circles, the collections in cards that slide, the next one peeking from the edge. Under them, the ages in tall photos: 0–12 months, 1–2 years, 3–5 years."
+        },
+        {
+          time: "20:42",
+          kicker: "By age",
+          title: "3–5 years",
+          text: "She taps 3–5 years and the shop opens on the toys for that age only. From the menu beside the bell, every category is a row of cards: Wooden toys, Building, Plush, Puzzles & games, then By age and Birthday gifts, each with its own sub-categories sliding after it."
+        },
+        {
+          time: "20:46",
+          kicker: "The toy's page",
+          title: "From birth, tested, washable",
+          text: "A golden bear in a hand-knitted jumper. Under the price: From birth, tested to EN 71, gift wrapping on offer. Its safety says why: embroidered eyes, no buttons or small parts. Its materials and its care follow, and a table of its age, size and batteries: none needed."
+        },
+        {
+          time: "20:50",
+          kicker: "The gift finder",
+          title: "Three questions",
+          text: "Not sure, she goes back to the home and answers the perfect gift in 3 steps: four years old, loves building, up to 300. The finder says 3–5 years and opens it. She adds the little architect tower to the bear."
+        },
+        {
+          time: "20:54",
+          kicker: "The cart",
+          title: "Kraft, blush and a card",
+          text: "In the cart, the shop offers a little more: the kraft and blush wrap, the black and gold one, and the birthday card in your words. She picks kraft and the card, taps Happy birthday, little one! at checkout and finishes the message herself, with the shop's code, TOOT10."
+        },
+        {
+          time: "10:15",
+          kicker: "Thursday, at the shop",
+          title: "Wrapped, with her words",
+          text: "At Toot, Salma opens the morning's orders. Huda's says the bear and the tower, kraft and blush, and the card's message to write by hand. The order goes to Adam's address, with Huda's name on the card.",
+          push: {
+            app: "Toot",
+            title: "Order 3107",
+            body: "Your gift is wrapped and on its way. Returns are free within 30 days."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Wednesday at nine. Saturday, four candles and a bear.",
+        text: "Everything in between was the shop's own: its ages and its types of toy, each toy's safety and materials, its wraps and its card, its offers and its returns, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one present",
+      stats: [
+        "main categories in the demo's menu, each a row of cards",
+        "ages, each a category a tap away",
+        "days to return a toy, free",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Shopping by age, safety and materials, the birthday gifts and the offers, the two looks, and where the toys come from.",
+      systems: [
+        {
+          name: "Shopping by age",
+          title: "Every toy in the ages it is for",
+          text: "The ages are categories of the shop, and every toy is in its type and in its ages.",
+          features: [
+            [
+              "The ages on the home",
+              "Tall photos or chips, each opening the toys for that age."
+            ],
+            [
+              "The category menu",
+              "Every category a row of cards, its sub-categories sliding after it."
+            ],
+            [
+              "By type too",
+              "Wooden toys, Building, Plush, Puzzles, Science, Arts, Outdoor and Baby."
+            ],
+            [
+              "Search on top",
+              "One field searches every category."
+            ],
+            [
+              "The gift finder",
+              "Three questions; the answer is an age that opens."
+            ],
+            [
+              "In the editor too",
+              "The category menu and the ages are elements of Studio's library, for any store."
+            ]
+          ]
+        },
+        {
+          name: "Safety and materials",
+          title: "What a parent reads before buying",
+          text: "Each toy's page tells its age, its safety, its materials and its care, in the shop's own words.",
+          features: [
+            [
+              "Tested",
+              "A badge for toys tested for children's safety."
+            ],
+            [
+              "Its materials",
+              "Wood, paint, fabric and filling, in a few lines."
+            ],
+            [
+              "Its facts",
+              "Age, material, pieces, size and batteries, as a table."
+            ],
+            [
+              "The age",
+              "From birth, 18+ months, 3+ years: on the page and in the categories."
+            ],
+            [
+              "In three languages",
+              "The page's titles in English, Arabic and Turkish."
+            ]
+          ]
+        },
+        {
+          name: "Birthday gifts, and the offers",
+          title: "Wrapped, with a card",
+          text: "The shop sells the present, not only the toy.",
+          features: [
+            [
+              "The gift finder",
+              "The child's age, what they love and the budget, one at a time."
+            ],
+            [
+              "Gift wrapping",
+              "Wraps offered in the cart with every toy."
+            ],
+            [
+              "The card's message",
+              "Written at checkout, with beginnings to tap in each language."
+            ],
+            [
+              "Gifts under a price",
+              "Rows of toys under 100 and under 200, from the shop's own prices."
+            ],
+            [
+              "Toy of the day",
+              "A flash sale with its countdown and how many are left."
+            ],
+            [
+              "Codes",
+              "The shop's code on a ticket, copied in one tap."
+            ]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Toot comes in two premium looks, built only from Studio's elements.",
+          features: [
+            [
+              "Toot",
+              "Look A: playful and colourful, plum and gold on cream, round photos."
+            ],
+            [
+              "Mukaab",
+              "Look B: calm and educational, one clear blue on grey, tiles and a lab."
+            ],
+            [
+              "Light and dark",
+              "Both looks have a designed night."
+            ],
+            [
+              "A compact hero",
+              "The collections in cards about 210 points tall, the next one peeking."
+            ],
+            [
+              "A floating bar",
+              "Home, Shop, Cart, Orders and Account, the open one a pill with its name."
+            ],
+            [
+              "Ready sections",
+              "The ages, safety first, the gift finder, gifts under a price and more, for any store."
+            ],
+            [
+              "Three languages",
+              "English, Arabic right to left, and Turkish."
+            ]
+          ]
+        },
+        {
+          name: "Where the toys come from",
+          title: "Your toys, or your shop's platform",
+          text: "Toot works with toys kept in Yallapp, or with the online shop you already have.",
+          features: [
+            [
+              "Toys in Yallapp",
+              "Everything on this page: the ages, each toy's safety and materials, the wraps and the card."
+            ],
+            [
+              "WordPress and other platforms",
+              "Their categories and sub-categories in the menu, their toys and prices in the app."
+            ],
+            [
+              "Coming next",
+              "A toy's safety and materials from a connected platform."
+            ]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The parents' app is built and published under the shop's name from one Studio project. Its toys come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        [
+          "Toot",
+          "Parents, on Android and iPhone"
+        ],
+        [
+          "Yallapp Studio",
+          "The shop: its look, ages, toys and offers"
+        ],
+        [
+          "The shop's website",
+          "WooCommerce, Shopify or another, if it has one"
+        ]
+      ],
+      bundleFlows: [
+        "A new toy shows in its type and its ages",
+        "A toy's safety shows on its page",
+        "The card's message arrives with the order",
+        "A wrap is added to the order"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Saturday, at four",
+        text: "Adam builds the tower twice before the cake and puts the bear on top of it. Huda reads her own words aloud from the card. At Toot, Salma is already adding the winter's play tents to their row."
+      },
+      photos: {
+        "toys-hero": "A small child reading in a grey play tent in a sitting room",
+        "toys-blocks": "Wooden blocks in bright colours, close up",
+        "toys-bear": "A golden teddy bear in a blue knitted jumper",
+        "toys-gift": "A gift box tied with a pink ribbon among confetti",
+        "toys-play": "A father and two children in a blanket fort with fairy lights",
+        "toys-finale": "A family playing together on a living-room rug"
+      }
+    },
   },
 };

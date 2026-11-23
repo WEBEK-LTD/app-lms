@@ -23,10 +23,13 @@ import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
-import { ALL_DEMO_TYPES, BEAUTY_DEMO, CLOTHES_DEMO, KIDS_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, type DemoId } from "./constants";
+import { ALL_DEMO_TYPES, BEAUTY_DEMO, CLOTHES_DEMO, KIDS_DEMO, TOYS_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, type DemoId } from "./constants";
 import { CLOTHES_COMMERCE, CLOTHES_CURRENCY, CLOTHES_FREE_SHIPPING_OVER_CENTS, CLOTHES_SHIPPING_CENTS } from "./clothes";
 // 209 Kids' clothes
 import { KIDS_COMMERCE, KIDS_CURRENCY, KIDS_FREE_SHIPPING_OVER_CENTS, KIDS_SHIPPING_CENTS } from "./kids";
+// 209 Toys
+import { TOYS_COMMERCE, TOYS_CURRENCY, TOYS_FREE_SHIPPING_OVER_CENTS, TOYS_SHIPPING_CENTS } from "./toys";
+import { demoToysCommerce, demoToysProducts } from "./toys-entries";
 import { FLOWER_COMMERCE, FLOWER_CURRENCY, FLOWER_FREE_SHIPPING_OVER_CENTS, FLOWER_SHIPPING_CENTS } from "./flowers";
 import {
   BOOKING_RULES,
@@ -239,6 +242,10 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   } else if (content === "catalog" && id === KIDS_DEMO) {
     // 209 Kids' clothes: Toota in Cairo, Egyptian pounds, free from a bigger order, exchanges within 30 days, its size chart by age, Complete the look and the card's message.
     patch.catalogSettings = { currency: KIDS_CURRENCY, shippingCents: KIDS_SHIPPING_CENTS, freeShippingOverCents: KIDS_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(KIDS_COMMERCE) };
+  } else if (content === "catalog" && id === TOYS_DEMO) {
+    // 209 Toys
+    // 209 Toot in Dubai: UAE dirhams, free from 200 AED, returns within 30 days, the birthday card's message at checkout.
+    patch.catalogSettings = { currency: TOYS_CURRENCY, shippingCents: TOYS_SHIPPING_CENTS, freeShippingOverCents: TOYS_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(TOYS_COMMERCE) };
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
   } else if (content === "bookings" && id === "fitness") {
@@ -280,6 +287,11 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     // 209 Kids' clothes: Toota's pieces in sizes by age, its categories, its gift add-ons, its weekend deals and code.
     await demoKidsProducts(entryDeps(deps, client.id), saved);
     await demoKidsCommerce(entryDeps(deps, client.id), saved);
+  } else if (content === "catalog" && id === TOYS_DEMO) {
+    // 209 Toys
+    // 209 Toot's toys in their types, ages and birthday gifts with their details, the wraps and the card, its toy of the day and code.
+    await demoToysProducts(entryDeps(deps, client.id), saved);
+    await demoToysCommerce(entryDeps(deps, client.id), saved);
   }
   else if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
   // Studio's demos: a parcel company, food delivery from three restaurants, rides.
