@@ -27,6 +27,17 @@ export const STUDIO_COVER_TYPES = ["photo_hero", "map_header"] as const;
 export const STUDIO_LIVE_TYPES = ["tracking", "greeting"] as const;
 // ——— 129.11–129.20 Premium content, trust and commerce (types below, "Premium content") ———
 /** 129.11–129.20 Premium elements drawn from their own `entries` and options: quotes, plans, numbers, progress, steps, tiles, badges, a call-to-action bar. */
+/**
+ * 211 The electronics, mobiles and computers shops' elements (`StudioTech`,
+ * lib/selling/specs.ts and tech.ts), for every store: `spec_table` a
+ * product's specs as a table; `compare` two or three products side by side,
+ * spec by spec; `spec_filter` the values a spec takes in the shop (16 GB,
+ * 32 GB) as chips, each opening the shop filtered by it; `trade_in` the
+ * trade-in estimator (the device, its storage and its grade, then what it
+ * is worth, sent to the shop as a request); `pc_builder` Build your PC, its
+ * parts in order and a button that starts it. An app before them skips them.
+ */
+export const STUDIO_TECH_TYPES = ["spec_table", "compare", "spec_filter", "trade_in", "pc_builder"] as const;
 export const STUDIO_PREMIUM_CONTENT_TYPES = ["testimonials", "pricing", "stats", "progress", "timeline", "bento", "badge_text", "cta_bar"] as const;
 /** 129.16 A person's or a place's card: its cover, avatar, name and role, then what it holds (badges, two buttons), then its social links. */
 export const STUDIO_PREMIUM_CARD_TYPES = ["profile_card"] as const;
@@ -73,6 +84,9 @@ export const STUDIO_CONTENT_TYPES = [
   "flash_sale",
   // 208 The shop's size chart (Store › Delivery & offers › Clothes), as a table.
   "size_chart",
+  // 211 An electronics shop's parts (`StudioTech`): a product's specs as a table, two or three products compared,
+  // the shop filtered by a spec, the trade-in estimator and Build your PC.
+  ...STUDIO_TECH_TYPES,
 ] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
@@ -259,6 +273,45 @@ export interface StudioCategoryMenu {
   /** Each card's corners, 0 to 40; missing, 18. */
   radius?: number;
 }
+/**
+ * 211 What a tech element shows (`STUDIO_TECH_TYPES`).
+ * - `spec_table`: `ids` its product (one), else the shop's first featured
+ *   product with specs; `rows` at most (missing, all).
+ * - `compare`: `ids` two or three products, else the first two featured
+ *   products with specs of `category_id` (or the shop); the specs they
+ *   share first.
+ * - `spec_filter`: `spec` the spec it filters by (a key of lib/selling/
+ *   specs.ts), of `category_id`'s products or the shop's.
+ * - `trade_in`: `look` `card` (a card that opens the estimator) or `full`
+ *   (the estimator itself); nothing until the shop takes trade-ins.
+ * - `pc_builder`: the parts in order and a start button; nothing until the
+ *   shop has Build your PC.
+ * `accent`: the highlights' colour; missing, the app's main colour.
+ */
+export const STUDIO_TRADE_IN_LOOKS = ["card", "full"] as const;
+export interface StudioTech {
+  ids?: string[];
+  category_id?: string | null;
+  rows?: number;
+  spec?: string | null;
+  look?: (typeof STUDIO_TRADE_IN_LOOKS)[number];
+  accent?: string | null;
+}
+/** 211 A product as the tech elements get it, with its specs in the page's language. */
+export interface StudioTechProduct {
+  id: string;
+  title: string;
+  image_url: string | null;
+  price: string;
+  was_price: string | null;
+  specs: { key: string | null; label: string; value: string }[];
+}
+/** 211 What the servers fill in a tech element: its products (`spec_table` one, `compare` two or three) or its spec's values with how many products have each (`spec_filter`). */
+export interface StudioTechServed {
+  products?: StudioTechProduct[];
+  spec?: { key: string; label: string; values: { value: string; count: number }[] };
+}
+
 /**
  * 174.1 Studio's "Pill" corners: fully rounded. Every renderer (the canvas's
  * CSS, the app's rounded rectangles) caps corners at half the element's side,
@@ -598,7 +651,8 @@ export interface Action {
 }
 
 /** 162 What a screen action may open first, when the app can: Build your bouquet. */
-export const ACTION_FLOWS = ["bouquet"] as const;
+/** 211 Or the trade-in estimator, or Build your PC, when the shop has it set up (`StoreConfig.trade_in`, `pc_builder`). */
+export const ACTION_FLOWS = ["bouquet", "trade_in", "pc_builder"] as const;
 
 /**
  * 122 How the app shows a web page in it (`Action.web`): with no address bar
@@ -1439,6 +1493,9 @@ export interface StudioNode {
   style?: (typeof STUDIO_CATEGORY_STYLES)[number];
   /** 208 For `categories` drawn as `rows` (the category menu): its look. */
   category_menu?: StudioCategoryMenu | null;
+  /** 211 For the tech elements (`STUDIO_TECH_TYPES`): what they show; the servers fill `tech_served`. */
+  tech?: StudioTech | null;
+  tech_served?: StudioTechServed | null;
   /** 112.4 For `coupon`: the code people copy. */
   code?: string | null;
   // ——— 131 The flower shop ———
