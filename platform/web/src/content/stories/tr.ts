@@ -1372,5 +1372,162 @@ export const STORIES_TR: StoryCopy = {
         "clothes-walk": "Beyaz kum tepelerinde yürüyen beyazlar içinde bir kadın"
       }
     },
+    mobiles: {
+      navName: "Telefon mağazası uygulaması",
+      metaTitle: "Takas, garantili ikinci el, özellikler ve karşılaştırmalı bir telefon mağazası uygulaması, Yallapp Studio'da tasarlandı",
+      metaDescription: "Nova ile bir gün: bir dakikada eski telefonun değeri, depolaması, rengi ve garantisiyle yeni bir telefon, iki telefonun karşılaştırması ve mağazaya ulaşan takas.",
+      summary: "Her birinin fiyatıyla depolama ve renk, yerel ya da uluslararası garanti, tabloda özellikler, iki telefonun karşılaştırması, sınıflarıyla garantili ikinci el ve takas, iki premium görünümde.",
+      eyebrow: "Yallapp Studio · Telefon mağazası",
+      title: "Eski telefon yenisinin bir kısmını öder",
+      intro: "Kerim'in telefonunun arkası çatlak, kamerası geceleri bulanık çekiyor. Kahire'de bir çarşamba akşamı. Aynı telefonla geçen on dakika, eskisinin değeri fiyatından düşülmüş yeni bir telefona böyle dönüşüyor.",
+      cast: "Kerim, Kahire'de bir telefon mağazası olan Nova'dan alışveriş yapıyor. Nova, telefon mağazası şablonunun demosudur: cihazları, markaları, adları ve fiyatları uydurmadır, fotoğrafları gerçektir ve aşağıdaki her ekran gerçek uygulamadır.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Nasr City, işten sonra",
+          title: "Geceleri bulanık çeken bir kamera",
+          text: "Kerim Nova'yı balkonda açıyor. Ana sayfa küçük ve hızlı: arama, dairelerde kategoriler ve kayan kartlarda sezonun telefonları, sıradaki kart kenardan görünüyor. Altında üç söz: takas, yetkili servis ve her cihazda garanti."
+        },
+        {
+          time: "20:43",
+          kicker: "Ne eder?",
+          title: "Eski telefonu, bir dakikadan kısa sürede",
+          text: "Ana sayfanın ortasında bir kart eski telefonunun ne ettiğini soruyor. Modelini, 256 GB'ını ve çatlak arkası yüzünden Yeni gibi değil İyi'yi seçiyor. Tahmin hemen, mağazanın kendi fiyatlarıyla çıkıyor. Takası başlat'a dokunup adını ve numarasını bırakıyor."
+        },
+        {
+          time: "20:47",
+          kicker: "Yeni telefonun sayfası",
+          title: "256 GB, titanyum, yerel garanti",
+          text: "Aylardır istediği telefon. Her depolamanın kendi fiyatı var; titanyum seçili, uluslararası garanti daha ucuz ama o yereli tutuyor. Fiyatın altında sakin bir etiket taksitin yakında geleceğini söylüyor. Onun altında tabloda özellikler: ekran, işlemci, kameralar, batarya."
+        },
+        {
+          time: "20:52",
+          kicker: "Karşılaştırma",
+          title: "Yan yana iki telefon",
+          text: "Emin değil, karşılaştırmaya ikinci bir telefon ekliyor. İkisi yan yana, özellik özellik: 108'e karşı 200 MP, 5.500'e karşı 5.000 mAh, her birinin altında fiyatı. Kamera kazanıyor. İlkini, sayfanın yanında önerdiği deri kılıfla sepete ekliyor."
+        },
+        {
+          time: "21:05",
+          kicker: "Kız kardeşi için",
+          title: "Garantili ikinci el, A sınıfı",
+          text: "Ana sayfaya dönüyor; gece olmuş, uygulama koyulaşmış. Kız kardeşinin üniversite için telefona ihtiyacı var: garantili ikinci el telefonlar sınıflarını, depolamalarını ve pil sağlıklarını gösteriyor. A sınıfı, %91 pilli ve 12 ay garantili bir Lumen 11. Bağlantıyı ona gönderiyor."
+        },
+        {
+          time: "10:15",
+          kicker: "Perşembe, mağazada",
+          title: "Bekleyen bir takas",
+          text: "Nova'da Hani paneli açıyor. Kerim'in takas talebi modeli, depolaması, sınıfı ve uygulamada gördüğü tahminle, siparişinin yanında duruyor. Onu arıyor, yeni telefonu götürüp eskisini alacak tek bir kurye ayarlıyor ve talebi tamamlandı olarak işaretliyor.",
+          push: {
+            app: "Nova",
+            title: "Sipariş 3117",
+            body: "Yeni telefonunuz yolda. Eskisini hazırlayın: kurye alacak."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Çarşamba saat dokuz. Eski telefon kuryeyle gitti.",
+        text: "Aradaki her şey mağazanın kendisindendi: kategorileri ve sıraları, her birinin fiyatıyla depolamaları ve renkleri, garantileri, özellikleri, takas fiyatları ve sınıfları; panelde bir kez ayarlandı."
+      },
+      statsTitle: "Bir telefonun arkasındaki küçük gerçekler",
+      stats: [
+        "demonun menüsünde ana kategori, her biri bir kart sırası",
+        "garantili ikinci el cihazın sınıfı, A+'dan B'ye",
+        "gün içinde iade, her fiyatın altında yazar",
+        "dil, Arapça sağdan sola"
+      ],
+      systemsTitle: "Her parça, ayrıntısıyla",
+      systemsText: "Takas, özellikleri ve karşılaştırmasıyla telefonun sayfası, garantili ikinci el, iki görünüm ve ürünlerin nereden geldiği.",
+      systems: [
+        {
+          name: "Takas",
+          title: "Eski telefon ne eder",
+          text: "Mağaza hangi cihazları aldığını ve her birinin ne ettiğini söyler; uygulama tahmini hesaplar ve talebi gönderir.",
+          features: [
+            ["Cihaz", "Müşteri, mağazanın kendi listesinden bir model seçer."],
+            ["Depolaması", "Her depolamanın kendi en yüksek fiyatı vardır."],
+            ["Durumu", "Yeni gibi, iyi, orta ya da kırık; her biri o fiyatın bir payı."],
+            ["Tahmin", "Bir şey gönderilmeden hemen gösterilir."],
+            ["Mağazaya bir talep", "Ad, numara ve tahmin panele düşer."],
+            ["Editörde de", "Tahmin aracı Studio kütüphanesinin bir öğesidir, sayfada ya da onu açan bir kartta."]
+          ]
+        },
+        {
+          name: "Telefonun sayfası",
+          title: "Depolama, renk, garanti ve özellikler",
+          text: "Bir telefon depolamaları ve renkleriyle gelir, her birinin kendi fiyatı ve stoğu vardır.",
+          features: [
+            ["Depolama ve renk", "Her kombinasyon kendi fiyatıyla ayrı bir stok kalemidir."],
+            ["Yerel ya da uluslararası", "Mağaza ikisini de sunduğunda seçilen bir garanti."],
+            ["Tabloda özellikler", "Ekran, işlemci, kameralar, batarya; müşterinin dilinde."],
+            ["Karşılaştırma", "İki ya da üç cihaz yan yana, özellik özellik."],
+            ["Üç dilde", "Özelliklerin adları İngilizce, Arapça ve Türkçe."],
+            ["Taksit", "Yalnızca yakında geleceğini söyleyen bir etiket; henüz ödeme yolu değil."]
+          ]
+        },
+        {
+          name: "Garantili ikinci el",
+          title: "Güvenilecek bir sınıf",
+          text: "İkinci el cihazlar, alıcının bilmesi gereken her şeyle satılır.",
+          features: [
+            ["Sınıf", "A+ yeni gibi, A mükemmel, B çok iyi."],
+            ["Pil", "Sağlığı yüzde olarak, kartta ve sayfada."],
+            ["Garanti", "Mağazanın arkasında ne kadar durduğu."],
+            ["Tasarruf", "Yeni fiyatı yanında üstü çizili."],
+            ["Günün fırsatları", "Geri sayımı ve kalan adediyle bir flaş indirim."]
+          ]
+        },
+        {
+          name: "Yallapp Studio'da tasarlandı",
+          title: "İki görünüm, her parçası sizin",
+          text: "Nova, yalnızca Studio öğeleriyle kurulmuş iki premium görünümle gelir.",
+          features: [
+            ["NOVA", "Görünüm A: beyaz, mürekkep ve tek bir kobalt vurgu, tahmin aracı ana sayfada."],
+            ["Zümrüt", "Görünüm B: sıcak taş üstünde koyu yeşil, üç adımda takas ve hazır paket."],
+            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var."],
+            ["Kompakt vitrin", "Sezonun telefonları yaklaşık 210 nokta yüksekliğinde kartlarda, sıradaki görünür."],
+            ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan adıyla bir hap."],
+            ["Hazır bölümler", "Takas, karşılaştırma, depolamaya göre, garantili ikinci el ve daha fazlası, her mağaza için."],
+            ["Üç dil", "İngilizce, sağdan sola Arapça ve Türkçe."]
+          ]
+        },
+        {
+          name: "Ürünler nereden geliyor",
+          title: "Ürünleriniz ya da mağazanızın platformu",
+          text: "Nova, Yallapp'te tutulan ürünlerle ya da zaten sahip olduğunuz çevrim içi mağazayla çalışır.",
+          features: [
+            ["Yallapp'teki ürünler", "Bu sayfadaki her şey: özellikler, depolama ve renkler, takas ve aksesuarlar."],
+            ["WordPress ve diğer platformlar", "Kategorileri menüde, varyasyonları ve stokları sayfada."],
+            ["Sırada", "Bağlı bir platformdan özellikler ve takas."]
+          ]
+        }
+      ],
+      bundleTitle: "Tek uygulama, paneliniz ve varsa mağazanız",
+      bundleText: "Müşterilerin uygulaması tek bir Studio projesinden mağazanın adıyla oluşturulur ve yayınlanır. Ürünleri Yallapp'ten ya da mağazanın kendi platformundan gelir.",
+      bundleNodes: [
+        ["Nova", "Müşteriler, Android ve iPhone'da"],
+        ["Yallapp Studio", "Mağaza: görünümü, kategorileri, özellikleri, takası ve fırsatları"],
+        ["Mağazanın web sitesi", "Varsa WooCommerce, Shopify ya da başka biri"]
+      ],
+      bundleFlows: [
+        "Bir takas talebi tahminiyle gelir",
+        "Tükenen depolama uygulamada soluk görünür",
+        "Özellikler müşterinin dilinde görünür",
+        "Bir sipariş depolaması, rengi ve garantisiyle gelir"
+      ],
+      compareTitle: "Nasıl karşılaştırılır",
+      compareText: "Çevrim içi mağazalar için uygulama yapan şirketler, kendi sitelerinin anlattığı gibi; Yallapp'in ve bir ajansa uygulama yaptırmanın yanında.",
+      finale: {
+        title: "Cuma, nehir kenarında",
+        text: "Yeni kamera karanlıkta görüyor. Eski telefon Nova'da bir rafta, 72 noktadan kontrol edilmiş, sınıfını bekliyor. Hani bu haftanın telefonlarını sıralarına çoktan ekledi; Kahire'nin bir yerinde biri kendi eski telefonunun ne ettiğini hesaplıyor."
+      },
+      photos: {
+        "mobiles-hero": "Gri deniz ve gökyüzüne doğru bir telefon tutan el",
+        "mobiles-box": "Açık siyah kutusunda şarj cihazı ve kulaklığıyla yeni bir telefon",
+        "mobiles-camera": "Eski bir film kamerasının yanında üç kameralı bir telefonun arkası",
+        "mobiles-hand": "Açık gri bir duvarın önünde telefon tutan bir el",
+        "mobiles-food": "Bir sofrayı telefonla fotoğraflayan iki el",
+        "mobiles-earbuds": "Beyaz bir masada, kablosuz kulaklıkların yanında duran bir telefon"
+      }
+    },
   },
 };

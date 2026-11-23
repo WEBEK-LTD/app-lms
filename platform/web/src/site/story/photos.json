@@ -519,5 +519,85 @@
         "title": "White Sand"
       }
     }
+  ],
+  "mobiles": [
+    {
+      "slot": "mobiles-hero",
+      "src": "/stories/mobiles/mobiles-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Jef Pawlikowski",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/phone-cellphone-QJXZMNO92D",
+        "title": "Phone Cellphone"
+      }
+    },
+    {
+      "slot": "mobiles-box",
+      "src": "/stories/mobiles/mobiles-box.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Thorn Yang",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/phone-cellphone-FAGBZK62M3",
+        "title": "Phone Cellphone"
+      }
+    },
+    {
+      "slot": "mobiles-camera",
+      "src": "/stories/mobiles/mobiles-camera.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Retro 56",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/smartphone-camera-TBGNSSQV6B",
+        "title": "Smartphone Camera"
+      }
+    },
+    {
+      "slot": "mobiles-hand",
+      "src": "/stories/mobiles/mobiles-hand.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "NeONBRAND",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/mobile-phone-LJNJVQC18S",
+        "title": "Mobile Phone"
+      }
+    },
+    {
+      "slot": "mobiles-food",
+      "src": "/stories/mobiles/mobiles-food.jpg",
+      "width": 960,
+      "height": 641,
+      "credit": {
+        "creator": "Toronto Eaters",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/food-plate-YEBI1N2K7S",
+        "title": "Food Plate"
+      }
+    },
+    {
+      "slot": "mobiles-earbuds",
+      "src": "/stories/mobiles/mobiles-earbuds.jpg",
+      "width": 960,
+      "height": 720,
+      "credit": {
+        "creator": "FOCA Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/iphone-device-KRMOSAYCZ4",
+        "title": "Iphone Device"
+      }
+    }
   ]
 }

@@ -1376,5 +1376,163 @@ export const STORIES_EN: StoryCopy = {
         "clothes-walk": "A woman in white walking over white sand dunes"
       }
     },
+    // 211 Nova, the mobiles shop: an old phone traded in for a new one, in its look A (NOVA); look B (emerald) in its section.
+    mobiles: {
+      navName: "Phone shop app",
+      metaTitle: "A phone shop app with trade-in, certified used, specs and compare, designed in Yallapp Studio",
+      metaDescription: "A day with Nova: an old phone valued in a minute, a new one in its storage, colour and warranty, two phones compared, and the trade-in landing with the shop.",
+      summary: "Storage and colour with a price for each, a local or an international warranty, specs in a table, two phones compared, certified used with grades and trade-in, in two premium looks.",
+      eyebrow: "Yallapp Studio · The phone shop",
+      title: "The old phone pays for part of the new one",
+      intro: "Karim's phone has a cracked back and a camera that blurs at night. It's Wednesday evening in Cairo. This is how ten minutes with that same phone become a new one, with the old one taken off the price.",
+      cast: "Karim shops at Nova, a phone shop in Cairo. Nova is the phone shop template's demo: its devices, brands, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Nasr City, after work",
+          title: "A camera that blurs at night",
+          text: "Karim opens Nova on the balcony. The home is small and quick: the search, the categories in circles, and this season's phones in cards that slide, the next one peeking from the edge. Under them, three promises: trade-in, certified repair and a warranty on every device."
+        },
+        {
+          time: "20:43",
+          kicker: "What it's worth",
+          title: "His old phone, in under a minute",
+          text: "Halfway down the home, a card asks what his old phone is worth. He picks his model, its 256 GB and Good, not Like new, for the cracked back. The estimate appears at once, under the shop's own prices. He taps Start trade-in and leaves his name and number."
+        },
+        {
+          time: "20:47",
+          kicker: "The new phone's page",
+          title: "256 GB, titanium, a local warranty",
+          text: "The phone he wanted for months. Each storage has its own price; titanium is chosen, and the international warranty is cheaper but he keeps the local one. Under the price, a quiet tag says installments are coming soon. Below it, the specs in a table: the screen, the processor, the cameras, the battery."
+        },
+        {
+          time: "20:52",
+          kicker: "Compare",
+          title: "Two phones, side by side",
+          text: "He isn't sure, so he adds a second phone to Compare. The two sit side by side, spec by spec: 200 MP against 108, 5,000 mAh against 5,500, the price at the foot of each. The camera wins. He adds the first one to his cart with the leather case the page offers with it."
+        },
+        {
+          time: "21:05",
+          kicker: "For his sister",
+          title: "Certified used, grade A",
+          text: "Back on the home, at night now, the app has turned dark. His sister needs a phone for university: the certified used ones show their grade, their storage and their battery health. A Lumen 11, grade A, battery at 91%, with a 12-month warranty. He sends her the link."
+        },
+        {
+          time: "10:15",
+          kicker: "Thursday, at the shop",
+          title: "A trade-in waiting",
+          text: "At Nova, Hany opens the dashboard. Karim's trade-in is there with his model, its storage, its grade and the estimate the app showed him, beside his order. He calls, books a courier for the new phone and the old one in the same trip, and marks the request done.",
+          push: {
+            app: "Nova",
+            title: "Order 3117",
+            body: "Your new phone is on its way. Have the old one ready: the courier takes it."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Wednesday at nine. The old phone, gone with the courier.",
+        text: "Everything in between was the shop's own: its categories and their rows, its storages and colours with a price for each, its warranties, its specs, its trade-in prices and grades, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one phone",
+      stats: [
+        "main categories in the demo's menu, each a row of cards",
+        "grades of a certified used device, A+ to B",
+        "days to return a device, shown under every price",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Trade-in, the phone's page with its specs and compare, certified used, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Trade-in",
+          title: "What the old phone is worth",
+          text: "The shop says which devices it takes and what each is worth; the app works out the estimate and sends the request.",
+          features: [
+            ["The device", "The customer picks a model from the shop's own list."],
+            ["Its storage", "Each storage has its own top price."],
+            ["Its condition", "Like new, good, fair or broken, each a share of that price."],
+            ["The estimate", "Shown at once, before anything is sent."],
+            ["A request for the shop", "The name, the number and the estimate land in the dashboard."],
+            ["In the editor too", "The estimator is an element of Studio's library, inline or as a card."]
+          ]
+        },
+        {
+          name: "The phone's page",
+          title: "Storage, colour, warranty and specs",
+          text: "A phone comes in its storages and colours, each with its own price and stock.",
+          features: [
+            ["Storage and colour", "Every combination is its own piece of stock, with its own price."],
+            ["Local or international", "A warranty to choose where the shop offers both."],
+            ["Specs in a table", "The screen, the processor, the cameras, the battery, in the customer's language."],
+            ["Compare", "Two or three devices side by side, spec by spec."],
+            ["In three languages", "The specs' names in English, Arabic and Turkish."],
+            ["Installments", "Only a tag that says they are coming soon; nothing to pay with yet."]
+          ]
+        },
+        {
+          name: "Certified used",
+          title: "A grade you can trust",
+          text: "Used devices are sold with what a buyer needs to know.",
+          features: [
+            ["The grade", "A+ like new, A excellent, B very good."],
+            ["The battery", "Its health in percent, on the card and the page."],
+            ["The warranty", "How long the shop stands behind it."],
+            ["The saving", "The price new struck through beside it."],
+            ["The deal of the day", "A flash sale with its countdown and how many are left."]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Nova comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["NOVA", "Look A: white, ink and one cobalt accent, the estimator on the home."],
+            ["Emerald", "Look B: deep green on warm stone, trade-in in three steps and a ready bundle."],
+            ["Light and dark", "Both looks have a designed night."],
+            ["A compact hero", "This season's phones in cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one a pill with its name."],
+            ["Ready sections", "Trade-in, compare, by storage, certified used and more, for any store."],
+            ["Three languages", "English, Arabic right to left, and Turkish."]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Nova works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            ["Products in Yallapp", "Everything on this page: specs, storages and colours, trade-in and the accessories."],
+            ["WordPress and other platforms", "Their categories in the menu, their variations and stock on the page."],
+            ["Coming next", "Specs and trade-in from a connected platform."]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Nova", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, categories, specs, trade-in and offers"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"]
+      ],
+      bundleFlows: [
+        "A trade-in request arrives with its estimate",
+        "A storage sold out is greyed out in the app",
+        "The specs show in the customer's language",
+        "An order arrives with its storage, colour and warranty"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Friday, at the river",
+        text: "The new camera sees in the dark. The old phone is on a shelf at Nova, checked at 72 points, waiting for its grade. Hany has already added this week's phones to their row, and somewhere in Cairo someone is working out what their own old phone is worth."
+      },
+      photos: {
+        "mobiles-hero": "A hand holding a phone up to a grey sea and sky",
+        "mobiles-box": "A new phone in its open black box with its charger and earphones",
+        "mobiles-camera": "The back of a phone with three cameras beside an old film camera",
+        "mobiles-hand": "A hand holding a phone against a pale grey wall",
+        "mobiles-food": "Two hands taking a photo of a table of food with a phone",
+        "mobiles-earbuds": "A phone lying on a white desk beside a pair of earbuds"
+      }
+    },
   },
 };

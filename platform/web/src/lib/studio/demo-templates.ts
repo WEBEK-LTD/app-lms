@@ -50,6 +50,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   flowers: "flowers_signature_a",
   // 208 Lujain, the clothes shop, is its Signature look A, the boutique (lib/studio/demo-designs/clothes-signature.ts).
   clothes: "clothes_signature_a",
+  // 211 Nova, the mobiles shop, is its Signature look A, NOVA (lib/studio/demo-designs/mobiles-signature.ts).
+  mobiles: "mobiles_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -112,6 +114,8 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   flowers: { surface: "#FFFFFF", nightSurface: "#21121A", line: "#F0DDD9", nightLine: "#3A2530", muted: "#7B5E67", nightMuted: "#C9AEB6" },
   // 208 Lujain's, its look A's (lib/studio/demo-designs/clothes-signature.ts LUJAIN_INK).
   clothes: { surface: "#FFFFFF", nightSurface: "#191917", line: "#E4DFD6", nightLine: "#2E2C28", muted: "#5F5B55", nightMuted: "#B6B0A6" },
+  // 211 Nova's, its look A's (lib/studio/demo-designs/mobiles-signature.ts NOVA_INK).
+  mobiles: { surface: "#FFFFFF", nightSurface: "#15171C", line: "#E2E5EA", nightLine: "#262A31", muted: "#525864", nightMuted: "#AEB3BD" },
 };
 
 /**
@@ -315,6 +319,25 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     clEditTitle: { en: "Day dresses, the new season", ar: "فساتين النهار للموسم الجديد", tr: "Yeni sezonun gündüz elbiseleri" },
     clExchangeNote: { en: "Free exchange within 14 days, picked up from your door.", ar: "استبدال مجاني خلال 14 يومًا، نستلم القطعة من باب منزلكِ.", tr: "14 gün içinde ücretsiz değişim, kapınızdan alınır." },
   },
+  // 211 Nova's own words where its looks leave the owner brackets: its new phone, its trade-in, its brands, its bundle, its numbers and its returns (lib/demo/mobiles.ts).
+  mobiles: {
+    mbHeroKicker1: { en: "Veyra X3 Pro · Just in", ar: "Veyra X3 Pro · وصل حديثًا", tr: "Veyra X3 Pro · Yeni geldi" },
+    mbTradeHeroLine: { en: "Up to 14,500 EGP for your device, off your new one at once", ar: "حتى 14,500 ج.م قيمة جهازك، خصمًا فوريًا من جهازك الجديد", tr: "Cihazınız için 14.500 EGP'ye kadar, yenisinden anında düşülür" },
+    mbBrand1: { en: "Veyra", ar: "Veyra", tr: "Veyra" },
+    mbBrand2: { en: "Orbit", ar: "Orbit", tr: "Orbit" },
+    mbBrand3: { en: "Lumen", ar: "Lumen", tr: "Lumen" },
+    mbBrand4: { en: "Kaira", ar: "Kaira", tr: "Kaira" },
+    mbBundleLine: { en: "The Veyra X3 Pro, its leather case and a wireless charger: 54,950 EGP, 2,098 EGP less than apart.", ar: "Veyra X3 Pro مع جرابه الجلدي وشاحن لاسلكي: 54,950 ج.م، أقل بـ 2,098 ج.م من شرائها منفصلة.", tr: "Veyra X3 Pro, deri kılıfı ve kablosuz şarj cihazı: 54.950 EGP, ayrı ayrı almaktan 2.098 EGP daha az." },
+    mbStat2: { en: "4.9", ar: "4.9", tr: "4,9" },
+    mbStat2Line: { en: "From 38 thousand ratings", ar: "من 38 ألف تقييم", tr: "38 bin değerlendirmeden" },
+    mbStat3: { en: "24 hours", ar: "24 ساعة", tr: "24 saat" },
+    mbStat3Line: { en: "Delivery inside Cairo", ar: "توصيل داخل القاهرة", tr: "Kahire içinde teslimat" },
+    mbStat4: { en: "9 branches", ar: "9 فروع", tr: "9 şube" },
+    mbStat4Line: { en: "In Cairo and Giza", ar: "في القاهرة والجيزة", tr: "Kahire ve Giza'da" },
+    mbContactLine: { en: "Customer care every day, 10 am to midnight", ar: "خدمة العملاء يوميًا من 10 صباحًا حتى منتصف الليل", tr: "Müşteri hizmetleri her gün 10.00–24.00" },
+    mbEditTitle: { en: "The Orbit Nine 5G, 3,500 EGP off", ar: "Orbit Nine 5G بخصم 3,500 ج.م", tr: "Orbit Nine 5G, 3.500 EGP indirimli" },
+    mbReturnsNote: { en: "Returns within 14 days, unopened or faulty, collected from your door.", ar: "الإرجاع خلال 14 يومًا للجهاز غير المفتوح أو المعيب، نستلمه من باب منزلك.", tr: "Açılmamış ya da arızalı ürünlerde 14 gün içinde iade, kapınızdan alınır." },
+  },
   // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
   travel: {
     sigStayOne: { en: "Safra Caldera Suites", ar: "Safra Caldera Suites", tr: "Safra Caldera Suites" },
@@ -372,4 +395,4 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
 }
 
 /** 131.20 The demos whose words carry the app's name, by that name (the demo app's). */
-const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain" };
+const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", mobiles: "Nova" };

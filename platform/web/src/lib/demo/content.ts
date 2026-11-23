@@ -386,6 +386,16 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["lujain-home", "lujain-menu", "lujain-product"],
   },
+  // 211 Nova, the mobiles shop: a store in Studio, its two Signature looks, specs, compare, certified used and trade-in.
+  mobiles: {
+    summary: "A phone shop in Cairo: new phones in every storage and colour with a local or an international warranty, certified used phones with their grade and battery health, tablets, watches, earbuds and accessories, every device with its specs. Its photos are CC0, from StockSnap.",
+    tryThis: [
+      "Find out what your old phone is worth on the home page, choose its storage and condition, and send the trade-in to the shop",
+      "Open a phone, choose its storage, colour and warranty, read its specs and add it to Compare beside another one",
+      "Look through the certified used phones and their grades, then switch the app to Arabic or to dark mode in the account",
+    ],
+    screens: ["nova-home", "nova-menu", "nova-product"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -798,6 +808,26 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Dresses, abayas, coats, shoes and bags in your size, delivered across Riyadh.",
     fullDescription: `Lujain is a house of women's fashion: dresses, abayas, coats and jackets, tops, denim, shoes, bags and accessories.\n\nBrowse every category from the menu, choose your size and colour with the size guide at hand, and complete the look in a few taps. Exchanges are free within 14 days.\n\n${PRIVACY_NOTE}`,
     welcome: "Dresses, abayas and coats in your size, with the size guide at hand.",
+  },
+  // 211 Nova (نوفا), the mobiles shop: its look A's ink and cobalt.
+  mobiles: {
+    appName: "Nova",
+    shortName: "Nova",
+    primaryColor: "#0E1014",
+    splashColor: "#F4F5F7",
+    secondaryColor: "#2A55E5",
+    template: "minimal",
+    font: "Lexend",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-mobiles",
+    banner: { picture: "banner-store", heading: "Phones and what goes with them", subheading: "New and certified used phones, watches and earbuds, delivered across Cairo." },
+    androidPackage: "com.yallapp.demo.mobiles",
+    storeTitle: "Nova Phones",
+    shortDescription: "New and certified used phones, trade-in, watches and earbuds, delivered across Cairo.",
+    fullDescription: `Nova sells phones and everything that goes with them: new phones in every storage and colour, certified used phones with their grade and battery health, tablets, smart watches, earbuds and headphones, chargers and cases.\n\nCompare two phones spec by spec, choose a local or an international warranty, and find out what your old phone is worth: send it as a trade-in and the shop calls you. Returns within 14 days.\n\n${PRIVACY_NOTE}`,
+    welcome: "New and certified used phones, with trade-in for your old one.",
   },
 };
 

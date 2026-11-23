@@ -49,6 +49,8 @@ export const tr: Messages = {
     storyFlowersText: "Teslimat saatleri, kart mesajları ve flaş indirimler",
     storyClothes: "Giyim mağazası uygulaması",
     storyClothesText: "Beden ve renkler, kategori menüsü ve görünümü tamamla",
+    storyMobiles: "Telefon mağazası uygulaması",
+    storyMobilesText: "Takas, garantili ikinci el, özellikler ve karşılaştırma",
     studioDemo: "Studio demosu",
     studioDemoText: "Studio uygulamalarını telefonunda dene",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -800,6 +802,8 @@ export const tr: Messages = {
       flowers_b: { name: "Botanik baskı", text: "Tüm çiçekçi: taç yaprağı başlık, çiçeklerin kime olduğu, kartlar halinde seçki, bilet olarak Bugün gönder, orman yeşilinde flaş indirim, kemerler halinde koleksiyonlar, atölye ve fiyat listesi; her sayfa, çubuk, hesap ve hediye ödemesi adaçayı ve şeftalide." },
       clothes_a: { name: "LUJAIN, butik", text: "Siyah beyaz tüm giyim mağazası: menüsü kategori menüsünü açan küçük başlık, arama, yuvarlak kategoriler, sonraki kartı görünen vitrin, yeni gelenler, günün fırsatı, numaralı noktalarla kombini al, fotoğraf kutuları halinde koleksiyonlar ve beden kartı; kategori menüsü, beden rehberi, mağaza, sepet ve siparişler sıcak kâğıt ve mürekkep tonlarında, kömür rengi bir gece moduyla." },
       clothes_b: { name: "NOUN, sokak modası", text: "Sokak modası olarak tüm giyim mağazası: beton grisi ve elektrik mavisi, numaralı satırlarla kategori menüsü, haftanın yenileri, kayan yazı, numaralı çok satanlar, kombini al ve günün fırsatı; her sayfa, çubuk, hesap, mağaza, sepet ve siparişler aynı görünümde, siyaha yakın bir gece moduyla." },
+      mobiles_a: { name: "NOVA, mürekkep ve kobalt", text: "Beyaz, mürekkep ve kobaltla tüm telefon mağazası: kategori menüsünü açan menü, arama, dairelerde kategoriler, kamera telefonu vitrini, takas, servis ve garanti, özellikleriyle en yeni telefonlar, eski telefonunuzun değeri sayfanın üstünde hesaplanır, günün fırsatları, sınıflarıyla garantili ikinci el, iki telefonun karşılaştırması, aksesuarlar ve markalar." },
+      mobiles_b: { name: "Taş üstünde zümrüt", text: "Sıcak taş üstünde koyu yeşille tüm telefon mağazası: kutucuklarda kategoriler, takas vitrini, çok satanlar, üç adımda takas, garantili yenilenmiş cihazlar, fırsat, taksit yakında notuyla hazır paket, iki telefonun karşılaştırması ve rakamlarınız." },
     },
   },
   meta: {

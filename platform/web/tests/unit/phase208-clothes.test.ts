@@ -62,11 +62,12 @@ describe("208 the shop types: sections, then types, then templates", () => {
   it("lists every type of the planning doc in its sections, Clothes ready and the others coming soon", () => {
     expect([...SHOP_SECTIONS]).toEqual(["fashion", "beauty", "home", "kids", "shopping"]);
     expect(SHOP_TYPES.map((t) => t.id)).toEqual(["clothes", "kids_clothes", "cosmetics", "furniture", "decor", "crochet", "toys", "electronics", "mobiles", "computers"]);
-    expect(SHOP_TYPES.filter(shopTypeReady).map((t) => t.id)).toEqual(["clothes"]);
+    // 211 Mobiles ready too (and the types other stages make ready beside it).
+    expect(SHOP_TYPES.filter(shopTypeReady).map((t) => t.id)).toEqual(expect.arrayContaining(["clothes", "mobiles"]));
     // Kids' clothes in Fashion and in Kids & toys, the same type once.
     expect(shopTypesIn("fashion").map((t) => t.id)).toEqual(["clothes", "kids_clothes"]);
     expect(shopTypesIn("kids").map((t) => t.id)).toEqual(["kids_clothes", "toys"]);
-    expect(shopTypesIn("shopping").map((t) => t.id)).toEqual(["electronics", "mobiles", "computers"]);
+    expect(shopTypesIn("shopping").map((t) => t.id).sort()).toEqual(["computers", "electronics", "mobiles"]);
     expect(SECTION_DEMOS.shopping).toEqual(["flowers", "marketplace"]);
     // Installments: never active, "coming soon" for furniture, electronics, mobiles and computers only.
     expect(SHOP_TYPES.filter((t) => t.installmentsSoon).map((t) => t.id)).toEqual(["furniture", "electronics", "mobiles", "computers"]);

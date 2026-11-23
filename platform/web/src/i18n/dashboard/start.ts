@@ -59,6 +59,7 @@ export const en = {
     travel: { name: "Hotels and flights", line: "Stays, your own flights and both as one trip" },
     flowers: { name: "Flower shop", line: "Bouquets, delivery days and a gift checkout" },
     clothes: { name: "Clothes shop", line: "Sizes and colours, the category menu and complete the look" },
+    mobiles: { name: "Phone shop", line: "Storage and colour, trade-in, certified used and compare" },
   },
   business: {
     teaching: "Teaching and courses",
@@ -248,6 +249,7 @@ export const ar: Messages = {
     travel: { name: "فنادق وطيران", line: "إقامة وطياراتك وجوه رحلة واحدة" },
     flowers: { name: "محل ورد", line: "بوكيهات ومواعيد توصيل ودفع كهدية" },
     clothes: { name: "محل هدوم", line: "مقاسات وألوان، وقايمة الأقسام، وكمّل الإطلالة" },
+    mobiles: { name: "محل موبايلات", line: "المساحة واللون، والاستبدال، والمستعمل المضمون، والمقارنة" },
   },
   business: {
     teaching: "تعليم وكورسات",
@@ -433,6 +435,7 @@ export const tr: Messages = {
     travel: { name: "Otel ve uçuş", line: "Konaklama, kendi uçuşlarınız ve ikisi tek seyahatte" },
     flowers: { name: "Çiçekçi", line: "Buketler, teslimat günleri ve hediye ödemesi" },
     clothes: { name: "Giyim mağazası", line: "Beden ve renkler, kategori menüsü ve görünümü tamamla" },
+    mobiles: { name: "Telefon mağazası", line: "Depolama ve renk, takas, garantili ikinci el ve karşılaştırma" },
   },
   business: {
     teaching: "Eğitim ve kurslar",

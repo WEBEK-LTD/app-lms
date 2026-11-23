@@ -169,6 +169,13 @@ export const APP_SCREENS = [
   "clothes-sig-b-home",
   "clothes-sig-a-home-dark",
   "clothes-sig-b-home-dark",
+  // 211 Nova, the mobiles shop: its guide's screens (look A) and its looks' homes.
+  "nova-home",
+  "nova-menu",
+  "nova-product",
+  "mobiles-sig-b-home",
+  "mobiles-sig-a-home-dark",
+  "mobiles-sig-b-home-dark",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -311,6 +318,12 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "clothes-sig-b-home": "Lujain in its second look, NOUN's streetwear: the drop's hero, new this week, shop the look and the categories",
   "clothes-sig-a-home-dark": "Lujain in its first look, the boutique, by night: the search, the categories, the season's collections and what's new",
   "clothes-sig-b-home-dark": "Lujain in its second look, NOUN's streetwear, by night: the drop's hero, new this week, shop the look and the categories",
+  "nova-home": "Nova, a phone shop, in its first look: the search, the categories, the camera phone's hero with the next one peeking, the latest phones and what your old phone is worth",
+  "nova-menu": "Nova's category menu: phones, certified used, tablets, watches, audio and accessories, each a row of cards that slides",
+  "nova-product": "A phone in Nova: its photos, its storage, colour and warranty, its specs and the accessories that go with it",
+  "mobiles-sig-b-home": "Nova in its second look, deep green: the categories as tiles, trade-in in three steps, the best sellers and the certified used phones with their grades",
+  "mobiles-sig-a-home-dark": "Nova in its first look, by night: the camera phone's hero, the latest phones, the trade-in estimate and the deal of the day",
+  "mobiles-sig-b-home-dark": "Nova in its second look, by night: trade-in in three steps, the best sellers, the certified used phones and the bundle",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",
