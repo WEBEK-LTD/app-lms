@@ -243,6 +243,22 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "212 The brands in the listing's filters.": { ar: "الماركات في فلاتر المنتجات.", tr: "Ürün filtrelerindeki markalar." },
   "212 The price range chosen in the filters.": { ar: "نطاق السعر المختار في الفلاتر.", tr: "Filtrelerde seçilen fiyat aralığı." },
   "212 A Studio listing filter's button: opens the shop with its filters.": { ar: "زرار عنصر الفلاتر في الاستوديو: بيفتح المتجر بفلاتره.", tr: "Studio filtre öğesinin düğmesi: mağazayı filtreleriyle açar." },
+  // 228 The Studio product page's words.
+  "228 A Studio product page's second button: adds the product and opens the cart.": {
+    en: "Your product page's second button: adds the product and opens the cart.",
+    ar: "الزرار التاني في صفحة المنتج: بيضيف المنتج للسلة ويفتحها.",
+    tr: "Ürün sayfanızın ikinci düğmesi: ürünü sepete ekler ve sepeti açar.",
+  },
+  "228 A Studio product page's price when it starts from its lowest size's.": {
+    en: "Your product page's price when it starts from its lowest size's.",
+    ar: "سعر صفحة المنتج لما يبدأ من سعر أصغر مقاس.",
+    tr: "Ürün sayfanızda fiyat en düşük bedenin fiyatından başladığında.",
+  },
+  "228 The title of a Studio product page's delivery and returns card.": {
+    en: "The title of your product page's delivery and returns card.",
+    ar: "عنوان كارت التوصيل والإرجاع في صفحة المنتج.",
+    tr: "Ürün sayfanızdaki teslimat ve iade kartının başlığı.",
+  },
   // 208 The clothes type's words.
   "208 Link beside a product's sizes: opens the shop's size chart.": {
     en: "The link beside a product's sizes: opens your size chart.",
