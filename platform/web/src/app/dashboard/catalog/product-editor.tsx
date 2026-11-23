@@ -13,7 +13,7 @@ import { CopyButton } from "@/components/copy-button";
 import { parsePrice } from "@/lib/catalog/money";
 import { initialFormState } from "@/lib/forms";
 import { richText } from "@/i18n/rich";
-import { AddonFields, Check, OptionGroupsEditor, VariantsEditor, type ProductFormValues } from "./forms";
+import { AddonFields, Check, DetailsFields, OptionGroupsEditor, VariantsEditor, type ProductFormValues } from "./forms";
 
 /** One card of the editor: its heading, a line about it, and its fields. */
 function Card({ id, icon, title, description, children }: { id: string; icon: IconName; title: string; description?: ReactNode; children: ReactNode }) {
@@ -248,6 +248,8 @@ export function ProductEditor({
     { id: "p-stock", label: t("shop.stock"), icon: "inventory_2" },
     { id: "p-delivery", label: t("manage.secDelivery"), icon: "local_shipping" },
     ...(restaurant ? [] : [{ id: "p-addon", label: t("manage.secAddon"), icon: "redeem" as const }]),
+    // 209 More about it: facts, ingredients, safety, badges, expiry, ages, swatches.
+    ...(restaurant ? [] : [{ id: "p-more", label: t("shopTypes.detailsTab"), icon: "fact_check" as const }]),
     { id: "p-search", label: t("manage.secSearch"), icon: "travel_explore" },
   ];
   const chip = "flex cursor-pointer items-center gap-2 rounded-full border border-line py-1.5 ps-2.5 pe-3.5 text-sm has-[:checked]:border-midnight has-[:checked]:bg-sand";
@@ -336,6 +338,13 @@ export function ProductEditor({
           {restaurant ? null : (
             <Card id="p-addon" icon="redeem" title={t("manage.secAddon")}>
               <AddonFields product={product} categories={categories} products={products} error={errors.addonFor} />
+            </Card>
+          )}
+
+          {/* 209 What its page tells besides the description. */}
+          {restaurant ? null : (
+            <Card id="p-more" icon="fact_check" title={t("shopTypes.detailsTab")} description={t("shopTypes.detailsIntro")}>
+              <DetailsFields product={product} errors={errors} />
             </Card>
           )}
 

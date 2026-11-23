@@ -1,5 +1,8 @@
 "use client";
 
+import type { detailsFormText } from "@/lib/catalog/details";
+import { PRODUCT_BADGES, PRODUCT_INFO_KINDS } from "@/lib/data/types";
+import type { DashKey } from "@/i18n/dashboard";
 import { useActionState, useState, type ReactNode } from "react";
 import {
   addCouponAction,
@@ -50,6 +53,8 @@ export interface ProductFormValues {
   optionGroups: EditorGroup[];
   /** 91.5 The variations as the editor keeps them (prices as typed). */
   variants: EditorVariants;
+  /** 209 Its details as the form shows them (lib/catalog/details.ts detailsFormText); missing: none. */
+  details?: ReturnType<typeof detailsFormText>;
 }
 
 /** 91.5 Variations in the editor: attributes with their values typed as a list, and the combinations sold. */
@@ -197,6 +202,59 @@ export function Check({ name, label, hint, defaultChecked }: { name: string; lab
         <span className="text-[13px] text-muted">{hint}</span>
       </span>
     </label>
+  );
+}
+
+/**
+ * 209 More about it: its facts, its parts in its words (ingredients, how to
+ * use it, safety, materials, care, what's in the box), its badges, expiry,
+ * ages and swatches (lib/catalog/details.ts).
+ */
+export function DetailsFields({ product, errors }: { product: ProductFormValues; errors: Record<string, string | undefined> }) {
+  const t = useDashT();
+  const d = product.details;
+  const area = "min-h-[88px] rounded-xl border border-line bg-white px-3 py-2 text-[15px]";
+  return (
+    <div className="flex flex-col gap-4" data-details-fields="">
+      <label className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold">{t("shopTypes.detailsFacts")}</span>
+        <textarea name="detailFacts" defaultValue={d?.facts ?? ""} rows={3} className={area} aria-describedby="f-detailFacts-hint" />
+        <span id="f-detailFacts-hint" className="text-[13px] text-muted">
+          {t("shopTypes.detailsFactsHint")}
+        </span>
+        <FieldError id="f-detailFacts-error" error={errors.detailFacts} />
+      </label>
+      {PRODUCT_INFO_KINDS.map((kind) => (
+        <label key={kind} className="flex flex-col gap-1.5">
+          <span className="text-sm font-semibold">{t(`shopTypes.detailsInfo_${kind}` as DashKey)}</span>
+          <textarea name={`detailInfo_${kind}`} defaultValue={d?.info[kind] ?? ""} rows={2} maxLength={2000} className={area} />
+        </label>
+      ))}
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-1.5 text-sm font-semibold">{t("shopTypes.detailsBadges")}</legend>
+        <div className="flex flex-wrap gap-2">
+          {PRODUCT_BADGES.map((b) => (
+            <label key={b} className="flex cursor-pointer items-center gap-2 rounded-full border border-line py-1.5 ps-2.5 pe-3.5 text-sm has-[:checked]:border-midnight has-[:checked]:bg-sand">
+              <input type="checkbox" name={`detailBadge_${b}`} defaultChecked={d?.badges.has(b) ?? false} className="h-4 w-4 accent-midnight" />
+              {t(`shopTypes.detailsBadge_${b}` as DashKey)}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Field label={t("shopTypes.detailsExpiry")} name="detailExpiry" defaultValue={d?.expiry ?? ""} hint={t("shopTypes.detailsExpiryHint")} error={errors.detailExpiry} dir="ltr" placeholder="2027-06" />
+        <Field label={t("shopTypes.detailsAgeMin")} name="detailAgeMin" inputMode="numeric" defaultValue={d?.ageMin ?? ""} hint={t("shopTypes.detailsAgeHint")} error={errors.detailAge} dir="ltr" />
+        <Field label={t("shopTypes.detailsAgeMax")} name="detailAgeMax" inputMode="numeric" defaultValue={d?.ageMax ?? ""} dir="ltr" />
+      </div>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold">{t("shopTypes.detailsSwatches")}</span>
+        <textarea name="detailSwatches" defaultValue={d?.swatches ?? ""} rows={3} dir="ltr" className={area} aria-describedby="f-detailSwatches-hint" />
+        <span id="f-detailSwatches-hint" className="text-[13px] text-muted">
+          {t("shopTypes.detailsSwatchesHint")}
+        </span>
+        <FieldError id="f-detailSwatches-error" error={errors.detailSwatches} />
+      </label>
+    </div>
   );
 }
 

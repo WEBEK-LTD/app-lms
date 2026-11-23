@@ -26,6 +26,7 @@ import { LOYALTY_LIMITS } from "@/lib/catalog/loyalty";
 import { awaitingManualPayment, manualChoices, readManualPayments } from "@/lib/catalog/manual";
 import { TAX_RATE_MAX_BPS } from "@/lib/catalog/tax";
 import { parseVariants } from "@/lib/catalog/variants";
+import { parseDetailsForm } from "@/lib/catalog/details";
 import { readProductNumbers } from "@/lib/catalog/product-fields";
 import { parseOptionGroups } from "@/lib/catalog/options";
 import { catalogSettings, encryptOwnPayment, isOwnPayment, ownPaymentInput } from "@/lib/catalog/settings";
@@ -211,6 +212,10 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     }
     uploads.push({ data, type });
   }
+  // 209 More about it (not a restaurant's): facts, its parts, badges, expiry, ages, swatches.
+  const detailFields = Object.fromEntries([...formData.keys()].filter((k) => k.startsWith("detail")).map((k) => [k, str(formData, k)]));
+  const details = app.vertical === "restaurant" ? ({ ok: true, value: existing?.details ?? null } as const) : parseDetailsForm(detailFields);
+  if (!details.ok) Object.assign(errors, details.errors);
   // 131 A gift add-on, and what it's offered with.
   const addon = formData.get("addon") === "on" && app.vertical !== "restaurant";
   const addonFor = addon
@@ -255,6 +260,7 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     addonFor: addonFor?.ok && addonFor.value.offerWith !== "all" ? addonFor.value : null,
     optionGroups: optionGroups.ok && optionGroups.value.length > 0 ? optionGroups.value : null,
     variants: variants.ok ? variants.variants : null,
+    details: details.ok ? details.value : null,
     // 110.2 A sample product saved here is the owner's from now on.
     sample: false,
   };

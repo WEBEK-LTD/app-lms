@@ -6,6 +6,7 @@ import { PageHeader, btn } from "@/components/ui";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { centsToDecimal } from "@/lib/catalog/money";
+import { detailsFormText, productDetails } from "@/lib/catalog/details";
 import { optionGroupsOf } from "@/lib/catalog/options";
 import { catalogSettings } from "@/lib/catalog/settings";
 import { appUrl } from "@/lib/env";
@@ -79,6 +80,8 @@ export async function ProductPage({ id }: { id: number | null }) {
         active: product.active,
         optionGroups,
         variants,
+        // 209 More about it.
+        details: detailsFormText(productDetails(product)),
       }
     : { id: null, name: "", description: "", price: "", salePrice: "", stock: "", sku: "", categoryIds: [], images: [], digital: false, featured: false, active: true, optionGroups, variants };
   // Its own page, while it's shown in the app.

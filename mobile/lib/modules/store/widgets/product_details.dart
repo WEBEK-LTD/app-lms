@@ -158,11 +158,12 @@ class ProductInfoSections extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    return Container(
+    // Its own Material, so the tiles' ink shows on its colour.
+    return Material(
       key: const ValueKey('product-info'),
-      decoration: BoxDecoration(
-        color: p.surface,
-        border: Border.all(color: p.border),
+      color: p.surface,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: p.border),
         borderRadius: BorderRadius.circular(16),
       ),
       clipBehavior: Clip.antiAlias,
