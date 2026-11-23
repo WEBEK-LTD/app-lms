@@ -9,9 +9,11 @@ import { BLOCK_LABELS } from "./labels";
 import { ICON_NAME } from "./icons";
 import { innerScreen, innerScreensFor } from "./inner-screens";
 import { appOpensScreen, blockTypesFor, categorySourcesFor, itemSourcesFor, screenName, sortFor } from "./sources";
+import { isSpecKey } from "../selling/specs";
 import {
   OWN_TRANSLATIONS,
   ACTION_TYPES,
+  ACTION_FLOWS,
   APP_FONTS,
   APP_TEMPLATES,
   BUTTON_STYLES,
@@ -86,6 +88,8 @@ import {
   type StudioMarquee,
   STUDIO_CATEGORY_STYLES,
   STUDIO_CATEGORY_MENU_LOOKS,
+  STUDIO_TRADE_IN_LOOKS,
+  type StudioTech,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_DAYS,
@@ -177,6 +181,8 @@ import {
   STUDIO_TIMELINE_STYLES,
   STUDIO_TIMELINE_SOURCES,
   STUDIO_BENTO_CAPTIONS,
+  STUDIO_QUIZ_LIMITS,
+  STUDIO_SWATCH_SHAPES,
   STUDIO_PATTERNS,
   STUDIO_TICKET_AXES,
   type StudioEntry,
@@ -453,8 +459,8 @@ function parseAction(ctx: Context, where: string, value: unknown, required: bool
       if (!oneOf(SCREENS, v.screen)) c.fail(where, "choose a screen.");
       // 31 Only screens the app's module opens: anything else would do nothing when tapped.
       else if (!appOpensScreen(ctx.app, v.screen)) c.fail(where, `this app has no "${screenName(v.screen)}" screen. Choose another screen.`);
-      // 162 Build your bouquet, a store's only, over its shop.
-      if (v.flow === "bouquet" && v.screen === "search" && ctx.app.appType === "store") return { type: "screen", screen: "search", flow: "bouquet" };
+      // 162 Build your bouquet, a store's only, over its shop; 211 and the trade-in estimator and Build your PC.
+      if (oneOf(ACTION_FLOWS, v.flow) && v.screen === "search" && ctx.app.appType === "store") return { type: "screen", screen: "search", flow: v.flow };
       // 157 The shop opened at one of its categories (a tile's, a ring's): its ID, or the shop as it is.
       if (v.screen === "search" && v.category_id !== undefined && v.category_id !== null && v.category_id !== "") {
         const category = String(v.category_id).trim();
@@ -844,6 +850,16 @@ function parseQuery(ctx: Context, where: string, value: unknown, source: unknown
     ids: ids.slice(0, LAYOUT_LIMITS.maxHandPicked),
     // 112.4 Products on sale only (the other sources have no sale price).
     ...(v.on_sale === true && source === "products" ? { on_sale: true } : {}),
+    // 209 Products at this price or under ("Gifts under 100"), in the shop's currency.
+    ...(() => {
+      if (v.max_price === undefined || v.max_price === null || source !== "products") return {};
+      const max = Number(v.max_price);
+      if (!Number.isFinite(max) || max <= 0 || max > 10_000_000) {
+        c.fail(where, "the highest price must be more than 0.");
+        return {};
+      }
+      return { max_price: Math.round(max * 100) / 100 };
+    })(),
   };
 }
 
@@ -2008,8 +2024,54 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       }
       break;
     }
+    case "spec_table":
+    case "compare":
+    case "spec_filter":
+    case "trade_in":
+    case "pc_builder": {
+      // 211 An electronics shop's parts, a store's only: what each shows.
+      if (!ctx.sources.includes("products")) bad("only a shop has products to show this way.");
+      const o = v.tech !== undefined && v.tech !== null ? record(v.tech) : {};
+      if (!o) {
+        bad("the element's options aren't valid.");
+        break;
+      }
+      const tech: StudioTech = {};
+      if (o.ids !== undefined && o.ids !== null) {
+        const most = node.type === "compare" ? 3 : 1;
+        const ids = Array.isArray(o.ids) ? o.ids.map((x) => String(x).trim()) : null;
+        if (!ids || ids.some((x) => !/^\d{1,12}$/.test(x))) bad("choose the shop's products.");
+        else if (ids.length > most) bad(node.type === "compare" ? "compare two or three products." : "choose one product.");
+        else if (ids.length) tech.ids = [...new Set(ids)];
+      }
+      if (o.category_id !== undefined && o.category_id !== null && o.category_id !== "") {
+        const category = String(o.category_id).trim();
+        if (!CATEGORY_ID.test(category)) bad("choose one of the shop's categories.");
+        else tech.category_id = category;
+      }
+      const rows = studioNumber(o.rows, 1, 40);
+      if (rows !== undefined && Number.isNaN(rows)) bad("show 1 to 40 rows.");
+      else if (rows !== undefined && node.type !== "trade_in" && node.type !== "pc_builder") tech.rows = Math.round(rows);
+      if (node.type === "spec_filter") {
+        if (!isSpecKey(o.spec)) bad("choose the specification it filters by.");
+        else tech.spec = o.spec;
+      }
+      if (node.type === "trade_in" && o.look !== undefined && o.look !== null) {
+        if (!oneOf(STUDIO_TRADE_IN_LOOKS, o.look)) bad("choose how the trade-in looks.");
+        else tech.look = o.look;
+      }
+      const accent = optionalColor(c, where, o.accent, "the highlights' colour");
+      if (accent) tech.accent = accent;
+      node.tech = tech;
+      const text = c.optionalText(where, v.text, L.titleChars, "The title");
+      if (text) node.text = text;
+      const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.titleChars, title: L.titleChars });
+      if (translations) node.translations = translations;
+      break;
+    }
+    case "listing_filters":
     case "size_chart": {
-      // 208 The shop's size chart; its title (optional) above it.
+      // 208 The shop's size chart; its title (optional) above it. 212 The listing filters' too.
       const text = c.optionalText(where, v.text, L.titleChars, "The size chart's title");
       if (text) node.text = text;
       const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.titleChars, title: L.titleChars });
@@ -2049,7 +2111,17 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
         send_to: send ?? "email",
         submit_label: c.optionalText(where, f.submit_label, 40, "The button text") || null,
         success_text: c.optionalText(where, f.success_text, 200, "The text after sending") || null,
+        // 210 A custom-order request: kept as the shop's request (by email too, so it is sent the same way).
+        ...(f.request === "custom_order" && (send ?? "email") === "email" ? { request: "custom_order" as const } : {}),
       };
+      break;
+    }
+    case "delivery_slots": {
+      // 210 The shop's next delivery days and times; how many days, and the assembly line.
+      const d = record(v.delivery_slots) ?? {};
+      const days = studioNumber(d.days, 3, 10);
+      if (Number.isNaN(days)) bad("show 3 to 10 days.");
+      node.delivery_slots = { ...(days !== undefined && !Number.isNaN(days) ? { days: Math.round(days) } : {}), ...(d.assembly === true ? { assembly: true } : {}) };
       break;
     }
     case "map": {
@@ -2206,6 +2278,10 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     case "badge_text":
     case "cta_bar":
     case "profile_card":
+    // 209 The size finder, the swatches and the quiz: their words, lists and options.
+    case "size_finder":
+    case "swatches":
+    case "quiz":
       Object.assign(node, parsePremium(ctx, where, v, node.type, bad));
       break;
     default:
@@ -2487,6 +2563,9 @@ const PREMIUM_LISTS: Record<string, { min: number; needs?: "title" | "text" | "v
   progress: { min: 1, needs: "value", what: "each bar needs how far it is, 0 to 100" },
   timeline: { min: 1, needs: "title", what: "each step needs a title" },
   bento: { min: 1, needs: "title", what: "each tile needs a title" },
+  // 209 A shade needs its name and its colour; a quiz's result its name.
+  swatches: { min: 1, needs: "title", what: "each swatch needs its name" },
+  quiz: { min: 2, needs: "title", what: "each result needs its name" },
 };
 
 /**
@@ -2500,6 +2579,15 @@ function parsePremium(ctx: Context, where: string, v: Record<string, unknown>, t
   const out: Partial<StudioNode> = {};
   const L = STUDIO_LIMITS;
   // The element's own words (its tap is parsed with every element's).
+  // 209 The size finder's, the swatches' and the quiz's heading (`text`) and button (`title`).
+  if (type === "size_finder" || type === "swatches" || type === "quiz") {
+    const text = c.optionalText(where, v.text, L.titleChars, "The heading");
+    if (text) out.text = text;
+    const title = c.optionalText(where, v.title, 40, "The button's words");
+    if (title) out.title = title;
+    const translations = parseTranslations(ctx, where, v.translations, ["text", "title"], { text: L.titleChars, title: 40 });
+    if (translations) out.translations = translations;
+  }
   if (type === "badge_text" || type === "cta_bar" || type === "profile_card") {
     const max = type === "profile_card" ? L.titleChars : 200;
     const text = c.optionalText(where, v.text, max, type === "badge_text" ? "The badge's words" : type === "cta_bar" ? "The button's words" : "The role");
@@ -2652,6 +2740,34 @@ function parsePremium(ctx: Context, where: string, v: Record<string, unknown>, t
         }
         if (Object.keys(pr).length) out.profile = pr;
       }
+      break;
+    }
+    case "swatches": {
+      const o = optionsOf("swatches");
+      if (o) {
+        const sw: NonNullable<StudioNode["swatches"]> = {};
+        if (o.shape !== undefined && o.shape !== null) {
+          if (!oneOf(STUDIO_SWATCH_SHAPES, o.shape)) bad("choose round or square swatches.");
+          else if (o.shape !== "circle") sw.shape = o.shape;
+        }
+        const size = studioNumber(o.size, 24, 64);
+        if (size !== undefined && Number.isNaN(size)) bad("a swatch's size must be 24 to 64.");
+        else if (size) sw.size = Math.round(size);
+        if (Object.keys(sw).length) out.swatches = sw;
+      }
+      break;
+    }
+    case "quiz": {
+      const o = optionsOf("quiz");
+      const raw = o && Array.isArray(o.questions) ? o.questions : null;
+      if (!raw || raw.length < 1 || raw.length > STUDIO_QUIZ_LIMITS.questions) {
+        bad(`a quiz has 1 to ${STUDIO_QUIZ_LIMITS.questions} questions.`);
+        break;
+      }
+      const questions = raw.map((q, i) => parseEntry(ctx, `${where} › question ${i + 1}`, q, type)).filter((q): q is StudioEntry => q !== null);
+      const answers = (text: string | null | undefined) => (text ?? "").split("\n").map((x) => x.trim()).filter(Boolean);
+      if (questions.some((q) => !q.title || answers(q.text).length < 2 || answers(q.text).length > STUDIO_QUIZ_LIMITS.answers)) bad(`each question needs its words and 2 to ${STUDIO_QUIZ_LIMITS.answers} answers, one per line.`);
+      else out.quiz = { questions };
       break;
     }
     case "badge_text": {

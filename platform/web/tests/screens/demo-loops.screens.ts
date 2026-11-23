@@ -20,6 +20,8 @@ import { createPreviewToken, previewAppPath, previewKey } from "../../src/lib/pr
  * `LOOPS=academy,taxi` records only those demos (their /demo slugs).
  */
 test.describe.configure({ mode: "serial" });
+// 209 A Chromium of the machine's own, when the project's Playwright has none downloaded (PW_CHROMIUM).
+if (process.env.PW_CHROMIUM) test.use({ launchOptions: { executablePath: process.env.PW_CHROMIUM } });
 
 const RAW = path.resolve(__dirname, "../../.data/demo-loops");
 const only = (process.env.LOOPS ?? "").split(",").filter(Boolean);
@@ -40,8 +42,10 @@ test.beforeAll(async ({ browser }) => {
     await admin.getByRole("button", { name: family === "studio" ? /Create Studio's demo apps|Refresh all of Studio's demo apps/ : /Create the regular demo apps|Refresh all regular demo apps/ }).click();
     await expect(admin.getByRole("status")).toContainText("up to date", { timeout: 90_000 });
     for (const id of ALL_DEMO_TYPES.filter((d) => STUDIO_DEMO_TYPES.includes(d as never) === (family === "studio"))) {
+      // 209 Its own name exactly ("Toot" is not "Toota").
       const name = DEMO_BRANDS[id].appName;
-      appIds.set(id, await admin.locator(`form:not(:has(input[name="variant"])):has(button:has-text("Start a build of ${name}")) input[name="appId"]`).first().inputValue());
+      const button = admin.getByRole("button", { name: `Start a build of ${name}`, exact: true });
+      appIds.set(id, await admin.locator('form:not(:has(input[name="variant"]))').filter({ has: button }).locator('input[name="appId"]').first().inputValue());
     }
   }
   await admin.close();

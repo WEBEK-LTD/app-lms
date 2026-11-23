@@ -519,5 +519,725 @@
         "title": "White Sand"
       }
     }
+  ],
+  "beauty": [
+    {
+      "slot": "beauty-hero",
+      "src": "/stories/beauty/beauty-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Authentic Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/woman-skin-VEP8AYJMNI",
+        "title": "Woman Skin"
+      }
+    },
+    {
+      "slot": "beauty-shades",
+      "src": "/stories/beauty/beauty-shades.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Authentic Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/beauty-woman-6N8ZMJNQU6",
+        "title": "Beauty Woman"
+      }
+    },
+    {
+      "slot": "beauty-serum",
+      "src": "/stories/beauty/beauty-serum.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Authentic Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/beauty-skincare-CC9TYE8VJY",
+        "title": "Beauty Skincare"
+      }
+    },
+    {
+      "slot": "beauty-routine",
+      "src": "/stories/beauty/beauty-routine.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Authentic Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/beauty-skincare-LRSAT4NCLS",
+        "title": "Beauty Skincare"
+      }
+    },
+    {
+      "slot": "beauty-bath",
+      "src": "/stories/beauty/beauty-bath.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Matthew Henry",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/candle-cloth-KN1OH31KH5",
+        "title": "Candle Cloth"
+      }
+    },
+    {
+      "slot": "beauty-candle",
+      "src": "/stories/beauty/beauty-candle.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Burst",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/burning-candle-DYFPZ3PKAY",
+        "title": "Burning Candle"
+      }
+    }
+  ],
+  "kids": [
+    {
+      "slot": "kids-hero",
+      "src": "/stories/kids/kids-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Ariel Lustre",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/people-girls-LI39BZMA3U",
+        "title": "People Girls"
+      }
+    },
+    {
+      "slot": "kids-newborn",
+      "src": "/stories/kids/kids-newborn.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Candace McDaniel",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/baby-newborn-ILUIZBPPTT",
+        "title": "Baby Newborn"
+      }
+    },
+    {
+      "slot": "kids-gift",
+      "src": "/stories/kids/kids-gift.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Altered Reality",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/gift-box-PIHUS3UFDJ",
+        "title": "Gift Box"
+      }
+    },
+    {
+      "slot": "kids-school",
+      "src": "/stories/kids/kids-school.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Direct Media",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/child-homework-GV5GIEXDBA",
+        "title": "Child Homework"
+      }
+    },
+    {
+      "slot": "kids-party",
+      "src": "/stories/kids/kids-party.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Altered Reality",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/happy-birthday-ICAFQZXX7W",
+        "title": "Happy Birthday"
+      }
+    },
+    {
+      "slot": "kids-walk",
+      "src": "/stories/kids/kids-walk.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Leeroy",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/boy-child-R0C7A5M4WB",
+        "title": "Boy Child"
+      }
+    }
+  ],
+  "toys": [
+    {
+      "slot": "toys-hero",
+      "src": "/stories/toys/toys-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Family First",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/child-camping-T5BPPUIGTU",
+        "title": "Child Camping"
+      }
+    },
+    {
+      "slot": "toys-blocks",
+      "src": "/stories/toys/toys-blocks.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Birch Landing Home",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/children-toys-R8U6CVZ24Q",
+        "title": "Children Toys"
+      }
+    },
+    {
+      "slot": "toys-bear",
+      "src": "/stories/toys/toys-bear.jpg",
+      "width": 960,
+      "height": 620,
+      "credit": {
+        "creator": "Daria Nepriakhina",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/teddybear-toy-AAPS1PYWT4",
+        "title": "Teddybear Toy"
+      }
+    },
+    {
+      "slot": "toys-gift",
+      "src": "/stories/toys/toys-gift.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Altered Reality",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/pink-party-SQLBG32Q8C",
+        "title": "Pink Party"
+      }
+    },
+    {
+      "slot": "toys-play",
+      "src": "/stories/toys/toys-play.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Direct Media",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/family-playing-BKDISWTOCH",
+        "title": "Family Playing"
+      }
+    },
+    {
+      "slot": "toys-finale",
+      "src": "/stories/toys/toys-finale.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Direct Media",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/family-playing-AJU8ODUJSV",
+        "title": "Family Playing"
+      }
+    }
+  ],
+  "decor": [
+    {
+      "slot": "decor-hero",
+      "src": "/stories/decor/decor-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Altered Reality",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/autumn-minimalist-U9FDQVP6HZ",
+        "title": "Autumn Minimalist"
+      }
+    },
+    {
+      "slot": "decor-room",
+      "src": "/stories/decor/decor-room.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Matt Bango",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/dining-table-LTCQNB2L7A",
+        "title": "Dining Table"
+      }
+    },
+    {
+      "slot": "decor-vases",
+      "src": "/stories/decor/decor-vases.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Maarten Deckers",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/flower-vase-T4F8EDTB2E",
+        "title": "Flower Vase"
+      }
+    },
+    {
+      "slot": "decor-lantern",
+      "src": "/stories/decor/decor-lantern.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Tarren Bailey",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/candles-table-BCYSZ4DIUP",
+        "title": "Candles Table"
+      }
+    },
+    {
+      "slot": "decor-pottery",
+      "src": "/stories/decor/decor-pottery.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Barn Images",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/ceramics-pottery-SWDR6XR7YS",
+        "title": "Ceramics Pottery"
+      }
+    },
+    {
+      "slot": "decor-reading",
+      "src": "/stories/decor/decor-reading.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Kari Shea",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/house-interior-W36Z806O9S",
+        "title": "House Interior"
+      }
+    }
+  ],
+  "crochet": [
+    {
+      "slot": "crochet-cozy-sweater",
+      "src": "/stories/crochet/crochet-cozy-sweater.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Beauty and Fashion",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/people-woman-FVLLWFVVHH",
+        "title": "People Woman"
+      }
+    },
+    {
+      "slot": "crochet-fluffy-blanket",
+      "src": "/stories/crochet/crochet-fluffy-blanket.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Beauty and Fashion",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/coffee-cozy-SC7APHV0JX",
+        "title": "Coffee Cozy"
+      }
+    },
+    {
+      "slot": "crochet-knit-flatlay",
+      "src": "/stories/crochet/crochet-knit-flatlay.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Giulia Bertelli",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/yarn-thread-CR4FKGO3YG",
+        "title": "Yarn Thread"
+      }
+    },
+    {
+      "slot": "crochet-knit-coffee",
+      "src": "/stories/crochet/crochet-knit-coffee.jpg",
+      "width": 768,
+      "height": 512,
+      "credit": {
+        "creator": "Giulia Bertelli",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/yarn-thread-CMKJKIEJ5F",
+        "title": "Yarn Thread"
+      }
+    },
+    {
+      "slot": "crochet-mittens-coffee",
+      "src": "/stories/crochet/crochet-mittens-coffee.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "PICSELI",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/coffee-steam-XC9DW4IKVT",
+        "title": "Coffee Steam"
+      }
+    },
+    {
+      "slot": "crochet-scarves-stack",
+      "src": "/stories/crochet/crochet-scarves-stack.jpg",
+      "width": 936,
+      "height": 624,
+      "credit": {
+        "creator": "Kelly Sikkema",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/blanket-scarf-LQZSN13S95",
+        "title": "Blanket Scarf"
+      }
+    }
+  ],
+  "furniture": [
+    {
+      "slot": "furniture-hero",
+      "src": "/stories/furniture/furniture-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Kristin Hardwick",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/couch-furniture-TQNWBTLHLY",
+        "title": "Couch Furniture"
+      }
+    },
+    {
+      "slot": "furniture-fabric",
+      "src": "/stories/furniture/furniture-fabric.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Tim Wright",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/house-interior-XCOZ3XTV7M",
+        "title": "House Interior"
+      }
+    },
+    {
+      "slot": "furniture-measure",
+      "src": "/stories/furniture/furniture-measure.jpg",
+      "width": 960,
+      "height": 641,
+      "credit": {
+        "creator": "Jarosław Ceborski",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/interior-living-6SMA09U7Y8",
+        "title": "Interior Living"
+      }
+    },
+    {
+      "slot": "furniture-custom",
+      "src": "/stories/furniture/furniture-custom.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Kristin Hardwick",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/interior-dining-LHKILYV8X0",
+        "title": "Interior Dining"
+      }
+    },
+    {
+      "slot": "furniture-terrace",
+      "src": "/stories/furniture/furniture-terrace.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "World Travel Adventures",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/furniture-patio-KOIAWLY3SU",
+        "title": "Furniture Patio"
+      }
+    },
+    {
+      "slot": "furniture-home",
+      "src": "/stories/furniture/furniture-home.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Kristin Hardwick",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/interior-design-WP7CVEDSVY",
+        "title": "Interior Design"
+      }
+    }
+  ],
+  "electronics": [
+    {
+      "slot": "electronics-hero",
+      "src": "/stories/electronics/electronics-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Leeroy",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/macbook-laptop-UDIGU0A2SN",
+        "title": "Macbook Laptop"
+      }
+    },
+    {
+      "slot": "electronics-phone",
+      "src": "/stories/electronics/electronics-phone.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Retro 56",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/smartphone-camera-TBGNSSQV6B",
+        "title": "Smartphone Camera"
+      }
+    },
+    {
+      "slot": "electronics-compare",
+      "src": "/stories/electronics/electronics-compare.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Lauren Mancke",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/tablet-ipad-M6XC5T3JY3",
+        "title": "Tablet Ipad"
+      }
+    },
+    {
+      "slot": "electronics-desk",
+      "src": "/stories/electronics/electronics-desk.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Leeroy",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/laptop-macbook-SSGTHB82F6",
+        "title": "Laptop Macbook"
+      }
+    },
+    {
+      "slot": "electronics-glow",
+      "src": "/stories/electronics/electronics-glow.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "One Idea LLC",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/laptop-keyboard-QGU10TMNPE",
+        "title": "Laptop Keyboard"
+      }
+    },
+    {
+      "slot": "electronics-buds",
+      "src": "/stories/electronics/electronics-buds.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "FOCA Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/iphone-device-KRMOSAYCZ4",
+        "title": "Iphone Device"
+      }
+    }
+  ],
+  "mobiles": [
+    {
+      "slot": "mobiles-hero",
+      "src": "/stories/mobiles/mobiles-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Jef Pawlikowski",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/phone-cellphone-QJXZMNO92D",
+        "title": "Phone Cellphone"
+      }
+    },
+    {
+      "slot": "mobiles-box",
+      "src": "/stories/mobiles/mobiles-box.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Thorn Yang",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/phone-cellphone-FAGBZK62M3",
+        "title": "Phone Cellphone"
+      }
+    },
+    {
+      "slot": "mobiles-camera",
+      "src": "/stories/mobiles/mobiles-camera.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Retro 56",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/smartphone-camera-TBGNSSQV6B",
+        "title": "Smartphone Camera"
+      }
+    },
+    {
+      "slot": "mobiles-hand",
+      "src": "/stories/mobiles/mobiles-hand.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "NeONBRAND",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/mobile-phone-LJNJVQC18S",
+        "title": "Mobile Phone"
+      }
+    },
+    {
+      "slot": "mobiles-food",
+      "src": "/stories/mobiles/mobiles-food.jpg",
+      "width": 960,
+      "height": 641,
+      "credit": {
+        "creator": "Toronto Eaters",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/food-plate-YEBI1N2K7S",
+        "title": "Food Plate"
+      }
+    },
+    {
+      "slot": "mobiles-earbuds",
+      "src": "/stories/mobiles/mobiles-earbuds.jpg",
+      "width": 960,
+      "height": 720,
+      "credit": {
+        "creator": "FOCA Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/iphone-device-KRMOSAYCZ4",
+        "title": "Iphone Device"
+      }
+    }
+  ],
+  "computers": [
+    {
+      "slot": "computers-hero",
+      "src": "/stories/computers/computers-hero.jpg",
+      "width": 960,
+      "height": 540,
+      "credit": {
+        "creator": "Redd Angelo",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/computer-keyboard-V89HFPEFN3",
+        "title": "Computer Keyboard"
+      }
+    },
+    {
+      "slot": "computers-parts",
+      "src": "/stories/computers/computers-parts.jpg",
+      "width": 960,
+      "height": 641,
+      "credit": {
+        "creator": "Lenharth Systems",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/technology-motherboard-PUWNNLCU1C",
+        "title": "Technology Motherboard"
+      }
+    },
+    {
+      "slot": "computers-socket",
+      "src": "/stories/computers/computers-socket.jpg",
+      "width": 960,
+      "height": 641,
+      "credit": {
+        "creator": "Lenharth Systems",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/technology-motherboard-P5KFLBAYR2",
+        "title": "Technology Motherboard"
+      }
+    },
+    {
+      "slot": "computers-laptop",
+      "src": "/stories/computers/computers-laptop.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Burst",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/macbook-computer-JPZDGEMDH3",
+        "title": "Macbook Computer"
+      }
+    },
+    {
+      "slot": "computers-play",
+      "src": "/stories/computers/computers-play.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Maciej Korsan",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/sony-playstation-RCTXTLCXH6",
+        "title": "Sony Playstation"
+      }
+    },
+    {
+      "slot": "computers-desk",
+      "src": "/stories/computers/computers-desk.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Anita Peeples",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/guy-man-DO1KKRFQMB",
+        "title": "Guy Man"
+      }
+    }
   ]
 }

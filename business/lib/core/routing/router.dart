@@ -36,6 +36,7 @@ import '../../features/notify/notify_screen.dart';
 import '../../features/orders/kitchen_screen.dart';
 import '../../features/orders/order_screen.dart';
 import '../../features/orders/orders_screen.dart';
+import '../../features/orders/requests_screen.dart';
 import '../../features/preview/preview_screen.dart';
 import '../../features/shell/home_shell.dart';
 import '../../features/stats/stats_screen.dart';
@@ -312,6 +313,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       full(Paths.updates, (_) => const UpdatesScreen()),
       full(Paths.kitchen, (_) => const KitchenScreen()),
+      // 210 Custom-order requests.
+      full(
+        Paths.requests,
+        (s) => RequestsScreen(initialStatus: s.uri.queryParameters['status']),
+      ),
+      full(
+        '${Paths.requests}/:id',
+        (s) => RequestScreen(requestId: s.pathParameters['id']!),
+      ),
       full(
         '/scan',
         (s) => ScannerScreen(

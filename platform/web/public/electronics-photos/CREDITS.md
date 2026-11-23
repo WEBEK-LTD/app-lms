@@ -1,0 +1,69 @@
+# Photo credits
+
+211 Madar's (the electronics shop demo's) photos, for its looks A and B. All come from StockSnap (found through Openverse, `source=stocksnap`) and are dedicated to the public domain (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/); each file's StockSnap page has the terms. They were cut to 4:5 around the device and resized to 720 × 900; the `w-` ones, used as banners, were cut to 3:2 at 900 × 600. Photos showing a readable real brand were left out or retouched, as noted. The shop, its brands, its products and its prices they illustrate in the demo are fictional.
+
+- **buds-carpet.jpg**: "Headphones Desk" by FOCA Stock, CC0 1.0. https://stocksnap.io/photo/headphones-desk-IJNKVI0ELP
+- **buds-plant.jpg**: "Headphones Desk" by Birch Landing Home, CC0 1.0. https://stocksnap.io/photo/headphones-desk-HW0F1MGKHV
+- **camera-night.jpg**: "Technology Photography" by Kaique Rocha, CC0 1.0. https://stocksnap.io/photo/technology-photography-QF22B8A0PW
+- **drone-mini.jpg**: "Drone Camera" by Design by Matt, CC0 1.0. https://stocksnap.io/photo/drone-camera-EUYDBAU7WE
+- **drone-sky.jpg**: "Drone Camera" by Kaleb Kendall, CC0 1.0. https://stocksnap.io/photo/drone-camera-ZPCZDX0CW5
+- **espresso.jpg**: "Espresso Pour" by Studio 7042, CC0 1.0. https://stocksnap.io/photo/espresso-pour-WKJFSH6HRU (Retouched: the maker's logo badge on the machine was removed.)
+- **gamepad-blue.jpg**: "Controller Videogames" by Pawel Kadysz, CC0 1.0. https://stocksnap.io/photo/controller-videogames-OZ4IBMDS8E
+- **gamepad-hands.jpg**: "Sony Playstation" by Maciej Korsan, CC0 1.0. https://stocksnap.io/photo/sony-playstation-RCTXTLCXH6
+- **home-cam.jpg**: "Security Surveillance" by The Building Envelope, CC0 1.0. https://stocksnap.io/photo/security-surveillance-E8U0GNCPI8
+- **hp-dark.jpg**: "Headphones Music" by Frank Septillion, CC0 1.0. https://stocksnap.io/photo/headphones-music-CFWYCWUWFC
+- **hp-leather.jpg**: "Headphones Music" by Lee Campbell, CC0 1.0. https://stocksnap.io/photo/headphones-music-PQ1UK3LGOA
+- **hp-studio.jpg**: "Wireless Headphones" by Burst, CC0 1.0. https://stocksnap.io/photo/wireless-headphones-EXCBJA3FFQ
+- **hp-white.jpg**: "Headphones Headset" by Matthew Henry, CC0 1.0. https://stocksnap.io/photo/headphones-headset-674UH7HXHE
+- **keyboard-rgb.jpg**: "Illuminated Keyboard" by Tom Swinnen, CC0 1.0. https://stocksnap.io/photo/illuminated-keyboard-VDOVPJ7HFK
+- **keyboard-slim.jpg**: "Keyboard Keys" by FOCA Stock, CC0 1.0. https://stocksnap.io/photo/keyboard-keys-9EJ2TLEMN1
+- **laptop-chart.jpg**: "Macbook Laptop" by Marc Chouinard, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-DUAHA1V312
+- **laptop-close.jpg**: "Macbook Laptop" by Negative Space, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-J2V019J57T
+- **laptop-desk.jpg**: "Macbook Laptop" by Negative Space, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-LZABBOPC51
+- **laptop-glow.jpg**: "Laptop Keyboard" by One Idea LLC, CC0 1.0. https://stocksnap.io/photo/laptop-keyboard-QGU10TMNPE
+- **laptop-night.jpg**: "Apple Macbook" by Jay Wennington, CC0 1.0. https://stocksnap.io/photo/apple-macbook-A8AAE8C9FF
+- **laptop-plant.jpg**: "Macbook Laptop" by Leeroy, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-UDIGU0A2SN
+- **laptop-silver.jpg**: "Macbook Laptop" by Seth Schwiet, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-VPWK8EH9MZ
+- **laptop-sun.jpg**: "Macbook Laptop" by Negative Space, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-UNB7V2H5L4
+- **laptop-table.jpg**: "Laptop Macbook" by Leeroy, CC0 1.0. https://stocksnap.io/photo/laptop-macbook-SSGTHB82F6
+- **laptop-wood.jpg**: "Macbook Laptop" by Lauren Mancke, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-F7OLW2SG0C
+- **lens-gold.jpg**: "Camera Lens" by Alex Andrews, CC0 1.0. https://stocksnap.io/photo/camera-lens-00IU9IQW7P
+- **lens-top.jpg**: "Black Camera" by Steve Johnson, CC0 1.0. https://stocksnap.io/photo/black-camera-ZE94OW561P
+- **lens-white.jpg**: "Camera Lens" by Design by Matt, CC0 1.0. https://stocksnap.io/photo/camera-lens-U9HR3TXUXV
+- **microwave.jpg**: "Microwave Food" by Lisa Fotios, CC0 1.0. https://stocksnap.io/photo/microwave-food-21CWIC8UCJ
+- **oven.jpg**: "Technology Electronics" by WDnet Studio, CC0 1.0. https://stocksnap.io/photo/technology-electronics-0VPHDKU2FJ
+- **phone-black.jpg**: "Phone Cellphone" by Thorn Yang, CC0 1.0. https://stocksnap.io/photo/phone-cellphone-0I7WR7X0AK
+- **phone-box.jpg**: "Phone Cellphone" by Thorn Yang, CC0 1.0. https://stocksnap.io/photo/phone-cellphone-FAGBZK62M3
+- **phone-buds.jpg**: "Iphone Device" by FOCA Stock, CC0 1.0. https://stocksnap.io/photo/iphone-device-KRMOSAYCZ4
+- **phone-camera.jpg**: "Smartphone Camera" by Retro 56, CC0 1.0. https://stocksnap.io/photo/smartphone-camera-TBGNSSQV6B
+- **phone-hand.jpg**: "Technology Gadgets" by Oliur Rahman, CC0 1.0. https://stocksnap.io/photo/technology-gadgets-53ZHDXTL23
+- **phone-table.jpg**: "Iphone Cellphone" by Startup Stock Photos, CC0 1.0. https://stocksnap.io/photo/iphone-cellphone-LNXYMM77SS
+- **phone-unbox.jpg**: "Phone Cellphone" by Thorn Yang, CC0 1.0. https://stocksnap.io/photo/phone-cellphone-EOSW1UTFK9
+- **phone-wood.jpg**: "Mobile Phone" by John Tekeridis, CC0 1.0. https://stocksnap.io/photo/mobile-phone-DYWPAMD1PF
+- **screen-wave.jpg**: "Abstract Ocean" by Jason Schuller, CC0 1.0. https://stocksnap.io/photo/abstract-ocean-N3KOWK4NKH (Shown as the screen image inside a CSS-drawn TV frame.)
+- **storage-kit.jpg**: "Technology Gadgets" by WDnet Studio, CC0 1.0. https://stocksnap.io/photo/technology-gadgets-G6WMPTMFDI
+- **tablet-pen.jpg**: "Tablet Computer" by Birch Landing Home, CC0 1.0. https://stocksnap.io/photo/tablet-computer-KCEVT4PCQ1
+- **tablet-phone.jpg**: "Tablet Ipad" by Lauren Mancke, CC0 1.0. https://stocksnap.io/photo/tablet-ipad-M6XC5T3JY3
+- **tv-room.jpg**: "Tv Monitor" by Julian O'hayon, CC0 1.0. https://stocksnap.io/photo/tv-monitor-04M5G8RL3O (Composite: the original TV screen (a music app UI) was replaced with the forest photo (screen-forest.jpg).)
+- **vr-headset.jpg**: "Virtual Reality" by Bruce Mars, CC0 1.0. https://stocksnap.io/photo/virtual-reality-PFHFKXTMYD
+- **w-camera-night.jpg**: "Technology Photography" by Kaique Rocha, CC0 1.0. https://stocksnap.io/photo/technology-photography-QF22B8A0PW
+- **w-espresso.jpg**: "Espresso Pour" by Studio 7042, CC0 1.0. https://stocksnap.io/photo/espresso-pour-WKJFSH6HRU (Retouched: the maker's logo badge on the machine was removed.)
+- **w-gamepad-blue.jpg**: "Controller Videogames" by Pawel Kadysz, CC0 1.0. https://stocksnap.io/photo/controller-videogames-OZ4IBMDS8E
+- **w-gamepad-hands.jpg**: "Sony Playstation" by Maciej Korsan, CC0 1.0. https://stocksnap.io/photo/sony-playstation-RCTXTLCXH6
+- **w-laptop-chart.jpg**: "Macbook Laptop" by Marc Chouinard, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-DUAHA1V312
+- **w-laptop-glow.jpg**: "Laptop Keyboard" by One Idea LLC, CC0 1.0. https://stocksnap.io/photo/laptop-keyboard-QGU10TMNPE
+- **w-laptop-plant.jpg**: "Macbook Laptop" by Leeroy, CC0 1.0. https://stocksnap.io/photo/macbook-laptop-UDIGU0A2SN
+- **w-phone-box.jpg**: "Phone Cellphone" by Thorn Yang, CC0 1.0. https://stocksnap.io/photo/phone-cellphone-FAGBZK62M3
+- **w-phone-camera.jpg**: "Smartphone Camera" by Retro 56, CC0 1.0. https://stocksnap.io/photo/smartphone-camera-TBGNSSQV6B
+- **w-screen-forest.jpg**: "Forest Aerial" by JJ Skys the Limit, CC0 1.0. https://stocksnap.io/photo/forest-aerial-OLWVFFBJSX (Screen content for the e/5b90a2.jpg composite and CSS TV renders.)
+- **w-screen-sea.jpg**: "Ocean Water" by JJ Skys the Limit, CC0 1.0. https://stocksnap.io/photo/ocean-water-4I0HL37YBO (Shown as the screen image inside a CSS-drawn TV frame.)
+- **w-screen-wave.jpg**: "Abstract Ocean" by Jason Schuller, CC0 1.0. https://stocksnap.io/photo/abstract-ocean-N3KOWK4NKH (Shown as the screen image inside a CSS-drawn TV frame.)
+- **w-tv-room.jpg**: "Tv Monitor" by Julian O'hayon, CC0 1.0. https://stocksnap.io/photo/tv-monitor-04M5G8RL3O (Composite: the original TV screen (a music app UI) was replaced with the forest photo (screen-forest.jpg).)
+- **w-vr-headset.jpg**: "Virtual Reality" by Bruce Mars, CC0 1.0. https://stocksnap.io/photo/virtual-reality-PFHFKXTMYD
+- **w-washer.jpg**: "Washingmachine Laundry" by Freestocks.org, CC0 1.0. https://stocksnap.io/photo/washingmachine-laundry-CH3TPVQGU3
+- **washer.jpg**: "Washingmachine Laundry" by Freestocks.org, CC0 1.0. https://stocksnap.io/photo/washingmachine-laundry-CH3TPVQGU3
+- **watch-blush.jpg**: "Apple Watch" by One Idea LLC, CC0 1.0. https://stocksnap.io/photo/apple-watch-6EMBFCXU0J
+- **watch-grey.jpg**: "Smart Watch" by Design by Matt, CC0 1.0. https://stocksnap.io/photo/smart-watch-HN5PDS7HLL
+- **watch-lens.jpg**: "Apple Watch" by One Idea LLC, CC0 1.0. https://stocksnap.io/photo/apple-watch-JBFGUYFDMW
+- **watch-phone.jpg**: "Watch Phone" by Top Down Tech, CC0 1.0. https://stocksnap.io/photo/watch-phone-NIJPP3VQDR
+- **watch-white.jpg**: "Watch Technology" by Design by Matt, CC0 1.0. https://stocksnap.io/photo/watch-technology-OJYGY9OEB9

@@ -233,6 +233,10 @@ String pushTargetLocation(Map<String, dynamic> data) {
       return Paths.memberships;
     case 'cart_left':
       return Paths.cart;
+    // 212 A product the customer waited for is back in stock.
+    case 'back_in_stock':
+      final product = id('product_id');
+      return product != null ? Paths.product(product) : Paths.shop;
     case 'study_reminder':
       return Paths.myCourses;
     // 112.5 A live class soon, an assignment graded or sent back.

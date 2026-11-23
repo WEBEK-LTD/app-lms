@@ -57,7 +57,17 @@ describe("32 the website's menu", () => {
       "/yallapp-studio/multi-vendor",
       "/yallapp-studio/academy",
       "/yallapp-studio/flowers",
-    "/yallapp-studio/clothes",
+      "/yallapp-studio/clothes",
+      "/yallapp-studio/beauty",
+      "/yallapp-studio/kids",
+      "/yallapp-studio/toys",
+      // 210 and 211 the next shop types.
+      "/yallapp-studio/decor",
+      "/yallapp-studio/crochet",
+      "/yallapp-studio/furniture",
+      "/yallapp-studio/electronics",
+      "/yallapp-studio/mobiles",
+      "/yallapp-studio/computers",
       "/demo/studio",
       // 106.13 Studio Market's public page.
       "/templates",

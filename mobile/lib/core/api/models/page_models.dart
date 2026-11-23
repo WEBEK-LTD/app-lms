@@ -6,6 +6,7 @@ import 'money_models.dart';
 import 'store_models.dart';
 import 'studio_live_models.dart';
 import 'studio_premium_models.dart';
+import 'tech_models.dart';
 
 /// `GET /pages`: the bottom tabs, the side menu and the pages published in
 /// the dashboard.
@@ -453,8 +454,9 @@ enum BuiltInScreen {
 
 enum OpenIn { inApp, browser }
 
-/// 162 `Action.flow`: Build your bouquet over a store's shop.
-enum ActionFlow { bouquet }
+/// 162 `Action.flow`: Build your bouquet over a store's shop; 211 or the
+/// trade-in estimator, or Build your PC.
+enum ActionFlow { bouquet, tradeIn, pcBuilder }
 
 /// What happens on tap (the contract's `Action`).
 class PageAction {
@@ -1071,6 +1073,24 @@ enum CategoriesStyle { chips, tiles, pictures, circles, rows }
 /// category first ([lead]), or the main category's name over the row and
 /// "All" on its first card ([label]).
 enum StudioCategoryMenuLook { lead, label }
+
+/// 210 For `delivery_slots`: how many of the shop's next delivery days it
+/// shows (3 to 10) and whether it says the team assembles on the day.
+class StudioDeliverySlots {
+  const StudioDeliverySlots({this.days = 5, this.assembly = false});
+
+  static StudioDeliverySlots tryParse(Object? value) {
+    if (value is! Map) return const StudioDeliverySlots();
+    final json = asJson(value);
+    return StudioDeliverySlots(
+      days: (optInt(json, 'days') ?? 5).clamp(3, 10),
+      assembly: json['assembly'] == true,
+    );
+  }
+
+  final int days;
+  final bool assembly;
+}
 
 /// 208 The category menu's look (`StudioNode.category_menu`).
 class StudioCategoryMenu {
@@ -2179,6 +2199,24 @@ enum StudioNodeType {
   flashSale,
   // 208 The shop's size chart (`StoreConfig.size_chart`), as a table.
   sizeChart,
+  // 209 The size finder (the size of the shop's chart for the age chosen),
+  // shade swatches and a quiz (studio_shop_helpers.dart).
+  sizeFinder,
+  swatches,
+  quiz,
+  // 210 The shop's next delivery days and times to pick (and its assembly),
+  // kept for the checkout (`StoreConfig.delivery_date`).
+  deliverySlots,
+  // 211 The tech elements (StudioTech): a product's specs, two or three
+  // products compared, the shop by a spec, trade-in and Build your PC.
+  specTable,
+  compare,
+  specFilter,
+  tradeIn,
+  pcBuilder,
+  // 212 The listing filters: the shop's sizes (or colours) as chips that
+  // open the shop filtered, and its Filters (`GET /store/filters`).
+  listingFilters,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2814,6 +2852,12 @@ class StudioNode {
     this.place,
     this.categoriesStyle = CategoriesStyle.chips,
     this.categoryMenu = const StudioCategoryMenu(),
+    this.swatchSquare = false,
+    this.swatchSize = 36,
+    this.quizQuestions = const [],
+    this.deliverySlots = const StudioDeliverySlots(),
+    this.tech = const StudioTech(),
+    this.techServed,
     this.code,
     this.recent = false,
     this.heads,
@@ -2974,6 +3018,20 @@ class StudioNode {
           CategoriesStyle.chips,
         ),
         categoryMenu: StudioCategoryMenu.tryParse(json['category_menu']),
+        swatchSquare:
+            json['swatches'] is Map &&
+            (json['swatches'] as Map)['shape'] == 'square',
+        swatchSize: json['swatches'] is Map
+            ? (optDouble(asJson(json['swatches']), 'size') ?? 36)
+                  .clamp(24, 64)
+                  .toDouble()
+            : 36,
+        quizQuestions: json['quiz'] is Map
+            ? StudioEntry.listFrom((json['quiz'] as Map)['questions'])
+            : const [],
+        deliverySlots: StudioDeliverySlots.tryParse(json['delivery_slots']),
+        tech: StudioTech.tryParse(json['tech']),
+        techServed: StudioTechServed.tryParse(json['tech_served']),
         code: optString(json, 'code'),
         recent: boolOr(json, 'recent', false),
         heads: optString(json, 'heads'),
@@ -3304,6 +3362,21 @@ class StudioNode {
 
   /// 208 For categories drawn as rows: the category menu's look.
   final StudioCategoryMenu categoryMenu;
+
+  /// 209 For swatches: rounded squares rather than circles, and their size.
+  final bool swatchSquare;
+  final double swatchSize;
+
+  /// 209 For a quiz: its questions (each `title` the question, its `text`
+  /// the answers one per line; answer n counts for result n, the entries).
+  final List<StudioEntry> quizQuestions;
+
+  /// 210 For `delivery_slots`: its days and whether it says the team assembles.
+  final StudioDeliverySlots deliverySlots;
+
+  /// 211 For the tech elements: what they show, and what the server filled.
+  final StudioTech tech;
+  final StudioTechServed? techServed;
 
   /// 112.4 For a coupon: the code people copy.
   final String? code;

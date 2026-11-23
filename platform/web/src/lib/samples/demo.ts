@@ -9,6 +9,19 @@ import { deliverySettingsOf } from "../delivery/settings";
 import { isStudioDemo, type DemoId } from "../demo/constants";
 import { studioDemoOf } from "../studio/demo-templates";
 import { clothesPartsForSamples, demoClothesProducts } from "../demo/clothes-entries";
+// 209 Cosmetics
+import { demoBeautyProducts } from "../demo/beauty-entries";
+// 209 Kids' clothes
+import { demoKidsProducts, kidsPartsForSamples } from "../demo/kids-entries";
+// 209 Toys
+import { demoToysProducts, toysPartsForSamples } from "../demo/toys-entries";
+import { demoKitProducts, kitPartsForSamples, type ShopKit } from "../demo/shop-kit";
+import { CROCHET_KIT } from "../demo/kits/crochet";
+import { DECOR_KIT } from "../demo/kits/decor";
+import { FURNITURE_KIT } from "../demo/kits/furniture";
+import { demoMobilesProducts, mobilesPartsForSamples } from "../demo/mobiles-entries";
+import { demoComputersProducts } from "../demo/computers-entries";
+import { demoElectronicsProducts, electronicsPartsForSamples } from "../demo/electronics-entries";
 import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
 import { marketCuisines, marketplaceSamples, savingZadPictures } from "../demo/marketplace";
 import { savePicture } from "../demo/picture-assets";
@@ -98,6 +111,8 @@ async function school(m: Making): Promise<boolean> {
 const products = (menu: boolean): DemoSeeder => async (m) => (await demoProducts(m.entries, m.app, menu), true);
 const vehicleTypes = (taxi: boolean): DemoSeeder => async (m) => (await demoVehicleTypes(m.entries, m.app, taxi, await deliveryCurrency(m)), true);
 
+const kitSamples = async (m: Parameters<DemoSeeder>[0], kit: ShopKit) => (await demoKitProducts(m.entries, m.app, kit), await kitPartsForSamples(m.entries, m.app, kit), true);
+
 /** What each demo brings, by list; the lists it has nothing for get 110.2's samples. */
 const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   lms: { courses: (m) => courses(m, false) },
@@ -108,6 +123,23 @@ const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   flowers: { products: async (m) => (await demoFlowerProducts(m.entries, m.app), true) },
   // 208 Lujain's clothes, their categories and sub-categories.
   clothes: { products: async (m) => (await demoClothesProducts(m.entries, m.app), await clothesPartsForSamples(m.entries, m.app), true) },
+  // 209 Velours's products, their shades and details, its categories, skin types and brands.
+  beauty: { products: async (m) => (await demoBeautyProducts(m.entries, m.app), true) },
+  // 209 Kids' clothes: Toota's pieces, their categories and sub-categories, its gift add-ons, size chart and card message.
+  kids: { products: async (m) => (await demoKidsProducts(m.entries, m.app), await kidsPartsForSamples(m.entries, m.app), true) },
+  // 209 Toys
+  // 209 Toot's toys, their ages and categories, the wraps and the card; the birthday card's message at checkout.
+  toys: { products: async (m) => (await demoToysProducts(m.entries, m.app), await toysPartsForSamples(m.entries, m.app), true) },
+  // 210 The kits' products (decor, crochet, furniture), their categories and sub-categories, and their delivery days and card message.
+  decor: { products: (m) => kitSamples(m, DECOR_KIT) },
+  crochet: { products: (m) => kitSamples(m, CROCHET_KIT) },
+  furniture: { products: (m) => kitSamples(m, FURNITURE_KIT) },
+  // 211 Nova's devices, their categories and sub-categories, its trade-in and accessories.
+  mobiles: { products: async (m) => (await demoMobilesProducts(m.entries, m.app), await mobilesPartsForSamples(m.entries, m.app), true) },
+  // 211 Nawah's products with their specs and options, its categories, Build your PC and the matching accessories.
+  computers: { products: async (m) => (await demoComputersProducts(m.entries, m.app), true) },
+  // 211 Madar's products with their specs, its categories and sub-categories, its accessories and trade-in.
+  electronics: { products: async (m) => (await demoElectronicsProducts(m.entries, m.app), await electronicsPartsForSamples(m.entries, m.app), true) },
   restaurant: { products: products(true) },
   booking: { services: bookings("salon") },
   clinic: { services: bookings("clinic") },

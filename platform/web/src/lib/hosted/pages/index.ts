@@ -1,3 +1,4 @@
+import { fashionOf } from "../../selling/fashion";
 import { allNodes, mapTreeAsync } from "../../studio/tree";
 import { showsShopCategories, withShopCategoriesIn, type ShopCategories } from "../../studio/shop-categories";
 import { autoSized } from "../../studio/auto-size";
@@ -10,10 +11,12 @@ import { etagValues } from "../../pages/plugin";
 import { appOpensScreen, itemSourcesFor, sameScreenAs } from "../../pages/sources";
 import { moreTab, splitTabs } from "../../pages/tab-bar";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
-import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, type Action, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type Translations, type StudioPage } from "../../pages/types";
+import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, STUDIO_TECH_TYPES, type Action, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type Translations, type StudioPage } from "../../pages/types";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import { addDisplayPrices, DISPLAY_CONNECTORS, Shown, type DisplayCurrency } from "../../money/display";
 import { ConnectorError, type Connector } from "../connectors/types";
+// 211 The tech elements.
+import { servedTech } from "./tech";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
 import { itemResolver, type Item } from "./items";
@@ -37,6 +40,9 @@ import { dashboardStoryElements, withServedStories, type ServedStory, type Story
 
 const VARY = { vary: "Accept-Language" };
 const SLUG = /^[a-z0-9-]{1,64}$/;
+
+/** 211 Whether the app's products are Yallapp's own catalog (a connected platform keeps no specs). */
+const ownCatalog = (app: App) => app.connector?.kind === "catalog";
 
 interface PageContext {
   ctx: HostedContext;
@@ -136,6 +142,10 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
       const entries = shown[list] as { translations?: Translations }[] | undefined;
       if (entries) (shown as Record<string, unknown>)[list] = entries.map((entry) => (({ translations: _e, ...rest }) => (void _e, rest))(translated(entry, pc.lang, def) as { translations?: Translations }));
     }
+    // 209 A quiz's questions in the language asked for too.
+    if (node.type === "quiz" && shown.quiz?.questions) (shown as Record<string, unknown>).quiz = { questions: shown.quiz.questions.map((q) => (({ translations: _q, ...rest }) => (void _q, rest))(translated(q, pc.lang, def))) };
+    // 209 A size finder is left out while the shop has no size chart to read.
+    if (node.type === "size_finder" && !(pc.ctx.app.appType === "store" && fashionOf(pc.ctx.app)?.sizeChart)) return null;
     // 165 Dashboard › Stories in the language asked for; left out while none is shown.
     const storyKind = storyElements.get(node.id);
     if (storyKind) return withServedStories(shown as StudioNode, storyKind, await dashboardStories());
@@ -168,6 +178,9 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
     }
     // 131 A flash sale with its sale and products; a coupon bound to the shop's coupons with the one it shows; else left out.
     if (node.type === "flash_sale") return servedFlashSale(pc, shown as StudioNode);
+    // 211 An electronics shop's parts, from its own products (left out with nothing to show).
+    // Yallapp's own catalog by the app's connector, not the connector's class: 212's shop features wrap it.
+    if ((STUDIO_TECH_TYPES as readonly string[]).includes(node.type)) return servedTech(pc.ctx.app, ownCatalog(pc.ctx.app), shown as StudioNode, (path, params) => get(pc, path, params));
     if (node.type === "coupon" && node.coupon?.bind === "public") return servedCoupon(pc, shown as StudioNode);
     return shown as StudioNode;
   });
@@ -653,7 +666,8 @@ function productItem(product: Record<string, unknown>, lang: LanguageCode): Item
     source: "products",
     id: String(id),
     title: product.name,
-    subtitle: null,
+    // 210 Its days to make or its size in cm, as the shop's API words it; 211 its main specs on one line ("256 GB · 6.7″ OLED · 5G"); null: none.
+    subtitle: str(product.subtitle) ?? str(product.spec_line),
     image_url: str(product.image_url),
     price_label: str(price.formatted),
     // 161 As amounts and a currency, also in the customer's (its `sale` too: `sale.display`).
@@ -675,6 +689,8 @@ async function listProducts(pc: PageContext, query: ItemsQuery): Promise<Item[]>
         featured: query.featured ? "true" : null,
         // 112.4 Products on sale only.
         on_sale: query.on_sale ? "true" : null,
+        // 209 At this price or under (as WooCommerce's).
+        max_price: query.max_price ? String(query.max_price) : null,
         orderby: query.sort,
       };
   if (query.ids.length && !ids.length) return [];

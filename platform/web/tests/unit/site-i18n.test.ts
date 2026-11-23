@@ -160,7 +160,7 @@ describe("55 addresses in each language", () => {
     expect(nav.map((e) => e.label)).toEqual(["الرئيسية", "المنتج", "Studio", "ماركت Studio", "الأسعار", "تجربة", "المصادر", "تواصل معنا"]);
     const studio = nav.find((e) => e.id === "studio");
     expect(studio?.kind === "group" && studio.badge).toBe("جديد");
-    expect(studio?.kind === "group" && studio.items.map((i) => i.label)).toEqual(["Yallapp Studio", "تطبيق المدرسة", "تطبيق توصيل الركاب", "تطبيق التوصيل والشحن", "تطبيق متعدد المتاجر", "تطبيق الأكاديمية", "تطبيق محل الزهور", "تطبيق متجر الملابس", "عرض Studio", "ماركت Studio"]);
+    expect(studio?.kind === "group" && studio.items.map((i) => i.label)).toEqual(["Yallapp Studio", "تطبيق المدرسة", "تطبيق توصيل الركاب", "تطبيق التوصيل والشحن", "تطبيق متعدد المتاجر", "تطبيق الأكاديمية", "تطبيق محل الزهور", "تطبيق متجر الملابس", "تطبيق متجر التجميل", "تطبيق متجر ملابس الأطفال", "تطبيق متجر الألعاب", "تطبيق متجر الديكور", "تطبيق متجر الكروشيه", "تطبيق متجر الأثاث", "تطبيق متجر الإلكترونيات", "تطبيق متجر الهواتف", "تطبيق متجر الكمبيوتر", "عرض Studio", "ماركت Studio"]);
     expect(studio?.kind === "group" && studio.items[4]?.href).toBe("/ar/yallapp-studio/multi-vendor");
     expect(nav.flatMap((e) => (e.kind === "group" ? e.items.map((i) => i.href) : [e.href]))).toContain("/ar/how-it-works");
   });

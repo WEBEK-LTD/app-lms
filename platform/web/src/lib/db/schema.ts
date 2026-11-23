@@ -1,4 +1,4 @@
-import type { LiabilityAcceptance } from "../data/types";
+import type { LiabilityAcceptance, ProductDimensions, ProductMakeDays, StoreRequestAnswer, StoreRequestCustomer, StoreRequestStatus, ProductSpec, TradeInGrade, TradeInStatus, ProductTranslations } from "../data/types";
 import type { OrderMoney } from "../market/money";
 import type {
   AppAuthKey,
@@ -30,6 +30,7 @@ import type {
   StorePlatformOrderStatus,
   StoreFlashSale,
   AddonRule,
+  ProductDetails,
   GiftOccasion,
   // 165 The app's stories
   AppStory,
@@ -870,12 +871,22 @@ export const catalogProducts = mysqlTable(
     variants: jsonText<CatalogVariants>("variants"),
     // 131 Its weight, for shipping priced by weight.
     weightGrams: int("weight_grams"),
+    // 210 Its size in cm and the days it takes to make (JSON); null: none.
+    dimensions: jsonText<ProductDimensions>("dimensions"),
+    makeDays: jsonText<ProductMakeDays>("make_days"),
     // 131 A gift add-on (never listed or bought alone), and what it's offered with (JSON; null: everything).
     addon: boolean("addon").notNull().default(false),
     addonFor: jsonText<AddonRule>("addon_for"),
+    // 209 What its page tells besides its description (JSON; null: none).
+    details: jsonText<ProductDetails>("details"),
     salesCount: int("sales_count").notNull().default(0),
     // 110.2 A sample entry (lib/samples).
     sample: boolean("sample").notNull().default(false),
+    // 211 Its specifications (JSON; null: none).
+    specs: jsonText<ProductSpec[]>("specs"),
+    // 212 Its words in the app's other languages (JSON; null: none), and its brand for the filters.
+    translations: jsonText<ProductTranslations>("translations"),
+    brand: varchar("brand", { length: 80 }),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -2396,6 +2407,30 @@ export const listingFavorites = mysqlTable(
     createdAt: time("created_at").notNull(),
   },
   (t) => [primaryKey({ columns: [t.appId, t.userId, t.listingId] }), index("listing_favorites_user_idx").on(t.appId, t.userId, t.createdAt)],
+);
+
+/** 211 Trade-in requests sent from a store's app (Store › Trade-in). */
+export const tradeInRequests = mysqlTable(
+  "trade_in_requests",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    phone: varchar("phone", { length: 32 }).notNull(),
+    model: varchar("model", { length: 60 }).notNull(),
+    storage: varchar("storage", { length: 20 }).notNull(),
+    grade: varchar("grade", { length: 10 }).notNull().$type<TradeInGrade>(),
+    estimateCents: bigint("estimate_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    note: varchar("note", { length: 500 }),
+    status: varchar("status", { length: 10 }).notNull().$type<TradeInStatus>(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("trade_in_requests_app_idx").on(t.appId, t.createdAt)],
 );
 
 export const listingInquiries = mysqlTable(
@@ -4862,6 +4897,29 @@ export const schoolSlipAnswers = mysqlTable(
   (t) => [primaryKey({ columns: [t.slipId, t.studentId] }), index("school_slip_answers_student_idx").on(t.appId, t.studentId)],
 );
 
+/** 210 The custom-order requests sent from an app's forms (lib/selling/requests.ts). */
+export const storeRequests = mysqlTable(
+  "store_requests",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    title: varchar("title", { length: 200 }).notNull(),
+    answers: jsonText<StoreRequestAnswer[]>("answers").notNull(),
+    customer: jsonText<StoreRequestCustomer>("customer").notNull(),
+    status: varchar("status", { length: 12 }).notNull().$type<StoreRequestStatus>(),
+    reply: varchar("reply", { length: 2000 }),
+    quoteCents: bigint("quote_cents", { mode: "number", unsigned: true }),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    lang: varchar("lang", { length: 8 }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("store_requests_app_idx").on(t.appId, t.status, t.createdAt)],
+);
+
 export const schoolExcuses = mysqlTable(
   "school_excuses",
   {
@@ -6113,4 +6171,65 @@ export const studioMarketPayouts = mysqlTable(
     index("studio_market_payouts_designer_idx").on(t.designerId, t.preparedAt),
     index("studio_market_payouts_period_idx").on(t.period, t.status),
   ],
+);
+
+/** 212 A store customer's saved products (any store's: Yallapp's own, Shopify, the connected platforms), by the source's id. */
+export const shopWishlist = mysqlTable(
+  "shop_wishlist",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    productId: bigint("product_id", { mode: "number", unsigned: true }).notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.userId, t.productId] }), index("shop_wishlist_product_idx").on(t.appId, t.productId)],
+);
+
+/** 212 Customers' reviews of a store's products, with photos: one per product and customer. */
+export const productReviews = mysqlTable(
+  "product_reviews",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    productId: bigint("product_id", { mode: "number", unsigned: true }).notNull(),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    rating: int("rating").notNull(),
+    text: text("text").notNull(),
+    photoIds: jsonText<string[]>("photo_ids").notNull(),
+    authorName: varchar("author_name", { length: 60 }).notNull(),
+    hidden: boolean("hidden").notNull().default(false),
+    replyText: text("reply_text"),
+    replyAt: time("reply_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("product_reviews_customer_unique").on(t.appId, t.productId, t.userId), index("product_reviews_app_idx").on(t.appId, t.createdAt)],
+);
+
+/** 212 "Notify me when it's back": a customer waiting for a product or one of its variations (0: the product). */
+export const stockAlerts = mysqlTable(
+  "stock_alerts",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    productId: bigint("product_id", { mode: "number", unsigned: true }).notNull(),
+    variationId: bigint("variation_id", { mode: "number", unsigned: true }).notNull().default(0),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    productName: varchar("product_name", { length: 160 }).notNull(),
+    createdAt: time("created_at").notNull(),
+    notifiedAt: time("notified_at"),
+  },
+  (t) => [uniqueIndex("stock_alerts_customer_unique").on(t.appId, t.productId, t.variationId, t.userId), index("stock_alerts_waiting_idx").on(t.appId, t.notifiedAt)],
 );

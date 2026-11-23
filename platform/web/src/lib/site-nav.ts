@@ -69,7 +69,7 @@ export const PRODUCT_LINKS: SiteLink[] = [
   { id: "how", href: "/how-it-works", label: "How it works", description: "From sign-up to the app stores", icon: "task_alt" },
 ];
 
-const STORY_ICONS: Record<StoryId, IconName> = { school: "school", rides: "local_taxi", delivery: "local_shipping", "multi-vendor": "storefront", academy: "workspace_premium", flowers: "local_florist", clothes: "checkroom" };
+const STORY_ICONS: Record<StoryId, IconName> = { school: "school", rides: "local_taxi", delivery: "local_shipping", "multi-vendor": "storefront", academy: "workspace_premium", flowers: "local_florist", clothes: "checkroom", kids: "child_care", toys: "toys", decor: "chair", crochet: "spa", furniture: "living", electronics: "devices", mobiles: "smartphone", computers: "computer", beauty: "spa" };
 const STORY_LABELS: Record<StoryId, [string, string]> = {
   school: ["School app", "Students, parents, teachers and staff"],
   rides: ["Ride-hailing app", "Riders, drivers and the live map"],
@@ -78,6 +78,17 @@ const STORY_LABELS: Record<StoryId, [string, string]> = {
   academy: ["Academy app", "Courses, live classes and certificates"],
   flowers: ["Flower shop app", "Delivery slots, card messages and flash sales"],
   clothes: ["Clothes shop app", "Sizes and colours, a category menu and complete the look"],
+  beauty: ["Cosmetics shop app", "Shades, a skin quiz, routines and ingredients"],
+  // 209 Kids' clothes
+  kids: ["Kids' clothes shop app", "Sizes by age, newborn gifts and ready sets"],
+  // 209 Toys
+  toys: ["Toy shop app", "Shop by age, safety and materials, birthday gifts with a card"],
+  decor: ["Home decor shop app", "Shop the look, by room and by style, gifts with a card"],
+  crochet: ["Crochet shop app", "Custom orders, days to make, yarn and workshops"],
+  furniture: ["Furniture shop app", "Shop by room, sizes in cm, delivery and assembly on your day"],
+  mobiles: ["Phone shop app", "Trade-in, certified used, specs and compare"],
+  computers: ["Computers shop app", "Build your PC, filters by spec and compare"],
+  electronics: ["Electronics shop app", "Specs, compare, warranty and trade-in"],
 };
 
 /** The Studio story pages, for the Studio menu and the footer. */
@@ -134,6 +145,17 @@ export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
     "story-academy": [m.storyAcademy, m.storyAcademyText],
     "story-flowers": [m.storyFlowers, m.storyFlowersText],
     "story-clothes": [m.storyClothes, m.storyClothesText],
+    "story-beauty": [m.storyBeauty, m.storyBeautyText],
+    // 209 Kids' clothes
+    "story-kids": [m.storyKids, m.storyKidsText],
+    // 209 Toys
+    "story-toys": [m.storyToys, m.storyToysText],
+    "story-decor": [m.storyDecor, m.storyDecorText],
+    "story-crochet": [m.storyCrochet, m.storyCrochetText],
+    "story-furniture": [m.storyFurniture, m.storyFurnitureText],
+    "story-mobiles": [m.storyMobiles, m.storyMobilesText],
+    "story-computers": [m.storyComputers, m.storyComputersText],
+    "story-electronics": [m.storyElectronics, m.storyElectronicsText],
     pricing: [m.pricing],
     demo: [m.demo],
     resources: [m.resources],
@@ -162,6 +184,6 @@ export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
 
 /** The footer's Studio column in a language: the apps made in Studio. */
 export function storyLinksFor(lang: Lang, m: Messages["nav"]): { id: string; href: string; label: string }[] {
-  const label: Record<StoryId, string> = { school: m.storySchool, rides: m.storyRides, delivery: m.storyDelivery, "multi-vendor": m.storyMultiVendor, academy: m.storyAcademy, flowers: m.storyFlowers, clothes: m.storyClothes };
+  const label: Record<StoryId, string> = { school: m.storySchool, rides: m.storyRides, delivery: m.storyDelivery, "multi-vendor": m.storyMultiVendor, academy: m.storyAcademy, flowers: m.storyFlowers, clothes: m.storyClothes, kids: m.storyKids, toys: m.storyToys, decor: m.storyDecor, crochet: m.storyCrochet, furniture: m.storyFurniture, electronics: m.storyElectronics, mobiles: m.storyMobiles, computers: m.storyComputers, beauty: m.storyBeauty };
   return STORY_IDS.map((id) => ({ id: `story-${id}`, href: localePath(lang, storyPath(id)), label: label[id] }));
 }

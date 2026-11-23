@@ -29,7 +29,9 @@ const EDITOR = ["lms", "store", "restaurant", "booking", "clinic", "fitness", "r
 // 131.20 Leqaa, the flower shop, last.
 const STUDIO = ["premium_academy", "instructors", "food", "marketplace", "delivery", "rides", "taxi", "school", "travel", "flowers"];
 // 208 Studio's shop types with a demo (Lujain, the clothes shop): a shop-type card under its section, after the big cards.
-const SHOP_TYPES = ["clothes"];
+// 209 210 211 Every type has its demo now, in page order (Fashion, Beauty, Home, Kids & toys, Shopping). Kids' clothes is a
+// card in Fashion and a shortcut (data-section-demo) in Kids & toys: each demo has exactly one a[data-demo].
+const SHOP_TYPES = ["clothes", "kids", "beauty", "furniture", "decor", "crochet", "toys", "electronics", "mobiles", "computers"];
 
 test.beforeAll(async ({ browser }) => {
   // 128.9 The team has made the demo apps (Admin › Demo apps): the demos' pages run them live.
@@ -92,11 +94,15 @@ test("a new account chooses Nour Academy and gets the whole demo in the app edit
   expect(await own.locator("a[data-demo]").count()).toBe(EDITOR.length + STUDIO.length + SHOP_TYPES.length);
   // 208 The big cards, then the shop-type cards; the shop section's shortcuts to the big cards aren't data-demo.
   expect(await own.locator('[data-section="studio"] a[data-demo]:not([data-shop-type])').evaluateAll((links) => links.map((a) => a.getAttribute("data-demo")))).toEqual(STUDIO);
-  expect(await own.locator('[data-section="studio"] a[data-shop-type]').evaluateAll((links) => links.map((a) => a.getAttribute("data-demo")))).toEqual(SHOP_TYPES);
-  expect(await own.locator('[data-section="studio"] a[data-section-demo]').evaluateAll((links) => links.map((a) => a.getAttribute("data-section-demo")))).toEqual(["flowers", "marketplace"]);
+  expect(await own.locator('[data-section="studio"] a[data-shop-type][data-demo]').evaluateAll((links) => links.map((a) => a.getAttribute("data-demo")))).toEqual(SHOP_TYPES);
+  // The shortcuts: kids' clothes again under Kids & toys (209), the flower shop and the marketplace under Shopping.
+  expect(await own.locator('[data-section="studio"] a[data-section-demo]').evaluateAll((links) => links.map((a) => a.getAttribute("data-section-demo")))).toEqual(["kids", "flowers", "marketplace"]);
+  await expect(own.locator('[data-shop-section="kids"] a[data-section-demo="kids"]')).toHaveAttribute("href", "/start/kids");
+  for (const id of [...STUDIO, ...SHOP_TYPES]) expect(await own.locator(`a[data-demo="${id}"]`).count(), id).toBe(1);
   await expect(own.locator('[data-section="editor"]').getByText("10 apps")).toBeVisible();
-  // 208 Studio's count is every demo it offers, the clothes shop with them: 11.
-  await expect(own.locator('[data-section="studio"]').getByText("11 apps")).toBeVisible();
+  // 208 Studio's count is every demo it offers, each once: its ten, then the ten shop types (209, 210, 211).
+  expect(new Set(SHOP_TYPES).size).toBe(SHOP_TYPES.length);
+  await expect(own.locator('[data-section="studio"]').getByText("20 apps")).toBeVisible();
   // Each card says its product, and shows the demo's own screenshot.
   for (const id of EDITOR) await expect(own.locator(`[data-section="editor"] a[data-demo="${id}"]`)).toContainText("App editor");
   for (const id of STUDIO) await expect(own.locator(`[data-section="studio"] a[data-demo="${id}"]`)).toContainText("STUDIO");

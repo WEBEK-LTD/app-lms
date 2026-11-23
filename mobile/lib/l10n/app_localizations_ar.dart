@@ -1492,7 +1492,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get questionsAndAnswers => 'الأسئلة والأجوبة';
 
   @override
-  String get removeFromWishlist => 'إزالة من قائمة الرغبات';
+  String get removeFromWishlist => 'أزل من المفضلة';
 
   @override
   String get addToWishlist => 'إضافة إلى قائمة الرغبات';
@@ -1699,11 +1699,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get wishlistEmptyTitle => 'قائمة رغباتك فارغة';
+  String get wishlistEmptyTitle => 'قائمة المفضلة فارغة';
 
   @override
-  String get wishlistEmptyMessage =>
-      'اضغط على القلب في أي دورة لحفظها لوقت لاحق.';
+  String get wishlistEmptyMessage => 'اضغط على القلب في أي منتج ليبقى هنا.';
 
   @override
   String get courseComplete => 'اكتملت الدورة. أحسنت!';
@@ -12857,6 +12856,221 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get specsTitle => 'المواصفات';
+
+  @override
+  String get specsAll => 'كل المواصفات';
+
+  @override
+  String get specsFewer => 'مواصفات أقل';
+
+  @override
+  String get compareAdd => 'قارن';
+
+  @override
+  String get compareAdded => 'في المقارنة';
+
+  @override
+  String compareOpen(int count) {
+    return 'قارن ($count)';
+  }
+
+  @override
+  String get compareTitle => 'المقارنة';
+
+  @override
+  String get compareFull => 'يمكنك مقارنة 3 منتجات بحد أقصى';
+
+  @override
+  String get compareRemove => 'أزل من المقارنة';
+
+  @override
+  String get compareEmpty => 'أضف منتجين أو ثلاثة لمقارنتها جنبًا إلى جنب.';
+
+  @override
+  String get compareSpec => 'المواصفة';
+
+  @override
+  String get accessoriesTitle => 'يكتمل مع';
+
+  @override
+  String accessoriesAdd(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أضف $count منتج إلى السلة',
+      many: 'أضف $count منتجًا إلى السلة',
+      few: 'أضف $count منتجات إلى السلة',
+      two: 'أضف منتجين إلى السلة',
+      one: 'أضف منتجًا واحدًا إلى السلة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get installmentsSoon => 'التقسيط قريبًا';
+
+  @override
+  String get tradeInTitle => 'كم يساوي جهازك القديم؟';
+
+  @override
+  String get tradeInLine => 'اختر جهازك وحالته لتعرف قيمته في ثوانٍ.';
+
+  @override
+  String tradeInUpTo(String amount) {
+    return 'حتى $amount';
+  }
+
+  @override
+  String get tradeInCheck => 'احسب قيمة جهازك';
+
+  @override
+  String get tradeInModel => 'جهازك';
+
+  @override
+  String get tradeInStorage => 'السعة';
+
+  @override
+  String get tradeInCondition => 'حالة الجهاز';
+
+  @override
+  String get tradeInGradeLikeNew => 'كالجديد';
+
+  @override
+  String get tradeInGradeGood => 'جيدة';
+
+  @override
+  String get tradeInGradeFair => 'مقبولة';
+
+  @override
+  String get tradeInGradeBroken => 'بها كسر';
+
+  @override
+  String get tradeInEstimate => 'القيمة التقديرية';
+
+  @override
+  String get tradeInStart => 'ابدأ الاستبدال';
+
+  @override
+  String get tradeInFinal => 'تُحدَّد القيمة النهائية بعد فحص المتجر للجهاز.';
+
+  @override
+  String get tradeInContact => 'كيف يتواصل معك المتجر؟';
+
+  @override
+  String get tradeInName => 'اسمك';
+
+  @override
+  String get tradeInPhone => 'رقم الجوال';
+
+  @override
+  String get tradeInNote => 'ملاحظة (اختياري)';
+
+  @override
+  String get tradeInSend => 'أرسل الطلب';
+
+  @override
+  String get tradeInSent => 'استلمنا طلبك';
+
+  @override
+  String tradeInSentLine(String model, String estimate) {
+    return 'سيتصل بك المتجر بخصوص $model ($estimate).';
+  }
+
+  @override
+  String get pcBuilderTitle => 'ابنِ جهازك بنفسك';
+
+  @override
+  String get pcBuilderLine => 'اختر كل قطعة، ونتحقق من توافقها تلقائيًا.';
+
+  @override
+  String get pcBuilderStart => 'ابدأ التجميع';
+
+  @override
+  String pcBuilderStep(int step, int count) {
+    return 'الخطوة $step من $count';
+  }
+
+  @override
+  String get pcBuilderSkip => 'تخطَّ هذه القطعة';
+
+  @override
+  String get pcBuilderNext => 'القطعة التالية';
+
+  @override
+  String get pcBuilderReview => 'راجع التجميعة';
+
+  @override
+  String get pcBuilderTotal => 'إجمالي التجميعة';
+
+  @override
+  String pcBuilderWatts(int watts) {
+    return 'تحتاج $watts واط';
+  }
+
+  @override
+  String get pcBuilderAddAll => 'أضف التجميعة إلى السلة';
+
+  @override
+  String get pcBuilderAdded => 'أُضيفت التجميعة إلى السلة';
+
+  @override
+  String get pcBuilderFits => 'كل القطع متوافقة';
+
+  @override
+  String get pcBuilderEmpty => 'لا قطع هنا بعد';
+
+  @override
+  String get pcBuilderOptional => 'اختياري';
+
+  @override
+  String get pcPartCpu => 'المعالج';
+
+  @override
+  String get pcPartBoard => 'اللوحة الأم';
+
+  @override
+  String get pcPartRam => 'الذاكرة';
+
+  @override
+  String get pcPartGpu => 'كرت الشاشة';
+
+  @override
+  String get pcPartStorage => 'التخزين';
+
+  @override
+  String get pcPartCooler => 'المبرّد';
+
+  @override
+  String get pcPartPsu => 'مزوّد الطاقة';
+
+  @override
+  String get pcPartCase => 'الصندوق';
+
+  @override
+  String pcIssueSocket(String part) {
+    return 'لا يناسب مقبس $part';
+  }
+
+  @override
+  String pcIssueMemory(String part) {
+    return 'ليس نوع الذاكرة الذي تدعمه $part';
+  }
+
+  @override
+  String pcIssuePower(int watts) {
+    return 'قدرته أقل مما تحتاجه التجميعة ($watts واط)';
+  }
+
+  @override
+  String pcIssueSize(String part) {
+    return 'أصغر من مقاس $part';
+  }
+
+  @override
+  String get specFilterEmpty => 'لا منتجات مطابقة بعد';
+
+  @override
   String get appointmentStatusApproved => 'تمت الموافقة';
 
   @override
@@ -12941,4 +13155,215 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get travelNoPaymentYet =>
       'لا يمكن الدفع في التطبيق بعد. اختر إقامة تدفع ثمنها في الفندق، أو تواصل معنا.';
+
+  @override
+  String get productDetailsTitle => 'التفاصيل';
+
+  @override
+  String get productInfoIngredients => 'المكوّنات';
+
+  @override
+  String get productInfoHowToUse => 'طريقة الاستخدام';
+
+  @override
+  String get productInfoSafety => 'السلامة';
+
+  @override
+  String get productInfoMaterials => 'الخامات';
+
+  @override
+  String get productInfoCare => 'العناية';
+
+  @override
+  String get productInfoInTheBox => 'محتويات العلبة';
+
+  @override
+  String get productBadgeGenuine => 'منتج أصلي';
+
+  @override
+  String get productBadgeSafetyTested => 'مُختبَر للسلامة';
+
+  @override
+  String get productBadgeOrganic => 'عضوي';
+
+  @override
+  String get productBadgeHandmade => 'صناعة يدوية';
+
+  @override
+  String get productBadgeCrueltyFree => 'غير مُختبَر على الحيوانات';
+
+  @override
+  String get productBadgeGiftWrap => 'التغليف للهدايا متاح';
+
+  @override
+  String productExpiry(String date) {
+    return 'صالح حتى $date';
+  }
+
+  @override
+  String productAgeMonths(int from, int to) {
+    return 'للأعمار من $from إلى $to شهرًا';
+  }
+
+  @override
+  String productAgeYears(int from, int to) {
+    String _temp0 = intl.Intl.pluralLogic(
+      to,
+      locale: localeName,
+      other: 'للأعمار من $from إلى $to سنة',
+      few: 'للأعمار من $from إلى $to سنوات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productAgeMixed(int from, int to) {
+    String _temp0 = intl.Intl.pluralLogic(
+      to,
+      locale: localeName,
+      other: 'للأعمار من $from شهرًا إلى $to سنة',
+      few: 'للأعمار من $from شهرًا إلى $to سنوات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productAgePlusMonths(int from) {
+    String _temp0 = intl.Intl.pluralLogic(
+      from,
+      locale: localeName,
+      other: 'من عمر $from شهرًا فأكثر',
+      one: 'من عمر شهر فأكثر',
+      zero: 'من الولادة فأكثر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productAgePlusYears(int from) {
+    String _temp0 = intl.Intl.pluralLogic(
+      from,
+      locale: localeName,
+      other: 'من عمر $from سنة فأكثر',
+      few: 'من عمر $from سنوات فأكثر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String quizStep(int n, int total) {
+    return 'السؤال $n من $total';
+  }
+
+  @override
+  String get quizAgain => 'ابدأ من جديد';
+
+  @override
+  String get quizResultTitle => 'نتيجتك';
+
+  @override
+  String sizeFinderFits(String size) {
+    return 'المقاس المناسب: $size';
+  }
+
+  @override
+  String swatchChosen(String name) {
+    return '$name، مختارة';
+  }
+
+  @override
+  String get productDimensions => 'الأبعاد';
+
+  @override
+  String get productMadeToOrder => 'يُصنع حسب الطلب';
+
+  @override
+  String get deliverySlotsKept => 'سنحفظ هذا اليوم والوقت لإتمام طلبك.';
+
+  @override
+  String get deliverySlotsAssembly => 'يركّبها الفريق في يوم التوصيل.';
+
+  @override
+  String get deliverySlotsNone => 'لا توجد أيام توصيل متاحة الآن.';
+
+  @override
+  String get saveToWishlist => 'أضف إلى المفضلة';
+
+  @override
+  String get wishlistOnPhone =>
+      'تُحفظ مفضلتك على هذا الهاتف. سجّل الدخول لتبقى على كل هواتفك.';
+
+  @override
+  String get wishlistFailed => 'تعذّر تغيير المفضلة. حاول مرة أخرى.';
+
+  @override
+  String get reviewAddPhotos => 'أضف صورًا';
+
+  @override
+  String reviewPhotosCount(int count, int max) {
+    return '$count من $max صور';
+  }
+
+  @override
+  String get reviewPhotoRemove => 'أزل هذه الصورة';
+
+  @override
+  String reviewPhotoTooBig(String size) {
+    return 'هذه الصورة كبيرة جدًا. اختر صورة حتى $size.';
+  }
+
+  @override
+  String get reviewPhotoType => 'اختر صورة (JPEG أو PNG أو WebP).';
+
+  @override
+  String get reviewOnlyBuyers =>
+      'يستطيع تقييم هذا المنتج العملاءُ الذين اشتروه.';
+
+  @override
+  String reviewsSeeAll(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'اعرض كل التقييمات ($count)',
+      one: 'اعرض التقييم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reviewPhotosTitle => 'صور من العملاء';
+
+  @override
+  String reviewPhotoOf(int n) {
+    return 'صورة العميل $n';
+  }
+
+  @override
+  String get notifyMeBack => 'أبلغني عند توفره';
+
+  @override
+  String get notifyMeWaiting => 'سنبلغك عند توفره';
+
+  @override
+  String get notifyMeStop => 'لا تبلغني';
+
+  @override
+  String get notifyMeSaved => 'تم. سيصلك إشعار عندما يعود إلى المخزون.';
+
+  @override
+  String get notifyMeSignIn => 'سجّل الدخول ليصلك إشعار عند توفره.';
+
+  @override
+  String get filterPrice => 'السعر';
+
+  @override
+  String get filterBrand => 'العلامة التجارية';
+
+  @override
+  String filterPriceRange(String min, String max) {
+    return 'من $min إلى $max';
+  }
+
+  @override
+  String get filterOpen => 'صفِّ المنتجات';
 }

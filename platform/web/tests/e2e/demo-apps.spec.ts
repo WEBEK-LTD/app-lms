@@ -154,8 +154,8 @@ test("the daily job cleans the demo apps and keeps what's newer than a day", asy
   const daily = await request.post("/api/internal/daily", { headers: { authorization: `Bearer ${E2E.internalJobSecret}` } });
   expect(daily.status()).toBe(200);
   const report = await daily.json();
-  // 131.20 Twenty with Leqaa; 208 twenty-one with Lujain, the clothes shop.
-  expect(report.demo).toMatchObject({ apps: 21, deleted: 0 });
+  // 131.20 Twenty with Leqaa; 208 twenty-one with Lujain, the clothes shop; 209 210 211 thirty with every shop type's.
+  expect(report.demo).toMatchObject({ apps: 30, deleted: 0 });
   // 27 The gym demo's timetable is kept 8 weeks ahead.
   expect(report.classes.apps).toBeGreaterThanOrEqual(1);
   const orders = await (await request.get(`/api/app/${appIds["Lale Flowers"]}/me/orders`, { headers: { authorization: `Bearer ${token}` } })).json();
@@ -187,9 +187,9 @@ test("/demo/studio shows Studio's own demos apart from the regular ones", async 
   await expect(page.getByTestId("demo-phone")).toHaveText(DEMO.display);
   await expect(page.getByTestId("demo-code")).toHaveText(DEMO.code);
   // 126 Safra, the travel demo.
-  // 131.20 Leqaa, the flower shop; 208 Lujain, the clothes shop: eleven.
-  for (const name of ["Sahm Express", "Sofra Eats", "Zad", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy", "Safra", "Ufuq Academy", "Leqaa", "Lujain"]) await expect(page.getByRole("heading", { name, level: 2, exact: true })).toBeVisible();
-  await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(11);
+  // 131.20 Leqaa, the flower shop; 208 Lujain, the clothes shop: eleven; 209 Velours, Toota and Toot, 210 Sakan, Ghurza and Rukn, 211 Madar, Nova and Nawah: twenty.
+  for (const name of ["Sahm Express", "Sofra Eats", "Zad", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy", "Safra", "Ufuq Academy", "Leqaa", "Lujain", "Velours", "Toota", "Toot", "Sakan", "Ghurza", "Rukn", "Madar", "Nova", "Nawah"]) await expect(page.getByRole("heading", { name, level: 2, exact: true })).toBeVisible();
+  await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(20);
   await expect(page.locator("#travel")).toContainText("Its hotel photos are CC0");
   // 123 The premium academy, at its own address.
   await expect(page.locator("#premium-academy").getByRole("heading", { name: "Ufuq Academy", level: 2 })).toBeVisible();

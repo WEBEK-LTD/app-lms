@@ -7,6 +7,7 @@ import { formatCents } from "@/lib/catalog/money";
 import { EMPTY_MENU } from "@/lib/food/menu";
 import { restaurantState } from "@/lib/food/service";
 import { CatalogConnector } from "@/lib/hosted/connectors/catalog";
+import { connectorFor } from "@/lib/hosted/connectors";
 import { apsOf, fcmMessage, type sendPush, type ServiceAccount } from "@/lib/hosted/push";
 import { endOrderActivities, firstName, readLiveActivity } from "@/lib/owner/live-activity";
 import { daySummary, runDailySummaries, summaryWords } from "@/lib/owner/daily-summary";
@@ -14,7 +15,7 @@ import { WIDGET_KINDS, orderValue, pushNewOrder, type OwnerPushDeps, type OwnerP
 import { defaultPushSounds, pushDelivery, pushSoundsJson, readPushSounds, soundByValue } from "@/lib/owner/push-sounds";
 import { appPause, pauseApp, pausePlace, placePause, readPause, reopen } from "@/lib/shop/pause";
 import { getDashT, knownTranslator } from "@/i18n/dashboard";
-import { NOW, days, setupClient } from "./helpers";
+import { KEY, NOW, days, setupClient } from "./helpers";
 
 /** 214 Yallapp Business 1.0.6's server side: ring by order value, pause the shop, the end-of-day summary. */
 
@@ -152,6 +153,25 @@ describe("214 pause the shop", () => {
     app = (await store.getAppById(app.id))!;
     expect(appPause(app, NOW)).toBeNull();
     expect((await checkout(NOW)).status).toBe(200);
+  });
+
+  it("212 with the shop features in front of the store (its connector as the app gets it): still refuses while paused, and the hearts still work", async () => {
+    const { store, client } = await setupClient({ plan: "pro" });
+    let app = await shopWith(store, client.id);
+    const product = await store.createCatalogProduct(
+      { appId: app.id, name: "Tulip vase", description: "", priceCents: 30000, salePriceCents: null, categoryIds: [], imageAssetIds: [], stock: null, digital: false, featured: false, active: true, sku: null },
+      NOW,
+    );
+    const user = (await store.createHostedUser({ appId: app.id, phone: "+905321112244", name: "Mona", email: null, city: null, now: NOW }))!;
+    await pauseApp(store, app, { minutes: 30, reason: "Back soon" }, NOW);
+    app = (await store.getAppById(app.id))!;
+    const connector = connectorFor(app, KEY, { store, assetUrl: (id) => id, platformUrl: "https://yallapp.test" })!;
+    expect(connector).not.toBeInstanceOf(CatalogConnector);
+    const go = async (method: string, path: string[], body?: unknown) => (await connector.handle({ method, path, query: new URLSearchParams("platform=android"), body, user, now: NOW }))!;
+    expect(await go("POST", ["store", "checkout-link"], { lines: [{ product_id: product.id, quantity: 1 }] })).toMatchObject({ status: 409, body: { code: "shop_paused" } });
+    expect((await go("GET", ["store", "home"])).body).toMatchObject({ paused: { reason: "Back soon" } });
+    expect((await go("PUT", ["store", "wishlist", String(product.id)])).status).toBeLessThan(300);
+    expect((await go("GET", ["store", "wishlist"])).body).toMatchObject({ ids: [product.id] });
   });
 
   it("a restaurant or a marketplace place pauses alone, through its busy time, and reopens", async () => {

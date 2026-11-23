@@ -1039,6 +1039,34 @@
       "breakpoints": true
     },
     {
+      "idx": 149,
+      "version": "5",
+      "when": 1795435165305,
+      "tag": "0149_product_details",
+      "breakpoints": true
+    },
+    {
+      "idx": 150,
+      "version": "5",
+      "when": 1795440628301,
+      "tag": "0150_store_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 151,
+      "version": "5",
+      "when": 1795440762847,
+      "tag": "0151_tech_shops",
+      "breakpoints": true
+    },
+    {
+      "idx": 152,
+      "version": "5",
+      "when": 1795441202614,
+      "tag": "0152_shop_features",
+      "breakpoints": true
+    },
+    {
       "idx": 153,
       "version": "5",
       "when": 1795431368228,

@@ -26,17 +26,17 @@ export function installmentsTag(ctx: SectionContext, look: { color: string; dark
     type: "row",
     name: ctx.w("installmentsSoon"),
     width: "hug",
-    height: 30,
     radius: 15,
     gap: 6,
     cross: "center",
     self_align: "start",
-    padding: { top: 0, end: 12, bottom: 0, start: 10 },
+    // 211 Its own height: a narrow card (a services tile) wraps its words to a second line rather than cut them.
+    padding: { top: 7, end: 12, bottom: 7, start: 10 },
     background: look.background,
     dark_background: look.dark_background,
     children: [
       { id: id(), type: "icon", icon: "schedule", icon_size: 16, color: look.color, dark_color: look.dark_color },
-      { id: id(), type: "text", text: ctx.w("installmentsSoon"), max_lines: 1, font: { size: 12.5, weight: 700 }, color: look.color, dark_color: look.dark_color },
+      { id: id(), type: "text", text: ctx.w("installmentsSoon"), max_lines: 2, font: { size: 12.5, weight: 700, line_height: 1.2 }, color: look.color, dark_color: look.dark_color },
     ],
   };
 }

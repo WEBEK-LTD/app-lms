@@ -19,6 +19,7 @@ import "./registry";
 import { ShopifyConnector } from "./shopify";
 import type { Connector } from "./types";
 import { withStoreExtras } from "../../selling/store";
+import { shopFeaturesOn, withShopFeatures, type ShopFeaturesDeps } from "../../selling/shop-features";
 
 export const context = (appId: string) => `app:connector:${appId}`;
 
@@ -99,13 +100,17 @@ export function connectorFor(
     uploads?: CoursesDeps["uploads"];
     /** 28 Signs ticket QR codes (each app's key is made from it); read from the environment when left out. */
     signingSecret?: string;
+    /** 212 A customer's first review of a store's product (pushes to the owner's phones). */
+    onProductReview?: ShopFeaturesDeps["onReview"];
   },
   fetcher: typeof fetch = fetch,
 ): Connector | null {
-  const connector = sourceConnector(app, key, deps, fetcher);
+  const source = sourceConnector(app, key, deps, fetcher);
   // 131 A store on a connected platform gets the delivery days, gifts, flash sales and the coupons shown in the app.
-  if (connector && app.appType === "store" && (app.connector?.kind === "shopify" || app.connector?.kind === "platform")) {
-    return withStoreExtras(connector, { store: deps.store, app });
+  const connector = source && app.appType === "store" && (app.connector?.kind === "shopify" || app.connector?.kind === "platform") ? withStoreExtras(source, { store: deps.store, app }) : source;
+  // 212 Every store, wherever its products are: the wishlist, reviews with photos and back in stock.
+  if (connector && shopFeaturesOn(app)) {
+    return withShopFeatures(connector, { store: deps.store, app, platformUrl: deps.platformUrl, uploads: deps.uploads, onReview: deps.onProductReview });
   }
   return connector;
 }

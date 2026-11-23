@@ -223,6 +223,17 @@ test("every menu link opens its own page and marks it", async ({ page }) => {
     { group: "Studio", name: "Multi-vendor app", path: "/yallapp-studio/multi-vendor" },
     { group: "Studio", name: "Academy app", path: "/yallapp-studio/academy" },
     { group: "Studio", name: "Flower shop app", path: "/yallapp-studio/flowers" },
+    // 208 to 211 Every shop type's story.
+    { group: "Studio", name: "Clothes shop app", path: "/yallapp-studio/clothes" },
+    { group: "Studio", name: "Cosmetics shop app", path: "/yallapp-studio/beauty" },
+    { group: "Studio", name: "Kids' clothes shop app", path: "/yallapp-studio/kids" },
+    { group: "Studio", name: "Toy shop app", path: "/yallapp-studio/toys" },
+    { group: "Studio", name: "Home decor shop app", path: "/yallapp-studio/decor" },
+    { group: "Studio", name: "Crochet shop app", path: "/yallapp-studio/crochet" },
+    { group: "Studio", name: "Furniture shop app", path: "/yallapp-studio/furniture" },
+    { group: "Studio", name: "Electronics shop app", path: "/yallapp-studio/electronics" },
+    { group: "Studio", name: "Phone shop app", path: "/yallapp-studio/mobiles" },
+    { group: "Studio", name: "Computers shop app", path: "/yallapp-studio/computers" },
     { group: "Product", name: "Solutions", path: "/solutions" },
     { group: "Product", name: "Features", path: "/features" },
     { group: "Product", name: "Integrations", path: "/integrations" },
@@ -355,13 +366,13 @@ test("103R the Studio demo has its own page; the regular demo stays as it is", a
   await expect(page.getByRole("heading", { level: 1, name: "See what a Studio project looks like" })).toBeVisible();
   // 130.49 Each Studio demo in its two looks, light and dark, in place of the café.
   await expect(page.getByRole("heading", { level: 2, name: "A café designed in Studio" })).toHaveCount(0);
-  // 131.20 And Leqaa, the flower shop: ten; 208 and Lujain, the clothes shop: eleven.
-  await expect(page.locator("[data-studio-looks]")).toHaveCount(11);
+  // 131.20 And Leqaa, the flower shop: ten; 208 and Lujain, the clothes shop: eleven; 209 210 211 and the nine other shop types: twenty.
+  await expect(page.locator("[data-studio-looks]")).toHaveCount(20);
   await expect(page.getByRole("heading", { level: 3, name: "Two looks to start from" }).first()).toBeVisible();
   await expect(page.locator('[data-studio-looks="food-delivery"] figcaption')).toHaveText(["Look A · Dark", "Look B · Light", "Look B · Dark"]);
   // Studio's own project types as demo apps, signed in to with the shared demo number.
   await expect(page.getByTestId("demo-phone")).toHaveText("+1 202 555 0123");
-  for (const name of ["Sahm Express", "Sofra Eats", "Zad", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy", "Leqaa"]) await expect(page.getByRole("heading", { level: 2, name, exact: true })).toBeVisible();
+  for (const name of ["Sahm Express", "Sofra Eats", "Zad", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy", "Leqaa", "Lujain", "Velours", "Toota", "Toot", "Sakan", "Ghurza", "Rukn", "Madar", "Nova", "Nawah"]) await expect(page.getByRole("heading", { level: 2, name, exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { level: 2, name: "The editor behind them" })).toBeVisible();
   for (const screen of [
     "food-delivery-sig-a-home-dark",
@@ -458,9 +469,12 @@ test("103R pricing keeps the regular plans and Studio's own plans apart, with th
   await expect(apps.getByRole("link", { name: "Multi-vendor app" })).toHaveAttribute("href", "/yallapp-studio/multi-vendor");
   await expect(apps.getByRole("link", { name: "Academy app" })).toHaveAttribute("href", "/yallapp-studio/academy");
   await expect(apps.getByRole("link", { name: "Flower shop app" })).toHaveAttribute("href", "/yallapp-studio/flowers");
-  // 208 And the clothes shop: seven.
-  await expect(apps.getByRole("link", { name: "Clothes shop app" })).toHaveAttribute("href", "/yallapp-studio/clothes");
-  await expect(apps.getByRole("link")).toHaveCount(7);
+  // 208 And the clothes shop: seven; 209 210 211 and every other shop type's: sixteen.
+  await expect(apps.getByRole("link", { name: "Clothes shop app", exact: true })).toHaveAttribute("href", "/yallapp-studio/clothes");
+  for (const [name, slug] of [["Cosmetics shop app", "beauty"], ["Kids' clothes shop app", "kids"], ["Toy shop app", "toys"], ["Home decor shop app", "decor"], ["Crochet shop app", "crochet"], ["Furniture shop app", "furniture"], ["Electronics shop app", "electronics"], ["Phone shop app", "mobiles"], ["Computers shop app", "computers"]]) {
+    await expect(apps.getByRole("link", { name, exact: true })).toHaveAttribute("href", `/yallapp-studio/${slug}`);
+  }
+  await expect(apps.getByRole("link")).toHaveCount(16);
 });
 
 test("the menu's lists open with the keyboard and close on Escape or a click outside", async ({ page }) => {

@@ -6,6 +6,7 @@ import '../theme/app_icons.dart';
 import '../theme/app_theme.dart';
 import '../theme/palette.dart';
 import '../l10n/l10n.dart';
+import '../format/bidi.dart';
 
 /// The smallest area a finger can reliably hit (Material: 48 x 48).
 const minTapTarget = 48.0;
@@ -457,8 +458,9 @@ class PillChip extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Center(
                   widthFactor: 1,
+                  // 211 A label of its own direction ("64 GB" in Arabic, not "GB 64").
                   child: Text(
-                    label,
+                    isolate(label),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: selected ? FontWeight.w600 : FontWeight.w400,

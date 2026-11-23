@@ -314,6 +314,9 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     const inquiry = await store.createListingInquiry({ appId: theirs.estate.id, listingId: listing.id, userId: buyer.id, status: "open", createdAt: NOW, updatedAt: NOW });
     ids.listing_id = String(listing.id);
     ids.inquiry_id = String(inquiry.id);
+    // 210 A custom-order request sent to their shop.
+    const request = await store.createStoreRequest({ appId: theirs.shop.id, userId: customer.id, title: `${MARK} custom order`, answers: [{ label: "Size", value: `${MARK} 40 cm` }], customer: { name: `${MARK} customer`, phone: null, email: null }, status: "new", reply: null, quoteCents: null, currency: "TRY", lang: "en", createdAt: NOW, updatedAt: NOW });
+    ids.request_id = String(request.id);
 
     const mediaId = randomUUID();
     await store.createMediaFile({
@@ -925,7 +928,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       const result = await hosted(app, op.method, op.route, await customerOf(app), BODY);
       const where = `${op.method} ${op.route} on the caller's app`;
       // Taking something off the customer's own list: what isn't there is already off it.
-      if (op.method === "DELETE" && /^\/me\/(favorites|wishlist)\//.test(op.route)) expect(result.status === 204 || result.status >= 400, where).toBe(true);
+      // 212 A store's wishlist, back in stock and the review of the caller: their own rows only, a no-op elsewhere.
+      if (op.method === "DELETE" && (/^\/me\/(favorites|wishlist)\//.test(op.route) || /^\/store\/(wishlist\/|products\/\{product_id\}\/(back-in-stock|reviews\/mine))/.test(op.route))) expect(result.status === 204 || result.status >= 400, where).toBe(true);
       else expect(result.status, where).toBeGreaterThanOrEqual(400);
       expect(JSON.stringify(result.body ?? null), where).not.toContain(MARK);
       tried++;

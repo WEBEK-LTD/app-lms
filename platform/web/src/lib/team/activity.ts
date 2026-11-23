@@ -62,6 +62,8 @@ export const TEAM_ACTIONS = [
   "rating.reply",
   // 175 The shop's currency changed, its prices converted or kept.
   "shop.currency",
+  // 210 The shop's answer to a custom-order request.
+  "shop.request",
 ] as const;
 export type TeamAction = (typeof TEAM_ACTIONS)[number];
 

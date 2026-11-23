@@ -53,6 +53,7 @@ import {
   type TabBarDesign,
   TAB_BAR_DESIGNS,
   type WebPageLook,
+  STUDIO_TECH_TYPES,
 } from "@/lib/pages/types";
 // 174 The field is in the direction of the language being edited (Arabic right to left, whatever the dashboard's).
 import { isRtl } from "@/lib/i18n/locales";
@@ -74,6 +75,7 @@ import { LiveLookControls } from "./live-look-controls";
 import { BannerControls, BeforeAfterControls, GalleryControls, IndicatorLookControls, SegmentsControls, MarqueeControls, StoriesControls, type PremiumControlsProps } from "./premium-motion-controls";
 // 129.11–129.20 The premium elements' options and lists, and a layout's premium card style.
 import { PremiumControls, SurfaceControls } from "./premium-controls";
+import { TechControls } from "./tech-controls";
 import { CommerceControls } from "./commerce-controls";
 import { CategoryListNote, TemplateDataNote } from "./category-list-note";
 import { fromDashboard, isStoryElement, StoriesSourceControls } from "./stories-source-controls";
@@ -935,6 +937,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {layout ? <SurfaceControls node={node} onChange={onChange} /> : null}
       {/* 131 The flash sale's, the coupon's and the sale badge's options. */}
       {node.type === "flash_sale" || node.type === "coupon" ? <CommerceControls node={node} onChange={onChange} pickable={props.pickable} /> : null}
+      {/* 211 The electronics shops' elements: their products, category, spec and look. */}
+      {(STUDIO_TECH_TYPES as readonly string[]).includes(node.type) ? <TechControls node={node} onChange={onChange} pickable={props.pickable} lang={props.lang} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.couponCode")}
