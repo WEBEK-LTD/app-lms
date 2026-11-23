@@ -366,7 +366,7 @@ class _Cover extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
+                      OnePhoneLine(
                         look.phone,
                         style: TextStyle(
                           fontSize: 13.5,
@@ -845,7 +845,7 @@ class _Night extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Text(
+                      OnePhoneLine(
                         look.phone,
                         style: TextStyle(fontSize: 13, color: c.muted),
                       ),

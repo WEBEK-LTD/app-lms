@@ -58,6 +58,11 @@ import { authLookOf, followedLook, withOwnScreens } from "@/lib/studio/sign-in-l
 import { CourseScreensSection } from "./course-screens-section";
 import type { CourseScreens } from "@/lib/studio/course-screens";
 import type { PickableEntry } from "@/lib/hosted/pages/pickable";
+import { ScreenTextState, ScreenWordsProvider } from "./screen-text-state";
+import type { WordForms } from "@/lib/pages/template-translations";
+
+/** 181 No template words given. */
+const NO_WORDS: readonly WordForms[] = [];
 
 /** 118.3 The night look's card colour when the owner keeps the default. */
 const NIGHT_GOLD = "#D9B36C";
@@ -144,6 +149,8 @@ export function ScreensEditor({
   brand,
   sampleCourses,
   store = false,
+  mainLanguage = null,
+  templateWords = NO_WORDS,
 }: {
   initial: StudioScreens | null;
   languages: { code: string; name: string }[];
@@ -158,6 +165,9 @@ export function ScreensEditor({
   sampleCourses?: Record<string, PickableEntry[]>;
   /** 131.25 A store: its checkout's look is chosen here too. */
   store?: boolean;
+  /** 181 The app's main language, and Yallapp's words its screens use: what each other language shows, marked. */
+  mainLanguage?: string | null;
+  templateWords?: readonly WordForms[];
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveStudioScreensAction, initialFormState);
@@ -288,7 +298,9 @@ export function ScreensEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shownEntries, color, accent, siteDark, previewLang, system, main, second, look.image_url, t]);
 
+  const screenWords = useMemo(() => ({ main: mainLanguage, words: templateWords, appName }), [mainLanguage, templateWords, appName]);
   return (
+    <ScreenWordsProvider value={screenWords}>
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
       <form action={action} className="flex min-w-0 flex-col gap-6">
         <input type="hidden" name="screens" value={JSON.stringify(screens)} />
@@ -405,6 +417,7 @@ export function ScreensEditor({
                     value={look.title[l.code] ?? ""}
                     onChange={(e) => setLook((v) => ({ ...v, title: { ...v.title, [l.code]: e.target.value } }))}
                   />
+                  <ScreenTextState texts={look.title} lang={l.code} />
                 </label>
                 <label className="flex flex-col gap-1 text-sm">
                   <span className="font-semibold">{t("studio.welcomeSubtitleIn", { language: l.name })}</span>
@@ -414,6 +427,7 @@ export function ScreensEditor({
                     value={look.subtitle[l.code] ?? ""}
                     onChange={(e) => setLook((v) => ({ ...v, subtitle: { ...v.subtitle, [l.code]: e.target.value } }))}
                   />
+                  <ScreenTextState texts={look.subtitle} lang={l.code} />
                 </label>
               </div>
             ))}
@@ -518,6 +532,7 @@ export function ScreensEditor({
                             value={e.label[l.code] ?? ""}
                             onChange={(ev) => patch(e.uid, { label: { ...e.label, [l.code]: ev.target.value } })}
                           />
+                          <ScreenTextState texts={e.label} lang={l.code} />
                         </label>
                       ))}
                       <label className="flex flex-col gap-1 text-sm">
@@ -779,6 +794,7 @@ export function ScreensEditor({
         </div>
       </aside>
     </div>
+    </ScreenWordsProvider>
   );
 }
 

@@ -844,7 +844,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             style: t.ui(12, color: t.muted),
                           ),
                           Text(
-                            '${shortDay(stay.checkIn)} → ${shortDay(stay.checkOut)}',
+                            route(
+                              shortDay(stay.checkIn),
+                              shortDay(stay.checkOut),
+                            ),
                             style: t.ui(12, weight: FontWeight.w800),
                           ),
                         ],
@@ -1070,6 +1073,22 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ),
       bottomNavigationBar: _quote == null
           ? null
+          // 180.17 Nothing to pay with (no card payments yet and not at the
+          // hotel): said so, not a button the server refuses.
+          : !payNow && !canAtHotel
+          ? Padding(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                12,
+                20,
+                12 + MediaQuery.paddingOf(context).bottom,
+              ),
+              child: Text(
+                l.travelNoPaymentYet,
+                textAlign: TextAlign.center,
+                style: t.ui(14, weight: FontWeight.w700, color: t.muted),
+              ),
+            )
           : Padding(
               padding: EdgeInsets.fromLTRB(
                 20,
@@ -2576,10 +2595,33 @@ class _ManageBookingScreenState extends ConsumerState<ManageBookingScreen> {
     TravelLeg g,
   ) async {
     final l = context.l10n;
-    final map = await ref
-        .read(seatMapProvider(g.flightId).future)
-        .catchError((_) => const TravelSeatMap(flightId: 0));
-    if (!context.mounted || map.rows.isEmpty) return;
+    // 180.14 A seat map that doesn't come says so, with Try again; a flight
+    // without one says its seats can't be changed (the button did nothing).
+    final TravelSeatMap map;
+    try {
+      map = await ref.read(seatMapProvider(g.flightId).future);
+    } on Object catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.maybeOf(context)
+        ?..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              e is ApiException ? e.message : l.travelSeatsNotLoaded,
+            ),
+            action: SnackBarAction(
+              label: l.tryAgain,
+              onPressed: () {
+                ref.invalidate(seatMapProvider(g.flightId));
+                if (context.mounted) _seats(context, b, g);
+              },
+            ),
+          ),
+        );
+      return;
+    }
+    if (!context.mounted) return;
+    if (map.rows.isEmpty) return showMessage(context, l.travelSeatsCantChange);
     final picked = <String?>[...g.seats];
     final free = [
       for (final r in map.rows)

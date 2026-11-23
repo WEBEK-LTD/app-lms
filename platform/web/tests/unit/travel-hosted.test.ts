@@ -104,7 +104,7 @@ describe("126 travel apps on the hosted API", () => {
     ...overrides,
   });
 
-  async function call(method: string, route: string, options: { query?: Record<string, string>; params?: string[]; token?: string; body?: unknown } = {}): Promise<HostedResult> {
+  async function call(method: string, route: string, options: { query?: Record<string, string>; params?: string[]; token?: string; body?: unknown; currency?: string; lang?: string } = {}): Promise<HostedResult> {
     let concrete = route;
     for (const param of options.params ?? []) concrete = concrete.replace(/\{[^}]+\}/, param);
     const result = await handleHosted(context(), {
@@ -113,6 +113,7 @@ describe("126 travel apps on the hosted API", () => {
       query: new URLSearchParams(options.query ?? {}),
       body: options.body,
       token: options.token ?? null,
+      ...(options.currency || options.lang ? { headers: new Headers({ ...(options.currency ? { "x-currency": options.currency } : {}), ...(options.lang ? { "accept-language": options.lang } : {}) }) } : {}),
     });
     expectContract(method, route, result);
     return result;
@@ -139,6 +140,44 @@ describe("126 travel apps on the hosted API", () => {
   const stay = (patch: Record<string, unknown> = {}) => ({ hotel_id: hotelId, room_id: roomId, rate_id: "bb", check_in: "2026-11-14", check_out: "2026-11-17", guests: 2, rooms: 1, ...patch });
   const travellers = [{ first_name: "Layla", last_name: "Hassan" }];
   const contact = { name: "Layla Hassan", email: "layla@example.com", phone: "+201000000000" };
+
+  it("180.14 answers its errors in the app's language", async () => {
+    const token = await signUp("1000000180", "Layla Hassan");
+    const ar = await call("POST", "/me/travel/alerts", { token, lang: "ar", body: { kind: "flight" } });
+    expect(ar.status).toBe(400);
+    expect((ar.body as { message: string }).message).toMatch(/[\u0600-\u06FF]/);
+    const tr = await call("POST", "/me/travel/alerts", { token, lang: "tr", body: { kind: "flight" } });
+    expect((tr.body as { message: string }).message).not.toBe("Choose the route to watch.");
+    const en = await call("POST", "/me/travel/alerts", { token, body: { kind: "flight" } });
+    expect((en.body as { message: string }).message).toBe("Choose the route to watch.");
+  });
+
+  it("180.12 sends every price with its amount and currency, and in the customer's currency when asked", async () => {
+    await store.setPlatformSetting("exchangeRates", { rates: { USD: 1, EGP: 50 }, date: "2026-11-18", fetchedAt: NOW.toISOString(), source: "ExchangeRate-API" }, "daily job", NOW);
+    const stays = (await call("GET", "/travel/hotels", { currency: "EGP", query: { city: "luxor", check_in: "2026-11-14", check_out: "2026-11-17", guests: "2" } })).body as {
+      items: { currency: string; from_nightly_amount: string; display: Record<string, unknown>; price: { total: string; display: Record<string, string | number> } }[];
+    };
+    const card = stays.items[0]!;
+    expect(card.currency).toBe("USD");
+    expect(card.display).toMatchObject({ currency: "EGP", rate: 50, from_nightly_formatted: "E£7,500.00" });
+    expect(card.price.display).toMatchObject({ currency: "EGP", total: (Number(card.price.total) * 50).toFixed(2), nightly_formatted: expect.any(String) });
+    const flights = (await call("GET", "/travel/flights", { currency: "EGP", query: { from: "CAI", to: "LXR", depart: "2026-11-14", return: "2026-11-18", adults: "2" } })).body as {
+      display: Record<string, unknown>;
+      items: { display: Record<string, unknown>; fares: { display: Record<string, unknown> }[] }[];
+    };
+    expect(flights.items[0]!.display).toMatchObject({ currency: "EGP", from_price_formatted: expect.any(String) });
+    expect(flights.items[0]!.fares[0]!.display).toMatchObject({ currency: "EGP", price_formatted: expect.any(String) });
+    // Without a currency asked, as before: no `display`.
+    const plain = (await call("GET", "/travel/hotels", { query: { city: "luxor", check_in: "2026-11-14", check_out: "2026-11-17", guests: "2" } })).body as { items: Record<string, unknown>[] };
+    expect(plain.items[0]!.display).toBeUndefined();
+  });
+
+  it("180.17 without card payments, Config.travel doesn't offer paying now, as the quote doesn't", async () => {
+    app = { ...app, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } };
+    await store.updateApp(app.id, { catalogSettings: app.catalogSettings }, NOW);
+    const config = (await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).body as { travel: { payment: { now: boolean; at_hotel: boolean } } };
+    expect(config.travel.payment).toEqual({ now: false, at_hotel: true });
+  });
 
   it("sends Config.travel: the mode, the payments, the saving, the transfer, the one hotel, the font", async () => {
     const config = (await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).body as Record<string, unknown>;

@@ -753,7 +753,13 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             onPressed: null,
           ),
           ProductCta.notInApp => Text(
-            context.l10n.notSoldInApp,
+            // 176.11 A shop not yet able to be paid in the app (a café
+            // with no card gateway nor its own method) isn't open for
+            // orders; digital goods on iOS stay not sold in the app.
+            !(product.summary.digital && platform == DevicePlatform.ios) &&
+                    ref.watch(appConfigProvider).store?.orderingOpen == false
+                ? context.l10n.orderingNotOpen
+                : context.l10n.notSoldInApp,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: p.textSecondary),
           ),

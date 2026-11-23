@@ -279,6 +279,21 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
   // 128 Sofra Eats delivers to the demo number's home in Zamalek, as its orders go.
   food: {
     fpArea: { en: "Home · Zamalek", ar: "المنزل · الزمالك", tr: "Ev · Zamalek" },
+    // 176.1 Sofra's own restaurants, dishes and their prices in pounds (lib/demo/content.ts): a business's own app has the template's words, without them.
+    sofTonight1: { en: "Tonight at Sahara Grill", ar: "الليلة في صحارى جريل", tr: "Bu akşam Sahara Grill'de" },
+    sofDish1Line: { en: "Kofta, shish tawook and lamb chops · EGP 240", ar: "كفتة وشيش طاووق وريش ضاني · 240 ج.م", tr: "Köfte, şiş tavuk ve kuzu pirzola · 240 EGP" },
+    sofTonight2: { en: "Stone-baked at Forno Zamalek", ar: "من فرن الحجر في فورنو الزمالك", tr: "Forno Zamalek'te taş fırında" },
+    sofDish2Line: { en: "Tomato, mozzarella and basil · EGP 140", ar: "طماطم وموتزاريلا وريحان · 140 ج.م", tr: "Domates, mozzarella ve fesleğen · 140 EGP" },
+    sofTonight3: { en: "Made at home at Bayt El Koshary", ar: "كما في البيت في بيت الكشري", tr: "Bayt El Koshary'de ev usulü" },
+    sofDish3Line: { en: "Rice, lentils, pasta and crispy onions · EGP 55", ar: "أرز وعدس ومكرونة وبصل مقرمش · 55 ج.م", tr: "Pirinç, mercimek, makarna ve çıtır soğan · 55 EGP" },
+    sofDeliveryFee: { en: "Delivery EGP 25", ar: "التوصيل 25 ج.م", tr: "Teslimat 25 EGP" },
+    sofForno: { en: "Forno Zamalek", ar: "فورنو الزمالك", tr: "Forno Zamalek" },
+    sofSahara: { en: "Sahara Grill", ar: "صحارى جريل", tr: "Sahara Grill" },
+    sofPrice140: { en: "EGP 140", ar: "140 ج.م", tr: "140 EGP" },
+    sofPrice150: { en: "EGP 150", ar: "150 ج.م", tr: "150 EGP" },
+    sofGrillChip: { en: "Mixed grill · EGP 240", ar: "مشويات مشكّلة · 240 ج.م", tr: "Karışık ızgara · 240 EGP" },
+    sofEgyptianLine: { en: "Bayt El Koshary · Koshary EGP 55", ar: "بيت الكشري · كشري 55 ج.م", tr: "Bayt El Koshary · Koşari 55 EGP" },
+    sofTicker: { en: "Koshary EGP 55\nMixed grill EGP 240\nMargherita EGP 140\nShish tawook EGP 150", ar: "كشري 55 ج.م\nمشويات مشكّلة 240 ج.م\nمارجريتا 140 ج.م\nشيش طاووق 150 ج.م", tr: "Koşari 55 EGP\nKarışık ızgara 240 EGP\nMargherita 140 EGP\nŞiş tavuk 150 EGP" },
   },
   // ——— 130.13–130.18 The Signature looks' brackets, in the demo's own words ———
   // Nakhla School's week (lib/demo/school-life.ts): the parents' evening, the class trip, sports day.
@@ -312,6 +327,12 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     deliveryFrom: { en: "Abbas El Akkad St.", ar: "شارع عباس العقاد", tr: "Abbas El Akkad Caddesi" },
     // 130.5 The Waybill look's headline names the demo's city.
     sahHead1: { en: "Across Cairo,", ar: "عبر القاهرة،", tr: "Kahire'nin her yerine," },
+    // 176.1 Sahm's own prices in pounds: a business's own app has the template's words, without them.
+    sahSameDayPrice: { en: "+EGP 0", ar: "+0 ج.م", tr: "+0 EGP" },
+    sahExpressPrice: { en: "+EGP 45", ar: "+45 ج.م", tr: "+45 EGP" },
+    sahDocumentsPrice: { en: "+EGP 15", ar: "+15 ج.م", tr: "+15 EGP" },
+    sahSendFrom: { en: "Send a parcel · from EGP 40", ar: "أرسل طردًا · من 40 ج.م", tr: "Paket gönder · 40 EGP'den" },
+    sahFrom40: { en: "EGP 40+", ar: "40+ ج.م", tr: "40+ EGP" },
   },
   // 131.20 Leqaa's own words where its looks leave the owner brackets: its cut-off in Cairo, its signature bouquet (lib/demo/flowers.ts), its name in each language.
   flowers: {
@@ -389,10 +410,10 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
     const out: StudioNode = words ? { ...node, text: words[lang], translations } : { ...node };
     if (node.children) out.children = node.children.map(fill);
     if (node.card) out.card = fill(node.card);
-    // 130.12 And a premium element's entries (Safra B's stays): their title and text.
+    // 130.12 And a premium element's entries (Safra B's stays): their title and text; 176.1 and their line (Sofra B's grill).
     if (node.entries) {
       out.entries = node.entries.map((entry) => {
-        const own = (["title", "text"] as const).map((f) => [f, entry[f] ? byText.get(entry[f]!) : undefined] as const).filter(([, words]) => words);
+        const own = (["title", "text", "subtitle"] as const).map((f) => [f, entry[f] ? byText.get(entry[f]!) : undefined] as const).filter(([, words]) => words);
         if (!own.length) return entry;
         const filled: StudioEntry = { ...entry };
         const translations: Record<string, Record<string, string>> = {};

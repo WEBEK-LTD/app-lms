@@ -24,6 +24,7 @@ class StoreConfig {
     this.payInApp = false,
     this.bouquet,
     this.sizeChart,
+    this.orderingOpen,
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -50,11 +51,19 @@ class StoreConfig {
     payInApp: json['checkout_payment'] == 'in_app',
     bouquet: BouquetRules.tryParse(json['bouquet']),
     sizeChart: SizeChart.tryParse(json['size_chart']),
+    orderingOpen: json['ordering_open'] is bool
+        ? json['ordering_open'] as bool
+        : null,
   );
 
   /// 208 The shop's size chart, under a product's sizes ("Size guide") and
   /// on a Studio page (`size_chart`); null: none.
   final SizeChart? sizeChart;
+
+  /// 176.11 False while the shop can't be paid in the app yet (no card
+  /// gateway of its own nor its own method): its products say ordering
+  /// isn't open yet. Null: not known (WordPress, older servers).
+  final bool? orderingOpen;
 
   /// 162 Build your bouquet, when the shop has it set up; null: an action
   /// with `flow: bouquet` opens the shop, as before.

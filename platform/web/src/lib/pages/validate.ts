@@ -466,6 +466,8 @@ function parseAction(ctx: Context, where: string, value: unknown, required: bool
       }
       // 165 The shop opened on one of its categories (older apps open the shop).
       if (v.screen === "courses" && typeof v.category_id === "string" && /^[A-Za-z0-9_.:-]{1,64}$/.test(v.category_id)) return { type: "screen", screen: "courses", category_id: v.category_id };
+      // 179.6 The Teachers screen opened on one teacher (older apps open the list).
+      if (v.screen === "teachers" && Number.isSafeInteger(v.teacher_id) && (v.teacher_id as number) > 0) return { type: "screen", screen: "teachers", teacher_id: v.teacher_id as number };
       return { type: "screen", screen: v.screen as Action["screen"] };
     case "course": {
       if (!ctx.sources.includes("courses")) c.fail(where, "this app has no courses. Choose what happens on tap.");

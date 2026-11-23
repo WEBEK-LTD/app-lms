@@ -5,7 +5,7 @@ import { newApp } from "../app/setup";
 import { wordsLangOf } from "../app/start-language";
 import type { BlobStore } from "../blobs";
 import type { DataStore } from "../data/store";
-import { DEFAULT_HOSTED_SETTINGS, type App, type MarketTemplate, type MarketTemplatePatch, type MarketTemplateVersion, type TemplateDesigner } from "../data/types";
+import { DEFAULT_HOSTED_SETTINGS, designerPageDefaults, type App, type MarketTemplate, type MarketTemplatePatch, type MarketTemplateVersion, type TemplateDesigner } from "../data/types";
 import { demoClientId } from "../demo/apps";
 import { demoKind, STUDIO_DEMO_TYPES, type StudioDemoId } from "../demo/constants";
 import { DEMO_BRANDS } from "../demo/content";
@@ -329,7 +329,7 @@ async function houseDesigner(store: DataStore, clientId: string, now: Date): Pro
   const known = (await store.getTemplateDesigner(HOUSE_DESIGNER_ID)) ?? (await store.getTemplateDesignerByClient(clientId));
   if (known) return known;
   for (const slug of HOUSE_DESIGNER.slugs) {
-    const designer: TemplateDesigner = { id: HOUSE_DESIGNER_ID, clientId, name: HOUSE_DESIGNER.name, slug, country: HOUSE_DESIGNER.country, bio: null, status: "active", termsAcceptedAt: now, createdAt: now, updatedAt: now };
+    const designer: TemplateDesigner = { id: HOUSE_DESIGNER_ID, clientId, name: HOUSE_DESIGNER.name, slug, country: HOUSE_DESIGNER.country, bio: null, status: "active", termsAcceptedAt: now, createdAt: now, updatedAt: now, ...designerPageDefaults() };
     const created = await store.createTemplateDesigner(designer);
     if (created) return created;
     // Made meanwhile by another request, or the address is another designer's: the next one.

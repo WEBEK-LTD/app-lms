@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import type { LanguageCode, StudioNode, Translations } from "@/lib/pages/types";
 import { scrimCss, toneStyle } from "@/lib/studio/scrim";
 
@@ -337,14 +337,38 @@ export function entryText(entry: { translations?: Translations } | null | undefi
  * 129.2 A row of stories: round photos in a ring, the second colour into
  * the main one where a story is still to be seen, their titles under them;
  * in the app a tap opens them full screen.
+ *
+ * 181 The row scrolls sideways as the app's does, so a 7th ring and those
+ * after it are on the canvas too; in the editor ([pick]) a click on a ring
+ * picks that story (its fields in the inspector), and the story picked
+ * ([picked]) is marked and scrolled into sight.
  */
-export function StoriesRow({ node, lang, defaultLang, dark, brand, accent }: { node: StudioNode; lang: string; defaultLang: string; dark: boolean; brand: string; accent?: string | null }) {
+export function StoriesRow({ node, lang, defaultLang, dark, brand, accent, pick, picked }: { node: StudioNode; lang: string; defaultLang: string; dark: boolean; brand: string; accent?: string | null; pick?: (index: number) => void; picked?: number | null }) {
   const size = node.stories?.size ?? 68;
   const shades = dark ? ["#2A2742", "#33304F", "#3B3858"] : ["#F3E3C3", "#E8EEF6", "#F6E3E7"];
+  const row = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (picked == null || !row.current) return;
+    const ring = row.current.querySelector<HTMLElement>(`[data-studio-story="${picked}"]`);
+    ring?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+  }, [picked]);
   return (
-    <span data-studio-stories="" style={{ display: "flex", gap: 14, overflow: "hidden" }}>
+    <span ref={row} data-studio-stories="" style={{ display: "flex", gap: 14, overflowX: "auto", overflowY: "hidden", scrollbarWidth: "none", overscrollBehaviorX: "contain" }}>
       {(node.slides ?? []).map((story, i) => (
-        <span key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: "0 0 auto", width: size + 8 }}>
+        <span
+          key={i}
+          data-studio-story={i}
+          data-studio-story-picked={picked === i ? "" : undefined}
+          onClick={
+            pick
+              ? (e) => {
+                  e.stopPropagation();
+                  pick(i);
+                }
+              : undefined
+          }
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: "0 0 auto", width: size + 8, ...(pick ? { cursor: "pointer", borderRadius: 12, outline: picked === i ? "2px solid #3D63FF" : undefined, outlineOffset: 2 } : {}) }}
+        >
           {/* 129.2 Its ring: lit until seen (the canvas shows it unseen), always lit, quiet, or dashed. */}
           <span
             data-studio-story-ring={story.ring ?? "auto"}

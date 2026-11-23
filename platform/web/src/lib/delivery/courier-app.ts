@@ -29,8 +29,11 @@ export function hasSecondApp(app: Pick<App, "appType">, settings: Pick<DeliveryS
   return hasCourierJobs(app) && settings.courierApp !== "yallapp_courier";
 }
 
-/** 112.3 The company's couriers or drivers worked in its customers' app before 112.3: its next build drops their tab, so the second app goes out first. */
-export const workedInCustomersApp = (settings: Pick<DeliverySettings, "courierApp">): boolean => settings.courierApp === "same";
+/**
+ * 112.3 The company's couriers or drivers worked in its customers' app before 112.3: its next build drops their tab, so the second app goes out first.
+ * 176.4 Only once that app was built: "same" is every new company's setting too, and one with no build had no couriers' tab to lose.
+ */
+export const workedInCustomersApp = (settings: Pick<DeliverySettings, "courierApp">, built: boolean): boolean => settings.courierApp === "same" && built;
 
 /** Who the second app is for: 105.2 a ride company's drivers, else couriers. */
 export type SecondAppRole = "courier" | "driver";

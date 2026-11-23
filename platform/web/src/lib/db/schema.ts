@@ -104,7 +104,7 @@ import type { BotUnmatchedStatus } from "../bot/types";
 import type { MailAudience, MailCampaignStatus, MailContactSource, MailContents, MailEventKind, MailLang, MailRecipientStatus, MailSuppressionReason } from "../mailing/types";
 import type { Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
 // 106 Studio Market
-import type { MarketPlanPrice, MarketTemplate, MarketTemplateCover } from "../data/types";
+import type { DesignerProfileReview, MarketPlanPrice, MarketTemplate, MarketTemplateCover } from "../data/types";
 import type { MarketDiscountKind, MarketPlanPeriod } from "../data/types";
 import type { AdminRole } from "../admin/permissions";
 import type { DemoId } from "../demo/constants";
@@ -5720,8 +5720,19 @@ export const studioMarketDesigners = mysqlTable(
     termsAcceptedAt: time("terms_accepted_at").notNull(),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
+    // 106.14 The designer's public page: their photo, the team's first look at it and the line about them,
+    // what they show (their country, their links) and the team's lock.
+    photoAssetId: id("photo_asset_id"),
+    profileReview: varchar("profile_review", { length: 16 }).$type<DesignerProfileReview>().notNull().default("none"),
+    profileNote: varchar("profile_note", { length: 1000 }),
+    profileReviewedAt: time("profile_reviewed_at"),
+    showCountry: boolean("show_country").notNull().default(false),
+    links: jsonText<string[]>("links").notNull().default(sql`('[]')`),
+    showLinks: boolean("show_links").notNull().default(false),
+    pageLockedAt: time("page_locked_at"),
+    pageLockedReason: varchar("page_locked_reason", { length: 400 }),
   },
-  (t) => [uniqueIndex("studio_market_designers_client_idx").on(t.clientId), uniqueIndex("studio_market_designers_slug_idx").on(t.slug)],
+  (t) => [uniqueIndex("studio_market_designers_client_idx").on(t.clientId), uniqueIndex("studio_market_designers_slug_idx").on(t.slug), index("studio_market_designers_review_idx").on(t.profileReview, t.updatedAt)],
 );
 
 export const studioMarketTemplates = mysqlTable(
@@ -5756,6 +5767,40 @@ export const studioMarketTemplates = mysqlTable(
     uniqueIndex("studio_market_templates_slug_idx").on(t.slug),
     index("studio_market_templates_designer_idx").on(t.designerId, t.updatedAt),
     index("studio_market_templates_status_idx").on(t.status, t.submittedAt),
+  ],
+);
+
+/**
+ * 106.14 A buyer's rating of a template they got: once per template and
+ * account (the unique key), changed in place; the designer's one answer;
+ * hidden by the team when abusive. It goes with the buyer's account, the
+ * template and the designer.
+ */
+export const studioMarketRatings = mysqlTable(
+  "studio_market_ratings",
+  {
+    id: id("id").primaryKey(),
+    templateId: id("template_id").notNull(),
+    designerId: id("designer_id").notNull(),
+    clientId: id("client_id").notNull(),
+    stars: int("stars").notNull(),
+    comment: varchar("comment", { length: 1000 }),
+    authorName: varchar("author_name", { length: 80 }).notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    reply: varchar("reply", { length: 1000 }),
+    repliedAt: time("replied_at"),
+    hiddenAt: time("hidden_at"),
+    hiddenBy: varchar("hidden_by", { length: 191 }),
+    hiddenReason: varchar("hidden_reason", { length: 400 }),
+  },
+  (t) => [
+    foreignKey({ name: "studio_market_ratings_template_fk", columns: [t.templateId], foreignColumns: [studioMarketTemplates.id] }).onDelete("cascade"),
+    foreignKey({ name: "studio_market_ratings_designer_fk", columns: [t.designerId], foreignColumns: [studioMarketDesigners.id] }).onDelete("cascade"),
+    foreignKey({ name: "studio_market_ratings_client_fk", columns: [t.clientId], foreignColumns: [clients.id] }).onDelete("cascade"),
+    uniqueIndex("studio_market_ratings_once_idx").on(t.templateId, t.clientId),
+    index("studio_market_ratings_designer_idx").on(t.designerId, t.createdAt),
+    index("studio_market_ratings_template_idx").on(t.templateId, t.createdAt),
   ],
 );
 

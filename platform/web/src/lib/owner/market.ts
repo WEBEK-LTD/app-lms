@@ -6,6 +6,8 @@ import { deliverySettingsOf } from "../delivery/settings";
 import { restaurantState } from "../food/service";
 import { ACTIVE_COMPLAINT, decideComplaint, queueTimers, refundable, supportReply } from "../market/complaints";
 import { complaintDecisionDeps } from "../market/decisions";
+import { tellComplaint } from "../market/notify";
+import { notifyDeps } from "../delivery/flow";
 import { complaintReference, marketOrderReference } from "../market/json";
 import { marketTimezone } from "../market/settings";
 import { byWait, marketOrderIdOf, ORDER_FILTERS, queueQuery, type Queue } from "../market/support";
@@ -235,6 +237,8 @@ export async function replyComplaint(ctx: OwnerContext, params: Record<string, s
   const patch = supportReply(complaint, text, whoOf(ctx), ctx.deps.now);
   if (!patch) throw invalidStatus("This complaint is closed.");
   await ctx.deps.store.updateMarketComplaint(app.id, complaint.id, { ...patch, assignee: complaint.assignee ?? whoOf(ctx) });
+  // 115.22 The customer is told (`complaint_update`).
+  await tellComplaint(notifyDeps({ store: ctx.deps.store, app, now: ctx.deps.now }), { ...complaint, ...patch }, "reply");
   await recordStudio(ctx, app, "complaint.reply", { type: "complaint", id: complaint.id }, `Answered complaint ${complaintReference(complaint)}`);
   return { status: 200, body: await complaintDetail(ctx, app, (await ctx.deps.store.getMarketComplaint(app.id, complaint.id))!) };
 }

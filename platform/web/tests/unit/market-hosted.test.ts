@@ -228,6 +228,11 @@ describe("115 the marketplace's routes", () => {
     const onTheWay = await call("GET", "/me/market-orders/{order_id}", { token: customer.access_token, params: [String(order.id)] });
     expect(onTheWay.body).toMatchObject({ status: "on_the_way", delivery_by: "vendor", tracking: { mode: "stages" } });
     expect((await call("POST", "/vendor/orders/{order_id}/handover", { token: staff.access_token, params: [String(order.id)], body: { to: "delivered" } })).body).toMatchObject({ status: "delivered", payment: { status: "paid" } });
+    // 115.22 The customer heard of each stage, in her inbox (this app has no push account), each opening the order.
+    const told = (await store.listHostedNotifications({ appId: app.id, userId: customer.user.id, since: new Date(0), page: 1, perPage: 50 })).items.filter((n) => n.data?.type === "market_order_update").sort((x, y) => x.id - y.id);
+    expect(told.map((n) => [n.title, n.data])).toEqual(
+      ["Your order was sent", "Your order is being prepared", "Your order is ready", "Your order is on the way", "Your order was delivered"].map((title) => [title, { type: "market_order_update", market_order_id: String(order.id) }]),
+    );
 
     // Rated once, then a complaint within 48 hours, and a message on it.
     expect((await call("POST", "/me/market-orders/{order_id}/rating", { token: customer.access_token, params: [String(order.id)], body: { vendor: 5 } })).body).toMatchObject({ rating: { vendor: 5 } });

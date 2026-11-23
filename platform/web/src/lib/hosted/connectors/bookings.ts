@@ -7,7 +7,8 @@ import { membershipActive, membershipStatus } from "../../bookings/memberships";
 import { memberCodeJson, memberKey } from "../../bookings/member-codes";
 import { rememberMemberCode } from "../../bookings/door";
 import { signingSecret } from "../../env";
-import { BOOKING_STATUS_LABELS, bookingSetup, type FullBookingSetup } from "../../bookings/setup";
+import { bookingSetup, type FullBookingSetup } from "../../bookings/setup";
+import { bookingHomeTitle, bookingStatusLabel } from "../../bookings/words";
 import { addDays, isDate, localToUtc, utcToLocal } from "../../bookings/time";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import { PAY_LINK_MINUTES, paymentsSetUp } from "../../catalog/settings";
@@ -196,7 +197,7 @@ export class BookingsConnector implements Connector {
     return ACTIVE_BOOKING_STATUSES.includes(a.status) && before !== null && a.startAt.getTime() - now.getTime() >= before * 60_000;
   }
 
-  private appointmentJson(a: BookingAppointment, now: Date) {
+  private appointmentJson(a: BookingAppointment, now: Date, lang?: string | null) {
     const local = utcToLocal(a.startAt, this.setup.rules.timezone);
     const service = this.setup.services.find((s) => s.id === a.serviceId);
     const staff = this.setup.staff.find((s) => s.id === a.staffId);
@@ -205,7 +206,7 @@ export class BookingsConnector implements Connector {
     return {
       id: a.id,
       status,
-      status_label: BOOKING_STATUS_LABELS[status],
+      status_label: bookingStatusLabel(status, lang),
       service: { id: a.serviceId, name: a.serviceName, image_url: service?.imageAssetId ? this.deps.assetUrl(service.imageAssetId) : null },
       staff: staff ? this.person(staff) : { id: a.staffId, name: a.staffName, image_url: null, title: null, price: null },
       start: a.startAt.toISOString(),
@@ -234,15 +235,15 @@ export class BookingsConnector implements Connector {
         limit: 1,
       });
       if (items[0]) {
-        sections.push({ type: "next_appointment", title: this.clinic ? "Your next visit" : "Your next appointment", appointment: this.appointmentJson(items[0], request.now) });
+        sections.push({ type: "next_appointment", title: bookingHomeTitle(this.clinic ? "next_visit" : "next_appointment", request.lang), appointment: this.appointmentJson(items[0], request.now, request.lang) });
       }
     }
     const categories = this.categories();
-    if (categories.length) sections.push({ type: "categories", title: "Categories", categories });
+    if (categories.length) sections.push({ type: "categories", title: bookingHomeTitle("categories", request.lang), categories });
     const services = this.bookable();
-    if (services.length) sections.push({ type: "services", title: "Services", services: services.slice(0, 20).map((s) => this.summary(s)) });
+    if (services.length) sections.push({ type: "services", title: bookingHomeTitle("services", request.lang), services: services.slice(0, 20).map((s) => this.summary(s)) });
     const staff = this.setup.staff.filter((s) => s.active && s.serviceIds.some((id) => services.some((x) => x.id === id)));
-    if (staff.length > 1) sections.push({ type: "staff", title: this.clinic ? "Our doctors" : "Our team", staff: staff.map((s) => this.person(s)) });
+    if (staff.length > 1) sections.push({ type: "staff", title: bookingHomeTitle(this.clinic ? "our_doctors" : "our_team", request.lang), staff: staff.map((s) => this.person(s)) });
     return sections;
   }
 
@@ -337,7 +338,7 @@ export class BookingsConnector implements Connector {
         await this.deps.onBooked?.(appointment).catch(() => {
           // The appointment stands; the business sees it in the dashboard.
         });
-        return { status: 201, body: this.appointmentJson(appointment, request.now) };
+        return { status: 201, body: this.appointmentJson(appointment, request.now, request.lang) };
       }
     }
     return slotTaken();
@@ -358,7 +359,7 @@ export class BookingsConnector implements Connector {
     });
     return {
       status: 200,
-      body: { page, per_page: perPage, total, total_pages: Math.max(1, Math.ceil(total / perPage)), items: items.map((a) => this.appointmentJson(a, request.now)) },
+      body: { page, per_page: perPage, total, total_pages: Math.max(1, Math.ceil(total / perPage)), items: items.map((a) => this.appointmentJson(a, request.now, request.lang)) },
     };
   }
 
@@ -371,7 +372,7 @@ export class BookingsConnector implements Connector {
   private async appointment(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
     if (!request.user) return signIn();
     const appointment = await this.own(request, id);
-    return appointment ? { status: 200, body: this.appointmentJson(appointment, request.now) } : error(404, "not_found", "Appointment not found.");
+    return appointment ? { status: 200, body: this.appointmentJson(appointment, request.now, request.lang) } : error(404, "not_found", "Appointment not found.");
   }
 
   private async cancel(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
@@ -382,7 +383,7 @@ export class BookingsConnector implements Connector {
       return error(409, "too_late", "This appointment can no longer be cancelled in the app. Please contact us.");
     }
     await this.deps.store.updateBookingAppointment(this.deps.app.id, id, { status: "cancelled", updatedAt: request.now });
-    return { status: 200, body: this.appointmentJson({ ...appointment, status: "cancelled", updatedAt: request.now }, request.now) };
+    return { status: 200, body: this.appointmentJson({ ...appointment, status: "cancelled", updatedAt: request.now }, request.now, request.lang) };
   }
 
   // 27 Group classes and memberships
