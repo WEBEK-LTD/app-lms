@@ -34,7 +34,7 @@ export interface KitLook {
   tint: { day: string; night: string };
   /** Its face for the headlines (and the app's text). */
   family: string;
-  look: "a" | "b";
+  look: "a" | "b" | "c" | "d";
   /** Its photos' folder under public/ (`decor-photos`). */
   dir: string;
   /** Cards' corners. */
