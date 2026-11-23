@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { saveDesignerPageAction } from "@/app/actions/designer-page";
 import { useDashT } from "@/components/dashboard-i18n";
 import { FieldError, FormMessage, SubmitButton } from "@/components/form";
@@ -10,6 +10,7 @@ import { btn, Notice } from "@/components/ui";
 import type { DesignerProfileReview } from "@/lib/data/types";
 import type { DesignerChip } from "@/lib/studio-market/catalog";
 import { initialFormState } from "@/lib/forms";
+import { safePhotoUrl } from "@/lib/studio-market/photo-url";
 
 /**
  * 106.14 Designer area › Your page: the photo (chosen, shown before it is
@@ -39,11 +40,12 @@ export function ProfileForm({ profile, chip, countries, host, pageHref }: { prof
   const v = (name: string, fallback: string) => state.values?.[name] ?? fallback;
   const [slug, setSlug] = useState(profile.slug);
   const [bio, setBio] = useState(profile.bio);
-  const [preview, setPreview] = useState<string | null>(null);
+  // The chosen photo is drawn on a canvas, never put in the page as an address.
+  const [preview, setPreview] = useState<File | null>(null);
   const [remove, setRemove] = useState(false);
-  useEffect(() => () => (preview ? URL.revokeObjectURL(preview) : undefined), [preview]);
   const errors = state.errors ?? {};
-  const shownPhoto = remove ? null : (preview ?? profile.photoUrl);
+  // The uploaded photo only at the address the server made for it.
+  const savedPhoto = remove ? null : safePhotoUrl(profile.photoUrl);
 
   const review =
     profile.review === "pending" ? (
@@ -91,9 +93,11 @@ export function ProfileForm({ profile, chip, countries, host, pageHref }: { prof
             {t("marketPage.photoLabel")}
           </span>
           <div className="flex flex-wrap items-center gap-4">
-            {shownPhoto ? (
-              // eslint-disable-next-line @next/next/no-img-element -- The chosen photo (a local preview) or the uploaded one.
-              <img src={shownPhoto} alt="" className="h-[84px] w-[84px] rounded-full object-cover" data-photo-preview="" />
+            {preview && !remove ? (
+              <PhotoCanvas file={preview} size={84} />
+            ) : savedPhoto ? (
+              // eslint-disable-next-line @next/next/no-img-element -- The uploaded photo, at the platform's own asset address.
+              <img src={savedPhoto} alt="" className="h-[84px] w-[84px] rounded-full object-cover" data-photo-preview="" />
             ) : (
               <span className="flex h-[84px] w-[84px] items-center justify-center rounded-full text-[28px] font-extrabold" style={{ background: chip.bg, color: chip.fg }} aria-hidden="true">
                 {chip.initials}
@@ -113,7 +117,7 @@ export function ProfileForm({ profile, chip, countries, host, pageHref }: { prof
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     setRemove(false);
-                    setPreview(file && /^image\/(png|jpeg)$/.test(file.type) ? URL.createObjectURL(file) : null);
+                    setPreview(file && /^image\/(png|jpeg)$/.test(file.type) ? file : null);
                   }}
                 />
               </label>
@@ -235,7 +239,7 @@ export function ProfileForm({ profile, chip, countries, host, pageHref }: { prof
 
       <aside className="mk-panel flex flex-col gap-3 rounded-[28px] px-5 py-6" aria-label={t("marketPage.title")}>
         <div className="flex items-center gap-3">
-          <DesignerAvatar designer={{ ...chip, photoUrl: shownPhoto }} size="lg" />
+          {preview && !remove ? <PhotoCanvas file={preview} size={56} rounded="rounded-2xl" /> : <DesignerAvatar designer={{ ...chip, photoUrl: savedPhoto }} size="lg" />}
           <span className="flex min-w-0 flex-col">
             <b dir="auto" className="truncate text-base">
               {v("name", profile.name)}
@@ -252,4 +256,27 @@ export function ProfileForm({ profile, chip, countries, host, pageHref }: { prof
       </aside>
     </div>
   );
+}
+
+/** The chosen photo, decoded by the browser and drawn on a canvas (cropped to a square), as partner-photo.tsx does. */
+function PhotoCanvas({ file, size, rounded = "rounded-full" }: { file: File; size: number; rounded?: string }) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void createImageBitmap(file)
+      .then((bitmap) => {
+        const c = canvas.current;
+        const ctx = c?.getContext("2d");
+        if (cancelled || !c || !ctx) return bitmap.close();
+        const side = Math.min(bitmap.width, bitmap.height);
+        ctx.clearRect(0, 0, c.width, c.height);
+        ctx.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, c.width, c.height);
+        bitmap.close();
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [file]);
+  return <canvas ref={canvas} width={size * 2} height={size * 2} aria-hidden="true" data-photo-preview="" className={`flex-none bg-sand ${rounded}`} style={{ width: size, height: size }} />;
 }

@@ -7,6 +7,7 @@ import type { MarketRating, TemplateDesigner } from "../data/types";
 import { designerChip, marketCatalog, type DesignerChip, type TemplateCard } from "./catalog";
 import { designerPath, linkLabel, pageOpen, publicProfile, ratingStats, type RatingStats } from "./designer-page";
 import { templatePath } from "./public";
+import { safePhotoUrl } from "./photo-url";
 
 /**
  * 106.14 What a designer's public page shows (site/designers.tsx), for
@@ -78,7 +79,7 @@ export async function publicDesigner(store: DataStore, slug: string, lang: strin
   return {
     designer,
     chip: designerChip(designer),
-    photoUrl: profile.photoAssetId ? assetUrl(profile.photoAssetId) : null,
+    photoUrl: profile.photoAssetId ? safePhotoUrl(assetUrl(profile.photoAssetId)) : null,
     bio: profile.bio,
     country: designer.showCountry ? designer.country : null,
     links: designer.showLinks ? designer.links.map((url) => ({ url, label: linkLabel(url) })) : [],

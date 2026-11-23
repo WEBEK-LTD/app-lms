@@ -9,6 +9,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { designerChip, marketCatalog } from "@/lib/studio-market/catalog";
 import { designerPath, DESIGNER_LINKS_MAX } from "@/lib/studio-market/designer-page";
 import { localePath } from "@/i18n/paths";
+import { safePhotoUrl } from "@/lib/studio-market/photo-url";
 import { ProfileForm } from "./form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -43,7 +44,7 @@ export default async function DesignerProfilePage() {
           showCountry: designer.showCountry,
           showLinks: designer.showLinks,
           links,
-          photoUrl: designer.photoAssetId ? assetUrl(designer.photoAssetId) : null,
+          photoUrl: designer.photoAssetId ? safePhotoUrl(assetUrl(designer.photoAssetId)) : null,
           review: designer.profileReview,
           note: designer.profileNote,
           locked: designer.pageLockedAt ? (designer.pageLockedReason ?? "") : null,

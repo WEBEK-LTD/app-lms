@@ -26,6 +26,7 @@ import { versionDesign } from "@/lib/studio-market/snapshot";
 import { templateText } from "@/lib/studio-market/templates";
 import { sampleEntries } from "@/lib/studio/sample-entries";
 import { RatingLine } from "@/components/studio-market/parts";
+import { safePhotoUrl } from "@/lib/studio-market/photo-url";
 import { RatingList } from "@/components/studio-market/ratings";
 import { designerPath, publicProfile, ratingAuthorName } from "@/lib/studio-market/designer-page";
 import { templateRatings } from "@/lib/studio-market/designer-public";
@@ -305,9 +306,9 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
   const designerCard = (
     <section aria-labelledby="h-designer" className="mk-panel grid overflow-hidden rounded-[28px] md:grid-cols-[240px_minmax(0,1fr)]">
       <div className="mk-mono h-[200px] rounded-none md:h-full md:min-h-[320px]">
-        {chip.photoUrl ? (
+        {safePhotoUrl(chip.photoUrl) ? (
           // eslint-disable-next-line @next/next/no-img-element -- The designer's approved photo, served by the platform's own asset route.
-          <img src={chip.photoUrl} alt="" className="h-[118px] w-[118px] rounded-full object-cover shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)]" />
+          <img src={safePhotoUrl(chip.photoUrl)!} alt="" className="h-[118px] w-[118px] rounded-full object-cover shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)]" />
         ) : (
           <span className="flex h-[118px] w-[118px] items-center justify-center rounded-full text-[44px] font-extrabold tracking-[-0.04em] shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)]" style={{ background: chip.bg, color: chip.fg }} aria-hidden="true">
             {chip.initials}

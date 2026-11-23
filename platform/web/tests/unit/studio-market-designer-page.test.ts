@@ -38,6 +38,7 @@ import {
 import { designerProfileLd, designerSitemapEntries, publicDesigner, publicDesignerSlugs, templateRatings } from "@/lib/studio-market/designer-public";
 import { DESIGNER_MESSAGES, isReservedDesignerSlug, joinAsDesigner, nextProfileReview, readDesignerProfile, updateDesignerProfile } from "@/lib/studio-market/designers";
 import { templateProductLd } from "@/lib/studio-market/public";
+import { safePhotoUrl } from "@/lib/studio-market/photo-url";
 import { decideReview } from "@/lib/studio-market/review";
 import { sendForReview, startTemplate } from "@/lib/studio-market/templates";
 import { marketCatalogFor } from "@/site/templates-words";
@@ -161,6 +162,29 @@ describe("106.14 the photo, the links and the team's first look", () => {
     expect(readDesignerPhoto(Buffer.from("GIF89a....."))).toEqual({ ok: false, error: PAGE_MESSAGES.photo });
     expect(readDesignerPhoto(Buffer.from("<svg onload=alert(1)>"))).toEqual({ ok: false, error: PAGE_MESSAGES.photo });
     expect(readDesignerPhoto(Buffer.concat([PNG, Buffer.alloc(2 * 1024 * 1024)]))).toEqual({ ok: false, error: PAGE_MESSAGES.photo });
+  });
+
+  it("draws a photo only from the address the server made for an uploaded asset", () => {
+    const id = "11111111-1111-4111-8111-111111111111";
+    expect(safePhotoUrl(`https://yallapp.com.tr/api/v1/assets/${id}`)).toBe(`https://yallapp.com.tr/api/v1/assets/${id}`);
+    expect(safePhotoUrl(`http://localhost:3210/api/v1/assets/${id}`)).toBe(`http://localhost:3210/api/v1/assets/${id}`);
+    for (const bad of [
+      null,
+      undefined,
+      42,
+      "",
+      "javascript:alert(1)",
+      `data:image/svg+xml,<svg onload=alert(1)>`,
+      "blob:https://yallapp.com.tr/1234",
+      `https://yallapp.com.tr/api/v1/assets/${id}?x=1`,
+      `https://yallapp.com.tr/api/v1/assets/${id}#x`,
+      `https://user:pw@yallapp.com.tr/api/v1/assets/${id}`,
+      `https://yallapp.com.tr/api/v1/assets/../admin`,
+      "https://yallapp.com.tr/m/abc",
+      `/api/v1/assets/${id}`,
+      `ftp://yallapp.com.tr/api/v1/assets/${id}`,
+    ])
+      expect(safePhotoUrl(bad), String(bad)).toBeNull();
   });
 
   it("takes up to 4 https links, and names the known services", () => {

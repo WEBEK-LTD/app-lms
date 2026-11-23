@@ -11,6 +11,7 @@ import { getStore } from "@/lib/data";
 import { designerChip } from "@/lib/studio-market/catalog";
 import { designerPath, RATING_LIMITS } from "@/lib/studio-market/designer-page";
 import { templateText } from "@/lib/studio-market/templates";
+import { safePhotoUrl } from "@/lib/studio-market/photo-url";
 
 export const metadata: Metadata = { title: "Studio Market designers" };
 export const dynamic = "force-dynamic";
@@ -46,9 +47,11 @@ export default async function MarketDesignersPage({ searchParams }: PageProps<"/
 
   const avatar = (d: (typeof designers)[number], size: number) => {
     const chip = designerChip(d);
-    return d.photoAssetId ? (
+    // Waiting photos too (the chip has only approved ones), through the same check.
+    const photo = d.photoAssetId ? safePhotoUrl(assetUrl(d.photoAssetId)) : null;
+    return photo ? (
       // eslint-disable-next-line @next/next/no-img-element -- The designer's uploaded photo, served by the platform's own asset route.
-      <img src={assetUrl(d.photoAssetId)} alt={`${d.name}'s photo`} width={size} height={size} className="flex-none rounded-full object-cover" style={{ width: size, height: size }} />
+      <img src={photo} alt={`${d.name}'s photo`} width={size} height={size} className="flex-none rounded-full object-cover" style={{ width: size, height: size }} />
     ) : (
       <span aria-hidden="true" className="inline-flex flex-none items-center justify-center rounded-full font-extrabold" style={{ width: size, height: size, fontSize: size * 0.4, background: chip.bg, color: chip.fg }}>
         {chip.initials}

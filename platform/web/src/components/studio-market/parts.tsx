@@ -6,6 +6,7 @@ import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import type { CoverView, DesignerCard, DesignerChip, TemplateCard } from "@/lib/studio-market/catalog";
 import { formatUsd, ltr, type PriceTag } from "@/lib/studio-market/plans";
+import { safePhotoUrl } from "@/lib/studio-market/photo-url";
 import { Countdown } from "./countdown";
 import { TemplatePhone } from "./phone";
 import "./market.css";
@@ -20,10 +21,11 @@ export function DesignerAvatar({ designer, size = "xs", square = false }: { desi
   const box = { xs: "h-[22px] w-[22px] text-[9.5px]", sm: "h-7 w-7 text-[11px]", md: "h-9 w-9 text-[13px]", lg: "h-14 w-14 text-[19px] rounded-2xl", xl: "h-[72px] w-[72px] text-2xl rounded-[20px]" }[size];
   const round = square ? "rounded-[10px]" : size === "lg" || size === "xl" ? "" : "rounded-full";
   // 106.14 The designer's photo once the team approved it (an uploaded PNG or JPEG served by our own route), else their initials.
-  if (designer.photoUrl)
+  const photo = safePhotoUrl(designer.photoUrl);
+  if (photo)
     return (
       // eslint-disable-next-line @next/next/no-img-element -- An uploaded photo, served by the platform's own asset route.
-      <img src={designer.photoUrl} alt="" aria-hidden="true" loading="lazy" className={`inline-block flex-none object-cover ${round} ${box}`} />
+      <img src={photo} alt="" aria-hidden="true" loading="lazy" className={`inline-block flex-none object-cover ${round} ${box}`} />
     );
   return (
     <span aria-hidden="true" className={`inline-flex flex-none items-center justify-center font-extrabold tracking-[0.02em] ${round} ${box}`} style={{ background: designer.bg, color: designer.fg }}>

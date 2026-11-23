@@ -8,6 +8,7 @@ import { ContactBand } from "@/components/marketing";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { DesignerAvatar, RatingLine, TemplateCardView } from "@/components/studio-market/parts";
 import { MarketPhones } from "@/components/studio-market/phone";
+import { safePhotoUrl } from "@/lib/studio-market/photo-url";
 import { RatingList, type RatingWords } from "@/components/studio-market/ratings";
 import { formatDate, formatMessage, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
@@ -107,9 +108,9 @@ export async function DesignerPublicPage({ lang, slug }: { lang: Lang; slug: str
                   </nav>
                   <div className="grid items-start gap-8 md:grid-cols-[auto_minmax(0,1fr)] md:gap-10">
                     <div className="flex justify-center md:block">
-                      {page.photoUrl ? (
+                      {safePhotoUrl(page.photoUrl) ? (
                         // eslint-disable-next-line @next/next/no-img-element -- The designer's approved photo, served by the platform's own asset route.
-                        <img src={page.photoUrl} alt={designer.name} width={168} height={168} className="h-[132px] w-[132px] rounded-full object-cover shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)] md:h-[168px] md:w-[168px]" data-designer-photo="" />
+                        <img src={safePhotoUrl(page.photoUrl)!} alt={designer.name} width={168} height={168} className="h-[132px] w-[132px] rounded-full object-cover shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)] md:h-[168px] md:w-[168px]" data-designer-photo="" />
                       ) : (
                         <span className="flex h-[132px] w-[132px] items-center justify-center rounded-full text-[48px] font-extrabold tracking-[-0.04em] shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)] md:h-[168px] md:w-[168px] md:text-[60px]" style={{ background: chip.bg, color: chip.fg }} aria-hidden="true">
                           {chip.initials}

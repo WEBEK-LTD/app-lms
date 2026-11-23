@@ -6,6 +6,7 @@ import { kindById } from "../app/kinds";
 import { designerInitials, designerTint } from "./designers";
 import { pageOpen, publicProfile, ratingStats, type RatingStats } from "./designer-page";
 import { assetUrl } from "../assets";
+import { safePhotoUrl } from "./photo-url";
 import { getsUpdates, mayMove, nextMoveAt } from "./apply";
 import { templateText } from "./templates";
 import { offeredPlans, type PriceTag } from "./plans";
@@ -40,7 +41,7 @@ export interface DesignerChip {
 export function designerChip(d: TemplateDesigner): DesignerChip {
   const tint = designerTint(d.slug);
   const photo = publicProfile(d).photoAssetId;
-  return { id: d.id, name: d.name, slug: d.slug, initials: designerInitials(d.name), bg: tint.bg, fg: tint.fg, country: d.country, photoUrl: photo ? assetUrl(photo) : null, page: pageOpen(d) };
+  return { id: d.id, name: d.name, slug: d.slug, initials: designerInitials(d.name), bg: tint.bg, fg: tint.fg, country: d.country, photoUrl: photo ? safePhotoUrl(assetUrl(photo)) : null, page: pageOpen(d) };
 }
 
 export interface CoverView {
