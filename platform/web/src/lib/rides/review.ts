@@ -2,8 +2,12 @@ import type { DataStore } from "../data/store";
 import { randomToken } from "../crypto/tokens";
 import type { App, Courier, DeliverySettings, HostedUser, Ride } from "../data/types";
 import { isReviewCourier, isReviewUser, REVIEW_COURIER_NAME } from "../delivery/review";
+import { fareCents } from "./fares";
+import { SAMPLE_CAR, SAMPLE_DROPOFF, SAMPLE_FALLBACK_CENTS, SAMPLE_KM, SAMPLE_MINUTES, SAMPLE_NOTE, SAMPLE_PICKUP, SAMPLE_RIDER_NAME } from "./sample";
 import { rideStage } from "./service";
 import { EMPTY_DRIVER, offeredTypes, ridesSettingsOf } from "./settings";
+
+export { SAMPLE_RIDER_NAME };
 
 /**
  * 105.2 The store reviewers try both sides of a ride app with the app's
@@ -35,29 +39,28 @@ export async function reviewDriverFor(store: DataStore, app: App, user: HostedUs
     }
     return found;
   }
-  const driver = { ...EMPTY_DRIVER, vehicleTypeId: type?.id ?? null, carModel: "Sample car", carColor: null, plate: "REVIEW" };
+  const driver = { ...EMPTY_DRIVER, vehicleTypeId: type?.id ?? null, carModel: SAMPLE_CAR, carColor: null, plate: "REVIEW" };
   const made = await store.createCourier({ appId: app.id, name: REVIEW_COURIER_NAME, phone: who.phone, email: who.email, vehicle: null, active: true, driver }, now);
   return made.ok ? made.courier : store.findCourier(app.id, who);
 }
 
 /**
- * 178 The rider of the review driver's sample rides. They are the review
- * account's, so the riders' app (the same review number) leaves them out of
- * its rides and of "You already have a ride on the way": before, a reviewer
- * of the riders' app saw "Finding your driver" for a ride never asked for,
- * and couldn't ask for one, while the drivers' app was online.
- */
-export const SAMPLE_RIDER_NAME = "App Review (sample)";
-
-/**
  * A sample ride offered to the review driver when they are online with no
  * ride (in the drivers' app the reviewers have no riders' app to ask for
  * one): from the review account, paid by card, offered for the company's
- * usual time.
+ * usual time. 220 At the driver's vehicle type's fares for 3 km and 10
+ * minutes (E£0.00 before, its fares all zero), else 50 of the company's
+ * currency; left out of the drivers' statements.
  */
 export async function createSampleRide(store: DataStore, app: App, settings: DeliverySettings, driver: Courier, user: HostedUser, now: Date): Promise<Ride> {
   const rides = ridesSettingsOf(settings);
   const type = driver.driver?.vehicleTypeId ? await store.getVehicleType(app.id, driver.driver.vehicleTypeId) : null;
+  const fares = type
+    ? { baseCents: type.baseCents, perKmCents: type.perKmCents, perMinuteCents: type.perMinuteCents, minCents: type.minCents, waitPerMinuteCents: type.waitPerMinuteCents }
+    : { baseCents: 0, perKmCents: 0, perMinuteCents: 0, minCents: 0, waitPerMinuteCents: 0 };
+  const quoted = fareCents(fares, SAMPLE_KM, SAMPLE_MINUTES);
+  // Without fares, one set price (upfront, so the end of the ride keeps it).
+  const priced = quoted > 0 ? fares : { ...fares, baseCents: SAMPLE_FALLBACK_CENTS, minCents: SAMPLE_FALLBACK_CENTS };
   return store.createRide({
     appId: app.id,
     userId: user.id,
@@ -66,14 +69,14 @@ export async function createSampleRide(store: DataStore, app: App, settings: Del
     vehicleTypeId: type?.id ?? null,
     vehicleTypeName: type?.name ?? "Car",
     vehicleTypeIcon: type?.icon ?? "directions_car",
-    fares: { baseCents: 0, perKmCents: 0, perMinuteCents: 0, minCents: 0, waitPerMinuteCents: 0 },
+    fares: priced,
     fareMode: "upfront",
-    pickup: { address: "Sample pickup, 1 Example Street", details: "Sample ride for the store review", lat: null, lng: null },
-    dropoff: { address: "Sample drop-off, 2 Example Street", details: null, lat: null, lng: null },
+    pickup: { address: SAMPLE_PICKUP, details: SAMPLE_NOTE, lat: null, lng: null },
+    dropoff: { address: SAMPLE_DROPOFF, details: null, lat: null, lng: null },
     scheduledAt: null,
-    estimateKm: 3,
-    estimateMinutes: 10,
-    quotedCents: 0,
+    estimateKm: SAMPLE_KM,
+    estimateMinutes: SAMPLE_MINUTES,
+    quotedCents: quoted > 0 ? quoted : SAMPLE_FALLBACK_CENTS,
     promoCode: null,
     discountCents: 0,
     previousFeeCents: 0,

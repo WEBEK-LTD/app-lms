@@ -11,6 +11,7 @@ import { getStore } from "@/lib/data";
 import type { RideStatus } from "@/lib/data/types";
 import { appPlan } from "@/lib/entitlements";
 import { DRIVER_ACTIVE, RIDE_ACTIVE, rideIdOf, rideReference } from "@/lib/rides/service";
+import { sampleWords } from "@/lib/rides/sample";
 import { offeredTypes } from "@/lib/rides/settings";
 import { mapsLink } from "../shipments/parts";
 import { isRides, NotRides, RideStatusBadge, RidesPlanNotice, TypesFirst } from "./parts";
@@ -41,7 +42,7 @@ const FILTER_KEYS = {
 /** 105.2 Every ride from the app, the active ones first, and the drivers online now. */
 export default async function RidesPage({ searchParams }: { searchParams: Promise<{ page?: string; show?: string; q?: string }> }) {
   const { app, license } = await requireClient("orders");
-  const { t, lang } = await dashboardText();
+  const { t, k, lang } = await dashboardText();
   if (!isRides(app)) return <NotRides title={t("rides.rides")} t={t} />;
   const query = await searchParams;
   const filter: Filter = query.show && query.show in FILTERS ? (query.show as Filter) : "active";
@@ -115,8 +116,8 @@ export default async function RidesPage({ searchParams }: { searchParams: Promis
                 badges={<Badge tone="neutral">{r.vehicleTypeName}</Badge>}
                 meta={
                   <>
-                    <span className="line-clamp-1">{r.pickup.address}</span>
-                    <span className="line-clamp-1 text-ink-4">→ {r.dropoff.address}</span>
+                    <span className="line-clamp-1">{sampleWords(r.pickup.address, k)}</span>
+                    <span className="line-clamp-1 text-ink-4">→ {sampleWords(r.dropoff.address, k)}</span>
                   </>
                 }
                 extra={
@@ -124,7 +125,7 @@ export default async function RidesPage({ searchParams }: { searchParams: Promis
                     <span>{formatDateTime(r.scheduledAt ?? r.createdAt, lang)}</span>
                     <span className="flex items-center gap-1">
                       <Icon name="person" size={16} className="text-muted" />
-                      {r.riderName}
+                      {sampleWords(r.riderName, k)}
                     </span>
                     <span className="flex items-center gap-1">
                       <Icon name="directions_car" size={16} className="text-muted" />
@@ -136,7 +137,7 @@ export default async function RidesPage({ searchParams }: { searchParams: Promis
                   <>
                     <span className="flex flex-col items-end text-end">
                       <span className="text-[15px] font-bold whitespace-nowrap tabular-nums">
-                        {formatCents(r.status === "completed" && r.finalCents !== null ? r.finalCents : r.status === "cancelled" ? (r.cancellation?.feeCents ?? 0) : r.quotedCents, r.currency)}
+                        {formatCents(r.status === "completed" && r.finalCents !== null ? r.finalCents : r.status === "cancelled" ? (r.cancellation?.feeCents ?? 0) : r.quotedCents, r.currency, lang)}
                       </span>
                       <span className="text-[13px] text-muted">
                         {t(r.paymentMethod === "cash" ? "rides.cash" : "rides.card")} · {t(r.paymentStatus === "paid" ? "rides.paid" : r.paymentStatus === "refunded" ? "rides.refunded" : "rides.unpaid")}
