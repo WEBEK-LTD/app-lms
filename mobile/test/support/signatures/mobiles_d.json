@@ -190,29 +190,7 @@
     "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
-     "header": {
-      "type": "title_search",
-      "title": "Nova",
-      "translations": {
-       "ar": {
-        "title": "Nova"
-       },
-       "tr": {
-        "title": "Nova"
-       }
-      },
-      "buttons": [
-       "menu",
-       "cart"
-      ],
-      "menu_page": "menu",
-      "background": "#FFFFFF",
-      "dark_background": "#0E0F13",
-      "color": "#111318",
-      "dark_color": "#F4F5F7",
-      "style": "search",
-      "collapse": false
-     },
+     "header": null,
      "background": "#FFFFFF",
      "dark_background": "#0E0F13",
      "body": {
@@ -227,6 +205,96 @@
       "children": [
        {
         "id": "sig-2",
+        "type": "row",
+        "name": "Nova",
+        "pin": "top",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 6,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#0E0F13",
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "row",
+          "width": 44,
+          "height": 44,
+          "radius": 10,
+          "align": "center",
+          "cross": "center",
+          "action": {
+           "type": "page",
+           "page_slug": "menu"
+          },
+          "background": "#F3F4F6",
+          "dark_background": "#1A1C22",
+          "children": [
+           {
+            "id": "sig-4",
+            "type": "icon",
+            "icon": "menu_open",
+            "icon_size": 22,
+            "color": "#111318",
+            "dark_color": "#F4F5F7"
+           }
+          ]
+         },
+         {
+          "id": "sig-5",
+          "type": "search",
+          "name": "Search phones, watches, earbuds…",
+          "text": "Search phones, watches, earbuds…",
+          "source": "products",
+          "width": "fill",
+          "radius": 10,
+          "height": 44,
+          "background": "#F3F4F6",
+          "dark_background": "#1A1C22",
+          "color": "#5E6470",
+          "dark_color": "#A3A8B3",
+          "translations": {
+           "ar": {
+            "text": "ابحث عن هاتف أو ساعة أو سماعة…"
+           },
+           "tr": {
+            "text": "Telefon, saat, kulaklık ara…"
+           }
+          }
+         },
+         {
+          "id": "sig-6",
+          "type": "row",
+          "width": 44,
+          "height": 44,
+          "radius": 10,
+          "align": "center",
+          "cross": "center",
+          "action": {
+           "type": "page",
+           "page_slug": "compare"
+          },
+          "background": "#FF2D55",
+          "dark_background": "#FF2D55",
+          "children": [
+           {
+            "id": "sig-7",
+            "type": "icon",
+            "icon": "compare_arrows",
+            "icon_size": 22,
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-8",
         "type": "categories",
         "name": "Departments",
         "source": "products",
@@ -244,7 +312,7 @@
         }
        },
        {
-        "id": "sig-3",
+        "id": "sig-9",
         "type": "column",
         "name": "Today's deals",
         "gap": 10,
@@ -265,7 +333,7 @@
         "dark_background": "#C8143D",
         "children": [
          {
-          "id": "sig-4",
+          "id": "sig-10",
           "type": "flash_sale",
           "name": "Deal of the day",
           "text": "Today's deals",
@@ -300,7 +368,7 @@
         ]
        },
        {
-        "id": "sig-5",
+        "id": "sig-11",
         "type": "row",
         "name": "Departments",
         "gap": 8,
@@ -313,7 +381,7 @@
         },
         "children": [
          {
-          "id": "sig-6",
+          "id": "sig-12",
           "type": "text",
           "text": "Departments",
           "font": {
@@ -338,7 +406,7 @@
         ]
        },
        {
-        "id": "sig-7",
+        "id": "sig-13",
         "type": "categories",
         "name": "Departments",
         "source": "products",
@@ -356,7 +424,7 @@
         }
        },
        {
-        "id": "sig-8",
+        "id": "sig-14",
         "type": "row",
         "name": "Best sellers",
         "gap": 8,
@@ -369,7 +437,7 @@
         },
         "children": [
          {
-          "id": "sig-9",
+          "id": "sig-15",
           "type": "text",
           "text": "Best sellers",
           "font": {
@@ -392,7 +460,7 @@
           }
          },
          {
-          "id": "sig-10",
+          "id": "sig-16",
           "type": "text",
           "text": "See all",
           "font": {
@@ -420,7 +488,7 @@
         ]
        },
        {
-        "id": "sig-11",
+        "id": "sig-17",
         "type": "items",
         "name": "Best sellers",
         "source": "products",
@@ -441,7 +509,7 @@
          "ids": []
         },
         "card": {
-         "id": "sig-12",
+         "id": "sig-18",
          "type": "column",
          "width": "fill",
          "gap": 0,
@@ -453,13 +521,13 @@
          "dark_background": "#1A1C22",
          "children": [
           {
-           "id": "sig-13",
+           "id": "sig-19",
            "type": "stack",
            "width": "fill",
            "height": 108,
            "children": [
             {
-             "id": "sig-14",
+             "id": "sig-20",
              "type": "image",
              "bind": "image",
              "width": "fill",
@@ -473,7 +541,7 @@
              "dark_background": "#24262D"
             },
             {
-             "id": "sig-15",
+             "id": "sig-21",
              "type": "text",
              "bind": "sale",
              "font": {
@@ -501,7 +569,7 @@
            ]
           },
           {
-           "id": "sig-16",
+           "id": "sig-22",
            "type": "column",
            "gap": 3,
            "padding": {
@@ -512,7 +580,7 @@
            },
            "children": [
             {
-             "id": "sig-17",
+             "id": "sig-23",
              "type": "text",
              "text": "Installments coming soon",
              "max_lines": 1,
@@ -544,7 +612,7 @@
              }
             },
             {
-             "id": "sig-18",
+             "id": "sig-24",
              "type": "text",
              "bind": "title",
              "max_lines": 1,
@@ -564,7 +632,7 @@
              }
             },
             {
-             "id": "sig-19",
+             "id": "sig-25",
              "type": "text",
              "bind": "price",
              "max_lines": 2,
@@ -578,7 +646,7 @@
              }
             },
             {
-             "id": "sig-20",
+             "id": "sig-26",
              "type": "text",
              "bind": "was_price",
              "max_lines": 1,
@@ -597,7 +665,7 @@
         }
        },
        {
-        "id": "sig-21",
+        "id": "sig-27",
         "type": "row",
         "name": "Compare phones",
         "gap": 10,
@@ -623,7 +691,7 @@
         },
         "children": [
          {
-          "id": "sig-22",
+          "id": "sig-28",
           "type": "row",
           "width": 42,
           "height": 42,
@@ -635,7 +703,7 @@
           "border_width": 1.5,
           "children": [
            {
-            "id": "sig-23",
+            "id": "sig-29",
             "type": "icon",
             "icon": "compare_arrows",
             "icon_size": 22,
@@ -645,13 +713,13 @@
           ]
          },
          {
-          "id": "sig-24",
+          "id": "sig-30",
           "type": "column",
           "width": "fill",
           "gap": 1,
           "children": [
            {
-            "id": "sig-25",
+            "id": "sig-31",
             "type": "text",
             "text": "Compare phones",
             "font": {
@@ -673,7 +741,7 @@
             }
            },
            {
-            "id": "sig-26",
+            "id": "sig-32",
             "type": "text",
             "text": "Side by side, spec by spec",
             "font": {
@@ -697,7 +765,7 @@
           ]
          },
          {
-          "id": "sig-27",
+          "id": "sig-33",
           "type": "button",
           "name": "Compare now",
           "text": "Compare now",
@@ -739,7 +807,7 @@
         ]
        },
        {
-        "id": "sig-28",
+        "id": "sig-34",
         "type": "spec_filter",
         "name": "Shop by storage",
         "text": "Shop by storage",
@@ -768,7 +836,7 @@
         }
        },
        {
-        "id": "sig-29",
+        "id": "sig-35",
         "type": "row",
         "name": "Installments coming soon",
         "gap": 12,
@@ -793,7 +861,7 @@
         "border_width": 1.5,
         "children": [
          {
-          "id": "sig-30",
+          "id": "sig-36",
           "type": "icon",
           "icon": "calendar_month",
           "icon_size": 28,
@@ -801,13 +869,13 @@
           "dark_color": "#3DDC97"
          },
          {
-          "id": "sig-31",
+          "id": "sig-37",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-32",
+            "id": "sig-38",
             "type": "text",
             "text": "Installments coming soon",
             "font": {
@@ -829,7 +897,7 @@
             }
            },
            {
-            "id": "sig-33",
+            "id": "sig-39",
             "type": "text",
             "text": "Monthly plans will be announced here first. Today you pay in full.",
             "font": {
@@ -855,7 +923,7 @@
         ]
        },
        {
-        "id": "sig-34",
+        "id": "sig-40",
         "type": "row",
         "name": "Lowest prices first",
         "gap": 8,
@@ -868,7 +936,7 @@
         },
         "children": [
          {
-          "id": "sig-35",
+          "id": "sig-41",
           "type": "text",
           "text": "Lowest prices first",
           "font": {
@@ -891,7 +959,7 @@
           }
          },
          {
-          "id": "sig-36",
+          "id": "sig-42",
           "type": "text",
           "text": "See all",
           "font": {
@@ -919,7 +987,7 @@
         ]
        },
        {
-        "id": "sig-37",
+        "id": "sig-43",
         "type": "items",
         "name": "Lowest prices first",
         "source": "products",
@@ -940,7 +1008,7 @@
          "ids": []
         },
         "card": {
-         "id": "sig-38",
+         "id": "sig-44",
          "type": "column",
          "width": "fill",
          "gap": 0,
@@ -952,254 +1020,13 @@
          "dark_background": "#1A1C22",
          "children": [
           {
-           "id": "sig-39",
+           "id": "sig-45",
            "type": "stack",
            "width": "fill",
            "height": 108,
            "children": [
-            {
-             "id": "sig-40",
-             "type": "image",
-             "bind": "image",
-             "width": "fill",
-             "height": 108,
-             "corners": {
-              "top_start": 11,
-              "top_end": 11
-             },
-             "fit": "cover",
-             "background": "#F3F4F6",
-             "dark_background": "#24262D"
-            },
-            {
-             "id": "sig-41",
-             "type": "text",
-             "bind": "sale",
-             "font": {
-              "family": "Almarai",
-              "size": 10.5,
-              "weight": 800,
-              "line_height": 1.3
-             },
-             "color": "#111318",
-             "dark_color": "#111318",
-             "background": "#FFD60A",
-             "dark_background": "#FFD60A",
-             "radius": 5,
-             "padding": {
-              "top": 2,
-              "end": 5,
-              "bottom": 2,
-              "start": 5
-             },
-             "place": {
-              "x": 5,
-              "y": 6
-             }
-            }
-           ]
-          },
-          {
-           "id": "sig-42",
-           "type": "column",
-           "gap": 3,
-           "padding": {
-            "top": 7,
-            "end": 7,
-            "bottom": 8,
-            "start": 7
-           },
-           "children": [
-            {
-             "id": "sig-43",
-             "type": "text",
-             "text": "Installments coming soon",
-             "max_lines": 1,
-             "font": {
-              "family": "Almarai",
-              "size": 9.5,
-              "weight": 700,
-              "line_height": 1.3
-             },
-             "color": "#00875A",
-             "dark_color": "#3DDC97",
-             "background": "#E3F6EE",
-             "dark_background": "#12271F",
-             "radius": 5,
-             "padding": {
-              "top": 2,
-              "end": 5,
-              "bottom": 2,
-              "start": 5
-             },
-             "self_align": "start",
-             "translations": {
-              "ar": {
-               "text": "التقسيط قريبًا"
-              },
-              "tr": {
-               "text": "Taksit yakında"
-              }
-             }
-            },
-            {
-             "id": "sig-44",
-             "type": "text",
-             "bind": "title",
-             "max_lines": 1,
-             "color": "#111318",
-             "dark_color": "#F4F5F7",
-             "font": {
-              "family": "Almarai",
-              "size": 11.5,
-              "weight": 700,
-              "line_height": 1.3
-             },
-             "margin": {
-              "top": 2,
-              "end": 0,
-              "bottom": 0,
-              "start": 0
-             }
-            },
-            {
-             "id": "sig-45",
-             "type": "text",
-             "bind": "price",
-             "max_lines": 2,
-             "color": "#111318",
-             "dark_color": "#F4F5F7",
-             "font": {
-              "family": "Almarai",
-              "size": 12.5,
-              "weight": 800,
-              "line_height": 1.3
-             }
-            },
             {
              "id": "sig-46",
-             "type": "text",
-             "bind": "was_price",
-             "max_lines": 1,
-             "color": "#5E6470",
-             "dark_color": "#A3A8B3",
-             "font": {
-              "family": "Almarai",
-              "size": 10.5,
-              "weight": 400,
-              "line_height": 1.3
-             }
-            }
-           ]
-          }
-         ]
-        }
-       },
-       {
-        "id": "sig-47",
-        "type": "row",
-        "name": "Just in",
-        "gap": 8,
-        "cross": "center",
-        "padding": {
-         "top": 22,
-         "end": 12,
-         "bottom": 10,
-         "start": 12
-        },
-        "children": [
-         {
-          "id": "sig-48",
-          "type": "text",
-          "text": "Just in",
-          "font": {
-           "family": "Almarai",
-           "size": 18,
-           "weight": 800,
-           "line_height": 1.3
-          },
-          "color": "#111318",
-          "dark_color": "#F4F5F7",
-          "width": "fill",
-          "max_lines": 1,
-          "translations": {
-           "ar": {
-            "text": "وصل حديثًا"
-           },
-           "tr": {
-            "text": "Yeni gelenler"
-           }
-          }
-         },
-         {
-          "id": "sig-49",
-          "type": "text",
-          "text": "See all",
-          "font": {
-           "family": "Almarai",
-           "size": 12.5,
-           "weight": 700,
-           "line_height": 1.3
-          },
-          "color": "#D70F3D",
-          "dark_color": "#FF5C7A",
-          "max_lines": 1,
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "translations": {
-           "ar": {
-            "text": "عرض الكل"
-           },
-           "tr": {
-            "text": "Tümünü gör"
-           }
-          }
-         }
-        ]
-       },
-       {
-        "id": "sig-50",
-        "type": "items",
-        "name": "Just in",
-        "source": "products",
-        "layout": "grid",
-        "columns": 3,
-        "gap": 8,
-        "padding": {
-         "top": 0,
-         "end": 12,
-         "bottom": 0,
-         "start": 12
-        },
-        "query": {
-         "limit": 3,
-         "category_id": null,
-         "featured": false,
-         "sort": "newest",
-         "ids": []
-        },
-        "card": {
-         "id": "sig-51",
-         "type": "column",
-         "width": "fill",
-         "gap": 0,
-         "radius": 12,
-         "border_color": "#E6E8EC",
-         "dark_border_color": "#2A2D35",
-         "border_width": 1.5,
-         "background": "#FFFFFF",
-         "dark_background": "#1A1C22",
-         "children": [
-          {
-           "id": "sig-52",
-           "type": "stack",
-           "width": "fill",
-           "height": 108,
-           "children": [
-            {
-             "id": "sig-53",
              "type": "image",
              "bind": "image",
              "width": "fill",
@@ -1213,7 +1040,7 @@
              "dark_background": "#24262D"
             },
             {
-             "id": "sig-54",
+             "id": "sig-47",
              "type": "text",
              "bind": "sale",
              "font": {
@@ -1241,7 +1068,7 @@
            ]
           },
           {
-           "id": "sig-55",
+           "id": "sig-48",
            "type": "column",
            "gap": 3,
            "padding": {
@@ -1252,7 +1079,7 @@
            },
            "children": [
             {
-             "id": "sig-56",
+             "id": "sig-49",
              "type": "text",
              "text": "Installments coming soon",
              "max_lines": 1,
@@ -1284,7 +1111,7 @@
              }
             },
             {
-             "id": "sig-57",
+             "id": "sig-50",
              "type": "text",
              "bind": "title",
              "max_lines": 1,
@@ -1304,7 +1131,7 @@
              }
             },
             {
-             "id": "sig-58",
+             "id": "sig-51",
              "type": "text",
              "bind": "price",
              "max_lines": 2,
@@ -1318,7 +1145,7 @@
              }
             },
             {
-             "id": "sig-59",
+             "id": "sig-52",
              "type": "text",
              "bind": "was_price",
              "max_lines": 1,
@@ -1353,11 +1180,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-90",
+      "id": "sig-83",
       "type": "column",
       "children": [
        {
-        "id": "sig-91",
+        "id": "sig-84",
         "type": "row",
         "name": "Every deal",
         "gap": 8,
@@ -1370,7 +1197,7 @@
         },
         "children": [
          {
-          "id": "sig-92",
+          "id": "sig-85",
           "type": "text",
           "text": "Every deal",
           "font": {
@@ -1395,7 +1222,7 @@
         ]
        },
        {
-        "id": "sig-93",
+        "id": "sig-86",
         "type": "categories",
         "name": "Departments",
         "source": "products",
@@ -1413,7 +1240,7 @@
         }
        },
        {
-        "id": "sig-94",
+        "id": "sig-87",
         "type": "listing_filters",
         "name": "Every deal",
         "padding": {
@@ -1424,7 +1251,7 @@
         }
        },
        {
-        "id": "sig-95",
+        "id": "sig-88",
         "type": "spec_filter",
         "name": "Shop by storage",
         "text": "Shop by storage",
@@ -1495,11 +1322,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-96",
+      "id": "sig-89",
       "type": "column",
       "children": [
        {
-        "id": "sig-97",
+        "id": "sig-90",
         "type": "coupon",
         "name": "Your code",
         "coupon": {
@@ -1516,7 +1343,7 @@
         }
        },
        {
-        "id": "sig-98",
+        "id": "sig-91",
         "type": "row",
         "name": "Delivered to your door, with easy returns.",
         "gap": 10,
@@ -1538,7 +1365,7 @@
         "dark_background": "#1A1C22",
         "children": [
          {
-          "id": "sig-99",
+          "id": "sig-92",
           "type": "icon",
           "icon": "local_shipping",
           "icon_size": 22,
@@ -1546,7 +1373,7 @@
           "dark_color": "#FF2D55"
          },
          {
-          "id": "sig-100",
+          "id": "sig-93",
           "type": "text",
           "text": "Free delivery inside the city on orders over 5,000 EGP.",
           "font": {
@@ -1571,7 +1398,7 @@
         ]
        },
        {
-        "id": "sig-101",
+        "id": "sig-94",
         "type": "row",
         "name": "Installments coming soon",
         "gap": 12,
@@ -1596,7 +1423,7 @@
         "border_width": 1.5,
         "children": [
          {
-          "id": "sig-102",
+          "id": "sig-95",
           "type": "icon",
           "icon": "calendar_month",
           "icon_size": 28,
@@ -1604,13 +1431,13 @@
           "dark_color": "#3DDC97"
          },
          {
-          "id": "sig-103",
+          "id": "sig-96",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-104",
+            "id": "sig-97",
             "type": "text",
             "text": "Installments coming soon",
             "font": {
@@ -1632,7 +1459,7 @@
             }
            },
            {
-            "id": "sig-105",
+            "id": "sig-98",
             "type": "text",
             "text": "Monthly plans will be announced here first. Today you pay in full.",
             "font": {
@@ -1700,11 +1527,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-106",
+      "id": "sig-99",
       "type": "column",
       "children": [
        {
-        "id": "sig-107",
+        "id": "sig-100",
         "type": "row",
         "name": "Your order, step by step",
         "gap": 8,
@@ -1717,7 +1544,7 @@
         },
         "children": [
          {
-          "id": "sig-108",
+          "id": "sig-101",
           "type": "text",
           "text": "Your order, step by step",
           "font": {
@@ -1742,7 +1569,7 @@
         ]
        },
        {
-        "id": "sig-109",
+        "id": "sig-102",
         "type": "timeline",
         "name": "Your order, step by step",
         "timeline": {
@@ -1872,11 +1699,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-111",
+      "id": "sig-104",
       "type": "column",
       "children": [
        {
-        "id": "sig-110",
+        "id": "sig-103",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -1937,7 +1764,7 @@
      "background": "#FFFFFF",
      "dark_background": "#0E0F13",
      "body": {
-      "id": "sig-60",
+      "id": "sig-53",
       "type": "column",
       "padding": {
        "top": 0,
@@ -1947,7 +1774,7 @@
       },
       "children": [
        {
-        "id": "sig-61",
+        "id": "sig-54",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -1969,7 +1796,7 @@
         }
        },
        {
-        "id": "sig-62",
+        "id": "sig-55",
         "type": "grid",
         "name": "Your account",
         "columns": 4,
@@ -1982,7 +1809,7 @@
         },
         "children": [
          {
-          "id": "sig-63",
+          "id": "sig-56",
           "type": "column",
           "name": "My account",
           "gap": 6,
@@ -2002,7 +1829,7 @@
           },
           "children": [
            {
-            "id": "sig-64",
+            "id": "sig-57",
             "type": "icon",
             "icon": "person",
             "icon_size": 24,
@@ -2010,7 +1837,7 @@
             "dark_color": "#F4F5F7"
            },
            {
-            "id": "sig-65",
+            "id": "sig-58",
             "type": "text",
             "text": "My account",
             "font": {
@@ -2035,7 +1862,7 @@
           ]
          },
          {
-          "id": "sig-66",
+          "id": "sig-59",
           "type": "column",
           "name": "My orders",
           "gap": 6,
@@ -2055,7 +1882,7 @@
           },
           "children": [
            {
-            "id": "sig-67",
+            "id": "sig-60",
             "type": "icon",
             "icon": "receipt_long",
             "icon_size": 24,
@@ -2063,7 +1890,7 @@
             "dark_color": "#F4F5F7"
            },
            {
-            "id": "sig-68",
+            "id": "sig-61",
             "type": "text",
             "text": "My orders",
             "font": {
@@ -2088,7 +1915,7 @@
           ]
          },
          {
-          "id": "sig-69",
+          "id": "sig-62",
           "type": "column",
           "name": "Wishlist",
           "gap": 6,
@@ -2108,7 +1935,7 @@
           },
           "children": [
            {
-            "id": "sig-70",
+            "id": "sig-63",
             "type": "icon",
             "icon": "favorite",
             "icon_size": 24,
@@ -2116,7 +1943,7 @@
             "dark_color": "#F4F5F7"
            },
            {
-            "id": "sig-71",
+            "id": "sig-64",
             "type": "text",
             "text": "Wishlist",
             "font": {
@@ -2141,7 +1968,7 @@
           ]
          },
          {
-          "id": "sig-72",
+          "id": "sig-65",
           "type": "column",
           "name": "Language",
           "gap": 6,
@@ -2161,7 +1988,7 @@
           },
           "children": [
            {
-            "id": "sig-73",
+            "id": "sig-66",
             "type": "icon",
             "icon": "language",
             "icon_size": 24,
@@ -2169,7 +1996,7 @@
             "dark_color": "#F4F5F7"
            },
            {
-            "id": "sig-74",
+            "id": "sig-67",
             "type": "text",
             "text": "Language",
             "font": {
@@ -2196,7 +2023,7 @@
         ]
        },
        {
-        "id": "sig-75",
+        "id": "sig-68",
         "type": "row",
         "name": "Contact us",
         "gap": 12,
@@ -2222,7 +2049,7 @@
         },
         "children": [
          {
-          "id": "sig-76",
+          "id": "sig-69",
           "type": "icon",
           "icon": "support_agent",
           "icon_size": 24,
@@ -2230,13 +2057,13 @@
           "dark_color": "#FFFFFF"
          },
          {
-          "id": "sig-77",
+          "id": "sig-70",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-78",
+            "id": "sig-71",
             "type": "text",
             "text": "Contact us",
             "font": {
@@ -2258,7 +2085,7 @@
             }
            },
            {
-            "id": "sig-79",
+            "id": "sig-72",
             "type": "text",
             "text": "Customer care every day, 10 am to midnight",
             "font": {
@@ -2282,7 +2109,7 @@
           ]
          },
          {
-          "id": "sig-80",
+          "id": "sig-73",
           "type": "icon",
           "icon": "chat",
           "icon_size": 22,
@@ -2334,7 +2161,7 @@
      "background": "#FFFFFF",
      "dark_background": "#0E0F13",
      "body": {
-      "id": "sig-81",
+      "id": "sig-74",
       "type": "column",
       "padding": {
        "top": 0,
@@ -2344,7 +2171,7 @@
       },
       "children": [
        {
-        "id": "sig-82",
+        "id": "sig-75",
         "type": "text",
         "text": "Two phones side by side, read spec by spec before you choose.",
         "font": {
@@ -2372,7 +2199,7 @@
         }
        },
        {
-        "id": "sig-83",
+        "id": "sig-76",
         "type": "compare",
         "name": "Compare",
         "tech": {
@@ -2404,7 +2231,7 @@
         }
        },
        {
-        "id": "sig-84",
+        "id": "sig-77",
         "type": "spec_filter",
         "name": "Shop by storage",
         "text": "Shop by storage",
@@ -2433,7 +2260,7 @@
         }
        },
        {
-        "id": "sig-85",
+        "id": "sig-78",
         "type": "row",
         "name": "Installments coming soon",
         "gap": 12,
@@ -2458,7 +2285,7 @@
         "border_width": 1.5,
         "children": [
          {
-          "id": "sig-86",
+          "id": "sig-79",
           "type": "icon",
           "icon": "calendar_month",
           "icon_size": 28,
@@ -2466,13 +2293,13 @@
           "dark_color": "#3DDC97"
          },
          {
-          "id": "sig-87",
+          "id": "sig-80",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-88",
+            "id": "sig-81",
             "type": "text",
             "text": "Installments coming soon",
             "font": {
@@ -2494,7 +2321,7 @@
             }
            },
            {
-            "id": "sig-89",
+            "id": "sig-82",
             "type": "text",
             "text": "Monthly plans will be announced here first. Today you pay in full.",
             "font": {
@@ -2559,7 +2386,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-112",
+      "id": "sig-105",
       "type": "column",
       "children": []
      },
@@ -2601,7 +2428,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-113",
+      "id": "sig-106",
       "type": "column",
       "children": []
      },
@@ -2643,7 +2470,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-114",
+      "id": "sig-107",
       "type": "column",
       "children": []
      },
@@ -2685,7 +2512,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-115",
+      "id": "sig-108",
       "type": "column",
       "children": []
      },
@@ -2727,7 +2554,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-116",
+      "id": "sig-109",
       "type": "column",
       "children": []
      },
@@ -2761,7 +2588,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-117",
+      "id": "sig-110",
       "type": "column",
       "children": []
      },
@@ -2778,7 +2605,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-118",
+      "id": "sig-111",
       "type": "column",
       "children": []
      },
@@ -2798,7 +2625,7 @@
    "dark_active": "#FF2D55",
    "inactive": "#5E6470",
    "dark_inactive": "#A3A8B3",
-   "design": "square",
+   "design": "folder",
    "labels": "always"
   }
  }

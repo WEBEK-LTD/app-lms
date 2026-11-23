@@ -213,15 +213,32 @@ function storage(ctx: SectionContext): StudioNode {
 
 // ——— The home ———
 
-function header(ctx: SectionContext): StudioPage["header"] {
-  const t = sigTexts(ctx, { title: "mbWordmark" });
-  return { type: "title_search", title: t.title, translations: t.translations, buttons: ["menu", "cart"], menu_page: MENU_PAGE, background: K.page, dark_background: K.darkPage, color: K.ink, dark_color: K.darkInk, style: "search", collapse: false };
+/** The home's own header, made of elements and pinned on top: a square menu button, the shop's search filling the row, a pink compare button. */
+function topBar(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  const square = (icon: string, action: Action, hot = false): StudioNode => ({ id: id(), type: "row", width: 44, height: 44, radius: 10, align: "center", cross: "center", action, ...(hot ? { background: HOT, dark_background: HOT } : { background: K.surface, dark_background: K.darkSurface }), children: [{ id: id(), type: "icon", icon, icon_size: 22, ...(hot ? white : { color: K.ink, dark_color: K.darkInk }) }] });
+  return {
+    id: id(),
+    type: "row",
+    name: ctx.w("mbWordmark"),
+    pin: "top",
+    gap: 8,
+    cross: "center",
+    padding: sides(6, 12, 8, 12),
+    background: K.page,
+    dark_background: K.darkPage,
+    children: [
+      square("menu_open", ownPage(ctx, MENU_PAGE)),
+      { id: id(), type: "search", name: ctx.w("mbHubSearch"), text: ctx.w("mbHubSearch"), source: "products", width: "fill", radius: 10, height: 44, background: K.surface, dark_background: K.darkSurface, color: K.muted, dark_color: K.darkMuted },
+      square("compare_arrows", ownPage(ctx, COMPARE_PAGE), true),
+    ],
+  };
 }
 
 export function hubHome(ctx: SectionContext): StudioPage {
   const id = idOf(ctx);
   return {
-    header: header(ctx),
+    header: null,
     background: K.page,
     dark_background: K.darkPage,
     body: {
@@ -229,6 +246,7 @@ export function hubHome(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 100, 0),
       children: [
+        topBar(ctx),
         catChips(ctx),
         deals(ctx),
         head(ctx, "mbHubCats"),
@@ -240,8 +258,6 @@ export function hubHome(ctx: SectionContext): StudioPage {
         soon(ctx),
         head(ctx, "mbHubBudget", { word: "mbHubSeeAll", action: shop }),
         denseGrid(ctx, "mbHubBudget", "price_asc"),
-        head(ctx, "mbHubNew", { word: "mbHubSeeAll", action: shop }),
-        denseGrid(ctx, "mbHubNew", "newest", 3),
       ],
     },
   };
@@ -389,8 +405,8 @@ const HUB_SCREENS = signatureScreens({
   first: ["orders", "wishlist", "notifications", "settings", "help", "privacy", "terms"],
 });
 
-/** The bar: across the bottom on white, each tab a square, the open one filled pink. */
-export const HUB_BAR = signatureBar(K, { design: "square", background: K.page, dark_background: K.darkPage, active: HOT, dark_active: HOT, inactive: K.muted, dark_inactive: K.darkMuted, labels: "always" });
+/** The bar: across the bottom on white, the open tab a hot pink folder tab rising from it. */
+export const HUB_BAR = signatureBar(K, { design: "folder", background: K.page, dark_background: K.darkPage, active: HOT, dark_active: HOT, inactive: K.muted, dark_inactive: K.darkMuted, labels: "always" });
 
 export const HUB_D: SignatureDesign = {
   demo: "mobiles",

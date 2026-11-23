@@ -302,26 +302,48 @@ function chest(ctx: SectionContext): StudioNode {
   );
 }
 
-/** The ages as chunky coloured blocks, each named as the shop's age category (and so opening it). */
+/**
+ * Choose your hero's level: the ages as a ladder climbing the sand, each
+ * rung a chunky step with its level badge, named as the shop's age
+ * category (and so opening it); the youngest at the foot, the oldest at the top.
+ */
 function ages(ctx: SectionContext): StudioNode[] {
+  const id = idOf(ctx);
   const fills = [RED, YELLOW, GREEN, BLUE, GRAPE];
+  const rung = (word: SectionWord, i: number): StudioNode =>
+    chunky(
+      ctx,
+      {
+        type: "row",
+        name: ctx.w(word),
+        gap: 10,
+        cross: "center",
+        padding: sides(8, 12, 8, 8),
+        background: fills[i]!,
+        dark_background: fills[i]!,
+        children: [
+          { id: id(), type: "row", width: 34, height: 34, radius: 17, align: "center", cross: "center", background: "#FFFFFF", dark_background: "#FFFFFF", border_color: OUT.day, dark_border_color: OUT.night, border_width: 2, children: [{ id: id(), type: "text", text: String(i + 1), font: display(17, { line_height: 1 }), color: "#1D1A3A", dark_color: "#1D1A3A" }] },
+          say(ctx, word, display(17), { ...(i === 1 ? onBright : onDark), max_lines: 1 }),
+          { id: id(), type: "icon", icon: i === 4 ? "emoji_events" : "star", icon_size: 18, ...(i === 1 ? onBright : onDark) },
+        ],
+      },
+      { radius: 16, depth: 5, width: "hug", action: shop, name: ctx.w(word), margin: sides(0, 0, 0, i * 30) },
+    );
   return [
     head(ctx, "tyMapAges", "tyMapAgesLine"),
-    {
-      id: idOf(ctx)(),
-      type: "row",
-      name: ctx.w("tyMapAges"),
-      gap: 10,
-      scroll: true,
-      padding: sides(0, 16, 4, 16),
-      children: TOYS_AGE_WORDS.map((word, i) =>
-        chunky(
-          ctx,
-          { type: "column", name: ctx.w(word), height: 66, align: "center", cross: "center", padding: sides(4, 8, 4, 8), background: fills[i]!, dark_background: fills[i]!, children: [say(ctx, word, display(17), { ...(i === 1 ? onBright : onDark), max_lines: 2, text_align: "center" })] },
-          { radius: 18, depth: 5, width: 104, action: shop, name: ctx.w(word) },
-        ),
-      ),
-    },
+    chunky(
+      ctx,
+      {
+        type: "column",
+        name: ctx.w("tyMapAges"),
+        gap: 10,
+        padding: sides(14, 12, 14, 12),
+        background: SANDS[0],
+        dark_background: "#2B2D63",
+        children: [...TOYS_AGE_WORDS.map((word, i) => rung(word, i))].reverse(),
+      },
+      { radius: 26, depth: 6, margin: sides(0, 16, 0, 16) },
+    ),
   ];
 }
 
@@ -354,7 +376,7 @@ function toyCard(ctx: SectionContext, width: StudioNode["width"], photo: number)
           gap: 6,
           padding: sides(10, 12, 12, 12),
           children: [
-            { id: id(), type: "text", bind: "title", max_lines: 1, color: K.ink, dark_color: K.darkInk, font: text(14, 600) },
+            { id: id(), type: "text", bind: "title", max_lines: 2, color: K.ink, dark_color: K.darkInk, font: text(14, 600) },
             {
               id: id(),
               type: "row",
@@ -476,15 +498,33 @@ function safe(ctx: SectionContext): StudioNode {
 
 // ——— The home ———
 
-function header(ctx: SectionContext): StudioPage["header"] {
-  const t = sigTexts(ctx, { title: "tyWordmark" });
-  return { type: "logo_actions", title: t.title, translations: t.translations, buttons: ["menu", "cart"], menu_page: MENU_PAGE, background: K.page, dark_background: K.darkPage, color: K.fill, dark_color: YELLOW, style: "brand" };
+/** The home's own header, made of elements and pinned on top: a chunky menu button (the category menu), the wordmark in Lalezar, a chunky yellow bag. */
+function topBar(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  const button = (icon: string, action: Action, fill: { day: string; night: string }, dark = false): StudioNode =>
+    chunky(ctx, { type: "row", height: 42, align: "center", cross: "center", background: fill.day, dark_background: fill.night, children: [{ id: id(), type: "icon", icon, icon_size: 22, ...(dark ? onBright : { color: K.ink, dark_color: K.darkInk }) }] }, { radius: 14, depth: 4, width: 46, action });
+  return {
+    id: id(),
+    type: "row",
+    name: ctx.w("tyWordmark"),
+    pin: "top",
+    gap: 10,
+    cross: "center",
+    padding: sides(6, 16, 10, 16),
+    background: K.page,
+    dark_background: K.darkPage,
+    children: [
+      button("menu_open", ownPage(ctx, MENU_PAGE), { day: K.surface, night: K.darkSurface }),
+      say(ctx, "tyWordmark", display(30, { line_height: 1 }), { width: "fill", max_lines: 1, color: RED, dark_color: YELLOW }),
+      button("shopping_bag", screen("cart"), { day: YELLOW, night: YELLOW }, true),
+    ],
+  };
 }
 
 export function mapHome(ctx: SectionContext): StudioPage {
   const id = idOf(ctx);
   return {
-    header: header(ctx),
+    header: null,
     background: K.page,
     dark_background: K.darkPage,
     body: {
@@ -492,6 +532,7 @@ export function mapHome(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 110, 0),
       children: [
+        topBar(ctx),
         { id: id(), type: "column", name: ctx.w("tyMapHello"), gap: 4, padding: sides(6, 16, 0, 16), children: [say(ctx, "tyMapHello", display(32, { line_height: 1.05 }), { max_lines: 2 }), say(ctx, "tyMapHelloLine", text(13.5, 400), { muted: true, max_lines: 2 })] },
         mapCard(ctx),
         ...stickers(ctx),
@@ -694,7 +735,7 @@ export const TOYS_C_SECTIONS: readonly SectionInfo[] = [
   // The treasure chest: the shop's code in a chunky card.
   { id: "ty_chest", icon: "redeem", isNew: true, fits: STORE_PLAIN, make: one((ctx) => chest(ctx)) },
   // The ages as chunky blocks.
-  { id: "ty_age_blocks", icon: "view_column", isNew: true, fits: STORE_PLAIN, make: one((ctx) => ages(ctx)) },
+  { id: "ty_age_ladder", icon: "trending_up", isNew: true, fits: STORE_PLAIN, make: one((ctx) => ages(ctx)) },
   // The gift quest.
   { id: "ty_gift_quest", icon: "quiz", isNew: true, fits: STORE_PLAIN, make: one((ctx) => quest(ctx)) },
 ];

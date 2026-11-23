@@ -162,7 +162,7 @@ export const TR_MARKETING: MarketingTranslation = {
     "toys-sig-a-home-dark": "Toot ilk görünümüyle, karanlık modda: arama, yuvarlak kategoriler, koleksiyonlar ve yaşa göre alışveriş",
     "toys-sig-b-home-dark": "Toot ikinci görünümüyle, Mukaab, karanlık modda: çocuğun yaşı, kâşifler koleksiyonu, kare kategoriler ve bilim laboratuvarı",
     "toys-sig-c-home": "Toot bir macera haritası olarak: deniz haritasında ada olarak kategoriler, kabartmalı kartlar ve düğmeler, çıkartmalar ve hazine sandığı",
-    "toys-sig-c-home-dark": "Toot'un macera haritası karanlık modda: lacivert denizde adalar, çıkartmalar, hazine sandığı ve renkli bloklar olarak yaşlar",
+    "toys-sig-c-home-dark": "Toot'un macera haritası karanlık modda: lacivert denizde adalar, çıkartmalar, hazine sandığı ve kahraman seviyelerinden bir merdiven olarak yaşlar",
     "toys-sig-d-home": "Toot Montessori görünümüyle: beceriye ve yaşa göre oyuncaklarla adaçayı bir açılış, sakin bir fotoğraf ve ebeveyn rehberi",
     "toys-sig-d-home-dark": "Toot'un Montessori görünümü karanlık modda: adaçayı, ceviz ve krem tonlarında beceriye ve yaşa göre oyuncaklar",
     "sakan-home": "Sakan, bir ev dekorasyonu mağazası, birinci görünümüyle, dekor dergisi: arama, kategoriler, sezon koleksiyonları, odaya göre alışveriş, yeniler ve görünümü satın al",

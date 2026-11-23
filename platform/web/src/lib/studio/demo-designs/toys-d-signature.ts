@@ -49,6 +49,8 @@ const FACE = "Playpen Sans Arabic";
 
 const P = (name: string) => `/toys-photos/${name}.jpg`;
 const shop: Action = screen("search");
+const pageOf = (slug: string): Action => ({ type: "page", page_slug: slug });
+const ownPage = (ctx: SectionContext, slug: string): Action => (ctx.ownPages === false ? shop : pageOf(slug));
 
 const font = (size: number, weight: NonNullable<StudioFont["weight"]> = 400, extra: Partial<StudioFont> = {}): StudioFont => ({ family: FACE, size, weight, line_height: 1.45, ...extra });
 
@@ -339,15 +341,40 @@ function sageBand(ctx: SectionContext): StudioNode {
 
 // ——— The home ———
 
-function header(ctx: SectionContext): StudioPage["header"] {
-  const t = sigTexts(ctx, { title: "tyWordmark", subtitle: "tyMoKicker" });
-  return { type: "logo_center", title: t.title, subtitle: t.subtitle, translations: t.translations, buttons: ["menu", "cart"], menu_page: MENU_PAGE, background: K.page, dark_background: K.darkPage, color: K.ink, dark_color: K.darkInk, style: "large" };
+/** The home's own header, made of elements and pinned on top: the menu, the wordmark centred over its quiet line, the bag, a hairline under them. */
+function topBar(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  const icon = (name: string, action: Action): StudioNode => ({ id: id(), type: "row", width: 40, height: 40, align: "center", cross: "center", action, children: [{ id: id(), type: "icon", icon: name, icon_size: 24, color: K.ink, dark_color: K.darkInk }] });
+  return {
+    id: id(),
+    type: "column",
+    name: ctx.w("tyWordmark"),
+    pin: "top",
+    gap: 0,
+    background: K.page,
+    dark_background: K.darkPage,
+    children: [
+      {
+        id: id(),
+        type: "row",
+        gap: 8,
+        cross: "center",
+        padding: sides(4, 14, 10, 14),
+        children: [
+          icon("menu_open", ownPage(ctx, MENU_PAGE)),
+          { id: id(), type: "column", width: "fill", gap: 0, cross: "center", children: [say(ctx, "tyWordmark", font(20, 600, { line_height: 1.2, letter_spacing: 0.5 }), { max_lines: 1, text_align: "center" }), say(ctx, "tyMoKicker", font(11, 500, { line_height: 1.2 }), { max_lines: 1, text_align: "center", color: SAGE.day, dark_color: "#A9B998" })] },
+          icon("shopping_bag", screen("cart")),
+        ],
+      },
+      rule(ctx),
+    ],
+  };
 }
 
 export function montessoriHome(ctx: SectionContext): StudioPage {
   const id = idOf(ctx);
   return {
-    header: header(ctx),
+    header: null,
     background: K.page,
     dark_background: K.darkPage,
     body: {
@@ -355,6 +382,7 @@ export function montessoriHome(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 100, 0),
       children: [
+        topBar(ctx),
         sageBand(ctx),
         calmPhoto(ctx),
         head(ctx, "tyMoForMotor", { word: "tyMoAll", action: shop }),

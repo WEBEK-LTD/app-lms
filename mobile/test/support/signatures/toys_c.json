@@ -186,28 +186,7 @@
     "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
-     "header": {
-      "type": "logo_actions",
-      "title": "Toot",
-      "translations": {
-       "ar": {
-        "title": "Toot"
-       },
-       "tr": {
-        "title": "Toot"
-       }
-      },
-      "buttons": [
-       "menu",
-       "cart"
-      ],
-      "menu_page": "menu",
-      "background": "#FFF6E3",
-      "dark_background": "#0F1030",
-      "color": "#E5352C",
-      "dark_color": "#FFC629",
-      "style": "brand"
-     },
+     "header": null,
      "background": "#FFF6E3",
      "dark_background": "#0F1030",
      "body": {
@@ -222,6 +201,141 @@
       "children": [
        {
         "id": "sig-2",
+        "type": "row",
+        "name": "Toot",
+        "pin": "top",
+        "gap": 10,
+        "cross": "center",
+        "padding": {
+         "top": 6,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "background": "#FFF6E3",
+        "dark_background": "#0F1030",
+        "children": [
+         {
+          "id": "sig-4",
+          "type": "column",
+          "width": 46,
+          "radius": 14,
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 4,
+           "start": 0
+          },
+          "background": "#1D1A3A",
+          "dark_background": "#05061A",
+          "action": {
+           "type": "page",
+           "page_slug": "menu"
+          },
+          "motion": {
+           "press": "bounce"
+          },
+          "children": [
+           {
+            "type": "row",
+            "height": 42,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#1B1D47",
+            "children": [
+             {
+              "id": "sig-3",
+              "type": "icon",
+              "icon": "menu_open",
+              "icon_size": 22,
+              "color": "#1D1A3A",
+              "dark_color": "#FFF6E3"
+             }
+            ],
+            "id": "sig-5",
+            "width": "fill",
+            "radius": 14,
+            "border_color": "#1D1A3A",
+            "dark_border_color": "#05061A",
+            "border_width": 2.5
+           }
+          ]
+         },
+         {
+          "id": "sig-6",
+          "type": "text",
+          "text": "Toot",
+          "font": {
+           "family": "Lalezar",
+           "size": 30,
+           "weight": 400,
+           "line_height": 1
+          },
+          "color": "#F2453D",
+          "dark_color": "#FFC629",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "Toot"
+           },
+           "tr": {
+            "text": "Toot"
+           }
+          }
+         },
+         {
+          "id": "sig-8",
+          "type": "column",
+          "width": 46,
+          "radius": 14,
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 4,
+           "start": 0
+          },
+          "background": "#1D1A3A",
+          "dark_background": "#05061A",
+          "action": {
+           "type": "screen",
+           "screen": "cart"
+          },
+          "motion": {
+           "press": "bounce"
+          },
+          "children": [
+           {
+            "type": "row",
+            "height": 42,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFC629",
+            "dark_background": "#FFC629",
+            "children": [
+             {
+              "id": "sig-7",
+              "type": "icon",
+              "icon": "shopping_bag",
+              "icon_size": 22,
+              "color": "#1D1A3A",
+              "dark_color": "#1D1A3A"
+             }
+            ],
+            "id": "sig-9",
+            "width": "fill",
+            "radius": 14,
+            "border_color": "#1D1A3A",
+            "dark_border_color": "#05061A",
+            "border_width": 2.5
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-10",
         "type": "column",
         "name": "Where shall we play today?",
         "gap": 4,
@@ -233,7 +347,7 @@
         },
         "children": [
          {
-          "id": "sig-3",
+          "id": "sig-11",
           "type": "text",
           "text": "Where shall we play today?",
           "font": {
@@ -255,7 +369,7 @@
           }
          },
          {
-          "id": "sig-4",
+          "id": "sig-12",
           "type": "text",
           "text": "Pick an island and set off: each one is a corner of the shop.",
           "font": {
@@ -279,7 +393,7 @@
         ]
        },
        {
-        "id": "sig-36",
+        "id": "sig-44",
         "type": "column",
         "name": "Islands to explore",
         "radius": 30,
@@ -315,14 +429,14 @@
           "dark_background": "#16306E",
           "children": [
            {
-            "id": "sig-5",
+            "id": "sig-13",
             "type": "stack",
             "name": "Islands to explore",
             "width": "fill",
             "height": 300,
             "children": [
              {
-              "id": "sig-6",
+              "id": "sig-14",
               "type": "icon",
               "icon": "auto_awesome",
               "icon_size": 22,
@@ -335,7 +449,7 @@
               }
              },
              {
-              "id": "sig-7",
+              "id": "sig-15",
               "type": "icon",
               "icon": "auto_awesome",
               "icon_size": 18,
@@ -348,7 +462,7 @@
               }
              },
              {
-              "id": "sig-8",
+              "id": "sig-16",
               "type": "icon",
               "icon": "auto_awesome",
               "icon_size": 18,
@@ -361,7 +475,7 @@
               }
              },
              {
-              "id": "sig-9",
+              "id": "sig-17",
               "type": "icon",
               "icon": "explore",
               "icon_size": 28,
@@ -374,7 +488,7 @@
               }
              },
              {
-              "id": "sig-10",
+              "id": "sig-18",
               "type": "column",
               "name": "Wooden toys",
               "width": 112,
@@ -394,7 +508,7 @@
               },
               "children": [
                {
-                "id": "sig-11",
+                "id": "sig-19",
                 "type": "row",
                 "width": 94,
                 "height": 78,
@@ -414,7 +528,7 @@
                 "shadow": "medium",
                 "children": [
                  {
-                  "id": "sig-12",
+                  "id": "sig-20",
                   "type": "image",
                   "image_url": "http://localhost:3000/toys-photos/block-tower.jpg",
                   "fit": "cover",
@@ -428,7 +542,7 @@
                 ]
                },
                {
-                "id": "sig-13",
+                "id": "sig-21",
                 "type": "text",
                 "text": "Wooden",
                 "font": {
@@ -465,7 +579,7 @@
               ]
              },
              {
-              "id": "sig-14",
+              "id": "sig-22",
               "type": "column",
               "name": "Building",
               "width": 112,
@@ -485,7 +599,7 @@
               },
               "children": [
                {
-                "id": "sig-15",
+                "id": "sig-23",
                 "type": "row",
                 "width": 94,
                 "height": 78,
@@ -505,7 +619,7 @@
                 "shadow": "medium",
                 "children": [
                  {
-                  "id": "sig-16",
+                  "id": "sig-24",
                   "type": "image",
                   "image_url": "http://localhost:3000/toys-photos/bricks-pile.jpg",
                   "fit": "cover",
@@ -519,7 +633,7 @@
                 ]
                },
                {
-                "id": "sig-17",
+                "id": "sig-25",
                 "type": "text",
                 "text": "Building",
                 "font": {
@@ -556,7 +670,7 @@
               ]
              },
              {
-              "id": "sig-18",
+              "id": "sig-26",
               "type": "column",
               "name": "Science & STEM",
               "width": 112,
@@ -576,7 +690,7 @@
               },
               "children": [
                {
-                "id": "sig-19",
+                "id": "sig-27",
                 "type": "row",
                 "width": 94,
                 "height": 78,
@@ -596,7 +710,7 @@
                 "shadow": "medium",
                 "children": [
                  {
-                  "id": "sig-20",
+                  "id": "sig-28",
                   "type": "image",
                   "image_url": "http://localhost:3000/toys-photos/telescope-globe.jpg",
                   "fit": "cover",
@@ -610,7 +724,7 @@
                 ]
                },
                {
-                "id": "sig-21",
+                "id": "sig-29",
                 "type": "text",
                 "text": "Science",
                 "font": {
@@ -647,7 +761,7 @@
               ]
              },
              {
-              "id": "sig-22",
+              "id": "sig-30",
               "type": "column",
               "name": "Plush",
               "width": 112,
@@ -667,7 +781,7 @@
               },
               "children": [
                {
-                "id": "sig-23",
+                "id": "sig-31",
                 "type": "row",
                 "width": 94,
                 "height": 78,
@@ -687,7 +801,7 @@
                 "shadow": "medium",
                 "children": [
                  {
-                  "id": "sig-24",
+                  "id": "sig-32",
                   "type": "image",
                   "image_url": "http://localhost:3000/toys-photos/bear-mint.jpg",
                   "fit": "cover",
@@ -701,7 +815,7 @@
                 ]
                },
                {
-                "id": "sig-25",
+                "id": "sig-33",
                 "type": "text",
                 "text": "Plush",
                 "font": {
@@ -738,7 +852,7 @@
               ]
              },
              {
-              "id": "sig-26",
+              "id": "sig-34",
               "type": "column",
               "name": "Arts & music",
               "width": 112,
@@ -758,7 +872,7 @@
               },
               "children": [
                {
-                "id": "sig-27",
+                "id": "sig-35",
                 "type": "row",
                 "width": 94,
                 "height": 78,
@@ -778,7 +892,7 @@
                 "shadow": "medium",
                 "children": [
                  {
-                  "id": "sig-28",
+                  "id": "sig-36",
                   "type": "image",
                   "image_url": "http://localhost:3000/toys-photos/crayons-pastel.jpg",
                   "fit": "cover",
@@ -792,7 +906,7 @@
                 ]
                },
                {
-                "id": "sig-29",
+                "id": "sig-37",
                 "type": "text",
                 "text": "Arts",
                 "font": {
@@ -831,7 +945,7 @@
             ]
            },
            {
-            "id": "sig-30",
+            "id": "sig-38",
             "type": "row",
             "name": "The whole map",
             "gap": 8,
@@ -850,7 +964,7 @@
             "border_width": 2,
             "children": [
              {
-              "id": "sig-31",
+              "id": "sig-39",
               "type": "icon",
               "icon": "explore",
               "icon_size": 22,
@@ -858,7 +972,7 @@
               "dark_color": "#FFC629"
              },
              {
-              "id": "sig-32",
+              "id": "sig-40",
               "type": "text",
               "text": "Islands to explore",
               "font": {
@@ -881,7 +995,7 @@
               }
              },
              {
-              "id": "sig-34",
+              "id": "sig-42",
               "type": "column",
               "name": "The whole map",
               "width": "hug",
@@ -919,7 +1033,7 @@
                 "dark_background": "#F2453D",
                 "children": [
                  {
-                  "id": "sig-33",
+                  "id": "sig-41",
                   "type": "text",
                   "text": "The whole map",
                   "font": {
@@ -941,7 +1055,7 @@
                   }
                  }
                 ],
-                "id": "sig-35",
+                "id": "sig-43",
                 "width": "fill",
                 "radius": 14,
                 "border_color": "#1D1A3A",
@@ -953,7 +1067,7 @@
             ]
            }
           ],
-          "id": "sig-37",
+          "id": "sig-45",
           "width": "fill",
           "radius": 30,
           "border_color": "#1D1A3A",
@@ -963,7 +1077,7 @@
         ]
        },
        {
-        "id": "sig-38",
+        "id": "sig-46",
         "type": "row",
         "name": "Collect the stickers",
         "cross": "end",
@@ -976,13 +1090,13 @@
         },
         "children": [
          {
-          "id": "sig-39",
+          "id": "sig-47",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-40",
+            "id": "sig-48",
             "type": "text",
             "text": "Collect the stickers",
             "font": {
@@ -1004,7 +1118,7 @@
             }
            },
            {
-            "id": "sig-41",
+            "id": "sig-49",
             "type": "text",
             "text": "Every island has its badge: tap one to visit it.",
             "font": {
@@ -1030,7 +1144,7 @@
         ]
        },
        {
-        "id": "sig-42",
+        "id": "sig-50",
         "type": "row",
         "name": "Collect the stickers",
         "gap": 10,
@@ -1043,7 +1157,7 @@
         },
         "children": [
          {
-          "id": "sig-43",
+          "id": "sig-51",
           "type": "column",
           "name": "Science & STEM",
           "width": 78,
@@ -1055,7 +1169,7 @@
           },
           "children": [
            {
-            "id": "sig-45",
+            "id": "sig-53",
             "type": "column",
             "width": 68,
             "radius": 34,
@@ -1080,7 +1194,7 @@
               "dark_background": "#FFC629",
               "children": [
                {
-                "id": "sig-44",
+                "id": "sig-52",
                 "type": "icon",
                 "icon": "travel_explore",
                 "icon_size": 30,
@@ -1088,7 +1202,7 @@
                 "dark_color": "#1D1A3A"
                }
               ],
-              "id": "sig-46",
+              "id": "sig-54",
               "width": "fill",
               "radius": 34,
               "border_color": "#1D1A3A",
@@ -1098,7 +1212,7 @@
             ]
            },
            {
-            "id": "sig-47",
+            "id": "sig-55",
             "type": "text",
             "text": "Explorer",
             "font": {
@@ -1123,7 +1237,7 @@
           ]
          },
          {
-          "id": "sig-48",
+          "id": "sig-56",
           "type": "column",
           "name": "Building",
           "width": 78,
@@ -1135,7 +1249,7 @@
           },
           "children": [
            {
-            "id": "sig-50",
+            "id": "sig-58",
             "type": "column",
             "width": 68,
             "radius": 34,
@@ -1160,7 +1274,7 @@
               "dark_background": "#22B062",
               "children": [
                {
-                "id": "sig-49",
+                "id": "sig-57",
                 "type": "icon",
                 "icon": "construction",
                 "icon_size": 30,
@@ -1168,7 +1282,7 @@
                 "dark_color": "#FFFFFF"
                }
               ],
-              "id": "sig-51",
+              "id": "sig-59",
               "width": "fill",
               "radius": 34,
               "border_color": "#1D1A3A",
@@ -1178,7 +1292,7 @@
             ]
            },
            {
-            "id": "sig-52",
+            "id": "sig-60",
             "type": "text",
             "text": "Builder",
             "font": {
@@ -1203,7 +1317,7 @@
           ]
          },
          {
-          "id": "sig-53",
+          "id": "sig-61",
           "type": "column",
           "name": "Arts & music",
           "width": 78,
@@ -1215,7 +1329,7 @@
           },
           "children": [
            {
-            "id": "sig-55",
+            "id": "sig-63",
             "type": "column",
             "width": 68,
             "radius": 34,
@@ -1240,7 +1354,7 @@
               "dark_background": "#F2453D",
               "children": [
                {
-                "id": "sig-54",
+                "id": "sig-62",
                 "type": "icon",
                 "icon": "star",
                 "icon_size": 30,
@@ -1248,7 +1362,7 @@
                 "dark_color": "#FFFFFF"
                }
               ],
-              "id": "sig-56",
+              "id": "sig-64",
               "width": "fill",
               "radius": 34,
               "border_color": "#1D1A3A",
@@ -1258,7 +1372,7 @@
             ]
            },
            {
-            "id": "sig-57",
+            "id": "sig-65",
             "type": "text",
             "text": "Artist",
             "font": {
@@ -1283,7 +1397,7 @@
           ]
          },
          {
-          "id": "sig-58",
+          "id": "sig-66",
           "type": "column",
           "name": "Outdoor",
           "width": 78,
@@ -1295,7 +1409,7 @@
           },
           "children": [
            {
-            "id": "sig-60",
+            "id": "sig-68",
             "type": "column",
             "width": 68,
             "radius": 34,
@@ -1320,7 +1434,7 @@
               "dark_background": "#3D5AFE",
               "children": [
                {
-                "id": "sig-59",
+                "id": "sig-67",
                 "type": "icon",
                 "icon": "emoji_events",
                 "icon_size": 30,
@@ -1328,7 +1442,7 @@
                 "dark_color": "#FFFFFF"
                }
               ],
-              "id": "sig-61",
+              "id": "sig-69",
               "width": "fill",
               "radius": 34,
               "border_color": "#1D1A3A",
@@ -1338,7 +1452,7 @@
             ]
            },
            {
-            "id": "sig-62",
+            "id": "sig-70",
             "type": "text",
             "text": "Champion",
             "font": {
@@ -1363,7 +1477,7 @@
           ]
          },
          {
-          "id": "sig-63",
+          "id": "sig-71",
           "type": "column",
           "name": "Plush",
           "width": 78,
@@ -1375,7 +1489,7 @@
           },
           "children": [
            {
-            "id": "sig-65",
+            "id": "sig-73",
             "type": "column",
             "width": 68,
             "radius": 34,
@@ -1400,7 +1514,7 @@
               "dark_background": "#8E44D9",
               "children": [
                {
-                "id": "sig-64",
+                "id": "sig-72",
                 "type": "icon",
                 "icon": "favorite",
                 "icon_size": 30,
@@ -1408,7 +1522,7 @@
                 "dark_color": "#FFFFFF"
                }
               ],
-              "id": "sig-66",
+              "id": "sig-74",
               "width": "fill",
               "radius": 34,
               "border_color": "#1D1A3A",
@@ -1418,7 +1532,7 @@
             ]
            },
            {
-            "id": "sig-67",
+            "id": "sig-75",
             "type": "text",
             "text": "Cuddler",
             "font": {
@@ -1445,7 +1559,7 @@
         ]
        },
        {
-        "id": "sig-74",
+        "id": "sig-82",
         "type": "column",
         "name": "The treasure chest",
         "radius": 24,
@@ -1481,13 +1595,13 @@
           "dark_background": "#FFC629",
           "children": [
            {
-            "id": "sig-68",
+            "id": "sig-76",
             "type": "row",
             "gap": 10,
             "cross": "center",
             "children": [
              {
-              "id": "sig-69",
+              "id": "sig-77",
               "type": "icon",
               "icon": "redeem",
               "icon_size": 34,
@@ -1495,13 +1609,13 @@
               "dark_color": "#1D1A3A"
              },
              {
-              "id": "sig-70",
+              "id": "sig-78",
               "type": "column",
               "width": "fill",
               "gap": 2,
               "children": [
                {
-                "id": "sig-71",
+                "id": "sig-79",
                 "type": "text",
                 "text": "The treasure chest",
                 "font": {
@@ -1523,7 +1637,7 @@
                 }
                },
                {
-                "id": "sig-72",
+                "id": "sig-80",
                 "type": "text",
                 "text": "Your code for a first order",
                 "font": {
@@ -1549,7 +1663,7 @@
             ]
            },
            {
-            "id": "sig-73",
+            "id": "sig-81",
             "type": "coupon",
             "name": "Your code",
             "code": "TOOT10",
@@ -1561,7 +1675,7 @@
             "color": "#F2453D"
            }
           ],
-          "id": "sig-75",
+          "id": "sig-83",
           "width": "fill",
           "radius": 24,
           "border_color": "#1D1A3A",
@@ -1571,7 +1685,7 @@
         ]
        },
        {
-        "id": "sig-76",
+        "id": "sig-84",
         "type": "row",
         "name": "How old is our hero?",
         "cross": "end",
@@ -1584,13 +1698,13 @@
         },
         "children": [
          {
-          "id": "sig-77",
+          "id": "sig-85",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-78",
+            "id": "sig-86",
             "type": "text",
             "text": "How old is our hero?",
             "font": {
@@ -1612,7 +1726,7 @@
             }
            },
            {
-            "id": "sig-79",
+            "id": "sig-87",
             "type": "text",
             "text": "Each age opens its own toys",
             "font": {
@@ -1638,372 +1752,608 @@
         ]
        },
        {
-        "id": "sig-80",
-        "type": "row",
+        "id": "sig-118",
+        "type": "column",
         "name": "How old is our hero?",
-        "gap": 10,
-        "scroll": true,
+        "radius": 26,
         "padding": {
          "top": 0,
+         "end": 0,
+         "bottom": 6,
+         "start": 0
+        },
+        "background": "#1D1A3A",
+        "dark_background": "#05061A",
+        "margin": {
+         "top": 0,
          "end": 16,
-         "bottom": 4,
+         "bottom": 0,
          "start": 16
+        },
+        "motion": {
+         "press": "bounce"
         },
         "children": [
          {
-          "id": "sig-82",
           "type": "column",
-          "name": "0–12 months",
-          "width": 104,
-          "radius": 18,
+          "name": "How old is our hero?",
+          "gap": 10,
           "padding": {
-           "top": 0,
-           "end": 0,
-           "bottom": 5,
-           "start": 0
+           "top": 14,
+           "end": 12,
+           "bottom": 14,
+           "start": 12
           },
-          "background": "#1D1A3A",
-          "dark_background": "#05061A",
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "motion": {
-           "press": "bounce"
-          },
+          "background": "#FFE08A",
+          "dark_background": "#2B2D63",
           "children": [
            {
-            "type": "column",
-            "name": "0–12 months",
-            "height": 66,
-            "align": "center",
-            "cross": "center",
-            "padding": {
-             "top": 4,
-             "end": 8,
-             "bottom": 4,
-             "start": 8
-            },
-            "background": "#F2453D",
-            "dark_background": "#F2453D",
-            "children": [
-             {
-              "id": "sig-81",
-              "type": "text",
-              "text": "0–12 months",
-              "font": {
-               "family": "Lalezar",
-               "size": 17,
-               "weight": 400,
-               "line_height": 1.1
-              },
-              "color": "#FFFFFF",
-              "dark_color": "#FFFFFF",
-              "max_lines": 2,
-              "text_align": "center",
-              "translations": {
-               "ar": {
-                "text": "0‎–‎12 شهرًا"
-               },
-               "tr": {
-                "text": "0–12 ay"
-               }
-              }
-             }
-            ],
-            "id": "sig-83",
-            "width": "fill",
-            "radius": 18,
-            "border_color": "#1D1A3A",
-            "dark_border_color": "#05061A",
-            "border_width": 2.5
-           }
-          ]
-         },
-         {
-          "id": "sig-85",
-          "type": "column",
-          "name": "1–2 years",
-          "width": 104,
-          "radius": 18,
-          "padding": {
-           "top": 0,
-           "end": 0,
-           "bottom": 5,
-           "start": 0
-          },
-          "background": "#1D1A3A",
-          "dark_background": "#05061A",
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "motion": {
-           "press": "bounce"
-          },
-          "children": [
-           {
-            "type": "column",
-            "name": "1–2 years",
-            "height": 66,
-            "align": "center",
-            "cross": "center",
-            "padding": {
-             "top": 4,
-             "end": 8,
-             "bottom": 4,
-             "start": 8
-            },
-            "background": "#FFC629",
-            "dark_background": "#FFC629",
-            "children": [
-             {
-              "id": "sig-84",
-              "type": "text",
-              "text": "1–2 years",
-              "font": {
-               "family": "Lalezar",
-               "size": 17,
-               "weight": 400,
-               "line_height": 1.1
-              },
-              "color": "#1D1A3A",
-              "dark_color": "#1D1A3A",
-              "max_lines": 2,
-              "text_align": "center",
-              "translations": {
-               "ar": {
-                "text": "1‎–‎2 سنة"
-               },
-               "tr": {
-                "text": "1–2 yaş"
-               }
-              }
-             }
-            ],
-            "id": "sig-86",
-            "width": "fill",
-            "radius": 18,
-            "border_color": "#1D1A3A",
-            "dark_border_color": "#05061A",
-            "border_width": 2.5
-           }
-          ]
-         },
-         {
-          "id": "sig-88",
-          "type": "column",
-          "name": "3–5 years",
-          "width": 104,
-          "radius": 18,
-          "padding": {
-           "top": 0,
-           "end": 0,
-           "bottom": 5,
-           "start": 0
-          },
-          "background": "#1D1A3A",
-          "dark_background": "#05061A",
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "motion": {
-           "press": "bounce"
-          },
-          "children": [
-           {
-            "type": "column",
-            "name": "3–5 years",
-            "height": 66,
-            "align": "center",
-            "cross": "center",
-            "padding": {
-             "top": 4,
-             "end": 8,
-             "bottom": 4,
-             "start": 8
-            },
-            "background": "#22B062",
-            "dark_background": "#22B062",
-            "children": [
-             {
-              "id": "sig-87",
-              "type": "text",
-              "text": "3–5 years",
-              "font": {
-               "family": "Lalezar",
-               "size": 17,
-               "weight": 400,
-               "line_height": 1.1
-              },
-              "color": "#FFFFFF",
-              "dark_color": "#FFFFFF",
-              "max_lines": 2,
-              "text_align": "center",
-              "translations": {
-               "ar": {
-                "text": "3‎–‎5 سنوات"
-               },
-               "tr": {
-                "text": "3–5 yaş"
-               }
-              }
-             }
-            ],
-            "id": "sig-89",
-            "width": "fill",
-            "radius": 18,
-            "border_color": "#1D1A3A",
-            "dark_border_color": "#05061A",
-            "border_width": 2.5
-           }
-          ]
-         },
-         {
-          "id": "sig-91",
-          "type": "column",
-          "name": "6–8 years",
-          "width": 104,
-          "radius": 18,
-          "padding": {
-           "top": 0,
-           "end": 0,
-           "bottom": 5,
-           "start": 0
-          },
-          "background": "#1D1A3A",
-          "dark_background": "#05061A",
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "motion": {
-           "press": "bounce"
-          },
-          "children": [
-           {
-            "type": "column",
-            "name": "6–8 years",
-            "height": 66,
-            "align": "center",
-            "cross": "center",
-            "padding": {
-             "top": 4,
-             "end": 8,
-             "bottom": 4,
-             "start": 8
-            },
-            "background": "#3D5AFE",
-            "dark_background": "#3D5AFE",
-            "children": [
-             {
-              "id": "sig-90",
-              "type": "text",
-              "text": "6–8 years",
-              "font": {
-               "family": "Lalezar",
-               "size": 17,
-               "weight": 400,
-               "line_height": 1.1
-              },
-              "color": "#FFFFFF",
-              "dark_color": "#FFFFFF",
-              "max_lines": 2,
-              "text_align": "center",
-              "translations": {
-               "ar": {
-                "text": "6‎–‎8 سنوات"
-               },
-               "tr": {
-                "text": "6–8 yaş"
-               }
-              }
-             }
-            ],
-            "id": "sig-92",
-            "width": "fill",
-            "radius": 18,
-            "border_color": "#1D1A3A",
-            "dark_border_color": "#05061A",
-            "border_width": 2.5
-           }
-          ]
-         },
-         {
-          "id": "sig-94",
-          "type": "column",
-          "name": "9+ years",
-          "width": 104,
-          "radius": 18,
-          "padding": {
-           "top": 0,
-           "end": 0,
-           "bottom": 5,
-           "start": 0
-          },
-          "background": "#1D1A3A",
-          "dark_background": "#05061A",
-          "action": {
-           "type": "screen",
-           "screen": "search"
-          },
-          "motion": {
-           "press": "bounce"
-          },
-          "children": [
-           {
+            "id": "sig-116",
             "type": "column",
             "name": "9+ years",
-            "height": 66,
-            "align": "center",
-            "cross": "center",
+            "width": "hug",
+            "radius": 16,
             "padding": {
-             "top": 4,
-             "end": 8,
-             "bottom": 4,
-             "start": 8
+             "top": 0,
+             "end": 0,
+             "bottom": 5,
+             "start": 0
             },
-            "background": "#8E44D9",
-            "dark_background": "#8E44D9",
+            "background": "#1D1A3A",
+            "dark_background": "#05061A",
+            "margin": {
+             "top": 0,
+             "end": 0,
+             "bottom": 0,
+             "start": 120
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "motion": {
+             "press": "bounce"
+            },
             "children": [
              {
-              "id": "sig-93",
-              "type": "text",
-              "text": "9+ years",
-              "font": {
-               "family": "Lalezar",
-               "size": 17,
-               "weight": 400,
-               "line_height": 1.1
+              "type": "row",
+              "name": "9+ years",
+              "gap": 10,
+              "cross": "center",
+              "padding": {
+               "top": 8,
+               "end": 12,
+               "bottom": 8,
+               "start": 8
               },
-              "color": "#FFFFFF",
-              "dark_color": "#FFFFFF",
-              "max_lines": 2,
-              "text_align": "center",
-              "translations": {
-               "ar": {
-                "text": "9‎+‎ سنوات"
+              "background": "#8E44D9",
+              "dark_background": "#8E44D9",
+              "children": [
+               {
+                "id": "sig-112",
+                "type": "row",
+                "width": 34,
+                "height": 34,
+                "radius": 17,
+                "align": "center",
+                "cross": "center",
+                "background": "#FFFFFF",
+                "dark_background": "#FFFFFF",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2,
+                "children": [
+                 {
+                  "id": "sig-113",
+                  "type": "text",
+                  "text": "5",
+                  "font": {
+                   "family": "Lalezar",
+                   "size": 17,
+                   "weight": 400,
+                   "line_height": 1
+                  },
+                  "color": "#1D1A3A",
+                  "dark_color": "#1D1A3A"
+                 }
+                ]
                },
-               "tr": {
-                "text": "9+ yaş"
+               {
+                "id": "sig-114",
+                "type": "text",
+                "text": "9+ years",
+                "font": {
+                 "family": "Lalezar",
+                 "size": 17,
+                 "weight": 400,
+                 "line_height": 1.1
+                },
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "9‎+‎ سنوات"
+                 },
+                 "tr": {
+                  "text": "9+ yaş"
+                 }
+                }
+               },
+               {
+                "id": "sig-115",
+                "type": "icon",
+                "icon": "emoji_events",
+                "icon_size": 18,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
                }
-              }
+              ],
+              "id": "sig-117",
+              "width": "fill",
+              "radius": 16,
+              "border_color": "#1D1A3A",
+              "dark_border_color": "#05061A",
+              "border_width": 2.5
              }
-            ],
-            "id": "sig-95",
-            "width": "fill",
-            "radius": 18,
-            "border_color": "#1D1A3A",
-            "dark_border_color": "#05061A",
-            "border_width": 2.5
+            ]
+           },
+           {
+            "id": "sig-110",
+            "type": "column",
+            "name": "6–8 years",
+            "width": "hug",
+            "radius": 16,
+            "padding": {
+             "top": 0,
+             "end": 0,
+             "bottom": 5,
+             "start": 0
+            },
+            "background": "#1D1A3A",
+            "dark_background": "#05061A",
+            "margin": {
+             "top": 0,
+             "end": 0,
+             "bottom": 0,
+             "start": 90
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "motion": {
+             "press": "bounce"
+            },
+            "children": [
+             {
+              "type": "row",
+              "name": "6–8 years",
+              "gap": 10,
+              "cross": "center",
+              "padding": {
+               "top": 8,
+               "end": 12,
+               "bottom": 8,
+               "start": 8
+              },
+              "background": "#3D5AFE",
+              "dark_background": "#3D5AFE",
+              "children": [
+               {
+                "id": "sig-106",
+                "type": "row",
+                "width": 34,
+                "height": 34,
+                "radius": 17,
+                "align": "center",
+                "cross": "center",
+                "background": "#FFFFFF",
+                "dark_background": "#FFFFFF",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2,
+                "children": [
+                 {
+                  "id": "sig-107",
+                  "type": "text",
+                  "text": "4",
+                  "font": {
+                   "family": "Lalezar",
+                   "size": 17,
+                   "weight": 400,
+                   "line_height": 1
+                  },
+                  "color": "#1D1A3A",
+                  "dark_color": "#1D1A3A"
+                 }
+                ]
+               },
+               {
+                "id": "sig-108",
+                "type": "text",
+                "text": "6–8 years",
+                "font": {
+                 "family": "Lalezar",
+                 "size": 17,
+                 "weight": 400,
+                 "line_height": 1.1
+                },
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "6‎–‎8 سنوات"
+                 },
+                 "tr": {
+                  "text": "6–8 yaş"
+                 }
+                }
+               },
+               {
+                "id": "sig-109",
+                "type": "icon",
+                "icon": "star",
+                "icon_size": 18,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
+               }
+              ],
+              "id": "sig-111",
+              "width": "fill",
+              "radius": 16,
+              "border_color": "#1D1A3A",
+              "dark_border_color": "#05061A",
+              "border_width": 2.5
+             }
+            ]
+           },
+           {
+            "id": "sig-104",
+            "type": "column",
+            "name": "3–5 years",
+            "width": "hug",
+            "radius": 16,
+            "padding": {
+             "top": 0,
+             "end": 0,
+             "bottom": 5,
+             "start": 0
+            },
+            "background": "#1D1A3A",
+            "dark_background": "#05061A",
+            "margin": {
+             "top": 0,
+             "end": 0,
+             "bottom": 0,
+             "start": 60
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "motion": {
+             "press": "bounce"
+            },
+            "children": [
+             {
+              "type": "row",
+              "name": "3–5 years",
+              "gap": 10,
+              "cross": "center",
+              "padding": {
+               "top": 8,
+               "end": 12,
+               "bottom": 8,
+               "start": 8
+              },
+              "background": "#22B062",
+              "dark_background": "#22B062",
+              "children": [
+               {
+                "id": "sig-100",
+                "type": "row",
+                "width": 34,
+                "height": 34,
+                "radius": 17,
+                "align": "center",
+                "cross": "center",
+                "background": "#FFFFFF",
+                "dark_background": "#FFFFFF",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2,
+                "children": [
+                 {
+                  "id": "sig-101",
+                  "type": "text",
+                  "text": "3",
+                  "font": {
+                   "family": "Lalezar",
+                   "size": 17,
+                   "weight": 400,
+                   "line_height": 1
+                  },
+                  "color": "#1D1A3A",
+                  "dark_color": "#1D1A3A"
+                 }
+                ]
+               },
+               {
+                "id": "sig-102",
+                "type": "text",
+                "text": "3–5 years",
+                "font": {
+                 "family": "Lalezar",
+                 "size": 17,
+                 "weight": 400,
+                 "line_height": 1.1
+                },
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "3‎–‎5 سنوات"
+                 },
+                 "tr": {
+                  "text": "3–5 yaş"
+                 }
+                }
+               },
+               {
+                "id": "sig-103",
+                "type": "icon",
+                "icon": "star",
+                "icon_size": 18,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
+               }
+              ],
+              "id": "sig-105",
+              "width": "fill",
+              "radius": 16,
+              "border_color": "#1D1A3A",
+              "dark_border_color": "#05061A",
+              "border_width": 2.5
+             }
+            ]
+           },
+           {
+            "id": "sig-98",
+            "type": "column",
+            "name": "1–2 years",
+            "width": "hug",
+            "radius": 16,
+            "padding": {
+             "top": 0,
+             "end": 0,
+             "bottom": 5,
+             "start": 0
+            },
+            "background": "#1D1A3A",
+            "dark_background": "#05061A",
+            "margin": {
+             "top": 0,
+             "end": 0,
+             "bottom": 0,
+             "start": 30
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "motion": {
+             "press": "bounce"
+            },
+            "children": [
+             {
+              "type": "row",
+              "name": "1–2 years",
+              "gap": 10,
+              "cross": "center",
+              "padding": {
+               "top": 8,
+               "end": 12,
+               "bottom": 8,
+               "start": 8
+              },
+              "background": "#FFC629",
+              "dark_background": "#FFC629",
+              "children": [
+               {
+                "id": "sig-94",
+                "type": "row",
+                "width": 34,
+                "height": 34,
+                "radius": 17,
+                "align": "center",
+                "cross": "center",
+                "background": "#FFFFFF",
+                "dark_background": "#FFFFFF",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2,
+                "children": [
+                 {
+                  "id": "sig-95",
+                  "type": "text",
+                  "text": "2",
+                  "font": {
+                   "family": "Lalezar",
+                   "size": 17,
+                   "weight": 400,
+                   "line_height": 1
+                  },
+                  "color": "#1D1A3A",
+                  "dark_color": "#1D1A3A"
+                 }
+                ]
+               },
+               {
+                "id": "sig-96",
+                "type": "text",
+                "text": "1–2 years",
+                "font": {
+                 "family": "Lalezar",
+                 "size": 17,
+                 "weight": 400,
+                 "line_height": 1.1
+                },
+                "color": "#1D1A3A",
+                "dark_color": "#1D1A3A",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "1‎–‎2 سنة"
+                 },
+                 "tr": {
+                  "text": "1–2 yaş"
+                 }
+                }
+               },
+               {
+                "id": "sig-97",
+                "type": "icon",
+                "icon": "star",
+                "icon_size": 18,
+                "color": "#1D1A3A",
+                "dark_color": "#1D1A3A"
+               }
+              ],
+              "id": "sig-99",
+              "width": "fill",
+              "radius": 16,
+              "border_color": "#1D1A3A",
+              "dark_border_color": "#05061A",
+              "border_width": 2.5
+             }
+            ]
+           },
+           {
+            "id": "sig-92",
+            "type": "column",
+            "name": "0–12 months",
+            "width": "hug",
+            "radius": 16,
+            "padding": {
+             "top": 0,
+             "end": 0,
+             "bottom": 5,
+             "start": 0
+            },
+            "background": "#1D1A3A",
+            "dark_background": "#05061A",
+            "margin": {
+             "top": 0,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "motion": {
+             "press": "bounce"
+            },
+            "children": [
+             {
+              "type": "row",
+              "name": "0–12 months",
+              "gap": 10,
+              "cross": "center",
+              "padding": {
+               "top": 8,
+               "end": 12,
+               "bottom": 8,
+               "start": 8
+              },
+              "background": "#F2453D",
+              "dark_background": "#F2453D",
+              "children": [
+               {
+                "id": "sig-88",
+                "type": "row",
+                "width": 34,
+                "height": 34,
+                "radius": 17,
+                "align": "center",
+                "cross": "center",
+                "background": "#FFFFFF",
+                "dark_background": "#FFFFFF",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2,
+                "children": [
+                 {
+                  "id": "sig-89",
+                  "type": "text",
+                  "text": "1",
+                  "font": {
+                   "family": "Lalezar",
+                   "size": 17,
+                   "weight": 400,
+                   "line_height": 1
+                  },
+                  "color": "#1D1A3A",
+                  "dark_color": "#1D1A3A"
+                 }
+                ]
+               },
+               {
+                "id": "sig-90",
+                "type": "text",
+                "text": "0–12 months",
+                "font": {
+                 "family": "Lalezar",
+                 "size": 17,
+                 "weight": 400,
+                 "line_height": 1.1
+                },
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "0‎–‎12 شهرًا"
+                 },
+                 "tr": {
+                  "text": "0–12 ay"
+                 }
+                }
+               },
+               {
+                "id": "sig-91",
+                "type": "icon",
+                "icon": "star",
+                "icon_size": 18,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
+               }
+              ],
+              "id": "sig-93",
+              "width": "fill",
+              "radius": 16,
+              "border_color": "#1D1A3A",
+              "dark_border_color": "#05061A",
+              "border_width": 2.5
+             }
+            ]
            }
-          ]
+          ],
+          "id": "sig-119",
+          "width": "fill",
+          "radius": 26,
+          "border_color": "#1D1A3A",
+          "dark_border_color": "#05061A",
+          "border_width": 2.5
          }
         ]
        },
        {
-        "id": "sig-96",
+        "id": "sig-120",
         "type": "row",
         "name": "New treasures",
         "cross": "end",
@@ -2016,13 +2366,13 @@
         },
         "children": [
          {
-          "id": "sig-97",
+          "id": "sig-121",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-98",
+            "id": "sig-122",
             "type": "text",
             "text": "New treasures",
             "font": {
@@ -2044,7 +2394,7 @@
             }
            },
            {
-            "id": "sig-99",
+            "id": "sig-123",
             "type": "text",
             "text": "Just landed on the islands",
             "font": {
@@ -2068,7 +2418,7 @@
           ]
          },
          {
-          "id": "sig-100",
+          "id": "sig-124",
           "type": "text",
           "text": "All",
           "font": {
@@ -2096,7 +2446,7 @@
         ]
        },
        {
-        "id": "sig-101",
+        "id": "sig-125",
         "type": "items",
         "name": "New treasures",
         "source": "products",
@@ -2116,7 +2466,7 @@
          "ids": []
         },
         "card": {
-         "id": "sig-114",
+         "id": "sig-138",
          "type": "column",
          "width": 168,
          "radius": 24,
@@ -2139,13 +2489,13 @@
            "dark_background": "#1B1D47",
            "children": [
             {
-             "id": "sig-102",
+             "id": "sig-126",
              "type": "stack",
              "width": "fill",
              "height": 150,
              "children": [
               {
-               "id": "sig-103",
+               "id": "sig-127",
                "type": "image",
                "bind": "image",
                "width": "fill",
@@ -2159,7 +2509,7 @@
                "dark_background": "#2B2D63"
               },
               {
-               "id": "sig-104",
+               "id": "sig-128",
                "type": "text",
                "bind": "sale",
                "font": {
@@ -2190,7 +2540,7 @@
              ]
             },
             {
-             "id": "sig-105",
+             "id": "sig-129",
              "type": "column",
              "gap": 6,
              "padding": {
@@ -2201,10 +2551,10 @@
              },
              "children": [
               {
-               "id": "sig-106",
+               "id": "sig-130",
                "type": "text",
                "bind": "title",
-               "max_lines": 1,
+               "max_lines": 2,
                "color": "#1D1A3A",
                "dark_color": "#FFF6E3",
                "font": {
@@ -2215,19 +2565,19 @@
                }
               },
               {
-               "id": "sig-107",
+               "id": "sig-131",
                "type": "row",
                "gap": 6,
                "cross": "center",
                "children": [
                 {
-                 "id": "sig-108",
+                 "id": "sig-132",
                  "type": "column",
                  "width": "fill",
                  "gap": 0,
                  "children": [
                   {
-                   "id": "sig-109",
+                   "id": "sig-133",
                    "type": "text",
                    "bind": "price",
                    "max_lines": 1,
@@ -2241,7 +2591,7 @@
                    }
                   },
                   {
-                   "id": "sig-110",
+                   "id": "sig-134",
                    "type": "text",
                    "bind": "was_price",
                    "max_lines": 1,
@@ -2257,7 +2607,7 @@
                  ]
                 },
                 {
-                 "id": "sig-112",
+                 "id": "sig-136",
                  "type": "column",
                  "width": 34,
                  "radius": 11,
@@ -2282,7 +2632,7 @@
                    "dark_background": "#22B062",
                    "children": [
                     {
-                     "id": "sig-111",
+                     "id": "sig-135",
                      "type": "icon",
                      "icon": "add",
                      "icon_size": 20,
@@ -2290,7 +2640,7 @@
                      "dark_color": "#FFFFFF"
                     }
                    ],
-                   "id": "sig-113",
+                   "id": "sig-137",
                    "width": "fill",
                    "radius": 11,
                    "border_color": "#1D1A3A",
@@ -2304,7 +2654,7 @@
              ]
             }
            ],
-           "id": "sig-115",
+           "id": "sig-139",
            "width": "fill",
            "radius": 24,
            "border_color": "#1D1A3A",
@@ -2315,7 +2665,7 @@
         }
        },
        {
-        "id": "sig-116",
+        "id": "sig-140",
         "type": "flash_sale",
         "name": "Toy of the day",
         "text": "Toy of the day",
@@ -2346,7 +2696,7 @@
         }
        },
        {
-        "id": "sig-123",
+        "id": "sig-147",
         "type": "column",
         "name": "The gift quest",
         "radius": 26,
@@ -2382,19 +2732,19 @@
           "dark_background": "#3049D6",
           "children": [
            {
-            "id": "sig-117",
+            "id": "sig-141",
             "type": "row",
             "gap": 12,
             "cross": "center",
             "children": [
              {
-              "id": "sig-118",
+              "id": "sig-142",
               "type": "column",
               "width": "fill",
               "gap": 4,
               "children": [
                {
-                "id": "sig-119",
+                "id": "sig-143",
                 "type": "text",
                 "text": "The gift quest",
                 "font": {
@@ -2416,7 +2766,7 @@
                 }
                },
                {
-                "id": "sig-120",
+                "id": "sig-144",
                 "type": "text",
                 "text": "Three questions to the right gift for their age.",
                 "font": {
@@ -2441,7 +2791,7 @@
               ]
              },
              {
-              "id": "sig-121",
+              "id": "sig-145",
               "type": "image",
               "image_url": "http://localhost:3000/toys-photos/gift-confetti.jpg",
               "fit": "cover",
@@ -2455,7 +2805,7 @@
             ]
            },
            {
-            "id": "sig-122",
+            "id": "sig-146",
             "type": "quiz",
             "name": "The gift quest",
             "text": "The gift quest",
@@ -2644,7 +2994,7 @@
             }
            }
           ],
-          "id": "sig-124",
+          "id": "sig-148",
           "width": "fill",
           "radius": 26,
           "border_color": "#1D1A3A",
@@ -2654,7 +3004,7 @@
         ]
        },
        {
-        "id": "sig-125",
+        "id": "sig-149",
         "type": "row",
         "name": "Heroes' favourites",
         "cross": "end",
@@ -2667,13 +3017,13 @@
         },
         "children": [
          {
-          "id": "sig-126",
+          "id": "sig-150",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-127",
+            "id": "sig-151",
             "type": "text",
             "text": "Heroes' favourites",
             "font": {
@@ -2695,7 +3045,7 @@
             }
            },
            {
-            "id": "sig-128",
+            "id": "sig-152",
             "type": "text",
             "text": "The toys children ask for again",
             "font": {
@@ -2719,7 +3069,7 @@
           ]
          },
          {
-          "id": "sig-129",
+          "id": "sig-153",
           "type": "text",
           "text": "All",
           "font": {
@@ -2747,7 +3097,7 @@
         ]
        },
        {
-        "id": "sig-130",
+        "id": "sig-154",
         "type": "items",
         "name": "Heroes' favourites",
         "source": "products",
@@ -2768,7 +3118,7 @@
          "ids": []
         },
         "card": {
-         "id": "sig-143",
+         "id": "sig-167",
          "type": "column",
          "width": "fill",
          "radius": 24,
@@ -2791,13 +3141,13 @@
            "dark_background": "#1B1D47",
            "children": [
             {
-             "id": "sig-131",
+             "id": "sig-155",
              "type": "stack",
              "width": "fill",
              "height": 150,
              "children": [
               {
-               "id": "sig-132",
+               "id": "sig-156",
                "type": "image",
                "bind": "image",
                "width": "fill",
@@ -2811,7 +3161,7 @@
                "dark_background": "#2B2D63"
               },
               {
-               "id": "sig-133",
+               "id": "sig-157",
                "type": "text",
                "bind": "sale",
                "font": {
@@ -2842,7 +3192,7 @@
              ]
             },
             {
-             "id": "sig-134",
+             "id": "sig-158",
              "type": "column",
              "gap": 6,
              "padding": {
@@ -2853,10 +3203,10 @@
              },
              "children": [
               {
-               "id": "sig-135",
+               "id": "sig-159",
                "type": "text",
                "bind": "title",
-               "max_lines": 1,
+               "max_lines": 2,
                "color": "#1D1A3A",
                "dark_color": "#FFF6E3",
                "font": {
@@ -2867,19 +3217,19 @@
                }
               },
               {
-               "id": "sig-136",
+               "id": "sig-160",
                "type": "row",
                "gap": 6,
                "cross": "center",
                "children": [
                 {
-                 "id": "sig-137",
+                 "id": "sig-161",
                  "type": "column",
                  "width": "fill",
                  "gap": 0,
                  "children": [
                   {
-                   "id": "sig-138",
+                   "id": "sig-162",
                    "type": "text",
                    "bind": "price",
                    "max_lines": 1,
@@ -2893,7 +3243,7 @@
                    }
                   },
                   {
-                   "id": "sig-139",
+                   "id": "sig-163",
                    "type": "text",
                    "bind": "was_price",
                    "max_lines": 1,
@@ -2909,7 +3259,7 @@
                  ]
                 },
                 {
-                 "id": "sig-141",
+                 "id": "sig-165",
                  "type": "column",
                  "width": 34,
                  "radius": 11,
@@ -2934,7 +3284,7 @@
                    "dark_background": "#22B062",
                    "children": [
                     {
-                     "id": "sig-140",
+                     "id": "sig-164",
                      "type": "icon",
                      "icon": "add",
                      "icon_size": 20,
@@ -2942,7 +3292,7 @@
                      "dark_color": "#FFFFFF"
                     }
                    ],
-                   "id": "sig-142",
+                   "id": "sig-166",
                    "width": "fill",
                    "radius": 11,
                    "border_color": "#1D1A3A",
@@ -2956,7 +3306,7 @@
              ]
             }
            ],
-           "id": "sig-144",
+           "id": "sig-168",
            "width": "fill",
            "radius": 24,
            "border_color": "#1D1A3A",
@@ -2967,7 +3317,7 @@
         }
        },
        {
-        "id": "sig-149",
+        "id": "sig-173",
         "type": "column",
         "name": "Safe for every adventure",
         "radius": 22,
@@ -3004,7 +3354,7 @@
           "dark_background": "#1C9353",
           "children": [
            {
-            "id": "sig-145",
+            "id": "sig-169",
             "type": "icon",
             "icon": "verified_user",
             "icon_size": 30,
@@ -3012,13 +3362,13 @@
             "dark_color": "#FFFFFF"
            },
            {
-            "id": "sig-146",
+            "id": "sig-170",
             "type": "column",
             "width": "fill",
             "gap": 2,
             "children": [
              {
-              "id": "sig-147",
+              "id": "sig-171",
               "type": "text",
               "text": "Safe for every adventure",
               "font": {
@@ -3040,7 +3390,7 @@
               }
              },
              {
-              "id": "sig-148",
+              "id": "sig-172",
               "type": "text",
               "text": "Tested, non-toxic and labelled by age.",
               "font": {
@@ -3064,7 +3414,7 @@
             ]
            }
           ],
-          "id": "sig-150",
+          "id": "sig-174",
           "width": "fill",
           "radius": 22,
           "border_color": "#1D1A3A",
@@ -3090,11 +3440,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-183",
+      "id": "sig-207",
       "type": "column",
       "children": [
        {
-        "id": "sig-184",
+        "id": "sig-208",
         "type": "row",
         "name": "Today's expedition",
         "cross": "end",
@@ -3107,13 +3457,13 @@
         },
         "children": [
          {
-          "id": "sig-185",
+          "id": "sig-209",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-186",
+            "id": "sig-210",
             "type": "text",
             "text": "Today's expedition",
             "font": {
@@ -3135,7 +3485,7 @@
             }
            },
            {
-            "id": "sig-187",
+            "id": "sig-211",
             "type": "text",
             "text": "Every toy here, sorted the way you like",
             "font": {
@@ -3161,7 +3511,7 @@
         ]
        },
        {
-        "id": "sig-188",
+        "id": "sig-212",
         "type": "categories",
         "name": "Categories",
         "source": "products",
@@ -3176,7 +3526,7 @@
         }
        },
        {
-        "id": "sig-189",
+        "id": "sig-213",
         "type": "listing_filters",
         "name": "Today's expedition",
         "padding": {
@@ -3229,11 +3579,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-190",
+      "id": "sig-214",
       "type": "column",
       "children": [
        {
-        "id": "sig-197",
+        "id": "sig-221",
         "type": "column",
         "name": "The treasure chest",
         "radius": 24,
@@ -3269,13 +3619,13 @@
           "dark_background": "#FFC629",
           "children": [
            {
-            "id": "sig-191",
+            "id": "sig-215",
             "type": "row",
             "gap": 10,
             "cross": "center",
             "children": [
              {
-              "id": "sig-192",
+              "id": "sig-216",
               "type": "icon",
               "icon": "redeem",
               "icon_size": 34,
@@ -3283,13 +3633,13 @@
               "dark_color": "#1D1A3A"
              },
              {
-              "id": "sig-193",
+              "id": "sig-217",
               "type": "column",
               "width": "fill",
               "gap": 2,
               "children": [
                {
-                "id": "sig-194",
+                "id": "sig-218",
                 "type": "text",
                 "text": "The treasure chest",
                 "font": {
@@ -3311,7 +3661,7 @@
                 }
                },
                {
-                "id": "sig-195",
+                "id": "sig-219",
                 "type": "text",
                 "text": "Your code for a first order",
                 "font": {
@@ -3337,7 +3687,7 @@
             ]
            },
            {
-            "id": "sig-196",
+            "id": "sig-220",
             "type": "coupon",
             "name": "Your code",
             "code": "TOOT10",
@@ -3349,7 +3699,7 @@
             "color": "#F2453D"
            }
           ],
-          "id": "sig-198",
+          "id": "sig-222",
           "width": "fill",
           "radius": 24,
           "border_color": "#1D1A3A",
@@ -3359,7 +3709,7 @@
         ]
        },
        {
-        "id": "sig-201",
+        "id": "sig-225",
         "type": "column",
         "name": "Add a gift wrap and a card in your words before you pay.",
         "radius": 18,
@@ -3396,7 +3746,7 @@
           "dark_background": "#1B1D47",
           "children": [
            {
-            "id": "sig-199",
+            "id": "sig-223",
             "type": "icon",
             "icon": "redeem",
             "icon_size": 24,
@@ -3404,7 +3754,7 @@
             "dark_color": "#FFC629"
            },
            {
-            "id": "sig-200",
+            "id": "sig-224",
             "type": "text",
             "text": "Add a gift wrap and a card in your words before you pay.",
             "font": {
@@ -3427,7 +3777,7 @@
             }
            }
           ],
-          "id": "sig-202",
+          "id": "sig-226",
           "width": "fill",
           "radius": 18,
           "border_color": "#1D1A3A",
@@ -3479,11 +3829,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-203",
+      "id": "sig-227",
       "type": "column",
       "children": [
        {
-        "id": "sig-204",
+        "id": "sig-228",
         "type": "row",
         "name": "Your order, step by step",
         "cross": "end",
@@ -3496,13 +3846,13 @@
         },
         "children": [
          {
-          "id": "sig-205",
+          "id": "sig-229",
           "type": "column",
           "width": "fill",
           "gap": 4,
           "children": [
            {
-            "id": "sig-206",
+            "id": "sig-230",
             "type": "text",
             "text": "Your order, step by step",
             "font": {
@@ -3528,7 +3878,7 @@
         ]
        },
        {
-        "id": "sig-207",
+        "id": "sig-231",
         "type": "column",
         "name": "Your order, step by step",
         "radius": 22,
@@ -3626,7 +3976,7 @@
             }
            }
           ],
-          "id": "sig-208",
+          "id": "sig-232",
           "width": "fill",
           "radius": 22,
           "border_color": "#1D1A3A",
@@ -3678,11 +4028,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-210",
+      "id": "sig-234",
       "type": "column",
       "children": [
        {
-        "id": "sig-209",
+        "id": "sig-233",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -3743,7 +4093,7 @@
      "background": "#FFF6E3",
      "dark_background": "#0F1030",
      "body": {
-      "id": "sig-151",
+      "id": "sig-175",
       "type": "column",
       "padding": {
        "top": 0,
@@ -3753,7 +4103,7 @@
       },
       "children": [
        {
-        "id": "sig-152",
+        "id": "sig-176",
         "type": "column",
         "name": "Search every category…",
         "radius": 16,
@@ -3785,7 +4135,7 @@
           "dark_background": "#1B1D47",
           "color": "#5C587A",
           "dark_color": "#B9B6DA",
-          "id": "sig-153",
+          "id": "sig-177",
           "width": "fill",
           "radius": 16,
           "border_color": "#1D1A3A",
@@ -3803,7 +4153,7 @@
         ]
        },
        {
-        "id": "sig-154",
+        "id": "sig-178",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -3825,7 +4175,7 @@
         }
        },
        {
-        "id": "sig-155",
+        "id": "sig-179",
         "type": "grid",
         "name": "Your account",
         "columns": 4,
@@ -3838,7 +4188,7 @@
         },
         "children": [
          {
-          "id": "sig-159",
+          "id": "sig-183",
           "type": "column",
           "name": "My account",
           "width": "fill",
@@ -3874,7 +4224,7 @@
             "dark_background": "#1B1D47",
             "children": [
              {
-              "id": "sig-156",
+              "id": "sig-180",
               "type": "row",
               "width": 40,
               "height": 40,
@@ -3885,7 +4235,7 @@
               "dark_background": "#3D5AFE",
               "children": [
                {
-                "id": "sig-157",
+                "id": "sig-181",
                 "type": "icon",
                 "icon": "person",
                 "icon_size": 22,
@@ -3895,7 +4245,7 @@
               ]
              },
              {
-              "id": "sig-158",
+              "id": "sig-182",
               "type": "text",
               "text": "My account",
               "font": {
@@ -3918,7 +4268,7 @@
               }
              }
             ],
-            "id": "sig-160",
+            "id": "sig-184",
             "width": "fill",
             "radius": 18,
             "border_color": "#1D1A3A",
@@ -3928,7 +4278,7 @@
           ]
          },
          {
-          "id": "sig-164",
+          "id": "sig-188",
           "type": "column",
           "name": "My orders",
           "width": "fill",
@@ -3964,7 +4314,7 @@
             "dark_background": "#1B1D47",
             "children": [
              {
-              "id": "sig-161",
+              "id": "sig-185",
               "type": "row",
               "width": 40,
               "height": 40,
@@ -3975,7 +4325,7 @@
               "dark_background": "#22B062",
               "children": [
                {
-                "id": "sig-162",
+                "id": "sig-186",
                 "type": "icon",
                 "icon": "package_2",
                 "icon_size": 22,
@@ -3985,7 +4335,7 @@
               ]
              },
              {
-              "id": "sig-163",
+              "id": "sig-187",
               "type": "text",
               "text": "My orders",
               "font": {
@@ -4008,7 +4358,7 @@
               }
              }
             ],
-            "id": "sig-165",
+            "id": "sig-189",
             "width": "fill",
             "radius": 18,
             "border_color": "#1D1A3A",
@@ -4018,7 +4368,7 @@
           ]
          },
          {
-          "id": "sig-169",
+          "id": "sig-193",
           "type": "column",
           "name": "Wishlist",
           "width": "fill",
@@ -4054,7 +4404,7 @@
             "dark_background": "#1B1D47",
             "children": [
              {
-              "id": "sig-166",
+              "id": "sig-190",
               "type": "row",
               "width": 40,
               "height": 40,
@@ -4065,7 +4415,7 @@
               "dark_background": "#F2453D",
               "children": [
                {
-                "id": "sig-167",
+                "id": "sig-191",
                 "type": "icon",
                 "icon": "favorite",
                 "icon_size": 22,
@@ -4075,7 +4425,7 @@
               ]
              },
              {
-              "id": "sig-168",
+              "id": "sig-192",
               "type": "text",
               "text": "Wishlist",
               "font": {
@@ -4098,7 +4448,7 @@
               }
              }
             ],
-            "id": "sig-170",
+            "id": "sig-194",
             "width": "fill",
             "radius": 18,
             "border_color": "#1D1A3A",
@@ -4108,7 +4458,7 @@
           ]
          },
          {
-          "id": "sig-174",
+          "id": "sig-198",
           "type": "column",
           "name": "Language",
           "width": "fill",
@@ -4144,7 +4494,7 @@
             "dark_background": "#1B1D47",
             "children": [
              {
-              "id": "sig-171",
+              "id": "sig-195",
               "type": "row",
               "width": 40,
               "height": 40,
@@ -4155,7 +4505,7 @@
               "dark_background": "#FFC629",
               "children": [
                {
-                "id": "sig-172",
+                "id": "sig-196",
                 "type": "icon",
                 "icon": "language",
                 "icon_size": 22,
@@ -4165,7 +4515,7 @@
               ]
              },
              {
-              "id": "sig-173",
+              "id": "sig-197",
               "type": "text",
               "text": "Language",
               "font": {
@@ -4188,7 +4538,7 @@
               }
              }
             ],
-            "id": "sig-175",
+            "id": "sig-199",
             "width": "fill",
             "radius": 18,
             "border_color": "#1D1A3A",
@@ -4200,7 +4550,7 @@
         ]
        },
        {
-        "id": "sig-181",
+        "id": "sig-205",
         "type": "column",
         "name": "Contact us",
         "radius": 20,
@@ -4241,7 +4591,7 @@
           "dark_background": "#FFC629",
           "children": [
            {
-            "id": "sig-176",
+            "id": "sig-200",
             "type": "icon",
             "icon": "support_agent",
             "icon_size": 26,
@@ -4249,13 +4599,13 @@
             "dark_color": "#1D1A3A"
            },
            {
-            "id": "sig-177",
+            "id": "sig-201",
             "type": "column",
             "width": "fill",
             "gap": 2,
             "children": [
              {
-              "id": "sig-178",
+              "id": "sig-202",
               "type": "text",
               "text": "Contact us",
               "font": {
@@ -4277,7 +4627,7 @@
               }
              },
              {
-              "id": "sig-179",
+              "id": "sig-203",
               "type": "text",
               "text": "Every day, 9 am to 10 pm",
               "font": {
@@ -4301,7 +4651,7 @@
             ]
            },
            {
-            "id": "sig-180",
+            "id": "sig-204",
             "type": "icon",
             "icon": "chat",
             "icon_size": 22,
@@ -4309,7 +4659,7 @@
             "dark_color": "#1D1A3A"
            }
           ],
-          "id": "sig-182",
+          "id": "sig-206",
           "width": "fill",
           "radius": 20,
           "border_color": "#1D1A3A",
@@ -4358,7 +4708,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-211",
+      "id": "sig-235",
       "type": "column",
       "children": []
      },
@@ -4400,7 +4750,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-212",
+      "id": "sig-236",
       "type": "column",
       "children": []
      },
@@ -4442,7 +4792,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-213",
+      "id": "sig-237",
       "type": "column",
       "children": []
      },
@@ -4484,7 +4834,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-214",
+      "id": "sig-238",
       "type": "column",
       "children": []
      },
@@ -4526,7 +4876,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-215",
+      "id": "sig-239",
       "type": "column",
       "children": []
      },
@@ -4560,7 +4910,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-216",
+      "id": "sig-240",
       "type": "column",
       "children": []
      },
@@ -4577,7 +4927,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-217",
+      "id": "sig-241",
       "type": "column",
       "children": []
      },

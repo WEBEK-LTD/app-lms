@@ -50,6 +50,8 @@ const FACE = "Readex Pro";
 
 const P = (name: string) => `/mobiles-photos/${name}.jpg`;
 const shop: Action = screen("search");
+const pageOf = (slug: string): Action => ({ type: "page", page_slug: slug });
+const ownPage = (ctx: SectionContext, slug: string): Action => (ctx.ownPages === false ? shop : pageOf(slug));
 
 const font = (size: number, weight: NonNullable<StudioFont["weight"]> = 400, extra: Partial<StudioFont> = {}): StudioFont => ({ family: FACE, size, weight, line_height: 1.25, ...extra });
 const silver = { color: SILVER, dark_color: SILVER } as const;
@@ -249,15 +251,28 @@ function lineup(ctx: SectionContext): StudioNode {
 
 // ——— The home ———
 
-function header(ctx: SectionContext): StudioPage["header"] {
-  const t = sigTexts(ctx, { title: "mbWordmark" });
-  return { type: "logo_center", title: t.title, translations: t.translations, buttons: ["menu", "cart"], menu_page: MENU_PAGE, background: STAGE, dark_background: STAGE, color: SILVER, dark_color: SILVER, style: "brand" };
+/** The home's own header, made of elements and pinned on top of the stage: thin icons and a tiny spaced wordmark, silver on black. */
+function topBar(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  const icon = (name: string, action: Action): StudioNode => ({ id: id(), type: "row", width: 40, height: 40, align: "center", cross: "center", action, children: [{ id: id(), type: "icon", icon: name, icon_size: 22, ...silver }] });
+  return {
+    id: id(),
+    type: "row",
+    name: ctx.w("mbWordmark"),
+    pin: "top",
+    gap: 8,
+    cross: "center",
+    padding: sides(4, 14, 4, 14),
+    background: STAGE,
+    dark_background: STAGE,
+    children: [icon("menu_open", ownPage(ctx, MENU_PAGE)), say(ctx, "mbWordmark", font(14, 500, { letter_spacing: 4, uppercase: true }), { ...silver, width: "fill", max_lines: 1, text_align: "center" }), icon("shopping_bag", screen("cart"))],
+  };
 }
 
 export function keynoteHome(ctx: SectionContext): StudioPage {
   const id = idOf(ctx);
   return {
-    header: header(ctx),
+    header: null,
     background: K.page,
     dark_background: K.darkPage,
     body: {
@@ -265,6 +280,7 @@ export function keynoteHome(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 110, 0),
       children: [
+        topBar(ctx),
         stage(ctx),
         ...specRows(ctx),
         opening(ctx, "mbKeyCompareKicker", "mbKeyCompare"),

@@ -182,28 +182,7 @@
     "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
-     "header": {
-      "type": "logo_center",
-      "title": "Nova",
-      "translations": {
-       "ar": {
-        "title": "Nova"
-       },
-       "tr": {
-        "title": "Nova"
-       }
-      },
-      "buttons": [
-       "menu",
-       "cart"
-      ],
-      "menu_page": "menu",
-      "background": "#000000",
-      "dark_background": "#000000",
-      "color": "#F5F5F7",
-      "dark_color": "#F5F5F7",
-      "style": "brand"
-     },
+     "header": null,
      "background": "#F5F5F7",
      "dark_background": "#000000",
      "body": {
@@ -218,6 +197,94 @@
       "children": [
        {
         "id": "sig-2",
+        "type": "row",
+        "name": "Nova",
+        "pin": "top",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 4,
+         "end": 14,
+         "bottom": 4,
+         "start": 14
+        },
+        "background": "#000000",
+        "dark_background": "#000000",
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "row",
+          "width": 40,
+          "height": 40,
+          "align": "center",
+          "cross": "center",
+          "action": {
+           "type": "page",
+           "page_slug": "menu"
+          },
+          "children": [
+           {
+            "id": "sig-4",
+            "type": "icon",
+            "icon": "menu_open",
+            "icon_size": 22,
+            "color": "#F5F5F7",
+            "dark_color": "#F5F5F7"
+           }
+          ]
+         },
+         {
+          "id": "sig-5",
+          "type": "text",
+          "text": "Nova",
+          "font": {
+           "family": "Readex Pro",
+           "size": 14,
+           "weight": 500,
+           "line_height": 1.25,
+           "letter_spacing": 4,
+           "uppercase": true
+          },
+          "color": "#F5F5F7",
+          "dark_color": "#F5F5F7",
+          "width": "fill",
+          "max_lines": 1,
+          "text_align": "center",
+          "translations": {
+           "ar": {
+            "text": "Nova"
+           },
+           "tr": {
+            "text": "Nova"
+           }
+          }
+         },
+         {
+          "id": "sig-6",
+          "type": "row",
+          "width": 40,
+          "height": 40,
+          "align": "center",
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "cart"
+          },
+          "children": [
+           {
+            "id": "sig-7",
+            "type": "icon",
+            "icon": "shopping_bag",
+            "icon_size": 22,
+            "color": "#F5F5F7",
+            "dark_color": "#F5F5F7"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-8",
         "type": "column",
         "name": "The new flagship",
         "gap": 0,
@@ -232,7 +299,7 @@
         "dark_background": "#000000",
         "children": [
          {
-          "id": "sig-3",
+          "id": "sig-9",
           "type": "text",
           "text": "New",
           "font": {
@@ -255,7 +322,7 @@
           }
          },
          {
-          "id": "sig-4",
+          "id": "sig-10",
           "type": "text",
           "text": "The new flagship",
           "font": {
@@ -285,7 +352,7 @@
           }
          },
          {
-          "id": "sig-5",
+          "id": "sig-11",
           "type": "text",
           "text": "More light. More detail.",
           "font": {
@@ -314,7 +381,7 @@
           }
          },
          {
-          "id": "sig-6",
+          "id": "sig-12",
           "type": "stack",
           "name": "The new flagship",
           "width": "fill",
@@ -331,7 +398,7 @@
           },
           "children": [
            {
-            "id": "sig-7",
+            "id": "sig-13",
             "type": "image",
             "image_url": "http://localhost:3000/mobiles-photos/phone-cam.jpg",
             "fit": "cover",
@@ -353,7 +420,7 @@
           ]
          },
          {
-          "id": "sig-8",
+          "id": "sig-14",
           "type": "swatches",
           "name": "Its colours",
           "text": "Its colours",
@@ -447,7 +514,7 @@
           }
          },
          {
-          "id": "sig-9",
+          "id": "sig-15",
           "type": "row",
           "name": "Buy now",
           "gap": 12,
@@ -460,7 +527,7 @@
           },
           "children": [
            {
-            "id": "sig-10",
+            "id": "sig-16",
             "type": "button",
             "name": "Buy now",
             "text": "Buy now",
@@ -500,7 +567,7 @@
             }
            },
            {
-            "id": "sig-11",
+            "id": "sig-17",
             "type": "button",
             "name": "Learn more",
             "text": "Learn more",
@@ -545,7 +612,7 @@
           ]
          },
          {
-          "id": "sig-12",
+          "id": "sig-18",
           "type": "text",
           "text": "From 54,999 EGP",
           "font": {
@@ -574,12 +641,12 @@
           }
          },
          {
-          "id": "sig-13",
+          "id": "sig-19",
           "type": "row",
           "align": "center",
           "children": [
            {
-            "id": "sig-14",
+            "id": "sig-20",
             "type": "row",
             "name": "Installments coming soon",
             "width": "hug",
@@ -597,7 +664,7 @@
             "dark_background": "#1C1C1E",
             "children": [
              {
-              "id": "sig-15",
+              "id": "sig-21",
               "type": "icon",
               "icon": "schedule",
               "icon_size": 16,
@@ -605,7 +672,7 @@
               "dark_color": "#C9C9CE"
              },
              {
-              "id": "sig-16",
+              "id": "sig-22",
               "type": "text",
               "text": "Installments coming soon",
               "max_lines": 2,
@@ -632,7 +699,7 @@
         ]
        },
        {
-        "id": "sig-17",
+        "id": "sig-23",
         "type": "column",
         "name": "Built around its camera.",
         "gap": 6,
@@ -644,7 +711,7 @@
         },
         "children": [
          {
-          "id": "sig-18",
+          "id": "sig-24",
           "type": "text",
           "text": "Why this one",
           "font": {
@@ -666,7 +733,7 @@
           }
          },
          {
-          "id": "sig-19",
+          "id": "sig-25",
           "type": "text",
           "text": "A camera to carry everywhere.",
           "font": {
@@ -691,7 +758,7 @@
         ]
        },
        {
-        "id": "sig-20",
+        "id": "sig-26",
         "type": "column",
         "name": "Built around its camera.",
         "gap": 0,
@@ -703,7 +770,7 @@
         },
         "children": [
          {
-          "id": "sig-21",
+          "id": "sig-27",
           "type": "column",
           "name": "Camera",
           "gap": 0,
@@ -713,14 +780,14 @@
           },
           "children": [
            {
-            "id": "sig-22",
+            "id": "sig-28",
             "type": "divider",
             "height": 1,
             "background": "#D9D9DE",
             "dark_background": "#262629"
            },
            {
-            "id": "sig-23",
+            "id": "sig-29",
             "type": "column",
             "gap": 6,
             "padding": {
@@ -731,7 +798,7 @@
             },
             "children": [
              {
-              "id": "sig-24",
+              "id": "sig-30",
               "type": "text",
               "text": "200 MP",
               "font": {
@@ -754,7 +821,7 @@
               }
              },
              {
-              "id": "sig-25",
+              "id": "sig-31",
               "type": "text",
               "text": "The main camera, with a 5x periscope",
               "font": {
@@ -780,7 +847,7 @@
           ]
          },
          {
-          "id": "sig-26",
+          "id": "sig-32",
           "type": "column",
           "name": "Display",
           "gap": 0,
@@ -790,14 +857,14 @@
           },
           "children": [
            {
-            "id": "sig-27",
+            "id": "sig-33",
             "type": "divider",
             "height": 1,
             "background": "#D9D9DE",
             "dark_background": "#262629"
            },
            {
-            "id": "sig-28",
+            "id": "sig-34",
             "type": "column",
             "gap": 6,
             "padding": {
@@ -808,7 +875,7 @@
             },
             "children": [
              {
-              "id": "sig-29",
+              "id": "sig-35",
               "type": "text",
               "text": "6.7″",
               "font": {
@@ -831,7 +898,7 @@
               }
              },
              {
-              "id": "sig-30",
+              "id": "sig-36",
               "type": "text",
               "text": "An OLED display that reaches 2,600 nits outdoors",
               "font": {
@@ -857,7 +924,7 @@
           ]
          },
          {
-          "id": "sig-31",
+          "id": "sig-37",
           "type": "column",
           "name": "Battery",
           "gap": 0,
@@ -867,14 +934,14 @@
           },
           "children": [
            {
-            "id": "sig-32",
+            "id": "sig-38",
             "type": "divider",
             "height": 1,
             "background": "#D9D9DE",
             "dark_background": "#262629"
            },
            {
-            "id": "sig-33",
+            "id": "sig-39",
             "type": "column",
             "gap": 6,
             "padding": {
@@ -885,7 +952,7 @@
             },
             "children": [
              {
-              "id": "sig-34",
+              "id": "sig-40",
               "type": "text",
               "text": "5,000 mAh",
               "font": {
@@ -908,7 +975,7 @@
               }
              },
              {
-              "id": "sig-35",
+              "id": "sig-41",
               "type": "text",
               "text": "Two days of ordinary use, 65 W charging",
               "font": {
@@ -936,7 +1003,7 @@
         ]
        },
        {
-        "id": "sig-36",
+        "id": "sig-42",
         "type": "column",
         "name": "Which one is yours?",
         "gap": 6,
@@ -948,7 +1015,7 @@
         },
         "children": [
          {
-          "id": "sig-37",
+          "id": "sig-43",
           "type": "text",
           "text": "Compare",
           "font": {
@@ -970,7 +1037,7 @@
           }
          },
          {
-          "id": "sig-38",
+          "id": "sig-44",
           "type": "text",
           "text": "Which one is yours?",
           "font": {
@@ -995,7 +1062,7 @@
         ]
        },
        {
-        "id": "sig-39",
+        "id": "sig-45",
         "type": "compare",
         "name": "Which one is yours?",
         "tech": {
@@ -1024,7 +1091,7 @@
         }
        },
        {
-        "id": "sig-40",
+        "id": "sig-46",
         "type": "column",
         "name": "Your old phone takes money off the new one.",
         "gap": 8,
@@ -1053,7 +1120,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "sig-41",
+          "id": "sig-47",
           "type": "text",
           "text": "Trade in",
           "font": {
@@ -1075,7 +1142,7 @@
           }
          },
          {
-          "id": "sig-42",
+          "id": "sig-48",
           "type": "trade_in",
           "name": "Trade in",
           "text": "Your old phone takes money off the new one.",
@@ -1109,7 +1176,7 @@
         ]
        },
        {
-        "id": "sig-43",
+        "id": "sig-49",
         "type": "photo_hero",
         "name": "Hear everything. Or nothing at all.",
         "image_url": "http://localhost:3000/mobiles-photos/hp-woman-wide.jpg",
@@ -1143,7 +1210,7 @@
         "ken_burns": true,
         "children": [
          {
-          "id": "sig-44",
+          "id": "sig-50",
           "type": "text",
           "text": "Sound",
           "font": {
@@ -1165,7 +1232,7 @@
           }
          },
          {
-          "id": "sig-45",
+          "id": "sig-51",
           "type": "text",
           "text": "Hear everything. Or nothing at all.",
           "font": {
@@ -1195,7 +1262,7 @@
         ]
        },
        {
-        "id": "sig-46",
+        "id": "sig-52",
         "type": "column",
         "name": "Every device, its own star.",
         "gap": 6,
@@ -1207,7 +1274,7 @@
         },
         "children": [
          {
-          "id": "sig-47",
+          "id": "sig-53",
           "type": "text",
           "text": "The line-up",
           "font": {
@@ -1229,7 +1296,7 @@
           }
          },
          {
-          "id": "sig-48",
+          "id": "sig-54",
           "type": "text",
           "text": "Every device, its own star.",
           "font": {
@@ -1254,7 +1321,7 @@
         ]
        },
        {
-        "id": "sig-49",
+        "id": "sig-55",
         "type": "items",
         "name": "Every device, its own star.",
         "source": "products",
@@ -1274,14 +1341,14 @@
          "ids": []
         },
         "card": {
-         "id": "sig-50",
+         "id": "sig-56",
          "type": "column",
          "width": 160,
          "gap": 3,
          "cross": "center",
          "children": [
           {
-           "id": "sig-51",
+           "id": "sig-57",
            "type": "image",
            "bind": "image",
            "width": 160,
@@ -1292,7 +1359,7 @@
            "dark_background": "#111113"
           },
           {
-           "id": "sig-52",
+           "id": "sig-58",
            "type": "text",
            "bind": "title",
            "max_lines": 1,
@@ -1313,7 +1380,7 @@
            }
           },
           {
-           "id": "sig-53",
+           "id": "sig-59",
            "type": "text",
            "bind": "price",
            "max_lines": 1,
@@ -1347,11 +1414,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-90",
+      "id": "sig-96",
       "type": "column",
       "children": [
        {
-        "id": "sig-91",
+        "id": "sig-97",
         "type": "column",
         "name": "The line-up",
         "gap": 6,
@@ -1363,7 +1430,7 @@
         },
         "children": [
          {
-          "id": "sig-92",
+          "id": "sig-98",
           "type": "text",
           "text": "Every device we sell, with the agent's warranty",
           "font": {
@@ -1385,7 +1452,7 @@
           }
          },
          {
-          "id": "sig-93",
+          "id": "sig-99",
           "type": "text",
           "text": "The line-up",
           "font": {
@@ -1410,7 +1477,7 @@
         ]
        },
        {
-        "id": "sig-94",
+        "id": "sig-100",
         "type": "categories",
         "name": "Categories",
         "source": "products",
@@ -1425,7 +1492,7 @@
         }
        },
        {
-        "id": "sig-95",
+        "id": "sig-101",
         "type": "spec_filter",
         "name": "Shop by storage",
         "text": "Shop by storage",
@@ -1496,11 +1563,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-96",
+      "id": "sig-102",
       "type": "column",
       "children": [
        {
-        "id": "sig-97",
+        "id": "sig-103",
         "type": "coupon",
         "name": "Your code",
         "coupon": {
@@ -1517,7 +1584,7 @@
         }
        },
        {
-        "id": "sig-98",
+        "id": "sig-104",
         "type": "row",
         "name": "Every device is sealed, with its warranty from us.",
         "gap": 12,
@@ -1539,7 +1606,7 @@
         "dark_background": "#111113",
         "children": [
          {
-          "id": "sig-99",
+          "id": "sig-105",
           "type": "icon",
           "icon": "verified",
           "icon_size": 22,
@@ -1547,7 +1614,7 @@
           "dark_color": "#2997FF"
          },
          {
-          "id": "sig-100",
+          "id": "sig-106",
           "type": "text",
           "text": "Every device is sealed, with its warranty from us.",
           "font": {
@@ -1614,11 +1681,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-101",
+      "id": "sig-107",
       "type": "column",
       "children": [
        {
-        "id": "sig-102",
+        "id": "sig-108",
         "type": "column",
         "name": "Your order, step by step",
         "gap": 6,
@@ -1630,7 +1697,7 @@
         },
         "children": [
          {
-          "id": "sig-103",
+          "id": "sig-109",
           "type": "text",
           "text": "My orders",
           "font": {
@@ -1652,7 +1719,7 @@
           }
          },
          {
-          "id": "sig-104",
+          "id": "sig-110",
           "type": "text",
           "text": "Your order, step by step",
           "font": {
@@ -1677,7 +1744,7 @@
         ]
        },
        {
-        "id": "sig-105",
+        "id": "sig-111",
         "type": "timeline",
         "name": "Your order, step by step",
         "timeline": {
@@ -1807,11 +1874,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-107",
+      "id": "sig-113",
       "type": "column",
       "children": [
        {
-        "id": "sig-106",
+        "id": "sig-112",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -1872,7 +1939,7 @@
      "background": "#F5F5F7",
      "dark_background": "#000000",
      "body": {
-      "id": "sig-54",
+      "id": "sig-60",
       "type": "column",
       "padding": {
        "top": 0,
@@ -1882,7 +1949,7 @@
       },
       "children": [
        {
-        "id": "sig-55",
+        "id": "sig-61",
         "type": "search",
         "name": "Search every category…",
         "text": "Search every category…",
@@ -1909,7 +1976,7 @@
         }
        },
        {
-        "id": "sig-56",
+        "id": "sig-62",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -1931,7 +1998,7 @@
         }
        },
        {
-        "id": "sig-57",
+        "id": "sig-63",
         "type": "column",
         "name": "Your account",
         "gap": 0,
@@ -1943,91 +2010,20 @@
         },
         "children": [
          {
-          "id": "sig-58",
+          "id": "sig-64",
           "type": "divider",
           "height": 1,
           "background": "#D9D9DE",
           "dark_background": "#262629"
          },
          {
-          "id": "sig-59",
+          "id": "sig-65",
           "type": "column",
           "name": "My account",
           "gap": 0,
           "action": {
            "type": "screen",
            "screen": "account"
-          },
-          "children": [
-           {
-            "id": "sig-60",
-            "type": "row",
-            "gap": 12,
-            "cross": "center",
-            "padding": {
-             "top": 16,
-             "end": 0,
-             "bottom": 16,
-             "start": 0
-            },
-            "children": [
-             {
-              "id": "sig-61",
-              "type": "column",
-              "width": "fill",
-              "gap": 2,
-              "children": [
-               {
-                "id": "sig-62",
-                "type": "text",
-                "text": "My account",
-                "font": {
-                 "family": "Readex Pro",
-                 "size": 22,
-                 "weight": 300,
-                 "line_height": 1.25
-                },
-                "color": "#1D1D1F",
-                "dark_color": "#F5F5F7",
-                "max_lines": 1,
-                "translations": {
-                 "ar": {
-                  "text": "حسابي"
-                 },
-                 "tr": {
-                  "text": "Hesabım"
-                 }
-                }
-               }
-              ]
-             },
-             {
-              "id": "sig-63",
-              "type": "icon",
-              "icon": "north_east",
-              "icon_size": 20,
-              "color": "#6E6E73",
-              "dark_color": "#9A9AA0"
-             }
-            ]
-           },
-           {
-            "id": "sig-64",
-            "type": "divider",
-            "height": 1,
-            "background": "#D9D9DE",
-            "dark_background": "#262629"
-           }
-          ]
-         },
-         {
-          "id": "sig-65",
-          "type": "column",
-          "name": "My orders",
-          "gap": 0,
-          "action": {
-           "type": "screen",
-           "screen": "orders"
           },
           "children": [
            {
@@ -2051,7 +2047,7 @@
                {
                 "id": "sig-68",
                 "type": "text",
-                "text": "My orders",
+                "text": "My account",
                 "font": {
                  "family": "Readex Pro",
                  "size": 22,
@@ -2063,10 +2059,10 @@
                 "max_lines": 1,
                 "translations": {
                  "ar": {
-                  "text": "طلباتي"
+                  "text": "حسابي"
                  },
                  "tr": {
-                  "text": "Siparişlerim"
+                  "text": "Hesabım"
                  }
                 }
                }
@@ -2094,11 +2090,11 @@
          {
           "id": "sig-71",
           "type": "column",
-          "name": "Wishlist",
+          "name": "My orders",
           "gap": 0,
           "action": {
            "type": "screen",
-           "screen": "favorites"
+           "screen": "orders"
           },
           "children": [
            {
@@ -2122,7 +2118,7 @@
                {
                 "id": "sig-74",
                 "type": "text",
-                "text": "Wishlist",
+                "text": "My orders",
                 "font": {
                  "family": "Readex Pro",
                  "size": 22,
@@ -2134,10 +2130,10 @@
                 "max_lines": 1,
                 "translations": {
                  "ar": {
-                  "text": "المفضّلة"
+                  "text": "طلباتي"
                  },
                  "tr": {
-                  "text": "Favoriler"
+                  "text": "Siparişlerim"
                  }
                 }
                }
@@ -2165,11 +2161,11 @@
          {
           "id": "sig-77",
           "type": "column",
-          "name": "Language",
+          "name": "Wishlist",
           "gap": 0,
           "action": {
            "type": "screen",
-           "screen": "settings"
+           "screen": "favorites"
           },
           "children": [
            {
@@ -2193,7 +2189,7 @@
                {
                 "id": "sig-80",
                 "type": "text",
-                "text": "Language",
+                "text": "Wishlist",
                 "font": {
                  "family": "Readex Pro",
                  "size": 22,
@@ -2205,10 +2201,10 @@
                 "max_lines": 1,
                 "translations": {
                  "ar": {
-                  "text": "اللغة"
+                  "text": "المفضّلة"
                  },
                  "tr": {
-                  "text": "Dil"
+                  "text": "Favoriler"
                  }
                 }
                }
@@ -2236,11 +2232,11 @@
          {
           "id": "sig-83",
           "type": "column",
-          "name": "Contact us",
+          "name": "Language",
           "gap": 0,
           "action": {
            "type": "screen",
-           "screen": "account"
+           "screen": "settings"
           },
           "children": [
            {
@@ -2264,6 +2260,77 @@
                {
                 "id": "sig-86",
                 "type": "text",
+                "text": "Language",
+                "font": {
+                 "family": "Readex Pro",
+                 "size": 22,
+                 "weight": 300,
+                 "line_height": 1.25
+                },
+                "color": "#1D1D1F",
+                "dark_color": "#F5F5F7",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "اللغة"
+                 },
+                 "tr": {
+                  "text": "Dil"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-87",
+              "type": "icon",
+              "icon": "north_east",
+              "icon_size": 20,
+              "color": "#6E6E73",
+              "dark_color": "#9A9AA0"
+             }
+            ]
+           },
+           {
+            "id": "sig-88",
+            "type": "divider",
+            "height": 1,
+            "background": "#D9D9DE",
+            "dark_background": "#262629"
+           }
+          ]
+         },
+         {
+          "id": "sig-89",
+          "type": "column",
+          "name": "Contact us",
+          "gap": 0,
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-90",
+            "type": "row",
+            "gap": 12,
+            "cross": "center",
+            "padding": {
+             "top": 16,
+             "end": 0,
+             "bottom": 16,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-91",
+              "type": "column",
+              "width": "fill",
+              "gap": 2,
+              "children": [
+               {
+                "id": "sig-92",
+                "type": "text",
                 "text": "Contact us",
                 "font": {
                  "family": "Readex Pro",
@@ -2284,7 +2351,7 @@
                 }
                },
                {
-                "id": "sig-87",
+                "id": "sig-93",
                 "type": "text",
                 "text": "Customer care every day, 10 am to midnight",
                 "font": {
@@ -2308,7 +2375,7 @@
               ]
              },
              {
-              "id": "sig-88",
+              "id": "sig-94",
               "type": "icon",
               "icon": "north_east",
               "icon_size": 20,
@@ -2318,7 +2385,7 @@
             ]
            },
            {
-            "id": "sig-89",
+            "id": "sig-95",
             "type": "divider",
             "height": 1,
             "background": "#D9D9DE",
@@ -2368,7 +2435,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-108",
+      "id": "sig-114",
       "type": "column",
       "children": []
      },
@@ -2410,7 +2477,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-109",
+      "id": "sig-115",
       "type": "column",
       "children": []
      },
@@ -2452,7 +2519,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-110",
+      "id": "sig-116",
       "type": "column",
       "children": []
      },
@@ -2494,7 +2561,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-111",
+      "id": "sig-117",
       "type": "column",
       "children": []
      },
@@ -2536,7 +2603,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-112",
+      "id": "sig-118",
       "type": "column",
       "children": []
      },
@@ -2570,7 +2637,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-113",
+      "id": "sig-119",
       "type": "column",
       "children": []
      },
@@ -2587,7 +2654,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-114",
+      "id": "sig-120",
       "type": "column",
       "children": []
      },

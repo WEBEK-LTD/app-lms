@@ -405,7 +405,7 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "toys-sig-a-home-dark": "Toot in its first look, playful and colourful, by night: the search, the categories in circles, the collections and shopping by age",
   "toys-sig-b-home-dark": "Toot in its second look, Mukaab, by night: the child's age, the explorers' collection, the categories as tiles and the science lab",
   "toys-sig-c-home": "Toot as an adventure map: the categories as islands on a sea chart, chunky pressed-out cards and buttons, the stickers and the treasure chest",
-  "toys-sig-c-home-dark": "Toot's adventure map by night: the islands on a navy sea, the stickers, the treasure chest and the ages as coloured blocks",
+  "toys-sig-c-home-dark": "Toot's adventure map by night: the islands on a navy sea, the stickers, the treasure chest and the ages as a ladder of hero levels",
   "toys-sig-d-home": "Toot in its Montessori look: a sage opening with the toys by skill and by age, a calm photo and the parents' guide",
   "toys-sig-d-home-dark": "Toot's Montessori look by night: the toys by skill and by age on deep sage, walnut and cream",
   "sakan-home": "Sakan, a home decor shop, in its first look, the decor magazine: the search, the categories, the season's collections, shop by room, what's new and shop the look",
