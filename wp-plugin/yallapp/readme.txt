@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.52
+Stable tag: 0.4.53
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -156,7 +156,7 @@ under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
 
-= 0.4.52 =
+= 0.4.53 =
 * Store apps: customers save products to their wishlist with a heart; the list is kept with their account on your site, and the hearts they gave before signing in are added when they sign in.
 * Customers who bought a product can review it from the app (one review each, which they can edit), as WooCommerce's own reviews: held for approval when your site holds comments, and shown in the app with a first name and an initial only.
 * "Notify me when it's back": a customer can ask to be told when a product, or one size or colour of it, is back in stock. When WooCommerce puts it back in stock they get the app's notification and an email, once.

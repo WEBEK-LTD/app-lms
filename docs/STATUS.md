@@ -25,7 +25,7 @@ filters by size, colour, price and brand on the shop's screen and as a
 Studio element (`listing_filters`) for every shop type. Yallapp's own
 products can be written in Arabic, English and Turkish (name, description,
 choices), served in the customer's language. Migration 0152. WordPress
-(plugin 0.4.52) has the wishlist, buyers' reviews, back in stock and the
+(plugin 0.4.53) has the wishlist, buyers' reviews, back in stock and the
 attribute filters; photos with reviews are hosted shops' only. The size
 chart and Complete the look now reach shops on connected platforms
 (208.19). No `CLIENT_APP_RELEASE` change: older apps see none of it.
