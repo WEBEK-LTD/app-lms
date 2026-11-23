@@ -27,6 +27,9 @@ import { TOYS_ADDONS, TOYS_PRODUCTS } from "./toys";
 import { CROCHET_KIT } from "./kits/crochet";
 import { DECOR_KIT } from "./kits/decor";
 import { FURNITURE_KIT } from "./kits/furniture";
+import { MOBILES_PRODUCTS } from "./mobiles";
+import { COMPUTERS_PRODUCTS } from "./computers";
+import { ELECTRONICS_PRODUCTS } from "./electronics";
 import { SCHOOL_CLASSES } from "./school";
 import { TRAVEL_HOTELS } from "@/lib/travel/samples";
 
@@ -101,6 +104,12 @@ const DEMO_BUSINESS: Partial<Record<DemoId, string>> = {
   decor: "shop",
   crochet: "shop",
   furniture: "shop",
+  // 211 Nova, the mobiles shop, too.
+  mobiles: "shop",
+  // 211 Nawah, computers and gaming, too.
+  computers: "shop",
+  // 211 Madar, the electronics shop, too.
+  electronics: "shop",
 };
 
 export function businessOf(id: DemoId): string {
@@ -190,6 +199,12 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   decor: () => ({ list: "products", noun: "products", count: DECOR_KIT.products.length }),
   crochet: () => ({ list: "products", noun: "products", count: CROCHET_KIT.products.length }),
   furniture: () => ({ list: "products", noun: "products", count: FURNITURE_KIT.products.length }),
+  // 211 Nova: its phones, tablets, watches, audio and accessories.
+  mobiles: () => ({ list: "products", noun: "products", count: MOBILES_PRODUCTS.length }),
+  // 211 Nawah: its laptops, builds, monitors, parts and gaming gear.
+  computers: () => ({ list: "products", noun: "products", count: COMPUTERS_PRODUCTS.length }),
+  // 211 Madar: its phones, laptops, screens, audio, cameras and appliances.
+  electronics: () => ({ list: "products", noun: "products", count: ELECTRONICS_PRODUCTS.length }),
 };
 
 export function demoItems(id: DemoId): DemoItems {

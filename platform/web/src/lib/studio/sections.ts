@@ -23,12 +23,18 @@ import { BEAUTY_SECTIONS } from "./demo-designs/beauty-signature";
 import { KIDS_SECTIONS } from "./demo-designs/kids-signature";
 // 209 Toys
 import { TOYS_SECTIONS } from "./demo-designs/toys-signature";
+// 211 Nova's sections.
+import { MOBILES_SECTIONS } from "./demo-designs/mobiles-signature";
 import { INSTALLMENTS_SECTION } from "./installments";
 // 210 The shop types' shared parts (shop the look, rooms, the custom order, delivery and assembly, the maker's story…) and each type's own.
 import { SHOP_KIT_SECTIONS } from "./demo-designs/shop-kit-parts";
 import { DECOR_SECTIONS } from "./demo-designs/decor-signature";
 import { CROCHET_SECTIONS } from "./demo-designs/crochet-signature";
 import { FURNITURE_SECTIONS } from "./demo-designs/furniture-signature";
+// 211 Nawah's sections (Build your PC, the spec filters, ready builds, the device of the week).
+import { COMPUTERS_SECTIONS } from "./demo-designs/computers-signature";
+// 211 Madar's sections.
+import { ELECTRONICS_SECTIONS } from "./demo-designs/electronics-signature";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -336,7 +342,13 @@ export type SectionWord =
   | Extract<AppWord, `ty${string}`>
   | "installmentsSoon"
   // 210 The shop types' shared parts (lib/studio/demo-designs/shop-kit-parts.ts), home decor's, crochet's and furniture's looks.
-  | Extract<AppWord, `sk${string}` | `dc${string}` | `cr${string}` | `fu${string}`>;
+  | Extract<AppWord, `sk${string}` | `dc${string}` | `cr${string}` | `fu${string}`>
+  // 211 Nova's looks, pages and sections (lib/studio/demo-designs/mobiles-signature.ts).
+  | Extract<AppWord, `mb${string}`>
+  // 211 Nawah's looks, pages and sections (lib/studio/demo-designs/computers-signature.ts).
+  | Extract<AppWord, `pc${string}`>
+  // 211 Madar's looks, pages and sections (lib/studio/demo-designs/electronics-signature.ts).
+  | Extract<AppWord, `el${string}`>;
 
 export interface SectionContext {
   brand: string;
@@ -1134,12 +1146,18 @@ export const SECTIONS: readonly SectionInfo[] = [
   // 209 Toys
   // 209 The toys type's parts (the category menu, shopping by age, safety first, the gift finder and wraps, gifts under a price, the lab, the ready box).
   ...TOYS_SECTIONS,
+  // 211 The electronics type's parts (trade-in, compare, specs, the services, the star, the brands, the top five, the bundle).
+  ...ELECTRONICS_SECTIONS,
   INSTALLMENTS_SECTION,
   // 210 The shop types' shared parts, then home decor's, crochet's and furniture's.
   ...SHOP_KIT_SECTIONS,
   ...DECOR_SECTIONS,
   ...CROCHET_SECTIONS,
   ...FURNITURE_SECTIONS,
+  // 211 The mobiles type's parts (trade-in, compare, by storage, certified used, accessories, brands, bundle, numbers).
+  ...MOBILES_SECTIONS,
+  // 211 The computers type's parts: Build your PC, the spec filters, ready builds compared, the device of the week, the services.
+  ...COMPUTERS_SECTIONS,
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,
 ];

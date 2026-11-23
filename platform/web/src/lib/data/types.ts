@@ -1358,6 +1358,8 @@ export interface CatalogSettings {
   bouquet?: BouquetSettings | null;
   /** 208 A clothes shop's own parts (lib/selling/fashion.ts): its size chart and "Complete the look"; null or missing: none. */
   fashion?: FashionSettings | null;
+  /** 211 An electronics, mobiles or computers shop's own parts (lib/selling/tech.ts): matching accessories, trade-in and Build your PC; null or missing: none. */
+  tech?: TechSettings | null;
   /** 134 The last "Test connection" that passed on the saved gateway keys: when, the gateway, and a fingerprint of those keys (new keys need a new test). */
   gatewayTested?: { at: string; provider: PaymentProviderId; keys: string } | null;
 }
@@ -1384,6 +1386,73 @@ export interface FashionSettings {
   sizeChart: SizeChart | null;
   /** "Complete the look": products of the shop's other main categories on a product's page. */
   completeLook: boolean;
+}
+
+/**
+ * 211 One specification of a product: its words as the owner wrote them and,
+ * when it is one Yallapp knows (lib/selling/specs.ts `SPEC_KEYS`), its key,
+ * which names it in the app's language and lets the shop be filtered and
+ * compared by it, and Build your PC check parts against each other.
+ */
+export interface ProductSpec {
+  key?: string | null;
+  label: string;
+  value: string;
+}
+
+/** 211 The parts Build your PC is made of, in its order. */
+export const PC_PARTS = ["cpu", "board", "ram", "gpu", "storage", "cooler", "psu", "case"] as const;
+export type PcPart = (typeof PC_PARTS)[number];
+
+/** 211 Trade-in's grades, best first: what the customer says the old device is like. */
+export const TRADE_IN_GRADES = ["like_new", "good", "fair", "broken"] as const;
+export type TradeInGrade = (typeof TRADE_IN_GRADES)[number];
+
+/**
+ * 211 An electronics shop's own parts (lib/selling/tech.ts), kept in the
+ * app's `catalogSettings` (JSON): the category whose products are offered
+ * as matching accessories on a product's page; trade-in (the models the
+ * shop takes, each storage's top price and the share each grade gets); Build
+ * your PC (a category for each part). Each null: off.
+ */
+export interface TechSettings {
+  accessoriesCategoryId: number | null;
+  tradeIn: TradeInSettings | null;
+  pcBuilder: PcBuilderSettings | null;
+}
+
+export interface TradeInSettings {
+  /** The devices the shop takes, each with its storages and the most it pays for each (a like-new one). */
+  models: { name: string; storages: { label: string; cents: number }[] }[];
+  /** The share of that price each grade gets, in percent (like new 100 at most). */
+  grades: Record<TradeInGrade, number>;
+}
+
+export interface PcBuilderSettings {
+  /** A category of the shop for each part, in the order chosen; a part left out isn't asked for. */
+  steps: { part: PcPart; categoryId: number; required: boolean }[];
+}
+
+/** 211 A trade-in request from the app: the old device, what it is worth and how to reach the customer (Store › Trade-in). */
+export const TRADE_IN_STATUSES = ["new", "contacted", "done", "declined"] as const;
+export type TradeInStatus = (typeof TRADE_IN_STATUSES)[number];
+export interface TradeInRequest {
+  id: number;
+  appId: string;
+  /** The app's user who sent it, when signed in. */
+  userId: number | null;
+  name: string;
+  phone: string;
+  model: string;
+  storage: string;
+  grade: TradeInGrade;
+  /** The estimate the app showed, in the shop's currency's cents. */
+  estimateCents: number;
+  currency: string;
+  note: string | null;
+  status: TradeInStatus;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /** 131 Shipping by weight: `perKgCents` a kg over the first `includedKg`. */
@@ -1953,6 +2022,8 @@ export interface CatalogProduct {
   details?: ProductDetails | null;
   /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
   sample?: boolean;
+  /** 211 Its specifications (a phone's screen, a laptop's processor), in the owner's order; null or missing: none (lib/selling/specs.ts). */
+  specs?: ProductSpec[] | null;
   salesCount: number;
   createdAt: Date;
   updatedAt: Date;

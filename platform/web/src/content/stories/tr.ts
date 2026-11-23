@@ -2568,5 +2568,465 @@ export const STORIES_TR: StoryCopy = {
         "furniture-home": "Bir tablonun altında ekoseli minderli beyaz deri bir kanepe"
       }
     },
+    // 211 Madar, the electronics shop: a laptop for a new job and an old phone traded in, in its look A (MADAR); look B (NABD) in its section.
+    electronics: {
+      navName: "Elektronik mağazası uygulaması",
+      metaTitle: "Özellikler, karşılaştırma, garanti ve takas ile bir elektronik mağazası uygulaması, Yallapp Studio'da tasarlandı",
+      metaDescription: "Madar ile bir hafta: yeni bir iş, özelliklerine göre seçilen bir dizüstü, yan yana karşılaştırılan iki telefon, bir yıl daha garanti ve takasa verilen eski bir telefon.",
+      summary: "Her ürünün özellikleri tablo hâlinde, iki ya da üç ürün yan yana, her birinin kendi fiyatıyla renkler ve depolamalar, garanti ve ek koruma, takas ve taksit yakında, iki premium görünümde.",
+      eyebrow: "Yallapp Studio · Elektronik mağazası",
+      title: "Pazar, doğru dizüstüyle",
+      intro: "Faisal pazar günü yeni bir işe başlıyor ve eski dizüstüsü dayanmayacak. Riyad'da çarşamba akşamı. Telefonuyla geçen birkaç akşam doğru dizüstüye, yeni bir telefona ve takasa verilen eskisine böyle dönüşüyor.",
+      cast: "Faisal, Riyad'da her şeyin bulunduğu bir elektronik mağazası olan Madar'dan alışveriş yapıyor. Madar, elektronik mağazası şablonunun demosu: markaları, ürünleri ve fiyatları uydurmadır, fotoğrafları gerçektir ve aşağıdaki her ekran gerçek uygulamadır.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Riyad, işten sonra",
+          title: "Pazara kadar bir dizüstü",
+          text: "Faisal kanepede Madar'ı açıyor. Ana sayfa küçük ve hızlı: arama, kategoriler, kayan kartlarda haftanın lansmanları, bir sonraki kenardan görünüyor. Altında tek satırda sözler: 24 saatte teslimat, ücretsiz kurulum, yetkili garanti ve taksit, yakında."
+        },
+        {
+          time: "20:44",
+          kicker: "Menü",
+          title: "Her kategori bir satır",
+          text: "Zilin yanındaki menüye dokunuyor. Telefonlar, Dizüstüler, Tablet ve saatler, TV'ler: her kategori bir kart satırı, alt kategorileri ardından kayıyor. Dizüstüler satırını kaydırıp İnce ve hafif'e dokunuyor."
+        },
+        {
+          time: "20:51",
+          kicker: "Dizüstünün sayfası",
+          title: "Reklamları değil, özellikleri okuyun",
+          text: "ARCLINE Air 14. Özellikleri temiz bir tablo, uygulama Türkçeyse Türkçe: ekran, işlemci, bellek, depolama, batarya, ağırlık. 16 GB ve 1 TB seçiyor, fiyat da onunla değişiyor. Fiyatın altında sessiz bir etiket: taksit, yakında."
+        },
+        {
+          time: "21:05",
+          kicker: "Karşılaştır",
+          title: "Yan yana iki telefon",
+          text: "Telefonu da üç yaşında. ZENRA X1 ve X1 Pro'yu karşılaştırmaya ekliyor. İkisi yan yana duruyor, özellik özellik: 6,3 ya da 6,7 inç, 4.400 ya da 5.000 mAh, kameralar, fiyat. Titanyum, 256 GB Pro'yu seçiyor ve bir yıl daha Madar Care ekliyor."
+        },
+        {
+          time: "21:12",
+          kicker: "Takas",
+          title: "Eski telefon ne eder",
+          text: "Takas sayfasında eski telefonunun modelini, depolamasını ve durumunu seçiyor: iyi. Uygulama değerini söylüyor, o da numarasıyla talebi gönderiyor. Talep mağazanın paneline düşüyor ve ekip onu arıyor."
+        },
+        {
+          time: "10:15",
+          kicker: "Perşembe, mağazada",
+          title: "Kontrol edildi, paketlendi, yolda",
+          text: "Madar'da Khalid sabahın siparişlerini ve takas taleplerini açıyor. Faisal'ınkinde 1 TB'lık dizüstü ve garantisiyle telefon var. Khalid eski telefon için arıyor: kapıda kontrol edilecek ve değeri düşülecek.",
+          push: {
+            app: "Madar",
+            title: "Sipariş 4127",
+            body: "Siparişiniz yolda. Eski telefonunuzu takas için hazır tutun."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Çarşamba akşamı. Pazar, yeni bir masada.",
+        text: "Aradaki her şey mağazanın kendisiydi: kategorileri ve satırları, özellikleri, fiyatlarıyla renkleri ve depolamaları, garantisi ve koruması, takas fiyatları; panelde bir kez ayarlandı."
+      },
+      statsTitle: "Bir dizüstünün ardındaki küçük gerçekler",
+      stats: [
+        "demonun menüsündeki ana kategori, her biri bir kart satırı",
+        "en fazla yan yana karşılaştırılan ürün",
+        "gün iade süresi, her fiyatın altında",
+        "dil, Arapça sağdan sola"
+      ],
+      systemsTitle: "Her parça, açıklamasıyla",
+      systemsText: "Özellikler ve karşılaştırma tablosu, renkler, depolamalar ve garanti, takas, iki görünüm ve ürünlerin nereden geldiği.",
+      systems: [
+        {
+          name: "Özellikler ve karşılaştırma",
+          title: "Okuyun, sonra yan yana koyun",
+          text: "Her ürünün özellikleri var ve herhangi iki ya da üç ürün karşılaştırılabilir.",
+          features: [
+            ["Temiz bir tablo", "Ekran, işlemci, bellek, depolama ve diğerleri; ad ve değer."],
+            ["Yan yana", "Sütunlarda iki ya da üç ürün, özellik özellik, ortak olanlar önce."],
+            ["Uygulamanın dilinde", "Yallapp'ın bildiği adlar İngilizce, Arapça ya da Türkçe gösterilir."],
+            ["Özelliğe göre filtre", "Mağaza bir özelliğin değerine göre filtrelenir, örneğin 16 GB."],
+            ["Editörde de", "Tablo, karşılaştırma ve filtre her mağaza için Studio kitaplığında birer öğe."]
+          ]
+        },
+        {
+          name: "Renkler, depolamalar ve garanti",
+          title: "Her seçenek kendi fiyatıyla",
+          text: "Bir telefon renkleri ve depolamalarıyla gelir, her depolamanın kendi fiyatı ve stoğu vardır.",
+          features: [
+            ["Renk ve depolama", "Her kombinasyon kendi stoğu, kendi fiyatı."],
+            ["Biten bitmiştir", "Seçilen renkte kalmayan depolama seçilemez."],
+            ["Garanti", "Üretici garantisi özelliklerde, iade fiyatın altında."],
+            ["Ek koruma", "Bir yıl daha ya da ekran ve sıvı koruması, sepetten önce eklenir."],
+            ["Taksit, yakında", "Yalnızca bir etiket: henüz taksitle ödeme sunulmuyor."]
+          ]
+        },
+        {
+          name: "Takas",
+          title: "Eski telefonun bir değeri var",
+          text: "Mağaza aldığı cihazları ve ödediğini belirler; uygulama tahmin eder.",
+          features: [
+            ["Mağazanın fiyatları", "Her model ve depolama en yüksek fiyatıyla, her durum için bir pay."],
+            ["Saniyeler içinde tahmin", "Model, depolama ve durum, ardından değeri."],
+            ["Mağazanın gördüğü talep", "Müşterinin numarası ve tahmin panele düşer."],
+            ["Kapıda kontrol", "Mağaza yenisini teslim ederken cihazı kontrol eder."]
+          ]
+        },
+        {
+          name: "Yallapp Studio'da tasarlandı",
+          title: "İki görünüm, her parçası değiştirilebilir",
+          text: "Madar, yalnızca Studio öğeleriyle yapılmış iki premium görünümle gelir.",
+          features: [
+            ["MADAR", "A görünümü: temiz beyaz ve tek bir koyu mavi, hizmetler tek kartta."],
+            ["NABD", "B görünümü: sıcak taş üzerinde neredeyse siyah kartlarda limon yeşili, ilk 5 ve bir paket."],
+            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var."],
+            ["Kompakt vitrin", "Lansmanlar yaklaşık 210 nokta yüksekliğinde kartlarda, sonraki görünüyor."],
+            ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan yanar."],
+            ["Hazır bölümler", "Takas, karşılaştırma, özellikler, hizmetler, sezonun yıldızı ve daha fazlası, her mağaza için."],
+            ["Üç dil", "İngilizce, sağdan sola Arapça ve Türkçe."]
+          ]
+        },
+        {
+          name: "Ürünler nereden gelir",
+          title: "Ürünleriniz ya da mağazanızın platformu",
+          text: "Madar, Yallapp'ta tutulan ürünlerle ya da zaten sahip olduğunuz online mağazayla çalışır.",
+          features: [
+            ["Yallapp'taki ürünler", "Bu sayfadaki her şey: özellikler, renkler ve depolamalar, koruma, takas."],
+            ["WordPress ve diğer platformlar", "Kategorileri, varyasyonları ve stokları uygulamada."],
+            ["Sırada", "Bağlı bir platformdan özellikler ve takas."]
+          ]
+        }
+      ],
+      bundleTitle: "Tek uygulama, paneliniz ve varsa mağazanız",
+      bundleText: "Müşterilerin uygulaması tek bir Studio projesinden mağazanın adıyla oluşturulup yayımlanır. Ürünleri Yallapp'tan ya da mağazanın kendi platformundan gelir.",
+      bundleNodes: [
+        ["Madar", "Müşteriler, Android ve iPhone'da"],
+        ["Yallapp Studio", "Mağaza: görünümü, özellikleri, fiyatları ve takas"],
+        ["Mağazanın web sitesi", "Varsa WooCommerce, Shopify ya da başka biri"]
+      ],
+      bundleFlows: [
+        "Yeni bir dizüstü özellikleriyle görünür",
+        "Tükenen depolama uygulamada seçilemez",
+        "Bir takas talebi panele düşer",
+        "Sipariş rengi, depolaması ve korumasıyla gelir"
+      ],
+      compareTitle: "Karşılaştırma",
+      compareText: "Online mağazalar için uygulama yapan şirketler, kendi sitelerinin anlattığı gibi, Yallapp'ın ve size bir ajansın uygulama yapmasının yanında.",
+      finale: {
+        title: "Pazar, saat dokuzda",
+        text: "Dizüstü, özelliklerinin söylediği gibi hızlı ve sessiz. Yeni telefon cebinde; eskisi kapıda geri gitti. Madar'da Khalid gelecek ayın telefonlarını her birinin tablosuyla ekliyor ve Riyad'da bir yerde biri ikisini karşılaştırıyor."
+      },
+      photos: {
+        "electronics-hero": "Ahşap bir masada dizüstü, kupa ve küçük bir bitki",
+        "electronics-phone": "Bir kamera objektifinin yanında üç kameralı bir telefon",
+        "electronics-compare": "Beyaz mermer üzerinde yan yana bir tablet ve telefon",
+        "electronics-desk": "Bir bitkinin yanında ahşap masada açık bir dizüstü",
+        "electronics-glow": "Karanlıkta bir dizüstünün aydınlık klavyesi",
+        "electronics-buds": "Beyaz masada bir telefon ve beyaz kulaklıklar"
+      }
+    },
+    mobiles: {
+      navName: "Telefon mağazası uygulaması",
+      metaTitle: "Takas, garantili ikinci el, özellikler ve karşılaştırmalı bir telefon mağazası uygulaması, Yallapp Studio'da tasarlandı",
+      metaDescription: "Nova ile bir gün: bir dakikada eski telefonun değeri, depolaması, rengi ve garantisiyle yeni bir telefon, iki telefonun karşılaştırması ve mağazaya ulaşan takas.",
+      summary: "Her birinin fiyatıyla depolama ve renk, yerel ya da uluslararası garanti, tabloda özellikler, iki telefonun karşılaştırması, sınıflarıyla garantili ikinci el ve takas, iki premium görünümde.",
+      eyebrow: "Yallapp Studio · Telefon mağazası",
+      title: "Eski telefon yenisinin bir kısmını öder",
+      intro: "Kerim'in telefonunun arkası çatlak, kamerası geceleri bulanık çekiyor. Kahire'de bir çarşamba akşamı. Aynı telefonla geçen on dakika, eskisinin değeri fiyatından düşülmüş yeni bir telefona böyle dönüşüyor.",
+      cast: "Kerim, Kahire'de bir telefon mağazası olan Nova'dan alışveriş yapıyor. Nova, telefon mağazası şablonunun demosudur: cihazları, markaları, adları ve fiyatları uydurmadır, fotoğrafları gerçektir ve aşağıdaki her ekran gerçek uygulamadır.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Nasr City, işten sonra",
+          title: "Geceleri bulanık çeken bir kamera",
+          text: "Kerim Nova'yı balkonda açıyor. Ana sayfa küçük ve hızlı: arama, dairelerde kategoriler ve kayan kartlarda sezonun telefonları, sıradaki kart kenardan görünüyor. Altında üç söz: takas, yetkili servis ve her cihazda garanti."
+        },
+        {
+          time: "20:43",
+          kicker: "Ne eder?",
+          title: "Eski telefonu, bir dakikadan kısa sürede",
+          text: "Ana sayfanın ortasında bir kart eski telefonunun ne ettiğini soruyor. Modelini, 256 GB'ını ve çatlak arkası yüzünden Yeni gibi değil İyi'yi seçiyor. Tahmin hemen, mağazanın kendi fiyatlarıyla çıkıyor. Takası başlat'a dokunup adını ve numarasını bırakıyor."
+        },
+        {
+          time: "20:47",
+          kicker: "Yeni telefonun sayfası",
+          title: "256 GB, titanyum, yerel garanti",
+          text: "Aylardır istediği telefon. Her depolamanın kendi fiyatı var; titanyum seçili, uluslararası garanti daha ucuz ama o yereli tutuyor. Fiyatın altında sakin bir etiket taksitin yakında geleceğini söylüyor. Onun altında tabloda özellikler: ekran, işlemci, kameralar, batarya."
+        },
+        {
+          time: "20:52",
+          kicker: "Karşılaştırma",
+          title: "Yan yana iki telefon",
+          text: "Emin değil, karşılaştırmaya ikinci bir telefon ekliyor. İkisi yan yana, özellik özellik: 108'e karşı 200 MP, 5.500'e karşı 5.000 mAh, her birinin altında fiyatı. Kamera kazanıyor. İlkini, sayfanın yanında önerdiği deri kılıfla sepete ekliyor."
+        },
+        {
+          time: "21:05",
+          kicker: "Kız kardeşi için",
+          title: "Garantili ikinci el, A sınıfı",
+          text: "Ana sayfaya dönüyor; gece olmuş, uygulama koyulaşmış. Kız kardeşinin üniversite için telefona ihtiyacı var: garantili ikinci el telefonlar sınıflarını, depolamalarını ve pil sağlıklarını gösteriyor. A sınıfı, %91 pilli ve 12 ay garantili bir Lumen 11. Bağlantıyı ona gönderiyor."
+        },
+        {
+          time: "10:15",
+          kicker: "Perşembe, mağazada",
+          title: "Bekleyen bir takas",
+          text: "Nova'da Hani paneli açıyor. Kerim'in takas talebi modeli, depolaması, sınıfı ve uygulamada gördüğü tahminle, siparişinin yanında duruyor. Onu arıyor, yeni telefonu götürüp eskisini alacak tek bir kurye ayarlıyor ve talebi tamamlandı olarak işaretliyor.",
+          push: {
+            app: "Nova",
+            title: "Sipariş 3117",
+            body: "Yeni telefonunuz yolda. Eskisini hazırlayın: kurye alacak."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Çarşamba saat dokuz. Eski telefon kuryeyle gitti.",
+        text: "Aradaki her şey mağazanın kendisindendi: kategorileri ve sıraları, her birinin fiyatıyla depolamaları ve renkleri, garantileri, özellikleri, takas fiyatları ve sınıfları; panelde bir kez ayarlandı."
+      },
+      statsTitle: "Bir telefonun arkasındaki küçük gerçekler",
+      stats: [
+        "demonun menüsünde ana kategori, her biri bir kart sırası",
+        "garantili ikinci el cihazın sınıfı, A+'dan B'ye",
+        "gün içinde iade, her fiyatın altında yazar",
+        "dil, Arapça sağdan sola"
+      ],
+      systemsTitle: "Her parça, ayrıntısıyla",
+      systemsText: "Takas, özellikleri ve karşılaştırmasıyla telefonun sayfası, garantili ikinci el, iki görünüm ve ürünlerin nereden geldiği.",
+      systems: [
+        {
+          name: "Takas",
+          title: "Eski telefon ne eder",
+          text: "Mağaza hangi cihazları aldığını ve her birinin ne ettiğini söyler; uygulama tahmini hesaplar ve talebi gönderir.",
+          features: [
+            ["Cihaz", "Müşteri, mağazanın kendi listesinden bir model seçer."],
+            ["Depolaması", "Her depolamanın kendi en yüksek fiyatı vardır."],
+            ["Durumu", "Yeni gibi, iyi, orta ya da kırık; her biri o fiyatın bir payı."],
+            ["Tahmin", "Bir şey gönderilmeden hemen gösterilir."],
+            ["Mağazaya bir talep", "Ad, numara ve tahmin panele düşer."],
+            ["Editörde de", "Tahmin aracı Studio kütüphanesinin bir öğesidir, sayfada ya da onu açan bir kartta."]
+          ]
+        },
+        {
+          name: "Telefonun sayfası",
+          title: "Depolama, renk, garanti ve özellikler",
+          text: "Bir telefon depolamaları ve renkleriyle gelir, her birinin kendi fiyatı ve stoğu vardır.",
+          features: [
+            ["Depolama ve renk", "Her kombinasyon kendi fiyatıyla ayrı bir stok kalemidir."],
+            ["Yerel ya da uluslararası", "Mağaza ikisini de sunduğunda seçilen bir garanti."],
+            ["Tabloda özellikler", "Ekran, işlemci, kameralar, batarya; müşterinin dilinde."],
+            ["Karşılaştırma", "İki ya da üç cihaz yan yana, özellik özellik."],
+            ["Üç dilde", "Özelliklerin adları İngilizce, Arapça ve Türkçe."],
+            ["Taksit", "Yalnızca yakında geleceğini söyleyen bir etiket; henüz ödeme yolu değil."]
+          ]
+        },
+        {
+          name: "Garantili ikinci el",
+          title: "Güvenilecek bir sınıf",
+          text: "İkinci el cihazlar, alıcının bilmesi gereken her şeyle satılır.",
+          features: [
+            ["Sınıf", "A+ yeni gibi, A mükemmel, B çok iyi."],
+            ["Pil", "Sağlığı yüzde olarak, kartta ve sayfada."],
+            ["Garanti", "Mağazanın arkasında ne kadar durduğu."],
+            ["Tasarruf", "Yeni fiyatı yanında üstü çizili."],
+            ["Günün fırsatları", "Geri sayımı ve kalan adediyle bir flaş indirim."]
+          ]
+        },
+        {
+          name: "Yallapp Studio'da tasarlandı",
+          title: "İki görünüm, her parçası sizin",
+          text: "Nova, yalnızca Studio öğeleriyle kurulmuş iki premium görünümle gelir.",
+          features: [
+            ["NOVA", "Görünüm A: beyaz, mürekkep ve tek bir kobalt vurgu, tahmin aracı ana sayfada."],
+            ["Zümrüt", "Görünüm B: sıcak taş üstünde koyu yeşil, üç adımda takas ve hazır paket."],
+            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var."],
+            ["Kompakt vitrin", "Sezonun telefonları yaklaşık 210 nokta yüksekliğinde kartlarda, sıradaki görünür."],
+            ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan adıyla bir hap."],
+            ["Hazır bölümler", "Takas, karşılaştırma, depolamaya göre, garantili ikinci el ve daha fazlası, her mağaza için."],
+            ["Üç dil", "İngilizce, sağdan sola Arapça ve Türkçe."]
+          ]
+        },
+        {
+          name: "Ürünler nereden geliyor",
+          title: "Ürünleriniz ya da mağazanızın platformu",
+          text: "Nova, Yallapp'te tutulan ürünlerle ya da zaten sahip olduğunuz çevrim içi mağazayla çalışır.",
+          features: [
+            ["Yallapp'teki ürünler", "Bu sayfadaki her şey: özellikler, depolama ve renkler, takas ve aksesuarlar."],
+            ["WordPress ve diğer platformlar", "Kategorileri menüde, varyasyonları ve stokları sayfada."],
+            ["Sırada", "Bağlı bir platformdan özellikler ve takas."]
+          ]
+        }
+      ],
+      bundleTitle: "Tek uygulama, paneliniz ve varsa mağazanız",
+      bundleText: "Müşterilerin uygulaması tek bir Studio projesinden mağazanın adıyla oluşturulur ve yayınlanır. Ürünleri Yallapp'ten ya da mağazanın kendi platformundan gelir.",
+      bundleNodes: [
+        ["Nova", "Müşteriler, Android ve iPhone'da"],
+        ["Yallapp Studio", "Mağaza: görünümü, kategorileri, özellikleri, takası ve fırsatları"],
+        ["Mağazanın web sitesi", "Varsa WooCommerce, Shopify ya da başka biri"]
+      ],
+      bundleFlows: [
+        "Bir takas talebi tahminiyle gelir",
+        "Tükenen depolama uygulamada soluk görünür",
+        "Özellikler müşterinin dilinde görünür",
+        "Bir sipariş depolaması, rengi ve garantisiyle gelir"
+      ],
+      compareTitle: "Nasıl karşılaştırılır",
+      compareText: "Çevrim içi mağazalar için uygulama yapan şirketler, kendi sitelerinin anlattığı gibi; Yallapp'in ve bir ajansa uygulama yaptırmanın yanında.",
+      finale: {
+        title: "Cuma, nehir kenarında",
+        text: "Yeni kamera karanlıkta görüyor. Eski telefon Nova'da bir rafta, 72 noktadan kontrol edilmiş, sınıfını bekliyor. Hani bu haftanın telefonlarını sıralarına çoktan ekledi; Kahire'nin bir yerinde biri kendi eski telefonunun ne ettiğini hesaplıyor."
+      },
+      photos: {
+        "mobiles-hero": "Gri deniz ve gökyüzüne doğru bir telefon tutan el",
+        "mobiles-box": "Açık siyah kutusunda şarj cihazı ve kulaklığıyla yeni bir telefon",
+        "mobiles-camera": "Eski bir film kamerasının yanında üç kameralı bir telefonun arkası",
+        "mobiles-hand": "Açık gri bir duvarın önünde telefon tutan bir el",
+        "mobiles-food": "Bir sofrayı telefonla fotoğraflayan iki el",
+        "mobiles-earbuds": "Beyaz bir masada, kablosuz kulaklıkların yanında duran bir telefon"
+      }
+    },
+    // 211 Nawah, bilgisayar ve oyun.
+    computers: {
+      navName: "Bilgisayar mağazası uygulaması",
+      metaTitle: "PC toplama, özelliğe göre filtre ve karşılaştırmalı bir bilgisayar ve oyun mağazası uygulaması, Yallapp Studio'da tasarlandı",
+      metaDescription: "Nawah'la bir hafta: parça parça, her parçası kontrol edilerek toplanan bir oyun bilgisayarı, özelliğiyle bulunan bir dizüstü ve yan yana bir karşılaştırma.",
+      summary: "Uyum kontrolüyle PC toplama, işlemci, bellek, depolama ve ekran kartına göre filtreler, tablo halinde özellikler, karşılaştırma ve yapılandırma, iki premium görünümde.",
+      eyebrow: "Yallapp Studio · Bilgisayar mağazası",
+      title: "Parça parça, hepsi uyumlu",
+      intro: "Faysal bütün yıl bir oyun bilgisayarı için biriktirdi; kız kardeşi Rim de gelecek ay üniversiteye dizüstüsüz başlıyor. Cidde'de bir perşembe gecesi. Tek bir uygulama birini topladı, ötekini buldu.",
+      cast: "Faysal ve Rim, Cidde'de bir bilgisayar ve oyun mağazası olan Nawah'tan alışveriş yapıyor. Nawah, bilgisayar mağazası şablonunun demosu: ürünleri, markaları ve fiyatları uydurma, fotoğrafları gerçek ve aşağıdaki her ekran gerçek uygulama.",
+      chapters: [
+        {
+          time: "22:05",
+          kicker: "Cidde, perşembe gecesi",
+          title: "Parça parça bir PC",
+          text: "Faysal Nawah'ı açıyor. Ana sayfa küçük ve hızlı: arama, kategoriler, sonrakinin kenardan göründüğü bir vitrin kartı ve altında parçaları sıralanmış PC topla kartı: işlemci, anakart, bellek, ekran kartı, depolama, güç, kasa.",
+        },
+        {
+          time: "22:09",
+          kicker: "Önce işlemci",
+          title: "AM-X soketinde on iki çekirdek",
+          text: "Toplamaya başla'ya dokunup AM-X soketli, on iki çekirdekli N7'yi seçiyor. Başka soketli her anakart listede kalıyor ama işaretli: bu işlemcinin soketini almıyor. Tam boy X-Arc anakartı seçiyor.",
+        },
+        {
+          time: "22:14",
+          kicker: "Uymayan nedenini söyler",
+          title: "DDR5 anakartta DDR4",
+          text: "Sepetinde geçen yıldan bir DDR4 kit var. Toplayıcı onu işaretliyor: anakart DDR5 alır. Yerine Swift 32 GB DDR5 kiti, sonra GX 470'i alıyor. Özet, toplamanın paylı 550 W istediğini söylüyor; o da bir gün daha büyük bir kart için 750 W kaynağı alıyor. Toplam ve watt her seçimi izliyor.",
+        },
+        {
+          time: "22:31",
+          kicker: "Menü, Rim için",
+          title: "Önemli olana göre süz",
+          text: "Telefonu Rim alıyor. Menüdeki Özelliğe göre bul, mağazanın dizüstülerini işlemci, bellek, depolama ve ekran kartına göre gösteriyor, her değerin yanında kaç ürün olduğu. 16 GB'a dokunuyor, Ofuq 14 Air'i açıp özelliklerini tabloda okuyor: ekran, pil, ağırlık.",
+        },
+        {
+          time: "22:40",
+          kicker: "Yan yana",
+          title: "İki dizüstü, tek tablo",
+          text: "Ofuq 14 Air'i ve Lumen Slate 13'ü karşılaştırmaya ekliyor. Tek tablo, özellik özellik: Ofuq daha hafif, pili daha uzun. 32 GB bellekle yapılandırıyor, seçtikçe fiyat değişiyor ve fiyatın altında Taksit yakında yazıyor. Tamamını mağazanın koduyla, NAWAH10, ödüyor.",
+        },
+        {
+          time: "11:00",
+          kicker: "Cumartesi, atölyede",
+          title: "Toplandı ve test edildi",
+          text: "Nawah'ta Macid, Faysal'ın siparişini açıyor: sekiz parça, tek toplama. Topluyor, kabloları düzenliyor ve bir gün boyunca yük altında çalıştırıyor. Faysal'ın siparişi Toplandı ve test edildi'ye, sonra Yolda'ya geçiyor.",
+          push: {
+            app: "Nawah",
+            title: "Sipariş 3107",
+            body: "Toplaman kuruldu ve test edildi. Yola çıktı.",
+          },
+        },
+      ],
+      interlude: {
+        quote: "Sekiz parça. Uymayan tek bir tane bile yok.",
+        text: "Aradaki her şey mağazanın kendisindendi: kategorileri ve satırları, her ürünün özellikleri, PC toplamanın istediği parçalar, seçenekler ve fiyatları, garanti ve iadeler; panelde bir kez ayarlandı.",
+      },
+      statsTitle: "Bir toplamanın ardındaki küçük gerçekler",
+      stats: ["demodaki PC toplamanın parçası, sırasıyla", "parçalar arasında kontrol: soket, bellek, güç ve boyut", "iade günü, her siparişte görünür", "dil, Arapça sağdan sola"],
+      systemsTitle: "Her parça, açıklandı",
+      systemsText: "PC toplama, özelliğe göre filtreler, özellikler ve karşılaştırma, iki görünüm ve ürünlerin nereden geldiği.",
+      systems: [
+        {
+          name: "PC toplama",
+          title: "Her parça diğerleriyle kontrol edilir",
+          text: "Müşteri, mağazanın kendi kategorilerinden her seferinde bir parça seçer; uygulama onu önceki seçimlerle kontrol eder.",
+          features: [
+            ["Parça parça", "İşlemci, anakart, bellek, ekran kartı, depolama, soğutucu, güç kaynağı ve kasa, mağazanın sırasıyla."],
+            ["Mağazanın kategorilerinden", "Her parça sahibinin seçtiği bir kategori; soğutucu ve kasa atlanabilir."],
+            ["Gereken güç", "İşlemci ve ekran kartının tüketimi, artı dörtte bir pay."],
+            ["Neyin uyduğu", "Soket, bellek türü, güç ve kasanın boyutu, her ürünün özelliklerinden."],
+            ["Neden olmaz", "Uymayan parça listede kalır, nedeniyle birlikte."],
+            ["Tek dokunuşla sepete", "Toplamanın tamamı sepete girer, ara toplamı gözünüzün önünde."],
+          ],
+        },
+        {
+          name: "Özelliğe göre filtreler",
+          title: "Mağaza, içindekine göre",
+          text: "Mağazanın ürünlerinin aldığı değerler çipler halinde; her biri mağazayı ona göre süzülmüş açar.",
+          features: [
+            ["İşlemci ve ekran kartı", "Mağazanın sattığı her işlemci ve ekran kartı, çip olarak."],
+            ["Bellek ve depolama", "16 GB, 32 GB, 1 TB: birine dokunun, ona sahip her ürünü görün."],
+            ["Kaç tane", "Her değer kaç üründe olduğunu gösterir."],
+            ["Özelliklerden", "Sahibi her ürünün özelliklerini bir kez yazar; filtreler onu izler."],
+            ["Mağazada ve menüde", "Filtreler ana sayfada, mağazanın üstünde ve kendi sayfalarında."],
+            ["Düzenleyicide de", "Özellik filtresi, Studio kütüphanesinde her mağaza için bir öğe."],
+          ],
+        },
+        {
+          name: "Özellikler ve karşılaştırma",
+          title: "Tek tablo, özellik özellik",
+          text: "Her ürünün özellikleri temiz bir tabloda ve yan yana üç ürüne kadar.",
+          features: [
+            ["Her sayfada bir tablo", "Fiyatın altında özellikler; ilk satırlar hemen, gerisi bir dokunuşla."],
+            ["Karşılaştır", "İki veya üç ürün yan yana, ortak özellikler önce."],
+            ["Yapılandır", "Bellek ve depolama seçenek olarak, her birinin kendi fiyatıyla."],
+            ["Garanti görünür", "Garanti ve iadeler ürün sayfasında."],
+            ["Taksit: yakında", "Yalnızca yakında olarak gösterilir, asla bir ödeme yolu değil."],
+          ],
+        },
+        {
+          name: "Yallapp Studio'da tasarlandı",
+          title: "İki görünüm, her parçası sizin",
+          text: "Nawah, yalnızca Studio öğeleriyle kurulmuş iki premium görünümle gelir.",
+          features: [
+            ["NAWAH", "A görünümü: serin beyaz ve tek güçlü mavi, fırsatlar ve oyuncu bölgesi için koyu kartlar."],
+            ["SILICA", "B görünümü: sıcak taş üstünde koyu yeşil, numaralı bölümler."],
+            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var."],
+            ["Kompakt vitrin", "Yaklaşık 210 punto yüksekliğinde kartlar, sonraki kenardan görünür."],
+            ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap."],
+            ["Hazır bölümler", "PC toplama, özellik filtreleri, karşılaştırılan toplamalar ve haftanın cihazı, her mağaza için."],
+            ["Üç dil", "İngilizce, sağdan sola Arapça ve Türkçe."],
+          ],
+        },
+        {
+          name: "Ürünler nereden gelir",
+          title: "Ürünleriniz ya da mağazanızın platformu",
+          text: "Nawah, Yallapp'te tutulan ürünlerle ya da zaten sahip olduğunuz online mağazayla çalışır.",
+          features: [
+            ["Yallapp'teki ürünler", "Bu sayfadaki her şey: özellikler, PC toplama ve filtreler."],
+            ["WordPress ve diğer platformlar", "Kategorileri menüde, seçenekleri ve stokları sayfada."],
+            ["Sırada", "Bağlı bir platformdan özellikler ve PC toplama."],
+          ],
+        },
+      ],
+      bundleTitle: "Tek uygulama, paneliniz ve varsa mağazanız",
+      bundleText: "Müşteri uygulaması tek bir Studio projesinden mağazanın adıyla kurulur ve yayımlanır. Ürünleri Yallapp'ten ya da mağazanın kendi platformundan gelir.",
+      bundleNodes: [
+        ["Nawah", "Müşteriler, Android ve iPhone'da"],
+        ["Yallapp Studio", "Mağaza: görünümü, kategorileri, özellikleri ve toplayıcısı"],
+        ["Mağazanın web sitesi", "Varsa WooCommerce, Shopify ya da başkası"],
+      ],
+      bundleFlows: ["Yeni bir ekran kartı filtresinde görünür", "Uymayan parça nedenini söyler", "Özellikler müşterinin dilinde görünür", "Bir toplama tek sipariş olarak gelir"],
+      compareTitle: "Nasıl karşılaştırılır",
+      compareText: "Online mağazalar için uygulama yapan şirketler, kendi sitelerinin anlattığı gibi; Yallapp'in ve bir ajansa uygulama yaptırmanın yanında.",
+      finale: {
+        title: "Pazar, saat ondan sonra",
+        text: "Bilgisayar Faysal'ın masasının altında sandığından sessiz uğulduyor. Rim'in dizüstüsü ilk ders için çantasında. Nawah'ta Macid yeni bir ekran kartı ekledi; şimdiden filtresinde.",
+      },
+      photos: {
+        "computers-hero": "Mor ışıklı bir masa, galaksi gösteren geniş bir monitör",
+        "computers-parts": "Soketinde işlemci olan bir anakart",
+        "computers-socket": "Bir anakart soketindeki işlemcinin altın pinleri",
+        "computers-laptop": "Karanlık bir odada masada bir dizüstü, yanan bir lamba",
+        "computers-play": "Mavi ışıklı bir oyun kolunu tutan iki el",
+        "computers-desk": "İki yanında hoparlör olan bir monitör karşısında çalışan bir adam",
+      },
+    },
   },
 };

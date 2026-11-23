@@ -320,6 +320,12 @@ const BY_STORY: Record<StoryId, (keyof typeof COLUMNS)[]> = {
   crochet: ["tapcart", "appmysite", "mobiloud"],
   // 210 The furniture shop: the same companies that make apps for online shops.
   furniture: ["tapcart", "appmysite", "mobiloud"],
+  // 211 The electronics shop: the same companies that make apps for online shops.
+  electronics: ["tapcart", "appmysite", "mobiloud"],
+  // 211 The mobiles shop: the same companies that make apps for online shops.
+  mobiles: ["tapcart", "appmysite", "mobiloud"],
+  // 211 The computers shop: the same companies that make apps for online shops.
+  computers: ["tapcart", "appmysite", "mobiloud"],
 };
 
 export function competitorsOf(story: StoryId): CompareColumn[] {
@@ -380,6 +386,14 @@ export const YALLAPP: Record<StoryId, Pick<CompareColumn, "kind" | "apps" | "own
     pricing: { en: "A Studio plan; no share of your sales", ar: "باقة Studio؛ بلا نسبة من مبيعاتك", tr: "Bir Studio paketi; satışlarınızdan pay yok" },
     arabic: { en: "Yes: Arabic, right to left, in the app and in Studio", ar: "نعم: العربية من اليمين لليسار، في التطبيق وفي Studio", tr: "Evet: Arapça, sağdan sola, uygulamada ve Studio'da" },
   },
+  // 211 Nawah, the computers shop: a template, as Lujain is.
+  computers: {
+    kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
+    apps: { en: "The shop's own app for its customers, and Studio for you", ar: "تطبيق المتجر الخاص لعملائه، وStudio لك", tr: "Mağazanın müşterileri için kendi uygulaması ve sizin için Studio" },
+    ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },
+    pricing: { en: "A Studio plan; no share of your sales", ar: "باقة Studio؛ بلا نسبة من مبيعاتك", tr: "Bir Studio paketi; satışlarınızdan pay yok" },
+    arabic: { en: "Yes: Arabic, right to left, in the app and in Studio", ar: "نعم: العربية من اليمين لليسار، في التطبيق وفي Studio", tr: "Evet: Arapça, sağdan sola, uygulamada ve Studio'da" },
+  },
   // 208 Lujain, the clothes shop: a template, as Leqaa is.
   clothes: {
     kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
@@ -430,6 +444,22 @@ export const YALLAPP: Record<StoryId, Pick<CompareColumn, "kind" | "apps" | "own
   },
   // 210 Rukn, the furniture shop: a template, as Lujain is.
   furniture: {
+    kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
+    apps: { en: "The shop's own app for its customers, and Studio for you", ar: "تطبيق المتجر الخاص لعملائه، وStudio لك", tr: "Mağazanın müşterileri için kendi uygulaması ve sizin için Studio" },
+    ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },
+    pricing: { en: "A Studio plan; no share of your sales", ar: "باقة Studio؛ بلا نسبة من مبيعاتك", tr: "Bir Studio paketi; satışlarınızdan pay yok" },
+    arabic: { en: "Yes: Arabic, right to left, in the app and in Studio", ar: "نعم: العربية من اليمين لليسار، في التطبيق وفي Studio", tr: "Evet: Arapça, sağdan sola, uygulamada ve Studio'da" },
+  },
+  // 211 Madar, the electronics shop: a template, as Lujain is.
+  electronics: {
+    kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
+    apps: { en: "The shop's own app for its customers, and Studio for you", ar: "تطبيق المتجر الخاص لعملائه، وStudio لك", tr: "Mağazanın müşterileri için kendi uygulaması ve sizin için Studio" },
+    ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },
+    pricing: { en: "A Studio plan; no share of your sales", ar: "باقة Studio؛ بلا نسبة من مبيعاتك", tr: "Bir Studio paketi; satışlarınızdan pay yok" },
+    arabic: { en: "Yes: Arabic, right to left, in the app and in Studio", ar: "نعم: العربية من اليمين لليسار، في التطبيق وفي Studio", tr: "Evet: Arapça, sağdan sola, uygulamada ve Studio'da" },
+  },
+  // 211 Nova, the mobiles shop: a template, as Lujain is.
+  mobiles: {
     kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
     apps: { en: "The shop's own app for its customers, and Studio for you", ar: "تطبيق المتجر الخاص لعملائه، وStudio لك", tr: "Mağazanın müşterileri için kendi uygulaması ve sizin için Studio" },
     ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },

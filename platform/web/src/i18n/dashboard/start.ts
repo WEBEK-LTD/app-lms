@@ -68,6 +68,9 @@ export const en = {
     decor: { name: "Home decor shop", line: "Complete the room, shop by room and style, and gifts" },
     crochet: { name: "Crochet shop", line: "Custom orders, the days to make and workshops" },
     furniture: { name: "Furniture shop", line: "Sizes in cm, delivery and assembly on your day, made to order" },
+    mobiles: { name: "Phone shop", line: "Storage and colour, trade-in, certified used and compare" },
+    computers: { name: "Computers shop", line: "Build your PC, filters by spec and compare" },
+    electronics: { name: "Electronics shop", line: "Specs, compare, warranty and trade-in" },
   },
   business: {
     teaching: "Teaching and courses",
@@ -266,6 +269,9 @@ export const ar: Messages = {
     decor: { name: "محل ديكور", line: "كمّل الأوضة، وتسوّق حسب الأوضة والستايل، وهدايا" },
     crochet: { name: "محل كروشيه", line: "طلبات خاصة، وأيام الشغل، وورش" },
     furniture: { name: "محل موبيليا", line: "المقاسات بالسنتي، والتوصيل والتركيب في يومك، وتفصيل على المقاس" },
+    mobiles: { name: "محل موبايلات", line: "المساحة واللون، والاستبدال، والمستعمل المضمون، والمقارنة" },
+    computers: { name: "محل كمبيوتر", line: "ابني جهازك، وفلاتر بالمواصفات، والمقارنة" },
+    electronics: { name: "محل إلكترونيات", line: "المواصفات والمقارنة والضمان والاستبدال" },
   },
   business: {
     teaching: "تعليم وكورسات",
@@ -460,6 +466,9 @@ export const tr: Messages = {
     decor: { name: "Ev dekorasyonu mağazası", line: "Odayı tamamla, odaya ve tarza göre gez, hediyeler" },
     crochet: { name: "Örgü mağazası", line: "Özel siparişler, yapım günleri ve atölyeler" },
     furniture: { name: "Mobilya mağazası", line: "Ölçüler cm cinsinden, seçtiğin gün teslimat ve kurulum, ölçüye özel" },
+    mobiles: { name: "Telefon mağazası", line: "Depolama ve renk, takas, garantili ikinci el ve karşılaştırma" },
+    computers: { name: "Bilgisayar mağazası", line: "PC toplama, özelliğe göre filtre ve karşılaştırma" },
+    electronics: { name: "Elektronik mağazası", line: "Özellikler, karşılaştırma, garanti ve takas" },
   },
   business: {
     teaching: "Eğitim ve kurslar",

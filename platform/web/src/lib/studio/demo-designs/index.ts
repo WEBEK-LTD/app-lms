@@ -39,6 +39,12 @@ import { MUKAAB_B, TOOT_A } from "./toys-signature";
 import { DECOR_A, DECOR_B } from "./decor-signature";
 import { CROCHET_A, CROCHET_B } from "./crochet-signature";
 import { FURNITURE_A, FURNITURE_B } from "./furniture-signature";
+// 211 Nova, the mobiles shop: A NOVA ink and cobalt, B emerald on stone.
+import { EMERALD_B, NOVA_A } from "./mobiles-signature";
+// 211 Nawah, computers and gaming: A NAWAH white and blue, B SILICA green on stone.
+import { NAWAH_A, SILICA_B } from "./computers-signature";
+// 211 Madar, the electronics shop: A MADAR white and deep blue, B NABD lime on near black.
+import { MADAR_A, NABD_B } from "./electronics-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -187,6 +193,12 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   decor: { a: DECOR_A, b: DECOR_B },
   crochet: { a: CROCHET_A, b: CROCHET_B },
   furniture: { a: FURNITURE_A, b: FURNITURE_B },
+  // 211 Madar, the electronics shop (a store): A MADAR in white and deep blue, B NABD in lime on near black.
+  electronics: { a: MADAR_A, b: NABD_B },
+  // 211 Nova, the mobiles shop (a store): A NOVA's ink and cobalt, B emerald on warm stone.
+  mobiles: { a: NOVA_A, b: EMERALD_B },
+  // 211 Nawah, computers and gaming (a store): A NAWAH in white and one strong blue, B SILICA in deep green on stone.
+  computers: { a: NAWAH_A, b: SILICA_B },
 };
 
 /** A look with its demo's own tabs when it has none of its own. */

@@ -6,6 +6,7 @@ import 'money_models.dart';
 import 'store_models.dart';
 import 'studio_live_models.dart';
 import 'studio_premium_models.dart';
+import 'tech_models.dart';
 
 /// `GET /pages`: the bottom tabs, the side menu and the pages published in
 /// the dashboard.
@@ -453,8 +454,9 @@ enum BuiltInScreen {
 
 enum OpenIn { inApp, browser }
 
-/// 162 `Action.flow`: Build your bouquet over a store's shop.
-enum ActionFlow { bouquet }
+/// 162 `Action.flow`: Build your bouquet over a store's shop; 211 or the
+/// trade-in estimator, or Build your PC.
+enum ActionFlow { bouquet, tradeIn, pcBuilder }
 
 /// What happens on tap (the contract's `Action`).
 class PageAction {
@@ -2205,6 +2207,13 @@ enum StudioNodeType {
   // 210 The shop's next delivery days and times to pick (and its assembly),
   // kept for the checkout (`StoreConfig.delivery_date`).
   deliverySlots,
+  // 211 The tech elements (StudioTech): a product's specs, two or three
+  // products compared, the shop by a spec, trade-in and Build your PC.
+  specTable,
+  compare,
+  specFilter,
+  tradeIn,
+  pcBuilder,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2844,6 +2853,8 @@ class StudioNode {
     this.swatchSize = 36,
     this.quizQuestions = const [],
     this.deliverySlots = const StudioDeliverySlots(),
+    this.tech = const StudioTech(),
+    this.techServed,
     this.code,
     this.recent = false,
     this.heads,
@@ -3016,6 +3027,8 @@ class StudioNode {
             ? StudioEntry.listFrom((json['quiz'] as Map)['questions'])
             : const [],
         deliverySlots: StudioDeliverySlots.tryParse(json['delivery_slots']),
+        tech: StudioTech.tryParse(json['tech']),
+        techServed: StudioTechServed.tryParse(json['tech_served']),
         code: optString(json, 'code'),
         recent: boolOr(json, 'recent', false),
         heads: optString(json, 'heads'),
@@ -3357,6 +3370,10 @@ class StudioNode {
 
   /// 210 For `delivery_slots`: its days and whether it says the team assembles.
   final StudioDeliverySlots deliverySlots;
+
+  /// 211 For the tech elements: what they show, and what the server filled.
+  final StudioTech tech;
+  final StudioTechServed? techServed;
 
   /// 112.4 For a coupon: the code people copy.
   final String? code;

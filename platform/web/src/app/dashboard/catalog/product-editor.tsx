@@ -296,6 +296,19 @@ export function ProductEditor({
             </div>
           </Card>
 
+          {/* 211 Its specifications (a phone's screen, a laptop's processor), one per line. */}
+          {restaurant ? null : (
+            <Card id="p-specs" icon="list_alt" title={t("tech.specs")}>
+              <div className="flex flex-col gap-1.5">
+                <textarea id="f-specs" name="specs" rows={5} defaultValue={product.specs ?? ""} className="input min-h-28 py-3 text-[14px]" aria-label={t("tech.specs")} aria-describedby="f-specs-hint" aria-invalid={errors.specs ? true : undefined} />
+                <span id="f-specs-hint" className="text-[13px] text-muted">
+                  {t("tech.specsHint")}
+                </span>
+                <FieldError id="f-specs-error" error={errors.specs} />
+              </div>
+            </Card>
+          )}
+
           <Card id="p-photos" icon="photo_library" title={t("shop.photos")} description={t("manage.photosIntro")}>
             <Photos initial={product.images} error={errors.images} />
           </Card>

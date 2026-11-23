@@ -2573,5 +2573,466 @@ export const STORIES_EN: StoryCopy = {
         "furniture-home": "A white leather sofa with checked cushions under a painting"
       }
     },
+    // 211 Madar, the electronics shop: a laptop for a new job and an old phone traded in, in its look A (MADAR); look B (NABD) in its section.
+    electronics: {
+      navName: "Electronics shop app",
+      metaTitle: "An electronics shop app with specs, compare, warranty and trade-in, designed in Yallapp Studio",
+      metaDescription: "A week with Madar: a new job, a laptop chosen by its specs, two phones compared side by side, a year more of warranty and an old phone traded in.",
+      summary: "Every product's specifications as a table, two or three compared side by side, colours and storages each with its price, the warranty and more cover, trade-in and installments coming soon, in two premium looks.",
+      eyebrow: "Yallapp Studio · The electronics shop",
+      title: "Sunday, with the right laptop",
+      intro: "Faisal starts a new job on Sunday and his old laptop won't make it. It's Wednesday evening in Riyadh. This is how a few evenings with his phone become the right laptop, a new phone, and the old one traded in.",
+      cast: "Faisal shops at Madar, an all-in-one electronics store in Riyadh. Madar is the electronics shop template's demo: its brands, products and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Riyadh, after work",
+          title: "A laptop by Sunday",
+          text: "Faisal opens Madar on the sofa. The home is small and quick: the search, the categories, the week's launches in cards that slide, the next one peeking. Under them, one line of promises: delivery in 24 hours, free installation, a certified warranty, and installments, coming soon."
+        },
+        {
+          time: "20:44",
+          kicker: "The menu",
+          title: "Every category, a row",
+          text: "He taps the menu beside the bell. Phones, Laptops, Tablets & watches, TVs: each category is a row of cards, its sub-categories sliding after it. He slides Laptops and taps Thin & light."
+        },
+        {
+          time: "20:51",
+          kicker: "The laptop's page",
+          title: "Read the specs, not the ads",
+          text: "The ARCLINE Air 14. Its specifications are a clean table, in Arabic when the app is: the screen, the processor, the memory, the storage, the battery, the weight. He chooses 16 GB with 1 TB, and the price changes with it. Under the price, a quiet tag: installments, coming soon."
+        },
+        {
+          time: "21:05",
+          kicker: "Compare",
+          title: "Two phones, side by side",
+          text: "His phone is three years old too. He adds the ZENRA X1 and the X1 Pro to compare. The two sit side by side, spec by spec: 6.3 or 6.7 inches, 4,400 or 5,000 mAh, the cameras, the price. He picks the Pro, in titanium, 256 GB, and adds a year more of Madar Care."
+        },
+        {
+          time: "21:12",
+          kicker: "Trade-in",
+          title: "What the old phone is worth",
+          text: "On the trade-in page he chooses his old phone's model, its storage and its condition: good. The app says what it's worth, and he sends the request with his number. It lands in the shop's dashboard, where the team calls him back."
+        },
+        {
+          time: "10:15",
+          kicker: "Thursday, at the shop",
+          title: "Checked, packed, on its way",
+          text: "At Madar, Khalid opens the morning's orders and the trade-in requests. Faisal's says the laptop with 1 TB and the phone with its warranty. Khalid calls about the old phone: it will be checked at the door, and its value taken off.",
+          push: {
+            app: "Madar",
+            title: "Order 4127",
+            body: "Your order is on its way. Have your old phone ready for the trade-in."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Wednesday evening. Sunday, at a new desk.",
+        text: "Everything in between was the shop's own: its categories and their rows, its specifications, its colours and storages with their prices, its warranty and cover, its trade-in prices, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one laptop",
+      stats: [
+        "main categories in the demo's menu, each a row of cards",
+        "products compared side by side, at most",
+        "days to return, shown under every price",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "The specifications and the compare sheet, colours, storages and the warranty, trade-in, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Specifications and compare",
+          title: "Read them, then put them side by side",
+          text: "Every product has its specifications, and any two or three can be compared.",
+          features: [
+            ["A clean table", "The screen, the processor, the memory, the storage and the rest, label and value."],
+            ["Side by side", "Two or three products in columns, spec by spec, the ones they share first."],
+            ["In the app's language", "The labels Yallapp knows are named in English, Arabic or Turkish."],
+            ["Filters by spec", "The shop filtered by a spec's value, such as 16 GB."],
+            ["In the editor too", "The table, the compare sheet and the filter are elements of Studio's library, for any store."]
+          ]
+        },
+        {
+          name: "Colours, storages and the warranty",
+          title: "Each choice with its price",
+          text: "A phone comes in its colours and storages, each storage with its own price and stock.",
+          features: [
+            ["Colour and storage", "Every combination is its own piece of stock, its own price."],
+            ["Gone is gone", "A storage with none left in the colour chosen can't be chosen."],
+            ["The warranty", "The maker's warranty in the specifications, and the returns under the price."],
+            ["More cover", "A year more, or a screen and liquid cover, added before the cart."],
+            ["Installments, coming soon", "Only a tag: no way to pay in instalments is offered yet."]
+          ]
+        },
+        {
+          name: "Trade-in",
+          title: "The old phone, worth something",
+          text: "The shop sets the devices it takes and what it pays; the app estimates.",
+          features: [
+            ["The shop's prices", "Each model and storage with its top price, and a share for each condition."],
+            ["An estimate in seconds", "The model, the storage and the condition, then what it's worth."],
+            ["A request the shop sees", "The customer's number and the estimate land in the dashboard."],
+            ["Checked at the door", "The shop checks the device when it delivers the new one."]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Madar comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["MADAR", "Look A: clean white and one deep blue, the services in one card."],
+            ["NABD", "Look B: lime on near-black cards over warm stone, the top five and a bundle."],
+            ["Light and dark", "Both looks have a designed night."],
+            ["A compact hero", "The launches in cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one lit."],
+            ["Ready sections", "Trade-in, compare, the specs, the services, the star of the season and more, for any store."],
+            ["Three languages", "English, Arabic right to left, and Turkish."]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Madar works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            ["Products in Yallapp", "Everything on this page: specifications, colours and storages, cover, trade-in."],
+            ["WordPress and other platforms", "Their categories, variations and stock in the app."],
+            ["Coming next", "Specifications and trade-in from a connected platform."]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Madar", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, specs, prices and trade-in"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"]
+      ],
+      bundleFlows: [
+        "A new laptop shows with its specifications",
+        "A storage sold out can't be chosen in the app",
+        "A trade-in request lands in the dashboard",
+        "An order arrives with its colour, storage and cover"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Sunday, at nine",
+        text: "The laptop is fast and quiet, as its specifications said. The new phone is in his pocket; the old one went back at the door. At Madar, Khalid adds next month's phones, each with its table, and somewhere in Riyadh someone is comparing two of them."
+      },
+      photos: {
+        "electronics-hero": "A laptop, a mug and a small plant on a wooden desk",
+        "electronics-phone": "A phone with three cameras beside a camera lens",
+        "electronics-compare": "A tablet and a phone side by side on white marble",
+        "electronics-desk": "A laptop open on a wooden table beside a plant",
+        "electronics-glow": "A laptop's lit keyboard in the dark",
+        "electronics-buds": "A phone and white earbuds on a white table"
+      }
+    },
+    // 211 Nova, the mobiles shop: an old phone traded in for a new one, in its look A (NOVA); look B (emerald) in its section.
+    mobiles: {
+      navName: "Phone shop app",
+      metaTitle: "A phone shop app with trade-in, certified used, specs and compare, designed in Yallapp Studio",
+      metaDescription: "A day with Nova: an old phone valued in a minute, a new one in its storage, colour and warranty, two phones compared, and the trade-in landing with the shop.",
+      summary: "Storage and colour with a price for each, a local or an international warranty, specs in a table, two phones compared, certified used with grades and trade-in, in two premium looks.",
+      eyebrow: "Yallapp Studio · The phone shop",
+      title: "The old phone pays for part of the new one",
+      intro: "Karim's phone has a cracked back and a camera that blurs at night. It's Wednesday evening in Cairo. This is how ten minutes with that same phone become a new one, with the old one taken off the price.",
+      cast: "Karim shops at Nova, a phone shop in Cairo. Nova is the phone shop template's demo: its devices, brands, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Nasr City, after work",
+          title: "A camera that blurs at night",
+          text: "Karim opens Nova on the balcony. The home is small and quick: the search, the categories in circles, and this season's phones in cards that slide, the next one peeking from the edge. Under them, three promises: trade-in, certified repair and a warranty on every device."
+        },
+        {
+          time: "20:43",
+          kicker: "What it's worth",
+          title: "His old phone, in under a minute",
+          text: "Halfway down the home, a card asks what his old phone is worth. He picks his model, its 256 GB and Good, not Like new, for the cracked back. The estimate appears at once, under the shop's own prices. He taps Start trade-in and leaves his name and number."
+        },
+        {
+          time: "20:47",
+          kicker: "The new phone's page",
+          title: "256 GB, titanium, a local warranty",
+          text: "The phone he wanted for months. Each storage has its own price; titanium is chosen, and the international warranty is cheaper but he keeps the local one. Under the price, a quiet tag says installments are coming soon. Below it, the specs in a table: the screen, the processor, the cameras, the battery."
+        },
+        {
+          time: "20:52",
+          kicker: "Compare",
+          title: "Two phones, side by side",
+          text: "He isn't sure, so he adds a second phone to Compare. The two sit side by side, spec by spec: 200 MP against 108, 5,000 mAh against 5,500, the price at the foot of each. The camera wins. He adds the first one to his cart with the leather case the page offers with it."
+        },
+        {
+          time: "21:05",
+          kicker: "For his sister",
+          title: "Certified used, grade A",
+          text: "Back on the home, at night now, the app has turned dark. His sister needs a phone for university: the certified used ones show their grade, their storage and their battery health. A Lumen 11, grade A, battery at 91%, with a 12-month warranty. He sends her the link."
+        },
+        {
+          time: "10:15",
+          kicker: "Thursday, at the shop",
+          title: "A trade-in waiting",
+          text: "At Nova, Hany opens the dashboard. Karim's trade-in is there with his model, its storage, its grade and the estimate the app showed him, beside his order. He calls, books a courier for the new phone and the old one in the same trip, and marks the request done.",
+          push: {
+            app: "Nova",
+            title: "Order 3117",
+            body: "Your new phone is on its way. Have the old one ready: the courier takes it."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Wednesday at nine. The old phone, gone with the courier.",
+        text: "Everything in between was the shop's own: its categories and their rows, its storages and colours with a price for each, its warranties, its specs, its trade-in prices and grades, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one phone",
+      stats: [
+        "main categories in the demo's menu, each a row of cards",
+        "grades of a certified used device, A+ to B",
+        "days to return a device, shown under every price",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Trade-in, the phone's page with its specs and compare, certified used, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Trade-in",
+          title: "What the old phone is worth",
+          text: "The shop says which devices it takes and what each is worth; the app works out the estimate and sends the request.",
+          features: [
+            ["The device", "The customer picks a model from the shop's own list."],
+            ["Its storage", "Each storage has its own top price."],
+            ["Its condition", "Like new, good, fair or broken, each a share of that price."],
+            ["The estimate", "Shown at once, before anything is sent."],
+            ["A request for the shop", "The name, the number and the estimate land in the dashboard."],
+            ["In the editor too", "The estimator is an element of Studio's library, inline or as a card."]
+          ]
+        },
+        {
+          name: "The phone's page",
+          title: "Storage, colour, warranty and specs",
+          text: "A phone comes in its storages and colours, each with its own price and stock.",
+          features: [
+            ["Storage and colour", "Every combination is its own piece of stock, with its own price."],
+            ["Local or international", "A warranty to choose where the shop offers both."],
+            ["Specs in a table", "The screen, the processor, the cameras, the battery, in the customer's language."],
+            ["Compare", "Two or three devices side by side, spec by spec."],
+            ["In three languages", "The specs' names in English, Arabic and Turkish."],
+            ["Installments", "Only a tag that says they are coming soon; nothing to pay with yet."]
+          ]
+        },
+        {
+          name: "Certified used",
+          title: "A grade you can trust",
+          text: "Used devices are sold with what a buyer needs to know.",
+          features: [
+            ["The grade", "A+ like new, A excellent, B very good."],
+            ["The battery", "Its health in percent, on the card and the page."],
+            ["The warranty", "How long the shop stands behind it."],
+            ["The saving", "The price new struck through beside it."],
+            ["The deal of the day", "A flash sale with its countdown and how many are left."]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Nova comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["NOVA", "Look A: white, ink and one cobalt accent, the estimator on the home."],
+            ["Emerald", "Look B: deep green on warm stone, trade-in in three steps and a ready bundle."],
+            ["Light and dark", "Both looks have a designed night."],
+            ["A compact hero", "This season's phones in cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one a pill with its name."],
+            ["Ready sections", "Trade-in, compare, by storage, certified used and more, for any store."],
+            ["Three languages", "English, Arabic right to left, and Turkish."]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Nova works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            ["Products in Yallapp", "Everything on this page: specs, storages and colours, trade-in and the accessories."],
+            ["WordPress and other platforms", "Their categories in the menu, their variations and stock on the page."],
+            ["Coming next", "Specs and trade-in from a connected platform."]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Nova", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, categories, specs, trade-in and offers"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"]
+      ],
+      bundleFlows: [
+        "A trade-in request arrives with its estimate",
+        "A storage sold out is greyed out in the app",
+        "The specs show in the customer's language",
+        "An order arrives with its storage, colour and warranty"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Friday, at the river",
+        text: "The new camera sees in the dark. The old phone is on a shelf at Nova, checked at 72 points, waiting for its grade. Hany has already added this week's phones to their row, and somewhere in Cairo someone is working out what their own old phone is worth."
+      },
+      photos: {
+        "mobiles-hero": "A hand holding a phone up to a grey sea and sky",
+        "mobiles-box": "A new phone in its open black box with its charger and earphones",
+        "mobiles-camera": "The back of a phone with three cameras beside an old film camera",
+        "mobiles-hand": "A hand holding a phone against a pale grey wall",
+        "mobiles-food": "Two hands taking a photo of a table of food with a phone",
+        "mobiles-earbuds": "A phone lying on a white desk beside a pair of earbuds"
+      }
+    },
+    // 211 Nawah, computers and gaming: a gaming PC built part by part in Jeddah, in its look A (NAWAH); look B (SILICA) in its section.
+    computers: {
+      navName: "Computers shop app",
+      metaTitle: "A computers and gaming shop app with Build your PC, filters by spec and compare, designed in Yallapp Studio",
+      metaDescription: "A week with Nawah: a gaming PC built part by part, every part checked, a laptop found by its specs, and two laptops compared side by side.",
+      summary: "Build your PC with its compatibility checks, filters by processor, memory, storage and graphics, specifications as a table, compare and configure, in two premium looks.",
+      eyebrow: "Yallapp Studio · The computers shop",
+      title: "Part by part, and it fits",
+      intro: "Faisal has saved for a gaming PC all year, and his sister Reem starts university next month without a laptop. It's Thursday night in Jeddah. This is how one app built the first and found the second.",
+      cast: "Faisal and Reem shop at Nawah, a computers and gaming shop in Jeddah. Nawah is the computers shop template's demo: its products, brands and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "22:05",
+          kicker: "Jeddah, Thursday night",
+          title: "A PC, part by part",
+          text: "Faisal opens Nawah. The home is small and quick: the search, the categories, a hero card with the next one peeking, and under it a card that says Build your PC, its parts in a row: processor, motherboard, memory, graphics, storage, power, case.",
+        },
+        {
+          time: "22:09",
+          kicker: "The processor first",
+          title: "Twelve cores on AM-X",
+          text: "He taps Start your build and chooses the N7, twelve cores on the AM-X socket. Every motherboard that takes another socket is still listed, but marked: it doesn't take this processor's socket. He chooses the full-size X-Arc board.",
+        },
+        {
+          time: "22:14",
+          kicker: "What doesn't fit says why",
+          title: "DDR4 on a DDR5 board",
+          text: "He has a DDR4 kit in his cart from last year. The builder marks it: the board takes DDR5. He takes the Swift 32 GB DDR5 kit instead, then the GX 470. The summary says the build needs 550 W with room to spare; he takes the 750 W supply, for a bigger card one day. The running total and the watts follow every choice.",
+        },
+        {
+          time: "22:31",
+          kicker: "The menu, for Reem",
+          title: "Filter by what matters",
+          text: "Reem takes the phone. From the menu, Find by spec shows the shop's laptops by processor, memory, storage and graphics card, each value with how many have it. She taps 16 GB, then opens the Ofuq 14 Air and reads its specifications in a table: the screen, the battery, the weight.",
+        },
+        {
+          time: "22:40",
+          kicker: "Side by side",
+          title: "Two laptops, one table",
+          text: "She adds the Ofuq 14 Air and the Lumen Slate 13 to Compare. One table, spec by spec: the Ofuq is lighter with a longer battery. She configures it with 32 GB of memory, the price changing as she chooses, and sees, under the price, Installments coming soon. She pays the whole of it with the shop's code, NAWAH10.",
+        },
+        {
+          time: "11:00",
+          kicker: "Saturday, at the workshop",
+          title: "Built and tested",
+          text: "At Nawah, Majed opens Faisal's order: eight parts, one build. He assembles it, tidies the cables and runs it under load for a day. Faisal's order moves to Built and tested, then On its way.",
+          push: {
+            app: "Nawah",
+            title: "Order 3107",
+            body: "Your build is assembled and tested. It's on its way.",
+          },
+        },
+      ],
+      interlude: {
+        quote: "Eight parts. Not one that didn't fit.",
+        text: "Everything in between was the shop's own: its categories and their rows, each product's specifications, the parts Build your PC asks for, the options and their prices, its warranty and returns, set once in the dashboard.",
+      },
+      statsTitle: "Small facts behind one build",
+      stats: ["parts in the demo's Build your PC, in their order", "checks between the parts: the socket, the memory, the power and the size", "days to return, shown with every order", "languages, Arabic right to left"],
+      systemsTitle: "Every part, explained",
+      systemsText: "Build your PC, the filters by spec, the specifications and compare, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Build your PC",
+          title: "Every part checked against the others",
+          text: "The customer chooses a part at a time from the shop's own categories, and the app checks it against the parts already chosen.",
+          features: [
+            ["Part by part", "Processor, motherboard, memory, graphics card, storage, cooler, power supply and case, in the shop's order."],
+            ["From the shop's categories", "Each part is a category the owner chooses; the cooler and the case can be left out."],
+            ["The power it needs", "The processor's and graphics card's draw, and a quarter more to spare."],
+            ["What fits", "The socket, the memory type, the power and the case's size, from each product's specifications."],
+            ["Why not", "A part that doesn't fit stays in the list, marked with the reason."],
+            ["One tap to the cart", "The whole build goes in the cart, its running total in sight."],
+          ],
+        },
+        {
+          name: "Filters by spec",
+          title: "The shop by what's inside",
+          text: "The values the shop's products take, as chips, each opening the shop filtered by it.",
+          features: [
+            ["Processor and graphics", "Every processor and graphics card the shop sells, as chips."],
+            ["Memory and storage", "16 GB, 32 GB, 1 TB: tap one to see every product that has it."],
+            ["How many", "Each value shows how many products have it."],
+            ["From the specifications", "The owner writes each product's specifications once; the filters follow."],
+            ["In the shop and the menu", "The filters on the home, over the shop and on a page of their own."],
+            ["In the editor too", "The spec filter is an element of Studio's library, for any store."],
+          ],
+        },
+        {
+          name: "Specifications and compare",
+          title: "One table, spec by spec",
+          text: "Every product's specifications as a clean table, and up to three products side by side.",
+          features: [
+            ["A table on every page", "The specifications under the price, the first rows at once and the rest a tap away."],
+            ["Compare", "Two or three products side by side, the specs they share first."],
+            ["Configure", "Memory and storage as options, each with its own price."],
+            ["Warranty in sight", "The warranty and the returns on the product's page."],
+            ["Installments: coming soon", "Shown as coming soon only, never a way to pay."],
+          ],
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Nawah comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["NAWAH", "Look A: cool white and one strong blue, deep cards for the deals and the gamer zone."],
+            ["SILICA", "Look B: deep green on warm stone, its sections numbered."],
+            ["Light and dark", "Both looks have a designed night."],
+            ["A compact hero", "Cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account."],
+            ["Ready sections", "Build your PC, the spec filters, ready builds compared and the device of the week, for any store."],
+            ["Three languages", "English, Arabic right to left, and Turkish."],
+          ],
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Nawah works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            ["Products in Yallapp", "Everything on this page: the specifications, Build your PC and the filters."],
+            ["WordPress and other platforms", "Their categories in the menu, their options and stock on the page."],
+            ["Coming next", "The specifications and Build your PC from a connected platform."],
+          ],
+        },
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Nawah", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, categories, specifications and builder"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"],
+      ],
+      bundleFlows: ["A new graphics card shows in its filter", "A part that doesn't fit says why", "The specifications show in the customer's language", "A build arrives as one order"],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Sunday, after ten",
+        text: "The PC hums under Faisal's desk, quieter than he thought. Reem's laptop is in her bag for the first lecture. At Nawah, Majed has added a new graphics card, and it is already in its filter.",
+      },
+      photos: {
+        "computers-hero": "A desk lit purple, a wide monitor showing a galaxy",
+        "computers-parts": "A motherboard with a processor in its socket",
+        "computers-socket": "A processor's gold pins in a motherboard's socket",
+        "computers-laptop": "A laptop on a desk in a dark room, a lamp on",
+        "computers-play": "Two hands on a blue-lit game controller",
+        "computers-desk": "A man at a desk working on a monitor, speakers on each side",
+      },
+    },
   },
 };

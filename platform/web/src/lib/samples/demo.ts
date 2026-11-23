@@ -19,6 +19,9 @@ import { demoKitProducts, kitPartsForSamples, type ShopKit } from "../demo/shop-
 import { CROCHET_KIT } from "../demo/kits/crochet";
 import { DECOR_KIT } from "../demo/kits/decor";
 import { FURNITURE_KIT } from "../demo/kits/furniture";
+import { demoMobilesProducts, mobilesPartsForSamples } from "../demo/mobiles-entries";
+import { demoComputersProducts } from "../demo/computers-entries";
+import { demoElectronicsProducts, electronicsPartsForSamples } from "../demo/electronics-entries";
 import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
 import { marketCuisines, marketplaceSamples, savingZadPictures } from "../demo/marketplace";
 import { savePicture } from "../demo/picture-assets";
@@ -131,6 +134,12 @@ const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   decor: { products: (m) => kitSamples(m, DECOR_KIT) },
   crochet: { products: (m) => kitSamples(m, CROCHET_KIT) },
   furniture: { products: (m) => kitSamples(m, FURNITURE_KIT) },
+  // 211 Nova's devices, their categories and sub-categories, its trade-in and accessories.
+  mobiles: { products: async (m) => (await demoMobilesProducts(m.entries, m.app), await mobilesPartsForSamples(m.entries, m.app), true) },
+  // 211 Nawah's products with their specs and options, its categories, Build your PC and the matching accessories.
+  computers: { products: async (m) => (await demoComputersProducts(m.entries, m.app), true) },
+  // 211 Madar's products with their specs, its categories and sub-categories, its accessories and trade-in.
+  electronics: { products: async (m) => (await demoElectronicsProducts(m.entries, m.app), await electronicsPartsForSamples(m.entries, m.app), true) },
   restaurant: { products: products(true) },
   booking: { services: bookings("salon") },
   clinic: { services: bookings("clinic") },

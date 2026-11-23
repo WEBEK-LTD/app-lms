@@ -53,6 +53,7 @@ import * as market from "./market";
 import * as rides from "./rides";
 import * as travel from "./travel";
 import * as shopTypes from "./shop-types";
+import * as tech from "./tech";
 import * as selling from "./selling";
 import * as school from "./school";
 import * as taxi from "./taxi";
@@ -123,7 +124,7 @@ import * as stories from "./stories";
  */
 
 /** Every area. A new area is one import and one entry here. */
-const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door, freeze, account, security, apps, chat, integrations, imports, campaigns, inapp, studio, delivery, food, market, rides, teachers, school, taxi, samples, lms, reports, bus, library, salaries, schoolLife, learning, parents, university, bot, start, travel, selling, studioMarket, marketMoney, gateways, studioKit, studioPage, manage, working, addons, money, inAppPay, zones, apns, autoShots, stories, marketDiscounts, marketPage, shopTypes } as const;
+const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door, freeze, account, security, apps, chat, integrations, imports, campaigns, inapp, studio, delivery, food, market, rides, teachers, school, taxi, samples, lms, reports, bus, library, salaries, schoolLife, learning, parents, university, bot, start, travel, selling, studioMarket, marketMoney, gateways, studioKit, studioPage, manage, working, addons, money, inAppPay, zones, apns, autoShots, stories, marketDiscounts, marketPage, shopTypes, tech } as const;
 
 type Areas = typeof AREAS;
 type English = { [K in keyof Areas]: Areas[K]["en"] };

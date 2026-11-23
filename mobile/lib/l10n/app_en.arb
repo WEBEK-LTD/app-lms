@@ -13724,6 +13724,310 @@
       }
     }
   },
+  "specsTitle": "Specifications",
+  "@specsTitle": {
+    "description": "211 A product's specifications table: its title."
+  },
+  "specsAll": "All specifications",
+  "@specsAll": {
+    "description": "211 Opens the rest of a product's specifications."
+  },
+  "specsFewer": "Fewer specifications",
+  "@specsFewer": {
+    "description": "211 Folds a product's specifications back to the first ones."
+  },
+  "compareAdd": "Compare",
+  "@compareAdd": {
+    "description": "211 A product page's button that adds it to the compare list."
+  },
+  "compareAdded": "In compare",
+  "@compareAdded": {
+    "description": "211 The compare button once the product is in the compare list (a tap removes it)."
+  },
+  "compareOpen": "Compare ({count})",
+  "@compareOpen": {
+    "description": "211 Opens the compare screen; count is how many products are in it.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "compareTitle": "Compare",
+  "@compareTitle": {
+    "description": "211 The compare screen's title."
+  },
+  "compareFull": "You can compare up to 3 products",
+  "@compareFull": {
+    "description": "211 Said when a fourth product is added to the compare list."
+  },
+  "compareRemove": "Remove from compare",
+  "@compareRemove": {
+    "description": "211 Removes a product from the compare screen."
+  },
+  "compareEmpty": "Add two or three products to compare them side by side.",
+  "@compareEmpty": {
+    "description": "211 The compare screen with fewer than two products."
+  },
+  "compareSpec": "Specification",
+  "@compareSpec": {
+    "description": "211 The compare table's first column: the specifications' names."
+  },
+  "accessoriesTitle": "Goes with it",
+  "@accessoriesTitle": {
+    "description": "211 A product page's matching accessories."
+  },
+  "accessoriesAdd": "{count, plural, =1{Add 1 item to the cart} other{Add {count} items to the cart}}",
+  "@accessoriesAdd": {
+    "description": "211 Adds the product and the accessories ticked to the cart.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "installmentsSoon": "Installments coming soon",
+  "@installmentsSoon": {
+    "description": "211 A tag under a product's price: paying in installments isn't offered yet."
+  },
+  "tradeInTitle": "What is your old device worth?",
+  "@tradeInTitle": {
+    "description": "211 The trade-in card's and screen's title."
+  },
+  "tradeInLine": "Pick your device and its condition to see its value in seconds.",
+  "@tradeInLine": {
+    "description": "211 The trade-in card's line."
+  },
+  "tradeInUpTo": "Up to {amount}",
+  "@tradeInUpTo": {
+    "description": "211 The most the shop pays for a device (amount is formatted money).",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "tradeInCheck": "Check its value",
+  "@tradeInCheck": {
+    "description": "211 The trade-in card's button: opens the estimator."
+  },
+  "tradeInModel": "Your device",
+  "@tradeInModel": {
+    "description": "211 The trade-in estimator: the device to trade in."
+  },
+  "tradeInStorage": "Storage",
+  "@tradeInStorage": {
+    "description": "211 The trade-in estimator: the device's storage."
+  },
+  "tradeInCondition": "Condition",
+  "@tradeInCondition": {
+    "description": "211 The trade-in estimator: the device's condition."
+  },
+  "tradeInGradeLikeNew": "Like new",
+  "@tradeInGradeLikeNew": {
+    "description": "211 A trade-in grade: no marks at all."
+  },
+  "tradeInGradeGood": "Good",
+  "@tradeInGradeGood": {
+    "description": "211 A trade-in grade: light signs of use."
+  },
+  "tradeInGradeFair": "Fair",
+  "@tradeInGradeFair": {
+    "description": "211 A trade-in grade: clear scratches or wear."
+  },
+  "tradeInGradeBroken": "Broken screen",
+  "@tradeInGradeBroken": {
+    "description": "211 A trade-in grade: the screen or back is cracked."
+  },
+  "tradeInEstimate": "Estimated value",
+  "@tradeInEstimate": {
+    "description": "211 The trade-in estimator: over the estimate."
+  },
+  "tradeInStart": "Start trade-in",
+  "@tradeInStart": {
+    "description": "211 The trade-in estimator's button: asks how to reach the customer."
+  },
+  "tradeInFinal": "The final value is set once the shop checks the device.",
+  "@tradeInFinal": {
+    "description": "211 Under the trade-in estimate."
+  },
+  "tradeInContact": "How can the shop reach you?",
+  "@tradeInContact": {
+    "description": "211 The trade-in request sheet's title."
+  },
+  "tradeInName": "Your name",
+  "@tradeInName": {
+    "description": "211 The trade-in request: the customer's name."
+  },
+  "tradeInPhone": "Mobile number",
+  "@tradeInPhone": {
+    "description": "211 The trade-in request: the customer's phone."
+  },
+  "tradeInNote": "Anything to add (optional)",
+  "@tradeInNote": {
+    "description": "211 The trade-in request: an optional note."
+  },
+  "tradeInSend": "Send request",
+  "@tradeInSend": {
+    "description": "211 Sends the trade-in request to the shop."
+  },
+  "tradeInSent": "We received your request",
+  "@tradeInSent": {
+    "description": "211 The trade-in request was sent."
+  },
+  "tradeInSentLine": "The shop will call you about your {model} ({estimate}).",
+  "@tradeInSentLine": {
+    "description": "211 After a trade-in request: model is the device, estimate its formatted value.",
+    "placeholders": {
+      "model": {
+        "type": "String"
+      },
+      "estimate": {
+        "type": "String"
+      }
+    }
+  },
+  "pcBuilderTitle": "Build your PC",
+  "@pcBuilderTitle": {
+    "description": "211 Build your PC: its card's and screen's title."
+  },
+  "pcBuilderLine": "Choose each part; we check that they fit together.",
+  "@pcBuilderLine": {
+    "description": "211 Build your PC's card line."
+  },
+  "pcBuilderStart": "Start building",
+  "@pcBuilderStart": {
+    "description": "211 Build your PC's card button."
+  },
+  "pcBuilderStep": "Step {step} of {count}",
+  "@pcBuilderStep": {
+    "description": "211 Build your PC: where the customer is.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pcBuilderSkip": "Skip this part",
+  "@pcBuilderSkip": {
+    "description": "211 Build your PC: leaves an optional part out."
+  },
+  "pcBuilderNext": "Next part",
+  "@pcBuilderNext": {
+    "description": "211 Build your PC: goes to the next part."
+  },
+  "pcBuilderReview": "Review the build",
+  "@pcBuilderReview": {
+    "description": "211 Build your PC: the last step, the whole build."
+  },
+  "pcBuilderTotal": "Build total",
+  "@pcBuilderTotal": {
+    "description": "211 Build your PC: the chosen parts' total."
+  },
+  "pcBuilderWatts": "Needs {watts} W",
+  "@pcBuilderWatts": {
+    "description": "211 Build your PC: the power the build needs.",
+    "placeholders": {
+      "watts": {
+        "type": "int"
+      }
+    }
+  },
+  "pcBuilderAddAll": "Add the build to the cart",
+  "@pcBuilderAddAll": {
+    "description": "211 Build your PC: adds every chosen part."
+  },
+  "pcBuilderAdded": "The build is in your cart",
+  "@pcBuilderAdded": {
+    "description": "211 Build your PC: the parts were added."
+  },
+  "pcBuilderFits": "Every part fits",
+  "@pcBuilderFits": {
+    "description": "211 Build your PC: no problem between the parts chosen."
+  },
+  "pcBuilderEmpty": "No parts here yet",
+  "@pcBuilderEmpty": {
+    "description": "211 Build your PC: a part's category has no products."
+  },
+  "pcBuilderOptional": "Optional",
+  "@pcBuilderOptional": {
+    "description": "211 Build your PC: a part the build can go without."
+  },
+  "pcPartCpu": "Processor",
+  "@pcPartCpu": {
+    "description": "211 Build your PC: a part."
+  },
+  "pcPartBoard": "Motherboard",
+  "@pcPartBoard": {
+    "description": "211 Build your PC: a part."
+  },
+  "pcPartRam": "Memory",
+  "@pcPartRam": {
+    "description": "211 Build your PC: a part."
+  },
+  "pcPartGpu": "Graphics card",
+  "@pcPartGpu": {
+    "description": "211 Build your PC: a part."
+  },
+  "pcPartStorage": "Storage",
+  "@pcPartStorage": {
+    "description": "211 Build your PC: a part."
+  },
+  "pcPartCooler": "Cooler",
+  "@pcPartCooler": {
+    "description": "211 Build your PC: a part."
+  },
+  "pcPartPsu": "Power supply",
+  "@pcPartPsu": {
+    "description": "211 Build your PC: a part."
+  },
+  "pcPartCase": "Case",
+  "@pcPartCase": {
+    "description": "211 Build your PC: a part."
+  },
+  "pcIssueSocket": "Doesn't fit the socket of the {part}",
+  "@pcIssueSocket": {
+    "description": "211 Build your PC: a part's socket differs (part names the other part).",
+    "placeholders": {
+      "part": {
+        "type": "String"
+      }
+    }
+  },
+  "pcIssueMemory": "Not the memory type the {part} takes",
+  "@pcIssueMemory": {
+    "description": "211 Build your PC: the memory type differs.",
+    "placeholders": {
+      "part": {
+        "type": "String"
+      }
+    }
+  },
+  "pcIssuePower": "Too little power for this build ({watts} W)",
+  "@pcIssuePower": {
+    "description": "211 Build your PC: the power supply is too small.",
+    "placeholders": {
+      "watts": {
+        "type": "int"
+      }
+    }
+  },
+  "pcIssueSize": "Too small for the {part}",
+  "@pcIssueSize": {
+    "description": "211 Build your PC: the case is smaller than the board.",
+    "placeholders": {
+      "part": {
+        "type": "String"
+      }
+    }
+  },
+  "specFilterEmpty": "Nothing matches this yet",
+  "@specFilterEmpty": {
+    "description": "211 The shop filtered by a spec, with nothing in it."
+  },
   "appointmentStatusApproved": "Approved",
   "appointmentStatusPending": "Pending",
   "appointmentStatusCancelled": "Cancelled",

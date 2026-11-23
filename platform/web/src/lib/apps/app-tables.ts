@@ -282,6 +282,8 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   listing_inquiries: "orders",
   // 210 A shop's custom-order requests, like a listing's inquiries.
   store_requests: "orders",
+  // 211 Trade-in requests from a store's app.
+  trade_in_requests: "orders",
 
   // Messages.
   hosted_notifications: "messages",

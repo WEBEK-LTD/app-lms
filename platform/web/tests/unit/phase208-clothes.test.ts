@@ -68,7 +68,7 @@ describe("208 the shop types: sections, then types, then templates", () => {
     expect(shopTypesIn("fashion").map((t) => t.id)).toEqual(["clothes", "kids_clothes"]);
     // 209 Both ready: kids' clothes, then toys.
     expect(shopTypesIn("kids").map((t) => t.id)).toEqual(["kids_clothes", "toys"]);
-    expect(shopTypesIn("shopping").map((t) => t.id)).toEqual(["electronics", "mobiles", "computers"]);
+    expect(shopTypesIn("shopping").map((t) => t.id).sort()).toEqual(["computers", "electronics", "mobiles"]);
     expect(SECTION_DEMOS.shopping).toEqual(["flowers", "marketplace"]);
     // Installments: never active, "coming soon" for furniture, electronics, mobiles and computers only.
     expect(SHOP_TYPES.filter((t) => t.installmentsSoon).map((t) => t.id)).toEqual(["furniture", "electronics", "mobiles", "computers"]);

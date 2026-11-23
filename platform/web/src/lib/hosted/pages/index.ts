@@ -11,10 +11,13 @@ import { etagValues } from "../../pages/plugin";
 import { appOpensScreen, itemSourcesFor, sameScreenAs } from "../../pages/sources";
 import { moreTab, splitTabs } from "../../pages/tab-bar";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
-import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, type Action, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type Translations, type StudioPage } from "../../pages/types";
+import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, STUDIO_TECH_TYPES, type Action, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type Translations, type StudioPage } from "../../pages/types";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import { addDisplayPrices, DISPLAY_CONNECTORS, Shown, type DisplayCurrency } from "../../money/display";
 import { ConnectorError, type Connector } from "../connectors/types";
+// 211 The tech elements.
+import { CatalogConnector } from "../connectors/catalog";
+import { servedTech } from "./tech";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
 import { itemResolver, type Item } from "./items";
@@ -173,6 +176,8 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
     }
     // 131 A flash sale with its sale and products; a coupon bound to the shop's coupons with the one it shows; else left out.
     if (node.type === "flash_sale") return servedFlashSale(pc, shown as StudioNode);
+    // 211 An electronics shop's parts, from its own products (left out with nothing to show).
+    if ((STUDIO_TECH_TYPES as readonly string[]).includes(node.type)) return servedTech(pc.ctx.app, pc.ctx.connector instanceof CatalogConnector, shown as StudioNode, (path, params) => get(pc, path, params));
     if (node.type === "coupon" && node.coupon?.bind === "public") return servedCoupon(pc, shown as StudioNode);
     return shown as StudioNode;
   });
@@ -658,8 +663,8 @@ function productItem(product: Record<string, unknown>, lang: LanguageCode): Item
     source: "products",
     id: String(id),
     title: product.name,
-    // 210 Its days to make or its size in cm, as the shop's API words it; null: none.
-    subtitle: str(product.subtitle),
+    // 210 Its days to make or its size in cm, as the shop's API words it; 211 its main specs on one line ("256 GB · 6.7″ OLED · 5G"); null: none.
+    subtitle: str(product.subtitle) ?? str(product.spec_line),
     image_url: str(product.image_url),
     price_label: str(price.formatted),
     // 161 As amounts and a currency, also in the customer's (its `sale` too: `sale.display`).

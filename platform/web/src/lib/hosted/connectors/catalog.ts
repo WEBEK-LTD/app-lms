@@ -38,6 +38,9 @@ import { shopTypeOfDesign } from "../../studio/shop-types";
 import { dimensionsLine, makeDaysLine, productLine } from "../../catalog/product-details";
 // 208 A clothes shop's size chart and "Complete the look"; sub-categories.
 import { completeLookFor, fashionOf, sizeChartJson } from "../../selling/fashion";
+// 211 An electronics shop's specs, accessories, trade-in and Build your PC; "Installments coming soon".
+import { isSpecKey, sameSpecValue, specFacets, specJson, specLabel, specLine, specValue } from "../../selling/specs";
+import { pcBuilderJson, techOf, tradeInJson } from "../../selling/tech";
 import { appStageJson } from "../../catalog/stage-json";
 
 /**
@@ -167,6 +170,8 @@ export class CatalogConnector implements Connector {
   private now: Date = new Date();
   /** 175 The language the app asks in, for the categories' names. */
   private lang: string | null = null;
+  /** 211 A list asked `with_specs` (Build your PC's parts): each product's specs too. */
+  private withSpecs = false;
 
   async config() {
     return {
@@ -189,6 +194,9 @@ export class CatalogConnector implements Connector {
         size_chart: sizeChartJson(fashionOf(this.deps.app)?.sizeChart ?? null, this.lang),
         // 210 "Installments coming soon" under a product's price: a shop made from a type that sells on installments elsewhere (furniture, electronics); never a way to pay.
         installments_soon: shopTypeOfDesign(this.deps.app.design)?.installmentsSoon === true,
+        // 211 Trade-in (the devices the shop takes and what each grade gets) and Build your PC (a category per part); null: off.
+        trade_in: tradeInJson(techOf(this.deps.app)?.tradeIn ?? null),
+        pc_builder: pcBuilderJson(techOf(this.deps.app)?.pcBuilder ?? null),
       },
       features: { orders: true },
     };
@@ -200,6 +208,7 @@ export class CatalogConnector implements Connector {
     this.now = request.now;
     // 175 The categories' names in the app's language.
     this.lang = request.lang ?? null;
+    this.withSpecs = request.query.get("with_specs") === "1" || request.query.get("with_specs") === "true";
     // 149 Never in a currency the owner left out of the app's, nor with the switch off (the hosted API sends none then too).
     const display = request.display && customerCurrencyAllowed(customerCurrencyRule(this.settings), request.display.currency) ? request.display : null;
     this.shown = Shown.for(this.settings.currency, display);
@@ -249,6 +258,8 @@ export class CatalogConnector implements Connector {
         return this.fulfilment ? { status: 200, body: orderTimesJson(this.fulfilment, request.now) } : error(404, "not_found", "Not found.");
       case "GET /store/addons":
         return this.addons(request.query);
+      case "GET /store/spec-values":
+        return this.specValues(request.query);
     }
     if (request.method === "GET" && request.path.length === 3 && request.path[0] === "me" && request.path[1] === "orders") {
       return this.order(request, Number(request.path[2]));
@@ -265,6 +276,31 @@ export class CatalogConnector implements Connector {
       }
     }
     return null;
+  }
+
+  /** 211 The values a spec takes in the shop (or a category of it) and how many products have each: the `spec_filter` element's chips. */
+  private async specValues(query: URLSearchParams): Promise<ConnectorResult> {
+    const key = query.get("spec");
+    if (!isSpecKey(key)) return error(400, "invalid_request", "Unknown specification.");
+    const category = query.get("category") ? Number(query.get("category")) : null;
+    if (category !== null && (!Number.isSafeInteger(category) || category < 1)) return error(400, "invalid_request", "Unknown category.");
+    const ids = category === null ? null : inside(await this.deps.store.listCatalogCategories(this.deps.app.id), category);
+    const products = (await this.listed()).filter((p) => ids === null || p.categoryIds.some((c) => ids.has(c)));
+    return { status: 200, body: { key, label: specLabel({ key, label: key }, this.lang ?? "en"), values: specFacets(products, key) } };
+  }
+
+  /** 211 The shop's matching accessories for a product: its accessories category's products (none on an accessory's own page). */
+  private accessoriesFor(product: CatalogProduct, all: readonly CatalogProduct[], categories: readonly CatalogCategory[]): CatalogProduct[] {
+    const id = techOf(this.deps.app)?.accessoriesCategoryId ?? null;
+    if (id === null || product.addon) return [];
+    // Its sub-categories' too.
+    const ids = inside(categories, id);
+    const isAccessory = (p: CatalogProduct) => p.categoryIds.some((c) => ids.has(c));
+    if (isAccessory(product)) return [];
+    return all
+      .filter((p) => p.id !== product.id && isAccessory(p) && !p.addon)
+      .sort((a, b) => Number(b.featured) - Number(a.featured) || b.salesCount - a.salesCount || b.id - a.id)
+      .slice(0, ACCESSORIES);
   }
 
   // Mapping
@@ -318,6 +354,9 @@ export class CatalogConnector implements Connector {
       addon: Boolean(p.addon),
       // 210 Its line on a card: the days it takes to make, else its size in cm ("W 220 × D 95 × H 82 cm"); null for neither.
       subtitle: productLine(p, this.lang),
+      // 211 Its main specs on one line ("256 GB · 6.7″ OLED · 5G"); null: none.
+      spec_line: specLine(p.specs ?? null),
+      ...(this.withSpecs ? { specs: (p.specs ?? []).map((x) => specJson(x, this.lang)) } : {}),
     };
   }
 
@@ -415,15 +454,20 @@ export class CatalogConnector implements Connector {
     // 209 At this price or under (its price now, in the shop's currency), as WooCommerce's `max_price`.
     const maxPrice = Number(query.get("max_price") ?? "");
     const maxCents = query.get("max_price") && Number.isFinite(maxPrice) && maxPrice > 0 ? Math.round(maxPrice * 100) : null;
+    // 211 Filtered by a spec ("spec=ram&spec_value=16 GB").
+    const specKey = query.get("spec");
+    const specWanted = (query.get("spec_value") ?? "").trim().slice(0, 120);
+    if (specKey !== null && (!isSpecKey(specKey) || !specWanted)) return error(400, "invalid_request", "Unknown specification.");
     const filtered = this.sorted(
       all.filter(
         (p) =>
           (inCategory === null || p.categoryIds.some((id) => inCategory.has(id))) &&
+          (specKey === null || (isSpecKey(specKey) && sameSpecValue(specValue(p.specs, specKey) ?? "", specWanted))) &&
           (!flag("featured") || p.featured) &&
           // 131 With the products of a flash sale on now.
           (!flag("on_sale") || priceOf(p) < p.priceCents || this.flashFor(p, p.priceCents, this.now) !== null) &&
           (maxCents === null || priceOf(p) <= maxCents) &&
-          (search === "" || `${p.name} ${p.description}`.toLocaleLowerCase("tr").includes(search)),
+          (search === "" || `${p.name} ${p.description} ${(p.specs ?? []).map((x) => x.value).join(" ")}`.toLocaleLowerCase("tr").includes(search)),
       ),
       orderParam && ORDERS.includes(orderParam) ? orderParam : "newest",
     );
@@ -522,6 +566,9 @@ export class CatalogConnector implements Connector {
         related: related.map((p) => this.summary(p, now)),
         addons: addons.map((p) => this.summary(p, now)),
         complete_look: look.map((p) => this.summary(p, now)),
+        // 211 Its specifications in the app's language, and the shop's matching accessories (its accessories category's, the featured and best selling first).
+        specs: (product.specs ?? []).map((x) => specJson(x, this.lang)),
+        accessories: this.accessoriesFor(product, all, categories).map((p) => this.summary(p, now)),
         external_url: null,
         permalink: productUrl(this.deps.platformUrl, app.id, product.id),
         option_groups: optionGroupsJson(optionGroupsOf(product), this.settings.currency),
@@ -1068,6 +1115,9 @@ export class CatalogConnector implements Connector {
     };
   }
 }
+
+/** 211 At most this many matching accessories on a product's page. */
+const ACCESSORIES = 6;
 
 /** 208 A category and its sub-categories' IDs. */
 function inside(categories: readonly Pick<CatalogCategory, "id" | "parentId">[], id: number): Set<number> {

@@ -2,6 +2,7 @@
 
 import { readProductDetails } from "@/lib/catalog/product-details";
 import { decideReturn } from "@/lib/catalog/returns";
+import { parseSpecsText } from "@/lib/selling/specs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
@@ -165,7 +166,7 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
   if (id !== null && !existing) return { message: "This product doesn't exist anymore." };
 
   const values: Record<string, string> = {};
-  for (const key of ["name", "description", "price", "salePrice", "stock", "sku", "weight", "width", "depth", "height", "makeMin", "makeMax"]) values[key] = str(formData, key);
+  for (const key of ["name", "description", "price", "salePrice", "stock", "sku", "weight", "width", "depth", "height", "makeMin", "makeMax", "specs"]) values[key] = str(formData, key);
   const errors: Record<string, string> = {};
   if (!values.name) errors.name = "Enter the product name.";
   else if (values.name.length > 120) errors.name = "Use at most 120 characters.";
@@ -173,10 +174,13 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
   const numbers = readProductNumbers({ price: values.price!, salePrice: values.salePrice!, stock: values.stock!, weight: values.weight, currency: catalogSettings(app).currency });
   Object.assign(errors, numbers.errors);
   // 210 Its size in cm and the days it takes to make.
-  const details = readProductDetails({ width: values.width, depth: values.depth, height: values.height, makeMin: values.makeMin, makeMax: values.makeMax });
-  Object.assign(errors, details.errors);
+  const sizeAndDays = readProductDetails({ width: values.width, depth: values.depth, height: values.height, makeMin: values.makeMin, makeMax: values.makeMax });
+  Object.assign(errors, sizeAndDays.errors);
   const { priceCents: price, salePriceCents: salePrice, stock } = numbers;
   if (values.sku!.length > 64) errors.sku = "Use at most 64 characters.";
+  // 211 Its specifications, one per line ("Storage: 256 GB").
+  const specs = parseSpecsText(values.specs ?? "");
+  if (!specs.ok) errors.specs = specs.error;
   // 26 Option groups (a dish's size, sauce or extras), from the options editor as JSON.
   values.optionGroups = String(formData.get("optionGroups") ?? "");
   const optionGroups = parseOptionGroups(values.optionGroups, catalogSettings(app).currency);
@@ -261,8 +265,10 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     // 131 Its weight, for shipping by weight.
     weightGrams: numbers.weightGrams,
     // 210 Its size in cm and the days it takes to make.
-    dimensions: details.dimensions,
-    makeDays: details.makeDays,
+    dimensions: sizeAndDays.dimensions,
+    makeDays: sizeAndDays.makeDays,
+    // 211 Its specifications; kept as they were when the form has no field for them.
+    specs: formData.has("specs") ? (specs.ok ? specs.specs : null) : (existing?.specs ?? null),
     addon,
     addonFor: addonFor?.ok && addonFor.value.offerWith !== "all" ? addonFor.value : null,
     optionGroups: optionGroups.ok && optionGroups.value.length > 0 ? optionGroups.value : null,

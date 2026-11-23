@@ -306,6 +306,7 @@ import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
+import type { TradeInRequest, TradeInStatus } from "./types";
 
 type Db = MySql2Database<typeof schema>;
 /** 126 A transaction, for the helpers that run inside one. */
@@ -6700,6 +6701,33 @@ export class MysqlStore implements DataStore {
         .where(and(eq(t.appId, appId), eq(t.userId, userId)))
         .orderBy(desc(t.createdAt), desc(t.listingId)),
     );
+  }
+
+  // 211 Trade-in requests.
+  async createTradeInRequest(input: Omit<TradeInRequest, "id">): Promise<TradeInRequest> {
+    const [result] = await this.run((db) => db.insert(schema.tradeInRequests).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async listTradeInRequests(input: { appId: string; status?: TradeInStatus; offset: number; limit: number }): Promise<{ items: TradeInRequest[]; total: number }> {
+    const t = schema.tradeInRequests;
+    const where = and(eq(t.appId, input.appId), input.status ? eq(t.status, input.status) : undefined);
+    const [items, [counted]] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt), desc(t.id)).limit(input.limit).offset(input.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(counted?.n ?? 0) };
+  }
+
+  async updateTradeInRequest(appId: string, id: number, patch: Pick<TradeInRequest, "status" | "updatedAt">): Promise<void> {
+    const t = schema.tradeInRequests;
+    await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async countNewTradeInRequests(appId: string): Promise<number> {
+    const t = schema.tradeInRequests;
+    const [row] = await this.run((db) => db.select({ n: count() }).from(t).where(and(eq(t.appId, appId), eq(t.status, "new"))));
+    return Number(row?.n ?? 0);
   }
 
   async createListingInquiry(input: Omit<ListingInquiry, "id">): Promise<ListingInquiry> {

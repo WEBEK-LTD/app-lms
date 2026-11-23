@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { specsText } from "@/lib/selling/specs";
 import { deleteProductAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
@@ -74,6 +75,8 @@ export async function ProductPage({ id }: { id: number | null }) {
         height: product.dimensions?.height != null ? String(product.dimensions.height) : "",
         makeMin: product.makeDays ? String(product.makeDays.min) : "",
         makeMax: product.makeDays && product.makeDays.max !== product.makeDays.min ? String(product.makeDays.max) : "",
+        // 211 Its specifications, one per line.
+        specs: specsText(product.specs ?? null),
         // 131 A gift add-on, and what it goes with.
         addon: Boolean(product.addon),
         addonOfferWith: product.addonFor?.offerWith ?? "all",

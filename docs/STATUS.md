@@ -45,6 +45,22 @@ The app's preview is rebuilt; no `CLIENT_APP_RELEASE` change. Not yet: the
 academy's courses served to a store (Ghurza's workshops are products with
 seats for now) and turning an accepted request into a paid order.
 
+Roadmap 211 (Studio's shop types, Shopping & stores: electronics,
+mobiles, computers & gaming): three more types ready, each a Studio demo of
+the store kind with its two looks, light and dark, its CC0 photos and its
+story page: Madar (electronics, Riyadh; A MADAR, B NABD), Nova (mobiles,
+Cairo; A NOVA, B emerald) and Nawah (computers & gaming, Jeddah; A NAWAH,
+B SILICA), all of fictional brands. New for every store that keeps its
+products in Yallapp: a product's specifications (migration 0151), named in
+the app's language, on its page and compared side by side; the shop by a
+spec; Store › Delivery & offers › Electronics (matching accessories,
+trade-in's devices and prices, Build your PC's parts); trade-in requests
+that land in Store › Trade-in (migration 0151); Build your PC with its
+checks (socket, memory, cooler, power, size); five new Studio elements
+(specs table, compare, shop by spec, trade-in, Build your PC) and two flows;
+"Installments coming soon" on a product's page, never a way to pay. The
+app's preview is rebuilt; no `CLIENT_APP_RELEASE` change (older apps skip
+the new elements and open the shop for the new flows).
 Roadmap 106.14 (a designer's public page on Studio Market, the owner's
 decision of 23 November): `/designers/<handle>` in English, Arabic and
 Turkish shows the designer's photo, name and line (after the team's first

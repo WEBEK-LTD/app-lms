@@ -289,6 +289,7 @@ import type { ChatConversation, ChatConversationKind, ChatConversationPatch, Cha
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
+import type { TradeInRequest, TradeInStatus } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
 
@@ -994,6 +995,14 @@ export interface DataStore {
   }): Promise<{ items: ListingInquiryRow[]; total: number }>;
   /** Conversations with user messages the office hasn't read. */
   countUnreadListingInquiries(appId: string): Promise<number>;
+
+  // 211 Trade-in requests from a store's app (Store › Trade-in)
+  createTradeInRequest(input: Omit<TradeInRequest, "id">): Promise<TradeInRequest>;
+  /** Newest first: all, or those of a status. */
+  listTradeInRequests(input: { appId: string; status?: TradeInStatus; offset: number; limit: number }): Promise<{ items: TradeInRequest[]; total: number }>;
+  updateTradeInRequest(appId: string, id: number, patch: Pick<TradeInRequest, "status" | "updatedAt">): Promise<void>;
+  /** The requests no one has answered yet (`new`). */
+  countNewTradeInRequests(appId: string): Promise<number>;
 
   // 23 News & blog apps: articles written in the dashboard
   /** Every article of the app, any status, newest first. */

@@ -3,12 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withoutDemo } from "@/lib/admin/overview";
 import { isSetupComplete, newApp, queueBuild } from "@/lib/app/setup";
 import { GET as DOWNLOAD } from "@/app/demo/download/[slug]/route";
-import { demoSecondAppBuild, demoSecondAppVariant } from "@/lib/demo/apps";
+import { demoSecondAppBuild, demoSecondAppVariant, demoDownloadBuild, isDemoApp, listDemoApps, withDemoChecked } from "@/lib/demo/apps";
 import { checkoutAccount } from "@/lib/catalog/settings";
 import { MemoryStore } from "@/lib/data/memory";
 import type { App, CatalogOrder } from "@/lib/data/types";
 import { artPng } from "@/lib/demo/art";
-import { demoDownloadBuild, isDemoApp, listDemoApps, withDemoChecked } from "@/lib/demo/apps";
 import { EMPTY_DRIVER } from "@/lib/rides/settings";
 import { placeDemoOrder } from "@/lib/demo/checkout";
 import { cleanDemoActivity, demoOfficeReply } from "@/lib/demo/cleanup";
@@ -95,6 +94,12 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
       ["decor", true],
       ["crochet", true],
       ["furniture", true],
+      // 211 Madar, the electronics shop.
+      ["electronics", true],
+      // 211 Nova, the mobiles shop.
+      ["mobiles", true],
+      // 211 Nawah, computers and gaming.
+      ["computers", true],
     ]);
     const user = await store.getUserByEmail(DEMO_ACCOUNT.email);
     expect(user?.passwordHash).toBeNull();
@@ -344,6 +349,7 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
     expect(demoTypeOfSlug("decor")).toBe("decor");
     expect(demoTypeOfSlug("crochet")).toBe("crochet");
     expect(demoTypeOfSlug("furniture")).toBe("furniture");
+    expect(demoTypeOfSlug("computers")).toBe("computers");
     expect(demoTypeOfSlug("travel")).toBe("travel");
     expect(demoTypeOfSlug("nope")).toBeNull();
   });

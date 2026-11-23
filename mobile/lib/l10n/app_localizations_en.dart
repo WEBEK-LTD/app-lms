@@ -12457,6 +12457,222 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get specsTitle => 'Specifications';
+
+  @override
+  String get specsAll => 'All specifications';
+
+  @override
+  String get specsFewer => 'Fewer specifications';
+
+  @override
+  String get compareAdd => 'Compare';
+
+  @override
+  String get compareAdded => 'In compare';
+
+  @override
+  String compareOpen(int count) {
+    return 'Compare ($count)';
+  }
+
+  @override
+  String get compareTitle => 'Compare';
+
+  @override
+  String get compareFull => 'You can compare up to 3 products';
+
+  @override
+  String get compareRemove => 'Remove from compare';
+
+  @override
+  String get compareEmpty =>
+      'Add two or three products to compare them side by side.';
+
+  @override
+  String get compareSpec => 'Specification';
+
+  @override
+  String get accessoriesTitle => 'Goes with it';
+
+  @override
+  String accessoriesAdd(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Add $count items to the cart',
+      one: 'Add 1 item to the cart',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get installmentsSoon => 'Installments coming soon';
+
+  @override
+  String get tradeInTitle => 'What is your old device worth?';
+
+  @override
+  String get tradeInLine =>
+      'Pick your device and its condition to see its value in seconds.';
+
+  @override
+  String tradeInUpTo(String amount) {
+    return 'Up to $amount';
+  }
+
+  @override
+  String get tradeInCheck => 'Check its value';
+
+  @override
+  String get tradeInModel => 'Your device';
+
+  @override
+  String get tradeInStorage => 'Storage';
+
+  @override
+  String get tradeInCondition => 'Condition';
+
+  @override
+  String get tradeInGradeLikeNew => 'Like new';
+
+  @override
+  String get tradeInGradeGood => 'Good';
+
+  @override
+  String get tradeInGradeFair => 'Fair';
+
+  @override
+  String get tradeInGradeBroken => 'Broken screen';
+
+  @override
+  String get tradeInEstimate => 'Estimated value';
+
+  @override
+  String get tradeInStart => 'Start trade-in';
+
+  @override
+  String get tradeInFinal =>
+      'The final value is set once the shop checks the device.';
+
+  @override
+  String get tradeInContact => 'How can the shop reach you?';
+
+  @override
+  String get tradeInName => 'Your name';
+
+  @override
+  String get tradeInPhone => 'Mobile number';
+
+  @override
+  String get tradeInNote => 'Anything to add (optional)';
+
+  @override
+  String get tradeInSend => 'Send request';
+
+  @override
+  String get tradeInSent => 'We received your request';
+
+  @override
+  String tradeInSentLine(String model, String estimate) {
+    return 'The shop will call you about your $model ($estimate).';
+  }
+
+  @override
+  String get pcBuilderTitle => 'Build your PC';
+
+  @override
+  String get pcBuilderLine =>
+      'Choose each part; we check that they fit together.';
+
+  @override
+  String get pcBuilderStart => 'Start building';
+
+  @override
+  String pcBuilderStep(int step, int count) {
+    return 'Step $step of $count';
+  }
+
+  @override
+  String get pcBuilderSkip => 'Skip this part';
+
+  @override
+  String get pcBuilderNext => 'Next part';
+
+  @override
+  String get pcBuilderReview => 'Review the build';
+
+  @override
+  String get pcBuilderTotal => 'Build total';
+
+  @override
+  String pcBuilderWatts(int watts) {
+    return 'Needs $watts W';
+  }
+
+  @override
+  String get pcBuilderAddAll => 'Add the build to the cart';
+
+  @override
+  String get pcBuilderAdded => 'The build is in your cart';
+
+  @override
+  String get pcBuilderFits => 'Every part fits';
+
+  @override
+  String get pcBuilderEmpty => 'No parts here yet';
+
+  @override
+  String get pcBuilderOptional => 'Optional';
+
+  @override
+  String get pcPartCpu => 'Processor';
+
+  @override
+  String get pcPartBoard => 'Motherboard';
+
+  @override
+  String get pcPartRam => 'Memory';
+
+  @override
+  String get pcPartGpu => 'Graphics card';
+
+  @override
+  String get pcPartStorage => 'Storage';
+
+  @override
+  String get pcPartCooler => 'Cooler';
+
+  @override
+  String get pcPartPsu => 'Power supply';
+
+  @override
+  String get pcPartCase => 'Case';
+
+  @override
+  String pcIssueSocket(String part) {
+    return 'Doesn\'t fit the socket of the $part';
+  }
+
+  @override
+  String pcIssueMemory(String part) {
+    return 'Not the memory type the $part takes';
+  }
+
+  @override
+  String pcIssuePower(int watts) {
+    return 'Too little power for this build ($watts W)';
+  }
+
+  @override
+  String pcIssueSize(String part) {
+    return 'Too small for the $part';
+  }
+
+  @override
+  String get specFilterEmpty => 'Nothing matches this yet';
+
+  @override
   String get appointmentStatusApproved => 'Approved';
 
   @override
@@ -12672,7 +12888,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deliverySlotsNone => 'No delivery days are open right now.';
-
-  @override
-  String get installmentsSoon => 'Installments coming soon';
 }

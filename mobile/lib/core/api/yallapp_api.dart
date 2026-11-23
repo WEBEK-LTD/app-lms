@@ -85,7 +85,17 @@ class ProductQuery {
     this.onSale = false,
     this.featured = false,
     this.orderBy = ProductOrder.newest,
+    this.spec,
+    this.specValue,
+    this.withSpecs = false,
   });
+
+  /// 211 The shop filtered by a spec's value (`spec`, `spec_value`).
+  final String? spec;
+  final String? specValue;
+
+  /// 211 Each product with its specs (Build your PC's parts).
+  final bool withSpecs;
 
   final int page;
   final int perPage;
@@ -110,6 +120,9 @@ class ProductQuery {
     onSale: onSale ?? this.onSale,
     featured: featured,
     orderBy: orderBy ?? this.orderBy,
+    spec: spec,
+    specValue: specValue,
+    withSpecs: withSpecs,
   );
 
   Map<String, dynamic> toQuery() => {
@@ -119,6 +132,11 @@ class ProductQuery {
     if (category != null) 'category': category,
     if (onSale) 'on_sale': true,
     if (featured) 'featured': true,
+    if (spec != null && specValue != null) ...{
+      'spec': spec,
+      'spec_value': specValue,
+    },
+    if (withSpecs) 'with_specs': 1,
     'orderby': switch (orderBy) {
       ProductOrder.priceAsc => 'price_asc',
       ProductOrder.priceDesc => 'price_desc',
@@ -135,7 +153,10 @@ class ProductQuery {
       other.category == category &&
       other.onSale == onSale &&
       other.featured == featured &&
-      other.orderBy == orderBy;
+      other.orderBy == orderBy &&
+      other.spec == spec &&
+      other.specValue == specValue &&
+      other.withSpecs == withSpecs;
 
   @override
   int get hashCode =>
@@ -721,6 +742,18 @@ abstract class YallappApi {
   Future<List<ProductCategory>> listProductCategories();
   Future<Paged<ProductSummary>> listProducts(ProductQuery query);
   Future<ProductDetail> getProduct(int productId);
+
+  /// 211 Sends a trade-in request (the old device, its grade and how to
+  /// reach the customer); the answer is the shop's estimate, formatted.
+  /// `invalid_answers` carries a message for each field to change.
+  Future<String> sendTradeIn({
+    required String model,
+    required String storage,
+    required TradeInGrade grade,
+    required String name,
+    required String phone,
+    String? note,
+  });
   Future<ReviewPage> listProductReviews(int productId, {int page = 1});
 
   /// Prices the app's cart as the shop sees it now, with the coupon the
@@ -2560,6 +2593,29 @@ class HttpYallappApi implements YallappApi {
   @override
   Future<ProductDetail> getProduct(int productId) =>
       _get('/store/products/$productId', _public, ProductDetail.fromJson);
+
+  @override
+  Future<String> sendTradeIn({
+    required String model,
+    required String storage,
+    required TradeInGrade grade,
+    required String name,
+    required String phone,
+    String? note,
+  }) => _send(
+    'POST',
+    '/store/trade-in',
+    _optional,
+    (json) => optString(json, 'estimate') ?? '',
+    body: {
+      'model': model,
+      'storage': storage,
+      'grade': snake(grade),
+      'name': name,
+      'phone': phone,
+      if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
+    },
+  );
 
   @override
   Future<ReviewPage> listProductReviews(int productId, {int page = 1}) => _get(

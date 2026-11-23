@@ -1,5 +1,5 @@
 import type { IconName } from "../../components/icon-names";
-import { BEAUTY_DEMO, CLOTHES_DEMO, CROCHET_DEMO, DECOR_DEMO, FURNITURE_DEMO, KIDS_DEMO, TOYS_DEMO, type StudioDemoId } from "../demo/constants";
+import { BEAUTY_DEMO, CLOTHES_DEMO, CROCHET_DEMO, DECOR_DEMO, FURNITURE_DEMO, KIDS_DEMO, TOYS_DEMO, ELECTRONICS_DEMO, MOBILES_DEMO, COMPUTERS_DEMO, type StudioDemoId } from "../demo/constants";
 
 /**
  * 208 Yallapp Studio's premium shop types (the owner's planning doc, 23
@@ -50,9 +50,9 @@ export const SHOP_TYPES: readonly ShopType[] = [
   { id: "crochet", sections: ["home"], icon: "palette", demo: CROCHET_DEMO, liability: "general" },
   // 209 Toys
   { id: "toys", sections: ["kids"], icon: "toys", demo: TOYS_DEMO, liability: "kids" },
-  { id: "electronics", sections: ["shopping"], icon: "devices", liability: "warranty", installmentsSoon: true },
-  { id: "mobiles", sections: ["shopping"], icon: "smartphone", liability: "warranty", installmentsSoon: true },
-  { id: "computers", sections: ["shopping"], icon: "computer", liability: "warranty", installmentsSoon: true },
+  { id: "electronics", sections: ["shopping"], icon: "devices", demo: ELECTRONICS_DEMO, liability: "warranty", installmentsSoon: true },
+  { id: "mobiles", sections: ["shopping"], icon: "smartphone", demo: MOBILES_DEMO, liability: "warranty", installmentsSoon: true },
+  { id: "computers", sections: ["shopping"], icon: "computer", demo: COMPUTERS_DEMO, liability: "warranty", installmentsSoon: true },
 ];
 
 /**

@@ -760,6 +760,18 @@ export const PICTURES = {
       p([[42, 46], [45.5, 51], [50, 45], [54.5, 51], [58, 46], [58, 54], [50, 60], [42, 54]], "#B03A5B"),
     ],
   },
+  // 211 Madar, the electronics shop: a white phone on deep blue, an orbit round it in light blue.
+  "icon-electronics": {
+    from: "#2F5BEA",
+    to: "#16244F",
+    shapes: [
+      ...stroke([[80.8, 35.6], [81.1, 38.9], [79.2, 43.0], [75.4, 47.5], [69.8, 52.2], [62.9, 56.8], [55.1, 60.9], [46.9, 64.2], [39.0, 66.6], [31.8, 67.9], [25.8, 67.9], [21.5, 66.7], [19.2, 64.4], [18.9, 61.1], [20.8, 57.0], [24.6, 52.5], [30.2, 47.8], [37.1, 43.2], [44.9, 39.1], [53.1, 35.8], [61.0, 33.4], [68.2, 32.1], [74.2, 32.1], [78.5, 33.3], [80.8, 35.6]], 2.6, "#93AEFF"),
+      r(38, 24, 24, 52, 6, WHITE),
+      r(41, 28, 18, 41, 3, "#16244F"),
+      c(50, 72.5, 1.8, "#16244F"),
+      c(82, 36, 3.4, "#C9D6FF"),
+    ],
+  },
   // 208 Lujain, the clothes shop: a white hanger on black, its hook in its sale red.
   "icon-clothes": {
     from: "#2A2724",
@@ -836,6 +848,30 @@ export const PICTURES = {
       r(32, 56, 36, 10, 4, "#E9DCCB"),
       r(30, 68, 3, 10, 1.5, "#C9A27A"),
       r(67, 68, 3, 10, 1.5, "#C9A27A"),
+    ],
+  },
+  // 211 Nova, the mobiles shop: a white phone on ink, its camera's ring and a trade-in arrow in its cobalt.
+  "icon-mobiles": {
+    from: "#1E2128",
+    to: "#0E1014",
+    shapes: [
+      r(33, 18, 34, 64, 9, WHITE),
+      r(37, 24, 26, 46, 4, "#0E1014"),
+      r(44, 74, 12, 3, 1.5, "#0E1014", 0.6),
+      c(50, 44, 8, "#2A55E5"),
+      c(50, 44, 4, "#0E1014"),
+      c(58, 31, 2.2, "#8FA8FF"),
+    ],
+  },
+  // 211 Nawah, computers and gaming: a white processor on blue, its pins on every side, its core lit.
+  "icon-computers": {
+    from: "#3D66F0",
+    to: "#1C3BB8",
+    shapes: [
+      ...[34, 44, 54, 64].flatMap((x) => [r(x - 2, 18, 4, 10, 2, WHITE, 0.85), r(x - 2, 72, 4, 10, 2, WHITE, 0.85), r(18, x - 2, 10, 4, 2, WHITE, 0.85), r(72, x - 2, 10, 4, 2, WHITE, 0.85)]),
+      r(26, 26, 48, 48, 10, WHITE),
+      r(37, 37, 26, 26, 6, "#2F5BEA"),
+      c(50, 50, 5, "#AFC2FF"),
     ],
   },
   "icon-bookings": {

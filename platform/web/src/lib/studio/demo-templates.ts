@@ -61,6 +61,12 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   decor: "decor_signature_a",
   crochet: "crochet_signature_a",
   furniture: "furniture_signature_a",
+  // 211 Madar, the electronics shop, is its Signature look A, MADAR (lib/studio/demo-designs/electronics-signature.ts).
+  electronics: "electronics_signature_a",
+  // 211 Nova, the mobiles shop, is its Signature look A, NOVA (lib/studio/demo-designs/mobiles-signature.ts).
+  mobiles: "mobiles_signature_a",
+  // 211 Nawah, computers and gaming, is its Signature look A, NAWAH (lib/studio/demo-designs/computers-signature.ts).
+  computers: "computers_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -134,6 +140,12 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   decor: { surface: "#FBFAF6", nightSurface: "#1B1C18", line: "#E1DBCF", nightLine: "#2C2E26", muted: "#62635A", nightMuted: "#B4B3A7" },
   crochet: { surface: "#FFFCF7", nightSurface: "#221A16", line: "#EADFD1", nightLine: "#3A2E26", muted: "#6B5D52", nightMuted: "#C4B5A8" },
   furniture: { surface: "#FFFFFF", nightSurface: "#211C18", line: "#E8E1D8", nightLine: "#36302A", muted: "#6B625A", nightMuted: "#B8AEA4" },
+  // 211 Madar's, its look A's (lib/studio/demo-designs/electronics-signature.ts MADAR_INK).
+  electronics: { surface: "#FFFFFF", nightSurface: "#15171B", line: "#E2E5EA", nightLine: "#25282E", muted: "#4E5561", nightMuted: "#B4BAC4" },
+  // 211 Nova's, its look A's (lib/studio/demo-designs/mobiles-signature.ts NOVA_INK).
+  mobiles: { surface: "#FFFFFF", nightSurface: "#15171C", line: "#E2E5EA", nightLine: "#262A31", muted: "#525864", nightMuted: "#AEB3BD" },
+  // 211 Nawah's, its look A's (lib/studio/demo-designs/computers-signature.ts NAWAH_INK).
+  computers: { surface: "#FFFFFF", nightSurface: "#14171D", line: "#E1E4E9", nightLine: "#242931", muted: "#4A5161", nightMuted: "#B4BAC6" },
 };
 
 /**
@@ -349,6 +361,14 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     lqBouquetTitle: { en: "Blush Garden", ar: "حديقة الورد", tr: "Pembe Bahçe" },
     lqBouquetLine: { en: "Blush roses, lisianthus and eucalyptus, made on the day it is delivered.", ar: "ورد وردي وليزيانثوس وأوكالبتوس، تُصنع في يوم توصيلها.", tr: "Pembe güller, lisianthus ve okaliptüs; teslim edildiği gün hazırlanır." },
   },
+  // 211 Nawah's own words where its looks leave the owner brackets: its services, its warranty and returns, how to reach it (lib/demo/computers.ts).
+  computers: {
+    pcServiceBuildText: { en: "Every build assembled and tested for 24 hours", ar: "كل تجميعة تُجمَّع وتُختبر 24 ساعة", tr: "Her toplama kurulur ve 24 saat test edilir" },
+    pcServiceWarrantyText: { en: "Up to 3 years, serviced in Jeddah", ar: "حتى 3 سنوات، والصيانة في جدة", tr: "3 yıla kadar, servis Cidde'de" },
+    pcServiceDeliveryText: { en: "Within a day in Jeddah, 2 to 3 days elsewhere", ar: "خلال يوم في جدة، ومن يومين إلى 3 أيام لغيرها", tr: "Cidde'de bir gün içinde, diğer şehirlere 2–3 gün" },
+    pcContactLine: { en: "Tech support every day, 10 am to midnight", ar: "دعم فني يوميًا من 10 صباحًا حتى منتصف الليل", tr: "Teknik destek her gün 10.00–24.00" },
+    pcWarrantyNote: { en: "Returns within 14 days, and up to 3 years of warranty on every device.", ar: "إرجاع خلال 14 يومًا، وضمان حتى 3 سنوات على كل جهاز.", tr: "14 gün içinde iade ve her cihazda 3 yıla kadar garanti." },
+  },
   // 208 Lujain's own words where its looks leave the owner brackets: its look, its drop, its promises and its exchanges (lib/demo/clothes.ts).
   clothes: {
     clLookName: { en: "Classic black with a soft touch", ar: "أسود كلاسيكي بلمسة ناعمة", tr: "Yumuşak dokunuşlu klasik siyah" },
@@ -429,6 +449,35 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     crPromiseShipLine: { en: "In 2 to 4 days", ar: "خلال 2 إلى 4 أيام", tr: "2–4 gün içinde" },
     crContactLine: { en: "WhatsApp · 10 am to 10 pm", ar: "واتساب · من 10 صباحًا إلى 10 مساءً", tr: "WhatsApp · 10.00–22.00" },
   },
+  // 211 Madar's own words where its looks leave the owner brackets: its launch, its star of the season, its area, its hours, its offer and its returns (lib/demo/electronics.ts).
+  electronics: {
+    elHeroKicker1: { en: "New launch · ZENRA", ar: "إطلاق جديد · ZENRA", tr: "Yeni lansman · ZENRA" },
+    elStarKicker: { en: "LUMORA · OLED C5", ar: "LUMORA · OLED C5", tr: "LUMORA · OLED C5" },
+    elStarTitle: { en: "True black and colours that never fade, 65 inches", ar: "سواد حقيقي وألوان لا تنطفئ بشاشة 65 بوصة", tr: "Gerçek siyah ve solmayan renkler, 65 inç" },
+    elDeliverTo: { en: "Delivering to Riyadh, Al Malqa", ar: "التوصيل إلى الرياض، حي الملقا", tr: "Teslimat: Riyad, Al Malqa" },
+    elContactLine: { en: "Every day, 9 am to 11 pm", ar: "يوميًا من 9 صباحًا حتى 11 مساءً", tr: "Her gün 09.00–23.00" },
+    elEditTitle: { en: "Laptops for work and study, up to 15% off", ar: "لابتوبات للعمل والدراسة بخصم حتى 15%", tr: "İş ve okul için dizüstüler, %15'e varan indirim" },
+    elReturnsNote: { en: "Returns within 14 days in the original box; the maker's warranty through us.", ar: "إرجاع خلال 14 يومًا في العلبة الأصلية، وضمان الوكيل عن طريقنا.", tr: "Orijinal kutusunda 14 gün içinde iade; üretici garantisi bizim üzerimizden." },
+  },
+  // 211 Nova's own words where its looks leave the owner brackets: its new phone, its trade-in, its brands, its bundle, its numbers and its returns (lib/demo/mobiles.ts).
+  mobiles: {
+    mbHeroKicker1: { en: "Veyra X3 Pro · Just in", ar: "Veyra X3 Pro · وصل حديثًا", tr: "Veyra X3 Pro · Yeni geldi" },
+    mbTradeHeroLine: { en: "Up to 14,500 EGP for your device, off your new one at once", ar: "حتى 14,500 ج.م قيمة جهازك، خصمًا فوريًا من جهازك الجديد", tr: "Cihazınız için 14.500 EGP'ye kadar, yenisinden anında düşülür" },
+    mbBrand1: { en: "Veyra", ar: "Veyra", tr: "Veyra" },
+    mbBrand2: { en: "Orbit", ar: "Orbit", tr: "Orbit" },
+    mbBrand3: { en: "Lumen", ar: "Lumen", tr: "Lumen" },
+    mbBrand4: { en: "Kaira", ar: "Kaira", tr: "Kaira" },
+    mbBundleLine: { en: "The Veyra X3 Pro, its leather case and a wireless charger: 54,950 EGP, 2,098 EGP less than apart.", ar: "Veyra X3 Pro مع جرابه الجلدي وشاحن لاسلكي: 54,950 ج.م، أقل بـ 2,098 ج.م من شرائها منفصلة.", tr: "Veyra X3 Pro, deri kılıfı ve kablosuz şarj cihazı: 54.950 EGP, ayrı ayrı almaktan 2.098 EGP daha az." },
+    mbStat2: { en: "4.9", ar: "4.9", tr: "4,9" },
+    mbStat2Line: { en: "From 38 thousand ratings", ar: "من 38 ألف تقييم", tr: "38 bin değerlendirmeden" },
+    mbStat3: { en: "24 hours", ar: "24 ساعة", tr: "24 saat" },
+    mbStat3Line: { en: "Delivery inside Cairo", ar: "توصيل داخل القاهرة", tr: "Kahire içinde teslimat" },
+    mbStat4: { en: "9 branches", ar: "9 فروع", tr: "9 şube" },
+    mbStat4Line: { en: "In Cairo and Giza", ar: "في القاهرة والجيزة", tr: "Kahire ve Giza'da" },
+    mbContactLine: { en: "Customer care every day, 10 am to midnight", ar: "خدمة العملاء يوميًا من 10 صباحًا حتى منتصف الليل", tr: "Müşteri hizmetleri her gün 10.00–24.00" },
+    mbEditTitle: { en: "The Orbit Nine 5G, 3,500 EGP off", ar: "Orbit Nine 5G بخصم 3,500 ج.م", tr: "Orbit Nine 5G, 3.500 EGP indirimli" },
+    mbReturnsNote: { en: "Returns within 14 days, unopened or faulty, collected from your door.", ar: "الإرجاع خلال 14 يومًا للجهاز غير المفتوح أو المعيب، نستلمه من باب منزلك.", tr: "Açılmamış ya da arızalı ürünlerde 14 gün içinde iade, kapınızdan alınır." },
+  },
   // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
   travel: {
     sigStayOne: { en: "Safra Caldera Suites", ar: "Safra Caldera Suites", tr: "Safra Caldera Suites" },
@@ -486,5 +535,5 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
 }
 
 /** 131.20 The demos whose words carry the app's name, by that name (the demo app's). */
-// 209 Kids' clothes, cosmetics and toys: Toota's, Velours' and Toot's too; 210 home decor's, crochet's and furniture's.
-const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", kids: "Toota", beauty: "Velours", toys: "Toot", decor: "Sakan", crochet: "Ghurza", furniture: "Rukn" };
+// 209 Kids' clothes, cosmetics and toys: Toota's, Velours' and Toot's too; 210 home decor's, crochet's and furniture's; 211 Madar's, Nova's and Nawah's.
+const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", kids: "Toota", beauty: "Velours", toys: "Toot", decor: "Sakan", crochet: "Ghurza", furniture: "Rukn", electronics: "Madar", mobiles: "Nova", computers: "Nawah" };

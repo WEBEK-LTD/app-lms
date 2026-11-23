@@ -200,6 +200,12 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   decor: demoDesignBar("decor"),
   crochet: demoDesignBar("crochet"),
   furniture: demoDesignBar("furniture"),
+  // 211 Nova's is its look A's floating bar (lib/studio/demo-designs/mobiles-signature.ts).
+  mobiles: demoDesignBar("mobiles"),
+  // 211 Nawah's is its look A's floating bar (lib/studio/demo-designs/computers-signature.ts).
+  computers: demoDesignBar("computers"),
+  // 211 Madar's is its look A's floating bar (lib/studio/demo-designs/electronics-signature.ts).
+  electronics: demoDesignBar("electronics"),
 };
 
 /** 130 A demo's bar in one of its Signature looks (its look's premium bar); without a look, the demo's own (DEMO_TAB_BARS). */

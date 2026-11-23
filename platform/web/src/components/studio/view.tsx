@@ -47,6 +47,8 @@ import { quickAddLabel } from "./quick-add";
 // 208 The category menu and the size chart.
 import { CategoryMenuCanvas, DeliverySlotsCanvas, SizeChartCanvas } from "./category-menu";
 import { QuizCanvas, SizeFinderCanvas, SwatchesCanvas } from "./shop-helpers";
+// 211 The electronics shops' elements.
+import { CompareCanvas, PcBuilderCanvas, SpecFilterCanvas, SpecTableCanvas, TradeInCanvas } from "./tech";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -894,6 +896,17 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "delivery_slots":
         // 210 The shop's next delivery days and times, kept for the checkout.
         return <DeliverySlotsCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} color={color} />;
+      // 211 A product's specs, two or three products compared, a spec's values, the trade-in estimator, Build your PC.
+      case "spec_table":
+        return <SpecTableCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} title={text || null} color={color} />;
+      case "compare":
+        return <CompareCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} title={text || null} color={color} />;
+      case "spec_filter":
+        return <SpecFilterCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} title={text || null} color={color} />;
+      case "trade_in":
+        return <TradeInCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} title={text || null} color={color} />;
+      case "pc_builder":
+        return <PcBuilderCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} title={text || null} color={color} />;
       case "flash_sale":
         // 131 The flash sale: its products at their sale price, the live countdown and the stock bar.
         return <FlashSaleCanvas node={n} title={text} pickable={p.pickable} dark={dark} brand={look.brand} words={p.commerceWords ?? COMMERCE_WORDS_EN} />;

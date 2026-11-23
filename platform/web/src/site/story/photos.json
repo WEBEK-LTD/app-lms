@@ -999,5 +999,245 @@
         "title": "Interior Design"
       }
     }
+  ],
+  "electronics": [
+    {
+      "slot": "electronics-hero",
+      "src": "/stories/electronics/electronics-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Leeroy",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/macbook-laptop-UDIGU0A2SN",
+        "title": "Macbook Laptop"
+      }
+    },
+    {
+      "slot": "electronics-phone",
+      "src": "/stories/electronics/electronics-phone.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Retro 56",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/smartphone-camera-TBGNSSQV6B",
+        "title": "Smartphone Camera"
+      }
+    },
+    {
+      "slot": "electronics-compare",
+      "src": "/stories/electronics/electronics-compare.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Lauren Mancke",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/tablet-ipad-M6XC5T3JY3",
+        "title": "Tablet Ipad"
+      }
+    },
+    {
+      "slot": "electronics-desk",
+      "src": "/stories/electronics/electronics-desk.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Leeroy",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/laptop-macbook-SSGTHB82F6",
+        "title": "Laptop Macbook"
+      }
+    },
+    {
+      "slot": "electronics-glow",
+      "src": "/stories/electronics/electronics-glow.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "One Idea LLC",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/laptop-keyboard-QGU10TMNPE",
+        "title": "Laptop Keyboard"
+      }
+    },
+    {
+      "slot": "electronics-buds",
+      "src": "/stories/electronics/electronics-buds.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "FOCA Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/iphone-device-KRMOSAYCZ4",
+        "title": "Iphone Device"
+      }
+    }
+  ],
+  "mobiles": [
+    {
+      "slot": "mobiles-hero",
+      "src": "/stories/mobiles/mobiles-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Jef Pawlikowski",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/phone-cellphone-QJXZMNO92D",
+        "title": "Phone Cellphone"
+      }
+    },
+    {
+      "slot": "mobiles-box",
+      "src": "/stories/mobiles/mobiles-box.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Thorn Yang",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/phone-cellphone-FAGBZK62M3",
+        "title": "Phone Cellphone"
+      }
+    },
+    {
+      "slot": "mobiles-camera",
+      "src": "/stories/mobiles/mobiles-camera.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Retro 56",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/smartphone-camera-TBGNSSQV6B",
+        "title": "Smartphone Camera"
+      }
+    },
+    {
+      "slot": "mobiles-hand",
+      "src": "/stories/mobiles/mobiles-hand.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "NeONBRAND",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/mobile-phone-LJNJVQC18S",
+        "title": "Mobile Phone"
+      }
+    },
+    {
+      "slot": "mobiles-food",
+      "src": "/stories/mobiles/mobiles-food.jpg",
+      "width": 960,
+      "height": 641,
+      "credit": {
+        "creator": "Toronto Eaters",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/food-plate-YEBI1N2K7S",
+        "title": "Food Plate"
+      }
+    },
+    {
+      "slot": "mobiles-earbuds",
+      "src": "/stories/mobiles/mobiles-earbuds.jpg",
+      "width": 960,
+      "height": 720,
+      "credit": {
+        "creator": "FOCA Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/iphone-device-KRMOSAYCZ4",
+        "title": "Iphone Device"
+      }
+    }
+  ],
+  "computers": [
+    {
+      "slot": "computers-hero",
+      "src": "/stories/computers/computers-hero.jpg",
+      "width": 960,
+      "height": 540,
+      "credit": {
+        "creator": "Redd Angelo",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/computer-keyboard-V89HFPEFN3",
+        "title": "Computer Keyboard"
+      }
+    },
+    {
+      "slot": "computers-parts",
+      "src": "/stories/computers/computers-parts.jpg",
+      "width": 960,
+      "height": 641,
+      "credit": {
+        "creator": "Lenharth Systems",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/technology-motherboard-PUWNNLCU1C",
+        "title": "Technology Motherboard"
+      }
+    },
+    {
+      "slot": "computers-socket",
+      "src": "/stories/computers/computers-socket.jpg",
+      "width": 960,
+      "height": 641,
+      "credit": {
+        "creator": "Lenharth Systems",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/technology-motherboard-P5KFLBAYR2",
+        "title": "Technology Motherboard"
+      }
+    },
+    {
+      "slot": "computers-laptop",
+      "src": "/stories/computers/computers-laptop.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Burst",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/macbook-computer-JPZDGEMDH3",
+        "title": "Macbook Computer"
+      }
+    },
+    {
+      "slot": "computers-play",
+      "src": "/stories/computers/computers-play.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Maciej Korsan",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/sony-playstation-RCTXTLCXH6",
+        "title": "Sony Playstation"
+      }
+    },
+    {
+      "slot": "computers-desk",
+      "src": "/stories/computers/computers-desk.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Anita Peeples",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/guy-man-DO1KKRFQMB",
+        "title": "Guy Man"
+      }
+    }
   ]
 }

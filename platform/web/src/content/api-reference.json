@@ -875,6 +875,20 @@
         },
         {
           "method": "GET",
+          "path": "/store/spec-values",
+          "summary": "The values a spec takes in the shop",
+          "description": "Roadmap 211. The values a spec (`ProductSpec.key`) takes across the shop's products (or one category's, its sub-categories' included) and how many products have each, most common first, at most 12: a Studio `spec_filter` element's chips, each opening `GET /store/products?spec=…&spec_value=…`. Yallapp's own catalog only.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/store/trade-in",
+          "summary": "Ask the shop to take an old device",
+          "description": "Roadmap 211. A trade-in request (the `trade_in` element, the trade-in screen): one of the devices of `StoreConfig.trade_in`, its storage and its grade, with the customer's name and phone (and a note). The estimate is worked out again by the server from the shop's settings (the storage's top price times the grade's share, to the whole unit below) and the request is saved for the owner (Dashboard › Store › Trade-in), who calls the customer. Signed in or not; at most 3 a minute and 20 a day from one address. 404 when the shop takes no trade-ins.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
           "path": "/store/addons",
           "summary": "The gift add-ons offered with a product",
           "description": "Roadmap 131. Products the shop sells only as gift add-ons (chocolates, a greeting card, a vase), each with `addon: true`, that go with `product_id` as the owner chose (every product, some categories or some products): for \"Add a little more\" on the product's page, in the cart and at checkout. Without `product_id`: those offered with every product. An add-on is never in the product lists, search, categories, home sections, related products or flash sales' lists; it goes in the cart as a line with `addon_of` (the product of the line it goes with), and a cart of add-ons only fails with `addon_needs_item` (400). Yallapp's own products: the product's \"Sell only as an add-on\"; WordPress: the WooCommerce product's \"Sell only as an add-on in the app\" (plugin 0.4.44 and later, the website's shop unchanged); a connected platform: the owner's list of its products, one of its categories or (Shopify) a tag. At most 12.",

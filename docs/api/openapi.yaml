@@ -3891,6 +3891,17 @@ paths:
         - name: orderby
           in: query
           schema: { type: string, enum: [newest, popular, rating, price_asc, price_desc, title], default: newest }
+        - name: spec
+          in: query
+          description: "211 With `spec_value`: only the products whose spec of this key (`ProductSpec.key`) has that value (case and spaces aside). Yallapp's own catalog only; `invalid_request` (400) for an unknown key or no value."
+          schema: { type: string, enum: [screen, cpu, gpu, ram, storage, camera, front_camera, battery, charging, os, refresh, connectivity, water, weight, socket, memory_type, watts, psu_watts, form_factor, condition, grade, battery_health, warranty] }
+        - name: spec_value
+          in: query
+          schema: { type: string, maxLength: 120 }
+        - name: with_specs
+          in: query
+          description: "211 Each product's `specs` too (Build your PC's parts, checked against each other by them). Yallapp's own catalog only."
+          schema: { type: boolean, default: false }
       responses:
         '200':
           description: Products
@@ -4297,6 +4308,96 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /store/spec-values:
+    get:
+      tags: [Store]
+      operationId: listSpecValues
+      summary: The values a spec takes in the shop
+      description: |
+        Roadmap 211. The values a spec (`ProductSpec.key`) takes across the
+        shop's products (or one category's, its sub-categories' included)
+        and how many products have each, most common first, at most 12: a
+        Studio `spec_filter` element's chips, each opening
+        `GET /store/products?spec=…&spec_value=…`. Yallapp's own catalog only.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - name: spec
+          in: query
+          required: true
+          schema: { type: string }
+        - name: category
+          in: query
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: The values
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [key, label, values]
+                properties:
+                  key: { type: string }
+                  label: { type: string, description: "The spec's name in the language asked for." }
+                  values:
+                    type: array
+                    maxItems: 12
+                    items:
+                      type: object
+                      required: [value, count]
+                      properties:
+                        value: { type: string }
+                        count: { type: integer, minimum: 1 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /store/trade-in:
+    post:
+      tags: [Store]
+      operationId: sendTradeIn
+      summary: Ask the shop to take an old device
+      description: |
+        Roadmap 211. A trade-in request (the `trade_in` element, the trade-in
+        screen): one of the devices of `StoreConfig.trade_in`, its storage
+        and its grade, with the customer's name and phone (and a note). The
+        estimate is worked out again by the server from the shop's settings
+        (the storage's top price times the grade's share, to the whole unit
+        below) and the request is saved for the owner (Dashboard › Store ›
+        Trade-in), who calls the customer. Signed in or not; at most 3 a
+        minute and 20 a day from one address. 404 when the shop takes no
+        trade-ins.
+      security: [{}, { bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model, storage, grade, name, phone]
+              properties:
+                model: { type: string, maxLength: 60 }
+                storage: { type: string, maxLength: 20 }
+                grade: { type: string, enum: [like_new, good, fair, broken] }
+                name: { type: string, maxLength: 80 }
+                phone: { type: string, maxLength: 30 }
+                note: { type: string, maxLength: 500 }
+      responses:
+        '201':
+          description: Saved for the shop
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, estimate_cents, estimate]
+                properties:
+                  id: { type: integer }
+                  estimate_cents: { type: integer, minimum: 0, description: In the shop's currency's cents. }
+                  estimate: { type: string, description: Formatted in the shop's currency. }
+        '400':
+          description: '`invalid_answers`, with `details.fields`: each of `model`, `storage`, `grade`, `name`, `phone`, `note` that needs a change, then a message safe to show (in the language asked for with `Accept-Language` when the server has it).'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
   /store/addons:
     get:
       tags: [Store]
@@ -15217,6 +15318,75 @@ components:
                 rows: { type: array, minItems: 1, maxItems: 24, items: { type: array, items: { type: string, maxLength: 24 } } }
                 unit: { type: string, enum: [cm, in] }
             - { type: 'null' }
+        trade_in:
+          description: |
+            211 Trade-in (an electronics shop's, Store › Delivery & offers ›
+            Electronics): the devices it takes, each storage's top price in
+            cents (a like-new one) and each grade's share of it in percent.
+            The app estimates (the top price times the share, to the whole
+            unit below) and sends `POST /store/trade-in`; a `trade_in`
+            element and an action with `flow: trade_in` open it. Null or
+            missing: off (the element hidden, the action the shop).
+          oneOf:
+            - type: object
+              required: [models, grades]
+              properties:
+                models:
+                  type: array
+                  maxItems: 40
+                  items:
+                    type: object
+                    required: [name, storages]
+                    properties:
+                      name: { type: string, maxLength: 60 }
+                      storages:
+                        type: array
+                        maxItems: 6
+                        items:
+                          type: object
+                          required: [label, cents]
+                          properties:
+                            label: { type: string, maxLength: 20 }
+                            cents: { type: integer, minimum: 1 }
+                grades:
+                  type: object
+                  required: [like_new, good, fair, broken]
+                  properties:
+                    like_new: { type: integer, minimum: 0, maximum: 100 }
+                    good: { type: integer, minimum: 0, maximum: 100 }
+                    fair: { type: integer, minimum: 0, maximum: 100 }
+                    broken: { type: integer, minimum: 0, maximum: 100 }
+            - { type: 'null' }
+        pc_builder:
+          description: |
+            211 Build your PC (a computers shop's): a category of the shop for
+            each part, in order (`GET /store/products?category=…&with_specs=1`
+            lists its candidates); the app checks the parts against each other
+            by their specs (the processor's socket on the motherboard's, the
+            memory type, the cooler's sockets, the power supply against the
+            processor's and graphics card's draw with 100 W and a quarter more,
+            the case's form factor) and puts the build in the cart. A
+            `pc_builder` element and an action with `flow: pc_builder` open
+            it. Null or missing: off.
+          oneOf:
+            - type: object
+              required: [steps]
+              properties:
+                steps:
+                  type: array
+                  minItems: 2
+                  maxItems: 8
+                  items:
+                    type: object
+                    required: [part, category_id, required]
+                    properties:
+                      part: { type: string, enum: [cpu, board, ram, gpu, storage, cooler, psu, case] }
+                      category_id: { type: integer }
+                      required: { type: boolean, description: "False: the customer may skip it." }
+            - { type: 'null' }
+        installments_soon:
+          type: boolean
+          description: "211 \"Installments coming soon\" under a product's price (the electronics, mobiles, computers and furniture shop types): a tag only, never a way to pay. Missing: false."
         bouquet:
           description: |
             162 Build your bouquet, when the store has it set up: an action
@@ -15818,6 +15988,19 @@ components:
         addon:
           type: boolean
           description: "131 A gift add-on (`GET /store/addons`): only ever in a product's `addons` and the add-ons list, never bought alone. Missing: false."
+        spec_line: { type: [string, 'null'], maxLength: 100, description: "211 Its main specs on one line (\"256 GB · 6.7″ OLED · 5G\"; a used device's grade first); a Studio card's `subtitle`. Null or missing: none." }
+        specs:
+          type: array
+          description: "211 Only in a list asked `with_specs`, and in `ProductDetail`: its specifications, in the shop's order."
+          items: { $ref: '#/components/schemas/ProductSpec' }
+    ProductSpec:
+      type: object
+      required: [key, label, value]
+      description: "211 One specification of a product: its name in the language asked for (a key Yallapp knows) or as the owner wrote it, and its value."
+      properties:
+        key: { type: [string, 'null'], description: "One of `screen, cpu, gpu, ram, storage, camera, front_camera, battery, charging, os, refresh, connectivity, water, weight, socket, memory_type, watts, psu_watts, form_factor, condition, grade, battery_health, warranty`; null: the owner's own." }
+        label: { type: string, maxLength: 40 }
+        value: { type: string, maxLength: 120 }
 
     ProductDetail:
       allOf:
@@ -15923,6 +16106,11 @@ components:
               type: array
               maxItems: 4
               description: "208 \"Complete the look\" (a clothes shop's, when it has it on): a product of each of the shop's other main categories. Missing or empty: none."
+              items: { $ref: '#/components/schemas/ProductSummary' }
+            accessories:
+              type: array
+              maxItems: 6
+              description: "211 Matching accessories (an electronics shop's accessories category, Store › Delivery & offers › Electronics), the featured and best selling first; none on an accessory's own page. Missing or empty: none."
               items: { $ref: '#/components/schemas/ProductSummary' }
             external_url: { type: [string, 'null'], format: uri, description: "For external products, the page that sells it." }
             permalink: { type: string, format: uri }
@@ -16868,7 +17056,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale, size_chart, size_finder, swatches, quiz, delivery_slots]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale, size_chart, size_finder, swatches, quiz, delivery_slots, spec_table, compare, spec_filter, trade_in, pc_builder]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app. 159 What a screen reader says for an element that opens something without words of its own (a round search or bag); without it, what it opens, in the app's language." }
         children:
           type: array
@@ -17063,6 +17251,59 @@ components:
             look: { type: string, enum: [lead, label], default: lead }
             numbers: { type: boolean, default: true }
             radius: { type: number, minimum: 0, maximum: 40 }
+        tech:
+          type: [object, 'null']
+          description: |
+            211 For the electronics shops' elements (apps before them skip
+            them): `spec_table` a product's specs as a table (`ids` its
+            product, else the shop's first featured one with specs; `rows` at
+            most); `compare` two or three products side by side, spec by spec
+            (`ids`, else the first featured ones with specs of `category_id`; `rows` the specs compared, those all share first);
+            `spec_filter` the values `spec` takes in the shop (or
+            `category_id`) as chips, each opening the shop filtered by it (`rows` at most);
+            `trade_in` the trade-in estimator, `look` `card` (a card that opens
+            it) or `full` (inline), shown while `StoreConfig.trade_in` is set;
+            `pc_builder` Build your PC's parts and a start button, shown while
+            `StoreConfig.pc_builder` is set. `accent`: the highlights' colour.
+            The servers leave out one with nothing to show.
+          properties:
+            ids: { type: array, maxItems: 3, items: { type: string } }
+            category_id: { type: [string, 'null'] }
+            rows: { type: integer, minimum: 1, maximum: 40 }
+            spec: { type: [string, 'null'] }
+            look: { type: string, enum: [card, full], default: card }
+            accent: { type: [string, 'null'] }
+        tech_served:
+          type: [object, 'null']
+          description: "211 Sent by the servers only: a `spec_table`'s product (one) or a `compare`'s (two or three), each with its specs in the language asked for; a `spec_filter`'s spec, its name and its values with how many products have each."
+          properties:
+            products:
+              type: array
+              maxItems: 3
+              items:
+                type: object
+                required: [id, title, price, specs]
+                properties:
+                  id: { type: string }
+                  title: { type: string }
+                  image_url: { type: [string, 'null'], format: uri }
+                  price: { type: string }
+                  was_price: { type: [string, 'null'] }
+                  specs: { type: array, items: { $ref: '#/components/schemas/ProductSpec' } }
+            spec:
+              type: object
+              required: [key, label, values]
+              properties:
+                key: { type: string }
+                label: { type: string }
+                values:
+                  type: array
+                  items:
+                    type: object
+                    required: [value, count]
+                    properties:
+                      value: { type: string }
+                      count: { type: integer }
         code: { type: [string, 'null'], minLength: 1, maxLength: 40, description: "112.4 For `coupon`: the code (letters, numbers, - and _), copied to the phone's clipboard when tapped." }
         recent: { type: boolean, default: false, description: "112.4 For `items` of products: the products this person opened lately on this phone, newest first, kept by the app; sent with no `items`. The app leaves it out until there is one." }
         heads: { type: string, description: "164 Sent by the servers only: this element is the title of its sibling `items` with this ID (a section's title and its \"Shop all\"). The app hides it while that list is hidden; the servers leave it out with a list they leave out." }
@@ -17828,11 +18069,13 @@ components:
         open_in: { type: string, enum: [in_app, browser], default: in_app }
         flow:
           type: string
-          enum: [bouquet]
+          enum: [bouquet, trade_in, pc_builder]
           description: |
             162 A store's `screen` action (`search`, the shop) that opens Build
             your bouquet when the store has it set up (`StoreConfig.bouquet`);
-            otherwise, and in apps that don't know it, its `screen`.
+            otherwise, and in apps that don't know it, its `screen`. 211
+            `trade_in` the trade-in estimator (`StoreConfig.trade_in`) and
+            `pc_builder` Build your PC (`StoreConfig.pc_builder`), the same way.
         web:
           type: [object, 'null']
           description: |

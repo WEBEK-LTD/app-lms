@@ -550,6 +550,93 @@ export const STORIES: Record<StoryId, StoryShape> = {
     bundle: ["smartphone", "dashboard_customize", "web"],
     finale: { photo: "furniture-home", screen: "rukn-home" },
   },
+  // 211 Madar, the electronics shop: a laptop for a new job and a phone traded in, in its look A (MADAR) by day and by night; look B (NABD) in its section.
+  electronics: {
+    id: "electronics",
+    icon: "devices",
+    // MADAR's blue, lighter on its night.
+    accent: "#93AEFF",
+    demos: ["electronics"],
+    solutions: [],
+    hero: { photo: "electronics-hero", screens: ["madar-home", "madar-product"] },
+    chapters: [
+      { screen: "madar-home", icon: "home" },
+      { screen: "madar-menu", icon: "menu_open" },
+      { photo: "electronics-desk", screen: "madar-product", icon: "list_alt" },
+      { photo: "electronics-compare", screen: "madar-product", icon: "compare" },
+      { photo: "electronics-phone", screen: "electronics-sig-a-home-dark", icon: "sync" },
+      { screen: "madar-home", icon: "verified_user" },
+    ],
+    interlude: { photo: "electronics-glow" },
+    stats: [{ value: 9 }, { value: 3 }, { value: 14 }, { value: 3 }],
+    systems: [
+      { icon: "list_alt", screens: ["madar-product"], features: ["list_alt", "compare", "translate", "search", "dashboard_customize"] },
+      { icon: "palette", screens: ["madar-product"], features: ["palette", "inventory_2", "verified_user", "add", "schedule"] },
+      { icon: "sync", screens: [], features: ["sync", "payments", "chat", "check"] },
+      { icon: "palette", screens: ["electronics-sig-b-home", "electronics-sig-b-home-dark"], features: ["devices", "bolt", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "electronics-buds", screen: "madar-home" },
+  },
+  // 211 Nova, the mobiles shop: an old phone traded in for a new one, in its look A (NOVA) by day and by night; look B (emerald) in its section.
+  mobiles: {
+    id: "mobiles",
+    icon: "smartphone",
+    // NOVA's cobalt, lighter on its graphite night.
+    accent: "#8FA8FF",
+    demos: ["mobiles"],
+    solutions: [],
+    hero: { photo: "mobiles-hero", screens: ["nova-home", "nova-product"] },
+    chapters: [
+      { screen: "nova-home", icon: "home" },
+      { photo: "mobiles-box", screen: "nova-home", icon: "sync" },
+      { photo: "mobiles-camera", screen: "nova-product", icon: "table_chart" },
+      { screen: "nova-product", icon: "compare" },
+      { screen: "mobiles-sig-a-home-dark", icon: "verified" },
+      { photo: "mobiles-hand", screen: "nova-menu", icon: "storefront" },
+    ],
+    interlude: { photo: "mobiles-food" },
+    stats: [{ value: 6 }, { value: 3 }, { value: 14 }, { value: 3 }],
+    systems: [
+      { icon: "sync", screens: ["nova-home"], features: ["devices", "table_chart", "fact_check", "payments", "notifications", "dashboard_customize"] },
+      { icon: "table_chart", screens: ["nova-product"], features: ["palette", "verified", "table_chart", "compare", "translate", "check"] },
+      { icon: "verified", screens: [], features: ["verified", "star", "schedule", "sell", "local_offer"] },
+      { icon: "palette", screens: ["mobiles-sig-b-home", "mobiles-sig-b-home-dark"], features: ["smartphone", "trending_up", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "mobiles-earbuds", screen: "nova-home" },
+  },
+  // 211 Nawah, computers and gaming: a gaming PC built part by part in Jeddah, in its look A (NAWAH) by day and by night; look B (SILICA) in its section.
+  computers: {
+    id: "computers",
+    icon: "computer",
+    // NAWAH's blue, lighter on its graphite night.
+    accent: "#9DB4FF",
+    demos: ["computers"],
+    solutions: [],
+    hero: { photo: "computers-hero", screens: ["nawah-home", "nawah-product"] },
+    chapters: [
+      { screen: "nawah-home", icon: "home" },
+      { photo: "computers-socket", screen: "nawah-home", icon: "computer" },
+      { photo: "computers-parts", screen: "nawah-home", icon: "construction" },
+      { screen: "nawah-menu", icon: "tune" },
+      { photo: "computers-laptop", screen: "nawah-product", icon: "compare" },
+      { screen: "computers-sig-a-home-dark", icon: "package_2" },
+    ],
+    interlude: { photo: "computers-play" },
+    stats: [{ value: 8 }, { value: 4 }, { value: 14 }, { value: 3 }],
+    systems: [
+      { icon: "construction", screens: ["nawah-home"], features: ["computer", "category", "bolt", "check", "block", "add_shopping_cart"] },
+      { icon: "tune", screens: ["nawah-menu"], features: ["computer", "keyboard", "devices", "tune", "search", "dashboard_customize"] },
+      { icon: "compare", screens: ["nawah-product"], features: ["table_chart", "compare", "tune", "verified_user", "schedule"] },
+      { icon: "palette", screens: ["computers-sig-b-home", "computers-sig-b-home-dark"], features: ["computer", "format_list_numbered", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "computers-desk", screen: "nawah-home" },
+  },
 };
 
 /** Every photo slot of a story, each once. */

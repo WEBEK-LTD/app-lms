@@ -64,6 +64,12 @@ const VEHICLE: Record<StoryId, "two_wheeler" | "local_taxi" | "directions_bus" |
   crochet: "two_wheeler",
   // 210 Nor the furniture shop's: its own team delivers and assembles.
   furniture: "two_wheeler",
+  // 211 Nor the mobiles shop's.
+  mobiles: "two_wheeler",
+  // 211 Nor the computers shop's.
+  computers: "two_wheeler",
+  // 211 Nor the electronics shop's.
+  electronics: "two_wheeler",
 };
 
 const primary =

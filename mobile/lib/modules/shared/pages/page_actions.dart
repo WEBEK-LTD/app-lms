@@ -30,6 +30,12 @@ bool runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
         context.push(Paths.bouquet);
         return true;
       }
+      // 211 The trade-in estimator, or Build your PC, when the shop has it.
+      final flow = techFlowLocation(ref, action);
+      if (flow != null) {
+        context.push(flow);
+        return true;
+      }
       final location = actionLocation(ref, action);
       if (location == null) return false;
       openLocation(context, location);
@@ -175,6 +181,25 @@ bool opensBouquet(WidgetRef ref, PageAction action) {
   }
   final gate = ref.read(appGateProvider);
   return gate is GateReady && gate.config.store?.bouquet != null;
+}
+
+/// 211 Where an action with `flow: trade_in` or `pc_builder` opens: the
+/// trade-in estimator or Build your PC, in a store whose shop has it set
+/// up (`StoreConfig.trade_in`, `pc_builder`); else null (its screen).
+String? techFlowLocation(WidgetRef ref, PageAction action) {
+  final flow = action.flow;
+  if (flow != ActionFlow.tradeIn && flow != ActionFlow.pcBuilder) return null;
+  if (ref.read(appEnvironmentProvider).build.appType != AppType.store) {
+    return null;
+  }
+  final gate = ref.read(appGateProvider);
+  if (gate is! GateReady) return null;
+  final store = gate.config.store;
+  return switch (flow) {
+    ActionFlow.tradeIn when store?.tradeIn != null => Paths.tradeIn,
+    ActionFlow.pcBuilder when store?.pcBuilder != null => Paths.pcBuilder,
+    _ => null,
+  };
 }
 
 /// 152 Whether [item] is one of a store's products, linked or not: a Studio

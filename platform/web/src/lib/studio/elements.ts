@@ -92,6 +92,12 @@ export const ELEMENTS: readonly ElementInfo[] = [
   { type: "flash_sale", group: "premium", icon: "bolt", keywords: "flash sale offer deal discount countdown timer price was now percent off stock left limited", only: "store" },
   // 208 The category menu (every main category a row of cards, its sub-categories in the row) and the shop's size chart.
   { type: "categories", group: "premium", icon: "menu_open", keywords: "category menu categories sub-categories rows sliders cards all header menu drawer", only: "store", preset: "category_menu" },
+  // 211 The electronics shops' parts: a product's specs, two or three products compared, the shop by a spec, trade-in and Build your PC.
+  { type: "spec_table", group: "premium", icon: "table_rows", keywords: "specs specifications table features details technical electronics phone laptop", only: "store" },
+  { type: "compare", group: "premium", icon: "compare_arrows", keywords: "compare comparison versus vs side by side specs products electronics phones", only: "store" },
+  { type: "spec_filter", group: "premium", icon: "tune", keywords: "filter specs ram storage processor cpu gpu graphics chips shop by electronics computers", only: "store" },
+  { type: "trade_in", group: "premium", icon: "currency_exchange", keywords: "trade in trade-in exchange old phone device estimate value sell swap upgrade", only: "store" },
+  { type: "pc_builder", group: "premium", icon: "memory", keywords: "build your pc builder parts processor motherboard memory graphics compatibility gaming computer", only: "store" },
   { type: "size_chart", group: "premium", icon: "table_chart", keywords: "size chart guide sizes measurements bust waist hips length table clothes fashion", only: "store" },
   // 209 The size finder (the size of the shop's chart for the age chosen), shade swatches and a quiz.
   { type: "size_finder", group: "premium", icon: "straighten", keywords: "size finder age height which size fits child kids baby chart recommend", only: "store" },
@@ -186,6 +192,13 @@ export function newNode(
       // 208 The category menu: the shop's main categories as rows of cards.
       if (options.preset === "category_menu") return { id, type, source: options.source ?? undefined, style: "rows", category_menu: { look: "lead" }, padding: { top: 6, end: 0, bottom: 6, start: 0 } };
       return { id, type, source: options.source ?? undefined, padding: { top: 6, end: 10, bottom: 6, start: 10 } };
+    // 211 The electronics shops' parts, each on a card.
+    case "spec_table":
+    case "compare":
+    case "spec_filter":
+    case "trade_in":
+    case "pc_builder":
+      return { id, type, tech: type === "spec_filter" ? { spec: "ram" } : type === "trade_in" ? { look: "card" } : {}, radius: 20, padding: { top: 14, end: 14, bottom: 14, start: 14 }, margin: { top: 8, end: 16, bottom: 8, start: 16 }, border_color: "#E3E6EB", border_width: 1 };
     // 208 The shop's size chart, on a card.
     case "size_chart":
       return { id, type, radius: 18, padding: { top: 12, end: 12, bottom: 12, start: 12 }, margin: { top: 8, end: 16, bottom: 8, start: 16 }, border_color: "#E4DFD6", border_width: 1 };

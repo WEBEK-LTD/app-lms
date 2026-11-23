@@ -69,6 +69,8 @@ import 'studio_category_menu.dart';
 import 'studio_shop_helpers.dart';
 import 'studio_size_chart.dart';
 import 'studio_delivery_slots.dart';
+// 211 The electronics shops' elements.
+import 'studio_tech.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -1333,6 +1335,12 @@ class StudioNodeView extends ConsumerWidget {
       StudioNodeType.quiz => StudioQuiz.shows(node),
       // 210 The shop's delivery days, when it has them on.
       StudioNodeType.deliverySlots => StudioDeliverySlotsView.shows(ref),
+      // 211 The tech elements, once they have something to show.
+      StudioNodeType.specTable ||
+      StudioNodeType.compare ||
+      StudioNodeType.specFilter ||
+      StudioNodeType.tradeIn ||
+      StudioNodeType.pcBuilder => studioTechShows(node, ref),
       StudioNodeType.form =>
         node.form != null && PageBlockView.shows(node.form!, ref),
       StudioNodeType.search => PageBlockView.shows(_searchBlock(node, ''), ref),
@@ -2013,6 +2021,13 @@ class StudioNodeView extends ConsumerWidget {
                 : node.borderColor,
           ),
         );
+      case StudioNodeType.specTable:
+      case StudioNodeType.compare:
+      case StudioNodeType.specFilter:
+      case StudioNodeType.tradeIn:
+      case StudioNodeType.pcBuilder:
+        // 211 An electronics shop's parts.
+        return StudioTechView(node: node, title: _text(context), color: color);
       case StudioNodeType.video:
         final url = node.videoUrl;
         if (url == null) return const SizedBox.shrink();
