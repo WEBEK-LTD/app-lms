@@ -241,13 +241,19 @@ class Store_Extras {
 		);
 		$config['checkout_mode'] = $gift ? 'gift' : 'standard';
 		$config['delivery_date'] = $rules;
-		$starters                = array_values( array_filter( array_map( array( Delivery_Rules::class, 'line' ), preg_split( '/[\r\n]+/', (string) $this->settings->get( 'store_gift_starters' ) ) ) ) );
-		$config['gift_message']  = array(
-			'enabled'    => $config['gift_message']['enabled'] || $gift,
-			'max_length' => $gift && ! $config['gift_message']['enabled'] ? Delivery_Rules::MAX_MESSAGE : $config['gift_message']['max_length'],
-			'starters'   => array_slice( $starters, 0, 6 ),
-			'recipient'  => (bool) $this->settings->get( 'store_gift_recipient' ) || $gift,
-			'anonymous'  => (bool) $this->settings->get( 'store_gift_anonymous' ) || $gift,
+		$by_language             = array();
+		foreach ( Delivery_Rules::STARTER_LANGUAGES as $language ) {
+			$by_language[ $language ] = (string) $this->settings->get( 'store_gift_starters_' . $language );
+		}
+		$config['gift_message'] = array(
+			'enabled'              => $config['gift_message']['enabled'] || $gift,
+			'max_length'           => $gift && ! $config['gift_message']['enabled'] ? Delivery_Rules::MAX_MESSAGE : $config['gift_message']['max_length'],
+			// The main ones, which older apps show in every language.
+			'starters'             => Delivery_Rules::starters( (string) $this->settings->get( 'store_gift_starters' ) ),
+			// 222.4 (169.5) Each language's own, which the app shows its customers, else `starters`.
+			'starters_by_language' => Delivery_Rules::starters_by_language( $by_language ),
+			'recipient'            => (bool) $this->settings->get( 'store_gift_recipient' ) || $gift,
+			'anonymous'            => (bool) $this->settings->get( 'store_gift_anonymous' ) || $gift,
 		);
 		// 131 The owner's titles of the add-ons, the card and the delivery picker (the Yallapp dashboard's).
 		$status           = (array) call_user_func( $this->status );

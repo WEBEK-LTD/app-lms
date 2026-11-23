@@ -155,7 +155,7 @@ check( 'store settings', 'TRY' === ( $store['currency'] ?? '' ) && true === ( $s
 // 131 The delivery date also says the shop's time zone (and its offset now), its same-day cut-off and its slots (none set here).
 check( 'delivery date settings', array( 'enabled' => true, 'required' => true, 'min_days' => 1, 'max_days' => 14, 'closed_weekdays' => array( 0 ), 'timezone' => 'Europe/Istanbul', 'utc_offset_minutes' => 180, 'same_day_cutoff' => null, 'slots' => array() ) === ( $store['delivery_date'] ?? null ), $store );
 // 131 The card message also carries the owner's beginnings and whether the recipient and "Send anonymously" are asked (off here).
-check( 'gift message settings', array( 'enabled' => true, 'max_length' => 100, 'starters' => array(), 'recipient' => false, 'anonymous' => false ) === ( $store['gift_message'] ?? null ), $store );
+check( 'gift message settings', array( 'enabled' => true, 'max_length' => 100, 'starters' => array(), 'starters_by_language' => null, 'recipient' => false, 'anonymous' => false ) === ( $store['gift_message'] ?? null ), $store );
 check( '131 a standard checkout and no titles of the owner\'s', 'standard' === ( $store['checkout_mode'] ?? null ) && array( 'addons' => null, 'gift_card' => null, 'delivery' => null ) === ( $store['titles'] ?? null ), $store );
 check( '91.3 no returns in the app until the shop sets its days', array_key_exists( 'returns', $store ) && null === $store['returns'], $store );
 $r = call( 'GET', '/courses' );
@@ -335,6 +335,24 @@ $layout   = array(
 							),
 						),
 						array( 'id' => 'gifts-button', 'type' => 'button', 'text' => 'gifts', 'action' => array( 'type' => 'screen', 'screen' => 'search' ) ),
+						// 222.3 (164.7) A title and a list of products the shop doesn't show (hidden): its best sellers instead.
+						array(
+							'id'       => 'picks',
+							'type'     => 'column',
+							'children' => array(
+								array( 'id' => 'picks-title', 'type' => 'text', 'text' => 'Picked for you' ),
+								array( 'id' => 'picks-list', 'type' => 'items', 'source' => 'products', 'query' => array( 'ids' => array( (string) $seed['hidden'] ) ) ),
+							),
+						),
+						// 222.3 The same of products on sale: no stand-in, so the list goes with its title and their column.
+						array(
+							'id'       => 'none',
+							'type'     => 'column',
+							'children' => array(
+								array( 'id' => 'none-title', 'type' => 'text', 'text' => 'Last chance' ),
+								array( 'id' => 'none-list', 'type' => 'items', 'source' => 'products', 'query' => array( 'ids' => array( (string) $seed['hidden'] ), 'on_sale' => true ) ),
+							),
+						),
 					),
 				),
 			),
@@ -361,7 +379,10 @@ check( 'featured filter', same_set( array( (string) $seed['roses'], (string) $se
 check( 'product categories block', 'tiles' === ( page_block( $page, 'cats' )['style'] ?? '' ) && same_set( array( 'Flowers', 'Gifts' ), array_column( page_block( $page, 'cats' )['categories'] ?? array(), 'name' ) ), page_block( $page, 'cats' ) );
 $r      = call( 'GET', '/pages/deals?platform=android' );
 $studio = $r['json']['studio']['body']['children'] ?? array();
-check( '112.4 studio: the elements kept', array( 'hero', 'sale', 'seen', 'cats', 'code', 'look', 'occasions', 'gifts-button' ) === array_column( $studio, 'id' ), $studio );
+check( '112.4 studio: the elements kept', array( 'hero', 'sale', 'seen', 'cats', 'code', 'look', 'occasions', 'gifts-button', 'picks' ) === array_column( $studio, 'id' ), $studio );
+// 222.3 (164.7) A list with nothing shows the best sellers, its title marked; one left out takes its title along.
+$picks = $studio[8]['children'] ?? array();
+check( '222.3 studio: an empty list shows the best sellers, its title marked', 'picks-list' === ( $picks[0]['heads'] ?? '' ) && ! empty( $picks[1]['items'] ) && ! in_array( (string) $seed['hidden'], array_column( $picks[1]['items'], 'id' ), true ), $picks );
 // 157.7 The template's rings are the shop's WooCommerce categories (top ones), each opening its products; the button opens Gifts.
 $rings = $studio[6]['slides'] ?? array();
 check( '157.7 studio: the occasion rings are the shop\'s categories', same_set( array( 'Flowers', 'Gifts' ), array_column( $rings, 'heading' ) ) && same_set( array( (string) $seed['flowers'], (string) $seed['gifts'] ), array_column( array_column( $rings, 'action' ), 'category_id' ) ), $rings );

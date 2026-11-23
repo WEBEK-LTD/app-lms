@@ -97,6 +97,10 @@ class Settings {
 			'store_delivery_slots'         => '',
 			'store_checkout_mode'          => 'standard',
 			'store_gift_starters'          => '',
+			// 222.4 (169.5) The same beginnings in each of the app's languages, one a line.
+			'store_gift_starters_en'       => '',
+			'store_gift_starters_ar'       => '',
+			'store_gift_starters_tr'       => '',
 			'store_gift_recipient'         => false,
 			'store_gift_anonymous'         => false,
 			// 131 A flash sale, applied through WooCommerce's own sale price.
@@ -240,7 +244,7 @@ class Settings {
 			return sanitize_textarea_field( (string) $raw );
 		}
 		// 131 One slot or beginning a line; the cut-off and the flash sale's times as typed.
-		if ( 'store_delivery_slots' === $key || 'store_gift_starters' === $key || 'store_flash_titles' === $key ) {
+		if ( 'store_delivery_slots' === $key || 0 === strpos( $key, 'store_gift_starters' ) || 'store_flash_titles' === $key ) {
 			return sanitize_textarea_field( (string) $raw );
 		}
 		if ( 'store_delivery_cutoff' === $key ) {

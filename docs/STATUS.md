@@ -8,6 +8,17 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 222 (the plugin's follow-ups): plugin 0.4.54 (after 0.4.53, #496)
+serves WordPress apps' Studio pages without an empty section, as hosted
+shops' are (164.7): a list of products with nothing to show shows the
+shop's best sellers, else its newest, and a list left out takes its title
+and "Shop all" with it; and a flower shop's card beginnings can be written
+in English, Arabic and Turkish, each customer seeing their language's,
+the main ones kept for older apps (169.5). Deleting an account without
+waiting on Yallapp and end-to-end checks that never call yallapp.com.tr
+were already done in 206.1. Not yet released; the store end-to-end checks
+run in CI.
+
 Roadmap 206 (the follow-ups of 157, 158 and 160): plugin 0.4.52 never
 makes WordPress wait on Yallapp when an account is deleted (the chat's
 forget is queued in WP-Cron with a short timeout and retried), and its

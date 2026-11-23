@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.52
+Stable tag: 0.4.54
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,10 @@ Symbols Rounded by Google (the material-design-icons project),
 under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
+
+= 0.4.54 =
+* Your app's pages never show a section's title over nothing: a list of products with nothing to show (featured products you haven't marked, an empty category, products you picked that are gone) shows your best sellers instead, else your newest products, and a list left out takes its title and its "Shop all" with it, as Yallapp's own shops do. A list of products on sale stays hidden while nothing is on sale.
+* Gift message beginnings in each language: under the main beginnings, write them in English, Arabic and Turkish, and customers see the ones in their app's language. The main ones stay for a language left empty and for older apps.
 
 = 0.4.52 =
 * Deleting an account never waits on Yallapp: telling Yallapp the person's chat is gone now happens in the background (WP-Cron), with a short timeout, and is tried again later, up to five times, when Yallapp can't be reached.
