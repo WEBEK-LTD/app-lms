@@ -257,7 +257,7 @@
          {
           "id": "sig-4",
           "type": "text",
-          "text": "Veyra X3 Pro",
+          "text": "The new flagship",
           "font": {
            "family": "Readex Pro",
            "size": 42,
@@ -277,10 +277,10 @@
           },
           "translations": {
            "ar": {
-            "text": "Veyra X3 Pro"
+            "text": "الهاتف الرائد الجديد"
            },
            "tr": {
-            "text": "Veyra X3 Pro"
+            "text": "Yeni amiral telefon"
            }
           }
          },

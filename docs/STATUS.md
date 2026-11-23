@@ -20,6 +20,24 @@ by side with every other template's home (header, hero, card shape, section
 order, tab bar, type scale) before it ships; one that could be made by
 recolouring another has failed.
 
+Roadmap 226 (Studio shop types, round 3: toys and mobiles): Toot and Nova
+each have two new templates on their own archetypes, C (now the demo) and
+D: Toot C the adventure map (categories as islands, chunky pressed-out
+cards, stickers, the treasure chest, a notch bar with the bag in the
+middle), Toot D Montessori (a sage opening by skill and by age, quiet rows,
+how-to-play cards, a names-only bar), Nova C the keynote (one phone on a
+black stage, its colours, specs one per row, compare, the trade-in on a dark
+card, a small dock) and Nova D the deals hub (category chips, today's deals
+on hot pink, a dense grid of three with "Installments coming soon", the
+compare tray and page, a square bar). Light and dark, Arabic, English and
+Turkish, built only from Studio's elements; A and B stay as extra templates.
+Not yet: the app draws a node's own font family only when it is the
+project's main or Arabic font (Toot C's Lalezar headings show in Rubik).
+
+Distinct templates (226, the owner's standing rule): each of these four was
+compared side by side with every other template's home before it shipped;
+toys D's opening was changed because it was too close to kids' clothes D.
+
 Roadmap 222 (the plugin's follow-ups): plugin 0.4.54 (after 0.4.53, #496)
 serves WordPress apps' Studio pages without an empty section, as hosted
 shops' are (164.7): a list of products with nothing to show shows the

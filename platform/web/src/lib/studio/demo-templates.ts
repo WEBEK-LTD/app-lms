@@ -478,7 +478,6 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     mbEditTitle: { en: "The Orbit Nine 5G, 3,500 EGP off", ar: "Orbit Nine 5G بخصم 3,500 ج.م", tr: "Orbit Nine 5G, 3.500 EGP indirimli" },
     mbReturnsNote: { en: "Returns within 14 days, unopened or faulty, collected from your door.", ar: "الإرجاع خلال 14 يومًا للجهاز غير المفتوح أو المعيب، نستلمه من باب منزلك.", tr: "Açılmamış ya da arızalı ürünlerde 14 gün içinde iade, kapınızdan alınır." },
     // 226 Its looks C (the keynote: the star phone, its price and its figures) and D (the deals hub: free delivery).
-    mbKeyHeroName: { en: "Veyra X3 Pro", ar: "Veyra X3 Pro", tr: "Veyra X3 Pro" },
     mbKeyFrom: { en: "From 54,999 EGP", ar: "ابتداءً من 54,999 ج.م", tr: "54.999 EGP'den başlayan fiyatlarla" },
     mbKeySwLine: { en: "A titanium frame, IP68", ar: "إطار من التيتانيوم ومقاومة IP68", tr: "Titanyum çerçeve, IP68" },
     mbKeyWhy: { en: "A camera to carry everywhere.", ar: "كاميرا ترافقك في كل مكان.", tr: "Her yere taşınacak bir kamera." },
