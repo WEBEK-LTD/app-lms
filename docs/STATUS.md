@@ -198,6 +198,29 @@ inspector does. No migration; the app's part comes with the next app build
 (no `CLIENT_APP_RELEASE` change here); not yet tried on a phone (ROADMAP
 181.5, 181.6).
 
+Roadmap 208 (Studio's shop types, stage 1: the foundation and Clothes):
+the planning doc's shop types are in one registry (`lib/studio/shop-types.ts`)
+by section (Fashion; Beauty & care; Home & living; Kids & toys; Shopping &
+stores) on /start?for=studio and Studio's new project, Clothes ready and
+the other nine coming soon (not to choose). Clothes is Lujain, a Studio demo
+of the store kind with its two looks, A LUJAIN (black and white) and B NOUN
+(streetwear), light and dark, 62 CC0 StockSnap photos, 46 pieces in their
+sizes and colours with the stock of each, 8 categories and 17
+sub-categories, its story page and its drawn icon. New for every store: sub-categories
+in Store › Categories (migration 0148), the category menu element (every
+main category a row of cards with its sub-categories, opened by the
+header's menu button through `StudioHeader.menu_page`), the size chart
+element and a product's size guide, sizes gone in the colour chosen,
+"Complete the look", the shop's exchanges under the price (Store ›
+Delivery & offers › Clothes for the chart and Complete the look), the
+"Installments coming soon" tag, and the liability notice a shop type's
+project accepts once ("قرأت وموافق", `App.liabilityAccepted`). The app's
+preview is rebuilt; no `CLIENT_APP_RELEASE` change (older apps skip the new
+element, draw the menu as chips and keep the side menu). Not yet: a
+store's wishlist, reviews with photos, back in stock, filters by size,
+colour and price, and the size chart and Complete the look from WordPress
+and connected platforms (208.19).
+
 Roadmap 207 (Yallapp Business 1.0.4, ringtones; in the code, not released:
 the release waits for the owner): new orders ring until opened, like a call.
 Seventeen ringtones of Yallapp's own, made from code

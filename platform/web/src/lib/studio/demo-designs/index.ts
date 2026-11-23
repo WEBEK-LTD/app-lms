@@ -26,6 +26,8 @@ import { UFUQ_A, UFUQ_B } from "./ufuq-signature";
 import { ZAD_A, ZAD_B } from "./zad-signature";
 // 131.20 Leqaa, the flower shop: A rose hour, B botanical press.
 import { LEQAA_A, LEQAA_B } from "./leqaa-signature";
+// 208 Lujain, the clothes shop: A LUJAIN the boutique, B NOUN streetwear.
+import { LUJAIN_A, NOUN_B } from "./clothes-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -161,6 +163,8 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   premium_academy: { a: UFUQ_A, b: UFUQ_B },
   // 131.20 Leqaa, the flower shop (a store): A rose hour, B botanical press.
   flowers: { a: LEQAA_A, b: LEQAA_B },
+  // 208 Lujain, the clothes shop (a store): A the black and white boutique, B NOUN's streetwear.
+  clothes: { a: LUJAIN_A, b: NOUN_B },
 };
 
 /** A look with its demo's own tabs when it has none of its own. */
@@ -211,7 +215,7 @@ export function signatureTemplates(): TemplateInfo[] {
       ...(d.isNew ? { isNew: true } : {}),
       project: signatureProject(d),
       make: (ctx: SectionContext) => {
-        const { ctx: words, page } = translating({ ...ctx, demo: d.demo, look: d.variant });
+        const { ctx: words, page } = translating({ ...ctx, demo: d.demo, look: d.variant, ownPages: ctx.demo === d.demo });
         return page(chromedHome(d, d.home(words)));
       },
     }),

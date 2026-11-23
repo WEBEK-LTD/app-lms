@@ -2,7 +2,7 @@
   "version": "5",
   "dialect": "mysql",
   "id": "f06f76dc-54cd-48ee-89b0-bfb76aa4a548",
-  "prevId": "ec9f6c14-4dc1-4316-9bce-5ca5703f6882",
+  "prevId": "f258d0e1-6242-46f3-acf4-78b85bc8ade8",
   "tables": {
     "account_deletion_requests": {
       "name": "account_deletion_requests",
@@ -2710,13 +2710,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "shop_pause": {
-          "name": "shop_pause",
-          "type": "longtext",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "chat_settings": {
           "name": "chat_settings",
           "type": "longtext",
@@ -3035,6 +3028,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "liability_accepted": {
+          "name": "liability_accepted",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "staff_app": {
           "name": "staff_app",
           "type": "varchar(8)",
@@ -3209,6 +3209,13 @@
           "type": "datetime(3)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "shop_pause": {
+          "name": "shop_pause",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         }
       },
@@ -4912,6 +4919,13 @@
         "names": {
           "name": "names",
           "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

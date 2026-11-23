@@ -2710,13 +2710,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "shop_pause": {
-          "name": "shop_pause",
-          "type": "longtext",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "chat_settings": {
           "name": "chat_settings",
           "type": "longtext",
@@ -3035,6 +3028,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "liability_accepted": {
+          "name": "liability_accepted",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "staff_app": {
           "name": "staff_app",
           "type": "varchar(8)",
@@ -3209,6 +3209,13 @@
           "type": "datetime(3)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "shop_pause": {
+          "name": "shop_pause",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         }
       },
@@ -4912,6 +4919,13 @@
         "names": {
           "name": "names",
           "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "bigint unsigned",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -16614,13 +16628,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "live_activity": {
-          "name": "live_activity",
-          "type": "longtext",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "datetime(3)",
@@ -16633,6 +16640,13 @@
           "type": "datetime(3)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "live_activity": {
+          "name": "live_activity",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         }
       },

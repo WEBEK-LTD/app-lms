@@ -31,6 +31,7 @@ import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/format/text_case.dart';
 import '../widgets/quick_add.dart';
+import '../../shared/pages/studio_size_chart.dart' show showSizeGuide;
 
 /// A product: images, price, options, quantity and Add to cart.
 class ProductScreen extends ConsumerWidget {
@@ -133,6 +134,21 @@ class _ProductViewState extends ConsumerState<_ProductView> {
         ref.read(recentlyViewedProvider.notifier).opened(_product.summary);
       }
     });
+  }
+
+  /// 208 Whether no variation with [value] for [slug] (and the other
+  /// choices made) is left to buy: a size gone in the colour chosen.
+  bool _soldOut(String slug, String value) {
+    final variations = _product.variations;
+    if (variations.isEmpty) return false;
+    final chosen = {
+      for (final e in _chosen.entries)
+        if (e.key != slug) e.key: e.value,
+      slug: value,
+    };
+    final matching = variations.where((v) => v.matches(chosen));
+    return matching.isNotEmpty &&
+        matching.every((v) => v.stockStatus == StockStatus.outOfStock);
   }
 
   bool get _choicesComplete =>
@@ -310,6 +326,10 @@ class _ProductViewState extends ConsumerState<_ProductView> {
     ];
     final max = _maxQuantity;
     final count = ref.watch(cartCountProvider);
+    // 208 The shop's size chart and its exchanges (a clothes shop's).
+    final store = ref.watch(appConfigProvider).store;
+    final sizeChart = store?.sizeChart;
+    final returns = store?.returns;
 
     return Scaffold(
       backgroundColor: p.surface,
@@ -457,19 +477,59 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                           : p.success,
                     ),
                   ),
+                // 208 The shop's exchanges and returns, under the price.
+                if (returns != null && returns.enabled && returns.days > 0) ...[
+                  const SizedBox(height: 10),
+                  Row(
+                    key: const ValueKey('product-exchange'),
+                    children: [
+                      AppIcon(
+                        AppIcons.exchange,
+                        size: 18,
+                        color: p.textSecondary,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          context.l10n.exchangeWithin(returns.days),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: p.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 if (product.shortDescriptionHtml != null) ...[
                   const SizedBox(height: 12),
                   HtmlContent(html: product.shortDescriptionHtml!),
                 ],
                 for (final attribute in product.choices) ...[
                   const SizedBox(height: 18),
-                  Text(
-                    attribute.name,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: p.text,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          attribute.name,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: p.text,
+                          ),
+                        ),
+                      ),
+                      // 208 The size guide beside the sizes the chart has.
+                      if (sizeChart != null &&
+                          sizeChart.fits(attribute.options.map((o) => o.value)))
+                        TextButton.icon(
+                          key: const ValueKey('product-size-guide'),
+                          onPressed: () => showSizeGuide(context, sizeChart),
+                          icon: const AppIcon(AppIcons.sizeGuide, size: 18),
+                          label: Text(context.l10n.sizeGuide),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   // 131.25 In the premium gift look, a choice of two or
@@ -490,11 +550,33 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                       runSpacing: 8,
                       children: [
                         for (final option in attribute.options)
-                          PillChip(
-                            label: option.label,
-                            selected: _chosen[attribute.slug] == option.value,
-                            onTap: () => _choose(attribute.slug, option.value),
-                          ),
+                          // 208 A size or colour with none left in the
+                          // other choices made shows so, and can't be chosen.
+                          if (_soldOut(attribute.slug, option.value))
+                            Semantics(
+                              label: context.l10n.optionSoldOut(option.label),
+                              excludeSemantics: true,
+                              child: Opacity(
+                                key: ValueKey(
+                                  'option-sold-out-${option.value}',
+                                ),
+                                opacity: 0.4,
+                                child: IgnorePointer(
+                                  child: PillChip(
+                                    label: option.label,
+                                    selected: false,
+                                    onTap: () {},
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            PillChip(
+                              label: option.label,
+                              selected: _chosen[attribute.slug] == option.value,
+                              onTap: () =>
+                                  _choose(attribute.slug, option.value),
+                            ),
                       ],
                     ),
                 ],
@@ -544,6 +626,40 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                   SectionHeader(title: context.l10n.description),
                   const SizedBox(height: 8),
                   HtmlContent(html: product.descriptionHtml),
+                ],
+                // 208 Complete the look: a piece of each of the shop's other
+                // main categories.
+                if (product.completeLook.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  SectionHeader(title: context.l10n.completeTheLook),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    key: const ValueKey('product-complete-look'),
+                    height:
+                        160 +
+                        productCardTextHeight(
+                          context,
+                          twoPrices: customerPricesShown(ref),
+                        ) +
+                        (quickAddShown(ref) ? quickAddHeight(context) : 0),
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: product.completeLook.length,
+                      separatorBuilder: (_, _) => const SizedBox(width: 12),
+                      itemBuilder: (context, i) {
+                        final piece = product.completeLook[i];
+                        return Align(
+                          alignment: Alignment.topCenter,
+                          child: ProductCard(
+                            product: piece,
+                            width: 160,
+                            quickAdd: quickAddShown(ref),
+                            onTap: () => context.push(Paths.product(piece.id)),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ],
                 if (product.related.isNotEmpty) ...[
                   const SizedBox(height: 24),

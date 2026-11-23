@@ -1032,6 +1032,13 @@
       "breakpoints": true
     },
     {
+      "idx": 148,
+      "version": "5",
+      "when": 1795431278955,
+      "tag": "0148_shop_types",
+      "breakpoints": true
+    },
+    {
       "idx": 153,
       "version": "5",
       "when": 1795431368228,

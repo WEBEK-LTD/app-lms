@@ -1063,7 +1063,41 @@ class ItemsBlock extends PageBlock {
 
 /// 112.4 Studio's categories also come as [pictures] in a grid and as
 /// [circles], round pictures in a row that scrolls.
-enum CategoriesStyle { chips, tiles, pictures, circles }
+/// 208 `rows`: the category menu, every main category a row of cards with
+/// its sub-categories (StudioCategoryMenu); an app before it draws chips.
+enum CategoriesStyle { chips, tiles, pictures, circles, rows }
+
+/// 208 How the category menu draws its rows: a tall card of the main
+/// category first ([lead]), or the main category's name over the row and
+/// "All" on its first card ([label]).
+enum StudioCategoryMenuLook { lead, label }
+
+/// 208 The category menu's look (`StudioNode.category_menu`).
+class StudioCategoryMenu {
+  const StudioCategoryMenu({
+    this.look = StudioCategoryMenuLook.lead,
+    this.numbers = true,
+    this.radius = 18,
+  });
+
+  static StudioCategoryMenu tryParse(Object? value) {
+    if (value is! Map) return const StudioCategoryMenu();
+    final json = asJson(value);
+    return StudioCategoryMenu(
+      look: enumFrom(
+        StudioCategoryMenuLook.values,
+        json['look'],
+        StudioCategoryMenuLook.lead,
+      ),
+      numbers: json['numbers'] != false,
+      radius: (optDouble(json, 'radius') ?? 18).clamp(0, 40).toDouble(),
+    );
+  }
+
+  final StudioCategoryMenuLook look;
+  final bool numbers;
+  final double radius;
+}
 
 class CategoriesBlock extends PageBlock {
   const CategoriesBlock({
@@ -2014,6 +2048,7 @@ class StudioHeader {
     this.subtitle,
     this.imageUrl,
     this.collapse = true,
+    this.menuPage,
   });
 
   /// Null for none, or a type this app doesn't know.
@@ -2040,8 +2075,13 @@ class StudioHeader {
       subtitle: optString(json, 'subtitle'),
       imageUrl: optString(json, 'image_url'),
       collapse: json['collapse'] != false,
+      menuPage: optString(json, 'menu_page'),
     );
   }
+
+  /// 208 The page its menu button opens (the category menu's), full
+  /// screen; null, the side menu as before.
+  final String? menuPage;
 
   /// 130.20 Its premium style; null, drawn by [type] as before.
   final StudioHeaderStyle? style;
@@ -2137,6 +2177,8 @@ enum StudioNodeType {
   // 131 A flash sale: its products at their sale price, a live countdown
   // and a stock bar (StudioCommerce.flashSale).
   flashSale,
+  // 208 The shop's size chart (`StoreConfig.size_chart`), as a table.
+  sizeChart,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2771,6 +2813,7 @@ class StudioNode {
     this.indicator = StudioIndicator.dots,
     this.place,
     this.categoriesStyle = CategoriesStyle.chips,
+    this.categoryMenu = const StudioCategoryMenu(),
     this.code,
     this.recent = false,
     this.heads,
@@ -2930,6 +2973,7 @@ class StudioNode {
           json['style'],
           CategoriesStyle.chips,
         ),
+        categoryMenu: StudioCategoryMenu.tryParse(json['category_menu']),
         code: optString(json, 'code'),
         recent: boolOr(json, 'recent', false),
         heads: optString(json, 'heads'),
@@ -3255,8 +3299,11 @@ class StudioNode {
   /// 112.4 For a child of a stack: its place, in percent.
   final StudioPlace? place;
 
-  /// 112.4 For categories: chips, tiles, pictures or circles.
+  /// 112.4 For categories: chips, tiles, pictures or circles; 208 or rows.
   final CategoriesStyle categoriesStyle;
+
+  /// 208 For categories drawn as rows: the category menu's look.
+  final StudioCategoryMenu categoryMenu;
 
   /// 112.4 For a coupon: the code people copy.
   final String? code;

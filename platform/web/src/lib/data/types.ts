@@ -897,6 +897,8 @@ export interface App {
   autoScreenshots?: AutoScreenshots | null;
   /** 93.1 When the owner hid the guide through the first app on the overview; null or missing: shown. */
   guideHiddenAt?: Date | null;
+  /** 208 The owner's "I read it and agree" to their shop type's liability notice (lib/studio/liability.ts), by notice; null or missing: none yet. */
+  liabilityAccepted?: LiabilityAcceptance | null;
   /**
    * 116 Where a school's (a university's) or an academy's teachers and staff
    * work: their own app in the bundle (`bundle`, every new project), or the
@@ -1356,8 +1358,34 @@ export interface CatalogSettings {
   checkoutPayment?: "platform" | "in_app";
   /** 162 Build your bouquet: the flowers, the wraps and the cards the customer chooses from; null or missing: off (its Start opens the shop). */
   bouquet?: BouquetSettings | null;
+  /** 208 A clothes shop's own parts (lib/selling/fashion.ts): its size chart and "Complete the look"; null or missing: none. */
+  fashion?: FashionSettings | null;
   /** 134 The last "Test connection" that passed on the saved gateway keys: when, the gateway, and a fingerprint of those keys (new keys need a new test). */
   gatewayTested?: { at: string; provider: PaymentProviderId; keys: string } | null;
+}
+
+/** 208 Each liability notice the owner accepted (by its kind: general, cosmetics, kids, warranty): when (ISO) and by which user. */
+export type LiabilityAcceptance = Partial<Record<"general" | "cosmetics" | "kids" | "warranty", { at: string; userId: string }>>;
+
+/**
+ * 208 A clothes shop's size chart: its first column the size (XS, M, 38),
+ * the others its measurements, row by row in the shop's order; the column
+ * titles in the shop's main language and, per other language, in
+ * `translations`.
+ */
+export interface SizeChart {
+  headers: string[];
+  rows: string[][];
+  unit: "cm" | "in";
+  /** The column titles in the app's other languages ("ar", "tr"): one per column. */
+  translations?: Record<string, string[]>;
+}
+
+/** 208 A clothes shop's parts: the size chart under a product's sizes, and "Complete the look" on its page. */
+export interface FashionSettings {
+  sizeChart: SizeChart | null;
+  /** "Complete the look": products of the shop's other main categories on a product's page. */
+  completeLook: boolean;
 }
 
 /** 131 Shipping by weight: `perKgCents` a kg over the first `includedKg`. */
@@ -1882,6 +1910,8 @@ export interface CatalogCategory {
   createdAt: Date;
   /** 175 Its name in the app's other languages ("ar", "tr"); null or missing: `name` in every language. */
   names?: LangText | null;
+  /** 208 The category it sits inside (a sub-category, one level deep); null or missing: a main category. */
+  parentId?: number | null;
 }
 
 export interface CatalogProduct {
