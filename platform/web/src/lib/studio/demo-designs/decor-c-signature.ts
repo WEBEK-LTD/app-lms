@@ -9,7 +9,8 @@ import { kitPhoto, say, shop, type KitLook } from "./shop-kit-parts";
  * 225 Sakan's look C, ATHAR (أثر), the gallery: the decor house hung as a
  * museum wall. Gallery white with black by day, a black wall by night;
  * Amiri for the titles and the labels' names, IBM Plex Sans Arabic for the
- * rest; generous white space, no corners, no shadows but the frames'.
+ * rest (both the project's fonts, so the app downloads both: IBM Plex Sans Arabic
+ * its font, Amiri its Arabic font); generous white space, no corners, no shadows but the frames'.
  *
  * - A tiny centred wordmark between the menu and the bag.
  * - "Now showing": the exhibition's name in large Amiri, its dates.
@@ -120,8 +121,8 @@ function exhibition(ctx: SectionContext): StudioNode[] {
   const photo = kitPhoto(ctx, L, "sage-jars");
   const entry = ctx.entries?.[0];
   return [
-    say(ctx, L, "atNow", text(11, 500, { letter_spacing: 2 }), { muted: true, max_lines: 1, padding: sides(26, 28, 4, 28) }),
-    say(ctx, L, "atExhibition", display(44, 400, { line_height: 1.1 }), { max_lines: 2, padding: sides(0, 28, 0, 28) }),
+    say(ctx, L, "atNow", text(11, 500, { letter_spacing: 2 }), { muted: true, max_lines: 1, padding: sides(26, 28, 14, 28) }),
+    say(ctx, L, "atExhibition", display(44, 400, { line_height: 1.35 }), { max_lines: 2, padding: sides(0, 28, 0, 28) }),
     say(ctx, L, "atDates", text(12.5), { muted: true, max_lines: 2, padding: sides(8, 28, 0, 28) }),
     {
       id: id(),
@@ -182,7 +183,7 @@ function framedCard(ctx: SectionContext, width: number, height: number): StudioN
 /** The collection as an asymmetric masonry: two columns of framed pieces, the second hung lower, tall beside short. */
 function masonry(ctx: SectionContext): StudioNode {
   const id = idOf(ctx);
-  const column = (sort: "newest" | "popular", featured: boolean, height: number, top: number): StudioNode => ({
+  const column = (sort: "price_desc" | "price_asc", featured: boolean, height: number, top: number): StudioNode => ({
     id: id(),
     type: "items",
     name: ctx.w("atCollection"),
@@ -194,7 +195,7 @@ function masonry(ctx: SectionContext): StudioNode {
     query: { limit: 2, category_id: null, featured, sort, ids: [] },
     card: framedCard(ctx, 160, height),
   });
-  return { id: id(), type: "row", name: ctx.w("atCollection"), gap: 18, cross: "start", padding: sides(0, 22, 0, 22), children: [column("newest", true, 200, 0), column("popular", false, 140, 56)] };
+  return { id: id(), type: "row", name: ctx.w("atCollection"), gap: 18, cross: "start", padding: sides(0, 22, 0, 22), children: [column("price_desc", true, 200, 0), column("price_asc", false, 170, 56)] };
 }
 
 const HALLS = [
@@ -432,7 +433,7 @@ export const DECOR_C: SignatureDesign = {
   isNew: true,
   project: {
     primary: K.fill,
-    appearance: { secondary_color: "#66665F", font: "DM Sans", font_family: "IBM Plex Sans Arabic", arabic_font: "IBM Plex Sans Arabic", dark_background: K.darkPage, dark_surface: K.darkSurface },
+    appearance: { secondary_color: "#66665F", font: "DM Sans", font_family: "IBM Plex Sans Arabic", arabic_font: "Amiri", dark_background: K.darkPage, dark_surface: K.darkSurface },
     screens: ATHAR_SCREENS,
   },
 };

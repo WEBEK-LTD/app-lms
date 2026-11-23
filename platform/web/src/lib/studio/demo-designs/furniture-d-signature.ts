@@ -346,7 +346,7 @@ function home(ctx: SectionContext): StudioPage {
   const id = idOf(ctx);
   const t = sigTexts(ctx, { title: "fuWordmark", subtitle: "mnTagline" });
   return {
-    header: { type: "title_search", ...t, buttons: ["menu", "notifications", "cart"], menu_page: MENU_PAGE, background: K.page, dark_background: K.darkPage, color: K.ink, dark_color: K.darkInk },
+    header: { type: "title", ...t, buttons: ["menu", "search", "cart"], menu_page: MENU_PAGE, background: K.page, dark_background: K.darkPage, color: K.ink, dark_color: K.darkInk },
     background: K.page,
     dark_background: K.darkPage,
     body: {
@@ -493,8 +493,8 @@ const MANZIL_SCREENS = signatureScreens({
   first: ["orders", "notifications", "settings", "help", "privacy", "terms"],
 });
 
-/** The segment bar: a floating track on the surface, the open tab in a soft segment. */
-const MANZIL_BAR = signatureBar(K, { design: "segment", background: K.surface, dark_background: K.darkSurface, active: K.fill, dark_active: K.darkFill, inactive: "#7A7F8C", dark_inactive: "#8F96A6", labels: "always", radius: 22, margin: 12 });
+/** Its own bar: a deep navy island across the foot, the open tab's name in ochre. */
+const MANZIL_BAR = signatureBar(K, { design: "island", background: "#1F2A44", dark_background: "#0A0E16", active: "#E3B868", dark_active: "#E3B868", inactive: "#A9B0C2", dark_inactive: "#8F96A6", labels: "active", radius: 26, margin: 14 });
 
 export const FURNITURE_D: SignatureDesign = {
   demo: "furniture",
@@ -506,7 +506,7 @@ export const FURNITURE_D: SignatureDesign = {
   pages: (ctx) => [{ slug: MENU_PAGE, title: "skCategoryMenu", studio: menuPage(ctx) }],
   bar: MANZIL_BAR,
   look: { header: { background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },
-  chrome: { header: "search", system: "glass" },
+  chrome: { header: "search", home: "glass", system: "glass" },
   isNew: true,
   project: {
     primary: K.fill,
