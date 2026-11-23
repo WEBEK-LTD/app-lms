@@ -4597,6 +4597,28 @@ class AppLocalizationsTr extends AppLocalizations {
   String get ringFocusOpen => 'Bildirim ayarlarını aç';
 
   @override
+  String get themeTitle => 'Tema';
+
+  @override
+  String get themeDefaultBadge => 'Varsayılan';
+
+  @override
+  String get themeDefaultHelp => 'Uygulamanın bugünkü görünümü';
+
+  @override
+  String get themePharaonic => 'Firavun';
+
+  @override
+  String get themePharaonicHelp => 'Gece ve altın, Eski Mısır süslemeleriyle';
+
+  @override
+  String get themeModeTitle => 'Açık veya koyu';
+
+  @override
+  String get themeModeHelp =>
+      'Her temanın kendi açık ve koyu hâli var; ikisi de bu ayarı izler.';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

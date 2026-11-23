@@ -60,6 +60,9 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   /// Every call, by its operation name.
   final calls = <String>[];
 
+  /// 215 Takes every order away from [appId] (an empty Kitchen mode).
+  void clearOrders(String appId) => _orders[appId] = [];
+
   late List<AppSummary> apps;
   final devicesList = <Device>[];
   var preferences = const PushPreferences({});

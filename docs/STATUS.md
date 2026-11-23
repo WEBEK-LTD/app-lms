@@ -20,6 +20,17 @@ done: upload the key set to the Google provider (`jwksJson`) so Google
 needs no call to the site, at the cost of uploading it again on every
 key rotation.
 
+Roadmap 215 (Yallapp Business 1.0.7, after 1.0.6; in the code, not
+released): the Pharaonic theme beside the default look, chosen in Settings ›
+Appearance and kept on the phone, light and dark following the same setting.
+Its own colours (AA throughout), El Messiri and Cinzel for headings, tabular
+figures for every number, the ground and ornaments painted in the app, the
+welcome, lock and opening screens, Today, an order, the ringtones, the nav
+and buttons, empty states, and the New order card in its skin (with a
+shimmer that stops with the answer and with less motion). The default look
+is unchanged: goldens of its screens match pixel for pixel. No migration,
+no server change.
+
 Roadmap 214 (Yallapp Business 1.0.6; in the code, not released: the
 release waits for the owner): ring by order value (2 or 3 bands with their
 own sounds), the end-of-day summary at the phone's time in the shop's time
@@ -35,6 +46,20 @@ New order card on Today with Accept and Reject. New
 iPhone extension: `tr.com.yallapp.business.ShopWidget`, its App ID and
 profile made by fastlane on the first release. Time Sensitive is ready
 but off (open item below).
+
+Roadmap 220 (the code items earlier phases left open): every amount on the
+dashboard's pages (courses, school fees and salaries, rides, deliveries,
+food orders, events, donations, bookings, travel, Analytics) is written in
+the dashboard's language, as the shop's pages were since 175; the
+marketplace's checkout says "Cash at pickup" with Pick up chosen, in
+English, Arabic and Turkish (app release 16); `POST /food/quote`'s 503 is in
+the contract; the store review driver's sample ride has a real fare (the
+company's fares, else 50), stays out of the drivers' statements and reads in
+the dashboard's language, and Masar's driver card shows a neutral icon for a
+driver without a photo, not the template's stock face (app release 16).
+The phones by the app's country were already 206.2's. Zad's department
+tiles still open the search: the marketplace has no departments of its own
+to open (220.6).
 
 Roadmap 206 (the follow-ups of 157, 158 and 160): plugin 0.4.52 never
 makes WordPress wait on Yallapp when an account is deleted (the chat's

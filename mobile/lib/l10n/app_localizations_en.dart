@@ -8775,6 +8775,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketPayCash => 'Cash on delivery';
 
   @override
+  String get marketPayCashPickup => 'Cash at pickup';
+
+  @override
   String get marketPayCard => 'Card';
 
   @override

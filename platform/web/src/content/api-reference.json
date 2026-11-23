@@ -1220,14 +1220,14 @@
           "method": "POST",
           "path": "/food/quote",
           "summary": "Price one restaurant's cart",
-          "description": "The cart's lines with their prices, the subtotal, the delivery fee to the drop-off and the total. Fails with `invalid_request` (400) for a dish or choice the restaurant doesn't have (or a missing required choice), with `unavailable_item` (409) for a sold-out dish (`field` names the line), `restaurant_closed` (409) while the restaurant is closed or busy, `below_minimum` (409) under the restaurant's smallest order, and `outside_delivery_area` (400) when the restaurant doesn't deliver to the drop-off.",
+          "description": "The cart's lines with their prices, the subtotal, the delivery fee to the drop-off and the total. Fails with `invalid_request` (400) for a dish or choice the restaurant doesn't have (or a missing required choice), with `unavailable_item` (409) for a sold-out dish (`field` names the line), `restaurant_closed` (409) while the restaurant is closed or busy, `below_minimum` (409) under the restaurant's smallest order, `outside_delivery_area` (400) when the restaurant doesn't deliver to the drop-off, and `delivery_unavailable` (503) while the company hasn't set its delivery prices yet (the app isn't taking orders: the cart says so and offers no checkout).",
           "access": "optional"
         },
         {
           "method": "POST",
           "path": "/food/orders",
           "summary": "Order from a restaurant",
-          "description": "Places the order at the prices `POST /food/quote` gives for the same cart. Paid in cash, it goes to the restaurant at once (`placed`). Paid by card, it waits for the payment (`awaiting_payment`) and the answer has `pay_url`, the company's payment page, opened in the app on both platforms (food delivered is a service in the physical world); it goes to the restaurant once the payment is confirmed. Fails as the quote does, for a payment method the company doesn't take, and with `payments_unavailable` (503) for a card payment while the company's payments aren't set up.",
+          "description": "Places the order at the prices `POST /food/quote` gives for the same cart. Paid in cash, it goes to the restaurant at once (`placed`). Paid by card, it waits for the payment (`awaiting_payment`) and the answer has `pay_url`, the company's payment page, opened in the app on both platforms (food delivered is a service in the physical world); it goes to the restaurant once the payment is confirmed. Fails as the quote does (`delivery_unavailable`, 503, too), for a payment method the company doesn't take, and with `payments_unavailable` (503) for a card payment while the company's payments aren't set up.",
           "access": "signed-in"
         },
         {

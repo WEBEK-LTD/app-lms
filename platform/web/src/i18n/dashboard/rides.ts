@@ -219,6 +219,12 @@ export const en = {
   cardPayments: "Card payments",
   payIntro: "Card fares go to your own payment account, once the ride ends. Yallapp takes no share.",
   known: {
+    // 220 The store review driver's sample ride and car (lib/rides/sample.ts).
+    sampleRider: "App Review (sample)",
+    sampleCar: "Sample car",
+    samplePickup: "Sample pickup, 1 Example Street",
+    sampleDropoff: "Sample drop-off, 2 Example Street",
+    sampleNote: "Sample ride for the store review",
     saved: "Saved. The app shows it the next time it opens.",
     savedShort: "Saved.",
     typeAdded: "Added. Riders choose it when they ask for a ride.",
@@ -495,6 +501,11 @@ export const ar: Strings<typeof en> = {
   cardPayments: "الدفع بالبطاقة",
   payIntro: "تذهب أجور البطاقة إلى حساب الدفع الخاص بك بعد انتهاء الرحلة. لا يأخذ Yallapp أي حصة.",
   known: {
+    sampleRider: "مراجعة المتجر (تجربة)",
+    sampleCar: "عربية للتجربة",
+    samplePickup: "مكان ركوب للتجربة، 1 شارع المثال",
+    sampleDropoff: "مكان نزول للتجربة، 2 شارع المثال",
+    sampleNote: "رحلة للتجربة عشان مراجعة متجر التطبيقات",
     saved: "تم الحفظ. يظهر في التطبيق عند فتحه في المرة القادمة.",
     savedShort: "تم الحفظ.",
     typeAdded: "تمت الإضافة. يختاره الركاب عند طلب رحلة.",
@@ -770,6 +781,11 @@ export const tr: Strings<typeof en> = {
   cardPayments: "Kartla ödemeler",
   payIntro: "Kartla ödenen ücretler, yolculuk bitince kendi ödeme hesabınıza gider. Yallapp pay almaz.",
   known: {
+    sampleRider: "Mağaza incelemesi (örnek)",
+    sampleCar: "Örnek araç",
+    samplePickup: "Örnek biniş noktası, Örnek Sokak 1",
+    sampleDropoff: "Örnek iniş noktası, Örnek Sokak 2",
+    sampleNote: "Mağaza incelemesi için örnek yolculuk",
     saved: "Kaydedildi. Uygulama bir sonraki açılışında gösterir.",
     savedShort: "Kaydedildi.",
     typeAdded: "Eklendi. Yolcular yolculuk isterken seçer.",

@@ -25,12 +25,12 @@ export async function generateMetadata(): Promise<Metadata> {
 /** 105.2 What riders choose from, each with its fares, in the company's order. */
 export default async function VehicleTypesPage({ searchParams }: { searchParams: Promise<SampleQuery> }) {
   const { app, license } = await requireClient("settings");
-  const { t } = await dashboardText();
+  const { t, lang } = await dashboardText();
   if (!isRides(app)) return <NotRides title={t("rides.vehicleTypes")} t={t} />;
   const store = await getStore();
   const [types, saved, plan] = await Promise.all([store.listVehicleTypes(app.id), store.getDeliverySettings(app.id), appPlan(store, license, new Date())]);
   const currency = deliverySettingsOf(saved).currency;
-  const money = (cents: number) => formatCents(cents, currency);
+  const money = (cents: number) => formatCents(cents, currency, lang);
   const offered = new Set(offeredTypes(types).map((v) => v.id));
 
   const has = types.length > 0;

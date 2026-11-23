@@ -30,7 +30,7 @@ const PER_PAGE = 50;
 /** 105.4 What the school asks of each family: added here, paid by card in the app or at the school, each with its receipt. */
 export default async function SchoolFeesPage({ searchParams }: { searchParams: Promise<{ show?: string; q?: string; page?: string }> }) {
   const { app, license } = await requireClient("settings");
-  const { t } = await dashboardText();
+  const { t, lang } = await dashboardText();
   if (!isSchool(app)) return <NotSchool title={t("school.fees")} t={t} />;
   const params = await searchParams;
   const show: SchoolFeeStatus = (SHOWS as readonly string[]).includes(params.show ?? "") ? (params.show as SchoolFeeStatus) : "due";
@@ -90,7 +90,7 @@ export default async function SchoolFeesPage({ searchParams }: { searchParams: P
       )}
 
       <StatRow label={t("school.fees")}>
-        <Stat icon="payments" tone="accent" label={t("school.statDueAmount")} value={<span dir="ltr">{formatCents(dueTotal, currency)}</span>} />
+        <Stat icon="payments" tone="accent" label={t("school.statDueAmount")} value={<span dir="ltr">{formatCents(dueTotal, currency, lang)}</span>} />
         <Stat icon="hourglass_top" tone="warn" label={t("school.feeDue")} value={countOf("due")} href={link("due")} />
         <Stat icon="check_circle" tone="success" label={t("school.feePaid")} value={countOf("paid")} href={link("paid")} />
         <Stat icon="cancel" label={t("school.feeCancelled")} value={countOf("cancelled")} href={link("cancelled")} />
@@ -115,7 +115,7 @@ export default async function SchoolFeesPage({ searchParams }: { searchParams: P
                   media={<Thumb icon="receipt_long" shape="square" tint={i} />}
                   title={
                     <>
-                      {fee.title} · <span dir="ltr">{formatCents(fee.amountCents, currency)}</span>
+                      {fee.title} · <span dir="ltr">{formatCents(fee.amountCents, currency, lang)}</span>
                     </>
                   }
                   badges={fee.status === "cancelled" ? <Badge tone="neutral">{t("school.feeCancelled")}</Badge> : null}

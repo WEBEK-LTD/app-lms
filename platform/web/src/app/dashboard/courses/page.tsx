@@ -35,7 +35,7 @@ const STAGE_TONES = { draft: "neutral", in_review: "warn", returned: "info", pub
  */
 export default async function CoursesPage({ searchParams }: { searchParams: Promise<SampleQuery> }) {
   const { app, license } = await requireClient("catalog");
-  const { t } = await dashboardText();
+  const { t, lang } = await dashboardText();
   if (!app || app.connector?.kind !== "courses") {
     return (
       <div className="flex flex-col gap-6">
@@ -62,7 +62,7 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
       title: c.title,
       image: c.imageAssetId ? assetUrl(c.imageAssetId) : null,
       teacher: (c.teacherId ? teacherNames.get(c.teacherId) : null) ?? c.instructorName ?? null,
-      price: c.priceCents ? formatCents(c.priceCents, setup.currency) : t("common.free"),
+      price: c.priceCents ? formatCents(c.priceCents, setup.currency, lang) : t("common.free"),
       cents: c.priceCents,
       lessons: lessonsOf(c).length,
       sections: c.topics.length,

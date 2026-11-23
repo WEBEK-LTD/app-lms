@@ -29,7 +29,7 @@ const FILTERS: { id: string; key: DashKey; statuses?: TravelBookingStatus[] }[] 
 /** 126 Every booking made in the app: stays, flights and trips, newest first. */
 export default async function TravelBookingsPage({ searchParams }: { searchParams: Promise<{ filter?: string; q?: string; page?: string }> }) {
   const { app, license } = await requireClient("orders");
-  const { t, date } = await dashboardText();
+  const { t, date, lang } = await dashboardText();
   if (!isTravel(app)) return <NotTravel title={t("travel.bookings")} t={t} />;
   const query = await searchParams;
   const store = await getStore();
@@ -89,7 +89,7 @@ export default async function TravelBookingsPage({ searchParams }: { searchParam
                       <PaymentBadge status={b.paymentStatus} t={t} />
                     </>
                   }
-                  meta={[b.stay?.hotelName, dates, formatCents(b.totalCents, b.currency)].filter(Boolean).join(" · ")}
+                  meta={[b.stay?.hotelName, dates, formatCents(b.totalCents, b.currency, lang)].filter(Boolean).join(" · ")}
                   extra={date(b.createdAt)}
                 />
               );

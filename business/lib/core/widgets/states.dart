@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/api_exception.dart';
 import '../providers.dart';
 import '../theme/icons.dart';
+import '../theme/pharaonic_widgets.dart';
 import '../theme/theme.dart';
 import 'l10n.dart';
 
@@ -118,8 +119,11 @@ class MessageState extends StatelessWidget {
     required this.title,
     this.text,
     this.action,
+    this.leading,
   });
 
+  /// 215 In place of the icon's circle (the Pharaonic medallion).
+  final Widget? leading;
   final IconData icon;
   final String title;
   final String? text;
@@ -138,15 +142,16 @@ class MessageState extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    color: context.yb.muted,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, size: 34, color: context.yb.ink),
-                ),
+                leading ??
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: context.yb.muted,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(icon, size: 34, color: context.yb.ink),
+                    ),
                 const SizedBox(height: 20),
                 Text(
                   title,
@@ -186,8 +191,13 @@ class EmptyState extends StatelessWidget {
   final IconData icon;
 
   @override
-  Widget build(BuildContext context) =>
-      MessageState(icon: icon, title: title, text: text);
+  Widget build(BuildContext context) => MessageState(
+    icon: icon,
+    title: title,
+    text: text,
+    // 215 The Pharaonic theme's refined empty state.
+    leading: context.ornaments == null ? null : const Medallion(),
+  );
 }
 
 enum Tone { neutral, good, warn, bad, info, accent }
@@ -261,20 +271,45 @@ class SectionTitle extends StatelessWidget {
   final Widget? trailing;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsetsDirectional.fromSTEB(20, 24, 12, 8),
-    child: Row(
-      children: [
-        Expanded(
-          child: Semantics(
-            header: true,
-            child: Text(text, style: Theme.of(context).textTheme.titleMedium),
-          ),
+  Widget build(BuildContext context) {
+    // 215 The Pharaonic theme: the title, then a gold hairline with a small
+    // motif in its middle.
+    if (context.ornaments != null) {
+      return Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(20, 24, 12, 10),
+        child: Row(
+          children: [
+            Flexible(
+              child: Semantics(
+                header: true,
+                child: Text(
+                  text,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(child: PharaonicRule()),
+            if (trailing != null) ...[const SizedBox(width: 8), trailing!],
+          ],
         ),
-        ?trailing,
-      ],
-    ),
-  );
+      );
+    }
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(20, 24, 12, 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Semantics(
+              header: true,
+              child: Text(text, style: Theme.of(context).textTheme.titleMedium),
+            ),
+          ),
+          ?trailing,
+        ],
+      ),
+    );
+  }
 }
 
 /// A full-width "Load more" for paged lists.

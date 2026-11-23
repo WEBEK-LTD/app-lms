@@ -28,6 +28,7 @@ import type {
 import type { MarketDiscount, MarketDiscountKind } from "./types";
 import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
+import { SAMPLE_RIDER_NAME } from "../rides/sample";
 import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord, AppLayoutVersion, AppLayoutVersionSummary, OwnFont, PendingPayment, SavedSection, StudioTemplate, StudioDesign, StoreProduct, StorePurchaseRecord, StorePurchaseEvent, StoreBillingItem, BillingSession } from "./types";
@@ -5400,7 +5401,8 @@ export class MemoryStore implements DataStore {
   async rideStatement(appId: string, since: Date, until: Date): Promise<RideStatementRow[]> {
     const rows = new Map<string, RideStatementRow>();
     for (const r of this.rides.values()) {
-      if (r.appId !== appId || r.status !== "completed" || r.createdAt < since || r.createdAt >= until) continue;
+      // 220 Never the store review driver's sample rides.
+      if (r.appId !== appId || r.status !== "completed" || r.createdAt < since || r.createdAt >= until || r.riderName === SAMPLE_RIDER_NAME) continue;
       const key = r.driverId === null ? `name:${r.driverName ?? ""}` : `id:${r.driverId}`;
       const row = rows.get(key) ?? { driverId: r.driverId, driverName: r.driverName ?? "", rides: 0, faresCents: 0, cashCents: 0, cardCents: 0, commissionCents: 0, feesCents: 0 };
       const total = r.finalCents ?? 0;

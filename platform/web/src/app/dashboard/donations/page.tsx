@@ -155,13 +155,13 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
                       </span>
                     </td>
                     <td className="px-4 py-3">{d.campaignTitle}</td>
-                    <td className="px-4 py-3 text-end whitespace-nowrap">{formatCents(d.amountCents, d.currency)}</td>
+                    <td className="px-4 py-3 text-end whitespace-nowrap">{formatCents(d.amountCents, d.currency, lang)}</td>
                     <td className="px-4 py-3 text-[13px] whitespace-nowrap text-muted">{formatDateTime(d.paidAt ?? d.createdAt, lang)}</td>
                     <td className="px-4 py-3">
                       <span className="flex flex-col items-start gap-1">
                         <Badge tone={TONES[d.status]}>{t(STATUS_LABELS[d.status])}</Badge>
                         {d.status === "paid" && d.refundedCents ? (
-                          <span className="text-[13px] text-muted">{k(refundedLine(d.refundedCents, d.amountCents, d.currency) ?? "")}</span>
+                          <span className="text-[13px] text-muted">{k(refundedLine(d.refundedCents, d.amountCents, d.currency, lang) ?? "")}</span>
                         ) : null}
                         {/* 71 The donor's receipt, the same PDF they got by email. */}
                         {d.status === "paid" || d.status === "refunded" ? (

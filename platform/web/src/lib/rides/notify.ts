@@ -4,6 +4,7 @@ import type { DataStore } from "../data/store";
 import type { Courier, Ride, RideStatus } from "../data/types";
 import { asLang, deliver, type DeliveryNotifyDeps, type Words } from "../delivery/notify";
 import { rideReference } from "./service";
+import { sampleWords } from "./sample";
 
 /**
  * 105.2 What the rider and the drivers are told: the rider when their ride
@@ -66,10 +67,11 @@ const DRIVER: Record<"offer" | "given" | "cancelled", Record<Lang, (ref: string,
 };
 
 /** "White Toyota Corolla · ABC 123". */
-export function carText(driver: Courier | null): string {
+export function carText(driver: Courier | null, k?: (english: string) => string): string {
   const d = driver?.driver;
   if (!d) return "";
-  const car = [d.carColor, d.carModel].filter(Boolean).join(" ");
+  // 220 The review driver's "Sample car" in the dashboard's language (`k`).
+  const car = [d.carColor, k ? sampleWords(d.carModel, k) : d.carModel].filter(Boolean).join(" ");
   return [car, d.plate].filter(Boolean).join(" · ");
 }
 

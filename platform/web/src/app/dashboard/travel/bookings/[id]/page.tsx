@@ -41,13 +41,13 @@ function Facts({ rows }: { rows: [string, React.ReactNode][] }) {
 /** 126 A booking: the stay, the flights and seats, the travellers, the price, the payment, and what the company can do with it. */
 export default async function TravelBookingPage({ params }: { params: Promise<{ id: string }> }) {
   const { app } = await requireClient("orders");
-  const { t, date } = await dashboardText();
+  const { t, date, lang } = await dashboardText();
   if (!isTravel(app)) return <NotTravel title={t("travel.bookings")} t={t} />;
   const store = await getStore();
   const id = Number((await params).id);
   const b = Number.isSafeInteger(id) ? await store.getTravelBooking(app.id, id) : null;
   if (!b) notFound();
-  const money = (cents: number) => formatCents(cents, b.currency);
+  const money = (cents: number) => formatCents(cents, b.currency, lang);
   const legs = [b.flight?.outbound, b.flight?.inbound].filter((l) => !!l);
   const flights = await Promise.all(legs.map((l) => store.getTravelFlight(app.id, l!.flightId)));
   const due = dueCents(b);

@@ -123,7 +123,7 @@ export default async function ShipmentsPage({ searchParams }: { searchParams: Pr
                 aside={
                   <>
                     <span className="flex flex-col items-end text-end">
-                      <span className="text-[15px] font-bold whitespace-nowrap tabular-nums">{formatCents(s.priceCents, s.currency)}</span>
+                      <span className="text-[15px] font-bold whitespace-nowrap tabular-nums">{formatCents(s.priceCents, s.currency, lang)}</span>
                       <span className="text-[13px] text-muted">
                         {t(s.paymentMethod === "cash" ? "delivery.cash" : "delivery.card")} · {t(s.paymentStatus === "paid" ? "delivery.paid" : s.paymentStatus === "refunded" ? "delivery.refunded" : "delivery.unpaid")}
                       </span>
