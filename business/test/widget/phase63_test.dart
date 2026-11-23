@@ -114,6 +114,12 @@ void main() {
       await app.pump(tester);
       expect(find.text('Members in today'), findsOneWidget);
       expect(find.text('3'), findsWidgets);
+      // 214 Below Pause new orders (a gym with a shop can pause it).
+      await tester.scrollUntilVisible(
+        find.text('Scan'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tapOn(tester, find.text('Scan'));
       expect(find.byKey(const ValueKey('camera')), findsOneWidget);
 

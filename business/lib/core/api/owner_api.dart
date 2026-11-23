@@ -1,3 +1,4 @@
+import '../services/live_activity.dart';
 import 'models.dart';
 import 'shop_models.dart';
 
@@ -90,6 +91,9 @@ abstract class OwnerApi {
   /// 214 The home-screen widget's own token (read-only, `GET /widget` only),
   /// handed to the widget; null when the server has none to give.
   Future<String?> widgetToken();
+
+  /// 214 This iPhone's Live Activity push tokens (`PUT /me/live-activity`).
+  Future<void> setLiveActivity(LiveTokens tokens);
 
   /// 207 Marks it shipped with the carrier and the tracking; the customer
   /// is emailed (80.4). Again changes the tracking.

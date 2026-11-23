@@ -8182,6 +8182,24 @@ abstract class AppLocalizations {
   /// **'Taking orders again'**
   String get reopenedNow;
 
+  /// No description provided for @ringFocusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order alerts through Focus'**
+  String get ringFocusTitle;
+
+  /// No description provided for @ringFocusHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'On iPhone, new order alerts are Time Sensitive. To hear them during Focus or Do Not Disturb, turn on Time Sensitive Notifications for Yallapp Business in its notification settings, and allow it in your Focus.'**
+  String get ringFocusHelp;
+
+  /// No description provided for @ringFocusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open notification settings'**
+  String get ringFocusOpen;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

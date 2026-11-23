@@ -4604,6 +4604,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get reopenedNow => 'Yeniden sipariş alınıyor';
 
   @override
+  String get ringFocusTitle => 'Odak modunda sipariş uyarıları';
+
+  @override
+  String get ringFocusHelp =>
+      'iPhone\'da yeni sipariş uyarıları Zamana Duyarlı\'dır. Odak veya Rahatsız Etme sırasında duymak için Yallapp Business\'ın bildirim ayarlarında Zamana Duyarlı Bildirimler\'i açın ve Odak\'ta izin verin.';
+
+  @override
+  String get ringFocusOpen => 'Bildirim ayarlarını aç';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

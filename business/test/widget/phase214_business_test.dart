@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp_business/core/api/fake_owner_api.dart';
 import 'package:yallapp_business/core/providers.dart';
 import 'package:yallapp_business/core/routing/paths.dart';
 import 'package:yallapp_business/core/routing/router.dart';
+import 'package:yallapp_business/core/services/live_activity.dart';
 import 'package:yallapp_business/core/services/push.dart';
 import 'package:yallapp_business/core/services/ringtones.dart';
 import 'package:yallapp_business/core/session.dart';
@@ -413,6 +415,95 @@ void main() {
       expect(app.ringNative.words['accept'], isNotEmpty);
       expect(app.ringNative.words['open'], isNotEmpty);
       expect(app.ringNative.words['accept'], isNot('Accept'));
+    });
+  });
+
+  group('the new order\'s Live Activity', () {
+    testWidgets('signed in, the iPhone\'s tokens go to the server, and again', (
+      tester,
+    ) async {
+      final app = TestApp();
+      await app.pump(tester);
+      expect(app.api.calls, contains('setLiveActivity'));
+      expect(app.api.liveTokens!.start, 'a1a1a1a1a1a1a1a1');
+      expect(app.api.liveTokens!.orders.single.orderId, '1040');
+      app.live.tokensNow = const LiveTokens(start: 'c3c3c3c3c3c3c3c3');
+      app.live.changes.add(null);
+      await settle(tester);
+      expect(app.api.liveTokens!.start, 'c3c3c3c3c3c3c3c3');
+    });
+
+    testWidgets('a new order while open shows on the lock screen', (
+      tester,
+    ) async {
+      final push = FakePush();
+      final app = TestApp(push: push, language: 'ar');
+      await app.pump(tester);
+      push.foregroundController.add(
+        const RemoteNotice(
+          title: 'طلب جديد F-1047',
+          body: '',
+          data: {
+            'kind': 'new_food_order',
+            'app_id': FakeOwnerApi.foodId,
+            'food_order_id': '47',
+            'order_number': 'F-1047',
+            'order_customer': 'Kerem',
+            'order_total': '₺246.00',
+            'order_placed_at': '1795400000',
+          },
+        ),
+      );
+      await settle(tester);
+      expect(app.live.started.single, {
+        'app_id': FakeOwnerApi.foodId,
+        'kind': 'new_food_order',
+        'order_id': '47',
+        'number': 'F-1047',
+        'customer': 'Kerem',
+        'total': '₺246.00',
+        'placed_at': 1795400000.0,
+        'lang': 'ar',
+      });
+    });
+
+    test('only new orders start one', () {
+      expect(
+        liveStartArgs({'kind': 'new_message', 'order_id': '1'}, 'en'),
+        isNull,
+      );
+      expect(liveStartArgs({'kind': 'new_order'}, 'en'), isNull);
+      expect(
+        liveStartArgs({'kind': 'new_order', 'order_id': '1040'}, 'tr'),
+        containsPair('number', '1040'),
+      );
+    });
+  });
+
+  group('Time Sensitive (iPhone)', () {
+    testWidgets('Ringtones says how order alerts get through Focus', (
+      tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        final app = TestApp(language: 'tr');
+        await app.pump(tester);
+        await push(tester, app, Paths.ringtones);
+        expect(find.byKey(const ValueKey('ring-focus')), findsOneWidget);
+        expect(find.text('Odak modunda sipariş uyarıları'), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey('ring-focus-open')));
+        await settle(tester);
+        expect(app.ringNative.settingsOpened, 1);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('not on Android', (tester) async {
+      final app = TestApp();
+      await app.pump(tester);
+      await push(tester, app, Paths.ringtones);
+      expect(find.byKey(const ValueKey('ring-focus')), findsNothing);
     });
   });
 }

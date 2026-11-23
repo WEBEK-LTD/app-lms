@@ -1030,6 +1030,13 @@
       "when": 1795431368228,
       "tag": "0153_shop_pause",
       "breakpoints": true
+    },
+    {
+      "idx": 154,
+      "version": "5",
+      "when": 1795434729548,
+      "tag": "0154_owner_live_activity",
+      "breakpoints": true
     }
   ]
 }

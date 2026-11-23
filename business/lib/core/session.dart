@@ -127,6 +127,7 @@ class SessionController extends Notifier<SessionState> {
       state = SignedIn(me);
       unawaited(_registerPush());
       unawaited(_configureWidget());
+      unawaited(_sendLiveTokens());
     } on ApiException catch (e) {
       if (e.isUnauthorized) {
         await ref.read(tokenManagerProvider).clear();
@@ -235,7 +236,26 @@ class SessionController extends Notifier<SessionState> {
     }
   }
 
+  StreamSubscription<void>? _liveChanges;
+
+  /// 214 The iPhone's Live Activity tokens, for the server to start and end
+  /// a new order's Live Activity; again whenever they change.
+  Future<void> _sendLiveTokens() async {
+    final live = ref.read(liveActivitiesProvider);
+    _liveChanges ??= live.changed.listen((_) => unawaited(_sendLiveTokens()));
+    final tokens = await live.tokens();
+    if (tokens == null || state is! SignedIn) return;
+    try {
+      await ref.read(apiProvider).setLiveActivity(tokens);
+    } on Object {
+      // Tried again on the next start or change.
+    }
+  }
+
   Future<void> _forget() async {
+    final changes = _liveChanges;
+    _liveChanges = null;
+    if (changes != null) unawaited(changes.cancel());
     // 214 Nothing of the shop stays on the home screen.
     unawaited(
       ref

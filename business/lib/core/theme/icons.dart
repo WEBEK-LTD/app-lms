@@ -169,6 +169,8 @@ abstract final class AppIcons {
   static const ringing = Symbols.notifications_active_rounded;
   static const vibrate = Symbols.vibration_rounded;
   static const quietHours = Symbols.bedtime_rounded;
+  // 214 Order alerts through Focus (iPhone's Time Sensitive notifications).
+  static const focus = Symbols.do_not_disturb_on_rounded;
   static const stop = Symbols.stop_rounded;
   static const alarmVolume = Symbols.alarm_rounded;
   static const cancelledOrder = Symbols.remove_shopping_cart_rounded;

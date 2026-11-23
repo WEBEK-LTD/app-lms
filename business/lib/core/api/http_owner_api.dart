@@ -6,6 +6,7 @@ import '../auth/token_manager.dart';
 import '../widgets/digits.dart';
 import 'api_exception.dart';
 import 'json.dart';
+import '../services/live_activity.dart';
 import 'models.dart';
 import 'owner_api.dart';
 import 'shop_models.dart';
@@ -341,6 +342,12 @@ class HttpOwnerApi implements OwnerApi {
     final token = (await _post('/me/widget-token'))['token'];
     return token is String && token.isNotEmpty ? token : null;
   }
+
+  @override
+  Future<void> setLiveActivity(LiveTokens tokens) => _put('/me/live-activity', {
+    'start_token': tokens.start,
+    'orders': [for (final o in tokens.orders.take(20)) o.toJson()],
+  });
 
   @override
   Future<Order> shipOrder(

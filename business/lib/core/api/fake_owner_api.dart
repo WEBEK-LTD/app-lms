@@ -2,6 +2,7 @@ import 'dart:async';
 
 import '../widgets/digits.dart';
 import 'api_exception.dart';
+import '../services/live_activity.dart';
 import 'models.dart';
 import 'shop_models.dart';
 import 'owner_api.dart';
@@ -1750,6 +1751,15 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   Future<String?> widgetToken() async {
     await _call('widgetToken');
     return 'yw1.demo-device.0.demo';
+  }
+
+  /// 214 The Live Activity tokens the phone sent.
+  LiveTokens? liveTokens;
+
+  @override
+  Future<void> setLiveActivity(LiveTokens tokens) async {
+    await _call('setLiveActivity');
+    liveTokens = tokens;
   }
 
   @override

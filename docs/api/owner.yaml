@@ -561,7 +561,7 @@ paths:
       tags: [Account]
       operationId: getWidgetToken
       summary: 214 A token for the home-screen widget
-      description: Read-only, for `GET /widget` only, for 30 days; it stops when this device is signed out. The app asks for a new one each time it opens and hands it to the widget (Android's own storage, iOS's App Group keychain).
+      description: Read-only, for `GET /widget` only, for 30 days; it stops when this device is signed out. The app asks for a new one each time it opens and hands it to the widget (Android's own storage; on iOS a keychain item shared with the widget extension).
       responses:
         '200':
           description: The token
@@ -573,6 +573,45 @@ paths:
                 properties:
                   token: { type: string, example: 'yw1.…' }
                   expires_at: { type: string, format: date-time }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/live-activity:
+    put:
+      tags: [Account]
+      operationId: setLiveActivity
+      summary: 214 This iPhone's Live Activity push tokens
+      description: "The push-to-start token (iOS 17.2) and the tokens of the new orders' Live Activities on this phone (hex). A new order (new_order, new_food_order, new_market_order) starts its Live Activity on the iPhones that hear of it; accepted, turned down or cancelled anywhere, it ends on every one. Only the fields sent change; an order's `token: null` forgets it. Tokens over 12 hours old are dropped, 20 at most are kept."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_token: { type: string, nullable: true, example: 'a1b2…' }
+                orders:
+                  type: array
+                  maxItems: 20
+                  items:
+                    type: object
+                    required: [app_id, kind, order_id, token]
+                    properties:
+                      app_id: { type: string }
+                      kind: { type: string, enum: [new_order, new_food_order, new_market_order] }
+                      order_id: { type: string, example: '42' }
+                      token: { type: string, nullable: true }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [start, orders]
+                properties:
+                  start: { type: boolean, description: A push-to-start token is kept. }
+                  orders: { type: integer, description: The order activities' tokens kept. }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
   /widget:

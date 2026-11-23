@@ -81,6 +81,7 @@ final class WidgetPush: NSObject, FlutterPlugin {
 
   static func register(with registrar: FlutterPluginRegistrar) {}
 
+  @objc(application:didReceiveRemoteNotification:fetchCompletionHandler:)
   func application(
     _ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any],
     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
@@ -94,6 +95,7 @@ final class WidgetPush: NSObject, FlutterPlugin {
 final class LinkSceneDelegate: NSObject, FlutterSceneLifeCycleDelegate {
   static let shared = LinkSceneDelegate()
 
+  @objc(scene:willConnectToSession:options:)
   func scene(
     _ scene: UIScene, willConnectTo session: UISceneSession,
     options connectionOptions: UIScene.ConnectionOptions?
@@ -105,6 +107,7 @@ final class LinkSceneDelegate: NSObject, FlutterSceneLifeCycleDelegate {
     return handled
   }
 
+  @objc(scene:openURLContexts:)
   func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) -> Bool {
     var handled = false
     for context in URLContexts where Links.open(context.url, launching: false) { handled = true }
@@ -115,7 +118,8 @@ final class LinkSceneDelegate: NSObject, FlutterSceneLifeCycleDelegate {
 /// 214 Links from the widget and the Live Activity, as tapped pushes.
 enum Links {
   static var launch: [String: String]?
-  static weak var ring: FlutterMethodChannel?
+  // Kept: the messenger holds only the handler.
+  static var ring: FlutterMethodChannel?
 
   /// True when it was the app's link.
   @discardableResult
@@ -133,7 +137,7 @@ enum Links {
 /// 214 The new orders' Live Activities (iOS 17 and later; the extension's
 /// deployment target).
 enum LiveOrders {
-  static weak var channel: FlutterMethodChannel?
+  static var channel: FlutterMethodChannel?
   private static var startToken: String?
   private static var orderTokens: [String: [String: String]] = [:]
   private static var observing = false
@@ -145,7 +149,8 @@ enum LiveOrders {
   }
 
   static func tokens() -> [String: Any] {
-    ["start": startToken as Any, "orders": Array(orderTokens.values)]
+    let start: Any = startToken.map { $0 as Any } ?? NSNull()
+    return ["start": start, "orders": Array(orderTokens.values)]
   }
 
   static func observe() {

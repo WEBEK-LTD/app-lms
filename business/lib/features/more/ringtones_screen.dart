@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -184,6 +185,44 @@ class _RingtonesScreenState extends ConsumerState<RingtonesScreen> {
               ),
             ),
           ),
+          // 214 iPhone: new orders through Focus (Time Sensitive).
+          if (defaultTargetPlatform == TargetPlatform.iOS)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: Panel(
+                key: const ValueKey('ring-focus'),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(AppIcons.focus, color: context.yb.info),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            l10n.ringFocusTitle,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(l10n.ringFocusHelp),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: OutlinedButton(
+                        key: const ValueKey('ring-focus-open'),
+                        onPressed: () => ref
+                            .read(ringNativeProvider)
+                            .openNotificationSettings(),
+                        child: Text(l10n.ringFocusOpen),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           SectionTitle(l10n.ringSoundsTitle),
           for (final group in SoundGroup.values)
             ListTile(

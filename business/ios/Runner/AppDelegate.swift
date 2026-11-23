@@ -57,6 +57,16 @@ import UIKit
         case "initial":
           result(Links.launch)
           Links.launch = nil
+        case "notificationSettings":
+          // 214 Where Time Sensitive Notifications are turned on.
+          let url: URL?
+          if #available(iOS 16.0, *) {
+            url = URL(string: UIApplication.openNotificationSettingsURLString)
+          } else {
+            url = URL(string: UIApplication.openSettingsURLString)
+          }
+          if let url { UIApplication.shared.open(url) }
+          result(nil)
         case "orderDone":
           // 214 Opened or answered: its Live Activity ends.
           let args = call.arguments as? [String: Any]

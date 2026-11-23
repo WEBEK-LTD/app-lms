@@ -39,7 +39,7 @@ import { pushTarget, sendPush, type ServiceAccount } from "../hosted/push";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
 import { summaryOf } from "../updates";
 import { ownerLang } from "./lang";
-import { pushDelivery, type PushDelivery } from "./push-sounds";
+import { OWNER_SOUND_GROUP_OF, pushDelivery, type PushDelivery } from "./push-sounds";
 
 /**
  * 58 Pushes to the owners' phones (Yallapp Business), from Yallapp Business's
@@ -136,7 +136,8 @@ export async function pushToOwner(
   deps: OwnerPushDeps,
   clientId: string,
   kind: OwnerPushKind,
-  word: (words: Words) => { title: string; body: string },
+  /** 214 With `data`: what the push carries in this language too (a new order's total, as the shop writes it). */
+  word: (words: Words) => { title: string; body: string; data?: Record<string, string> },
   data: Record<string, string>,
   /** 60 Who may get it; by default the kind's (PUSH_PERMISSION). */
   permission: TeamPermission = PUSH_PERMISSION[kind],
@@ -171,8 +172,10 @@ export async function pushToOwner(
       const message: OwnerPushMessage = {
         title: clip(title, NOTIFICATION_TITLE_MAX),
         body: clip(text.body, NOTIFICATION_BODY_MAX),
-        data: { type: "owner", kind, ...data, ...(delivery?.data ?? {}), business_id: clientId, business_name: name },
+        data: { type: "owner", kind, ...data, ...(text.data ?? {}), ...(delivery?.data ?? {}), business_id: clientId, business_name: name },
         ...(delivery ? { dataOnly: delivery.dataOnly, apnsSound: delivery.apnsSound, timeSensitive: delivery.timeSensitive } : {}),
+        // 214 A new order is time-sensitive on every iPhone, also one that never chose its ringtones.
+        ...(!delivery && OWNER_SOUND_GROUP_OF[kind] === "orders" ? { timeSensitive: true } : {}),
         ...(WIDGET_KINDS.has(kind) && !delivery?.dataOnly ? { contentAvailable: true } : {}),
       };
       await deps.capture?.({ to: devices.map((d) => d.id), message });
@@ -216,13 +219,33 @@ export function pushNewOrder(deps: OwnerPushDeps, app: App, order: CatalogOrder)
       "settings",
     );
   }
-  return pushToOwner(
+  const title = (w: Words) => w.t("owner.push.newOrder", { number: orderNumber(order) });
+  return pushThenLive(
+    pushToOwner(
+      deps,
+      app.clientId,
+      "new_order",
+      (w) => ({ title: title(w), body: w.t("owner.push.newOrderBody", { app: appName(app, w), total: formatCents(order.totalCents, order.currency, w.lang) }), data: { order_total: formatCents(order.totalCents, order.currency, w.lang) } }),
+      { app_id: app.id, order_id: String(order.id), order_value: orderValue(order.totalCents), ...liveData(orderNumber(order), order.customer?.name ?? "", order.currency, order.createdAt ?? deps.now) },
+    ),
     deps,
-    app.clientId,
-    "new_order",
-    (w) => ({ title: w.t("owner.push.newOrder", { number: orderNumber(order) }), body: w.t("owner.push.newOrderBody", { app: appName(app, w), total: formatCents(order.totalCents, order.currency, w.lang) }) }),
-    { app_id: app.id, order_id: String(order.id), order_value: orderValue(order.totalCents) },
+    app,
+    { appId: app.id, kind: "new_order", orderId: String(order.id), number: orderNumber(order), customer: order.customer?.name ?? "", total: (lang) => formatCents(order.totalCents, order.currency, lang), placedAt: order.createdAt ?? deps.now },
+    title,
   );
+}
+
+/** 214 What the app needs to show a new order's Live Activity itself while it is open. */
+function liveData(number: string, customer: string, currency: string, placedAt: Date): Record<string, string> {
+  return { order_number: number, order_customer: customer.trim().split(/\s+/)[0]?.slice(0, 40) ?? "", order_currency: currency, order_placed_at: String(Math.floor(placedAt.getTime() / 1000)) };
+}
+
+/** 214 The new order's push, then its Live Activity on the iPhones that show one. */
+async function pushThenLive(sending: Promise<number>, deps: OwnerPushDeps, app: App, order: import("./live-activity").LiveOrder, title: (w: Words) => string): Promise<number> {
+  const sent = await sending;
+  const { startOrderActivities } = await import("./live-activity");
+  await startOrderActivities(deps, app, order, title);
+  return sent;
 }
 
 /** 214 An order's total in whole units ("1250.5"), for ringing by order value. */
@@ -402,15 +425,23 @@ export async function pushStartedAnnouncements(deps: OwnerPushDeps): Promise<{ a
 /** A food order reached the restaurants (paid by card, or cash on delivery). */
 export function pushNewFoodOrder(deps: OwnerPushDeps, app: App, order: FoodOrder): Promise<number> {
   if (app.demo) return Promise.resolve(0);
-  return pushToOwner(
+  const title = (w: Words) => w.t("owner.push.newFoodOrder", { reference: foodOrderReference(order) });
+  return pushThenLive(
+    pushToOwner(
+      deps,
+      app.clientId,
+      "new_food_order",
+      (w) => ({
+        title: title(w),
+        body: w.t("owner.push.newFoodOrderBody", { restaurant: order.restaurantName, total: formatCents(order.totalCents, order.currency, w.lang) }),
+        data: { order_total: formatCents(order.totalCents, order.currency, w.lang) },
+      }),
+      { app_id: app.id, food_order_id: String(order.id), order_value: orderValue(order.totalCents), ...liveData(foodOrderReference(order), order.customerName, order.currency, order.createdAt ?? deps.now) },
+    ),
     deps,
-    app.clientId,
-    "new_food_order",
-    (w) => ({
-      title: w.t("owner.push.newFoodOrder", { reference: foodOrderReference(order) }),
-      body: w.t("owner.push.newFoodOrderBody", { restaurant: order.restaurantName, total: formatCents(order.totalCents, order.currency, w.lang) }),
-    }),
-    { app_id: app.id, food_order_id: String(order.id), order_value: orderValue(order.totalCents) },
+    app,
+    { appId: app.id, kind: "new_food_order", orderId: String(order.id), number: foodOrderReference(order), customer: order.customerName, total: (lang) => formatCents(order.totalCents, order.currency, lang), placedAt: order.createdAt ?? deps.now },
+    title,
   );
 }
 
@@ -470,17 +501,26 @@ export function pushMorningBrief(deps: OwnerPushDeps, app: App, userId: string, 
 // 207 Marketplace orders, and orders a customer cancelled
 
 /** A marketplace order reached its vendor (placed with cash or the wallet, paid online, or a scheduled one released). */
-export function pushNewMarketOrder(deps: OwnerPushDeps, app: App, order: Pick<MarketOrder, "id" | "vendorName" | "money" | "currency">): Promise<number> {
+export function pushNewMarketOrder(deps: OwnerPushDeps, app: App, order: Pick<MarketOrder, "id" | "vendorName" | "money" | "currency"> & Partial<Pick<MarketOrder, "customerName" | "createdAt">>): Promise<number> {
   if (app.demo) return Promise.resolve(0);
-  return pushToOwner(
+  const title = (w: Words) => w.t("owner.push.newMarketOrder", { reference: marketOrderReference(order) });
+  const placedAt = order.createdAt ?? deps.now;
+  return pushThenLive(
+    pushToOwner(
+      deps,
+      app.clientId,
+      "new_market_order",
+      (w) => ({
+        title: title(w),
+        body: w.t("owner.push.newMarketOrderBody", { vendor: order.vendorName, total: formatCents(order.money.total, order.currency, w.lang) }),
+        data: { order_total: formatCents(order.money.total, order.currency, w.lang) },
+      }),
+      { app_id: app.id, market_order_id: String(order.id), order_value: orderValue(order.money.total), ...liveData(marketOrderReference(order), order.customerName ?? "", order.currency, placedAt) },
+    ),
     deps,
-    app.clientId,
-    "new_market_order",
-    (w) => ({
-      title: w.t("owner.push.newMarketOrder", { reference: marketOrderReference(order) }),
-      body: w.t("owner.push.newMarketOrderBody", { vendor: order.vendorName, total: formatCents(order.money.total, order.currency, w.lang) }),
-    }),
-    { app_id: app.id, market_order_id: String(order.id), order_value: orderValue(order.money.total) },
+    app,
+    { appId: app.id, kind: "new_market_order", orderId: String(order.id), number: marketOrderReference(order), customer: order.customerName ?? "", total: (lang) => formatCents(order.money.total, order.currency, lang), placedAt },
+    title,
   );
 }
 

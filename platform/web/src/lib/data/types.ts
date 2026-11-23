@@ -5935,11 +5935,19 @@ export interface OwnerDevice {
   pushPreferences: OwnerPushPreferences | null;
   /** 207 Its ringtones; null or missing: it never chose (an older app), and gets pushes as before. */
   pushSounds?: OwnerPushSounds | null;
+  /** 214 An iPhone's Live Activity push tokens (lib/owner/live-activity.ts); null or missing: none. */
+  liveActivity?: OwnerLiveActivity | null;
   createdAt: Date;
   lastSeenAt: Date;
 }
 
-export type OwnerDevicePatch = Partial<Pick<OwnerDevice, "name" | "appVersion" | "language" | "pushToken" | "pushProvider" | "pushPreferences" | "pushSounds" | "lastSeenAt" | "clientId">>;
+/** 214 The token that starts a new order's Live Activity on the phone (iOS 17.2 push-to-start), and each order's activity token. */
+export interface OwnerLiveActivity {
+  start: string | null;
+  orders: { appId: string; kind: string; orderId: string; token: string; at: string }[];
+}
+
+export type OwnerDevicePatch = Partial<Pick<OwnerDevice, "name" | "appVersion" | "language" | "pushToken" | "pushProvider" | "pushPreferences" | "pushSounds" | "liveActivity" | "lastSeenAt" | "clientId">>;
 
 // 104.8.2 Yallapp Courier: one courier app for every company that picks it (lib/courier-hub)
 

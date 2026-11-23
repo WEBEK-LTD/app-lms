@@ -4576,6 +4576,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reopenedNow => 'عاد استقبال الطلبات';
 
   @override
+  String get ringFocusTitle => 'تنبيهات الطلبات أثناء وضع التركيز';
+
+  @override
+  String get ringFocusHelp =>
+      'على iPhone، تنبيهات الطلبات الجديدة حسّاسة للوقت. لتسمعها أثناء وضع التركيز أو عدم الإزعاج، فعّل الإشعارات الحسّاسة للوقت لتطبيق Yallapp Business في إعدادات إشعاراته، واسمح بها في وضع التركيز.';
+
+  @override
+  String get ringFocusOpen => 'فتح إعدادات الإشعارات';
+
+  @override
   String minutesAgo(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
