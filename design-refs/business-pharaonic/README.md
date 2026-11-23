@@ -5,6 +5,12 @@ faience turquoise for "now" and action links, warm papyrus for light mode. The
 owner picks it in Settings › Appearance; the current look stays the default.
 This folder is design only: no app code changed.
 
+How themes work (confirmed by the owner): the current Business look stays
+exactly as it is, stays the default, and keeps its own light and dark. Pharaonic
+is an extra theme with its own light and dark. The existing light/dark setting
+applies to whichever theme is chosen. The theme screen shows the default first
+(on the start side), marked "الافتراضي", with Pharaonic beside it.
+
 ## Screens (`screens/`, 390 × 844 at 2x, JPEG 90)
 
 | File | Screen |
@@ -80,11 +86,13 @@ on surface2 5.20:1; dark ink2 on surface2 7.20:1; button text 10.3:1 (dark) and
 | Key (proposed) | ar | en |
 |---|---|---|
 | `themeTitle` | السمة | Theme |
-| `themeDefault` | الافتراضي | Default |
-| `themeDefaultHelp` | ألوان Yallapp المعتادة | Yallapp's usual colours |
+| (name) | Yallapp | Yallapp |
+| `themeDefaultBadge` | الافتراضي | Default |
+| `themeDefaultHelp` | المظهر الحالي للتطبيق | The app's current look |
 | `themePharaonic` | فرعوني | Pharaonic |
 | `themePharaonicHelp` | ليلي وذهبي، بزخارف مصرية قديمة | Night and gold, with ancient Egyptian ornaments |
 | `themeModeTitle` | فاتح أو داكن | Light or dark |
+| `themeModeHelp` | لكل سمة وضعها الفاتح والداكن، ويتبعان هذا الإعداد. | Each theme has its own light and dark; both follow this setting. |
 
 (Turkish to be written with the others.)
 

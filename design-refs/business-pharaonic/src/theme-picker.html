@@ -10,18 +10,22 @@
     background: radial-gradient(130% 100% at 50% 0%, var(--bg-glow) 0%, transparent 72%); }
   .topglow .glyphs { -webkit-mask: url(../svg/glyph-texture.svg) repeat, linear-gradient(#000 10%, transparent 100%);
     -webkit-mask-size: 132px 132px, 100% 100%; -webkit-mask-composite: source-in; }
-  .themes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; position: relative; }
+  .themes { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; padding: 0 16px; position: relative; }
   .opt { padding: 10px 10px 12px; border-radius: 20px; }
   .opt.on { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), var(--shadow); }
   .opt .head { display: flex; align-items: center; gap: 6px; margin-top: 10px; padding: 0 2px; }
-  .opt .head b { font: 700 17px/1.25 "El Messiri", serif; flex: 1; }
+  .opt .head b { font: 700 17px/1.25 "El Messiri", serif; flex: 1; white-space: nowrap; }
   .opt .head .ms { color: var(--ink2); }
   .opt.on .head .ms { color: var(--gold); }
+  .defchip { display: inline-flex; align-items: center; height: 22px; padding: 0 9px; margin: 0; border-radius: 11px; flex: none;
+    font: 600 12px/1 "IBM Plex Sans Arabic"; color: var(--ink); background: var(--surface2); box-shadow: inset 0 0 0 1px var(--line); }
+  .defchip.none { visibility: hidden; }
   .opt p { font-size: 12.5px; color: var(--ink2); line-height: 1.45; padding: 2px 2px 0; }
 
   /* Miniature phones, drawn with each theme's own colours. */
-  .mini { height: 290px; border-radius: 14px; overflow: hidden; position: relative; padding: 10px 9px; display: flex; flex-direction: column; gap: 7px; }
+  .mini { height: 262px; border-radius: 14px; overflow: hidden; position: relative; padding: 10px 9px; display: flex; flex-direction: column; gap: 7px; }
   .mini .bar { height: 5px; border-radius: 3px; }
+  .mini > * { flex: none; }
   .mini .tile { border-radius: 8px; padding: 6px 7px; display: flex; flex-direction: column; gap: 4px; }
   .mini .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
   .mini .btns { display: grid; grid-template-columns: 1.6fr 1fr; gap: 5px; margin-top: 3px; }
@@ -89,8 +93,8 @@
           <div class="tile"><div class="bar k" style="width:50%;height:5px"></div><div class="bar" style="width:30%"></div></div>
           <div class="navm"><i></i><i></i><i></i><i></i><i></i></div>
         </div>
-        <div class="head"><b>الافتراضي</b><span class="ms">radio_button_unchecked</span></div>
-        <p>ألوان <bdi>Yallapp</bdi> المعتادة</p>
+        <div class="head"><b><bdi>Yallapp</bdi></b><span class="defchip">الافتراضي</span><span class="ms">radio_button_unchecked</span></div>
+        <p>المظهر الحالي للتطبيق</p>
       </div>
       <div class="card opt on">
         <div class="mini pharaonic">
@@ -99,11 +103,10 @@
           <div class="grid"><div class="tile"><div class="bar" style="width:60%"></div><div class="bar k"></div></div><div class="tile"><div class="bar" style="width:60%"></div><div class="bar k" style="width:40%"></div></div></div>
           <div class="tile"><div class="dot"></div><div class="bar k" style="width:45%"></div><div class="bar"></div><div class="btns"><i></i><i></i></div></div>
           <div class="tile"><div class="bar k" style="width:62%;height:5px"></div><div class="bar" style="width:38%"></div></div>
-          <div class="tile"><div class="bar k" style="width:50%;height:5px"></div><div class="bar" style="width:30%"></div></div>
           <div class="lotusm"></div>
           <div class="navm"><i></i><i></i><i></i><i></i><i></i></div>
         </div>
-        <div class="head"><b>فرعوني</b><span class="ms fill">check_circle</span></div>
+        <div class="head"><b>فرعوني</b><span class="ms fill">radio_button_checked</span></div>
         <p>ليلي وذهبي، بزخارف مصرية قديمة</p>
       </div>
     </div>
@@ -114,7 +117,7 @@
       <div class="radio"><span class="ms">radio_button_unchecked</span><span class="t">فاتح</span></div>
       <div class="radio on"><span class="ms fill">radio_button_checked</span><span class="t">داكن</span></div>
     </div>
-    <p class="foot">يُحفظ المظهر على هذا الهاتف ولا يغيّر شيئًا في تطبيق عملائك.</p>
+    <p class="foot">لكل سمة وضعها الفاتح والداكن، ويتبعان هذا الإعداد.<br>يُحفظ المظهر على هذا الهاتف ولا يغيّر شيئًا في تطبيق عملائك.</p>
   </div>
   <div class="homebar clear"><i></i></div>
 </div>
