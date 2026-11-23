@@ -1372,5 +1372,253 @@ export const STORIES_TR: StoryCopy = {
         "clothes-walk": "Beyaz kum tepelerinde yürüyen beyazlar içinde bir kadın"
       }
     },
+    // 209 Toys
+    toys: {
+      navName: "Oyuncak mağazası uygulaması",
+      metaTitle: "Yaşa göre alışveriş, güvenlik ve malzemeler ve kartlı doğum günü hediyeleriyle bir oyuncak mağazası uygulaması, Yallapp Studio'da tasarlandı",
+      metaDescription: "Toot ile bir gün: cumartesi dördüncü yaş günü, 3–5 yaş oyuncakları, bir ayıcığın güvenliği ve malzemeleri, hediye bulucu, paket ve onun sözleriyle bir kart.",
+      summary: "Yaşa ve oyuncak türüne göre alışveriş, her oyuncağın yaşı, güvenliği ve malzemeleri, hediye bulucu, hediye paketi ve doğum günü kartı, fiyata göre hediyeler; iki premium görünümle.",
+      eyebrow: "Yallapp Studio · Oyuncak mağazası",
+      title: "Dört mum ve bir ayıcık",
+      intro: "Hüda'nın yeğeni Adem cumartesi dört yaşına giriyor ve Hüda cuma akşamına kadar işte. Dubai'de çarşamba akşamı. Telefonla geçen birkaç dakika, böylece onun sözleriyle yazılmış bir kartla paketlenmiş bir hediyeye dönüşüyor.",
+      cast: "Hüda, Dubai'de bir oyuncak mağazası olan Toot'tan alışveriş yapıyor. Toot, oyuncak mağazası şablonunun demosu: oyuncakları, adları ve fiyatları uydurma, fotoğrafları gerçek ve aşağıdaki her ekran gerçek uygulama.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Dubai, akşam yemeğinden sonra",
+          title: "Cumartesi bir yaş günü",
+          text: "Hüda balkonda Toot'u açıyor. Ana sayfa küçük ve hızlı: arama, yuvarlak kategoriler, kayan kartlarda koleksiyonlar ve kenardan görünen bir sonraki. Altında, uzun fotoğraflarda yaşlar: 0–12 ay, 1–2 yaş, 3–5 yaş."
+        },
+        {
+          time: "20:42",
+          kicker: "Yaşa göre",
+          title: "3–5 yaş",
+          text: "3–5 yaşa dokunuyor ve mağaza yalnızca o yaşın oyuncaklarıyla açılıyor. Zilin yanındaki menüde her kategori bir kart sırası: Ahşap oyuncaklar, Yapı oyuncakları, Pelüşler, Bulmaca ve oyunlar, sonra Yaşa göre ve Doğum günü hediyeleri; her birinin alt kategorileri ardından kayıyor."
+        },
+        {
+          time: "20:46",
+          kicker: "Oyuncağın sayfası",
+          title: "Doğumdan itibaren, test edilmiş, yıkanabilir",
+          text: "Elde örülmüş kazaklı altın renkli bir ayıcık. Fiyatın altında: Doğumdan itibaren, EN 71'e göre test edildi, hediye paketi var. Güvenliği nedenini söylüyor: işlemeli gözler, düğme ya da küçük parça yok. Ardından malzemeleri, bakımı ve yaşı, boyu ve pilleriyle bir tablo: pil gerekmez."
+        },
+        {
+          time: "20:50",
+          kicker: "Hediye bulucu",
+          title: "Üç soru",
+          text: "Emin olamayınca ana sayfaya dönüp 3 adımda mükemmel hediyeyi yanıtlıyor: dört yaşında, inşa etmeyi seviyor, 300'e kadar. Bulucu 3–5 yaş diyor ve açıyor. Ayıcığın yanına küçük mimar kulesini ekliyor."
+        },
+        {
+          time: "20:54",
+          kicker: "Sepet",
+          title: "Kraft, pembe ve bir kart",
+          text: "Sepette mağaza biraz daha öneriyor: kraft ve pembe paket, siyah ve altın olan ve sizin sözlerinizle doğum günü kartı. Kraft'ı ve kartı seçiyor, ödemede Doğum günün kutlu olsun, minik!'e dokunup mesajı kendisi tamamlıyor; mağazanın kodu TOOT10 ile."
+        },
+        {
+          time: "10:15",
+          kicker: "Perşembe, mağazada",
+          title: "Paketli, onun sözleriyle",
+          text: "Toot'ta Selma sabahın siparişlerini açıyor. Hüda'nınkinde ayıcık ve kule, kraft ve pembe paket ve elle yazılacak kart mesajı var. Sipariş Adem'in adresine gidiyor, kartta Hüda'nın adıyla.",
+          push: {
+            app: "Toot",
+            title: "Sipariş 3107",
+            body: "Hediyeniz paketlendi ve yolda. İadeler 30 gün içinde ücretsiz."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Çarşamba saat dokuz. Cumartesi, dört mum ve bir ayıcık.",
+        text: "Aradaki her şey mağazanın kendisindi: yaşları ve oyuncak türleri, her oyuncağın güvenliği ve malzemeleri, paketleri ve kartı, fırsatları ve iadeleri; panelde bir kez ayarlandı."
+      },
+      statsTitle: "Bir hediyenin ardındaki küçük gerçekler",
+      stats: [
+        "demonun menüsünde ana kategori, her biri bir kart sırası",
+        "yaş, her biri bir dokunuşla açılan bir kategori",
+        "gün içinde ücretsiz iade",
+        "dil, Arapça sağdan sola"
+      ],
+      systemsTitle: "Her parça, açıklamasıyla",
+      systemsText: "Yaşa göre alışveriş, güvenlik ve malzemeler, doğum günü hediyeleri ve fırsatlar, iki görünüm ve oyuncakların nereden geldiği.",
+      systems: [
+        {
+          name: "Yaşa göre alışveriş",
+          title: "Her oyuncak uygun olduğu yaşlarda",
+          text: "Yaşlar mağazanın kategorileridir ve her oyuncak hem türünde hem yaşlarındadır.",
+          features: [
+            [
+              "Ana sayfada yaşlar",
+              "Uzun fotoğraflar ya da düğmeler; her biri o yaşın oyuncaklarını açar."
+            ],
+            [
+              "Kategori menüsü",
+              "Her kategori bir kart sırası, alt kategorileri ardından kayar."
+            ],
+            [
+              "Türe göre de",
+              "Ahşap, yapı, pelüş, bulmaca, bilim, sanat, açık hava ve bebek."
+            ],
+            [
+              "Üstte arama",
+              "Tek alan tüm kategorilerde arar."
+            ],
+            [
+              "Hediye bulucu",
+              "Üç soru; yanıt açılan bir yaştır."
+            ],
+            [
+              "Editörde de",
+              "Kategori menüsü ve yaşlar, her mağaza için Studio kütüphanesinin öğeleridir."
+            ]
+          ]
+        },
+        {
+          name: "Güvenlik ve malzemeler",
+          title: "Bir ebeveynin almadan önce okudukları",
+          text: "Her oyuncağın sayfası yaşını, güvenliğini, malzemelerini ve bakımını mağazanın kendi sözleriyle anlatır.",
+          features: [
+            [
+              "Test edildi",
+              "Çocuk güvenliği için test edilmiş oyuncaklara bir rozet."
+            ],
+            [
+              "Malzemeleri",
+              "Ahşap, boya, kumaş ve dolgu, birkaç satırda."
+            ],
+            [
+              "Özellikleri",
+              "Yaş, malzeme, parça, boyut ve piller, bir tabloda."
+            ],
+            [
+              "Yaş",
+              "Doğumdan itibaren, 18+ ay, 3+ yaş: sayfada ve kategorilerde."
+            ],
+            [
+              "Üç dilde",
+              "Sayfanın başlıkları İngilizce, Arapça ve Türkçe."
+            ]
+          ]
+        },
+        {
+          name: "Doğum günü hediyeleri ve fırsatlar",
+          title: "Paketli, kartıyla",
+          text: "Mağaza yalnızca oyuncağı değil, hediyeyi satar.",
+          features: [
+            [
+              "Hediye bulucu",
+              "Çocuğun yaşı, sevdikleri ve bütçe, birer birer."
+            ],
+            [
+              "Hediye paketi",
+              "Her oyuncakla sepette önerilen paketler."
+            ],
+            [
+              "Kartın mesajı",
+              "Ödemede yazılır, her dilde dokunulacak başlangıçlarla."
+            ],
+            [
+              "Fiyata göre hediyeler",
+              "Mağazanın kendi fiyatlarından 100'ün ve 200'ün altında oyuncak sıraları."
+            ],
+            [
+              "Günün oyuncağı",
+              "Geri sayımı ve kalan adediyle bir flaş indirim."
+            ],
+            [
+              "Kodlar",
+              "Mağazanın kodu bir bilette, tek dokunuşla kopyalanır."
+            ]
+          ]
+        },
+        {
+          name: "Yallapp Studio'da tasarlandı",
+          title: "İki görünüm, her parçası sizin",
+          text: "Toot, yalnızca Studio öğeleriyle yapılmış iki premium görünümle gelir.",
+          features: [
+            [
+              "Toot",
+              "A görünümü: neşeli ve renkli, krem üstünde mürdüm ve altın, yuvarlak fotoğraflar."
+            ],
+            [
+              "Mukaab",
+              "B görünümü: sakin ve eğitici, gri üstünde berrak mavi, kareler ve bir laboratuvar."
+            ],
+            [
+              "Açık ve koyu",
+              "İki görünümün de tasarlanmış bir gecesi var."
+            ],
+            [
+              "Kompakt vitrin",
+              "Koleksiyonlar yaklaşık 210 nokta yüksekliğinde kartlarda, bir sonraki görünür."
+            ],
+            [
+              "Yüzen çubuk",
+              "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan adıyla bir hap."
+            ],
+            [
+              "Hazır bölümler",
+              "Yaşlar, önce güvenlik, hediye bulucu, fiyata göre hediyeler ve dahası, her mağaza için."
+            ],
+            [
+              "Üç dil",
+              "İngilizce, sağdan sola Arapça ve Türkçe."
+            ]
+          ]
+        },
+        {
+          name: "Oyuncakların nereden geldiği",
+          title: "Oyuncaklarınız ya da mağazanızın platformu",
+          text: "Toot, Yallapp'te tutulan oyuncaklarla ya da zaten sahip olduğunuz online mağazayla çalışır.",
+          features: [
+            [
+              "Yallapp'te oyuncaklar",
+              "Bu sayfadaki her şey: yaşlar, her oyuncağın güvenliği ve malzemeleri, paketler ve kart."
+            ],
+            [
+              "WordPress ve diğer platformlar",
+              "Kategorileri ve alt kategorileri menüde, oyuncakları ve fiyatları uygulamada."
+            ],
+            [
+              "Sırada",
+              "Bağlı bir platformdan oyuncağın güvenliği ve malzemeleri."
+            ]
+          ]
+        }
+      ],
+      bundleTitle: "Tek uygulama, paneliniz ve varsa mağazanız",
+      bundleText: "Ebeveynlerin uygulaması tek bir Studio projesinden mağazanın adıyla yapılıp yayımlanır. Oyuncakları Yallapp'ten ya da mağazanın kendi platformundan gelir.",
+      bundleNodes: [
+        [
+          "Toot",
+          "Ebeveynler, Android ve iPhone'da"
+        ],
+        [
+          "Yallapp Studio",
+          "Mağaza: görünümü, yaşları, oyuncakları ve fırsatları"
+        ],
+        [
+          "Mağazanın web sitesi",
+          "Varsa WooCommerce, Shopify ya da bir başkası"
+        ]
+      ],
+      bundleFlows: [
+        "Yeni bir oyuncak türünde ve yaşlarında görünür",
+        "Bir oyuncağın güvenliği sayfasında görünür",
+        "Kartın mesajı siparişle gelir",
+        "Paket siparişe eklenir"
+      ],
+      compareTitle: "Nasıl karşılaştırılır",
+      compareText: "Online mağazalara uygulama yapan şirketler, kendi sitelerinde anlattıkları gibi; Yallapp'in ve bir ajansa uygulama yaptırmanın yanında.",
+      finale: {
+        title: "Cumartesi, saat dörtte",
+        text: "Adem pastadan önce kuleyi iki kez kuruyor ve ayıcığı tepesine oturtuyor. Hüda karttaki kendi sözlerini yüksek sesle okuyor. Toot'ta Selma kışın oyun çadırlarını şimdiden sıralarına ekliyor."
+      },
+      photos: {
+        "toys-hero": "Oturma odasında gri bir oyun çadırında kitap okuyan küçük bir çocuk",
+        "toys-blocks": "Parlak renkli ahşap bloklar, yakından",
+        "toys-bear": "Mavi örgü kazaklı altın renkli bir ayıcık",
+        "toys-gift": "Konfetiler arasında pembe kurdeleli bir hediye kutusu",
+        "toys-play": "Işıklarla süslü battaniye çadırında bir baba ve iki çocuk",
+        "toys-finale": "Oturma odası halısında birlikte oynayan bir aile"
+      }
+    },
   },
 };

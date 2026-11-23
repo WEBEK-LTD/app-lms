@@ -307,6 +307,9 @@ const BY_STORY: Record<StoryId, (keyof typeof COLUMNS)[]> = {
   flowers: ["tapcart", "appmysite", "mobiloud", "deondeFlowers"],
   // 208 The clothes shop: the companies that make apps for online shops (Tapcart's are fashion brands').
   clothes: ["tapcart", "appmysite", "mobiloud"],
+  // 209 Toys
+  // 209 The toy shop: the companies that make apps for online shops.
+  toys: ["tapcart", "appmysite", "mobiloud"],
 };
 
 export function competitorsOf(story: StoryId): CompareColumn[] {
@@ -369,6 +372,14 @@ export const YALLAPP: Record<StoryId, Pick<CompareColumn, "kind" | "apps" | "own
   },
   // 208 Lujain, the clothes shop: a template, as Leqaa is.
   clothes: {
+    kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
+    apps: { en: "The shop's own app for its customers, and Studio for you", ar: "تطبيق المتجر الخاص لعملائه، وStudio لك", tr: "Mağazanın müşterileri için kendi uygulaması ve sizin için Studio" },
+    ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },
+    pricing: { en: "A Studio plan; no share of your sales", ar: "باقة Studio؛ بلا نسبة من مبيعاتك", tr: "Bir Studio paketi; satışlarınızdan pay yok" },
+    arabic: { en: "Yes: Arabic, right to left, in the app and in Studio", ar: "نعم: العربية من اليمين لليسار، في التطبيق وفي Studio", tr: "Evet: Arapça, sağdan sola, uygulamada ve Studio'da" },
+  },  // 209 Toys
+  // 209 Toot, the toy shop: a template, as Lujain is.
+  toys: {
     kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
     apps: { en: "The shop's own app for its customers, and Studio for you", ar: "تطبيق المتجر الخاص لعملائه، وStudio لك", tr: "Mağazanın müşterileri için kendi uygulaması ve sizin için Studio" },
     ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },

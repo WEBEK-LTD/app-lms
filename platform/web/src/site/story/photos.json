@@ -519,5 +519,85 @@
         "title": "White Sand"
       }
     }
+  ],
+  "toys": [
+    {
+      "slot": "toys-hero",
+      "src": "/stories/toys/toys-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Family First",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/child-camping-T5BPPUIGTU",
+        "title": "Child Camping"
+      }
+    },
+    {
+      "slot": "toys-blocks",
+      "src": "/stories/toys/toys-blocks.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Birch Landing Home",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/children-toys-R8U6CVZ24Q",
+        "title": "Children Toys"
+      }
+    },
+    {
+      "slot": "toys-bear",
+      "src": "/stories/toys/toys-bear.jpg",
+      "width": 960,
+      "height": 620,
+      "credit": {
+        "creator": "Daria Nepriakhina",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/teddybear-toy-AAPS1PYWT4",
+        "title": "Teddybear Toy"
+      }
+    },
+    {
+      "slot": "toys-gift",
+      "src": "/stories/toys/toys-gift.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Altered Reality",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/pink-party-SQLBG32Q8C",
+        "title": "Pink Party"
+      }
+    },
+    {
+      "slot": "toys-play",
+      "src": "/stories/toys/toys-play.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Direct Media",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/family-playing-BKDISWTOCH",
+        "title": "Family Playing"
+      }
+    },
+    {
+      "slot": "toys-finale",
+      "src": "/stories/toys/toys-finale.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Direct Media",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/family-playing-AJU8ODUJSV",
+        "title": "Family Playing"
+      }
+    }
   ]
 }

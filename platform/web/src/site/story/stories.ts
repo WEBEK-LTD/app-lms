@@ -374,6 +374,36 @@ export const STORIES: Record<StoryId, StoryShape> = {
     bundle: ["smartphone", "dashboard_customize", "web"],
     finale: { photo: "clothes-walk", screen: "lujain-home" },
   },
+  // 209 Toys
+  // 209 Toot, the toy shop: a fourth birthday on Saturday, in its look A (Toot) by day and by night; look B (Mukaab) in its section.
+  toys: {
+    id: "toys",
+    icon: "toys",
+    // Toot's plum, lighter on its night.
+    accent: "#EAA9C5",
+    demos: ["toys"],
+    solutions: [],
+    hero: { photo: "toys-hero", screens: ["toot-home", "toot-product"] },
+    chapters: [
+      { screen: "toot-home", icon: "home" },
+      { screen: "toot-menu", icon: "child_care" },
+      { photo: "toys-bear", screen: "toot-product", icon: "verified_user" },
+      { photo: "toys-gift", screen: "toot-home", icon: "redeem" },
+      { screen: "toys-sig-a-home-dark", icon: "bolt" },
+      { photo: "toys-blocks", screen: "toot-menu", icon: "inventory_2" },
+    ],
+    interlude: { photo: "toys-play" },
+    stats: [{ value: 10 }, { value: 5 }, { value: 30 }, { value: 3 }],
+    systems: [
+      { icon: "child_care", screens: ["toot-menu"], features: ["child_care", "menu_open", "view_list", "search", "quiz", "dashboard_customize"] },
+      { icon: "verified_user", screens: ["toot-product"], features: ["verified_user", "format_paint", "fact_check", "child_care", "translate"] },
+      { icon: "redeem", screens: [], features: ["quiz", "redeem", "edit_note", "sell", "bolt", "confirmation_number"] },
+      { icon: "palette", screens: ["toys-sig-b-home", "toys-sig-b-home-dark"], features: ["toys", "school", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "toys-finale", screen: "toot-home" },
+  },
 };
 
 /** Every photo slot of a story, each once. */
