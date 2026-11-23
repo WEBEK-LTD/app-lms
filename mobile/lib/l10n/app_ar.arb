@@ -3302,5 +3302,11 @@
   "exchangeWithin": "{days, plural, =1{الاستبدال أو الإرجاع خلال يوم واحد} =2{الاستبدال أو الإرجاع خلال يومين} few{الاستبدال أو الإرجاع خلال {days} أيام} many{الاستبدال أو الإرجاع خلال {days} يومًا} other{الاستبدال أو الإرجاع خلال {days} يوم}}",
   "optionSoldOut": "{option}، نفدت الكمية",
   "categoryAllOf": "كل {name}",
-  "categoryMenuRow": "{name}، {count}"
+  "categoryMenuRow": "{name}، {count}",
+  "productDimensions": "الأبعاد",
+  "productMadeToOrder": "يُصنع حسب الطلب",
+  "deliverySlotsKept": "سنحفظ هذا اليوم والوقت لإتمام طلبك.",
+  "deliverySlotsAssembly": "يركّبها الفريق في يوم التوصيل.",
+  "deliverySlotsNone": "لا توجد أيام توصيل متاحة الآن.",
+  "installmentsSoon": "التقسيط قريبًا"
 }

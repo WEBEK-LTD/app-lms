@@ -67,6 +67,12 @@ export async function ProductPage({ id }: { id: number | null }) {
         sku: product.sku ?? "",
         // 131 Its weight in kg.
         weight: product.weightGrams ? String(product.weightGrams / 1000) : "",
+        // 210 Its size in cm and the days it takes to make.
+        width: product.dimensions?.width != null ? String(product.dimensions.width) : "",
+        depth: product.dimensions?.depth != null ? String(product.dimensions.depth) : "",
+        height: product.dimensions?.height != null ? String(product.dimensions.height) : "",
+        makeMin: product.makeDays ? String(product.makeDays.min) : "",
+        makeMax: product.makeDays && product.makeDays.max !== product.makeDays.min ? String(product.makeDays.max) : "",
         // 131 A gift add-on, and what it goes with.
         addon: Boolean(product.addon),
         addonOfferWith: product.addonFor?.offerWith ?? "all",

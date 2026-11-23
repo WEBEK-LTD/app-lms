@@ -19927,6 +19927,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}, {count}'**
   String categoryMenuRow(String name, String count);
+
+  /// 210 Title of a product's size (width, depth, height in cm) on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Dimensions'**
+  String get productDimensions;
+
+  /// 210 Title of how long a made-to-order product takes to make, on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Made to order'**
+  String get productMadeToOrder;
+
+  /// 210 Under the delivery days picked on a page: the cart keeps the day and time for checkout.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll keep this day and time for your checkout.'**
+  String get deliverySlotsKept;
+
+  /// 210 Under the delivery days of a furniture shop: the team assembles the piece on the day.
+  ///
+  /// In en, this message translates to:
+  /// **'The team assembles it on the day.'**
+  String get deliverySlotsAssembly;
+
+  /// 210 The delivery days element when no day is open.
+  ///
+  /// In en, this message translates to:
+  /// **'No delivery days are open right now.'**
+  String get deliverySlotsNone;
+
+  /// 210 A tag under a furniture or electronics product's price: installments are not offered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Installments coming soon'**
+  String get installmentsSoon;
 }
 
 class _AppLocalizationsDelegate

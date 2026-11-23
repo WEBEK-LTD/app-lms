@@ -12452,4 +12452,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String categoryMenuRow(String name, String count) {
     return '$name, $count';
   }
+
+  @override
+  String get productDimensions => 'Dimensions';
+
+  @override
+  String get productMadeToOrder => 'Made to order';
+
+  @override
+  String get deliverySlotsKept =>
+      'We\'ll keep this day and time for your checkout.';
+
+  @override
+  String get deliverySlotsAssembly => 'The team assembles it on the day.';
+
+  @override
+  String get deliverySlotsNone => 'No delivery days are open right now.';
+
+  @override
+  String get installmentsSoon => 'Installments coming soon';
 }

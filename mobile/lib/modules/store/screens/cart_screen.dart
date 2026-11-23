@@ -118,6 +118,13 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     super.initState();
     _address.addListener(_changed);
     _giftForm.addListener(_changed);
+    // 210 The day and time picked on a page (the `delivery_slots` element).
+    final picked = ref.read(cartDeliveryProvider);
+    final day = picked.date == null ? null : DateTime.tryParse(picked.date!);
+    if (day != null) {
+      _deliveryDate = day;
+      _deliverySlot = picked.slot;
+    }
   }
 
   void _changed() => setState(() {});

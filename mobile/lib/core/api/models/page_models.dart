@@ -1066,6 +1066,24 @@ enum CategoriesStyle { chips, tiles, pictures, circles, rows }
 /// "All" on its first card ([label]).
 enum StudioCategoryMenuLook { lead, label }
 
+/// 210 For `delivery_slots`: how many of the shop's next delivery days it
+/// shows (3 to 10) and whether it says the team assembles on the day.
+class StudioDeliverySlots {
+  const StudioDeliverySlots({this.days = 5, this.assembly = false});
+
+  static StudioDeliverySlots tryParse(Object? value) {
+    if (value is! Map) return const StudioDeliverySlots();
+    final json = asJson(value);
+    return StudioDeliverySlots(
+      days: (optInt(json, 'days') ?? 5).clamp(3, 10),
+      assembly: json['assembly'] == true,
+    );
+  }
+
+  final int days;
+  final bool assembly;
+}
+
 /// 208 The category menu's look (`StudioNode.category_menu`).
 class StudioCategoryMenu {
   const StudioCategoryMenu({
@@ -2173,6 +2191,9 @@ enum StudioNodeType {
   flashSale,
   // 208 The shop's size chart (`StoreConfig.size_chart`), as a table.
   sizeChart,
+  // 210 The shop's next delivery days and times to pick (and its assembly),
+  // kept for the checkout (`StoreConfig.delivery_date`).
+  deliverySlots,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2808,6 +2829,7 @@ class StudioNode {
     this.place,
     this.categoriesStyle = CategoriesStyle.chips,
     this.categoryMenu = const StudioCategoryMenu(),
+    this.deliverySlots = const StudioDeliverySlots(),
     this.code,
     this.recent = false,
     this.heads,
@@ -2968,6 +2990,7 @@ class StudioNode {
           CategoriesStyle.chips,
         ),
         categoryMenu: StudioCategoryMenu.tryParse(json['category_menu']),
+        deliverySlots: StudioDeliverySlots.tryParse(json['delivery_slots']),
         code: optString(json, 'code'),
         recent: boolOr(json, 'recent', false),
         heads: optString(json, 'heads'),
@@ -3298,6 +3321,9 @@ class StudioNode {
 
   /// 208 For categories drawn as rows: the category menu's look.
   final StudioCategoryMenu categoryMenu;
+
+  /// 210 For `delivery_slots`: its days and whether it says the team assembles.
+  final StudioDeliverySlots deliverySlots;
 
   /// 112.4 For a coupon: the code people copy.
   final String? code;

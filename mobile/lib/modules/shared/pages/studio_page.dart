@@ -66,6 +66,7 @@ import '../../store/widgets/quick_add.dart';
 // 208 The category menu and the size chart.
 import 'studio_category_menu.dart';
 import 'studio_size_chart.dart';
+import 'studio_delivery_slots.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -1296,6 +1297,8 @@ class StudioNodeView extends ConsumerWidget {
       ),
       // 208 The shop's size chart, when it has one.
       StudioNodeType.sizeChart => StudioSizeChart.shows(ref),
+      // 210 The shop's delivery days, when it has them on.
+      StudioNodeType.deliverySlots => StudioDeliverySlotsView.shows(ref),
       StudioNodeType.form =>
         node.form != null && PageBlockView.shows(node.form!, ref),
       StudioNodeType.search => PageBlockView.shows(_searchBlock(node, ''), ref),
@@ -1889,6 +1892,17 @@ class StudioNodeView extends ConsumerWidget {
       case StudioNodeType.sizeChart:
         // 208 The shop's size chart.
         return StudioSizeChart(title: _text(context), color: color);
+      case StudioNodeType.deliverySlots:
+        // 210 The shop's next delivery days and times, kept for the checkout.
+        return StudioDeliverySlotsView(
+          node: node,
+          color: color,
+          accent: parseHexColor(
+            scope.dark
+                ? (node.darkBorderColor ?? node.borderColor)
+                : node.borderColor,
+          ),
+        );
       case StudioNodeType.video:
         final url = node.videoUrl;
         if (url == null) return const SizedBox.shrink();

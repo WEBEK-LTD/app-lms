@@ -147,6 +147,7 @@ export const en = {
   // 131 The flower shop's commerce elements.
   el_flash_sale: "Flash sale",
   el_size_chart: "Size chart",
+  el_delivery_slots: "Delivery days",
   el_category_menu: "Category menu",
   catRows: "Menu rows",
   catMenuLook: "Rows' look",
@@ -2049,6 +2050,7 @@ export const ar: Messages = {
   el_cta_bar: "شريط الطلب",
   el_flash_sale: "عرض فلاش",
   el_size_chart: "جدول المقاسات",
+  el_delivery_slots: "أيام التوصيل",
   el_category_menu: "قايمة الأقسام",
   catRows: "صفوف القايمة",
   catMenuLook: "شكل الصفوف",
@@ -3926,6 +3928,7 @@ export const tr: Messages = {
   el_cta_bar: "Eylem çubuğu",
   el_flash_sale: "Flaş indirim",
   el_size_chart: "Beden tablosu",
+  el_delivery_slots: "Teslimat günleri",
   el_category_menu: "Kategori menüsü",
   catRows: "Menü sıraları",
   catMenuLook: "Sıraların görünümü",

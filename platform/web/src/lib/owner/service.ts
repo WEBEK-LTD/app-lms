@@ -13,6 +13,7 @@ import * as library from "./library";
 import * as community from "./community";
 import * as members from "./members";
 import * as sales from "./sales";
+import * as requests from "./requests";
 import * as team from "./team";
 import * as engines from "./engines";
 import * as market from "./market";
@@ -158,6 +159,10 @@ export const ROUTES: Route[] = [
   route("POST", "apps/:app_id/market/complaints/:complaint_id/reply", market.replyComplaint),
   route("POST", "apps/:app_id/market/complaints/:complaint_id/decide", market.decideOneComplaint),
   route("GET", "apps/:app_id/market/vendors", market.listVendors),
+  // 210 The shop's custom-order requests.
+  route("GET", "apps/:app_id/requests", requests.listRequests),
+  route("GET", "apps/:app_id/requests/:request_id", requests.getRequest),
+  route("POST", "apps/:app_id/requests/:request_id/answer", requests.answerRequest),
   route("GET", "apps/:app_id/school/today", school.getSchoolToday),
   route("GET", "apps/:app_id/school/excuses", school.listExcuses),
   route("GET", "apps/:app_id/school/excuses/:excuse_id", school.getExcuse),

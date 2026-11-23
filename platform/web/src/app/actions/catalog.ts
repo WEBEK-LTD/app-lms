@@ -1,5 +1,6 @@
 "use server";
 
+import { readProductDetails } from "@/lib/catalog/product-details";
 import { decideReturn } from "@/lib/catalog/returns";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -163,13 +164,16 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
   if (id !== null && !existing) return { message: "This product doesn't exist anymore." };
 
   const values: Record<string, string> = {};
-  for (const key of ["name", "description", "price", "salePrice", "stock", "sku", "weight"]) values[key] = str(formData, key);
+  for (const key of ["name", "description", "price", "salePrice", "stock", "sku", "weight", "width", "depth", "height", "makeMin", "makeMax"]) values[key] = str(formData, key);
   const errors: Record<string, string> = {};
   if (!values.name) errors.name = "Enter the product name.";
   else if (values.name.length > 120) errors.name = "Use at most 120 characters.";
   if (values.description!.length > 5000) errors.description = "Use at most 5000 characters.";
   const numbers = readProductNumbers({ price: values.price!, salePrice: values.salePrice!, stock: values.stock!, weight: values.weight, currency: catalogSettings(app).currency });
   Object.assign(errors, numbers.errors);
+  // 210 Its size in cm and the days it takes to make.
+  const details = readProductDetails({ width: values.width, depth: values.depth, height: values.height, makeMin: values.makeMin, makeMax: values.makeMax });
+  Object.assign(errors, details.errors);
   const { priceCents: price, salePriceCents: salePrice, stock } = numbers;
   if (values.sku!.length > 64) errors.sku = "Use at most 64 characters.";
   // 26 Option groups (a dish's size, sauce or extras), from the options editor as JSON.
@@ -251,6 +255,9 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     sku: values.sku || null,
     // 131 Its weight, for shipping by weight.
     weightGrams: numbers.weightGrams,
+    // 210 Its size in cm and the days it takes to make.
+    dimensions: details.dimensions,
+    makeDays: details.makeDays,
     addon,
     addonFor: addonFor?.ok && addonFor.value.offerWith !== "all" ? addonFor.value : null,
     optionGroups: optionGroups.ok && optionGroups.value.length > 0 ? optionGroups.value : null,

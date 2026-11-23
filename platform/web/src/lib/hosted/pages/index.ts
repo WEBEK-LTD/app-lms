@@ -634,7 +634,8 @@ function productItem(product: Record<string, unknown>, lang: LanguageCode): Item
     source: "products",
     id: String(id),
     title: product.name,
-    subtitle: null,
+    // 210 Its days to make or its size in cm, as the shop's API words it; null: none.
+    subtitle: str(product.subtitle),
     image_url: str(product.image_url),
     price_label: str(price.formatted),
     // 161 As amounts and a currency, also in the customer's (its `sale` too: `sale.display`).

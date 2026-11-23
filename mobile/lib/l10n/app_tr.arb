@@ -3302,5 +3302,11 @@
   "exchangeWithin": "{days, plural, =1{1 gün içinde değişim veya iade} other{{days} gün içinde değişim veya iade}}",
   "optionSoldOut": "{option}, tükendi",
   "categoryAllOf": "Tüm {name}",
-  "categoryMenuRow": "{name}, {count}"
+  "categoryMenuRow": "{name}, {count}",
+  "productDimensions": "Boyutlar",
+  "productMadeToOrder": "Siparişe özel yapılır",
+  "deliverySlotsKept": "Bu günü ve saati ödemeniz için saklayacağız.",
+  "deliverySlotsAssembly": "Ekip, teslimat günü kurar.",
+  "deliverySlotsNone": "Şu anda açık teslimat günü yok.",
+  "installmentsSoon": "Taksit yakında"
 }

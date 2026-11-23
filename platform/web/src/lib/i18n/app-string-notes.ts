@@ -10,6 +10,37 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  // 210 The shop types' words (home decor, crochet, furniture).
+  "210 Title of a product's size (width, depth, height in cm) on its page.": {
+    en: "On a product's page: the title of its size in cm.",
+    ar: "في صفحة المنتج: عنوان مقاسه بالسنتي (العرض والعمق والارتفاع).",
+    tr: "Ürün sayfasında: cm cinsinden ölçüsünün başlığı.",
+  },
+  "210 Title of how long a made-to-order product takes to make, on its page.": {
+    en: "On a product's page: the title of how long a made-to-order piece takes.",
+    ar: "في صفحة المنتج: عنوان المدة اللي القطعة بتتعمل فيها حسب الطلب.",
+    tr: "Ürün sayfasında: siparişe özel bir parçanın ne kadar sürede yapıldığının başlığı.",
+  },
+  "210 Under the delivery days picked on a page: the cart keeps the day and time for checkout.": {
+    en: "Under the delivery days on a page: the day and time are kept for checkout.",
+    ar: "تحت أيام التوصيل في الصفحة: اليوم والوقت بيتحفظوا لإتمام الطلب.",
+    tr: "Bir sayfadaki teslimat günlerinin altında: gün ve saat ödeme için saklanır.",
+  },
+  "210 Under the delivery days of a furniture shop: the team assembles the piece on the day.": {
+    en: "Under the delivery days: your team assembles the piece on the day.",
+    ar: "تحت أيام التوصيل: فريقك بيركّب القطعة يوم التوصيل.",
+    tr: "Teslimat günlerinin altında: ekibiniz parçayı teslimat günü kurar.",
+  },
+  "210 The delivery days element when no day is open.": {
+    en: "The delivery days when none is open.",
+    ar: "أيام التوصيل لما مفيش يوم متاح.",
+    tr: "Açık gün olmadığında teslimat günleri.",
+  },
+  "210 A tag under a furniture or electronics product's price: installments are not offered yet.": {
+    en: "Under a product's price: installments aren't offered yet.",
+    ar: "تحت سعر المنتج: التقسيط لسه مش متاح.",
+    tr: "Ürünün fiyatının altında: taksit henüz yok.",
+  },
   // 208 The clothes type's words.
   "208 Link beside a product's sizes: opens the shop's size chart.": {
     en: "The link beside a product's sizes: opens your size chart.",

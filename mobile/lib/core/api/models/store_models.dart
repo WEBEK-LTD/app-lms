@@ -24,6 +24,7 @@ class StoreConfig {
     this.payInApp = false,
     this.bouquet,
     this.sizeChart,
+    this.installmentsSoon = false,
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -50,7 +51,12 @@ class StoreConfig {
     payInApp: json['checkout_payment'] == 'in_app',
     bouquet: BouquetRules.tryParse(json['bouquet']),
     sizeChart: SizeChart.tryParse(json['size_chart']),
+    installmentsSoon: json['installments_soon'] == true,
   );
+
+  /// 210 "Installments coming soon" under a product's price (furniture and
+  /// electronics shops): a tag, never a way to pay; false from older servers.
+  final bool installmentsSoon;
 
   /// 208 The shop's size chart, under a product's sizes ("Size guide") and
   /// on a Studio page (`size_chart`); null: none.
@@ -612,6 +618,8 @@ class ProductDetail {
     this.defaultAttributes = const {},
     this.addons = const [],
     this.completeLook = const [],
+    this.dimensions,
+    this.makeDays,
   });
 
   factory ProductDetail.fromJson(Json json) => ProductDetail(
@@ -636,7 +644,24 @@ class ProductDetail {
     },
     addons: listOf(json, 'addons', ProductSummary.fromJson),
     completeLook: listOf(json, 'complete_look', ProductSummary.fromJson),
+    dimensions: _lineOf(json['dimensions']),
+    makeDays: _lineOf(json['make_days']),
   );
+
+  /// 210 A part's words as the shop's API writes them (`text`), or null.
+  static String? _lineOf(Object? value) {
+    if (value is! Map) return null;
+    final text = value['text'];
+    return text is String && text.trim().isNotEmpty ? text.trim() : null;
+  }
+
+  /// 210 Its size in cm as the server words it ("W 220 × D 95 × H 82 cm");
+  /// null for none (and from older servers).
+  final String? dimensions;
+
+  /// 210 Made to order: the days it takes ("Made in 3–5 days"); null when
+  /// it is ready to send.
+  final String? makeDays;
 
   /// 208 "Complete the look": a product of each of the shop's other main
   /// categories; empty when the shop has it off.

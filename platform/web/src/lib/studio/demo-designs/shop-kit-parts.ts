@@ -92,7 +92,7 @@ export function kitHead(ctx: SectionContext, l: KitLook, title: SectionWord, lin
               cross: "center" as const,
               padding: sides(4, 0, 4, 4),
               action: link.action,
-              children: [say(ctx, l, link.word, { size: 13, weight: 700 }, { accent: true, max_lines: 1 }), { id: id(), type: "icon" as const, icon: "chevron_forward", icon_size: 18, color: l.k.accent, dark_color: l.k.darkAccent }],
+              children: [say(ctx, l, link.word, { size: 13, weight: 700 }, { accent: true, max_lines: 1 }), { id: id(), type: "icon" as const, icon: "arrow_forward", icon_size: 18, color: l.k.accent, dark_color: l.k.darkAccent }],
             },
           ]
         : []),
@@ -669,7 +669,7 @@ export function kitDeliverySlots(ctx: SectionContext, l: KitLook, o: { title: Se
         cross: "start",
         children: [
           { id: id(), type: "column", width: "fill", gap: 4, children: [{ ...say(ctx, l, o.title, face(l, 18), { max_lines: 2 }), ...ink }, { ...say(ctx, l, o.text, { size: 12.5, line_height: 1.45 }, { max_lines: 3, opacity: 0.8 }), ...ink }] },
-          { id: id(), type: "icon", icon: o.assembly ? "handyman" : "local_shipping", icon_size: 24, ...ink },
+          { id: id(), type: "icon", icon: o.assembly ? "event_available" : "local_shipping", icon_size: 24, ...ink },
         ],
       },
       {
@@ -677,8 +677,8 @@ export function kitDeliverySlots(ctx: SectionContext, l: KitLook, o: { title: Se
         type: "delivery_slots",
         name: ctx.w("skSlots"),
         delivery_slots: { days: 5, assembly: Boolean(o.assembly) },
-        ...(dark ? { color: "#FFFFFF", dark_color: l.k.darkInk, background: "#FFFFFF1F", dark_background: l.tint.night, border_color: l.k.accent, dark_border_color: l.k.darkAccent } : { color: l.k.ink, dark_color: l.k.darkInk, background: l.tint.day, dark_background: l.tint.night, border_color: l.k.fill, dark_border_color: l.k.darkFill }),
-        radius: 14,
+        // Its ink on the card, the chosen day and time in the accent.
+        ...(dark ? { color: "#FFFFFF", dark_color: l.k.darkInk, border_color: l.k.accent, dark_border_color: l.k.darkAccent } : { color: l.k.ink, dark_color: l.k.darkInk, border_color: l.k.fill, dark_border_color: l.k.darkFill }),
       },
     ],
   };
@@ -908,7 +908,7 @@ export function kitMenuPage(ctx: SectionContext, l: KitLook, o: { wordmark: Sect
           padding: sides(6, 0, 6, 0),
         },
         { id: id(), type: "divider", height: 1, background: l.k.line, dark_background: l.k.darkLine, margin: sides(14, 16, 14, 16) },
-        { id: id(), type: "row", name: ctx.w("skMenuAccount"), gap: 8, padding: sides(0, 16, 0, 16), children: [tile("skAccount", "person", screen("account")), tile("skOrders", "package_2", screen("orders")), tile("skFavorites", "favorite", screen("favorites")), tile("skLanguage", "language", screen("settings"))] },
+        { id: id(), type: "row", name: ctx.w("skMenuAccount"), gap: 8, padding: sides(0, 16, 0, 16), children: [tile("skAccount", "person", screen("account")), tile("skOrders", "package_2", screen("orders")), tile("skLanguage", "language", screen("settings"))] },
         {
           id: id(),
           type: "row",
@@ -1061,9 +1061,9 @@ export const SHOP_KIT_SECTIONS: readonly SectionInfo[] = [
     ),
   },
   // Shop by room (or style): photo tiles named like the shop's categories.
-  { id: "sk_rooms", icon: "meeting_room", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [kitHead(ctx, SECTION_LOOK, "skRooms", { word: "skSeeAll", action: shop }, "skRoomsLine"), kitTiles(ctx, SECTION_LOOK, [{ photo: "room-living", title: "skRoomLiving" }, { photo: "room-bed", title: "skRoomBedroom" }, { photo: "room-dining", title: "skRoomDining" }, { photo: "room-reading", title: "skRoomReading" }])]) },
+  { id: "sk_rooms", icon: "chair", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [kitHead(ctx, SECTION_LOOK, "skRooms", { word: "skSeeAll", action: shop }, "skRoomsLine"), kitTiles(ctx, SECTION_LOOK, [{ photo: "room-living", title: "skRoomLiving" }, { photo: "room-bed", title: "skRoomBedroom" }, { photo: "room-dining", title: "skRoomDining" }, { photo: "room-reading", title: "skRoomReading" }])]) },
   // The custom-order card, opening the shop's request page (on its own, the shop).
-  { id: "sk_custom_card", icon: "design_services", isNew: true, fits: STORE_PLAIN, make: one((ctx) => kitCustomCard({ ...ctx, ownPages: false }, SECTION_LOOK, { title: "skCustomTitle", text: "skCustomText", options: [{ icon: "straighten", title: "skCustomSize", line: "skCustomSizeLine" }, { icon: "palette", title: "skCustomColour", line: "skCustomColourLine" }, { icon: "edit_note", title: "skCustomNotes", line: "skCustomNotesLine" }], time: "skCustomTime", button: "skCustomButton" })) },
+  { id: "sk_custom_card", icon: "edit_note", isNew: true, fits: STORE_PLAIN, make: one((ctx) => kitCustomCard({ ...ctx, ownPages: false }, SECTION_LOOK, { title: "skCustomTitle", text: "skCustomText", options: [{ icon: "straighten", title: "skCustomSize", line: "skCustomSizeLine" }, { icon: "palette", title: "skCustomColour", line: "skCustomColourLine" }, { icon: "edit_note", title: "skCustomNotes", line: "skCustomNotesLine" }], time: "skCustomTime", button: "skCustomButton" })) },
   // The custom-order request form (kept as the shop's request in the dashboard and Yallapp Business).
   { id: "sk_custom_form", icon: "assignment", isNew: true, fits: STORE_PLAIN, make: one((ctx) => kitCustomForm(ctx, SECTION_LOOK, { fields: KIT_CUSTOM_FIELDS, submit: "skCustomSend", success: "skCustomSent" })) },
   // The delivery and assembly booking: the shop's next days and times, kept for the checkout.
@@ -1071,7 +1071,7 @@ export const SHOP_KIT_SECTIONS: readonly SectionInfo[] = [
   // The shop's promises side by side, one with "Installments coming soon".
   { id: "sk_promises", icon: "verified", isNew: true, fits: STORE_PLAIN, make: one((ctx) => kitPromises(ctx, SECTION_LOOK, [{ icon: "local_shipping", title: "skPromiseDelivery", line: "skPromiseDeliveryLine" }, { icon: "verified_user", title: "skPromiseWarranty", line: "skPromiseWarrantyLine" }, { icon: "event_available", title: "skPromiseDate", line: "skPromiseDateLine", tag: "installmentsSoon" }])) },
   // The maker's story.
-  { id: "sk_story", icon: "history_edu", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [kitHead(ctx, SECTION_LOOK, "skStoryTitle", null, "skStoryLine"), kitStory(ctx, SECTION_LOOK, { photo: "pottery-shelf", quote: "skStoryQuote", name: "skStoryName", role: "skStoryRole", stats: [{ value: "skStat1", label: "skStat1Label" }, { value: "skStat2", label: "skStat2Label" }, { value: "skStat3", label: "skStat3Label" }] })]) },
+  { id: "sk_story", icon: "format_quote", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [kitHead(ctx, SECTION_LOOK, "skStoryTitle", null, "skStoryLine"), kitStory(ctx, SECTION_LOOK, { photo: "pottery-shelf", quote: "skStoryQuote", name: "skStoryName", role: "skStoryRole", stats: [{ value: "skStat1", label: "skStat1Label" }, { value: "skStat2", label: "skStat2Label" }, { value: "skStat3", label: "skStat3Label" }] })]) },
   // Gifts with wrapping and a card.
   { id: "sk_gift", icon: "redeem", isNew: true, fits: STORE_PLAIN, make: one((ctx) => kitGift(ctx, SECTION_LOOK, { title: "skGiftTitle", line: "skGiftLine", photo: "table-setting" })) },
   // The seasons' banners.

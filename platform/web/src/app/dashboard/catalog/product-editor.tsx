@@ -329,6 +329,23 @@ export function ProductEditor({
           <Card id="p-delivery" icon="local_shipping" title={t("manage.secDelivery")}>
             {/* 131 Its weight, for shipping priced by weight. */}
             <Field label={t("shop.weight")} name="weight" inputMode="decimal" defaultValue={product.weight ?? ""} hint={t("shop.weightHint")} error={errors.weight} className="sm:max-w-[280px]" dir="ltr" />
+            {/* 210 Its size in cm (furniture, decor), on its page and its cards in the app. */}
+            {restaurant ? null : (
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Field label={t("shop.width")} name="width" inputMode="decimal" defaultValue={product.width ?? ""} error={errors.width} dir="ltr" />
+                <Field label={t("shop.depth")} name="depth" inputMode="decimal" defaultValue={product.depth ?? ""} error={errors.depth} dir="ltr" />
+                <Field label={t("shop.height")} name="height" inputMode="decimal" defaultValue={product.height ?? ""} error={errors.height} dir="ltr" />
+                <p className="m-0 text-sm text-muted sm:col-span-3">{t("shop.sizeHint")}</p>
+              </div>
+            )}
+            {/* 210 Made to order: the days it takes to make (crochet, a sofa to measure). */}
+            {restaurant ? null : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label={t("shop.makeMin")} name="makeMin" inputMode="numeric" defaultValue={product.makeMin ?? ""} error={errors.makeMin} dir="ltr" />
+                <Field label={t("shop.makeMax")} name="makeMax" inputMode="numeric" defaultValue={product.makeMax ?? ""} error={errors.makeMax} dir="ltr" />
+                <p className="m-0 text-sm text-muted sm:col-span-2">{t("shop.makeHint")}</p>
+              </div>
+            )}
             {restaurant ? null : <Check name="digital" label={t("shop.digital")} hint={t("shop.digitalHint")} defaultChecked={product.digital} />}
           </Card>
 

@@ -13194,4 +13194,28 @@ class OverlayLocalizations extends AppLocalizations {
   String categoryMenuRow(String name, String count) =>
       overlay.format('categoryMenuRow', {'name': name, 'count': count}) ??
       base.categoryMenuRow(name, count);
+
+  @override
+  String get productDimensions =>
+      overlay.text('productDimensions') ?? base.productDimensions;
+
+  @override
+  String get productMadeToOrder =>
+      overlay.text('productMadeToOrder') ?? base.productMadeToOrder;
+
+  @override
+  String get deliverySlotsKept =>
+      overlay.text('deliverySlotsKept') ?? base.deliverySlotsKept;
+
+  @override
+  String get deliverySlotsAssembly =>
+      overlay.text('deliverySlotsAssembly') ?? base.deliverySlotsAssembly;
+
+  @override
+  String get deliverySlotsNone =>
+      overlay.text('deliverySlotsNone') ?? base.deliverySlotsNone;
+
+  @override
+  String get installmentsSoon =>
+      overlay.text('installmentsSoon') ?? base.installmentsSoon;
 }
