@@ -36,6 +36,33 @@ export function readAccessToken(token: string | null | undefined, key: string, n
   return deviceId;
 }
 
+// 214 The home-screen widget's token: `yw1.<device id>.<expires>.<signature>`, signed with a key of its
+// own, so it passes only for `GET /widget` (read-only: the shop's figures today). It names one signed-in
+// device: signing that device out (or a password change) stops it at once. The app gets a new one each
+// time it opens, for 30 days.
+
+export const WIDGET_TTL_DAYS = 30;
+const WIDGET = /^yw1\.([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.(\d{1,12})\.([A-Za-z0-9_-]{43})$/;
+
+export function widgetKey(signingSecret: string): string {
+  return hmacSha256(signingSecret, "owner-widget-token");
+}
+
+export function createWidgetToken(deviceId: string, key: string, now: Date): { token: string; expiresAt: Date } {
+  const expires = Math.floor(now.getTime() / 1000) + WIDGET_TTL_DAYS * 86_400;
+  const payload = `yw1.${deviceId.toLowerCase()}.${expires}`;
+  return { token: `${payload}.${hmacSha256(key, `widget:${payload}`)}`, expiresAt: new Date(expires * 1000) };
+}
+
+export function readWidgetToken(token: string | null | undefined, key: string, now: Date): string | null {
+  const match = WIDGET.exec((token ?? "").trim());
+  if (!match) return null;
+  const [, deviceId, expires, signature] = match as unknown as [string, string, string, string];
+  if (!safeEqual(signature, hmacSha256(key, `widget:yw1.${deviceId}.${expires}`))) return null;
+  if (Number(expires) * 1000 <= now.getTime()) return null;
+  return deviceId;
+}
+
 export function newRefreshToken(now: Date): { token: string; hash: string; expiresAt: Date } {
   const token = `${REFRESH_PREFIX}${randomToken(32)}`;
   return { token, hash: refreshHash(token), expiresAt: new Date(now.getTime() + REFRESH_TTL_DAYS * 86_400_000) };

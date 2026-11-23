@@ -24,6 +24,7 @@ import { teamCan } from "../team/permissions";
 import { getPlans } from "../settings/platform";
 import * as pause from "./pause";
 import { getDaySummary } from "./daily-summary";
+import { widgetBody, widgetToken } from "./widget";
 
 /**
  * 58 The Owner API (docs/api/owner.yaml), the server side of Yallapp
@@ -49,6 +50,8 @@ export const ROUTES: Route[] = [
   // 207 Ringtones.
   route("GET", "me/push-sounds", account.getPushSounds, { anyState: true }),
   route("PUT", "me/push-sounds", account.setPushSounds, { anyState: true }),
+  // 214 The home-screen widget's token.
+  route("POST", "me/widget-token", widgetToken),
   // 125 VIP: a call with the account manager.
   route("GET", "me/account-manager/slots", vip.listSlots),
   route("POST", "me/account-manager/calls", vip.requestCall),
@@ -207,6 +210,9 @@ async function open(deps: OwnerDeps, req: OwnerRequest): Promise<OwnerResult | n
     return { status: 200, body: { url: `${deps.baseUrl}${localePath(ownerLang(null, acceptedLang(req.acceptLanguage)), "/forgot-password")}` } };
   }
   if (path === "auth/sign-in" || path === "auth/refresh" || path === "auth/password-reset") throw new OwnerError(405, "method_not_allowed", "The request isn't valid.");
+  // 214 The home-screen widget, with its own token.
+  if (path === "widget" && req.method === "GET") return widgetBody(deps, req);
+  if (path === "widget") throw new OwnerError(405, "method_not_allowed", "The request isn't valid.");
   return null;
 }
 

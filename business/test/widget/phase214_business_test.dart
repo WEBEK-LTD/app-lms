@@ -6,6 +6,10 @@ import 'package:yallapp_business/core/routing/paths.dart';
 import 'package:yallapp_business/core/routing/router.dart';
 import 'package:yallapp_business/core/services/push.dart';
 import 'package:yallapp_business/core/services/ringtones.dart';
+import 'package:yallapp_business/core/session.dart';
+import 'package:yallapp_business/features/food/food_orders_screen.dart';
+import 'package:yallapp_business/features/food/food_sheets.dart';
+import 'package:yallapp_business/features/orders/orders_screen.dart';
 
 import '../support/nav.dart';
 import '../support/test_app.dart';
@@ -280,6 +284,135 @@ void main() {
       await settle(tester);
       expect(find.text('حتى أعيد الفتح'), findsOneWidget);
       expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('the home-screen widget and the new order notification', () {
+    testWidgets('signed in, the widget gets its own token; signed out, none', (
+      tester,
+    ) async {
+      final app = TestApp(language: 'ar');
+      await app.pump(tester);
+      expect(app.api.calls, contains('widgetToken'));
+      final first = app.homeWidget.configured.last;
+      expect(first.token, 'yw1.demo-device.0.demo');
+      expect(first.api, 'https://yallapp.com.tr/api/owner/v1');
+      expect(first.lang, 'ar');
+      await app.container.read(sessionProvider.notifier).signOut();
+      await settle(tester);
+      expect(app.homeWidget.configured.last.token, isNull);
+    });
+
+    testWidgets('tapped, it opens its app\'s orders', (tester) async {
+      final app = TestApp(appId: FakeOwnerApi.clinicId);
+      await app.pump(tester);
+      app.ringNative.tap({'widget': 'orders', 'app_id': FakeOwnerApi.foodId});
+      await settle(tester);
+      expect(find.byType(FoodOrdersScreen), findsOneWidget);
+      app.ringNative.tap({
+        'widget': 'orders',
+        'app_id': FakeOwnerApi.restaurantId,
+      });
+      await settle(tester);
+      expect(find.byType(OrdersScreen), findsOneWidget);
+    });
+
+    testWidgets('a new order while open: the widget reads again', (
+      tester,
+    ) async {
+      final push = FakePush();
+      final app = TestApp(push: push);
+      await app.pump(tester);
+      final before = app.homeWidget.refreshes;
+      push.foregroundController.add(
+        const RemoteNotice(
+          title: 'New order 1050',
+          body: '',
+          data: {'kind': 'new_order', 'order_id': '1040'},
+        ),
+      );
+      await settle(tester);
+      expect(app.homeWidget.refreshes, before + 1);
+    });
+
+    test('Accept opens the order on its accept', () {
+      expect(
+        pushTarget({
+          'kind': 'new_food_order',
+          'food_order_id': '47',
+          'yb_action': 'accept',
+        }).location,
+        '/food-orders/47?accept=1',
+      );
+      expect(
+        pushTarget({
+          'kind': 'new_order',
+          'order_id': '1042',
+          'yb_action': 'accept',
+        }).location,
+        '/orders/1042?accept=1',
+      );
+      expect(
+        pushTarget({'kind': 'new_order', 'order_id': '1042'}).location,
+        '/orders/1042',
+      );
+      expect(
+        pushTarget({
+          'kind': 'shipment_waiting',
+          'shipment_id': 's1',
+          'yb_action': 'accept',
+        }).location,
+        '/shipments/s1',
+      );
+    });
+
+    testWidgets('Accept on a food order asks the time to prepare at once', (
+      tester,
+    ) async {
+      final app = TestApp(appId: FakeOwnerApi.foodId);
+      await app.pump(tester);
+      app.ringNative.tap({
+        'type': 'owner',
+        'kind': 'new_food_order',
+        'app_id': FakeOwnerApi.foodId,
+        'food_order_id': '47',
+        'yb_action': 'accept',
+      });
+      await settle(tester);
+      expect(find.byType(AcceptPanel), findsWidgets);
+      expect(app.ringNative.done, [
+        {'food_order_id': '47', 'kind': 'new_food_order'},
+      ]);
+    });
+
+    testWidgets('Accept on a restaurant\'s new order sends it to the kitchen', (
+      tester,
+    ) async {
+      final app = TestApp(appId: FakeOwnerApi.restaurantId);
+      await app.pump(tester);
+      app.ringNative.tap({
+        'type': 'owner',
+        'kind': 'new_order',
+        'app_id': FakeOwnerApi.restaurantId,
+        'order_id': '1042',
+        'yb_action': 'accept',
+      });
+      await settle(tester);
+      expect(app.api.calls, contains('changeOrderStatus:preparing'));
+      expect(
+        app.ringNative.done,
+        contains(equals({'order_id': '1042', 'kind': 'new_order'})),
+      );
+      expect(app.homeWidget.refreshes, greaterThan(0));
+    });
+
+    testWidgets('Android gets the words of Accept and Open', (tester) async {
+      final app = TestApp(language: 'tr');
+      await app.pump(tester);
+      await settle(tester);
+      expect(app.ringNative.words['accept'], isNotEmpty);
+      expect(app.ringNative.words['open'], isNotEmpty);
+      expect(app.ringNative.words['accept'], isNot('Accept'));
     });
   });
 }

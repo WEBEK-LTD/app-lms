@@ -337,6 +337,12 @@ class HttpOwnerApi implements OwnerApi {
       );
 
   @override
+  Future<String?> widgetToken() async {
+    final token = (await _post('/me/widget-token'))['token'];
+    return token is String && token.isNotEmpty ? token : null;
+  }
+
+  @override
   Future<Order> shipOrder(
     String appId,
     int orderId,

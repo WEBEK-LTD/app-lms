@@ -87,6 +87,10 @@ abstract class OwnerApi {
   /// 214 A day's summary (today by default), the end-of-day push's screen.
   Future<DaySummary> daySummary(String appId, {String? date});
 
+  /// 214 The home-screen widget's own token (read-only, `GET /widget` only),
+  /// handed to the widget; null when the server has none to give.
+  Future<String?> widgetToken();
+
   /// 207 Marks it shipped with the carrier and the tracking; the customer
   /// is emailed (80.4). Again changes the tracking.
   Future<Order> shipOrder(String appId, int orderId, ShipmentInput shipment);

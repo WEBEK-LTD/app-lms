@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'dart:ui' show PlatformDispatcher;
@@ -18,6 +19,7 @@ import 'config.dart';
 import 'services/biometrics.dart';
 import 'services/chime.dart';
 import 'services/device.dart';
+import 'services/home_widget.dart';
 import 'services/links.dart';
 import 'services/media_picker.dart';
 import 'services/privacy.dart';
@@ -69,6 +71,16 @@ final chimeProvider = Provider<Chime>(
 final ringNativeProvider = Provider<RingNative>((ref) => const NoRingNative());
 
 final ringerProvider = Provider<Ringer>((ref) => AssetRinger());
+
+/// 214 The home-screen widget (Android's AppWidget, iOS's WidgetKit).
+final homeWidgetProvider = Provider<HomeWidget>((ref) => const NoHomeWidget());
+
+/// 214 A new order was accepted (or moved on, or refused) in the app: its
+/// ongoing notification goes and the home-screen widget reads again.
+void orderAnswered(WidgetRef ref, Map<String, String> data) {
+  unawaited(ref.read(ringNativeProvider).orderDone(data));
+  unawaited(ref.read(homeWidgetProvider).refresh());
+}
 
 class RingSettingsController extends Notifier<RingSettings> {
   Map<String, String> _words = const {};

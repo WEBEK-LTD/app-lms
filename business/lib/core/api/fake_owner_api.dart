@@ -1744,6 +1744,12 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   }
 
   @override
+  Future<String?> widgetToken() async {
+    await _call('widgetToken');
+    return 'yw1.demo-device.0.demo';
+  }
+
+  @override
   Future<DaySummary> daySummary(String appId, {String? date}) async {
     await _call('daySummary');
     _app(appId);

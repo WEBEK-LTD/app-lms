@@ -167,6 +167,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 parentNavigatorKey: rootNavigatorKey,
                 builder: (_, s) => OrderScreen(
                   orderId: int.tryParse(s.pathParameters['id']!) ?? 0,
+                  accept: s.uri.queryParameters['accept'] == '1',
                 ),
               ),
             ],
@@ -249,8 +250,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: ':id',
                 parentNavigatorKey: rootNavigatorKey,
-                builder: (_, s) =>
-                    FoodOrderScreen(orderId: s.pathParameters['id']!),
+                builder: (_, s) => FoodOrderScreen(
+                  orderId: s.pathParameters['id']!,
+                  accept: s.uri.queryParameters['accept'] == '1',
+                ),
               ),
             ],
           ),

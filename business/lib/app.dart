@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/api/models.dart' show Me;
 import 'core/providers.dart';
 import 'core/routing/paths.dart';
 import 'core/routing/router.dart';
@@ -105,7 +106,10 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
   Future<void> _open(Map<String, dynamic> data) async {
     // 207 Opened: whatever was ringing for it stops.
     _stopRing();
-    final target = pushTarget(data);
+    // 214 The home-screen widget opens its app's orders.
+    final target = data['widget'] == 'orders'
+        ? widgetTarget(ref.read(meProvider), '${data['app_id'] ?? ''}')
+        : pushTarget(data);
     final switched = await openTarget(ref, target);
     // 64 Said when it moved to the push's business.
     if (!mounted || !switched || target.businessName == null) return;
@@ -120,6 +124,11 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
   void _foreground(RemoteNotice notice) {
     // Screens that show what the push is about load it again.
     ref.read(pushEventsProvider.notifier).add(notice);
+    // 214 And the home-screen widget (Android's receiver does it in the
+    // background).
+    if (widgetKinds.contains(notice.data['kind'])) {
+      unawaited(ref.read(homeWidgetProvider).refresh());
+    }
     // 125 The morning brief also shows on Today.
     final appId = '${notice.data['app_id'] ?? ''}';
     if (notice.data['kind'] == 'morning_brief' &&
@@ -275,6 +284,36 @@ const _tabs = {
   Paths.school,
   Paths.notifyTab,
 };
+
+/// 214 The pushes that change the home-screen widget's figures.
+const widgetKinds = {
+  'new_order',
+  'new_food_order',
+  'new_market_order',
+  'shipment_waiting',
+  'order_cancelled',
+};
+
+/// 214 The home-screen widget tapped: the orders of its app, wherever that
+/// app keeps them.
+PushTarget widgetTarget(Me? me, String appId) {
+  final app = me?.apps.where((a) => a.id == appId).firstOrNull;
+  final f = app?.features;
+  final location = f == null
+      ? Paths.today
+      : f.restaurants
+      ? Paths.foodOrders
+      : f.market
+      ? Paths.marketTab('orders')
+      : f.orders
+      ? Paths.orders
+      : f.shipments
+      ? Paths.shipments
+      : f.rides
+      ? Paths.rides
+      : Paths.today;
+  return PushTarget(location: location, appId: app?.id);
+}
 
 /// Opens a push's screen on its app; 64 first switches to the push's
 /// business when the phone works on another one the person is on. True when

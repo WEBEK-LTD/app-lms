@@ -421,6 +421,23 @@ describe("58 the Owner API", () => {
       expect((await search("nobody")).body).toMatchObject({ total: 0, items: [] });
     });
 
+    it("214 gives the home-screen widget a token of its own, for the widget only", async () => {
+      const { access_token: token } = await signIn();
+      const minted = await call("POST", "/me/widget-token", { token });
+      const widget = (minted.body as unknown as { token: string }).token;
+      expect(widget).toMatch(/^yw1\./);
+      const first = await call("GET", "/widget", { token: widget });
+      expect(first.body).toMatchObject({ app: { id: expect.any(String), orders: expect.any(Number), waiting: expect.any(Number) } });
+      const apps = (first.body as unknown as { apps: { id: string }[] }).apps;
+      expect(apps.length).toBeGreaterThan(0);
+      await paidOrder(store, kitchen, { totalCents: 30000 });
+      const chosen = await call("GET", "/widget", { token: widget, query: { app_id: kitchen.id } });
+      expect(chosen.body).toMatchObject({ app: { id: kitchen.id, orders: 1, sales: { amount_cents: 30000, formatted: "₺300.00" } } });
+      // The access token isn't the widget's, and the widget's opens nothing else.
+      expect(await call("GET", "/widget", { token })).toMatchObject({ status: 401 });
+      expect(await call("GET", "/me", { token: widget, check: false })).toMatchObject({ status: 401 });
+    });
+
     it("214 pauses the shop and reopens it, and gives a day's summary, as the contract says", async () => {
       const { access_token: token } = await signIn();
       const params = { app_id: kitchen.id };

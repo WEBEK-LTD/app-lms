@@ -28,16 +28,53 @@ final orderProvider = FutureProvider.autoDispose.family<Order, int>(
 /// parts: who ordered, where it goes (Open in Maps, Copy address), when,
 /// the gift card, the items with their add-ons under them, the payment
 /// with the discounts and fees, the notes; the next steps at the foot.
-class OrderScreen extends ConsumerWidget {
-  const OrderScreen({super.key, required this.orderId});
+class OrderScreen extends ConsumerStatefulWidget {
+  const OrderScreen({super.key, required this.orderId, this.accept = false});
 
   final int orderId;
 
+  /// 214 Opened by Accept on the new order's notification: a restaurant's
+  /// new order goes to the kitchen at once (other orders have no accept
+  /// step and just open).
+  final bool accept;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OrderScreen> createState() => _OrderScreenState();
+}
+
+class _OrderScreenState extends ConsumerState<OrderScreen> {
+  bool _accepting = false;
+
+  int get orderId => widget.orderId;
+
+  @override
+  void initState() {
+    super.initState();
+    _accepting = widget.accept;
+    // 214 Opened: the new order's ongoing notification goes.
+    ref.read(ringNativeProvider).orderDone({
+      'order_id': '$orderId',
+      'kind': 'new_order',
+    });
+  }
+
+  Future<void> _accept(Order order) async {
+    _accepting = false;
+    final isNew = order.kitchen?.step == 'received';
+    if (!isNew || !order.nextStatuses.contains('preparing')) return;
+    final updated = await changeOrderStatus(context, ref, order, 'preparing');
+    if (updated != null && mounted) ref.invalidate(orderProvider(orderId));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final order = ref.watch(orderProvider(orderId));
     final loaded = order.value;
+    if (_accepting && loaded != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _accept(loaded));
+      _accepting = false;
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(loaded?.label ?? l10n.order),

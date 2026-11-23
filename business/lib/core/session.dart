@@ -126,6 +126,7 @@ class SessionController extends Notifier<SessionState> {
       unawaited(ref.read(settingsProvider).setBusinessName(me.business?.name));
       state = SignedIn(me);
       unawaited(_registerPush());
+      unawaited(_configureWidget());
     } on ApiException catch (e) {
       if (e.isUnauthorized) {
         await ref.read(tokenManagerProvider).clear();
@@ -216,7 +217,35 @@ class SessionController extends Notifier<SessionState> {
     await _forget();
   }
 
+  /// 214 The home-screen widget reads with a token of its own (read-only,
+  /// for its figures only, tied to this phone's sign-in): minted after
+  /// signing in, and again with the language.
+  Future<void> _configureWidget() async {
+    final widget = ref.read(homeWidgetProvider);
+    try {
+      final token = await ref.read(apiProvider).widgetToken();
+      if (token == null) return;
+      await widget.configure(
+        api: ref.read(configProvider).apiBaseUrl,
+        token: token,
+        lang: ref.read(languageCodeProvider),
+      );
+    } on Object {
+      // Offline or an older server: the widget keeps what it has.
+    }
+  }
+
   Future<void> _forget() async {
+    // 214 Nothing of the shop stays on the home screen.
+    unawaited(
+      ref
+          .read(homeWidgetProvider)
+          .configure(
+            api: ref.read(configProvider).apiBaseUrl,
+            token: null,
+            lang: ref.read(languageCodeProvider),
+          ),
+    );
     await ref.read(tokenManagerProvider).clear();
     await ref.read(settingsProvider).clearAccount();
     ref.read(selectedAppProvider.notifier).select(null);
@@ -237,6 +266,8 @@ class SessionController extends Notifier<SessionState> {
       try {
         final me = await ref.read(apiProvider).setLanguage(code);
         state = SignedIn(me);
+        // 214 The widget's words and amounts in the new language.
+        unawaited(_configureWidget());
       } on ApiException {
         // Kept on this phone; the dashboard keeps its own until next time.
       }

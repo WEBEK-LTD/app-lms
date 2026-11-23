@@ -556,6 +556,76 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
+  /me/widget-token:
+    post:
+      tags: [Account]
+      operationId: getWidgetToken
+      summary: 214 A token for the home-screen widget
+      description: Read-only, for `GET /widget` only, for 30 days; it stops when this device is signed out. The app asks for a new one each time it opens and hands it to the widget (Android's own storage, iOS's App Group keychain).
+      responses:
+        '200':
+          description: The token
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token, expires_at]
+                properties:
+                  token: { type: string, example: 'yw1.…' }
+                  expires_at: { type: string, format: date-time }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /widget:
+    get:
+      tags: [Today]
+      operationId: getWidget
+      summary: 214 The home-screen widget's figures
+      description: "With the widget token (`Authorization: Bearer yw1.…`), not the access token. The apps the widget may show (those whose orders the person sees) and the chosen one's sales today (its main currency), orders today and new orders waiting; the first app when `app_id` is missing or not one of them."
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: app_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: The figures
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [apps, app, updated_at]
+                properties:
+                  apps:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, name]
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+                  app:
+                    oneOf:
+                      - type: 'null'
+                      - type: object
+                        required: [id, name, date, sales, orders, waiting]
+                        properties:
+                          id: { type: string }
+                          name: { type: string }
+                          date: { type: string }
+                          sales:
+                            oneOf:
+                              - type: 'null'
+                              - type: object
+                                required: [amount_cents, currency, formatted]
+                                properties:
+                                  amount_cents: { type: integer }
+                                  currency: { type: string }
+                                  formatted: { type: string }
+                          orders: { type: integer }
+                          waiting: { type: integer }
+                  updated_at: { type: string, format: date-time }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
   /apps/{app_id}/pause:
     get:
       tags: [Orders]

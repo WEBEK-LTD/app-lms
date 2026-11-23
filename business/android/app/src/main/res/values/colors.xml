@@ -6,4 +6,9 @@
          with the Ember dot in the middle, where the Flutter opening starts. -->
     <color name="yallapp_ember">#FF5A1F</color>
     <color name="launch_background">#F4EFE6</color>
+    <!-- 214 The home-screen widget, light (values-night: dark). -->
+    <color name="widget_background">#FFFFFF</color>
+    <color name="widget_ink">#0E0D24</color>
+    <color name="widget_muted">#5C5A73</color>
+    <color name="widget_accent">#E8572A</color>
 </resources>

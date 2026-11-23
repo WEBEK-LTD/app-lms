@@ -75,6 +75,9 @@ Map<String, String> ringWords(AppLocalizations l10n) => {
     'sound_$id': soundName(l10n, id),
   'silence': l10n.ringSilence,
   'quiet_channel': l10n.ringQuietChannel,
+  // 214 A new order's notification: Accept and Open.
+  'accept': l10n.accept,
+  'open': l10n.open,
 };
 
 /// 207 Settings › Ringtones: a sound for each kind of notification, new
