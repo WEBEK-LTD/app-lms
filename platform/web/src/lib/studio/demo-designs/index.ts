@@ -28,6 +28,10 @@ import { ZAD_A, ZAD_B } from "./zad-signature";
 import { LEQAA_A, LEQAA_B } from "./leqaa-signature";
 // 208 Lujain, the clothes shop: A LUJAIN the boutique, B NOUN streetwear.
 import { LUJAIN_A, NOUN_B } from "./clothes-signature";
+// 210 Sakan (home decor), Ghurza (crochet and handmade), Rukn (furniture).
+import { DECOR_A, DECOR_B } from "./decor-signature";
+import { CROCHET_A, CROCHET_B } from "./crochet-signature";
+import { FURNITURE_A, FURNITURE_B } from "./furniture-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -165,6 +169,10 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   flowers: { a: LEQAA_A, b: LEQAA_B },
   // 208 Lujain, the clothes shop (a store): A the black and white boutique, B NOUN's streetwear.
   clothes: { a: LUJAIN_A, b: NOUN_B },
+  // 210 Sakan, home decor: A the decor magazine, B Teen's warm earth. Ghurza, crochet: A warm handmade, B Habka's colours. Rukn, furniture: A white and wood, B KANAF.
+  decor: { a: DECOR_A, b: DECOR_B },
+  crochet: { a: CROCHET_A, b: CROCHET_B },
+  furniture: { a: FURNITURE_A, b: FURNITURE_B },
 };
 
 /** A look with its demo's own tabs when it has none of its own. */

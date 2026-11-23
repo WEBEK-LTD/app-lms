@@ -770,6 +770,45 @@ export const PICTURES = {
       r(30, 68, 40, 4, 2, "#F3F0EA", 0.55),
     ],
   },
+  // 210 Sakan, home decor: a white vase with an olive branch on olive.
+  "icon-decor": {
+    from: "#66763D",
+    to: "#3B4622",
+    shapes: [
+      ...stroke([[50, 40], [50, 22]], 2.6, "#E6EDD3"),
+      c(44, 26, 4, "#E6EDD3"),
+      c(56, 30, 4, "#E6EDD3"),
+      c(45, 34, 3.4, "#E6EDD3"),
+      p([[42, 40], [58, 40], [56, 46], [64, 58], [60, 76], [40, 76], [36, 58], [44, 46]], WHITE),
+      r(30, 78, 40, 3, 1.5, "#F4F1EA", 0.6),
+    ],
+  },
+  // 210 Ghurza, crochet: a ball of yarn and its hook on terracotta.
+  "icon-crochet": {
+    from: "#C96A44",
+    to: "#8E3A1E",
+    shapes: [
+      c(46, 54, 20, WHITE),
+      ...stroke([[30, 46], [62, 62]], 2.4, "#E7B8A9"),
+      ...stroke([[34, 38], [64, 52]], 2.4, "#E7B8A9"),
+      ...stroke([[30, 58], [52, 70]], 2.4, "#E7B8A9"),
+      ...stroke([[62, 24], [76, 70]], 3.4, "#F8F1E9"),
+      ...stroke([[66, 54], [76, 72], [82, 74]], 2.4, WHITE),
+    ],
+  },
+  // 210 Rukn, furniture: a white armchair on walnut.
+  "icon-furniture": {
+    from: "#5C4330",
+    to: "#33241A",
+    shapes: [
+      r(30, 34, 40, 24, 8, WHITE),
+      r(24, 48, 12, 20, 5, WHITE),
+      r(64, 48, 12, 20, 5, WHITE),
+      r(32, 56, 36, 10, 4, "#E9DCCB"),
+      r(30, 68, 3, 10, 1.5, "#C9A27A"),
+      r(67, 68, 3, 10, 1.5, "#C9A27A"),
+    ],
+  },
   "icon-bookings": {
     from: "#3A8072",
     to: "#235449",

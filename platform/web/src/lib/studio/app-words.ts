@@ -13,6 +13,11 @@
 import type { PremiumText } from "./premium-content";
 import type { PremiumMapWords } from "./premium-maps";
 import type { PremiumWord } from "./premium-motion";
+// 210 The shop types' words, each type in its own file (its own prefix): the parts they share (`sk`), home decor (`dc`), crochet (`cr`), furniture (`fu`).
+import { SHOP_KIT_WORDS } from "./words/shop-kit";
+import { DECOR_WORDS } from "./words/decor";
+import { CROCHET_WORDS } from "./words/crochet";
+import { FURNITURE_WORDS } from "./words/furniture";
 
 export const en = {
   seeAll: "See all",
@@ -1011,6 +1016,10 @@ export const en = {
   // 208 The category menu's first card in each row (the main category itself).
   categoryAll: "All",
   // ——— end 208 ———
+  ...SHOP_KIT_WORDS.en,
+  ...DECOR_WORDS.en,
+  ...CROCHET_WORDS.en,
+  ...FURNITURE_WORDS.en,
 } as const;
 
 /** A word a template writes into the app. */
@@ -2007,6 +2016,10 @@ export const ar: Record<AppWord, string> = {
   installmentsSoon: "التقسيط قريبًا",
   categoryAll: "الكل",
   // ——— end 208 ———
+  ...SHOP_KIT_WORDS.ar,
+  ...DECOR_WORDS.ar,
+  ...CROCHET_WORDS.ar,
+  ...FURNITURE_WORDS.ar,
 };
 
 export const tr: Record<AppWord, string> = {
@@ -2999,6 +3012,10 @@ export const tr: Record<AppWord, string> = {
   installmentsSoon: "Taksit yakında",
   categoryAll: "Tümü",
   // ——— end 208 ———
+  ...SHOP_KIT_WORDS.tr,
+  ...DECOR_WORDS.tr,
+  ...CROCHET_WORDS.tr,
+  ...FURNITURE_WORDS.tr,
 };
 
 /** The languages templates are written in; another one gets English. */

@@ -8,6 +8,10 @@ import { deliverySettingsOf } from "../delivery/settings";
 import { isStudioDemo, type DemoId } from "../demo/constants";
 import { studioDemoOf } from "../studio/demo-templates";
 import { clothesPartsForSamples, demoClothesProducts } from "../demo/clothes-entries";
+import { demoKitProducts, kitPartsForSamples, type ShopKit } from "../demo/shop-kit";
+import { CROCHET_KIT } from "../demo/kits/crochet";
+import { DECOR_KIT } from "../demo/kits/decor";
+import { FURNITURE_KIT } from "../demo/kits/furniture";
 import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
 import { marketCuisines, marketplaceSamples, savingZadPictures } from "../demo/marketplace";
 import { savePicture } from "../demo/picture-assets";
@@ -100,6 +104,8 @@ async function school(m: Making): Promise<boolean> {
 const products = (menu: boolean): DemoSeeder => async (m) => (await demoProducts(m.entries, m.app, menu), true);
 const vehicleTypes = (taxi: boolean): DemoSeeder => async (m) => (await demoVehicleTypes(m.entries, m.app, taxi, await deliveryCurrency(m)), true);
 
+const kitSamples = async (m: Parameters<DemoSeeder>[0], kit: ShopKit) => (await demoKitProducts(m.entries, m.app, kit), await kitPartsForSamples(m.entries, m.app, kit), true);
+
 /** What each demo brings, by list; the lists it has nothing for get 110.2's samples. */
 const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   lms: { courses: (m) => courses(m, false) },
@@ -110,6 +116,10 @@ const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   flowers: { products: async (m) => (await demoFlowerProducts(m.entries, m.app), true) },
   // 208 Lujain's clothes, their categories and sub-categories.
   clothes: { products: async (m) => (await demoClothesProducts(m.entries, m.app), await clothesPartsForSamples(m.entries, m.app), true) },
+  // 210 The kits' products (decor, crochet, furniture), their categories and sub-categories, and their delivery days and card message.
+  decor: { products: (m) => kitSamples(m, DECOR_KIT) },
+  crochet: { products: (m) => kitSamples(m, CROCHET_KIT) },
+  furniture: { products: (m) => kitSamples(m, FURNITURE_KIT) },
   restaurant: { products: products(true) },
   booking: { services: bookings("salon") },
   clinic: { services: bookings("clinic") },

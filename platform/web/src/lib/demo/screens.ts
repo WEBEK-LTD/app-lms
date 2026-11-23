@@ -189,6 +189,10 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   flowers: demoDesignBar("flowers"),
   // 208 Lujain's is its look A's floating bar (lib/studio/demo-designs/clothes-signature.ts).
   clothes: demoDesignBar("clothes"),
+  // 210 Sakan's, Ghurza's and Rukn's: their look A's floating bar.
+  decor: demoDesignBar("decor"),
+  crochet: demoDesignBar("crochet"),
+  furniture: demoDesignBar("furniture"),
 };
 
 /** 130 A demo's bar in one of its Signature looks (its look's premium bar); without a look, the demo's own (DEMO_TAB_BARS). */

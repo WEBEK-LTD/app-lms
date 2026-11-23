@@ -201,6 +201,8 @@ import type {
   SchoolHomework,
   SchoolLeave,
   SchoolExcuse,
+  StoreRequest,
+  StoreRequestStatus,
   SchoolPickup,
   SchoolPickupNote,
   SchoolSlip,
@@ -3460,6 +3462,34 @@ export class MemoryStore implements DataStore {
   async getSchoolExcuse(appId: string, id: number): Promise<SchoolExcuse | null> {
     const found = this.schoolExcuses.get(id);
     return found && found.appId === appId ? clone(found) : null;
+  }
+
+  private storeRequests = new Map<number, StoreRequest>();
+  private nextStoreRequestId = 1;
+
+  async listStoreRequests(appId: string, filter: { statuses?: StoreRequestStatus[] } = {}): Promise<StoreRequest[]> {
+    return [...this.storeRequests.values()]
+      .filter((x) => x.appId === appId && (!filter.statuses || filter.statuses.includes(x.status)))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getStoreRequest(appId: string, id: number): Promise<StoreRequest | null> {
+    const found = this.storeRequests.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createStoreRequest(input: Omit<StoreRequest, "id">): Promise<StoreRequest> {
+    const made: StoreRequest = { ...clone(input), id: this.nextStoreRequestId++ };
+    this.storeRequests.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateStoreRequest(appId: string, id: number, patch: Partial<Pick<StoreRequest, "status" | "reply" | "quoteCents" | "updatedAt">>): Promise<boolean> {
+    const found = this.storeRequests.get(id);
+    if (!found || found.appId !== appId) return false;
+    this.storeRequests.set(id, { ...found, ...clone(patch) });
+    return true;
   }
 
   async createSchoolExcuse(input: Omit<SchoolExcuse, "id">): Promise<SchoolExcuse> {

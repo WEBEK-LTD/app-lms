@@ -1935,6 +1935,10 @@ export interface CatalogProduct {
   variants?: CatalogVariants | null;
   /** 131 Its weight in grams, for shipping priced by weight; null or missing: none. */
   weightGrams?: number | null;
+  /** 210 Its size in cm (furniture, decor: width, depth, height), on its page and its cards; null or missing: none. */
+  dimensions?: ProductDimensions | null;
+  /** 210 Made to order: the days it takes to make (crochet, a made-to-order sofa), on its page and its cards; null or missing: ready to send. */
+  makeDays?: ProductMakeDays | null;
   /**
    * 131 A gift add-on (chocolates, a card, a vase): never listed on its own,
    * never bought alone, offered as "Add a little more" with the products of
@@ -1948,6 +1952,64 @@ export interface CatalogProduct {
   salesCount: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/** 210 Where a custom-order request is: new, answered with a price and time (quoted), accepted, declined or done. */
+export type StoreRequestStatus = "new" | "quoted" | "accepted" | "declined" | "done";
+export const STORE_REQUEST_STATUSES: readonly StoreRequestStatus[] = ["new", "quoted", "accepted", "declined", "done"];
+
+/** 210 One answer of a custom-order request, as the form asked it (its label in the app's default language). */
+export interface StoreRequestAnswer {
+  label: string;
+  value: string;
+}
+
+/** 210 Who asked: the signed-in person's name and email, else what they wrote in the form. */
+export interface StoreRequestCustomer {
+  name: string | null;
+  phone: string | null;
+  email: string | null;
+}
+
+/**
+ * 210 A custom-order request (crochet in a size and colour, a sofa made to
+ * measure): the answers to a form element marked as one
+ * (`StudioForm.request`), kept for the shop besides the email. The owner
+ * sees it in Store › Custom orders and in Yallapp Business, answers with a
+ * price and a time and moves it on.
+ */
+export interface StoreRequest {
+  id: number;
+  appId: string;
+  /** The person who sent it, when signed in. */
+  userId: number | null;
+  /** The form's title (its page's) when it was sent ("Your custom order"). */
+  title: string;
+  answers: StoreRequestAnswer[];
+  customer: StoreRequestCustomer;
+  status: StoreRequestStatus;
+  /** The shop's answer (the price, the time, a question). */
+  reply: string | null;
+  /** The price the shop quoted, in cents of the shop's currency; null: none yet. */
+  quoteCents: number | null;
+  currency: string;
+  /** The app's language it was sent in. */
+  lang: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 210 A product's size in cm (each 1 to 10,000, at most one decimal); a missing one isn't shown ("W 200 × D 90 cm"). */
+export interface ProductDimensions {
+  width: number | null;
+  depth: number | null;
+  height: number | null;
+}
+
+/** 210 The days a made-to-order product takes to make: from `min` to `max` (1 to 365, `min` ≤ `max`; equal: one number). */
+export interface ProductMakeDays {
+  min: number;
+  max: number;
 }
 
 export type CatalogProductInput = Omit<CatalogProduct, "id" | "salesCount" | "createdAt" | "updatedAt">;

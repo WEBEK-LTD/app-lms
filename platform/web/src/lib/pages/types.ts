@@ -73,6 +73,8 @@ export const STUDIO_CONTENT_TYPES = [
   "flash_sale",
   // 208 The shop's size chart (Store › Delivery & offers › Clothes), as a table.
   "size_chart",
+  // 210 The shop's next delivery days and times to pick (and its assembly), kept for the checkout.
+  "delivery_slots",
 ] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
@@ -881,6 +883,29 @@ export interface StudioForm {
   submit_label?: string | null;
   success_text?: string | null;
   send_to: (typeof FORM_SEND_TO)[number];
+  /**
+   * 210 `custom_order`: the answers are a custom-order request (`send_to`
+   * `email`): kept as the shop's request (Store › Custom orders in the
+   * dashboard and in Yallapp Business) besides the email; the app posts them
+   * as any form's, so older apps send them too.
+   */
+  request?: (typeof FORM_REQUESTS)[number] | null;
+}
+
+/** 210 What a form's answers become besides the email: a custom-order request. */
+export const FORM_REQUESTS = ["custom_order"] as const;
+
+/**
+ * 210 For `delivery_slots`: the shop's next delivery days (Store › Delivery
+ * & offers › Delivery days, `StoreConfig.delivery_date`) as chips and the
+ * chosen day's times; what the person picks is the cart's day and time at
+ * checkout. `days` how many days it shows (3 to 10; missing, 5); `assembly`
+ * a line that the team assembles it on the day (furniture). Older apps
+ * leave it out; with no delivery days set, it shows nothing.
+ */
+export interface StudioDeliverySlots {
+  days?: number;
+  assembly?: boolean;
 }
 
 /**
@@ -1462,6 +1487,8 @@ export interface StudioNode {
   card?: StudioNode | null;
   bind?: StudioBind | null;
   form?: StudioForm | null;
+  /** 210 For `delivery_slots`: how many days and whether it says the team assembles. */
+  delivery_slots?: StudioDeliverySlots | null;
   map?: StudioMap | null;
   /** 115.14 For `market`: the marketplace section (its title and text are the element's own). */
   market?: StudioMarket | null;

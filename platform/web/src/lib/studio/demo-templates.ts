@@ -50,6 +50,10 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   flowers: "flowers_signature_a",
   // 208 Lujain, the clothes shop, is its Signature look A, the boutique (lib/studio/demo-designs/clothes-signature.ts).
   clothes: "clothes_signature_a",
+  // 210 Sakan, Ghurza and Rukn are their Signature looks A (lib/studio/demo-designs/decor-, crochet-, furniture-signature.ts).
+  decor: "decor_signature_a",
+  crochet: "crochet_signature_a",
+  furniture: "furniture_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -112,6 +116,10 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   flowers: { surface: "#FFFFFF", nightSurface: "#21121A", line: "#F0DDD9", nightLine: "#3A2530", muted: "#7B5E67", nightMuted: "#C9AEB6" },
   // 208 Lujain's, its look A's (lib/studio/demo-designs/clothes-signature.ts LUJAIN_INK).
   clothes: { surface: "#FFFFFF", nightSurface: "#191917", line: "#E4DFD6", nightLine: "#2E2C28", muted: "#5F5B55", nightMuted: "#B6B0A6" },
+  // 210 Sakan's, Ghurza's and Rukn's: their look A's.
+  decor: { surface: "#FFFFFF", nightSurface: "#1E211D", line: "#E3DFD4", nightLine: "#30342D", muted: "#62675C", nightMuted: "#AEB4A6" },
+  crochet: { surface: "#FFFDF9", nightSurface: "#241C19", line: "#EEDFD3", nightLine: "#3A2E28", muted: "#7A6258", nightMuted: "#C4AEA4" },
+  furniture: { surface: "#FFFFFF", nightSurface: "#211C18", line: "#E8E1D8", nightLine: "#36302A", muted: "#6B625A", nightMuted: "#B8AEA4" },
 };
 
 /**
@@ -372,4 +380,4 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
 }
 
 /** 131.20 The demos whose words carry the app's name, by that name (the demo app's). */
-const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain" };
+const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", decor: "Sakan", crochet: "Ghurza", furniture: "Rukn" };

@@ -18,6 +18,9 @@ import { demoDesign } from "./look";
 import { MARKET_VENDORS } from "./marketplace";
 import { FLOWER_PRODUCTS } from "./flowers";
 import { CLOTHES_PRODUCTS } from "./clothes";
+import { CROCHET_KIT } from "./kits/crochet";
+import { DECOR_KIT } from "./kits/decor";
+import { FURNITURE_KIT } from "./kits/furniture";
 import { SCHOOL_CLASSES } from "./school";
 import { TRAVEL_HOTELS } from "@/lib/travel/samples";
 
@@ -81,6 +84,10 @@ const DEMO_BUSINESS: Partial<Record<DemoId, string>> = {
   flowers: "shop",
   // 208 Lujain, the clothes shop, too.
   clothes: "shop",
+  // 210 Sakan, Ghurza and Rukn, shops too.
+  decor: "shop",
+  crochet: "shop",
+  furniture: "shop",
 };
 
 export function businessOf(id: DemoId): string {
@@ -159,6 +166,10 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   flowers: () => ({ list: "products", noun: "products", count: FLOWER_PRODUCTS.length }),
   // 208 Lujain: its clothes, shoes, bags and accessories.
   clothes: () => ({ list: "products", noun: "products", count: CLOTHES_PRODUCTS.length }),
+  // 210 The kits' products (decor, crochet and handmade, furniture), add-ons left out.
+  decor: () => ({ list: "products", noun: "products", count: DECOR_KIT.products.filter((p) => !p.addon).length }),
+  crochet: () => ({ list: "products", noun: "products", count: CROCHET_KIT.products.filter((p) => !p.addon).length }),
+  furniture: () => ({ list: "products", noun: "products", count: FURNITURE_KIT.products.filter((p) => !p.addon).length }),
 };
 
 export function demoItems(id: DemoId): DemoItems {

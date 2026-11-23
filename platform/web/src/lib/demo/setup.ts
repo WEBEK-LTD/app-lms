@@ -48,6 +48,8 @@ import {
   STORE_SHIPPING_CENTS,
 } from "./content";
 import { demoClothesCommerce, demoClothesProducts } from "./clothes-entries";
+import { demoKitCommerce, demoKitProducts, kitCatalogSettings } from "./shop-kit";
+import { kitOf } from "./shop-kits";
 import { demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerCommerce, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, type EntryDeps } from "./entries";
 import { savePicture, type DemoPicture, type PictureSize } from "./picture-assets";
 import { refreshMarketplaceDemo, savingZadPictures } from "./marketplace";
@@ -226,6 +228,9 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   } else if (content === "catalog" && id === CLOTHES_DEMO) {
     // 208 Lujain in Riyadh: Saudi riyals, free from a bigger order, exchanges within 14 days, its size chart and "Complete the look".
     patch.catalogSettings = { currency: CLOTHES_CURRENCY, shippingCents: CLOTHES_SHIPPING_CENTS, freeShippingOverCents: CLOTHES_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(CLOTHES_COMMERCE) };
+  } else if (content === "catalog" && kitOf(id)) {
+    // 210 A kit's shop (decor, crochet, furniture): its currency, shipping, delivery days and slots, card message and returns.
+    patch.catalogSettings = kitCatalogSettings(kitOf(id)!);
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
   } else if (content === "bookings" && id === "fitness") {
@@ -259,6 +264,10 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     // 208 Lujain's clothes, their sizes and colours with the stock of each, its categories and their sub-categories, its flash sale and code.
     await demoClothesProducts(entryDeps(deps, client.id), saved);
     await demoClothesCommerce(entryDeps(deps, client.id), saved);
+  } else if (content === "catalog" && kitOf(id)) {
+    // 210 A kit's products in their categories and sub-categories, their choices, size and days to make, its add-ons, flash sale and code.
+    await demoKitProducts(entryDeps(deps, client.id), saved, kitOf(id)!);
+    await demoKitCommerce(entryDeps(deps, client.id), saved, kitOf(id)!);
   }
   else if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
   // Studio's demos: a parcel company, food delivery from three restaurants, rides.

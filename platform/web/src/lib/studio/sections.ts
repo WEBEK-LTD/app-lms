@@ -18,6 +18,11 @@ import { LEQAA_SECTIONS } from "./demo-designs/leqaa-signature";
 // 208 Lujain's sections, and the installments tag.
 import { CLOTHES_SECTIONS } from "./demo-designs/clothes-signature";
 import { INSTALLMENTS_SECTION } from "./installments";
+// 210 The shop types' shared parts (shop the look, rooms, the custom order, delivery and assembly, the maker's story…) and each type's own.
+import { SHOP_KIT_SECTIONS } from "./demo-designs/shop-kit-parts";
+import { DECOR_SECTIONS } from "./demo-designs/decor-signature";
+import { CROCHET_SECTIONS } from "./demo-designs/crochet-signature";
+import { FURNITURE_SECTIONS } from "./demo-designs/furniture-signature";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -316,7 +321,9 @@ export type SectionWord =
   | Extract<AppWord, `lq${string}`>
   // 208 Lujain's looks, pages and sections (lib/studio/demo-designs/clothes-signature.ts), and the installments tag.
   | Extract<AppWord, `cl${string}`>
-  | "installmentsSoon";
+  | "installmentsSoon"
+  // 210 The shop types' shared parts (lib/studio/demo-designs/shop-kit-parts.ts), home decor's, crochet's and furniture's looks.
+  | Extract<AppWord, `sk${string}` | `dc${string}` | `cr${string}` | `fu${string}`>;
 
 export interface SectionContext {
   brand: string;
@@ -1108,6 +1115,11 @@ export const SECTIONS: readonly SectionInfo[] = [
   // 208 The clothes type's parts (the category menu, the peeking hero, the deal, shop the look, the size card and chart) and the installments tag.
   ...CLOTHES_SECTIONS,
   INSTALLMENTS_SECTION,
+  // 210 The shop types' shared parts, then home decor's, crochet's and furniture's.
+  ...SHOP_KIT_SECTIONS,
+  ...DECOR_SECTIONS,
+  ...CROCHET_SECTIONS,
+  ...FURNITURE_SECTIONS,
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,
 ];
