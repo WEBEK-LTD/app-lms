@@ -770,6 +770,19 @@ export const PICTURES = {
       r(30, 68, 40, 4, 2, "#F3F0EA", 0.55),
     ],
   },
+  // 211 Nova, the mobiles shop: a white phone on ink, its camera's ring and a trade-in arrow in its cobalt.
+  "icon-mobiles": {
+    from: "#1E2128",
+    to: "#0E1014",
+    shapes: [
+      r(33, 18, 34, 64, 9, WHITE),
+      r(37, 24, 26, 46, 4, "#0E1014"),
+      r(44, 74, 12, 3, 1.5, "#0E1014", 0.6),
+      c(50, 44, 8, "#2A55E5"),
+      c(50, 44, 4, "#0E1014"),
+      c(58, 31, 2.2, "#8FA8FF"),
+    ],
+  },
   "icon-bookings": {
     from: "#3A8072",
     to: "#235449",

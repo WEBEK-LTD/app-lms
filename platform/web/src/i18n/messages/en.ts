@@ -54,6 +54,8 @@ export const en = {
     storyFlowersText: "Delivery slots, card messages and flash sales",
     storyClothes: "Clothes shop app",
     storyClothesText: "Sizes and colours, a category menu and complete the look",
+    storyMobiles: "Phone shop app",
+    storyMobilesText: "Trade-in, certified used, specs and compare",
     studioDemo: "Studio demo",
     studioDemoText: "Try Studio's apps on your phone",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -821,6 +823,8 @@ export const en = {
       flowers_b: { name: "Botanical press", text: "The whole flower shop: the petal header, who the flowers are for, the edit as cards, Send today as a ticket, the flash sale on forest green, the collections as arches, the atelier and the price list; every page, the bar, the account and the gift checkout in sage and peach." },
       clothes_a: { name: "LUJAIN, the boutique", text: "The whole clothes shop in black and white: the small header whose menu opens the category menu, the search, the categories in circles, the hero carousel with the next card peeking, what's new, the deal of the day, shop the look with numbered spots, the collections as photo tiles and the size card; the category menu, the size guide, the shop, the cart and orders in warm paper and ink, with a charcoal night." },
       clothes_b: { name: "NOUN, streetwear", text: "The whole clothes shop as streetwear: concrete grey and electric blue, the category menu with numbered rows, the drop of the week, the ticker, the numbered best sellers, shop the fit and the deal of the day; every page, the bar, the account, the shop, the cart and orders in the look, with a near-black night." },
+      mobiles_a: { name: "NOVA, ink and cobalt", text: "The whole phone shop in white, ink and cobalt: the menu that opens the category menu, the search, the categories in circles, the camera phone's hero, trade-in, repair and warranty, the latest phones with their specs, what your old phone is worth worked out on the page, the deal of the day, certified used with its grades, two phones compared, the accessories and the brands." },
+      mobiles_b: { name: "Emerald on stone", text: "The whole phone shop in deep green on warm stone: the categories as tiles, the trade-in hero, the best sellers, trade-in in three steps, renewed devices with a warranty, the deal, a ready bundle with installments coming soon, two phones compared and your numbers." },
     },
   },
   meta: {

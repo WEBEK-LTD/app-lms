@@ -95,11 +95,21 @@ export const CLOTHES_PHOTOS: ShopPhotoSet<ClothesPhotoName> = { dir: "clothes-ph
 /** A clothes photo as a demo's picture (`cl-<name>`). */
 export type ClothesPhoto = `cl-${ClothesPhotoName}`;
 
+/** 211 Nova's photos (the mobiles shop), cut to 4:5 at 720 × 900; the `-wide` ones kept wide at 900 wide for the banners. */
+export const MOBILES_PHOTO_NAMES = [
+  "box-1-wide", "box-1", "box-2", "box-3-wide", "box-3", "buds-fabric", "buds-purple", "case-red-wide", "case-red", "flatlay-white", "hp-black", "hp-white", "hp-woman-wide", "hp-woman", "phone-bokeh", "phone-cam-wide", "phone-cam", "phone-dark-wide", "phone-dark", "phone-desk-wide", "phone-desk", "phone-earbuds-wide", "phone-earbuds", "phone-food-wide", "phone-food", "phone-hand-grey", "phone-sea-wide", "phone-sea", "phone-sunset", "phone-vintage-wide", "phone-vintage", "phone-wood-wide", "phone-wood", "tab-coffee", "tab-marble", "tab-pen", "tab-stand-wide", "tab-stand", "tracker-crouch-wide", "tracker-crouch", "tracker-rail", "watch-earbuds", "watch-fabric", "watch-man-wide", "watch-man", "watch-pink", "watch-rugged", "watch-white", "wireless-pad-wide", "wireless-pad",
+] as const;
+export type MobilesPhotoName = (typeof MOBILES_PHOTO_NAMES)[number];
+export const MOBILES_PHOTOS: ShopPhotoSet<MobilesPhotoName> = { dir: "mobiles-photos", prefix: "mb-", names: MOBILES_PHOTO_NAMES };
+
+/** A mobiles photo as a demo's picture (`mb-<name>`). */
+export type MobilesPhoto = `mb-${MobilesPhotoName}`;
+
 /** Every set, for the pictures' lookup. */
-const SHOP_PHOTO_SETS: readonly ShopPhotoSet<string>[] = [CLOTHES_PHOTOS];
+const SHOP_PHOTO_SETS: readonly ShopPhotoSet<string>[] = [CLOTHES_PHOTOS, MOBILES_PHOTOS];
 
 /** A shop type's photo as a demo's picture: `cl-rust-1`. */
-export type ShopPhoto = ClothesPhoto;
+export type ShopPhoto = ClothesPhoto | MobilesPhoto;
 
 function setOf(name: string): { set: ShopPhotoSet<string>; file: string } | null {
   for (const set of SHOP_PHOTO_SETS) {
