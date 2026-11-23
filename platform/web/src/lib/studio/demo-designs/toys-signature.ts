@@ -1152,7 +1152,7 @@ function toysPages(l: Look) {
 const TOOT_SCREENS = signatureScreens({
   style: "photo",
   photo: P("teepee"),
-  title: { en: "Welcome to Toot", ar: "أهلًا بك في توت", tr: "Toot'a hoş geldiniz" },
+  title: { en: "Welcome, let's play", ar: "أهلًا بك، هيا نلعب", tr: "Hoş geldiniz, hadi oynayalım" },
   subtitle: { en: "Sign in to follow your orders and your gifts.", ar: "سجّل الدخول لتتابع طلباتك وهداياك.", tr: "Siparişlerinizi ve hediyelerinizi takip etmek için giriş yapın." },
   menu: "cover",
   first: ["orders", "notifications", "settings", "help", "privacy", "terms"],

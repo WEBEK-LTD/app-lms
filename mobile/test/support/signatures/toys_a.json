@@ -4,9 +4,9 @@
    "style": "photo",
    "image_url": "http://localhost:3000/toys-photos/teepee.jpg",
    "title": {
-    "en": "Welcome to Toot",
-    "ar": "أهلًا بك في توت",
-    "tr": "Toot'a hoş geldiniz"
+    "en": "Welcome, let's play",
+    "ar": "أهلًا بك، هيا نلعب",
+    "tr": "Hoş geldiniz, hadi oynayalım"
    },
    "subtitle": {
     "en": "Sign in to follow your orders and your gifts.",
