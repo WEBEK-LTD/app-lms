@@ -19,7 +19,7 @@ import { MARKET_VENDORS } from "./marketplace";
 import { FLOWER_PRODUCTS } from "./flowers";
 import { CLOTHES_PRODUCTS } from "./clothes";
 // 209 Toys
-import { TOYS_PRODUCTS } from "./toys";
+import { TOYS_ADDONS, TOYS_PRODUCTS } from "./toys";
 import { SCHOOL_CLASSES } from "./school";
 import { TRAVEL_HOTELS } from "@/lib/travel/samples";
 
@@ -165,8 +165,8 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   // 208 Lujain: its clothes, shoes, bags and accessories.
   clothes: () => ({ list: "products", noun: "products", count: CLOTHES_PRODUCTS.length }),
   // 209 Toys
-  // 209 Toot: its toys and gift boxes (the wraps and the card are add-ons, never listed).
-  toys: () => ({ list: "products", noun: "products", count: TOYS_PRODUCTS.length }),
+  // 209 Toot: its toys and gift boxes, the wraps and the card.
+  toys: () => ({ list: "products", noun: "products", count: TOYS_PRODUCTS.length + TOYS_ADDONS.length }),
 };
 
 export function demoItems(id: DemoId): DemoItems {

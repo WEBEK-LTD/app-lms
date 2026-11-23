@@ -34,8 +34,8 @@ function deps(store: MemoryStore, now: Date = NOW): DemoSetupDeps {
   return { store, encryptionKey: KEY, putBlob: async () => {}, assetUrl: (id) => `https://yallapp.test/a/${id}`, platformUrl: "https://yallapp.test", contact: { whatsapp: "+90 544 673 19 42", email: "info@yallapp.test" }, actorEmail: "admin@yallapp.test", now };
 }
 
-/** Store calls a demo's refresh may make: the school and the marketplace do the most (the marketplace's 55 photos, one look each); 208 Lujain's 54 photos the same way. */
-const BUDGET: Partial<Record<DemoId, number>> = { school: 125, marketplace: 160, clothes: 80 };
+/** Store calls a demo's refresh may make: the school and the marketplace do the most (the marketplace's 55 photos, one look each); 208 Lujain's 54 photos the same way; 209 Toot's 48. */
+const BUDGET: Partial<Record<DemoId, number>> = { school: 125, marketplace: 160, clothes: 80, toys: 80 };
 
 beforeEach(() => clearPlatformSettingsCache());
 

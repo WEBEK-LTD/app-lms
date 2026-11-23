@@ -2,7 +2,8 @@ import type { Action, StudioEntry, StudioFont, StudioNode, StudioPage, StudioSid
 import type { SectionContext, SectionInfo, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
-import { inked, sides, sigEntry, sigPhoto, sigTexts, signatureBar, signatureHeader, type SignatureInk } from "./food-signature-parts";
+import { inked, sides, sigEntry, sigImage, sigPhoto, sigTexts, signatureBar, signatureHeader, type SignatureInk } from "./food-signature-parts";
+import { APP_WORDS } from "../app-words";
 import { clothesTabs, MENU_PAGE } from "./clothes-signature";
 
 /**
@@ -448,7 +449,7 @@ function safetyCard(ctx: SectionContext, l: Look): StudioNode {
         gap: 12,
         cross: "center",
         children: [
-          { id: id(), type: "icon", icon: "verified_user", icon_size: 24, color: A_GOOD.day, dark_color: A_GOOD.night, background: A_GOOD.soft, dark_background: A_GOOD.darkSoft, radius: 99, padding: sides(10, 10, 10, 10) },
+          { id: id(), type: "icon", icon: "verified", icon_size: 24, color: A_GOOD.day, dark_color: A_GOOD.night, background: A_GOOD.soft, dark_background: A_GOOD.darkSoft, radius: 99, padding: sides(10, 10, 10, 10) },
           { id: id(), type: "column", width: "fill", gap: 2, children: [say(ctx, l, "tySafeTitle", face(l, 18)), say(ctx, l, "tySafeLine", { size: 12.5 }, { muted: true, max_lines: 2 })] },
         ],
       },
@@ -457,7 +458,7 @@ function safetyCard(ctx: SectionContext, l: Look): StudioNode {
         type: "grid",
         columns: 2,
         gap: 8,
-        children: [cell("local_florist", "tySafe1"), cell("format_paint", "tySafe2"), cell("check_circle", "tySafe3"), cell("workspace_premium", "tySafe4")],
+        children: [cell("yard", "tySafe1"), cell("check_circle", "tySafe2"), cell("task_alt", "tySafe3"), cell("workspace_premium", "tySafe4")],
       },
     ],
   };
@@ -493,12 +494,25 @@ function promises(ctx: SectionContext, l: Look): StudioNode[] {
       columns: 2,
       gap: 10,
       padding: sides(0, 16, 0, 16),
-      children: [stat("verified_user", "tyStat1", "tyStat1Text"), stat("fact_check", "tyStat2", "tyStat2Text"), stat("local_florist", "tyStat3", "tyStat3Text"), stat("sync", "tyStat4", "tyStat4Text")],
+      children: [stat("verified", "tyStat1", "tyStat1Text"), stat("fact_check", "tyStat2", "tyStat2Text"), stat("local_florist", "tyStat3", "tyStat3Text"), stat("sync", "tyStat4", "tyStat4Text")],
     },
   ];
 }
 
 // ——— Birthday gifts: the gift finder and the wraps ———
+
+/** The gift finder's answers, in the order of its results (the ages): answer i counts for age i. */
+const QUIZ_AGES = ["tyQuizAge1", "tyQuizAge2", "tyQuizAge3", "tyQuizAge4", "tyQuizAge5"] as const satisfies readonly SectionWord[];
+const QUIZ_LOVES = ["tyQuizLove1", "tyQuizLove2", "tyQuizLove3", "tyQuizLove4", "tyQuizLove5"] as const satisfies readonly SectionWord[];
+const QUIZ_BUDGETS = ["tyQuizBudget1", "tyQuizBudget2", "tyQuizBudget3", "tyQuizBudget4", "tyQuizBudget5"] as const satisfies readonly SectionWord[];
+
+/** One of the gift finder's questions: its words, and its answers one per line, in Studio's other languages too. */
+function question(ctx: SectionContext, title: SectionWord, answers: readonly SectionWord[]): StudioEntry {
+  const lang = ctx.lang ?? "en";
+  const translations: Record<string, Record<string, string>> = {};
+  for (const l of (["en", "ar", "tr"] as const).filter((x) => x !== lang)) translations[l] = { title: APP_WORDS[l][title], text: answers.map((a) => APP_WORDS[l][a]).join("\n") };
+  return { title: ctx.w(title), text: answers.map((a) => ctx.w(a)).join("\n"), translations: translations as StudioEntry["translations"] };
+}
 
 /**
  * The gift finder (the `quiz` element): the child's age, what they love
@@ -507,7 +521,7 @@ function promises(ctx: SectionContext, l: Look): StudioNode[] {
  */
 function giftQuiz(ctx: SectionContext, l: Look): StudioNode {
   const t = sigTexts(ctx, { text: l.look === "a" ? "tyGiftTitle" : "tyGiftBTitle", title: "tyGiftButton" });
-  const icons = ["child_care", "toys", "toys", "palette", "rocket_launch"];
+  const icons = ["child_care", "category", "celebration", "auto_stories", "travel_explore"];
   const photos = ["sleeping-baby", "toddler-play", "toddler-bear", "girl-drawing", "football-boy"];
   const results: StudioEntry[] = TOYS_AGE_WORDS.map((word, i) => ({
     ...sigEntry(ctx, { title: word, text: (["tyResult0", "tyResult1", "tyResult3", "tyResult6", "tyResult9"] as const)[i]!, label: "tyResultButton" }),
@@ -523,9 +537,7 @@ function giftQuiz(ctx: SectionContext, l: Look): StudioNode {
     title: t.title,
     translations: t.translations,
     entries: results,
-    quiz: {
-      questions: [sigEntry(ctx, { title: "tyQuizAge", text: "tyQuizAgeAnswers" }), sigEntry(ctx, { title: "tyQuizLove", text: "tyQuizLoveAnswers" }), sigEntry(ctx, { title: "tyQuizBudget", text: "tyQuizBudgetAnswers" })],
-    },
+    quiz: { questions: [question(ctx, "tyQuizAge", QUIZ_AGES), question(ctx, "tyQuizLove", QUIZ_LOVES), question(ctx, "tyQuizBudget", QUIZ_BUDGETS)] },
     color: l.k.ink,
     dark_color: l.k.darkInk,
     background: l.k.surface,
@@ -547,7 +559,7 @@ function wrapCards(ctx: SectionContext, l: Look): StudioNode {
     gap: 6,
     action: shop,
     children: [
-      { id: id(), type: "image", image_url: sigPhoto(ctx, P(photo)), width: "fill", height: 86, radius: 16, fit: "cover", background: l.tile.day, dark_background: l.tile.night, ...(lit ? { border_color: l.k.fill, dark_border_color: l.k.darkAccent, border_width: 2 } : {}) },
+      sigImage(ctx, l.k, P(photo), { width: "fill", height: 86, radius: 16, background: l.tile.day, dark_background: l.tile.night, ...(lit ? { border_color: l.k.fill, dark_border_color: l.k.darkAccent, border_width: 2 } : {}) }),
       say(ctx, l, word, { size: 12.5, weight: 600 }, { max_lines: 1 }),
       say(ctx, l, "tyWrapNote", { size: 11 }, { muted: true, max_lines: 1 }),
     ],
@@ -584,7 +596,7 @@ function giftBox(ctx: SectionContext, l: Look): StudioNode {
         gap: 12,
         cross: "center",
         children: [
-          { id: id(), type: "image", image_url: sigPhoto(ctx, P("gift-confetti")), width: 92, height: 92, radius: 20, fit: "cover" },
+          sigImage(ctx, l.k, P("gift-confetti"), { width: 92, height: 92, radius: 20 }),
           {
             id: id(),
             type: "column",
@@ -646,7 +658,7 @@ function giftAssistant(ctx: SectionContext, l: Look): StudioNode[] {
       dark_background: B_NIGHT.night,
       action: shop,
       children: [
-        { id: id(), type: "image", image_url: sigPhoto(ctx, P("gift-black")), width: 64, height: 64, radius: 14, fit: "cover" },
+        sigImage(ctx, l.k, P("gift-black"), { width: 64, height: 64, radius: 14 }),
         { id: id(), type: "column", width: "fill", gap: 3, children: [say(ctx, l, "tyWrapBTitle", face(l, 15, { weight: 600 }), { ...onPhoto, max_lines: 2 }), say(ctx, l, "tyWrapBLine", { size: 12 }, { color: "#AAB1C0", dark_color: "#AAB1C0", max_lines: 2 })] },
         { id: id(), type: "icon", icon: "arrow_forward", icon_size: 20, color: "#9CB0FF", dark_color: "#9CB0FF" },
       ],
@@ -687,7 +699,7 @@ function skills(ctx: SectionContext, l: Look): StudioNode[] {
       columns: 3,
       gap: 8,
       padding: sides(0, 16, 0, 16),
-      children: [tile("pan_tool", "tySkillMotor"), tile("hub", "tySkillLogic"), tile("forum", "tySkillLanguage"), tile("palette", "tySkillCreative"), tile("rocket_launch", "tySkillScience"), tile("groups", "tySkillTogether")],
+      children: [tile("waving_hand", "tySkillMotor"), tile("quiz", "tySkillLogic"), tile("forum", "tySkillLanguage"), tile("auto_stories", "tySkillCreative"), tile("travel_explore", "tySkillScience"), tile("groups", "tySkillTogether")],
     },
   ];
 }
@@ -709,7 +721,7 @@ function guide(ctx: SectionContext, l: Look): StudioNode[] {
         width: 236,
         height: 148,
         children: [
-          { id: id(), type: "image", image_url: sigPhoto(ctx, P(photo)), width: 236, height: 148, radius: 20, fit: "cover", background: l.tile.day, dark_background: l.tile.night },
+          sigImage(ctx, l.k, P(photo), { width: 236, height: 148, radius: 20, background: l.tile.day, dark_background: l.tile.night }),
           { ...say(ctx, l, kicker, { size: 11, weight: 600 }, { max_lines: 1, color: l.k.ink, dark_color: l.k.ink }), background: "#FFFFFF", dark_background: "#FFFFFF", radius: 10, padding: sides(3, 9, 3, 9), place: { x: 5, y: 6 } },
         ],
       },
@@ -760,7 +772,7 @@ function labCard(ctx: SectionContext, l: Look): StudioNode {
     background: B_NIGHT.day,
     dark_background: B_NIGHT.night,
     children: [
-      { id: id(), type: "image", image_url: sigPhoto(ctx, P("telescope-globe-wide")), width: "fill", height: 170, fit: "cover", radius: 0, background: B_TILE.day },
+      sigImage(ctx, l.k, P("telescope-globe-wide"), { width: "fill", height: 170, radius: 0, background: B_TILE.day }),
       {
         id: id(),
         type: "column",
@@ -770,7 +782,7 @@ function labCard(ctx: SectionContext, l: Look): StudioNode {
           say(ctx, l, "tyLabKicker", { size: 12, weight: 600 }, { color: "#9CB0FF", dark_color: "#9CB0FF", max_lines: 1 }),
           say(ctx, l, "tyLabTitle", face(l, 21, { weight: 600 }), { ...onPhoto, max_lines: 2 }),
           say(ctx, l, "tyLabLine", { size: 13 }, { color: "#AAB1C0", dark_color: "#AAB1C0", max_lines: 2 }),
-          { id: id(), type: "row", gap: 8, scroll: true, margin: sides(4, 0, 4, 0), children: [chip("rocket_launch", "tyLabAstro"), chip("public", "tyLabGeo"), chip("construction", "tyLabEng"), chip("auto_awesome", "tyLabExp")] },
+          { id: id(), type: "row", gap: 8, scroll: true, margin: sides(4, 0, 4, 0), children: [chip("nights_stay", "tyLabAstro"), chip("public", "tyLabGeo"), chip("straighten", "tyLabEng"), chip("auto_awesome", "tyLabExp")] },
           {
             id: id(),
             type: "button",
@@ -800,7 +812,7 @@ function labCard(ctx: SectionContext, l: Look): StudioNode {
 /** B's ready box: the newborn box, four photos with pluses, its price and the gift boxes a tap away. */
 function readyBox(ctx: SectionContext, l: Look): StudioNode {
   const id = idOf(ctx);
-  const photo = (name: string): StudioNode => ({ id: id(), type: "image", image_url: sigPhoto(ctx, P(name)), width: "fill", height: 72, radius: 14, fit: "cover", background: l.k.surface, dark_background: l.k.darkSurface });
+  const photo = (name: string): StudioNode => sigImage(ctx, l.k, P(name), { width: "fill", height: 72, radius: 14, background: l.k.surface, dark_background: l.k.darkSurface });
   const plus = (): StudioNode => ({ id: id(), type: "icon", icon: "add", icon_size: 16, color: l.k.accent, dark_color: l.k.darkAccent });
   return {
     id: id(),

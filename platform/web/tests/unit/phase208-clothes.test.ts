@@ -62,10 +62,12 @@ describe("208 the shop types: sections, then types, then templates", () => {
   it("lists every type of the planning doc in its sections, Clothes ready and the others coming soon", () => {
     expect([...SHOP_SECTIONS]).toEqual(["fashion", "beauty", "home", "kids", "shopping"]);
     expect(SHOP_TYPES.map((t) => t.id)).toEqual(["clothes", "kids_clothes", "cosmetics", "furniture", "decor", "crochet", "toys", "electronics", "mobiles", "computers"]);
-    expect(SHOP_TYPES.filter(shopTypeReady).map((t) => t.id)).toEqual(["clothes"]);
+    // 209 Toys ready too.
+    expect(SHOP_TYPES.filter(shopTypeReady).map((t) => t.id)).toEqual(["clothes", "toys"]);
     // Kids' clothes in Fashion and in Kids & toys, the same type once.
     expect(shopTypesIn("fashion").map((t) => t.id)).toEqual(["clothes", "kids_clothes"]);
-    expect(shopTypesIn("kids").map((t) => t.id)).toEqual(["kids_clothes", "toys"]);
+    // 209 Toys ready, first.
+    expect(shopTypesIn("kids").map((t) => t.id)).toEqual(["toys", "kids_clothes"]);
     expect(shopTypesIn("shopping").map((t) => t.id)).toEqual(["electronics", "mobiles", "computers"]);
     expect(SECTION_DEMOS.shopping).toEqual(["flowers", "marketplace"]);
     // Installments: never active, "coming soon" for furniture, electronics, mobiles and computers only.
@@ -80,7 +82,7 @@ describe("208 the shop types: sections, then types, then templates", () => {
     const clothes = shopTypeById("clothes")!;
     expect(shopTypeTemplate(clothes)).toBe("clothes_signature_a");
     expect(shopTypeTemplate(clothes, "b")).toBe("clothes_signature_b");
-    expect(shopTypeTemplate(shopTypeById("toys")!)).toBeNull();
+    expect(shopTypeTemplate(shopTypeById("furniture")!)).toBeNull();
     const store = templatesFor({ type: "store", vertical: null }).map((t) => t.id);
     expect(store).toContain("clothes_signature_a");
     expect(store).toContain("clothes_signature_b");
