@@ -48,7 +48,7 @@ export default async function DonorsPage() {
       {donors.length ? (
         <StatRow label={t("donations.donorsTitle")}>
           <Stat icon="groups" label={t("donations.donorsTitle")} value={num(donors.length)} />
-          <Stat icon="volunteer_activism" tone="success" label={t("donations.given")} value={formatCents(given, currency)} />
+          <Stat icon="volunteer_activism" tone="success" label={t("donations.given")} value={formatCents(given, currency, lang)} />
           <Stat icon="favorite" tone="accent" label={t("donations.donations")} value={num(donors.reduce((sum, d) => sum + d.donations, 0))} />
         </StatRow>
       ) : null}
@@ -87,7 +87,7 @@ export default async function DonorsPage() {
                         <span className="text-[13px] text-muted">{[d.email, d.phone].filter(Boolean).join(" · ")}</span>
                       </span>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">{t("donations.givenTotal", { count: d.donations, amount: formatCents(d.totalCents, currency) })}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">{t("donations.givenTotal", { count: d.donations, amount: formatCents(d.totalCents, currency, lang) })}</td>
                     <td className="px-4 py-3">{d.campaigns.join(", ")}</td>
                     <td className="px-4 py-3 text-[13px] whitespace-nowrap text-muted">{formatDateTime(d.lastAt, lang)}</td>
                   </tr>

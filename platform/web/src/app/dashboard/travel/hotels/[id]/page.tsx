@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 /** 126 A hotel: its details and photos, its rooms with their rates and calendar, its reviews. */
 export default async function TravelHotelPage({ params }: { params: Promise<{ id: string }> }) {
   const { app } = await requireClient("settings");
-  const { t } = await dashboardText();
+  const { t, lang } = await dashboardText();
   if (!isTravel(app)) return <NotTravel title={t("travel.hotels")} t={t} />;
   const store = await getStore();
   const id = Number((await params).id);
@@ -65,7 +65,7 @@ export default async function TravelHotelPage({ params }: { params: Promise<{ id
                     {room.active ? null : <Badge tone="neutral">{t("travel.hidden")}</Badge>}
                   </>
                 }
-                meta={t("travel.roomLine", { price: formatCents(room.nightlyCents, currency), units: room.units, sleeps: room.sleeps })}
+                meta={t("travel.roomLine", { price: formatCents(room.nightlyCents, currency, lang), units: room.units, sleeps: room.sleeps })}
                 extra={room.rates.map((r) => r.name).join(" · ")}
                 actions={
                   <>

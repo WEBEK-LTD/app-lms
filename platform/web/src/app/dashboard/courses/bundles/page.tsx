@@ -21,11 +21,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function BundlesPage() {
   const { app } = await requireClient("catalog");
   if (!app || app.connector?.kind !== "courses") notFound();
-  const { t } = await dashboardText();
+  const { t, lang } = await dashboardText();
   const setup = courseSetup(app);
   const bundles = bundlesOf(setup);
-  const choices = bundleChoices(setup, t("common.free"));
-  const money = (cents: number) => formatCents(cents, setup.currency);
+  const choices = bundleChoices(setup, t("common.free"), lang);
+  const money = (cents: number) => formatCents(cents, setup.currency, lang);
   const canAdd = choices.length >= BUNDLE_MIN_COURSES;
 
   return (

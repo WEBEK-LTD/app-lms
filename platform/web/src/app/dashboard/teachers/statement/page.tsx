@@ -21,7 +21,7 @@ const DAY = /^\d{4}-\d{2}-\d{2}$/;
 /** 105.3 What each teacher's courses sold over a period, and what the academy owes each teacher. */
 export default async function StatementPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const { app } = await requireClient("catalog");
-  const { t } = await dashboardText();
+  const { t, lang } = await dashboardText();
   if (!isTeachers(app)) return <NotTeachers title={t("teachers.statement")} t={t} />;
   const query = await searchParams;
   const store = await getStore();
@@ -37,7 +37,7 @@ export default async function StatementPage({ searchParams }: { searchParams: Pr
   const setup = courseSetup(app);
   const teachers = (await store.listTeachers(app.id)).filter((teacher) => teacher.status !== "applied" && teacher.status !== "declined");
   const rows = statements(teachers, setup, await paidOrders(store, app, start, end));
-  const money = (cents: number) => formatCents(cents, setup.currency);
+  const money = (cents: number) => formatCents(cents, setup.currency, lang);
   const totals = rows.reduce((sum, r) => ({ sales: sum.sales + r.salesCents, refunds: sum.refunds + r.refundsCents, owed: sum.owed + r.earnedCents, academy: sum.academy + r.academyCents }), { sales: 0, refunds: 0, owed: 0, academy: 0 });
   const names = new Map(teachers.map((teacher) => [teacher.id, teacher.name]));
   const shown = rows.filter((r) => r.sales > 0);

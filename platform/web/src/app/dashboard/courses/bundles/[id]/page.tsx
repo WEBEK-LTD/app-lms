@@ -29,8 +29,8 @@ export default async function BundlePage({ params }: PageProps<"/dashboard/cours
   const id = Number((await params).id);
   const bundle = bundlesOf(setup).find((b) => b.id === id);
   if (!bundle) notFound();
-  const { t } = await dashboardText();
-  const money = (cents: number) => formatCents(cents, setup.currency);
+  const { t, lang } = await dashboardText();
+  const money = (cents: number) => formatCents(cents, setup.currency, lang);
   const { courses, compareCents } = bundleSums(setup, bundle);
   const saving = compareCents - bundle.priceCents;
 
@@ -62,7 +62,7 @@ export default async function BundlePage({ params }: PageProps<"/dashboard/cours
                 courseIds: bundle.courseIds.join(","),
                 active: bundle.active ? "on" : "",
               }}
-              courses={bundleChoices(setup, t("common.free"))}
+              courses={bundleChoices(setup, t("common.free"), lang)}
               currency={setup.currency}
               imageUrl={bundle.imageAssetId ? assetUrl(bundle.imageAssetId) : null}
               submit={t("lms.saveBundle")}

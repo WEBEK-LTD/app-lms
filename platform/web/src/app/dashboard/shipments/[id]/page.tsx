@@ -123,7 +123,7 @@ export default async function ShipmentPage({ params }: { params: Promise<{ id: s
         side={
           <>
             <SideCard titleId="h-payment" icon="payments" title={t("delivery.payment")}>
-              <p className="m-0 text-[24px] leading-tight font-extrabold tabular-nums">{formatCents(shipment.priceCents, shipment.currency)}</p>
+              <p className="m-0 text-[24px] leading-tight font-extrabold tabular-nums">{formatCents(shipment.priceCents, shipment.currency, lang)}</p>
               <p className="m-0 text-[15px] text-ink-4">
                 {t(shipment.paymentMethod === "cash" ? "delivery.cash" : "delivery.card")} ·{" "}
                 {t(shipment.paymentStatus === "paid" ? "delivery.paid" : shipment.paymentStatus === "refunded" ? "delivery.refunded" : "delivery.unpaid")}
