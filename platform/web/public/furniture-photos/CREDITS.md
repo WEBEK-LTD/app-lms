@@ -1,0 +1,51 @@
+# Photo credits
+
+210 Rukn's (the furniture shop demo's) photos, for its looks A (RUKN) and B (KANAF). All come from StockSnap (found through Openverse, `source=stocksnap`) and are dedicated to the public domain (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/); each file's StockSnap page has the terms. They were cut to 4:5 around the piece the approved designs show and resized to 720 × 900; the wide ones used as heroes, rooms and the set (`hero-*`, `room-*`, `set-najd`) were only resized to 900 wide. Some photos give more than one cut (a sofa and its armchair from one room). The shop, its furniture, names and prices they illustrate in the demo are fictional.
+
+- **armchair.jpg**: "House Interior" by Tim Wright, CC0 1.0. https://stocksnap.io/photo/house-interior-XCOZ3XTV7M
+- **bed-bright.jpg**: "Bedroom Bed" by Mary Whitney, CC0 1.0. https://stocksnap.io/photo/bedroom-bed-XWI13131WH
+- **bed-hotel.jpg**: "Hotel Bed" by Travel Adventures, CC0 1.0. https://stocksnap.io/photo/hotel-bed-XVTMPEYKEE
+- **bed-oak.jpg**: "Hotel Bed" by World Travel Adventures, CC0 1.0. https://stocksnap.io/photo/hotel-bed-OJLOIYVJ9B
+- **bed-wardrobe.jpg**: "Bedroom Bed" by Mary Whitney, CC0 1.0. https://stocksnap.io/photo/bedroom-bed-9R85GU3I2P
+- **bed-warm.jpg**: "Bed Bedroom" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/bed-bedroom-NNZ04PGNFD
+- **chairs-moody.jpg**: "Room Coffee" by Brodie Vissers, CC0 1.0. https://stocksnap.io/photo/room-coffee-QMCGDXG69J
+- **coffee-table.jpg**: "Coffee Table" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/coffee-table-8JQITZ05LX
+- **desk.jpg**: "Office Desk" by Bench Accounting, CC0 1.0. https://stocksnap.io/photo/office-desk-N7FUTW0RY5
+- **desk-chair.jpg**: "Office Desk" by Bench Accounting, CC0 1.0. https://stocksnap.io/photo/office-desk-N7FUTW0RY5
+- **dining-chair.jpg**: "Interior Dining" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/interior-dining-LHKILYV8X0
+- **dining-classic.jpg**: "Interior Dining" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/interior-dining-LHKILYV8X0
+- **dining-loft.jpg**: "Office Desk" by Snappa.io, CC0 1.0. https://stocksnap.io/photo/office-desk-OVWKT15VV0
+- **dining-round.jpg**: "Architecture House" by Medhat Ayad, CC0 1.0. https://stocksnap.io/photo/architecture-house-9QLIF5KSSQ
+- **dining-rustic.jpg**: "Simple Home" by Burst, CC0 1.0. https://stocksnap.io/photo/simple-home-UQOXY4POK8
+- **dining-white.jpg**: "Dining Table" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/dining-table-LTCQNB2L7A
+- **hero-bedroom.jpg**: "Hotel Bed" by Travel Adventures, CC0 1.0. https://stocksnap.io/photo/hotel-bed-XVTMPEYKEE
+- **hero-garden.jpg**: "Patio Furniture" by Tarren Bailey, CC0 1.0. https://stocksnap.io/photo/patio-furniture-ZHZOIIFITB
+- **hero-living.jpg**: "Architecture House" by Sasha • Instagram.com/sanfrancisco, CC0 1.0. https://stocksnap.io/photo/architecture-house-R8SYL6ROA1
+- **lounge.jpg**: "House Home" by Kari Shea, CC0 1.0. https://stocksnap.io/photo/house-home-6M49G7YDLK
+- **loveseat.jpg**: "Couch Furniture" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/couch-furniture-TQNWBTLHLY
+- **najd-armchair.jpg**: "Interior Design" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/interior-design-HIH67XC5G0
+- **najd-sofa.jpg**: "Interior Design" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/interior-design-HIH67XC5G0
+- **nightstand.jpg**: "Bedroom Bed" by Mary Whitney, CC0 1.0. https://stocksnap.io/photo/bedroom-bed-9R85GU3I2P
+- **office-loft.jpg**: "Decor Design" by Bench Accounting, CC0 1.0. https://stocksnap.io/photo/decor-design-60RZGXHD06
+- **out-adirondack.jpg**: "Patio Furniture" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/patio-furniture-ZIU3AC46X4
+- **out-dining.jpg**: "Patio Furniture" by Jay Mantri, CC0 1.0. https://stocksnap.io/photo/patio-furniture-6CA109EECC
+- **out-lounge.jpg**: "Furniture Patio" by World Travel Adventures, CC0 1.0. https://stocksnap.io/photo/furniture-patio-U9WC0VGYWB
+- **out-rattan.jpg**: "Patio Furniture" by Tarren Bailey, CC0 1.0. https://stocksnap.io/photo/patio-furniture-ZHZOIIFITB
+- **out-rattan2.jpg**: "Patio Furniture" by Tarren Bailey, CC0 1.0. https://stocksnap.io/photo/patio-furniture-JXUTRUCEDK
+- **out-wicker.jpg**: "Patio Furniture" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/patio-furniture-69HGCEWOIR
+- **out-wicker2.jpg**: "Patio Furniture" by World Travel Adventures, CC0 1.0. https://stocksnap.io/photo/patio-furniture-DR6YNEOZG2
+- **review-room.jpg**: "Mirror Livingroom" by Studio 7042, CC0 1.0. https://stocksnap.io/photo/mirror-livingroom-JRHSFSKQZQ
+- **room-bedroom.jpg**: "Bedroom Bed" by Mary Whitney, CC0 1.0. https://stocksnap.io/photo/bedroom-bed-9R85GU3I2P
+- **room-dining.jpg**: "Interior Dining" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/interior-dining-LHKILYV8X0
+- **room-living.jpg**: "Interior Design" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/interior-design-WP7CVEDSVY
+- **room-office.jpg**: "Decor Design" by Bench Accounting, CC0 1.0. https://stocksnap.io/photo/decor-design-60RZGXHD06
+- **room-outdoor.jpg**: "Furniture Patio" by World Travel Adventures, CC0 1.0. https://stocksnap.io/photo/furniture-patio-KOIAWLY3SU
+- **set-najd.jpg**: "Interior Design" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/interior-design-HIH67XC5G0
+- **side-table.jpg**: "Still Items" by Atilla Taskiran, CC0 1.0. https://stocksnap.io/photo/still-items-8ZYCJ5MGJI
+- **sofa-dark.jpg**: "Architecture House" by Sasha • Instagram.com/sanfrancisco, CC0 1.0. https://stocksnap.io/photo/architecture-house-R8SYL6ROA1
+- **sofa-grey.jpg**: "House Interior" by Justin Schüler, CC0 1.0. https://stocksnap.io/photo/house-interior-NF6P1OX124
+- **sofa-ivory.jpg**: "Interior Design" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/interior-design-WP7CVEDSVY
+- **tv-unit.jpg**: "Interior Living" by Jarosław Ceborski, CC0 1.0. https://stocksnap.io/photo/interior-living-6SMA09U7Y8
+- **wardrobe.jpg**: "Wardrobe Closet" by Oliver Klein, CC0 1.0. https://stocksnap.io/photo/wardrobe-closet-YISUDLOYC3
+- **wardrobe-oak.jpg**: "Bedroom Bed" by Mary Whitney, CC0 1.0. https://stocksnap.io/photo/bedroom-bed-9R85GU3I2P
+- **wingback.jpg**: "Vintage Chair" by EVG Photos, CC0 1.0. https://stocksnap.io/photo/vintage-chair-SHE40GOPPL

@@ -1,0 +1,49 @@
+# Photo credits
+
+210 Sakan's (the home decor shop demo's) photos, for its looks A (the decor magazine) and B (Teen's warm earth tones). All come from StockSnap (found through Openverse, `source=stocksnap`) and are dedicated to the public domain (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/); each file's StockSnap page has the terms. The product photos were cut to 4:5 around the piece and resized to 720 × 900 (a few are details of a room photo: the orchid and the table of the dining corner, the cushions, the log table, the round mirror and the bedding); the rooms and banners were kept wide and resized to 900 wide; the sign-in photo is cut to 720 × 1080. The shop, its pieces and its prices they illustrate in the demo are fictional.
+
+- **aloe-basket.jpg**: "Home Plant" by Healthy Living, CC0 1.0. https://stocksnap.io/photo/home-plant-GR6HPCTOTT
+- **armchair.jpg**: "House Interior" by Tim Wright, CC0 1.0. https://stocksnap.io/photo/house-interior-XCOZ3XTV7M
+- **bowls.jpg**: "Stacked Bowls" by Copper and Wild, CC0 1.0. https://stocksnap.io/photo/stacked-bowls-FTFTNXN41H
+- **branch-vase.jpg**: "Decorative Vase" by Nordwood Themes, CC0 1.0. https://stocksnap.io/photo/decorative-vase-LB5FCQ6DX7
+- **brass-lantern.jpg**: "Candles Table" by Tarren Bailey, CC0 1.0. https://stocksnap.io/photo/candles-table-BCYSZ4DIUP
+- **check-cushions.jpg**: "Interior Design" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/interior-design-WP7CVEDSVY
+- **coffee-table.jpg**: "Coffee Table" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/coffee-table-L4SNGYZWL4
+- **daisy-vase.jpg**: "Flower Vase" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/flower-vase-TIKIL6JEJP
+- **desk-lamp.jpg**: "Black Lamp" by Eneida Nieves, CC0 1.0. https://stocksnap.io/photo/black-lamp-G8H5ZG3PAN
+- **dining-table.jpg**: "Dining Table" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/dining-table-LTCQNB2L7A
+- **drawers.jpg**: "Minimal Furniture" by Eric Haidara, CC0 1.0. https://stocksnap.io/photo/minimal-furniture-41AH9JPWSN
+- **floor-lamp.jpg**: "Lamp Light" by David van Dijk, CC0 1.0. https://stocksnap.io/photo/lamp-light-6QHJ61570D
+- **flowers-glass.jpg**: "Flower Vase" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/flower-vase-FBRV8TH4CZ
+- **gold-mirror.jpg**: "Old Mirror" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/old-mirror-MV6XJEPOIF
+- **hero.jpg**: "Flower Vase" by Kari Shea, CC0 1.0. https://stocksnap.io/photo/flower-vase-XVLF17ULBM
+- **hero-autumn.jpg**: "Autumn Minimalist" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/autumn-minimalist-U9FDQVP6HZ
+- **hero-bedroom.jpg**: "Hotel Bed" by Travel Adventures, CC0 1.0. https://stocksnap.io/photo/hotel-bed-XVTMPEYKEE
+- **linen-bedding.jpg**: "Bedroom Clean" by Burst, CC0 1.0. https://stocksnap.io/photo/bedroom-clean-OE0F9BHXJQ
+- **log-table.jpg**: "Still Items" by Atilla Taskiran, CC0 1.0. https://stocksnap.io/photo/still-items-8ZYCJ5MGJI
+- **lounge-chair.jpg**: "House Home" by Kari Shea, CC0 1.0. https://stocksnap.io/photo/house-home-6M49G7YDLK
+- **oak-dining.jpg**: "Simple Home" by Burst, CC0 1.0. https://stocksnap.io/photo/simple-home-UQOXY4POK8
+- **orchid-planter.jpg**: "Dining Table" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/dining-table-LTCQNB2L7A
+- **pendant.jpg**: "Lamp Light" by Krzysztof Puszczyński, CC0 1.0. https://stocksnap.io/photo/lamp-light-8C36TQ4FK9
+- **pendant-macrame.jpg**: "Dining Table" by Designecologist, CC0 1.0. https://stocksnap.io/photo/dining-table-11VBKSE76A
+- **pink-vase.jpg**: "Vase Wall" by Chimene Gaspar, CC0 1.0. https://stocksnap.io/photo/vase-wall-JGTJS8KF6Q
+- **pitcher.jpg**: "White Vase" by Pamela Webb, CC0 1.0. https://stocksnap.io/photo/white-vase-0166B01D13
+- **plant-glass.jpg**: "House Plant" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/house-plant-WCDXCVV2ZX
+- **pottery-shelf.jpg**: "Ceramics Pottery" by Barn Images, CC0 1.0. https://stocksnap.io/photo/ceramics-pottery-SWDR6XR7YS
+- **reading-chair.jpg**: "House Interior" by Kari Shea, CC0 1.0. https://stocksnap.io/photo/house-interior-W36Z806O9S
+- **ribbed-vase.jpg**: "Flower Vase" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/flower-vase-ZKZXT11OGH
+- **room-bed.jpg**: "Hotel Bed" by World Travel Adventures, CC0 1.0. https://stocksnap.io/photo/hotel-bed-OJLOIYVJ9B
+- **room-dining.jpg**: "Dining Table" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/dining-table-LTCQNB2L7A
+- **room-living.jpg**: "Couch Furniture" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/couch-furniture-TQNWBTLHLY
+- **room-reading.jpg**: "Still Items" by Atilla Taskiran, CC0 1.0. https://stocksnap.io/photo/still-items-8ZYCJ5MGJI
+- **rose-vase.jpg**: "Flower Vase" by Ina Soulis, CC0 1.0. https://stocksnap.io/photo/flower-vase-2O3E5K7R43
+- **round-mirror.jpg**: "Mirror Livingroom" by Studio 7042, CC0 1.0. https://stocksnap.io/photo/mirror-livingroom-JRHSFSKQZQ
+- **sage-jars.jpg**: "Jars Blur" by Jessica Ruscello, CC0 1.0. https://stocksnap.io/photo/jars-blur-JKJS3BCD7N
+- **table-setting.jpg**: "Simple Autumn" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/simple-autumn-2NZTSPCEAZ
+- **terrarium.jpg**: "Vase Flowerpot" by Jeff Sheldon, CC0 1.0. https://stocksnap.io/photo/vase-flowerpot-BQJEFTC7U0
+- **tufted-chair.jpg**: "Interior Chair" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/interior-chair-E3PW2UR6AE
+- **twin-vases.jpg**: "Flower Vase" by Maarten Deckers, CC0 1.0. https://stocksnap.io/photo/flower-vase-T4F8EDTB2E
+- **wave-cushions.jpg**: "Couch Furniture" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/couch-furniture-TQNWBTLHLY
+- **white-chair.jpg**: "Interior Chair" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/interior-chair-DQGQZHMELB
+- **white-shelf.jpg**: "Kitchen Cabinet" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/kitchen-cabinet-CTKGR7O9UB
+- **wishbone.jpg**: "Empty Chair" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/empty-chair-FA9DQJTALM

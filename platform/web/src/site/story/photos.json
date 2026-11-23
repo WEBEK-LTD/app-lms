@@ -519,5 +519,245 @@
         "title": "White Sand"
       }
     }
+  ],
+  "decor": [
+    {
+      "slot": "decor-hero",
+      "src": "/stories/decor/decor-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Altered Reality",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/autumn-minimalist-U9FDQVP6HZ",
+        "title": "Autumn Minimalist"
+      }
+    },
+    {
+      "slot": "decor-room",
+      "src": "/stories/decor/decor-room.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Matt Bango",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/dining-table-LTCQNB2L7A",
+        "title": "Dining Table"
+      }
+    },
+    {
+      "slot": "decor-vases",
+      "src": "/stories/decor/decor-vases.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Maarten Deckers",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/flower-vase-T4F8EDTB2E",
+        "title": "Flower Vase"
+      }
+    },
+    {
+      "slot": "decor-lantern",
+      "src": "/stories/decor/decor-lantern.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Tarren Bailey",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/candles-table-BCYSZ4DIUP",
+        "title": "Candles Table"
+      }
+    },
+    {
+      "slot": "decor-pottery",
+      "src": "/stories/decor/decor-pottery.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Barn Images",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/ceramics-pottery-SWDR6XR7YS",
+        "title": "Ceramics Pottery"
+      }
+    },
+    {
+      "slot": "decor-reading",
+      "src": "/stories/decor/decor-reading.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Kari Shea",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/house-interior-W36Z806O9S",
+        "title": "House Interior"
+      }
+    }
+  ],
+  "crochet": [
+    {
+      "slot": "crochet-cozy-sweater",
+      "src": "/stories/crochet/crochet-cozy-sweater.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Beauty and Fashion",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/people-woman-FVLLWFVVHH",
+        "title": "People Woman"
+      }
+    },
+    {
+      "slot": "crochet-fluffy-blanket",
+      "src": "/stories/crochet/crochet-fluffy-blanket.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Beauty and Fashion",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/coffee-cozy-SC7APHV0JX",
+        "title": "Coffee Cozy"
+      }
+    },
+    {
+      "slot": "crochet-knit-flatlay",
+      "src": "/stories/crochet/crochet-knit-flatlay.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Giulia Bertelli",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/yarn-thread-CR4FKGO3YG",
+        "title": "Yarn Thread"
+      }
+    },
+    {
+      "slot": "crochet-knit-coffee",
+      "src": "/stories/crochet/crochet-knit-coffee.jpg",
+      "width": 768,
+      "height": 512,
+      "credit": {
+        "creator": "Giulia Bertelli",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/yarn-thread-CMKJKIEJ5F",
+        "title": "Yarn Thread"
+      }
+    },
+    {
+      "slot": "crochet-mittens-coffee",
+      "src": "/stories/crochet/crochet-mittens-coffee.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "PICSELI",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/coffee-steam-XC9DW4IKVT",
+        "title": "Coffee Steam"
+      }
+    },
+    {
+      "slot": "crochet-scarves-stack",
+      "src": "/stories/crochet/crochet-scarves-stack.jpg",
+      "width": 936,
+      "height": 624,
+      "credit": {
+        "creator": "Kelly Sikkema",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/blanket-scarf-LQZSN13S95",
+        "title": "Blanket Scarf"
+      }
+    }
+  ],
+  "furniture": [
+    {
+      "slot": "furniture-hero",
+      "src": "/stories/furniture/furniture-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Kristin Hardwick",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/couch-furniture-TQNWBTLHLY",
+        "title": "Couch Furniture"
+      }
+    },
+    {
+      "slot": "furniture-fabric",
+      "src": "/stories/furniture/furniture-fabric.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Tim Wright",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/house-interior-XCOZ3XTV7M",
+        "title": "House Interior"
+      }
+    },
+    {
+      "slot": "furniture-measure",
+      "src": "/stories/furniture/furniture-measure.jpg",
+      "width": 960,
+      "height": 641,
+      "credit": {
+        "creator": "Jarosław Ceborski",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/interior-living-6SMA09U7Y8",
+        "title": "Interior Living"
+      }
+    },
+    {
+      "slot": "furniture-custom",
+      "src": "/stories/furniture/furniture-custom.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Kristin Hardwick",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/interior-dining-LHKILYV8X0",
+        "title": "Interior Dining"
+      }
+    },
+    {
+      "slot": "furniture-terrace",
+      "src": "/stories/furniture/furniture-terrace.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "World Travel Adventures",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/furniture-patio-KOIAWLY3SU",
+        "title": "Furniture Patio"
+      }
+    },
+    {
+      "slot": "furniture-home",
+      "src": "/stories/furniture/furniture-home.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Kristin Hardwick",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/interior-design-WP7CVEDSVY",
+        "title": "Interior Design"
+      }
+    }
   ]
 }

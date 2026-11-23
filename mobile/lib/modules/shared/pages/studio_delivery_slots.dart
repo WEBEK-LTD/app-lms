@@ -94,9 +94,7 @@ class _StudioDeliverySlotsViewState
         days.where((d) => isoDate(d) == picked.date).firstOrNull ?? days.first;
     final date = isoDate(chosen);
     // The day's times as the shop has them now (which are full), else its list.
-    final live = rules.slots.isEmpty
-        ? null
-        : ref.watch(deliverySlotsProvider(date)).asData?.value;
+    final live = ref.watch(deliverySlotsProvider(date)).asData?.value;
     final slots = live?.slots ?? rules.slots;
     final slotId = picked.date == date ? picked.slot : null;
 
