@@ -78,7 +78,7 @@ describe("how builds read on Builds & downloads", () => {
     expect(BUILD_STATUS_LABEL).toEqual({ queued: "Waiting to start", building: "Building", ready: "Ready", failed: "Didn't finish" });
   });
 
-  it("counts a build as stalled after a day in the queue or six hours without a report", () => {
+  it("counts a build as stalled after a day in the queue or three hours without a report (196)", () => {
     expect(isStalled(build({ status: "queued" }), later(QUEUED_STALL_MS))).toBe(false);
     expect(isStalled(build({ status: "queued" }), later(QUEUED_STALL_MS + 1))).toBe(true);
     // Building: counted from the last report, not from when it was queued.

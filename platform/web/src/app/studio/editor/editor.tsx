@@ -8,6 +8,7 @@ import { shareMediaAction } from "@/app/actions/media";
 import type { LayoutHistoryEntry } from "@/lib/pages/layout";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { StudioView, type ScreenPartInfo, type StudioEditing, type StudioLook } from "@/components/studio/view";
+import { quickAddOn } from "@/components/studio/quick-add";
 import { screenDrawing, screenLookSection } from "@/lib/studio/screen-drawing";
 import { launchPictures, withLaunchPictures, type StudioScreens } from "@/lib/studio/screens";
 import { fontsOfPage, useStudioFonts } from "@/components/studio/fonts";
@@ -28,6 +29,7 @@ import type { PremiumWords } from "@/components/studio/premium";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type TemplateInfo } from "@/lib/studio/sections";
 import { appWord, appWords, premiumAppWords } from "@/lib/studio/app-words";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
+import { mainScreenOfApp } from "@/lib/app/kinds";
 // 129.21–129.24 The Premium group's maps.
 import { PREMIUM_MAPS, type PremiumMapWords } from "@/lib/studio/premium-maps";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
@@ -47,6 +49,7 @@ import { TextStylesPanel } from "./text-styles-panel";
 import { download, fileName, fromBase64, readFont, readPicture, type OwnFontFiles } from "./design-io";
 import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
 import { Inspector, type InspectorTab } from "./inspector";
+import { STORIES_HREF } from "./slider-slides";
 import { LeftPanel, NewTag, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
 import { HistoryPanel } from "./history-panel";
 import { ByHandDialog } from "./by-hand-dialog";
@@ -275,11 +278,14 @@ export function StudioEditor(props: StudioEditorProps) {
     const list = templatesFor(props.kind);
     return [...list.filter((x) => x.id !== "blank"), ...PAGE_TEMPLATES, ...list.filter((x) => x.id === "blank")];
   }, [props.kind]);
+  const mainScreen = useMemo(() => mainScreenOfApp({ appType: props.kind.type, vertical: props.kind.vertical }), [props.kind]);
   const sectionContext: SectionContext = {
     brand: app.brand,
     source,
     // 130.62 The project's kind, for the landing templates' photos, words, screens and live card.
     kind: props.kind,
+    // 183 What `brand`'s "Start now" opens: the project's main screen.
+    main: mainScreen,
     w: appWords(dashLang, app.name),
     app: app.name,
     lang: dashLang,
@@ -289,6 +295,8 @@ export function StudioEditor(props: StudioEditorProps) {
   };
   // 129.21–129.24 A premium map's sample words.
   const premiumMapWords: PremiumMapWords = premiumNew.map;
+  // 193 Leqaa's looks: Add to cart under each product's card, as in the app.
+  const quickAdd = quickAddOn(props.kind.type, studioScreens?.checkout);
   // 131 The flash sale's and the coupon's words on the canvas.
   const commerceWords = {
     flash: newFlashWord(),
@@ -1220,6 +1228,16 @@ export function StudioEditor(props: StudioEditorProps) {
     // 159 A corner of an element of automatic size asks first; a double click puts it back to automatic.
     onAskByHand: (id) => setAskHand({ id, change: null }),
     onAutoSize: (id) => toAutomatic(id),
+    // 189 The slider's own buttons on the canvas.
+    slides: {
+      previous: t("stories.slidePrevious"),
+      next: t("stories.slideNext"),
+      of: t("stories.slideOf", { n: "{n}", count: "{count}" }),
+      editStories: t("stories.slidesCanvasButton"),
+      storiesHref: STORIES_HREF,
+      // 165 Until saved there the app shows the slides designed here, edited here.
+      storiesSaved: props.pickable.storiesSaved === true,
+    },
   };
 
   /** 159 The owner said to change its size by hand: from its automatic size (kept for later), with the change asked for. */
@@ -1506,7 +1524,7 @@ export function StudioEditor(props: StudioEditorProps) {
               <div className="overflow-x-hidden overflow-y-auto rounded-[26px]" style={{ width: 288, height: "min(560px, calc(100dvh - 260px))", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {/* Drawn at the phone's 360 pixels, then zoomed to fit: it scrolls as tall as it is. */}
                 <div style={{ width: 360, zoom: 0.8, pointerEvents: "none" }}>
-                  <StudioView page={previewing.page} lang={editLang} defaultLang={layout.languages.default} dark={dark} signedIn={signedIn} look={look} pickable={props.pickable} market={props.market} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} premiumWords={premiumWords} commerceWords={commerceWords} />
+                  <StudioView page={previewing.page} lang={editLang} defaultLang={layout.languages.default} dark={dark} signedIn={signedIn} look={look} pickable={props.pickable} market={props.market} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} premiumWords={premiumWords} commerceWords={commerceWords} quickAdd={quickAdd} />
                 </div>
               </div>
             </div>
@@ -1643,7 +1661,7 @@ export function StudioEditor(props: StudioEditorProps) {
             <div data-studio-phone-frame="" style={{ position: "relative", width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.bar, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
-                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} signedIn={signedIn} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} commerceWords={commerceWords} />
+                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} signedIn={signedIn} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} commerceWords={commerceWords} quickAdd={quickAdd} />
                 ) : page ? (
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} dark={dark} />
                 ) : null}
@@ -1710,6 +1728,7 @@ export function StudioEditor(props: StudioEditorProps) {
             tablet={device === "tablet" && selected ? { changed: Boolean(selected.tablet), onReset: () => changePage((p) => updateNode(p, selected.id, { tablet: undefined })) } : undefined}
             headerSelected={selectedId === "header"}
             tabsSelected={selectedId === "tabs"}
+            onSelect={editing.onSelect}
             tabs={layout.tabs}
             tabBar={layout.tab_bar}
             onTabs={(tabs) =>
@@ -1773,6 +1792,7 @@ export function StudioEditor(props: StudioEditorProps) {
             sources={props.sources}
             categorySources={props.categorySources}
             screens={props.screens}
+            mainScreen={mainScreen}
             pageScreens={props.pageScreens}
             pickable={props.pickable}
             fontLabels={fontLabels}

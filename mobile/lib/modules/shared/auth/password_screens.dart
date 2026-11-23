@@ -192,7 +192,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       final email = _channel == SignInMethod.email ? _email.text.trim() : null;
       final phone = nationalNumber(_phone.text, _dialCode);
       final result = email != null
-          ? await auth.requestEmailCode(email: email)
+          ? await auth.requestEmailCode(email: email, reset: true)
           : await auth.requestCode(countryCode: _dialCode, phone: phone);
       if (!mounted) return;
       final from = widget.from;

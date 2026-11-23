@@ -24,8 +24,11 @@ export function accountPurgeDeps(store: DataStore, now: Date): AccountPurgeDeps 
   };
 }
 
-/** Removes build folders on the files host; null until FILES_SIGNING_SECRET is set (the folders are then listed for our team). */
-function filesRemover(): BuildFolderRemover | null {
+/**
+ * Removes build folders on the files host; null until FILES_SIGNING_SECRET is set (the folders are then listed for our team).
+ * 202 Also the daily job's old build files (lib/builds/retention.ts).
+ */
+export function filesRemover(): BuildFolderRemover | null {
   try {
     const secret = filesSigningSecret();
     return secret ? buildFolderRemover({ baseUrl: filesBaseUrl(), secret }) : null;

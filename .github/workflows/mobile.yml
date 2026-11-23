@@ -78,6 +78,16 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      # 185 Gradle's downloaded dependencies and wrapper for the debug APKs (build-apps.yml keeps its own).
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.gradle/caches/modules-2
+            ~/.gradle/wrapper/dists
+          key: gradle-deps-ci-${{ runner.os }}-${{ hashFiles('mobile/android/**/*.gradle*', 'mobile/android/gradle/wrapper/gradle-wrapper.properties', 'mobile/pubspec.lock') }}
+          restore-keys: |
+            gradle-deps-ci-${{ runner.os }}-
+
       - name: Android SDK (own runners)
         if: runner.environment == 'self-hosted'
         uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
@@ -118,6 +128,11 @@ jobs:
 
       - name: Build debug APK
         run: flutter build apk --debug
+
+      # 192 A release build too (the debug key, never uploaded): client builds are release builds,
+      # and release runs steps a debug build doesn't (R8, resource shrinking, lint's vital pass).
+      - name: Build release APK (debug key)
+        run: flutter build apk --release
 
       - name: Upload debug APK
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -297,6 +312,11 @@ jobs:
 
       - name: Build for the iOS simulator (no signing)
         run: flutter build ios --simulator --debug --no-codesign
+
+      # 192 A release build for a real iPhone too (unsigned), as client builds are: release runs
+      # what a simulator debug build doesn't (the device SDK, optimisation, the release Pods).
+      - name: Build for an iPhone, release (no signing)
+        run: flutter build ios --release --no-codesign
 
   # 59 Yallapp Business (business/), the app for the people who run an app
   # on Yallapp: the same checks as the client app. No APK here: release

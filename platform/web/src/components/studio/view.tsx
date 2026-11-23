@@ -1,6 +1,7 @@
 "use client";
 
 import { withDashboardStories } from "@/lib/stories/canvas";
+import { shownSlide, storiesSlider } from "@/lib/studio/slides";
 import { COMMERCE_WORDS_EN, CouponCanvas, FlashSaleCanvas, type CommerceWords } from "./commerce";
 import { createPortal } from "react-dom";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
@@ -42,6 +43,7 @@ import { isPremiumContent, PREMIUM_WORDS_EN, PremiumElement, SurfaceExtras, surf
 // 130.20 The premium page headers.
 import { PremiumHeader, SystemScreen } from "./premium-chrome";
 import { GiftCheckout } from "./gift-checkout";
+import { quickAddLabel } from "./quick-add";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -89,6 +91,14 @@ export interface StudioEditing {
   part?: { id: string; index: number } | null;
   /** 181 A part of an element clicked on the canvas (a story's ring): the element is selected with it. */
   onSelectPart?: (id: string, index: number) => void;
+  /**
+   * 189 A slider's own buttons on the canvas, in the dashboard's language:
+   * the slide before and after, "Slide 2 of 5" (`of`, with `{n}` and
+   * `{count}`), and for the app's stories, once saved in Dashboard ›
+   * Stories (`storiesSaved`, the app showing those), the way there, where
+   * their pictures, words and buttons are changed.
+   */
+  slides?: { previous: string; next: string; of: string; editStories: string; storiesHref: string; storiesSaved?: boolean };
 }
 
 interface ViewProps {
@@ -127,6 +137,8 @@ interface ViewProps {
   commerceWords?: CommerceWords;
   /** 180.11 The page as a person signed in (true) or signed out (false) sees it; missing, every element. */
   signedIn?: boolean;
+  /** 193 The app draws Add to cart under each product's card (a store on the gift checkout, Leqaa's looks). */
+  quickAdd?: boolean;
 }
 
 /** 124.8 The app's screen under a page's elements in the canvas. */
@@ -1111,9 +1123,12 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         </span>,
       );
     }
+    // 189 While editing, a slider showing one slide at a time shows the one holding what's selected (the first otherwise).
+    const oneSlide = n.type === "slider" && editing && (n.per_view ?? 1) <= 1 ? shownSlide(n, editing.selectedId) : -1;
     kids.forEach((child, i) => {
       if (drop === i) out.push(<DropLine key={`drop${i}`} dir={dir} label={editing!.dropLabel} />);
       if (n.type === "tabs" && i !== shownTab) return;
+      if (oneSlide >= 0 && i !== oneSlide) return;
       const width = n.type === "slider" ? { width: `${100 / (n.per_view ?? 1)}%` } : {};
       const view = <Node {...p} node={child} parentDir={dir} rowGivesWay={dir === "row" ? givesWay : null} inStack={dir === "stack" ? { first: i === 0, cross: n.cross } : undefined} />;
       out.push(
@@ -1142,35 +1157,90 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
   /** 112.4 The slides side by side, and where it is: dots under them, lines over their bottom or "1 / 3" over their corner. */
   function Slider(p: ViewProps & { node: StudioNode }) {
     const n = p.node;
-    const count = (n.children ?? []).length;
+    const kids = n.children ?? [];
+    const count = kids.length;
     const indicator = n.dots === false || count < 2 ? null : (n.indicator ?? "dots");
+    // 189 The slide being edited (the first in the app's own drawing): the indicator shows where it is.
+    const open = editing ? shownSlide(n, editing.selectedId) : 0;
+    const labels = editing?.slides;
+    const go = (to: number) => (e: MouseEvent) => {
+      e.stopPropagation();
+      editing?.onSelect(kids[(to + count) % count]!.id);
+    };
+    const round: CSSProperties = { pointerEvents: "auto", width: 34, height: 34, borderRadius: 999, border: "0", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(14,13,36,0.62)", color: "#FFFFFF", cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.25)" };
     return (
       <>
         <span style={{ position: "relative", display: "block", height: slides?.height ?? (slides?.aspectRatio ? undefined : 180), aspectRatio: slides?.aspectRatio }}>
-          <span data-studio-ken-burns={n.ken_burns ? "" : undefined} style={{ display: "flex", gap: n.gap, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", height: "100%" }}>
+          <span
+            data-studio-ken-burns={n.ken_burns ? "" : undefined}
+            // 189 Several at a time: the slide being edited scrolled into the slider's view.
+            ref={editing && (n.per_view ?? 1) > 1 && open > 0 ? (el) => (el?.children[open] as HTMLElement | undefined)?.scrollIntoView({ block: "nearest", inline: "start" }) : undefined}
+            style={{ display: "flex", gap: n.gap, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", height: "100%" }}
+          >
             {Children(p)}
           </span>
+          {/* 189 Studio's own buttons (never in the app): the slide before and after, which slide this is, and for the app's stories the way to Stories. */}
+          {editing && labels && count > 1 ? (
+            <span data-studio-slide-nav="" style={{ position: "absolute", insetInline: 8, top: "50%", transform: "translateY(-50%)", display: "flex", justifyContent: "space-between", pointerEvents: "none", zIndex: 4 }}>
+              <button type="button" aria-label={labels.previous} title={labels.previous} onClick={go(open - 1)} style={round}>
+                <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 22, transform: lang === "ar" ? "scaleX(-1)" : undefined }}>
+                  chevron_left
+                </span>
+              </button>
+              <button type="button" aria-label={labels.next} title={labels.next} onClick={go(open + 1)} style={round}>
+                <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 22, transform: lang === "ar" ? "scaleX(-1)" : undefined }}>
+                  chevron_right
+                </span>
+              </button>
+            </span>
+          ) : null}
+          {editing && labels && (count > 1 || (labels.storiesSaved && storiesSlider(n))) ? (
+            <span style={{ position: "absolute", insetInline: 0, bottom: 10, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, pointerEvents: "none", zIndex: 4 }}>
+              {count > 1 ? (
+                <span data-studio-slide-of="" style={{ padding: "3px 10px", borderRadius: 999, background: "rgba(14,13,36,0.62)", color: "#FFFFFF", fontSize: 11, fontWeight: 700 }}>
+                  {labels.of.replace("{n}", String(open + 1)).replace("{count}", String(count))}
+                </span>
+              ) : null}
+              {labels.storiesSaved && storiesSlider(n) ? (
+                <a
+                  href={labels.storiesHref}
+                  target="_blank"
+                  rel="noopener"
+                  data-studio-edit-stories=""
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ pointerEvents: "auto", display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 999, background: "#FFFFFF", color: "#0E0D24", fontSize: 13, fontWeight: 700, textDecoration: "none", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}
+                >
+                  <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 18 }}>
+                    auto_stories
+                  </span>
+                  {labels.editStories}
+                </a>
+              ) : null}
+            </span>
+          ) : null}
           {/* 129.1 The dots in a frosted pill over the slides' foot. */}
-          {indicator === "pill" ? <SliderPill count={count} look={n.indicator_look} /> : null}
+          {indicator === "pill" ? <SliderPill count={count} look={n.indicator_look} at={open} /> : null}
           {indicator === "progress" ? (
             // 129.1 At the top or the foot, as far from it as the owner set, in their colour.
             <span data-studio-indicator="progress" aria-hidden="true" style={{ position: "absolute", insetInline: 16, ...edge(n.indicator_look), display: "flex", gap: 4 }}>
               {Array.from({ length: count }, (_, i) => (
-                <span key={i} style={{ flex: "1 1 0", height: 3, borderRadius: 2, background: i === 0 ? `linear-gradient(${lang === "ar" ? 270 : 90}deg, ${n.indicator_look?.color ?? "#FFFFFF"} 55%, rgba(255,255,255,0.45) 55%)` : "rgba(255,255,255,0.45)" }} />
+                <span key={i} style={{ flex: "1 1 0", height: 3, borderRadius: 2, background: i < open ? (n.indicator_look?.color ?? "#FFFFFF") : i === open ? `linear-gradient(${lang === "ar" ? 270 : 90}deg, ${n.indicator_look?.color ?? "#FFFFFF"} 55%, rgba(255,255,255,0.45) 55%)` : "rgba(255,255,255,0.45)" }} />
               ))}
             </span>
           ) : null}
-          {n.indicator_look?.count && count > 1 ? <SliderCount count={count} look={n.indicator_look} /> : null}
+          {n.indicator_look?.count && count > 1 ? <SliderCount count={count} look={n.indicator_look} at={open} /> : null}
           {indicator === "count" ? (
             <span data-studio-indicator="count" style={{ position: "absolute", insetInlineEnd: 10, top: 10, padding: "3px 9px", borderRadius: 999, background: "rgba(14,13,36,0.55)", color: "#FFFFFF", fontSize: 11, fontWeight: 700 }}>
-              <bdi>1 / {count}</bdi>
+              <bdi>
+                {open + 1} / {count}
+              </bdi>
             </span>
           ) : null}
         </span>
         {indicator === "dots" ? (
           <span data-studio-indicator="dots" aria-hidden="true" style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 8 }}>
             {Array.from({ length: count }, (_, i) => (
-              <span key={i} style={{ width: i === 0 ? 16 : 6, height: 6, borderRadius: 3, background: i === 0 ? look.brand : dark ? "#3B3858" : "#D9D3C7" }} />
+              <span key={i} style={{ width: i === open ? 16 : 6, height: 6, borderRadius: 3, background: i === open ? look.brand : dark ? "#3B3858" : "#D9D3C7" }} />
             ))}
           </span>
         ) : null}
@@ -1193,12 +1263,23 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
           ? { display: "flex", gap: n.gap ?? 10, overflow: "hidden" }
           : { display: "flex", flexDirection: "column", gap: n.gap ?? 10 };
     const shades = dark ? ["#3A3020", "#1E3A2E", "#2A2840", "#3A2434"] : ["#F2E3C9", "#D7EBE2", "#E6E3EF", "#EEDDE8"];
+    // 193 Add to cart under each product's card, as the app draws it on Leqaa's looks.
+    const quickAdd = Boolean(p.quickAdd) && n.source === "products";
+    const addButton = (
+      <span data-studio-quick-add="" style={{ marginTop: 8, height: 34, borderRadius: 12, background: look.brand, color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden" }}>
+        <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 16 }}>
+          add_shopping_cart
+        </span>
+        {quickAddLabel(lang)}
+      </span>
+    );
     const list = (
       <span style={wrap}>
         {shown.map((entry, i) =>
           n.card ? (
-            <span key={entry.id} style={layout === "carousel" ? { flex: "0 0 60%" } : undefined}>
+            <span key={entry.id} style={layout === "carousel" ? { flex: "0 0 60%" } : quickAdd ? { display: "flex", flexDirection: "column" } : undefined}>
               <CardOf {...p} node={n.card} entry={{ id: entry.id, title: entry.title, price: entry.price ?? "", subtitle: entry.subtitle ?? "", imageUrl: entry.imageUrl ?? null, badge: entry.badge ?? "", rating: entry.rating ?? null, sale: entry.sale ?? null }} />
+              {quickAdd ? addButton : null}
             </span>
           ) : (
             <span key={entry.id} data-studio-entry={entry.id} style={{ background: dark ? "#22203A" : "#FFFFFF", borderRadius: 14, padding: 8, boxShadow: "0 2px 6px rgba(20,54,31,0.08)", display: layout === "list" ? "flex" : "block", gap: 8, minWidth: 0, ...(layout === "carousel" ? { flex: "0 0 60%" } : {}) }}>
@@ -1229,6 +1310,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
                 ) : entry.price || entry.subtitle ? (
                   <span style={{ display: "block", fontSize: 11, opacity: 0.7, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.price || entry.subtitle}</span>
                 ) : null}
+                {quickAdd ? addButton : null}
               </span>
             </span>
           ),

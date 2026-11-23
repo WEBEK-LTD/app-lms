@@ -87,8 +87,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // 134 A store's Payments: how its customers pay, and the owner's gateway.
   const storePayments = app?.appType === "store" && contextCan(context, "settings") ? [{ href: "/dashboard/payments", label: t("gateways.page"), icon: "payments" as const }] : [];
   const problems = app && contextCan(context, "settings") ? await appProblems(app) : [];
-  // 106 The templates the account has from Studio Market, next to My templates.
-  const licences = contextCan(context, "billing") ? (await (await getStore()).listTemplateLicences({ clientId: client.id })).length : 0;
   const groups: DashboardNavGroup[] = [
     {
       items: [
@@ -152,21 +150,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             },
           ]
         : []),
-    // 106 Studio Market: the templates to browse, the ones the account has, and selling its own designs (the owner).
-    {
-      label: t("studioMarket.nav"),
-      isNew: t("studioMarket.newTag"),
-      items: [
-        { href: "/dashboard/studio-market", label: t("studioMarket.navBrowse"), icon: "storefront", exact: true, prefix: "/dashboard/studio-market/t" },
-        {
-          href: "/dashboard/studio-market/mine",
-          label: t("studioMarket.navMine"),
-          icon: "dashboard_customize",
-          ...(licences ? { badge: { count: licences, label: t("studioMarket.navMineCount", { count: licences }), tone: "soft" as const } } : {}),
-        },
-        ...(contextCan(context, "billing") ? [{ href: "/designer", label: t("studioMarket.navSell"), icon: "draw" as const }] : []),
-      ],
-    },
+    // 191 Studio Market lives in Studio (/studio/market): its templates are Studio designs, so the regular apps' menu has none of it.
     {
       label: t("nav.publish"),
       items: [
@@ -267,7 +251,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="flex min-w-0 flex-1 flex-col">
           {/* 103R.3 The regular apps and Yallapp Studio, switched from a dark bar like Studio's own; 106 and Studio Market. */}
           <header className="flex items-center gap-3 bg-midnight px-4 py-2.5 sm:px-8 lg:px-10">
-            <SectionSwitch label={t("studio.section")} words={{ regular: t("studio.regularApps"), studio: t("studio.title"), market: t("studioMarket.nav"), newTag: t("studioMarket.newTag") }} />
+            <SectionSwitch label={t("studio.section")} words={{ regular: t("studio.regularApps"), studio: t("studio.title") }} />
           </header>
           <main id="main" tabIndex={-1} className="min-w-0 flex-1 px-4 pt-6 pb-16 outline-none sm:px-8 sm:pt-8 lg:px-10">
             <div className="mx-auto flex max-w-[1120px] flex-col gap-6">

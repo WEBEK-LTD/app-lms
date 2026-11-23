@@ -50,7 +50,9 @@ the buttons and links that open a WhatsApp chat with Yallapp ("Get started on
 WhatsApp", "Talk to us on WhatsApp", the number in the footer), in the
 button's own text color, and (117) the site a customer's review on the home
 page was first written on (Google, Facebook, Trustpilot, Google Play, the App
-Store, Instagram) on the review's "Review on …" badge. Use them unaltered (the CC0 paths of the `simple-icons`
+Store, Instagram) on the review's "Review on …" badge, and (203) Apple's and
+Google Play's marks, in the button's own text color, on the Yallapp Business
+"Download on the App Store" and "Get it on Google Play" buttons. Use them unaltered (the CC0 paths of the `simple-icons`
 package; only the view box may be fitted to a wordmark), grey until hovered,
 with the brand's name as the accessible name. A brand without a mark there is
 shown as its name, never as a made-up logo. Never call these brands

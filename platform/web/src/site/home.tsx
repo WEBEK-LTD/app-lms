@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { plansForSale } from "@/lib/plans";
-import { StudioPlans } from "@/components/studio-marketing";
+import { StudioPlansBand } from "./studio-plans-band";
 import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
 import { JsonLdScript } from "@/components/json-ld";
@@ -30,6 +30,7 @@ import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { StoryEffects } from "./story/effects";
 import { HeroStage, RotatingWord, type HeroNotice } from "./home-motion";
+import { BusinessAppSection } from "./business-app";
 
 /**
  * The hero's fan of real screens, from the start side to the end side: where
@@ -327,6 +328,9 @@ export async function HomePage({ lang }: { lang: Lang }) {
           </div>
         </Section>
 
+        {/* 203 Yallapp Business, the dashboard on the owner's phone, with its two store buttons. */}
+        <BusinessAppSection lang={lang} />
+
         <Section tinted>
           <SectionTitle title={text.compareTitle!} text={text.compareText} />
           <Comparison rows={comparisonFor(lang)} lang={lang} />
@@ -375,11 +379,8 @@ export async function HomePage({ lang }: { lang: Lang }) {
           <MoreLink href={lp("/pricing")}>{h.compareFeatures}</MoreLink>
         </Section>
 
-        <Section id="studio-plans">
-          <SectionTitle eyebrow={s.studio} title={s.plansTitle} text={s.plansText} />
-          <StudioPlans lang={lang} plans={studioPlans} view={view} contact={contact} />
-          <MoreLink href={lp("/yallapp-studio")}>{s.homeLink}</MoreLink>
-        </Section>
+        {/* 205 Studio's own plans as on the pricing page: compact cards on its night band. */}
+        <StudioPlansBand lang={lang} plans={studioPlans} view={view} contact={contact} />
 
         {/* Customer reviews, only real ones from Admin › Reviews; nothing without any. */}
         <HomeReviews lang={lang} />

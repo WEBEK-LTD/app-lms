@@ -23,7 +23,7 @@ import { buildOnly, isInProgress } from "./view";
  * build config: the app's build config is checked key by key by mobile/'s
  * tool, and nothing in the app changes with the number itself.
  */
-export const CLIENT_APP_RELEASE = 12;
+export const CLIENT_APP_RELEASE = 15;
 /*
  * The releases:
  * 1  Builds before Phase 138.
@@ -103,10 +103,22 @@ export const CLIENT_APP_RELEASE = 12;
  *    Pay on iPhone (with the owner's Apple Pay merchant ID); the app reads
  *    `/pay/<token>/status` before it opens the order. 170's browser sheet
  *    is dormant. The preview keeps Stripe's form in the page.
- * 12 The templates walked through by hand, in one release: 115.21–115.23
- *    a marketplace dish's choices picked before it goes in the basket and
- *    shown in the basket, the checkout and the order, and the
- *    marketplace's notifications opening their screens; 177 in a Zad
+ * 12 Held by the release 12 integration (wip-urgent-apps-3): the templates
+ *    walked through by hand (176–181, 115.21–115.23).
+ * 13 193 Add to cart under every product's card on Leqaa's looks (a store
+ *    on the gift checkout, Kech Flora's too): the shop's grid, the home's
+ *    rows, a product's "You may also like" and every Studio list of
+ *    products; one with nothing to choose goes straight in the cart ("Added
+ *    to cart", the way to it), one with sizes or options opens its page,
+ *    out of stock the button is off.
+ * 14 197 "Added to cart" goes away by itself, as any message: with its View
+ *    cart it stayed on the screen until the customer closed it (a product's
+ *    page, Add to cart under a card, and a class's "See plans").
+ * 15 The templates walked through by hand (the release 12 integration),
+ *    in one release: 115.21–115.23 a marketplace dish's choices picked
+ *    before it goes in the basket and shown in the basket, the checkout
+ *    and the order, and the marketplace's notifications opening their
+ *    screens; 177 in a Zad
  *    project the Cart, Orders and Account tabs open their own screens, the
  *    vendor page's aisles, search, share and heart work, a line on sale
  *    shows its old price, the delivery address chosen on the map, one big
@@ -123,8 +135,9 @@ export const CLIENT_APP_RELEASE = 12;
  *    flight amenities in the app's words, Arabic digits in the price filter
  *    and donations, and the flights' arrows right to left; and 181 a quick
  *    fling ends at the page's end under a folding header, and Settings'
- *    plain choice sheet scrolls to its last choice (158.3, 158.8). 176 has
- *    no app change.
+ *    plain choice sheet scrolls to its last choice (158.3, 158.8); with
+ *    200.3, a forgotten password's email code asked for as one, so its
+ *    email is worded for a new password. 176 has no app change.
  */
 
 /** Builds made before 138 count as this release, so shipping 138 rebuilds nothing by itself. */

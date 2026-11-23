@@ -46,6 +46,8 @@ export type EmailTemplateKey =
 
   // 18 Sign-in for every app
   | "sign_in_code"
+  // 199 The welcome after signing up in a client's app
+  | "app_welcome"
 
   // 19 Sign-in gaps
   | "own_whatsapp_failed"
@@ -355,7 +357,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       { name: "ends_line", description: "Until when the plan runs, and that it doesn't renew by itself; or that it never ends", sample: "Your plan runs until 15 Feb 2027. It doesn't renew by itself: we remind you 14 days before." },
       { name: "app_line", description: "Where the template is now", sample: "It's on Tulip Flowers now." },
       { name: "order_id", description: "The payment's reference", sample: "5b0c6d1e-…" },
-      { name: "templates_url", description: "The buyer's My templates page", sample: "https://yallapp.com.tr/dashboard/studio-market/mine" },
+      { name: "templates_url", description: "The buyer's My templates page", sample: "https://yallapp.com.tr/studio/market/mine" },
     ],
     subject: "Receipt: {{template_name}} on Studio Market",
     body:
@@ -374,7 +376,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       { name: "end_date", description: "When the plan ends", sample: "15 Feb 2027" },
       { name: "intro_line", description: "When it ends, and on which app", sample: "Your plan for Rosé Atelier on Tulip Flowers ends in 14 days, on 15 Feb 2027." },
       { name: "after_line", description: "What happens if it isn't renewed (the template's choice)", sample: "If you don't renew, the design stays on your app as it is, without updates." },
-      { name: "renew_url", description: "Where to renew it", sample: "https://yallapp.com.tr/dashboard/studio-market/checkout/rose-atelier?renew=…" },
+      { name: "renew_url", description: "Where to renew it", sample: "https://yallapp.com.tr/studio/market/checkout/rose-atelier?renew=…" },
     ],
     subject: "{{template_name}}: your plan ends on {{end_date}}",
     body: "Hello {{name}},\n\n{{intro_line}} Templates don't renew by themselves.\n\n{{after_line}}\n\nRenew it here:\n{{renew_url}}" + SIGNATURE,
@@ -389,7 +391,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       { name: "end_date", description: "When the plan ended", sample: "15 Feb 2027" },
       { name: "intro_line", description: "That the plan ended", sample: "Your plan for Rosé Atelier ended on 15 Feb 2027." },
       { name: "after_line", description: "What happened to the app", sample: "The design stays on Tulip Flowers as it is now, without updates." },
-      { name: "renew_url", description: "Where to buy it again", sample: "https://yallapp.com.tr/dashboard/studio-market/checkout/rose-atelier?renew=…" },
+      { name: "renew_url", description: "Where to buy it again", sample: "https://yallapp.com.tr/studio/market/checkout/rose-atelier?renew=…" },
     ],
     subject: "{{template_name}}: your plan ended",
     body: "Hello {{name}},\n\n{{intro_line}}\n\n{{after_line}}\n\nYou can buy it again any time:\n{{renew_url}}" + SIGNATURE,
@@ -687,7 +689,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     key: "sign_in_code",
     name: "Sign-in code",
     description:
-      "To someone signing in to a client's app by email (apps on the hosted API, and WordPress sites with email codes). Sent in the app's name, from the app's own email server when its owner set one.",
+      "To someone signing in to a client's app by email, or setting a forgotten password again (apps on the hosted API, and WordPress sites with email codes). Sent in the app's name and look (its logo and colour, light and dark), from the app's own email server when its owner set one. The email itself is in the customer's language; an edit here changes its subject and its plain-text part.",
     placeholders: [
       { name: "app_name", description: "The app's name", sample: "Nour Academy" },
       { name: "code", description: "The 6-digit code", sample: "482913" },
@@ -697,6 +699,21 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     body:
       "Your {{app_name}} sign-in code is {{code}}.\n\nIt expires in {{minutes}} minutes. Don't share it with anyone.\n\n" +
       "If you didn't try to sign in to {{app_name}}, you can ignore this email.",
+  },
+  // 199 To an app's users, in the app's name and look (lib/email/app-user-emails.ts): no Yallapp signature.
+  {
+    key: "app_welcome",
+    name: "Welcome to the app",
+    description:
+      "To someone who just signed up in a client's app with an email address (apps on the hosted API), once. Sent in the app's name and look, from the app's own email server when its owner set one. The email itself is in the customer's language; an edit here changes its subject and its plain-text part.",
+    placeholders: [
+      { name: "app_name", description: "The app's name", sample: "Nour Academy" },
+      { name: "name", description: "The new customer's name", sample: "Elif Yılmaz" },
+    ],
+    subject: "Welcome to {{app_name}}",
+    body:
+      "Hi {{name}},\n\nThank you for joining {{app_name}}. Your account is ready, and you're signed in on the app.\n\n" +
+      "Open the app any time to pick up where you left off. If you have a question, reply to this email.",
   },
   {
     // 29 No tax-deductibility claims: whether a gift is deductible depends on the charity and the donor.
@@ -724,7 +741,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     key: "order_receipt",
     name: "Order receipt",
     description:
-      "To a customer when their order (products, a restaurant's order, tickets, a paid course or a membership) is paid (apps without a website), with the receipt as a PDF. Sent in the business's name, from the app's own email server when its owner set one.",
+      "To a customer when their order (products, a restaurant's order, tickets, a paid course or a membership) is paid (apps without a website), with the receipt as a PDF. Sent in the business's name, from the app's own email server when its owner set one. The email itself is in the business's look (its logo and colour, light and dark) and the customer's language; an edit here changes its subject and its plain-text part.",
     placeholders: [
       { name: "org_name", description: "The business's name (the app's name)", sample: "Harbour Books" },
       { name: "customer_name", description: "The customer's name", sample: "Elif Yılmaz" },
@@ -732,13 +749,13 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       { name: "total", description: "The order's total", sample: "₺450.00" },
       { name: "order_lines", description: "One line per item with its options, and shipping (a restaurant's delivery fee)", sample: "Tulip vase × 1: ₺400.00\nShipping: ₺50.00" },
       { name: "date", description: "The day the payment went through", sample: "14 October 2026" },
-      { name: "receipt_url", description: "The receipt as a PDF, to download again", sample: "https://yallapp.com.tr/receipts/orders/sample" },
     ],
     subject: "Your receipt from {{org_name}} · order {{order_number}}",
     body:
       "Dear {{customer_name}},\n\nThank you for your order from {{org_name}}. We received your payment.\n\n" +
       "{{order_lines}}\nTotal: {{total}}\nDate: {{date}}\nOrder: {{order_number}}\n\n" +
-      "Your receipt: {{receipt_url}}\n\nKeep this email for your records. If you have a question about your order, contact {{org_name}} and give the order number above.",
+      // 198 The PDF is the receipt: no link. Sent as the premium email in the business's look (lib/email/order-receipt-email.ts).
+      "Your receipt is attached to this email as a PDF.\nKeep this email for your records. If you have a question about your order, contact {{org_name}} and give the order number above.",
   },
   {
     // 96.2 Sent in the business's name, like the receipt.
@@ -1146,7 +1163,8 @@ export function renderTemplate(text: TemplateText, values: Record<string, Templa
     subject,
     text: bodyText,
     // 56 An email in Arabic or Turkish says its language, and Arabic reads right to left.
-    html: `<!doctype html><html${lang === "en" ? "" : ` lang="${lang}" dir="${LANG_INFO[lang].dir}"`}><body style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#24223a">${html}</body></html>`,
+    // 200 Marked plain: sendMail and sendAppMail dress it in the premium look before it goes (lib/email/premium-mail.ts).
+    html: `<!doctype html><html${lang === "en" ? "" : ` lang="${lang}" dir="${LANG_INFO[lang].dir}"`}><body data-ylp-plain style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#24223a">${html}</body></html>`,
   };
 }
 

@@ -1,8 +1,7 @@
 import { AccountLink } from "./account-link";
-import { StoreMarks } from "./brand-marks";
+import { StoreMarks, WhatsAppMark } from "./brand-marks";
 import { Icon } from "./icon";
 import type { IconName } from "./icon-names";
-import { CheckList } from "./marketing";
 import { PlanPrice, planStoresLineFor, storageText } from "./plan-cards";
 import { WhatsAppLink } from "./whatsapp-link";
 import type { Contact } from "@/lib/contact";
@@ -180,36 +179,87 @@ export function StudioPlans({
           })}
         </ul>
       ) : (
-        <p className="m-0 flex gap-3 rounded-2xl border border-line bg-white p-5 text-[16px] leading-relaxed text-ink-3" data-studio-on-request="">
-          <Icon name="forum" size={22} className="mt-0.5 flex-none text-accent" />
-          <span>{richText(m.plansOnRequest, { link: wa })}</span>
-        </p>
+        // 204 The owner: the section looked plain. On request, a card of its own with the way to ask, as a button.
+        <div
+          className="flex flex-col gap-4 rounded-[22px] border border-line bg-white p-5 shadow-[0_18px_40px_-30px_rgba(14,13,36,0.45)] sm:flex-row sm:items-center sm:gap-5 sm:p-6"
+          data-studio-on-request=""
+        >
+          <span className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-peach text-accent">
+            <Icon name="forum" size={24} />
+          </span>
+          <p className="m-0 flex-1 text-[16px] leading-relaxed text-ink-2">{richText(m.plansOnRequest, { link: wa })}</p>
+          <WhatsAppLink
+            lines={contact.lines}
+            country={contact.country}
+            className="flex h-[50px] flex-none items-center justify-center gap-2 rounded-xl bg-midnight px-5 text-[15px] font-bold text-white no-underline transition-transform hover:-translate-y-px hover:text-white"
+          >
+            <WhatsAppMark size={20} />
+            {messagesFor(lang).common.messageWhatsApp}
+          </WhatsAppLink>
+        </div>
       )}
       {basics ? <StudioPlanBasics lang={lang} /> : null}
     </div>
   );
 }
 
-/** 103R What every Studio plan has, and what the team chooses plan by plan; 146 also with Studio's explanation on the pricing page. */
+/**
+ * 103R What every Studio plan has, and what the team chooses plan by plan; 146 also with Studio's explanation on the pricing page.
+ * 204 The owner found the two plain white boxes ugly ("شكله وحش اوي"): a night panel under an
+ * ember glow, as the home page's Studio band, with each thing every plan has as a tile with its
+ * icon and what changes plan by plan as chips.
+ */
 export function StudioPlanBasics({ lang, headingLevel = 3 }: { lang: Lang; headingLevel?: 3 | 4 }) {
   const m = messagesFor(lang).studio;
   const Heading = headingLevel === 3 ? "h3" : "h4";
+  const basics: { icon: IconName; text: string }[] = [
+    { icon: "dashboard_customize", text: m.base1 },
+    { icon: "notifications", text: m.base2 },
+    { icon: "credit_card", text: m.base3 },
+    { icon: "download_for_offline", text: m.base4 },
+    { icon: "forum", text: m.base5 },
+    { icon: "school", text: m.base6 },
+    { icon: "rocket_launch", text: m.base7 },
+    { icon: "storefront", text: m.base8 },
+  ];
   return (
-    <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]" data-studio-basics="">
-      <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6">
-        <Heading className="m-0 text-lg font-bold">{m.everyPlan}</Heading>
-        <CheckList items={[m.base1, m.base2, m.base3, m.base4, m.base5, m.base6, m.base7, m.base8]} />
-      </div>
-      <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6">
-        <Heading className="m-0 text-lg font-bold">{m.byPlan}</Heading>
-        <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
-          {studioPlanChoices(lang).map((choice) => (
-            <li key={choice.label} className="flex gap-2.5">
-              <Icon name={choice.icon} size={20} className="mt-0.5 text-ink-4" />
-              <span>{choice.label}</span>
-            </li>
-          ))}
-        </ul>
+    <div className="on-dark relative overflow-hidden rounded-[28px] bg-night-2 p-5 text-white sm:p-10" data-studio-basics="">
+      <div aria-hidden="true" className="pointer-events-none absolute -top-40 end-[-12%] h-[380px] w-[380px] rounded-full bg-ember/25 blur-[100px]" />
+      <div className="relative grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-0">
+        <div className="flex min-w-0 flex-col gap-5 lg:pe-10">
+          <span className="flex items-center gap-2 self-start rounded-full bg-ember px-3 py-1 text-[12px] font-bold tracking-[0.5px] text-white uppercase">
+            <Icon name="verified" size={16} />
+            {m.studio}
+          </span>
+          <Heading className="m-0 text-[22px] leading-tight font-extrabold tracking-[-0.3px] sm:text-[26px]">{m.everyPlan}</Heading>
+          <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2">
+            {basics.map((item) => (
+              <li key={item.text} className="flex items-start gap-3 rounded-2xl border border-night-line bg-night-3/50 p-3.5" data-studio-basic="">
+                <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-ember/15 text-ember">
+                  <Icon name={item.icon} size={22} />
+                </span>
+                <span className="pt-0.5 text-[15px] leading-snug font-semibold text-white">{item.text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="flex min-w-0 flex-col gap-5 border-t border-night-line pt-8 lg:border-t-0 lg:border-s lg:ps-10 lg:pt-0">
+          <Heading className="m-0 flex items-center gap-2.5 text-[20px] leading-tight font-extrabold tracking-[-0.2px] sm:text-[22px] lg:pt-[42px]">
+            <Icon name="tune" size={22} className="text-ember" />
+            {m.byPlan}
+          </Heading>
+          <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+            {studioPlanChoices(lang).map((choice) => (
+              <li
+                key={choice.label}
+                className="flex items-center gap-2 rounded-full border border-night-line bg-white/5 py-2 ps-2.5 pe-3.5 text-[14px] leading-tight font-semibold text-night-text"
+              >
+                <Icon name={choice.icon} size={18} className="flex-none text-ember" />
+                <span>{choice.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

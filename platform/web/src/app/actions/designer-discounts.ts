@@ -47,7 +47,7 @@ function noticeKey(message: string): string {
 
 function refresh(): void {
   revalidatePath("/designer", "layout");
-  revalidatePath("/dashboard/studio-market", "layout");
+  revalidatePath("/studio/market", "layout");
 }
 
 /** A new price drop, flash sale or coupon code on one of the designer's templates. */

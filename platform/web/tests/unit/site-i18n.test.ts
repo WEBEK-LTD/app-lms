@@ -157,7 +157,7 @@ describe("55 addresses in each language", () => {
 
   it("build the menu in each language with its links", () => {
     const nav = siteNavFor("ar", messagesFor("ar").nav);
-    expect(nav.map((e) => e.label)).toEqual(["الرئيسية", "المنتج", "Studio", "الأسعار", "تجربة", "المصادر", "تواصل معنا"]);
+    expect(nav.map((e) => e.label)).toEqual(["الرئيسية", "المنتج", "Studio", "ماركت Studio", "الأسعار", "تجربة", "المصادر", "تواصل معنا"]);
     const studio = nav.find((e) => e.id === "studio");
     expect(studio?.kind === "group" && studio.badge).toBe("جديد");
     expect(studio?.kind === "group" && studio.items.map((i) => i.label)).toEqual(["Yallapp Studio", "تطبيق المدرسة", "تطبيق توصيل الركاب", "تطبيق التوصيل والشحن", "تطبيق متعدد المتاجر", "تطبيق الأكاديمية", "تطبيق محل الزهور", "عرض Studio", "ماركت Studio"]);

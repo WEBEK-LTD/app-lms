@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -404,9 +404,9 @@ describe("106.1 the market and who may do what", () => {
   });
 
   it("gives browsing to whoever sets up apps, the account's templates and selling to the owner, and the review to the team's permission", () => {
-    expect(pathPermission("/dashboard/studio-market")).toBe("settings");
-    expect(pathPermission("/dashboard/studio-market/t/rose-atelier")).toBe("settings");
-    expect(pathPermission("/dashboard/studio-market/mine")).toBe("billing");
+    expect(pathPermission("/studio/market")).toBe("settings");
+    expect(pathPermission("/studio/market/t/rose-atelier")).toBe("settings");
+    expect(pathPermission("/studio/market/mine")).toBe("billing");
     const owner = { role: "owner" as const, areas: [], appIds: null };
     const manager = { role: "manager" as const, areas: [], appIds: null };
     const staff = { role: "staff" as const, areas: ["orders" as const], appIds: null };
@@ -414,9 +414,21 @@ describe("106.1 the market and who may do what", () => {
     // Applying, moving and going back: the owner only.
     expect([owner, manager, staff].map((a) => teamCan(a, "billing"))).toEqual([true, false, false]);
     expect((["owner", "admin", "support", "viewer"] as const).map((role) => can(role, "market.review"))).toEqual([true, true, true, false]);
-    // Templates go on Studio projects: the market's pages stay in the dashboard for them.
+    // Templates go on Studio projects: the market's old dashboard addresses aren't a project's page (191 they open /studio/market).
     expect(studioPathFor("/dashboard/studio-market")).toBeNull();
     expect(studioPathFor("/dashboard/studio-market/mine")).toBeNull();
+    // 191 Each of the market's pages in Studio asks for what its address needs.
+    const root = join(__dirname, "../../src/app/studio/(account)/market");
+    for (const [file, route] of [
+      ["page.tsx", "/studio/market"],
+      ["t/[slug]/page.tsx", "/studio/market/t/x"],
+      ["mine/page.tsx", "/studio/market/mine"],
+      ["checkout/[slug]/page.tsx", "/studio/market/checkout/x"],
+    ] as const) {
+      const calls = [...readFileSync(join(root, file), "utf8").matchAll(/requireClient\("([a-z_]+)"\)/g)].map((m) => m[1]);
+      expect(calls.length, file).toBeGreaterThan(0);
+      for (const call of calls) expect(call, file).toBe(pathPermission(route));
+    }
     expect(isStudioProject({ section: "studio" })).toBe(true);
   });
 });

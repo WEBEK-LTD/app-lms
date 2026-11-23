@@ -293,14 +293,14 @@ describe("106.13 structured data", () => {
 
 describe("106.13 back to the dashboard after signing up or in", () => {
   it("builds and accepts only the market's own dashboard addresses", () => {
-    expect(marketNextPath("checkout", "peony-1", "3m")).toBe("/dashboard/studio-market/checkout/peony-1?plan=3m");
+    expect(marketNextPath("checkout", "peony-1", "3m")).toBe("/studio/market/checkout/peony-1?plan=3m");
     expect(marketNextPath("checkout", "peony-1", "forever")).toBeNull();
     expect(marketNextPath("checkout", "peony-1", null)).toBeNull();
-    expect(marketNextPath("preview", "peony-1")).toBe("/dashboard/studio-market/t/peony-1?demo=mine");
-    expect(marketNextPath("template", "peony-1")).toBe("/dashboard/studio-market/t/peony-1");
+    expect(marketNextPath("preview", "peony-1")).toBe("/studio/market/t/peony-1?demo=mine");
+    expect(marketNextPath("template", "peony-1")).toBe("/studio/market/t/peony-1");
     expect(marketNextPath("template", "../../admin")).toBeNull();
-    for (const ok of ["/dashboard/studio-market/checkout/peony-1?plan=life", "/dashboard/studio-market/t/peony-1?demo=mine", "/dashboard/studio-market/t/peony-1"]) expect(safeMarketNext(ok)).toBe(ok);
-    for (const bad of [null, undefined, "", "https://evil.test/dashboard/studio-market/t/x", "//evil.test", "/admin", "/dashboard/studio-market/checkout/x?plan=3m&next=/admin", "/dashboard/studio-market/t/x?demo=1", "/dashboard/studio-market/t/X"]) expect(safeMarketNext(bad), String(bad)).toBeNull();
+    for (const ok of ["/studio/market/checkout/peony-1?plan=life", "/studio/market/t/peony-1?demo=mine", "/studio/market/t/peony-1"]) expect(safeMarketNext(ok)).toBe(ok);
+    for (const bad of [null, undefined, "", "https://evil.test/studio/market/t/x", "//evil.test", "/admin", "/studio/market/checkout/x?plan=3m&next=/admin", "/studio/market/t/x?demo=1", "/studio/market/t/X"]) expect(safeMarketNext(bad), String(bad)).toBeNull();
     expect(MARKET_NEXT_COOKIE).toBe("yallapp_market_next");
   });
 

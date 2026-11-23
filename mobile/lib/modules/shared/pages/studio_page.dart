@@ -63,6 +63,7 @@ import '../../../core/widgets/premium_chrome.dart';
 import 'premium/studio_premium_header.dart';
 import '../../../core/format/text_case.dart';
 import '../account/sign_out.dart' show AccountPageEnd;
+import '../../store/widgets/quick_add.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -2625,6 +2626,24 @@ class _CustomCards extends ConsumerWidget {
       scope: scope.withEntry(entry, inListRow: node.layout == ItemsLayout.list),
       parent: null,
     );
+    // 193 Leqaa's shops: Add to cart under each product's card.
+    final quick = quickAddShown(ref);
+    Widget withAdd(PageItem entry, {bool fill = false}) {
+      final id = quick && entry.source == ItemSource.products
+          ? int.tryParse(entry.id)
+          : null;
+      if (id == null) return cardOf(entry);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: fill ? MainAxisSize.max : MainAxisSize.min,
+        children: [
+          fill ? Expanded(child: cardOf(entry)) : cardOf(entry),
+          const SizedBox(height: 8),
+          QuickAddButton(productId: id),
+        ],
+      );
+    }
+
     final gap = node.gap > 0 ? node.gap : 10.0;
     switch (node.layout) {
       case ItemsLayout.list:
@@ -2633,7 +2652,7 @@ class _CustomCards extends ConsumerWidget {
           children: [
             for (final (i, entry) in entries.indexed) ...[
               if (i > 0) SizedBox(height: gap),
-              cardOf(entry),
+              withAdd(entry),
             ],
           ],
         );
@@ -2646,7 +2665,7 @@ class _CustomCards extends ConsumerWidget {
             children: [
               for (final (i, entry) in entries.indexed) ...[
                 if (i > 0) SizedBox(width: gap),
-                SizedBox(width: width, child: cardOf(entry)),
+                SizedBox(width: width, child: withAdd(entry)),
               ],
             ],
           ),
@@ -2666,7 +2685,7 @@ class _CustomCards extends ConsumerWidget {
                       if (c > 0) SizedBox(width: gap),
                       Expanded(
                         child: i + c < entries.length
-                            ? cardOf(entries[i + c])
+                            ? withAdd(entries[i + c], fill: true)
                             : const SizedBox.shrink(),
                       ),
                     ],

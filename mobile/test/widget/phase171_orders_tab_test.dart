@@ -277,7 +277,19 @@ void main() {
             tester,
             look: look,
             lang: lang,
-            orders: [_order(id: 1050, status: 'completed')],
+            // 200.3 Delivered a few hours ago, by today's clock: the journey
+            // keeps a delivered order for three days (deliveredJourneyKept),
+            // so a fixed date stops being followed once it is past.
+            orders: [
+              _order(
+                id: 1050,
+                status: 'completed',
+                created: DateTime.now()
+                    .toUtc()
+                    .subtract(const Duration(hours: 6))
+                    .toIso8601String(),
+              ),
+            ],
           );
           await _tapTab(tester, l, 3);
           _expectTabs(l, Paths.orders);

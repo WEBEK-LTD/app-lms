@@ -30,6 +30,7 @@ import '../../../core/services/share_links.dart';
 import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/format/text_case.dart';
+import '../widgets/quick_add.dart';
 
 /// A product: images, price, options, quantity and Add to cart.
 class ProductScreen extends ConsumerWidget {
@@ -227,6 +228,8 @@ class _ProductViewState extends ConsumerState<_ProductView> {
           content: Text(
             added ? context.l10n.addedToCart : context.l10n.cartFull,
           ),
+          // 197 Goes away by itself like any message: with its View cart it stayed until closed.
+          persist: false,
           action: added
               ? SnackBarAction(
                   label: context.l10n.viewCart,
@@ -552,7 +555,9 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                         productCardTextHeight(
                           context,
                           twoPrices: customerPricesShown(ref),
-                        ),
+                        ) +
+                        // 193 Add to cart under each card.
+                        (quickAddShown(ref) ? quickAddHeight(context) : 0),
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: product.related.length,
@@ -564,6 +569,7 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                           child: ProductCard(
                             product: related,
                             width: 160,
+                            quickAdd: quickAddShown(ref),
                             onTap: () =>
                                 context.push(Paths.product(related.id)),
                           ),

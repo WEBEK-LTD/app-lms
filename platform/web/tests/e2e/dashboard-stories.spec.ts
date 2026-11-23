@@ -21,6 +21,8 @@ let api = "";
 let previewToken = "";
 /** The id of the template's "Roses" category, which the new story's button opens. */
 let roses = "";
+/** The template's five stories as copied to Dashboard › Stories, in their order. */
+let designed: (string | null)[] = [];
 
 const rows = () => own.locator("[data-story]");
 const order = () => rows().evaluateAll((els) => els.map((el) => el.getAttribute("data-story")));
@@ -84,18 +86,58 @@ test.afterAll(async () => {
   await own.context().close();
 });
 
-test("the template's stories are copied once; the owner adds one opening a category, moves it up and removes another", async () => {
+test("the template's stories are copied once, nothing in the app changing", async () => {
   await own.goto("/studio/project/stories");
   await expect(own.getByRole("heading", { level: 1, name: "Stories" })).toBeVisible();
   await expect(own.getByText(/have been copied here\. Nothing in your app changed/)).toBeVisible();
   await expect(rows()).toHaveCount(5);
   expect(await order()).toEqual([expect.stringMatching(/./), expect.any(String), expect.any(String), expect.any(String), expect.any(String)]);
-  const designed = await order();
+  designed = await order();
 
   // Copied once: the page again shows the same five, without the note.
   await own.reload();
   await expect(rows()).toHaveCount(5);
   await expect(own.getByText(/have been copied here/)).toHaveCount(0);
+});
+
+test("189 before Stories are saved: slide 2 or 3, or a picture or words on it, picked on the left or the right, is the slide the phone shows", async () => {
+  await own.goto("/studio/editor");
+  const phone = own.getByRole("main", { name: "The page in the phone" });
+  const inspector = own.getByRole("complementary", { name: "Design" });
+  const of = phone.locator("[data-studio-slide-of]").first();
+  const list = inspector.locator("[data-studio-slider-slides]");
+  // On the left: the second slide in the layers. The phone shows it, and the right side lists the five.
+  await own.locator("[data-studio-layer]").filter({ hasText: "Another year, in bloom." }).first().click();
+  await expect(of).toHaveText("Slide 2 of 5");
+  await expect(phone.getByText("Another year, in bloom.").first()).toBeVisible();
+  await expect(list).toContainText("Slides (5)");
+  await expect(list.locator("[data-studio-slide-row]")).toHaveCount(5);
+  await expect(list.locator('[data-studio-slide-row="2"]')).toHaveAttribute("aria-current", "true");
+  // On the right: slide 3. The phone shows it, with its words, icon and button listed under it.
+  await list.locator('[data-studio-slide-row="3"] > button').click();
+  await expect(of).toHaveText("Slide 3 of 5");
+  await expect(phone.getByText("Gentle words, in white.").first()).toBeVisible();
+  const title = list.locator('[data-studio-slide-part="text"]').filter({ hasText: "Gentle words, in white." });
+  await expect(title).toHaveCount(1);
+  await expect(list.locator('[data-studio-slide-part="button"]')).toHaveCount(1);
+  // Its title picked on the right: still slide 3, the title selected.
+  await title.click();
+  await expect(of).toHaveText("Slide 3 of 5");
+  await expect(inspector.getByText("Text «Gentle words, in white.»").first()).toBeVisible();
+  // The fourth slide's small line on the left: slide 4.
+  await own.locator("[data-studio-layer]").filter({ hasText: "Text «For a new baby»" }).first().click();
+  await expect(of).toHaveText("Slide 4 of 5");
+  // The phone's own arrow: slide 5.
+  await phone.getByRole("button", { name: "Next slide" }).first().click();
+  await expect(of).toHaveText("Slide 5 of 5");
+  // Designed here until Stories are saved: edited here, no word of Stories.
+  await expect(inspector.locator("[data-studio-story-slides]")).toHaveCount(0);
+  await expect(phone.locator("[data-studio-edit-stories]")).toHaveCount(0);
+});
+
+test("the owner adds a story opening a category, moves it up and removes another", async () => {
+  await own.goto("/studio/project/stories");
+  await expect(rows()).toHaveCount(5);
 
   // A new story: its photo, its words in the three languages, its ring and its button opening Peonies.
   await own.getByRole("button", { name: "Add a story" }).click();
@@ -202,4 +244,30 @@ test("Studio draws the dashboard's stories, and says where they come from", asyn
   await expect(phone.getByText("Peonies are here")).toHaveCount(0);
   await inspector.getByLabel("Stories from").selectOption("dashboard");
   await expect(phone.getByText("Peonies are here").first()).toBeVisible();
+});
+
+test("189 once Stories are saved: a click on a slide lists the slides, says they're changed in Stories, and the arrows go through them", async () => {
+  await own.goto("/studio/editor");
+  const phone = own.getByRole("main", { name: "The page in the phone" });
+  const inspector = own.getByRole("complementary", { name: "Design" });
+  // A click on a slide's words on the canvas (not the slider in the layers): the slides on the right, and the way to Stories.
+  await phone.getByText("Peonies are here").first().click();
+  const list = inspector.locator("[data-studio-slider-slides]");
+  await expect(list).toContainText(/Slides \(\d+\)/);
+  await expect(list.locator('[data-studio-slide-row][aria-current="true"]')).toHaveCount(1);
+  const note = inspector.locator("[data-studio-story-slides]");
+  await expect(note).toContainText("change each slide's picture, words and button in Stories");
+  await expect(note.getByRole("link", { name: "Edit the slides in Stories" })).toHaveAttribute("href", "/studio/project/stories");
+  // On the canvas too: the way to Stories, which slide this is, and the next one.
+  await expect(phone.locator("[data-studio-edit-stories]").first()).toHaveAttribute("href", "/studio/project/stories");
+  const of = phone.locator("[data-studio-slide-of]").first();
+  await expect(of).toHaveText(/^Slide \d+ of \d+$/);
+  const before = (await of.textContent())!;
+  await phone.getByRole("button", { name: "Next slide" }).first().click();
+  await expect(of).not.toHaveText(before);
+  await expect(of).toHaveText(/^Slide \d+ of \d+$/);
+  // The slider itself selected: its slides, none of them open.
+  await own.locator("[data-studio-layer]").filter({ hasText: "Every occasion" }).first().click();
+  await expect(list.locator('[data-studio-slide-row][aria-current="true"]')).toHaveCount(0);
+  await expect(note).toBeVisible();
 });

@@ -10,6 +10,7 @@ import { localePath } from "@/i18n/paths";
 import { AccountLink } from "./account-link";
 import { Logo, LogoLink } from "./brand";
 import { StoreMarks, WhatsAppMark } from "./brand-marks";
+import { BusinessAppButtons } from "./business-app";
 import { WhatsAppLink } from "./whatsapp-link";
 import { LanguageList } from "./language-switcher";
 import { SiteNav } from "./site-nav";
@@ -73,6 +74,7 @@ export async function SiteFooter({ full = false, lang = DEFAULT_LANG }: { full?:
   const [contact, offer] = await Promise.all([getContact(), blackFridayLink(lang)]);
   const m = messagesFor(lang);
   const f = m.footer;
+  const b = m.businessApp;
   const lp = (path: string) => localePath(lang, path);
   return (
     // The live activity card goes after the footer, outside its dark band; the footer keeps its indentation.
@@ -96,6 +98,12 @@ export async function SiteFooter({ full = false, lang = DEFAULT_LANG }: { full?:
                 {f.whatsapp}
               </WhatsAppLink>
             ) : null}
+            {/* 203 Yallapp Business, the app for the owner and their team, on both stores. */}
+            <div className="flex flex-col gap-2.5 pt-2" data-footer-business-app="">
+              <FooterHeading>{b.footerHeading}</FooterHeading>
+              <span className="text-[14px]">{b.footerText}</span>
+              <BusinessAppButtons labels={b} label={b.storesLabel} tone="night" size="sm" className="gap-2.5" />
+            </div>
           </div>
           <nav aria-label={m.nav.product} className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
             <FooterHeading>{f.product}</FooterHeading>

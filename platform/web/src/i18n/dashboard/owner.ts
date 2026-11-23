@@ -32,6 +32,14 @@ export const en = {
   colLastUsed: "Last used",
   colSignedIn: "Signed in",
   colNotifications: "Notifications",
+  // 203 Yallapp Business on the App Store and Google Play (lib/business-app.ts).
+  getApp: "Get Yallapp Business",
+  getAppText: "Install it on your phone from the App Store or Google Play, and sign in with this email and password.",
+  appStoreLine: "Download on the",
+  appStore: "App Store",
+  googlePlayLine: "Get it on",
+  googlePlay: "Google Play",
+  newTab: "(opens in a new tab)",
   needs: {
     ordersInProgress: "{count, plural, one {{count} order in progress} other {{count} orders in progress}}",
     awaitingPayment: "{count, plural, one {{count} order waiting for its payment} other {{count} orders waiting for their payment}}",
@@ -184,6 +192,13 @@ export const ar: Messages = {
   colLastUsed: "آخر استخدام",
   colSignedIn: "دخل يوم",
   colNotifications: "الإشعارات",
+  getApp: "نزّل Yallapp Business",
+  getAppText: "نزّله على تليفونك من App Store أو Google Play، وادخل بنفس الإيميل والباسورد دول.",
+  appStoreLine: "نزّله من",
+  appStore: "App Store",
+  googlePlayLine: "موجود على",
+  googlePlay: "Google Play",
+  newTab: "(بيفتح في تاب جديدة)",
   needs: {
     ordersInProgress:
       "{count, plural, one {طلب واحد قيد التنفيذ} two {طلبان قيد التنفيذ} few {{count} طلبات قيد التنفيذ} other {طلبات قيد التنفيذ: {count}}}",
@@ -332,6 +347,13 @@ export const tr: Messages = {
   colLastUsed: "Son kullanım",
   colSignedIn: "Giriş",
   colNotifications: "Bildirimler",
+  getApp: "Yallapp Business'ı indirin",
+  getAppText: "App Store'dan veya Google Play'den telefonunuza yükleyin ve bu e-posta ve şifreyle giriş yapın.",
+  appStoreLine: "Şuradan indirin",
+  appStore: "App Store",
+  googlePlayLine: "Şuradan edinin",
+  googlePlay: "Google Play",
+  newTab: "(yeni sekmede açılır)",
   needs: {
     ordersInProgress: "{count, plural, one {Hazırlanan {count} sipariş} other {Hazırlanan {count} sipariş}}",
     awaitingPayment: "{count, plural, one {Ödemesi beklenen {count} sipariş} other {Ödemesi beklenen {count} sipariş}}",

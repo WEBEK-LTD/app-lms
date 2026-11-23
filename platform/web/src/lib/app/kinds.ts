@@ -1,6 +1,6 @@
 import type { IconName } from "@/components/icon-names";
 import type { App, AppType, AppVertical, ConnectorConfig } from "../data/types";
-import type { BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName } from "../pages/types";
+import type { Action, BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName } from "../pages/types";
 
 /**
  * 20 The one registry of what Yallapp makes. An app has two things that used
@@ -1406,6 +1406,66 @@ export function defaultKind(appType: AppType): KindInfo {
 export function kindOf(app: Pick<App, "appType"> & { vertical?: AppVertical | null }): KindInfo {
   const vertical = app.vertical ?? null;
   return KINDS.find((k) => k.engine === app.appType && k.vertical === vertical) ?? defaultKind(app.appType);
+}
+
+/**
+ * 183 The screen each kind's customers came for, by kind: what a button that
+ * names no screen of its own opens (`brand`'s "Start now", the template for
+ * every project). Each is a screen its app opens (`ENGINES[..].pages.screens`
+ * or the kind's own `screens`), as the kinds' own templates name them.
+ * - a store's and a marketplace's shop, a restaurant's menu: `search`, their
+ *   Shop (Menu) and Search tabs;
+ * - a food delivery company's restaurants, where its menus are (its app has
+ *   no menu of its own);
+ * - an academy's courses, its teachers' too;
+ * - a booking kind's services, a gym's classes (its booking list);
+ * - a property app's listings (`courses`, "All listings");
+ * - a school's School screen, the day's timetable and news (no screen is
+ *   called Today: its first tab).
+ */
+const MAIN_SCREENS: Readonly<Record<string, ScreenName>> = {
+  store: "search",
+  marketplace: "search",
+  restaurant: "search",
+  food: "restaurants",
+  academy: "courses",
+  instructors: "courses",
+  bookings: "services",
+  clinic: "services",
+  services: "services",
+  fitness: "classes",
+  events: "events",
+  real_estate: "courses",
+  news: "articles",
+  charity: "campaigns",
+  travel: "explore",
+  rides: "ride",
+  taxi: "ride",
+  school: "school",
+  delivery: "send_parcel",
+};
+
+/**
+ * 183 What a button that names nothing opens in this kind's app: its main
+ * screen (above); for a kind with none, its first tab that isn't Home, else
+ * the screen of Home's first list, else its engine's first screen. Never null.
+ */
+export function mainScreenOf(kind: KindInfo): Action {
+  const own = MAIN_SCREENS[kind.id];
+  if (own) return { type: "screen", screen: own };
+  const pages = ENGINES[kind.engine].pages;
+  const tab = (kind.tabs ?? pages.tabs).find((t) => !(t.target.type === "page" && t.target.page_slug === "home") && t.id !== "home");
+  if (tab) return { ...tab.target };
+  const opens = [...pages.screens, ...(kind.screens ?? [])];
+  const list = pages.home.find((b) => b.type === "items");
+  const source = list && "source" in list ? (list.source as string) : null;
+  const screen = opens.find((s) => s === source) ?? opens[0]!;
+  return { type: "screen", screen };
+}
+
+/** 183 The same, for an app (its engine and vertical). */
+export function mainScreenOfApp(app: Pick<App, "appType"> & { vertical?: AppVertical | null }): Action {
+  return mainScreenOf(kindOf(app));
 }
 
 /** What the client calls the app's type: "Academy", "Store", … */

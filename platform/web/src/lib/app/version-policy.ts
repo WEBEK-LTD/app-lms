@@ -28,9 +28,14 @@ export function compareVersions(a: string, b: string): number {
   return 0;
 }
 
+/** A store's page once the app is live there (a publishing request's track); null before. 202 The Builds page's store links too. */
+export function liveStoreUrl(track: { status: string; storeUrl: string | null } | null | undefined): string | null {
+  return track?.status === "live" && track.storeUrl ? track.storeUrl : null;
+}
+
 /** The app's page on the store it came from; null when there's none yet. */
 export function storeUrlFor(app: Pick<App, "androidPackage">, request: PublishingRequest | null, platform: "android" | "ios", store: InstallStore | null): string | null {
-  const live = (track: { status: string; storeUrl: string | null } | null | undefined) => (track?.status === "live" && track.storeUrl ? track.storeUrl : null);
+  const live = liveStoreUrl;
   if (platform === "ios") return live(request?.ios);
   const id = app.androidPackage ? encodeURIComponent(app.androidPackage) : null;
   if (store === "galaxy_store") return live(request?.galaxy) ?? (id ? `https://galaxystore.samsung.com/detail/${id}` : null);

@@ -1,7 +1,8 @@
 import "server-only";
 import { getStore } from "./data";
 import type { DataStore } from "./data/store";
-import { encryptionKey, isProduction, mailCaptureDir } from "./env";
+import { appUrl, encryptionKey, isProduction, mailCaptureDir } from "./env";
+import { dressMail, yallappBrand } from "./email/premium-mail";
 import { DEFAULT_CONTACT } from "./contact";
 import { bothWhatsApp, whatsappLines } from "./contact-lines";
 import { writeCaptureFile } from "./capture-file";
@@ -33,11 +34,15 @@ export async function sendMail(input: Mail, options: { fromName?: string } = {})
   const contact = (await platformSetting(store, "contact"))?.value ?? DEFAULT_CONTACT;
   // 72 Both numbers, each with where it's for.
   const numbers = bothWhatsApp(whatsappLines(contact), { inEgypt: "In Egypt", outsideEgypt: "Outside Egypt" });
-  const mail = {
-    ...input,
-    text: input.text.replaceAll(WHATSAPP_PLACEHOLDER, numbers),
-    html: input.html?.replaceAll(WHATSAPP_PLACEHOLDER, numbers),
-  };
+  // 200 Every email premium: one not dressed yet (Yallapp's own) in Yallapp's logo and colour.
+  const mail = dressMail(
+    {
+      ...input,
+      text: input.text.replaceAll(WHATSAPP_PLACEHOLDER, numbers),
+      html: input.html?.replaceAll(WHATSAPP_PLACEHOLDER, numbers),
+    },
+    yallappBrand(appUrl()),
+  );
   const config = await resolvedSmtpConfig(store, encryptionKey());
   if (!config) {
     if (!isProduction() || process.env.YALLAPP_DATA === "memory") {
@@ -101,7 +106,8 @@ export async function openMailer(store: DataStore): Promise<Mailer> {
     maxMessages: 200,
   });
   return {
-    async send(mail, options = {}) {
+    async send(input, options = {}) {
+      const mail = dressMail(input, yallappBrand(appUrl()));
       const from = options.fromName ? fromWithName(config.from, options.fromName) : config.from;
       await transport.sendMail({ from, to: mail.to, subject: mail.subject, text: mail.text, html: mail.html, headers: mail.headers, replyTo: mail.replyTo });
     },

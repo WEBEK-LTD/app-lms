@@ -104,6 +104,9 @@ abstract final class AppIcons {
   static const timer = Symbols.timer_rounded;
   static const cart = Symbols.shopping_cart_rounded;
 
+  /// 193 A product card's Add to cart.
+  static const addToCart = Symbols.add_shopping_cart_rounded;
+
   /// App audit: a Studio page header's cart button, the bag the Studio
   /// editor draws (platform/web/src/components/studio/view.tsx).
   static const bag = Symbols.shopping_bag_rounded;

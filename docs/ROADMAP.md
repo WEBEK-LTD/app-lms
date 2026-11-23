@@ -4301,7 +4301,7 @@ QA (18 November) of the marketplace template (Zad, both Signature looks), the cl
 | [ ] | 177.12 "Cash on delivery" read with Pick up chosen: a new app string in three languages | — |
 | [x] | 177.15 The template guard (166) on the marketplace's and the store's templates: Zad's third poster without a price in its words ("Free · delivery on bigger baskets"), so no price stays in EGP whatever the currency; "Order again" grows with the text size; a slider of words grows with the text size (never past a fixed parent's room); the kinds' and offers' pictures cut by their tile's edge are decoration. The guard run against this branch: its prices pass for the marketplace templates, and 26 failing pages are left of main's 44, all 18 of the marketplace's and store's fixed, none new | `phase177_market_layout_test.dart`, the guard (wip-template-guard, not changed) |
 | [x] | 177.16 At text size 1.3: the basket's "If it's out" chooser keeps to its row (97 points past it), and a tab's icon and name shrink to the bar's room (a point past Zad's floating bar) | `phase177_market_address_test.dart`, `phase119_tab_bar_test.dart` |
-| [x] | 177.17 With 181 (integration branch): a slider of words that grows with the text size (177.15) keeps the text size it was last drawn at while it is off the screen (a page under another, a tab not shown: `TickerMode` off), so it is laid out as it was there, and takes the new one, and its height, once it is back. Resized under Settings (the text size changed with Leqaa's look B Home under it), the PageView's list item was left without its place in the semantics tree and the frame threw (`_updateSemanticsNodeGeometry`, `node.built`), which failed 181's flings (Android, look B, en, light). What is kept is the factor, not the system's scaler, which reads the text size when used. Reaches the apps with `CLIENT_APP_RELEASE` 12 | `phase177_17_slider_offstage_test.dart` (fails without it: grown to 286 under the page), `phase181_leqaa_leftovers_test.dart`, `phase177_market_layout_test.dart` |
+| [x] | 177.17 With 181 (integration branch): a slider of words that grows with the text size (177.15) keeps the text size it was last drawn at while it is off the screen (a page under another, a tab not shown: `TickerMode` off), so it is laid out as it was there, and takes the new one, and its height, once it is back. Resized under Settings (the text size changed with Leqaa's look B Home under it), the PageView's list item was left without its place in the semantics tree and the frame threw (`_updateSemanticsNodeGeometry`, `node.built`), which failed 181's flings (Android, look B, en, light). What is kept is the factor, not the system's scaler, which reads the text size when used. Reaches the apps with `CLIENT_APP_RELEASE` 15 | `phase177_17_slider_offstage_test.dart` (fails without it: grown to 286 under the page), `phase181_leqaa_leftovers_test.dart`, `phase177_market_layout_test.dart` |
 | [x] | 177.13 177.4–177.8, 177.10, 177.15 and 177.16 reach the apps with the next `CLIENT_APP_RELEASE` and the preview rebuilt, on the integration branch | — |
 | [ ] | 177.14 On a phone (Android and iPhone, en and ar, 1.0 and 1.3): a Zad project's five tabs, a vendor's aisles, share and heart, a delivery order with the phone's location, a card payment, and a notification opening the order; the classic store's checkout and payment | the owner |
 
@@ -4389,6 +4389,48 @@ The items phases 157 to 163 left open for the Leqaa flower template's apps (Leqa
 | [ ] | 181.5 On a phone (an iPhone and an Android phone, a small one): Leqaa's and Kech Flora's Settings and Orders, a quick flick to the end under the folding header, in both looks, English and Arabic, at the standard text size and a larger one, once the app is rebuilt on the integration branch | — |
 | [ ] | 181.6 On a phone: an academy's Settings › Playback speed on a small phone with a large font, its last speed in reach; and Leqaa's language sheet if the owner turns its premium look off | — |
 
+## Phase 183: `brand`'s Start now opens the app's main screen
+
+The template guard (166, `docs/qa/2026-11-18-guard/NOTES.md`) found that `brand`, the template for every kind of project, served its hero's "Start now" with `action: null`: the button opened nothing. The kinds' own templates name a screen; `brand` named none, and no helper mapped a kind to its main screen. The owner's rule is that every app comes out with no dead buttons. Now each kind has a main screen, `brand` opens it when a project is made, and the hosted API gives it to a page's button that names nothing, so projects made before are fixed too. The owner's own link always wins. `brand`'s look and words are unchanged; no migration, no contract change, no `CLIENT_APP_RELEASE` change (the app already opens these screens).
+
+| Kind | Opens (`screen`) |
+|---|---|
+| store, marketplace | the shop, `search` (the Shop and Search tabs) |
+| restaurant | the menu, `search` (its Menu tab) |
+| food | `restaurants`: a food delivery company's menus are its restaurants'; its app has no menu screen of its own |
+| academy, instructors | `courses` |
+| bookings, clinic, services | `services` |
+| fitness | `classes`, a gym's booking list (its first tab) |
+| events | `events` |
+| real_estate | `courses`, "All listings" |
+| news | `articles` |
+| charity | `campaigns` |
+| travel | `explore` |
+| rides, taxi | `ride`, the ride request on the home map |
+| school | `school`: there is no Today screen, so its first tab, which shows the day |
+| delivery | `send_parcel` |
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 183.1 `mainScreenOf(kind)` and `mainScreenOfApp(app)` (`lib/app/kinds.ts`): the table above, all `screen` actions (ACTION_TYPES) with screens in the contract's `ScreenName` that each kind's app opens. A kind with no entry: its first tab that isn't Home, else the screen of Home's first list, else its engine's first screen; never null | `phase183-brand-start.test.ts` |
+| [x] | 183.2 Making a project from `brand` (`makeStudioProject`, and Studio's editor when it adds the template): "Start now" opens the kind's main screen (`SectionContext.main`) | `phase183-brand-start.test.ts` (every kind) |
+| [x] | 183.3 Hosted `GET /pages/{slug}`: a button on a Studio page with no action (`brand`'s "Start now" in a project made before) is served with the app's main screen (`lib/studio/main-screen.ts`), next to 152's and 161's served fixes. A list's card's buttons are left as they are (the card opens its entry); a button with the owner's own link keeps it | `phase183-brand-start.test.ts` (every kind, the owner's link) |
+| [x] | 183.4 Studio's inspector: for such a button, "When the customer taps" shows "Opens: <the main screen>" (the tab's name when a tab opens it: "Shop", "Menu"), with a line saying the owner can choose another, in English, Egyptian Arabic and Turkish | tsc, eslint, next build |
+| [x] | 183.5 The guard (`wip-template-guard`'s tests, run on a local merge): `brand on a store project` passes all 11 checks, the tap check included (10 of 11 before) | `template-guard.test.ts` |
+| [ ] | 183.6 For the guard's branch: regenerate its fixtures (`mobile/tool/template_guard_fixtures.sh`) once this is merged, since `brand.json` now has "Start now" opening the shop; until then its fixtures check reports `brand.json` as stale | `template-guard-fixtures.test.ts` |
+
+## Phase 185: Client Android builds survive a busy Maven Central
+
+On 18 November (run 44284453178) one of three Android client builds running at once failed in "Build, sign and upload" after 48 seconds: Gradle couldn't resolve `org.jetbrains.kotlin:kotlin-gradle-plugins-bom:2.2.20` and `kotlin-stdlib:2.2.21` because Maven Central and the Gradle Plugin Portal answered 429 Too Many Requests, and Flutter's own single retry after 100 ms came too soon. It was a client's real store build; the next run, 1 h 45 later, made it. Each job downloaded every Gradle dependency from scratch.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 185.1 Gradle's downloaded dependencies (`~/.gradle/caches/modules-2`) and wrapper (`~/.gradle/wrapper/dists`) are cached between client builds in `build-apps.yml` (`actions/cache`, keyed on `mobile/android`'s Gradle files, its wrapper version and `mobile/pubspec.lock`, with a fallback to the last cache). Only what the repositories and Gradle's site serve: no build outputs, Gradle's build cache, compiled build scripts or transforms, and nothing of a client's config, keys or signing files (those stay in the checkout and the runner's temp), so one cache serves every client | workflow parses; first runs on the runners |
+| [x] | 185.2 `flutter build apk` and `flutter build appbundle` run through `build/scripts/network_retry.py`: when one fails and its output says a download failed (429, a 5xx, a read or connect timeout, a reset connection, a host not found), it runs again after 30 s, 90 s and 180 s, each retry said in the build log, then fails as before. Any other failure fails at once with its own exit code: code that doesn't compile, a dependency no repository has ("Could not find"), a 401, 403 or 404, a signing or disk error. Signing, uploads and `AUTO_PUBLISH` are unchanged | `test_network_retry.py` |
+| [x] | 185.3 The iPhone build checked: the client app's iOS project uses Swift Package Manager (no Podfile, no CocoaPods download), resolved by Xcode, so it has no such exposure and is unchanged | — |
+| [x] | 185.4 Mobile CI's `app` job (`mobile.yml`, the debug APKs) keeps its own Gradle dependency cache (`gradle-deps-ci-`), apart from the client builds' (`gradle-deps-release-`) | workflow parses |
+| [ ] | 185.5 On the runners: a queue of three Android builds or more, the second run restoring the cache ("Cache restored from key: gradle-deps-release-…"), and a retry seen in a build log the next time a repository answers 429 | — |
+
 ## Phase 186: The payment page back inside the app
 
 The owner's decision (18 November, urgent): on Kech Flora and Leqaa the checkout's payment page in the phone's browser sheet (170) looks bad, with the browser's own bar over it. It goes back inside the app, in the app's own web view, as before 170. Done on the platform, so the apps already on phones (release 10) take it at once, with no new build or store review: the apps are handed the payment page's `/in-app`, and release 10's apps open only the page itself (`/pay/<token>`, two parts) in the sheet. Every flow that pays on Yallapp's page takes it: hosted stores, food, bookings and memberships, courses, events, parcels, rides, travel, school fees, the market and its clubs, and 134's connected stores paying in the app. Apple Pay and Google Pay don't show inside an app's web view (155, 170): the card form, iyzico's and Kashier's forms, Fawaterk's and PayPal's pages and bank transfer work as before 170. The sheet's code stays in the app, unused; handing an app the page itself would turn it on again (for example as an app's own setting later). No migration, no app build.
@@ -4426,3 +4468,171 @@ The owner's request (18 November, urgent): Google Pay and Apple Pay through a ga
 | [ ] | 188.8 On a real iPhone: the card in the sheet; with the owner's merchant ID linked to the App ID and Stripe's Apple Pay certificate, Apple Pay in it | — |
 | [ ] | 188.9 The owner's Apple Pay set-up per app (merchant ID, its link to the App ID, Stripe's certificate) | — |
 | [x] | 188.10 App release 11 on its own: `CLIENT_APP_RELEASE` 11 with its release line (`lib/builds/app-release.ts`), and the app preview rebuilt with Flutter 3.47.5 (`mobile/tool/build_preview.sh`; flutter_stripe compiles for the web, where the app never makes the sheet, so the preview keeps Stripe's form in the page) | `publish-for-all.test.ts`, `build_preview.sh --check` |
+
+## Phase 189: The hero's slides, plain to find in Studio
+
+The owner's report (18 November, urgent): on Kech Flora's home, the five full-screen slides (a picture, a small line, the title, the words and a button each, "01/05" over them) couldn't be found to change. They are the app's stories (165, `stories_source: "dashboard"`), changed in Dashboard › Stories, but Studio only said so with the slider itself selected, and a click on the hero selects the words or the picture on a slide, never the slider; and the canvas showed one slide, the others only by scrolling sideways. Studio's editor only: nothing changes in the app, no app build, no migration. Then the owner's word (same day): the slides are edited from the layers on the left, as they should be; they must be on the right too; and whatever is picked on slide 2 or 3 (its picture or its words) must be the slide the phone shows, which it wasn't: the canvas kept slide 1. Until the owner saves in Dashboard › Stories the app shows the slides as designed in Studio, edits included (165), so Studio speaks of Stories only once they're saved.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 189.1 The slides on the right too: with any slider, one of its slides or anything on one selected, the inspector lists its slides as the layers do ("Slides (5)", "Slide 1 · Say it with roses.", …), the one being edited opened with its icon, words and button; a click selects it and the phone shows that slide (`app/studio/editor/slider-slides.tsx`, `lib/studio/slides.ts` `sliderOf` and `slideParts`, the layers' names shared as `layerLabel`). Once the owner has saved Dashboard › Stories, for a slider of the app's stories: "These slides show your app's stories: change each slide's picture, words and button in Stories, then save. The app shows them at once.", with "Edit the slides in Stories" (English, Egyptian Arabic, Turkish) | `phase189-studio-slides.test.ts`, `dashboard-stories.spec.ts` |
+| [x] | 189.2 On the canvas, every slider has Studio's own buttons over it (never in the app): the slide before and after, "Slide 2 of 5", and for the app's stories once saved in Stories "Edit the slides in Stories". A slider showing one slide at a time shows the one holding what's selected, picked on the left, on the right or on the phone (the first otherwise); one showing several scrolls to it; its dots, lines, pill and "02/05" show where it is | `phase189-studio-slides.test.ts`, `dashboard-stories.spec.ts` |
+| [ ] | 189.3 For the owner: on Kech Flora in Studio, pick slide 3's title on the left, then slide 2 on the right: the phone shows each; change its words; the preview shows them | — |
+
+## Phase 190: Yallapp's Studio demos in Studio Market, free
+
+The owner's request (18 November, urgent): every Yallapp Studio demo design is on Studio Market as a free template, so buyers find it there and apply it to their Studio project like any other free template. "Every demo" is every look a new Studio project starts from on /start?for=studio: each of the ten Studio demos' two Signature looks (look A is the demo itself), twenty templates. They're listed by "Yallapp" in the dashboard's market and on /templates (and /ar, /tr), found by Free, the kinds and a search, with their cover, languages (English, Arabic, Turkish) and kinds; applied, the buyer's project gets what a new project from that look starts with. No money, plans, payouts or review are involved. No migration, no page or route changed (`lib/studio-market` and its tests).
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 190.1 The designer: Yallapp's own profile ("Yallapp", `yallapp`, or the next free address of `yallapp-studio`, `yallapp-demos`) on the demo account, the account Admin › Demo apps makes (platform setting `demo`, already left out of the admin's numbers). A designer must belong to an account (`studio_market_designers.client_id`, a foreign key to `clients`, and a template's `client_id` its designer's), and that account is already Yallapp's own: no account is made, and no migration. Until the demo apps are made there is no listing. Its id is fixed (`HOUSE_DESIGNER_ID`); its status stays the team's (suspended, the templates are off the market and the website) | `phase190-house-templates.test.ts`, `phase190-house-mysql.test.ts` |
+| [x] | 190.2 Each look a published, free template (`lib/studio-market/house.ts`): its id from the demo and look, its address from its name (`sofra-eats-editorial-menu`; another designer's address taken, `…-yallapp`), free with no plans, kept after the end, its kinds the kinds a new project of which starts from it (`templatesFor`), tags `yallapp` and `demo`, never sent for review (not in the review queue, no `publishedAt`, so not "approved this week" nor one of the week's new designs) | `phase190-house-templates.test.ts` |
+| [x] | 190.3 Its texts in English, Modern Standard Arabic and Turkish (`i18n/messages` `marketHouse`, shown on the website and in the dashboard): "Sofra Eats · Editorial menu", a short line (the demo itself, or its second look), what the look is and what applying it gives. In the market's limits, no Egyptian forms | `phase190-house-templates.test.ts`, `site-i18n.test.ts` |
+| [x] | 190.4 Its version is the project /start makes from the look (lib/demo/start.ts, lib/studio/new-project.ts): the look's template on a project named as the demo, with the demo's own words where it asks for the owner's, its colour, sign-in screen and account menu, taken as a design file as any template's (`layoutDesign`, shared with `projectDesign`): every Studio page, the tabs and bar, the fonts, the second colour and the screens' looks; its cover the home. Next to it (`<version>.look.json`) the appearance a design file doesn't carry: the template, the bundled font, corners, cards and the colours by night | `phase190-house-templates.test.ts` |
+| [x] | 190.5 Seeded on read, not listed from code: `ensureHouseTemplates` where the market is read (`marketCatalog` for the dashboard's market and /templates, the sitemap's `publicTemplateSlugs`, a template's page when its address isn't found yet). Licences and applications need the template's row (their foreign keys), so applying, My templates, moving and going back work as for any template. Cheap when nothing changed (the designer and the templates read once); made once from two servers at once; a version's id comes from its design, so the same code finds the same version, and a demo changed in code is a new version on the next read, which buyers get from My templates as an update (free: always). Only these ids are written: a designer's template or address is never touched | `phase190-house-templates.test.ts`, `phase190-house-mysql.test.ts` |
+| [x] | 190.6 Applied (`lib/studio-market/apply.ts`): the buyer's project gets exactly the new project's Studio pages, tabs, bar, languages, main colour, fonts, corners, cards, colours by night and screens' looks (each of the twenty compared with a project /start made); the demo's own name becomes the buyer's app's name where the demo writes the app's name (the version made again for it while the code still makes that version, else the version as kept); a free licence, back to the previous design as for any template. The project's own content and its other pages stay its own | `phase190-house-templates.test.ts` |
+| [x] | 190.7 The market's filters and counts work for them (Free, Paid, the kinds, a search, the templates and designers counted, how many apps took each); they add nothing to a designer's money, payouts or ledger, nor to the review queue | `phase190-house-templates.test.ts`, `studio-market-public.spec.ts` |
+| [ ] | 190.8 The e2e case (`studio-market-public.spec.ts`: the cards, Free and the kinds, a template's page in English, Arabic and Turkish, the sitemap) was written but not run here: the production build it needs didn't fit the machine's free disk | — |
+| [ ] | 190.9 For the owner: on production, the twenty templates show once Admin › Demo apps has made the demo account; to take them off the market, suspend the Yallapp designer. Signed in as the demo account, its designer area lists them; what is changed there is put back on the next read | — |
+
+## Phase 191: Studio Market lives in Studio
+
+The owner's word (18 November, urgent): Studio Market (106) didn't open from Studio. Studio's bar sent it to the regular dashboard, whose dark bar and menu had it. It belongs to Studio, and the owner doesn't want it in the regular dashboard at all. Its public page (106.13, `/templates`) was already built and in the footer and the header's Studio list; it now has its own link on the header's bar too. Every Studio demo in it as a free template is Phase 190's. No migration, no app build.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 191.1 The market's pages in Studio's own frame (the console, as Your account and Team): `/studio/market` (the market), `/studio/market/t/<slug>` (a template), `/studio/market/mine` (My templates) and `/studio/market/checkout/<slug>`. Every link, form, email, the website's buttons and the designer's area go there; Studio's bar opens it | `studio-market*.test.ts`, `studio-market*.spec.ts` |
+| [x] | 191.2 Studio's menu has a "Studio Market" group (Browse templates, My templates; the same permissions as before, `STUDIO_PATHS` in `lib/team/permissions.ts`), in a project and on the account's pages. Selling designs is the designer's own area (`/designer`), from the market's page: every link of Studio's menu stays in Studio's frame | `studio-market.test.ts`, `studio-market.spec.ts` |
+| [x] | 191.3 None of it in the regular dashboard: its menu group and the dark bar's third switch are gone; its old addresses (`/dashboard/studio-market/…`, emails sent before, bookmarks) open the same page in Studio, the query kept | `team-permissions.test.ts`, `studio-market.spec.ts` |
+| [x] | 191.4 The website's header has "Studio Market" on its bar from the widest screens (1536 px; a 1280 px laptop's bar is full), marked on its page; in Studio's list and the footer at every size | `website-seo.test.ts`, `studio-market-public.spec.ts` |
+
+## Phase 192: Client Android release builds past Stripe's private dependency
+
+The owner's report (18 November, urgent): a client's Android build failed after release 11. Its release build ran lint's vital pass, which resolves the lint checks of every library; flutter_stripe (188) brings `com.stripe:stripe-android-issuing-push-provisioning:1.3.0`, which needs Google's `com.google.android.gms:play-services-tapandpay:18.8.0`, an artifact on no public repository (`:stripe_android:lintVitalAnalyzeRelease`). CI built only debug APKs, which never run that pass. No app or platform code changes.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 192.1 The app's release builds skip lint (`lint { checkReleaseBuilds = false }` in `mobile/android/app/build.gradle.kts`): lint checks code, the app builds the same | CI "Build release APK (debug key)" |
+| [x] | 192.2 `play-services-tapandpay` left out of every library's lint-check configurations (`mobile/android/build.gradle.kts`), so nothing asks the repositories for it (the apps don't issue cards to wallets) | CI "Build release APK (debug key)" |
+| [x] | 192.3 CI's Flutter job builds a release APK too (the debug key, never uploaded), as client builds do; and the iOS job a release build for a real iPhone (unsigned), so neither store's release build is first tried on a client's app | `mobile.yml` |
+| [ ] | 192.4 The failed client's build run again, and passing | — |
+
+## Phase 193: Add to cart under every product, on Leqaa's looks
+
+The owner's word (18 November, very urgent), on Kech Flora and Leqaa: "keep the old look, just add Add to cart" under every product, on every page. The cards stay exactly as they were; each product's card gets its own Add to cart under it, on a store whose checkout is the gift checkout (`Config.screens.checkout` `gift`: Leqaa's looks A and B and every app made from them, Kech Flora's too). Other shops keep their cards as they were.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 193.1 The button (`QuickAddButton`, mobile/lib/modules/store/widgets/quick_add.dart) in the app's main colour, the app's own words ("Add to cart", "أضف إلى السلة", "Sepete ekle"), Material Symbols Rounded `add_shopping_cart`, by day and by night, right to left in Arabic | `phase193_add_to_cart_test.dart`, screenshots |
+| [x] | 193.2 A product with nothing to choose goes straight in the cart (one, at the shop's price now; the cart's count on Send follows) with "Added to cart" and "View cart"; one with sizes, variations or options opens its page to choose them, so a wrong one never goes in; out of stock, or a shop that can't sell, the button is off ("Out of stock"); the cart, the quote and the checkout as they were | `phase193_add_to_cart_test.dart` |
+| [x] | 193.3 On every list of products: the shop's grid (the Bouquets tab, a category, the search, On sale), the home's rows, a product's "You may also like", and every Studio list of products (grids, rows and carousels: Loved most, Picked for you, the price list, Our bouquet) | `phase193_add_to_cart_test.dart`, `phase161_customer_currency_test.dart` |
+| [x] | 193.4 Studio's canvas draws it under each product's card on those looks, in the layout's language (`components/studio/quick-add.ts`) | `phase193-quick-add.test.ts` |
+| [x] | 193.5 `CLIENT_APP_RELEASE` 13 (12 is the release 12 integration's, #473), the preview rebuilt | `publish-for-all.test.ts`, CI "App preview is up to date" |
+| [x] | 193.7 The owner, on the first look: "why the big space between the name and the price?" The shop's grid went row by row (each row as tall as its fullest card, the cards of a row the same height); a card's name keeps its two lines with the price right under it, level across the row, Add to cart at the card's foot. Before, every cell was one fixed height made for the fullest card, the price pushed to its foot, leaving a band between the name and the price | `phase193_add_to_cart_test.dart`, screenshots |
+| [ ] | 193.6 A flash sale's own cards (`flash_sale`) keep their look without the button; on Kech Flora's phone, Add to cart on the Bouquets tab and the home | — |
+
+## Phase 195: No page fails with "Queue limit reached"
+
+The owner's log (19 November, 01:50, on `/admin/builds`): a page failed with `Failed query: select … from user_sessions …` and, under it, `Queue limit reached`. The documentation's menu (on every documentation page, `docsNavGroups`) and its search read each of the 73 articles' texts on its own, one query each in English and two in Arabic and Turkish, all at once. The site's one database connection per function (`createPool`, 50 queries waiting at most) had more waiting than it takes, so the page failed, and the session read beside it with it.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 195.1 `getSiteContents(keys, lang)` (`lib/content/get.ts`): several pages' texts as `getSiteContent` gives each (the team's edits, their translations, the defaults when the database can't be read), from one query for this render (`listSiteContent`) | `phase195-docs-one-query` |
+| [x] | 195.2 The documentation's menu (`components/docs-shell.tsx`) and its search (`site/docs.tsx`) read all their articles with it: one query, whatever the language | `phase195-docs-one-query` |
+| [x] | 195.3 The build queue (`/admin/builds`, up to 200 builds) looked up each build's client, its user and its app, three queries each, all at once (with client apps rebuilding for release 13, a full queue): now each client, user and app once, ten at a time | `tsc`; e2e `publishing`, `starter-flow` (CI) |
+| [x] | 195.4 Up to 1000 queries may wait for a function's connection (`DEFAULT_QUEUE_LIMIT`, was 50; `DATABASE_QUEUE_LIMIT` still sets it): other pages that look up each of their rows (Admin › Publishing, Coupons, a client's page) no longer fail when they have many | `database-ca` |
+
+## Phase 196: A finished build is never left on "building"
+
+The owner's report (19 November, urgent, a client waiting): Kech Flora's build #23 said "Building" for over half an hour. Its Android app had been built at 22:51 UTC, but the platform answered the pipeline's report with a 500 for about three minutes (the database busy, Phase 195), and the pipeline asked only once: the build was left on "building", and Try again came back only after six hours.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 196.1 The pipeline asks the platform again on a 500 too (`build/scripts/platform.py`, as on a 429, 502, 503 or 504), six tries over about two minutes | a local server answering 500 twice, then 204: the report goes through on the third |
+| [x] | 196.2 A building build that reported nothing for three hours is stalled (`BUILDING_STALL_MS`, was six; the Android and iPhone jobs take 2½ hours at most), so Try again comes back sooner; the documentation says three hours (en, ar, tr) | `builds-downloads` |
+
+## Phase 197: "Added to cart" goes away by itself
+
+The owner's report (19 November, Kech Flora): adding a product to the cart, "Added to cart" stayed on the screen until the customer closed it. Since Flutter 3.29 a message with an action (its View cart) stays until it is closed, unless it says otherwise.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 197.1 The message goes away by itself like any other (`persist: false`), its View cart kept: Add to cart under a card (`quick_add.dart`), a product's page, and a class's "See plans" (the event's "See tickets" did so already) | `phase193_add_to_cart`: gone after a few seconds, untouched; fails without the change |
+| [x] | 197.2 `CLIENT_APP_RELEASE` 14: every client's app is built again with it; the preview rebuilt | `flutter test` (2872), `build_preview.sh --check` |
+
+## Phase 198: The customer's receipt email in the business's look
+
+The owner's report (19 November, Kech Flora): the email a customer gets after paying was plain text with a link to the receipt. Wanted: a premium email that suits light and dark, with the business's logo, and no link, the attached PDF being the receipt.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 198.1 `lib/email/order-receipt-email.ts`: the receipt email as HTML in the business's look: its logo (else its icon, else its name in its colour) at the top, its main colour as the accent, the order's number and date, its lines and total as a card, "Your receipt is attached as a PDF"; tables and inline styles, at most 600 px wide | `phase198-receipt-email` |
+| [x] | 198.2 By day and by night: `color-scheme` and `supported-color-schemes` light dark, dark colours under `prefers-color-scheme: dark` and Outlook's `[data-ogsc]`, light colours that stay readable when a mail app turns them around by itself | `phase198-receipt-email`; rendered in Chromium light and dark |
+| [x] | 198.3 No link to the receipt (the Order receipt template's `{{receipt_url}}` gone, and its line left out of a template the team edited); the PDF still attached | `receipts-routes` |
+| [x] | 198.4 In the customer's language (the receipt's own, `customerLang`): English, Arabic right to left, Turkish; a template the team edited keeps its words for the subject and the plain-text part | `phase198-receipt-email` |
+
+## Phase 199: The app's emails to its users in the receipt's look
+
+The owner (19 November): whoever signs up in an app gets a premium welcome email; the email with the code (signing in, or setting a forgotten password again) premium too; the app's logo and name, never Yallapp's. The same look as the receipt (198), only the content differs.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 199.1 The receipt's look shared (`lib/email/app-email-shell.ts`: the app's logo or name, the card in its colour, light and dark, the footer in its name); the receipt, the welcome and the code use it | `phase198-receipt-email`, `phase199-app-emails` |
+| [x] | 199.2 A welcome after signing up with an email address (`POST /auth/register`, never on signing in), in the app's name and the customer's language, when the app's email can go out; never fails the sign-up; the "Welcome to the app" template (`app_welcome`) in the admin | `sign-in-methods`: one welcome on signing up, none on signing in again |
+| [x] | 199.3 The code email (hosted apps and WordPress sites with email codes) in the app's look and the customer's language: the code large and spaced, selectable, its expiry kept; `purpose: reset` on `/auth/email/request` words it as setting a new password | `phase199-app-emails` |
+| [x] | 199.4 An edited template (Sign-in code, Welcome) keeps its words for the subject and the plain-text part | `phase199-app-emails` |
+
+## Phase 200: The "how to pay" email in the receipt's look
+
+The owner (19 November), trying an order on Kech Flora with a bank transfer: two emails came, the receipt in its premium look and the "how to pay" email as plain text ("الاول بيزيك اوي مش عايزينه زي الصورة كدا"). The "how to pay" email now has the receipt's look (198, 199).
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 200.1 The customer's "how to pay" email (bank transfer or the business's own method, such as cash on delivery) in the app's look (`lib/email/order-awaiting-payment-email.ts`, `lib/catalog/manual-mail.ts`): the logo, the order with its lines and total, the amount by its day, and the business's details in a box of their own. In the customer's language ("Bank transfer" in its words; a method the business named keeps its name), light and dark. An edited template keeps its words for the subject and the text part. The owner's "waiting for payment" email is unchanged | `phase200-pay-email`, `manual-payments` (unit and e2e: same English subject, the details in the text) |
+| [x] | 200.2 The owner: every email premium ("اي ايميل يتبعت يبقا بريميوم"), with the same template. Every email that isn't designed on its own (shipped, refunded, a booking, the plan's reminders, a password reset, every admin template and every text-only email) is dressed in the receipt's look just before it goes (`lib/email/premium-mail.ts` `dressMail`, in `sendAppMail` and `sendMail`/`openMailer`): an app's email to its customers in the app's logo and colour, Yallapp's own in Yallapp's logo (the reversed one by night). The subject is the card's heading; the template's words, paragraphs and links stay as they are, links in the brand's colour, a link alone on its line a button. Light and dark, in the email's language (Arabic right to left). An email with its own design (receipt, how to pay, welcome, code, campaigns, moving an app) is left as it is. The admin's templates and their words are unchanged | `phase200-pay-email` (every email premium), the whole unit suite |
+| [x] | 200.3 The app asks for a forgotten password's code by email with `purpose: reset` (Forgot password, and Resend on its code screen), so the email says it is for setting a new password; a sign-in code is worded for signing in, as before. In the app's next release: no `CLIENT_APP_RELEASE` change here, the preview rebuilt | `phase160_sign_in_ways_test` (fails without the change) |
+
+## Phase 201: The links the stores ask for, easy to find
+
+The owner (19 November): the account deletion link Google Play and Apple ask for was hard to find ("ما تسهلها وتحطها في صفحه العميل"). It was only in Publishing's checks, after choosing who publishes.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 201.1 At the top of Publishing (dashboard and Studio), whoever publishes and before choosing: "Links the stores ask for", the app's own delete account page (`/a/<app>/delete-account`, with where Google Play asks for it), its privacy policy and its support email, each with Copy; one not set yet links to the setup step that adds it. In English, Arabic and Turkish | `tsc`, `eslint` |
+
+## Phase 202: Old build files leave the files host
+
+The owner (23 November): the old APK, AAB and IPA files on the files host can go; keep only the latest ("النسخ القديمة من apk و غيرو الي على السيرفر ممكن تتمسح؟ نخلي اخر اصدار بس"), and where the app is on Google Play and the App Store, their links in place of the files, except a new build's files, which stay until it is uploaded to the store.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 202.1 The daily job (`/api/internal/daily`, `lib/builds/retention.ts`) keeps, for each app and each of its apps (`Build.variant`: app, courier, vendor, staff), the files of the latest ready build for Android and for the iPhone (the same build unless one was started for one platform alone, 142): every other finished build's folder `builds/<build id>/` is removed with the purge's signed DELETE (`lib/apps/build-files.ts`), its `artifacts` emptied and `release.filesRemovedAt` set (no migration). Nothing still moving is touched: queued or building, a stage running, an iPhone version waiting for App Review. At most 200 folders a run; one the files host doesn't confirm stays for the next day; one app's failure doesn't stop the others; without `FILES_SIGNING_SECRET`, logged and nothing removed | `phase202-build-retention` |
+| [x] | 202.2 Once the latest build is on its store (Google Play's upload done; TestFlight's done and App Review's sent, or not sent by the platform) and the app is live there (the publishing request's track, with its store page), the Builds page (dashboard and Studio) shows a Google Play or App Store row with Open on the store in place of the APK, App Bundle and store assets, or the .ipa, and the latest build's card links to Google Play; the folder goes too when every file in it is replaced by a live store's link. The upload key never is (it's the owner's, and every update on Google Play needs it), so a build that holds it keeps its folder until a newer build replaces it. Only the customers' app: the other apps' store pages aren't kept | `phase202-build-retention` |
+| [x] | 202.3 A build whose files were removed says so in its details ("Files removed from our server on …"), and a file row whose build's folder is gone says the files were removed and to start a new build; in English, Egyptian Arabic and Turkish | `phase202-build-retention`, `dashboard-i18n` |
+
+## Phase 203: Yallapp Business on the App Store and Google Play, on the website
+
+The owner (23 November): Yallapp Business is on the App Store and Google Play; put it on the website ("ومتنساش على الموقع تحط ابلكيشن يلا اب بيزنز هو مرفوع على ابل ستور وجوجل بلاي").
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 203.1 The two store links in one module (`lib/business-app.ts`): `https://apps.apple.com/app/yallapp-business/id6827042925` (no country, so each visitor's own store opens) and `https://play.google.com/store/apps/details?id=tr.com.yallapp.business` (no tracking). Buttons of our own (`components/business-app.tsx`): "Download on the App Store" and "Get it on Google Play" in words with a Material Symbols icon (`phone_iphone`, `android`), not the stores' badges, each opening in a new tab | `phase203-business-app` |
+| [x] | 203.2 The home page, under the dashboard: a Yallapp Business section (`site/business-app.tsx`): what it does for the owner and their team (orders, appointments and tickets; chat and a notification for every new order and message; today's sales and what needs them), a drawing of its Today screen, the two buttons and "sign in with your dashboard's email and password". The footer has a Yallapp Business group with the two buttons, and the docs article "Yallapp Business, the app for you" has them under its introduction. In English, Arabic and Turkish, light and dark | `phase203-business-app`, `site-i18n`, `home-hero` |
+| [x] | 203.3 The dashboard: Your phones (dashboard and Studio) has "Get Yallapp Business" with the two buttons, and Studio's account menu its two links; in English, Egyptian Arabic and Turkish | `phase203-business-app`, `dashboard-i18n` |
+| [x] | 203.4 The owner asked for the stores' own logos on the buttons: Apple's logo and Google Play's mark (the unaltered simple-icons paths of `lib/brands.ts` STORES, `StoreMark` in `components/brand-marks.tsx`) in the button's text color take the place of the Material Symbols icons, on every button and in Studio's account menu (docs/BRAND.md, Third-party brand marks) | `phase203-business-app` |
+
+## Phase 204: Studio's own plans on the website, a premium look
+
+The owner found the Studio plans section of the home page plain ("شكله وحش اوي").
+
+| | Item | Tests |
+|---|---|---|
+| [x] | 204.1 What every Studio plan has and what changes plan by plan (`StudioPlanBasics`, on the home page, Yallapp Studio's page and the story pages): a night panel under an ember glow, as the home page's Studio band; each thing every plan has a tile with its icon, what changes plan by plan as chips. On request (no Studio plan shown to clients yet), a card of its own with a "Message us on WhatsApp" button. Light and dark, phones and computers | `pricing-studio` |
+
+## Phase 205: the home page's Studio plans as on the pricing page
+
+The owner: the home page's Studio plan cards looked bad (long cards listing every line, the button's words on two lines, "كل الي طلبته تغيير الشكل").
+
+| | Item | Tests |
+|---|---|---|
+| [x] | 205.1 The home page's Studio plans on the pricing page's night band (`site/studio-plans-band.tsx`, the owner's chosen design of 154): compact cards with the first lines and the rest under "See everything (+N)", the featured plan marked, "Every Studio plan has" beside them, each plan's own main price, the currency note; on request when no Studio plan is shown to clients. `#studio-plans` keeps its id | `pricing-studio`, `home-hero`, e2e `pages` |

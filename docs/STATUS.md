@@ -160,6 +160,142 @@ inspector does. No migration; the app's part comes with the next app build
 (no `CLIENT_APP_RELEASE` change here); not yet tried on a phone (ROADMAP
 181.5, 181.6).
 
+Roadmap 203 (Yallapp Business on the website): the owners' own app is on
+the App Store and Google Play, and its two store links (one module,
+`lib/business-app.ts`) are on the home page in a Yallapp Business section,
+in the footer, in its docs article, on the dashboard's Your phones and in
+Studio's account menu, as buttons of our own that open the store in a new
+tab; in English, Arabic and Turkish, light and dark.
+
+Roadmap 202 (old build files leave the files host): the daily job keeps
+only each app's latest ready build's files (per app and variant, Android
+and iPhone) and removes every older build's folder from
+files.yallapp.com.tr; once the latest build is uploaded to Google Play or
+the App Store and the app is live there, the Builds page shows the store's
+link in place of its files, and the folder goes when nothing in it is
+needed (the upload key keeps it). A new build's files stay until it's on
+the store; nothing still building or uploading is touched.
+
+Roadmap 200.3: the app asks for a forgotten password's email code as one,
+so its email is worded for a new password (in the next app release).
+
+Roadmap 190 (Yallapp's Studio demos in Studio Market, free): every look a
+new Studio project starts from on /start?for=studio, each Studio demo's
+Signature looks A and B (twenty), is a published, free template by
+"Yallapp" in the dashboard's market and on /templates, with its cover, its
+English, Arabic and Turkish texts and its kinds, found by Free, the kinds
+and a search. Applied, the buyer's project gets what a new project from
+that look starts with (its pages, tabs, bar, colours, fonts and screens'
+looks, the buyer's app's name where the demo writes the app's), with a free
+licence and back to the previous design as any template. They're seeded on
+read where the market is read, by fixed ids (the same code finds the same
+rows; a demo changed in code is a new version buyers get as an update), on
+Yallapp's designer profile of the demo account (no account made, no
+migration); never a designer's template, nor any money, payout or review.
+They show once Admin › Demo apps has made the demo account; suspending the
+Yallapp designer takes them off. The e2e case wasn't run here.
+
+Roadmap 191 (Studio Market lives in Studio): the market's pages are in
+Studio's own frame (/studio/market, a template, My templates, checkout), in
+Studio's menu (Browse templates, My templates) and on
+Studio's bar; the regular dashboard has none of it, its old addresses open
+the same page in Studio. The website's header has Studio Market on its bar on wide screens;
+the footer and Studio's list had it already.
+
+Roadmap 201 (the links the stores ask for): at the top of Publishing, the
+app's delete account page, privacy policy and support email, each with
+Copy.
+
+Roadmap 200 (the "how to pay" email in the receipt's look): a customer who
+chose a bank transfer or cash on delivery gets the business's details in
+the app's premium look, in their language. Every other email (shipped,
+refunded, reminders, Yallapp's own) is sent in the same look too: the
+app's logo and colour to its customers, Yallapp's to clients.
+
+Roadmap 199 (the app's emails to its users in the receipt's look): a
+welcome after signing up in an app with an email address, and the code
+email (signing in, a forgotten password), both in the app's logo, name and
+colour, light and dark, in the customer's language.
+
+Roadmap 198 (the customer's receipt email in the business's look): after
+paying, the customer gets a premium email in the business's look (its
+logo, its colour, light and dark) in their language, the order as a card,
+and the receipt as the attached PDF, with no link.
+Roadmap 197 ("Added to cart" goes away by itself): the message with its
+View cart stayed on the screen until closed (Flutter keeps a message with
+an action); it now goes away like any other, on a card's Add to cart, a
+product's page and a class's See plans. App release 14.
+Roadmap 195 (no page fails with "Queue limit reached"): Admin › Builds
+looked up each of its up to 200 builds' client, user and app at once, and
+the documentation's menu and search each of its 73 articles, past the 50
+queries the site's one database connection let wait, failing the page
+and the session read with it. The build queue now looks each up once, ten
+at a time, the documentation reads its articles in one query, and up to
+1000 queries may wait.
+Roadmap 196 (a finished build is never left on "building"): the
+pipeline asks the platform again on a 500 (six tries, about two minutes),
+and a build that reported nothing for three hours (was six) is stalled,
+so Try again comes back sooner.
+
+Roadmap 193 (Add to cart under every product, on Leqaa's looks): on a
+store with the gift checkout (Leqaa's looks, Kech Flora), every product's
+card keeps its look and gets Add to cart under it, on the shop's grid, the
+home's rows, "You may also like" and every Studio list of products, and on
+Studio's canvas. A product with nothing to choose goes straight in the cart
+with "Added to cart"; one with sizes or options opens its page; out of
+stock, the button is off. The shop's grid goes row by row, so a card's
+price sits right under its name, level across the row, with no empty
+band between them. `CLIENT_APP_RELEASE` is 13 (12 is #473's); the
+preview rebuilt. No migration.
+
+Roadmap 183 (`brand`'s Start now opens the app's main screen): the
+template for every kind of project served its hero's "Start now" opening
+nothing. Each kind now has a main screen (`mainScreenOf`, lib/app/kinds.ts):
+a shop's and a marketplace's `search`, a restaurant's menu (`search`), a
+food company's restaurants, an academy's courses, a booking kind's
+services (a gym's classes), events, listings, articles, campaigns,
+travel's Explore, the ride, a school's School screen (there is no Today
+screen) and a delivery's Send a parcel. A project made from `brand` opens
+it; hosted `GET /pages` gives it to a Studio page's button that names
+nothing, so projects made before are fixed with no change to their pages;
+the owner's own link always wins, and a list's card's buttons are left
+alone. Studio's inspector shows "Opens: <the screen>" for such a button.
+No migration, no contract change, no `CLIENT_APP_RELEASE` change. The
+guard's `brand` tap check passes; its fixtures need regenerating on the
+guard's branch (ROADMAP 183.6).
+
+Roadmap 185 (client Android builds survive a busy Maven Central): the
+client builds in `build-apps.yml` keep Gradle's downloaded dependencies
+and wrapper in a cache shared by every client (`~/.gradle/caches/modules-2`
+and `~/.gradle/wrapper/dists` only: no build outputs, nothing of a client's
+config or keys), so three builds at once no longer each fetch them from
+Maven Central and the Gradle Plugin Portal, which answered 429 Too Many
+Requests on 18 November and failed a client's store build. When a build
+still fails on a download (429, a 5xx, a timeout), `flutter build apk` and
+`flutter build appbundle` run again after 30 s, 90 s and 180 s
+(`build/scripts/network_retry.py`), each retry said in the build log; any
+other failure fails at once as before. The iPhone build uses Swift Package
+Manager, not CocoaPods, and is unchanged; mobile CI's debug APKs keep their
+own Gradle cache. Signing, uploads and AUTO_PUBLISH are unchanged. Not yet
+run on the runners (ROADMAP 185.5).
+
+Roadmap 192 (client Android release builds past Stripe's private
+dependency): a client's release build stopped in lint's vital pass, which
+asked for Google's play-services-tapandpay (flutter_stripe's push
+provisioning brings it; it is on no public repository). Release builds skip
+lint and that artifact is left out of the libraries' lint checks; CI now
+builds a release APK as client builds do.
+
+Roadmap 189 (the hero's slides, plain to find in Studio): with a slider,
+one of its slides or anything on one selected, the right side lists its
+slides as the layers do, the open one with its icon, words and button, each
+to select; whatever is picked on slide 2 or 3, on the left, the right or the
+phone, is the slide the phone shows. On the canvas every slider has arrows to
+the slide before and after and "Slide 2 of 5". Once Dashboard › Stories is
+saved (until then the app shows the slides designed in Studio), a slider of
+the app's stories says its slides are changed there, with "Edit the slides
+in Stories". Studio's editor only: no app build.
+
 Roadmap 188 (Stripe's PaymentSheet in the apps): the payment page stays
 inside the app's web view, and a Stripe payment there is taken by Stripe's
 native bottom sheet in the app, with the card, Google Pay on Android and

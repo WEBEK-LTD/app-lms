@@ -176,7 +176,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       final auth = ref.read(authControllerProvider.notifier);
       final email = widget.args.email;
       final result = email != null
-          ? await auth.requestEmailCode(email: email)
+          ? await auth.requestEmailCode(email: email, reset: widget.args.reset)
           : await auth.requestCode(
               countryCode: widget.args.countryCode,
               phone: widget.args.phone,

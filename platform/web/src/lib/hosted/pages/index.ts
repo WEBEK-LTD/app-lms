@@ -1,7 +1,8 @@
 import { allNodes, mapTreeAsync } from "../../studio/tree";
 import { showsShopCategories, withShopCategoriesIn, type ShopCategories } from "../../studio/shop-categories";
 import { autoSized } from "../../studio/auto-size";
-import { ENGINES, isAppType } from "../../app/kinds";
+import { withMainScreen } from "../../studio/main-screen";
+import { ENGINES, isAppType, mainScreenOfApp } from "../../app/kinds";
 import type { App, HostedUser } from "../../data/types";
 import { isSamplePlace } from "../../pages/designs/build";
 import { servedLayout } from "../../pages/layout";
@@ -99,7 +100,8 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
 async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPage> {
   const def = pc.layout.languages.default;
   // 164 The template's sample bouquet in an app made before: one of the shop's products.
-  const studio: StudioPage = { ...page, body: withSampleProduct(page.body) };
+  // 183 A button that names nothing to open (`brand`'s "Start now" in a project made before): the app's main screen.
+  const studio: StudioPage = { ...page, body: isAppType(pc.ctx.app.appType) ? withMainScreen(withSampleProduct(page.body), mainScreenOfApp(pc.ctx.app)) : withSampleProduct(page.body) };
   // 152 The products the elements open that the shop no longer has.
   const gone = await goneProducts(pc, studio);
   // 157 A template's lists of the shop's categories follow them, read from the layout's own words before any translation.

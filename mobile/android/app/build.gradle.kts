@@ -60,6 +60,15 @@ android {
             signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
     }
+
+    // 192 No lint on release builds: its "vital" pass reads the lint checks of every
+    // library, and flutter_stripe's stripe-android-issuing-push-provisioning brings
+    // Google's play-services-tapandpay, which isn't on any public repository, so a
+    // client's release build stopped there. Lint checks code; the app builds the same.
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
 }
 
 kotlin {
