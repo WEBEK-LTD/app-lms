@@ -26,6 +26,7 @@ import { SECTIONS, TEMPLATES, type SectionContext } from "@/lib/studio/sections"
 import { shopTypeById, shopTypeReady } from "@/lib/studio/shop-types";
 import { makeStudioProject } from "@/lib/studio/new-project";
 import { allNodes } from "@/lib/studio/tree";
+import { layoutPlaceholders, loadLayout } from "@/lib/pages/layout";
 import { appUrl } from "@/lib/env";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
 import { expectContract } from "./contract";
@@ -116,6 +117,21 @@ describe("210 the parts the shop types bring every store", () => {
     expect(kept.ok && kept.value.body.children![0]!.form?.request).toBe("custom_order");
     const chat = form({ send_to: "chat", request: "custom_order" });
     expect(chat.ok && chat.value.body.children![0]!.form?.request).toBeUndefined();
+  });
+});
+
+describe("210 the owner's numbers in the looks", () => {
+  it.each([
+    ["crochet_signature_a", ["[Number of pieces]", "[Number of makers]"]],
+    ["decor_signature_b", ["[Number of studios]", "[Rating]"]],
+    ["furniture_signature_b", ["[Rating]"]],
+  ] as const)("%s: its [placeholders] are listed under What's missing until written, and the demo fills them", async (template, words) => {
+    const store = new MemoryStore();
+    const { client } = await registerClient(store, { name: "Owner", email: `owner-${template}@shop.test`, whatsapp: "+201000000001", siteUrl: "", password: null }, NOW);
+    const made = await makeStudioProject(store, { clientId: client.id, name: "My shop", kind: kindById("store")!, source: "catalog", template: TEMPLATES.find((t) => t.id === template)!, words: appWords("en", "My shop"), lang: "en" }, NOW);
+    const app = (await store.getAppById(made.id))!;
+    const listed = layoutPlaceholders((await loadLayout(store, app, NOW)).draft, app).flatMap((spot) => spot.words);
+    for (const word of words) expect(listed, word).toContain(word);
   });
 });
 
