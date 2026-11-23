@@ -142,9 +142,18 @@ for (const t of shown) {
     await own.getByRole("button", { name: "Create my app" }).click();
     await own.waitForURL(/\/(studio|dashboard)\//, { timeout: 90_000 });
     // Studio's editor with the look's home, for review.
+    await own.setViewportSize({ width: 1440, height: 1100 });
     await own.goto("/studio/editor");
-    await own.waitForTimeout(6000);
+    await own.waitForTimeout(8000);
     await own.screenshot({ path: path.join(REVIEW, `${t.id}-b-studio-editor.png`) });
+    // Further down the canvas's phone: the size finder, the quiz, the shade finder.
+    for (const n of [1, 2, 3]) {
+      await own.mouse.move(720, 600);
+      await own.mouse.wheel(0, 650);
+      await own.waitForTimeout(1500);
+      await own.screenshot({ path: path.join(REVIEW, `${t.id}-b-studio-editor-${n}.png`) });
+    }
+    await own.setViewportSize({ width: 1280, height: 720 });
     await own.goto("/dashboard/preview");
     const src = await own.locator('iframe[src*="/preview-app/"]').first().getAttribute("src");
     expect(src).toBeTruthy();
