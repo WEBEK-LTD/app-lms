@@ -374,6 +374,36 @@ export const STORIES: Record<StoryId, StoryShape> = {
     bundle: ["smartphone", "dashboard_customize", "web"],
     finale: { photo: "clothes-walk", screen: "lujain-home" },
   },
+  // 209 Velours, the cosmetics shop: the right foundation before a party, in its look A (VELOURS) by day and by night; look B (NAQA LAB) in its section.
+  beauty: {
+    id: "beauty",
+    icon: "spa",
+    // VELOURS's rose, as its night writes it.
+    accent: "#EFA6C3",
+    demos: ["beauty"],
+    solutions: [],
+    hero: { photo: "beauty-hero", screens: ["velours-home", "velours-product"] },
+    chapters: [
+      { screen: "velours-home", icon: "home" },
+      { photo: "beauty-shades", screen: "velours-home", icon: "palette" },
+      { screen: "velours-product", icon: "verified" },
+      { photo: "beauty-serum", screen: "velours-menu", icon: "quiz" },
+      { screen: "beauty-sig-a-home-dark", icon: "redeem" },
+      { photo: "beauty-routine", screen: "velours-menu", icon: "inventory_2" },
+    ],
+    interlude: { photo: "beauty-bath" },
+    stats: [{ value: 8 }, { value: 12 }, { value: 4 }, { value: 3 }],
+    systems: [
+      { icon: "palette", screens: ["velours-product"], features: ["palette", "check", "block", "inventory_2", "dashboard_customize"] },
+      { icon: "quiz", screens: ["velours-home"], features: ["quiz", "category", "workspace_premium", "translate", "dashboard_customize"] },
+      { icon: "verified", screens: ["velours-product"], features: ["list_alt", "menu_book", "verified", "event_available", "favorite", "table_chart"] },
+      { icon: "redeem", screens: [], features: ["redeem", "sell", "bolt", "confirmation_number", "sync"] },
+      { icon: "dashboard_customize", screens: ["beauty-sig-b-home", "beauty-sig-b-home-dark"], features: ["spa", "healing", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "beauty-candle", screen: "velours-home" },
+  },
 };
 
 /** Every photo slot of a story, each once. */

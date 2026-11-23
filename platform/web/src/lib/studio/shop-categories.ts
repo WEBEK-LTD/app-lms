@@ -43,6 +43,8 @@ export interface ShopCategory {
 export interface ShopCategories {
   list: readonly ShopCategory[];
   own: boolean;
+  /** 209 The sub-categories, for the elements named like one (a skin quiz's result, a brand's mark) only; never a list's entries. */
+  subs?: readonly ShopCategory[];
 }
 
 /** The words the templates write as the shop's categories: Leqaa's occasions and collections. */
@@ -218,10 +220,10 @@ const LINKED_TEXTS_MAX = 4;
 /** The name of an element that opens the shop: its own words (a button's, a text's), or the one category name among its few texts. */
 function linkedName(node: StudioNode, list: readonly ShopCategory[]): ShopCategory | null {
   if (!node.action || !opensShop(node.action)) return null;
-  if (node.type === "text" || node.type === "button") return namesakeOf(node.text, list);
+  if (node.type === "text" || node.type === "button") return namesakeIn(node.text, node.translations, "text", list);
   const texts = subtree(node).filter(isText);
   if (!texts.length || texts.length > LINKED_TEXTS_MAX) return null;
-  const named = texts.map((t) => namesakeOf(t.text, list)).filter((c): c is ShopCategory => c !== null);
+  const named = texts.map((t) => namesakeIn(t.text, t.translations, "text", list)).filter((c): c is ShopCategory => c !== null);
   return named.length === 1 ? named[0]! : null;
 }
 
@@ -237,8 +239,8 @@ export function withCategoryLinks(node: StudioNode, list: readonly ShopCategory[
   const known = new Set(list.map((c) => String(c.id)));
   const kept = <T extends { action?: Action | null }>(entry: T): T => (entry.action?.type === "screen" && entry.action.category_id && !known.has(entry.action.category_id) ? { ...entry, action: SHOP_ACTION } : entry);
   let out = kept(node);
-  if (node.slides?.length) out = { ...out, slides: node.slides.map((s) => (s.action && opensShop(s.action) ? linkedEntry(s, s.heading, list) : kept(s))) };
-  if (node.entries?.length) out = { ...out, entries: node.entries.map((e) => (e.action && opensShop(e.action) ? linkedEntry(e, e.title, list) : kept(e))) };
+  if (node.slides?.length) out = { ...out, slides: node.slides.map((s) => (s.action && opensShop(s.action) ? linkedEntry(s, s.heading, list, null) : kept(s))) };
+  if (node.entries?.length) out = { ...out, entries: node.entries.map((e) => (e.action && opensShop(e.action) ? linkedEntry(e, e.title, list, "title") : kept(e))) };
   const category = list.length ? linkedName(out, list) : null;
   return category ? { ...out, action: categoryAction(category) } : out;
 }
@@ -246,9 +248,26 @@ export function withCategoryLinks(node: StudioNode, list: readonly ShopCategory[
 /** The whole shop, as a template's entries open it. */
 const SHOP_ACTION: Action = { type: "screen", screen: "search" };
 
-function linkedEntry<T extends { action?: Action | null }>(entry: T, name: string | null | undefined, list: readonly ShopCategory[]): T {
-  const category = namesakeOf(name, list);
+function linkedEntry<T extends { action?: Action | null; translations?: Translations }>(entry: T, name: string | null | undefined, list: readonly ShopCategory[], field: string | null): T {
+  // 209 An entry (a skin quiz's result) by its words in the app's other languages too; a story ring by its own.
+  const category = field ? namesakeIn(name, entry.translations, field, list) : namesakeOf(name, list);
   return category ? { ...entry, action: categoryAction(category) } : entry;
+}
+
+/**
+ * 209 The shop's category named as these words, or as their translation in
+ * one of the app's other languages: the page's elements are linked before
+ * they are translated, and the shop's categories are read in the language
+ * asked for (a skin quiz's "Dry" opens the shop's "جافة" in Arabic).
+ */
+function namesakeIn(text: string | null | undefined, translations: Translations | undefined, field: string, list: readonly ShopCategory[]): ShopCategory | null {
+  const own = namesakeOf(text, list);
+  if (own || !translations) return own;
+  for (const words of Object.values(translations)) {
+    const found = namesakeOf((words as Record<string, unknown> | undefined)?.[field] as string | undefined, list);
+    if (found) return found;
+  }
+  return null;
 }
 
 /** Whether a page has anything the shop's categories change: a template's list of them, or an element that opens the shop (at a category or not). */
@@ -265,5 +284,7 @@ export function showsShopCategories(body: StudioNode): boolean {
 export function withShopCategoriesIn(body: StudioNode, shop: ShopCategories | null): StudioNode {
   if (!shop) return body;
   const lists = mapTree(body, (n) => withShopCategories(n, shop)) ?? body;
-  return mapTree(lists, (n) => (n.hidden ? n : withCategoryLinks(n, shop.list))) ?? lists;
+  // 209 An element named like a sub-category (a skin type, a brand) opens it too.
+  const named = shop.subs?.length ? [...shop.list, ...shop.subs] : shop.list;
+  return mapTree(lists, (n) => (n.hidden ? n : withCategoryLinks(n, named))) ?? lists;
 }
