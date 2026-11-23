@@ -283,7 +283,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     // 132.160 Opened while the list was kept (the Orders tab's timeline, a
     // screen under it): asked again, its rows shown until the answer comes.
     Future.microtask(() {
-      if (!mounted || !ref.exists(ordersProvider)) return;
+      if (!mounted || !ref.read(ordersProvider.exists)) return;
       if (ref.read(ordersProvider).items.isNotEmpty) {
         unawaited(ref.read(ordersProvider.notifier).reload());
       }

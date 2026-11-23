@@ -26,7 +26,7 @@ int? pushOrderId(Map<String, dynamic> data) =>
 /// Asks again for the orders on screen: the list without its skeleton (the
 /// rows stay while it loads), and [orderId]'s order, or every open order.
 void refreshOrders(Ref ref, {int? orderId}) {
-  if (ref.exists(ordersProvider)) {
+  if (ref.read(ordersProvider.exists)) {
     unawaited(ref.read(ordersProvider.notifier).reload());
   }
   if (orderId != null) {

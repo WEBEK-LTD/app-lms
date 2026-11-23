@@ -43,7 +43,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
     // 132.160 Opened again while it was kept (from a notification, or the
     // list's): asked again, shown as it was until the answer comes.
     Future.microtask(() {
-      if (mounted && ref.exists(orderProvider(widget.orderId))) {
+      if (mounted && ref.read(orderProvider(widget.orderId).exists)) {
         ref.invalidate(orderProvider(widget.orderId));
       }
     });

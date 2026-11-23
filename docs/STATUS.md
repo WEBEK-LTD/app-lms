@@ -8,6 +8,17 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 206 (old open pull requests together): Admin › Releases takes a
+plugin release's version from its zip (124.17, #373): the upload reads
+`yallapp/yallapp.php`'s `Version:` line and refuses a zip that isn't the
+Yallapp plugin or a version typed otherwise. The dependencies move to
+releases two weeks old or more: the platform's minor and patch updates,
+eslint 10 and pdfjs-dist 6 (tests only); the app's and Yallapp Business's
+minor and patch updates and firebase_core 5 / firebase_messaging 17 (the
+FCM token kept, as the servers send to it); fastlane 2.241.2; the GitHub
+Actions pins. TypeScript 7 and @types/node 26 stay out. The app's changes
+ship with its next release (CLIENT_APP_RELEASE unchanged).
+
 Roadmap 115.21–115.23 (the marketplace audit's three bugs,
 docs/plans/2026-11-18-marketplace-audit.md): orders for later reach their
 vendor from the frequent job at their time less the vendor's preparation

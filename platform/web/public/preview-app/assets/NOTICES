@@ -2180,6 +2180,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --------------------------------------------------------------------------------
 cross_file
+cupertino_ui
 file_selector_linux
 file_selector_macos
 file_selector_platform_interface
@@ -2194,6 +2195,7 @@ in_app_purchase_android
 in_app_purchase_platform_interface
 in_app_purchase_storekit
 listen
+material_ui
 path_provider
 path_provider_android
 path_provider_foundation
@@ -2203,6 +2205,7 @@ shared_preferences
 shared_preferences_android
 shared_preferences_foundation
 shared_preferences_platform_interface
+url_launcher
 url_launcher_android
 url_launcher_ios
 url_launcher_linux
@@ -6266,7 +6269,6 @@ plugin_platform_interface
 shared_preferences_linux
 shared_preferences_web
 shared_preferences_windows
-url_launcher
 url_launcher_platform_interface
 video_player_web
 xdg_directories

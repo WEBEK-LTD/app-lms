@@ -7,14 +7,16 @@ import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
  * folded (NFKC) and spaces collapsed.
  */
 export async function pdfText(pdf: Uint8Array | Buffer): Promise<string[]> {
-  const doc = await getDocument({ data: new Uint8Array(pdf), isEvalSupported: false, disableFontFace: true, useSystemFonts: false, verbosity: 0 }).promise;
+  // pdf.js 6: no eval at all (the option is gone), and the loading task is what's destroyed.
+  const task = getDocument({ data: new Uint8Array(pdf), disableFontFace: true, useSystemFonts: false, verbosity: 0 });
+  const doc = await task.promise;
   const pages: string[] = [];
   for (let i = 1; i <= doc.numPages; i++) {
     const content = await (await doc.getPage(i)).getTextContent();
     const text = content.items.map((item) => ("str" in item ? item.str : "")).join(" ");
     pages.push(text.normalize("NFKC").replace(/\s+/g, " ").trim());
   }
-  await doc.destroy();
+  await task.destroy();
   return pages;
 }
 
