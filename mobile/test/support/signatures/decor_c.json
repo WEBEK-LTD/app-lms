@@ -1,0 +1,3231 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "premium",
+   "image_url": "http://localhost:3000/decor-photos/ribbed-vase.jpg",
+   "title": {
+    "en": "Welcome to the gallery",
+    "ar": "أهلًا بك في المعرض",
+    "tr": "Galeriye hoş geldiniz"
+   },
+   "subtitle": {
+    "en": "Sign in to keep the pieces you love and follow your orders.",
+    "ar": "سجّل الدخول لتحفظ القطع التي تحبها وتتابع طلباتك.",
+    "tr": "Sevdiğiniz parçaları saklamak ve siparişlerinizi takip etmek için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "cover",
+   "items": [
+    {
+     "key": "orders",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "brand"
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "minimal",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "DM Sans",
+   "corners": "round",
+   "cards": "outlined",
+   "secondary_color": "#66665F",
+   "font_family": "IBM Plex Sans Arabic",
+   "arabic_font": "IBM Plex Sans Arabic",
+   "dark_background": "#0B0B0B",
+   "dark_surface": "#171716",
+   "font_files": [
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/ibmplexsansarabic/IBMPlexSansArabic-Regular.ttf",
+     "weight": 400
+    },
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/ibmplexsansarabic/IBMPlexSansArabic-Medium.ttf",
+     "weight": 500
+    },
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/ibmplexsansarabic/IBMPlexSansArabic-SemiBold.ttf",
+     "weight": 600
+    },
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/ibmplexsansarabic/IBMPlexSansArabic-Bold.ttf",
+     "weight": 700
+    }
+   ],
+   "arabic_font_files": [
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/ibmplexsansarabic/IBMPlexSansArabic-Regular.ttf",
+     "weight": 400
+    },
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/ibmplexsansarabic/IBMPlexSansArabic-Medium.ttf",
+     "weight": 500
+    },
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/ibmplexsansarabic/IBMPlexSansArabic-SemiBold.ttf",
+     "weight": 600
+    },
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/ibmplexsansarabic/IBMPlexSansArabic-Bold.ttf",
+     "weight": 700
+    }
+   ]
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "shop",
+    "label": "Shop",
+    "icon": "photo_library",
+    "target": {
+     "type": "page",
+     "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "المتجر"
+     },
+     "tr": {
+      "label": "Mağaza"
+     }
+    }
+   },
+   {
+    "id": "cart",
+    "label": "Cart",
+    "icon": "shopping_bag",
+    "target": {
+     "type": "page",
+     "page_slug": "cart"
+    },
+    "translations": {
+     "ar": {
+      "label": "السلة"
+     },
+     "tr": {
+      "label": "Sepet"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "Orders",
+    "icon": "package_2",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطلبات"
+     },
+     "tr": {
+      "label": "Siparişler"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_center",
+      "title": "Sakan",
+      "subtitle": "Gallery of objects",
+      "translations": {
+       "ar": {
+        "title": "Sakan",
+        "subtitle": "معرض القطع"
+       },
+       "tr": {
+        "title": "Sakan",
+        "subtitle": "Nesneler galerisi"
+       }
+      },
+      "buttons": [
+       "menu",
+       "cart"
+      ],
+      "menu_page": "menu",
+      "background": "#FFFFFF",
+      "dark_background": "#0B0B0B",
+      "color": "#0B0B0B",
+      "dark_color": "#F2F2EF",
+      "style": "brand"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 60,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "text",
+        "text": "Now showing — Hall one",
+        "font": {
+         "family": "IBM Plex Sans Arabic",
+         "size": 11,
+         "weight": 500,
+         "letter_spacing": 2
+        },
+        "color": "#66665F",
+        "dark_color": "#A2A29B",
+        "max_lines": 1,
+        "padding": {
+         "top": 26,
+         "end": 28,
+         "bottom": 4,
+         "start": 28
+        },
+        "translations": {
+         "ar": {
+          "text": "يُعرض الآن — القاعة الأولى"
+         },
+         "tr": {
+          "text": "Şimdi sergide — Birinci salon"
+         }
+        }
+       },
+       {
+        "id": "sig-3",
+        "type": "text",
+        "text": "Quiet forms",
+        "font": {
+         "family": "Amiri",
+         "size": 44,
+         "weight": 400,
+         "line_height": 1.1
+        },
+        "color": "#0B0B0B",
+        "dark_color": "#F2F2EF",
+        "max_lines": 2,
+        "padding": {
+         "top": 0,
+         "end": 28,
+         "bottom": 0,
+         "start": 28
+        },
+        "translations": {
+         "ar": {
+          "text": "أشكالٌ هادئة"
+         },
+         "tr": {
+          "text": "Sessiz biçimler"
+         }
+        }
+       },
+       {
+        "id": "sig-4",
+        "type": "text",
+        "text": "The autumn exhibition · until 30 December",
+        "font": {
+         "family": "IBM Plex Sans Arabic",
+         "size": 12.5,
+         "weight": 400
+        },
+        "color": "#66665F",
+        "dark_color": "#A2A29B",
+        "max_lines": 2,
+        "padding": {
+         "top": 8,
+         "end": 28,
+         "bottom": 0,
+         "start": 28
+        },
+        "translations": {
+         "ar": {
+          "text": "معرض الخريف · حتى 30 ديسمبر"
+         },
+         "tr": {
+          "text": "Sonbahar sergisi · 30 Aralık'a kadar"
+         }
+        }
+       },
+       {
+        "id": "sig-5",
+        "type": "column",
+        "name": "On the wall",
+        "gap": 0,
+        "cross": "center",
+        "padding": {
+         "top": 34,
+         "end": 50,
+         "bottom": 30,
+         "start": 50
+        },
+        "margin": {
+         "top": 28,
+         "end": 0,
+         "bottom": 0,
+         "start": 0
+        },
+        "background": "#F7F7F4",
+        "dark_background": "#121211",
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "children": [
+         {
+          "id": "sig-7",
+          "type": "column",
+          "gap": 0,
+          "padding": {
+           "top": 24,
+           "end": 24,
+           "bottom": 24,
+           "start": 24
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#171716",
+          "border_color": "#0B0B0B",
+          "dark_border_color": "#E6E1D6",
+          "border_width": 3,
+          "children": [
+           {
+            "id": "sig-6",
+            "type": "image",
+            "image_url": "http://localhost:3000/decor-photos/sage-jars.jpg",
+            "height": 250,
+            "fit": "cover"
+           }
+          ],
+          "shadow": "medium"
+         },
+         {
+          "id": "sig-8",
+          "type": "row",
+          "name": "Sage glazed bottle vases",
+          "gap": 12,
+          "margin": {
+           "top": 22,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "children": [
+           {
+            "id": "sig-9",
+            "type": "row",
+            "width": 2,
+            "background": "#0B0B0B",
+            "dark_background": "#F2F2EF",
+            "children": []
+           },
+           {
+            "id": "sig-10",
+            "type": "column",
+            "width": "fill",
+            "gap": 1,
+            "children": [
+             {
+              "id": "sig-11",
+              "type": "text",
+              "text": "Sage glazed bottle vases",
+              "font": {
+               "family": "Amiri",
+               "size": 19,
+               "weight": 700,
+               "line_height": 1.25
+              },
+              "color": "#0B0B0B",
+              "dark_color": "#F2F2EF",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "قوارير خضراء مزجّجة"
+               },
+               "tr": {
+                "text": "Adaçayı sırlı şişe vazolar"
+               }
+              }
+             },
+             {
+              "id": "sig-12",
+              "type": "text",
+              "text": "Maker: Sakan's ceramics studio",
+              "font": {
+               "family": "IBM Plex Sans Arabic",
+               "size": 11.5,
+               "weight": 400,
+               "line_height": 1.6
+              },
+              "color": "#66665F",
+              "dark_color": "#A2A29B",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "الصانع: مشغل سكن للخزف"
+               },
+               "tr": {
+                "text": "Yapan: Sakan seramik atölyesi"
+               }
+              }
+             },
+             {
+              "id": "sig-13",
+              "type": "text",
+              "text": "Material: stoneware, reactive glaze",
+              "font": {
+               "family": "IBM Plex Sans Arabic",
+               "size": 11.5,
+               "weight": 400,
+               "line_height": 1.6
+              },
+              "color": "#66665F",
+              "dark_color": "#A2A29B",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "المادة: خزف حجري، طلاء تفاعلي"
+               },
+               "tr": {
+                "text": "Malzeme: taş seramik, reaktif sır"
+               }
+              }
+             },
+             {
+              "id": "sig-14",
+              "type": "text",
+              "text": "Size: 15 × 15 × 30 cm",
+              "font": {
+               "family": "IBM Plex Sans Arabic",
+               "size": 11.5,
+               "weight": 400,
+               "line_height": 1.6
+              },
+              "color": "#66665F",
+              "dark_color": "#A2A29B",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "المقاس: 15 × 15 × 30 سم"
+               },
+               "tr": {
+                "text": "Ölçü: 15 × 15 × 30 cm"
+               }
+              }
+             },
+             {
+              "id": "sig-15",
+              "type": "text",
+              "text": "260 SAR",
+              "font": {
+               "family": "IBM Plex Sans Arabic",
+               "size": 12,
+               "weight": 600
+              },
+              "color": "#0B0B0B",
+              "dark_color": "#F2F2EF",
+              "max_lines": 1,
+              "margin": {
+               "top": 4,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "260 ر.س"
+               },
+               "tr": {
+                "text": "260 SAR"
+               }
+              }
+             }
+            ]
+           }
+          ],
+          "self_align": "stretch"
+         }
+        ]
+       },
+       {
+        "id": "sig-16",
+        "type": "row",
+        "name": "On the wall",
+        "gap": 12,
+        "cross": "end",
+        "padding": {
+         "top": 44,
+         "end": 28,
+         "bottom": 18,
+         "start": 28
+        },
+        "children": [
+         {
+          "id": "sig-17",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-18",
+            "type": "text",
+            "text": "The collection",
+            "font": {
+             "family": "IBM Plex Sans Arabic",
+             "size": 10.5,
+             "weight": 500,
+             "letter_spacing": 2
+            },
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "المجموعة"
+             },
+             "tr": {
+              "text": "Koleksiyon"
+             }
+            }
+           },
+           {
+            "id": "sig-19",
+            "type": "text",
+            "text": "On the wall",
+            "font": {
+             "family": "Amiri",
+             "size": 28,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "على الجدار"
+             },
+             "tr": {
+              "text": "Duvarda"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-20",
+          "type": "text",
+          "text": "See all",
+          "font": {
+           "family": "IBM Plex Sans Arabic",
+           "size": 12,
+           "weight": 500,
+           "underline": true
+          },
+          "color": "#0B0B0B",
+          "dark_color": "#F2F2EF",
+          "max_lines": 1,
+          "name": "See all",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "عرض الكل"
+           },
+           "tr": {
+            "text": "Tümünü gör"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-21",
+        "type": "row",
+        "name": "On the wall",
+        "gap": 18,
+        "cross": "start",
+        "padding": {
+         "top": 0,
+         "end": 22,
+         "bottom": 0,
+         "start": 22
+        },
+        "children": [
+         {
+          "id": "sig-22",
+          "type": "items",
+          "name": "On the wall",
+          "source": "products",
+          "layout": "list",
+          "gap": 30,
+          "width": "fill",
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "query": {
+           "limit": 2,
+           "category_id": null,
+           "featured": true,
+           "sort": "newest",
+           "ids": []
+          },
+          "card": {
+           "id": "sig-23",
+           "type": "column",
+           "width": 160,
+           "gap": 0,
+           "children": [
+            {
+             "id": "sig-25",
+             "type": "column",
+             "gap": 0,
+             "padding": {
+              "top": 10,
+              "end": 10,
+              "bottom": 10,
+              "start": 10
+             },
+             "background": "#FFFFFF",
+             "dark_background": "#171716",
+             "border_color": "#0B0B0B",
+             "dark_border_color": "#E6E1D6",
+             "border_width": 1.5,
+             "children": [
+              {
+               "id": "sig-24",
+               "type": "image",
+               "bind": "image",
+               "width": 137,
+               "height": 200,
+               "fit": "cover",
+               "background": "#F6F6F3",
+               "dark_background": "#121211"
+              }
+             ]
+            },
+            {
+             "id": "sig-26",
+             "type": "column",
+             "gap": 1,
+             "padding": {
+              "top": 10,
+              "end": 0,
+              "bottom": 0,
+              "start": 0
+             },
+             "children": [
+              {
+               "id": "sig-27",
+               "type": "text",
+               "bind": "title",
+               "max_lines": 2,
+               "color": "#0B0B0B",
+               "dark_color": "#F2F2EF",
+               "font": {
+                "family": "Amiri",
+                "size": 15.5,
+                "weight": 700,
+                "line_height": 1.25
+               }
+              },
+              {
+               "id": "sig-28",
+               "type": "text",
+               "bind": "subtitle",
+               "max_lines": 1,
+               "color": "#66665F",
+               "dark_color": "#A2A29B",
+               "font": {
+                "family": "IBM Plex Sans Arabic",
+                "size": 11,
+                "weight": 400
+               }
+              },
+              {
+               "id": "sig-29",
+               "type": "row",
+               "gap": 6,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "sig-30",
+                 "type": "text",
+                 "bind": "price",
+                 "max_lines": 1,
+                 "color": "#0B0B0B",
+                 "dark_color": "#F2F2EF",
+                 "font": {
+                  "family": "IBM Plex Sans Arabic",
+                  "size": 12,
+                  "weight": 600
+                 }
+                },
+                {
+                 "id": "sig-31",
+                 "type": "text",
+                 "bind": "was_price",
+                 "max_lines": 1,
+                 "color": "#66665F",
+                 "dark_color": "#A2A29B",
+                 "font": {
+                  "family": "IBM Plex Sans Arabic",
+                  "size": 11,
+                  "weight": 400
+                 }
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         },
+         {
+          "id": "sig-32",
+          "type": "items",
+          "name": "On the wall",
+          "source": "products",
+          "layout": "list",
+          "gap": 30,
+          "width": "fill",
+          "padding": {
+           "top": 56,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "query": {
+           "limit": 2,
+           "category_id": null,
+           "featured": false,
+           "sort": "popular",
+           "ids": []
+          },
+          "card": {
+           "id": "sig-33",
+           "type": "column",
+           "width": 160,
+           "gap": 0,
+           "children": [
+            {
+             "id": "sig-35",
+             "type": "column",
+             "gap": 0,
+             "padding": {
+              "top": 10,
+              "end": 10,
+              "bottom": 10,
+              "start": 10
+             },
+             "background": "#FFFFFF",
+             "dark_background": "#171716",
+             "border_color": "#0B0B0B",
+             "dark_border_color": "#E6E1D6",
+             "border_width": 1.5,
+             "children": [
+              {
+               "id": "sig-34",
+               "type": "image",
+               "bind": "image",
+               "width": 137,
+               "height": 140,
+               "fit": "cover",
+               "background": "#F6F6F3",
+               "dark_background": "#121211"
+              }
+             ]
+            },
+            {
+             "id": "sig-36",
+             "type": "column",
+             "gap": 1,
+             "padding": {
+              "top": 10,
+              "end": 0,
+              "bottom": 0,
+              "start": 0
+             },
+             "children": [
+              {
+               "id": "sig-37",
+               "type": "text",
+               "bind": "title",
+               "max_lines": 2,
+               "color": "#0B0B0B",
+               "dark_color": "#F2F2EF",
+               "font": {
+                "family": "Amiri",
+                "size": 15.5,
+                "weight": 700,
+                "line_height": 1.25
+               }
+              },
+              {
+               "id": "sig-38",
+               "type": "text",
+               "bind": "subtitle",
+               "max_lines": 1,
+               "color": "#66665F",
+               "dark_color": "#A2A29B",
+               "font": {
+                "family": "IBM Plex Sans Arabic",
+                "size": 11,
+                "weight": 400
+               }
+              },
+              {
+               "id": "sig-39",
+               "type": "row",
+               "gap": 6,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "sig-40",
+                 "type": "text",
+                 "bind": "price",
+                 "max_lines": 1,
+                 "color": "#0B0B0B",
+                 "dark_color": "#F2F2EF",
+                 "font": {
+                  "family": "IBM Plex Sans Arabic",
+                  "size": 12,
+                  "weight": 600
+                 }
+                },
+                {
+                 "id": "sig-41",
+                 "type": "text",
+                 "bind": "was_price",
+                 "max_lines": 1,
+                 "color": "#66665F",
+                 "dark_color": "#A2A29B",
+                 "font": {
+                  "family": "IBM Plex Sans Arabic",
+                  "size": 11,
+                  "weight": 400
+                 }
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-42",
+        "type": "row",
+        "name": "The halls",
+        "gap": 12,
+        "cross": "end",
+        "padding": {
+         "top": 44,
+         "end": 28,
+         "bottom": 18,
+         "start": 28
+        },
+        "children": [
+         {
+          "id": "sig-43",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-44",
+            "type": "text",
+            "text": "Gallery guide",
+            "font": {
+             "family": "IBM Plex Sans Arabic",
+             "size": 10.5,
+             "weight": 500,
+             "letter_spacing": 2
+            },
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "دليل المعرض"
+             },
+             "tr": {
+              "text": "Galeri rehberi"
+             }
+            }
+           },
+           {
+            "id": "sig-45",
+            "type": "text",
+            "text": "The halls",
+            "font": {
+             "family": "Amiri",
+             "size": 28,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "القاعات"
+             },
+             "tr": {
+              "text": "Salonlar"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-46",
+        "type": "column",
+        "name": "The halls",
+        "gap": 0,
+        "margin": {
+         "top": 0,
+         "end": 28,
+         "bottom": 0,
+         "start": 28
+        },
+        "children": [
+         {
+          "id": "sig-47",
+          "type": "row",
+          "height": 1,
+          "background": "#0B0B0B",
+          "dark_background": "#F2F2EF",
+          "children": []
+         },
+         {
+          "id": "sig-48",
+          "type": "row",
+          "name": "Living room",
+          "gap": 18,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 0,
+           "bottom": 14,
+           "start": 0
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-49",
+            "type": "text",
+            "text": "I",
+            "width": 30,
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "font": {
+             "family": "Amiri",
+             "size": 15,
+             "weight": 400,
+             "line_height": 1.25
+            }
+           },
+           {
+            "id": "sig-50",
+            "type": "text",
+            "text": "Living room",
+            "font": {
+             "family": "Amiri",
+             "size": 22,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "غرفة المعيشة"
+             },
+             "tr": {
+              "text": "Oturma odası"
+             }
+            }
+           },
+           {
+            "id": "sig-51",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#66665F",
+            "dark_color": "#A2A29B"
+           }
+          ]
+         },
+         {
+          "id": "sig-52",
+          "type": "row",
+          "height": 1,
+          "background": "#E4E4DE",
+          "dark_background": "#2A2A28",
+          "children": []
+         },
+         {
+          "id": "sig-53",
+          "type": "row",
+          "name": "Bedroom",
+          "gap": 18,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 0,
+           "bottom": 14,
+           "start": 0
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-54",
+            "type": "text",
+            "text": "II",
+            "width": 30,
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "font": {
+             "family": "Amiri",
+             "size": 15,
+             "weight": 400,
+             "line_height": 1.25
+            }
+           },
+           {
+            "id": "sig-55",
+            "type": "text",
+            "text": "Bedroom",
+            "font": {
+             "family": "Amiri",
+             "size": 22,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "غرفة النوم"
+             },
+             "tr": {
+              "text": "Yatak odası"
+             }
+            }
+           },
+           {
+            "id": "sig-56",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#66665F",
+            "dark_color": "#A2A29B"
+           }
+          ]
+         },
+         {
+          "id": "sig-57",
+          "type": "row",
+          "height": 1,
+          "background": "#E4E4DE",
+          "dark_background": "#2A2A28",
+          "children": []
+         },
+         {
+          "id": "sig-58",
+          "type": "row",
+          "name": "Dining room",
+          "gap": 18,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 0,
+           "bottom": 14,
+           "start": 0
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-59",
+            "type": "text",
+            "text": "III",
+            "width": 30,
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "font": {
+             "family": "Amiri",
+             "size": 15,
+             "weight": 400,
+             "line_height": 1.25
+            }
+           },
+           {
+            "id": "sig-60",
+            "type": "text",
+            "text": "Dining room",
+            "font": {
+             "family": "Amiri",
+             "size": 22,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "غرفة الطعام"
+             },
+             "tr": {
+              "text": "Yemek odası"
+             }
+            }
+           },
+           {
+            "id": "sig-61",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#66665F",
+            "dark_color": "#A2A29B"
+           }
+          ]
+         },
+         {
+          "id": "sig-62",
+          "type": "row",
+          "height": 1,
+          "background": "#E4E4DE",
+          "dark_background": "#2A2A28",
+          "children": []
+         },
+         {
+          "id": "sig-63",
+          "type": "row",
+          "name": "Reading corner",
+          "gap": 18,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 0,
+           "bottom": 14,
+           "start": 0
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-64",
+            "type": "text",
+            "text": "IV",
+            "width": 30,
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "font": {
+             "family": "Amiri",
+             "size": 15,
+             "weight": 400,
+             "line_height": 1.25
+            }
+           },
+           {
+            "id": "sig-65",
+            "type": "text",
+            "text": "Reading corner",
+            "font": {
+             "family": "Amiri",
+             "size": 22,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ركن القراءة"
+             },
+             "tr": {
+              "text": "Okuma köşesi"
+             }
+            }
+           },
+           {
+            "id": "sig-66",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#66665F",
+            "dark_color": "#A2A29B"
+           }
+          ]
+         },
+         {
+          "id": "sig-67",
+          "type": "row",
+          "height": 1,
+          "background": "#E4E4DE",
+          "dark_background": "#2A2A28",
+          "children": []
+         },
+         {
+          "id": "sig-68",
+          "type": "row",
+          "name": "Plants & terrariums",
+          "gap": 18,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 0,
+           "bottom": 14,
+           "start": 0
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-69",
+            "type": "text",
+            "text": "V",
+            "width": 30,
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "font": {
+             "family": "Amiri",
+             "size": 15,
+             "weight": 400,
+             "line_height": 1.25
+            }
+           },
+           {
+            "id": "sig-70",
+            "type": "text",
+            "text": "Plants & terrariums",
+            "font": {
+             "family": "Amiri",
+             "size": 22,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "نباتات وحدائق زجاجية"
+             },
+             "tr": {
+              "text": "Bitkiler ve teraryumlar"
+             }
+            }
+           },
+           {
+            "id": "sig-71",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#66665F",
+            "dark_color": "#A2A29B"
+           }
+          ]
+         },
+         {
+          "id": "sig-72",
+          "type": "row",
+          "height": 1,
+          "background": "#E4E4DE",
+          "dark_background": "#2A2A28",
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "sig-73",
+        "type": "column",
+        "name": "— [The curator's note]",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 0,
+         "bottom": 26,
+         "start": 0
+        },
+        "margin": {
+         "top": 46,
+         "end": 28,
+         "bottom": 0,
+         "start": 28
+        },
+        "border_color": "#E4E4DE",
+        "dark_border_color": "#2A2A28",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-74",
+          "type": "text",
+          "text": "We choose every piece as a museum chooses a work for its wall: to stay, not to fill a space.",
+          "font": {
+           "family": "Amiri",
+           "size": 21,
+           "weight": 400,
+           "line_height": 1.6
+          },
+          "color": "#0B0B0B",
+          "dark_color": "#F2F2EF",
+          "max_lines": 5,
+          "padding": {
+           "top": 0,
+           "end": 18,
+           "bottom": 0,
+           "start": 18
+          },
+          "translations": {
+           "ar": {
+            "text": "نختار كل قطعة كما يختار المتحف عملًا لجداره: لتبقى، لا لتملأ المكان."
+           },
+           "tr": {
+            "text": "Her parçayı bir müzenin duvarına eser seçtiği gibi seçeriz: yer doldurmak için değil, kalmak için."
+           }
+          }
+         },
+         {
+          "id": "sig-75",
+          "type": "text",
+          "text": "— Noura, Sakan's curator",
+          "font": {
+           "family": "IBM Plex Sans Arabic",
+           "size": 12,
+           "weight": 400
+          },
+          "color": "#66665F",
+          "dark_color": "#A2A29B",
+          "max_lines": 1,
+          "padding": {
+           "top": 0,
+           "end": 18,
+           "bottom": 0,
+           "start": 18
+          },
+          "translations": {
+           "ar": {
+            "text": "— نورة، القيّمة على مجموعة سكن"
+           },
+           "tr": {
+            "text": "— Noura, Sakan'ın küratörü"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-76",
+        "type": "row",
+        "name": "New acquisitions",
+        "gap": 12,
+        "cross": "end",
+        "padding": {
+         "top": 44,
+         "end": 28,
+         "bottom": 18,
+         "start": 28
+        },
+        "children": [
+         {
+          "id": "sig-77",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-78",
+            "type": "text",
+            "text": "Just arrived",
+            "font": {
+             "family": "IBM Plex Sans Arabic",
+             "size": 10.5,
+             "weight": 500,
+             "letter_spacing": 2
+            },
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "وصل حديثًا"
+             },
+             "tr": {
+              "text": "Yeni geldi"
+             }
+            }
+           },
+           {
+            "id": "sig-79",
+            "type": "text",
+            "text": "New acquisitions",
+            "font": {
+             "family": "Amiri",
+             "size": 28,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "مقتنيات جديدة"
+             },
+             "tr": {
+              "text": "Yeni eserler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-80",
+          "type": "text",
+          "text": "See all",
+          "font": {
+           "family": "IBM Plex Sans Arabic",
+           "size": 12,
+           "weight": 500,
+           "underline": true
+          },
+          "color": "#0B0B0B",
+          "dark_color": "#F2F2EF",
+          "max_lines": 1,
+          "name": "See all",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "عرض الكل"
+           },
+           "tr": {
+            "text": "Tümünü gör"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-81",
+        "type": "items",
+        "name": "New acquisitions",
+        "source": "products",
+        "layout": "carousel",
+        "gap": 22,
+        "padding": {
+         "top": 0,
+         "end": 28,
+         "bottom": 0,
+         "start": 28
+        },
+        "query": {
+         "limit": 8,
+         "category_id": null,
+         "featured": false,
+         "sort": "newest",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-82",
+         "type": "column",
+         "width": 132,
+         "gap": 0,
+         "children": [
+          {
+           "id": "sig-84",
+           "type": "column",
+           "gap": 0,
+           "padding": {
+            "top": 10,
+            "end": 10,
+            "bottom": 10,
+            "start": 10
+           },
+           "background": "#FFFFFF",
+           "dark_background": "#171716",
+           "border_color": "#0B0B0B",
+           "dark_border_color": "#E6E1D6",
+           "border_width": 1.5,
+           "children": [
+            {
+             "id": "sig-83",
+             "type": "image",
+             "bind": "image",
+             "width": 109,
+             "height": 132,
+             "fit": "cover",
+             "background": "#F6F6F3",
+             "dark_background": "#121211"
+            }
+           ]
+          },
+          {
+           "id": "sig-85",
+           "type": "column",
+           "gap": 1,
+           "padding": {
+            "top": 10,
+            "end": 0,
+            "bottom": 0,
+            "start": 0
+           },
+           "children": [
+            {
+             "id": "sig-86",
+             "type": "text",
+             "bind": "title",
+             "max_lines": 2,
+             "color": "#0B0B0B",
+             "dark_color": "#F2F2EF",
+             "font": {
+              "family": "Amiri",
+              "size": 15.5,
+              "weight": 700,
+              "line_height": 1.25
+             }
+            },
+            {
+             "id": "sig-87",
+             "type": "text",
+             "bind": "subtitle",
+             "max_lines": 1,
+             "color": "#66665F",
+             "dark_color": "#A2A29B",
+             "font": {
+              "family": "IBM Plex Sans Arabic",
+              "size": 11,
+              "weight": 400
+             }
+            },
+            {
+             "id": "sig-88",
+             "type": "row",
+             "gap": 6,
+             "cross": "center",
+             "children": [
+              {
+               "id": "sig-89",
+               "type": "text",
+               "bind": "price",
+               "max_lines": 1,
+               "color": "#0B0B0B",
+               "dark_color": "#F2F2EF",
+               "font": {
+                "family": "IBM Plex Sans Arabic",
+                "size": 12,
+                "weight": 600
+               }
+              },
+              {
+               "id": "sig-90",
+               "type": "text",
+               "bind": "was_price",
+               "max_lines": 1,
+               "color": "#66665F",
+               "dark_color": "#A2A29B",
+               "font": {
+                "family": "IBM Plex Sans Arabic",
+                "size": 11,
+                "weight": 400
+               }
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-91",
+        "type": "row",
+        "name": "The showroom",
+        "gap": 12,
+        "cross": "end",
+        "padding": {
+         "top": 44,
+         "end": 28,
+         "bottom": 18,
+         "start": 28
+        },
+        "children": [
+         {
+          "id": "sig-92",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-93",
+            "type": "text",
+            "text": "Visit",
+            "font": {
+             "family": "IBM Plex Sans Arabic",
+             "size": 10.5,
+             "weight": 500,
+             "letter_spacing": 2
+            },
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "زيارة"
+             },
+             "tr": {
+              "text": "Ziyaret"
+             }
+            }
+           },
+           {
+            "id": "sig-94",
+            "type": "text",
+            "text": "The showroom",
+            "font": {
+             "family": "Amiri",
+             "size": 28,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "صالة العرض"
+             },
+             "tr": {
+              "text": "Showroom"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-95",
+        "type": "text",
+        "text": "Sakan showroom, Riyadh: open every day from 10 am to 10 pm, closed on Fridays. Delivery across the city in 3 days.",
+        "font": {
+         "family": "IBM Plex Sans Arabic",
+         "size": 13,
+         "weight": 400,
+         "line_height": 1.7
+        },
+        "color": "#66665F",
+        "dark_color": "#A2A29B",
+        "max_lines": 4,
+        "padding": {
+         "top": 0,
+         "end": 28,
+         "bottom": 0,
+         "start": 28
+        },
+        "translations": {
+         "ar": {
+          "text": "صالة سكن، الرياض: مفتوحة يوميًا من 10 صباحًا إلى 10 مساءً، مغلقة يوم الجمعة. التوصيل داخل المدينة خلال 3 أيام."
+         },
+         "tr": {
+          "text": "Sakan showroomu, Riyad: her gün 10:00–22:00 açık, cuma kapalı. Şehir içine 3 günde teslimat."
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "shop",
+    "title": "Shop",
+    "translations": {
+     "ar": {
+      "title": "المتجر"
+     },
+     "tr": {
+      "title": "Mağaza"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-119",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-120",
+        "type": "text",
+        "text": "The whole collection",
+        "font": {
+         "family": "IBM Plex Sans Arabic",
+         "size": 10.5,
+         "weight": 500,
+         "letter_spacing": 2
+        },
+        "color": "#66665F",
+        "dark_color": "#A2A29B",
+        "max_lines": 1,
+        "padding": {
+         "top": 8,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "translations": {
+         "ar": {
+          "text": "المجموعة كاملة"
+         },
+         "tr": {
+          "text": "Tüm koleksiyon"
+         }
+        }
+       },
+       {
+        "id": "sig-121",
+        "type": "text",
+        "text": "Every piece",
+        "font": {
+         "family": "Amiri",
+         "size": 30,
+         "weight": 400,
+         "line_height": 1.25
+        },
+        "color": "#0B0B0B",
+        "dark_color": "#F2F2EF",
+        "max_lines": 2,
+        "padding": {
+         "top": 0,
+         "end": 20,
+         "bottom": 6,
+         "start": 20
+        },
+        "translations": {
+         "ar": {
+          "text": "كل القطع"
+         },
+         "tr": {
+          "text": "Her parça"
+         }
+        }
+       },
+       {
+        "id": "sig-122",
+        "type": "row",
+        "name": "The halls",
+        "gap": 18,
+        "scroll": true,
+        "padding": {
+         "top": 6,
+         "end": 20,
+         "bottom": 12,
+         "start": 20
+        },
+        "children": [
+         {
+          "id": "sig-123",
+          "type": "row",
+          "name": "Living room",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-124",
+            "type": "text",
+            "text": "I",
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "font": {
+             "family": "Amiri",
+             "size": 13,
+             "weight": 400,
+             "line_height": 1.25
+            }
+           },
+           {
+            "id": "sig-125",
+            "type": "text",
+            "text": "Living room",
+            "font": {
+             "family": "Amiri",
+             "size": 17,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "غرفة المعيشة"
+             },
+             "tr": {
+              "text": "Oturma odası"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-126",
+          "type": "row",
+          "name": "Bedroom",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-127",
+            "type": "text",
+            "text": "II",
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "font": {
+             "family": "Amiri",
+             "size": 13,
+             "weight": 400,
+             "line_height": 1.25
+            }
+           },
+           {
+            "id": "sig-128",
+            "type": "text",
+            "text": "Bedroom",
+            "font": {
+             "family": "Amiri",
+             "size": 17,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "غرفة النوم"
+             },
+             "tr": {
+              "text": "Yatak odası"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-129",
+          "type": "row",
+          "name": "Dining room",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-130",
+            "type": "text",
+            "text": "III",
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "font": {
+             "family": "Amiri",
+             "size": 13,
+             "weight": 400,
+             "line_height": 1.25
+            }
+           },
+           {
+            "id": "sig-131",
+            "type": "text",
+            "text": "Dining room",
+            "font": {
+             "family": "Amiri",
+             "size": 17,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "غرفة الطعام"
+             },
+             "tr": {
+              "text": "Yemek odası"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-132",
+          "type": "row",
+          "name": "Reading corner",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-133",
+            "type": "text",
+            "text": "IV",
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "font": {
+             "family": "Amiri",
+             "size": 13,
+             "weight": 400,
+             "line_height": 1.25
+            }
+           },
+           {
+            "id": "sig-134",
+            "type": "text",
+            "text": "Reading corner",
+            "font": {
+             "family": "Amiri",
+             "size": 17,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ركن القراءة"
+             },
+             "tr": {
+              "text": "Okuma köşesi"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-135",
+          "type": "row",
+          "name": "Plants & terrariums",
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-136",
+            "type": "text",
+            "text": "V",
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "font": {
+             "family": "Amiri",
+             "size": 13,
+             "weight": 400,
+             "line_height": 1.25
+            }
+           },
+           {
+            "id": "sig-137",
+            "type": "text",
+            "text": "Plants & terrariums",
+            "font": {
+             "family": "Amiri",
+             "size": 17,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "نباتات وحدائق زجاجية"
+             },
+             "tr": {
+              "text": "Bitkiler ve teraryumlar"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "search",
+     "header": {
+      "type": "title",
+      "title": "Shop",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المتجر"
+       },
+       "tr": {
+        "title": "Mağaza"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#0B0B0B",
+      "dark_background": "#0B0B0B",
+      "dark_color": "#F2F2EF",
+      "style": "brand"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "cart",
+    "title": "Cart",
+    "translations": {
+     "ar": {
+      "title": "السلة"
+     },
+     "tr": {
+      "title": "Sepet"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-138",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-139",
+        "type": "coupon",
+        "name": "Your code",
+        "code": "SAKAN10",
+        "coupon": {
+         "look": "classic",
+         "bind": "public"
+        },
+        "radius": 0,
+        "color": "#0B0B0B",
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-140",
+        "type": "row",
+        "name": "Wrapped as a work of art",
+        "gap": 12,
+        "margin": {
+         "top": 16,
+         "end": 20,
+         "bottom": 6,
+         "start": 20
+        },
+        "children": [
+         {
+          "id": "sig-141",
+          "type": "row",
+          "width": 2,
+          "background": "#0B0B0B",
+          "dark_background": "#F2F2EF",
+          "children": []
+         },
+         {
+          "id": "sig-142",
+          "type": "column",
+          "width": "fill",
+          "gap": 1,
+          "children": [
+           {
+            "id": "sig-143",
+            "type": "text",
+            "text": "Wrapped as a work of art",
+            "font": {
+             "family": "Amiri",
+             "size": 19,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "تُغلَّف كعمل فني"
+             },
+             "tr": {
+              "text": "Bir sanat eseri gibi paketlenir"
+             }
+            }
+           },
+           {
+            "id": "sig-144",
+            "type": "text",
+            "text": "Each piece wrapped by hand, a card with your words on request",
+            "font": {
+             "family": "IBM Plex Sans Arabic",
+             "size": 11.5,
+             "weight": 400,
+             "line_height": 1.6
+            },
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "كل قطعة تُغلَّف باليد، وبطاقة بكلماتك عند الطلب"
+             },
+             "tr": {
+              "text": "Her parça elle paketlenir, istenirse sizin sözlerinizle bir kart"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "cart",
+     "header": {
+      "type": "title",
+      "title": "Cart",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "السلة"
+       },
+       "tr": {
+        "title": "Sepet"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#0B0B0B",
+      "dark_background": "#0B0B0B",
+      "dark_color": "#F2F2EF",
+      "style": "brand"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "Orders",
+    "translations": {
+     "ar": {
+      "title": "الطلبات"
+     },
+     "tr": {
+      "title": "Siparişler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-145",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-146",
+        "type": "row",
+        "name": "Your order's journey",
+        "gap": 12,
+        "cross": "end",
+        "padding": {
+         "top": 44,
+         "end": 28,
+         "bottom": 18,
+         "start": 28
+        },
+        "children": [
+         {
+          "id": "sig-147",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-148",
+            "type": "text",
+            "text": "From our wall to yours",
+            "font": {
+             "family": "IBM Plex Sans Arabic",
+             "size": 10.5,
+             "weight": 500,
+             "letter_spacing": 2
+            },
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "من جدارنا إلى جدارك"
+             },
+             "tr": {
+              "text": "Duvarımızdan duvarınıza"
+             }
+            }
+           },
+           {
+            "id": "sig-149",
+            "type": "text",
+            "text": "Your order's journey",
+            "font": {
+             "family": "Amiri",
+             "size": 28,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "رحلة طلبك"
+             },
+             "tr": {
+              "text": "Siparişinizin yolculuğu"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-150",
+        "type": "timeline",
+        "name": "Your order's journey",
+        "timeline": {
+         "style": "vertical",
+         "source": "latest_order"
+        },
+        "color": "#0B0B0B",
+        "dark_color": "#F2F2EF",
+        "radius": 0,
+        "padding": {
+         "top": 6,
+         "end": 28,
+         "bottom": 6,
+         "start": 28
+        },
+        "entries": [
+         {
+          "title": "Order received",
+          "text": "We have your order and are preparing it.",
+          "highlight": true,
+          "translations": {
+           "ar": {
+            "title": "استلمنا طلبك",
+            "text": "طلبك لدينا ونجهّزه الآن."
+           },
+           "tr": {
+            "title": "Sipariş alındı",
+            "text": "Siparişiniz bizde, hazırlıyoruz."
+           }
+          }
+         },
+         {
+          "title": "Wrapped with care",
+          "text": "Each piece packed safely, gifts with their card.",
+          "translations": {
+           "ar": {
+            "title": "غُلّف بعناية",
+            "text": "كل قطعة مغلّفة بأمان، والهدايا مع بطاقتها."
+           },
+           "tr": {
+            "title": "Özenle paketlendi",
+            "text": "Her parça güvenle paketlendi, hediyeler kartıyla."
+           }
+          }
+         },
+         {
+          "title": "On its way",
+          "text": "Our driver is bringing it to your door.",
+          "translations": {
+           "ar": {
+            "title": "في الطريق",
+            "text": "سائقنا في طريقه إلى بابك."
+           },
+           "tr": {
+            "title": "Yolda",
+            "text": "Sürücümüz kapınıza getiriyor."
+           }
+          }
+         },
+         {
+          "title": "Delivered",
+          "text": "Enjoy your new piece.",
+          "translations": {
+           "ar": {
+            "title": "تم التوصيل",
+            "text": "استمتع بقطعتك الجديدة."
+           },
+           "tr": {
+            "title": "Teslim edildi",
+            "text": "Yeni parçanızın tadını çıkarın."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "orders",
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطلبات"
+       },
+       "tr": {
+        "title": "Siparişler"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#0B0B0B",
+      "dark_background": "#0B0B0B",
+      "dark_color": "#F2F2EF",
+      "style": "brand"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-152",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-151",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "account",
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "menu",
+    "title": "All categories",
+    "translations": {
+     "ar": {
+      "title": "كل الأقسام"
+     },
+     "tr": {
+      "title": "Tüm kategoriler"
+     }
+    },
+    "studio": {
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B",
+     "body": {
+      "id": "sig-96",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-97",
+        "type": "text",
+        "text": "Gallery plan",
+        "font": {
+         "family": "IBM Plex Sans Arabic",
+         "size": 10.5,
+         "weight": 500,
+         "letter_spacing": 2
+        },
+        "color": "#66665F",
+        "dark_color": "#A2A29B",
+        "max_lines": 1,
+        "padding": {
+         "top": 10,
+         "end": 24,
+         "bottom": 2,
+         "start": 24
+        },
+        "translations": {
+         "ar": {
+          "text": "مخطط المعرض"
+         },
+         "tr": {
+          "text": "Galeri planı"
+         }
+        }
+       },
+       {
+        "id": "sig-98",
+        "type": "text",
+        "text": "The halls",
+        "font": {
+         "family": "Amiri",
+         "size": 30,
+         "weight": 400,
+         "line_height": 1.25
+        },
+        "color": "#0B0B0B",
+        "dark_color": "#F2F2EF",
+        "max_lines": 1,
+        "padding": {
+         "top": 0,
+         "end": 24,
+         "bottom": 10,
+         "start": 24
+        },
+        "translations": {
+         "ar": {
+          "text": "القاعات"
+         },
+         "tr": {
+          "text": "Salonlar"
+         }
+        }
+       },
+       {
+        "id": "sig-99",
+        "type": "search",
+        "name": "Search the collection…",
+        "text": "Search the collection…",
+        "source": "products",
+        "radius": 0,
+        "height": 46,
+        "background": "#FFFFFF",
+        "dark_background": "#0B0B0B",
+        "color": "#66665F",
+        "dark_color": "#A2A29B",
+        "border_color": "#0B0B0B",
+        "dark_border_color": "#F2F2EF",
+        "border_width": 1,
+        "margin": {
+         "top": 4,
+         "end": 24,
+         "bottom": 14,
+         "start": 24
+        },
+        "translations": {
+         "ar": {
+          "text": "ابحث في المجموعة…"
+         },
+         "tr": {
+          "text": "Koleksiyonda arayın…"
+         }
+        }
+       },
+       {
+        "id": "sig-100",
+        "type": "categories",
+        "name": "All categories",
+        "source": "products",
+        "style": "rows",
+        "category_menu": {
+         "look": "label",
+         "numbers": false,
+         "radius": 0
+        },
+        "color": "#0B0B0B",
+        "dark_color": "#F2F2EF",
+        "padding": {
+         "top": 4,
+         "end": 0,
+         "bottom": 4,
+         "start": 0
+        }
+       },
+       {
+        "id": "sig-101",
+        "type": "column",
+        "name": "Your account",
+        "gap": 0,
+        "margin": {
+         "top": 22,
+         "end": 24,
+         "bottom": 0,
+         "start": 24
+        },
+        "children": [
+         {
+          "id": "sig-102",
+          "type": "row",
+          "height": 1,
+          "background": "#0B0B0B",
+          "dark_background": "#F2F2EF",
+          "children": []
+         },
+         {
+          "id": "sig-103",
+          "type": "row",
+          "name": "Account",
+          "gap": 10,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 0,
+           "bottom": 14,
+           "start": 0
+          },
+          "border_color": "#E4E4DE",
+          "dark_border_color": "#2A2A28",
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-104",
+            "type": "text",
+            "text": "Account",
+            "font": {
+             "family": "Amiri",
+             "size": 19,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "حسابي"
+             },
+             "tr": {
+              "text": "Hesabım"
+             }
+            }
+           },
+           {
+            "id": "sig-105",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#66665F",
+            "dark_color": "#A2A29B"
+           }
+          ]
+         },
+         {
+          "id": "sig-106",
+          "type": "row",
+          "name": "Orders",
+          "gap": 10,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 0,
+           "bottom": 14,
+           "start": 0
+          },
+          "border_color": "#E4E4DE",
+          "dark_border_color": "#2A2A28",
+          "action": {
+           "type": "screen",
+           "screen": "orders"
+          },
+          "children": [
+           {
+            "id": "sig-107",
+            "type": "text",
+            "text": "Orders",
+            "font": {
+             "family": "Amiri",
+             "size": 19,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "طلباتي"
+             },
+             "tr": {
+              "text": "Siparişlerim"
+             }
+            }
+           },
+           {
+            "id": "sig-108",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#66665F",
+            "dark_color": "#A2A29B"
+           }
+          ]
+         },
+         {
+          "id": "sig-109",
+          "type": "row",
+          "name": "Saved pieces",
+          "gap": 10,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 0,
+           "bottom": 14,
+           "start": 0
+          },
+          "border_color": "#E4E4DE",
+          "dark_border_color": "#2A2A28",
+          "action": {
+           "type": "screen",
+           "screen": "favorites"
+          },
+          "children": [
+           {
+            "id": "sig-110",
+            "type": "text",
+            "text": "Saved pieces",
+            "font": {
+             "family": "Amiri",
+             "size": 19,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "القطع المحفوظة"
+             },
+             "tr": {
+              "text": "Kayıtlı parçalar"
+             }
+            }
+           },
+           {
+            "id": "sig-111",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#66665F",
+            "dark_color": "#A2A29B"
+           }
+          ]
+         },
+         {
+          "id": "sig-112",
+          "type": "row",
+          "name": "Language",
+          "gap": 10,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 0,
+           "bottom": 14,
+           "start": 0
+          },
+          "border_color": "#E4E4DE",
+          "dark_border_color": "#2A2A28",
+          "action": {
+           "type": "screen",
+           "screen": "settings"
+          },
+          "children": [
+           {
+            "id": "sig-113",
+            "type": "text",
+            "text": "Language",
+            "font": {
+             "family": "Amiri",
+             "size": 19,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "اللغة"
+             },
+             "tr": {
+              "text": "Dil"
+             }
+            }
+           },
+           {
+            "id": "sig-114",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#66665F",
+            "dark_color": "#A2A29B"
+           }
+          ]
+         },
+         {
+          "id": "sig-115",
+          "type": "row",
+          "name": "Contact us",
+          "gap": 10,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 0,
+           "bottom": 14,
+           "start": 0
+          },
+          "border_color": "#E4E4DE",
+          "dark_border_color": "#2A2A28",
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-116",
+            "type": "text",
+            "text": "Contact us",
+            "font": {
+             "family": "Amiri",
+             "size": 19,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "تواصل معنا"
+             },
+             "tr": {
+              "text": "Bize ulaşın"
+             }
+            }
+           },
+           {
+            "id": "sig-117",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#66665F",
+            "dark_color": "#A2A29B"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-118",
+        "type": "text",
+        "text": "Sakan showroom, Riyadh: open every day from 10 am to 10 pm, closed on Fridays. Delivery across the city in 3 days.",
+        "font": {
+         "family": "IBM Plex Sans Arabic",
+         "size": 12,
+         "weight": 400,
+         "line_height": 1.7
+        },
+        "color": "#66665F",
+        "dark_color": "#A2A29B",
+        "max_lines": 3,
+        "padding": {
+         "top": 14,
+         "end": 24,
+         "bottom": 0,
+         "start": 24
+        },
+        "translations": {
+         "ar": {
+          "text": "صالة سكن، الرياض: مفتوحة يوميًا من 10 صباحًا إلى 10 مساءً، مغلقة يوم الجمعة. التوصيل داخل المدينة خلال 3 أيام."
+         },
+         "tr": {
+          "text": "Sakan showroomu, Riyad: her gün 10:00–22:00 açık, cuma kapalı. Şehir içine 3 günde teslimat."
+         }
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_center",
+      "title": "All categories",
+      "translations": {
+       "ar": {
+        "title": "كل الأقسام"
+       },
+       "tr": {
+        "title": "Tüm kategoriler"
+       }
+      },
+      "buttons": [
+       "search",
+       "cart"
+      ],
+      "background": "#FFFFFF",
+      "dark_background": "#0B0B0B",
+      "color": "#0B0B0B",
+      "dark_color": "#F2F2EF",
+      "style": "brand"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-153",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#0B0B0B",
+      "dark_background": "#0B0B0B",
+      "dark_color": "#F2F2EF",
+      "style": "brand"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-154",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#0B0B0B",
+      "dark_background": "#0B0B0B",
+      "dark_color": "#F2F2EF",
+      "style": "brand"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "favorites",
+    "title": "Wishlist",
+    "translations": {
+     "ar": {
+      "title": "المفضلة"
+     },
+     "tr": {
+      "title": "Favoriler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-155",
+      "type": "column",
+      "children": []
+     },
+     "screen": "favorites",
+     "header": {
+      "type": "title",
+      "title": "Wishlist",
+      "translations": {
+       "ar": {
+        "title": "المفضلة"
+       },
+       "tr": {
+        "title": "Favoriler"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#0B0B0B",
+      "dark_background": "#0B0B0B",
+      "dark_color": "#F2F2EF",
+      "style": "brand"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-156",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#0B0B0B",
+      "dark_background": "#0B0B0B",
+      "dark_color": "#F2F2EF",
+      "style": "brand"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-157",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#0B0B0B",
+      "dark_background": "#0B0B0B",
+      "dark_color": "#F2F2EF",
+      "style": "brand"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-158",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-159",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "background": "#FFFFFF",
+   "dark_background": "#0B0B0B",
+   "active": "#0B0B0B",
+   "dark_active": "#F2F2EF",
+   "inactive": "#8A8A83",
+   "dark_inactive": "#7E7E78",
+   "design": "text",
+   "labels": "always",
+   "radius": 0,
+   "margin": 0
+  }
+ }
+}

@@ -53,11 +53,11 @@ const MENU_PAGE = "menu";
 const font = (size: number, weight: StudioFont["weight"] = 400, extra: Partial<StudioFont> = {}): StudioFont => ({ family: L.family, size, weight, ...extra });
 
 const ROOMS = [
-  { word: "fuRoomLiving", short: "mnSegLiving", icon: "weekend", photo: "room-living", line: "mnRoomLivingLine", subs: ["mnSubSofas", "mnSubArmchairs", "mnSubCoffee", "mnSubTv"] },
+  { word: "fuRoomLiving", short: "mnSegLiving", icon: "airline_seat_recline_extra", photo: "room-living", line: "mnRoomLivingLine", subs: ["mnSubSofas", "mnSubArmchairs", "mnSubCoffee", "mnSubTv"] },
   { word: "fuRoomBedroom", short: "mnSegBedroom", icon: "bed", photo: "room-bedroom", line: "mnRoomBedroomLine", subs: ["mnSubBeds", "mnSubWardrobes", "mnSubNightstands"] },
-  { word: "fuRoomDining", short: "mnSegDining", icon: "dining", photo: "room-dining", line: "mnRoomDiningLine", subs: ["mnSubDiningTables", "mnSubDiningChairs"] },
-  { word: "fuRoomOffice", short: "mnSegOffice", icon: "desk", photo: "room-office", line: "mnRoomOfficeLine", subs: ["mnSubDesks", "mnSubOfficeChairs"] },
-  { word: "fuRoomOutdoor", short: "mnSegOutdoor", icon: "deck", photo: "room-outdoor", line: "mnRoomOutdoorLine", subs: ["mnSubOutLounge", "mnSubOutDining"] },
+  { word: "fuRoomDining", short: "mnSegDining", icon: "restaurant", photo: "room-dining", line: "mnRoomDiningLine", subs: ["mnSubDiningTables", "mnSubDiningChairs"] },
+  { word: "fuRoomOffice", short: "mnSegOffice", icon: "computer", photo: "room-office", line: "mnRoomOfficeLine", subs: ["mnSubDesks", "mnSubOfficeChairs"] },
+  { word: "fuRoomOutdoor", short: "mnSegOutdoor", icon: "yard", photo: "room-outdoor", line: "mnRoomOutdoorLine", subs: ["mnSubOutLounge", "mnSubOutDining"] },
 ] as const satisfies readonly { word: SectionWord; short: SectionWord; icon: string; photo: string; line: SectionWord; subs: readonly SectionWord[] }[];
 
 /** A section's title with its line under it and a link in the accent. */
@@ -392,7 +392,7 @@ function over(screenName: string, ctx: SectionContext): StudioNode[] | null {
           margin: sides(8, 16, 4, 16),
           background: L.tint.day,
           dark_background: L.tint.night,
-          children: [{ id: id(), type: "icon", icon: "handyman", icon_size: 22, color: K.accent, dark_color: K.darkAccent }, say(ctx, L, "mnCartNote", font(13, 600, { line_height: 1.4 }), { width: "fill", max_lines: 3 })],
+          children: [{ id: id(), type: "icon", icon: "build", icon_size: 22, color: K.accent, dark_color: K.darkAccent }, say(ctx, L, "mnCartNote", font(13, 600, { line_height: 1.4 }), { width: "fill", max_lines: 3 })],
         },
       ];
     case "orders":
@@ -435,7 +435,7 @@ function menuPage(ctx: SectionContext): StudioPage {
     children: [
       { id: id(), type: "row", width: 38, height: 38, radius: 12, align: "center", cross: "center", background: L.tint.day, dark_background: L.tint.night, children: [{ id: id(), type: "icon", icon, icon_size: 20, color: K.ink, dark_color: K.darkInk }] },
       say(ctx, L, word, font(14, 600), { width: "fill", max_lines: 1 }),
-      { id: id(), type: "icon", icon: "chevron_forward", icon_size: 20, color: K.muted, dark_color: K.darkMuted },
+      { id: id(), type: "icon", icon: "chevron_right", icon_size: 20, color: K.muted, dark_color: K.darkMuted },
     ],
   });
   return {
@@ -471,8 +471,8 @@ function menuPage(ctx: SectionContext): StudioPage {
 export function manzilTabs(tabs: readonly LayoutTab[]): LayoutTab[] {
   const out = structuredClone([...tabs]).map((t) => {
     const target = t.target.type === "screen" ? t.target.screen : null;
-    if (t.id === "home") return { ...t, icon: "cottage" };
-    if (target === "search") return { ...t, label: "Shop", icon: "chair" };
+    if (t.id === "home") return { ...t, icon: "home" };
+    if (target === "search") return { ...t, label: "Shop", icon: "category" };
     if (target === "cart") return { ...t, label: "Cart", icon: "shopping_bag" };
     if (target === "account") return { ...t, icon: "person" };
     return t;
@@ -499,7 +499,7 @@ const MANZIL_BAR = signatureBar(K, { design: "segment", background: K.surface, d
 export const FURNITURE_D: SignatureDesign = {
   demo: "furniture",
   variant: "d",
-  template: { id: "furniture_signature_d", icon: "meeting_room", fits: { types: ["store"], plain: true } },
+  template: { id: "furniture_signature_d", icon: "home_work", fits: { types: ["store"], plain: true } },
   home,
   over,
   tabs: manzilTabs,

@@ -19,7 +19,7 @@ import { parseStudioPage } from "@/lib/pages/validate";
 import type { StudioNode } from "@/lib/pages/types";
 import { answerStoreRequest, createStoreRequest, storeRequestJson } from "@/lib/selling/requests";
 import { appWords } from "@/lib/studio/app-words";
-import { signatureDesign } from "@/lib/studio/demo-designs";
+import { mainTemplateOf, signatureDesign, signatureLooksOf } from "@/lib/studio/demo-designs";
 import { KIT_CUSTOM_PAGE, KIT_MENU_PAGE, SHOP_KIT_SECTIONS } from "@/lib/studio/demo-designs/shop-kit-parts";
 import { ELEMENTS, newNode } from "@/lib/studio/elements";
 import { SECTIONS, TEMPLATES, type SectionContext } from "@/lib/studio/sections";
@@ -181,7 +181,8 @@ describe.each(KITS)("210 the %s type", (id) => {
     expect(DEMO_GUIDES[id].screens).toHaveLength(3);
     expect(type.liability).toBe(id === FURNITURE_DEMO ? "warranty" : "general");
     expect(Boolean(type.installmentsSoon)).toBe(id === FURNITURE_DEMO);
-    expect(TEMPLATES.filter((t) => t.demo === id).map((t) => t.id)).toEqual([`${id}_signature_a`, `${id}_signature_b`]);
+    // 223 225 Its looks in Studio's order (C and D first where it has them).
+    expect(TEMPLATES.filter((t) => t.demo === id).map((t) => t.id)).toEqual(signatureLooksOf(id).map((look) => `${id}_signature_${look}`));
   });
 
   it("has its products in their categories, each SKU once, their photos shipped and credited", () => {
@@ -266,7 +267,7 @@ describe.each(KITS)("210 the %s type", (id) => {
     }
 
     it("keeps its look, categories and products, and serves each product's line and details", async () => {
-      expect(app.design).toBe(`${id}_signature_a`);
+      expect(app.design).toBe(mainTemplateOf(id));
       expect(app.catalogSettings?.currency).toBe(k.currency);
       expect(await store.listCatalogProducts(app.id)).toHaveLength(k.products.length);
       const listed = (await call("/store/products", { per_page: "50" })).body as { items: { id: number; subtitle?: string | null }[] };

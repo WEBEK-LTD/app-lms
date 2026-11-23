@@ -267,7 +267,7 @@ function makeBoard(ctx: SectionContext): StudioNode {
     action: shop,
     children: [
       { id: id(), type: "column", width: "fill", gap: 3, children: [say(ctx, L, "mjMakeTitle", font(18, 700), { color: K.onFill, dark_color: K.darkOnFill, max_lines: 2 }), say(ctx, L, "mjMakeLine", font(12.5), { color: K.onFill, dark_color: K.darkOnFill, opacity: 0.9, max_lines: 2 })] },
-      { id: id(), type: "row", width: 48, height: 48, radius: 24, align: "center", cross: "center", self_align: "center", background: K.onFill, dark_background: K.darkOnFill, children: [{ id: id(), type: "icon", icon: "palette", icon_size: 24, color: K.fill, dark_color: K.darkFill }] },
+      { id: id(), type: "row", width: 48, height: 48, radius: 24, align: "center", cross: "center", self_align: "center", background: K.onFill, dark_background: K.darkOnFill, children: [{ id: id(), type: "icon", icon: "auto_awesome", icon_size: 24, color: K.fill, dark_color: K.darkFill }] },
     ],
   };
 }
@@ -402,9 +402,9 @@ export function mazajTabs(tabs: readonly LayoutTab[]): LayoutTab[] {
   const out = structuredClone([...tabs]).map((t) => {
     const target = t.target.type === "screen" ? t.target.screen : null;
     if (t.id === "home") return { ...t, icon: "home" };
-    if (target === "search") return { ...t, label: "Shop", icon: "palette" };
-    if (target === "cart") return { ...t, label: "Cart", icon: "local_mall" };
-    if (target === "account") return { ...t, icon: "face" };
+    if (target === "search") return { ...t, label: "Shop", icon: "auto_awesome" };
+    if (target === "cart") return { ...t, label: "Cart", icon: "shopping_bag" };
+    if (target === "account") return { ...t, icon: "person" };
     return t;
   });
   const account = out.findIndex((t) => t.target.type === "screen" && t.target.screen === "account");
@@ -423,7 +423,7 @@ const MAZAJ_SCREENS = signatureScreens({
 });
 
 /** The drop bar: cream paper, the open tab hanging as a coral drop. */
-const MAZAJ_BAR = signatureBar(K, { design: "drop", background: K.surface, dark_background: K.darkSurface, active: K.fill, dark_active: K.darkFill, inactive: "#9C8273", dark_inactive: "#A88F80", labels: "active", radius: 28, margin: 0 });
+const MAZAJ_BAR = signatureBar(K, { design: "drop", background: K.surface, dark_background: K.darkSurface, active: K.fill, dark_active: K.darkFill, inactive: "#9C8273", dark_inactive: "#A88F80", labels: "active", radius: 28 });
 
 export const DECOR_D: SignatureDesign = {
   demo: "decor",

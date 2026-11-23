@@ -394,8 +394,8 @@ function menuPage(ctx: SectionContext): StudioPage {
 export function atharTabs(tabs: readonly LayoutTab[]): LayoutTab[] {
   const out = structuredClone([...tabs]).map((t) => {
     const target = t.target.type === "screen" ? t.target.screen : null;
-    if (t.id === "home") return { ...t, icon: "museum" };
-    if (target === "search") return { ...t, label: "Shop", icon: "gallery_thumbnail" };
+    if (t.id === "home") return { ...t, icon: "home" };
+    if (target === "search") return { ...t, label: "Shop", icon: "photo_library" };
     if (target === "cart") return { ...t, label: "Cart", icon: "shopping_bag" };
     if (target === "account") return { ...t, icon: "person" };
     return t;
@@ -411,17 +411,17 @@ const ATHAR_SCREENS = signatureScreens({
   photo: "/decor-photos/ribbed-vase.jpg",
   title: { en: "Welcome to the gallery", ar: "أهلًا بك في المعرض", tr: "Galeriye hoş geldiniz" },
   subtitle: { en: "Sign in to keep the pieces you love and follow your orders.", ar: "سجّل الدخول لتحفظ القطع التي تحبها وتتابع طلباتك.", tr: "Sevdiğiniz parçaları saklamak ve siparişlerinizi takip etmek için giriş yapın." },
-  menu: "plain",
+  menu: "cover",
   first: ["orders", "notifications", "settings", "help", "privacy", "terms"],
 });
 
 /** The text bar: names only on the white wall, the open one in black. */
-const ATHAR_BAR = signatureBar(K, { design: "text", background: K.page, dark_background: K.darkPage, active: K.ink, dark_active: K.darkInk, inactive: "#8A8A83", dark_inactive: "#7E7E78", labels: "always", radius: 0, margin: 0 });
+const ATHAR_BAR = signatureBar(K, { design: "text", background: K.page, dark_background: K.darkPage, active: K.ink, dark_active: K.darkInk, inactive: "#8A8A83", dark_inactive: "#7E7E78", labels: "always" });
 
 export const DECOR_C: SignatureDesign = {
   demo: "decor",
   variant: "c",
-  template: { id: "decor_signature_c", icon: "museum", fits: { types: ["store"], plain: true } },
+  template: { id: "decor_signature_c", icon: "photo_library", fits: { types: ["store"], plain: true } },
   home,
   over,
   tabs: atharTabs,

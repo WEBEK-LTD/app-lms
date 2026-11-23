@@ -3,7 +3,7 @@ import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { sides, sigEntry, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
-import { kitPhoto, ownPage, say, shop, type KitLook } from "./shop-kit-parts";
+import { KIT_CUSTOM_PAGE, kitPhoto, ownPage, say, shop, type KitLook } from "./shop-kit-parts";
 
 /**
  * 225 Rukn's look C, MIZAN (ميزان), the architect: the furniture house drawn
@@ -55,7 +55,8 @@ const K = MIZAN_INK;
 /** The plan's grid, fainter than the hairlines. */
 const GRID = { day: "#E6E6E2", night: "#222221" };
 
-export const MIZAN_PLAN_PAGE = "plan-your-room";
+/** The plan request is the shop's custom-order page (its answers kept as the shop's request). */
+export const MIZAN_PLAN_PAGE = KIT_CUSTOM_PAGE;
 const MENU_PAGE = "menu";
 
 const font = (size: number, weight: StudioFont["weight"] = 400, extra: Partial<StudioFont> = {}): StudioFont => ({ family: L.family, size, weight, ...extra });
@@ -295,7 +296,7 @@ function planCard(ctx: SectionContext): StudioNode {
           planShape(ctx, 50, 20, 118, 34),
           planShape(ctx, 58, 50, 60, 32, 1.5, true),
           planShape(ctx, 16, 30, 38, 38),
-          { id: id(), type: "text", text: "← 4.20 m →", width: 120, text_align: "center", color: K.muted, dark_color: K.darkMuted, font: font(10, 600), place: { x: 36, y: 88 } },
+          say(ctx, L, "mzPlanWidth", font(10, 600), { muted: true, width: 120, text_align: "center", place: { x: 36, y: 88 } }),
         ],
       },
       hair(ctx, sides(0, 0, 0, 0)),
@@ -615,10 +616,10 @@ function planPage(ctx: SectionContext): StudioPage {
 export function mizanTabs(tabs: readonly LayoutTab[]): LayoutTab[] {
   const out = structuredClone([...tabs]).map((t) => {
     const target = t.target.type === "screen" ? t.target.screen : null;
-    if (t.id === "home") return { ...t, icon: "space_dashboard" };
+    if (t.id === "home") return { ...t, icon: "dashboard" };
     if (target === "search") return { ...t, label: "Shop", icon: "view_list" };
     if (target === "cart") return { ...t, label: "Cart", icon: "shopping_cart" };
-    if (target === "account") return { ...t, icon: "account_box" };
+    if (target === "account") return { ...t, icon: "account_circle" };
     return t;
   });
   const account = out.findIndex((t) => t.target.type === "screen" && t.target.screen === "account");
@@ -632,17 +633,18 @@ const MIZAN_SCREENS = signatureScreens({
   photo: "/furniture-photos/set-najd.jpg",
   title: { en: "Measured, then made", ar: "يُقاس أولًا، ثم يُصنع", tr: "Önce ölçülür, sonra yapılır" },
   subtitle: { en: "Sign in for your orders, your delivery day and your room's plan.", ar: "سجّل الدخول لطلباتك وموعد توصيلها ومخطط غرفتك.", tr: "Siparişleriniz, teslimat gününüz ve odanızın planı için giriş yapın." },
-  menu: "plain",
+  menu: "night",
+  accent: "#111111",
   first: ["orders", "notifications", "settings", "help", "privacy", "terms"],
 });
 
 /** The line bar: across the foot on the paper, a line over the open tab, every name shown. */
-const MIZAN_BAR = signatureBar(K, { design: "line", background: K.page, dark_background: K.darkPage, active: K.ink, dark_active: K.darkInk, inactive: "#77776F", dark_inactive: "#8E8E88", labels: "always", radius: 0, margin: 0 });
+const MIZAN_BAR = signatureBar(K, { design: "line", background: K.page, dark_background: K.darkPage, active: K.ink, dark_active: K.darkInk, inactive: "#77776F", dark_inactive: "#8E8E88", labels: "always" });
 
 export const FURNITURE_C: SignatureDesign = {
   demo: "furniture",
   variant: "c",
-  template: { id: "furniture_signature_c", icon: "architecture", fits: { types: ["store"], plain: true } },
+  template: { id: "furniture_signature_c", icon: "straighten", fits: { types: ["store"], plain: true } },
   home,
   over,
   tabs: mizanTabs,

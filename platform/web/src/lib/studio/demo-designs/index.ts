@@ -39,6 +39,11 @@ import { MUKAAB_B, TOOT_A } from "./toys-signature";
 import { DECOR_A, DECOR_B } from "./decor-signature";
 import { CROCHET_A, CROCHET_B } from "./crochet-signature";
 import { FURNITURE_A, FURNITURE_B } from "./furniture-signature";
+// 225 Their looks C and D: Rukn's MIZAN the architect and MANZIL room by room, Sakan's ATHAR the gallery and MAZAJ the moodboard.
+import { FURNITURE_C } from "./furniture-c-signature";
+import { FURNITURE_D } from "./furniture-d-signature";
+import { DECOR_C } from "./decor-c-signature";
+import { DECOR_D } from "./decor-d-signature";
 // 211 Nova, the mobiles shop: A NOVA ink and cobalt, B emerald on stone.
 import { EMERALD_B, NOVA_A } from "./mobiles-signature";
 // 211 Nawah, computers and gaming: A NAWAH white and blue, B SILICA green on stone.
@@ -191,9 +196,10 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Partial<Record<SignatureLook, Sign
   // 209 Toot, the toy shop (a store): A Toot, playful and colourful; B Mukaab, calm and educational.
   toys: { a: TOOT_A, b: MUKAAB_B },
   // 210 Sakan, home decor: A the decor magazine, B Teen's warm earth. Ghurza, crochet: A warm handmade, B Habka's colours. Rukn, furniture: A white and wood, B KANAF.
-  decor: { a: DECOR_A, b: DECOR_B },
+  // 225 Sakan C ATHAR the gallery, D MAZAJ the moodboard; Rukn C MIZAN the architect, D MANZIL room by room.
+  decor: { c: DECOR_C, d: DECOR_D, a: DECOR_A, b: DECOR_B },
   crochet: { a: CROCHET_A, b: CROCHET_B },
-  furniture: { a: FURNITURE_A, b: FURNITURE_B },
+  furniture: { c: FURNITURE_C, d: FURNITURE_D, a: FURNITURE_A, b: FURNITURE_B },
   // 211 Madar, the electronics shop (a store): A MADAR in white and deep blue, B NABD in lime on near black.
   electronics: { a: MADAR_A, b: NABD_B },
   // 211 Nova, the mobiles shop (a store): A NOVA's ink and cobalt, B emerald on warm stone.

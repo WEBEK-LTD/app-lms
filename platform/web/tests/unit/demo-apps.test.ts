@@ -19,6 +19,7 @@ import { ACADEMY_COURSES, ACADEMY_TEACHERS } from "@/lib/demo/teachers";
 import { DemoSetupError, setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
 import { DEMO_SCREENS, DEMO_TAB_BARS } from "@/lib/demo/screens";
 import type { StudioScreens } from "@/lib/studio/screens";
+import { mainTemplateOf } from "@/lib/studio/demo-designs";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { connectorFor } from "@/lib/hosted/connectors";
@@ -123,8 +124,8 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
     expect(apps.at(-8)?.design).toBe("kids_signature_a");
     // 209 Toot, the toy shop: a shop that keeps its look A (Toot).
     expect(apps.at(-7)?.design).toBe("toys_signature_a");
-    // 210 Sakan, Ghurza and Rukn, 211 Madar, Nova and Nawah: each keeps its look A.
-    expect(apps.slice(-6).map((a) => a.design)).toEqual(["decor_signature_a", "crochet_signature_a", "furniture_signature_a", "electronics_signature_a", "mobiles_signature_a", "computers_signature_a"]);
+    // 210 Sakan, Ghurza and Rukn, 211 Madar, Nova and Nawah: each keeps its main look (223 C where it has one, else A).
+    expect(apps.slice(-6).map((a) => a.design)).toEqual((["decor", "crochet", "furniture", "electronics", "mobiles", "computers"] as const).map(mainTemplateOf));
     expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(30);
     expect(new Set(apps.map((a) => a.template))).toEqual(new Set(["classic", "bold", "minimal"]));
     for (const app of apps) {
@@ -636,8 +637,9 @@ describe("signing in to a demo app", () => {
       expect(bar?.design, id).toBe(DEMO_TAB_BARS[id].design);
       bars.add(bar!.design!);
     }
-    // 130 Each demo's look A's premium bar: glass, a floating pill or a dock, never the classic one; 131.22 Leqaa's the petal.
-    expect([...bars].sort()).toEqual(["dock", "float", "glass", "petal"]);
+    // 130 Each demo's main look's premium bar, never the classic one: glass, a floating pill or a dock; 131.22 Leqaa's the petal; 223 225 a shop type's C its own (a line, words only…).
+    expect([...bars]).toEqual(expect.arrayContaining(["dock", "float", "glass", "petal"]));
+    expect([...bars]).not.toContain("classic");
     expect(await config("store")).toBeUndefined();
     for (const d of Object.values(DEMO_SCREENS)) if (d.photo) expect(existsSync(join(process.cwd(), "public", d.photo)), d.photo).toBe(true);
   });
