@@ -1,0 +1,4612 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "card",
+   "image_url": "http://localhost:3000/toys-photos/kite-wide.jpg",
+   "title": {
+    "en": "Ready for an adventure?",
+    "ar": "مستعد للمغامرة؟",
+    "tr": "Maceraya hazır mısın?"
+   },
+   "subtitle": {
+    "en": "Sign in to follow your orders and your gifts.",
+    "ar": "سجّل الدخول لتتابع طلباتك وهداياك.",
+    "tr": "Siparişlerinizi ve hediyelerinizi takip etmek için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "tiles",
+   "items": [
+    {
+     "key": "orders",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "wishlist",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "brand"
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "classic",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "Lexend",
+   "corners": "round",
+   "cards": "outlined",
+   "secondary_color": "#3D5AFE",
+   "font_family": "Rubik",
+   "dark_background": "#0F1030",
+   "dark_surface": "#1B1D47",
+   "font_files": [
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/rubik/Rubik%5Bwght%5D.ttf",
+     "weight": null
+    }
+   ]
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "shop",
+    "label": "Shop",
+    "icon": "grid_view",
+    "target": {
+     "type": "page",
+     "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "المتجر"
+     },
+     "tr": {
+      "label": "Mağaza"
+     }
+    }
+   },
+   {
+    "id": "cart",
+    "label": "Cart",
+    "icon": "shopping_bag",
+    "target": {
+     "type": "page",
+     "page_slug": "cart"
+    },
+    "translations": {
+     "ar": {
+      "label": "السلة"
+     },
+     "tr": {
+      "label": "Sepet"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "Orders",
+    "icon": "package_2",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطلبات"
+     },
+     "tr": {
+      "label": "Siparişler"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_actions",
+      "title": "Toot",
+      "translations": {
+       "ar": {
+        "title": "Toot"
+       },
+       "tr": {
+        "title": "Toot"
+       }
+      },
+      "buttons": [
+       "menu",
+       "cart"
+      ],
+      "menu_page": "menu",
+      "background": "#FFF6E3",
+      "dark_background": "#0F1030",
+      "color": "#E5352C",
+      "dark_color": "#FFC629",
+      "style": "brand"
+     },
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 110,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "column",
+        "name": "Where shall we play today?",
+        "gap": 4,
+        "padding": {
+         "top": 6,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "text",
+          "text": "Where shall we play today?",
+          "font": {
+           "family": "Lalezar",
+           "size": 32,
+           "weight": 400,
+           "line_height": 1.05
+          },
+          "color": "#1D1A3A",
+          "dark_color": "#FFF6E3",
+          "max_lines": 2,
+          "translations": {
+           "ar": {
+            "text": "إلى أين نلعب اليوم؟"
+           },
+           "tr": {
+            "text": "Bugün nerede oynayalım?"
+           }
+          }
+         },
+         {
+          "id": "sig-4",
+          "type": "text",
+          "text": "Pick an island and set off: each one is a corner of the shop.",
+          "font": {
+           "family": "Rubik",
+           "size": 13.5,
+           "weight": 400,
+           "line_height": 1.35
+          },
+          "color": "#5C587A",
+          "dark_color": "#B9B6DA",
+          "max_lines": 2,
+          "translations": {
+           "ar": {
+            "text": "اختر جزيرة وانطلق: كل جزيرة ركن من المتجر."
+           },
+           "tr": {
+            "text": "Bir ada seç ve yola çık: her ada mağazanın bir köşesi."
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-36",
+        "type": "column",
+        "name": "Islands to explore",
+        "radius": 30,
+        "padding": {
+         "top": 0,
+         "end": 0,
+         "bottom": 6,
+         "start": 0
+        },
+        "background": "#1D1A3A",
+        "dark_background": "#05061A",
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "motion": {
+         "press": "bounce"
+        },
+        "children": [
+         {
+          "type": "column",
+          "name": "Islands to explore",
+          "gap": 10,
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "gradient": {
+           "from": "#6CCDF2",
+           "to": "#1E8FD0",
+           "angle": 160
+          },
+          "background": "#3FB7E8",
+          "dark_background": "#16306E",
+          "children": [
+           {
+            "id": "sig-5",
+            "type": "stack",
+            "name": "Islands to explore",
+            "width": "fill",
+            "height": 268,
+            "children": [
+             {
+              "id": "sig-6",
+              "type": "icon",
+              "icon": "waves",
+              "icon_size": 22,
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "opacity": 0.55,
+              "place": {
+               "x": 40,
+               "y": 2
+              }
+             },
+             {
+              "id": "sig-7",
+              "type": "icon",
+              "icon": "waves",
+              "icon_size": 20,
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "opacity": 0.55,
+              "place": {
+               "x": 8,
+               "y": 44
+              }
+             },
+             {
+              "id": "sig-8",
+              "type": "icon",
+              "icon": "waves",
+              "icon_size": 20,
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "opacity": 0.55,
+              "place": {
+               "x": 74,
+               "y": 46
+              }
+             },
+             {
+              "id": "sig-9",
+              "type": "icon",
+              "icon": "sailing",
+              "icon_size": 30,
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "opacity": 0.9,
+              "place": {
+               "x": 44,
+               "y": 82
+              }
+             },
+             {
+              "id": "sig-10",
+              "type": "column",
+              "name": "Wooden toys",
+              "width": 112,
+              "gap": 4,
+              "cross": "center",
+              "place": {
+               "x": 1,
+               "y": 0
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "motion": {
+               "press": "bounce",
+               "loop": "float"
+              },
+              "children": [
+               {
+                "id": "sig-11",
+                "type": "row",
+                "width": 94,
+                "height": 78,
+                "corners": {
+                 "top_start": 46,
+                 "top_end": 34,
+                 "bottom_end": 44,
+                 "bottom_start": 30
+                },
+                "align": "center",
+                "cross": "center",
+                "background": "#FFE08A",
+                "dark_background": "#FFE08A",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2.5,
+                "shadow": "medium",
+                "children": [
+                 {
+                  "id": "sig-12",
+                  "type": "image",
+                  "image_url": "http://localhost:3000/toys-photos/block-tower.jpg",
+                  "fit": "cover",
+                  "width": 60,
+                  "height": 60,
+                  "radius": 30,
+                  "border_color": "#FFFFFF",
+                  "dark_border_color": "#FFFFFF",
+                  "border_width": 3
+                 }
+                ]
+               },
+               {
+                "id": "sig-13",
+                "type": "text",
+                "text": "Wooden toys",
+                "font": {
+                 "family": "Rubik",
+                 "size": 11.5,
+                 "weight": 700,
+                 "line_height": 1.35
+                },
+                "color": "#1D1A3A",
+                "dark_color": "#FFF6E3",
+                "max_lines": 1,
+                "text_align": "center",
+                "background": "#FFFFFF",
+                "dark_background": "#1B1D47",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2,
+                "radius": 10,
+                "padding": {
+                 "top": 2,
+                 "end": 8,
+                 "bottom": 2,
+                 "start": 8
+                },
+                "translations": {
+                 "ar": {
+                  "text": "الألعاب الخشبية"
+                 },
+                 "tr": {
+                  "text": "Ahşap oyuncaklar"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-14",
+              "type": "column",
+              "name": "Building",
+              "width": 112,
+              "gap": 4,
+              "cross": "center",
+              "place": {
+               "x": 64,
+               "y": 3
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "motion": {
+               "press": "bounce",
+               "loop": "float"
+              },
+              "children": [
+               {
+                "id": "sig-15",
+                "type": "row",
+                "width": 94,
+                "height": 78,
+                "corners": {
+                 "top_start": 46,
+                 "top_end": 34,
+                 "bottom_end": 44,
+                 "bottom_start": 30
+                },
+                "align": "center",
+                "cross": "center",
+                "background": "#B8F0C9",
+                "dark_background": "#B8F0C9",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2.5,
+                "shadow": "medium",
+                "children": [
+                 {
+                  "id": "sig-16",
+                  "type": "image",
+                  "image_url": "http://localhost:3000/toys-photos/bricks-pile.jpg",
+                  "fit": "cover",
+                  "width": 60,
+                  "height": 60,
+                  "radius": 30,
+                  "border_color": "#FFFFFF",
+                  "dark_border_color": "#FFFFFF",
+                  "border_width": 3
+                 }
+                ]
+               },
+               {
+                "id": "sig-17",
+                "type": "text",
+                "text": "Building",
+                "font": {
+                 "family": "Rubik",
+                 "size": 11.5,
+                 "weight": 700,
+                 "line_height": 1.35
+                },
+                "color": "#1D1A3A",
+                "dark_color": "#FFF6E3",
+                "max_lines": 1,
+                "text_align": "center",
+                "background": "#FFFFFF",
+                "dark_background": "#1B1D47",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2,
+                "radius": 10,
+                "padding": {
+                 "top": 2,
+                 "end": 8,
+                 "bottom": 2,
+                 "start": 8
+                },
+                "translations": {
+                 "ar": {
+                  "text": "البناء والتركيب"
+                 },
+                 "tr": {
+                  "text": "Yapı oyuncakları"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-18",
+              "type": "column",
+              "name": "Science & STEM",
+              "width": 112,
+              "gap": 4,
+              "cross": "center",
+              "place": {
+               "x": 33,
+               "y": 31
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "motion": {
+               "press": "bounce",
+               "loop": "float"
+              },
+              "children": [
+               {
+                "id": "sig-19",
+                "type": "row",
+                "width": 94,
+                "height": 78,
+                "corners": {
+                 "top_start": 46,
+                 "top_end": 34,
+                 "bottom_end": 44,
+                 "bottom_start": 30
+                },
+                "align": "center",
+                "cross": "center",
+                "background": "#FFC9C4",
+                "dark_background": "#FFC9C4",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2.5,
+                "shadow": "medium",
+                "children": [
+                 {
+                  "id": "sig-20",
+                  "type": "image",
+                  "image_url": "http://localhost:3000/toys-photos/telescope-globe.jpg",
+                  "fit": "cover",
+                  "width": 60,
+                  "height": 60,
+                  "radius": 30,
+                  "border_color": "#FFFFFF",
+                  "dark_border_color": "#FFFFFF",
+                  "border_width": 3
+                 }
+                ]
+               },
+               {
+                "id": "sig-21",
+                "type": "text",
+                "text": "Science & STEM",
+                "font": {
+                 "family": "Rubik",
+                 "size": 11.5,
+                 "weight": 700,
+                 "line_height": 1.35
+                },
+                "color": "#1D1A3A",
+                "dark_color": "#FFF6E3",
+                "max_lines": 1,
+                "text_align": "center",
+                "background": "#FFFFFF",
+                "dark_background": "#1B1D47",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2,
+                "radius": 10,
+                "padding": {
+                 "top": 2,
+                 "end": 8,
+                 "bottom": 2,
+                 "start": 8
+                },
+                "translations": {
+                 "ar": {
+                  "text": "العلوم والاستكشاف"
+                 },
+                 "tr": {
+                  "text": "Bilim ve keşif"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-22",
+              "type": "column",
+              "name": "Plush",
+              "width": 112,
+              "gap": 4,
+              "cross": "center",
+              "place": {
+               "x": 0,
+               "y": 56
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "motion": {
+               "press": "bounce",
+               "loop": "float"
+              },
+              "children": [
+               {
+                "id": "sig-23",
+                "type": "row",
+                "width": 94,
+                "height": 78,
+                "corners": {
+                 "top_start": 46,
+                 "top_end": 34,
+                 "bottom_end": 44,
+                 "bottom_start": 30
+                },
+                "align": "center",
+                "cross": "center",
+                "background": "#D9D2FF",
+                "dark_background": "#D9D2FF",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2.5,
+                "shadow": "medium",
+                "children": [
+                 {
+                  "id": "sig-24",
+                  "type": "image",
+                  "image_url": "http://localhost:3000/toys-photos/bear-mint.jpg",
+                  "fit": "cover",
+                  "width": 60,
+                  "height": 60,
+                  "radius": 30,
+                  "border_color": "#FFFFFF",
+                  "dark_border_color": "#FFFFFF",
+                  "border_width": 3
+                 }
+                ]
+               },
+               {
+                "id": "sig-25",
+                "type": "text",
+                "text": "Plush",
+                "font": {
+                 "family": "Rubik",
+                 "size": 11.5,
+                 "weight": 700,
+                 "line_height": 1.35
+                },
+                "color": "#1D1A3A",
+                "dark_color": "#FFF6E3",
+                "max_lines": 1,
+                "text_align": "center",
+                "background": "#FFFFFF",
+                "dark_background": "#1B1D47",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2,
+                "radius": 10,
+                "padding": {
+                 "top": 2,
+                 "end": 8,
+                 "bottom": 2,
+                 "start": 8
+                },
+                "translations": {
+                 "ar": {
+                  "text": "الدُمى المحشوّة"
+                 },
+                 "tr": {
+                  "text": "Pelüş oyuncaklar"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-26",
+              "type": "column",
+              "name": "Arts & music",
+              "width": 112,
+              "gap": 4,
+              "cross": "center",
+              "place": {
+               "x": 66,
+               "y": 58
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "motion": {
+               "press": "bounce",
+               "loop": "float"
+              },
+              "children": [
+               {
+                "id": "sig-27",
+                "type": "row",
+                "width": 94,
+                "height": 78,
+                "corners": {
+                 "top_start": 46,
+                 "top_end": 34,
+                 "bottom_end": 44,
+                 "bottom_start": 30
+                },
+                "align": "center",
+                "cross": "center",
+                "background": "#BDE7FF",
+                "dark_background": "#BDE7FF",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2.5,
+                "shadow": "medium",
+                "children": [
+                 {
+                  "id": "sig-28",
+                  "type": "image",
+                  "image_url": "http://localhost:3000/toys-photos/crayons-pastel.jpg",
+                  "fit": "cover",
+                  "width": 60,
+                  "height": 60,
+                  "radius": 30,
+                  "border_color": "#FFFFFF",
+                  "dark_border_color": "#FFFFFF",
+                  "border_width": 3
+                 }
+                ]
+               },
+               {
+                "id": "sig-29",
+                "type": "text",
+                "text": "Arts & music",
+                "font": {
+                 "family": "Rubik",
+                 "size": 11.5,
+                 "weight": 700,
+                 "line_height": 1.35
+                },
+                "color": "#1D1A3A",
+                "dark_color": "#FFF6E3",
+                "max_lines": 1,
+                "text_align": "center",
+                "background": "#FFFFFF",
+                "dark_background": "#1B1D47",
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2,
+                "radius": 10,
+                "padding": {
+                 "top": 2,
+                 "end": 8,
+                 "bottom": 2,
+                 "start": 8
+                },
+                "translations": {
+                 "ar": {
+                  "text": "الفنون والموسيقى"
+                 },
+                 "tr": {
+                  "text": "Sanat ve müzik"
+                 }
+                }
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "sig-30",
+            "type": "row",
+            "name": "The whole map",
+            "gap": 8,
+            "cross": "center",
+            "radius": 16,
+            "padding": {
+             "top": 8,
+             "end": 10,
+             "bottom": 8,
+             "start": 8
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#1B1D47",
+            "border_color": "#1D1A3A",
+            "dark_border_color": "#05061A",
+            "border_width": 2,
+            "children": [
+             {
+              "id": "sig-31",
+              "type": "icon",
+              "icon": "explore",
+              "icon_size": 22,
+              "color": "#F2453D",
+              "dark_color": "#FFC629"
+             },
+             {
+              "id": "sig-32",
+              "type": "text",
+              "text": "Islands to explore",
+              "font": {
+               "family": "Lalezar",
+               "size": 17,
+               "weight": 400,
+               "line_height": 1.1
+              },
+              "color": "#1D1A3A",
+              "dark_color": "#FFF6E3",
+              "width": "fill",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "جزر للاكتشاف"
+               },
+               "tr": {
+                "text": "Keşfedilecek adalar"
+               }
+              }
+             },
+             {
+              "id": "sig-34",
+              "type": "column",
+              "name": "The whole map",
+              "width": "hug",
+              "radius": 14,
+              "padding": {
+               "top": 0,
+               "end": 0,
+               "bottom": 4,
+               "start": 0
+              },
+              "background": "#1D1A3A",
+              "dark_background": "#05061A",
+              "action": {
+               "type": "page",
+               "page_slug": "menu"
+              },
+              "motion": {
+               "press": "bounce"
+              },
+              "children": [
+               {
+                "type": "row",
+                "name": "The whole map",
+                "height": 34,
+                "gap": 6,
+                "align": "center",
+                "cross": "center",
+                "padding": {
+                 "top": 0,
+                 "end": 14,
+                 "bottom": 0,
+                 "start": 14
+                },
+                "background": "#F2453D",
+                "dark_background": "#F2453D",
+                "children": [
+                 {
+                  "id": "sig-33",
+                  "type": "text",
+                  "text": "The whole map",
+                  "font": {
+                   "family": "Rubik",
+                   "size": 13.5,
+                   "weight": 700,
+                   "line_height": 1.35
+                  },
+                  "color": "#FFFFFF",
+                  "dark_color": "#FFFFFF",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "الخريطة كاملة"
+                   },
+                   "tr": {
+                    "text": "Haritanın tamamı"
+                   }
+                  }
+                 }
+                ],
+                "id": "sig-35",
+                "width": "fill",
+                "radius": 14,
+                "border_color": "#1D1A3A",
+                "dark_border_color": "#05061A",
+                "border_width": 2.5
+               }
+              ]
+             }
+            ]
+           }
+          ],
+          "id": "sig-37",
+          "width": "fill",
+          "radius": 30,
+          "border_color": "#1D1A3A",
+          "dark_border_color": "#05061A",
+          "border_width": 2.5
+         }
+        ]
+       },
+       {
+        "id": "sig-38",
+        "type": "row",
+        "name": "Collect the stickers",
+        "cross": "end",
+        "gap": 10,
+        "padding": {
+         "top": 28,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-39",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-40",
+            "type": "text",
+            "text": "Collect the stickers",
+            "font": {
+             "family": "Lalezar",
+             "size": 26,
+             "weight": 400,
+             "line_height": 1.1
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "اجمع الملصقات"
+             },
+             "tr": {
+              "text": "Çıkartmaları topla"
+             }
+            }
+           },
+           {
+            "id": "sig-41",
+            "type": "text",
+            "text": "Every island has its badge: tap one to visit it.",
+            "font": {
+             "family": "Rubik",
+             "size": 12.5,
+             "weight": 400,
+             "line_height": 1.35
+            },
+            "color": "#5C587A",
+            "dark_color": "#B9B6DA",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "لكل جزيرة شارتها: اضغط على واحدة لتزورها."
+             },
+             "tr": {
+              "text": "Her adanın bir rozeti var: ziyaret etmek için dokun."
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-42",
+        "type": "row",
+        "name": "Collect the stickers",
+        "gap": 10,
+        "scroll": true,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-43",
+          "type": "column",
+          "name": "Science & STEM",
+          "width": 78,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-45",
+            "type": "column",
+            "width": 68,
+            "radius": 34,
+            "padding": {
+             "top": 0,
+             "end": 0,
+             "bottom": 4,
+             "start": 0
+            },
+            "background": "#1D1A3A",
+            "dark_background": "#05061A",
+            "motion": {
+             "press": "bounce"
+            },
+            "children": [
+             {
+              "type": "row",
+              "height": 64,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFC629",
+              "dark_background": "#FFC629",
+              "children": [
+               {
+                "id": "sig-44",
+                "type": "icon",
+                "icon": "rocket_launch",
+                "icon_size": 30,
+                "color": "#1D1A3A",
+                "dark_color": "#1D1A3A"
+               }
+              ],
+              "id": "sig-46",
+              "width": "fill",
+              "radius": 34,
+              "border_color": "#1D1A3A",
+              "dark_border_color": "#05061A",
+              "border_width": 2.5
+             }
+            ]
+           },
+           {
+            "id": "sig-47",
+            "type": "text",
+            "text": "Explorer",
+            "font": {
+             "family": "Rubik",
+             "size": 11.5,
+             "weight": 700,
+             "line_height": 1.35
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "المستكشف"
+             },
+             "tr": {
+              "text": "Kâşif"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-48",
+          "type": "column",
+          "name": "Building",
+          "width": 78,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-50",
+            "type": "column",
+            "width": 68,
+            "radius": 34,
+            "padding": {
+             "top": 0,
+             "end": 0,
+             "bottom": 4,
+             "start": 0
+            },
+            "background": "#1D1A3A",
+            "dark_background": "#05061A",
+            "motion": {
+             "press": "bounce"
+            },
+            "children": [
+             {
+              "type": "row",
+              "height": 64,
+              "align": "center",
+              "cross": "center",
+              "background": "#22B062",
+              "dark_background": "#22B062",
+              "children": [
+               {
+                "id": "sig-49",
+                "type": "icon",
+                "icon": "construction",
+                "icon_size": 30,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
+               }
+              ],
+              "id": "sig-51",
+              "width": "fill",
+              "radius": 34,
+              "border_color": "#1D1A3A",
+              "dark_border_color": "#05061A",
+              "border_width": 2.5
+             }
+            ]
+           },
+           {
+            "id": "sig-52",
+            "type": "text",
+            "text": "Builder",
+            "font": {
+             "family": "Rubik",
+             "size": 11.5,
+             "weight": 700,
+             "line_height": 1.35
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "البنّاء"
+             },
+             "tr": {
+              "text": "Mimar"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-53",
+          "type": "column",
+          "name": "Arts & music",
+          "width": 78,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-55",
+            "type": "column",
+            "width": 68,
+            "radius": 34,
+            "padding": {
+             "top": 0,
+             "end": 0,
+             "bottom": 4,
+             "start": 0
+            },
+            "background": "#1D1A3A",
+            "dark_background": "#05061A",
+            "motion": {
+             "press": "bounce"
+            },
+            "children": [
+             {
+              "type": "row",
+              "height": 64,
+              "align": "center",
+              "cross": "center",
+              "background": "#F2453D",
+              "dark_background": "#F2453D",
+              "children": [
+               {
+                "id": "sig-54",
+                "type": "icon",
+                "icon": "palette",
+                "icon_size": 30,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
+               }
+              ],
+              "id": "sig-56",
+              "width": "fill",
+              "radius": 34,
+              "border_color": "#1D1A3A",
+              "dark_border_color": "#05061A",
+              "border_width": 2.5
+             }
+            ]
+           },
+           {
+            "id": "sig-57",
+            "type": "text",
+            "text": "Artist",
+            "font": {
+             "family": "Rubik",
+             "size": 11.5,
+             "weight": 700,
+             "line_height": 1.35
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "الفنان"
+             },
+             "tr": {
+              "text": "Sanatçı"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-58",
+          "type": "column",
+          "name": "Outdoor",
+          "width": 78,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-60",
+            "type": "column",
+            "width": 68,
+            "radius": 34,
+            "padding": {
+             "top": 0,
+             "end": 0,
+             "bottom": 4,
+             "start": 0
+            },
+            "background": "#1D1A3A",
+            "dark_background": "#05061A",
+            "motion": {
+             "press": "bounce"
+            },
+            "children": [
+             {
+              "type": "row",
+              "height": 64,
+              "align": "center",
+              "cross": "center",
+              "background": "#3D5AFE",
+              "dark_background": "#3D5AFE",
+              "children": [
+               {
+                "id": "sig-59",
+                "type": "icon",
+                "icon": "sports_soccer",
+                "icon_size": 30,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
+               }
+              ],
+              "id": "sig-61",
+              "width": "fill",
+              "radius": 34,
+              "border_color": "#1D1A3A",
+              "dark_border_color": "#05061A",
+              "border_width": 2.5
+             }
+            ]
+           },
+           {
+            "id": "sig-62",
+            "type": "text",
+            "text": "Champion",
+            "font": {
+             "family": "Rubik",
+             "size": 11.5,
+             "weight": 700,
+             "line_height": 1.35
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "البطل"
+             },
+             "tr": {
+              "text": "Şampiyon"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-63",
+          "type": "column",
+          "name": "Plush",
+          "width": 78,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-65",
+            "type": "column",
+            "width": 68,
+            "radius": 34,
+            "padding": {
+             "top": 0,
+             "end": 0,
+             "bottom": 4,
+             "start": 0
+            },
+            "background": "#1D1A3A",
+            "dark_background": "#05061A",
+            "motion": {
+             "press": "bounce"
+            },
+            "children": [
+             {
+              "type": "row",
+              "height": 64,
+              "align": "center",
+              "cross": "center",
+              "background": "#8E44D9",
+              "dark_background": "#8E44D9",
+              "children": [
+               {
+                "id": "sig-64",
+                "type": "icon",
+                "icon": "favorite",
+                "icon_size": 30,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
+               }
+              ],
+              "id": "sig-66",
+              "width": "fill",
+              "radius": 34,
+              "border_color": "#1D1A3A",
+              "dark_border_color": "#05061A",
+              "border_width": 2.5
+             }
+            ]
+           },
+           {
+            "id": "sig-67",
+            "type": "text",
+            "text": "Cuddler",
+            "font": {
+             "family": "Rubik",
+             "size": 11.5,
+             "weight": 700,
+             "line_height": 1.35
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "الحنون"
+             },
+             "tr": {
+              "text": "Sevecen"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-74",
+        "type": "column",
+        "name": "The treasure chest",
+        "radius": 24,
+        "padding": {
+         "top": 0,
+         "end": 0,
+         "bottom": 5,
+         "start": 0
+        },
+        "background": "#1D1A3A",
+        "dark_background": "#05061A",
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "motion": {
+         "press": "bounce"
+        },
+        "children": [
+         {
+          "type": "column",
+          "name": "The treasure chest",
+          "gap": 10,
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 14
+          },
+          "background": "#FFC629",
+          "dark_background": "#FFC629",
+          "children": [
+           {
+            "id": "sig-68",
+            "type": "row",
+            "gap": 10,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-69",
+              "type": "icon",
+              "icon": "featured_seasonal_and_gifts",
+              "icon_size": 34,
+              "color": "#1D1A3A",
+              "dark_color": "#1D1A3A"
+             },
+             {
+              "id": "sig-70",
+              "type": "column",
+              "width": "fill",
+              "gap": 2,
+              "children": [
+               {
+                "id": "sig-71",
+                "type": "text",
+                "text": "The treasure chest",
+                "font": {
+                 "family": "Lalezar",
+                 "size": 21,
+                 "weight": 400,
+                 "line_height": 1.1
+                },
+                "color": "#1D1A3A",
+                "dark_color": "#1D1A3A",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "صندوق الكنز"
+                 },
+                 "tr": {
+                  "text": "Hazine sandığı"
+                 }
+                }
+               },
+               {
+                "id": "sig-72",
+                "type": "text",
+                "text": "Your code for a first order",
+                "font": {
+                 "family": "Rubik",
+                 "size": 12.5,
+                 "weight": 500,
+                 "line_height": 1.35
+                },
+                "color": "#1D1A3A",
+                "dark_color": "#1D1A3A",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "رمزك لأول طلب"
+                 },
+                 "tr": {
+                  "text": "İlk siparişine özel kodun"
+                 }
+                }
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "sig-73",
+            "type": "coupon",
+            "name": "Your code",
+            "code": "TOOT10",
+            "coupon": {
+             "look": "ticket",
+             "bind": "public"
+            },
+            "radius": 16,
+            "color": "#F2453D"
+           }
+          ],
+          "id": "sig-75",
+          "width": "fill",
+          "radius": 24,
+          "border_color": "#1D1A3A",
+          "dark_border_color": "#05061A",
+          "border_width": 2.5
+         }
+        ]
+       },
+       {
+        "id": "sig-76",
+        "type": "row",
+        "name": "How old is our hero?",
+        "cross": "end",
+        "gap": 10,
+        "padding": {
+         "top": 28,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-77",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-78",
+            "type": "text",
+            "text": "How old is our hero?",
+            "font": {
+             "family": "Lalezar",
+             "size": 26,
+             "weight": 400,
+             "line_height": 1.1
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "كم عمر بطلنا؟"
+             },
+             "tr": {
+              "text": "Kahramanımız kaç yaşında?"
+             }
+            }
+           },
+           {
+            "id": "sig-79",
+            "type": "text",
+            "text": "Each age opens its own toys",
+            "font": {
+             "family": "Rubik",
+             "size": 12.5,
+             "weight": 400,
+             "line_height": 1.35
+            },
+            "color": "#5C587A",
+            "dark_color": "#B9B6DA",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "لكل عمر ألعابه"
+             },
+             "tr": {
+              "text": "Her yaşın kendi oyuncakları"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-80",
+        "type": "row",
+        "name": "How old is our hero?",
+        "gap": 10,
+        "scroll": true,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-82",
+          "type": "column",
+          "name": "0–12 months",
+          "width": 104,
+          "radius": 18,
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 5,
+           "start": 0
+          },
+          "background": "#1D1A3A",
+          "dark_background": "#05061A",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "motion": {
+           "press": "bounce"
+          },
+          "children": [
+           {
+            "type": "column",
+            "name": "0–12 months",
+            "height": 66,
+            "align": "center",
+            "cross": "center",
+            "padding": {
+             "top": 4,
+             "end": 8,
+             "bottom": 4,
+             "start": 8
+            },
+            "background": "#F2453D",
+            "dark_background": "#F2453D",
+            "children": [
+             {
+              "id": "sig-81",
+              "type": "text",
+              "text": "0–12 months",
+              "font": {
+               "family": "Lalezar",
+               "size": 17,
+               "weight": 400,
+               "line_height": 1.1
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 2,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "0‎–‎12 شهرًا"
+               },
+               "tr": {
+                "text": "0–12 ay"
+               }
+              }
+             }
+            ],
+            "id": "sig-83",
+            "width": "fill",
+            "radius": 18,
+            "border_color": "#1D1A3A",
+            "dark_border_color": "#05061A",
+            "border_width": 2.5
+           }
+          ]
+         },
+         {
+          "id": "sig-85",
+          "type": "column",
+          "name": "1–2 years",
+          "width": 104,
+          "radius": 18,
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 5,
+           "start": 0
+          },
+          "background": "#1D1A3A",
+          "dark_background": "#05061A",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "motion": {
+           "press": "bounce"
+          },
+          "children": [
+           {
+            "type": "column",
+            "name": "1–2 years",
+            "height": 66,
+            "align": "center",
+            "cross": "center",
+            "padding": {
+             "top": 4,
+             "end": 8,
+             "bottom": 4,
+             "start": 8
+            },
+            "background": "#FFC629",
+            "dark_background": "#FFC629",
+            "children": [
+             {
+              "id": "sig-84",
+              "type": "text",
+              "text": "1–2 years",
+              "font": {
+               "family": "Lalezar",
+               "size": 17,
+               "weight": 400,
+               "line_height": 1.1
+              },
+              "color": "#1D1A3A",
+              "dark_color": "#1D1A3A",
+              "max_lines": 2,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "1‎–‎2 سنة"
+               },
+               "tr": {
+                "text": "1–2 yaş"
+               }
+              }
+             }
+            ],
+            "id": "sig-86",
+            "width": "fill",
+            "radius": 18,
+            "border_color": "#1D1A3A",
+            "dark_border_color": "#05061A",
+            "border_width": 2.5
+           }
+          ]
+         },
+         {
+          "id": "sig-88",
+          "type": "column",
+          "name": "3–5 years",
+          "width": 104,
+          "radius": 18,
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 5,
+           "start": 0
+          },
+          "background": "#1D1A3A",
+          "dark_background": "#05061A",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "motion": {
+           "press": "bounce"
+          },
+          "children": [
+           {
+            "type": "column",
+            "name": "3–5 years",
+            "height": 66,
+            "align": "center",
+            "cross": "center",
+            "padding": {
+             "top": 4,
+             "end": 8,
+             "bottom": 4,
+             "start": 8
+            },
+            "background": "#22B062",
+            "dark_background": "#22B062",
+            "children": [
+             {
+              "id": "sig-87",
+              "type": "text",
+              "text": "3–5 years",
+              "font": {
+               "family": "Lalezar",
+               "size": 17,
+               "weight": 400,
+               "line_height": 1.1
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 2,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "3‎–‎5 سنوات"
+               },
+               "tr": {
+                "text": "3–5 yaş"
+               }
+              }
+             }
+            ],
+            "id": "sig-89",
+            "width": "fill",
+            "radius": 18,
+            "border_color": "#1D1A3A",
+            "dark_border_color": "#05061A",
+            "border_width": 2.5
+           }
+          ]
+         },
+         {
+          "id": "sig-91",
+          "type": "column",
+          "name": "6–8 years",
+          "width": 104,
+          "radius": 18,
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 5,
+           "start": 0
+          },
+          "background": "#1D1A3A",
+          "dark_background": "#05061A",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "motion": {
+           "press": "bounce"
+          },
+          "children": [
+           {
+            "type": "column",
+            "name": "6–8 years",
+            "height": 66,
+            "align": "center",
+            "cross": "center",
+            "padding": {
+             "top": 4,
+             "end": 8,
+             "bottom": 4,
+             "start": 8
+            },
+            "background": "#3D5AFE",
+            "dark_background": "#3D5AFE",
+            "children": [
+             {
+              "id": "sig-90",
+              "type": "text",
+              "text": "6–8 years",
+              "font": {
+               "family": "Lalezar",
+               "size": 17,
+               "weight": 400,
+               "line_height": 1.1
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 2,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "6‎–‎8 سنوات"
+               },
+               "tr": {
+                "text": "6–8 yaş"
+               }
+              }
+             }
+            ],
+            "id": "sig-92",
+            "width": "fill",
+            "radius": 18,
+            "border_color": "#1D1A3A",
+            "dark_border_color": "#05061A",
+            "border_width": 2.5
+           }
+          ]
+         },
+         {
+          "id": "sig-94",
+          "type": "column",
+          "name": "9+ years",
+          "width": 104,
+          "radius": 18,
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 5,
+           "start": 0
+          },
+          "background": "#1D1A3A",
+          "dark_background": "#05061A",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "motion": {
+           "press": "bounce"
+          },
+          "children": [
+           {
+            "type": "column",
+            "name": "9+ years",
+            "height": 66,
+            "align": "center",
+            "cross": "center",
+            "padding": {
+             "top": 4,
+             "end": 8,
+             "bottom": 4,
+             "start": 8
+            },
+            "background": "#8E44D9",
+            "dark_background": "#8E44D9",
+            "children": [
+             {
+              "id": "sig-93",
+              "type": "text",
+              "text": "9+ years",
+              "font": {
+               "family": "Lalezar",
+               "size": 17,
+               "weight": 400,
+               "line_height": 1.1
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 2,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "9‎+‎ سنوات"
+               },
+               "tr": {
+                "text": "9+ yaş"
+               }
+              }
+             }
+            ],
+            "id": "sig-95",
+            "width": "fill",
+            "radius": 18,
+            "border_color": "#1D1A3A",
+            "dark_border_color": "#05061A",
+            "border_width": 2.5
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-96",
+        "type": "row",
+        "name": "New treasures",
+        "cross": "end",
+        "gap": 10,
+        "padding": {
+         "top": 28,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-97",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-98",
+            "type": "text",
+            "text": "New treasures",
+            "font": {
+             "family": "Lalezar",
+             "size": 26,
+             "weight": 400,
+             "line_height": 1.1
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "كنوز جديدة"
+             },
+             "tr": {
+              "text": "Yeni hazineler"
+             }
+            }
+           },
+           {
+            "id": "sig-99",
+            "type": "text",
+            "text": "Just landed on the islands",
+            "font": {
+             "family": "Rubik",
+             "size": 12.5,
+             "weight": 400,
+             "line_height": 1.35
+            },
+            "color": "#5C587A",
+            "dark_color": "#B9B6DA",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "وصلت إلى الجزر للتوّ"
+             },
+             "tr": {
+              "text": "Adalara yeni ulaştı"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-100",
+          "type": "text",
+          "text": "All",
+          "font": {
+           "family": "Rubik",
+           "size": 13.5,
+           "weight": 700,
+           "line_height": 1.35
+          },
+          "color": "#3D5AFE",
+          "dark_color": "#8EA0FF",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "الكل"
+           },
+           "tr": {
+            "text": "Tümü"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-101",
+        "type": "items",
+        "name": "New treasures",
+        "source": "products",
+        "layout": "carousel",
+        "gap": 14,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "query": {
+         "limit": 8,
+         "category_id": null,
+         "featured": false,
+         "sort": "newest",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-114",
+         "type": "column",
+         "width": 168,
+         "radius": 24,
+         "padding": {
+          "top": 0,
+          "end": 0,
+          "bottom": 6,
+          "start": 0
+         },
+         "background": "#1D1A3A",
+         "dark_background": "#05061A",
+         "motion": {
+          "press": "bounce"
+         },
+         "children": [
+          {
+           "type": "column",
+           "gap": 0,
+           "background": "#FFFFFF",
+           "dark_background": "#1B1D47",
+           "children": [
+            {
+             "id": "sig-102",
+             "type": "stack",
+             "width": "fill",
+             "height": 150,
+             "children": [
+              {
+               "id": "sig-103",
+               "type": "image",
+               "bind": "image",
+               "width": "fill",
+               "height": 150,
+               "corners": {
+                "top_start": 22,
+                "top_end": 22
+               },
+               "fit": "cover",
+               "background": "#FFE08A",
+               "dark_background": "#2B2D63"
+              },
+              {
+               "id": "sig-104",
+               "type": "text",
+               "bind": "sale",
+               "font": {
+                "family": "Rubik",
+                "size": 11,
+                "weight": 700,
+                "line_height": 1.35
+               },
+               "color": "#1D1A3A",
+               "dark_color": "#1D1A3A",
+               "background": "#FFC629",
+               "dark_background": "#FFC629",
+               "border_color": "#1D1A3A",
+               "dark_border_color": "#05061A",
+               "border_width": 2,
+               "radius": 10,
+               "padding": {
+                "top": 2,
+                "end": 8,
+                "bottom": 2,
+                "start": 8
+               },
+               "place": {
+                "x": 5,
+                "y": 6
+               }
+              }
+             ]
+            },
+            {
+             "id": "sig-105",
+             "type": "column",
+             "gap": 6,
+             "padding": {
+              "top": 10,
+              "end": 12,
+              "bottom": 12,
+              "start": 12
+             },
+             "children": [
+              {
+               "id": "sig-106",
+               "type": "text",
+               "bind": "title",
+               "max_lines": 1,
+               "color": "#1D1A3A",
+               "dark_color": "#FFF6E3",
+               "font": {
+                "family": "Rubik",
+                "size": 14,
+                "weight": 600,
+                "line_height": 1.35
+               }
+              },
+              {
+               "id": "sig-107",
+               "type": "row",
+               "gap": 6,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "sig-108",
+                 "type": "column",
+                 "width": "fill",
+                 "gap": 0,
+                 "children": [
+                  {
+                   "id": "sig-109",
+                   "type": "text",
+                   "bind": "price",
+                   "max_lines": 1,
+                   "color": "#1D1A3A",
+                   "dark_color": "#FFF6E3",
+                   "font": {
+                    "family": "Lalezar",
+                    "size": 19,
+                    "weight": 400,
+                    "line_height": 1.1
+                   }
+                  },
+                  {
+                   "id": "sig-110",
+                   "type": "text",
+                   "bind": "was_price",
+                   "max_lines": 1,
+                   "color": "#5C587A",
+                   "dark_color": "#B9B6DA",
+                   "font": {
+                    "family": "Rubik",
+                    "size": 11,
+                    "weight": 400,
+                    "line_height": 1.35
+                   }
+                  }
+                 ]
+                },
+                {
+                 "id": "sig-112",
+                 "type": "column",
+                 "width": 34,
+                 "radius": 11,
+                 "padding": {
+                  "top": 0,
+                  "end": 0,
+                  "bottom": 3,
+                  "start": 0
+                 },
+                 "background": "#1D1A3A",
+                 "dark_background": "#05061A",
+                 "motion": {
+                  "press": "bounce"
+                 },
+                 "children": [
+                  {
+                   "type": "row",
+                   "height": 32,
+                   "align": "center",
+                   "cross": "center",
+                   "background": "#22B062",
+                   "dark_background": "#22B062",
+                   "children": [
+                    {
+                     "id": "sig-111",
+                     "type": "icon",
+                     "icon": "add",
+                     "icon_size": 20,
+                     "color": "#FFFFFF",
+                     "dark_color": "#FFFFFF"
+                    }
+                   ],
+                   "id": "sig-113",
+                   "width": "fill",
+                   "radius": 11,
+                   "border_color": "#1D1A3A",
+                   "dark_border_color": "#05061A",
+                   "border_width": 2.5
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ],
+           "id": "sig-115",
+           "width": "fill",
+           "radius": 24,
+           "border_color": "#1D1A3A",
+           "dark_border_color": "#05061A",
+           "border_width": 2.5
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-116",
+        "type": "flash_sale",
+        "name": "Toy of the day",
+        "text": "Toy of the day",
+        "translations": {
+         "ar": {
+          "text": "لعبة اليوم"
+         },
+         "tr": {
+          "text": "Günün oyuncağı"
+         }
+        },
+        "flash_sale": {
+         "look": "carousel",
+         "limit": 6,
+         "countdown": true,
+         "stock_bar": true,
+         "accent": "#F2453D"
+        },
+        "font": {
+         "family": "Rubik"
+        },
+        "radius": 24,
+        "margin": {
+         "top": 26,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-123",
+        "type": "column",
+        "name": "The gift quest",
+        "radius": 26,
+        "padding": {
+         "top": 0,
+         "end": 0,
+         "bottom": 6,
+         "start": 0
+        },
+        "background": "#1D1A3A",
+        "dark_background": "#05061A",
+        "margin": {
+         "top": 26,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "motion": {
+         "press": "bounce"
+        },
+        "children": [
+         {
+          "type": "column",
+          "name": "The gift quest",
+          "gap": 12,
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 14
+          },
+          "background": "#3D5AFE",
+          "dark_background": "#3049D6",
+          "children": [
+           {
+            "id": "sig-117",
+            "type": "row",
+            "gap": 12,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-118",
+              "type": "column",
+              "width": "fill",
+              "gap": 4,
+              "children": [
+               {
+                "id": "sig-119",
+                "type": "text",
+                "text": "The gift quest",
+                "font": {
+                 "family": "Lalezar",
+                 "size": 25,
+                 "weight": 400,
+                 "line_height": 1.1
+                },
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "مهمة الهدية"
+                 },
+                 "tr": {
+                  "text": "Hediye görevi"
+                 }
+                }
+               },
+               {
+                "id": "sig-120",
+                "type": "text",
+                "text": "Three questions to the right gift for their age.",
+                "font": {
+                 "family": "Rubik",
+                 "size": 12.5,
+                 "weight": 400,
+                 "line_height": 1.35
+                },
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "opacity": 0.92,
+                "max_lines": 2,
+                "translations": {
+                 "ar": {
+                  "text": "ثلاثة أسئلة توصلك إلى الهدية المناسبة لعمره."
+                 },
+                 "tr": {
+                  "text": "Yaşına uygun hediyeye üç soruda ulaş."
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-121",
+              "type": "image",
+              "image_url": "http://localhost:3000/toys-photos/gift-confetti.jpg",
+              "fit": "cover",
+              "width": 84,
+              "height": 84,
+              "radius": 42,
+              "border_color": "#FFFFFF",
+              "dark_border_color": "#FFFFFF",
+              "border_width": 3
+             }
+            ]
+           },
+           {
+            "id": "sig-122",
+            "type": "quiz",
+            "name": "The gift quest",
+            "text": "The gift quest",
+            "title": "Find the gift",
+            "translations": {
+             "ar": {
+              "text": "مهمة الهدية",
+              "title": "اقترح لي هدية"
+             },
+             "tr": {
+              "text": "Hediye görevi",
+              "title": "Hediyeyi bul"
+             }
+            },
+            "entries": [
+             {
+              "title": "0–12 months",
+              "text": "Soft toys and crib mobiles, safe from birth.",
+              "label": "Show the toys",
+              "translations": {
+               "ar": {
+                "title": "0‎–‎12 شهرًا",
+                "text": "دمى ناعمة ومعلّقات للمهد، آمنة منذ الولادة.",
+                "label": "اعرض الألعاب"
+               },
+               "tr": {
+                "title": "0–12 ay",
+                "text": "Doğumdan itibaren güvenli yumuşak oyuncaklar ve beşik dönenceleri.",
+                "label": "Oyuncakları göster"
+               }
+              },
+              "icon": "child_care",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              }
+             },
+             {
+              "title": "1–2 years",
+              "text": "Blocks, sorters and bead mazes for busy hands.",
+              "label": "Show the toys",
+              "translations": {
+               "ar": {
+                "title": "1‎–‎2 سنة",
+                "text": "مكعبات وألعاب فرز ومتاهات خرز لأيدٍ لا تهدأ.",
+                "label": "اعرض الألعاب"
+               },
+               "tr": {
+                "title": "1–2 yaş",
+                "text": "Meraklı eller için bloklar, ayırma oyunları ve boncuk labirentleri.",
+                "label": "Oyuncakları göster"
+               }
+              },
+              "icon": "toys",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              }
+             },
+             {
+              "title": "3–5 years",
+              "text": "Figures, bricks and play tents for stories and building.",
+              "label": "Show the toys",
+              "translations": {
+               "ar": {
+                "title": "3‎–‎5 سنوات",
+                "text": "شخصيات ومكعبات تركيب وخيام لعب للحكايات والبناء.",
+                "label": "اعرض الألعاب"
+               },
+               "tr": {
+                "title": "3–5 yaş",
+                "text": "Hikâyeler ve inşa için figürler, tuğlalar ve oyun çadırları.",
+                "label": "Oyuncakları göster"
+               }
+              },
+              "icon": "celebration",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              }
+             },
+             {
+              "title": "6–8 years",
+              "text": "Kits, kites and instruments to make and discover.",
+              "label": "Show the toys",
+              "translations": {
+               "ar": {
+                "title": "6‎–‎8 سنوات",
+                "text": "حقائب وطائرات ورقية وآلات للصنع والاكتشاف.",
+                "label": "اعرض الألعاب"
+               },
+               "tr": {
+                "title": "6–8 yaş",
+                "text": "Yapmak ve keşfetmek için setler, uçurtmalar ve çalgılar.",
+                "label": "Oyuncakları göster"
+               }
+              },
+              "icon": "auto_stories",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              }
+             },
+             {
+              "title": "9+ years",
+              "text": "Telescopes, chess and big builds for curious minds.",
+              "label": "Show the toys",
+              "translations": {
+               "ar": {
+                "title": "9‎+‎ سنوات",
+                "text": "تلسكوبات وشطرنج ومجموعات بناء كبيرة للعقول الفضولية.",
+                "label": "اعرض الألعاب"
+               },
+               "tr": {
+                "title": "9+ yaş",
+                "text": "Meraklı zihinler için teleskoplar, satranç ve büyük yapılar.",
+                "label": "Oyuncakları göster"
+               }
+              },
+              "icon": "travel_explore",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              }
+             }
+            ],
+            "quiz": {
+             "questions": [
+              {
+               "title": "How old is the child?",
+               "text": "Under 1\n1 to 2\n3 to 5\n6 to 8\n9 and up",
+               "translations": {
+                "ar": {
+                 "title": "كم عمر الطفل؟",
+                 "text": "أقل من سنة\nمن 1 إلى 2\nمن 3 إلى 5\nمن 6 إلى 8\n9 فما فوق"
+                },
+                "tr": {
+                 "title": "Çocuk kaç yaşında?",
+                 "text": "1 yaşından küçük\n1–2 yaş\n3–5 yaş\n6–8 yaş\n9 yaş ve üstü"
+                }
+               }
+              },
+              {
+               "title": "What do they love most?",
+               "text": "Soft, cuddly friends\nStacking and sorting\nPretend play and building\nMaking and discovering\nScience and strategy",
+               "translations": {
+                "ar": {
+                 "title": "ماذا يحب أكثر؟",
+                 "text": "الأصدقاء الناعمون\nالتركيب والفرز\nالتمثيل والبناء\nالصنع والاكتشاف\nالعلوم والتخطيط"
+                },
+                "tr": {
+                 "title": "En çok neyi sever?",
+                 "text": "Yumuşak, sarılmalık dostlar\nDizme ve ayırma\nRol yapma ve inşa\nYapma ve keşfetme\nBilim ve strateji"
+                }
+               }
+              },
+              {
+               "title": "Your budget?",
+               "text": "Up to 100\n100 to 200\n200 to 300\n300 to 500\nOver 500",
+               "translations": {
+                "ar": {
+                 "title": "ما ميزانيتك؟",
+                 "text": "حتى 100\nمن 100 إلى 200\nمن 200 إلى 300\nمن 300 إلى 500\nأكثر من 500"
+                },
+                "tr": {
+                 "title": "Bütçeniz?",
+                 "text": "100'e kadar\n100–200\n200–300\n300–500\n500'den fazla"
+                }
+               }
+              }
+             ]
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "background": "#FFFFFF",
+            "dark_background": "#1B1D47",
+            "radius": 18,
+            "padding": {
+             "top": 14,
+             "end": 14,
+             "bottom": 14,
+             "start": 14
+            },
+            "font": {
+             "family": "Rubik"
+            }
+           }
+          ],
+          "id": "sig-124",
+          "width": "fill",
+          "radius": 26,
+          "border_color": "#1D1A3A",
+          "dark_border_color": "#05061A",
+          "border_width": 2.5
+         }
+        ]
+       },
+       {
+        "id": "sig-125",
+        "type": "row",
+        "name": "Heroes' favourites",
+        "cross": "end",
+        "gap": 10,
+        "padding": {
+         "top": 28,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-126",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-127",
+            "type": "text",
+            "text": "Heroes' favourites",
+            "font": {
+             "family": "Lalezar",
+             "size": 26,
+             "weight": 400,
+             "line_height": 1.1
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "المفضّلة عند الأبطال"
+             },
+             "tr": {
+              "text": "Kahramanların favorileri"
+             }
+            }
+           },
+           {
+            "id": "sig-128",
+            "type": "text",
+            "text": "The toys children ask for again",
+            "font": {
+             "family": "Rubik",
+             "size": 12.5,
+             "weight": 400,
+             "line_height": 1.35
+            },
+            "color": "#5C587A",
+            "dark_color": "#B9B6DA",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "ألعاب يطلبها الأطفال مرة بعد مرة"
+             },
+             "tr": {
+              "text": "Çocukların tekrar tekrar istediği oyuncaklar"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-129",
+          "type": "text",
+          "text": "All",
+          "font": {
+           "family": "Rubik",
+           "size": 13.5,
+           "weight": 700,
+           "line_height": 1.35
+          },
+          "color": "#3D5AFE",
+          "dark_color": "#8EA0FF",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "الكل"
+           },
+           "tr": {
+            "text": "Tümü"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-130",
+        "type": "items",
+        "name": "Heroes' favourites",
+        "source": "products",
+        "layout": "grid",
+        "columns": 2,
+        "gap": 14,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "query": {
+         "limit": 4,
+         "category_id": null,
+         "featured": true,
+         "sort": "popular",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-143",
+         "type": "column",
+         "width": "fill",
+         "radius": 24,
+         "padding": {
+          "top": 0,
+          "end": 0,
+          "bottom": 6,
+          "start": 0
+         },
+         "background": "#1D1A3A",
+         "dark_background": "#05061A",
+         "motion": {
+          "press": "bounce"
+         },
+         "children": [
+          {
+           "type": "column",
+           "gap": 0,
+           "background": "#FFFFFF",
+           "dark_background": "#1B1D47",
+           "children": [
+            {
+             "id": "sig-131",
+             "type": "stack",
+             "width": "fill",
+             "height": 150,
+             "children": [
+              {
+               "id": "sig-132",
+               "type": "image",
+               "bind": "image",
+               "width": "fill",
+               "height": 150,
+               "corners": {
+                "top_start": 22,
+                "top_end": 22
+               },
+               "fit": "cover",
+               "background": "#FFE08A",
+               "dark_background": "#2B2D63"
+              },
+              {
+               "id": "sig-133",
+               "type": "text",
+               "bind": "sale",
+               "font": {
+                "family": "Rubik",
+                "size": 11,
+                "weight": 700,
+                "line_height": 1.35
+               },
+               "color": "#1D1A3A",
+               "dark_color": "#1D1A3A",
+               "background": "#FFC629",
+               "dark_background": "#FFC629",
+               "border_color": "#1D1A3A",
+               "dark_border_color": "#05061A",
+               "border_width": 2,
+               "radius": 10,
+               "padding": {
+                "top": 2,
+                "end": 8,
+                "bottom": 2,
+                "start": 8
+               },
+               "place": {
+                "x": 5,
+                "y": 6
+               }
+              }
+             ]
+            },
+            {
+             "id": "sig-134",
+             "type": "column",
+             "gap": 6,
+             "padding": {
+              "top": 10,
+              "end": 12,
+              "bottom": 12,
+              "start": 12
+             },
+             "children": [
+              {
+               "id": "sig-135",
+               "type": "text",
+               "bind": "title",
+               "max_lines": 1,
+               "color": "#1D1A3A",
+               "dark_color": "#FFF6E3",
+               "font": {
+                "family": "Rubik",
+                "size": 14,
+                "weight": 600,
+                "line_height": 1.35
+               }
+              },
+              {
+               "id": "sig-136",
+               "type": "row",
+               "gap": 6,
+               "cross": "center",
+               "children": [
+                {
+                 "id": "sig-137",
+                 "type": "column",
+                 "width": "fill",
+                 "gap": 0,
+                 "children": [
+                  {
+                   "id": "sig-138",
+                   "type": "text",
+                   "bind": "price",
+                   "max_lines": 1,
+                   "color": "#1D1A3A",
+                   "dark_color": "#FFF6E3",
+                   "font": {
+                    "family": "Lalezar",
+                    "size": 19,
+                    "weight": 400,
+                    "line_height": 1.1
+                   }
+                  },
+                  {
+                   "id": "sig-139",
+                   "type": "text",
+                   "bind": "was_price",
+                   "max_lines": 1,
+                   "color": "#5C587A",
+                   "dark_color": "#B9B6DA",
+                   "font": {
+                    "family": "Rubik",
+                    "size": 11,
+                    "weight": 400,
+                    "line_height": 1.35
+                   }
+                  }
+                 ]
+                },
+                {
+                 "id": "sig-141",
+                 "type": "column",
+                 "width": 34,
+                 "radius": 11,
+                 "padding": {
+                  "top": 0,
+                  "end": 0,
+                  "bottom": 3,
+                  "start": 0
+                 },
+                 "background": "#1D1A3A",
+                 "dark_background": "#05061A",
+                 "motion": {
+                  "press": "bounce"
+                 },
+                 "children": [
+                  {
+                   "type": "row",
+                   "height": 32,
+                   "align": "center",
+                   "cross": "center",
+                   "background": "#22B062",
+                   "dark_background": "#22B062",
+                   "children": [
+                    {
+                     "id": "sig-140",
+                     "type": "icon",
+                     "icon": "add",
+                     "icon_size": 20,
+                     "color": "#FFFFFF",
+                     "dark_color": "#FFFFFF"
+                    }
+                   ],
+                   "id": "sig-142",
+                   "width": "fill",
+                   "radius": 11,
+                   "border_color": "#1D1A3A",
+                   "dark_border_color": "#05061A",
+                   "border_width": 2.5
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ],
+           "id": "sig-144",
+           "width": "fill",
+           "radius": 24,
+           "border_color": "#1D1A3A",
+           "dark_border_color": "#05061A",
+           "border_width": 2.5
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-149",
+        "type": "column",
+        "name": "Safe for every adventure",
+        "radius": 22,
+        "padding": {
+         "top": 0,
+         "end": 0,
+         "bottom": 5,
+         "start": 0
+        },
+        "background": "#1D1A3A",
+        "dark_background": "#05061A",
+        "margin": {
+         "top": 26,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "motion": {
+         "press": "bounce"
+        },
+        "children": [
+         {
+          "type": "row",
+          "name": "Safe for every adventure",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 12,
+           "end": 14,
+           "bottom": 12,
+           "start": 14
+          },
+          "background": "#22B062",
+          "dark_background": "#1C9353",
+          "children": [
+           {
+            "id": "sig-145",
+            "type": "icon",
+            "icon": "verified_user",
+            "icon_size": 30,
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF"
+           },
+           {
+            "id": "sig-146",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "sig-147",
+              "type": "text",
+              "text": "Safe for every adventure",
+              "font": {
+               "family": "Lalezar",
+               "size": 19,
+               "weight": 400,
+               "line_height": 1.1
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "آمنة لكل مغامرة"
+               },
+               "tr": {
+                "text": "Her macera için güvenli"
+               }
+              }
+             },
+             {
+              "id": "sig-148",
+              "type": "text",
+              "text": "Tested, non-toxic and labelled by age.",
+              "font": {
+               "family": "Rubik",
+               "size": 12,
+               "weight": 400,
+               "line_height": 1.35
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "مختبرة وغير سامة ومعلَّمة بالعمر المناسب."
+               },
+               "tr": {
+                "text": "Test edilmiş, toksik değil ve yaşı belirtilmiş."
+               }
+              }
+             }
+            ]
+           }
+          ],
+          "id": "sig-150",
+          "width": "fill",
+          "radius": 22,
+          "border_color": "#1D1A3A",
+          "dark_border_color": "#05061A",
+          "border_width": 2.5
+         }
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "shop",
+    "title": "Shop",
+    "translations": {
+     "ar": {
+      "title": "المتجر"
+     },
+     "tr": {
+      "title": "Mağaza"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-183",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-184",
+        "type": "row",
+        "name": "Today's expedition",
+        "cross": "end",
+        "gap": 10,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-185",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-186",
+            "type": "text",
+            "text": "Today's expedition",
+            "font": {
+             "family": "Lalezar",
+             "size": 26,
+             "weight": 400,
+             "line_height": 1.1
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "رحلة اليوم"
+             },
+             "tr": {
+              "text": "Bugünün keşfi"
+             }
+            }
+           },
+           {
+            "id": "sig-187",
+            "type": "text",
+            "text": "Every toy here, sorted the way you like",
+            "font": {
+             "family": "Rubik",
+             "size": 12.5,
+             "weight": 400,
+             "line_height": 1.35
+            },
+            "color": "#5C587A",
+            "dark_color": "#B9B6DA",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "كل الألعاب في مكان واحد، مرتّبة كما تحب"
+             },
+             "tr": {
+              "text": "Tüm oyuncaklar burada, istediğin gibi sıralı"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-188",
+        "type": "categories",
+        "name": "Categories",
+        "source": "products",
+        "style": "chips",
+        "color": "#1D1A3A",
+        "dark_color": "#FFF6E3",
+        "padding": {
+         "top": 0,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-189",
+        "type": "listing_filters",
+        "name": "Today's expedition",
+        "padding": {
+         "top": 4,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "search",
+     "header": {
+      "type": "title",
+      "title": "Shop",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المتجر"
+       },
+       "tr": {
+        "title": "Mağaza"
+       }
+      },
+      "background": "#FFF6E3",
+      "color": "#1D1A3A",
+      "dark_background": "#0F1030",
+      "dark_color": "#FFF6E3",
+      "style": "brand"
+     },
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "cart",
+    "title": "Cart",
+    "translations": {
+     "ar": {
+      "title": "السلة"
+     },
+     "tr": {
+      "title": "Sepet"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-190",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-197",
+        "type": "column",
+        "name": "The treasure chest",
+        "radius": 24,
+        "padding": {
+         "top": 0,
+         "end": 0,
+         "bottom": 5,
+         "start": 0
+        },
+        "background": "#1D1A3A",
+        "dark_background": "#05061A",
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "motion": {
+         "press": "bounce"
+        },
+        "children": [
+         {
+          "type": "column",
+          "name": "The treasure chest",
+          "gap": 10,
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 14
+          },
+          "background": "#FFC629",
+          "dark_background": "#FFC629",
+          "children": [
+           {
+            "id": "sig-191",
+            "type": "row",
+            "gap": 10,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-192",
+              "type": "icon",
+              "icon": "featured_seasonal_and_gifts",
+              "icon_size": 34,
+              "color": "#1D1A3A",
+              "dark_color": "#1D1A3A"
+             },
+             {
+              "id": "sig-193",
+              "type": "column",
+              "width": "fill",
+              "gap": 2,
+              "children": [
+               {
+                "id": "sig-194",
+                "type": "text",
+                "text": "The treasure chest",
+                "font": {
+                 "family": "Lalezar",
+                 "size": 21,
+                 "weight": 400,
+                 "line_height": 1.1
+                },
+                "color": "#1D1A3A",
+                "dark_color": "#1D1A3A",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "صندوق الكنز"
+                 },
+                 "tr": {
+                  "text": "Hazine sandığı"
+                 }
+                }
+               },
+               {
+                "id": "sig-195",
+                "type": "text",
+                "text": "Your code for a first order",
+                "font": {
+                 "family": "Rubik",
+                 "size": 12.5,
+                 "weight": 500,
+                 "line_height": 1.35
+                },
+                "color": "#1D1A3A",
+                "dark_color": "#1D1A3A",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "رمزك لأول طلب"
+                 },
+                 "tr": {
+                  "text": "İlk siparişine özel kodun"
+                 }
+                }
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "sig-196",
+            "type": "coupon",
+            "name": "Your code",
+            "code": "TOOT10",
+            "coupon": {
+             "look": "ticket",
+             "bind": "public"
+            },
+            "radius": 16,
+            "color": "#F2453D"
+           }
+          ],
+          "id": "sig-198",
+          "width": "fill",
+          "radius": 24,
+          "border_color": "#1D1A3A",
+          "dark_border_color": "#05061A",
+          "border_width": 2.5
+         }
+        ]
+       },
+       {
+        "id": "sig-201",
+        "type": "column",
+        "name": "Add a gift wrap and a card in your words before you pay.",
+        "radius": 18,
+        "padding": {
+         "top": 0,
+         "end": 0,
+         "bottom": 4,
+         "start": 0
+        },
+        "background": "#1D1A3A",
+        "dark_background": "#05061A",
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "motion": {
+         "press": "bounce"
+        },
+        "children": [
+         {
+          "type": "row",
+          "name": "Add a gift wrap and a card in your words before you pay.",
+          "gap": 10,
+          "cross": "center",
+          "padding": {
+           "top": 12,
+           "end": 14,
+           "bottom": 12,
+           "start": 14
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#1B1D47",
+          "children": [
+           {
+            "id": "sig-199",
+            "type": "icon",
+            "icon": "redeem",
+            "icon_size": 24,
+            "color": "#F2453D",
+            "dark_color": "#FFC629"
+           },
+           {
+            "id": "sig-200",
+            "type": "text",
+            "text": "Add a gift wrap and a card in your words before you pay.",
+            "font": {
+             "family": "Rubik",
+             "size": 13,
+             "weight": 600,
+             "line_height": 1.35
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "width": "fill",
+            "max_lines": 3,
+            "translations": {
+             "ar": {
+              "text": "أضف تغليف هدية وبطاقة بكلماتك قبل الدفع."
+             },
+             "tr": {
+              "text": "Ödemeden önce hediye paketi ve kendi sözlerinle bir kart ekle."
+             }
+            }
+           }
+          ],
+          "id": "sig-202",
+          "width": "fill",
+          "radius": 18,
+          "border_color": "#1D1A3A",
+          "dark_border_color": "#05061A",
+          "border_width": 2.5
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "cart",
+     "header": {
+      "type": "title",
+      "title": "Cart",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "السلة"
+       },
+       "tr": {
+        "title": "Sepet"
+       }
+      },
+      "background": "#FFF6E3",
+      "color": "#1D1A3A",
+      "dark_background": "#0F1030",
+      "dark_color": "#FFF6E3",
+      "style": "brand"
+     },
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "Orders",
+    "translations": {
+     "ar": {
+      "title": "الطلبات"
+     },
+     "tr": {
+      "title": "Siparişler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-203",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-204",
+        "type": "row",
+        "name": "Your order, step by step",
+        "cross": "end",
+        "gap": 10,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-205",
+          "type": "column",
+          "width": "fill",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-206",
+            "type": "text",
+            "text": "Your order, step by step",
+            "font": {
+             "family": "Lalezar",
+             "size": 26,
+             "weight": 400,
+             "line_height": 1.1
+            },
+            "color": "#1D1A3A",
+            "dark_color": "#FFF6E3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "طلبك خطوة بخطوة"
+             },
+             "tr": {
+              "text": "Siparişiniz adım adım"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-207",
+        "type": "column",
+        "name": "Your order, step by step",
+        "radius": 22,
+        "padding": {
+         "top": 0,
+         "end": 0,
+         "bottom": 5,
+         "start": 0
+        },
+        "background": "#1D1A3A",
+        "dark_background": "#05061A",
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "motion": {
+         "press": "bounce"
+        },
+        "children": [
+         {
+          "type": "timeline",
+          "name": "Your order, step by step",
+          "timeline": {
+           "style": "horizontal",
+           "source": "latest_order"
+          },
+          "color": "#1D1A3A",
+          "dark_color": "#FFF6E3",
+          "background": "#FFFFFF",
+          "dark_background": "#1B1D47",
+          "padding": {
+           "top": 14,
+           "end": 12,
+           "bottom": 14,
+           "start": 12
+          },
+          "entries": [
+           {
+            "title": "Ordered",
+            "text": "We have your order.",
+            "highlight": true,
+            "translations": {
+             "ar": {
+              "title": "تم الطلب",
+              "text": "استلمنا طلبك."
+             },
+             "tr": {
+              "title": "Sipariş alındı",
+              "text": "Siparişinizi aldık."
+             }
+            }
+           },
+           {
+            "title": "Wrapped",
+            "text": "Checked, wrapped and your card written.",
+            "translations": {
+             "ar": {
+              "title": "تم التغليف",
+              "text": "فُحصت وغُلّفت وكُتبت بطاقتك."
+             },
+             "tr": {
+              "title": "Paketlendi",
+              "text": "Kontrol edildi, paketlendi ve kartınız yazıldı."
+             }
+            }
+           },
+           {
+            "title": "On its way",
+            "text": "With the courier, on its way to you.",
+            "translations": {
+             "ar": {
+              "title": "في الطريق",
+              "text": "مع المندوب في طريقه إليك."
+             },
+             "tr": {
+              "title": "Yolda",
+              "text": "Kuryede, size doğru yolda."
+             }
+            }
+           },
+           {
+            "title": "Delivered",
+            "text": "Time to play. Returns are easy from your orders.",
+            "translations": {
+             "ar": {
+              "title": "تم التوصيل",
+              "text": "حان وقت اللعب. الإرجاع سهل من طلباتك."
+             },
+             "tr": {
+              "title": "Teslim edildi",
+              "text": "Oyun zamanı. İadeler siparişlerinizden kolayca yapılır."
+             }
+            }
+           }
+          ],
+          "id": "sig-208",
+          "width": "fill",
+          "radius": 22,
+          "border_color": "#1D1A3A",
+          "dark_border_color": "#05061A",
+          "border_width": 2.5
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "orders",
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطلبات"
+       },
+       "tr": {
+        "title": "Siparişler"
+       }
+      },
+      "background": "#FFF6E3",
+      "color": "#1D1A3A",
+      "dark_background": "#0F1030",
+      "dark_color": "#FFF6E3",
+      "style": "brand"
+     },
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-210",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-209",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "account",
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "menu",
+    "title": "All categories",
+    "translations": {
+     "ar": {
+      "title": "كل الأقسام"
+     },
+     "tr": {
+      "title": "Tüm kategoriler"
+     }
+    },
+    "studio": {
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030",
+     "body": {
+      "id": "sig-151",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 36,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-152",
+        "type": "column",
+        "name": "Search every category…",
+        "radius": 16,
+        "padding": {
+         "top": 0,
+         "end": 0,
+         "bottom": 4,
+         "start": 0
+        },
+        "background": "#1D1A3A",
+        "dark_background": "#05061A",
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "motion": {
+         "press": "bounce"
+        },
+        "children": [
+         {
+          "type": "search",
+          "name": "Search every category…",
+          "text": "Search every category…",
+          "source": "products",
+          "height": 48,
+          "background": "#FFFFFF",
+          "dark_background": "#1B1D47",
+          "color": "#5C587A",
+          "dark_color": "#B9B6DA",
+          "id": "sig-153",
+          "width": "fill",
+          "radius": 16,
+          "border_color": "#1D1A3A",
+          "dark_border_color": "#05061A",
+          "border_width": 2.5,
+          "translations": {
+           "ar": {
+            "text": "ابحث في كل الأقسام…"
+           },
+           "tr": {
+            "text": "Tüm kategorilerde ara…"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-154",
+        "type": "categories",
+        "name": "All categories",
+        "source": "products",
+        "style": "rows",
+        "category_menu": {
+         "look": "lead",
+         "radius": 22
+        },
+        "color": "#1D1A3A",
+        "dark_color": "#FFF6E3",
+        "font": {
+         "family": "Lalezar"
+        },
+        "padding": {
+         "top": 6,
+         "end": 0,
+         "bottom": 6,
+         "start": 0
+        }
+       },
+       {
+        "id": "sig-155",
+        "type": "grid",
+        "name": "Your account",
+        "columns": 4,
+        "gap": 8,
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-159",
+          "type": "column",
+          "name": "My account",
+          "width": "fill",
+          "radius": 18,
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 4,
+           "start": 0
+          },
+          "background": "#1D1A3A",
+          "dark_background": "#05061A",
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "motion": {
+           "press": "bounce"
+          },
+          "children": [
+           {
+            "type": "column",
+            "name": "My account",
+            "gap": 6,
+            "cross": "center",
+            "padding": {
+             "top": 12,
+             "end": 4,
+             "bottom": 10,
+             "start": 4
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#1B1D47",
+            "children": [
+             {
+              "id": "sig-156",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "radius": 20,
+              "align": "center",
+              "cross": "center",
+              "background": "#3D5AFE",
+              "dark_background": "#3D5AFE",
+              "children": [
+               {
+                "id": "sig-157",
+                "type": "icon",
+                "icon": "person",
+                "icon_size": 22,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
+               }
+              ]
+             },
+             {
+              "id": "sig-158",
+              "type": "text",
+              "text": "My account",
+              "font": {
+               "family": "Rubik",
+               "size": 12,
+               "weight": 700,
+               "line_height": 1.35
+              },
+              "color": "#1D1A3A",
+              "dark_color": "#FFF6E3",
+              "max_lines": 1,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "حسابي"
+               },
+               "tr": {
+                "text": "Hesabım"
+               }
+              }
+             }
+            ],
+            "id": "sig-160",
+            "width": "fill",
+            "radius": 18,
+            "border_color": "#1D1A3A",
+            "dark_border_color": "#05061A",
+            "border_width": 2.5
+           }
+          ]
+         },
+         {
+          "id": "sig-164",
+          "type": "column",
+          "name": "My orders",
+          "width": "fill",
+          "radius": 18,
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 4,
+           "start": 0
+          },
+          "background": "#1D1A3A",
+          "dark_background": "#05061A",
+          "action": {
+           "type": "screen",
+           "screen": "orders"
+          },
+          "motion": {
+           "press": "bounce"
+          },
+          "children": [
+           {
+            "type": "column",
+            "name": "My orders",
+            "gap": 6,
+            "cross": "center",
+            "padding": {
+             "top": 12,
+             "end": 4,
+             "bottom": 10,
+             "start": 4
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#1B1D47",
+            "children": [
+             {
+              "id": "sig-161",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "radius": 20,
+              "align": "center",
+              "cross": "center",
+              "background": "#22B062",
+              "dark_background": "#22B062",
+              "children": [
+               {
+                "id": "sig-162",
+                "type": "icon",
+                "icon": "package_2",
+                "icon_size": 22,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
+               }
+              ]
+             },
+             {
+              "id": "sig-163",
+              "type": "text",
+              "text": "My orders",
+              "font": {
+               "family": "Rubik",
+               "size": 12,
+               "weight": 700,
+               "line_height": 1.35
+              },
+              "color": "#1D1A3A",
+              "dark_color": "#FFF6E3",
+              "max_lines": 1,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "طلباتي"
+               },
+               "tr": {
+                "text": "Siparişlerim"
+               }
+              }
+             }
+            ],
+            "id": "sig-165",
+            "width": "fill",
+            "radius": 18,
+            "border_color": "#1D1A3A",
+            "dark_border_color": "#05061A",
+            "border_width": 2.5
+           }
+          ]
+         },
+         {
+          "id": "sig-169",
+          "type": "column",
+          "name": "Wishlist",
+          "width": "fill",
+          "radius": 18,
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 4,
+           "start": 0
+          },
+          "background": "#1D1A3A",
+          "dark_background": "#05061A",
+          "action": {
+           "type": "screen",
+           "screen": "favorites"
+          },
+          "motion": {
+           "press": "bounce"
+          },
+          "children": [
+           {
+            "type": "column",
+            "name": "Wishlist",
+            "gap": 6,
+            "cross": "center",
+            "padding": {
+             "top": 12,
+             "end": 4,
+             "bottom": 10,
+             "start": 4
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#1B1D47",
+            "children": [
+             {
+              "id": "sig-166",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "radius": 20,
+              "align": "center",
+              "cross": "center",
+              "background": "#F2453D",
+              "dark_background": "#F2453D",
+              "children": [
+               {
+                "id": "sig-167",
+                "type": "icon",
+                "icon": "favorite",
+                "icon_size": 22,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
+               }
+              ]
+             },
+             {
+              "id": "sig-168",
+              "type": "text",
+              "text": "Wishlist",
+              "font": {
+               "family": "Rubik",
+               "size": 12,
+               "weight": 700,
+               "line_height": 1.35
+              },
+              "color": "#1D1A3A",
+              "dark_color": "#FFF6E3",
+              "max_lines": 1,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "المفضّلة"
+               },
+               "tr": {
+                "text": "Favoriler"
+               }
+              }
+             }
+            ],
+            "id": "sig-170",
+            "width": "fill",
+            "radius": 18,
+            "border_color": "#1D1A3A",
+            "dark_border_color": "#05061A",
+            "border_width": 2.5
+           }
+          ]
+         },
+         {
+          "id": "sig-174",
+          "type": "column",
+          "name": "Language",
+          "width": "fill",
+          "radius": 18,
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 4,
+           "start": 0
+          },
+          "background": "#1D1A3A",
+          "dark_background": "#05061A",
+          "action": {
+           "type": "screen",
+           "screen": "settings"
+          },
+          "motion": {
+           "press": "bounce"
+          },
+          "children": [
+           {
+            "type": "column",
+            "name": "Language",
+            "gap": 6,
+            "cross": "center",
+            "padding": {
+             "top": 12,
+             "end": 4,
+             "bottom": 10,
+             "start": 4
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#1B1D47",
+            "children": [
+             {
+              "id": "sig-171",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "radius": 20,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFC629",
+              "dark_background": "#FFC629",
+              "children": [
+               {
+                "id": "sig-172",
+                "type": "icon",
+                "icon": "translate",
+                "icon_size": 22,
+                "color": "#1D1A3A",
+                "dark_color": "#1D1A3A"
+               }
+              ]
+             },
+             {
+              "id": "sig-173",
+              "type": "text",
+              "text": "Language",
+              "font": {
+               "family": "Rubik",
+               "size": 12,
+               "weight": 700,
+               "line_height": 1.35
+              },
+              "color": "#1D1A3A",
+              "dark_color": "#FFF6E3",
+              "max_lines": 1,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "اللغة"
+               },
+               "tr": {
+                "text": "Dil"
+               }
+              }
+             }
+            ],
+            "id": "sig-175",
+            "width": "fill",
+            "radius": 18,
+            "border_color": "#1D1A3A",
+            "dark_border_color": "#05061A",
+            "border_width": 2.5
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-181",
+        "type": "column",
+        "name": "Contact us",
+        "radius": 20,
+        "padding": {
+         "top": 0,
+         "end": 0,
+         "bottom": 5,
+         "start": 0
+        },
+        "background": "#1D1A3A",
+        "dark_background": "#05061A",
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "action": {
+         "type": "screen",
+         "screen": "account"
+        },
+        "motion": {
+         "press": "bounce"
+        },
+        "children": [
+         {
+          "type": "row",
+          "name": "Contact us",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 12,
+           "end": 14,
+           "bottom": 12,
+           "start": 14
+          },
+          "background": "#FFC629",
+          "dark_background": "#FFC629",
+          "children": [
+           {
+            "id": "sig-176",
+            "type": "icon",
+            "icon": "support_agent",
+            "icon_size": 26,
+            "color": "#1D1A3A",
+            "dark_color": "#1D1A3A"
+           },
+           {
+            "id": "sig-177",
+            "type": "column",
+            "width": "fill",
+            "gap": 2,
+            "children": [
+             {
+              "id": "sig-178",
+              "type": "text",
+              "text": "Contact us",
+              "font": {
+               "family": "Lalezar",
+               "size": 18,
+               "weight": 400,
+               "line_height": 1.1
+              },
+              "color": "#1D1A3A",
+              "dark_color": "#1D1A3A",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "تواصل معنا"
+               },
+               "tr": {
+                "text": "Bize ulaşın"
+               }
+              }
+             },
+             {
+              "id": "sig-179",
+              "type": "text",
+              "text": "Every day, 9 am to 10 pm",
+              "font": {
+               "family": "Rubik",
+               "size": 12,
+               "weight": 500,
+               "line_height": 1.35
+              },
+              "color": "#1D1A3A",
+              "dark_color": "#1D1A3A",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "يوميًا من 9 صباحًا إلى 10 مساءً"
+               },
+               "tr": {
+                "text": "Her gün 09.00–22.00"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-180",
+            "type": "icon",
+            "icon": "chat",
+            "icon_size": 22,
+            "color": "#1D1A3A",
+            "dark_color": "#1D1A3A"
+           }
+          ],
+          "id": "sig-182",
+          "width": "fill",
+          "radius": 20,
+          "border_color": "#1D1A3A",
+          "dark_border_color": "#05061A",
+          "border_width": 2.5
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "All categories",
+      "translations": {
+       "ar": {
+        "title": "كل الأقسام"
+       },
+       "tr": {
+        "title": "Tüm kategoriler"
+       }
+      },
+      "buttons": [
+       "search"
+      ],
+      "background": "#FFF6E3",
+      "dark_background": "#0F1030",
+      "color": "#1D1A3A",
+      "dark_color": "#FFF6E3",
+      "style": "brand"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-211",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#FFF6E3",
+      "color": "#1D1A3A",
+      "dark_background": "#0F1030",
+      "dark_color": "#FFF6E3",
+      "style": "brand"
+     },
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-212",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#FFF6E3",
+      "color": "#1D1A3A",
+      "dark_background": "#0F1030",
+      "dark_color": "#FFF6E3",
+      "style": "brand"
+     },
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "favorites",
+    "title": "Wishlist",
+    "translations": {
+     "ar": {
+      "title": "المفضلة"
+     },
+     "tr": {
+      "title": "Favoriler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-213",
+      "type": "column",
+      "children": []
+     },
+     "screen": "favorites",
+     "header": {
+      "type": "title",
+      "title": "Wishlist",
+      "translations": {
+       "ar": {
+        "title": "المفضلة"
+       },
+       "tr": {
+        "title": "Favoriler"
+       }
+      },
+      "background": "#FFF6E3",
+      "color": "#1D1A3A",
+      "dark_background": "#0F1030",
+      "dark_color": "#FFF6E3",
+      "style": "brand"
+     },
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-214",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#FFF6E3",
+      "color": "#1D1A3A",
+      "dark_background": "#0F1030",
+      "dark_color": "#FFF6E3",
+      "style": "brand"
+     },
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-215",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#FFF6E3",
+      "color": "#1D1A3A",
+      "dark_background": "#0F1030",
+      "dark_color": "#FFF6E3",
+      "style": "brand"
+     },
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-216",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-217",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#FFF6E3",
+     "dark_background": "#0F1030"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "background": "#FFFFFF",
+   "dark_background": "#1B1D47",
+   "active": "#F2453D",
+   "dark_active": "#FFC629",
+   "inactive": "#5C587A",
+   "dark_inactive": "#B9B6DA",
+   "design": "notch",
+   "labels": "always",
+   "radius": 0,
+   "margin": 0,
+   "center": "cart"
+  }
+ }
+}

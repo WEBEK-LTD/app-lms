@@ -41,6 +41,11 @@ import { CROCHET_A, CROCHET_B } from "./crochet-signature";
 import { FURNITURE_A, FURNITURE_B } from "./furniture-signature";
 // 211 Nova, the mobiles shop: A NOVA ink and cobalt, B emerald on stone.
 import { EMERALD_B, NOVA_A } from "./mobiles-signature";
+// 226 Toot C the adventure map, D Montessori; Nova C the keynote, D the deals hub.
+import { MAP_C } from "./toys-c-signature";
+import { MONTESSORI_D } from "./toys-d-signature";
+import { KEYNOTE_C } from "./mobiles-c-signature";
+import { HUB_D } from "./mobiles-d-signature";
 // 211 Nawah, computers and gaming: A NAWAH white and blue, B SILICA green on stone.
 import { NAWAH_A, SILICA_B } from "./computers-signature";
 // 211 Madar, the electronics shop: A MADAR white and deep blue, B NABD lime on near black.
@@ -159,7 +164,7 @@ const STUDIO_DEMO_DESIGNS: Partial<Record<StudioDemoId, DemoDesign>> = {
  * it (`studioDemoDesign` without a look). A look without tabs of its own
  * has its demo's (128's design's).
  */
-const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDesign>> = {
+const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<"a" | "b", SignatureDesign> & Partial<Record<SignatureLook, SignatureDesign>>> = {
   // 130.1 130.2 Sofra Eats: A the editorial menu, B the bento table.
   food: { a: SOFRA_A, b: SOFRA_B },
   // 130.3 130.4 Zad: A the market arches, B the night aisle.
@@ -188,7 +193,7 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   kids: { a: TOOTA_A, b: MINIMO_B },
   // 209 Toys
   // 209 Toot, the toy shop (a store): A Toot, playful and colourful; B Mukaab, calm and educational.
-  toys: { a: TOOT_A, b: MUKAAB_B },
+  toys: { a: TOOT_A, b: MUKAAB_B, c: MAP_C, d: MONTESSORI_D },
   // 210 Sakan, home decor: A the decor magazine, B Teen's warm earth. Ghurza, crochet: A warm handmade, B Habka's colours. Rukn, furniture: A white and wood, B KANAF.
   decor: { a: DECOR_A, b: DECOR_B },
   crochet: { a: CROCHET_A, b: CROCHET_B },
@@ -196,7 +201,7 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   // 211 Madar, the electronics shop (a store): A MADAR in white and deep blue, B NABD in lime on near black.
   electronics: { a: MADAR_A, b: NABD_B },
   // 211 Nova, the mobiles shop (a store): A NOVA's ink and cobalt, B emerald on warm stone.
-  mobiles: { a: NOVA_A, b: EMERALD_B },
+  mobiles: { a: NOVA_A, b: EMERALD_B, c: KEYNOTE_C, d: HUB_D },
   // 211 Nawah, computers and gaming (a store): A NAWAH in white and one strong blue, B SILICA in deep green on stone.
   computers: { a: NAWAH_A, b: SILICA_B },
 };

@@ -477,6 +477,23 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     mbContactLine: { en: "Customer care every day, 10 am to midnight", ar: "خدمة العملاء يوميًا من 10 صباحًا حتى منتصف الليل", tr: "Müşteri hizmetleri her gün 10.00–24.00" },
     mbEditTitle: { en: "The Orbit Nine 5G, 3,500 EGP off", ar: "Orbit Nine 5G بخصم 3,500 ج.م", tr: "Orbit Nine 5G, 3.500 EGP indirimli" },
     mbReturnsNote: { en: "Returns within 14 days, unopened or faulty, collected from your door.", ar: "الإرجاع خلال 14 يومًا للجهاز غير المفتوح أو المعيب، نستلمه من باب منزلك.", tr: "Açılmamış ya da arızalı ürünlerde 14 gün içinde iade, kapınızdan alınır." },
+    // 226 Its looks C (the keynote: the star phone, its colours and figures) and D (the deals hub: free delivery).
+    mbKeyHeroName: { en: "Veyra X3 Pro", ar: "Veyra X3 Pro", tr: "Veyra X3 Pro" },
+    mbKeyHeroLine: { en: "More light. More detail.", ar: "ضوء أكثر. تفاصيل أكثر.", tr: "Daha çok ışık. Daha çok ayrıntı." },
+    mbKeyFrom: { en: "From 54,999 EGP", ar: "ابتداءً من 54,999 ج.م", tr: "54.999 EGP'den başlayan fiyatlarla" },
+    mbKeySw1: { en: "Titanium", ar: "تيتانيوم", tr: "Titanyum" },
+    mbKeySw2: { en: "Black", ar: "أسود", tr: "Siyah" },
+    mbKeySw3: { en: "Silver", ar: "فضي", tr: "Gümüş" },
+    mbKeySw4: { en: "Blue", ar: "أزرق", tr: "Mavi" },
+    mbKeySwLine: { en: "A titanium frame, IP68", ar: "إطار من التيتانيوم ومقاومة IP68", tr: "Titanyum çerçeve, IP68" },
+    mbKeyWhy: { en: "A camera to carry everywhere.", ar: "كاميرا ترافقك في كل مكان.", tr: "Her yere taşınacak bir kamera." },
+    mbKeySpec1: { en: "200 MP", ar: "200 MP", tr: "200 MP" },
+    mbKeySpec1Line: { en: "The main camera, with a 5x periscope", ar: "الكاميرا الرئيسية، مع تقريب بصري 5x", tr: "Ana kamera, 5x periskopla" },
+    mbKeySpec2: { en: "6.7″", ar: "6.7″", tr: "6.7″" },
+    mbKeySpec2Line: { en: "An OLED display that reaches 2,600 nits outdoors", ar: "شاشة OLED تصل إلى 2,600 شمعة في الخارج", tr: "Dışarıda 2.600 nit'e ulaşan OLED ekran" },
+    mbKeySpec3: { en: "5,000 mAh", ar: "5,000 mAh", tr: "5.000 mAh" },
+    mbKeySpec3Line: { en: "Two days of ordinary use, 65 W charging", ar: "يومان من الاستخدام العادي، وشحن 65 واط", tr: "İki gün normal kullanım, 65 W şarj" },
+    mbHubCartLine: { en: "Free delivery inside the city on orders over 5,000 EGP.", ar: "توصيل مجاني داخل المدينة للطلبات فوق 5,000 ج.م.", tr: "5.000 EGP üzerindeki siparişlerde şehir içi ücretsiz teslimat." },
   },
   // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
   travel: {

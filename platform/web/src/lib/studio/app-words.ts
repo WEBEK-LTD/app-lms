@@ -18,6 +18,9 @@ import { SHOP_KIT_WORDS } from "./words/shop-kit";
 import { DECOR_WORDS } from "./words/decor";
 import { CROCHET_WORDS } from "./words/crochet";
 import { FURNITURE_WORDS } from "./words/furniture";
+// 226 Toot's and Nova's looks C and D (`tyMap`, `tyMo`, `mbKey`, `mbHub`).
+import { TOYS_CD_WORDS } from "./words/toys-cd";
+import { MOBILES_CD_WORDS } from "./words/mobiles-cd";
 // 211 Madar's words (the electronics type), in a file of their own.
 import { EL_AR, EL_EN, EL_TR } from "./demo-designs/electronics-words";
 
@@ -1553,6 +1556,8 @@ export const en = {
   ...SHOP_KIT_WORDS.en,
   ...DECOR_WORDS.en,
   ...CROCHET_WORDS.en,
+  ...TOYS_CD_WORDS.en,
+  ...MOBILES_CD_WORDS.en,
   ...FURNITURE_WORDS.en,
   // ——— 211 Nova, the mobiles shop: its two Signature looks, its pages and ready sections (lib/studio/demo-designs/mobiles-signature.ts) ———
   mbWordmark: "{app}",
@@ -3325,6 +3330,8 @@ export const ar: Record<AppWord, string> = {
   ...SHOP_KIT_WORDS.ar,
   ...DECOR_WORDS.ar,
   ...CROCHET_WORDS.ar,
+  ...TOYS_CD_WORDS.ar,
+  ...MOBILES_CD_WORDS.ar,
   ...FURNITURE_WORDS.ar,
   // ——— 211 Nova ———
   mbWordmark: "{app}",
@@ -5092,6 +5099,8 @@ export const tr: Record<AppWord, string> = {
   ...SHOP_KIT_WORDS.tr,
   ...DECOR_WORDS.tr,
   ...CROCHET_WORDS.tr,
+  ...TOYS_CD_WORDS.tr,
+  ...MOBILES_CD_WORDS.tr,
   ...FURNITURE_WORDS.tr,
   // ——— 211 Nova ———
   mbWordmark: "{app}",

@@ -26,7 +26,7 @@ import type { DemoDesign } from "./index";
  * `SIGNATURE_DESIGNS` in ./index.ts, registers them all.
  */
 
-export const SIGNATURE_LOOKS = ["a", "b"] as const;
+export const SIGNATURE_LOOKS = ["a", "b", "c", "d"] as const;
 export type SignatureLook = (typeof SIGNATURE_LOOKS)[number];
 
 /** The template id of a demo's look: `<demo>_signature_<look>`. */
