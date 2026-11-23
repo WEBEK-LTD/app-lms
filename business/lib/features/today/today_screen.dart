@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app.dart' show pushEventsProvider;
 import '../../core/api/models.dart';
 import '../../core/providers.dart';
 import '../../core/routing/paths.dart';
@@ -33,6 +34,12 @@ class TodayScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final app = ref.watch(currentAppProvider);
     final me = ref.watch(meProvider);
+    // 207 An order, booking or payment while Today is open counts at once.
+    ref.listen(pushEventsProvider, (_, notice) {
+      if (notice != null && notice.data['kind'] != 'morning_brief') {
+        ref.invalidate(todayProvider);
+      }
+    });
     // Signing out: the screen goes as the router moves on.
     if (me == null || app == null) return const SizedBox.shrink();
     final today = ref.watch(todayProvider);

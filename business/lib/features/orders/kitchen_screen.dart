@@ -43,11 +43,17 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen>
     WidgetsBinding.instance.addObserver(this);
     unawaited(_wake.open());
     _load();
-    _timer = Timer.periodic(widget.interval, (_) => _load());
+    // 207 Only while the app is in front, and one load at a time.
+    _timer = Timer.periodic(widget.interval, (_) {
+      if (_inFront) _load();
+    });
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    final front = state == AppLifecycleState.resumed;
+    if (front && !_inFront) _load();
+    _inFront = front;
     unawaited(_wake.lifecycle(state));
   }
 
@@ -59,7 +65,17 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen>
     super.dispose();
   }
 
+  bool _inFront = true;
+  bool _loading = false;
+  bool _again = false;
+
   Future<void> _load() async {
+    if (_loading) {
+      // Once more when this one ends (a push came meanwhile).
+      _again = true;
+      return;
+    }
+    _loading = true;
     try {
       final page = await ref
           .read(apiProvider)
@@ -80,6 +96,12 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen>
       if (arrived && _sound) await ref.read(chimeProvider).play();
     } on Object catch (e) {
       if (mounted && _orders == null) setState(() => _error = e);
+    } finally {
+      _loading = false;
+      if (_again && mounted) {
+        _again = false;
+        unawaited(_load());
+      }
     }
   }
 
@@ -217,7 +239,8 @@ class _KitchenCard extends StatelessWidget {
                     ),
                     if (line.options.isNotEmpty)
                       TextSpan(
-                        text: '\n${line.options.join(', ')}',
+                        text:
+                            '\n${line.options.join(context.lang == 'ar' ? '، ' : ', ')}',
                         style: theme.textTheme.bodyLarge,
                       ),
                   ],

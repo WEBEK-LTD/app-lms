@@ -9,6 +9,8 @@ import { commissionOfVendor } from "./cart";
 import { joinClub, returnToWallet } from "./offers";
 import { tellMarketCustomer, tellVendor } from "./notify";
 import { prepWithDelay } from "./vendor-controls";
+import { pushOrderCancelled } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
 
 /**
  * 115 How a marketplace order moves. The customer places it (cash, the
@@ -138,6 +140,10 @@ export async function cancelMarketOrder(deps: MarketFlowDeps, order: MarketOrder
   const moved = await move(deps.store, order, { status: "cancelled" }, by, deps.now);
   if (!moved.ok) return moved;
   await giveBack(deps.store, moved.order, deps.now);
+  // 207 A customer's cancellation reaches the owner's phones (not one still waiting for its payment).
+  if (by === "customer" && order.status !== "awaiting_payment") {
+    await (deps.pushOwner ?? pushOwnerSafely)((d) => pushOrderCancelled(d, deps.app, { reference: marketOrderReference(order), place: order.vendorName, ids: { market_order_id: String(order.id) } }), deps.store).catch(() => undefined);
+  }
   if (order.shipmentId !== null) {
     const job = await deps.store.getShipment(deps.app.id, order.shipmentId);
     if (job && ["pending", "assigned", "failed"].includes(job.status)) await moveShipment(deps, job, "cancelled", "company", "The order was cancelled.").catch(() => undefined);
@@ -319,8 +325,9 @@ export const SCHEDULED_LEAD_MINUTES = 30;
  * run that moves it from `scheduled` (the store moves it only from there,
  * on memory and MariaDB alike); only that run tells the customer and the
  * vendor's staff, so two runs at once release and announce it once.
+ * 207 `released`: each one released, for the owner's phones.
  */
-export async function releaseScheduled(deps: FlowDeps): Promise<number> {
+export async function releaseScheduled(deps: FlowDeps, released_?: (order: MarketOrder) => Promise<void>): Promise<number> {
   const { store, app, now } = deps;
   const vendors = new Map<number, Awaited<ReturnType<DataStore["getRestaurant"]>>>();
   // Read them all first: releasing one moves it out of this list.
@@ -341,6 +348,7 @@ export async function releaseScheduled(deps: FlowDeps): Promise<number> {
     if (!moved.ok) continue;
     released++;
     await announceMarketOrder(deps, moved.order, "released");
+    await released_?.(moved.order).catch(() => undefined);
   }
   return released;
 }

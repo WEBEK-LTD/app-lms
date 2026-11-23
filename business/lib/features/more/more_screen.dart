@@ -15,6 +15,7 @@ import '../../core/api/models.dart';
 import '../account/apps_screen.dart';
 import '../team/team_screen.dart';
 import '../shell/home_shell.dart';
+import 'ringtones_screen.dart';
 
 /// 59 More: the app's other tools, the account, settings, help and legal.
 /// Nothing here buys anything: the plan and storage are read-only, managed
@@ -355,6 +356,13 @@ class MoreScreen extends ConsumerWidget {
               AppIcons.notificationsSettings,
               l10n.notificationSettings,
               () => context.push(Paths.notifications),
+            ),
+            // 207 A sound for each kind; new orders ring until opened.
+            tile(
+              AppIcons.ringtone,
+              l10n.ringtones,
+              () => context.push(Paths.ringtones),
+              subtitle: ringSubtitle(l10n, ref.watch(ringSettingsProvider)),
             ),
             const _BiometricTile(),
             tile(

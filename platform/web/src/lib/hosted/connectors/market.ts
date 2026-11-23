@@ -1,5 +1,5 @@
 import { randomToken, sha256Hex } from "../../crypto/tokens";
-import { pushNewComplaint } from "../../owner/push";
+import { pushNewComplaint, pushNewMarketOrder } from "../../owner/push";
 import { pushOwnerSafely } from "../../owner/push-env";
 import { paymentsSetUp } from "../../catalog/settings";
 import { payUrlFor } from "../../delivery/payment";
@@ -508,6 +508,8 @@ export class MarketConnector {
     // 115.22 Placed (or booked for later): the customer hears it, and the vendor's staff of a new order. Paid online, once it's paid.
     if (status !== "awaiting_payment") await announceMarketOrder(this.flow(request.now), created);
     const payUrl = status === "awaiting_payment" ? (await this.payLink(created, request.now)).url : null;
+    // 207 An order the vendor can take now rings on the owner's phones (one paid online when it's paid).
+    if (status === "placed") await pushOwnerSafely((d) => pushNewMarketOrder(d, app, created), store);
     return { status: 201, body: { order: await this.customerJson(created, request.now, request.lang ?? null), pay_url: payUrl } };
   }
 

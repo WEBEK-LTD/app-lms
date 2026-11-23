@@ -88,7 +88,7 @@ class PrimeHeader extends ConsumerWidget {
     ];
     return Container(
       color: c.head,
-      padding: EdgeInsets.fromLTRB(
+      padding: EdgeInsetsDirectional.fromSTEB(
         20,
         MediaQuery.paddingOf(context).top + 14,
         12,

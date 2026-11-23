@@ -4,7 +4,7 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 18 November 2026.
+Last updated: 23 November 2026.
 
 ## Current release
 
@@ -159,6 +159,29 @@ owner's own translation, Yallapp's or the owner's main text, as the page
 inspector does. No migration; the app's part comes with the next app build
 (no `CLIENT_APP_RELEASE` change here); not yet tried on a phone (ROADMAP
 181.5, 181.6).
+
+Roadmap 207 (Yallapp Business 1.0.4, ringtones; in the code, not released:
+the release waits for the owner): new orders ring until opened, like a call.
+Seventeen ringtones of Yallapp's own, made from code
+(`business/tool/ringtones.py`), and Settings › Ringtones: a sound for new
+orders, bookings, cancelled orders, messages and the rest, orders and
+bookings ringing until opened for at most 1 to 10 minutes, vibration,
+Android's alarm volume, the in-app volume, quiet hours (everything but
+orders silent) and a test ring. A phone that saved its ringtones
+(`PUT /me/push-sounds`, `owner_devices.push_sounds`, migration 0146) gets
+its pushes worded for them: Android as data only, shown by the app itself on
+the sound's own channel and ringing on (`Ringing.kt`); iOS with the bundled
+sound (25 seconds when it rings on) and time-sensitive orders; an older app
+as before. While the app is open a ringing card sits over every screen with
+Silence and Open. New pushes: a marketplace order reaching its vendor and an
+order a customer cancelled. The review's additions: order search (number,
+name, phone, email; `GET …/orders?q=`), marking an order shipped with its
+carrier and tracking, copying or sending an order's details, finding a
+product, lists that show what changed, one tap at a time on an order's
+buttons, digits typed on an Arabic keyboard everywhere, right-to-left
+paddings. Not tried on a real phone here: the Android receiver was compiled
+against Android 14's framework, the iOS sounds bundled in the project; a
+push to a real device needs Yallapp Business's Firebase project.
 
 Roadmap 203 (Yallapp Business on the website): the owners' own app is on
 the App Store and Google Play, and its two store links (one module,

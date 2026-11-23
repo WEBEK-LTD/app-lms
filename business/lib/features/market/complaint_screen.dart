@@ -10,6 +10,7 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/contact.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
+import '../../core/widgets/digits.dart';
 import '../food/food_sheets.dart';
 import '../studio/status_words.dart';
 import '../studio/rating_card.dart';
@@ -30,7 +31,7 @@ final marketOrderProvider = FutureProvider.autoDispose
 
 /// Minor units from what the owner typed ("185" or "185.50").
 int? minorUnits(String text) {
-  final value = double.tryParse(text.trim().replaceAll(',', '.'));
+  final value = double.tryParse(typedAmount(text));
   if (value == null || value <= 0) return null;
   return (value * 100).round();
 }

@@ -1,13 +1,20 @@
 import type { DataStore } from "../data/store";
-import type { App } from "../data/types";
+import type { App, MarketOrder } from "../data/types";
 import type { FlowDeps } from "../delivery/flow";
 import { notifyDeps } from "../delivery/flow";
 import { clubDue } from "./offers";
 import { releaseScheduled } from "./flow";
 import { remindClubRenewals } from "./notify";
+import { pushNewMarketOrder } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
 
 /** How the marketplace's jobs reach phones: tests pass a fake push and account; left out, each app's own. */
 export type MarketJobPush = Pick<FlowDeps, "send" | "account">;
+
+/** 207 A released order rings on the app owner's phones (a new order the vendor can take now). */
+function ownerRings(app: App, store: DataStore): (order: MarketOrder) => Promise<void> {
+  return (order) => pushOwnerSafely((d) => pushNewMarketOrder(d, app, order), store);
+}
 
 async function marketplaces(store: DataStore): Promise<App[]> {
   return (await store.listApps()).filter((app) => app.connector?.kind === "restaurants");
@@ -38,7 +45,8 @@ export async function runMarketDaily(store: DataStore, now: Date, push: MarketJo
       console.error(`[market] club reminders: ${e instanceof Error ? e.message : String(e)}`);
       return 0;
     });
-    released += await releaseScheduled({ store, app, now, ...push });
+    // 207 Each released order rings on the owner's phones.
+    released += await releaseScheduled({ store, app, now, ...push }, ownerRings(app, store));
   }
   return { apps, expired, renewals, reminded, released };
 }
@@ -56,7 +64,7 @@ export async function runMarketFrequent(store: DataStore, now: Date, push: Marke
   for (const app of await marketplaces(store)) {
     apps++;
     try {
-      released += await releaseScheduled({ store, app, now, ...push });
+      released += await releaseScheduled({ store, app, now, ...push }, ownerRings(app, store));
     } catch (error) {
       // One app's trouble never stops the others' orders.
       console.error(`[market] orders for later of ${app.id}: ${error instanceof Error ? error.message : String(error)}`);

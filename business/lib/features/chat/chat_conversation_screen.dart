@@ -480,13 +480,13 @@ class _ChatConversationScreenState
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, 8, 8, 8),
+        padding: const EdgeInsetsDirectional.fromSTEB(4, 8, 8, 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (file != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 0, 8),
+                padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 8),
                 child: Row(
                   children: [
                     Icon(_kindIcon(file.kind), size: 20),

@@ -4029,6 +4029,325 @@ class AppLocalizationsAr extends AppLocalizations {
   String get signedNoName => 'موقّعة، دون ذكر اسم';
 
   @override
+  String get ringtones => 'النغمات';
+
+  @override
+  String ringtonesSubtitle(String sound) {
+    return 'الطلبات الجديدة: $sound';
+  }
+
+  @override
+  String get ringtonesHelp =>
+      'اختر صوت كل نوع من الإشعارات على هذا الهاتف. يمكن أن تستمر الطلبات الجديدة في الرنين حتى تفتحها، مثل المكالمة الهاتفية.';
+
+  @override
+  String get ringSoundsTitle => 'الأصوات';
+
+  @override
+  String get ringGroupOrders => 'الطلبات الجديدة';
+
+  @override
+  String get ringGroupOrdersHelp =>
+      'طلبات المتجر والمطعم والسوق، والشحنات التي تنتظر مندوبًا';
+
+  @override
+  String get ringGroupBookings => 'الحجوزات الجديدة';
+
+  @override
+  String get ringGroupBookingsHelp => 'المواعيد المحجوزة في تطبيقك';
+
+  @override
+  String get ringGroupCancelled => 'الطلبات الملغاة';
+
+  @override
+  String get ringGroupCancelledHelp => 'طلب ألغاه العميل';
+
+  @override
+  String get ringGroupMessages => 'الرسائل والتقييمات';
+
+  @override
+  String get ringGroupMessagesHelp => 'المحادثات والأسئلة والتقييمات والشكاوى';
+
+  @override
+  String get ringGroupOther => 'كل ما عدا ذلك';
+
+  @override
+  String get ringGroupOtherHelp =>
+      'المدفوعات والإصدارات والتنبيهات وأخبار يلا اب';
+
+  @override
+  String ringtonePlay(String name) {
+    return 'تشغيل $name';
+  }
+
+  @override
+  String get ringtoneStop => 'إيقاف';
+
+  @override
+  String get ringtoneChosen => 'المختارة';
+
+  @override
+  String get ringtonesYours => 'نغمات يلا اب';
+
+  @override
+  String get ringtonesOther => 'غير ذلك';
+
+  @override
+  String get ringRingingTitle => 'الرنين';
+
+  @override
+  String get ringUntilOpenedOrders => 'ترن الطلبات الجديدة حتى تُفتح';
+
+  @override
+  String get ringUntilOpenedBookings => 'ترن الحجوزات الجديدة حتى تُفتح';
+
+  @override
+  String get ringUntilOpenedHelp => 'يتكرر الصوت حتى تفتح الإشعار أو التطبيق.';
+
+  @override
+  String get ringForAtMost => 'مدة الرنين القصوى';
+
+  @override
+  String ringMinutes(String minutes) {
+    return '$minutes د';
+  }
+
+  @override
+  String get ringSoundTitle => 'الصوت والاهتزاز';
+
+  @override
+  String get ringVibrate => 'الاهتزاز';
+
+  @override
+  String get ringAlarmVolume => 'الرنين بمستوى صوت المنبّه';
+
+  @override
+  String get ringAlarmVolumeHelp =>
+      'تكون الطلبات مسموعة بوضوح حتى إن كان صوت الإشعارات منخفضًا.';
+
+  @override
+  String get ringVolume => 'مستوى الصوت داخل التطبيق';
+
+  @override
+  String get ringQuietTitle => 'ساعات الهدوء';
+
+  @override
+  String get ringQuietOn => 'ساعات الهدوء';
+
+  @override
+  String get ringQuietHelp =>
+      'تصل الرسائل والإشعارات الأخرى دون صوت، وتظل الطلبات الجديدة ترن.';
+
+  @override
+  String get ringQuietFrom => 'من';
+
+  @override
+  String get ringQuietTo => 'إلى';
+
+  @override
+  String get ringTest => 'تجربة الرنين';
+
+  @override
+  String get ringTestHelp =>
+      'يرن كما يرن الطلب الجديد، بالصوت والمدة اللذين اخترتهما.';
+
+  @override
+  String get ringTestNotification => 'إرسال إشعار تجريبي';
+
+  @override
+  String get ringTestNotificationTitle => 'طلب تجريبي';
+
+  @override
+  String get ringTestNotificationBody =>
+      'هكذا يبدو صوت الطلب الجديد على هذا الهاتف.';
+
+  @override
+  String get ringTestSent => 'تم الإرسال. اقفل الهاتف لتسمعه كما يصل.';
+
+  @override
+  String get ringIphoneNote =>
+      'على آيفون، عندما يكون التطبيق مغلقًا يرن الطلب لمدة تصل إلى 25 ثانية، وعندما يكون مفتوحًا يرن حتى تفتحه. ويظل زر الوضع الصامت والتركيز في هاتفك ساريَين.';
+
+  @override
+  String get ringAndroidNote =>
+      'إذا لم يُسمع الصوت، فتأكد من السماح بإشعارات يلا اب بيزنس وأن الهاتف ليس في وضع عدم الإزعاج.';
+
+  @override
+  String get ringBannerOrder => 'طلب جديد';
+
+  @override
+  String get ringBannerBooking => 'حجز جديد';
+
+  @override
+  String get ringSilence => 'إسكات';
+
+  @override
+  String get ringQuietChannel => 'رنّ سابقًا';
+
+  @override
+  String get soundChime => 'نغمة يلا اب';
+
+  @override
+  String get soundCounterBell => 'جرس الكاونتر';
+
+  @override
+  String get soundKitchenTicket => 'تذكرة المطبخ';
+
+  @override
+  String get soundMarimba => 'ماريمبا';
+
+  @override
+  String get soundHarp => 'قيثارة';
+
+  @override
+  String get soundDigital => 'صفارة رقمية';
+
+  @override
+  String get soundRushHour => 'ساعة الذروة';
+
+  @override
+  String get soundCashDrawer => 'درج النقود';
+
+  @override
+  String get soundDoorbell => 'جرس الباب';
+
+  @override
+  String get soundXylophone => 'إكسيليفون';
+
+  @override
+  String get soundSoftPulse => 'نبض هادئ';
+
+  @override
+  String get soundChirp => 'زقزقة';
+
+  @override
+  String get soundSunrise => 'شروق';
+
+  @override
+  String get soundArcade => 'أركيد';
+
+  @override
+  String get soundDrop => 'قطرة';
+
+  @override
+  String get soundPop => 'فقاعة';
+
+  @override
+  String get soundKnock => 'طرق';
+
+  @override
+  String get soundDefault => 'صوت الهاتف';
+
+  @override
+  String get soundSilent => 'صامت';
+
+  @override
+  String get searchOrdersHint =>
+      'رقم الطلب أو الاسم أو الهاتف أو البريد الإلكتروني';
+
+  @override
+  String get noOrdersFound => 'لا توجد طلبات تطابق بحثك';
+
+  @override
+  String get shippingTitle => 'الشحن';
+
+  @override
+  String get shipWithTracking => 'تحديد كمشحون';
+
+  @override
+  String get shipWithTrackingHelp =>
+      'أضف شركة الشحن ورقم التتبع، وسيصل إلى العميل بريد إلكتروني بذلك.';
+
+  @override
+  String get carrierField => 'شركة الشحن';
+
+  @override
+  String get trackingNumberField => 'رقم التتبع أو بوليصة الشحن';
+
+  @override
+  String get shipNeedsTracking => 'أدخل رقم التتبع أو رابط التتبع.';
+
+  @override
+  String get markShipped => 'تحديد كمشحون';
+
+  @override
+  String get saveTracking => 'حفظ بيانات التتبع';
+
+  @override
+  String get changeTracking => 'تغيير بيانات التتبع';
+
+  @override
+  String get shippedDone =>
+      'تم التحديد كمشحون، وأُرسل بريد إلكتروني إلى العميل.';
+
+  @override
+  String get searchProductsHint => 'ابحث عن منتج';
+
+  @override
+  String get noProductsFound => 'لا توجد منتجات تطابق بحثك';
+
+  @override
+  String get shareOrder => 'مشاركة الطلب';
+
+  @override
+  String get copyOrder => 'نسخ التفاصيل';
+
+  @override
+  String get sendOrderWhatsapp => 'إرسال عبر واتساب';
+
+  @override
+  String get orderCopied => 'تم نسخ تفاصيل الطلب';
+
+  @override
+  String orderTextTitle(String number) {
+    return 'الطلب $number';
+  }
+
+  @override
+  String orderTextTotal(String amount) {
+    return 'الإجمالي: $amount';
+  }
+
+  @override
+  String orderTextName(String name) {
+    return 'الاسم: $name';
+  }
+
+  @override
+  String orderTextPhone(String phone) {
+    return 'الهاتف: $phone';
+  }
+
+  @override
+  String orderTextAddress(String address) {
+    return 'العنوان: $address';
+  }
+
+  @override
+  String orderTextNotes(String notes) {
+    return 'ملاحظات: $notes';
+  }
+
+  @override
+  String get pushMarketOrder => 'طلبات السوق الجديدة';
+
+  @override
+  String get pushMarketOrderHelp => 'عندما يصل طلب إلى أحد البائعين لديك';
+
+  @override
+  String get pushCancelled => 'الطلبات الملغاة';
+
+  @override
+  String get pushCancelledHelp => 'عندما يلغي عميل طلب طعام أو طلبًا من السوق';
+
+  @override
+  String get pushRingtonesLink => 'النغمات';
+
+  @override
+  String get pushRingtonesLinkHelp =>
+      'اختر صوت كل نوع، واجعل الطلبات الجديدة ترن حتى تُفتح';
+
+  @override
   String minutesAgo(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

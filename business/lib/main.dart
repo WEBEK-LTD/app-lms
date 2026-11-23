@@ -12,6 +12,7 @@ import 'core/config.dart';
 import 'core/providers.dart';
 import 'core/services/biometrics.dart';
 import 'core/services/push.dart';
+import 'core/services/ringtones.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +39,8 @@ Future<void> main() async {
         configProvider.overrideWithValue(config),
         sharedPreferencesProvider.overrideWithValue(preferences),
         pushServiceProvider.overrideWithValue(push),
+        // 207 Android shows its pushes itself, with the chosen ringtones.
+        ringNativeProvider.overrideWithValue(PlatformRingNative()),
         if (config.demo) ...[
           tokenStoreProvider.overrideWithValue(MemoryTokenStore()),
           biometricsProvider.overrideWithValue(NoBiometrics()),
