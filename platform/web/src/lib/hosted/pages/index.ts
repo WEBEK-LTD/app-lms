@@ -16,7 +16,6 @@ import { centsToDecimal, formatCents } from "../../catalog/money";
 import { addDisplayPrices, DISPLAY_CONNECTORS, Shown, type DisplayCurrency } from "../../money/display";
 import { ConnectorError, type Connector } from "../connectors/types";
 // 211 The tech elements.
-import { CatalogConnector } from "../connectors/catalog";
 import { servedTech } from "./tech";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
@@ -41,6 +40,9 @@ import { dashboardStoryElements, withServedStories, type ServedStory, type Story
 
 const VARY = { vary: "Accept-Language" };
 const SLUG = /^[a-z0-9-]{1,64}$/;
+
+/** 211 Whether the app's products are Yallapp's own catalog (a connected platform keeps no specs). */
+const ownCatalog = (app: App) => app.connector?.kind === "catalog";
 
 interface PageContext {
   ctx: HostedContext;
@@ -177,7 +179,8 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
     // 131 A flash sale with its sale and products; a coupon bound to the shop's coupons with the one it shows; else left out.
     if (node.type === "flash_sale") return servedFlashSale(pc, shown as StudioNode);
     // 211 An electronics shop's parts, from its own products (left out with nothing to show).
-    if ((STUDIO_TECH_TYPES as readonly string[]).includes(node.type)) return servedTech(pc.ctx.app, pc.ctx.connector instanceof CatalogConnector, shown as StudioNode, (path, params) => get(pc, path, params));
+    // Yallapp's own catalog by the app's connector, not the connector's class: 212's shop features wrap it.
+    if ((STUDIO_TECH_TYPES as readonly string[]).includes(node.type)) return servedTech(pc.ctx.app, ownCatalog(pc.ctx.app), shown as StudioNode, (path, params) => get(pc, path, params));
     if (node.type === "coupon" && node.coupon?.bind === "public") return servedCoupon(pc, shown as StudioNode);
     return shown as StudioNode;
   });

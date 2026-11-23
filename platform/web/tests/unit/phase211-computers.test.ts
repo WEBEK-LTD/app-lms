@@ -25,6 +25,9 @@ import { allNodes } from "@/lib/studio/tree";
 import { appUrl } from "@/lib/env";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
 import { KEY, NOW } from "./helpers";
+import { connectorFor } from "@/lib/hosted/connectors";
+import { LogSender } from "@/lib/hosted/otp-sender";
+import { handleHosted } from "@/lib/hosted/service";
 
 /**
  * 211 Studio's computers and gaming type, Nawah: the type made ready, its
@@ -249,5 +252,13 @@ describe("211 Nawah's two looks: NAWAH and SILICA", () => {
     expect(products.every((p) => p.sample)).toBe(true);
     const categories = await store.listCatalogCategories(app.id);
     expect(techOf(app)?.pcBuilder?.steps.find((s) => s.part === "psu")?.categoryId).toBe(categories.find((c) => c.name === "Power supplies")!.id);
+    // Its home's memory chips are served through the store's real connector, which 212's shop features wrap.
+    const assetUrl = (id: string) => `https://yallapp.test/api/v1/assets/${id}`;
+    const connector = connectorFor(app, KEY, { store, assetUrl, platformUrl: "https://yallapp.test" })!;
+    const home = await handleHosted({ store, app, active: true, now: NOW, ip: "203.0.113.11", secret: "test-hosted-secret", sender: new LogSender(), push: false, assetUrl, platformUrl: "https://yallapp.test", connector, preview: { draft: true } }, { method: "GET", path: ["pages", "home"], query: new URLSearchParams({ platform: "android" }), body: undefined, token: null });
+    expect(home.status).toBe(200);
+    const filter = allNodes((home.body as { studio: StudioPage }).studio).find((n) => n.type === "spec_filter");
+    expect(filter?.tech_served?.spec).toMatchObject({ key: "ram", label: "Memory" });
+    expect(filter?.tech_served?.spec?.values[0]).toEqual({ value: "32 GB DDR5", count: 5 });
   });
 });

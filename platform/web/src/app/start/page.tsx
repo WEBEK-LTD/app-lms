@@ -195,7 +195,9 @@ function StudioSection({ text, ids, adding }: { text: DashboardText; ids: readon
  * type still being made shows as coming soon, never a link. The shops
  * Studio already has that belong to a section (the flower shop, the
  * marketplace) follow its types, as data-section-demo: their big cards
- * above keep data-demo, one per demo.
+ * above keep data-demo, one per demo. 209 A type in two sections (kids'
+ * clothes: Fashion, Kids & toys) is a data-demo card in its first only and
+ * a data-section-demo shortcut in the other.
  */
 function ShopTypes({ text, adding }: { text: DashboardText; adding: boolean }) {
   const { t } = text;
@@ -230,7 +232,7 @@ function ShopTypes({ text, adding }: { text: DashboardText; adding: boolean }) {
               return (
                 <li key={type.id} className="flex">
                   {type.demo ? (
-                    <Link href={pickerPath({ demo: type.demo, adding })} data-shop-type={type.id} data-demo={type.demo} className="flex w-full items-center gap-3 rounded-[18px] p-3.5 no-underline" style={{ background: STUDIO.card, border: `1px solid ${STUDIO.goldLine}`, color: STUDIO.text }}>
+                    <Link href={pickerPath({ demo: type.demo, adding })} data-shop-type={type.id} {...(type.sections[0] === section ? { "data-demo": type.demo } : { "data-section-demo": type.demo })} className="flex w-full items-center gap-3 rounded-[18px] p-3.5 no-underline" style={{ background: STUDIO.card, border: `1px solid ${STUDIO.goldLine}`, color: STUDIO.text }}>
                       {inner}
                     </Link>
                   ) : (
