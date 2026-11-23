@@ -342,7 +342,7 @@ class _FileTile extends ConsumerWidget {
     }
 
     return Panel(
-      padding: const EdgeInsets.fromLTRB(14, 10, 4, 10),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 4, 10),
       child: Row(
         children: [
           Icon(switch (file.kind) {

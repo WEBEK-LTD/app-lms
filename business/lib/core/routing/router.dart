@@ -26,6 +26,7 @@ import '../../features/media/media_screen.dart';
 import '../../features/team/team_screen.dart';
 import '../../features/more/devices_screen.dart';
 import '../../features/more/appearance_screen.dart';
+import '../../features/more/ringtones_screen.dart';
 import '../../features/more/language_screen.dart';
 import '../../features/more/more_screen.dart';
 import '../../features/more/plan_screen.dart';
@@ -163,8 +164,9 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: ':id',
                 parentNavigatorKey: rootNavigatorKey,
-                builder: (_, s) =>
-                    OrderScreen(orderId: int.parse(s.pathParameters['id']!)),
+                builder: (_, s) => OrderScreen(
+                  orderId: int.tryParse(s.pathParameters['id']!) ?? 0,
+                ),
               ),
             ],
           ),
@@ -177,7 +179,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: ':id/move',
                 parentNavigatorKey: rootNavigatorKey,
                 builder: (_, s) => RescheduleScreen(
-                  appointmentId: int.parse(s.pathParameters['id']!),
+                  appointmentId: int.tryParse(s.pathParameters['id']!) ?? 0,
                   appointment: s.extra is Appointment
                       ? s.extra! as Appointment
                       : null,
@@ -204,14 +206,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'questions/:id',
                 parentNavigatorKey: rootNavigatorKey,
                 builder: (_, s) => QuestionScreen(
-                  questionId: int.parse(s.pathParameters['id']!),
+                  questionId: int.tryParse(s.pathParameters['id']!) ?? 0,
                 ),
               ),
               GoRoute(
                 path: ':id',
                 parentNavigatorKey: rootNavigatorKey,
                 builder: (_, s) => InquiryScreen(
-                  inquiryId: int.parse(s.pathParameters['id']!),
+                  inquiryId: int.tryParse(s.pathParameters['id']!) ?? 0,
                 ),
               ),
             ],
@@ -315,8 +317,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       full(
         '/lesson',
         (s) => AddLessonScreen(
-          courseId: int.parse(s.uri.queryParameters['course'] ?? '0'),
-          topicId: int.parse(s.uri.queryParameters['topic'] ?? '0'),
+          courseId: int.tryParse(s.uri.queryParameters['course'] ?? '') ?? 0,
+          topicId: int.tryParse(s.uri.queryParameters['topic'] ?? '') ?? 0,
         ),
       ),
       // 63 A gym's door and its members.
@@ -331,6 +333,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       full(Paths.language, (_) => const LanguageScreen()),
       full(Paths.appearance, (_) => const AppearanceScreen()),
       full(Paths.notifications, (_) => const PushSettingsScreen()),
+      full(Paths.ringtones, (_) => const RingtonesScreen()),
       full(Paths.devices, (_) => const DevicesScreen()),
       full(Paths.team, (_) => const TeamScreen()),
       // 125 Studio apps' screens, Prime and VIP.

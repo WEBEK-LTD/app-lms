@@ -669,7 +669,10 @@ enum PushKind {
   shipmentWaiting('shipment_waiting'),
   newComplaint('new_complaint'),
   primeAlert('prime_alert'),
-  morningBrief('morning_brief');
+  morningBrief('morning_brief'),
+  // 207 A marketplace order reached its vendor; a customer cancelled one.
+  newMarketOrder('new_market_order'),
+  orderCancelled('order_cancelled');
 
   const PushKind(this.wire);
   final String wire;
@@ -1431,6 +1434,7 @@ class Order {
     this.nextStages = const [],
     this.refundDue,
     this.cancelRefund,
+    this.shippable = false,
   });
 
   factory Order.fromJson(Json json) {
@@ -1471,8 +1475,13 @@ class Order {
         optObject(json, 'cancel_refund') ?? const {},
         'amount',
       ),
+      shippable: json['shippable'] == true,
     );
   }
+
+  /// 207 Something in it is shipped by a carrier (80.4): it can be marked
+  /// shipped with the tracking from the app.
+  final bool shippable;
 
   final int id;
 
@@ -1549,6 +1558,8 @@ class Order {
     RefundDue? refundDue,
     Money? cancelRefund,
     bool clearCancelRefund = false,
+    OrderShipment? shipment,
+    bool? shippable,
   }) => Order(
     id: id,
     number: number,
@@ -1568,7 +1579,8 @@ class Order {
     delivery: delivery ?? this.delivery,
     amounts: amounts,
     payOutside: payOutside,
-    shipment: shipment,
+    shipment: shipment ?? this.shipment,
+    shippable: shippable ?? this.shippable,
     stage: stage ?? this.stage,
     stageHistory: stageHistory ?? this.stageHistory,
     nextStages: nextStages ?? this.nextStages,
@@ -1577,6 +1589,22 @@ class Order {
         ? null
         : (cancelRefund ?? this.cancelRefund),
   );
+}
+
+/// 207 What marks an order shipped (`PUT …/orders/{id}/shipment`): the
+/// tracking link, the tracking number or the waybill, with the carrier.
+class ShipmentInput {
+  const ShipmentInput({this.carrier, this.trackingNumber, this.trackingUrl});
+
+  final String? carrier;
+  final String? trackingNumber;
+  final String? trackingUrl;
+
+  Json toJson() => {
+    'carrier': ?carrier,
+    'tracking_number': ?trackingNumber,
+    'tracking_url': ?trackingUrl,
+  };
 }
 
 /// 132 The customer's money after a failed delivery ended with the order

@@ -175,7 +175,8 @@ Future<bool?> askCancelRefund(BuildContext context, Order order, Money amount) {
 }
 
 /// The next-status buttons: the step forward filled, cancelling outlined.
-class OrderActions extends ConsumerWidget {
+/// 207 One tap at a time: the buttons wait while a change is sent.
+class OrderActions extends ConsumerStatefulWidget {
   const OrderActions({
     super.key,
     required this.order,
@@ -188,7 +189,16 @@ class OrderActions extends ConsumerWidget {
   final bool large;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OrderActions> createState() => _OrderActionsState();
+}
+
+class _OrderActionsState extends ConsumerState<OrderActions> {
+  bool _busy = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final order = widget.order;
+    final large = widget.large;
     final next = order.nextStatuses;
     if (next.isEmpty) return const SizedBox.shrink();
     final forward = next.where((s) => s != 'cancelled').toList();
@@ -196,8 +206,14 @@ class OrderActions extends ConsumerWidget {
     final size = large ? const Size(64, 64) : const Size(64, 48);
 
     Future<void> run(String status) async {
-      final updated = await changeOrderStatus(context, ref, order, status);
-      if (updated != null) onChanged(updated);
+      if (_busy) return;
+      setState(() => _busy = true);
+      try {
+        final updated = await changeOrderStatus(context, ref, order, status);
+        if (updated != null) widget.onChanged(updated);
+      } finally {
+        if (mounted) setState(() => _busy = false);
+      }
     }
 
     return Wrap(
@@ -207,13 +223,13 @@ class OrderActions extends ConsumerWidget {
         if (cancel)
           OutlinedButton(
             style: OutlinedButton.styleFrom(minimumSize: size),
-            onPressed: () => run('cancelled'),
+            onPressed: _busy ? null : () => run('cancelled'),
             child: Text(orderActionLabel(context, order, 'cancelled')),
           ),
         for (final status in forward)
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: size),
-            onPressed: () => run(status),
+            onPressed: _busy ? null : () => run(status),
             child: Text(orderActionLabel(context, order, status)),
           ),
       ],

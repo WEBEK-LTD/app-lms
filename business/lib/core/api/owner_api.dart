@@ -27,6 +27,10 @@ abstract class OwnerApi {
   Future<void> deletePushToken();
   Future<PushPreferences> pushPreferences();
   Future<PushPreferences> setPushPreferences(PushPreferences preferences);
+
+  /// 207 This phone's ringtones on the server (`PUT /me/push-sounds`):
+  /// from then on its pushes carry them.
+  Future<void> setPushSounds(Map<String, dynamic> sounds);
   Future<AppSummary> app(String appId);
 
   // 60 Team members: the business this phone works on, and the owner's team.
@@ -57,13 +61,19 @@ abstract class OwnerApi {
   Future<Today> today(String appId);
 
   // Orders
+  /// 207 [query]: the order's number or who ordered (name, phone, email).
   Future<Paged<Order>> orders(
     String appId, {
     List<String> statuses = const [],
     int page = 1,
     int perPage = 20,
+    String? query,
   });
   Future<Order> order(String appId, int orderId);
+
+  /// 207 Marks it shipped with the carrier and the tracking; the customer
+  /// is emailed (80.4). Again changes the tracking.
+  Future<Order> shipOrder(String appId, int orderId, ShipmentInput shipment);
 
   /// 175 [refund]: with `cancelled`, the owner's choice for a paid order
   /// (`Order.cancelRefund`): refund what's left, or not.

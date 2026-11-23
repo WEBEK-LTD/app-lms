@@ -4046,6 +4046,326 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signedNoName => 'Signed, with no name given';
 
   @override
+  String get ringtones => 'Ringtones';
+
+  @override
+  String ringtonesSubtitle(String sound) {
+    return 'New orders: $sound';
+  }
+
+  @override
+  String get ringtonesHelp =>
+      'Choose how each kind of notification sounds on this phone. New orders can keep ringing until you open them, like a phone call.';
+
+  @override
+  String get ringSoundsTitle => 'Sounds';
+
+  @override
+  String get ringGroupOrders => 'New orders';
+
+  @override
+  String get ringGroupOrdersHelp =>
+      'Shop, restaurant and market orders, and deliveries waiting for a courier';
+
+  @override
+  String get ringGroupBookings => 'New bookings';
+
+  @override
+  String get ringGroupBookingsHelp => 'Appointments booked in your app';
+
+  @override
+  String get ringGroupCancelled => 'Cancelled orders';
+
+  @override
+  String get ringGroupCancelledHelp => 'An order the customer cancelled';
+
+  @override
+  String get ringGroupMessages => 'Messages and reviews';
+
+  @override
+  String get ringGroupMessagesHelp => 'Chat, questions, reviews and complaints';
+
+  @override
+  String get ringGroupOther => 'Everything else';
+
+  @override
+  String get ringGroupOtherHelp =>
+      'Payments, builds, alerts and news from Yallapp';
+
+  @override
+  String ringtonePlay(String name) {
+    return 'Play $name';
+  }
+
+  @override
+  String get ringtoneStop => 'Stop';
+
+  @override
+  String get ringtoneChosen => 'Chosen';
+
+  @override
+  String get ringtonesYours => 'Yallapp\'s ringtones';
+
+  @override
+  String get ringtonesOther => 'Other';
+
+  @override
+  String get ringRingingTitle => 'Ringing';
+
+  @override
+  String get ringUntilOpenedOrders => 'New orders ring until opened';
+
+  @override
+  String get ringUntilOpenedBookings => 'New bookings ring until opened';
+
+  @override
+  String get ringUntilOpenedHelp =>
+      'The sound repeats until you open the notification or the app.';
+
+  @override
+  String get ringForAtMost => 'Ring for at most';
+
+  @override
+  String ringMinutes(String minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get ringSoundTitle => 'Sound and vibration';
+
+  @override
+  String get ringVibrate => 'Vibrate';
+
+  @override
+  String get ringAlarmVolume => 'Ring at alarm volume';
+
+  @override
+  String get ringAlarmVolumeHelp =>
+      'Orders are loud even when the notification volume is low.';
+
+  @override
+  String get ringVolume => 'Volume in the app';
+
+  @override
+  String get ringQuietTitle => 'Quiet hours';
+
+  @override
+  String get ringQuietOn => 'Quiet hours';
+
+  @override
+  String get ringQuietHelp =>
+      'Messages and other notifications arrive without a sound. New orders still ring.';
+
+  @override
+  String get ringQuietFrom => 'From';
+
+  @override
+  String get ringQuietTo => 'To';
+
+  @override
+  String get ringTest => 'Test ring';
+
+  @override
+  String get ringTestHelp =>
+      'Rings like a new order does, with the sound and time you chose.';
+
+  @override
+  String get ringTestNotification => 'Send a test notification';
+
+  @override
+  String get ringTestNotificationTitle => 'Test order';
+
+  @override
+  String get ringTestNotificationBody =>
+      'This is how a new order sounds on this phone.';
+
+  @override
+  String get ringTestSent => 'Sent. Lock the phone to hear it as it comes.';
+
+  @override
+  String get ringIphoneNote =>
+      'On iPhone, when the app is closed an order rings for up to 25 seconds; open, it rings until you open it. Your phone\'s silent switch and Focus still apply.';
+
+  @override
+  String get ringAndroidNote =>
+      'If a sound doesn\'t play, check that notifications for Yallapp Business are allowed and the phone isn\'t on Do Not Disturb.';
+
+  @override
+  String get ringBannerOrder => 'New order';
+
+  @override
+  String get ringBannerBooking => 'New booking';
+
+  @override
+  String get ringSilence => 'Silence';
+
+  @override
+  String get ringQuietChannel => 'Rang';
+
+  @override
+  String get soundChime => 'Yallapp chime';
+
+  @override
+  String get soundCounterBell => 'Counter bell';
+
+  @override
+  String get soundKitchenTicket => 'Kitchen ticket';
+
+  @override
+  String get soundMarimba => 'Marimba';
+
+  @override
+  String get soundHarp => 'Harp';
+
+  @override
+  String get soundDigital => 'Digital beep';
+
+  @override
+  String get soundRushHour => 'Rush hour';
+
+  @override
+  String get soundCashDrawer => 'Cash drawer';
+
+  @override
+  String get soundDoorbell => 'Doorbell';
+
+  @override
+  String get soundXylophone => 'Xylophone';
+
+  @override
+  String get soundSoftPulse => 'Soft pulse';
+
+  @override
+  String get soundChirp => 'Chirp';
+
+  @override
+  String get soundSunrise => 'Sunrise';
+
+  @override
+  String get soundArcade => 'Arcade';
+
+  @override
+  String get soundDrop => 'Drop';
+
+  @override
+  String get soundPop => 'Pop';
+
+  @override
+  String get soundKnock => 'Knock';
+
+  @override
+  String get soundDefault => 'Phone\'s sound';
+
+  @override
+  String get soundSilent => 'Silent';
+
+  @override
+  String get searchOrdersHint => 'Order number, name, phone or email';
+
+  @override
+  String get noOrdersFound => 'No orders match your search';
+
+  @override
+  String get shippingTitle => 'Shipping';
+
+  @override
+  String get shipWithTracking => 'Mark as shipped';
+
+  @override
+  String get shipWithTrackingHelp =>
+      'Add the carrier and the tracking. The customer gets an email with it.';
+
+  @override
+  String get carrierField => 'Carrier';
+
+  @override
+  String get trackingNumberField => 'Tracking number or waybill';
+
+  @override
+  String get shipNeedsTracking =>
+      'Enter the tracking number or the tracking link.';
+
+  @override
+  String get markShipped => 'Mark as shipped';
+
+  @override
+  String get saveTracking => 'Save tracking';
+
+  @override
+  String get changeTracking => 'Change tracking';
+
+  @override
+  String get shippedDone => 'Marked as shipped. The customer was emailed.';
+
+  @override
+  String get searchProductsHint => 'Find a product';
+
+  @override
+  String get noProductsFound => 'No products match your search';
+
+  @override
+  String get shareOrder => 'Share the order';
+
+  @override
+  String get copyOrder => 'Copy the details';
+
+  @override
+  String get sendOrderWhatsapp => 'Send on WhatsApp';
+
+  @override
+  String get orderCopied => 'The order\'s details were copied';
+
+  @override
+  String orderTextTitle(String number) {
+    return 'Order $number';
+  }
+
+  @override
+  String orderTextTotal(String amount) {
+    return 'Total: $amount';
+  }
+
+  @override
+  String orderTextName(String name) {
+    return 'Name: $name';
+  }
+
+  @override
+  String orderTextPhone(String phone) {
+    return 'Phone: $phone';
+  }
+
+  @override
+  String orderTextAddress(String address) {
+    return 'Address: $address';
+  }
+
+  @override
+  String orderTextNotes(String notes) {
+    return 'Notes: $notes';
+  }
+
+  @override
+  String get pushMarketOrder => 'New marketplace orders';
+
+  @override
+  String get pushMarketOrderHelp => 'When an order reaches one of your vendors';
+
+  @override
+  String get pushCancelled => 'Cancelled orders';
+
+  @override
+  String get pushCancelledHelp =>
+      'When a customer cancels a food or marketplace order';
+
+  @override
+  String get pushRingtonesLink => 'Ringtones';
+
+  @override
+  String get pushRingtonesLinkHelp =>
+      'Choose the sound of each kind, and let new orders ring until opened';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }
