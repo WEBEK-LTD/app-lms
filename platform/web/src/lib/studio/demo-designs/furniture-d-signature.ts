@@ -1,4 +1,4 @@
-import type { Action, LayoutTab, StudioEntry, StudioFont, StudioNode, StudioPage } from "../../pages/types";
+import type { Action, LayoutTab, StudioFont, StudioNode, StudioPage } from "../../pages/types";
 import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { sides, sigEntry, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
@@ -161,9 +161,9 @@ function roomPane(ctx: SectionContext, r: (typeof ROOMS)[number]): StudioNode {
   };
 }
 
-/** Every room, switched in place (Studio's tabs: the room's names as its segments). */
+/** Every room as a card to swipe through, the next one peeking (the switcher above opens each room's shop). */
 function rooms(ctx: SectionContext): StudioNode {
-  return { id: idOf(ctx)(), type: "tabs", name: ctx.w("mnRooms"), gap: 12, padding: sides(10, 16, 0, 16), children: ROOMS.map((r) => roomPane(ctx, r)) };
+  return { id: idOf(ctx)(), type: "slider", name: ctx.w("mnRooms"), height: 372, per_view: 1.08, gap: 12, dots: true, indicator: "dots", padding: sides(10, 16, 0, 16), children: ROOMS.map((r) => roomPane(ctx, r)) };
 }
 
 const MATERIALS = [
@@ -311,7 +311,14 @@ function listCards(ctx: SectionContext, word: SectionWord): StudioNode {
   };
 }
 
-/** From the order to the assembly: four steps on the navy card, then the shop's days to choose (kept for the checkout). */
+const STEPS = [
+  ["shopping_cart", "mnStep1", "mnStep1Text"],
+  ["inventory_2", "mnStep2", "mnStep2Text"],
+  ["local_shipping", "mnStep3", "mnStep3Text"],
+  ["build", "mnStep4", "mnStep4Text"],
+] as const satisfies readonly [string, SectionWord, SectionWord][];
+
+/** From the order to the assembly: four steps drawn as badges on the navy card. */
 function journey(ctx: SectionContext): StudioNode {
   const id = idOf(ctx);
   return {
@@ -328,16 +335,23 @@ function journey(ctx: SectionContext): StudioNode {
       { id: id(), type: "column", gap: 3, children: [say(ctx, L, "mnJourneyTitle", font(17, 800), { color: "#FFFFFF", dark_color: K.darkInk, max_lines: 2 }), say(ctx, L, "mnJourneyLine", font(12), { color: "#FFFFFF", dark_color: K.darkMuted, opacity: 0.86, max_lines: 2 })] },
       {
         id: id(),
-        type: "timeline",
+        type: "row",
         name: ctx.w("mnJourney"),
-        timeline: { style: "horizontal" },
-        color: "#FFFFFF",
-        dark_color: K.darkAccent,
-        entries: (["mnStep1", "mnStep2", "mnStep3", "mnStep4"] as const).map((w, i): StudioEntry => sigEntry(ctx, { title: w, text: `${w}Text` as SectionWord }, i === 0 ? { highlight: true } : {})),
+        gap: 4,
+        children: STEPS.map(([icon, title, line], i) => ({
+          id: id(),
+          type: "column" as const,
+          name: ctx.w(title),
+          width: "fill" as const,
+          gap: 3,
+          cross: "center" as const,
+          children: [
+            { id: id(), type: "row" as const, width: 40, height: 40, radius: 20, align: "center" as const, cross: "center" as const, background: i === 0 ? K.darkFill : "#FFFFFF", dark_background: i === 0 ? K.darkFill : K.darkLine, children: [{ id: id(), type: "icon" as const, icon, icon_size: 20, color: i === 0 ? K.darkOnFill : K.fill, dark_color: i === 0 ? K.darkOnFill : K.darkInk }] },
+            say(ctx, L, title, font(12, 700), { color: "#FFFFFF", dark_color: K.darkInk, max_lines: 1, text_align: "center", margin: sides(4, 0, 0, 0) }),
+            say(ctx, L, line, font(10.5), { color: "#FFFFFF", dark_color: K.darkMuted, opacity: 0.8, max_lines: 1, text_align: "center" }),
+          ],
+        })),
       },
-      { id: id(), type: "row", height: 1, background: "#FFFFFF", dark_background: K.darkLine, opacity: 0.25, children: [] },
-      say(ctx, L, "mnSlotsTitle", font(14, 700), { color: "#FFFFFF", dark_color: K.darkInk, max_lines: 2 }),
-      { id: id(), type: "delivery_slots", name: ctx.w("mnSlotsTitle"), delivery_slots: { days: 5, assembly: true }, color: "#FFFFFF", dark_color: K.darkInk, border_color: K.darkAccent, dark_border_color: K.darkAccent },
     ],
   };
 }
