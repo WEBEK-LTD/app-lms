@@ -14,7 +14,14 @@ import { productRatingSummary, readProductReview, runStockAlerts, shopFeaturesOn
 import { APP_TABLES } from "@/lib/apps/app-tables";
 import { withStoreExtras } from "@/lib/selling/store";
 import { en as campaignsEn, ar as campaignsAr, tr as campaignsTr } from "@/i18n/dashboard/campaigns";
+import { activateClient } from "@/lib/admin/clients";
+import { registerClient } from "@/lib/auth/accounts";
+import { hashPassword } from "@/lib/auth/password";
+import type { OwnerDeps } from "@/lib/owner/http";
+import { handleOwner } from "@/lib/owner/service";
+import { MemoryStore as Store } from "@/lib/data/memory";
 import { expectContract } from "./contract";
+import { expectOwnerContract } from "./owner-contract";
 import { NOW, setupClient } from "./helpers";
 
 const KEY = Buffer.alloc(32, 7);
@@ -133,7 +140,7 @@ describe("212 the wishlist, reviews with photos and back in stock on the hosted 
     expect(body.store).toMatchObject({ reviews: true, wishlist: true, back_in_stock: true, review_photos: null });
     expect(shopFeaturesOn({ appType: "store", connector: { kind: "catalog" } })).toBe(true);
     expect(shopFeaturesOn({ appType: "store", connector: { kind: "shopify", shopDomain: "x", storefrontTokenEncrypted: "x", adminTokenEncrypted: null } })).toBe(true);
-    expect(shopFeaturesOn({ appType: "academy", connector: { kind: "courses" } as App["connector"] })).toBe(false);
+    expect(shopFeaturesOn({ appType: "lms" as App["appType"], connector: { kind: "courses" } as App["connector"] })).toBe(false);
     // Through connectorFor, Yallapp's own shop gets them too.
     const own = { ...app, connector: { kind: "catalog" as const } };
     const config = (await connectorFor(own, KEY, { store, assetUrl: (id) => id, platformUrl: "https://yallapp.test" })!.config()) as { store: Record<string, unknown> };
@@ -256,7 +263,7 @@ describe("212 the wishlist, reviews with photos and back in stock on the hosted 
     expect(AUTO_KINDS).toContain("back_in_stock");
     expect(AUTO_TEXT.back_in_stock.ar({ product: "معطف" }).body).toContain("معطف");
     expect(autoKindsFor({ ...app, connector: { kind: "catalog" } })).toContain("back_in_stock");
-    for (const words of [campaignsEn, campaignsAr, campaignsTr]) expect((words as Record<string, string>).auto_back_in_stock).toBeTruthy();
+    for (const words of [campaignsEn, campaignsAr, campaignsTr]) expect((words as unknown as Record<string, string>).auto_back_in_stock).toBeTruthy();
     expect(APP_TABLES).toMatchObject({ shop_wishlist: "customers", product_reviews: "customers", stock_alerts: "customers" });
   });
 });
@@ -386,5 +393,67 @@ describe("212 the reviews' rules", () => {
 
   it("adds up the summary", () => {
     expect(productRatingSummary([{ productId: 1, rating: 5, count: 3 }, { productId: 1, rating: 2, count: 1 }, { productId: 2, rating: 1, count: 9 }], 1)).toEqual({ rating: 4.3, rating_count: 4, counts: { "1": 0, "2": 1, "3": 0, "4": 0, "5": 3 } });
+  });
+});
+
+describe("212 the Owner API: a store's product reviews and who waits for what", () => {
+  const SECRET = "test-signing-secret-0123456789abcdef0123456789";
+  const PASSWORD = "a-long-owner-password";
+  let store: MemoryStore;
+  let shop: App;
+
+  const deps = (): OwnerDeps => ({
+    store,
+    now: NOW,
+    ip: `198.51.100.${Math.floor(Math.random() * 200) + 1}`,
+    signingSecret: SECRET,
+    encryptionKey: KEY,
+    baseUrl: "https://yallapp.test",
+    paymentUrls: {},
+    media: null,
+    mail: async () => undefined,
+  });
+
+  async function call(method: string, route: string, options: { params?: Record<string, string | number>; token?: string; body?: unknown; query?: Record<string, string> } = {}) {
+    const path = route.replace(/\{(\w+)\}/g, (_, name: string) => String(options.params?.[name] ?? `{${name}}`));
+    const result = await handleOwner(deps(), { method, path: path.split("/").filter(Boolean), query: new URLSearchParams(options.query ?? {}), body: options.body, token: options.token ?? null, acceptLanguage: null });
+    expectOwnerContract(method, route, result);
+    return result as { status: number; body: Record<string, unknown> };
+  }
+
+  beforeEach(async () => {
+    store = new Store();
+    const { user, client } = await registerClient(store, { name: "Noura Saad", email: "noura@shop.test", whatsapp: "+905446731942", siteUrl: "", password: null }, NOW);
+    await store.updateUser(user.id, { passwordHash: await hashPassword(PASSWORD) }, NOW);
+    shop = { ...newApp(client.id, null, NOW, "store"), backend: "hosted", websiteDoneAt: NOW, appName: "Noun", connector: { kind: "catalog" } };
+    await store.createApp(shop);
+    await activateClient(store, { clientId: client.id, appId: shop.id, plan: "pro", activeUntil: new Date(NOW.getTime() + 30 * 86_400_000), paymentNote: "" }, KEY, NOW);
+    const product = await store.createCatalogProduct({ appId: shop.id, name: "Wool Coat", description: "", priceCents: 10000, salePriceCents: null, categoryIds: [], imageAssetIds: [], stock: 0, digital: false, featured: false, active: true, sku: null }, NOW);
+    const buyer = (await store.createHostedUser({ appId: shop.id, phone: "+905321112233", name: "Ahmed Kamal", email: "ahmed@mail.test", city: null, now: NOW }))!;
+    await store.saveProductReview({ appId: shop.id, productId: product.id, userId: buyer.id, rating: 2, text: "Too small", photoIds: [PHOTO], authorName: "Ahmed K.", now: NOW });
+    await store.saveStockAlert({ appId: shop.id, productId: product.id, variationId: 0, userId: buyer.id, productName: "Wool Coat", createdAt: NOW });
+    await store.addShopWishlist(shop.id, buyer.id, product.id, NOW);
+  });
+
+  it("lists, replies once, hides, and counts the waiting and saved", async () => {
+    const signed = await call("POST", "/auth/sign-in", { body: { email: "noura@shop.test", password: PASSWORD, device: { name: "Pixel 8", platform: "android" } } });
+    const token = (signed.body as { access_token: string }).access_token;
+    const me = await call("GET", "/me", { token });
+    const apps = (me.body as { apps?: { id: string; features: { product_reviews?: boolean } }[] }).apps ?? [];
+    expect(apps.find((a) => a.id === shop.id)?.features.product_reviews).toBe(true);
+    const list = await call("GET", "/apps/{app_id}/product-reviews", { token, params: { app_id: shop.id } });
+    expect(list.body).toMatchObject({ rating: 2, rating_count: 1, items: [{ product_name: "Wool Coat", person: "Ahmed K.", photos: [{ url: `https://yallapp.test/m/${PHOTO}` }] }] });
+    // Never the customer's email or phone.
+    expect(JSON.stringify(list.body)).not.toMatch(/ahmed@mail|5321112233/);
+    const id = ((list.body.items as { id: number }[])[0]!).id;
+    expect((await call("PUT", "/apps/{app_id}/product-reviews/{review_id}/reply", { token, params: { app_id: shop.id, review_id: id }, body: { text: "" } })).status).toBe(400);
+    const replied = await call("PUT", "/apps/{app_id}/product-reviews/{review_id}/reply", { token, params: { app_id: shop.id, review_id: id }, body: { text: "We'll send a bigger size." } });
+    expect(replied.body).toMatchObject({ reply: { text: "We'll send a bigger size." } });
+    const hidden = await call("PATCH", "/apps/{app_id}/product-reviews/{review_id}", { token, params: { app_id: shop.id, review_id: id }, body: { hidden: true } });
+    expect(hidden.body).toMatchObject({ hidden: true });
+    expect(((await call("GET", "/apps/{app_id}/product-reviews", { token, params: { app_id: shop.id }, query: { filter: "hidden" } })).body.items as unknown[]).length).toBe(1);
+    expect((await call("DELETE", "/apps/{app_id}/product-reviews/{review_id}/reply", { token, params: { app_id: shop.id, review_id: id } })).body).toMatchObject({ reply: null });
+    const wishes = await call("GET", "/apps/{app_id}/shop-wishes", { token, params: { app_id: shop.id } });
+    expect(wishes.body).toMatchObject({ waiting: [{ product_name: "Wool Coat", count: 1, variation_id: null }], waiting_total: 1, saved: [{ product_name: "Wool Coat", count: 1 }] });
   });
 });

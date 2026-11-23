@@ -1,5 +1,6 @@
 "use client";
 
+import type { ProductTranslations } from "@/lib/data/types";
 import { useActionState, useState, type ReactNode } from "react";
 import {
   addCouponAction,
@@ -50,6 +51,9 @@ export interface ProductFormValues {
   optionGroups: EditorGroup[];
   /** 91.5 The variations as the editor keeps them (prices as typed). */
   variants: EditorVariants;
+  /** 212 Its words in the app's other languages, and its brand. */
+  translations?: ProductTranslations | null;
+  brand?: string;
 }
 
 /** 91.5 Variations in the editor: attributes with their values typed as a list, and the combinations sold. */
