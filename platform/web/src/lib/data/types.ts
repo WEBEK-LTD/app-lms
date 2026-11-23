@@ -182,6 +182,8 @@ export interface BuildRelease {
   appReleaseTried?: { release: number; at: string } | null;
   /** 142 Only this platform's app, when the owner started it alone (Builds › Android only / iPhone only); missing: both. */
   only?: BuildPlatform;
+  /** 202 When the daily job removed its folder from the files host (its `artifacts` are then empty: lib/builds/retention.ts); missing: its files are as reported. */
+  filesRemovedAt?: string | null;
 }
 
 /** 142 The two apps a build makes. */
