@@ -952,8 +952,8 @@ export function mukaabHome(ctx: SectionContext): StudioPage {
  * The category menu (the header's menu button opens it): the search on top,
  * quick ways in (the ages, the birthday gifts, what's new, the offers),
  * every main category of the shop a row of cards (its "All" card, then its
- * sub-categories), then the account, the orders, the wishlist, the
- * language and how to reach the shop.
+ * sub-categories), then the account, the orders, the language and how
+ * to reach the shop.
  */
 export function toysMenuPage(ctx: SectionContext, l: Look): StudioPage {
   const id = idOf(ctx);
@@ -1031,7 +1031,7 @@ export function toysMenuPage(ctx: SectionContext, l: Look): StudioPage {
           name: ctx.w("tyMenuAccount"),
           gap: 8,
           padding: sides(0, 16, 0, 16),
-          children: [tile("tyAccount", "person", screen("account")), tile("tyOrders", "package_2", screen("orders")), tile("tyWishlist", "favorite", screen("favorites")), tile("tyLanguage", "language", screen("settings"))],
+          children: [tile("tyAccount", "person", screen("account")), tile("tyOrders", "package_2", screen("orders")), tile("tyLanguage", "language", screen("settings"))],
         },
         {
           id: id(),
@@ -1141,7 +1141,7 @@ const TOOT_SCREENS = signatureScreens({
   style: "photo",
   photo: P("teepee"),
   title: { en: "Welcome to Toot", ar: "أهلًا بك في توت", tr: "Toot'a hoş geldiniz" },
-  subtitle: { en: "Sign in to follow your orders and your wishlist.", ar: "سجّل الدخول لتتابع طلباتك وقائمة أمنياتك.", tr: "Siparişlerinizi ve istek listenizi takip etmek için giriş yapın." },
+  subtitle: { en: "Sign in to follow your orders and your gifts.", ar: "سجّل الدخول لتتابع طلباتك وهداياك.", tr: "Siparişlerinizi ve hediyelerinizi takip etmek için giriş yapın." },
   menu: "cover",
   first: ["orders", "notifications", "settings", "help", "privacy", "terms"],
 });
