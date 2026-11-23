@@ -1,5 +1,6 @@
 "use server";
 
+import { appPhoneCode } from "@/lib/hosted/country-code";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
@@ -8,7 +9,6 @@ import { getStore } from "@/lib/data";
 import type { App, SchoolAttendanceStatus, SchoolCheckin, SchoolPerson } from "@/lib/data/types";
 import { SCHOOL_ATTENDANCE_STATUSES } from "@/lib/data/types";
 import { formValues, type FormState } from "@/lib/forms";
-import { hostedSettings } from "@/lib/hosted/service";
 import { getMediaStorage } from "@/lib/media/storage";
 import { markFeePaid } from "@/lib/school/fees";
 import { checkinSettingsOf, correctCheckin, isCheckinRole } from "@/lib/school/checkin";
@@ -135,7 +135,7 @@ export async function saveSchoolPersonAction(_: FormState, formData: FormData): 
   const existing = id !== null ? await store.getSchoolPerson(app.id, id) : null;
   if (id !== null && !existing) return { message: "This person isn't on your list anymore." };
   const classes = await store.listSchoolClasses(app.id);
-  const parsed = parsePersonForm(values, hostedSettings(app).defaultCountryCode, ids(classes), existing?.role ?? null);
+  const parsed = parsePersonForm(values, appPhoneCode(app, context.client.country), ids(classes), existing?.role ?? null);
   // 113.3 A teacher's or staff member's job, department, working hours and duties.
   const works = parsed.ok && (parsed.value.role === "teacher" || parsed.value.role === "staff");
   const work = works ? parseWorkForm(values) : null;
@@ -196,7 +196,7 @@ export async function importSchoolPeopleAction(_: FormState, formData: FormData)
   const file = formData.get("file");
   if (!file || typeof file === "string" || file.size === 0) return { errors: { file: "Choose a CSV file." } };
   if (file.size > CSV_MAX_BYTES) return { errors: { file: "The file can be up to 2 MB." } };
-  const parsed = parsePeopleCsv(await file.text(), hostedSettings(app).defaultCountryCode);
+  const parsed = parsePeopleCsv(await file.text(), appPhoneCode(app, context.client.country));
   if (!parsed.ok) return { errors: { file: parsed.message } };
   const classes = await store.listSchoolClasses(app.id);
   const classByName = new Map(classes.map((c) => [c.name.toLowerCase(), c.id]));

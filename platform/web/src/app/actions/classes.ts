@@ -1,5 +1,6 @@
 "use server";
 
+import { appPhoneCode } from "@/lib/hosted/country-code";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
@@ -12,7 +13,6 @@ import { encryptionKey } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { notifyClassCancelled, serviceAccountOf } from "@/lib/hosted/notify";
 import { parseAnyPhone } from "@/lib/hosted/phone";
-import { hostedSettings } from "@/lib/hosted/service";
 
 /** 27 The Timetable, Membership plans and Members pages: bookings managed in the dashboard only. */
 async function requireBookingsApp(): Promise<ClientContext & { app: App }> {
@@ -128,13 +128,14 @@ export async function saveMembershipPlanAction(_: FormState, formData: FormData)
 
 /** Gives a member a membership paid another way, by the phone number or email address they sign in with. */
 export async function giveMembershipAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { app } = await requireBookingsApp();
+  const context = await requireBookingsApp();
+  const { app } = context;
   const v = values(formData, ["who", "planId"]);
   const plan = bookingSetup(app).membershipPlans.find((p) => p.id === Number(v.planId));
   if (!plan) return { errors: { planId: "Choose a plan." }, values: v };
   const store = await getStore();
   const email = v.who!.includes("@") ? v.who!.toLowerCase() : null;
-  const phone = email ? null : parseAnyPhone(v.who!, hostedSettings(app).defaultCountryCode);
+  const phone = email ? null : parseAnyPhone(v.who!, appPhoneCode(app, context.client.country));
   if (!email && !phone) return { errors: { who: "Enter their mobile number or email address." }, values: v };
   const user = email ? await store.getHostedEmailUser(app.id, email) : await store.getHostedUserByPhone(app.id, phone!.e164);
   if (!user) return { errors: { who: "No one with this number or address has signed in to your app yet." }, values: v };

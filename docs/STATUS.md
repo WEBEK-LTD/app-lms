@@ -8,6 +8,18 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 206 (the follow-ups of 157, 158 and 160): plugin 0.4.52 never
+makes WordPress wait on Yallapp when an account is deleted (the chat's
+forget is queued in WP-Cron with a short timeout and retried), and its
+end-to-end checks never call yallapp.com.tr; a WordPress flower shop's
+Leqaa pages show its WooCommerce categories, each opening its products, as
+hosted shops' do (157.7); every phone number typed without a country code
+in the dashboard and the app's orders takes the code the app's sign-in
+shows (the shop's country, not the saved +90); and the staff's and second
+apps' lists end above the phone's bar (158.7, in app release 16).
+158.3, 158.8 and Studio's 7th ring were already done on the integration
+branch (181).
+
 Roadmap 106.14 (a designer's public page on Studio Market, the owner's
 decision of 23 November): `/designers/<handle>` in English, Arabic and
 Turkish shows the designer's photo, name and line (after the team's first
@@ -486,7 +498,7 @@ Clear filters. It reaches the stores with the release the urgent fixes
 share. Not yet tried on a phone. Still open: on a page a little longer
 than the screen under a folding premium header, a quick drag can stop a
 few points short of the end, the last row still in sight (ROADMAP 158.3);
-the staff's and second apps' tabs still to take the same space (158.7).
+the staff's and second apps' tabs take the same space since 206.5 (158.7).
 
 Roadmap 159 (sizes automatic, by hand only when asked): Kech Flora's bag
 sat about three quarters of the way across the phone because the bar over

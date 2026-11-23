@@ -1,3 +1,4 @@
+import { appPhoneCode } from "./country-code";
 import type { DataStore } from "../data/store";
 import type { App, HostedUser } from "../data/types";
 import { appSignIn, personClaims, yallappSignsIn } from "./app-auth";
@@ -18,7 +19,7 @@ export const TEST_USER_NAME = "Store review";
 /** The store review account, made when it doesn't exist yet (reviewers always get in, past the plan's users). */
 export async function reviewUser(store: DataStore, app: App, now: Date): Promise<HostedUser | null> {
   const settings = hostedSettings(app);
-  const phone = settings.reviewPhone ? parseAnyPhone(settings.reviewPhone, settings.defaultCountryCode)?.e164 ?? null : null;
+  const phone = settings.reviewPhone ? parseAnyPhone(settings.reviewPhone, appPhoneCode(app))?.e164 ?? null : null;
   if (phone) {
     return (
       (await store.getHostedUserByPhone(app.id, phone)) ??

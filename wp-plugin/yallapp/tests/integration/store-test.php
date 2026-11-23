@@ -325,6 +325,16 @@ $layout   = array(
 						array( 'id' => 'code', 'type' => 'coupon', 'code' => 'WELCOME15' ),
 						array( 'id' => 'bad-code', 'type' => 'coupon', 'code' => 'TWO WORDS' ),
 						array( 'id' => 'look', 'type' => 'stack', 'children' => array( array( 'id' => 'spot', 'type' => 'icon', 'icon' => 'add', 'place' => array( 'x' => 50, 'y' => 66 ) ) ) ),
+						// 157.7 Leqaa's occasion rings with the template's words (one in Arabic), and a button named like a category.
+						array(
+							'id'     => 'occasions',
+							'type'   => 'stories',
+							'slides' => array(
+								array( 'heading' => 'Love', 'image_url' => 'https://example.org/love.jpg', 'action' => array( 'type' => 'screen', 'screen' => 'search' ) ),
+								array( 'heading' => 'عيد ميلاد', 'image_url' => 'https://example.org/cake.jpg', 'action' => array( 'type' => 'screen', 'screen' => 'search' ) ),
+							),
+						),
+						array( 'id' => 'gifts-button', 'type' => 'button', 'text' => 'gifts', 'action' => array( 'type' => 'screen', 'screen' => 'search' ) ),
 					),
 				),
 			),
@@ -351,7 +361,13 @@ check( 'featured filter', same_set( array( (string) $seed['roses'], (string) $se
 check( 'product categories block', 'tiles' === ( page_block( $page, 'cats' )['style'] ?? '' ) && same_set( array( 'Flowers', 'Gifts' ), array_column( page_block( $page, 'cats' )['categories'] ?? array(), 'name' ) ), page_block( $page, 'cats' ) );
 $r      = call( 'GET', '/pages/deals?platform=android' );
 $studio = $r['json']['studio']['body']['children'] ?? array();
-check( '112.4 studio: the elements kept', array( 'hero', 'sale', 'seen', 'cats', 'code', 'look' ) === array_column( $studio, 'id' ), $studio );
+check( '112.4 studio: the elements kept', array( 'hero', 'sale', 'seen', 'cats', 'code', 'look', 'occasions', 'gifts-button' ) === array_column( $studio, 'id' ), $studio );
+// 157.7 The template's rings are the shop's WooCommerce categories (top ones), each opening its products; the button opens Gifts.
+$rings = $studio[6]['slides'] ?? array();
+check( '157.7 studio: the occasion rings are the shop\'s categories', same_set( array( 'Flowers', 'Gifts' ), array_column( $rings, 'heading' ) ) && same_set( array( (string) $seed['flowers'], (string) $seed['gifts'] ), array_column( array_column( $rings, 'action' ), 'category_id' ) ), $rings );
+check( '157.7 studio: a button named like a category opens it', (string) $seed['gifts'] === ( $studio[7]['action']['category_id'] ?? '' ) && 'search' === ( $studio[7]['action']['screen'] ?? '' ), $studio[7] ?? null );
+$version = call( 'GET', '/pages?platform=android' )['json']['version'] ?? '';
+check( '157.7 the pages\' version is marked with the shop\'s categories', 1 === preg_match( '/\.c[0-9a-f]{10}$/', (string) $version ), $version );
 check( '112.4 studio: products on sale only', same_set( array( (string) $seed['roses'], (string) $seed['sunflowers'] ), array_column( $studio[1]['items'] ?? array(), 'id' ) ), $studio[1] ?? null );
 check( '112.4 studio: seen lately, filled by the app', true === ( $studio[2]['recent'] ?? null ) && array() === ( $studio[2]['items'] ?? null ) && 'products' === ( $studio[2]['source'] ?? '' ), $studio[2] ?? null );
 check( '112.4 studio: categories as pictures', 'pictures' === ( $studio[3]['style'] ?? '' ) && 2 === ( $studio[3]['columns'] ?? 0 ) && array_key_exists( 'image_url', $studio[3]['categories'][0] ?? array() ), $studio[3] ?? null );
