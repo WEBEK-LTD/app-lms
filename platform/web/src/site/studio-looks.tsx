@@ -5,15 +5,16 @@ import { screenAltFor } from "@/lib/marketing-lang";
 import { messagesFor, type Lang } from "@/i18n";
 import { LOOK_SHOT_KEYS, lookScreen, type LookShotKey } from "./look-shots";
 
-export { LOOK_SHOT_KEYS, lookScreen, studioDemoOfSlug, type LookShotKey } from "./look-shots";
+export { LOOK_SHOT_KEYS, lookScreen, otherLookKeys, studioDemoOfSlug, type LookShotKey } from "./look-shots";
 
 /** "Look A · Dark", in the page's language. */
 export function lookCaption(lang: Lang, key: LookShotKey): string {
   const m = messagesFor(lang).studio;
-  return `${key.startsWith("a") ? m.lookA : m.lookB} · ${key.endsWith("dark") ? m.lookNight : m.lookDay}`;
+  const look = { a: m.lookA, b: m.lookB, c: m.lookC, d: m.lookD }[key.split("-")[0] as "a" | "b" | "c" | "d"];
+  return `${look} · ${key.endsWith("dark") ? m.lookNight : m.lookDay}`;
 }
 
-/** 130.49 A Studio demo's two Signature looks (site/look-shots.ts): their phones with their captions, light and dark, in a card. */
+/** 130.49 A Studio demo's Signature looks (site/look-shots.ts; 223 C, D, A, B): their phones with their captions, light and dark, in a card. */
 export function StudioLooks({ id, lang, keys = LOOK_SHOT_KEYS, size = "sm", className = "" }: { id: StudioDemoId; lang: Lang; keys?: readonly LookShotKey[]; size?: "xs" | "sm"; className?: string }) {
   const m = messagesFor(lang).studio;
   const alt = screenAltFor(lang);

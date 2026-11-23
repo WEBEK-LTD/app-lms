@@ -41,7 +41,7 @@ export interface DemoStart {
   colour: string;
   logoAssetId: string | null;
   iconAssetId: string | null;
-  /** 130 A Studio demo's Signature look to start from (its whole app in that look); missing, the demo itself (its look A). */
+  /** 130 A Studio demo's Signature look to start from (its whole app in that look); missing, the demo itself (223 its main look: C where it has one, else A). */
   look?: SignatureLook;
 }
 

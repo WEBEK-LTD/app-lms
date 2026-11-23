@@ -1,5 +1,6 @@
 "use server";
 
+import { SIGNATURE_LOOKS, type SignatureLook } from "@/lib/studio/demo-designs/signature";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
@@ -62,8 +63,8 @@ export async function applyDemoScreensAction(demo: string, look?: string | null)
   if (!context || !mayUseDashboard(context)) return { ok: false };
   const app = context.app;
   if (!app || !studioScreensOn(app) || !(STUDIO_DEMO_TYPES as readonly string[]).includes(demo) || !isStudioDemo(demo as StudioDemoId)) return { ok: false };
-  // 130 Its Signature look B's when the whole design was the look's (else the demo's, its look A).
-  const screens = demoStudioScreens(demo as StudioDemoId, appUrl(), look === "b" ? "b" : undefined);
+  // 130 Its Signature look's when the whole design was one of its looks (223 C, D, A or B; else the demo's, its main look).
+  const screens = demoStudioScreens(demo as StudioDemoId, appUrl(), (SIGNATURE_LOOKS as readonly string[]).includes(look ?? "") ? (look as SignatureLook) : undefined);
   const settings = { ...DEFAULT_HOSTED_SETTINGS, ...(app.hostedSettings ?? {}), studioScreens: screens };
   await (await getStore()).updateApp(app.id, { hostedSettings: settings }, new Date());
   await recordStaffChange(context, "Took the demo's sign-in screen and account menu", { studioScreens: app.hostedSettings?.studioScreens ?? null }, { studioScreens: screens });
