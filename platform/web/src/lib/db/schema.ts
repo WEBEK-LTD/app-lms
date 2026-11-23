@@ -55,6 +55,7 @@ import type {
   HostedAppRole,
   StaffAppPlace,
   OwnerPushPreferences,
+  OwnerPushSounds,
   ScheduledNotificationStatus,
   CourseQuestionStatus,
   MoreStoresRow,
@@ -3176,6 +3177,8 @@ export const ownerDevices = mysqlTable(
     pushToken: varchar("push_token", { length: 512 }),
     pushProvider: varchar("push_provider", { length: 4 }).notNull().default("fcm").$type<PushProvider>(),
     pushPreferences: jsonText<OwnerPushPreferences>("push_preferences"),
+    // 207 Its ringtones (lib/owner/push-sounds.ts).
+    pushSounds: jsonText<OwnerPushSounds>("push_sounds"),
     createdAt: time("created_at").notNull(),
     lastSeenAt: time("last_seen_at").notNull(),
   },

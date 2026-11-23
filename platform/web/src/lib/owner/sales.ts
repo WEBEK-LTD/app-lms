@@ -15,7 +15,7 @@ import { BOOKING_STATUS_LABELS, bookingSetup } from "../bookings/setup";
 import { notifyAppointmentConfirmed } from "../hosted/auto-notifications";
 import { localToUtc, utcToLocal } from "../bookings/time";
 import { FULFILMENT_LABELS } from "../catalog/fulfilment";
-import { BILLING_CURRENCIES, formatCents } from "../catalog/money";
+import { BILLING_CURRENCIES, formatCents, latinDigits } from "../catalog/money";
 import { formatMinor } from "../market/currency";
 import { countOpenQuestions } from "../courses/community";
 import { changeOrderStatus, nextOrderStatuses } from "../catalog/order-status";
@@ -348,6 +348,20 @@ async function ownOrder(ctx: OwnerContext, params: Record<string, string>) {
   return { ...scope, order };
 }
 
+/** 207 How many of the latest orders a search looks through. */
+const ORDER_SEARCH_LIMIT = 500;
+
+/** 207 An order a search finds: its number (with or without #), or its customer's name, phone (digits only) or email. */
+function orderMatches(order: { number: string; customer: { name?: string | null; phone?: string | null; email?: string | null } | null }, q: string): boolean {
+  const number = q.replace(/^#/, "");
+  if (order.number.toLowerCase().includes(number)) return true;
+  const c = order.customer;
+  if (!c) return false;
+  if ((c.name ?? "").toLowerCase().includes(q) || (c.email ?? "").toLowerCase().includes(q)) return true;
+  const digits = q.replace(/\D/g, "");
+  return digits.length >= 4 && (c.phone ?? "").replace(/\D/g, "").includes(digits);
+}
+
 export async function listOrders(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
   const { app } = appScope(ctx, params.app_id, "orders");
   const page = paging(ctx.req.query);
@@ -355,13 +369,16 @@ export async function listOrders(ctx: OwnerContext, params: Record<string, strin
   if (wanted.some((s) => !PAID.includes(s as CatalogOrderStatus) && s !== "pending")) throw invalid({ status: "The request isn't valid." });
   // 96.2 "pending": the orders waiting for a bank transfer or the owner's own method (never an unpaid card checkout); listed by default too.
   const paid = wanted.filter((s) => s !== "pending") as CatalogOrderStatus[];
-  const { items, total } = await ctx.deps.store.listCatalogOrders({
-    appId: app.id,
-    statuses: wanted.length ? paid : PAID,
-    awaitingManual: !wanted.length || wanted.includes("pending"),
-    offset: page.offset,
-    limit: page.perPage,
-  });
+  const filter = { appId: app.id, statuses: wanted.length ? paid : PAID, awaitingManual: !wanted.length || wanted.includes("pending") };
+  // 207 Search: the order's number, or who ordered (name, phone, email), in the latest orders (as the dashboard's list).
+  const q = latinDigits((ctx.req.query.get("q") ?? "").trim()).toLowerCase().slice(0, 100);
+  if (q) {
+    const recent = await ctx.deps.store.listCatalogOrders({ ...filter, offset: 0, limit: ORDER_SEARCH_LIMIT });
+    const extras = await orderExtras(ctx.deps.store, app.id, recent.items, ctx.lang);
+    const found = recent.items.map((o) => orderJson(ctx, o, extras)).filter((o) => orderMatches(o, q));
+    return { status: 200, body: { ...pageJson(page, found.length), items: found.slice(page.offset, page.offset + page.perPage) } };
+  }
+  const { items, total } = await ctx.deps.store.listCatalogOrders({ ...filter, offset: page.offset, limit: page.perPage });
   const extras = await orderExtras(ctx.deps.store, app.id, items, ctx.lang);
   return { status: 200, body: { ...pageJson(page, total), items: items.map((o) => orderJson(ctx, o, extras)) } };
 }

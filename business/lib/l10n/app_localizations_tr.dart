@@ -4050,6 +4050,330 @@ class AppLocalizationsTr extends AppLocalizations {
   String get signedNoName => 'İmzalı, isim verilmedi';
 
   @override
+  String get ringtones => 'Zil sesleri';
+
+  @override
+  String ringtonesSubtitle(String sound) {
+    return 'Yeni siparişler: $sound';
+  }
+
+  @override
+  String get ringtonesHelp =>
+      'Bu telefonda her bildirim türünün nasıl çalacağını seçin. Yeni siparişler, siz açana kadar bir telefon araması gibi çalmaya devam edebilir.';
+
+  @override
+  String get ringSoundsTitle => 'Sesler';
+
+  @override
+  String get ringGroupOrders => 'Yeni siparişler';
+
+  @override
+  String get ringGroupOrdersHelp =>
+      'Mağaza, restoran ve pazar siparişleri ile kurye bekleyen teslimatlar';
+
+  @override
+  String get ringGroupBookings => 'Yeni rezervasyonlar';
+
+  @override
+  String get ringGroupBookingsHelp => 'Uygulamanızda alınan randevular';
+
+  @override
+  String get ringGroupCancelled => 'İptal edilen siparişler';
+
+  @override
+  String get ringGroupCancelledHelp => 'Müşterinin iptal ettiği bir sipariş';
+
+  @override
+  String get ringGroupMessages => 'Mesajlar ve yorumlar';
+
+  @override
+  String get ringGroupMessagesHelp => 'Sohbet, sorular, yorumlar ve şikâyetler';
+
+  @override
+  String get ringGroupOther => 'Diğer her şey';
+
+  @override
+  String get ringGroupOtherHelp =>
+      'Ödemeler, derlemeler, uyarılar ve Yallapp\'tan haberler';
+
+  @override
+  String ringtonePlay(String name) {
+    return '$name çal';
+  }
+
+  @override
+  String get ringtoneStop => 'Durdur';
+
+  @override
+  String get ringtoneChosen => 'Seçili';
+
+  @override
+  String get ringtonesYours => 'Yallapp zil sesleri';
+
+  @override
+  String get ringtonesOther => 'Diğer';
+
+  @override
+  String get ringRingingTitle => 'Çalma';
+
+  @override
+  String get ringUntilOpenedOrders => 'Yeni siparişler açılana kadar çalsın';
+
+  @override
+  String get ringUntilOpenedBookings =>
+      'Yeni rezervasyonlar açılana kadar çalsın';
+
+  @override
+  String get ringUntilOpenedHelp =>
+      'Ses, bildirimi ya da uygulamayı açana kadar tekrarlanır.';
+
+  @override
+  String get ringForAtMost => 'En fazla çalma süresi';
+
+  @override
+  String ringMinutes(String minutes) {
+    return '$minutes dk';
+  }
+
+  @override
+  String get ringSoundTitle => 'Ses ve titreşim';
+
+  @override
+  String get ringVibrate => 'Titreşim';
+
+  @override
+  String get ringAlarmVolume => 'Alarm ses düzeyinde çal';
+
+  @override
+  String get ringAlarmVolumeHelp =>
+      'Bildirim sesi düşük olsa bile siparişler yüksek sesle çalar.';
+
+  @override
+  String get ringVolume => 'Uygulama içi ses düzeyi';
+
+  @override
+  String get ringQuietTitle => 'Sessiz saatler';
+
+  @override
+  String get ringQuietOn => 'Sessiz saatler';
+
+  @override
+  String get ringQuietHelp =>
+      'Mesajlar ve diğer bildirimler sessiz gelir. Yeni siparişler yine çalar.';
+
+  @override
+  String get ringQuietFrom => 'Başlangıç';
+
+  @override
+  String get ringQuietTo => 'Bitiş';
+
+  @override
+  String get ringTest => 'Zili dene';
+
+  @override
+  String get ringTestHelp =>
+      'Yeni bir sipariş gibi, seçtiğiniz ses ve sürede çalar.';
+
+  @override
+  String get ringTestNotification => 'Deneme bildirimi gönder';
+
+  @override
+  String get ringTestNotificationTitle => 'Deneme siparişi';
+
+  @override
+  String get ringTestNotificationBody =>
+      'Yeni bir sipariş bu telefonda böyle çalar.';
+
+  @override
+  String get ringTestSent =>
+      'Gönderildi. Geldiği gibi duymak için telefonu kilitleyin.';
+
+  @override
+  String get ringIphoneNote =>
+      'iPhone\'da uygulama kapalıyken bir sipariş en fazla 25 saniye çalar; açıkken siz açana kadar çalar. Telefonunuzun sessiz düğmesi ve Odak ayarları yine geçerlidir.';
+
+  @override
+  String get ringAndroidNote =>
+      'Bir ses çalmazsa Yallapp Business bildirimlerine izin verildiğinden ve telefonun Rahatsız Etmeyin modunda olmadığından emin olun.';
+
+  @override
+  String get ringBannerOrder => 'Yeni sipariş';
+
+  @override
+  String get ringBannerBooking => 'Yeni rezervasyon';
+
+  @override
+  String get ringSilence => 'Sustur';
+
+  @override
+  String get ringQuietChannel => 'Çaldı';
+
+  @override
+  String get soundChime => 'Yallapp zili';
+
+  @override
+  String get soundCounterBell => 'Tezgâh zili';
+
+  @override
+  String get soundKitchenTicket => 'Mutfak fişi';
+
+  @override
+  String get soundMarimba => 'Marimba';
+
+  @override
+  String get soundHarp => 'Arp';
+
+  @override
+  String get soundDigital => 'Dijital bip';
+
+  @override
+  String get soundRushHour => 'Yoğun saat';
+
+  @override
+  String get soundCashDrawer => 'Kasa çekmecesi';
+
+  @override
+  String get soundDoorbell => 'Kapı zili';
+
+  @override
+  String get soundXylophone => 'Ksilofon';
+
+  @override
+  String get soundSoftPulse => 'Yumuşak nabız';
+
+  @override
+  String get soundChirp => 'Cıvıltı';
+
+  @override
+  String get soundSunrise => 'Gün doğumu';
+
+  @override
+  String get soundArcade => 'Atari';
+
+  @override
+  String get soundDrop => 'Damla';
+
+  @override
+  String get soundPop => 'Pıt';
+
+  @override
+  String get soundKnock => 'Tıkırtı';
+
+  @override
+  String get soundDefault => 'Telefonun sesi';
+
+  @override
+  String get soundSilent => 'Sessiz';
+
+  @override
+  String get searchOrdersHint => 'Sipariş numarası, ad, telefon veya e-posta';
+
+  @override
+  String get noOrdersFound => 'Aramanızla eşleşen sipariş yok';
+
+  @override
+  String get shippingTitle => 'Kargo';
+
+  @override
+  String get shipWithTracking => 'Kargoya verildi olarak işaretle';
+
+  @override
+  String get shipWithTrackingHelp =>
+      'Kargo firmasını ve takip bilgisini ekleyin. Müşteriye bununla bir e-posta gider.';
+
+  @override
+  String get carrierField => 'Kargo firması';
+
+  @override
+  String get trackingNumberField => 'Takip numarası veya irsaliye';
+
+  @override
+  String get shipNeedsTracking =>
+      'Takip numarasını veya takip bağlantısını girin.';
+
+  @override
+  String get markShipped => 'Kargoya verildi olarak işaretle';
+
+  @override
+  String get saveTracking => 'Takibi kaydet';
+
+  @override
+  String get changeTracking => 'Takibi değiştir';
+
+  @override
+  String get shippedDone =>
+      'Kargoya verildi olarak işaretlendi. Müşteriye e-posta gönderildi.';
+
+  @override
+  String get searchProductsHint => 'Ürün bul';
+
+  @override
+  String get noProductsFound => 'Aramanızla eşleşen ürün yok';
+
+  @override
+  String get shareOrder => 'Siparişi paylaş';
+
+  @override
+  String get copyOrder => 'Ayrıntıları kopyala';
+
+  @override
+  String get sendOrderWhatsapp => 'WhatsApp ile gönder';
+
+  @override
+  String get orderCopied => 'Siparişin ayrıntıları kopyalandı';
+
+  @override
+  String orderTextTitle(String number) {
+    return 'Sipariş $number';
+  }
+
+  @override
+  String orderTextTotal(String amount) {
+    return 'Toplam: $amount';
+  }
+
+  @override
+  String orderTextName(String name) {
+    return 'Ad: $name';
+  }
+
+  @override
+  String orderTextPhone(String phone) {
+    return 'Telefon: $phone';
+  }
+
+  @override
+  String orderTextAddress(String address) {
+    return 'Adres: $address';
+  }
+
+  @override
+  String orderTextNotes(String notes) {
+    return 'Notlar: $notes';
+  }
+
+  @override
+  String get pushMarketOrder => 'Yeni pazar siparişleri';
+
+  @override
+  String get pushMarketOrderHelp =>
+      'Bir sipariş satıcılarınızdan birine ulaştığında';
+
+  @override
+  String get pushCancelled => 'İptal edilen siparişler';
+
+  @override
+  String get pushCancelledHelp =>
+      'Bir müşteri yemek ya da pazar siparişini iptal ettiğinde';
+
+  @override
+  String get pushRingtonesLink => 'Zil sesleri';
+
+  @override
+  String get pushRingtonesLinkHelp =>
+      'Her türün sesini seçin, yeni siparişler açılana kadar çalsın';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }
