@@ -1,4 +1,5 @@
-import type { Action, LayoutTab, StudioEntry, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
+import type { Action, LayoutTab, StudioEntry, StudioFont, StudioNode, StudioPage, StudioSides, Translations } from "../../pages/types";
+import { APP_WORDS } from "../app-words";
 import type { SectionContext, SectionInfo, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
@@ -410,17 +411,25 @@ function shadeFinder(ctx: SectionContext, l: Look): StudioNode {
 }
 
 /** The quiz's four questions: each answer counts for the result in its place (Dry, Combination, Oily, Sensitive). */
-const QUIZ_QUESTIONS: readonly [question: SectionWord, answers: SectionWord][] = [
-  ["btQ1", "btQ1Answers"],
-  ["btQ2", "btQ2Answers"],
-  ["btQ3", "btQ3Answers"],
-  ["btQ4", "btQ4Answers"],
+const QUIZ_QUESTIONS: readonly [question: SectionWord, answers: readonly SectionWord[]][] = [
+  ["btQ1", ["btQ1A1", "btQ1A2", "btQ1A3", "btQ1A4"]],
+  ["btQ2", ["btQ2A1", "btQ2A2", "btQ2A3", "btQ2A4"]],
+  ["btQ3", ["btQ3A1", "btQ3A2", "btQ3A3", "btQ3A4"]],
+  ["btQ4", ["btQ4A1", "btQ4A2", "btQ4A3", "btQ4A4"]],
 ];
+
+/** A question as the quiz keeps it: its words its `title`, its answers one per line its `text`, in Studio's other languages as its translations. */
+function questionEntry(ctx: SectionContext, question: SectionWord, answers: readonly SectionWord[]): StudioEntry {
+  const lang = ctx.lang ?? "en";
+  const translations: Record<string, Record<string, string>> = {};
+  for (const l of (["en", "ar", "tr"] as const).filter((x) => x !== lang)) translations[l] = { title: APP_WORDS[l][question as keyof typeof APP_WORDS.en], text: answers.map((a) => APP_WORDS[l][a as keyof typeof APP_WORDS.en]).join("\n") };
+  return { title: ctx.w(question), text: answers.map((a) => ctx.w(a)).join("\n"), translations: translations as Translations };
+}
 /** Its results: each a skin type, named as the shop's category of it (so it opens it), with what that skin needs. */
 const QUIZ_RESULTS: readonly [name: SectionWord, text: SectionWord, icon: string, photo: string][] = [
-  ["btSkinDry", "btSkinDryText", "wb_sunny", "routine-dry"],
-  ["btSkinCombination", "btSkinCombinationText", "donut_large", "routine-morning"],
-  ["btSkinOily", "btSkinOilyText", "blur_on", "routine-oily"],
+  ["btSkinDry", "btSkinDryText", "spa", "routine-dry"],
+  ["btSkinCombination", "btSkinCombinationText", "auto_awesome", "routine-morning"],
+  ["btSkinOily", "btSkinOilyText", "diamond", "routine-oily"],
   ["btSkinSensitive", "btSkinSensitiveText", "healing", "routine-calm"],
 ];
 
@@ -439,7 +448,7 @@ function skinQuiz(ctx: SectionContext, l: Look, dense = false): StudioNode {
     title: t.title,
     translations: t.translations,
     entries: results,
-    quiz: { questions: QUIZ_QUESTIONS.map(([question, answers]) => sigEntry(ctx, { title: question, text: answers })) },
+    quiz: { questions: QUIZ_QUESTIONS.map(([question, answers]) => questionEntry(ctx, question, answers)) },
     font: { family: l.family },
     ...(l.look === "a"
       ? { color: "#FFFFFF", dark_color: "#FFFFFF", background: A_PLUM.day, dark_background: A_PLUM.night }
@@ -544,7 +553,7 @@ function routineCard(ctx: SectionContext, l: Look): StudioNode {
     dark_border_color: l.k.darkLine,
     border_width: 1,
     children: [
-      { id: id(), type: "tabs", name: ctx.w("btRoutineTitle"), gap: 10, color: l.k.ink, dark_color: l.k.darkInk, children: [steps(MORNING, "btMorning", "light_mode"), steps(EVENING, "btEvening", "dark_mode")] },
+      { id: id(), type: "tabs", name: ctx.w("btRoutineTitle"), gap: 10, color: l.k.ink, dark_color: l.k.darkInk, children: [steps(MORNING, "btMorning", "wb_sunny"), steps(EVENING, "btEvening", "dark_mode")] },
       { id: id(), type: "divider", height: 1, background: l.k.line, dark_background: l.k.darkLine },
       {
         id: id(),
@@ -741,14 +750,14 @@ const B_HEROES: readonly [string, SectionWord, SectionWord][] = [
 
 /** B's tiles by skin type and need, four by two: each named as one of the shop's categories, so it opens it. */
 const B_CONCERNS: readonly [icon: string, name: SectionWord][] = [
-  ["wb_sunny", "btSkinDry"],
-  ["donut_large", "btSkinCombination"],
-  ["blur_on", "btSkinOily"],
+  ["spa", "btSkinDry"],
+  ["auto_awesome", "btSkinCombination"],
+  ["diamond", "btSkinOily"],
   ["healing", "btSkinSensitive"],
-  ["layers", "btCatSerums"],
-  ["spa", "btCatMoisturisers"],
-  ["light_mode", "btCatSunscreen"],
-  ["auto_awesome", "btCatCleansers"],
+  ["stethoscope", "btCatSerums"],
+  ["favorite", "btCatMoisturisers"],
+  ["wb_sunny", "btCatSunscreen"],
+  ["local_florist", "btCatCleansers"],
 ];
 function concernTiles(ctx: SectionContext, l: Look): StudioNode {
   const id = idOf(ctx);
