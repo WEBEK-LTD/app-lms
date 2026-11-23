@@ -115,6 +115,27 @@ void main() {
     });
   });
 
+  test('115.22 a marketplace\'s push taps open the right screen', () {
+    expect(
+      pushTargetLocation({
+        'type': 'market_order_update',
+        'market_order_id': '42',
+        'notification_id': '9',
+      }),
+      '/market-order/42',
+    );
+    expect(
+      pushTargetLocation({'type': 'vendor_order', 'market_order_id': '42'}),
+      '/vendor-order/42',
+    );
+    expect(pushTargetLocation({'type': 'vendor_order'}), '/vendor-desk');
+    expect(
+      pushTargetLocation({'type': 'complaint_update', 'complaint_id': '5'}),
+      '/market-complaint/5',
+    );
+    expect(pushTargetLocation({'type': 'club_renewal'}), '/market-club');
+  });
+
   test('push taps open the right screen', () {
     expect(
       pushTargetLocation({

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/api/models/models.dart' as api;
 import '../../../core/api/api_exception.dart';
@@ -17,6 +18,37 @@ final marketConfigProvider = Provider<api.MarketConfig?>((ref) {
   final gate = ref.watch(appGateProvider);
   return gate is GateReady ? gate.config.market : null;
 });
+
+/// 177 The places a customer saved with the heart (a place's page and its
+/// cards), kept on the phone: the marketplace's API has no favourite places.
+final marketSavedPlacesProvider =
+    NotifierProvider<MarketSavedPlaces, Set<String>>(MarketSavedPlaces.new);
+
+class MarketSavedPlaces extends Notifier<Set<String>> {
+  static const key = 'market.saved_places';
+
+  @override
+  Set<String> build() {
+    _load();
+    return const {};
+  }
+
+  Future<void> _load() async {
+    final ids = (await SharedPreferences.getInstance()).getStringList(key);
+    if (ids != null && ids.isNotEmpty) state = {...ids, ...state};
+  }
+
+  /// Saves [id], or takes it out when it was saved.
+  Future<void> toggle(String id) async {
+    final next = {...state};
+    if (!next.remove(id)) next.add(id);
+    state = next;
+    await (await SharedPreferences.getInstance()).setStringList(
+      key,
+      next.toList(),
+    );
+  }
+}
 
 /// 115 What the marketplace home's sections read: the vendors
 /// (`GET /market/vendors`), the offers (`GET /market/offers`) and, from
@@ -234,6 +266,7 @@ MarketItem marketItemFrom(api.MarketProduct p) => MarketItem(
   },
   step: p.step,
   hasChoices: p.choices.isNotEmpty,
+  choices: p.choices,
   popular: p.tags.contains('popular'),
   inStock: p.inStock,
 );

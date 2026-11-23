@@ -1,5 +1,7 @@
 // 106 Studio Market
 import type {
+  MarketRating,
+  MarketRatingSummary,
   MarketTemplate,
   MarketTemplatePatch,
   MarketTemplateReview,
@@ -5357,6 +5359,7 @@ export class MemoryStore implements DataStore {
           r.appId === query.appId &&
           (query.userId === undefined || r.userId === query.userId) &&
           (query.notUserId === undefined || r.userId !== query.notUserId) &&
+          (query.notRiderName === undefined || r.riderName !== query.notRiderName) &&
           (query.driverId === undefined || r.driverId === query.driverId) &&
           (query.offeredTo === undefined || r.offeredTo === query.offeredTo) &&
           (!query.statuses || query.statuses.includes(r.status)) &&
@@ -7585,6 +7588,8 @@ export class MemoryStore implements DataStore {
     for (const clientId of clientIds) {
       // 106.11 A designer's checks (their ID and bank) go with their profile, as `on delete cascade` does.
       for (const designer of this.templateDesigners.values()) if (designer.clientId === clientId) this.payoutDetails.delete(designer.id);
+      // 106.14 Their ratings go with their account, as `on delete cascade` does.
+      for (const [id, rating] of this.marketRatings) if (rating.clientId === clientId) this.marketRatings.delete(id);
       for (const app of [...this.apps.values(), ...this.deletedApps.values()]) if (app.clientId === clientId) this.cascadeApp(app.id);
       for (const license of this.licenses.values()) if (license.clientId === clientId) this.activations.delete(license.id);
       // Their payments go with the client, as `on delete cascade` does: the caller keeps them first.
@@ -9100,6 +9105,70 @@ export class MemoryStore implements DataStore {
       .filter((d) => !ids || ids.includes(d.id))
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
       .map(clone);
+  }
+
+  // 106.14 Ratings
+
+  private marketRatings = new Map<string, MarketRating>();
+
+  async getMarketRating(id: string): Promise<MarketRating | null> {
+    const found = this.marketRatings.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async getMarketRatingByBuyer(templateId: string, clientId: string): Promise<MarketRating | null> {
+    const found = [...this.marketRatings.values()].find((r) => r.templateId === templateId && r.clientId === clientId);
+    return found ? clone(found) : null;
+  }
+
+  async saveMarketRating(rating: MarketRating): Promise<{ rating: MarketRating; created: boolean }> {
+    const found = [...this.marketRatings.values()].find((r) => r.templateId === rating.templateId && r.clientId === rating.clientId);
+    if (found) {
+      const next = { ...found, stars: rating.stars, comment: rating.comment, authorName: rating.authorName, updatedAt: rating.updatedAt };
+      this.marketRatings.set(found.id, next);
+      return { rating: clone(next), created: false };
+    }
+    this.marketRatings.set(rating.id, clone(rating));
+    return { rating: clone(rating), created: true };
+  }
+
+  async listMarketRatings(filter: { templateIds?: readonly string[]; designerId?: string; withHidden?: boolean; limit?: number }): Promise<MarketRating[]> {
+    if (filter.templateIds && !filter.templateIds.length) return [];
+    return [...this.marketRatings.values()]
+      .filter((r) => (!filter.templateIds || filter.templateIds.includes(r.templateId)) && (!filter.designerId || r.designerId === filter.designerId) && (filter.withHidden || !r.hiddenAt))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || (a.id < b.id ? 1 : -1))
+      .slice(0, filter.limit ?? Infinity)
+      .map(clone);
+  }
+
+  async replyToMarketRating(id: string, designerId: string, reply: string | null, now: Date): Promise<boolean> {
+    const found = this.marketRatings.get(id);
+    if (!found || found.designerId !== designerId) return false;
+    this.marketRatings.set(id, { ...found, reply, repliedAt: reply === null ? null : now });
+    return true;
+  }
+
+  async hideMarketRating(id: string, hidden: { at: Date; by: string; reason: string | null } | null): Promise<boolean> {
+    const found = this.marketRatings.get(id);
+    if (!found) return false;
+    this.marketRatings.set(id, { ...found, hiddenAt: hidden?.at ?? null, hiddenBy: hidden?.by ?? null, hiddenReason: hidden?.reason ?? null });
+    return true;
+  }
+
+  async marketRatingSummaries(templateIds?: readonly string[]): Promise<Record<string, MarketRatingSummary>> {
+    const out: Record<string, MarketRatingSummary> = {};
+    for (const r of this.marketRatings.values()) {
+      if (r.hiddenAt || (templateIds && !templateIds.includes(r.templateId))) continue;
+      const one = (out[r.templateId] ??= { count: 0, sum: 0 });
+      one.count += 1;
+      one.sum += r.stars;
+    }
+    return out;
+  }
+
+  async countDesignerBuyers(designerId: string): Promise<number> {
+    const templates = new Set([...this.marketTemplates.values()].filter((t) => t.designerId === designerId).map((t) => t.id));
+    return new Set([...this.templateLicences.values()].filter((l) => templates.has(l.templateId)).map((l) => l.clientId)).size;
   }
 
   async createMarketTemplate(template: MarketTemplate): Promise<MarketTemplate | null> {

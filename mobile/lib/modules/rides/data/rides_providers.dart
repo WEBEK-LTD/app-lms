@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/models.dart';
@@ -59,10 +60,59 @@ final activeRideProvider = FutureProvider.autoDispose<Ride?>((ref) async {
   if (!ref.watch(authControllerProvider).isSignedIn) return null;
   final page = await ref.read(yallappApiProvider).listMyRides(active: true);
   for (final ride in page.items) {
-    if (ride.status != RideStatus.scheduled) return ride;
+    // 178 On its way only: a ride an older server ended as it was read (no
+    // driver took it in time) came in this list as `no_driver`, and the
+    // home's card said "Your driver is coming" over the ride's own page.
+    if (ride.status != RideStatus.scheduled && ride.status.active) return ride;
   }
   return null;
 });
+
+/// 178 How often the person's ride on its way is read again while the home
+/// shows it ([ActiveRideFollower]).
+const activeRideRefresh = Duration(seconds: 15);
+
+/// 178 Reads the person's ride on its way again every [activeRideRefresh]
+/// while [child] is on screen: the home's card and its living map follow it
+/// (a driver found, at the pickup, on board, over), as the ride's own page
+/// does. Before, they kept what they first read until the app restarted
+/// ("Finding your driver" with the driver already there). One timer for all
+/// of them on screen at once.
+class ActiveRideFollower extends ConsumerStatefulWidget {
+  const ActiveRideFollower({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  ConsumerState<ActiveRideFollower> createState() => _ActiveRideFollowerState();
+}
+
+class _ActiveRideFollowerState extends ConsumerState<ActiveRideFollower> {
+  static final _onScreen = <_ActiveRideFollowerState>[];
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _onScreen.add(this);
+    _timer = Timer.periodic(activeRideRefresh, (_) {
+      // The first one on screen reads, while there is a ride on its way.
+      if (!identical(_onScreen.firstOrNull, this)) return;
+      if (ref.read(activeRideProvider).value == null) return;
+      ref.invalidate(activeRideProvider);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _onScreen.remove(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
 
 final rideProvider = FutureProvider.autoDispose.family<Ride, int>(
   (ref, id) => ref.read(yallappApiProvider).getMyRide(id),

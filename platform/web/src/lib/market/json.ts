@@ -14,6 +14,7 @@ import type {
   VendorRole,
   WalletEntry,
 } from "../data/types";
+import { serverMessage } from "../i18n/builtin";
 import { restaurantRating } from "../food/service";
 import { currencyDecimals, formatMinor, fromMinor } from "./currency";
 import { vendorDelivery } from "./delivery";
@@ -54,9 +55,14 @@ const PRICE_LABELS: Record<PriceLineKind, string> = {
   total: "Total",
 };
 
-/** Every line of the price, in order, ending with the total. */
-export function priceLinesJson(m: OrderMoney, currency: string, taxLabel: string) {
-  return m.lines.map((l) => ({ kind: l.kind, label: l.kind === "tax" ? taxLabel : PRICE_LABELS[l.kind], amount: money(l.amount, currency) }));
+/** Every line of the price, in order, ending with the total; 177 named in the customer's language (the tax as the owner names it). */
+export function priceLinesJson(m: OrderMoney, currency: string, taxLabel: string, lang: string | null = null) {
+  return m.lines.map((l) => ({ kind: l.kind, label: l.kind === "tax" ? taxLabel : inLanguage(PRICE_LABELS[l.kind], lang), amount: money(l.amount, currency) }));
+}
+
+/** 177 One of the marketplace's own texts in the customer's language when Yallapp has it, else as written. */
+export function inLanguage(text: string, lang: string | null | undefined): string {
+  return (lang && lang !== "en" ? serverMessage(text, lang) : null) ?? text;
 }
 
 /** What the vendor card and the order show of where the customer stands with it. */
@@ -244,7 +250,7 @@ export interface Tracking {
 
 export function customerOrderJson(
   o: MarketOrder,
-  input: { vendor: ReturnType<typeof vendorSummaryJson>; taxLabel: string; tracking: Tracking | null; canCancel: boolean; canComplain: boolean; complaintId: number | null; eta: Date | null },
+  input: { vendor: ReturnType<typeof vendorSummaryJson>; taxLabel: string; tracking: Tracking | null; canCancel: boolean; canComplain: boolean; complaintId: number | null; eta: Date | null; lang?: string | null },
 ) {
   const c = o.currency;
   return {
@@ -255,7 +261,7 @@ export function customerOrderJson(
     fulfilment: o.fulfilment,
     scheduled_for: o.scheduledFor ? o.scheduledFor.toISOString() : null,
     lines: o.lines.map((l) => orderLineJson(l, c)),
-    price: priceLinesJson(o.money, c, input.taxLabel),
+    price: priceLinesJson(o.money, c, input.taxLabel, input.lang ?? null),
     total: money(o.money.total, c),
     payment: { method: o.paymentMethod, status: o.paymentStatus, wallet_used: o.money.wallet > 0 ? money(o.money.wallet, c) : null },
     delivery_by: o.fulfilment === "pickup" ? null : o.deliveryBy,

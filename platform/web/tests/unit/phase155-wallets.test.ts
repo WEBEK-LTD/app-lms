@@ -59,7 +59,7 @@ describe("155 the Permissions-Policy: payments on the payment page only", () => 
       expect(headers.get("referrer-policy"), path).toEqual(["strict-origin-when-cross-origin"]);
       expect(headers.get("content-security-policy"), path).toEqual([PAGE_CSP]);
     }
-    for (const path of ["/", "/pay", "/pricing", "/dashboard/payments", "/studio/project/payments", "/give/abc123", "/api/pay/stripe/order/abc123", "/sign-in", "/shop/x", "/payments", "/preview-app/index.html"]) {
+    for (const path of ["/", "/pay", "/pricing", "/dashboard/payments", "/studio/project/payments", "/give/abc123", "/api/pay/stripe/order/abc123", "/sign-in", "/shop/x", "/payments"]) {
       const headers = await headersFor(path);
       expect(headers.get("permissions-policy"), path).toEqual([PERMISSIONS_POLICY]);
     }

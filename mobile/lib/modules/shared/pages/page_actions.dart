@@ -133,7 +133,18 @@ String? actionLocation(WidgetRef ref, PageAction action) {
         );
         if (filtered != null) return filtered;
       }
-      return ref.read(appModuleProvider).screenLocation(screen, config);
+      final location = ref
+          .read(appModuleProvider)
+          .screenLocation(screen, config);
+      // 179.6 One of the academy's teachers (Rawaq's faculty): their page,
+      // where the app has the Teachers screen.
+      final teacher = action.teacherId;
+      if (screen == BuiltInScreen.teachers &&
+          teacher != null &&
+          location != null) {
+        return Paths.teacherPage(teacher);
+      }
+      return location;
     case PageActionType.course ||
         PageActionType.item ||
         PageActionType.url ||

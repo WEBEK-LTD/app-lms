@@ -22,6 +22,9 @@ import { durationLabel, itemWords } from "./item-words";
 import { itemResolver, type Item } from "./items";
 import { sha256Hex } from "../../crypto/tokens";
 import { readShopCategories } from "./shop-categories";
+import { showsRideClasses, withRideClassesIn } from "../../studio/ride-classes";
+import { rideClassesOf } from "./ride-classes";
+import { withMapWordsIn } from "../../studio/map-words";
 import { listHeadings, productFallbacks, withListHeadings, withSampleProduct } from "./lists";
 import "./sources";
 import { dashboardStoriesSaved, ensureStoriesSeeded, servedStories } from "../../stories";
@@ -105,7 +108,8 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
   // 152 The products the elements open that the shop no longer has.
   const gone = await goneProducts(pc, studio);
   // 157 A template's lists of the shop's categories follow them, read from the layout's own words before any translation.
-  const listed = await withCategoryLists(pc, studio.body);
+  // 178 And a template's car classes follow the company's vehicle types, their fares in its currency.
+  const listed = await withRideClasses(pc, await withCategoryLists(pc, studio.body));
   // 165 The story elements whose stories come from Dashboard › Stories (copied there from the design the first time), once
   // the owner has saved them there; until then they follow the Studio design, the owner's edits there included.
   const fromDashboard = dashboardStoryElements(studio.body);
@@ -128,8 +132,8 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
     void _t;
     // 152 A tap linked to one of the shop's products: the product, else the shop.
     const own = texts.action ? { ...texts, action: linkedProduct(pc, texts.action, gone) } : texts;
-    // 129.11–129.20 A premium element's entries, each in the language asked for.
-    const shown = own.entries ? { ...own, entries: own.entries.map((entry) => translated(entry, pc.lang, def)) } : own;
+    // 129.11–129.20 A premium element's entries, each in the language asked for; 178 a drawn map's template words too.
+    const shown = own.map_drawing ? withMapWordsIn(own as StudioNode, pc.lang) : own.entries ? { ...own, entries: own.entries.map((entry) => translated(entry, pc.lang, def)) } : own;
     // 129 The premium elements' entries (stories, photos) in the language asked for too.
     for (const list of ["slides", "images"] as const) {
       const entries = shown[list] as { translations?: Translations }[] | undefined;
@@ -194,6 +198,17 @@ async function withCategoryLists(pc: PageContext, body: StudioNode): Promise<Stu
 }
 
 /**
+ * 178 A Studio page's body with the template's car classes (Masar's and
+ * Lamha's) as the company's vehicle types make them
+ * (lib/studio/ride-classes.ts); the types are read only for a page with such
+ * a list.
+ */
+async function withRideClasses(pc: PageContext, body: StudioNode): Promise<StudioNode> {
+  if (!showsRideClasses(body)) return body;
+  return withRideClassesIn(body, await rideClassesOf(pc.ctx.app, pc.ctx.store), pc.lang);
+}
+
+/**
  * 157 What the published pages' lists of the shop's categories show, as a
  * short mark for the pages' version (`Navigation.version`): an app back on
  * screen asks for its pages again when the owner changed the shop's
@@ -201,10 +216,14 @@ async function withCategoryLists(pc: PageContext, body: StudioNode): Promise<Stu
  */
 async function categoriesMark(pc: PageContext): Promise<string | null> {
   const lists = pc.layout.pages.some((page) => page.studio && showsShopCategories(page.studio.body));
-  if (!lists) return null;
+  // 178 And the company's vehicle types and currency a template's car classes show.
+  const classes = pc.layout.pages.some((page) => page.studio && showsRideClasses(page.studio.body));
+  if (!lists && !classes) return null;
   // The pages' list never fails for it.
-  const shop = await shopCategoriesOf(pc).catch(() => null);
-  return shop ? sha256Hex(JSON.stringify(shop)).slice(0, 10) : null;
+  const shop = lists ? await shopCategoriesOf(pc).catch(() => null) : null;
+  const rides = classes ? await rideClassesOf(pc.ctx.app, pc.ctx.store).catch(() => null) : null;
+  if (!shop && !rides) return null;
+  return sha256Hex(JSON.stringify(rides ? [shop, rides] : shop)).slice(0, 10);
 }
 
 /** 157 The shop's categories for those lists (./shop-categories.ts); null without a shop. */
