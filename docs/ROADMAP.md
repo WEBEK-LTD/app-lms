@@ -4499,3 +4499,11 @@ The owner found the Studio plans section of the home page plain ("شكله وح�
 | | Item | Tests |
 |---|---|---|
 | [x] | 204.1 What every Studio plan has and what changes plan by plan (`StudioPlanBasics`, on the home page, Yallapp Studio's page and the story pages): a night panel under an ember glow, as the home page's Studio band; each thing every plan has a tile with its icon, what changes plan by plan as chips. On request (no Studio plan shown to clients yet), a card of its own with a "Message us on WhatsApp" button. Light and dark, phones and computers | `pricing-studio` |
+
+## Phase 205: the home page's Studio plans as on the pricing page
+
+The owner: the home page's Studio plan cards looked bad (long cards listing every line, the button's words on two lines, "كل الي طلبته تغيير الشكل").
+
+| | Item | Tests |
+|---|---|---|
+| [x] | 205.1 The home page's Studio plans on the pricing page's night band (`site/studio-plans-band.tsx`, the owner's chosen design of 154): compact cards with the first lines and the rest under "See everything (+N)", the featured plan marked, "Every Studio plan has" beside them, each plan's own main price, the currency note; on request when no Studio plan is shown to clients. `#studio-plans` keeps its id | `pricing-studio`, `home-hero`, e2e `pages` |

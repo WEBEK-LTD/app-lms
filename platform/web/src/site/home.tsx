@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { plansForSale } from "@/lib/plans";
-import { StudioPlans } from "@/components/studio-marketing";
+import { StudioPlansBand } from "./studio-plans-band";
 import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
 import { JsonLdScript } from "@/components/json-ld";
@@ -379,11 +379,8 @@ export async function HomePage({ lang }: { lang: Lang }) {
           <MoreLink href={lp("/pricing")}>{h.compareFeatures}</MoreLink>
         </Section>
 
-        <Section id="studio-plans">
-          <SectionTitle eyebrow={s.studio} title={s.plansTitle} text={s.plansText} />
-          <StudioPlans lang={lang} plans={studioPlans} view={view} contact={contact} />
-          <MoreLink href={lp("/yallapp-studio")}>{s.homeLink}</MoreLink>
-        </Section>
+        {/* 205 Studio's own plans as on the pricing page: compact cards on its night band. */}
+        <StudioPlansBand lang={lang} plans={studioPlans} view={view} contact={contact} />
 
         {/* Customer reviews, only real ones from Admin › Reviews; nothing without any. */}
         <HomeReviews lang={lang} />
