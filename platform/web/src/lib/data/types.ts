@@ -1943,11 +1943,40 @@ export interface CatalogProduct {
   addon?: boolean;
   /** 131 Which products an add-on goes with; null or missing: all of them. */
   addonFor?: AddonRule | null;
+  /** 209 What its page tells besides its description (lib/catalog/details.ts): facts, ingredients, how to use, safety, badges, expiry, age and swatches; null or missing: none. */
+  details?: ProductDetails | null;
   /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
   sample?: boolean;
   salesCount: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/** 209 A product page's parts that tell more (each in the product's own words, its titles the app's). */
+export const PRODUCT_INFO_KINDS = ["ingredients", "how_to_use", "safety", "materials", "care", "in_the_box"] as const;
+export type ProductInfoKind = (typeof PRODUCT_INFO_KINDS)[number];
+/** 209 The promises a product page shows as badges (the app's words): genuine, tested for children's safety, organic, handmade, not tested on animals, gift wrapping on offer. */
+export const PRODUCT_BADGES = ["genuine", "safety_tested", "organic", "handmade", "cruelty_free", "gift_wrap"] as const;
+export type ProductBadge = (typeof PRODUCT_BADGES)[number];
+
+/**
+ * 209 What a product's page tells besides its description (a cosmetic's
+ * ingredients, how to use it and its expiry; a toy's safety, materials and
+ * age; any product's facts), kept with the product as JSON; read through
+ * lib/catalog/details.ts, bounded, whatever was saved.
+ */
+export interface ProductDetails {
+  /** Name and value lines (Brand, Skin type, Volume, Material), shown as a table. */
+  facts?: { name: string; value: string }[];
+  /** Its parts in the product's words, each once, in this order on its page. */
+  info?: { kind: ProductInfoKind; text: string }[];
+  badges?: ProductBadge[];
+  /** The batch's expiry, "YYYY-MM"; null or missing: none shown. */
+  expiry?: string | null;
+  /** The ages it is for, in months (`max` null: and up); null or missing: none shown. */
+  ageMonths?: { min: number; max: number | null } | null;
+  /** A swatch colour ("#RRGGBB") for each value of its choices that has one (a lipstick's shades). */
+  swatches?: Record<string, string>;
 }
 
 export type CatalogProductInput = Omit<CatalogProduct, "id" | "salesCount" | "createdAt" | "updatedAt">;

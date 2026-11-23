@@ -177,6 +177,8 @@ import {
   STUDIO_TIMELINE_STYLES,
   STUDIO_TIMELINE_SOURCES,
   STUDIO_BENTO_CAPTIONS,
+  STUDIO_QUIZ_LIMITS,
+  STUDIO_SWATCH_SHAPES,
   STUDIO_PATTERNS,
   STUDIO_TICKET_AXES,
   type StudioEntry,
@@ -2204,6 +2206,10 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     case "badge_text":
     case "cta_bar":
     case "profile_card":
+    // 209 The size finder, the swatches and the quiz: their words, lists and options.
+    case "size_finder":
+    case "swatches":
+    case "quiz":
       Object.assign(node, parsePremium(ctx, where, v, node.type, bad));
       break;
     default:
@@ -2485,6 +2491,9 @@ const PREMIUM_LISTS: Record<string, { min: number; needs?: "title" | "text" | "v
   progress: { min: 1, needs: "value", what: "each bar needs how far it is, 0 to 100" },
   timeline: { min: 1, needs: "title", what: "each step needs a title" },
   bento: { min: 1, needs: "title", what: "each tile needs a title" },
+  // 209 A shade needs its name and its colour; a quiz's result its name.
+  swatches: { min: 1, needs: "title", what: "each swatch needs its name" },
+  quiz: { min: 2, needs: "title", what: "each result needs its name" },
 };
 
 /**
@@ -2498,6 +2507,15 @@ function parsePremium(ctx: Context, where: string, v: Record<string, unknown>, t
   const out: Partial<StudioNode> = {};
   const L = STUDIO_LIMITS;
   // The element's own words (its tap is parsed with every element's).
+  // 209 The size finder's, the swatches' and the quiz's heading (`text`) and button (`title`).
+  if (type === "size_finder" || type === "swatches" || type === "quiz") {
+    const text = c.optionalText(where, v.text, L.titleChars, "The heading");
+    if (text) out.text = text;
+    const title = c.optionalText(where, v.title, 40, "The button's words");
+    if (title) out.title = title;
+    const translations = parseTranslations(ctx, where, v.translations, ["text", "title"], { text: L.titleChars, title: 40 });
+    if (translations) out.translations = translations;
+  }
   if (type === "badge_text" || type === "cta_bar" || type === "profile_card") {
     const max = type === "profile_card" ? L.titleChars : 200;
     const text = c.optionalText(where, v.text, max, type === "badge_text" ? "The badge's words" : type === "cta_bar" ? "The button's words" : "The role");
@@ -2650,6 +2668,34 @@ function parsePremium(ctx: Context, where: string, v: Record<string, unknown>, t
         }
         if (Object.keys(pr).length) out.profile = pr;
       }
+      break;
+    }
+    case "swatches": {
+      const o = optionsOf("swatches");
+      if (o) {
+        const sw: NonNullable<StudioNode["swatches"]> = {};
+        if (o.shape !== undefined && o.shape !== null) {
+          if (!oneOf(STUDIO_SWATCH_SHAPES, o.shape)) bad("choose round or square swatches.");
+          else if (o.shape !== "circle") sw.shape = o.shape;
+        }
+        const size = studioNumber(o.size, 24, 64);
+        if (size !== undefined && Number.isNaN(size)) bad("a swatch's size must be 24 to 64.");
+        else if (size) sw.size = Math.round(size);
+        if (Object.keys(sw).length) out.swatches = sw;
+      }
+      break;
+    }
+    case "quiz": {
+      const o = optionsOf("quiz");
+      const raw = o && Array.isArray(o.questions) ? o.questions : null;
+      if (!raw || raw.length < 1 || raw.length > STUDIO_QUIZ_LIMITS.questions) {
+        bad(`a quiz has 1 to ${STUDIO_QUIZ_LIMITS.questions} questions.`);
+        break;
+      }
+      const questions = raw.map((q, i) => parseEntry(ctx, `${where} › question ${i + 1}`, q, type)).filter((q): q is StudioEntry => q !== null);
+      const answers = (text: string | null | undefined) => (text ?? "").split("\n").map((x) => x.trim()).filter(Boolean);
+      if (questions.some((q) => !q.title || answers(q.text).length < 2 || answers(q.text).length > STUDIO_QUIZ_LIMITS.answers)) bad(`each question needs its words and 2 to ${STUDIO_QUIZ_LIMITS.answers} answers, one per line.`);
+      else out.quiz = { questions };
       break;
     }
     case "badge_text": {

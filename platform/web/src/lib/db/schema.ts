@@ -30,6 +30,7 @@ import type {
   StorePlatformOrderStatus,
   StoreFlashSale,
   AddonRule,
+  ProductDetails,
   GiftOccasion,
   // 165 The app's stories
   AppStory,
@@ -869,6 +870,8 @@ export const catalogProducts = mysqlTable(
     // 131 A gift add-on (never listed or bought alone), and what it's offered with (JSON; null: everything).
     addon: boolean("addon").notNull().default(false),
     addonFor: jsonText<AddonRule>("addon_for"),
+    // 209 What its page tells besides its description (JSON; null: none).
+    details: jsonText<ProductDetails>("details"),
     salesCount: int("sales_count").notNull().default(0),
     // 110.2 A sample entry (lib/samples).
     sample: boolean("sample").notNull().default(false),

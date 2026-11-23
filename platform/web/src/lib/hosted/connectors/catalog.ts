@@ -1,3 +1,4 @@
+import { detailsJson, factAttributesJson, productDetails, swatchFor } from "../../catalog/details";
 import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf, orderTimesJson } from "../../catalog/fulfilment";
 import { categoryNameIn } from "../../catalog/category-names";
 import { serverMessage } from "../../i18n/builtin";
@@ -452,6 +453,8 @@ export class CatalogConnector implements Connector {
     // 208 "Complete the look": a product of each of the shop's other main categories, when the shop has it on.
     const look = !product.addon && fashionOf(app)?.completeLook ? completeLookFor(product, all, categories) : [];
     const variants = variantsOf(product);
+    // 209 What its page tells besides its description: facts, its parts, badges, expiry, ages and swatches.
+    const details = productDetails(product);
     return {
       status: 200,
       body: {
@@ -462,7 +465,12 @@ export class CatalogConnector implements Connector {
         sku: product.sku,
         max_quantity: product.stock !== null && product.stock > 0 ? product.stock : null,
         // 91.5 Its variations, as WooCommerce's.
-        attributes: variants ? attributesJson(variants) : [],
+        // 209 Each option's swatch colour where it has one, then its facts as attributes not chosen.
+        attributes: [
+          ...(variants ? attributesJson(variants) : []).map((a) => ({ ...a, options: a.options.map((o) => (swatchFor(details, o.value) ? { ...o, swatch: swatchFor(details, o.value) } : o)) })),
+          ...factAttributesJson(details),
+        ],
+        ...detailsJson(details),
         // 131 The one chosen when its page opens (a bouquet's Deluxe), when the shop set one it sells.
         ...(() => {
           const chosen = variants?.defaultId != null ? variants.items.find((v) => v.id === variants.defaultId && v.active) : undefined;

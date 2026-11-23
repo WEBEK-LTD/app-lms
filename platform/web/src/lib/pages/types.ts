@@ -31,6 +31,18 @@ export const STUDIO_PREMIUM_CONTENT_TYPES = ["testimonials", "pricing", "stats",
 /** 129.16 A person's or a place's card: its cover, avatar, name and role, then what it holds (badges, two buttons), then its social links. */
 export const STUDIO_PREMIUM_CARD_TYPES = ["profile_card"] as const;
 // ——— end 129.11–129.20 ———
+/**
+ * 209 Elements a shop type needs and any app can use: `size_finder` (the
+ * person chooses the child's age, or the first column of the shop's size
+ * chart, and sees the size that fits with its measures and a button to the
+ * shop), `swatches` (a row of colour swatches, a shade finder: its entries
+ * the shades, each a colour, a name and a line; the one tapped shows its
+ * words and the button) and `quiz` (a few questions of 2 to 6 answers each,
+ * one at a time; each answer counts for the result in its place, and the
+ * result with the most is shown with its words and its button: "Know your
+ * skin type", a gift finder).
+ */
+export const STUDIO_SHOP_HELPER_TYPES = ["size_finder", "swatches", "quiz"] as const;
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
 /**
  * 129.4 and 129.7 Premium banners that hold what lies over them, as a cover
@@ -73,6 +85,8 @@ export const STUDIO_CONTENT_TYPES = [
   "flash_sale",
   // 208 The shop's size chart (Store › Delivery & offers › Clothes), as a table.
   "size_chart",
+  // 209 The size finder (the age chosen, the size of the shop's chart that fits), shade swatches and a quiz.
+  ...STUDIO_SHOP_HELPER_TYPES,
 ] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
@@ -1128,6 +1142,21 @@ export const STUDIO_ENTRY_SIZES = ["small", "wide", "tall", "large", "full"] as 
 export const STUDIO_ENTRY_TEXTS = { title: 120, subtitle: 120, text: 600, label: 40, prefix: 8, suffix: 8 } as const;
 export const STUDIO_MAX_ENTRIES = 12;
 
+/** 209 A swatch's shape: round, or a rounded square. */
+export const STUDIO_SWATCH_SHAPES = ["circle", "square"] as const;
+export interface StudioSwatches {
+  shape?: (typeof STUDIO_SWATCH_SHAPES)[number];
+  /** A swatch's size, 24 to 64; missing, 36. */
+  size?: number;
+}
+
+/** 209 A quiz's questions are 1 to this many, each with 2 to 6 answers. */
+export const STUDIO_QUIZ_LIMITS = { questions: 6, answers: 6 } as const;
+export interface StudioQuiz {
+  /** Each question's `title` its words, its `text` its answers one per line (each counting for the result in its place). */
+  questions: StudioEntry[];
+}
+
 /**
  * 129.11–129.20 One entry of a premium element's list (`StudioEntry`): a
  * testimonial (photo, name, role, stars, quote), a plan (name, prices,
@@ -1439,6 +1468,10 @@ export interface StudioNode {
   style?: (typeof STUDIO_CATEGORY_STYLES)[number];
   /** 208 For `categories` drawn as `rows` (the category menu): its look. */
   category_menu?: StudioCategoryMenu | null;
+  /** 209 A `swatches` element's swatches' shape and size. */
+  swatches?: StudioSwatches | null;
+  /** 209 A `quiz` element's questions (its results are its `entries`). */
+  quiz?: StudioQuiz | null;
   /** 112.4 For `coupon`: the code people copy. */
   code?: string | null;
   // ——— 131 The flower shop ———
