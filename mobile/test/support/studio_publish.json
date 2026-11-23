@@ -158,9 +158,9 @@
  },
  "first": {
   "en": {
-   "etag": "\"2026-11-18T10:00:00Z.1~f658f4b8b~5bdaed9e3063~tcdd2a4e8.c146f4edc8a\"",
+   "etag": "\"2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~tcdd2a4e8.c146f4edc8a\"",
    "navigation": {
-    "version": "2026-11-18T10:00:00Z.1~f658f4b8b~5bdaed9e3063~tcdd2a4e8.c146f4edc8a",
+    "version": "2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~tcdd2a4e8.c146f4edc8a",
     "tabs": [
      {
       "id": "home",
@@ -274,6 +274,12 @@
       "title": "Notifications",
       "updated_at": "2026-11-18T10:00:00.000Z",
       "screen": "notifications"
+     },
+     {
+      "slug": "favorites",
+      "title": "Wishlist",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "favorites"
      },
      {
       "slug": "edit-profile",
@@ -2253,9 +2259,9 @@
    }
   },
   "ar": {
-   "etag": "\"2026-11-18T10:00:00Z.1~f658f4b8b~5bdaed9e3063~tcdd2a4e8.ar.c146f4edc8a\"",
+   "etag": "\"2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~tcdd2a4e8.ar.c146f4edc8a\"",
    "navigation": {
-    "version": "2026-11-18T10:00:00Z.1~f658f4b8b~5bdaed9e3063~tcdd2a4e8.ar.c146f4edc8a",
+    "version": "2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~tcdd2a4e8.ar.c146f4edc8a",
     "tabs": [
      {
       "id": "home",
@@ -2369,6 +2375,12 @@
       "title": "الإشعارات",
       "updated_at": "2026-11-18T10:00:00.000Z",
       "screen": "notifications"
+     },
+     {
+      "slug": "favorites",
+      "title": "المفضلة",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "favorites"
      },
      {
       "slug": "edit-profile",
@@ -4350,9 +4362,9 @@
  },
  "second": {
   "en": {
-   "etag": "\"2026-11-18T10:05:00Z.2~f373bd390~baeebfa50f63~tcdd2a4e8.c146f4edc8a\"",
+   "etag": "\"2026-11-18T10:05:00Z.2~f47ab6d0c~de3efb70b26d~tcdd2a4e8.c146f4edc8a\"",
    "navigation": {
-    "version": "2026-11-18T10:05:00Z.2~f373bd390~baeebfa50f63~tcdd2a4e8.c146f4edc8a",
+    "version": "2026-11-18T10:05:00Z.2~f47ab6d0c~de3efb70b26d~tcdd2a4e8.c146f4edc8a",
     "tabs": [
      {
       "id": "home",
@@ -4466,6 +4478,12 @@
       "title": "Notifications",
       "updated_at": "2026-11-18T10:00:00.000Z",
       "screen": "notifications"
+     },
+     {
+      "slug": "favorites",
+      "title": "Wishlist",
+      "updated_at": "2026-11-18T10:00:00.000Z",
+      "screen": "favorites"
      },
      {
       "slug": "edit-profile",

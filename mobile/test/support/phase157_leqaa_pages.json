@@ -116,6 +116,12 @@
     "screen": "notifications"
    },
    {
+    "slug": "favorites",
+    "title": "Wishlist",
+    "updated_at": "2026-10-12T10:00:00.000Z",
+    "screen": "favorites"
+   },
+   {
     "slug": "edit-profile",
     "title": "Edit profile",
     "updated_at": "2026-10-12T10:00:00.000Z",
