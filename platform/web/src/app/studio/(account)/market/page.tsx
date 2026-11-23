@@ -12,6 +12,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { coverView, filterCards, flashStrip, marketCatalog, readMarketQuery, type CoverView, type MarketQuery, type TemplateCard } from "@/lib/studio-market/catalog";
 import { versionDesign } from "@/lib/studio-market/snapshot";
 import { sampleEntries } from "@/lib/studio/sample-entries";
+import { designersBase } from "@/lib/studio-market/designer-page";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("studioMarket.nav") };
@@ -281,7 +282,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/stu
     <div className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-4 md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 lg:grid-cols-4">
       {cards.map((card, i) => (
         <div key={card.id} className="w-[236px] flex-none md:w-auto">
-          <TemplateCardView card={card} rank={options.ranks ? i + 1 : undefined} pool={options.pool} />
+          <TemplateCardView card={card} rank={options.ranks ? i + 1 : undefined} pool={options.pool} designerBase={designersBase(lang)} />
         </div>
       ))}
     </div>
@@ -318,7 +319,7 @@ export default async function StudioMarketPage({ searchParams }: PageProps<"/stu
           {shown.length ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {shown.map((card) => (
-                <TemplateCardView key={card.id} card={card} />
+                <TemplateCardView key={card.id} card={card} designerBase={designersBase(lang)} />
               ))}
             </div>
           ) : (
