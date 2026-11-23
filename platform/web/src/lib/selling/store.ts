@@ -17,6 +17,7 @@ import { ADDON_LIMITS, ADDON_NEEDS_ITEM, checkAddonLines, hasAddons, offeredWith
 import { countryNames } from "./countries";
 import { BOUQUET_LIMITS, bouquetConfigJson, bouquetJson, bouquetOf, bouquetOffers, bouquetPartJson } from "./bouquet";
 import { breakdownJson, needsPlace, placeOf, quoteShipping, shippingRulesOf, type ShippingQuote } from "./shipping";
+import { FASHION_LIMITS, fashionOf, sizeChartJson } from "./fashion";
 
 /**
  * 131 What every store app gets beside its products, wherever they come
@@ -353,9 +354,32 @@ export function withStoreExtras(inner: Connector, deps: StoreExtrasDeps): Connec
       const out: Record<string, unknown> = { ...(sale(body) as Record<string, unknown>), addon: isAddon };
       const categoryIds = Array.isArray(body.categories) ? (body.categories as { id: number }[]).map((c) => c.id) : [];
       const related = Array.isArray(out.related) ? (out.related as unknown[]).filter(listed).map(sale) : out.related;
-      return { ...result, body: { ...out, related, addons: isAddon ? [] : await addonsFor(request, { id, categoryIds }) } };
+      // 212 Complete the look on a platform's product too, from its other main categories.
+      const look = Array.isArray(out.complete_look) && out.complete_look.length ? out.complete_look : !isAddon && fashionOf(app)?.completeLook ? (await completeLook(request, id, categoryIds)).filter(listed).map(sale) : [];
+      return { ...result, body: { ...out, related, complete_look: look, addons: isAddon ? [] : await addonsFor(request, { id, categoryIds }) } };
     }
     return result;
+  };
+
+  /**
+   * 212 "Complete the look" from a connected platform: the first product of
+   * each of its main categories the product isn't in (at most 4), as the
+   * shop's own products have it (lib/selling/fashion.ts completeLookFor).
+   */
+  const completeLook = async (request: ConnectorRequest, id: number, categoryIds: number[]): Promise<unknown[]> => {
+    const listed = await call(request, ["store", "categories"], {}).catch(() => null);
+    const all = listed?.status === 200 ? ((listed.body as { items?: { id: number; parent_id?: number | null }[] }).items ?? []) : [];
+    const parentOf = new Map(all.map((c) => [c.id, c.parent_id ?? null]));
+    const own = new Set(categoryIds.map((c) => parentOf.get(c) ?? c));
+    const mains = all.filter((c) => (c.parent_id ?? null) === null && !own.has(c.id)).slice(0, 6);
+    const out: { id: number }[] = [];
+    for (const main of mains) {
+      const items = itemsOf(await call(request, ["store", "products"], { category: String(main.id), per_page: "3" }).catch(() => null));
+      const pick = items.find((p) => p.id !== id && !out.some((o) => o.id === p.id));
+      if (pick) out.push(pick);
+      if (out.length >= FASHION_LIMITS.look) break;
+    }
+    return out;
   };
 
   /** 131 A cart's add-on lines checked: none alone, each with a main item it goes with. */
@@ -383,7 +407,9 @@ export function withStoreExtras(inner: Connector, deps: StoreExtrasDeps): Connec
       const own = base.store as { currency?: string } | undefined;
       if (!own) return base;
       currency = own.currency ?? currency;
-      return { ...base, store: { ...own, ...storeExtrasConfig(app, currency, { fees: false, map: await storeMap(store, app) }) } };
+      // 212 The size chart set in Yallapp (Delivery & offers › Clothes), for a platform's shop too.
+      const chart = (own as { size_chart?: unknown }).size_chart ?? sizeChartJson(fashionOf(app)?.sizeChart ?? null, null);
+      return { ...base, store: { ...own, ...storeExtrasConfig(app, currency, { fees: false, map: await storeMap(store, app) }), size_chart: chart } };
     },
     async handle(request) {
       const route = `${request.method} /${request.path.join("/")}`;

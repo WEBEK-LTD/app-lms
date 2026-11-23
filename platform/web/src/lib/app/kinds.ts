@@ -256,7 +256,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       source: "products",
       read: { items: "store/products", categories: "store/categories", title: "name" },
       blocks: [],
-      screens: ["courses", "search", "cart", "orders", "account", "settings", "notifications"],
+      // 212 Its favourites are the wishlist.
+      screens: ["courses", "search", "cart", "orders", "account", "settings", "notifications", "favorites"],
       aliases: {},
       screenLabels: { courses: "All products" },
       tabs: [tab("shop", "Shop", "storefront", "search"), tab("cart", "Cart", "shopping_cart", "cart")],

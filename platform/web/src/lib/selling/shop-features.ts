@@ -360,6 +360,8 @@ export function withShopFeatures(inner: Connector, deps: ShopFeaturesDeps): Conn
   }
 
   async function listReviews(request: ConnectorRequest, productId: number): Promise<ConnectorResult> {
+    // A product the shop doesn't sell has no reviews to list.
+    if (!(await productPage(request, productId))) return error(404, "not_found", "Product not found.");
     const page = intParam(request.query, "page", 1, 10_000);
     const perPage = intParam(request.query, "per_page", 10, 50);
     const photos = request.query.get("photos") === "1" || request.query.get("photos") === "true";

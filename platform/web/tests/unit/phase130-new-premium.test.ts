@@ -213,8 +213,8 @@ describe("130.62 six new premium landings (131.27 and Leqaa's petal), for every 
       expect(x.isNew).toBe(true);
       expect(x.fits).toBeUndefined();
     }
-    // Nothing that was is marked new (131.26 but Leqaa's sections; 208 Lujain's and the installments tag), and every kind's template list is as it was.
-    expect([...SECTIONS.slice(0, -7), ...PAGE_TEMPLATES.slice(0, -7)].filter((x) => x.isNew && !x.id.startsWith("lq_") && !x.id.startsWith("cl_") && x.id !== "installments_soon")).toEqual([]);
+    // Nothing that was is marked new (131.26 but Leqaa's sections; 208 Lujain's and the installments tag, 212 the listing filters), and every kind's template list is as it was.
+    expect([...SECTIONS.slice(0, -7), ...PAGE_TEMPLATES.slice(0, -7)].filter((x) => x.isNew && !x.id.startsWith("lq_") && !x.id.startsWith("cl_") && x.id !== "installments_soon" && x.id !== "listing_filters")).toEqual([]);
     for (const kind of KINDS) {
       expect(templatesFor(kindOf(kind)).some((t) => t.id.startsWith("land_"))).toBe(false);
       expect(sectionsFor(kindOf(kind)).slice(-7).map((s) => s.id)).toEqual([...LANDING_IDS]);

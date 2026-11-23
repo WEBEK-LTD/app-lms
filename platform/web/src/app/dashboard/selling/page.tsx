@@ -218,8 +218,8 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
     { id: "gifts", label: t("manage.giftsTab") },
     ...(titled ? [{ id: "addons", label: t("selling.addonsTitle") }] : []),
     ...(hosted ? [{ id: "bouquet", label: t("selling.bouquetTitle") }] : []),
-    // 208 A clothes shop's size chart and Complete the look (the products kept in Yallapp).
-    ...(source.kind === "catalog" ? [{ id: "fashion", label: t("shopTypes.fashionTab") }] : []),
+    // 208 A clothes shop's size chart and Complete the look; 212 for a shop on a connected platform too.
+    { id: "fashion", label: t("shopTypes.fashionTab") },
     ...(offers ? [{ id: "flash", label: t("manage.offersTab"), count: sales.length }] : []),
     ...(platform ? [{ id: "deliveries", label: t("selling.deliveriesTitle"), count: deliveries.length }] : []),
   ];

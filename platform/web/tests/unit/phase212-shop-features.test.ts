@@ -52,8 +52,10 @@ class FakePlatform implements Connector {
   }
   async handle(request: ConnectorRequest): Promise<ConnectorResult | null> {
     const route = `${request.method} /${request.path.join("/")}`;
+    if (route === "GET /store/categories") return { status: 200, body: { items: [{ id: 1, name: "Shirts", count: 1, parent_id: null, image_url: null }, { id: 2, name: "Coats", count: 1, parent_id: null, image_url: null }] } };
     if (route === "GET /store/products") {
-      const ids = (request.query.get("ids") ?? "1,2").split(",").map(Number).filter((n) => n === 1 || n === 2);
+      const category = request.query.get("category");
+      const ids = (request.query.get("ids") ?? (category === "2" ? "2" : category === "1" ? "1" : "1,2")).split(",").map(Number).filter((n) => n === 1 || n === 2);
       return { status: 200, body: { page: 1, per_page: 20, total: ids.length, total_pages: 1, items: ids.map((id) => this.summary(id)) } };
     }
     if (route === "GET /store/products/1" || route === "GET /store/products/2") {
@@ -73,7 +75,7 @@ class FakePlatform implements Connector {
                   { id: 12, attributes: { pa_size: "L" }, price: this.summary(1).price, image_url: null, stock_status: this.stock.sizeL ? "in_stock" : "out_of_stock", max_quantity: null, purchasable: this.stock.sizeL },
                 ]
               : [],
-          categories: [],
+          categories: [{ id, name: id === 1 ? "Shirts" : "Coats", count: 1, parent_id: null, image_url: null }],
           related: [this.summary(id === 1 ? 2 : 1)],
           permalink: `https://shop.test/p/${id}`,
         },
@@ -257,6 +259,14 @@ describe("212 the wishlist, reviews with photos and back in stock on the hosted 
     // No email on the account (signed up by phone): the push and the inbox only.
     expect(mails).toEqual([]);
     expect((await call("DELETE", "/store/products/{product_id}/back-in-stock", { token, params: ["1"], query: { variation_id: "12" } })).status).toBe(204);
+  });
+
+  it("gives a connected platform's shop the size chart and Complete the look set in Yallapp", async () => {
+    app = { ...app, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS, fashion: { sizeChart: { headers: ["Size", "Chest"], rows: [["M", "100"]], unit: "cm" }, completeLook: true } } as App["catalogSettings"] };
+    const config = (await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).body as { store: { size_chart: { headers: string[] } | null } };
+    expect(config.store.size_chart?.headers).toEqual(["Size", "Chest"]);
+    const page = (await call("GET", "/store/products/{product_id}", { params: ["1"] })).body as { complete_look: { id: number; name: string }[] };
+    expect(page.complete_look.map((p) => p.name)).toEqual(["Wool Coat"]);
   });
 
   it("words the push in the three languages and counts it as an automatic notification", () => {

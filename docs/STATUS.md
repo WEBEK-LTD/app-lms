@@ -8,6 +8,28 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 212 (a store's wishlist, reviews with photos, back in stock,
+filters and product languages; in the code, not released): every store,
+wherever its products are (Yallapp's own shop, Shopify, the connected
+platforms; `lib/selling/shop-features.ts`), gets the wishlist (a heart on
+every card and product page, the Wishlist screen, a guest's hearts on the
+phone merged at sign-in), reviews from customers who bought the product
+(one each, editable, up to 4 photos into the shop's Media library, a short
+name such as "Ahmed K." and never an email or phone, the rating on the
+cards and the bars, photos row and first reviews on the product page; the
+shop replies once and hides abusive ones in the dashboard's Delivery &
+offers › Reviews and in Yallapp Business), "Notify me when it's back" for a
+product or the size and colour chosen (the frequent job pushes, adds to the
+inbox and emails once it's back; the owner sees who waits for what), and
+filters by size, colour, price and brand on the shop's screen and as a
+Studio element (`listing_filters`) for every shop type. Yallapp's own
+products can be written in Arabic, English and Turkish (name, description,
+choices), served in the customer's language. Migration 0152. WordPress
+(plugin 0.4.52) has the wishlist, buyers' reviews, back in stock and the
+attribute filters; photos with reviews are hosted shops' only. The size
+chart and Complete the look now reach shops on connected platforms
+(208.19). No `CLIENT_APP_RELEASE` change: older apps see none of it.
+
 Roadmap 208 (Studio's shop types, stage 1: the foundation and Clothes):
 the planning doc's shop types are in one registry (`lib/studio/shop-types.ts`)
 by section (Fashion; Beauty & care; Home & living; Kids & toys; Shopping &
