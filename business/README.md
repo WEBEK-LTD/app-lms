@@ -228,6 +228,19 @@ Android, and its Live Activity on iPhones (`lib/core/services/live_activity.dart
 `ios/Runner/WidgetBridge.swift`). The widget and the Live Activity open the
 app with `yallappbusiness://push?…`, read as a tapped push.
 
+Roadmap 215 (Yallapp Business 1.0.7): the Pharaonic theme beside the default
+look (Settings › Appearance, kept on the phone as `yb.app_theme`; light and
+dark follow the same setting). `lib/core/theme/pharaonic.dart` holds its
+colours (`PharaonicColors`) and the `YbOrnaments` extension, which only the
+Pharaonic theme has (`context.ornaments` is null in the default look);
+`pharaonic_theme.dart` builds it from the default theme's structure;
+`pharaonic_widgets.dart` paints its ground and ornaments from the paths in
+`pharaonic_art.dart` (no SVG package). The New order card takes its skin
+through `NewOrderCardTheme` (`features/today/new_order_card_pharaonic.dart`).
+`test/golden/default_theme_golden_test.dart` keeps the default look pixel for
+pixel; `YB_PHARAONIC_DIR=… flutter test test/golden/pharaonic_screens_test.dart`
+draws the Pharaonic screens.
+
 Each screen and quick action is shown only when the app has it
 (`AppSummary.features`): the second tab is the app's main tool (Events,
 Appointments, Orders, Donations or its catalog), Inbox and Stats appear when

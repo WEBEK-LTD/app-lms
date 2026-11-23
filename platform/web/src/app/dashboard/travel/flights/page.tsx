@@ -28,7 +28,7 @@ const PER_PAGE = 50;
 /** 126 The company's flights with fixed seats, each date one flight: its fares, seats sold and status. */
 export default async function TravelFlightsPage({ searchParams }: { searchParams: Promise<SampleQuery & { when?: string; page?: string }> }) {
   const { app, license } = await requireClient("settings");
-  const { t } = await dashboardText();
+  const { t, lang } = await dashboardText();
   if (!isTravel(app)) return <NotTravel title={t("travel.flights")} t={t} />;
   const query = await searchParams;
   const store = await getStore();
@@ -89,7 +89,7 @@ export default async function TravelFlightsPage({ searchParams }: { searchParams
                       {f.active ? null : <Badge tone="neutral">{t("travel.hidden")}</Badge>}
                     </>
                   }
-                  meta={`${f.departs.replace("T", " ")} → ${f.arrives.slice(11)} · ${f.carrier.name}${Number.isFinite(from) ? ` · ${formatCents(from, settings.currency)}` : ""}`}
+                  meta={`${f.departs.replace("T", " ")} → ${f.arrives.slice(11)} · ${f.carrier.name}${Number.isFinite(from) ? ` · ${formatCents(from, settings.currency, lang)}` : ""}`}
                   extra={t("travel.sold", { sold: soldOn(f.id), seats })}
                   actions={
                     <>

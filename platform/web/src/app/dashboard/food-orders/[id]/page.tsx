@@ -38,7 +38,7 @@ export default async function FoodOrderPage({ params }: { params: Promise<{ id: 
     store.getDeliverySettings(app.id).then(deliverySettingsOf),
   ]);
   const steps = FOOD_COMPANY_STEPS[order.status] ?? [];
-  const money = (cents: number) => formatCents(cents, order.currency);
+  const money = (cents: number) => formatCents(cents, order.currency, lang);
   const d = order.dropoff;
   const share = order.subtotalCents > 0 ? percentOf(Math.round((order.commissionCents / order.subtotalCents) * 10_000)) : "0";
   const refundDue = order.paymentMethod === "card" && order.paymentStatus === "paid" && ["rejected", "cancelled", "failed"].includes(order.status);

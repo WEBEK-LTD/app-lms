@@ -6333,8 +6333,10 @@ paths:
         choice), with `unavailable_item` (409) for a sold-out dish (`field`
         names the line), `restaurant_closed` (409) while the restaurant is
         closed or busy, `below_minimum` (409) under the restaurant's smallest
-        order, and `outside_delivery_area` (400) when the restaurant doesn't
-        deliver to the drop-off.
+        order, `outside_delivery_area` (400) when the restaurant doesn't
+        deliver to the drop-off, and `delivery_unavailable` (503) while the
+        company hasn't set its delivery prices yet (the app isn't taking
+        orders: the cart says so and offers no checkout).
       security: [{}, { bearerAuth: [] }]
       requestBody:
         required: true
@@ -6354,6 +6356,7 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /food/orders:
     post:
@@ -6367,9 +6370,9 @@ paths:
         has `pay_url`, the company's payment page, opened in the app on both
         platforms (food delivered is a service in the physical world); it goes
         to the restaurant once the payment is confirmed. Fails as the quote
-        does, for a payment method the company doesn't take, and with
-        `payments_unavailable` (503) for a card payment while the company's
-        payments aren't set up.
+        does (`delivery_unavailable`, 503, too), for a payment method the
+        company doesn't take, and with `payments_unavailable` (503) for a card
+        payment while the company's payments aren't set up.
       parameters:
         - $ref: '#/components/parameters/Platform'
       requestBody:

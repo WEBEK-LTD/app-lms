@@ -74,9 +74,9 @@ export default async function SalariesPage({ searchParams }: { searchParams: Pro
           {totals.slice(0, 1).map((total) => (
             <Fragment key={total.currency}>
               <Stat icon="groups" label={t("salaries.people")} value={total.people} />
-              <Stat icon="payments" tone="accent" label={t("salaries.colNet")} value={<span dir="ltr">{formatCents(total.net, total.currency)}</span>} />
-              <Stat icon="check_circle" tone="success" label={t("salaries.colPaid")} value={<span dir="ltr">{formatCents(total.paid, total.currency)}</span>} />
-              <Stat icon="hourglass_top" tone={total.left > 0 ? "warn" : "neutral"} label={t("salaries.statLeft")} value={<span dir="ltr">{formatCents(total.left, total.currency)}</span>} />
+              <Stat icon="payments" tone="accent" label={t("salaries.colNet")} value={<span dir="ltr">{formatCents(total.net, total.currency, lang)}</span>} />
+              <Stat icon="check_circle" tone="success" label={t("salaries.colPaid")} value={<span dir="ltr">{formatCents(total.paid, total.currency, lang)}</span>} />
+              <Stat icon="hourglass_top" tone={total.left > 0 ? "warn" : "neutral"} label={t("salaries.statLeft")} value={<span dir="ltr">{formatCents(total.left, total.currency, lang)}</span>} />
             </Fragment>
           ))}
         </StatRow>
@@ -138,11 +138,11 @@ export default async function SalariesPage({ searchParams }: { searchParams: Pro
           <p key={total.currency} data-totals={total.currency} className="m-0 text-[15px] font-semibold">
             {t("salaries.totalsLine", {
               people: total.people,
-              gross: formatCents(total.gross, total.currency),
-              deductions: formatCents(total.deductions + total.advances, total.currency),
-              net: formatCents(total.net, total.currency),
-              paid: formatCents(total.paid, total.currency),
-              left: formatCents(total.left, total.currency),
+              gross: formatCents(total.gross, total.currency, lang),
+              deductions: formatCents(total.deductions + total.advances, total.currency, lang),
+              net: formatCents(total.net, total.currency, lang),
+              paid: formatCents(total.paid, total.currency, lang),
+              left: formatCents(total.left, total.currency, lang),
             })}
           </p>
         ))}
@@ -169,10 +169,10 @@ export default async function SalariesPage({ searchParams }: { searchParams: Pro
                       </span>
                     </td>
                     <td className={cell} dir="ltr">
-                      {formatCents(p.netCents, p.currency)}
+                      {formatCents(p.netCents, p.currency, lang)}
                     </td>
                     <td className={cell} dir="ltr">
-                      {formatCents(p.paidCents, p.currency)}
+                      {formatCents(p.paidCents, p.currency, lang)}
                     </td>
                     <td className={cell}>
                       <span className="flex flex-wrap gap-1">
@@ -208,8 +208,8 @@ export default async function SalariesPage({ searchParams }: { searchParams: Pro
                   person.jobTitle ?? t(person.role === "teacher" ? "salaries.teacher" : "salaries.staffMember"),
                   salary
                     ? salary.allowances.length
-                      ? t("salaries.salaryWithAllowances", { amount: formatCents(salary.monthlyCents, salary.currency), allowances: formatCents(allowancesOf(salary), salary.currency) })
-                      : t("salaries.salaryLine", { amount: formatCents(salary.monthlyCents, salary.currency) })
+                      ? t("salaries.salaryWithAllowances", { amount: formatCents(salary.monthlyCents, salary.currency, lang), allowances: formatCents(allowancesOf(salary), salary.currency, lang) })
+                      : t("salaries.salaryLine", { amount: formatCents(salary.monthlyCents, salary.currency, lang) })
                     : null,
                 ]
                   .filter(Boolean)

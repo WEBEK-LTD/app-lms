@@ -12,6 +12,10 @@ import { designerChip } from "@/lib/studio-market/catalog";
 import { designerPath, RATING_LIMITS } from "@/lib/studio-market/designer-page";
 import { templateText } from "@/lib/studio-market/templates";
 import { safePhotoUrl } from "@/lib/studio-market/photo-url";
+import { getBlobStore } from "@/lib/blobs";
+import { houseTemplatesReady } from "@/lib/studio-market/house";
+import { findHouseDesigner, houseLogoUrl, isHouseDesigner } from "@/lib/studio-market/house-photo";
+import { HouseDesignerForm } from "./house-form";
 
 export const metadata: Metadata = { title: "Studio Market designers" };
 export const dynamic = "force-dynamic";
@@ -31,12 +35,22 @@ const DONE: Record<string, string> = {
  * buyers' latest ratings (hide an abusive one, show it again) and every
  * designer's page (lock it, open it again). Anyone on the team sees it;
  * `market.review` decides. Each decision is in the audit log.
+ *
+ * 218 On top, Yallapp's own page (the designer of Yallapp's free templates,
+ * on the demo account nobody signs in to): its photo (the Yallapp logo until
+ * one is uploaded) and line, changed here and shown at once.
  */
 export default async function MarketDesignersPage({ searchParams }: PageProps<"/admin/market/designers">) {
   await requireAdmin();
   const mayDecide = await adminCan("market.review");
   const store = await getStore();
   const params = await searchParams;
+  // Yallapp's own designer is made where the market is read; made here too when the demo account is there and it isn't yet.
+  let house = await findHouseDesigner(store);
+  if (!house) {
+    await houseTemplatesReady(store, getBlobStore(), new Date());
+    house = await findHouseDesigner(store);
+  }
   const designers = await store.listTemplateDesigners();
   const waiting = designers.filter((d) => d.profileReview === "pending").sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime());
   const ratings = await store.listMarketRatings({ withHidden: true, limit: 100 });
@@ -47,8 +61,8 @@ export default async function MarketDesignersPage({ searchParams }: PageProps<"/
 
   const avatar = (d: (typeof designers)[number], size: number) => {
     const chip = designerChip(d);
-    // Waiting photos too (the chip has only approved ones), through the same check.
-    const photo = d.photoAssetId ? safePhotoUrl(assetUrl(d.photoAssetId)) : null;
+    // Waiting photos too (the chip has only approved ones), through the same check; Yallapp's own, its logo without one.
+    const photo = d.photoAssetId ? safePhotoUrl(assetUrl(d.photoAssetId)) : isHouseDesigner(d) ? houseLogoUrl() : null;
     return photo ? (
       // eslint-disable-next-line @next/next/no-img-element -- The designer's uploaded photo, served by the platform's own asset route.
       <img src={photo} alt={`${d.name}'s photo`} width={size} height={size} className="flex-none rounded-full object-cover" style={{ width: size, height: size }} />
@@ -72,6 +86,33 @@ export default async function MarketDesignersPage({ searchParams }: PageProps<"/
           That changed meanwhile. Look again.
         </p>
       ) : null}
+
+      <section aria-labelledby="h-house" className="mk-panel flex flex-col gap-3 px-[22px] py-5" data-house-page="">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 id="h-house" className="m-0 flex-1 text-xl font-extrabold">
+            Yallapp&apos;s own page
+          </h2>
+          {house && !house.pageLockedAt ? (
+            <a href={designerPath(house.slug)} target="_blank" rel="noopener" className="inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-line-strong bg-white px-3.5 text-sm font-semibold text-midnight no-underline">
+              <Icon name="open_in_new" size={18} />
+              See the page
+            </a>
+          ) : null}
+        </div>
+        {house ? (
+          <>
+            <p className="m-0 text-sm text-muted">
+              The designer of Yallapp&apos;s free templates, at <span dir="ltr">yallapp.com.tr{designerPath(house.slug)}</span>. Its photo shows on the market&apos;s cards and on its page; without an uploaded photo, the Yallapp logo shows. What you save here shows at once, with no review.
+              {house.pageLockedAt ? " The page is locked: unlock it below to see it." : ""}
+            </p>
+            <HouseDesignerForm photoUrl={house.photoAssetId ? (safePhotoUrl(assetUrl(house.photoAssetId)) ?? houseLogoUrl()) : houseLogoUrl()} uploaded={Boolean(house.photoAssetId)} bio={house.bio ?? ""} disabled={disabled} />
+          </>
+        ) : (
+          <p className="m-0 text-sm text-muted">
+            Yallapp&apos;s own page is made with the demo apps: create them in <Link href="/admin/demos">Admin › Demo apps</Link> first.
+          </p>
+        )}
+      </section>
 
       <section aria-labelledby="h-waiting" className="mk-panel flex flex-col gap-3 px-[22px] py-5">
         <h2 id="h-waiting" className="m-0 text-xl font-extrabold">

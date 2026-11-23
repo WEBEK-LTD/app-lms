@@ -133,7 +133,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
             filters={groups}
             items={items.map((order, index) => {
               const title = t("orders.orderTitle", { number: orderNumber(order), total: formatCents(order.totalCents, order.currency, lang) });
-              const paidLine = `${t("orders.paidOn", { date: formatDateTime(order.paidAt, lang, zone) })}${order.refundedCents && order.status !== "refunded" ? ` · ${k(refundedLine(order.refundedCents, order.totalCents, order.currency) ?? "")}` : ""}`;
+              const paidLine = `${t("orders.paidOn", { date: formatDateTime(order.paidAt, lang, zone) })}${order.refundedCents && order.status !== "refunded" ? ` · ${k(refundedLine(order.refundedCents, order.totalCents, order.currency, lang) ?? "")}` : ""}`;
               const status = order.shipment && order.status === "processing" ? k("Shipped") : k(ORDER_STATUS_LABELS[order.status]);
               // 162 A bouquet the customer built counts once.
               const groups = orderGroups(order.lines);

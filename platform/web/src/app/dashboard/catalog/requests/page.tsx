@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function CatalogRequestsPage() {
   const { app } = await requireClient("orders");
   if (!app || app.connector?.kind !== "catalog") notFound();
-  const { t } = await dashboardText();
+  const { t, lang } = await dashboardText();
   const requests = await (await getStore()).listStoreRequests(app.id);
   const fresh = requests.filter((r) => r.status === "new");
   const ordered = [...fresh, ...requests.filter((r) => r.status !== "new")];
@@ -57,7 +57,7 @@ export default async function CatalogRequestsPage() {
               id: r.id,
               text: [r.customer.name, r.customer.phone, r.customer.email, ...r.answers.map((a) => a.value)].filter(Boolean).join(" "),
               group: r.status,
-              node: <RequestItem request={r} t={t} />,
+              node: <RequestItem request={r} t={t} lang={lang} />,
             }))}
           />
         )}

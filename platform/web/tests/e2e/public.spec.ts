@@ -322,10 +322,29 @@ test("103R Yallapp Studio has its own page: the editor, apps made in it, Studio-
   await expect(plans.locator("[data-studio-on-request], [data-plan]").first()).toBeVisible();
   await expect(plans.locator('[data-plan="starter"], [data-plan="growth"], [data-plan="pro"], [data-plan="business"]')).toHaveCount(0);
   await expect(plans.getByRole("heading", { name: "Every Studio plan has" })).toBeVisible();
-  await expect(plans.getByText("Delivery & couriers").first()).toBeVisible();
+  // 217 The home page's night band, its link to every plan on the pricing page.
+  await expect(page.locator("#plans.pr-night-band").getByRole("link", { name: "See all plans" })).toHaveAttribute("href", "/pricing");
   await expect(page.getByRole("link", { name: "Start a Studio project" })).toHaveAttribute("href", "/sign-up");
   await page.getByRole("link", { name: "See the Studio demo" }).first().click();
   await expect(page).toHaveURL(/\/demo\/studio$/);
+});
+
+test("217 a Studio story shows Studio's plans in the home page's night band, in its own words", async ({ page }) => {
+  for (const [path, title, all] of [
+    ["/yallapp-studio/school", "The Studio plans", "All plans and prices"],
+    ["/ar/yallapp-studio/school", "باقات Studio", "كل الباقات والأسعار"],
+  ] as const) {
+    await page.goto(path);
+    const band = page.locator("#plans.pr-night-band");
+    await expect(band.getByRole("heading", { level: 2, name: title })).toBeVisible();
+    await expect(band.locator("[data-studio-plans] [data-studio-basics]")).toBeVisible();
+    await expect(band.getByRole("link", { name: all })).toHaveAttribute("href", path.startsWith("/ar") ? "/ar/pricing" : "/pricing");
+  }
+  // The story's opening still leads to the band.
+  await page.goto("/yallapp-studio/school");
+  await page.getByRole("link", { name: "See the plans" }).first().click();
+  await expect(page).toHaveURL(/\/yallapp-studio\/school#plans$/);
+  await expect(page.locator("#plans.pr-night-band")).toBeInViewport();
 });
 
 test("104.8 Yallapp Courier, live maps and schools on the features page, in the FAQ and in its own guide", async ({ page }) => {

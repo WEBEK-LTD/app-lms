@@ -10,8 +10,8 @@ import type { PaidTotals } from "@/lib/data/types";
 type Money = Parameters<typeof formatCents>[1];
 
 /** Each currency's sum; none at all is "0". */
-function money(totals: PaidTotals, zero: string): string {
-  return totals.totals.length === 0 ? zero : totals.totals.map((t) => formatCents(t.cents, t.currency as Money)).join(" · ");
+function money(totals: PaidTotals, zero: string, lang: DashboardText["lang"]): string {
+  return totals.totals.length === 0 ? zero : totals.totals.map((t) => formatCents(t.cents, t.currency as Money, lang)).join(" · ");
 }
 
 /** The sum to compare: only in one currency, the same in both periods. */
@@ -38,10 +38,10 @@ export function SalesTiles({ sales, days, text }: { sales: SalesReport; days: nu
   const tiles: Tile[] = [];
   if (shows.orders) {
     tiles.push({ key: "orders", label: t("analytics.salesOrders"), value: count(now.orders.count), hint: t("analytics.salesOrdersHint"), compare: pair((f) => f.orders.count) });
-    tiles.push({ key: "revenue", label: t("analytics.salesRevenue"), value: money(now.orders, num(0)), hint: t("analytics.salesRevenueHint"), compare: comparable(now.orders, before.orders) });
+    tiles.push({ key: "revenue", label: t("analytics.salesRevenue"), value: money(now.orders, num(0), lang), hint: t("analytics.salesRevenueHint"), compare: comparable(now.orders, before.orders) });
   }
   if (shows.refunds) {
-    tiles.push({ key: "refunds", label: t("analytics.salesRefunds"), value: money(now.refunds, num(0)), hint: t("analytics.salesRefundsHint", { count: now.refunds.count }), compare: pair((f) => f.refunds.count) });
+    tiles.push({ key: "refunds", label: t("analytics.salesRefunds"), value: money(now.refunds, num(0), lang), hint: t("analytics.salesRefundsHint", { count: now.refunds.count }), compare: pair((f) => f.refunds.count) });
   }
   if (shows.enrolments) {
     tiles.push({ key: "enrolments", label: t("analytics.salesEnrolments"), value: count(now.enrolments.total), hint: t("analytics.salesEnrolmentsHint", { count: now.enrolments.paid }), compare: pair((f) => f.enrolments.total) });
@@ -53,12 +53,12 @@ export function SalesTiles({ sales, days, text }: { sales: SalesReport; days: nu
     tiles.push({ key: "tickets", label: t("analytics.salesTickets"), value: count(now.tickets), hint: t("analytics.salesTicketsHint"), compare: pair((f) => f.tickets) });
   }
   if (shows.donations) {
-    tiles.push({ key: "donations", label: t("analytics.salesDonations"), value: money(now.donations, num(0)), hint: t("analytics.salesDonationsHint", { count: now.donations.count }), compare: comparable(now.donations, before.donations) });
+    tiles.push({ key: "donations", label: t("analytics.salesDonations"), value: money(now.donations, num(0), lang), hint: t("analytics.salesDonationsHint", { count: now.donations.count }), compare: comparable(now.donations, before.donations) });
   }
   // 100.6 Courses and memberships bought in the app through the stores.
   if (shows.inApp) {
-    tiles.push({ key: "in_app", label: t("analytics.salesInApp"), value: money(now.inApp, num(0)), hint: t("analytics.salesInAppHint", { count: now.inApp.count }), compare: comparable(now.inApp, before.inApp) });
-    tiles.push({ key: "in_app_refunds", label: t("analytics.salesInAppRefunds"), value: money(now.inAppRefunds, num(0)), hint: t("analytics.salesInAppRefundsHint", { count: now.inAppRefunds.count }), compare: pair((f) => f.inAppRefunds.count) });
+    tiles.push({ key: "in_app", label: t("analytics.salesInApp"), value: money(now.inApp, num(0), lang), hint: t("analytics.salesInAppHint", { count: now.inApp.count }), compare: comparable(now.inApp, before.inApp) });
+    tiles.push({ key: "in_app_refunds", label: t("analytics.salesInAppRefunds"), value: money(now.inAppRefunds, num(0), lang), hint: t("analytics.salesInAppRefundsHint", { count: now.inAppRefunds.count }), compare: pair((f) => f.inAppRefunds.count) });
     if (now.renewals + before.renewals > 0) tiles.push({ key: "renewals", label: t("analytics.salesRenewals"), value: count(now.renewals), hint: t("analytics.salesRenewalsHint"), compare: pair((f) => f.renewals) });
   }
   if (shows.orders) {

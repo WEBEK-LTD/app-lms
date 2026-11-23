@@ -534,7 +534,7 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
                       contentPadding: EdgeInsets.zero,
                       value: m,
                       secondary: Icon(_methodIcon(m), color: p.textSecondary),
-                      title: Text(_methodName(l10n, m)),
+                      title: Text(_methodName(l10n, m, _fulfilment)),
                     ),
                 ],
               ),
@@ -591,8 +591,16 @@ IconData _methodIcon(api.MarketPayMethod m) => switch (m) {
   api.MarketPayMethod.wallet => Symbols.account_balance_wallet_rounded,
 };
 
-String _methodName(AppLocalizations l10n, api.MarketPayMethod m) => switch (m) {
-  api.MarketPayMethod.cash => l10n.marketPayCash,
+/// 220 Cash is paid at the counter when the customer picks the order up.
+String _methodName(
+  AppLocalizations l10n,
+  api.MarketPayMethod m,
+  api.MarketFulfilment fulfilment,
+) => switch (m) {
+  api.MarketPayMethod.cash =>
+    fulfilment == api.MarketFulfilment.pickup
+        ? l10n.marketPayCashPickup
+        : l10n.marketPayCash,
   api.MarketPayMethod.card => l10n.marketPayCard,
   api.MarketPayMethod.applePay => l10n.marketPayApplePay,
   api.MarketPayMethod.googlePay => l10n.marketPayGooglePay,

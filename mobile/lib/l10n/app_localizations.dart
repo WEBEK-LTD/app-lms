@@ -14354,6 +14354,12 @@ abstract class AppLocalizations {
   /// **'Cash on delivery'**
   String get marketPayCash;
 
+  /// 220 Payment method: cash when the customer picks the order up (Pick up chosen at the checkout).
+  ///
+  /// In en, this message translates to:
+  /// **'Cash at pickup'**
+  String get marketPayCashPickup;
+
   /// 115 Payment method.
   ///
   /// In en, this message translates to:

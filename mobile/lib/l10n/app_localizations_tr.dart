@@ -8741,6 +8741,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get marketPayCash => 'Kapıda nakit';
 
   @override
+  String get marketPayCashPickup => 'Teslim alırken nakit';
+
+  @override
   String get marketPayCard => 'Kart';
 
   @override

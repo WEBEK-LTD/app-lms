@@ -3,8 +3,8 @@ import { bundleCourses, compareAtCents } from "@/lib/courses/bundles";
 import type { CourseBundle, CourseSetup } from "@/lib/data/types";
 
 /** 113.1 The courses a bundle can hold (not a teacher's still in review), as the form lists them. */
-export function bundleChoices(setup: CourseSetup, free: string) {
-  return setup.courses.filter((c) => !c.teacherStage).map((c) => ({ id: c.id, title: c.title, price: c.priceCents ? formatCents(c.priceCents, setup.currency) : free, hidden: !c.active }));
+export function bundleChoices(setup: CourseSetup, free: string, lang?: string | null) {
+  return setup.courses.filter((c) => !c.teacherStage).map((c) => ({ id: c.id, title: c.title, price: c.priceCents ? formatCents(c.priceCents, setup.currency, lang) : free, hidden: !c.active }));
 }
 
 /** The bundle's published courses and what they cost on their own. */

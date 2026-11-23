@@ -4721,6 +4721,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ringFocusOpen => 'Open notification settings';
 
   @override
+  String get themeTitle => 'Theme';
+
+  @override
+  String get themeDefaultBadge => 'Default';
+
+  @override
+  String get themeDefaultHelp => 'The app\'s current look';
+
+  @override
+  String get themePharaonic => 'Pharaonic';
+
+  @override
+  String get themePharaonicHelp =>
+      'Night and gold, with ancient Egyptian ornaments';
+
+  @override
+  String get themeModeTitle => 'Light or dark';
+
+  @override
+  String get themeModeHelp =>
+      'Each theme has its own light and dark; both follow this setting.';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

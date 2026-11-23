@@ -548,10 +548,13 @@ export async function refundDonation(deps: RefundDeps, app: App, donation: Donat
   );
 }
 
-/** "Refunded ₺150.00 of ₺450.00": a line for the dashboard and the app; null for nothing refunded. */
-export function refundedLine(refundedCents: number | undefined, totalCents: number, currency: CatalogOrder["currency"]): string | null {
+/**
+ * "Refunded ₺150.00 of ₺450.00": a line for the dashboard and the app; null for nothing refunded.
+ * 220 Its amounts in `lang` (the dashboard's), the words English for `k` to translate.
+ */
+export function refundedLine(refundedCents: number | undefined, totalCents: number, currency: CatalogOrder["currency"], lang?: string | null): string | null {
   if (!refundedCents) return null;
   return refundedCents >= totalCents
-    ? `Refunded ${formatCents(refundedCents, currency)}`
-    : `Refunded ${formatCents(refundedCents, currency)} of ${formatCents(totalCents, currency)}`;
+    ? `Refunded ${formatCents(refundedCents, currency, lang)}`
+    : `Refunded ${formatCents(refundedCents, currency, lang)} of ${formatCents(totalCents, currency, lang)}`;
 }

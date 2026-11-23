@@ -267,11 +267,17 @@ class StudioLiveLookCard extends StatelessWidget {
     required this.style,
     required this.facts,
     this.color,
+    this.elementPhoto = true,
   });
 
   final StudioNode node;
   final StudioLiveLookStyle style;
   final LiveLookFacts facts;
+
+  /// 220 Whether the element's photo may stand in for [facts]' own: never
+  /// for a ride, where it would be a stranger's face for the real driver
+  /// (Masar's stock photo); a driver without a photo gets a neutral icon.
+  final bool elementPhoto;
 
   /// The element's text colour; null, the page's.
   final Color? color;
@@ -292,7 +298,7 @@ class StudioLiveLookCard extends StatelessWidget {
     final onAccent = accent.computeLuminance() > 0.45
         ? const Color(0xFF14110E)
         : Colors.white;
-    final photo = node.imageUrl ?? facts.photo;
+    final photo = elementPhoto ? node.imageUrl ?? facts.photo : facts.photo;
     final f = facts;
 
     Widget minutes({required bool short}) => f.minutes == null
@@ -389,7 +395,9 @@ class StudioLiveLookCard extends StatelessWidget {
             : ColoredBox(
                 color: accent.withValues(alpha: 0.2),
                 child: Icon(
-                  symbolByName(node.icon ?? 'two_wheeler'),
+                  symbolByName(
+                    node.icon ?? (elementPhoto ? 'two_wheeler' : 'person'),
+                  ),
                   color: accent,
                   size: size * 0.45,
                 ),

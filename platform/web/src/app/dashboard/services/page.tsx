@@ -79,7 +79,7 @@ function hoursText(s: BookingStaff, { t, lang }: DashboardText): string {
 export default async function ServicesPage({ searchParams }: { searchParams: Promise<SampleQuery & { tab?: string }> }) {
   const { app } = await requireClient("bookings");
   const text = await dashboardText();
-  const { t, k } = text;
+  const { t, k, lang } = text;
   const kind = app?.vertical === "fitness" ? "fitness" : app?.vertical === "clinic" ? "clinic" : "other";
   const clinic = app?.vertical === "clinic";
   if (!app || app.connector?.kind !== "bookings") {
@@ -91,7 +91,7 @@ export default async function ServicesPage({ searchParams }: { searchParams: Pro
   }
   const setup = bookingSetup(app);
   const { rules } = setup;
-  const money = (cents: number) => (cents ? formatCents(cents, rules.currency) : t("common.free"));
+  const money = (cents: number) => (cents ? formatCents(cents, rules.currency, lang) : t("common.free"));
   const sr = { sr: (chunk: string) => <span className="sr-only">{chunk}</span> };
   const category = new Map(setup.categories.map((c) => [c.id, c.name]));
   // 27 Classes on the timetable that aren't booked one to one.

@@ -11,6 +11,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { exactKm, located } from "@/lib/rides/fares";
 import { carText } from "@/lib/rides/notify";
+import { sampleWords } from "@/lib/rides/sample";
 import { DRIVER_ACTIVE, rideReference } from "@/lib/rides/service";
 import { mapsLink } from "../../shipments/parts";
 import { CancelRideForm, GiveRideForm } from "../forms";
@@ -23,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /** 105.2 One ride: where from and to, the rider and the driver, the fare and payment, its stages, and the company's steps. */
 export default async function RidePage({ params }: { params: Promise<{ id: string }> }) {
   const { app } = await requireClient("orders");
-  const { t, lang } = await dashboardText();
+  const { t, k, lang } = await dashboardText();
   if (!isRides(app)) return <NotRides title={t("rides.rides")} t={t} />;
   const { id } = await params;
   if (!/^\d{1,15}$/.test(id)) notFound();
@@ -35,7 +36,7 @@ export default async function RidePage({ params }: { params: Promise<{ id: strin
     store.listCouriers(app.id),
     store.listRides({ appId: app.id, statuses: DRIVER_ACTIVE, order: "oldest", offset: 0, limit: 2000 }),
   ]);
-  const money = (cents: number) => formatCents(cents, ride.currency);
+  const money = (cents: number) => formatCents(cents, ride.currency, lang);
   const reference = rideReference(ride);
   const givable = ["searching", "accepted", "arrived"].includes(ride.status);
   const cancellable = ["scheduled", "searching", "accepted", "arrived", "in_progress"].includes(ride.status);
@@ -52,8 +53,8 @@ export default async function RidePage({ params }: { params: Promise<{ id: strin
     .map(({ d, km }) => ({ id: d.id, label: [d.name, d.onDuty ? t("rides.online") : t("rides.offline"), km !== null ? `${km} km` : null].filter(Boolean).join(" · ") }));
   const place = (p: typeof ride.pickup) => (
     <span className="flex flex-col gap-0.5">
-      <span>{p.address}</span>
-      {p.details ? <span className="text-[13px] text-muted">{p.details}</span> : null}
+      <span>{sampleWords(p.address, k)}</span>
+      {p.details ? <span className="text-[13px] text-muted">{sampleWords(p.details, k)}</span> : null}
       {p.lat !== null && p.lng !== null ? (
         <a href={mapsLink(p.lat, p.lng)} target="_blank" rel="noopener noreferrer" className="text-[13px] font-semibold">
           {t("rides.openMap")}
@@ -138,7 +139,7 @@ export default async function RidePage({ params }: { params: Promise<{ id: strin
           <>
             <SideCard titleId="h-people" icon="person" title={t("rides.rider")}>
               <p className="m-0 text-[15px]">
-                {ride.riderName}
+                {sampleWords(ride.riderName, k)}
                 {ride.riderPhone ? (
                   <span className="block text-[13px] text-muted" dir="ltr">
                     {ride.riderPhone}
@@ -153,7 +154,7 @@ export default async function RidePage({ params }: { params: Promise<{ id: strin
                 {ride.driverName ?? <span className="text-muted">{t("rides.noDriver")}</span>}
                 {driver ? (
                   <span className="block text-[13px] text-muted" dir="auto">
-                    {[driver.phone ?? driver.email, carText(driver)].filter(Boolean).join(" · ")}
+                    {[driver.phone ?? driver.email, carText(driver, k)].filter(Boolean).join(" · ")}
                   </span>
                 ) : null}
               </p>

@@ -35,6 +35,7 @@ import { APP_TABLES, type AppTableRole } from "../apps/app-tables";
 import mysql from "mysql2/promise";
 import type { DatabaseConfig } from "../env";
 import { newId } from "../crypto/tokens";
+import { SAMPLE_RIDER_NAME } from "../rides/sample";
 import { membershipToUse } from "../bookings/memberships";
 import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
@@ -6615,7 +6616,8 @@ export class MysqlStore implements DataStore {
           cashCents: sql<string>`sum(case when ${t.paymentMethod} = 'cash' then ${t.finalCents} else 0 end)`,
         })
         .from(t)
-        .where(and(eq(t.appId, appId), eq(t.status, "completed"), gte(t.createdAt, since), lt(t.createdAt, until)))
+        // 220 Never the store review driver's sample rides.
+        .where(and(eq(t.appId, appId), eq(t.status, "completed"), gte(t.createdAt, since), lt(t.createdAt, until), ne(t.riderName, SAMPLE_RIDER_NAME)))
         .groupBy(t.driverId, sql`case when ${t.driverId} is null then ${t.driverName} else '' end`),
     );
     return rows

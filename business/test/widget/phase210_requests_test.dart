@@ -54,7 +54,7 @@ void main() {
   testWidgets('the Orders card opens the list, a request, and answers it', (
     tester,
   ) async {
-    final app = TestApp(appId: FakeOwnerApi.restaurantId);
+    final app = TestApp(appId: FakeOwnerApi.flowersId);
     await app.pump(tester);
     await go(tester, app, '/orders');
     expect(find.text('Custom orders'), findsOneWidget);
@@ -65,7 +65,7 @@ void main() {
     expect(find.text('Nadia Samir'), findsOneWidget);
     expect(find.text('A crochet baby blanket'), findsOneWidget);
     expect(find.text('Mert Aydın'), findsOneWidget);
-    expect(find.textContaining('₺45,000.00'), findsOneWidget);
+    expect(find.textContaining('E£45,000.00'), findsOneWidget);
     expect(find.text('Elif'), findsNothing);
     await tapOn(tester, find.text('All'));
     expect(find.text('Elif'), findsOneWidget);
@@ -97,9 +97,9 @@ void main() {
     await tapOn(tester, find.byKey(const ValueKey('request-save')));
     expect(app.api.calls, contains('answerRequest:quoted'));
     expect(find.text('Saved the answer.'), findsOneWidget);
-    expect(find.textContaining('₺450.50'), findsOneWidget);
+    expect(find.textContaining('E£450.50'), findsOneWidget);
     expect(find.textContaining('· Ready in ten days.'), findsOneWidget);
-    final saved = await app.api.request(FakeOwnerApi.restaurantId, '31');
+    final saved = await app.api.request(FakeOwnerApi.flowersId, '31');
     expect(saved.status, RequestStatus.quoted);
     expect(saved.quoteCents, 45050);
     expect(saved.reply, 'Ready in ten days.');
@@ -119,7 +119,7 @@ void main() {
   });
 
   testWidgets('a failed save keeps the form and says why', (tester) async {
-    final app = TestApp(appId: FakeOwnerApi.restaurantId);
+    final app = TestApp(appId: FakeOwnerApi.flowersId);
     await app.pump(tester);
     await push(tester, app, '/requests/30');
     expect(find.text('A three-seat sofa made to measure'), findsOneWidget);
@@ -137,7 +137,7 @@ void main() {
 
   testWidgets('Arabic, dark: the list and a request', (tester) async {
     final app = TestApp(
-      appId: FakeOwnerApi.restaurantId,
+      appId: FakeOwnerApi.flowersId,
       language: 'ar',
       brightness: Brightness.dark,
     );

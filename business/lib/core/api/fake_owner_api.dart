@@ -60,6 +60,9 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   /// Every call, by its operation name.
   final calls = <String>[];
 
+  /// 215 Takes every order away from [appId] (an empty Kitchen mode).
+  void clearOrders(String appId) => _orders[appId] = [];
+
   late List<AppSummary> apps;
   final devicesList = <Device>[];
   var preferences = const PushPreferences({});
@@ -1422,9 +1425,13 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   }
 
   // 210 Custom-order requests: a crochet blanket, a sofa made to measure
-  // and two cushion covers, in each shop with orders.
+  // and two cushion covers, in each shop with orders. Never a restaurant's
+  // or another kind's: the server has requests for shops only.
   void _seedRequests() {
-    for (final app in apps.where((a) => a.features.orders)) {
+    for (final app in apps.where(
+      (a) =>
+          a.features.orders && a.type == 'store' && a.vertical != 'restaurant',
+    )) {
       final currency = app.id == flowersId ? 'EGP' : 'TRY';
       Json request(
         String id,

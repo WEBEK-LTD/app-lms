@@ -9618,6 +9618,10 @@
   "@marketPayCash": {
     "description": "115 Payment method."
   },
+  "marketPayCashPickup": "Cash at pickup",
+  "@marketPayCashPickup": {
+    "description": "220 Payment method: cash when the customer picks the order up (Pick up chosen at the checkout)."
+  },
   "marketPayCard": "Card",
   "@marketPayCard": {
     "description": "115 Payment method."

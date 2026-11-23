@@ -28,7 +28,7 @@ const TONE: Record<TradeInStatus, "info" | "success" | "neutral" | "warn"> = { n
 export default async function TradeInPage({ searchParams }: { searchParams: Promise<{ status?: string; page?: string }> }) {
   const { app } = await requireClient("catalog");
   if (!app || app.connector?.kind !== "catalog") notFound();
-  const { t, date } = await dashboardText();
+  const { t, date, lang } = await dashboardText();
   const params = await searchParams;
   const status: TradeInStatus | undefined = params.status === "new" ? "new" : undefined;
   const page = Math.max(1, Math.min(10_000, Number.parseInt(params.page ?? "1", 10) || 1));
@@ -80,7 +80,7 @@ export default async function TradeInPage({ searchParams }: { searchParams: Prom
                   <div>
                     <dt className="text-muted">{t("tech.estimate")}</dt>
                     <dd className="m-0 font-semibold" dir="ltr">
-                      {formatCents(r.estimateCents, r.currency as CatalogCurrency)}
+                      {formatCents(r.estimateCents, r.currency as CatalogCurrency, lang)}
                     </dd>
                   </div>
                   <div>

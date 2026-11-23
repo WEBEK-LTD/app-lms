@@ -6,7 +6,7 @@ import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { Chip, FeatureIcon, MarketingPage, MoreLink, Section, SectionTitle } from "@/components/marketing";
-import { StudioDifferences, StudioPlans } from "@/components/studio-marketing";
+import { StudioDifferences } from "@/components/studio-marketing";
 import { StudioHeroVideo } from "@/components/studio-hero-video";
 import { WhatsAppLink } from "@/components/whatsapp-link";
 import { kindById } from "@/lib/app/kinds";
@@ -27,6 +27,7 @@ import { localePath } from "@/i18n/paths";
 import { storyCopyFor } from "@/content/stories";
 import { storyLinks } from "@/site/story/links";
 import { lookCaption, lookScreen, type LookShotKey } from "@/site/studio-looks";
+import { StudioPlansBand } from "@/site/studio-plans-band";
 import { templatesText } from "./templates-text";
 
 export function studioMetadata(lang: Lang): Metadata {
@@ -216,11 +217,8 @@ export async function StudioPage({ lang }: { lang: Lang }) {
         <StudioDifferences lang={lang} />
       </Section>
 
-      <Section id="plans">
-        <SectionTitle eyebrow={m.studio} title={m.plansTitle} text={m.plansText} />
-        <StudioPlans lang={lang} plans={plans} view={view} contact={contact} />
-        <MoreLink href={lp("/pricing")}>{m.allPlans}</MoreLink>
-      </Section>
+      {/* 217 The home page's night band, the same on every page that shows Studio's plans. */}
+      <StudioPlansBand lang={lang} plans={plans} view={view} contact={contact} id="plans" link={{ href: lp("/pricing"), label: m.allPlans }} />
     </MarketingPage>
   );
 }

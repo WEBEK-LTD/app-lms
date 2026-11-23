@@ -2372,6 +2372,7 @@
 {"key":"marketUseWallet","en":"Use my wallet balance","ar":"استخدم رصيد محفظتي","tr":"Cüzdan bakiyemi kullan","description":"115 Pays part or all of the order from the wallet."},
 {"key":"marketPayWith","en":"Pay with","ar":"الدفع بواسطة","tr":"Ödeme yöntemi","description":"115 The payment section."},
 {"key":"marketPayCash","en":"Cash on delivery","ar":"الدفع عند الاستلام","tr":"Kapıda nakit","description":"115 Payment method."},
+{"key":"marketPayCashPickup","en":"Cash at pickup","ar":"الدفع نقدًا عند استلام الطلب بنفسك","tr":"Teslim alırken nakit","description":"220 Payment method: cash when the customer picks the order up (Pick up chosen at the checkout)."},
 {"key":"marketPayCard","en":"Card","ar":"بطاقة","tr":"Kart","description":"115 Payment method."},
 {"key":"marketPayApplePay","en":"Apple Pay","ar":"Apple Pay","tr":"Apple Pay","description":"115 Payment method."},
 {"key":"marketPayGooglePay","en":"Google Pay","ar":"Google Pay","tr":"Google Pay","description":"115 Payment method."},

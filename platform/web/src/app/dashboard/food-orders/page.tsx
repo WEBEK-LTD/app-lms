@@ -80,7 +80,7 @@ export default async function FoodOrdersPage({ searchParams }: { searchParams: P
   ]);
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
   const link = (p: number, show: Filter = filter) => `/dashboard/food-orders?${new URLSearchParams({ show, ...(q ? { q } : {}), ...(p > 1 ? { page: String(p) } : {}) })}`;
-  const money = (cents: number) => formatCents(cents, settings.currency);
+  const money = (cents: number) => formatCents(cents, settings.currency, lang);
   const sum = (key: "orders" | "subtotalCents" | "commissionCents" | "deliveryFeeCents" | "cashSubtotalCents" | "cardSubtotalCents") => statement.reduce((n, r) => n + r[key], 0);
   const T = kitTable;
 
@@ -134,7 +134,7 @@ export default async function FoodOrdersPage({ searchParams }: { searchParams: P
                 aside={
                   <>
                     <span className="flex flex-col items-end text-end">
-                      <span className="text-[15px] font-bold whitespace-nowrap tabular-nums">{formatCents(o.totalCents, o.currency)}</span>
+                      <span className="text-[15px] font-bold whitespace-nowrap tabular-nums">{formatCents(o.totalCents, o.currency, lang)}</span>
                       <span className="text-[13px] text-muted">
                         {t(o.paymentMethod === "cash" ? "food.payCash" : "food.payCard")} · {t(o.paymentStatus === "paid" ? "food.paid" : o.paymentStatus === "refunded" ? "food.refunded" : "food.unpaid")}
                       </span>

@@ -3090,6 +3090,13 @@
   "ringFocusTitle": "Order alerts through Focus",
   "ringFocusHelp": "On iPhone, new order alerts are Time Sensitive. To hear them during Focus or Do Not Disturb, turn on Time Sensitive Notifications for Yallapp Business in its notification settings, and allow it in your Focus.",
   "ringFocusOpen": "Open notification settings",
+  "themeTitle": "Theme",
+  "themeDefaultBadge": "Default",
+  "themeDefaultHelp": "The app's current look",
+  "themePharaonic": "Pharaonic",
+  "themePharaonicHelp": "Night and gold, with ancient Egyptian ornaments",
+  "themeModeTitle": "Light or dark",
+  "themeModeHelp": "Each theme has its own light and dark; both follow this setting.",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {

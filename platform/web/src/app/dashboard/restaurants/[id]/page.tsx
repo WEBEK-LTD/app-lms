@@ -251,7 +251,7 @@ export default async function RestaurantPage({ params, searchParams }: { params:
                         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                           <span className="text-[15px] font-bold">{dish.name}</span>
                           <span className="text-[13px] text-muted">
-                            {[formatCents(dish.priceCents, settings.currency), dish.popular ? t("food.popular") : null, dish.choiceGroups.map((g) => g.name).join(", ")].filter(Boolean).join(" · ")}
+                            {[formatCents(dish.priceCents, settings.currency, lang), dish.popular ? t("food.popular") : null, dish.choiceGroups.map((g) => g.name).join(", ")].filter(Boolean).join(" · ")}
                           </span>
                         </span>
                         {dish.available ? null : <Badge tone="warn">{t("food.soldOut")}</Badge>}

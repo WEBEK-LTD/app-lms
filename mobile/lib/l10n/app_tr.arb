@@ -2374,6 +2374,7 @@
   "marketUseWallet": "Cüzdan bakiyemi kullan",
   "marketPayWith": "Ödeme yöntemi",
   "marketPayCash": "Kapıda nakit",
+  "marketPayCashPickup": "Teslim alırken nakit",
   "marketPayCard": "Kart",
   "marketPayApplePay": "Apple Pay",
   "marketPayGooglePay": "Google Pay",

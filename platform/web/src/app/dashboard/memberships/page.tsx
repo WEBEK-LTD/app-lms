@@ -36,7 +36,7 @@ function planValues(p: MembershipPlan | null): Record<string, string> {
 /** 27 A gym's or studio's membership plans, sold in the app on the payment page, and whether classes need one. */
 export default async function MembershipPlansPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { app } = await requireClient("bookings");
-  const { t, k } = await dashboardText();
+  const { t, k, lang } = await dashboardText();
   if (!app || app.connector?.kind !== "bookings") {
     return (
       <div className="flex flex-col gap-6">
@@ -97,7 +97,7 @@ export default async function MembershipPlansPage({ searchParams }: { searchPara
                 key={p.id}
                 media={<Thumb icon="card_membership" shape="square" tint={i} />}
                 title={p.name}
-                meta={`${formatCents(p.priceCents, currency)} · ${k(PERIOD_LABELS[p.period])} · ${k(creditsText(p.credits))}`}
+                meta={`${formatCents(p.priceCents, currency, lang)} · ${k(PERIOD_LABELS[p.period])} · ${k(creditsText(p.credits))}`}
                 aside={p.active ? null : <Badge tone="warn">{t("bookings.notOnSale")}</Badge>}
               >
                 <MembershipPlanForm current={planValues(p)} submit={t("bookings.savePlan")} currency={currency} />

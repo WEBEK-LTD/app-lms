@@ -14,20 +14,44 @@ import "./pricing.css";
  * compact cards, the first lines and the rest folded under "See everything
  * (+N)", the featured plan marked, then what every Studio plan has beside
  * them. Each plan's own main price (the home page has no period picker).
+ *
+ * 217 The same band on Yallapp Studio's page and its stories (the owner: the
+ * stories' plans "look bad"): `id` keeps each page's anchor (the story's
+ * Hero links to `#plans`), `head` and `link` the page's own words and link.
  */
-export function StudioPlansBand({ lang, plans, view, contact }: { lang: Lang; plans: PlanInfo[]; view: PriceView; contact: Contact }) {
+export function StudioPlansBand({
+  lang,
+  plans,
+  view,
+  contact,
+  id = "studio-plans",
+  head,
+  link,
+}: {
+  lang: Lang;
+  plans: PlanInfo[];
+  view: PriceView;
+  contact: Contact;
+  /** The section's anchor: `studio-plans` on the home page, `plans` on Studio's page and its stories. */
+  id?: string;
+  /** The heading's words; the home page's when left out. */
+  head?: { title: string; text: string };
+  /** The link beside the heading; to Yallapp Studio's page when left out. */
+  link?: { href: string; label: string };
+}) {
   const s = messagesFor(lang).studio;
+  const titleId = `${id}-title`;
   return (
-    <section id="studio-plans" aria-labelledby="studio-plans-title" className="pr-night-band" data-home-studio-plans="">
+    <section id={id} aria-labelledby={titleId} className="pr-night-band" data-studio-plans-band={id}>
       <div className="pr-wrap">
         <div className="pr-sec-head">
           <div>
             <span className="pr-kicker">{s.studio}</span>
-            <h2 id="studio-plans-title">{s.plansTitle}</h2>
-            <p>{s.plansText}</p>
+            <h2 id={titleId}>{head?.title ?? s.plansTitle}</h2>
+            <p>{head?.text ?? s.plansText}</p>
           </div>
-          <Link href={localePath(lang, "/yallapp-studio")} className="pr-lnk-u">
-            {s.homeLink}
+          <Link href={link?.href ?? localePath(lang, "/yallapp-studio")} className="pr-lnk-u">
+            {link?.label ?? s.homeLink}
           </Link>
         </div>
         <StudioPlanCards plans={plans} view={view} lang={lang} period={null} contact={contact} />

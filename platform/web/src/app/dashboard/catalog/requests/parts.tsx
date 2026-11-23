@@ -12,7 +12,7 @@ export const REQUEST_KEYS: Record<StoreRequestStatus, DashKey> = { new: "shop.re
 const TONES: Record<StoreRequestStatus, "success" | "warn" | "danger" | "neutral"> = { new: "warn", quoted: "neutral", accepted: "success", declined: "danger", done: "neutral" };
 
 /** 210 One custom-order request: who sent it and when, its answers, the shop's answer so far, and the form to answer it. */
-export function RequestItem({ request: r, t }: { request: StoreRequest; t: DashT }) {
+export function RequestItem({ request: r, t, lang }: { request: StoreRequest; t: DashT; lang: string }) {
   const contact = [r.customer.name, r.customer.phone, r.customer.email].filter(Boolean).join(" · ");
   return (
     <li data-request={r.id} className="flex flex-col gap-3 border-t border-line-soft px-5 py-3.5 first:border-t-0 sm:px-6">
@@ -30,7 +30,7 @@ export function RequestItem({ request: r, t }: { request: StoreRequest; t: DashT
             ))}
           </dl>
           {r.reply || r.quoteCents !== null ? (
-            <span className="text-[13px] text-muted">{[r.quoteCents !== null ? t("shop.requestQuote", { price: formatCents(r.quoteCents, r.currency as CatalogCurrency) }) : null, r.reply].filter(Boolean).join(" · ")}</span>
+            <span className="text-[13px] text-muted">{[r.quoteCents !== null ? t("shop.requestQuote", { price: formatCents(r.quoteCents, r.currency as CatalogCurrency, lang) }) : null, r.reply].filter(Boolean).join(" · ")}</span>
           ) : null}
         </span>
         <Badge tone={TONES[r.status]}>{t(REQUEST_KEYS[r.status])}</Badge>

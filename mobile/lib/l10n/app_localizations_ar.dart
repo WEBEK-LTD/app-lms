@@ -9025,6 +9025,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get marketPayCash => 'الدفع عند الاستلام';
 
   @override
+  String get marketPayCashPickup => 'الدفع نقدًا عند استلام الطلب بنفسك';
+
+  @override
   String get marketPayCard => 'بطاقة';
 
   @override

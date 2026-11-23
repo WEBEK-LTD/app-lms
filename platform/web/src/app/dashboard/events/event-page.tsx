@@ -213,7 +213,7 @@ export async function EventPage({ id, notice }: { id: number | null; notice: { s
         <Stat icon="confirmation_number" label={t("events.statTickets")} value={counted.length} />
         <Stat icon="task_alt" tone="success" label={t("events.statCheckedIn")} value={used} />
         <Stat icon="event_available" tone="accent" label={t("events.statLeft")} value={left.event === null ? t("events.noLimit") : left.event} />
-        <Stat icon="payments" tone="warn" label={t("events.statSales")} value={revenue ? formatCents(revenue, data.settings.currency) : t("common.free")} />
+        <Stat icon="payments" tone="warn" label={t("events.statSales")} value={revenue ? formatCents(revenue, data.settings.currency, lang) : t("common.free")} />
       </StatRow>
 
       {/* 132.19 The event's state, then its tickets, attendees and details, each in a tab. */}
@@ -240,7 +240,7 @@ export async function EventPage({ id, notice }: { id: number | null; notice: { s
               <ItemList>
                 {types.map((type, i) => {
                   const remaining = left.types.get(type.id) ?? null;
-                  const price = type.priceCents ? formatCents(type.priceCents, data.settings.currency) : t("common.free");
+                  const price = type.priceCents ? formatCents(type.priceCents, data.settings.currency, lang) : t("common.free");
                   const taken = counted.filter((a) => a.ticket.ticketTypeId === type.id).length;
                   return (
                     <ItemDetails

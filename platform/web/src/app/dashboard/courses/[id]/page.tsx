@@ -87,7 +87,7 @@ export default async function CoursePage({ params, searchParams }: PageProps<"/d
         title={course.title}
         description={
           <span className="flex flex-col gap-2">
-            <span>{t("courses.courseLine", { price: course.priceCents ? formatCents(course.priceCents, setup.currency) : t("common.free"), lessons, students: enrollments.length })}</span>
+            <span>{t("courses.courseLine", { price: course.priceCents ? formatCents(course.priceCents, setup.currency, lang) : t("common.free"), lessons, students: enrollments.length })}</span>
             <span className="flex flex-wrap items-center gap-2">
               <StageBadge stage={stage} t={t} />
               {teachers && course.teacherId && stage === "returned" && course.reviewNote ? <span className="text-sm text-muted">{t("teachers.reviewNote", { note: course.reviewNote })}</span> : null}
