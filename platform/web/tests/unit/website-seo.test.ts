@@ -57,6 +57,7 @@ describe("32 the website's menu", () => {
       "/yallapp-studio/multi-vendor",
       "/yallapp-studio/academy",
       "/yallapp-studio/flowers",
+    "/yallapp-studio/clothes",
       "/demo/studio",
       // 106.13 Studio Market's public page.
       "/templates",
@@ -469,6 +470,8 @@ describe("67 Google: the favicon, and every public page indexed", () => {
       if (r === "/yallapp-studio/[story]") return STORY_IDS.map(storyPath);
       // 106.13 The published templates are listed by app/sitemap.ts from the store (tests/unit/studio-market-public.test.ts).
       if (r === "/templates/[slug]") return [];
+      // 106.14 So are the designers' open pages (tests/unit/studio-market-designer-page.test.ts).
+      if (r === "/designers/[slug]") return [];
       expect(r, `${r}: list its pages here and in lib/sitemap.ts`).not.toMatch(/\[/);
       return [r];
     });

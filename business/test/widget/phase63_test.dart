@@ -19,6 +19,7 @@ void main() {
     ) async {
       final app = TestApp(appId: FakeOwnerApi.academyId);
       await app.pump(tester);
+      await seeOnToday(tester, find.text('2 course questions to answer'));
       expect(find.text('2 course questions to answer'), findsOneWidget);
       await tapOn(tester, find.text('2 course questions to answer'));
       expect(find.text('Waiting for you'), findsWidgets);
@@ -195,6 +196,7 @@ void main() {
       (tester) async {
         final app = TestApp(language: 'ar');
         await app.pump(tester);
+        await seeOnToday(tester, find.text('3 طلبات قيد التنفيذ'));
         expect(find.text('3 طلبات قيد التنفيذ'), findsOneWidget);
         expect(find.textContaining('orders in progress'), findsNothing);
         await go(tester, app, '/orders');
@@ -209,6 +211,7 @@ void main() {
     testWidgets('Turkish: Needs you in Turkish', (tester) async {
       final app = TestApp(language: 'tr');
       await app.pump(tester);
+      await seeOnToday(tester, find.text('Hazırlanan 3 sipariş'));
       expect(find.text('Hazırlanan 3 sipariş'), findsOneWidget);
     });
 
@@ -229,6 +232,7 @@ void main() {
       }
       await go(tester, app, '/orders');
       await go(tester, app, '/today');
+      await seeOnToday(tester, find.text('1 order in progress'));
       expect(find.text('1 order in progress'), findsOneWidget);
     });
 

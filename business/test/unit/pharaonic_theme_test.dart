@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp_business/core/theme/pharaonic.dart';
 import 'package:yallapp_business/core/theme/theme.dart';
+import 'package:yallapp_business/features/today/new_order_card_pharaonic.dart';
 
 import 'theme_test.dart' show contrast;
 
@@ -36,6 +37,23 @@ void main() {
         'onHead2 on head': (c.onHead2, c.head),
       };
       for (final MapEntry(key: label, value: (fg, bg)) in pairs.entries) {
+        expect(contrast(fg, bg), greaterThanOrEqualTo(4.5), reason: label);
+      }
+      // The shared New order card in this theme.
+      final card = pharaonicNewOrderCard(c, o);
+      for (final MapEntry(key: label, value: (fg, bg)) in {
+        'card: number': (card.number, card.background),
+        'card: ink': (card.ink, card.background),
+        'card: ink2': (card.ink2, card.background),
+        // The badge's tint is translucent: as drawn, over the card.
+        'card: badge': (
+          card.badgeInk,
+          Color.alphaBlend(card.badgeBackground, card.background),
+        ),
+        'card: accept': (card.acceptInk, card.acceptBackground),
+        'card: reject': (card.reject, card.background),
+        'card: chip': (card.ink, card.chipBackground),
+      }.entries) {
         expect(contrast(fg, bg), greaterThanOrEqualTo(4.5), reason: label);
       }
       for (final stop in o.buttonFill) {

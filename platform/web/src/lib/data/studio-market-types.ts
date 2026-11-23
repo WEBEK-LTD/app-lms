@@ -28,9 +28,72 @@ export interface TemplateDesigner {
   termsAcceptedAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  /** 106.14 Their round photo (a public `designer_photo` asset), or null for their initials. */
+  photoAssetId: string | null;
+  /**
+   * 106.14 The team's first look at the photo and the line about them:
+   * "none" (neither given yet), "pending" (waiting: neither is shown on the
+   * public pages), "approved" (shown; later changes go live, as a published
+   * template's do) or "declined" (not shown, with the team's note).
+   */
+  profileReview: DesignerProfileReview;
+  profileNote: string | null;
+  profileReviewedAt: Date | null;
+  /** 106.14 Their country on their public page: off unless they turn it on. */
+  showCountry: boolean;
+  /** 106.14 Their website and accounts (https only, up to DESIGNER_LINKS_MAX), shown on their page only when `showLinks`. */
+  links: string[];
+  showLinks: boolean;
+  /** 106.14 The team locked their public page (it is "page not found"); their templates stay on the market. */
+  pageLockedAt: Date | null;
+  pageLockedReason: string | null;
 }
 
-export type TemplateDesignerPatch = Partial<Pick<TemplateDesigner, "name" | "slug" | "country" | "bio" | "status" | "termsAcceptedAt">>;
+export type DesignerProfileReview = "none" | "pending" | "approved" | "declined";
+
+export type TemplateDesignerPatch = Partial<
+  Pick<TemplateDesigner, "name" | "slug" | "country" | "bio" | "status" | "termsAcceptedAt" | "photoAssetId" | "profileReview" | "profileNote" | "profileReviewedAt" | "showCountry" | "links" | "showLinks" | "pageLockedAt" | "pageLockedReason">
+>;
+
+export type DesignerPageFields = Pick<TemplateDesigner, "photoAssetId" | "profileReview" | "profileNote" | "profileReviewedAt" | "showCountry" | "links" | "showLinks" | "pageLockedAt" | "pageLockedReason">;
+
+/** 106.14 What a new designer's page starts with: no photo, nothing to review, country and links hidden, not locked. */
+export function designerPageDefaults(): DesignerPageFields {
+  return { photoAssetId: null, profileReview: "none", profileNote: null, profileReviewedAt: null, showCountry: false, links: [], showLinks: false, pageLockedAt: null, pageLockedReason: null };
+}
+
+/**
+ * 106.14 A buyer's rating of one template they got (free or bought): 1 to
+ * 5 stars and an optional comment, once per template and account (they
+ * change it, they don't add another), public on the template's and the
+ * designer's pages with the name shown (`authorName`: the first name and
+ * the family name's first letter). The designer answers it once (they may
+ * change their answer). The team hides an abusive one (`hiddenAt`): it is
+ * then out of the pages and of the average.
+ */
+export interface MarketRating {
+  id: string;
+  templateId: string;
+  designerId: string;
+  /** The buyer's account. */
+  clientId: string;
+  stars: number;
+  comment: string | null;
+  authorName: string;
+  createdAt: Date;
+  updatedAt: Date;
+  reply: string | null;
+  repliedAt: Date | null;
+  hiddenAt: Date | null;
+  hiddenBy: string | null;
+  hiddenReason: string | null;
+}
+
+/** 106.14 A template's visible ratings: how many and their stars' sum (the average is sum / count). */
+export interface MarketRatingSummary {
+  count: number;
+  sum: number;
+}
 
 /** Draft → In review → Published, or Changes requested with the team's notes. */
 export type MarketTemplateStatus = "draft" | "in_review" | "changes_requested" | "published";

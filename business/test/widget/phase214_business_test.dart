@@ -13,6 +13,12 @@ import 'package:yallapp_business/features/food/food_orders_screen.dart';
 import 'package:yallapp_business/features/food/food_sheets.dart';
 import 'package:yallapp_business/features/orders/orders_screen.dart';
 
+import 'package:yallapp_business/core/theme/theme.dart';
+
+import 'package:yallapp_business/features/today/new_order_card.dart';
+
+import 'package:yallapp_business/l10n/app_localizations.dart';
+
 import '../support/nav.dart';
 import '../support/test_app.dart';
 
@@ -504,6 +510,162 @@ void main() {
       await app.pump(tester);
       await push(tester, app, Paths.ringtones);
       expect(find.byKey(const ValueKey('ring-focus')), findsNothing);
+    });
+  });
+
+  group('the New order card on Today', () {
+    testWidgets('a restaurant\'s newest kitchen order: Accept sends it on', (
+      tester,
+    ) async {
+      final app = TestApp(appId: FakeOwnerApi.restaurantId);
+      await app.pump(tester);
+      final card = find.byKey(const ValueKey('new-order-card'));
+      await reach(tester, card, delta: 150);
+      expect(find.text('New order'), findsOneWidget);
+      expect(find.textContaining('1042'), findsWidgets);
+      expect(find.text('Ahmed'), findsOneWidget);
+      expect(find.text('Delivery'), findsOneWidget);
+      expect(
+        find.text('2 × Chicken shawarma • 2 × Fresh lemonade'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('new-order-more')), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('new-order-accept')));
+      await settle(tester);
+      expect(app.api.calls, contains('changeOrderStatus:preparing'));
+      // Nothing waits any more: the card goes.
+      expect(card, findsNothing);
+    });
+
+    testWidgets('food orders: the newest, +1 more, Accept asks the time', (
+      tester,
+    ) async {
+      final app = TestApp(appId: FakeOwnerApi.foodId);
+      await app.pump(tester);
+      final card = find.byKey(const ValueKey('new-order-card'));
+      await reach(tester, card, delta: 150);
+      expect(find.textContaining('F-1048'), findsOneWidget);
+      expect(find.text('Selin'), findsOneWidget);
+      expect(find.text('+1 more'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('new-order-accept')));
+      await settle(tester);
+      expect(find.byType(AcceptPanel), findsOneWidget);
+    });
+
+    testWidgets('+N more opens the orders', (tester) async {
+      final app = TestApp(appId: FakeOwnerApi.foodId);
+      await app.pump(tester);
+      await reach(
+        tester,
+        find.byKey(const ValueKey('new-order-more')),
+        delta: 150,
+      );
+      await tester.tap(find.byKey(const ValueKey('new-order-more')));
+      await settle(tester);
+      expect(find.byType(FoodOrdersScreen), findsOneWidget);
+    });
+
+    testWidgets('nothing waiting: no card', (tester) async {
+      final app = TestApp(appId: FakeOwnerApi.clinicId);
+      await app.pump(tester);
+      expect(find.byKey(const ValueKey('new-order-card')), findsNothing);
+    });
+
+    testWidgets('a new order\'s push loads it again', (tester) async {
+      final push = FakePush();
+      final app = TestApp(push: push, appId: FakeOwnerApi.foodId);
+      await app.pump(tester);
+      final before = app.api.calls.where((c) => c == 'today').length;
+      push.foregroundController.add(
+        const RemoteNotice(
+          title: 'New order F-1049',
+          body: '',
+          data: {'kind': 'new_food_order', 'food_order_id': '49'},
+        ),
+      );
+      await settle(tester);
+      app.ringer.stop();
+      expect(
+        app.api.calls.where((c) => c == 'today').length,
+        greaterThan(before),
+      );
+    });
+
+    testWidgets('in Arabic, right to left, dark', (tester) async {
+      final app = TestApp(
+        appId: FakeOwnerApi.restaurantId,
+        language: 'ar',
+        brightness: Brightness.dark,
+      );
+      await app.pump(tester);
+      await reach(
+        tester,
+        find.byKey(const ValueKey('new-order-card')),
+        delta: 150,
+      );
+      expect(find.text('طلب جديد'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('another look colours it through its theme extension', (
+      tester,
+    ) async {
+      const gold = Color(0xFFE2BE6A);
+      final theme = ThemeData.dark().copyWith(
+        extensions: [
+          buildTheme(
+            arabic: false,
+            brightness: Brightness.dark,
+          ).extension<YbColors>()!,
+          NewOrderCardTheme.from(
+            buildTheme(
+              arabic: false,
+              brightness: Brightness.dark,
+            ).extension<YbColors>()!,
+          ).copyWith(
+            number: gold,
+            ornament: (_) => const SizedBox(key: ValueKey('frieze'), height: 6),
+            frame: ({required theme, required onTap, required child}) =>
+                Container(key: const ValueKey('gilt'), child: child),
+          ),
+        ],
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: NewOrderCard(
+              order: WaitingOrder(
+                kind: WaitingKind.kitchen,
+                id: '1042',
+                number: '1042',
+                placedAt: DateTime(2026, 11, 23, 21, 40),
+                customer: 'Sara',
+                total: 'E£385.00',
+                items: '2 × Large koshari',
+                delivery: true,
+              ),
+              now: DateTime(2026, 11, 23, 21, 42),
+              acceptLabel: 'Accept',
+              rejectLabel: 'Reject',
+              onAccept: () {},
+              onReject: () {},
+              onOpen: () {},
+            ),
+          ),
+        ),
+      );
+      expect(find.byKey(const ValueKey('frieze')), findsOneWidget);
+      // Its one outer container, swapped whole.
+      expect(find.byKey(const ValueKey('gilt')), findsOneWidget);
+      expect(find.byType(NewOrderCardFrame), findsNothing);
+      expect(find.text('2 min ago'), findsOneWidget);
+      final number = tester.widget<Text>(
+        find.byKey(const ValueKey('new-order-number')),
+      );
+      expect(number.style?.color, gold);
     });
   });
 }

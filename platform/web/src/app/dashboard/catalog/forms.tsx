@@ -702,7 +702,7 @@ export function CouponForm({ currency, coupon }: { currency: string; coupon?: { 
   );
 }
 
-export function AddCategoryForm() {
+export function AddCategoryForm({ mains = [] }: { /** 208 The main categories a new one may go inside (a store's); none: no choice. */ mains?: { id: number; name: string }[] } = {}) {
   const t = useDashT();
   const [state, action] = useActionState(addCategoryAction, initialFormState);
   return (
@@ -719,6 +719,20 @@ export function AddCategoryForm() {
         <Field label={t("shop.categoryNameAr")} name="name_ar" dir="rtl" maxLength={80} defaultValue={state.ok ? "" : state.values?.name_ar} small />
         <Field label={t("shop.categoryNameTr")} name="name_tr" maxLength={80} defaultValue={state.ok ? "" : state.values?.name_tr} small />
       </div>
+      {mains.length ? (
+        <label className="flex flex-col gap-1 text-sm font-semibold">
+          {t("shopTypes.parent")}
+          <select name="parent" defaultValue="" className="input input-sm font-normal">
+            <option value="">{t("shopTypes.parentNone")}</option>
+            {mains.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+          <span className="text-[13px] font-normal text-muted">{t("shopTypes.parentHint")}</span>
+        </label>
+      ) : null}
     </form>
   );
 }

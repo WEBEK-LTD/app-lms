@@ -20,7 +20,7 @@ export const PRIVACY: LegalDefault = {
   key: "privacy",
   path: "/privacy",
   title: "Privacy policy",
-  updated: "18 November 2026",
+  updated: "23 November 2026",
   body: `## 1. Who we are
 
 Yallapp is based in Cairo, Egypt, and is the data controller for the personal data described here. We work with businesses in many countries, so we follow the data protection laws that apply to the data we handle: Egypt's Personal Data Protection Law (Law No. 151 of 2020), and, where they apply, the EU General Data Protection Regulation (GDPR) and the Turkish Personal Data Protection Law No. 6698 (KVKK). Contact: [{{contact_email}}](mailto:{{contact_email}}).
@@ -34,6 +34,8 @@ Yallapp is based in Cairo, Egypt, and is the data controller for the personal da
 - **Messages** you send us, and **technical logs** such as IP address, browser and sign-in times.
 - **How you found us:** when you sign up, the source, medium and campaign of the link you came from, the name of the website that sent you (not the page), and whether you looked at our demo apps. We use it only to learn which pages and campaigns bring us clients, and nothing is stored in your browser for it.
 - **Studio Market designers' details:** if you sell templates on Studio Market, before the first payout of your earnings we ask you for your name as it is on your ID, your country, your ID's type and number and a copy of it, the name of the bank account's holder, the IBAN or account number, the SWIFT/BIC code, the bank's name and country, and your address. We use these details only to verify your identity and to pay out your earnings. The ID number and the account number are stored encrypted, and only our dedicated payments team can see them.
+- **Studio Market designers' public page:** if you join Studio Market as a designer, your page at yallapp.com.tr/designers/your-address is public. It shows your photo, the name you choose and the line about you (after our team has looked at them once), your templates and their prices, your ratings and the number of your buyers, and your country and links only if you choose to show them. You can change or remove them in the designer area at any time.
+- **Ratings of Studio Market templates:** when you rate a template you got, your stars, your comment and your name (your first name and the first letter of your family name) are public on the template's page and the designer's page, with the designer's reply. You can change your rating at any time. Our team can hide a rating that breaks our rules.
 
 ## 3. Data about your app's users
 
@@ -68,7 +70,7 @@ Besides the emails about your account, we sometimes email news, tips and offers 
 
 ## 6. Who we share it with
 
-We share data only with providers that help us run Yallapp: hosting (webek.org) for the website, the database, apps without a website and build files, WhatsApp messaging (waabek.com) for sign-in codes, the build service that compiles your apps, and Apple or Google when we publish for you or check your app's in-app purchases. We may also share data with professional advisers or authorities when the law requires it. We send the transfer details to our bank only to pay out designers' earnings. We never sell personal data.
+We share data only with providers that help us run Yallapp: hosting (webek.org) for the website, the database, apps without a website and build files, WhatsApp messaging (waabek.com) for sign-in codes, the build service that compiles your apps, and Apple or Google when we publish for you or check your app's in-app purchases. We may also share data with professional advisers or authorities when the law requires it. We send the transfer details to our bank only to pay out designers' earnings. A Studio Market designer's public page and the ratings and replies on Studio Market are public, and anyone can see them. We never sell personal data.
 
 ## 7. International transfers
 

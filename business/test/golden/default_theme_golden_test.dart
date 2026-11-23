@@ -27,7 +27,8 @@ const _frame = ValueKey('golden-frame');
 final _volatile = [
   // Times (21:28, ١٢:١٤) and dates with a year, in Western or Arabic digits.
   RegExp(r'[0-9٠-٩]{1,2}:[0-9٠-٩]{2}'),
-  RegExp(r'[0-9٠-٩]{4}'),
+  // A year (2026, ٢٠٢٦), not an order number like #1042.
+  RegExp(r'(?:20|٢٠)[0-9٠-٩]{2}(?![0-9٠-٩])'),
   RegExp(r'^(Good (morning|afternoon|evening)|صباح الخير|مساء الخير)'),
 ];
 

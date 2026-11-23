@@ -66,15 +66,20 @@ void main() {
     },
   );
 
-  testWidgets('215 the default Today has no new-order card, no cornice', (
-    tester,
-  ) async {
-    final app = TestApp();
-    await app.pump(tester);
-    expect(find.byType(Cornice), findsNothing);
-    expect(find.byType(GiltCard), findsNothing);
-    expect(find.byKey(const ValueKey('new-order-shimmer')), findsNothing);
-  });
+  testWidgets(
+    '215 the default Today: the shared New order card, without the Pharaonic skin',
+    (tester) async {
+      final app = TestApp();
+      await app.pump(tester);
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('new-order-card')),
+        200,
+      );
+      expect(find.byType(Cornice), findsNothing);
+      expect(find.byType(GiltCard), findsNothing);
+      expect(find.byKey(const ValueKey('new-order-shimmer')), findsNothing);
+    },
+  );
 
   testWidgets(
     '215 Pharaonic Today: the newest waiting order shimmers until it is accepted',

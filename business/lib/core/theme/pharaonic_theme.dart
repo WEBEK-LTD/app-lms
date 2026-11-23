@@ -35,9 +35,10 @@ ThemeData buildPharaonicTheme({
   final t = base.textTheme;
   final text = TextTheme(
     displaySmall: display(t.displaySmall),
-    headlineMedium: display(t.headlineMedium),
-    // Big numbers (Today's tiles, an order's number) use these two: they
-    // stay in the text font, crisp and tabular.
+    // The New order card's number is a headlineMedium: text font too.
+    headlineMedium: body(t.headlineMedium),
+    // Big numbers (Today's tiles, an order's number) use these: they stay
+    // in the text font, crisp and tabular.
     headlineSmall: body(t.headlineSmall),
     titleLarge: body(t.titleLarge),
     titleMedium: display(t.titleMedium),

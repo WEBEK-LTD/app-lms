@@ -1,5 +1,7 @@
 // 106 Studio Market
 import type {
+  MarketRating,
+  MarketRatingSummary,
   MarketTemplate,
   MarketTemplatePatch,
   MarketTemplateReview,
@@ -1344,14 +1346,14 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null }): Promise<CatalogCategory> {
+  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null; parentId?: number | null }): Promise<CatalogCategory> {
     const rows = await this.run((db) =>
       db
         .select({ next: sql<number | null>`max(${schema.catalogCategories.position}) + 1` })
         .from(schema.catalogCategories)
         .where(eq(schema.catalogCategories.appId, input.appId)),
     );
-    const values = { appId: input.appId, name: input.name, position: Number(rows[0]?.next ?? 0), sample: input.sample === true, createdAt: input.now, names: input.names ?? null };
+    const values = { appId: input.appId, name: input.name, position: Number(rows[0]?.next ?? 0), sample: input.sample === true, createdAt: input.now, names: input.names ?? null, parentId: input.parentId ?? null };
     const [result] = await this.run((db) => db.insert(schema.catalogCategories).values(values));
     return { id: Number(result.insertId), ...values };
   }
@@ -1375,6 +1377,15 @@ export class MysqlStore implements DataStore {
     );
   }
 
+  async setCatalogCategoryParent(appId: string, id: number, parentId: number | null): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.catalogCategories)
+        .set({ parentId })
+        .where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
+    );
+  }
+
   async reorderCatalogCategories(appId: string, ids: number[]): Promise<void> {
     const ordered = categoryOrder(await this.listCatalogCategories(appId), ids);
     for (const [position, id] of ordered.entries()) {
@@ -1390,6 +1401,13 @@ export class MysqlStore implements DataStore {
   async deleteCatalogCategory(appId: string, id: number, now: Date): Promise<void> {
     await this.run((db) =>
       db.delete(schema.catalogCategories).where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
+    );
+    // 208 Its sub-categories become main categories.
+    await this.run((db) =>
+      db
+        .update(schema.catalogCategories)
+        .set({ parentId: null })
+        .where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.parentId, id))),
     );
     for (const product of await this.listCatalogProducts(appId)) {
       if (product.categoryIds.includes(id)) {
@@ -10962,7 +10980,83 @@ export class MysqlStore implements DataStore {
   // ——— 106 Studio Market ———
 
   private designerRow(row: typeof schema.studioMarketDesigners.$inferSelect): TemplateDesigner {
-    return { ...row, status: row.status === "suspended" ? "suspended" : "active" };
+    const review = row.profileReview;
+    return { ...row, status: row.status === "suspended" ? "suspended" : "active", profileReview: review === "pending" || review === "approved" || review === "declined" ? review : "none", links: Array.isArray(row.links) ? row.links : [] };
+  }
+
+  // 106.14 Ratings
+
+  async getMarketRating(id: string): Promise<MarketRating | null> {
+    const t = schema.studioMarketRatings;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.id, id)).limit(1));
+    return row ?? null;
+  }
+
+  async getMarketRatingByBuyer(templateId: string, clientId: string): Promise<MarketRating | null> {
+    const t = schema.studioMarketRatings;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.templateId, templateId), eq(t.clientId, clientId))).limit(1));
+    return row ?? null;
+  }
+
+  async saveMarketRating(rating: MarketRating): Promise<{ rating: MarketRating; created: boolean }> {
+    const t = schema.studioMarketRatings;
+    // The unique key (template, account) keeps one: a second one changes the first.
+    await this.run((db) =>
+      db
+        .insert(t)
+        .values(rating)
+        .onDuplicateKeyUpdate({ set: { stars: rating.stars, comment: rating.comment, authorName: rating.authorName, updatedAt: rating.updatedAt } }),
+    );
+    const saved = (await this.getMarketRatingByBuyer(rating.templateId, rating.clientId))!;
+    return { rating: saved, created: saved.id === rating.id };
+  }
+
+  async listMarketRatings(filter: { templateIds?: readonly string[]; designerId?: string; withHidden?: boolean; limit?: number }): Promise<MarketRating[]> {
+    if (filter.templateIds && !filter.templateIds.length) return [];
+    const t = schema.studioMarketRatings;
+    const where = and(filter.templateIds ? inArray(t.templateId, [...filter.templateIds]) : undefined, filter.designerId ? eq(t.designerId, filter.designerId) : undefined, filter.withHidden ? undefined : isNull(t.hiddenAt));
+    return this.run((db) => {
+      const query = db.select().from(t).where(where).orderBy(desc(t.createdAt), desc(t.id));
+      return filter.limit ? query.limit(filter.limit) : query;
+    });
+  }
+
+  async replyToMarketRating(id: string, designerId: string, reply: string | null, now: Date): Promise<boolean> {
+    const t = schema.studioMarketRatings;
+    const [result] = await this.run((db) => db.update(t).set({ reply, repliedAt: reply === null ? null : now }).where(and(eq(t.id, id), eq(t.designerId, designerId))));
+    return result.affectedRows > 0;
+  }
+
+  async hideMarketRating(id: string, hidden: { at: Date; by: string; reason: string | null } | null): Promise<boolean> {
+    const t = schema.studioMarketRatings;
+    const [result] = await this.run((db) => db.update(t).set({ hiddenAt: hidden?.at ?? null, hiddenBy: hidden?.by ?? null, hiddenReason: hidden?.reason ?? null }).where(eq(t.id, id)));
+    return result.affectedRows > 0;
+  }
+
+  async marketRatingSummaries(templateIds?: readonly string[]): Promise<Record<string, MarketRatingSummary>> {
+    if (templateIds && !templateIds.length) return {};
+    const t = schema.studioMarketRatings;
+    const rows = await this.run((db) =>
+      db
+        .select({ templateId: t.templateId, count: count(), sum: sql<string>`sum(${t.stars})` })
+        .from(t)
+        .where(and(isNull(t.hiddenAt), templateIds ? inArray(t.templateId, [...templateIds]) : undefined))
+        .groupBy(t.templateId),
+    );
+    return Object.fromEntries(rows.map((r) => [r.templateId, { count: Number(r.count), sum: Number(r.sum) }]));
+  }
+
+  async countDesignerBuyers(designerId: string): Promise<number> {
+    const l = schema.studioMarketLicences;
+    const m = schema.studioMarketTemplates;
+    const [row] = await this.run((db) =>
+      db
+        .select({ n: sql<string>`count(distinct ${l.clientId})` })
+        .from(l)
+        .innerJoin(m, eq(m.id, l.templateId))
+        .where(eq(m.designerId, designerId)),
+    );
+    return Number(row?.n ?? 0);
   }
 
   async getTemplateDesignerByClient(clientId: string): Promise<TemplateDesigner | null> {

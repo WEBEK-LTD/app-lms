@@ -1347,6 +1347,7 @@
   "pauseMore": "Başka bir yeri duraklat",
   "reopenNow": "Şimdi aç",
   "reopenedNow": "Yeniden sipariş alınıyor",
+  "newOrderMore": "+{count} daha",
   "ringFocusTitle": "Odak modunda sipariş uyarıları",
   "ringFocusHelp": "iPhone'da yeni sipariş uyarıları Zamana Duyarlı'dır. Odak veya Rahatsız Etme sırasında duymak için Yallapp Business'ın bildirim ayarlarında Zamana Duyarlı Bildirimler'i açın ve Odak'ta izin verin.",
   "ringFocusOpen": "Bildirim ayarlarını aç",

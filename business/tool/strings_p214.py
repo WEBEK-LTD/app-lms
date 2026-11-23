@@ -55,6 +55,8 @@ S = [
 ("pauseMore", "Pause another place", "إيقاف فرع آخر", "Başka bir yeri duraklat"),
 ("reopenNow", "Reopen now", "إعادة الفتح الآن", "Şimdi aç"),
 ("reopenedNow", "Taking orders again", "عاد استقبال الطلبات", "Yeniden sipariş alınıyor"),
+# The New order card on Today
+("newOrderMore", "+{count} more", "+{count} أخرى", "+{count} daha"),
 # Time Sensitive (iPhone): new orders through Focus
 ("ringFocusTitle", "Order alerts through Focus", "تنبيهات الطلبات أثناء وضع التركيز", "Odak modunda sipariş uyarıları"),
 ("ringFocusHelp", "On iPhone, new order alerts are Time Sensitive. To hear them during Focus or Do Not Disturb, turn on Time Sensitive Notifications for Yallapp Business in its notification settings, and allow it in your Focus.", "على iPhone، تنبيهات الطلبات الجديدة حسّاسة للوقت. لتسمعها أثناء وضع التركيز أو عدم الإزعاج، فعّل الإشعارات الحسّاسة للوقت لتطبيق Yallapp Business في إعدادات إشعاراته، واسمح بها في وضع التركيز.", "iPhone'da yeni sipariş uyarıları Zamana Duyarlı'dır. Odak veya Rahatsız Etme sırasında duymak için Yallapp Business'ın bildirim ayarlarında Zamana Duyarlı Bildirimler'i açın ve Odak'ta izin verin."),

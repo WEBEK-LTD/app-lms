@@ -8182,6 +8182,12 @@ abstract class AppLocalizations {
   /// **'Taking orders again'**
   String get reopenedNow;
 
+  /// No description provided for @newOrderMore.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String newOrderMore(String count);
+
   /// No description provided for @ringFocusTitle.
   ///
   /// In en, this message translates to:

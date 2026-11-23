@@ -4604,6 +4604,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get reopenedNow => 'Yeniden sipariş alınıyor';
 
   @override
+  String newOrderMore(String count) {
+    return '+$count daha';
+  }
+
+  @override
   String get ringFocusTitle => 'Odak modunda sipariş uyarıları';
 
   @override

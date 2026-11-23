@@ -182,6 +182,23 @@ Future<void> settle(WidgetTester tester, [int frames = 12]) async {
   }
 }
 
+/// 214 Scrolls Today down until [finder] is on screen: its cards (Pause
+/// new orders, the New order card) can put the rest below the fold.
+Future<void> seeOnToday(WidgetTester tester, Finder finder) async {
+  if (finder.evaluate().isNotEmpty) return;
+  await tester.scrollUntilVisible(
+    finder,
+    200,
+    scrollable: find
+        .descendant(
+          of: find.byType(CustomScrollView),
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
+  await tester.pump();
+}
+
 /// Taps [finder] after scrolling it into view.
 Future<void> tapOn(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder.first);

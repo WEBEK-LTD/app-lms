@@ -18,10 +18,26 @@ The home-screen widget on Android and iPhone (sales today, orders today,
 new orders waiting; its own read-only token for `GET /widget`), and a new
 order until it is answered: Android's ongoing notification with Accept and
 Open, the iPhone's Live Activity on the Lock Screen and in the Dynamic
-Island, started and ended by the server's pushes (migration 0154). New
+Island, started and ended by the server's pushes (migration 0154); the
+New order card on Today with Accept and Reject. New
 iPhone extension: `tr.com.yallapp.business.ShopWidget`, its App ID and
 profile made by fastlane on the first release. Time Sensitive is ready
 but off (open item below).
+
+Roadmap 106.14 (a designer's public page on Studio Market, the owner's
+decision of 23 November): `/designers/<handle>` in English, Arabic and
+Turkish shows the designer's photo, name and line (after the team's first
+look), their country and links if they choose, their published templates
+with prices and ratings, the overall rating, ratings and buyers, and each
+buyer's rating with the designer's one reply. Designers set it up in
+Designer area › Your page (reserved addresses refused) and answer in
+Ratings; an account that got a template rates it once from its page in
+Studio and can change it; the team approves photos and lines, hides a
+rating or locks a page in Admin › Studio Market › Designers. The market's
+cards show the rating and link the designer's name to the page. Migration
+0147. The privacy policy and the designer terms now say the page, ratings
+and replies are public: after deploy, act on any "Default updated" badge
+in Admin › Website content (Phase 172).
 
 Roadmap 213 (Yallapp Business 1.0.5, the money sounds; in the code, not
 released: the release waits for the owner): seven more order sounds beside
@@ -181,6 +197,29 @@ owner's own translation, Yallapp's or the owner's main text, as the page
 inspector does. No migration; the app's part comes with the next app build
 (no `CLIENT_APP_RELEASE` change here); not yet tried on a phone (ROADMAP
 181.5, 181.6).
+
+Roadmap 208 (Studio's shop types, stage 1: the foundation and Clothes):
+the planning doc's shop types are in one registry (`lib/studio/shop-types.ts`)
+by section (Fashion; Beauty & care; Home & living; Kids & toys; Shopping &
+stores) on /start?for=studio and Studio's new project, Clothes ready and
+the other nine coming soon (not to choose). Clothes is Lujain, a Studio demo
+of the store kind with its two looks, A LUJAIN (black and white) and B NOUN
+(streetwear), light and dark, 62 CC0 StockSnap photos, 46 pieces in their
+sizes and colours with the stock of each, 8 categories and 17
+sub-categories, its story page and its drawn icon. New for every store: sub-categories
+in Store › Categories (migration 0148), the category menu element (every
+main category a row of cards with its sub-categories, opened by the
+header's menu button through `StudioHeader.menu_page`), the size chart
+element and a product's size guide, sizes gone in the colour chosen,
+"Complete the look", the shop's exchanges under the price (Store ›
+Delivery & offers › Clothes for the chart and Complete the look), the
+"Installments coming soon" tag, and the liability notice a shop type's
+project accepts once ("قرأت وموافق", `App.liabilityAccepted`). The app's
+preview is rebuilt; no `CLIENT_APP_RELEASE` change (older apps skip the new
+element, draw the menu as chips and keep the side menu). Not yet: a
+store's wishlist, reviews with photos, back in stock, filters by size,
+colour and price, and the size chart and Complete the look from WordPress
+and connected platforms (208.19).
 
 Roadmap 207 (Yallapp Business 1.0.4, ringtones; in the code, not released:
 the release waits for the owner): new orders ring until opened, like a call.

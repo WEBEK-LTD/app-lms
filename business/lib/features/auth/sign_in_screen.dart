@@ -129,7 +129,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           header: true,
                           child: Text(
                             _needsCode ? l10n.twoStepTitle : l10n.signInTitle,
-                            style: theme.textTheme.headlineMedium,
+                            style: pharaonic
+                                ? theme.textTheme.headlineMedium?.copyWith(
+                                    fontFamily: YbOrnaments.displayFont,
+                                  )
+                                : theme.textTheme.headlineMedium,
                           ),
                         ),
                         const SizedBox(height: 8),

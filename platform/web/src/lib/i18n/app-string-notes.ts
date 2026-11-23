@@ -10,6 +10,42 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  // 208 The clothes type's words.
+  "208 Link beside a product's sizes: opens the shop's size chart.": {
+    en: "The link beside a product's sizes: opens your size chart.",
+    ar: "لينك جنب مقاسات المنتج: بيفتح جدول المقاسات بتاعك.",
+    tr: "Bir ürünün bedenlerinin yanındaki bağlantı: beden tablonuzu açar.",
+  },
+  "208 The size chart's title, with its unit (cm or in).": {
+    en: "The size chart's title, with its unit (cm or in).",
+    ar: "عنوان جدول المقاسات، ومعاه الوحدة (سنتي أو بوصة).",
+    tr: "Beden tablosunun başlığı, birimiyle (cm ya da inç).",
+  },
+  "208 Title of the products that go with this one on its page.": {
+    en: "On a product's page: the title of the products that go with it.",
+    ar: "في صفحة المنتج: عنوان المنتجات اللي بتتلبس معاه.",
+    tr: "Ürün sayfasında: onunla giden ürünlerin başlığı.",
+  },
+  "208 The shop's exchange policy under a product's price.": {
+    en: "Your exchanges and returns, under a product's price.",
+    ar: "الاستبدال والإرجاع عندك، تحت سعر المنتج.",
+    tr: "Değişim ve iadeleriniz, ürünün fiyatının altında.",
+  },
+  "208 A size or colour none of whose pieces are left (screen readers).": {
+    en: "A size or colour with none left, as screen readers say it.",
+    ar: "مقاس أو لون خلص، زي ما قارئ الشاشة بيقوله.",
+    tr: "Hiç kalmamış bir beden ya da renk, ekran okuyucunun söylediği gibi.",
+  },
+  "208 The category menu: a row's first card, the main category itself.": {
+    en: "The category menu: the first card of a row, the main category itself.",
+    ar: "قايمة الأقسام: أول كارت في الصف، القسم الرئيسي نفسه.",
+    tr: "Kategori menüsü: bir sıranın ilk kartı, ana kategorinin kendisi.",
+  },
+  "208 A category menu row's title for screen readers: its name and how many products.": {
+    en: "The category menu: a row's title as screen readers say it, its name and how many products.",
+    ar: "قايمة الأقسام: عنوان الصف زي ما قارئ الشاشة بيقوله، اسمه وعدد المنتجات.",
+    tr: "Kategori menüsü: ekran okuyucunun söylediği sıra başlığı, adı ve ürün sayısı.",
+  },
   "Button on the empty My tickets list of an Events app: opens the events.": {
     ar: "زر في قائمة «تذاكري» الفارغة في تطبيق الفعاليات: يفتح الفعاليات.",
     tr: "Etkinlik uygulamasında boş Biletlerim listesindeki düğme: etkinlikleri açar.",
