@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 64" fill="none">
+  <!-- Original winged-sun mark for the Pharaonic theme: a disc with two
+       abstract curls, three tiers of swept feathers on each side. -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F3D88F"/>
+      <stop offset=".55" stop-color="#D4A94E"/>
+      <stop offset="1" stop-color="#9C7428"/>
+    </linearGradient>
+    <mask id="feathers" maskUnits="userSpaceOnUse" x="0" y="0" width="240" height="64">
+      <rect width="240" height="64" fill="#000"/>
+      <g id="w" fill="#fff">
+        <path d="M134 21C166 12 202 7 238 9C206 16 170 22 134 29Z"/>
+        <path d="M134 31C167 24 199 20 229 20C201 27 169 33 134 39Z"/>
+        <path d="M134 41C163 36 189 33 213 33C189 40 163 44 134 48Z"/>
+      </g>
+      <use href="#w" transform="matrix(-1 0 0 1 240 0)"/>
+      <g stroke="#000" stroke-width="1.1" stroke-linecap="round">
+        <path id="cuts" d="M146 18L148 28M158 15L161 26M170 13L173 24M182 11L185 22M194 10L197 20M206 9L208 17M218 9L219 14
+                           M150 28L152 37M163 25L165 34M176 23L178 31M189 21L191 29M202 21L203 26
+                           M152 39L153 46M166 37L167 44M180 35L181 41M194 34L194 38"/>
+        <use href="#cuts" transform="matrix(-1 0 0 1 240 0)"/>
+      </g>
+    </mask>
+  </defs>
+  <rect width="240" height="64" fill="url(#g)" mask="url(#feathers)"/>
+  <circle cx="120" cy="30" r="12.5" fill="url(#g)"/>
+  <circle cx="120" cy="30" r="8.5" stroke="#1A1406" stroke-opacity=".35" stroke-width="1"/>
+  <path d="M108.5 36c-4.5 3.5-3.5 11 2 11.5c3 .3 4-2.6 2.2-4.2" stroke="url(#g)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M131.5 36c4.5 3.5 3.5 11-2 11.5c-3 .3-4-2.6-2.2-4.2" stroke="url(#g)" stroke-width="2" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Pharaonic · Choose a theme</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .topglow { position: absolute; inset: 0 0 auto 0; height: 200px; pointer-events: none;
+    background: radial-gradient(130% 100% at 50% 0%, var(--bg-glow) 0%, transparent 72%); }
+  .topglow .glyphs { -webkit-mask: url(../svg/glyph-texture.svg) repeat, linear-gradient(#000 10%, transparent 100%);
+    -webkit-mask-size: 132px 132px, 100% 100%; -webkit-mask-composite: source-in; }
+  .themes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; position: relative; }
+  .opt { padding: 10px 10px 12px; border-radius: 20px; }
+  .opt.on { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), var(--shadow); }
+  .opt .head { display: flex; align-items: center; gap: 6px; margin-top: 10px; padding: 0 2px; }
+  .opt .head b { font: 700 17px/1.25 "El Messiri", serif; flex: 1; }
+  .opt .head .ms { color: var(--ink2); }
+  .opt.on .head .ms { color: var(--gold); }
+  .opt p { font-size: 12.5px; color: var(--ink2); line-height: 1.45; padding: 2px 2px 0; }
+
+  /* Miniature phones, drawn with each theme's own colours. */
+  .mini { height: 290px; border-radius: 14px; overflow: hidden; position: relative; padding: 10px 9px; display: flex; flex-direction: column; gap: 7px; }
+  .mini .bar { height: 5px; border-radius: 3px; }
+  .mini .tile { border-radius: 8px; padding: 6px 7px; display: flex; flex-direction: column; gap: 4px; }
+  .mini .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .mini .btns { display: grid; grid-template-columns: 1.6fr 1fr; gap: 5px; margin-top: 3px; }
+  .mini .btns i { height: 15px; border-radius: 5px; }
+  .mini .navm { margin-top: auto; height: 24px; border-radius: 8px; display: flex; justify-content: space-around; align-items: center; }
+  .mini .navm i { width: 11px; height: 11px; border-radius: 3px; }
+
+  .mini.classic { background: #F4EFE6; font-family: "IBM Plex Sans Arabic"; }
+  .mini.classic .t { font: 700 13px/1.2 "IBM Plex Sans Arabic"; color: #0E0D24; }
+  .mini.classic .word { font: 800 12px/1 "IBM Plex Sans Arabic"; color: #0E0D24; direction: ltr; text-align: left; }
+  .mini.classic .word em { color: #FF5A1F; font-style: normal; }
+  .mini.classic .tile { background: #FFFFFF; border: 1px solid #E4DDD0; }
+  .mini.classic .bar { background: #E4DDD0; }
+  .mini.classic .bar.k { background: #0E0D24; width: 70%; height: 7px; }
+  .mini.classic .dot { width: 22px; height: 4px; border-radius: 2px; background: #FF5A1F; }
+  .mini.classic .btns i:first-child { background: #0E0D24; }
+  .mini.classic .btns i:last-child { box-shadow: inset 0 0 0 1.2px #0E0D24; }
+  .mini.classic .navm { background: #FFFFFF; border: 1px solid #E4DDD0; }
+  .mini.classic .navm i { background: #CFC7B8; } .mini.classic .navm i:first-child { background: #0E0D24; }
+  [dir="rtl"] .mini.classic .navm i:first-child { order: 9; }
+
+  .mini.pharaonic { background: radial-gradient(120% 60% at 50% 0%, #17244D, #0A0F1E 70%); }
+  .mini.pharaonic .sun { width: 104px; height: 28px; margin: 8px auto 2px; }
+  .mini.pharaonic .cart { align-self: center; height: 20px; padding: 0 12px; border-radius: 10px; box-shadow: inset 0 0 0 1px #E2BE6A, inset 0 0 0 3px #0A0F1E, inset 0 0 0 3.6px rgba(226,190,106,.55);
+    font: 700 10.5px/20px "El Messiri"; color: #F4EAD5; }
+  .mini.pharaonic .tile { background: #121A31; border: 1px solid rgba(226,190,106,.4); }
+  .mini.pharaonic .bar { background: #27314F; }
+  .mini.pharaonic .bar.k { background: #E2BE6A; width: 55%; height: 7px; }
+  .mini.pharaonic .dot { width: 22px; height: 4px; border-radius: 2px; background: #56D4C3; }
+  .mini.pharaonic .btns i:first-child { background: linear-gradient(#F0D48C, #C3963C); }
+  .mini.pharaonic .btns i:last-child { box-shadow: inset 0 0 0 1.2px #FF8E7A; }
+  .mini.pharaonic .lotusm { height: 8px; background: #E2BE6A; opacity: .6; -webkit-mask: url(../svg/lotus-border.svg) round no-repeat center; -webkit-mask-size: 20px 8px; margin-top: auto; }
+  .mini.pharaonic .navm { background: #0D1327; margin-top: 0; }
+  .mini.pharaonic .navm i { background: #3A4466; } .mini.pharaonic .navm i:first-child { background: #E2BE6A; }
+  [dir="rtl"] .mini.pharaonic .navm i:first-child { order: 9; }
+
+  .radios { margin: 0 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+  .radio { display: flex; align-items: center; gap: 14px; padding: 10px 14px; min-height: 56px; position: relative; }
+  .radio + .radio::before { content: ""; position: absolute; top: 0; inset-inline: 52px 0; height: 1px; background: var(--line); }
+  .radio .ms { color: var(--ink2); }
+  .radio.on .ms { color: var(--gold); }
+  .radio .t { flex: 1; font-size: 16px; }
+  .radio .t small { display: block; font-size: 13px; color: var(--ink2); }
+  .foot { padding: 14px 22px 0; font-size: 13px; color: var(--ink2); }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="topglow"><div class="glyphs"></div></div>
+  <div class="status"><span class="num">21:52</span><span class="icons"><span class="ms fill">signal_cellular_alt</span><span class="ms fill">wifi</span><span class="ms fill">battery_full</span></span></div>
+  <div class="appbar">
+    <span class="iconbtn"><span class="ms dir">arrow_back</span></span>
+    <h1>المظهر</h1>
+  </div>
+  <div class="body">
+    <div class="section-title" style="padding-top:4px"><span>السمة</span><span class="rule"></span></div>
+    <div class="themes">
+      <div class="card opt">
+        <div class="mini classic">
+          <div class="word">yallapp<em>.</em></div>
+          <div class="t">مساء الخير</div>
+          <div class="grid"><div class="tile"><div class="bar" style="width:60%"></div><div class="bar k"></div></div><div class="tile"><div class="bar" style="width:60%"></div><div class="bar k" style="width:40%"></div></div></div>
+          <div class="tile"><div class="dot"></div><div class="bar k" style="width:45%"></div><div class="bar"></div><div class="btns"><i></i><i></i></div></div>
+          <div class="tile"><div class="bar k" style="width:62%;height:5px"></div><div class="bar" style="width:38%"></div></div>
+          <div class="tile"><div class="bar k" style="width:50%;height:5px"></div><div class="bar" style="width:30%"></div></div>
+          <div class="navm"><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="head"><b>الافتراضي</b><span class="ms">radio_button_unchecked</span></div>
+        <p>ألوان <bdi>Yallapp</bdi> المعتادة</p>
+      </div>
+      <div class="card opt on">
+        <div class="mini pharaonic">
+          <i class="sun"></i>
+          <div class="cart">بيت النيل</div>
+          <div class="grid"><div class="tile"><div class="bar" style="width:60%"></div><div class="bar k"></div></div><div class="tile"><div class="bar" style="width:60%"></div><div class="bar k" style="width:40%"></div></div></div>
+          <div class="tile"><div class="dot"></div><div class="bar k" style="width:45%"></div><div class="bar"></div><div class="btns"><i></i><i></i></div></div>
+          <div class="tile"><div class="bar k" style="width:62%;height:5px"></div><div class="bar" style="width:38%"></div></div>
+          <div class="tile"><div class="bar k" style="width:50%;height:5px"></div><div class="bar" style="width:30%"></div></div>
+          <div class="lotusm"></div>
+          <div class="navm"><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="head"><b>فرعوني</b><span class="ms fill">check_circle</span></div>
+        <p>ليلي وذهبي، بزخارف مصرية قديمة</p>
+      </div>
+    </div>
+
+    <div class="section-title"><span>فاتح أو داكن</span><span class="rule"></span></div>
+    <div class="radios">
+      <div class="radio"><span class="ms">radio_button_unchecked</span><span class="t">مثل إعداد الهاتف<small>فاتح أو داكن حسب إعداد هاتفك.</small></span></div>
+      <div class="radio"><span class="ms">radio_button_unchecked</span><span class="t">فاتح</span></div>
+      <div class="radio on"><span class="ms fill">radio_button_checked</span><span class="t">داكن</span></div>
+    </div>
+    <p class="foot">يُحفظ المظهر على هذا الهاتف ولا يغيّر شيئًا في تطبيق عملائك.</p>
+  </div>
+  <div class="homebar clear"><i></i></div>
+</div>
+<script src="ornaments.js"></script>
+</body>
+</html>

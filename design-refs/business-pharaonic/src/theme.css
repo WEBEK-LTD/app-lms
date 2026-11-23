@@ -1,0 +1,185 @@
+/* Yallapp Business: the Pharaonic theme (design pilot).
+   Tokens mirror what a Flutter ThemeExtension would hold (see README.md). */
+
+@font-face { font-family: "El Messiri"; font-weight: 400 700; font-display: block;
+  src: url(../fonts/ElMessiri-arabic.woff2) format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+200C-200E, U+2010-2011, U+FB50-FDFF, U+FE70-FEFC; }
+@font-face { font-family: "El Messiri"; font-weight: 400 700; font-display: block;
+  src: url(../fonts/ElMessiri-latin-ext.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+20A0-20AB, U+20AD-20C4; }
+@font-face { font-family: "El Messiri"; font-weight: 400 700; font-display: block;
+  src: url(../fonts/ElMessiri-latin.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+@font-face { font-family: "IBM Plex Sans Arabic"; font-weight: 400; font-display: block; src: url(../fonts/IBMPlexSansArabic-Regular.ttf); }
+@font-face { font-family: "IBM Plex Sans Arabic"; font-weight: 500; font-display: block; src: url(../fonts/IBMPlexSansArabic-Medium.ttf); }
+@font-face { font-family: "IBM Plex Sans Arabic"; font-weight: 600; font-display: block; src: url(../fonts/IBMPlexSansArabic-SemiBold.ttf); }
+@font-face { font-family: "IBM Plex Sans Arabic"; font-weight: 700; font-display: block; src: url(../fonts/IBMPlexSansArabic-Bold.ttf); }
+@font-face { font-family: "Material Symbols Rounded"; font-weight: 100 700; font-display: block; src: url(../fonts/MaterialSymbolsRounded.woff2) format("woff2"); }
+
+/* ---------- Tokens ---------- */
+:root, :root[data-mode="dark"] {
+  --bg: #0A0F1E;            /* night: lapis-black */
+  --bg-glow: #17244D;       /* lapis glow behind the headers */
+  --surface: #121A31;
+  --surface2: #18223F;
+  --line: #27314F;
+  --gold-line: rgba(226, 190, 106, .40);
+  --ink: #F4EAD5;           /* papyrus text */
+  --ink2: #B9AF98;
+  --gold: #E2BE6A;          /* burnished gold (text and icons) */
+  --faience: #56D4C3;       /* turquoise faience */
+  --faience-bg: rgba(86, 212, 195, .13);
+  --danger: #FF8E7A;        /* carnelian */
+  --danger-bg: rgba(255, 142, 122, .12);
+  --success: #7FD9A6;
+  --success-bg: rgba(127, 217, 166, .12);
+  --btn: linear-gradient(180deg, #F0D48C 0%, #D7AE55 55%, #C3963C 100%);
+  --btn-ink: #1A1406;
+  --btn-edge: #F7E2A8;
+  --nav: #0D1327;
+  --glyph: #E2BE6A;
+  --glyph-op: .035;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  color-scheme: dark;
+}
+:root[data-mode="light"] {
+  --bg: #F3EBD9;            /* papyrus */
+  --bg-glow: #E7D9B9;
+  --surface: #FBF7EE;
+  --surface2: #EFE4CC;
+  --line: #E0D3B6;
+  --gold-line: rgba(122, 87, 16, .38);
+  --ink: #161B2E;
+  --ink2: #5A513F;
+  --gold: #7A5710;
+  --faience: #0A6B62;
+  --faience-bg: #DCEEE8;
+  --danger: #A3311E;
+  --danger-bg: #F6E1DA;
+  --success: #1D6B43;
+  --success-bg: #DFEFE3;
+  --btn: linear-gradient(180deg, #24346E 0%, #1C2A5C 100%);  /* lapis */
+  --btn-ink: #F7EBCB;
+  --btn-edge: #C9A04A;
+  --nav: #FBF7EE;
+  --glyph: #7A5710;
+  --glyph-op: .05;
+  --shadow: 0 8px 24px rgba(74, 56, 20, .12);
+  color-scheme: light;
+}
+
+/* ---------- Base ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 390px; height: 844px; overflow: hidden; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 400 15px/1.55 "IBM Plex Sans Arabic", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+:root[lang="en"] body { line-height: 1.45; }
+.screen { position: relative; width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; }
+.display { font-family: "El Messiri", "IBM Plex Sans Arabic", serif; }
+bdi, .ltr { direction: ltr; unicode-bidi: isolate; }
+/* Order numbers, prices, times: the text font, tabular, never the display font. */
+.num { font-family: "IBM Plex Sans Arabic", sans-serif; font-variant-numeric: tabular-nums lining-nums; font-feature-settings: "tnum" 1, "lnum" 1; direction: ltr; unicode-bidi: isolate; letter-spacing: 0; }
+
+.ms { font-family: "Material Symbols Rounded"; font-weight: normal; font-style: normal; font-size: 24px; line-height: 1;
+  display: inline-block; white-space: nowrap; direction: ltr; -webkit-font-feature-settings: "liga"; font-feature-settings: "liga";
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; user-select: none; flex: none; }
+.ms.fill { font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24; }
+.ms.s20 { font-size: 20px; font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 20; }
+.ms.s20.fill { font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 20; }
+.ms.s18 { font-size: 18px; font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 20; }
+/* Flutter's DirectionalIcon: back arrows and chevrons point the reading way. */
+[dir="rtl"] .ms.dir { transform: scaleX(-1); }
+
+/* ---------- Ornament layers ---------- */
+.glyphs { position: absolute; inset: 0; pointer-events: none; background: var(--glyph); opacity: var(--glyph-op);
+  -webkit-mask: url(../svg/glyph-texture.svg) repeat; -webkit-mask-size: 132px 132px; }
+.glyphs.fade { -webkit-mask: url(../svg/glyph-texture.svg) repeat, linear-gradient(#000 0%, transparent 100%);
+  -webkit-mask-size: 132px 132px, 100% 100%; -webkit-mask-composite: source-in; }
+.lotus { height: 16px; background: var(--gold); opacity: .8;
+  -webkit-mask: url(../svg/lotus-border.svg) round no-repeat center; -webkit-mask-size: 40px 16px; }
+.lotus.faint { opacity: .45; }
+.sun { display: block; background: url(../svg/winged-sun.svg) no-repeat center / contain; }
+:root[data-mode="light"] .sun { filter: saturate(1.05) brightness(.82) contrast(1.15); }
+
+/* Cartouche: the frame is an SVG drawn to the box by ornaments.js. */
+.cartouche { position: relative; display: inline-flex; align-items: center; gap: 10px;
+  padding: 7px 22px 7px 26px; min-height: 44px; isolation: isolate; }
+[dir="rtl"] .cartouche { padding: 7px 26px 7px 22px; }
+.cartouche > svg.frame { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; pointer-events: none; }
+
+/* ---------- Chrome: status bar, app bar, nav ---------- */
+.status { height: 40px; flex: none; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 22px; font: 600 14px/1 "IBM Plex Sans Arabic"; color: var(--ink); position: relative; z-index: 2; }
+.status .icons { display: flex; gap: 4px; align-items: center; }
+.status .ms { font-size: 17px; }
+.homebar { height: 22px; flex: none; display: flex; justify-content: center; align-items: center; background: var(--nav); }
+.homebar i { width: 120px; height: 4px; border-radius: 2px; background: var(--ink); opacity: .55; }
+.homebar.clear { background: transparent; }
+
+.appbar { height: 60px; flex: none; display: flex; align-items: center; gap: 4px; padding: 0 8px; position: relative; z-index: 2; }
+.appbar h1 { font: 700 21px/1.3 "El Messiri", serif; color: var(--ink); flex: 1; padding: 0 6px; white-space: nowrap; }
+.iconbtn { width: 48px; height: 48px; border-radius: 24px; display: grid; place-items: center; color: var(--ink); position: relative; flex: none; }
+.iconbtn.tonal { background: var(--surface2); border: 1px solid var(--line); width: 44px; height: 44px; }
+
+.nav { flex: none; background: var(--nav); position: relative; display: grid; grid-template-columns: repeat(5, 1fr);
+  padding: 10px 4px 6px; border-top: 1px solid var(--line); }
+.nav::before { content: ""; position: absolute; inset: -9px 0 auto 0; height: 16px; background: var(--gold); opacity: .55;
+  -webkit-mask: url(../svg/lotus-border.svg) round no-repeat center; -webkit-mask-size: 40px 16px; }
+.nav .tab { display: flex; flex-direction: column; align-items: center; gap: 4px; font: 500 12px/1.2 "IBM Plex Sans Arabic"; color: var(--ink2); }
+.nav .tab .pill { width: 60px; height: 32px; border-radius: 16px; display: grid; place-items: center; color: var(--ink2); }
+.nav .tab.on { color: var(--gold); font-weight: 700; }
+.nav .tab.on .pill { background: var(--surface2); box-shadow: inset 0 0 0 1px var(--gold-line); color: var(--gold); }
+
+/* ---------- Content pieces ---------- */
+.body { flex: 1; position: relative; overflow: hidden; }
+.pad { padding: 0 20px; }
+.section-title { display: flex; align-items: center; gap: 10px; padding: 18px 20px 10px; font: 700 17px/1.3 "El Messiri", serif; color: var(--ink); }
+.section-title .rule { flex: 1; height: 16px; background: var(--gold); opacity: .45;
+  -webkit-mask: url(../svg/lotus-border.svg) round no-repeat center; -webkit-mask-size: 40px 16px; }
+.section-title .diamond { width: 7px; height: 7px; transform: rotate(45deg); background: var(--gold); flex: none; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; position: relative; }
+.card.gilt { border-color: var(--gold-line); box-shadow: var(--shadow); }
+.card.gilt::after { content: ""; position: absolute; inset: 4px; border-radius: 14px; border: 1px solid var(--gold-line); opacity: .45; pointer-events: none; }
+
+.muted { color: var(--ink2); }
+.gold { color: var(--gold); }
+.faience { color: var(--faience); }
+.small { font-size: 13px; line-height: 1.45; }
+
+.chip { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 11px; border-radius: 14px;
+  font: 600 13px/1 "IBM Plex Sans Arabic"; white-space: nowrap; }
+.chip.faience { background: var(--faience-bg); color: var(--faience); }
+.chip.gold { background: transparent; color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold-line); }
+.chip.quiet { background: var(--surface2); color: var(--ink); }
+.chip.success { background: var(--success-bg); color: var(--success); }
+
+.btn { height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  font: 700 16px/1 "IBM Plex Sans Arabic"; white-space: nowrap; position: relative; }
+.btn.primary { background: var(--btn); color: var(--btn-ink); box-shadow: inset 0 1px 0 var(--btn-edge), 0 6px 18px rgba(201, 154, 62, .22); }
+:root[data-mode="light"] .btn.primary { box-shadow: inset 0 0 0 1px rgba(201,160,74,.55), 0 6px 16px rgba(28, 42, 92, .22); }
+.btn.outline { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink2); }
+.btn.danger { color: var(--danger); box-shadow: inset 0 0 0 1.5px var(--danger); }
+.btn.text { color: var(--faience); height: 44px; font-weight: 600; font-size: 15px; }
+
+.field { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; height: 60px; padding: 8px 16px;
+  display: flex; align-items: center; gap: 8px; }
+:root[data-mode="dark"] .field { border-color: #3A4466; }
+:root[data-mode="light"] .field { border-color: #CDBF9F; }
+.field .in { flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.field label { font: 500 12px/1.3 "IBM Plex Sans Arabic"; color: var(--ink2); }
+.field .val { font: 500 16px/1.4 "IBM Plex Sans Arabic"; color: var(--ink); }
+:root .field.focus { border: 2px solid var(--gold); padding: 7px 15px; }
+.field.focus label { color: var(--gold); }
+
+.row { display: flex; align-items: center; gap: 14px; }
+.list-row { display: flex; align-items: center; gap: 14px; padding: 12px 20px; min-height: 60px; }
+.medal { width: 40px; height: 40px; border-radius: 20px; display: grid; place-items: center; flex: none;
+  background: var(--surface2); color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold-line); }
+
+.badge { position: absolute; top: 7px; inset-inline-end: 7px; min-width: 18px; height: 18px; border-radius: 9px; padding: 0 5px;
+  background: var(--faience); color: #06201C; font: 700 11px/18px "IBM Plex Sans Arabic"; text-align: center; }
+:root[data-mode="light"] .badge { color: #FFFFFF; }

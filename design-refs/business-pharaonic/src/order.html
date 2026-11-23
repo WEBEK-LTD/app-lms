@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Pharaonic · Order</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .topglow { position: absolute; inset: 0 0 auto 0; height: 180px; pointer-events: none;
+    background: radial-gradient(130% 100% at 50% 0%, var(--bg-glow) 0%, transparent 72%); }
+  .topglow .glyphs { -webkit-mask: url(../svg/glyph-texture.svg) repeat, linear-gradient(#000 10%, transparent 100%);
+    -webkit-mask-size: 132px 132px, 100% 100%; -webkit-mask-composite: source-in; }
+  .appbar .cartouche { flex: none; padding-top: 4px; padding-bottom: 4px; min-height: 42px; }
+  .appbar .cartouche b { font: 700 19px/1.2 "El Messiri", serif; white-space: nowrap; }
+  .appbar .cartouche .num { font-size: 19px; font-weight: 700; color: var(--gold); }
+  .appbar .grow { flex: 1; }
+  .meta { display: flex; align-items: center; gap: 8px; padding: 4px 20px 0; position: relative; }
+  .meta .muted { font-size: 13.5px; margin-inline-start: auto; }
+  .stages { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); padding: 16px 12px 0; }
+  .stage { display: flex; flex-direction: column; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink2); position: relative; text-align: center; }
+  .stage .node { width: 26px; height: 26px; border-radius: 13px; display: grid; place-items: center; z-index: 1;
+    background: var(--bg); box-shadow: inset 0 0 0 1.5px var(--line); color: var(--ink2); }
+  .stage.done .node { background: var(--gold); box-shadow: none; color: var(--btn-ink); }
+  :root[data-mode="light"] .stage.done .node { color: #FBF7EE; }
+  .stage.now .node { background: var(--faience-bg); box-shadow: inset 0 0 0 2px var(--faience), 0 0 0 4px var(--faience-bg); color: var(--faience); }
+  .stage.now { color: var(--faience); font-weight: 700; }
+  .stage.done { color: var(--ink); }
+  .stage::before { content: ""; position: absolute; top: 12px; inset-inline-start: 50%; width: 100%; height: 2px; background: var(--line); }
+  .stage.done::before { background: var(--gold); }
+  .stage:last-child::before { display: none; }
+  .blocks { padding: 14px 16px 0; display: flex; flex-direction: column; gap: 10px; }
+  .blk { padding: 12px 14px; }
+  .blk h3 { font: 700 15px/1.3 "El Messiri", serif; color: var(--gold); display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .blk h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(to left, var(--gold-line), transparent); }
+  [dir="ltr"] .blk h3::after { background: linear-gradient(to right, var(--gold-line), transparent); }
+  .who { display: flex; align-items: center; gap: 10px; }
+  .who .grow { flex: 1; min-width: 0; }
+  .who b { font-weight: 600; font-size: 16px; display: block; }
+  .who .num { font-size: 14px; color: var(--ink2); }
+  .addr { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); display: flex; gap: 10px; align-items: flex-start; }
+  .addr .grow { flex: 1; font-size: 14px; line-height: 1.5; }
+  .addr.when { align-items: center; }
+  .addr .note { color: var(--ink2); font-size: 13px; }
+  .line { display: flex; align-items: baseline; gap: 10px; padding: 5px 0; font-size: 15px; }
+  .line .q { font-weight: 700; color: var(--gold); min-width: 30px; }
+  .line .n { flex: 1; }
+  .line .n small { display: block; color: var(--ink2); font-size: 12.5px; }
+  .line .p { font-weight: 600; }
+  .sum { border-top: 1px dashed var(--line); margin-top: 6px; padding-top: 6px; }
+  .sum .line { font-size: 14px; color: var(--ink2); padding: 2px 0; }
+  .sum .line.total { color: var(--ink); font-size: 17px; font-weight: 700; padding-top: 6px; }
+  .sum .line.total .p { font-size: 20px; font-weight: 700; }
+  .paid { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .actions { flex: none; display: grid; grid-template-columns: 1.7fr 1fr; gap: 10px; padding: 12px 16px 6px; background: var(--nav);
+    border-top: 1px solid var(--line); position: relative; }
+  .actions::before { content: ""; position: absolute; inset: -9px 0 auto 0; height: 16px; background: var(--gold); opacity: .5;
+    -webkit-mask: url(../svg/lotus-border.svg) round no-repeat center; -webkit-mask-size: 40px 16px; }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="topglow"><div class="glyphs"></div></div>
+  <div class="status"><span class="num">21:46</span><span class="icons"><span class="ms fill">signal_cellular_alt</span><span class="ms fill">wifi</span><span class="ms fill">battery_full</span></span></div>
+
+  <div class="appbar">
+    <span class="iconbtn"><span class="ms dir">arrow_back</span></span>
+    <span class="cartouche"><b>الطلب</b><span class="num">#1041</span></span>
+    <span class="grow"></span>
+    <span class="iconbtn"><span class="ms">content_copy</span></span>
+    <span class="iconbtn"><span class="ms">more_vert</span></span>
+  </div>
+
+  <div class="body">
+    <div class="meta">
+      <span class="chip faience"><span class="ms s18">skillet</span>قيد التحضير</span>
+      <span class="chip quiet"><span class="ms s18">two_wheeler</span>توصيل</span>
+      <span class="muted">وُضع في <bdi class="num">21:28</bdi></span>
+    </div>
+
+    <div class="stages">
+      <div class="stage done"><span class="node"><span class="ms s18">check</span></span>جديد</div>
+      <div class="stage now"><span class="node"><span class="ms s18 fill">skillet</span></span>قيد التحضير</div>
+      <div class="stage"><span class="node"><span class="ms s18">room_service</span></span>جاهز</div>
+      <div class="stage"><span class="node"><span class="ms s18">two_wheeler</span></span>خرج للتوصيل</div>
+    </div>
+
+    <div class="blocks">
+      <div class="card blk">
+        <h3>العميل</h3>
+        <div class="who">
+          <span class="medal"><span class="ms s20">person</span></span>
+          <span class="grow"><b>أحمد منصور</b><span class="num">+20 100 555 0142</span></span>
+          <span class="iconbtn tonal"><span class="ms s20 faience">call</span></span>
+          <span class="iconbtn tonal"><span class="ms s20 faience">chat</span></span>
+        </div>
+        <div class="addr">
+          <span class="ms s20 gold" style="margin-top:2px">location_on</span>
+          <span class="grow">شارع المعز 12، الجمالية، القاهرة<div class="note">الطابق الثالث، اضغط الجرس مرتين</div></span>
+          <span class="iconbtn tonal"><span class="ms s20 faience">map</span></span>
+        </div>
+        <div class="addr when">
+          <span class="ms s20 gold">schedule</span>
+          <span class="grow">الموعد: في أقرب وقت ممكن</span>
+        </div>
+      </div>
+
+      <div class="card blk">
+        <h3>المنتجات</h3>
+        <div class="line"><span class="q"><bdi class="num">2</bdi> ×</span><span class="n">كشري كبير<small>بصل مقرمش إضافي</small></span><span class="p num">170.00 E£</span></div>
+        <div class="line"><span class="q"><bdi class="num">1</bdi> ×</span><span class="n">فطير مشلتت بالعسل</span><span class="p num">120.00 E£</span></div>
+        <div class="line"><span class="q"><bdi class="num">2</bdi> ×</span><span class="n">عصير قصب</span><span class="p num">70.00 E£</span></div>
+        <div class="sum">
+          <div class="line"><span class="n">المجموع الفرعي</span><span class="p num">360.00 E£</span></div>
+          <div class="line"><span class="n">رسوم التوصيل</span><span class="p num">25.00 E£</span></div>
+          <div class="line total"><span class="n">الإجمالي</span><span class="p num">385.00 E£</span></div>
+        </div>
+        <div class="paid"><span class="muted small">الدفع</span><span class="chip success"><span class="ms s18">check_circle</span>مدفوع</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <div class="btn primary"><span class="ms s20">room_service</span><span>جاهز</span></div>
+    <div class="btn danger">إلغاء الطلب</div>
+  </div>
+  <div class="homebar"><i></i></div>
+</div>
+<script src="ornaments.js"></script>
+</body>
+</html>

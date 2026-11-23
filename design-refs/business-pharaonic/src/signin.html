@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Pharaonic · Sign in</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .hero { position: absolute; inset: 0 0 auto 0; height: 470px; pointer-events: none;
+    background: radial-gradient(120% 70% at 50% 0%, var(--bg-glow) 0%, transparent 70%); }
+  .hero .glyphs { -webkit-mask: url(../svg/glyph-texture.svg) repeat, linear-gradient(#000 30%, transparent 100%);
+    -webkit-mask-size: 132px 132px, 100% 100%; -webkit-mask-composite: source-in; opacity: calc(var(--glyph-op) * 1.3); }
+  .lang { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px 0 10px; border-radius: 20px;
+    box-shadow: inset 0 0 0 1px var(--gold-line); color: var(--ink); font: 600 14px/1 "IBM Plex Sans Arabic"; }
+  .top { display: flex; justify-content: flex-end; padding: 6px 20px 0; position: relative; }
+  .mark { position: relative; text-align: center; padding-top: 40px; }
+  .mark .sun { width: 264px; height: 70px; margin: 0 auto; }
+  .word { display: inline-flex; align-items: baseline; gap: 8px; direction: ltr; margin-top: 18px; color: var(--ink); }
+  .word b { font: 700 34px/1 "El Messiri", serif; letter-spacing: .5px; }
+  .word b i { font-style: normal; color: var(--gold); }
+  .word span { font: 500 17px/1 "El Messiri", serif; color: var(--gold); letter-spacing: 2.5px; text-transform: uppercase; }
+  .divider { width: 200px; margin: 20px auto 0; }
+  .form { position: relative; padding: 34px 24px 0; display: flex; flex-direction: column; }
+  .form h2 { font: 700 28px/1.3 "El Messiri", serif; }
+  .form p.lead { margin-top: 6px; color: var(--ink2); font-size: 15px; line-height: 1.6; }
+  .fields { display: flex; flex-direction: column; gap: 14px; margin-top: 22px; }
+  .forgot { align-self: flex-end; padding: 0 4px; margin-top: 4px; }
+  .foot { text-align: center; margin-top: 30px; }
+  .foot p { font-size: 13px; color: var(--ink2); }
+  .foot .btn.text { height: 40px; display: inline-flex; padding: 0 8px; }
+  .frieze { position: relative; height: 70px; flex: none; }
+  .frieze .glyphs { -webkit-mask: url(../svg/glyph-texture.svg) repeat, linear-gradient(transparent, #000);
+    -webkit-mask-size: 132px 132px, 100% 100%; -webkit-mask-composite: source-in; }
+  .frieze .lotus { position: absolute; inset: auto 24px 8px; }
+  .dots { letter-spacing: 3px; font-size: 18px; }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="hero"><div class="glyphs"></div></div>
+  <div class="status"><span class="num">21:42</span><span class="icons"><span class="ms fill">signal_cellular_alt</span><span class="ms fill">wifi</span><span class="ms fill">battery_full</span></span></div>
+
+  <div class="top"><span class="lang"><span class="ms s20">translate</span>العربية<span class="ms s20">expand_more</span></span></div>
+
+  <div class="mark">
+    <i class="sun"></i>
+    <div class="word" aria-label="Yallapp Business"><b>yallapp<i>.</i></b><span>Business</span></div>
+    <div class="lotus divider"></div>
+  </div>
+
+  <div class="form">
+    <h2>تسجيل الدخول</h2>
+    <p class="lead">استخدم البريد الإلكتروني وكلمة المرور الخاصين بلوحة تحكم <bdi>Yallapp</bdi>.</p>
+
+    <div class="fields">
+      <div class="field focus"><div class="in"><label>البريد الإلكتروني</label><div class="val"><bdi>karim@beitelnil.eg</bdi></div></div></div>
+      <div class="field"><div class="in"><label>كلمة المرور</label><div class="val dots">••••••••••</div></div><span class="ms" style="color:var(--ink2)">visibility</span></div>
+    </div>
+    <span class="btn text forgot">نسيت كلمة المرور؟</span>
+    <div class="btn primary" style="margin-top:10px">تسجيل الدخول</div>
+
+    <div class="foot">
+      <p>جديد على <bdi>Yallapp</bdi>؟ أنشئ تطبيقك على الموقع.</p>
+      <span class="btn text">انتقل إلى <bdi>yallapp.com.tr</bdi></span>
+    </div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="frieze"><div class="glyphs"></div><div class="lotus faint"></div></div>
+  <div class="homebar clear"><i></i></div>
+</div>
+<script src="ornaments.js"></script>
+</body>
+</html>
