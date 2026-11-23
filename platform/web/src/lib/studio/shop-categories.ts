@@ -239,7 +239,7 @@ export function withCategoryLinks(node: StudioNode, list: readonly ShopCategory[
   const known = new Set(list.map((c) => String(c.id)));
   const kept = <T extends { action?: Action | null }>(entry: T): T => (entry.action?.type === "screen" && entry.action.category_id && !known.has(entry.action.category_id) ? { ...entry, action: SHOP_ACTION } : entry);
   let out = kept(node);
-  if (node.slides?.length) out = { ...out, slides: node.slides.map((s) => (s.action && opensShop(s.action) ? linkedEntry(s, s.heading, list, "heading") : kept(s))) };
+  if (node.slides?.length) out = { ...out, slides: node.slides.map((s) => (s.action && opensShop(s.action) ? linkedEntry(s, s.heading, list, null) : kept(s))) };
   if (node.entries?.length) out = { ...out, entries: node.entries.map((e) => (e.action && opensShop(e.action) ? linkedEntry(e, e.title, list, "title") : kept(e))) };
   const category = list.length ? linkedName(out, list) : null;
   return category ? { ...out, action: categoryAction(category) } : out;
@@ -248,8 +248,9 @@ export function withCategoryLinks(node: StudioNode, list: readonly ShopCategory[
 /** The whole shop, as a template's entries open it. */
 const SHOP_ACTION: Action = { type: "screen", screen: "search" };
 
-function linkedEntry<T extends { action?: Action | null; translations?: Translations }>(entry: T, name: string | null | undefined, list: readonly ShopCategory[], field: string): T {
-  const category = namesakeIn(name, entry.translations, field, list);
+function linkedEntry<T extends { action?: Action | null; translations?: Translations }>(entry: T, name: string | null | undefined, list: readonly ShopCategory[], field: string | null): T {
+  // 209 An entry (a skin quiz's result) by its words in the app's other languages too; a story ring by its own.
+  const category = field ? namesakeIn(name, entry.translations, field, list) : namesakeOf(name, list);
   return category ? { ...entry, action: categoryAction(category) } : entry;
 }
 

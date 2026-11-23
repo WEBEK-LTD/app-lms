@@ -29,12 +29,14 @@ export async function readShopCategories(
       rows.map((c) => ({ id: Number(c.id), name: typeof c.name === "string" ? c.name.trim() : "", image_url: typeof c.image_url === "string" && c.image_url ? c.image_url : null })).filter((c) => Number.isSafeInteger(c.id) && c.id > 0 && c.name !== "");
     const list = shown(listed.filter(top));
     // 209 The sub-categories too, for the elements named like one (a skin type, a brand), never for the lists.
-    const subs = shown(listed.filter((c) => !top(c)));
-    if (app.demo) return { list, own: false, subs };
-    if (app.connector?.kind !== "catalog") return { list, own: list.length > 0, subs };
+    const found = shown(listed.filter((c) => !top(c)));
+    // Left out when there are none, so a shop without sub-categories reads as before.
+    const subs = found.length ? { subs: found } : {};
+    if (app.demo) return { list, own: false, ...subs };
+    if (app.connector?.kind !== "catalog") return { list, own: list.length > 0, ...subs };
     const [categories, products] = await Promise.all([store.listCatalogCategories(app.id), store.listCatalogProducts(app.id)]);
     const own = ownCategoryIds(categories, products.filter((p) => p.active && !p.addon));
-    return { list, own: list.some((c) => own.has(c.id)), subs };
+    return { list, own: list.some((c) => own.has(c.id)), ...subs };
   } catch (e) {
     // The shop can't be reached: the lists as the template has them.
     if (e instanceof ConnectorError) return null;
