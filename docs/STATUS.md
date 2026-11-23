@@ -8,6 +8,17 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 215 (Yallapp Business 1.0.7, after 1.0.6; in the code, not
+released): the Pharaonic theme beside the default look, chosen in Settings ›
+Appearance and kept on the phone, light and dark following the same setting.
+Its own colours (AA throughout), El Messiri and Cinzel for headings, tabular
+figures for every number, the ground and ornaments painted in the app, the
+welcome, lock and opening screens, Today, an order, the ringtones, the nav
+and buttons, empty states, and the New order card in its skin (with a
+shimmer that stops with the answer and with less motion). The default look
+is unchanged: goldens of its screens match pixel for pixel. No migration,
+no server change.
+
 Roadmap 214 (Yallapp Business 1.0.6; in the code, not released: the
 release waits for the owner): ring by order value (2 or 3 bands with their
 own sounds), the end-of-day summary at the phone's time in the shop's time
@@ -23,6 +34,18 @@ New order card on Today with Accept and Reject. New
 iPhone extension: `tr.com.yallapp.business.ShopWidget`, its App ID and
 profile made by fastlane on the first release. Time Sensitive is ready
 but off (open item below).
+
+Roadmap 206 (the follow-ups of 157, 158 and 160): plugin 0.4.52 never
+makes WordPress wait on Yallapp when an account is deleted (the chat's
+forget is queued in WP-Cron with a short timeout and retried), and its
+end-to-end checks never call yallapp.com.tr; a WordPress flower shop's
+Leqaa pages show its WooCommerce categories, each opening its products, as
+hosted shops' do (157.7); every phone number typed without a country code
+in the dashboard and the app's orders takes the code the app's sign-in
+shows (the shop's country, not the saved +90); and the staff's and second
+apps' lists end above the phone's bar (158.7, in app release 16).
+158.3, 158.8 and Studio's 7th ring were already done on the integration
+branch (181).
 
 Roadmap 106.14 (a designer's public page on Studio Market, the owner's
 decision of 23 November): `/designers/<handle>` in English, Arabic and
@@ -509,7 +532,7 @@ Clear filters. It reaches the stores with the release the urgent fixes
 share. Not yet tried on a phone. Still open: on a page a little longer
 than the screen under a folding premium header, a quick drag can stop a
 few points short of the end, the last row still in sight (ROADMAP 158.3);
-the staff's and second apps' tabs still to take the same space (158.7).
+the staff's and second apps' tabs take the same space since 206.5 (158.7).
 
 Roadmap 159 (sizes automatic, by hand only when asked): Kech Flora's bag
 sat about three quarters of the way across the phone because the bar over

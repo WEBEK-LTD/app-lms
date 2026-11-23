@@ -2518,48 +2518,6 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get themeDark;
 
-  /// No description provided for @themeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Theme'**
-  String get themeTitle;
-
-  /// No description provided for @themeDefaultBadge.
-  ///
-  /// In en, this message translates to:
-  /// **'Default'**
-  String get themeDefaultBadge;
-
-  /// No description provided for @themeDefaultHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'The app\'s current look'**
-  String get themeDefaultHelp;
-
-  /// No description provided for @themePharaonic.
-  ///
-  /// In en, this message translates to:
-  /// **'Pharaonic'**
-  String get themePharaonic;
-
-  /// No description provided for @themePharaonicHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Night and gold, with ancient Egyptian ornaments'**
-  String get themePharaonicHelp;
-
-  /// No description provided for @themeModeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Light or dark'**
-  String get themeModeTitle;
-
-  /// No description provided for @themeModeHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Each theme has its own light and dark; both follow this setting.'**
-  String get themeModeHelp;
-
   /// No description provided for @changeTime.
   ///
   /// In en, this message translates to:
@@ -8205,6 +8163,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open notification settings'**
   String get ringFocusOpen;
+
+  /// No description provided for @themeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get themeTitle;
+
+  /// No description provided for @themeDefaultBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get themeDefaultBadge;
+
+  /// No description provided for @themeDefaultHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The app\'s current look'**
+  String get themeDefaultHelp;
+
+  /// No description provided for @themePharaonic.
+  ///
+  /// In en, this message translates to:
+  /// **'Pharaonic'**
+  String get themePharaonic;
+
+  /// No description provided for @themePharaonicHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Night and gold, with ancient Egyptian ornaments'**
+  String get themePharaonicHelp;
+
+  /// No description provided for @themeModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Light or dark'**
+  String get themeModeTitle;
+
+  /// No description provided for @themeModeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each theme has its own light and dark; both follow this setting.'**
+  String get themeModeHelp;
 
   /// No description provided for @minutesAgo.
   ///

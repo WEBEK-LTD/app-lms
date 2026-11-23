@@ -226,7 +226,7 @@ WaitingOrder _fromOrder(Order o) => WaitingOrder(
   total: o.total.formatted,
   items: [
     for (final l in o.lines)
-      if (l.addonOf == null) '${l.quantity} × ${l.name}',
+      if (l.addonOf == null) isolate('${l.quantity} × ${l.name}'),
   ].join(' • '),
   delivery: switch (o.kitchen?.type) {
     'delivery' => true,

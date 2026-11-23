@@ -43,6 +43,14 @@ class License_Client {
 	const DEFAULT_URL   = 'https://yallapp.com.tr/api/v1';
 
 	/**
+	 * 206.1 A deleted account's chat, told to Yallapp from WP-Cron: the hook, the attempts in all and
+	 * each call's timeout in seconds.
+	 */
+	const FORGET_HOOK     = 'yallapp_chat_forget';
+	const FORGET_ATTEMPTS = 5;
+	const FORGET_TIMEOUT  = 3;
+
+	/**
 	 * Settings.
 	 *
 	 * @var Settings
@@ -75,6 +83,7 @@ class License_Client {
 	public function register() {
 		add_action( self::CHECK_HOOK, array( $this, 'check' ) );
 		add_action( self::REFRESH_HOOK, array( $this, 'refresh_now' ) );
+		add_action( self::FORGET_HOOK, array( $this, 'send_forget_chat_member' ), 10, 2 );
 		add_action( 'init', array( $this, 'schedule' ) );
 		// 76.6 Updates come from Yallapp (Admin › Plugin releases), for sites whose plan is active.
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'inject_update' ) );
@@ -286,28 +295,79 @@ class License_Client {
 
 	/**
 	 * 77 Tells Yallapp a person's account is gone, so their chat goes too (docs/api/platform.yaml,
-	 * forgetChatMember). Without waiting for the answer: a deletion never waits on Yallapp.
+	 * forgetChatMember). 206.1 A deletion never waits on Yallapp: the call is queued in WP-Cron
+	 * (`FORGET_HOOK`) and made from there, so deleting an account takes no time even when Yallapp
+	 * can't be reached (a non-blocking request still waited up to its timeout to connect).
 	 *
 	 * @param int $user_id WordPress user ID.
 	 * @return void
 	 */
 	public function forget_chat_member( $user_id ) {
-		$key = (string) $this->settings->get( 'license_key' );
-		if ( '' === $key ) {
+		if ( '' === (string) $this->settings->get( 'license_key' ) || (int) $user_id <= 0 ) {
 			return;
 		}
-		wp_remote_post(
+		wp_schedule_single_event( time(), self::FORGET_HOOK, array( (int) $user_id, 1 ) );
+	}
+
+	/**
+	 * 206.1 The queued call of forget_chat_member(), from WP-Cron: a short timeout, and when Yallapp
+	 * can't be reached or answers 5xx or 429, again later (`forget_retry_delay()`), at most
+	 * `FORGET_ATTEMPTS` times in all. Without a license key (removed since) nothing is sent.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @param int $attempt This attempt, from 1.
+	 * @return bool Whether Yallapp took it (or there was nothing to send).
+	 */
+	public function send_forget_chat_member( $user_id, $attempt = 1 ) {
+		$key = (string) $this->settings->get( 'license_key' );
+		if ( '' === $key ) {
+			return true;
+		}
+		$response = wp_remote_post(
 			self::base_url() . '/chat/members/forget',
 			array(
-				'timeout'  => 5,
-				'blocking' => false,
-				'headers'  => array(
+				'timeout' => self::FORGET_TIMEOUT,
+				'headers' => array(
 					'Accept'       => 'application/json',
 					'Content-Type' => 'application/json',
 				),
-				'body'     => wp_json_encode( array_merge( $this->site_info( $key ), array( 'user_id' => (int) $user_id ) ) ),
+				'body'    => wp_json_encode( array_merge( $this->site_info( $key ), array( 'user_id' => (int) $user_id ) ) ),
 			)
 		);
+		$code     = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
+		if ( ! self::forget_should_retry( $code ) ) {
+			return true;
+		}
+		$next = (int) $attempt + 1;
+		if ( $next <= self::FORGET_ATTEMPTS ) {
+			wp_schedule_single_event( time() + self::forget_retry_delay( $next ), self::FORGET_HOOK, array( (int) $user_id, $next ) );
+		}
+		return false;
+	}
+
+	/**
+	 * 206.1 Whether a forget call is tried again: Yallapp couldn't be reached (0), was busy (429) or
+	 * failed (5xx). Its other answers are final (204 done, 401 another key, 404 no such member). Pure.
+	 *
+	 * @param int $code HTTP status, 0 when there was no answer.
+	 * @return bool
+	 */
+	public static function forget_should_retry( $code ) {
+		$code = (int) $code;
+		return 0 === $code || 429 === $code || $code >= 500;
+	}
+
+	/**
+	 * 206.1 Seconds before attempt `$attempt` (2 and on) of a forget call: 1, 5, 30 minutes, then 2
+	 * hours. Pure.
+	 *
+	 * @param int $attempt The attempt about to be scheduled.
+	 * @return int
+	 */
+	public static function forget_retry_delay( $attempt ) {
+		$delays = array( MINUTE_IN_SECONDS, 5 * MINUTE_IN_SECONDS, 30 * MINUTE_IN_SECONDS, 2 * HOUR_IN_SECONDS );
+		$index  = max( 0, min( count( $delays ) - 1, (int) $attempt - 2 ) );
+		return $delays[ $index ];
 	}
 
 	/**
