@@ -1,8 +1,8 @@
 /// 224 The pictures of Velours's (cosmetics) and Ghurza's (crochet)
 /// templates C and D, drawn by the real app from the projects their
-/// templates start (test/support/signatures/<demo>_<c|d>.json, written by
+/// templates start (`test/support/signatures/<demo>_<c|d>.json`, written by
 /// platform/web/tests/unit/signature-looks.test.ts) with the demo shop's
-/// own products and categories (test/support/shops/<demo>.json, written by
+/// own products and categories (`test/support/shops/<demo>.json`, written by
 /// platform/web/tests/unit/shop-cd-shots.test.ts): each template's home by
 /// day and by night (the first screen, and the whole page), its category
 /// menu, the shop and a product, 390 wide at twice the pixels.
@@ -18,7 +18,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -28,7 +27,6 @@ import 'package:yallapp/core/theme/fonts/remote_fonts.dart';
 
 import 'support/demo_api.dart';
 import 'support/screens.dart';
-import 'support/shot.dart';
 import 'support/studio_demo.dart';
 
 const _out = String.fromEnvironment('YALLAPP_SHOP_CD');
@@ -229,9 +227,12 @@ List<String> _photoPaths(String demo) => [
 ];
 
 class _Pic {
-  _Pic(this.name, this.shot);
+  _Pic(this.name, this.shot, {this.site = false});
   final String name;
   final Shot shot;
+
+  /// The website's picture (platform/web/public/screens): the phone's size, three times the pixels.
+  final bool site;
 }
 
 const _tall = Size(390, 2700);
@@ -264,14 +265,51 @@ List<_Pic> _pics(String demo, String look, String primary) {
     _Pic('$p-home', shot('$p-home')),
     _Pic('$p-home-dark', shot('$p-home-dark', dark: true)),
     _Pic('$p-home-full', shot('$p-home-full', size: _tall)),
-    _Pic('$p-home-full-dark', shot('$p-home-full-dark', dark: true, size: _tall)),
+    _Pic(
+      '$p-home-full-dark',
+      shot('$p-home-full-dark', dark: true, size: _tall),
+    ),
     _Pic('$p-home-ar', shot('$p-home-ar', lang: 'ar', size: _tall)),
     _Pic('$p-menu', shot('$p-menu', location: '/page/menu', size: _tall)),
-    _Pic('$p-menu-dark', shot('$p-menu-dark', dark: true, location: '/page/menu', size: _tall)),
+    _Pic(
+      '$p-menu-dark',
+      shot('$p-menu-dark', dark: true, location: '/page/menu', size: _tall),
+    ),
     _Pic('$p-listing', shot('$p-listing', location: '/shop', size: _tall)),
-    _Pic('$p-listing-dark', shot('$p-listing-dark', dark: true, location: '/shop', size: _tall)),
-    _Pic('$p-product', shot('$p-product', location: '/product/100', size: _tall)),
-    _Pic('$p-product-dark', shot('$p-product-dark', dark: true, location: '/product/100', size: _tall)),
+    _Pic(
+      '$p-listing-dark',
+      shot('$p-listing-dark', dark: true, location: '/shop', size: _tall),
+    ),
+    _Pic(
+      '$p-product',
+      shot('$p-product', location: '/product/100', size: _tall),
+    ),
+    _Pic(
+      '$p-product-dark',
+      shot(
+        '$p-product-dark',
+        dark: true,
+        location: '/product/100',
+        size: _tall,
+      ),
+    ),
+    // The website's pictures (lib/marketing.ts APP_SCREENS), as the other looks' are.
+    for (final (key, dark, location) in [
+      ('home', false, null),
+      ('home-dark', true, null),
+      ('menu', false, '/page/menu'),
+      ('product', false, '/product/100'),
+    ])
+      _Pic(
+        '$demo-sig-$look-$key',
+        shot(
+          '$demo-sig-$look-$key',
+          dark: dark,
+          location: location,
+          size: shotSize,
+        ),
+        site: true,
+      ),
   ];
 }
 
@@ -294,13 +332,17 @@ void main() {
         find.byKey(shotKey),
       );
       final png = await tester.runAsync(() async {
-        final image = await boundary.toImage(pixelRatio: 2);
+        final image = await boundary.toImage(
+          pixelRatio: pic.site ? shotPixelRatio : 2,
+        );
         final data = await image.toByteData(format: ui.ImageByteFormat.png);
         image.dispose();
         return Uint8List.view(data!.buffer);
       });
       await tester.runAsync(
-        () => File('$_out/${pic.name}.png').writeAsBytes(png!),
+        () =>
+            File('$_out/${pic.site ? 'site/' : ''}${pic.name}.png')
+                .writeAsBytes(png!),
       );
       debugDisableShadows = true;
     });

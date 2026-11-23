@@ -16,13 +16,13 @@ import { inked, sides, sigEntry, sigPhoto, sigTexts, signatureBar, signatureHead
  * framed and stitched (rows of short stitches across their top and foot),
  * Aref Ruqaa for the headlines and Noto Naskh Arabic for the text. A
  * centred calligraphic wordmark, a framed lead story, the yarn's colours to
- * pick (`swatches`), "Who made it?" cards of the makers, how a piece is
+ * pick (`swatches`, as squares like skeins), "Who made it?" cards of the makers, how a piece is
  * made to order (you order, we make it, we ship it) opening the custom
  * order, the workshop's pieces with their price on a hanging tag, a
  * maker's words between two stitched lines; a folder-tab bar.
  *
- * D · THE COZY STUDIO: dusty rose and soft large photos, Mada. A photo
- * from edge to edge under a header that lies over it, a switch between the
+ * D · THE COZY STUDIO: dusty rose and soft large photos, Mada. A large
+ * title over a soft photo card with deep round corners, a switch between the
  * ready pieces and the kits to make yourself (`tabs`), the pattern of the
  * week, the month's classes as dated cards (their seats are the shop's
  * Workshops), the kits in circles; a bubble bar.
@@ -169,7 +169,7 @@ function yarnPicker(ctx: SectionContext, l: Look): StudioNode {
     title: t.title,
     translations: t.translations,
     action: ownPage(ctx, GC_CUSTOM_PAGE),
-    swatches: { shape: "circle", size: 44 },
+    swatches: { shape: "square", size: 44 },
     entries: YARNS.map(([hex, word], i) => ({ ...sigEntry(ctx, { title: word }), color: hex, ...(i === 1 ? { highlight: true } : {}) })),
     font: { family: l.family },
     color: l.k.ink,
@@ -231,7 +231,7 @@ function madeToOrder(ctx: SectionContext, l: Look): StudioNode {
     id: id(),
     type: "column",
     name: ctx.w(title),
-    width: 84,
+    width: 78,
     gap: 4,
     cross: "center",
     children: [
@@ -240,14 +240,14 @@ function madeToOrder(ctx: SectionContext, l: Look): StudioNode {
       say(ctx, l, text, { size: 12 }, { muted: true, text_align: "center", max_lines: 1 }),
     ],
   });
-  const join = (): StudioNode => ({ ...stitches(ctx, l, 5), width: "fill", margin: sides(21, 0, 0, 0) });
+  const join = (): StudioNode => ({ ...stitches(ctx, l, 3), width: "fill", margin: sides(21, 2, 0, 2) });
   return stitched(
     ctx,
     l,
     ctx.w("gcHowTitle"),
     [
       say(ctx, l, "gcHowLine", { size: 14 }, { muted: true, max_lines: 1, padding: sides(0, 4, 0, 4) }),
-      { id: id(), type: "row", gap: 0, children: [step("edit_note", "gcStep1", "gcStep1Text", true), join(), step("handyman", "gcStep2", "gcStep2Text", false), join(), step("local_shipping", "gcStep3", "gcStep3Text", false)] },
+      { id: id(), type: "row", gap: 0, children: [step("edit_note", "gcStep1", "gcStep1Text", true), join(), step("content_cut", "gcStep2", "gcStep2Text", false), join(), step("local_shipping", "gcStep3", "gcStep3Text", false)] },
       {
         id: id(),
         type: "button",
@@ -402,14 +402,15 @@ function cozyHero(ctx: SectionContext, l: Look): StudioNode {
     type: "photo_hero",
     name: ctx.w("gdHeroTitle"),
     image_url: sigPhoto(ctx, P("cozy-sweater")),
-    height: 470,
-    corners: { bottom_start: 40, bottom_end: 40 },
+    height: 400,
+    radius: 36,
+    margin: sides(4, 16, 0, 16),
     background: "#3B2A2C",
     scrim: { color: "#281416", from: 0.35, middle: 0.05, at: 50, to: 0.78 },
     align: "end",
-    padding: sides(24, 22, 30, 22),
+    padding: sides(22, 20, 24, 20),
     action: shop,
-    children: [{ ...say(ctx, l, "gdHeroTitle", { size: 34, weight: 900, line_height: 1.1 }, { max_lines: 2 }), ...WHITE }, { ...say(ctx, l, "gdHeroLine", { size: 14.5, line_height: 1.5 }, { max_lines: 2, margin: sides(6, 0, 0, 0) }), color: "#F6E6E4", dark_color: "#F6E6E4" }],
+    children: [{ ...say(ctx, l, "gdHeroTitle", { size: 30, weight: 900, line_height: 1.1 }, { max_lines: 2 }), ...WHITE }, { ...say(ctx, l, "gdHeroLine", { size: 14.5, line_height: 1.5 }, { max_lines: 2, margin: sides(6, 0, 0, 0) }), color: "#F6E6E4", dark_color: "#F6E6E4" }],
   };
 }
 
@@ -594,7 +595,7 @@ function classRow(ctx: SectionContext, l: Look): StudioNode {
 function cozyHome(ctx: SectionContext): StudioPage {
   const l = LOOK_D;
   return {
-    header: { type: "transparent", buttons: ["menu", "cart"], menu_page: GC_MENU_PAGE },
+    header: { type: "logo_actions", ...sigTexts(ctx, { title: "gdWordmark" }), buttons: ["menu", "cart"], menu_page: GC_MENU_PAGE, background: D.page, dark_background: D.darkPage, color: D.ink, dark_color: D.darkInk },
     background: D.page,
     dark_background: D.darkPage,
     body: {
@@ -856,8 +857,8 @@ const COZY_SCREENS = signatureScreens({
   first: FIRST,
 });
 
-/** C's bar: a folder's tab, the open tab raised on the paper in brick, the others in coffee. */
-export const MARKET_BAR = signatureBar(C, { design: "folder", background: C.surface, dark_background: C.darkSurface, active: C.accent, dark_active: C.darkAccent, inactive: C.ink, dark_inactive: C.darkInk, labels: "always", radius: 14, margin: 10 });
+/** C's bar: names under the icons on the paper, a brick line under the open tab, the others in coffee ink. */
+export const MARKET_BAR = signatureBar(C, { design: "line", background: C.surface, dark_background: C.darkSurface, active: C.accent, dark_active: C.darkAccent, inactive: C.ink, dark_inactive: C.darkInk, labels: "always", radius: 14, margin: 10 });
 /** D's bar: white bubbles on the rose, the open tab a soft rose bubble with its name. */
 export const COZY_BAR = signatureBar(D, { design: "bubble", background: "#FFFFFF", dark_background: "#251B1D", active: D.accent, dark_active: D.darkAccent, inactive: D.muted, dark_inactive: D.darkMuted, labels: "active", radius: 30, margin: 16 });
 
@@ -893,7 +894,7 @@ export const GHURZA_D: SignatureDesign = {
   pages: (ctx) => [{ slug: GC_MENU_PAGE, title: "skCategoryMenu" as SectionWord, studio: menuPage(ctx, LOOK_D) }],
   bar: COZY_BAR,
   look: { header: signatureHeader(D, "photo"), background: D.page, dark_background: D.darkPage },
-  chrome: { header: "photo", system: "photo" },
+  chrome: { header: "photo", home: "large", system: "photo" },
   isNew: true,
   project: {
     primary: D.fill,
@@ -914,11 +915,11 @@ const alone = (ctx: SectionContext): SectionContext => ({ ...ctx, ownPages: fals
 export const CROCHET_CD_SECTIONS: readonly SectionInfo[] = [
   // C: the makers' cards, made to order step by step, the yarn picker, the pieces on hanging tags.
   { id: "gc_makers", icon: "groups", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [marketHead(ctx, LOOK_C, "gcMakersTitle", { word: "gcAllMakers", action: shop }), makerCards(ctx, LOOK_C)]) },
-  { id: "gc_made_to_order", icon: "handyman", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [marketHead(ctx, LOOK_C, "gcHowTitle", null), madeToOrder(alone(ctx), LOOK_C)]) },
+  { id: "gc_made_to_order", icon: "content_cut", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [marketHead(ctx, LOOK_C, "gcHowTitle", null), madeToOrder(alone(ctx), LOOK_C)]) },
   { id: "gc_yarn_picker", icon: "auto_awesome", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [marketHead(ctx, LOOK_C, "gcYarnTitle", null), yarnPicker(alone(ctx), LOOK_C)]) },
   { id: "gc_tag_cards", icon: "sell", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [marketHead(ctx, LOOK_C, "gcPiecesTitle", { word: "gcAllPieces", action: shop }), tagGrid(ctx, LOOK_C)]) },
   // D: ready pieces or kits, the pattern of the week, the dated classes.
-  { id: "gd_ready_or_kits", icon: "swap_horiz", isNew: true, fits: STORE_PLAIN, make: one((ctx) => readyOrKits(ctx, LOOK_D)) },
+  { id: "gd_ready_or_kits", icon: "sync", isNew: true, fits: STORE_PLAIN, make: one((ctx) => readyOrKits(ctx, LOOK_D)) },
   { id: "gd_pattern_week", icon: "auto_stories", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [cozyHead(ctx, LOOK_D, "gdPatternHead", null), patternOfWeek(ctx, LOOK_D)]) },
   { id: "gd_classes", icon: "event", isNew: true, fits: STORE_PLAIN, make: one((ctx) => [cozyHead(ctx, LOOK_D, "gdClassesTitle", { word: "gdCalendar", action: shop }), classRow(ctx, LOOK_D)]) },
 ];

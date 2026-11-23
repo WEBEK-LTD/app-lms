@@ -183,12 +183,26 @@
     "blocks": [],
     "studio": {
      "header": {
-      "type": "transparent",
+      "type": "logo_actions",
+      "title": "Ghurza Studio",
+      "translations": {
+       "ar": {
+        "title": "Ghurza ستوديو"
+       },
+       "tr": {
+        "title": "Ghurza Stüdyo"
+       }
+      },
       "buttons": [
        "menu",
        "cart"
       ],
-      "menu_page": "menu"
+      "menu_page": "menu",
+      "background": "#F6ECEA",
+      "dark_background": "#1A1314",
+      "color": "#3B2A2C",
+      "dark_color": "#F5E6E5",
+      "style": "large"
      },
      "background": "#F6ECEA",
      "dark_background": "#1A1314",
@@ -207,10 +221,13 @@
         "type": "photo_hero",
         "name": "Warmth you make with your hands",
         "image_url": "http://localhost:3000/crochet-photos/cozy-sweater.jpg",
-        "height": 470,
-        "corners": {
-         "bottom_start": 40,
-         "bottom_end": 40
+        "height": 400,
+        "radius": 36,
+        "margin": {
+         "top": 4,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
         },
         "background": "#3B2A2C",
         "scrim": {
@@ -222,10 +239,10 @@
         },
         "align": "end",
         "padding": {
-         "top": 24,
-         "end": 22,
-         "bottom": 30,
-         "start": 22
+         "top": 22,
+         "end": 20,
+         "bottom": 24,
+         "start": 20
         },
         "action": {
          "type": "screen",
@@ -238,7 +255,7 @@
           "text": "Warmth you make with your hands",
           "font": {
            "family": "Mada",
-           "size": 34,
+           "size": 30,
            "weight": 900,
            "line_height": 1.1
           },
@@ -1814,6 +1831,14 @@
    {
     "slug": "wishlist",
     "title": "Wishlist",
+    "translations": {
+     "ar": {
+      "title": "المفضّلة"
+     },
+     "tr": {
+      "title": "Favoriler"
+     }
+    },
     "studio": {
      "body": {
       "id": "sig-115",
@@ -1827,6 +1852,14 @@
       "buttons": [
        "notifications"
       ],
+      "translations": {
+       "ar": {
+        "title": "المفضّلة"
+       },
+       "tr": {
+        "title": "Favoriler"
+       }
+      },
       "background": "#F6ECEA",
       "color": "#3B2A2C",
       "dark_background": "#1A1314",

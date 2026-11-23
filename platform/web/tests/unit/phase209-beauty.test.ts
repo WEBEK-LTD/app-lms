@@ -65,15 +65,16 @@ describe("209 the cosmetics type", () => {
     expect(shopTypeReady(cosmetics)).toBe(true);
     expect(cosmetics.demo).toBe(BEAUTY_DEMO);
     expect(shopTypesIn("beauty").map((t) => t.id)).toEqual(["cosmetics"]);
-    expect(shopTypeTemplate(cosmetics)).toBe("beauty_signature_a");
+    // 224 Its main template is C.
+    expect(shopTypeTemplate(cosmetics)).toBe("beauty_signature_c");
     expect(shopTypeTemplate(cosmetics, "b")).toBe("beauty_signature_b");
     expect(shopTypeOfDesign("beauty_signature_b")?.id).toBe("cosmetics");
     expect(SHOP_TYPES.filter(shopTypeReady).map((t) => t.id)).toContain("cosmetics");
     // No installments tag: it isn't one of the types that sell on installments.
     expect(showsInstallmentsSoon("cosmetics")).toBe(false);
     const store = templatesFor({ type: "store", vertical: null }).map((t) => t.id);
-    expect(store).toEqual(expect.arrayContaining(["beauty_signature_a", "beauty_signature_b"]));
-    expect(TEMPLATES.filter((t) => t.demo === BEAUTY_DEMO).map((t) => t.id)).toEqual(["beauty_signature_a", "beauty_signature_b"]);
+    expect(store).toEqual(expect.arrayContaining(["beauty_signature_c", "beauty_signature_d", "beauty_signature_a", "beauty_signature_b"]));
+    expect(TEMPLATES.filter((t) => t.demo === BEAUTY_DEMO).map((t) => t.id)).toEqual(["beauty_signature_c", "beauty_signature_d", "beauty_signature_a", "beauty_signature_b"]);
   });
 
   it("asks its owner to accept the cosmetics notice once: registered, genuine, ingredients and expiry written correctly", () => {
@@ -259,7 +260,7 @@ describe("209 Velours, the cosmetics shop's demo", () => {
     }
 
     it("keeps its categories, skin types and brands, its products and settings, its flash deals and code", async () => {
-      expect(app.design).toBe("beauty_signature_a");
+      expect(app.design).toBe("beauty_signature_c");
       expect(app.catalogSettings?.currency).toBe("AED");
       expect(app.catalogSettings?.returnDays).toBe(BEAUTY_COMMERCE.returnDays);
       const categories = await store.listCatalogCategories(app.id);
@@ -311,17 +312,17 @@ describe("209 Velours, the cosmetics shop's demo", () => {
       const rows = (allNodes({ body: menu.studio.body }).find((n) => n.type === "categories" && n.style === "rows") as unknown as { categories: { name: string; children: { name: string }[] }[] }).categories;
       expect(rows.map((r) => r.name)).toEqual(BEAUTY_CATEGORIES.map((c) => c.name));
       expect(rows.find((r) => r.name === "Skin type")!.children.map((c) => c.name)).toEqual(["Dry", "Combination", "Oily", "Sensitive"]);
-      // The quick way to the routines opens their category.
+      // 224 The demo is template C: the menu's skin types each open their category.
       const listed = (await call("/store/categories")).body as { items: { id: number; name: string }[] };
       const id = (name: string) => String(listed.items.find((c) => c.name === name)!.id);
-      const routines = allNodes({ body: menu.studio.body }).find((n) => n.name === "Routines")!;
-      expect(routines.action).toMatchObject({ type: "screen", screen: "search", category_id: id("Routines") });
-      const quiz = (await call("/pages/{slug}", {}, "en", [QUIZ_PAGE], false)).body as { studio: { body: StudioNode } };
-      const node = allNodes({ body: quiz.studio.body }).find((n) => n.type === "quiz")!;
+      for (const skin of ["Dry", "Combination", "Oily", "Sensitive"]) expect(allNodes({ body: menu.studio.body }).find((n) => n.name === skin)!.action, skin).toMatchObject({ type: "screen", screen: "search", category_id: id(skin) });
+      // Its skin test is on the home.
+      const home = (await call("/pages/{slug}", {}, "en", ["home"], false)).body as { studio: { body: StudioNode } };
+      const node = allNodes({ body: home.studio.body }).find((n) => n.type === "quiz")!;
       expect(node.entries!.map((e) => e.action?.category_id)).toEqual([id("Dry"), id("Combination"), id("Oily"), id("Sensitive")]);
       expect(node.quiz!.questions).toHaveLength(4);
       // In Arabic, the results by their Arabic names open the same categories.
-      const ar = (await call("/pages/{slug}", {}, "ar", [QUIZ_PAGE], false)).body as { studio: { body: StudioNode } };
+      const ar = (await call("/pages/{slug}", {}, "ar", ["home"], false)).body as { studio: { body: StudioNode } };
       const arNode = allNodes({ body: ar.studio.body }).find((n) => n.type === "quiz")!;
       expect(arNode.entries!.map((e) => e.title)).toEqual(["جافة", "مختلطة", "دهنية", "حساسة"]);
       expect(arNode.entries!.map((e) => e.action?.category_id)).toEqual([id("Dry"), id("Combination"), id("Oily"), id("Sensitive")]);

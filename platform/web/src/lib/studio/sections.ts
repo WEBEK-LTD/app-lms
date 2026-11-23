@@ -1157,6 +1157,7 @@ export const SECTIONS: readonly SectionInfo[] = [
   ...SHOP_KIT_SECTIONS,
   ...DECOR_SECTIONS,
   ...CROCHET_SECTIONS,
+  // 224 Velours's and Ghurza's templates C and D: their own parts.
   ...BEAUTY_CD_SECTIONS,
   ...CROCHET_CD_SECTIONS,
   ...FURNITURE_SECTIONS,

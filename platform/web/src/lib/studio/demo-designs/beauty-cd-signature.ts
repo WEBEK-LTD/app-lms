@@ -547,11 +547,13 @@ function beforeAfter(ctx: SectionContext, l: Look): StudioNode {
   const after = sigTexts(ctx, { caption: "vdAfter" });
   const a = sigPhoto(ctx, P("routine-calm"));
   const b = sigPhoto(ctx, P("routine-morning"));
+  // Without Yallapp's photos at hand (a page made alone), a quiet shape for the owner's own two.
+  if (!a || !b) return { id: idOf(ctx)(), type: "column", name: ctx.w("vdBeforeAfter"), height: 260, radius: 26, margin: sides(0, 18, 0, 18), background: l.tint.day, dark_background: l.tint.night, children: [] };
   return {
     id: idOf(ctx)(),
     type: "before_after",
     name: ctx.w("vdBeforeAfter"),
-    images: a && b ? [{ image_url: a, ...before }, { image_url: b, ...after }] : [],
+    images: [{ image_url: a, ...before }, { image_url: b, ...after }],
     compare: { at: 50 },
     aspect_ratio: 1.33,
     radius: 26,

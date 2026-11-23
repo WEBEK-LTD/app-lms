@@ -2516,6 +2516,14 @@
    {
     "slug": "shop",
     "title": "The lab",
+    "translations": {
+     "ar": {
+      "title": "المختبر"
+     },
+     "tr": {
+      "title": "Laboratuvar"
+     }
+    },
     "studio": {
      "body": {
       "id": "sig-187",
@@ -2927,6 +2935,14 @@
       "buttons": [
        "notifications"
       ],
+      "translations": {
+       "ar": {
+        "title": "المختبر"
+       },
+       "tr": {
+        "title": "Laboratuvar"
+       }
+      },
       "background": "#F4F6F7",
       "color": "#10171C",
       "dark_background": "#0B1013",

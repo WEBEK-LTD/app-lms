@@ -1582,6 +1582,14 @@
    {
     "slug": "shop",
     "title": "Shades",
+    "translations": {
+     "ar": {
+      "title": "الظلال"
+     },
+     "tr": {
+      "title": "Tonlar"
+     }
+    },
     "studio": {
      "body": {
       "id": "sig-115",
@@ -1910,6 +1918,14 @@
       "buttons": [
        "notifications"
       ],
+      "translations": {
+       "ar": {
+        "title": "الظلال"
+       },
+       "tr": {
+        "title": "Tonlar"
+       }
+      },
       "background": "#FBF3F6",
       "color": "#2A0E22",
       "dark_background": "#0A0508",
@@ -1926,6 +1942,14 @@
    {
     "slug": "wishlist",
     "title": "Wishlist",
+    "translations": {
+     "ar": {
+      "title": "المفضّلة"
+     },
+     "tr": {
+      "title": "Favoriler"
+     }
+    },
     "studio": {
      "body": {
       "id": "sig-137",
@@ -1939,6 +1963,14 @@
       "buttons": [
        "notifications"
       ],
+      "translations": {
+       "ar": {
+        "title": "المفضّلة"
+       },
+       "tr": {
+        "title": "Favoriler"
+       }
+      },
       "background": "#FBF3F6",
       "color": "#2A0E22",
       "dark_background": "#0A0508",
