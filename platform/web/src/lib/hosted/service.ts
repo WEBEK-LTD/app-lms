@@ -48,6 +48,7 @@ import type { Connector } from "./connectors/types";
 import { decodeJwt, encodeJwt } from "./jwt";
 import { handlePages } from "./pages";
 import { handleFormAnswers, type FormLine } from "./pages/forms";
+import { handleTradeIn } from "./trade-in";
 import { draftLayout, lookAndLanguages, publishedLayout } from "../pages/layout";
 import { screenTextForms } from "../demo/screen-text-forms";
 import type { OtpSender } from "./otp-sender";
@@ -381,6 +382,9 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
   // 99.4 A form's answers, by email.
   const form = signInOnly ? null : await handleFormAnswers(ctx, req, session?.user ?? null);
   if (form) return form;
+  // 211 A trade-in request, signed in or not.
+  const tradeIn = signInOnly ? null : await handleTradeIn(ctx, req, session?.user ?? null);
+  if (tradeIn) return tradeIn;
   if (req.path[0] === "me" || route === "POST /auth/logout") {
     if (!session) return unauthorized();
     if (req.path[1] === "devices" && req.path.length === 3 && req.method === "DELETE") {

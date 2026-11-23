@@ -48,7 +48,7 @@ function Action({ a, status, label, variant = "secondary" }: { a: BookingAppoint
 /** Appointments booked in the app, for Bookings apps without a website (21 a clinic's visits, with their intake answers). */
 export default async function AppointmentsPage({ searchParams }: { searchParams: Promise<{ show?: string; page?: string; moved?: string }> }) {
   const { app } = await requireClient("bookings");
-  const { t, k } = await dashboardText();
+  const { t, k, lang } = await dashboardText();
   const kind = app?.vertical === "fitness" ? "fitness" : app?.vertical === "clinic" ? "clinic" : "other";
   const title = t("bookings.appointments", { kind });
   const sr = { sr: (chunk: string) => <span className="sr-only">{chunk}</span> };
@@ -145,7 +145,7 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
                               · <a href={`mailto:${a.customerEmail}`} className="break-all">{a.customerEmail}</a>
                             </>
                           ) : null}{" "}
-                          · {t("bookings.withPrice", { staff: a.staffName, price: formatCents(a.priceCents, a.currency) })}
+                          · {t("bookings.withPrice", { staff: a.staffName, price: formatCents(a.priceCents, a.currency, lang) })}
                         </span>
                       </span>
                       <div className="flex flex-wrap items-center gap-2">

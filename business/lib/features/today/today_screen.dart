@@ -8,6 +8,7 @@ import '../../core/providers.dart';
 import '../../core/routing/paths.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
+import '../../core/theme/pharaonic_widgets.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
@@ -146,7 +147,12 @@ class _Header extends ConsumerWidget {
     final unread = ref.watch(updatesProvider).value?.unread ?? 0;
     final several = me.apps.length > 1;
 
-    return Padding(
+    // 215 The Pharaonic theme: the cornice above, the greeting in its
+    // display face, the shop's name in a cartouche.
+    final pharaonic = context.ornaments != null;
+    Widget shop(Widget row) =>
+        pharaonic ? Cartouche(fill: context.yb.surface, child: row) : row;
+    final header = Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(20, 12, 8, 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,7 +162,15 @@ class _Header extends ConsumerWidget {
               Expanded(
                 child: Semantics(
                   header: true,
-                  child: Text(greeting, style: theme.textTheme.headlineSmall),
+                  child: Text(
+                    greeting,
+                    style: pharaonic
+                        ? theme.textTheme.headlineSmall?.copyWith(
+                            fontFamily: YbOrnaments.displayFont,
+                            fontSize: 25,
+                          )
+                        : theme.textTheme.headlineSmall,
+                  ),
                 ),
               ),
               IconButton(
@@ -164,8 +178,10 @@ class _Header extends ConsumerWidget {
                 onPressed: () => context.push(Paths.updates),
                 icon: Badge(
                   isLabelVisible: unread > 0,
-                  backgroundColor: Brand.ember,
-                  textColor: Brand.midnight,
+                  backgroundColor: pharaonic
+                      ? context.ornaments!.faience
+                      : Brand.ember,
+                  textColor: pharaonic ? context.yb.onDanger : Brand.midnight,
                   label: Text(unread > 9 ? '9+' : '$unread'),
                   child: const Icon(AppIcons.bell),
                 ),
@@ -181,31 +197,41 @@ class _Header extends ConsumerWidget {
               onTap: several ? () => showAppSwitcher(context, ref) : null,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AppAvatar(app: app, size: 36),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(app.name, style: theme.textTheme.titleSmall),
-                          Text(app.typeName, style: theme.textTheme.bodySmall),
-                        ],
+                child: shop(
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AppAvatar(app: app, size: 36),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(app.name, style: theme.textTheme.titleSmall),
+                            Text(
+                              app.typeName,
+                              style: theme.textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    if (several) ...[
-                      const SizedBox(width: 4),
-                      const Icon(AppIcons.expand),
+                      if (several) ...[
+                        const SizedBox(width: 4),
+                        const Icon(AppIcons.expand),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
         ],
       ),
+    );
+    if (!pharaonic) return header;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [const Cornice(), header],
     );
   }
 }

@@ -1,3 +1,5 @@
+// 212
+import type { ProductReview, ProductReviewInput, ProductReviewPatch, ShopWishlistItem, StockAlert } from "./types";
 // 106 Studio Market
 import type {
   MarketRating,
@@ -33,6 +35,7 @@ import { APP_TABLES, type AppTableRole } from "../apps/app-tables";
 import mysql from "mysql2/promise";
 import type { DatabaseConfig } from "../env";
 import { newId } from "../crypto/tokens";
+import { SAMPLE_RIDER_NAME } from "../rides/sample";
 import { membershipToUse } from "../bookings/memberships";
 import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
@@ -174,6 +177,8 @@ import type {
   SchoolHomework,
   SchoolLeave,
   SchoolExcuse,
+  StoreRequest,
+  StoreRequestStatus,
   SchoolPickup,
   SchoolPickupNote,
   SchoolSlip,
@@ -304,6 +309,7 @@ import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
+import type { TradeInRequest, TradeInStatus } from "./types";
 
 type Db = MySql2Database<typeof schema>;
 /** 126 A transaction, for the helpers that run inside one. */
@@ -4451,6 +4457,36 @@ export class MysqlStore implements DataStore {
     return row ?? null;
   }
 
+  async listStoreRequests(appId: string, filter: { statuses?: StoreRequestStatus[] } = {}): Promise<StoreRequest[]> {
+    const t = schema.storeRequests;
+    if (filter.statuses && filter.statuses.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), filter.statuses ? inArray(t.status, filter.statuses) : undefined))
+        .orderBy(desc(t.createdAt), desc(t.id))
+        .limit(500),
+    );
+  }
+
+  async getStoreRequest(appId: string, id: number): Promise<StoreRequest | null> {
+    const t = schema.storeRequests;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createStoreRequest(input: Omit<StoreRequest, "id">): Promise<StoreRequest> {
+    const [result] = await this.run((db) => db.insert(schema.storeRequests).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async updateStoreRequest(appId: string, id: number, patch: Partial<Pick<StoreRequest, "status" | "reply" | "quoteCents" | "updatedAt">>): Promise<boolean> {
+    const t = schema.storeRequests;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows === 1;
+  }
+
   async createSchoolExcuse(input: Omit<SchoolExcuse, "id">): Promise<SchoolExcuse> {
     const [result] = await this.run((db) => db.insert(schema.schoolExcuses).values(input));
     return { id: Number(result.insertId), ...input };
@@ -6580,7 +6616,8 @@ export class MysqlStore implements DataStore {
           cashCents: sql<string>`sum(case when ${t.paymentMethod} = 'cash' then ${t.finalCents} else 0 end)`,
         })
         .from(t)
-        .where(and(eq(t.appId, appId), eq(t.status, "completed"), gte(t.createdAt, since), lt(t.createdAt, until)))
+        // 220 Never the store review driver's sample rides.
+        .where(and(eq(t.appId, appId), eq(t.status, "completed"), gte(t.createdAt, since), lt(t.createdAt, until), ne(t.riderName, SAMPLE_RIDER_NAME)))
         .groupBy(t.driverId, sql`case when ${t.driverId} is null then ${t.driverName} else '' end`),
     );
     return rows
@@ -6668,6 +6705,33 @@ export class MysqlStore implements DataStore {
         .where(and(eq(t.appId, appId), eq(t.userId, userId)))
         .orderBy(desc(t.createdAt), desc(t.listingId)),
     );
+  }
+
+  // 211 Trade-in requests.
+  async createTradeInRequest(input: Omit<TradeInRequest, "id">): Promise<TradeInRequest> {
+    const [result] = await this.run((db) => db.insert(schema.tradeInRequests).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async listTradeInRequests(input: { appId: string; status?: TradeInStatus; offset: number; limit: number }): Promise<{ items: TradeInRequest[]; total: number }> {
+    const t = schema.tradeInRequests;
+    const where = and(eq(t.appId, input.appId), input.status ? eq(t.status, input.status) : undefined);
+    const [items, [counted]] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt), desc(t.id)).limit(input.limit).offset(input.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(counted?.n ?? 0) };
+  }
+
+  async updateTradeInRequest(appId: string, id: number, patch: Pick<TradeInRequest, "status" | "updatedAt">): Promise<void> {
+    const t = schema.tradeInRequests;
+    await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async countNewTradeInRequests(appId: string): Promise<number> {
+    const t = schema.tradeInRequests;
+    const [row] = await this.run((db) => db.select({ n: count() }).from(t).where(and(eq(t.appId, appId), eq(t.status, "new"))));
+    return Number(row?.n ?? 0);
   }
 
   async createListingInquiry(input: Omit<ListingInquiry, "id">): Promise<ListingInquiry> {
@@ -7583,6 +7647,10 @@ export class MysqlStore implements DataStore {
     // 63 Visitors' questions (their answers cascade) and reviews of demo academies.
     const [questions] = await this.run((db) => db.delete(s.courseQuestions).where(and(inArray(s.courseQuestions.appId, ids), lt(s.courseQuestions.createdAt, before))));
     const [reviews] = await this.run((db) => db.delete(s.courseReviews).where(and(inArray(s.courseReviews.appId, ids), lt(s.courseReviews.createdAt, before))));
+    // 212 Visitors' product reviews, saved products and back-in-stock requests (counted with the reviews).
+    const [productReviews] = await this.run((db) => db.delete(s.productReviews).where(and(inArray(s.productReviews.appId, ids), lt(s.productReviews.createdAt, before))));
+    await this.run((db) => db.delete(s.shopWishlist).where(and(inArray(s.shopWishlist.appId, ids), lt(s.shopWishlist.createdAt, before))));
+    await this.run((db) => db.delete(s.stockAlerts).where(and(inArray(s.stockAlerts.appId, ids), lt(s.stockAlerts.createdAt, before))));
     // Studio's demos: what visitors sent, ordered and rode.
     const [shipments] = await this.run((db) => db.delete(s.shipments).where(and(inArray(s.shipments.appId, ids), lt(s.shipments.createdAt, before))));
     const [foodOrders] = await this.run((db) => db.delete(s.foodOrders).where(and(inArray(s.foodOrders.appId, ids), lt(s.foodOrders.createdAt, before))));
@@ -7596,6 +7664,8 @@ export class MysqlStore implements DataStore {
     );
     await this.run((db) => db.delete(s.travelSaved).where(and(inArray(s.travelSaved.appId, ids), lt(s.travelSaved.createdAt, before))));
     await this.run((db) => db.delete(s.travelAlerts).where(and(inArray(s.travelAlerts.appId, ids), lt(s.travelAlerts.createdAt, before))));
+    // 210 Visitors' custom-order requests.
+    await this.run((db) => db.delete(s.storeRequests).where(and(inArray(s.storeRequests.appId, ids), lt(s.storeRequests.createdAt, before))));
     return {
       travelBookings: travelBookings.affectedRows,
       teacherFollows: teacherFollows.affectedRows,
@@ -7604,7 +7674,7 @@ export class MysqlStore implements DataStore {
       foodOrders: foodOrders.affectedRows,
       rides: rides.affectedRows,
       questions: questions.affectedRows,
-      reviews: reviews.affectedRows,
+      reviews: reviews.affectedRows + productReviews.affectedRows,
       donations: donations.affectedRows,
       orders: orders.affectedRows,
       appointments: appointments.affectedRows,
@@ -11700,6 +11770,151 @@ export class MysqlStore implements DataStore {
   async markDesignerPayoutEmailed(id: string, at: Date): Promise<void> {
     const t = schema.studioMarketPayouts;
     await this.run((db) => db.update(t).set({ emailedAt: at }).where(eq(t.id, id)));
+  }
+
+  // 212 A store's wishlist, reviews with photos and back in stock
+
+  async listShopWishlist(appId: string, userId: number): Promise<ShopWishlistItem[]> {
+    const w = schema.shopWishlist;
+    return this.run((db) => db.select().from(w).where(and(eq(w.appId, appId), eq(w.userId, userId))).orderBy(desc(w.createdAt), desc(w.productId)).limit(500));
+  }
+
+  async addShopWishlist(appId: string, userId: number, productId: number, now: Date): Promise<boolean> {
+    const [result] = await this.run((db) => db.insert(schema.shopWishlist).ignore().values({ appId, userId, productId, createdAt: now }));
+    return result.affectedRows > 0;
+  }
+
+  async removeShopWishlist(appId: string, userId: number, productId: number): Promise<void> {
+    const w = schema.shopWishlist;
+    await this.run((db) => db.delete(w).where(and(eq(w.appId, appId), eq(w.userId, userId), eq(w.productId, productId))));
+  }
+
+  async countShopWishlist(appId: string): Promise<{ productId: number; count: number }[]> {
+    const w = schema.shopWishlist;
+    const rows = await this.run((db) => db.select({ productId: w.productId, n: count() }).from(w).where(eq(w.appId, appId)).groupBy(w.productId).orderBy(desc(count())).limit(500));
+    return rows.map((r) => ({ productId: r.productId, count: Number(r.n) }));
+  }
+
+  async saveProductReview(input: ProductReviewInput): Promise<ProductReview> {
+    const r = schema.productReviews;
+    const { now, ...fields } = input;
+    await this.run((db) =>
+      db
+        .insert(r)
+        .values({ ...fields, hidden: false, replyText: null, replyAt: null, createdAt: now, updatedAt: now })
+        .onDuplicateKeyUpdate({ set: { rating: input.rating, text: input.text, photoIds: input.photoIds, authorName: input.authorName, updatedAt: now } }),
+    );
+    const saved = await this.getProductReviewOf(input.appId, input.productId, input.userId);
+    if (!saved) throw new Error("The review wasn't saved.");
+    return saved;
+  }
+
+  async getProductReview(appId: string, id: number): Promise<ProductReview | null> {
+    const r = schema.productReviews;
+    const [row] = await this.run((db) => db.select().from(r).where(and(eq(r.appId, appId), eq(r.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async getProductReviewOf(appId: string, productId: number, userId: number): Promise<ProductReview | null> {
+    const r = schema.productReviews;
+    const [row] = await this.run((db) => db.select().from(r).where(and(eq(r.appId, appId), eq(r.productId, productId), eq(r.userId, userId))).limit(1));
+    return row ?? null;
+  }
+
+  async listProductReviews(input: { appId: string; productIds?: number[]; hidden?: boolean; unreplied?: boolean; photos?: boolean; offset: number; limit: number }): Promise<{ items: ProductReview[]; total: number }> {
+    const r = schema.productReviews;
+    if (input.productIds && input.productIds.length === 0) return { items: [], total: 0 };
+    const where = and(
+      eq(r.appId, input.appId),
+      input.productIds ? inArray(r.productId, input.productIds) : undefined,
+      input.hidden !== undefined ? eq(r.hidden, input.hidden) : undefined,
+      input.unreplied ? isNull(r.replyText) : undefined,
+      input.photos ? sql`${r.photoIds} <> '[]'` : undefined,
+    );
+    const [items, [total]] = await Promise.all([
+      this.run((db) => db.select().from(r).where(where).orderBy(desc(r.createdAt), desc(r.id)).limit(input.limit).offset(input.offset)),
+      this.run((db) => db.select({ n: count() }).from(r).where(where)),
+    ]);
+    return { items, total: Number(total?.n ?? 0) };
+  }
+
+  async countProductRatings(appId: string, productIds?: number[]): Promise<{ productId: number; rating: number; count: number }[]> {
+    const r = schema.productReviews;
+    if (productIds && productIds.length === 0) return [];
+    const rows = await this.run((db) =>
+      db
+        .select({ productId: r.productId, rating: r.rating, n: count() })
+        .from(r)
+        .where(and(eq(r.appId, appId), eq(r.hidden, false), productIds ? inArray(r.productId, productIds) : undefined))
+        .groupBy(r.productId, r.rating),
+    );
+    return rows.map((row) => ({ productId: row.productId, rating: row.rating, count: Number(row.n) }));
+  }
+
+  async updateProductReview(appId: string, id: number, patch: ProductReviewPatch): Promise<void> {
+    if (Object.keys(patch).length === 0) return;
+    const r = schema.productReviews;
+    await this.run((db) => db.update(r).set(patch).where(and(eq(r.appId, appId), eq(r.id, id))));
+  }
+
+  async deleteProductReview(appId: string, id: number): Promise<void> {
+    const r = schema.productReviews;
+    await this.run((db) => db.delete(r).where(and(eq(r.appId, appId), eq(r.id, id))));
+  }
+
+  async saveStockAlert(input: Omit<StockAlert, "id" | "notifiedAt">): Promise<StockAlert> {
+    const a = schema.stockAlerts;
+    await this.run((db) =>
+      db
+        .insert(a)
+        .values({ ...input, notifiedAt: null })
+        .onDuplicateKeyUpdate({ set: { productName: input.productName, createdAt: input.createdAt, notifiedAt: null } }),
+    );
+    const [row] = await this.run((db) =>
+      db
+        .select()
+        .from(a)
+        .where(and(eq(a.appId, input.appId), eq(a.productId, input.productId), eq(a.variationId, input.variationId), eq(a.userId, input.userId)))
+        .limit(1),
+    );
+    if (!row) throw new Error("The alert wasn't saved.");
+    return row;
+  }
+
+  async deleteStockAlert(appId: string, userId: number, productId: number, variationId: number): Promise<void> {
+    const a = schema.stockAlerts;
+    await this.run((db) => db.delete(a).where(and(eq(a.appId, appId), eq(a.userId, userId), eq(a.productId, productId), eq(a.variationId, variationId))));
+  }
+
+  async listStockAlerts(input: { appId: string; productId?: number; userId?: number; waiting?: boolean; limit?: number }): Promise<StockAlert[]> {
+    const a = schema.stockAlerts;
+    return this.run((db) =>
+      db
+        .select()
+        .from(a)
+        .where(
+          and(
+            eq(a.appId, input.appId),
+            input.productId !== undefined ? eq(a.productId, input.productId) : undefined,
+            input.userId !== undefined ? eq(a.userId, input.userId) : undefined,
+            input.waiting ? isNull(a.notifiedAt) : undefined,
+          ),
+        )
+        .orderBy(asc(a.createdAt), asc(a.id))
+        .limit(input.limit ?? 5000),
+    );
+  }
+
+  async listAppsWithStockAlerts(limit: number): Promise<string[]> {
+    const a = schema.stockAlerts;
+    const rows = await this.run((db) => db.selectDistinct({ appId: a.appId }).from(a).where(isNull(a.notifiedAt)).limit(limit));
+    return rows.map((r) => r.appId);
+  }
+
+  async markStockAlertsNotified(appId: string, ids: number[], now: Date): Promise<void> {
+    if (ids.length === 0) return;
+    const a = schema.stockAlerts;
+    await this.run((db) => db.update(a).set({ notifiedAt: now }).where(and(eq(a.appId, appId), inArray(a.id, ids))));
   }
 }
 

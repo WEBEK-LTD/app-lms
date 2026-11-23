@@ -10,7 +10,6 @@ import { JsonLdScript } from "@/components/json-ld";
 import { ContactBand } from "@/components/marketing";
 import { planPriceFor } from "@/components/plan-cards";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
-import { StudioPlans } from "@/components/studio-marketing";
 import { storyCopyFor } from "@/content/stories";
 import { getVisitorContact } from "@/lib/contact";
 import { DEMO_SLUGS, type StudioDemoId } from "@/lib/demo/constants";
@@ -20,6 +19,7 @@ import { breadcrumbLd, siteMetadata, siteUrl } from "@/lib/seo";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
 import { studioPlans } from "@/site/studio";
+import { StudioPlansBand } from "@/site/studio-plans-band";
 import { ChapterArtView } from "./art";
 import { AGENCY, competitorsOf, PRICES_ON_PAGE, PRICES_ON_REQUEST, YALLAPP, type CompareColumn } from "./competitors";
 import { StoryEffects } from "./effects";
@@ -51,6 +51,25 @@ const VEHICLE: Record<StoryId, "two_wheeler" | "local_taxi" | "directions_bus" |
   flowers: "two_wheeler",
   // 208 Nor the clothes shop's.
   clothes: "two_wheeler",
+  // 209 Nor the cosmetics shop's.
+  beauty: "two_wheeler",
+  // 209 Nor the kids' clothes shop's.
+  kids: "two_wheeler",
+  // 209 Toys
+  // 209 Nor the toy shop's.
+  toys: "two_wheeler",
+  // 210 Nor the home decor shop's.
+  decor: "two_wheeler",
+  // 210 Nor the crochet shop's.
+  crochet: "two_wheeler",
+  // 210 Nor the furniture shop's: its own team delivers and assembles.
+  furniture: "two_wheeler",
+  // 211 Nor the mobiles shop's.
+  mobiles: "two_wheeler",
+  // 211 Nor the computers shop's.
+  computers: "two_wheeler",
+  // 211 Nor the electronics shop's.
+  electronics: "two_wheeler",
 };
 
 const primary =
@@ -642,22 +661,15 @@ export async function StoryPage({ lang, id }: { lang: Lang; id: string }) {
         <Systems shape={shape} t={t} ui={ui} lang={lang} />
         <Bundle shape={shape} t={t} />
         <Compare id={id} t={t} ui={ui} lang={lang} published={published} />
-        <section className="bg-ivory" aria-labelledby="story-plans" id="plans">
-          <div className="mx-auto flex max-w-[1160px] flex-col gap-10 px-4 py-20 sm:px-6 sm:py-24">
-            <div className="flex max-w-[680px] flex-col gap-2.5">
-              <span className="text-[13px] font-bold tracking-[1px] text-accent uppercase">{ui.studio}</span>
-              <h2 id="story-plans" className="m-0 text-[28px] leading-[1.12] font-extrabold tracking-[-0.6px] text-balance sm:text-[40px] sm:tracking-[-1px]">
-                {ui.plansTitle}
-              </h2>
-              <p className="m-0 text-[17px] leading-relaxed text-ink-4 sm:text-lg">{ui.plansText}</p>
-            </div>
-            <StudioPlans lang={lang} plans={plans} view={view} contact={contact} />
-            <Link href={localePath(lang, "/pricing")} className="flex items-center gap-1.5 self-start text-base font-bold text-midnight no-underline hover:underline">
-              {ui.allPlans}
-              <Icon name="arrow_forward" size={20} className="icon-flip" />
-            </Link>
-          </div>
-        </section>
+        <StudioPlansBand
+          lang={lang}
+          plans={plans}
+          view={view}
+          contact={contact}
+          id="plans"
+          head={{ title: ui.plansTitle, text: ui.plansText }}
+          link={{ href: localePath(lang, "/pricing"), label: ui.allPlans }}
+        />
         <DemoBand shape={shape} ui={ui} lang={lang} />
         <Finale shape={shape} t={t} ui={ui} lang={lang} />
         <Credits id={id} t={t} ui={ui} lang={lang} />

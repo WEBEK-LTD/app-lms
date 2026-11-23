@@ -1,0 +1,41 @@
+# Photo credits
+
+210 Ghurza's (the crochet and handmade shop demo's) photos, for its looks A and B. All come from StockSnap (found through Openverse, `source=stocksnap`) and are dedicated to the public domain (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/); each file's StockSnap page has the terms. They were cut to 4:5 around the part the approved designs show and resized to 720 × 900; the wide ones used as banners (`wide-*.jpg`) were only resized to 900 wide, and the sign-in photo (`hero.jpg`) cut to 2:3 at 720 × 1080. hoop-yarn, knit-coffee and yarn-balls were first cropped to remove a branded camera, tube or yarn label. The shop, its pieces and its prices they illustrate in the demo are fictional.
+
+- **basket-room.jpg**: "Still Items" by Sarah Dorweiler, CC0 1.0. https://stocksnap.io/photo/still-items-UB2UXMASSW
+- **beanie-girl.jpg**: "Girl Winter" by Joseph L. Etchingham, CC0 1.0. https://stocksnap.io/photo/girl-winter-IP508G89QA
+- **blue-yarn.jpg**: "Blue Yarn" by Markus Spiske, CC0 1.0. https://stocksnap.io/photo/blue-yarn-X5NGBNGV7D
+- **bunny-knit.jpg**: "Easter Decorations" by Travel Photographer, CC0 1.0. https://stocksnap.io/photo/easter-decorations-SWKH6ZAETX
+- **buttons.jpg**: "Sewing Buttons" by Seacoast Sage, CC0 1.0. https://stocksnap.io/photo/sewing-buttons-LR8TVSVKZI
+- **cozy-sweater.jpg**: "People Woman" by Beauty and Fashion, CC0 1.0. https://stocksnap.io/photo/people-woman-FVLLWFVVHH
+- **fluffy-blanket.jpg**: "Coffee Cozy" by Beauty and Fashion, CC0 1.0. https://stocksnap.io/photo/coffee-cozy-SC7APHV0JX
+- **gnomes.jpg**: "Christmas Gnome" by Travel Photographer, CC0 1.0. https://stocksnap.io/photo/christmas-gnome-ZJSI6MSWBQ
+- **green-sweater.jpg**: "People Woman" by Brooke Cagle, CC0 1.0. https://stocksnap.io/photo/people-woman-4BWV20PCEH
+- **hero.jpg**: "Girl Winter" by Joseph L. Etchingham, CC0 1.0. https://stocksnap.io/photo/girl-winter-IP508G89QA
+- **hoop-yarn.jpg**: "Yarn Thread" by Giulia Bertelli, CC0 1.0. https://stocksnap.io/photo/yarn-thread-2Q79J32WX2
+- **knit-coffee.jpg**: "Yarn Thread" by Giulia Bertelli, CC0 1.0. https://stocksnap.io/photo/yarn-thread-CMKJKIEJ5F
+- **knit-flatlay.jpg**: "Yarn Thread" by Giulia Bertelli, CC0 1.0. https://stocksnap.io/photo/yarn-thread-CR4FKGO3YG
+- **knit-textures.jpg**: "Clothes Sweaters" by Michal Kulesza, CC0 1.0. https://stocksnap.io/photo/clothes-sweaters-OA0AFM3HYZ
+- **mittens-coffee.jpg**: "Coffee Steam" by PICSELI, CC0 1.0. https://stocksnap.io/photo/coffee-steam-XC9DW4IKVT
+- **mittens-snow.jpg**: "Crystal Lens" by Tricia Gray, CC0 1.0. https://stocksnap.io/photo/crystal-lens-SK7NCGRP8B
+- **pom-beanie.jpg**: "Hat Toque" by Cole Patrick, CC0 1.0. https://stocksnap.io/photo/hat-toque-6C71A222A1
+- **red-scarf.jpg**: "People Woman" by Karen Cantú Q, CC0 1.0. https://stocksnap.io/photo/people-woman-L1IARTVGHE
+- **scarves-stack.jpg**: "Blanket Scarf" by Kelly Sikkema, CC0 1.0. https://stocksnap.io/photo/blanket-scarf-LQZSN13S95
+- **slippers.jpg**: "Dog Animal" by Abby Kihano, CC0 1.0. https://stocksnap.io/photo/dog-animal-5FGEKJTGDV
+- **snowman-plush.jpg**: "Snowman Scarf" by Alexey Topolyanskiy, CC0 1.0. https://stocksnap.io/photo/snowman-scarf-A0ZLU5X6WN
+- **socks.jpg**: "Socks Footwear" by Snufkin, CC0 1.0. https://stocksnap.io/photo/socks-footwear-TFRHSVS7NL
+- **spools.jpg**: "Thread Spools" by Patryk Dziejma, CC0 1.0. https://stocksnap.io/photo/thread-spools-OT78IG5U1C
+- **straw-close.jpg**: "Straw Hat" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/straw-hat-QVKSZTGJBI
+- **straw-hat.jpg**: "Straw Hat" by Alex Blăjan, CC0 1.0. https://stocksnap.io/photo/straw-hat-R27ZN6PJ4S
+- **sweater-shoulder.jpg**: "People Woman" by Daria Nepriakhina, CC0 1.0. https://stocksnap.io/photo/people-woman-VAJQVU6TXL
+- **sweater-wood.jpg**: "Bokehblur Clothing" by Victoria Bilsborough, CC0 1.0. https://stocksnap.io/photo/bokehblur-clothing-HFT8VKVAGR
+- **teddy-sweater.jpg**: "Teddybear Toy" by Daria Nepriakhina, CC0 1.0. https://stocksnap.io/photo/teddybear-toy-AAPS1PYWT4
+- **wide-cozy-sweater.jpg**: "People Woman" by Beauty and Fashion, CC0 1.0. https://stocksnap.io/photo/people-woman-FVLLWFVVHH
+- **wide-hoop-yarn.jpg**: "Yarn Thread" by Giulia Bertelli, CC0 1.0. https://stocksnap.io/photo/yarn-thread-2Q79J32WX2
+- **wide-knit-coffee.jpg**: "Yarn Thread" by Giulia Bertelli, CC0 1.0. https://stocksnap.io/photo/yarn-thread-CMKJKIEJ5F
+- **wide-knit-flatlay.jpg**: "Yarn Thread" by Giulia Bertelli, CC0 1.0. https://stocksnap.io/photo/yarn-thread-CR4FKGO3YG
+- **wide-mittens-coffee.jpg**: "Coffee Steam" by PICSELI, CC0 1.0. https://stocksnap.io/photo/coffee-steam-XC9DW4IKVT
+- **wide-red-scarf.jpg**: "People Woman" by Karen Cantú Q, CC0 1.0. https://stocksnap.io/photo/people-woman-L1IARTVGHE
+- **wide-scarves-stack.jpg**: "Blanket Scarf" by Kelly Sikkema, CC0 1.0. https://stocksnap.io/photo/blanket-scarf-LQZSN13S95
+- **yarn-ball-white.jpg**: "Ball String" by Jess Watters, CC0 1.0. https://stocksnap.io/photo/ball-string-CJXQWBJKPX
+- **yarn-balls.jpg**: "Yarn Thread" by Giulia Bertelli, CC0 1.0. https://stocksnap.io/photo/yarn-thread-9M2UOGJ5XN

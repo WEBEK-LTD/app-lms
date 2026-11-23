@@ -67,8 +67,8 @@ describe("124.6 the premium academy in App setup", () => {
     expect(projectTemplateOf(regular, "studio-academy_premium")).toBeNull();
     // 130.15 130.16 An academy of many teachers gets Rawaq Academy's Signature looks.
     expect(projectTemplatesFor(await project("instructors")).map((t) => t.id)).toEqual(["instructors_signature_a", "instructors_signature_b"]);
-    // 131.20 A Studio store gets Leqaa's two looks, the flower shop's; 208 and Lujain's, the clothes shop's.
-    expect(projectTemplatesFor(await project("store")).map((t) => t.id)).toEqual(["flowers_signature_a", "flowers_signature_b", "clothes_signature_a", "clothes_signature_b"]);
+    // 131.20 A Studio store gets Leqaa's two looks, the flower shop's; 208 and Lujain's, the clothes shop's; 209 Velours', Toota's and Toot's; 210 Sakan's, Ghurza's and Rukn's; 211 Madar's, Nova's and Nawah's.
+    expect(projectTemplatesFor(await project("store")).map((t) => t.id)).toEqual(["flowers_signature_a", "flowers_signature_b", "clothes_signature_a", "clothes_signature_b", "beauty_signature_a", "beauty_signature_b", "kids_signature_a", "kids_signature_b", "toys_signature_a", "toys_signature_b", "decor_signature_a", "decor_signature_b", "crochet_signature_a", "crochet_signature_b", "furniture_signature_a", "furniture_signature_b", "electronics_signature_a", "electronics_signature_b", "mobiles_signature_a", "mobiles_signature_b", "computers_signature_a", "computers_signature_b"]);
     expect(projectTemplatesFor(await project("restaurant"))).toEqual([]);
     // A page design's id or a made-up one isn't a template.
     expect(projectTemplateOf(studio, "academy-kids")).toBeNull();

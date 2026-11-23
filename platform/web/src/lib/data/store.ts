@@ -116,6 +116,7 @@ import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket
 import type { AppAuthKey, BuildVariant } from "./types";
 import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
 // 63
+import type { ProductReview, ProductReviewInput, ProductReviewPatch, ShopWishlistItem, StockAlert } from "./types";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 // 29 Charity & donations
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
@@ -146,6 +147,8 @@ import type {
   SchoolHomework,
   SchoolLeave,
   SchoolExcuse,
+  StoreRequest,
+  StoreRequestStatus,
   SchoolPickup,
   SchoolPickupNote,
   SchoolSlip,
@@ -287,6 +290,7 @@ import type { ChatConversation, ChatConversationKind, ChatConversationPatch, Cha
 import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
+import type { TradeInRequest, TradeInStatus } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
 
@@ -993,6 +997,14 @@ export interface DataStore {
   /** Conversations with user messages the office hasn't read. */
   countUnreadListingInquiries(appId: string): Promise<number>;
 
+  // 211 Trade-in requests from a store's app (Store › Trade-in)
+  createTradeInRequest(input: Omit<TradeInRequest, "id">): Promise<TradeInRequest>;
+  /** Newest first: all, or those of a status. */
+  listTradeInRequests(input: { appId: string; status?: TradeInStatus; offset: number; limit: number }): Promise<{ items: TradeInRequest[]; total: number }>;
+  updateTradeInRequest(appId: string, id: number, patch: Pick<TradeInRequest, "status" | "updatedAt">): Promise<void>;
+  /** The requests no one has answered yet (`new`). */
+  countNewTradeInRequests(appId: string): Promise<number>;
+
   // 23 News & blog apps: articles written in the dashboard
   /** Every article of the app, any status, newest first. */
   listArticles(appId: string): Promise<Article[]>;
@@ -1248,6 +1260,11 @@ export interface DataStore {
   listSchoolExcuses(appId: string, filter?: { studentId?: number; studentIds?: number[]; statuses?: SchoolExcuse["status"][]; from?: string; to?: string }): Promise<SchoolExcuse[]>;
   getSchoolExcuse(appId: string, id: number): Promise<SchoolExcuse | null>;
   createSchoolExcuse(input: Omit<SchoolExcuse, "id">): Promise<SchoolExcuse>;
+  // 210 Custom-order requests (lib/selling/requests.ts), newest first.
+  listStoreRequests(appId: string, filter?: { statuses?: StoreRequestStatus[] }): Promise<StoreRequest[]>;
+  getStoreRequest(appId: string, id: number): Promise<StoreRequest | null>;
+  createStoreRequest(input: Omit<StoreRequest, "id">): Promise<StoreRequest>;
+  updateStoreRequest(appId: string, id: number, patch: Partial<Pick<StoreRequest, "status" | "reply" | "quoteCents" | "updatedAt">>): Promise<boolean>;
   /** Only while the excuse is in one of `statuses`; false when it wasn't changed. */
   updateSchoolExcuse(appId: string, id: number, patch: Partial<Pick<SchoolExcuse, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolExcuse["status"][]): Promise<boolean>;
   getSchoolPickup(appId: string, studentId: number): Promise<SchoolPickup | null>;
@@ -2695,4 +2712,31 @@ export interface DataStore {
   /** Cancelled only while it isn't sent: its month is free again. False otherwise. */
   cancelDesignerPayout(id: string, patch: Pick<DesignerPayout, "cancelledAt" | "cancelledBy" | "cancelNote">): Promise<boolean>;
   markDesignerPayoutEmailed(id: string, at: Date): Promise<void>;
+
+  // 212 A store's wishlist, reviews with photos and back in stock (lib/selling/shop-features)
+  /** The customer's saved products, newest first. */
+  listShopWishlist(appId: string, userId: number): Promise<ShopWishlistItem[]>;
+  /** Saves a product (kept once); false when it was there already. */
+  addShopWishlist(appId: string, userId: number, productId: number, now: Date): Promise<boolean>;
+  removeShopWishlist(appId: string, userId: number, productId: number): Promise<void>;
+  /** How many customers saved each product (the owner's counts), most first. */
+  countShopWishlist(appId: string): Promise<{ productId: number; count: number }[]>;
+  /** Writes or replaces the customer's review of the product (one each); the shop's reply and hiding stay. */
+  saveProductReview(input: ProductReviewInput): Promise<ProductReview>;
+  getProductReview(appId: string, id: number): Promise<ProductReview | null>;
+  getProductReviewOf(appId: string, productId: number, userId: number): Promise<ProductReview | null>;
+  /** Newest first. `hidden` filters by it; `unreplied`: without a reply; `photos`: with photos only. */
+  listProductReviews(input: { appId: string; productIds?: number[]; hidden?: boolean; unreplied?: boolean; photos?: boolean; offset: number; limit: number }): Promise<{ items: ProductReview[]; total: number }>;
+  /** How many shown reviews each product has of each rating (of these products, else all). */
+  countProductRatings(appId: string, productIds?: number[]): Promise<{ productId: number; rating: number; count: number }[]>;
+  updateProductReview(appId: string, id: number, patch: ProductReviewPatch): Promise<void>;
+  deleteProductReview(appId: string, id: number): Promise<void>;
+  /** Asks to be told (kept once per product, variation and customer: asking again waits again). */
+  saveStockAlert(input: Omit<StockAlert, "id" | "notifiedAt">): Promise<StockAlert>;
+  deleteStockAlert(appId: string, userId: number, productId: number, variationId: number): Promise<void>;
+  /** Oldest first; `waiting`: not told yet. */
+  listStockAlerts(input: { appId: string; productId?: number; userId?: number; waiting?: boolean; limit?: number }): Promise<StockAlert[]>;
+  /** The apps with someone still waiting (for the job). */
+  listAppsWithStockAlerts(limit: number): Promise<string[]>;
+  markStockAlertsNotified(appId: string, ids: number[], now: Date): Promise<void>;
 }

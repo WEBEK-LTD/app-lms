@@ -259,6 +259,21 @@ abstract class OwnerApi {
   Future<Review> replyReview(String appId, int reviewId, String text);
   Future<Review> deleteReviewReply(String appId, int reviewId);
 
+  // 212 A store's product reviews with photos, and who waits for what.
+  Future<ReviewsPage> productReviews(
+    String appId, {
+    String filter = 'all',
+    int page = 1,
+  });
+  Future<Review> setProductReviewHidden(
+    String appId,
+    int reviewId,
+    bool hidden,
+  );
+  Future<Review> replyProductReview(String appId, int reviewId, String text);
+  Future<Review> deleteProductReviewReply(String appId, int reviewId);
+  Future<ShopWishes> shopWishes(String appId);
+
   // 63 A gym's members at the door.
   Future<MembersPage> members(String appId, {String? query, int page = 1});
   Future<MemberCheckIn> checkInMember(
@@ -492,6 +507,28 @@ abstract class OwnerApi {
     String id, {
     required String answer,
     String? note,
+  });
+
+  // 210 The shop's custom-order requests (the orders area).
+
+  /// all, open (new, quoted, accepted), new, quoted, accepted, declined or
+  /// done; new ones first.
+  Future<Paged<StoreRequest>> requests(
+    String appId, {
+    String status = 'open',
+    int page = 1,
+  });
+  Future<StoreRequest> request(String appId, String id);
+
+  /// Where it is now, with a [reply] to the customer and a [quote] in the
+  /// shop's currency as typed ("450.50"); an empty one clears it (field
+  /// errors as [ApiException.fieldErrors]).
+  Future<StoreRequest> answerRequest(
+    String appId,
+    String id, {
+    required String status,
+    String? reply,
+    String? quote,
   });
 
   // 125 Prime.

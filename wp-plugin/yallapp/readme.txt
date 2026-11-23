@@ -160,6 +160,12 @@ under the Apache License 2.0, included as inline SVG.
 * Your app's pages never show a section's title over nothing: a list of products with nothing to show (featured products you haven't marked, an empty category, products you picked that are gone) shows your best sellers instead, else your newest products, and a list left out takes its title and its "Shop all" with it, as Yallapp's own shops do. A list of products on sale stays hidden while nothing is on sale.
 * Gift message beginnings in each language: under the main beginnings, write them in English, Arabic and Turkish, and customers see the ones in their app's language. The main ones stay for a language left empty and for older apps.
 
+= 0.4.53 =
+* Store apps: customers save products to their wishlist with a heart; the list is kept with their account on your site, and the hearts they gave before signing in are added when they sign in.
+* Customers who bought a product can review it from the app (one review each, which they can edit), as WooCommerce's own reviews: held for approval when your site holds comments, and shown in the app with a first name and an initial only.
+* "Notify me when it's back": a customer can ask to be told when a product, or one size or colour of it, is back in stock. When WooCommerce puts it back in stock they get the app's notification and an email, once.
+* Filters in the app's shop: by your product attributes (size, colour and the others, as their terms), and by price.
+
 = 0.4.52 =
 * Deleting an account never waits on Yallapp: telling Yallapp the person's chat is gone now happens in the background (WP-Cron), with a short timeout, and is tried again later, up to five times, when Yallapp can't be reached.
 * Your shop's categories on the flower templates' pages: the occasions' rings, chips and ticker and the collections' tiles, arches and cards that came with the template show your WooCommerce categories (the top ones, in your order, with their pictures), each opening its products, as soon as your shop has categories. A ring, tile or button named like one of your categories opens it. An app opened again asks for its pages again once you change your categories.

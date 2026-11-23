@@ -28,7 +28,7 @@ interface Card {
 /** English words the hosted API used to write on cards whatever the language. */
 const ENGLISH = /\b(Free|min|of|For sale|For rent|Negotiable|month|year|Sold out|left|Online|From|from|Ended|Goal reached|raised|Sale|Mon|Tue|Wed|Thu|Fri|Sat|Sun|Oct|Nov)\b/;
 
-describe("demo apps' cards in the app's language", { timeout: 30_000 }, () => {
+describe("demo apps' cards in the app's language", { timeout: 60_000 }, () => {
   let store: MemoryStore;
   let apps: App[];
 

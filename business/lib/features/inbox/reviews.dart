@@ -83,7 +83,12 @@ class _ReviewCardState extends ConsumerState<ReviewCard> {
     if (text == null || text.trim().isEmpty || !mounted) return;
     final api = ref.read(apiProvider);
     final appId = ref.read(appIdProvider);
-    await _run(() => api.replyReview(appId, _review.id, text), l10n.replySaved);
+    await _run(
+      () => _review.isProduct
+          ? api.replyProductReview(appId, _review.id, text)
+          : api.replyReview(appId, _review.id, text),
+      l10n.replySaved,
+    );
   }
 
   @override
@@ -105,7 +110,12 @@ class _ReviewCardState extends ConsumerState<ReviewCard> {
               Text(context.ago(r.createdAt), style: theme.textTheme.bodySmall),
             ],
           ),
-          Text(l10n.inCourse(r.courseTitle), style: theme.textTheme.bodySmall),
+          Text(
+            r.isProduct
+                ? l10n.onProduct(r.courseTitle)
+                : l10n.inCourse(r.courseTitle),
+            style: theme.textTheme.bodySmall,
+          ),
           const SizedBox(height: 6),
           Wrap(
             spacing: 8,
@@ -119,6 +129,37 @@ class _ReviewCardState extends ConsumerState<ReviewCard> {
           if (r.text.isNotEmpty) ...[
             const SizedBox(height: 6),
             Text(r.text, style: theme.textTheme.bodyMedium),
+          ],
+          // 212 The photos the customer sent with it.
+          if (r.photos.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Semantics(
+              label: l10n.reviewPhotos,
+              child: SizedBox(
+                height: 76,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: r.photos.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
+                  itemBuilder: (context, i) => ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      r.photos[i],
+                      width: 76,
+                      height: 76,
+                      fit: BoxFit.cover,
+                      semanticLabel: l10n.photoNumber(i + 1),
+                      errorBuilder: (_, _, _) => Container(
+                        width: 76,
+                        height: 76,
+                        color: context.yb.muted,
+                        child: const Icon(AppIcons.image),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
           if (r.reply != null) ...[
             const SizedBox(height: 10),
@@ -155,7 +196,9 @@ class _ReviewCardState extends ConsumerState<ReviewCard> {
                   onPressed: _busy
                       ? null
                       : () => _run(
-                          () => api.deleteReviewReply(appId, r.id),
+                          () => r.isProduct
+                              ? api.deleteProductReviewReply(appId, r.id)
+                              : api.deleteReviewReply(appId, r.id),
                           l10n.replyRemoved,
                         ),
                   child: Text(l10n.removeReply),
@@ -164,7 +207,9 @@ class _ReviewCardState extends ConsumerState<ReviewCard> {
                 onPressed: _busy
                     ? null
                     : () => _run(
-                        () => api.setReviewHidden(appId, r.id, !r.hidden),
+                        () => r.isProduct
+                            ? api.setProductReviewHidden(appId, r.id, !r.hidden)
+                            : api.setReviewHidden(appId, r.id, !r.hidden),
                         r.hidden ? l10n.reviewShownDone : l10n.reviewHiddenDone,
                       ),
                 icon: Icon(

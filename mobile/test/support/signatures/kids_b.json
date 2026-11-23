@@ -1,0 +1,5873 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/kids-photos/knit-hat-green.jpg",
+   "title": {
+    "en": "Welcome to the club",
+    "ar": "أهلًا بكِ في النادي",
+    "tr": "Kulübe hoş geldiniz"
+   },
+   "subtitle": {
+    "en": "Sign in for new arrivals in their size and your orders.",
+    "ar": "سجّلي الدخول لتصلكِ القطع الجديدة بمقاسهم وتتابعي طلباتكِ.",
+    "tr": "Bedenlerindeki yenilikler ve siparişleriniz için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "night",
+   "accent": "#27457A",
+   "items": [
+    {
+     "key": "orders",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "glass"
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "minimal",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "Lexend",
+   "corners": "round",
+   "cards": "outlined",
+   "secondary_color": "#B7893A",
+   "font_family": "Readex Pro",
+   "dark_background": "#0E1117",
+   "dark_surface": "#161A22"
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "shop",
+    "label": "Shop",
+    "icon": "grid_view",
+    "target": {
+     "type": "page",
+     "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "المتجر"
+     },
+     "tr": {
+      "label": "Mağaza"
+     }
+    }
+   },
+   {
+    "id": "cart",
+    "label": "Cart",
+    "icon": "shopping_bag",
+    "target": {
+     "type": "page",
+     "page_slug": "cart"
+    },
+    "translations": {
+     "ar": {
+      "label": "السلة"
+     },
+     "tr": {
+      "label": "Sepet"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "Orders",
+    "icon": "receipt_long",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطلبات"
+     },
+     "tr": {
+      "label": "Siparişler"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_actions",
+      "title": "Toota",
+      "translations": {
+       "ar": {
+        "title": "Toota"
+       },
+       "tr": {
+        "title": "Toota"
+       }
+      },
+      "buttons": [
+       "menu",
+       "notifications"
+      ],
+      "menu_page": "menu",
+      "background": "#F5F3EE",
+      "dark_background": "#0E1117",
+      "color": "#161D2E",
+      "dark_color": "#EDEFF3",
+      "style": "glass"
+     },
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 100,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "search",
+        "name": "Search by name, age or size",
+        "text": "Search by name, age or size",
+        "source": "products",
+        "radius": 16,
+        "height": 50,
+        "background": "#FFFFFF",
+        "dark_background": "#161A22",
+        "color": "#4B5365",
+        "dark_color": "#B6BCC8",
+        "border_color": "#E4E0D8",
+        "dark_border_color": "#252B36",
+        "border_width": 1,
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "ابحثي بالاسم أو العمر أو المقاس"
+         },
+         "tr": {
+          "text": "Ada, yaşa ya da bedene göre ara"
+         }
+        }
+       },
+       {
+        "id": "sig-3",
+        "type": "categories",
+        "name": "Categories",
+        "source": "products",
+        "color": "#161D2E",
+        "dark_color": "#EDEFF3",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-4",
+        "type": "slider",
+        "name": "The season's collections",
+        "height": 210,
+        "per_view": 1.12,
+        "gap": 10,
+        "autoplay": true,
+        "interval_ms": 5000,
+        "dots": true,
+        "indicator": "dots",
+        "padding": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-5",
+          "type": "photo_hero",
+          "name": "Autumn warmth for little adventures",
+          "image_url": "http://localhost:3000/kids-photos/knit-hat-green.jpg",
+          "height": 210,
+          "radius": 20,
+          "background": "#161D2E",
+          "scrim": {
+           "color": "#0E1117",
+           "from": 0.05,
+           "middle": 0.2,
+           "at": 45,
+           "to": 0.8
+          },
+          "align": "end",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-6",
+            "type": "text",
+            "text": "Autumn · Outdoor",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5,
+             "weight": 600,
+             "letter_spacing": 1.4,
+             "uppercase": true
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.9,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "الخريف · في الهواء الطلق"
+             },
+             "tr": {
+              "text": "Sonbahar · Dışarıda"
+             }
+            }
+           },
+           {
+            "id": "sig-7",
+            "type": "text",
+            "text": "Autumn warmth for little adventures",
+            "font": {
+             "family": "Readex Pro",
+             "size": 24,
+             "weight": 600,
+             "line_height": 1.2
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "دفء الخريف لمغامرات صغيرة"
+             },
+             "tr": {
+              "text": "Küçük maceralar için sonbahar sıcaklığı"
+             }
+            }
+           },
+           {
+            "id": "sig-8",
+            "type": "button",
+            "name": "Shop",
+            "text": "Shop",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 38,
+            "radius": 12,
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#161D2E",
+            "dark_background": "#161D2E",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "border_color": "#FFFFFF",
+            "dark_border_color": "#FFFFFF",
+            "border_width": 1,
+            "font": {
+             "family": "Readex Pro",
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "تسوّقي"
+             },
+             "tr": {
+              "text": "Keşfet"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-9",
+          "type": "photo_hero",
+          "name": "Raincoats that keep up with them",
+          "image_url": "http://localhost:3000/kids-photos/yellow-raincoat.jpg",
+          "height": 210,
+          "radius": 20,
+          "background": "#161D2E",
+          "scrim": {
+           "color": "#0E1117",
+           "from": 0.05,
+           "middle": 0.2,
+           "at": 45,
+           "to": 0.8
+          },
+          "align": "end",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-10",
+            "type": "text",
+            "text": "Rainy days",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5,
+             "weight": 600,
+             "letter_spacing": 1.4,
+             "uppercase": true
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.9,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "أيام المطر"
+             },
+             "tr": {
+              "text": "Yağmurlu günler"
+             }
+            }
+           },
+           {
+            "id": "sig-11",
+            "type": "text",
+            "text": "Raincoats that keep up with them",
+            "font": {
+             "family": "Readex Pro",
+             "size": 24,
+             "weight": 600,
+             "line_height": 1.2
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "معاطف مطر تجاري نشاطهم"
+             },
+             "tr": {
+              "text": "Onlara yetişen yağmurluklar"
+             }
+            }
+           },
+           {
+            "id": "sig-12",
+            "type": "button",
+            "name": "Shop",
+            "text": "Shop",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 38,
+            "radius": 12,
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#161D2E",
+            "dark_background": "#161D2E",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "border_color": "#FFFFFF",
+            "dark_border_color": "#FFFFFF",
+            "border_width": 1,
+            "font": {
+             "family": "Readex Pro",
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "تسوّقي"
+             },
+             "tr": {
+              "text": "Keşfet"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-13",
+          "type": "photo_hero",
+          "name": "Check, padded and ready to play",
+          "image_url": "http://localhost:3000/kids-photos/plaid-jacket.jpg",
+          "height": 210,
+          "radius": 20,
+          "background": "#161D2E",
+          "scrim": {
+           "color": "#0E1117",
+           "from": 0.05,
+           "middle": 0.2,
+           "at": 45,
+           "to": 0.8
+          },
+          "align": "end",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-14",
+            "type": "text",
+            "text": "New jackets",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5,
+             "weight": 600,
+             "letter_spacing": 1.4,
+             "uppercase": true
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.9,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "جاكيتات جديدة"
+             },
+             "tr": {
+              "text": "Yeni ceketler"
+             }
+            }
+           },
+           {
+            "id": "sig-15",
+            "type": "text",
+            "text": "Check, padded and ready to play",
+            "font": {
+             "family": "Readex Pro",
+             "size": 24,
+             "weight": 600,
+             "line_height": 1.2
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "كاروه ومبطّنة وجاهزة للعب"
+             },
+             "tr": {
+              "text": "Ekose, dolgulu, oyuna hazır"
+             }
+            }
+           },
+           {
+            "id": "sig-16",
+            "type": "button",
+            "name": "Shop",
+            "text": "Shop",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 38,
+            "radius": 12,
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#161D2E",
+            "dark_background": "#161D2E",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "border_color": "#FFFFFF",
+            "dark_border_color": "#FFFFFF",
+            "border_width": 1,
+            "font": {
+             "family": "Readex Pro",
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "تسوّقي"
+             },
+             "tr": {
+              "text": "Keşfet"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-17",
+        "type": "row",
+        "name": "Shop by age",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-18",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-19",
+            "type": "text",
+            "text": "01 · By age",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11,
+             "weight": 600,
+             "letter_spacing": 1.6,
+             "uppercase": true
+            },
+            "color": "#27457A",
+            "dark_color": "#A9C0EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "01 · حسب العمر"
+             },
+             "tr": {
+              "text": "01 · Yaşa göre"
+             }
+            }
+           },
+           {
+            "id": "sig-20",
+            "type": "text",
+            "text": "Shop by age",
+            "font": {
+             "family": "Readex Pro",
+             "size": 21,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "تسوّقي حسب العمر"
+             },
+             "tr": {
+              "text": "Yaşa göre alışveriş"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-21",
+          "type": "text",
+          "text": "Size guide",
+          "font": {
+           "family": "Readex Pro",
+           "size": 13,
+           "weight": 600
+          },
+          "color": "#27457A",
+          "dark_color": "#A9C0EE",
+          "max_lines": 1,
+          "action": {
+           "type": "page",
+           "page_slug": "size-guide"
+          },
+          "name": "Size guide",
+          "translations": {
+           "ar": {
+            "text": "دليل المقاسات"
+           },
+           "tr": {
+            "text": "Beden rehberi"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-22",
+        "type": "grid",
+        "name": "Shop by age",
+        "columns": 3,
+        "gap": 8,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-23",
+          "type": "column",
+          "name": "0–6 months",
+          "height": 96,
+          "gap": 1,
+          "radius": 16,
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 10,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#161A22",
+          "border_color": "#E4E0D8",
+          "dark_border_color": "#252B36",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-24",
+            "type": "text",
+            "text": "0–6",
+            "font": {
+             "family": "Readex Pro",
+             "size": 22,
+             "weight": 500,
+             "line_height": 1.1
+            },
+            "color": "#27457A",
+            "dark_color": "#A9C0EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "0‎–‎6"
+             },
+             "tr": {
+              "text": "0–6"
+             }
+            }
+           },
+           {
+            "id": "sig-25",
+            "type": "text",
+            "text": "months",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "شهرًا"
+             },
+             "tr": {
+              "text": "ay"
+             }
+            }
+           },
+           {
+            "id": "sig-26",
+            "type": "text",
+            "text": "Newborns",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11
+            },
+            "color": "#4B5365",
+            "dark_color": "#B6BCC8",
+            "max_lines": 1,
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "مواليد"
+             },
+             "tr": {
+              "text": "Yenidoğanlar"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-27",
+          "type": "column",
+          "name": "6–24 months",
+          "height": 96,
+          "gap": 1,
+          "radius": 16,
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 10,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#161A22",
+          "border_color": "#E4E0D8",
+          "dark_border_color": "#252B36",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-28",
+            "type": "text",
+            "text": "6–24",
+            "font": {
+             "family": "Readex Pro",
+             "size": 22,
+             "weight": 500,
+             "line_height": 1.1
+            },
+            "color": "#27457A",
+            "dark_color": "#A9C0EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "6‎–‎24"
+             },
+             "tr": {
+              "text": "6–24"
+             }
+            }
+           },
+           {
+            "id": "sig-29",
+            "type": "text",
+            "text": "months",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "شهرًا"
+             },
+             "tr": {
+              "text": "ay"
+             }
+            }
+           },
+           {
+            "id": "sig-30",
+            "type": "text",
+            "text": "Babies",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11
+            },
+            "color": "#4B5365",
+            "dark_color": "#B6BCC8",
+            "max_lines": 1,
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "رُضّع"
+             },
+             "tr": {
+              "text": "Bebekler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-31",
+          "type": "column",
+          "name": "2–4 years",
+          "height": 96,
+          "gap": 1,
+          "radius": 16,
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 10,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#27457A",
+          "dark_background": "#3D62A8",
+          "children": [
+           {
+            "id": "sig-32",
+            "type": "text",
+            "text": "2–4",
+            "font": {
+             "family": "Readex Pro",
+             "size": 22,
+             "weight": 500,
+             "line_height": 1.1
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "2‎–‎4"
+             },
+             "tr": {
+              "text": "2–4"
+             }
+            }
+           },
+           {
+            "id": "sig-33",
+            "type": "text",
+            "text": "years",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "سنة"
+             },
+             "tr": {
+              "text": "yaş"
+             }
+            }
+           },
+           {
+            "id": "sig-34",
+            "type": "text",
+            "text": "Toddlers",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.8,
+            "max_lines": 1,
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "أطفال صغار"
+             },
+             "tr": {
+              "text": "Küçük çocuklar"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-35",
+          "type": "column",
+          "name": "4–6 years",
+          "height": 96,
+          "gap": 1,
+          "radius": 16,
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 10,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#161A22",
+          "border_color": "#E4E0D8",
+          "dark_border_color": "#252B36",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-36",
+            "type": "text",
+            "text": "4–6",
+            "font": {
+             "family": "Readex Pro",
+             "size": 22,
+             "weight": 500,
+             "line_height": 1.1
+            },
+            "color": "#27457A",
+            "dark_color": "#A9C0EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "4‎–‎6"
+             },
+             "tr": {
+              "text": "4–6"
+             }
+            }
+           },
+           {
+            "id": "sig-37",
+            "type": "text",
+            "text": "years",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "سنة"
+             },
+             "tr": {
+              "text": "yaş"
+             }
+            }
+           },
+           {
+            "id": "sig-38",
+            "type": "text",
+            "text": "Preschool",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11
+            },
+            "color": "#4B5365",
+            "dark_color": "#B6BCC8",
+            "max_lines": 1,
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "ما قبل المدرسة"
+             },
+             "tr": {
+              "text": "Okul öncesi"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-39",
+          "type": "column",
+          "name": "6–9 years",
+          "height": 96,
+          "gap": 1,
+          "radius": 16,
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 10,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#161A22",
+          "border_color": "#E4E0D8",
+          "dark_border_color": "#252B36",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-40",
+            "type": "text",
+            "text": "6–9",
+            "font": {
+             "family": "Readex Pro",
+             "size": 22,
+             "weight": 500,
+             "line_height": 1.1
+            },
+            "color": "#27457A",
+            "dark_color": "#A9C0EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "6‎–‎9"
+             },
+             "tr": {
+              "text": "6–9"
+             }
+            }
+           },
+           {
+            "id": "sig-41",
+            "type": "text",
+            "text": "years",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "سنة"
+             },
+             "tr": {
+              "text": "yaş"
+             }
+            }
+           },
+           {
+            "id": "sig-42",
+            "type": "text",
+            "text": "School",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11
+            },
+            "color": "#4B5365",
+            "dark_color": "#B6BCC8",
+            "max_lines": 1,
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "المدرسة"
+             },
+             "tr": {
+              "text": "Okul çağı"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-43",
+          "type": "column",
+          "name": "9–12 years",
+          "height": 96,
+          "gap": 1,
+          "radius": 16,
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 10,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#161A22",
+          "border_color": "#E4E0D8",
+          "dark_border_color": "#252B36",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-44",
+            "type": "text",
+            "text": "9–12",
+            "font": {
+             "family": "Readex Pro",
+             "size": 22,
+             "weight": 500,
+             "line_height": 1.1
+            },
+            "color": "#27457A",
+            "dark_color": "#A9C0EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "9‎–‎12"
+             },
+             "tr": {
+              "text": "9–12"
+             }
+            }
+           },
+           {
+            "id": "sig-45",
+            "type": "text",
+            "text": "years",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "سنة"
+             },
+             "tr": {
+              "text": "yaş"
+             }
+            }
+           },
+           {
+            "id": "sig-46",
+            "type": "text",
+            "text": "Older kids",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11
+            },
+            "color": "#4B5365",
+            "dark_color": "#B6BCC8",
+            "max_lines": 1,
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "الأكبر سنًا"
+             },
+             "tr": {
+              "text": "Büyük çocuklar"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-47",
+        "type": "row",
+        "name": "New this week",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-48",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-49",
+            "type": "text",
+            "text": "02 · New in",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11,
+             "weight": 600,
+             "letter_spacing": 1.6,
+             "uppercase": true
+            },
+            "color": "#27457A",
+            "dark_color": "#A9C0EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "02 · الجديد"
+             },
+             "tr": {
+              "text": "02 · Yeni"
+             }
+            }
+           },
+           {
+            "id": "sig-50",
+            "type": "text",
+            "text": "New this week",
+            "font": {
+             "family": "Readex Pro",
+             "size": 21,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "وصل هذا الأسبوع"
+             },
+             "tr": {
+              "text": "Bu hafta gelenler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-51",
+          "type": "text",
+          "text": "See all",
+          "font": {
+           "family": "Readex Pro",
+           "size": 13,
+           "weight": 600
+          },
+          "color": "#27457A",
+          "dark_color": "#A9C0EE",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "name": "See all",
+          "translations": {
+           "ar": {
+            "text": "عرض الكل"
+           },
+           "tr": {
+            "text": "Tümü"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-52",
+        "type": "items",
+        "name": "New in",
+        "source": "products",
+        "layout": "carousel",
+        "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "query": {
+         "limit": 8,
+         "category_id": null,
+         "featured": false,
+         "sort": "newest",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-53",
+         "type": "column",
+         "width": 156,
+         "gap": 5,
+         "children": [
+          {
+           "id": "sig-54",
+           "type": "stack",
+           "width": 156,
+           "height": 196,
+           "children": [
+            {
+             "id": "sig-55",
+             "type": "image",
+             "bind": "image",
+             "width": 156,
+             "height": 196,
+             "radius": 16,
+             "fit": "cover",
+             "background": "#ECE7DE",
+             "dark_background": "#1E232C"
+            },
+            {
+             "id": "sig-56",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "size": 11,
+              "weight": 700
+             },
+             "color": "#FFFFFF",
+             "dark_color": "#FFFFFF",
+             "background": "#C2513A",
+             "dark_background": "#C2513A",
+             "radius": 10,
+             "padding": {
+              "top": 3,
+              "end": 8,
+              "bottom": 3,
+              "start": 8
+             },
+             "place": {
+              "x": 6,
+              "y": 5
+             }
+            }
+           ]
+          },
+          {
+           "id": "sig-57",
+           "type": "text",
+           "bind": "title",
+           "max_lines": 2,
+           "color": "#161D2E",
+           "dark_color": "#EDEFF3",
+           "font": {
+            "family": "Readex Pro",
+            "size": 13.5,
+            "weight": 600,
+            "line_height": 1.3
+           }
+          },
+          {
+           "id": "sig-58",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-59",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "color": "#27457A",
+             "dark_color": "#A9C0EE",
+             "font": {
+              "family": "Readex Pro",
+              "size": 14.5,
+              "weight": 700
+             }
+            },
+            {
+             "id": "sig-60",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "color": "#4B5365",
+             "dark_color": "#B6BCC8",
+             "font": {
+              "size": 12
+             }
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-61",
+        "type": "row",
+        "name": "The look of the week",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-62",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-63",
+            "type": "text",
+            "text": "03 · The look",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11,
+             "weight": 600,
+             "letter_spacing": 1.6,
+             "uppercase": true
+            },
+            "color": "#27457A",
+            "dark_color": "#A9C0EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "03 · الإطلالة"
+             },
+             "tr": {
+              "text": "03 · Kombin"
+             }
+            }
+           },
+           {
+            "id": "sig-64",
+            "type": "text",
+            "text": "The look of the week",
+            "font": {
+             "family": "Readex Pro",
+             "size": 21,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "إطلالة الأسبوع"
+             },
+             "tr": {
+              "text": "Haftanın kombini"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-65",
+          "type": "text",
+          "text": "More looks",
+          "font": {
+           "family": "Readex Pro",
+           "size": 13,
+           "weight": 600
+          },
+          "color": "#27457A",
+          "dark_color": "#A9C0EE",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "name": "More looks",
+          "translations": {
+           "ar": {
+            "text": "إطلالات أخرى"
+           },
+           "tr": {
+            "text": "Diğer kombinler"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-66",
+        "type": "column",
+        "name": "The look of the week",
+        "gap": 12,
+        "radius": 22,
+        "padding": {
+         "top": 10,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#161A22",
+        "border_color": "#E4E0D8",
+        "dark_border_color": "#252B36",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-67",
+          "type": "stack",
+          "height": 300,
+          "radius": 16,
+          "background": "#ECE7DE",
+          "dark_background": "#1E232C",
+          "image_background_url": "http://localhost:3000/kids-photos/plaid-jacket.jpg",
+          "children": [
+           {
+            "id": "sig-68",
+            "type": "row",
+            "name": "The look of the week 1",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#FFFFFF",
+            "border_color": "#27457A",
+            "border_width": 2,
+            "shadow": "medium",
+            "place": {
+             "x": 60,
+             "y": 40
+            },
+            "motion": {
+             "loop": "pulse"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-69",
+              "type": "text",
+              "text": "1",
+              "font": {
+               "size": 12.5,
+               "weight": 700
+              },
+              "color": "#161D2E",
+              "dark_color": "#161D2E"
+             }
+            ]
+           },
+           {
+            "id": "sig-70",
+            "type": "row",
+            "name": "The look of the week 2",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#FFFFFF",
+            "border_color": "#27457A",
+            "border_width": 2,
+            "shadow": "medium",
+            "place": {
+             "x": 56,
+             "y": 22
+            },
+            "motion": {
+             "loop": "pulse"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-71",
+              "type": "text",
+              "text": "2",
+              "font": {
+               "size": 12.5,
+               "weight": 700
+              },
+              "color": "#161D2E",
+              "dark_color": "#161D2E"
+             }
+            ]
+           },
+           {
+            "id": "sig-72",
+            "type": "row",
+            "name": "The look of the week 3",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "align": "center",
+            "cross": "center",
+            "background": "#FFFFFF",
+            "dark_background": "#FFFFFF",
+            "border_color": "#27457A",
+            "border_width": 2,
+            "shadow": "medium",
+            "place": {
+             "x": 64,
+             "y": 72
+            },
+            "motion": {
+             "loop": "pulse"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-73",
+              "type": "text",
+              "text": "3",
+              "font": {
+               "size": 12.5,
+               "weight": 700
+              },
+              "color": "#161D2E",
+              "dark_color": "#161D2E"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-74",
+          "type": "text",
+          "text": "Weekend in the fields: check, wool and denim",
+          "font": {
+           "family": "Readex Pro",
+           "size": 16,
+           "weight": 600,
+           "line_height": 1.25
+          },
+          "color": "#161D2E",
+          "dark_color": "#EDEFF3",
+          "max_lines": 2,
+          "translations": {
+           "ar": {
+            "text": "عطلة في الحقول: كاروه وصوف ودنيم"
+           },
+           "tr": {
+            "text": "Tarlada hafta sonu: ekose, yün ve denim"
+           }
+          }
+         },
+         {
+          "id": "sig-75",
+          "type": "items",
+          "name": "The look's pieces",
+          "source": "products",
+          "layout": "list",
+          "gap": 10,
+          "query": {
+           "limit": 3,
+           "category_id": null,
+           "featured": true,
+           "sort": "popular",
+           "ids": []
+          },
+          "card": {
+           "id": "sig-76",
+           "type": "row",
+           "gap": 12,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-77",
+             "type": "image",
+             "bind": "image",
+             "width": 56,
+             "height": 64,
+             "radius": 12,
+             "fit": "cover"
+            },
+            {
+             "id": "sig-78",
+             "type": "column",
+             "width": "fill",
+             "gap": 3,
+             "children": [
+              {
+               "id": "sig-79",
+               "type": "text",
+               "bind": "title",
+               "max_lines": 1,
+               "color": "#161D2E",
+               "dark_color": "#EDEFF3",
+               "font": {
+                "family": "Readex Pro",
+                "size": 13.5,
+                "weight": 600
+               }
+              },
+              {
+               "id": "sig-80",
+               "type": "text",
+               "bind": "price",
+               "max_lines": 1,
+               "color": "#27457A",
+               "dark_color": "#A9C0EE",
+               "font": {
+                "family": "Readex Pro",
+                "size": 13.5,
+                "weight": 700
+               }
+              }
+             ]
+            },
+            {
+             "id": "sig-81",
+             "type": "icon",
+             "icon": "arrow_forward",
+             "icon_size": 20,
+             "color": "#161D2E",
+             "dark_color": "#EDEFF3"
+            }
+           ]
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-82",
+        "type": "row",
+        "name": "Who are you shopping for?",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-83",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-84",
+            "type": "text",
+            "text": "04 · Shop",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11,
+             "weight": 600,
+             "letter_spacing": 1.6,
+             "uppercase": true
+            },
+            "color": "#27457A",
+            "dark_color": "#A9C0EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "04 · تسوّقي"
+             },
+             "tr": {
+              "text": "04 · Alışveriş"
+             }
+            }
+           },
+           {
+            "id": "sig-85",
+            "type": "text",
+            "text": "Who are you shopping for?",
+            "font": {
+             "family": "Readex Pro",
+             "size": 21,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "لمن تتسوّقين؟"
+             },
+             "tr": {
+              "text": "Kimin için alışveriş yapıyorsunuz?"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-86",
+        "type": "row",
+        "name": "Who are you shopping for?",
+        "gap": 10,
+        "scroll": true,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-87",
+          "type": "column",
+          "name": "Girls",
+          "width": 150,
+          "gap": 4,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-88",
+            "type": "image",
+            "image_url": "http://localhost:3000/kids-photos/tiered-dress.jpg",
+            "fit": "cover",
+            "width": 150,
+            "height": 184,
+            "radius": 18,
+            "background": "#ECE7DE",
+            "dark_background": "#1E232C"
+           },
+           {
+            "id": "sig-89",
+            "type": "row",
+            "gap": 4,
+            "cross": "center",
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-90",
+              "type": "text",
+              "text": "Girls",
+              "font": {
+               "family": "Readex Pro",
+               "size": 15,
+               "weight": 600,
+               "line_height": 1.25
+              },
+              "color": "#161D2E",
+              "dark_color": "#EDEFF3",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "البنات"
+               },
+               "tr": {
+                "text": "Kız çocuk"
+               }
+              }
+             },
+             {
+              "id": "sig-91",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 16,
+              "color": "#27457A",
+              "dark_color": "#A9C0EE"
+             }
+            ]
+           },
+           {
+            "id": "sig-92",
+            "type": "text",
+            "text": "Dresses, knits and pyjamas",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5
+            },
+            "color": "#4B5365",
+            "dark_color": "#B6BCC8",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "فساتين وتريكو وبيجامات"
+             },
+             "tr": {
+              "text": "Elbise, triko ve pijama"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-93",
+          "type": "column",
+          "name": "Boys",
+          "width": 150,
+          "gap": 4,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-94",
+            "type": "image",
+            "image_url": "http://localhost:3000/kids-photos/denim-jacket.jpg",
+            "fit": "cover",
+            "width": 150,
+            "height": 184,
+            "radius": 18,
+            "background": "#ECE7DE",
+            "dark_background": "#1E232C"
+           },
+           {
+            "id": "sig-95",
+            "type": "row",
+            "gap": 4,
+            "cross": "center",
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-96",
+              "type": "text",
+              "text": "Boys",
+              "font": {
+               "family": "Readex Pro",
+               "size": 15,
+               "weight": 600,
+               "line_height": 1.25
+              },
+              "color": "#161D2E",
+              "dark_color": "#EDEFF3",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "الأولاد"
+               },
+               "tr": {
+                "text": "Erkek çocuk"
+               }
+              }
+             },
+             {
+              "id": "sig-97",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 16,
+              "color": "#27457A",
+              "dark_color": "#A9C0EE"
+             }
+            ]
+           },
+           {
+            "id": "sig-98",
+            "type": "text",
+            "text": "Hoodies, jackets and jeans",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5
+            },
+            "color": "#4B5365",
+            "dark_color": "#B6BCC8",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "هوديز وجاكيتات وجينز"
+             },
+             "tr": {
+              "text": "Kapüşonlu, ceket ve kot"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-99",
+          "type": "column",
+          "name": "Baby & newborn",
+          "width": 150,
+          "gap": 4,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-100",
+            "type": "image",
+            "image_url": "http://localhost:3000/kids-photos/newborn-knit.jpg",
+            "fit": "cover",
+            "width": 150,
+            "height": 184,
+            "radius": 18,
+            "background": "#ECE7DE",
+            "dark_background": "#1E232C"
+           },
+           {
+            "id": "sig-101",
+            "type": "row",
+            "gap": 4,
+            "cross": "center",
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-102",
+              "type": "text",
+              "text": "Baby & newborn",
+              "font": {
+               "family": "Readex Pro",
+               "size": 15,
+               "weight": 600,
+               "line_height": 1.25
+              },
+              "color": "#161D2E",
+              "dark_color": "#EDEFF3",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "البيبي والمواليد"
+               },
+               "tr": {
+                "text": "Bebek ve yenidoğan"
+               }
+              }
+             },
+             {
+              "id": "sig-103",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 16,
+              "color": "#27457A",
+              "dark_color": "#A9C0EE"
+             }
+            ]
+           },
+           {
+            "id": "sig-104",
+            "type": "text",
+            "text": "Soft sets for the first year",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5
+            },
+            "color": "#4B5365",
+            "dark_color": "#B6BCC8",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "أطقم ناعمة لأول عام"
+             },
+             "tr": {
+              "text": "İlk yıl için yumuşak setler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-105",
+          "type": "column",
+          "name": "Shoes",
+          "width": 150,
+          "gap": 4,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-106",
+            "type": "image",
+            "image_url": "http://localhost:3000/kids-photos/sparkle-sneakers.jpg",
+            "fit": "cover",
+            "width": 150,
+            "height": 184,
+            "radius": 18,
+            "background": "#ECE7DE",
+            "dark_background": "#1E232C"
+           },
+           {
+            "id": "sig-107",
+            "type": "row",
+            "gap": 4,
+            "cross": "center",
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-108",
+              "type": "text",
+              "text": "Shoes",
+              "font": {
+               "family": "Readex Pro",
+               "size": 15,
+               "weight": 600,
+               "line_height": 1.25
+              },
+              "color": "#161D2E",
+              "dark_color": "#EDEFF3",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "الأحذية"
+               },
+               "tr": {
+                "text": "Ayakkabılar"
+               }
+              }
+             },
+             {
+              "id": "sig-109",
+              "type": "icon",
+              "icon": "arrow_forward",
+              "icon_size": 16,
+              "color": "#27457A",
+              "dark_color": "#A9C0EE"
+             }
+            ]
+           },
+           {
+            "id": "sig-110",
+            "type": "text",
+            "text": "From the first steps to school",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5
+            },
+            "color": "#4B5365",
+            "dark_color": "#B6BCC8",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "من الخطوة الأولى إلى المدرسة"
+             },
+             "tr": {
+              "text": "İlk adımdan okula"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-126",
+        "type": "row",
+        "name": "Ready-made gift sets",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-127",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-128",
+            "type": "text",
+            "text": "05 · Gifting",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11,
+             "weight": 600,
+             "letter_spacing": 1.6,
+             "uppercase": true
+            },
+            "color": "#27457A",
+            "dark_color": "#A9C0EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "05 · الهدايا"
+             },
+             "tr": {
+              "text": "05 · Hediye"
+             }
+            }
+           },
+           {
+            "id": "sig-129",
+            "type": "text",
+            "text": "Ready-made gift sets",
+            "font": {
+             "family": "Readex Pro",
+             "size": 21,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "أطقم هدايا جاهزة"
+             },
+             "tr": {
+              "text": "Hazır hediye setleri"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-130",
+          "type": "text",
+          "text": "Newborn gifts",
+          "font": {
+           "family": "Readex Pro",
+           "size": 13,
+           "weight": 600
+          },
+          "color": "#27457A",
+          "dark_color": "#A9C0EE",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "name": "Newborn gifts",
+          "translations": {
+           "ar": {
+            "text": "هدايا المواليد"
+           },
+           "tr": {
+            "text": "Yenidoğan hediyeleri"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-131",
+        "type": "column",
+        "name": "Ready-made gift sets",
+        "gap": 0,
+        "children": [
+         {
+          "id": "sig-111",
+          "type": "row",
+          "name": "First newborn box",
+          "gap": 0,
+          "radius": 22,
+          "margin": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 16
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#161A22",
+          "border_color": "#E4E0D8",
+          "dark_border_color": "#252B36",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-112",
+            "type": "image",
+            "image_url": "http://localhost:3000/kids-photos/gift-pink.jpg",
+            "fit": "cover",
+            "width": 140,
+            "height": 212,
+            "background": "#ECE7DE",
+            "dark_background": "#1E232C",
+            "corners": {
+             "top_start": 22,
+             "bottom_start": 22,
+             "top_end": 0,
+             "bottom_end": 0
+            }
+           },
+           {
+            "id": "sig-113",
+            "type": "column",
+            "width": "fill",
+            "gap": 6,
+            "padding": {
+             "top": 14,
+             "end": 14,
+             "bottom": 14,
+             "start": 14
+            },
+            "children": [
+             {
+              "id": "sig-114",
+              "type": "text",
+              "text": "Newborn box",
+              "font": {
+               "family": "Readex Pro",
+               "size": 10.5,
+               "weight": 600,
+               "letter_spacing": 1.6,
+               "uppercase": true
+              },
+              "color": "#27457A",
+              "dark_color": "#A9C0EE",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "صندوق المولود"
+               },
+               "tr": {
+                "text": "Yenidoğan kutusu"
+               }
+              }
+             },
+             {
+              "id": "sig-115",
+              "type": "text",
+              "text": "First newborn box",
+              "font": {
+               "family": "Readex Pro",
+               "size": 17,
+               "weight": 600,
+               "line_height": 1.25
+              },
+              "color": "#161D2E",
+              "dark_color": "#EDEFF3",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "صندوق المولود الأول"
+               },
+               "tr": {
+                "text": "İlk yenidoğan kutusu"
+               }
+              }
+             },
+             {
+              "id": "sig-116",
+              "type": "row",
+              "gap": 6,
+              "cross": "center",
+              "children": [
+               {
+                "id": "sig-117",
+                "type": "icon",
+                "icon": "check",
+                "icon_size": 16,
+                "color": "#27457A",
+                "dark_color": "#A9C0EE"
+               },
+               {
+                "id": "sig-118",
+                "type": "text",
+                "text": "4 pieces in organic cotton",
+                "font": {
+                 "family": "Readex Pro",
+                 "size": 12.5
+                },
+                "color": "#161D2E",
+                "dark_color": "#EDEFF3",
+                "width": "fill",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "4 قطع من القطن العضوي"
+                 },
+                 "tr": {
+                  "text": "4 parça organik pamuk"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-119",
+              "type": "row",
+              "gap": 6,
+              "cross": "center",
+              "children": [
+               {
+                "id": "sig-120",
+                "type": "icon",
+                "icon": "check",
+                "icon_size": 16,
+                "color": "#27457A",
+                "dark_color": "#A9C0EE"
+               },
+               {
+                "id": "sig-121",
+                "type": "text",
+                "text": "A blanket and a soft toy",
+                "font": {
+                 "family": "Readex Pro",
+                 "size": 12.5
+                },
+                "color": "#161D2E",
+                "dark_color": "#EDEFF3",
+                "width": "fill",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "بطانية ودمية ناعمة"
+                 },
+                 "tr": {
+                  "text": "Battaniye ve peluş oyuncak"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-122",
+              "type": "row",
+              "gap": 6,
+              "cross": "center",
+              "children": [
+               {
+                "id": "sig-123",
+                "type": "icon",
+                "icon": "check",
+                "icon_size": 16,
+                "color": "#27457A",
+                "dark_color": "#A9C0EE"
+               },
+               {
+                "id": "sig-124",
+                "type": "text",
+                "text": "A card in your words",
+                "font": {
+                 "family": "Readex Pro",
+                 "size": 12.5
+                },
+                "color": "#161D2E",
+                "dark_color": "#EDEFF3",
+                "width": "fill",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "بطاقة إهداء بكلماتكِ"
+                 },
+                 "tr": {
+                  "text": "Sizin sözlerinizle bir kart"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-125",
+              "type": "button",
+              "name": "Newborn gifts",
+              "text": "Newborn gifts",
+              "icon": "arrow_forward",
+              "icon_position": "end",
+              "width": "hug",
+              "height": 36,
+              "radius": 12,
+              "padding": {
+               "top": 0,
+               "end": 14,
+               "bottom": 0,
+               "start": 14
+              },
+              "self_align": "start",
+              "margin": {
+               "top": 6,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "background": "#27457A",
+              "dark_background": "#3D62A8",
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "font": {
+               "family": "Readex Pro",
+               "size": 13,
+               "weight": 600
+              },
+              "motion": {
+               "press": "shrink"
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "translations": {
+               "ar": {
+                "text": "هدايا المواليد"
+               },
+               "tr": {
+                "text": "Yenidoğan hediyeleri"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-132",
+          "type": "row",
+          "name": "Little gifts under 500",
+          "cross": "end",
+          "gap": 12,
+          "padding": {
+           "top": 18,
+           "end": 16,
+           "bottom": 10,
+           "start": 16
+          },
+          "children": [
+           {
+            "id": "sig-133",
+            "type": "column",
+            "width": "fill",
+            "gap": 3,
+            "children": [
+             {
+              "id": "sig-134",
+              "type": "text",
+              "text": "Little gifts under 500",
+              "font": {
+               "family": "Readex Pro",
+               "size": 21,
+               "weight": 600,
+               "line_height": 1.25
+              },
+              "color": "#161D2E",
+              "dark_color": "#EDEFF3",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "هدايا صغيرة بأقل من 500"
+               },
+               "tr": {
+                "text": "500'ün altında küçük hediyeler"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-135",
+            "type": "text",
+            "text": "See all",
+            "font": {
+             "family": "Readex Pro",
+             "size": 13,
+             "weight": 600
+            },
+            "color": "#27457A",
+            "dark_color": "#A9C0EE",
+            "max_lines": 1,
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "name": "See all",
+            "translations": {
+             "ar": {
+              "text": "عرض الكل"
+             },
+             "tr": {
+              "text": "Tümü"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-136",
+          "type": "items",
+          "name": "Little gifts under 500",
+          "source": "products",
+          "layout": "carousel",
+          "gap": 12,
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 16
+          },
+          "query": {
+           "limit": 8,
+           "category_id": null,
+           "featured": false,
+           "sort": "popular",
+           "ids": [],
+           "max_price": 500
+          },
+          "card": {
+           "id": "sig-137",
+           "type": "column",
+           "width": 132,
+           "gap": 5,
+           "children": [
+            {
+             "id": "sig-138",
+             "type": "stack",
+             "width": 132,
+             "height": 160,
+             "children": [
+              {
+               "id": "sig-139",
+               "type": "image",
+               "bind": "image",
+               "width": 132,
+               "height": 160,
+               "radius": 16,
+               "fit": "cover",
+               "background": "#ECE7DE",
+               "dark_background": "#1E232C"
+              },
+              {
+               "id": "sig-140",
+               "type": "text",
+               "bind": "sale",
+               "font": {
+                "size": 11,
+                "weight": 700
+               },
+               "color": "#FFFFFF",
+               "dark_color": "#FFFFFF",
+               "background": "#C2513A",
+               "dark_background": "#C2513A",
+               "radius": 10,
+               "padding": {
+                "top": 3,
+                "end": 8,
+                "bottom": 3,
+                "start": 8
+               },
+               "place": {
+                "x": 6,
+                "y": 5
+               }
+              }
+             ]
+            },
+            {
+             "id": "sig-141",
+             "type": "text",
+             "bind": "title",
+             "max_lines": 2,
+             "color": "#161D2E",
+             "dark_color": "#EDEFF3",
+             "font": {
+              "family": "Readex Pro",
+              "size": 13.5,
+              "weight": 600,
+              "line_height": 1.3
+             }
+            },
+            {
+             "id": "sig-142",
+             "type": "row",
+             "gap": 6,
+             "cross": "center",
+             "children": [
+              {
+               "id": "sig-143",
+               "type": "text",
+               "bind": "price",
+               "max_lines": 1,
+               "color": "#27457A",
+               "dark_color": "#A9C0EE",
+               "font": {
+                "family": "Readex Pro",
+                "size": 14.5,
+                "weight": 700
+               }
+              },
+              {
+               "id": "sig-144",
+               "type": "text",
+               "bind": "was_price",
+               "max_lines": 1,
+               "color": "#4B5365",
+               "dark_color": "#B6BCC8",
+               "font": {
+                "size": 12
+               }
+              }
+             ]
+            }
+           ]
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-145",
+        "type": "row",
+        "name": "School and occasions",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-146",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-147",
+            "type": "text",
+            "text": "06 · Occasions",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11,
+             "weight": 600,
+             "letter_spacing": 1.6,
+             "uppercase": true
+            },
+            "color": "#27457A",
+            "dark_color": "#A9C0EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "06 · المناسبات"
+             },
+             "tr": {
+              "text": "06 · Özel günler"
+             }
+            }
+           },
+           {
+            "id": "sig-148",
+            "type": "text",
+            "text": "School and occasions",
+            "font": {
+             "family": "Readex Pro",
+             "size": 21,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "المدرسة والمناسبات"
+             },
+             "tr": {
+              "text": "Okul ve özel günler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-149",
+          "type": "text",
+          "text": "See all",
+          "font": {
+           "family": "Readex Pro",
+           "size": 13,
+           "weight": 600
+          },
+          "color": "#27457A",
+          "dark_color": "#A9C0EE",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "name": "See all",
+          "translations": {
+           "ar": {
+            "text": "عرض الكل"
+           },
+           "tr": {
+            "text": "Tümü"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-150",
+        "type": "row",
+        "name": "School and occasions",
+        "gap": 10,
+        "scroll": true,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-152",
+          "type": "photo_hero",
+          "name": "Eid looks",
+          "image_url": "http://localhost:3000/kids-photos/white-dresses.jpg",
+          "width": 172,
+          "height": 236,
+          "radius": 18,
+          "background": "#2D2420",
+          "scrim": {
+           "color": "#120D0B",
+           "from": 0,
+           "middle": 0.1,
+           "at": 50,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-151",
+            "type": "text",
+            "text": "01",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12,
+             "weight": 600
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.85,
+            "place": {
+             "x": 8,
+             "y": 6
+            }
+           },
+           {
+            "id": "sig-153",
+            "type": "text",
+            "text": "Eid looks",
+            "font": {
+             "family": "Readex Pro",
+             "size": 16.5,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "إطلالات العيد"
+             },
+             "tr": {
+              "text": "Bayram kombinleri"
+             }
+            }
+           },
+           {
+            "id": "sig-154",
+            "type": "text",
+            "text": "Dresses and shirts for the day",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "فساتين وقمصان للمناسبة"
+             },
+             "tr": {
+              "text": "O gün için elbise ve gömlek"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-156",
+          "type": "photo_hero",
+          "name": "Back to school",
+          "image_url": "http://localhost:3000/kids-photos/girls-coats.jpg",
+          "width": 172,
+          "height": 236,
+          "radius": 18,
+          "background": "#2D2420",
+          "scrim": {
+           "color": "#120D0B",
+           "from": 0,
+           "middle": 0.1,
+           "at": 50,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-155",
+            "type": "text",
+            "text": "02",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12,
+             "weight": 600
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.85,
+            "place": {
+             "x": 8,
+             "y": 6
+            }
+           },
+           {
+            "id": "sig-157",
+            "type": "text",
+            "text": "Back to school",
+            "font": {
+             "family": "Readex Pro",
+             "size": 16.5,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "العودة إلى المدرسة"
+             },
+             "tr": {
+              "text": "Okula dönüş"
+             }
+            }
+           },
+           {
+            "id": "sig-158",
+            "type": "text",
+            "text": "Everyday wear, bags and shoes",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ملابس يومية وحقائب وأحذية"
+             },
+             "tr": {
+              "text": "Günlük kıyafet, çanta ve ayakkabı"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-160",
+          "type": "photo_hero",
+          "name": "Birthday parties",
+          "image_url": "http://localhost:3000/kids-photos/cupcake.jpg",
+          "width": 172,
+          "height": 236,
+          "radius": 18,
+          "background": "#2D2420",
+          "scrim": {
+           "color": "#120D0B",
+           "from": 0,
+           "middle": 0.1,
+           "at": 50,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-159",
+            "type": "text",
+            "text": "03",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12,
+             "weight": 600
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.85,
+            "place": {
+             "x": 8,
+             "y": 6
+            }
+           },
+           {
+            "id": "sig-161",
+            "type": "text",
+            "text": "Birthday parties",
+            "font": {
+             "family": "Readex Pro",
+             "size": 16.5,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "حفلات أعياد الميلاد"
+             },
+             "tr": {
+              "text": "Doğum günü partileri"
+             }
+            }
+           },
+           {
+            "id": "sig-162",
+            "type": "text",
+            "text": "Party clothes and gifts",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "أزياء الحفلات والهدايا"
+             },
+             "tr": {
+              "text": "Parti kıyafetleri ve hediyeler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-164",
+          "type": "photo_hero",
+          "name": "Ready sets",
+          "image_url": "http://localhost:3000/kids-photos/summer-outfit.jpg",
+          "width": 172,
+          "height": 236,
+          "radius": 18,
+          "background": "#2D2420",
+          "scrim": {
+           "color": "#120D0B",
+           "from": 0,
+           "middle": 0.1,
+           "at": 50,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-163",
+            "type": "text",
+            "text": "04",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12,
+             "weight": 600
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.85,
+            "place": {
+             "x": 8,
+             "y": 6
+            }
+           },
+           {
+            "id": "sig-165",
+            "type": "text",
+            "text": "Ready sets",
+            "font": {
+             "family": "Readex Pro",
+             "size": 16.5,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "أطقم جاهزة"
+             },
+             "tr": {
+              "text": "Hazır takımlar"
+             }
+            }
+           },
+           {
+            "id": "sig-166",
+            "type": "text",
+            "text": "Whole outfits, sold as one",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "إطلالات كاملة تُباع معًا"
+             },
+             "tr": {
+              "text": "Tek parça satılan kombinler"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-167",
+        "type": "flash_sale",
+        "name": "Weekend deals",
+        "text": "Weekend deals",
+        "translations": {
+         "ar": {
+          "text": "عروض نهاية الأسبوع"
+         },
+         "tr": {
+          "text": "Hafta sonu fırsatları"
+         }
+        },
+        "flash_sale": {
+         "look": "banner",
+         "limit": 6,
+         "countdown": true,
+         "stock_bar": true,
+         "accent": "#C2513A"
+        },
+        "radius": 24,
+        "margin": {
+         "top": 24,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-168",
+        "type": "size_finder",
+        "name": "Size finder",
+        "text": "What size fits your child?",
+        "title": "Shop their size",
+        "translations": {
+         "ar": {
+          "text": "ما المقاس المناسب لطفلكِ؟",
+          "title": "تسوّقي مقاسه"
+         },
+         "tr": {
+          "text": "Çocuğunuza hangi beden uyar?",
+          "title": "Bedenine göre alışveriş"
+         }
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "background": "#1A2B4C",
+        "dark_background": "#18233C",
+        "color": "#FFFFFF",
+        "dark_color": "#FFFFFF",
+        "border_color": "#B7893A",
+        "dark_border_color": "#D9AE62",
+        "font": {
+         "family": "Readex Pro",
+         "size": 20,
+         "weight": 600
+        },
+        "radius": 22,
+        "padding": {
+         "top": 20,
+         "end": 18,
+         "bottom": 18,
+         "start": 18
+        },
+        "margin": {
+         "top": 26,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-169",
+        "type": "row",
+        "name": "Our promises",
+        "gap": 6,
+        "padding": {
+         "top": 16,
+         "end": 12,
+         "bottom": 16,
+         "start": 12
+        },
+        "margin": {
+         "top": 26,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "border_color": "#E4E0D8",
+        "dark_border_color": "#252B36",
+        "border_width": 1,
+        "radius": 18,
+        "children": [
+         {
+          "id": "sig-170",
+          "type": "column",
+          "name": "Organic cotton",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "children": [
+           {
+            "id": "sig-171",
+            "type": "icon",
+            "icon": "spa",
+            "icon_size": 22,
+            "color": "#27457A",
+            "dark_color": "#A9C0EE"
+           },
+           {
+            "id": "sig-172",
+            "type": "text",
+            "text": "Organic cotton",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "text_align": "center",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "قطن عضوي"
+             },
+             "tr": {
+              "text": "Organik pamuk"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-173",
+          "type": "column",
+          "name": "Kind to skin",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "children": [
+           {
+            "id": "sig-174",
+            "type": "icon",
+            "icon": "verified",
+            "icon_size": 22,
+            "color": "#27457A",
+            "dark_color": "#A9C0EE"
+           },
+           {
+            "id": "sig-175",
+            "type": "text",
+            "text": "Kind to skin",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "text_align": "center",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "آمن للبشرة"
+             },
+             "tr": {
+              "text": "Cilt dostu"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-176",
+          "type": "column",
+          "name": "Easy exchanges",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "children": [
+           {
+            "id": "sig-177",
+            "type": "icon",
+            "icon": "sync",
+            "icon_size": 22,
+            "color": "#27457A",
+            "dark_color": "#A9C0EE"
+           },
+           {
+            "id": "sig-178",
+            "type": "text",
+            "text": "Easy exchanges",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "text_align": "center",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "استبدال سهل"
+             },
+             "tr": {
+              "text": "Kolay değişim"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-179",
+          "type": "column",
+          "name": "Cash on delivery",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "children": [
+           {
+            "id": "sig-180",
+            "type": "icon",
+            "icon": "payments",
+            "icon_size": 22,
+            "color": "#27457A",
+            "dark_color": "#A9C0EE"
+           },
+           {
+            "id": "sig-181",
+            "type": "text",
+            "text": "Cash on delivery",
+            "font": {
+             "family": "Readex Pro",
+             "size": 11.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "text_align": "center",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "الدفع عند الاستلام"
+             },
+             "tr": {
+              "text": "Kapıda ödeme"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "shop",
+    "title": "Shop",
+    "translations": {
+     "ar": {
+      "title": "المتجر"
+     },
+     "tr": {
+      "title": "Mağaza"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-248",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-249",
+        "type": "categories",
+        "name": "Categories",
+        "source": "products",
+        "padding": {
+         "top": 4,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-250",
+        "type": "photo_hero",
+        "name": "[Your offer in a line]",
+        "image_url": "http://localhost:3000/kids-photos/plaid-jacket.jpg",
+        "height": 160,
+        "radius": 20,
+        "background": "#161D2E",
+        "scrim": {
+         "color": "#0E1117",
+         "from": 0.05,
+         "middle": 0.2,
+         "at": 45,
+         "to": 0.8
+        },
+        "align": "end",
+        "padding": {
+         "top": 16,
+         "end": 18,
+         "bottom": 16,
+         "start": 18
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "children": [
+         {
+          "id": "sig-251",
+          "type": "text",
+          "text": "Ready sets",
+          "font": {
+           "family": "Readex Pro",
+           "size": 11.5,
+           "weight": 600,
+           "letter_spacing": 1.4,
+           "uppercase": true
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "opacity": 0.9,
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "أطقم جاهزة"
+           },
+           "tr": {
+            "text": "Hazır takımlar"
+           }
+          }
+         },
+         {
+          "id": "sig-252",
+          "type": "text",
+          "text": "Whole outfits, sold as one",
+          "font": {
+           "family": "Readex Pro",
+           "size": 24,
+           "weight": 600,
+           "line_height": 1.2
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "max_lines": 2,
+          "margin": {
+           "top": 4,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "translations": {
+           "ar": {
+            "text": "إطلالات كاملة تُباع معًا"
+           },
+           "tr": {
+            "text": "Tek parça satılan komple kombinler"
+           }
+          }
+         },
+         {
+          "id": "sig-253",
+          "type": "button",
+          "name": "Shop the sets",
+          "text": "Shop the sets",
+          "icon": "arrow_forward",
+          "icon_position": "end",
+          "width": "hug",
+          "height": 38,
+          "radius": 12,
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 16
+          },
+          "self_align": "start",
+          "margin": {
+           "top": 10,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "background": "#161D2E",
+          "dark_background": "#161D2E",
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "border_color": "#FFFFFF",
+          "dark_border_color": "#FFFFFF",
+          "border_width": 1,
+          "font": {
+           "family": "Readex Pro",
+           "size": 13.5,
+           "weight": 700
+          },
+          "motion": {
+           "press": "shrink"
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "تسوّقي الأطقم"
+           },
+           "tr": {
+            "text": "Takımları keşfet"
+           }
+          }
+         }
+        ],
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "search",
+     "header": {
+      "type": "title",
+      "title": "Shop",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المتجر"
+       },
+       "tr": {
+        "title": "Mağaza"
+       }
+      },
+      "background": "#F5F3EE",
+      "color": "#161D2E",
+      "dark_background": "#0E1117",
+      "dark_color": "#EDEFF3",
+      "style": "glass"
+     },
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "cart",
+    "title": "Cart",
+    "translations": {
+     "ar": {
+      "title": "السلة"
+     },
+     "tr": {
+      "title": "Sepet"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-254",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-255",
+        "type": "coupon",
+        "name": "Your code",
+        "code": "TOOTA10",
+        "coupon": {
+         "look": "glass",
+         "bind": "public"
+        },
+        "radius": 18,
+        "color": "#27457A",
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-256",
+        "type": "row",
+        "name": "[How your gifts are wrapped, like: add gift wrapping and a card to a gift]",
+        "gap": 12,
+        "cross": "center",
+        "radius": 18,
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#ECE7DE",
+        "dark_background": "#1E232C",
+        "children": [
+         {
+          "id": "sig-257",
+          "type": "icon",
+          "icon": "redeem",
+          "icon_size": 22,
+          "color": "#27457A",
+          "dark_color": "#A9C0EE"
+         },
+         {
+          "id": "sig-258",
+          "type": "text",
+          "text": "A newborn gift? Add gift wrapping and a card, and write its message at checkout.",
+          "font": {
+           "family": "Readex Pro",
+           "size": 13,
+           "weight": 600,
+           "line_height": 1.4
+          },
+          "color": "#161D2E",
+          "dark_color": "#EDEFF3",
+          "width": "fill",
+          "max_lines": 3,
+          "translations": {
+           "ar": {
+            "text": "هدية لمولود؟ أضيفي التغليف وبطاقة، واكتبي رسالتها عند الدفع."
+           },
+           "tr": {
+            "text": "Yenidoğan hediyesi mi? Hediye paketi ve kart ekleyin, mesajını ödemede yazın."
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-259",
+        "type": "row",
+        "name": "[Your exchange policy, like: free exchange within 30 days]",
+        "gap": 12,
+        "cross": "center",
+        "radius": 18,
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#ECE7DE",
+        "dark_background": "#1E232C",
+        "children": [
+         {
+          "id": "sig-260",
+          "type": "icon",
+          "icon": "sync",
+          "icon_size": 22,
+          "color": "#27457A",
+          "dark_color": "#A9C0EE"
+         },
+         {
+          "id": "sig-261",
+          "type": "text",
+          "text": "Free exchange within 30 days if the size isn't right.",
+          "font": {
+           "family": "Readex Pro",
+           "size": 13,
+           "weight": 600,
+           "line_height": 1.4
+          },
+          "color": "#161D2E",
+          "dark_color": "#EDEFF3",
+          "width": "fill",
+          "max_lines": 3,
+          "translations": {
+           "ar": {
+            "text": "استبدال مجاني خلال 30 يومًا إن لم يناسب المقاس."
+           },
+           "tr": {
+            "text": "Beden uymazsa 30 gün içinde ücretsiz değişim."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "cart",
+     "header": {
+      "type": "title",
+      "title": "Cart",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "السلة"
+       },
+       "tr": {
+        "title": "Sepet"
+       }
+      },
+      "background": "#F5F3EE",
+      "color": "#161D2E",
+      "dark_background": "#0E1117",
+      "dark_color": "#EDEFF3",
+      "style": "glass"
+     },
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "Orders",
+    "translations": {
+     "ar": {
+      "title": "الطلبات"
+     },
+     "tr": {
+      "title": "Siparişler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-262",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-263",
+        "type": "row",
+        "name": "Your order, step by step",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-264",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-265",
+            "type": "text",
+            "text": "Your order, step by step",
+            "font": {
+             "family": "Readex Pro",
+             "size": 21,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "طلبكِ خطوة بخطوة"
+             },
+             "tr": {
+              "text": "Siparişiniz adım adım"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-266",
+        "type": "timeline",
+        "name": "Your order, step by step",
+        "timeline": {
+         "style": "vertical",
+         "source": "latest_order"
+        },
+        "color": "#161D2E",
+        "dark_color": "#EDEFF3",
+        "background": "#FFFFFF",
+        "dark_background": "#161A22",
+        "radius": 22,
+        "padding": {
+         "top": 16,
+         "end": 14,
+         "bottom": 16,
+         "start": 14
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "border_color": "#E4E0D8",
+        "dark_border_color": "#252B36",
+        "border_width": 1,
+        "entries": [
+         {
+          "title": "Ordered",
+          "text": "We have your order.",
+          "highlight": true,
+          "translations": {
+           "ar": {
+            "title": "تم الطلب",
+            "text": "استلمنا طلبكِ."
+           },
+           "tr": {
+            "title": "Sipariş alındı",
+            "text": "Siparişinizi aldık."
+           }
+          }
+         },
+         {
+          "title": "Packed",
+          "text": "Folded, checked and packed with care, the gifts wrapped.",
+          "translations": {
+           "ar": {
+            "title": "تم التغليف",
+            "text": "طُوي وفُحص وغُلّف بعناية، والهدايا مغلّفة."
+           },
+           "tr": {
+            "title": "Paketlendi",
+            "text": "Katlandı, kontrol edildi, özenle paketlendi; hediyeler sarıldı."
+           }
+          }
+         },
+         {
+          "title": "On its way",
+          "text": "With the courier, on its way to you.",
+          "translations": {
+           "ar": {
+            "title": "في الطريق",
+            "text": "مع المندوب في طريقه إليكِ."
+           },
+           "tr": {
+            "title": "Yolda",
+            "text": "Kuryede, size doğru yolda."
+           }
+          }
+         },
+         {
+          "title": "Delivered",
+          "text": "Enjoy it. A size that doesn't fit is easy to exchange from your orders.",
+          "translations": {
+           "ar": {
+            "title": "تم التوصيل",
+            "text": "استمتعي به. استبدال المقاس غير المناسب سهل من طلباتكِ."
+           },
+           "tr": {
+            "title": "Teslim edildi",
+            "text": "Güle güle kullanın. Uymayan bedeni siparişlerinizden kolayca değiştirin."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "orders",
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطلبات"
+       },
+       "tr": {
+        "title": "Siparişler"
+       }
+      },
+      "background": "#F5F3EE",
+      "color": "#161D2E",
+      "dark_background": "#0E1117",
+      "dark_color": "#EDEFF3",
+      "style": "glass"
+     },
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-268",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-267",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "account",
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "menu",
+    "title": "All categories",
+    "translations": {
+     "ar": {
+      "title": "كل الأقسام"
+     },
+     "tr": {
+      "title": "Tüm kategoriler"
+     }
+    },
+    "studio": {
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117",
+     "body": {
+      "id": "sig-203",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-204",
+        "type": "search",
+        "name": "Search every category…",
+        "text": "Search every category…",
+        "source": "products",
+        "radius": 16,
+        "height": 50,
+        "background": "#FFFFFF",
+        "dark_background": "#161A22",
+        "color": "#4B5365",
+        "dark_color": "#B6BCC8",
+        "border_color": "#E4E0D8",
+        "dark_border_color": "#252B36",
+        "border_width": 1,
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "ابحثي في كل الأقسام…"
+         },
+         "tr": {
+          "text": "Tüm kategorilerde ara…"
+         }
+        }
+       },
+       {
+        "id": "sig-205",
+        "type": "row",
+        "name": "Quick ways in",
+        "gap": 8,
+        "scroll": true,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-206",
+          "type": "row",
+          "name": "New in",
+          "height": 42,
+          "radius": 14,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#27457A",
+          "dark_background": "#3D62A8",
+          "children": [
+           {
+            "id": "sig-207",
+            "type": "icon",
+            "icon": "auto_awesome",
+            "icon_size": 18,
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF"
+           },
+           {
+            "id": "sig-208",
+            "type": "text",
+            "text": "New in",
+            "max_lines": 1,
+            "font": {
+             "family": "Readex Pro",
+             "size": 13.5,
+             "weight": 600
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "translations": {
+             "ar": {
+              "text": "وصل حديثًا"
+             },
+             "tr": {
+              "text": "Yeni gelenler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-209",
+          "type": "row",
+          "name": "By age",
+          "height": 42,
+          "radius": 14,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "page",
+           "page_slug": "size-guide"
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#161A22",
+          "border_color": "#E4E0D8",
+          "dark_border_color": "#252B36",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-210",
+            "type": "icon",
+            "icon": "cake",
+            "icon_size": 18,
+            "color": "#27457A",
+            "dark_color": "#A9C0EE"
+           },
+           {
+            "id": "sig-211",
+            "type": "text",
+            "text": "By age",
+            "max_lines": 1,
+            "font": {
+             "family": "Readex Pro",
+             "size": 13.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "translations": {
+             "ar": {
+              "text": "حسب العمر"
+             },
+             "tr": {
+              "text": "Yaşa göre"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-212",
+          "type": "row",
+          "name": "Offers",
+          "height": 42,
+          "radius": 14,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#161A22",
+          "border_color": "#E4E0D8",
+          "dark_border_color": "#252B36",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-213",
+            "type": "icon",
+            "icon": "percent",
+            "icon_size": 18,
+            "color": "#27457A",
+            "dark_color": "#A9C0EE"
+           },
+           {
+            "id": "sig-214",
+            "type": "text",
+            "text": "Offers",
+            "max_lines": 1,
+            "font": {
+             "family": "Readex Pro",
+             "size": 13.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "translations": {
+             "ar": {
+              "text": "العروض"
+             },
+             "tr": {
+              "text": "Fırsatlar"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-215",
+          "type": "row",
+          "name": "Size guide",
+          "height": 42,
+          "radius": 14,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "page",
+           "page_slug": "size-guide"
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#161A22",
+          "border_color": "#E4E0D8",
+          "dark_border_color": "#252B36",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-216",
+            "type": "icon",
+            "icon": "straighten",
+            "icon_size": 18,
+            "color": "#27457A",
+            "dark_color": "#A9C0EE"
+           },
+           {
+            "id": "sig-217",
+            "type": "text",
+            "text": "Size guide",
+            "max_lines": 1,
+            "font": {
+             "family": "Readex Pro",
+             "size": 13.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "translations": {
+             "ar": {
+              "text": "دليل المقاسات"
+             },
+             "tr": {
+              "text": "Beden rehberi"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-182",
+        "type": "column",
+        "name": "Shop by age",
+        "gap": 8,
+        "radius": 18,
+        "padding": {
+         "top": 12,
+         "end": 12,
+         "bottom": 12,
+         "start": 12
+        },
+        "margin": {
+         "top": 4,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#161A22",
+        "border_color": "#E4E0D8",
+        "dark_border_color": "#252B36",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-183",
+          "type": "text",
+          "text": "Shop by age",
+          "font": {
+           "family": "Readex Pro",
+           "size": 13,
+           "weight": 600
+          },
+          "color": "#4B5365",
+          "dark_color": "#B6BCC8",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "تسوّقي حسب العمر"
+           },
+           "tr": {
+            "text": "Yaşa göre alışveriş"
+           }
+          }
+         },
+         {
+          "id": "sig-184",
+          "type": "row",
+          "gap": 6,
+          "children": [
+           {
+            "id": "sig-185",
+            "type": "column",
+            "name": "0–6 months",
+            "width": "fill",
+            "gap": 0,
+            "cross": "center",
+            "radius": 10,
+            "padding": {
+             "top": 6,
+             "end": 2,
+             "bottom": 6,
+             "start": 2
+            },
+            "background": "#F5F3EE",
+            "dark_background": "#0E1117",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-186",
+              "type": "text",
+              "text": "0–6",
+              "font": {
+               "family": "Readex Pro",
+               "size": 13,
+               "weight": 600
+              },
+              "color": "#27457A",
+              "dark_color": "#A9C0EE",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "0‎–‎6"
+               },
+               "tr": {
+                "text": "0–6"
+               }
+              }
+             },
+             {
+              "id": "sig-187",
+              "type": "text",
+              "text": "months",
+              "font": {
+               "family": "Readex Pro",
+               "size": 10
+              },
+              "color": "#4B5365",
+              "dark_color": "#B6BCC8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "شهرًا"
+               },
+               "tr": {
+                "text": "ay"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-188",
+            "type": "column",
+            "name": "6–24 months",
+            "width": "fill",
+            "gap": 0,
+            "cross": "center",
+            "radius": 10,
+            "padding": {
+             "top": 6,
+             "end": 2,
+             "bottom": 6,
+             "start": 2
+            },
+            "background": "#F5F3EE",
+            "dark_background": "#0E1117",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-189",
+              "type": "text",
+              "text": "6–24",
+              "font": {
+               "family": "Readex Pro",
+               "size": 13,
+               "weight": 600
+              },
+              "color": "#27457A",
+              "dark_color": "#A9C0EE",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "6‎–‎24"
+               },
+               "tr": {
+                "text": "6–24"
+               }
+              }
+             },
+             {
+              "id": "sig-190",
+              "type": "text",
+              "text": "months",
+              "font": {
+               "family": "Readex Pro",
+               "size": 10
+              },
+              "color": "#4B5365",
+              "dark_color": "#B6BCC8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "شهرًا"
+               },
+               "tr": {
+                "text": "ay"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-191",
+            "type": "column",
+            "name": "2–4 years",
+            "width": "fill",
+            "gap": 0,
+            "cross": "center",
+            "radius": 10,
+            "padding": {
+             "top": 6,
+             "end": 2,
+             "bottom": 6,
+             "start": 2
+            },
+            "background": "#F5F3EE",
+            "dark_background": "#0E1117",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-192",
+              "type": "text",
+              "text": "2–4",
+              "font": {
+               "family": "Readex Pro",
+               "size": 13,
+               "weight": 600
+              },
+              "color": "#27457A",
+              "dark_color": "#A9C0EE",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "2‎–‎4"
+               },
+               "tr": {
+                "text": "2–4"
+               }
+              }
+             },
+             {
+              "id": "sig-193",
+              "type": "text",
+              "text": "years",
+              "font": {
+               "family": "Readex Pro",
+               "size": 10
+              },
+              "color": "#4B5365",
+              "dark_color": "#B6BCC8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "سنة"
+               },
+               "tr": {
+                "text": "yaş"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-194",
+            "type": "column",
+            "name": "4–6 years",
+            "width": "fill",
+            "gap": 0,
+            "cross": "center",
+            "radius": 10,
+            "padding": {
+             "top": 6,
+             "end": 2,
+             "bottom": 6,
+             "start": 2
+            },
+            "background": "#F5F3EE",
+            "dark_background": "#0E1117",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-195",
+              "type": "text",
+              "text": "4–6",
+              "font": {
+               "family": "Readex Pro",
+               "size": 13,
+               "weight": 600
+              },
+              "color": "#27457A",
+              "dark_color": "#A9C0EE",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "4‎–‎6"
+               },
+               "tr": {
+                "text": "4–6"
+               }
+              }
+             },
+             {
+              "id": "sig-196",
+              "type": "text",
+              "text": "years",
+              "font": {
+               "family": "Readex Pro",
+               "size": 10
+              },
+              "color": "#4B5365",
+              "dark_color": "#B6BCC8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "سنة"
+               },
+               "tr": {
+                "text": "yaş"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-197",
+            "type": "column",
+            "name": "6–9 years",
+            "width": "fill",
+            "gap": 0,
+            "cross": "center",
+            "radius": 10,
+            "padding": {
+             "top": 6,
+             "end": 2,
+             "bottom": 6,
+             "start": 2
+            },
+            "background": "#F5F3EE",
+            "dark_background": "#0E1117",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-198",
+              "type": "text",
+              "text": "6–9",
+              "font": {
+               "family": "Readex Pro",
+               "size": 13,
+               "weight": 600
+              },
+              "color": "#27457A",
+              "dark_color": "#A9C0EE",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "6‎–‎9"
+               },
+               "tr": {
+                "text": "6–9"
+               }
+              }
+             },
+             {
+              "id": "sig-199",
+              "type": "text",
+              "text": "years",
+              "font": {
+               "family": "Readex Pro",
+               "size": 10
+              },
+              "color": "#4B5365",
+              "dark_color": "#B6BCC8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "سنة"
+               },
+               "tr": {
+                "text": "yaş"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-200",
+            "type": "column",
+            "name": "9–12 years",
+            "width": "fill",
+            "gap": 0,
+            "cross": "center",
+            "radius": 10,
+            "padding": {
+             "top": 6,
+             "end": 2,
+             "bottom": 6,
+             "start": 2
+            },
+            "background": "#F5F3EE",
+            "dark_background": "#0E1117",
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-201",
+              "type": "text",
+              "text": "9–12",
+              "font": {
+               "family": "Readex Pro",
+               "size": 13,
+               "weight": 600
+              },
+              "color": "#27457A",
+              "dark_color": "#A9C0EE",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "9‎–‎12"
+               },
+               "tr": {
+                "text": "9–12"
+               }
+              }
+             },
+             {
+              "id": "sig-202",
+              "type": "text",
+              "text": "years",
+              "font": {
+               "family": "Readex Pro",
+               "size": 10
+              },
+              "color": "#4B5365",
+              "dark_color": "#B6BCC8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "سنة"
+               },
+               "tr": {
+                "text": "yaş"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-218",
+        "type": "categories",
+        "name": "All categories",
+        "source": "products",
+        "style": "rows",
+        "category_menu": {
+         "look": "label",
+         "radius": 16,
+         "numbers": true
+        },
+        "color": "#161D2E",
+        "dark_color": "#EDEFF3",
+        "padding": {
+         "top": 6,
+         "end": 0,
+         "bottom": 6,
+         "start": 0
+        }
+       },
+       {
+        "id": "sig-219",
+        "type": "divider",
+        "height": 1,
+        "background": "#E4E0D8",
+        "dark_background": "#252B36",
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-220",
+        "type": "row",
+        "name": "Your account",
+        "gap": 8,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-221",
+          "type": "column",
+          "name": "My account",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "radius": 18,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#161A22",
+          "border_color": "#E4E0D8",
+          "dark_border_color": "#252B36",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-222",
+            "type": "icon",
+            "icon": "person",
+            "icon_size": 22,
+            "color": "#27457A",
+            "dark_color": "#A9C0EE"
+           },
+           {
+            "id": "sig-223",
+            "type": "text",
+            "text": "My account",
+            "max_lines": 1,
+            "text_align": "center",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "translations": {
+             "ar": {
+              "text": "حسابي"
+             },
+             "tr": {
+              "text": "Hesabım"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-224",
+          "type": "column",
+          "name": "My orders",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "radius": 18,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#161A22",
+          "border_color": "#E4E0D8",
+          "dark_border_color": "#252B36",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "orders"
+          },
+          "children": [
+           {
+            "id": "sig-225",
+            "type": "icon",
+            "icon": "package_2",
+            "icon_size": 22,
+            "color": "#27457A",
+            "dark_color": "#A9C0EE"
+           },
+           {
+            "id": "sig-226",
+            "type": "text",
+            "text": "My orders",
+            "max_lines": 1,
+            "text_align": "center",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "translations": {
+             "ar": {
+              "text": "طلباتي"
+             },
+             "tr": {
+              "text": "Siparişlerim"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-227",
+          "type": "column",
+          "name": "Language",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "radius": 18,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#161A22",
+          "border_color": "#E4E0D8",
+          "dark_border_color": "#252B36",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "settings"
+          },
+          "children": [
+           {
+            "id": "sig-228",
+            "type": "icon",
+            "icon": "language",
+            "icon_size": 22,
+            "color": "#27457A",
+            "dark_color": "#A9C0EE"
+           },
+           {
+            "id": "sig-229",
+            "type": "text",
+            "text": "Language",
+            "max_lines": 1,
+            "text_align": "center",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "translations": {
+             "ar": {
+              "text": "اللغة"
+             },
+             "tr": {
+              "text": "Dil"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-230",
+        "type": "row",
+        "name": "Contact us",
+        "gap": 12,
+        "cross": "center",
+        "radius": 20,
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#ECE7DE",
+        "dark_background": "#1E232C",
+        "action": {
+         "type": "screen",
+         "screen": "account"
+        },
+        "children": [
+         {
+          "id": "sig-231",
+          "type": "icon",
+          "icon": "support_agent",
+          "icon_size": 22,
+          "color": "#27457A",
+          "dark_color": "#A9C0EE"
+         },
+         {
+          "id": "sig-232",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-233",
+            "type": "text",
+            "text": "Contact us",
+            "font": {
+             "family": "Readex Pro",
+             "size": 14,
+             "weight": 700
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "translations": {
+             "ar": {
+              "text": "تواصلي معنا"
+             },
+             "tr": {
+              "text": "Bize ulaşın"
+             }
+            }
+           },
+           {
+            "id": "sig-234",
+            "type": "text",
+            "text": "Every day, 9 am to 11 pm",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12
+            },
+            "color": "#4B5365",
+            "dark_color": "#B6BCC8",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "يوميًا من 9 صباحًا إلى 11 مساءً"
+             },
+             "tr": {
+              "text": "Her gün 09.00–23.00"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-235",
+          "type": "icon",
+          "icon": "chat",
+          "icon_size": 20,
+          "color": "#161D2E",
+          "dark_color": "#EDEFF3"
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "All categories",
+      "translations": {
+       "ar": {
+        "title": "كل الأقسام"
+       },
+       "tr": {
+        "title": "Tüm kategoriler"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#F5F3EE",
+      "color": "#161D2E",
+      "dark_background": "#0E1117",
+      "dark_color": "#EDEFF3",
+      "style": "glass"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "size-guide",
+    "title": "Size guide",
+    "translations": {
+     "ar": {
+      "title": "دليل المقاسات"
+     },
+     "tr": {
+      "title": "Beden rehberi"
+     }
+    },
+    "studio": {
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117",
+     "body": {
+      "id": "sig-236",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-237",
+        "type": "text",
+        "text": "Choose your child's age to see the size that fits, or check the chart: when they are between two sizes, take the bigger one.",
+        "font": {
+         "family": "Readex Pro",
+         "size": 14,
+         "line_height": 1.5
+        },
+        "color": "#4B5365",
+        "dark_color": "#B6BCC8",
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "اختاري عمر طفلكِ لتري المقاس المناسب، أو راجعي الجدول: إن كان بين مقاسين فاختاري الأكبر."
+         },
+         "tr": {
+          "text": "Uyan bedeni görmek için çocuğunuzun yaşını seçin ya da tabloya bakın: iki beden arasındaysa büyüğünü alın."
+         }
+        }
+       },
+       {
+        "id": "sig-238",
+        "type": "size_finder",
+        "name": "Size finder",
+        "text": "What size fits your child?",
+        "title": "Shop their size",
+        "translations": {
+         "ar": {
+          "text": "ما المقاس المناسب لطفلكِ؟",
+          "title": "تسوّقي مقاسه"
+         },
+         "tr": {
+          "text": "Çocuğunuza hangi beden uyar?",
+          "title": "Bedenine göre alışveriş"
+         }
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "background": "#1A2B4C",
+        "dark_background": "#18233C",
+        "color": "#FFFFFF",
+        "dark_color": "#FFFFFF",
+        "border_color": "#B7893A",
+        "dark_border_color": "#D9AE62",
+        "font": {
+         "family": "Readex Pro",
+         "size": 20,
+         "weight": 600
+        },
+        "radius": 22,
+        "padding": {
+         "top": 20,
+         "end": 18,
+         "bottom": 18,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-239",
+        "type": "row",
+        "name": "Size chart",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-240",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-241",
+            "type": "text",
+            "text": "Size chart",
+            "font": {
+             "family": "Readex Pro",
+             "size": 21,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "جدول المقاسات"
+             },
+             "tr": {
+              "text": "Beden tablosu"
+             }
+            }
+           },
+           {
+            "id": "sig-242",
+            "type": "text",
+            "text": "By age, in centimetres and kilograms",
+            "font": {
+             "family": "Readex Pro",
+             "size": 12.5
+            },
+            "color": "#4B5365",
+            "dark_color": "#B6BCC8",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "حسب العمر، بالسنتيمتر والكيلوغرام"
+             },
+             "tr": {
+              "text": "Yaşa göre, santimetre ve kilogram"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-243",
+        "type": "size_chart",
+        "name": "Size chart",
+        "text": "Size chart",
+        "color": "#161D2E",
+        "dark_color": "#EDEFF3",
+        "background": "#FFFFFF",
+        "dark_background": "#161A22",
+        "border_color": "#E4E0D8",
+        "dark_border_color": "#252B36",
+        "border_width": 1,
+        "radius": 20,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "جدول المقاسات"
+         },
+         "tr": {
+          "text": "Beden tablosu"
+         }
+        }
+       },
+       {
+        "id": "sig-244",
+        "type": "row",
+        "name": "How to measure",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-245",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-246",
+            "type": "text",
+            "text": "How to measure",
+            "font": {
+             "family": "Readex Pro",
+             "size": 21,
+             "weight": 600,
+             "line_height": 1.25
+            },
+            "color": "#161D2E",
+            "dark_color": "#EDEFF3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "طريقة القياس"
+             },
+             "tr": {
+              "text": "Nasıl ölçülür"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-247",
+        "type": "timeline",
+        "name": "How to measure",
+        "timeline": {
+         "style": "vertical"
+        },
+        "color": "#161D2E",
+        "dark_color": "#EDEFF3",
+        "background": "#FFFFFF",
+        "dark_background": "#161A22",
+        "radius": 20,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "entries": [
+         {
+          "title": "Height",
+          "text": "Standing straight against a wall, without shoes, from the floor to the top of the head.",
+          "translations": {
+           "ar": {
+            "title": "الطول",
+            "text": "واقفًا باستقامة على الحائط دون حذاء، من الأرض إلى أعلى الرأس."
+           },
+           "tr": {
+            "title": "Boy",
+            "text": "Ayakkabısız, duvara dik durarak yerden başın üstüne kadar."
+           }
+          }
+         },
+         {
+          "title": "Chest",
+          "text": "Around the fullest part of the chest, under the arms, the tape level.",
+          "translations": {
+           "ar": {
+            "title": "الصدر",
+            "text": "حول أعرض جزء من الصدر تحت الإبطين، والشريط مستوٍ."
+           },
+           "tr": {
+            "title": "Göğüs",
+            "text": "Kolların altından, göğsün en geniş yerinden, mezura düz."
+           }
+          }
+         },
+         {
+          "title": "Between two sizes",
+          "text": "Take the bigger one: children grow fast, and our clothes have room to grow.",
+          "translations": {
+           "ar": {
+            "title": "بين مقاسين",
+            "text": "اختاري الأكبر: الأطفال يكبرون بسرعة، وملابسنا تتسع لنموّهم."
+           },
+           "tr": {
+            "title": "İki beden arasında",
+            "text": "Büyüğünü alın: çocuklar hızlı büyür, kıyafetlerimizde büyüme payı var."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Size guide",
+      "translations": {
+       "ar": {
+        "title": "دليل المقاسات"
+       },
+       "tr": {
+        "title": "Beden rehberi"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#F5F3EE",
+      "color": "#161D2E",
+      "dark_background": "#0E1117",
+      "dark_color": "#EDEFF3",
+      "style": "glass"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-269",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#F5F3EE",
+      "color": "#161D2E",
+      "dark_background": "#0E1117",
+      "dark_color": "#EDEFF3",
+      "style": "glass"
+     },
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-270",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#F5F3EE",
+      "color": "#161D2E",
+      "dark_background": "#0E1117",
+      "dark_color": "#EDEFF3",
+      "style": "glass"
+     },
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "favorites",
+    "title": "Wishlist",
+    "translations": {
+     "ar": {
+      "title": "المفضلة"
+     },
+     "tr": {
+      "title": "Favoriler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-271",
+      "type": "column",
+      "children": []
+     },
+     "screen": "favorites",
+     "header": {
+      "type": "title",
+      "title": "Wishlist",
+      "translations": {
+       "ar": {
+        "title": "المفضلة"
+       },
+       "tr": {
+        "title": "Favoriler"
+       }
+      },
+      "background": "#F5F3EE",
+      "color": "#161D2E",
+      "dark_background": "#0E1117",
+      "dark_color": "#EDEFF3",
+      "style": "glass"
+     },
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-272",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#F5F3EE",
+      "color": "#161D2E",
+      "dark_background": "#0E1117",
+      "dark_color": "#EDEFF3",
+      "style": "glass"
+     },
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-273",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#F5F3EE",
+      "color": "#161D2E",
+      "dark_background": "#0E1117",
+      "dark_color": "#EDEFF3",
+      "style": "glass"
+     },
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-274",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-275",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#F5F3EE",
+     "dark_background": "#0E1117"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "background": "#16213A",
+   "dark_background": "#1B2130",
+   "active": "#A9C0EE",
+   "dark_active": "#A9C0EE",
+   "inactive": "#9AA6BF",
+   "dark_inactive": "#8D94A3",
+   "design": "float",
+   "labels": "active",
+   "radius": 24,
+   "margin": 12
+  }
+ }
+}

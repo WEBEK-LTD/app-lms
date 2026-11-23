@@ -50,6 +50,23 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   flowers: "flowers_signature_a",
   // 208 Lujain, the clothes shop, is its Signature look A, the boutique (lib/studio/demo-designs/clothes-signature.ts).
   clothes: "clothes_signature_a",
+  // 209 Cosmetics: Velours is its Signature look A, plum and gold (lib/studio/demo-designs/beauty-signature.ts).
+  beauty: "beauty_signature_a",
+  // 209 Kids' clothes: Toota is its Signature look A, soft pastels (lib/studio/demo-designs/kids-signature.ts).
+  kids: "kids_signature_a",
+  // 209 Toys
+  // 209 Toot, the toy shop, is its Signature look A, playful and colourful (lib/studio/demo-designs/toys-signature.ts).
+  toys: "toys_signature_a",
+  // 210 Sakan, Ghurza and Rukn are their Signature looks A (lib/studio/demo-designs/decor-, crochet-, furniture-signature.ts).
+  decor: "decor_signature_a",
+  crochet: "crochet_signature_a",
+  furniture: "furniture_signature_a",
+  // 211 Madar, the electronics shop, is its Signature look A, MADAR (lib/studio/demo-designs/electronics-signature.ts).
+  electronics: "electronics_signature_a",
+  // 211 Nova, the mobiles shop, is its Signature look A, NOVA (lib/studio/demo-designs/mobiles-signature.ts).
+  mobiles: "mobiles_signature_a",
+  // 211 Nawah, computers and gaming, is its Signature look A, NAWAH (lib/studio/demo-designs/computers-signature.ts).
+  computers: "computers_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -112,6 +129,23 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   flowers: { surface: "#FFFFFF", nightSurface: "#21121A", line: "#F0DDD9", nightLine: "#3A2530", muted: "#7B5E67", nightMuted: "#C9AEB6" },
   // 208 Lujain's, its look A's (lib/studio/demo-designs/clothes-signature.ts LUJAIN_INK).
   clothes: { surface: "#FFFFFF", nightSurface: "#191917", line: "#E4DFD6", nightLine: "#2E2C28", muted: "#5F5B55", nightMuted: "#B6B0A6" },
+  // 209 Cosmetics: Velours's, its look A's (lib/studio/demo-designs/beauty-signature.ts VELOURS_INK).
+  beauty: { surface: "#FFFFFF", nightSurface: "#1E1A1C", line: "#EFE3DF", nightLine: "#2E2629", muted: "#6F5F63", nightMuted: "#C7B9BD" },
+  // 209 Kids' clothes: Toota's, its look A's (lib/studio/demo-designs/kids-signature.ts TOOTA_INK).
+  kids: { surface: "#FFFDF9", nightSurface: "#1F1916", line: "#EADFD3", nightLine: "#30271F", muted: "#6B5D55", nightMuted: "#C7B9AF" },
+  // 209 Toys
+  // 209 Toot's, its look A's (lib/studio/demo-designs/toys-signature.ts TOOT_INK).
+  toys: { surface: "#FFFCF7", nightSurface: "#1E1A1D", line: "#E9E0D3", nightLine: "#2E282B", muted: "#685D57", nightMuted: "#BCB2AD" },
+  // 210 Sakan's, Ghurza's and Rukn's: their look A's.
+  decor: { surface: "#FBFAF6", nightSurface: "#1B1C18", line: "#E1DBCF", nightLine: "#2C2E26", muted: "#62635A", nightMuted: "#B4B3A7" },
+  crochet: { surface: "#FFFCF7", nightSurface: "#221A16", line: "#EADFD1", nightLine: "#3A2E26", muted: "#6B5D52", nightMuted: "#C4B5A8" },
+  furniture: { surface: "#FFFFFF", nightSurface: "#211C18", line: "#E8E1D8", nightLine: "#36302A", muted: "#6B625A", nightMuted: "#B8AEA4" },
+  // 211 Madar's, its look A's (lib/studio/demo-designs/electronics-signature.ts MADAR_INK).
+  electronics: { surface: "#FFFFFF", nightSurface: "#15171B", line: "#E2E5EA", nightLine: "#25282E", muted: "#4E5561", nightMuted: "#B4BAC4" },
+  // 211 Nova's, its look A's (lib/studio/demo-designs/mobiles-signature.ts NOVA_INK).
+  mobiles: { surface: "#FFFFFF", nightSurface: "#15171C", line: "#E2E5EA", nightLine: "#262A31", muted: "#525864", nightMuted: "#AEB3BD" },
+  // 211 Nawah's, its look A's (lib/studio/demo-designs/computers-signature.ts NAWAH_INK).
+  computers: { surface: "#FFFFFF", nightSurface: "#14171D", line: "#E1E4E9", nightLine: "#242931", muted: "#4A5161", nightMuted: "#B4BAC6" },
 };
 
 /**
@@ -226,7 +260,7 @@ export function translating(ctx: SectionContext): { ctx: SectionContext; transla
 
 /** The demos' own templates; 123 the premium academy is a template already (lib/studio/sections.ts academy_premium). */
 /** 131.20 Leqaa (a template's demo, as the premium academy) has none: its looks are a store's first templates. */
-/** 208 Nor the shop types' demos (Lujain): their looks are a store's first templates too. */
+/** 208 Nor the shop types' demos (Lujain; 209 Toot): their looks are a store's first templates too. */
 export const DEMO_ICONS: Record<Exclude<StudioDemoId, "premium_academy" | "flowers" | ShopTypeDemo>, string> = {
   delivery: "local_shipping",
   food: "delivery_dining",
@@ -327,6 +361,14 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     lqBouquetTitle: { en: "Blush Garden", ar: "حديقة الورد", tr: "Pembe Bahçe" },
     lqBouquetLine: { en: "Blush roses, lisianthus and eucalyptus, made on the day it is delivered.", ar: "ورد وردي وليزيانثوس وأوكالبتوس، تُصنع في يوم توصيلها.", tr: "Pembe güller, lisianthus ve okaliptüs; teslim edildiği gün hazırlanır." },
   },
+  // 211 Nawah's own words where its looks leave the owner brackets: its services, its warranty and returns, how to reach it (lib/demo/computers.ts).
+  computers: {
+    pcServiceBuildText: { en: "Every build assembled and tested for 24 hours", ar: "كل تجميعة تُجمَّع وتُختبر 24 ساعة", tr: "Her toplama kurulur ve 24 saat test edilir" },
+    pcServiceWarrantyText: { en: "Up to 3 years, serviced in Jeddah", ar: "حتى 3 سنوات، والصيانة في جدة", tr: "3 yıla kadar, servis Cidde'de" },
+    pcServiceDeliveryText: { en: "Within a day in Jeddah, 2 to 3 days elsewhere", ar: "خلال يوم في جدة، ومن يومين إلى 3 أيام لغيرها", tr: "Cidde'de bir gün içinde, diğer şehirlere 2–3 gün" },
+    pcContactLine: { en: "Tech support every day, 10 am to midnight", ar: "دعم فني يوميًا من 10 صباحًا حتى منتصف الليل", tr: "Teknik destek her gün 10.00–24.00" },
+    pcWarrantyNote: { en: "Returns within 14 days, and up to 3 years of warranty on every device.", ar: "إرجاع خلال 14 يومًا، وضمان حتى 3 سنوات على كل جهاز.", tr: "14 gün içinde iade ve her cihazda 3 yıla kadar garanti." },
+  },
   // 208 Lujain's own words where its looks leave the owner brackets: its look, its drop, its promises and its exchanges (lib/demo/clothes.ts).
   clothes: {
     clLookName: { en: "Classic black with a soft touch", ar: "أسود كلاسيكي بلمسة ناعمة", tr: "Yumuşak dokunuşlu klasik siyah" },
@@ -335,6 +377,106 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     clContactLine: { en: "Customer care every day, 9 am to 11 pm", ar: "خدمة العملاء يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Müşteri hizmetleri her gün 09.00–23.00" },
     clEditTitle: { en: "Day dresses, the new season", ar: "فساتين النهار للموسم الجديد", tr: "Yeni sezonun gündüz elbiseleri" },
     clExchangeNote: { en: "Free exchange within 14 days, picked up from your door.", ar: "استبدال مجاني خلال 14 يومًا، نستلم القطعة من باب منزلكِ.", tr: "14 gün içinde ücretsiz değişim, kapınızdan alınır." },
+  },
+  // 209 Cosmetics: Velours's own words where its looks leave the owner brackets: its delivery, its returns, its hours and its edit (lib/demo/beauty.ts).
+  beauty: {
+    btTrustDeliveryText: { en: "Free over 150 AED", ar: "مجاني فوق 150 د.إ", tr: "150 AED üzeri ücretsiz" },
+    btTrustReturnsText: { en: "Unopened, within 14 days", ar: "غير مفتوحة، خلال 14 يومًا", tr: "Açılmamış, 14 gün içinde" },
+    btContactLine: { en: "Beauty advisers every day, 10 am to 11 pm", ar: "مستشارات الجمال يوميًا من 10 صباحًا إلى 11 مساءً", tr: "Güzellik danışmanları her gün 10.00–23.00" },
+    btEditTitle: { en: "Glow serums at their best prices", ar: "سيرومات الإشراق بأفضل أسعارها", tr: "Işıltı serumları en iyi fiyatlarıyla" },
+    btReturnsNote: { en: "Unopened products go back within 14 days, collected from your door.", ar: "تُرجع المنتجات غير المفتوحة خلال 14 يومًا، ونستلمها من باب منزلكِ.", tr: "Açılmamış ürünler 14 gün içinde kapınızdan alınarak iade edilir." },
+  },
+  // 209 Kids' clothes: Toota's own words where its looks leave the owner brackets: its look of the week, its promises, its exchanges, its gift wrapping and its hours (lib/demo/kids.ts).
+  kids: {
+    kdLookName: { en: "Weekend in the fields: check, wool and denim", ar: "عطلة في الحقول: كاروه وصوف ودنيم", tr: "Tarlada hafta sonu: ekose, yün ve denim" },
+    kdPromise3Line: { en: "Within 30 days if the size isn't right", ar: "خلال 30 يومًا إن لم يناسب المقاس", tr: "Beden uymazsa 30 gün içinde" },
+    kdContactLine: { en: "Every day, 9 am to 11 pm", ar: "يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Her gün 09.00–23.00" },
+    kdEditTitle: { en: "Whole outfits, sold as one", ar: "إطلالات كاملة تُباع معًا", tr: "Tek parça satılan komple kombinler" },
+    kdExchangeNote: { en: "Free exchange within 30 days if the size isn't right.", ar: "استبدال مجاني خلال 30 يومًا إن لم يناسب المقاس.", tr: "Beden uymazsa 30 gün içinde ücretsiz değişim." },
+    kdGiftNote: { en: "A newborn gift? Add gift wrapping and a card, and write its message at checkout.", ar: "هدية لمولود؟ أضيفي التغليف وبطاقة، واكتبي رسالتها عند الدفع.", tr: "Yenidoğan hediyesi mi? Hediye paketi ve kart ekleyin, mesajını ödemede yazın." },
+  },
+  // 209 Toys
+  // 209 Toot's own words where its looks leave the owner brackets: its wraps, its newborn box, its returns and its offer (lib/demo/toys.ts).
+  toys: {
+    tyWrapBLine: { en: "A black box with a gold ribbon and a card, from 15 AED", ar: "صندوق أسود بشريط ذهبي وبطاقة، من 15 د.إ", tr: "Altın kurdeleli siyah kutu ve kart, 15 AED'den" },
+    tyBoxPrice: { en: "399 AED", ar: "399 د.إ", tr: "399 AED" },
+    tyStat4: { en: "30", ar: "30", tr: "30" },
+    tyStat4Text: { en: "Days to return a toy for free, picked up from your door", ar: "يومًا لإرجاع اللعبة مجانًا من باب بيتك", tr: "Oyuncağı ücretsiz iade için gün, kapınızdan alınır" },
+    tyContactLine: { en: "Every day, 9 am to 10 pm", ar: "يوميًا من 9 صباحًا إلى 10 مساءً", tr: "Her gün 09.00–22.00" },
+    tyEditTitle: { en: "Free delivery over 200 AED", ar: "توصيل مجاني فوق 200 د.إ", tr: "200 AED üzeri ücretsiz teslimat" },
+    tyCartNote: { en: "Gift wrapping and a card in the cart · Free returns within 30 days", ar: "التغليف والبطاقة من السلة · إرجاع مجاني خلال 30 يومًا", tr: "Hediye paketi ve kart sepette · 30 gün içinde ücretsiz iade" },
+  },
+  // 210 Rukn's own words where its looks leave the owner brackets: its district in Riyadh, the Najd set, its promises, its rating and showroom (lib/demo/kits/furniture.ts).
+  furniture: {
+    fuLocation: { en: "Delivering to Riyadh, Al Yasmin", ar: "التوصيل إلى الرياض، حي الياسمين", tr: "Riyad, Al Yasmin'e teslimat" },
+    fuLocationB: { en: "Riyadh · Delivery tomorrow", ar: "الرياض · التوصيل غدًا", tr: "Riyad · Yarın teslimat" },
+    skLookName: { en: "The Najd majlis set", ar: "طقم المجلس «نجد»", tr: "Najd oturma takımı" },
+    skPromiseDeliveryLine: { en: "On orders over 1,500 SAR", ar: "للطلبات فوق 1,500 ر.س", tr: "1.500 SAR üzeri siparişlerde" },
+    skPromiseWarrantyLine: { en: "10 years on the wooden frames", ar: "10 سنوات على الهياكل الخشبية", tr: "Ahşap iskelette 10 yıl" },
+    fuFabricTime: { en: "Arrives in 3 days", ar: "تصلك خلال 3 أيام", tr: "3 günde elinizde" },
+    fuSofaTime: { en: "Made in 14–21 days", ar: "تُصنع خلال 14–21 يومًا", tr: "14–21 günde yapılır" },
+    fuRatingValue: { en: "4.8", ar: "4.8", tr: "4,8" },
+    fuRatingTitle: { en: "From more than 2,400 verified ratings", ar: "من أكثر من 2,400 تقييم موثّق", tr: "2.400'den fazla doğrulanmış puandan" },
+    fuRatingQuote: { en: "“The assembly was quick and the team very professional.” Lama, Riyadh", ar: "«كان التركيب سريعًا والفريق محترفًا جدًا.» لمى، الرياض", tr: "“Kurulum hızlıydı, ekip çok profesyoneldi.” Lama, Riyad" },
+    fuShowroom: { en: "Rukn showroom, Al Yasmin, Riyadh", ar: "معرض ركن، حي الياسمين، الرياض", tr: "Rukn showroomu, Al Yasmin, Riyad" },
+    fuShowroomLine: { en: "Open today until 11 pm", ar: "مفتوح اليوم حتى 11 مساءً", tr: "Bugün 23.00'e kadar açık" },
+    fuContactLine: { en: "Customer care every day, 9 am to 11 pm", ar: "خدمة العملاء يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Müşteri hizmetleri her gün 09.00–23.00" },
+  },
+  // 210 Sakan's own words where its looks leave the owner brackets: its styled corner, its story and numbers, its promises (lib/demo/kits/decor.ts).
+  decor: {
+    skLookName: { en: "The Sabah dining corner", ar: "زاوية «صباح» للطعام", tr: "Sabah yemek köşesi" },
+    skPromiseDeliveryLine: { en: "Over 1,000 SAR", ar: "فوق 1,000 ر.س", tr: "1.000 SAR üzeri" },
+    dcStoryQuote: { en: "Every piece is chosen from small studios across the region and tested to last for years, not seasons.", ar: "نختار كل قطعة من مشاغل صغيرة في المنطقة، ونختبرها لتدوم سنوات لا مواسم.", tr: "Her parçayı bölgedeki küçük atölyelerden seçiyor, mevsimlerce değil yıllarca dayanması için deniyoruz." },
+    skStoryName: { en: "Hessa Al-Rashid", ar: "حصة الراشد", tr: "Hessa Al-Rashid" },
+    skStoryRole: { en: "Founder of Sakan", ar: "مؤسِّسة سكن", tr: "Sakan'ın kurucusu" },
+    dcStatStudios: { en: "30", ar: "30", tr: "30" },
+    dcStatRating: { en: "4.8", ar: "4.8", tr: "4.8" },
+    dcContactLine: { en: "Customer care every day, 9 am to 11 pm", ar: "خدمة العملاء يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Müşteri hizmetleri her gün 09.00–23.00" },
+  },
+  // 210 Ghurza's own words where its looks leave the owner brackets: its name and city, its maker and numbers, its workshop, its delivery (lib/demo/kits/crochet.ts).
+  crochet: {
+    crWordmark: { en: "Ghurza", ar: "غُرزة", tr: "Ghurza" },
+    crWordmarkLine: { en: "Handmade crochet · Cairo", ar: "كروشيه يدوي · القاهرة", tr: "El yapımı tığ işi · Kahire" },
+    skCustomTime: { en: "Ready in 7–14 days", ar: "جاهزة خلال 7–14 يومًا", tr: "7–14 günde hazır" },
+    skStoryQuote: { en: "Every piece takes days of my time, and more of my heart. I love knowing it will keep a home warm.", ar: "كل قطعة تأخذ من وقتي أيامًا، ومن قلبي أكثر. أحب أن أعرف أنها ستُدفئ بيتًا ما.", tr: "Her parça günlerimi, kalbimden de fazlasını alıyor. Bir evi ısıtacağını bilmek hoşuma gidiyor." },
+    skStoryName: { en: "Umm Youssef · Head of the workshop", ar: "أم يوسف · رئيسة المشغل", tr: "Ümmü Yusuf · Atölye şefi" },
+    skStoryRole: { en: "Crocheting for 22 years · Mansoura", ar: "تحيك منذ 22 عامًا · المنصورة", tr: "22 yıldır örüyor · Mansure" },
+    skStat2: { en: "4,800", ar: "4,800", tr: "4.800" },
+    skStat3: { en: "12", ar: "12", tr: "12" },
+    crWorkshopDate: { en: "Every first Saturday · 4 pm", ar: "أول سبت من كل شهر · 4 مساءً", tr: "Her ayın ilk cumartesi · 16.00" },
+    crWorkshop1Place: { en: "Zamalek", ar: "الزمالك", tr: "Zamalek" },
+    crReviewsLine: { en: "4.9 from 2,300 reviews", ar: "4.9 من 2,300 تقييم", tr: "2.300 yorumdan 4,9" },
+    crPromiseShipLine: { en: "In 2 to 4 days", ar: "خلال 2 إلى 4 أيام", tr: "2–4 gün içinde" },
+    crContactLine: { en: "WhatsApp · 10 am to 10 pm", ar: "واتساب · من 10 صباحًا إلى 10 مساءً", tr: "WhatsApp · 10.00–22.00" },
+  },
+  // 211 Madar's own words where its looks leave the owner brackets: its launch, its star of the season, its area, its hours, its offer and its returns (lib/demo/electronics.ts).
+  electronics: {
+    elHeroKicker1: { en: "New launch · ZENRA", ar: "إطلاق جديد · ZENRA", tr: "Yeni lansman · ZENRA" },
+    elStarKicker: { en: "LUMORA · OLED C5", ar: "LUMORA · OLED C5", tr: "LUMORA · OLED C5" },
+    elStarTitle: { en: "True black and colours that never fade, 65 inches", ar: "سواد حقيقي وألوان لا تنطفئ بشاشة 65 بوصة", tr: "Gerçek siyah ve solmayan renkler, 65 inç" },
+    elDeliverTo: { en: "Delivering to Riyadh, Al Malqa", ar: "التوصيل إلى الرياض، حي الملقا", tr: "Teslimat: Riyad, Al Malqa" },
+    elContactLine: { en: "Every day, 9 am to 11 pm", ar: "يوميًا من 9 صباحًا حتى 11 مساءً", tr: "Her gün 09.00–23.00" },
+    elEditTitle: { en: "Laptops for work and study, up to 15% off", ar: "لابتوبات للعمل والدراسة بخصم حتى 15%", tr: "İş ve okul için dizüstüler, %15'e varan indirim" },
+    elReturnsNote: { en: "Returns within 14 days in the original box; the maker's warranty through us.", ar: "إرجاع خلال 14 يومًا في العلبة الأصلية، وضمان الوكيل عن طريقنا.", tr: "Orijinal kutusunda 14 gün içinde iade; üretici garantisi bizim üzerimizden." },
+  },
+  // 211 Nova's own words where its looks leave the owner brackets: its new phone, its trade-in, its brands, its bundle, its numbers and its returns (lib/demo/mobiles.ts).
+  mobiles: {
+    mbHeroKicker1: { en: "Veyra X3 Pro · Just in", ar: "Veyra X3 Pro · وصل حديثًا", tr: "Veyra X3 Pro · Yeni geldi" },
+    mbTradeHeroLine: { en: "Up to 14,500 EGP for your device, off your new one at once", ar: "حتى 14,500 ج.م قيمة جهازك، خصمًا فوريًا من جهازك الجديد", tr: "Cihazınız için 14.500 EGP'ye kadar, yenisinden anında düşülür" },
+    mbBrand1: { en: "Veyra", ar: "Veyra", tr: "Veyra" },
+    mbBrand2: { en: "Orbit", ar: "Orbit", tr: "Orbit" },
+    mbBrand3: { en: "Lumen", ar: "Lumen", tr: "Lumen" },
+    mbBrand4: { en: "Kaira", ar: "Kaira", tr: "Kaira" },
+    mbBundleLine: { en: "The Veyra X3 Pro, its leather case and a wireless charger: 54,950 EGP, 2,098 EGP less than apart.", ar: "Veyra X3 Pro مع جرابه الجلدي وشاحن لاسلكي: 54,950 ج.م، أقل بـ 2,098 ج.م من شرائها منفصلة.", tr: "Veyra X3 Pro, deri kılıfı ve kablosuz şarj cihazı: 54.950 EGP, ayrı ayrı almaktan 2.098 EGP daha az." },
+    mbStat2: { en: "4.9", ar: "4.9", tr: "4,9" },
+    mbStat2Line: { en: "From 38 thousand ratings", ar: "من 38 ألف تقييم", tr: "38 bin değerlendirmeden" },
+    mbStat3: { en: "24 hours", ar: "24 ساعة", tr: "24 saat" },
+    mbStat3Line: { en: "Delivery inside Cairo", ar: "توصيل داخل القاهرة", tr: "Kahire içinde teslimat" },
+    mbStat4: { en: "9 branches", ar: "9 فروع", tr: "9 şube" },
+    mbStat4Line: { en: "In Cairo and Giza", ar: "في القاهرة والجيزة", tr: "Kahire ve Giza'da" },
+    mbContactLine: { en: "Customer care every day, 10 am to midnight", ar: "خدمة العملاء يوميًا من 10 صباحًا حتى منتصف الليل", tr: "Müşteri hizmetleri her gün 10.00–24.00" },
+    mbEditTitle: { en: "The Orbit Nine 5G, 3,500 EGP off", ar: "Orbit Nine 5G بخصم 3,500 ج.م", tr: "Orbit Nine 5G, 3.500 EGP indirimli" },
+    mbReturnsNote: { en: "Returns within 14 days, unopened or faulty, collected from your door.", ar: "الإرجاع خلال 14 يومًا للجهاز غير المفتوح أو المعيب، نستلمه من باب منزلك.", tr: "Açılmamış ya da arızalı ürünlerde 14 gün içinde iade, kapınızdan alınır." },
   },
   // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
   travel: {
@@ -393,4 +535,5 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
 }
 
 /** 131.20 The demos whose words carry the app's name, by that name (the demo app's). */
-const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain" };
+// 209 Kids' clothes, cosmetics and toys: Toota's, Velours' and Toot's too; 210 home decor's, crochet's and furniture's; 211 Madar's, Nova's and Nawah's.
+const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", kids: "Toota", beauty: "Velours", toys: "Toot", decor: "Sakan", crochet: "Ghurza", furniture: "Rukn", electronics: "Madar", mobiles: "Nova", computers: "Nawah" };

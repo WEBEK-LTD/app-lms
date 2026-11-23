@@ -1,3 +1,4 @@
+import { shopFeaturesOn } from "../selling/shop-features";
 import { isLang } from "@/i18n/config";
 import { contextFor } from "./auth";
 import { appLabel } from "../app/label";
@@ -77,6 +78,8 @@ export function appSummaryJson(ctx: OwnerContext, app: App, plans: Record<Plan, 
       inquiries: areas.inquiries,
       questions: areas.questions,
       reviews: areas.reviews,
+      // 212 A store's product reviews with photos, and who waits for what and saved what (Catalog & content).
+      product_reviews: shopFeaturesOn(app) && teamCan(ctx.access, "catalog", app.id),
       member_check_in: areas.memberCheckIn,
       // 77 The app's chat: its plan has it, it's on, and the person has the Chat area.
       chat: chatAvailable(app, planOfLicense(plans, license, ctx.deps.now)) && teamCan(ctx.access, "chat", app.id),

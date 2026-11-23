@@ -9,10 +9,10 @@ import { campaignOpen, campaignsInOrder, donationSettingsOf, progressOf } from "
 
 const MAX_ITEMS = 30;
 
-/** "₺12,450.00 of ₺50,000.00", or what was raised for a campaign without a goal (38: in [words]' language). */
-export function raisedLine(c: Pick<Campaign, "raisedCents" | "goalCents">, currency: CatalogCurrency, words: ItemWords = itemWords("en")): string {
-  const raised = formatCents(c.raisedCents, currency);
-  return c.goalCents ? words.raisedOf(raised, formatCents(c.goalCents, currency)) : words.raised(raised);
+/** "₺12,450.00 of ₺50,000.00", or what was raised for a campaign without a goal (38: in [words]' language; 220 the amounts in `lang`, the dashboard's). */
+export function raisedLine(c: Pick<Campaign, "raisedCents" | "goalCents">, currency: CatalogCurrency, words: ItemWords = itemWords("en"), lang?: string | null): string {
+  const raised = formatCents(c.raisedCents, currency, lang);
+  return c.goalCents ? words.raisedOf(raised, formatCents(c.goalCents, currency, lang)) : words.raised(raised);
 }
 
 /** "62%", "Goal reached" or "Ended". */

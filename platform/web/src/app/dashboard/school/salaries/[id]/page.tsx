@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const SOURCE_KEYS = { office: null, absence: "salaries.fromAbsences", lateness: "salaries.fromLateness", advance: "salaries.fromAdvance" } as const;
 
 /** A line of the sheet; on a draft, the office accepts it (at its amount or another), dismisses it, or removes its own. */
-function LineRow({ payslip, line, editable, t }: { payslip: SchoolPayslip; line: SchoolPayslipLine; editable: boolean; t: DashT }) {
+function LineRow({ payslip, line, editable, t, lang }: { payslip: SchoolPayslip; line: SchoolPayslipLine; editable: boolean; t: DashT; lang: string }) {
   const sign = line.kind === "bonus" ? "+" : "−";
   const source = SOURCE_KEYS[line.source];
   const muted = line.status !== "accepted";
@@ -38,7 +38,7 @@ function LineRow({ payslip, line, editable, t }: { payslip: SchoolPayslip; line:
             {[
               t(line.kind === "bonus" ? "salaries.bonus" : line.kind === "advance" ? "salaries.advance" : "salaries.deduction"),
               source ? t(source) : null,
-              line.suggestedCents !== null && line.suggestedCents !== line.cents && line.status === "accepted" ? t("salaries.suggestedWas", { amount: formatCents(line.suggestedCents, payslip.currency) }) : null,
+              line.suggestedCents !== null && line.suggestedCents !== line.cents && line.status === "accepted" ? t("salaries.suggestedWas", { amount: formatCents(line.suggestedCents, payslip.currency, lang) }) : null,
             ]
               .filter(Boolean)
               .join(" · ")}
@@ -46,7 +46,7 @@ function LineRow({ payslip, line, editable, t }: { payslip: SchoolPayslip; line:
         </span>
         <span dir="ltr" className={`text-[15px] ${muted ? "text-muted line-through" : "font-semibold"}`}>
           {sign}
-          {formatCents(line.cents, payslip.currency)}
+          {formatCents(line.cents, payslip.currency, lang)}
         </span>
         {line.status === "suggested" ? <Badge tone="warn">{t("salaries.suggested")}</Badge> : null}
         {line.status === "dismissed" ? <Badge tone="neutral">{t("salaries.dismissed")}</Badge> : null}
@@ -93,7 +93,7 @@ export default async function PayslipPage({ params }: { params: Promise<{ id: st
   const locked = Boolean(monthRow?.lockedAt);
   const editable = payslip.status === "draft" && !locked;
   const totals = payslipTotals(payslip);
-  const fmt = (cents: number) => formatCents(cents, payslip.currency);
+  const fmt = (cents: number) => formatCents(cents, payslip.currency, lang);
   const left = leftToPay(payslip);
   const a = payslip.attendance;
   const row = "flex flex-wrap items-center justify-between gap-2 border-t border-line-soft py-2.5";
@@ -144,7 +144,7 @@ export default async function PayslipPage({ params }: { params: Promise<{ id: st
                 </li>
               ))}
               {[...bonuses, ...deductions].map((line) => (
-                <LineRow key={line.id} payslip={payslip} line={line} editable={editable} t={t} />
+                <LineRow key={line.id} payslip={payslip} line={line} editable={editable} t={t} lang={lang} />
               ))}
             </ul>
             <dl className="m-0 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 border-t border-line pt-3 text-[15px]" data-net>

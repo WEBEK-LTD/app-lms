@@ -83,7 +83,7 @@ export default async function SalaryPersonPage({ params }: { params: Promise<{ i
             <ul className="m-0 flex list-none flex-col p-0" data-advances>
               {advances.map((a) => {
                 const balance = advanceBalance(a, payslips);
-                const fmt = (cents: number) => formatCents(cents, a.currency);
+                const fmt = (cents: number) => formatCents(cents, a.currency, lang);
                 return (
                   <li key={a.id} data-advance={a.id} className="flex flex-col gap-2 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
                     <RecordLine record={a.given} money={fmt(a.amountCents)} t={t} />
@@ -160,7 +160,7 @@ export default async function SalaryPersonPage({ params }: { params: Promise<{ i
                     {monthLabel(lang, p.month)}
                   </Link>
                   <span dir="ltr" className="text-[15px]">
-                    {formatCents(p.netCents, p.currency)}
+                    {formatCents(p.netCents, p.currency, lang)}
                   </span>
                   <SheetBadge payslip={p} t={t} />
                 </li>

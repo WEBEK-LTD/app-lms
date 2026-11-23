@@ -2212,7 +2212,7 @@ abstract class AppLocalizations {
   /// **'Q&A'**
   String get questionsAndAnswers;
 
-  /// No description provided for @removeFromWishlist.
+  /// 212 The heart on a product's card and page (saved): removes it.
   ///
   /// In en, this message translates to:
   /// **'Remove from wishlist'**
@@ -2560,16 +2560,16 @@ abstract class AppLocalizations {
   /// **'Next: {title}'**
   String nextItem(String title);
 
-  /// No description provided for @wishlistEmptyTitle.
+  /// 212 The wishlist screen without products.
   ///
   /// In en, this message translates to:
   /// **'Your wishlist is empty'**
   String get wishlistEmptyTitle;
 
-  /// No description provided for @wishlistEmptyMessage.
+  /// 212 Under the empty wishlist's title.
   ///
   /// In en, this message translates to:
-  /// **'Tap the heart on a course to save it for later.'**
+  /// **'Tap the heart on a product to keep it here.'**
   String get wishlistEmptyMessage;
 
   /// No description provided for @courseComplete.
@@ -14354,6 +14354,12 @@ abstract class AppLocalizations {
   /// **'Cash on delivery'**
   String get marketPayCash;
 
+  /// 220 Payment method: cash when the customer picks the order up (Pick up chosen at the checkout).
+  ///
+  /// In en, this message translates to:
+  /// **'Cash at pickup'**
+  String get marketPayCashPickup;
+
   /// 115 Payment method.
   ///
   /// In en, this message translates to:
@@ -19934,6 +19940,378 @@ abstract class AppLocalizations {
   /// **'{name}, {count}'**
   String categoryMenuRow(String name, String count);
 
+  /// 211 A product's specifications table: its title.
+  ///
+  /// In en, this message translates to:
+  /// **'Specifications'**
+  String get specsTitle;
+
+  /// 211 Opens the rest of a product's specifications.
+  ///
+  /// In en, this message translates to:
+  /// **'All specifications'**
+  String get specsAll;
+
+  /// 211 Folds a product's specifications back to the first ones.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer specifications'**
+  String get specsFewer;
+
+  /// 211 A product page's button that adds it to the compare list.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get compareAdd;
+
+  /// 211 The compare button once the product is in the compare list (a tap removes it).
+  ///
+  /// In en, this message translates to:
+  /// **'In compare'**
+  String get compareAdded;
+
+  /// 211 Opens the compare screen; count is how many products are in it.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare ({count})'**
+  String compareOpen(int count);
+
+  /// 211 The compare screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get compareTitle;
+
+  /// 211 Said when a fourth product is added to the compare list.
+  ///
+  /// In en, this message translates to:
+  /// **'You can compare up to 3 products'**
+  String get compareFull;
+
+  /// 211 Removes a product from the compare screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from compare'**
+  String get compareRemove;
+
+  /// 211 The compare screen with fewer than two products.
+  ///
+  /// In en, this message translates to:
+  /// **'Add two or three products to compare them side by side.'**
+  String get compareEmpty;
+
+  /// 211 The compare table's first column: the specifications' names.
+  ///
+  /// In en, this message translates to:
+  /// **'Specification'**
+  String get compareSpec;
+
+  /// 211 A product page's matching accessories.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes with it'**
+  String get accessoriesTitle;
+
+  /// 211 Adds the product and the accessories ticked to the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Add 1 item to the cart} other{Add {count} items to the cart}}'**
+  String accessoriesAdd(int count);
+
+  /// 210 A tag under a furniture or electronics product's price: installments are not offered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Installments coming soon'**
+  String get installmentsSoon;
+
+  /// 211 The trade-in card's and screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'What is your old device worth?'**
+  String get tradeInTitle;
+
+  /// 211 The trade-in card's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your device and its condition to see its value in seconds.'**
+  String get tradeInLine;
+
+  /// 211 The most the shop pays for a device (amount is formatted money).
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {amount}'**
+  String tradeInUpTo(String amount);
+
+  /// 211 The trade-in card's button: opens the estimator.
+  ///
+  /// In en, this message translates to:
+  /// **'Check its value'**
+  String get tradeInCheck;
+
+  /// 211 The trade-in estimator: the device to trade in.
+  ///
+  /// In en, this message translates to:
+  /// **'Your device'**
+  String get tradeInModel;
+
+  /// 211 The trade-in estimator: the device's storage.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage'**
+  String get tradeInStorage;
+
+  /// 211 The trade-in estimator: the device's condition.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition'**
+  String get tradeInCondition;
+
+  /// 211 A trade-in grade: no marks at all.
+  ///
+  /// In en, this message translates to:
+  /// **'Like new'**
+  String get tradeInGradeLikeNew;
+
+  /// 211 A trade-in grade: light signs of use.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get tradeInGradeGood;
+
+  /// 211 A trade-in grade: clear scratches or wear.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair'**
+  String get tradeInGradeFair;
+
+  /// 211 A trade-in grade: the screen or back is cracked.
+  ///
+  /// In en, this message translates to:
+  /// **'Broken screen'**
+  String get tradeInGradeBroken;
+
+  /// 211 The trade-in estimator: over the estimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated value'**
+  String get tradeInEstimate;
+
+  /// 211 The trade-in estimator's button: asks how to reach the customer.
+  ///
+  /// In en, this message translates to:
+  /// **'Start trade-in'**
+  String get tradeInStart;
+
+  /// 211 Under the trade-in estimate.
+  ///
+  /// In en, this message translates to:
+  /// **'The final value is set once the shop checks the device.'**
+  String get tradeInFinal;
+
+  /// 211 The trade-in request sheet's title.
+  ///
+  /// In en, this message translates to:
+  /// **'How can the shop reach you?'**
+  String get tradeInContact;
+
+  /// 211 The trade-in request: the customer's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get tradeInName;
+
+  /// 211 The trade-in request: the customer's phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get tradeInPhone;
+
+  /// 211 The trade-in request: an optional note.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything to add (optional)'**
+  String get tradeInNote;
+
+  /// 211 Sends the trade-in request to the shop.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get tradeInSend;
+
+  /// 211 The trade-in request was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'We received your request'**
+  String get tradeInSent;
+
+  /// 211 After a trade-in request: model is the device, estimate its formatted value.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop will call you about your {model} ({estimate}).'**
+  String tradeInSentLine(String model, String estimate);
+
+  /// 211 Build your PC: its card's and screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Build your PC'**
+  String get pcBuilderTitle;
+
+  /// 211 Build your PC's card line.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose each part; we check that they fit together.'**
+  String get pcBuilderLine;
+
+  /// 211 Build your PC's card button.
+  ///
+  /// In en, this message translates to:
+  /// **'Start building'**
+  String get pcBuilderStart;
+
+  /// 211 Build your PC: where the customer is.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {count}'**
+  String pcBuilderStep(int step, int count);
+
+  /// 211 Build your PC: leaves an optional part out.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip this part'**
+  String get pcBuilderSkip;
+
+  /// 211 Build your PC: goes to the next part.
+  ///
+  /// In en, this message translates to:
+  /// **'Next part'**
+  String get pcBuilderNext;
+
+  /// 211 Build your PC: the last step, the whole build.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the build'**
+  String get pcBuilderReview;
+
+  /// 211 Build your PC: the chosen parts' total.
+  ///
+  /// In en, this message translates to:
+  /// **'Build total'**
+  String get pcBuilderTotal;
+
+  /// 211 Build your PC: the power the build needs.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs {watts} W'**
+  String pcBuilderWatts(int watts);
+
+  /// 211 Build your PC: adds every chosen part.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the build to the cart'**
+  String get pcBuilderAddAll;
+
+  /// 211 Build your PC: the parts were added.
+  ///
+  /// In en, this message translates to:
+  /// **'The build is in your cart'**
+  String get pcBuilderAdded;
+
+  /// 211 Build your PC: no problem between the parts chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Every part fits'**
+  String get pcBuilderFits;
+
+  /// 211 Build your PC: a part's category has no products.
+  ///
+  /// In en, this message translates to:
+  /// **'No parts here yet'**
+  String get pcBuilderEmpty;
+
+  /// 211 Build your PC: a part the build can go without.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get pcBuilderOptional;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Processor'**
+  String get pcPartCpu;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Motherboard'**
+  String get pcPartBoard;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory'**
+  String get pcPartRam;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Graphics card'**
+  String get pcPartGpu;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage'**
+  String get pcPartStorage;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooler'**
+  String get pcPartCooler;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Power supply'**
+  String get pcPartPsu;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Case'**
+  String get pcPartCase;
+
+  /// 211 Build your PC: a part's socket differs (part names the other part).
+  ///
+  /// In en, this message translates to:
+  /// **'Doesn\'t fit the socket of the {part}'**
+  String pcIssueSocket(String part);
+
+  /// 211 Build your PC: the memory type differs.
+  ///
+  /// In en, this message translates to:
+  /// **'Not the memory type the {part} takes'**
+  String pcIssueMemory(String part);
+
+  /// 211 Build your PC: the power supply is too small.
+  ///
+  /// In en, this message translates to:
+  /// **'Too little power for this build ({watts} W)'**
+  String pcIssuePower(int watts);
+
+  /// 211 Build your PC: the case is smaller than the board.
+  ///
+  /// In en, this message translates to:
+  /// **'Too small for the {part}'**
+  String pcIssueSize(String part);
+
+  /// 211 The shop filtered by a spec, with nothing in it.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches this yet'**
+  String get specFilterEmpty;
+
   /// No description provided for @appointmentStatusApproved.
   ///
   /// In en, this message translates to:
@@ -20101,6 +20479,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This can\'t be paid in the app yet. Choose a stay you pay at the hotel, or contact us.'**
   String get travelNoPaymentYet;
+
+  /// 209 Title of a product's facts (brand, material, volume) on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get productDetailsTitle;
+
+  /// 209 On a product's page: the title of its ingredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients'**
+  String get productInfoIngredients;
+
+  /// 209 On a product's page: the title of how to use it.
+  ///
+  /// In en, this message translates to:
+  /// **'How to use'**
+  String get productInfoHowToUse;
+
+  /// 209 On a product's page: the title of its safety notes (a toy's).
+  ///
+  /// In en, this message translates to:
+  /// **'Safety'**
+  String get productInfoSafety;
+
+  /// 209 On a product's page: the title of what it is made of.
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get productInfoMaterials;
+
+  /// 209 On a product's page: the title of how to wash and care for it.
+  ///
+  /// In en, this message translates to:
+  /// **'Care'**
+  String get productInfoCare;
+
+  /// 209 On a product's page: the title of what comes in its box.
+  ///
+  /// In en, this message translates to:
+  /// **'In the box'**
+  String get productInfoInTheBox;
+
+  /// 209 A product's badge: it is genuine.
+  ///
+  /// In en, this message translates to:
+  /// **'Genuine product'**
+  String get productBadgeGenuine;
+
+  /// 209 A product's badge: tested to the child-safety standards.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety tested'**
+  String get productBadgeSafetyTested;
+
+  /// 209 A product's badge: made of organic materials.
+  ///
+  /// In en, this message translates to:
+  /// **'Organic'**
+  String get productBadgeOrganic;
+
+  /// 209 A product's badge: made by hand.
+  ///
+  /// In en, this message translates to:
+  /// **'Handmade'**
+  String get productBadgeHandmade;
+
+  /// 209 A product's badge: not tested on animals (cosmetics).
+  ///
+  /// In en, this message translates to:
+  /// **'Not tested on animals'**
+  String get productBadgeCrueltyFree;
+
+  /// 209 A product's badge: it can be gift wrapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift wrapping available'**
+  String get productBadgeGiftWrap;
+
+  /// 209 A product's expiry (month and year) on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Best before {date}'**
+  String productExpiry(String date);
+
+  /// 209 The ages a product is for, in months.
+  ///
+  /// In en, this message translates to:
+  /// **'Ages {from}–{to} months'**
+  String productAgeMonths(int from, int to);
+
+  /// 209 The ages a product is for, in years.
+  ///
+  /// In en, this message translates to:
+  /// **'{to, plural, =1{Ages {from}–{to} year} other{Ages {from}–{to} years}}'**
+  String productAgeYears(int from, int to);
+
+  /// 209 The ages a product is for, from months to years.
+  ///
+  /// In en, this message translates to:
+  /// **'{to, plural, =1{Ages {from} months to {to} year} other{Ages {from} months to {to} years}}'**
+  String productAgeMixed(int from, int to);
+
+  /// 209 The ages a product is for, from an age in months up.
+  ///
+  /// In en, this message translates to:
+  /// **'{from, plural, =1{Ages 1 month and up} other{Ages {from} months and up}}'**
+  String productAgePlusMonths(int from);
+
+  /// 209 The ages a product is for, from an age in years up.
+  ///
+  /// In en, this message translates to:
+  /// **'{from, plural, =1{Ages 1 year and up} other{Ages {from} years and up}}'**
+  String productAgePlusYears(int from);
+
+  /// 209 A quiz: which question this is.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {n} of {total}'**
+  String quizStep(int n, int total);
+
+  /// 209 A quiz's button: answer it again.
+  ///
+  /// In en, this message translates to:
+  /// **'Start again'**
+  String get quizAgain;
+
+  /// 209 A quiz: over the result.
+  ///
+  /// In en, this message translates to:
+  /// **'Your result'**
+  String get quizResultTitle;
+
+  /// 209 The size finder: the size of the shop's chart for the age chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'The size that fits: {size}'**
+  String sizeFinderFits(String size);
+
+  /// 209 A swatch chosen, as screen readers say it.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, chosen'**
+  String swatchChosen(String name);
+
+  /// 210 Title of a product's size (width, depth, height in cm) on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Dimensions'**
+  String get productDimensions;
+
+  /// 210 Title of how long a made-to-order product takes to make, on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Made to order'**
+  String get productMadeToOrder;
+
+  /// 210 Under the delivery days picked on a page: the cart keeps the day and time for checkout.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll keep this day and time for your checkout.'**
+  String get deliverySlotsKept;
+
+  /// 210 Under the delivery days of a furniture shop: the team assembles the piece on the day.
+  ///
+  /// In en, this message translates to:
+  /// **'The team assembles it on the day.'**
+  String get deliverySlotsAssembly;
+
+  /// 210 The delivery days element when no day is open.
+  ///
+  /// In en, this message translates to:
+  /// **'No delivery days are open right now.'**
+  String get deliverySlotsNone;
+
+  /// 212 The heart on a product's card and page (not saved): saves it.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to wishlist'**
+  String get saveToWishlist;
+
+  /// 212 The wishlist of a customer not signed in.
+  ///
+  /// In en, this message translates to:
+  /// **'Your hearts are kept on this phone. Sign in to keep them on all your phones.'**
+  String get wishlistOnPhone;
+
+  /// 212 Saving or removing a product failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wishlist couldn\'t be changed. Try again.'**
+  String get wishlistFailed;
+
+  /// 212 Button in the review form: adds photos of the product.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photos'**
+  String get reviewAddPhotos;
+
+  /// 212 How many photos the review has, of how many it can take.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {max} photos'**
+  String reviewPhotosCount(int count, int max);
+
+  /// 212 A photo's button in the review form.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this photo'**
+  String get reviewPhotoRemove;
+
+  /// 212 A photo over the shop's limit.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo is too big. Choose one up to {size}.'**
+  String reviewPhotoTooBig(String size);
+
+  /// 212 A file that isn't a photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo (JPEG, PNG or WebP).'**
+  String get reviewPhotoType;
+
+  /// 212 On a product's page, for someone who can't review it (yet).
+  ///
+  /// In en, this message translates to:
+  /// **'Customers who bought this product can review it.'**
+  String get reviewOnlyBuyers;
+
+  /// 212 Link from a product's reviews to all of them.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{See the review} other{See all {count} reviews}}'**
+  String reviewsSeeAll(int count);
+
+  /// 212 The row of review photos on a product's page.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos from customers'**
+  String get reviewPhotosTitle;
+
+  /// 212 A review photo, read aloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer photo {n}'**
+  String reviewPhotoOf(int n);
+
+  /// 212 Button of a product (or the choice) out of stock.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me when it\'s back'**
+  String get notifyMeBack;
+
+  /// 212 The same button once the customer asked.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll tell you when it\'s back'**
+  String get notifyMeWaiting;
+
+  /// 212 Stops waiting for a product.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t notify me'**
+  String get notifyMeStop;
+
+  /// 212 After asking to be told.
+  ///
+  /// In en, this message translates to:
+  /// **'Done. You\'ll get a notification when it\'s back in stock.'**
+  String get notifyMeSaved;
+
+  /// 212 A guest pressed Notify me.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to be told when it\'s back.'**
+  String get notifyMeSignIn;
+
+  /// 212 The price range in the listing's filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get filterPrice;
+
+  /// 212 The brands in the listing's filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Brand'**
+  String get filterBrand;
+
+  /// 212 The price range chosen in the filters.
+  ///
+  /// In en, this message translates to:
+  /// **'{min} to {max}'**
+  String filterPriceRange(String min, String max);
+
+  /// 212 A Studio listing filter's button: opens the shop with its filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter the products'**
+  String get filterOpen;
 }
 
 class _AppLocalizationsDelegate

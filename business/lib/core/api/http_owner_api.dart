@@ -835,6 +835,51 @@ class HttpOwnerApi implements OwnerApi {
     ),
   );
 
+  // 212 A store's product reviews with photos, and who waits for what.
+  @override
+  Future<ReviewsPage> productReviews(
+    String appId, {
+    String filter = 'all',
+    int page = 1,
+  }) async => ReviewsPage.fromProductJson(
+    await _get(
+      '${_app(appId)}/product-reviews',
+      query: {'filter': filter, 'page': page},
+    ),
+  );
+
+  @override
+  Future<Review> setProductReviewHidden(
+    String appId,
+    int reviewId,
+    bool hidden,
+  ) async => Review.fromProductJson(
+    await _patch('${_app(appId)}/product-reviews/$reviewId', {
+      'hidden': hidden,
+    }),
+  );
+
+  @override
+  Future<Review> replyProductReview(
+    String appId,
+    int reviewId,
+    String text,
+  ) async => Review.fromProductJson(
+    await _put('${_app(appId)}/product-reviews/$reviewId/reply', {
+      'text': text,
+    }),
+  );
+
+  @override
+  Future<Review> deleteProductReviewReply(String appId, int reviewId) async =>
+      Review.fromProductJson(
+        await _delete('${_app(appId)}/product-reviews/$reviewId/reply'),
+      );
+
+  @override
+  Future<ShopWishes> shopWishes(String appId) async =>
+      ShopWishes.fromJson(await _get('${_app(appId)}/shop-wishes'));
+
   @override
   Future<Review> setReviewHidden(
     String appId,
@@ -1286,6 +1331,40 @@ class HttpOwnerApi implements OwnerApi {
       '${_app(appId)}/school/excuses/${_id(id)}/answer',
       _withNote({'answer': answer}, note),
     ),
+  );
+
+  // 210 The shop's custom-order requests.
+
+  @override
+  Future<Paged<StoreRequest>> requests(
+    String appId, {
+    String status = 'open',
+    int page = 1,
+  }) async => Paged.fromJson(
+    await _get(
+      '${_app(appId)}/requests',
+      query: _listQuery('status', status, null, page),
+    ),
+    StoreRequest.fromJson,
+  );
+
+  @override
+  Future<StoreRequest> request(String appId, String id) async =>
+      StoreRequest.fromJson(await _get('${_app(appId)}/requests/${_id(id)}'));
+
+  @override
+  Future<StoreRequest> answerRequest(
+    String appId,
+    String id, {
+    required String status,
+    String? reply,
+    String? quote,
+  }) async => StoreRequest.fromJson(
+    await _post('${_app(appId)}/requests/${_id(id)}/answer', {
+      'status': status,
+      'reply': reply?.trim() ?? '',
+      if (quote != null && quote.trim().isNotEmpty) 'quote': quote.trim(),
+    }),
   );
 
   @override

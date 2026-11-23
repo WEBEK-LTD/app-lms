@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { ar as studioAr, en as studioEn, tr as studioTr } from "@/i18n/dashboard/studio";
 import { appWords } from "@/lib/studio/app-words";
-import { demoKind, DEMO_SLUGS, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
+import { demoKind, DEMO_SLUGS, isStoreTemplateDemo, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { studioDemoTemplate } from "@/lib/demo/picker";
 import { demoStudioScreens, demoTabBar } from "@/lib/demo/screens";
@@ -66,9 +66,11 @@ function started(demo: StudioDemoId, look: SignatureLook, lang: "en" | "ar" | "t
 const texts = (page: StudioPage) => allNodes(page).flatMap((n) => [n.text, n.title].filter((x): x is string => Boolean(x)));
 
 describe("130 the Signature looks: one registry, twenty looks", () => {
-  it("has looks A and B for each of the ten Studio demos (131.20 Leqaa's too), one template of its kind each, named in Studio's three languages", () => {
+  it("has looks A and B for each of the twenty Studio demos (131.20 Leqaa's too), one template of its kind each, named in Studio's three languages", () => {
     // 208 Lujain's two looks too.
-    expect(LOOKS).toHaveLength(22);
+    // 209 And Velours's, Toota's and Toot's; 210 Sakan's, Ghurza's and Rukn's; 211 Madar's, Nova's and Nawah's: twenty demos, forty looks.
+    expect(LOOKS).toHaveLength(40);
+    expect(STUDIO_DEMO_TYPES).toHaveLength(20);
     for (const demo of STUDIO_DEMO_TYPES) expect(signatureLooksOf(demo), demo).toEqual(["a", "b"]);
     expect(signatureDesigns().map((d) => `${d.demo}_signature_${d.variant}`).sort()).toEqual(LOOKS.map(([demo, look]) => `${demo}_signature_${look}`).sort());
     for (const [demo, look] of LOOKS) {
@@ -86,7 +88,8 @@ describe("130 the Signature looks: one registry, twenty looks", () => {
       const designs = designsFor({ type: kind.engine, vertical: kind.vertical });
       expect(designs.filter((d) => !d.demo).flatMap((d) => d.templates)).not.toContain(id);
       // (The premium academy and 131.20 Leqaa are no kind's own demo: their looks are an academy's and a store's first templates instead.)
-      const kindsOwn = demo !== "premium_academy" && demo !== "flowers" && demo !== "clothes";
+      // 208 Nor the shop types' demos (their looks are a store's templates too).
+      const kindsOwn = demo !== "premium_academy" && !isStoreTemplateDemo(demo);
       if (kindsOwn) expect(designs.slice(0, 2).map((d) => d.templates)).toEqual([[`demo_${demo}`], [`${demo}_signature_b`]]);
       expect(designs.slice(kindsOwn ? 2 : 0).map((d) => d.id)).toEqual(["yallapp-warm", "yallapp-fresh", "yallapp-evening", "yallapp-ocean", "yallapp-classic", "yallapp-rose", "yallapp-mono"]);
     }

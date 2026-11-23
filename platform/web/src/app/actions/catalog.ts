@@ -1,6 +1,8 @@
 "use server";
 
+import { readProductDetails } from "@/lib/catalog/product-details";
 import { decideReturn } from "@/lib/catalog/returns";
+import { parseSpecsText } from "@/lib/selling/specs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { actorOf, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
@@ -26,7 +28,9 @@ import { LOYALTY_LIMITS } from "@/lib/catalog/loyalty";
 import { awaitingManualPayment, manualChoices, readManualPayments } from "@/lib/catalog/manual";
 import { TAX_RATE_MAX_BPS } from "@/lib/catalog/tax";
 import { parseVariants } from "@/lib/catalog/variants";
+import { parseDetailsForm } from "@/lib/catalog/details";
 import { readProductNumbers } from "@/lib/catalog/product-fields";
+import { readProductTranslations } from "@/lib/catalog/product-langs";
 import { parseOptionGroups } from "@/lib/catalog/options";
 import { catalogSettings, encryptOwnPayment, isOwnPayment, ownPaymentInput } from "@/lib/catalog/settings";
 import { newId } from "@/lib/crypto/tokens";
@@ -153,6 +157,16 @@ export async function reorderCategoriesAction(ids: number[]): Promise<void> {
 // Products
 
 
+/** 212 The words the form's language folds translate (as the editor listed them). */
+function langWords(formData: FormData): string[] {
+  try {
+    const list = JSON.parse(String(formData.get("langWords") ?? "[]")) as unknown;
+    return Array.isArray(list) ? list.filter((w): w is string => typeof w === "string").slice(0, 120) : [];
+  } catch {
+    return [];
+  }
+}
+
 export async function saveProductAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireCatalogApp();
   const { app } = context;
@@ -163,15 +177,24 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
   if (id !== null && !existing) return { message: "This product doesn't exist anymore." };
 
   const values: Record<string, string> = {};
-  for (const key of ["name", "description", "price", "salePrice", "stock", "sku", "weight"]) values[key] = str(formData, key);
+  for (const key of ["name", "description", "price", "salePrice", "stock", "sku", "weight", "width", "depth", "height", "makeMin", "makeMax", "specs"]) values[key] = str(formData, key);
   const errors: Record<string, string> = {};
   if (!values.name) errors.name = "Enter the product name.";
   else if (values.name.length > 120) errors.name = "Use at most 120 characters.";
   if (values.description!.length > 5000) errors.description = "Use at most 5000 characters.";
   const numbers = readProductNumbers({ price: values.price!, salePrice: values.salePrice!, stock: values.stock!, weight: values.weight, currency: catalogSettings(app).currency });
   Object.assign(errors, numbers.errors);
+  // 210 Its size in cm and the days it takes to make.
+  const sizeAndDays = readProductDetails({ width: values.width, depth: values.depth, height: values.height, makeMin: values.makeMin, makeMax: values.makeMax });
+  Object.assign(errors, sizeAndDays.errors);
   const { priceCents: price, salePriceCents: salePrice, stock } = numbers;
   if (values.sku!.length > 64) errors.sku = "Use at most 64 characters.";
+  // 211 Its specifications, one per line ("Storage: 256 GB").
+  const specs = parseSpecsText(values.specs ?? "");
+  if (!specs.ok) errors.specs = specs.error;
+  // 212 Its brand (for the filters) and its words in the app's other languages.
+  values.brand = str(formData, "brand").replace(/\s+/g, " ");
+  if (values.brand.length > 80) errors.brand = "Use at most 80 characters.";
   // 26 Option groups (a dish's size, sauce or extras), from the options editor as JSON.
   values.optionGroups = String(formData.get("optionGroups") ?? "");
   const optionGroups = parseOptionGroups(values.optionGroups, catalogSettings(app).currency);
@@ -211,6 +234,10 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     }
     uploads.push({ data, type });
   }
+  // 209 More about it (not a restaurant's): facts, its parts, badges, expiry, ages, swatches.
+  const detailFields = Object.fromEntries([...formData.keys()].filter((k) => k.startsWith("detail")).map((k) => [k, str(formData, k)]));
+  const details = app.vertical === "restaurant" ? ({ ok: true, value: existing?.details ?? null } as const) : parseDetailsForm(detailFields);
+  if (!details.ok) Object.assign(errors, details.errors);
   // 131 A gift add-on, and what it's offered with.
   const addon = formData.get("addon") === "on" && app.vertical !== "restaurant";
   const addonFor = addon
@@ -251,12 +278,20 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     sku: values.sku || null,
     // 131 Its weight, for shipping by weight.
     weightGrams: numbers.weightGrams,
+    // 210 Its size in cm and the days it takes to make.
+    dimensions: sizeAndDays.dimensions,
+    makeDays: sizeAndDays.makeDays,
+    // 211 Its specifications; kept as they were when the form has no field for them.
+    specs: formData.has("specs") ? (specs.ok ? specs.specs : null) : (existing?.specs ?? null),
     addon,
     addonFor: addonFor?.ok && addonFor.value.offerWith !== "all" ? addonFor.value : null,
     optionGroups: optionGroups.ok && optionGroups.value.length > 0 ? optionGroups.value : null,
     variants: variants.ok ? variants.variants : null,
+    details: details.ok ? details.value : null,
     // 110.2 A sample product saved here is the owner's from now on.
     sample: false,
+    brand: values.brand || null,
+    translations: readProductTranslations((field) => String(formData.get(field) ?? ""), langWords(formData)),
   };
   if (existing) await store.updateCatalogProduct(app.id, existing.id, input, now);
   else await store.createCatalogProduct(input, now);

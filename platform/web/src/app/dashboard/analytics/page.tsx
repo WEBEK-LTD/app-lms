@@ -262,7 +262,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
           />
           {report.checkoutValue.length > 0 ? (
             <p className="m-0 text-sm text-muted">
-              {t("analytics.checkoutValue", { values: report.checkoutValue.map((v) => formatCents(v.cents, v.currency as Parameters<typeof formatCents>[1])).join(", ") })}
+              {t("analytics.checkoutValue", { values: report.checkoutValue.map((v) => formatCents(v.cents, v.currency as Parameters<typeof formatCents>[1], lang)).join(", ") })}
             </p>
           ) : null}
         </Section>

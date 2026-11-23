@@ -65,7 +65,7 @@ function shopView(shop: ShopSample | null, lang: string, w: ReturnType<typeof ch
   const subtotal = bouquet + card + chocolates;
   const fee = base + distance;
   const cents = { bouquet, card, chocolates, subtotal, base, distance, slot: 0, fee, total: subtotal + fee };
-  const fmt = (c: number) => formatCents(c, shop.currency);
+  const fmt = (c: number) => formatCents(c, shop.currency, key);
   const day = new Intl.DateTimeFormat(`${key === "en" ? "en-GB" : key}-u-nu-latn`, { day: "numeric", month: key === "en" ? "short" : "long", timeZone: "UTC" }).format(new Date(`${shop.tomorrow}T12:00:00Z`));
   return {
     amount: (k: keyof typeof cents) => fmt(cents[k]),

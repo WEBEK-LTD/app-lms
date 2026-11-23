@@ -25,12 +25,15 @@ import '../widgets/addon_widgets.dart';
 import '../widgets/gift_checkout.dart' show ownedTitle;
 import '../widgets/option_sheet.dart';
 import '../widgets/product_widgets.dart';
+import '../widgets/shop_features.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/services/share_links.dart';
 import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/format/text_case.dart';
+import '../widgets/product_details.dart';
 import '../widgets/quick_add.dart';
+import '../widgets/tech_widgets.dart';
 import '../../shared/pages/studio_size_chart.dart' show showSizeGuide;
 
 /// A product: images, price, options, quantity and Add to cart.
@@ -114,6 +117,9 @@ class _ProductViewState extends ConsumerState<_ProductView> {
 
   /// 131 The gift add-ons chosen to go with it ("Add a little more").
   final Set<int> _addons = {};
+
+  /// 211 The matching accessories ticked to go in with it.
+  final Set<int> _accessories = {};
 
   ProductDetail get _product => widget.product;
 
@@ -256,6 +262,27 @@ class _ProductViewState extends ConsumerState<_ProductView> {
       );
   }
 
+  /// 211 The product with the accessories ticked ("Goes with it").
+  void _addWithAccessories() {
+    _addToCart();
+    final cart = ref.read(cartProvider.notifier);
+    for (final a in AccessoriesPicker.offered(_product.accessories)) {
+      if (!_accessories.contains(a.id)) continue;
+      cart.add(
+        CartItem(
+          productId: a.id,
+          quantity: 1,
+          name: a.name,
+          imageUrl: a.imageUrl,
+          price: a.sale?.shopNowFormatted ?? a.price.formatted,
+          shownPrice: a.sale?.nowFormatted ?? a.price.shown,
+          shownCurrency: a.price.display?.currency,
+        ),
+      );
+    }
+    setState(_accessories.clear);
+  }
+
   void _addToCart() {
     if (_product.optionGroups.isNotEmpty) {
       _chooseOptions();
@@ -341,6 +368,8 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             backgroundColor: p.surface,
             leading: const AppBarBackButton(),
             actions: [
+              // 212 The wishlist's heart, a tile like the share and cart buttons.
+              WishlistHeart(productId: product.id, tile: true),
               // 46 A link that opens the product in the app.
               ShareLinkButton(
                 kind: 'product',
@@ -502,6 +531,82 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                     ],
                   ),
                 ],
+                // 209 The ages it is for, its promises and its expiry.
+                if (ProductBadges.shows(product)) ...[
+                  const SizedBox(height: 12),
+                  ProductBadges(product: product),
+                ],
+                // 210 Its size in cm and the days it takes to make.
+                for (final (key, title, line, icon) in [
+                  (
+                    'product-dimensions',
+                    context.l10n.productDimensions,
+                    product.dimensions,
+                    AppIcons.sizeGuide,
+                  ),
+                  (
+                    'product-make-days',
+                    context.l10n.productMadeToOrder,
+                    product.makeDays,
+                    AppIcons.schedule,
+                  ),
+                ])
+                  if (line != null) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      key: ValueKey(key),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: p.surfaceMuted,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Row(
+                        children: [
+                          AppIcon(icon, size: 20, color: p.text),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: p.textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  line,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: p.text,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                // 210 211 Installments coming soon (an electronics, mobiles,
+                // computers or furniture shop): a tag, never a way to pay.
+                if (store?.installmentsSoon ?? false) ...[
+                  const SizedBox(height: 10),
+                  const Align(
+                    key: ValueKey('product-installments-soon'),
+                    alignment: AlignmentDirectional.centerStart,
+                    child: InstallmentsSoonTag(),
+                  ),
+                ],
+                // 211 A product with specs can be compared with others.
+                if (product.specs.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  CompareButtons(productId: product.id),
+                ],
                 if (product.shortDescriptionHtml != null) ...[
                   const SizedBox(height: 12),
                   HtmlContent(html: product.shortDescriptionHtml!),
@@ -543,6 +648,22 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                       ],
                       chosen: _chosen[attribute.slug],
                       onTap: (value) => _choose(attribute.slug, value),
+                    )
+                  // 209 A choice whose options have colours (a shade): swatches.
+                  else if (attribute.options.any((o) => o.swatch != null))
+                    Wrap(
+                      key: ValueKey('product-swatches-${attribute.slug}'),
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        for (final option in attribute.options)
+                          SwatchChip(
+                            option: option,
+                            selected: _chosen[attribute.slug] == option.value,
+                            soldOut: _soldOut(attribute.slug, option.value),
+                            onTap: () => _choose(attribute.slug, option.value),
+                          ),
+                      ],
                     )
                   else
                     Wrap(
@@ -621,11 +742,58 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                     },
                   ),
                 ],
+                // 211 Matching accessories, ticked to go in with it.
+                if (AccessoriesPicker.offered(product.accessories)
+                    .isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  AccessoriesPicker(
+                    accessories: AccessoriesPicker.offered(product.accessories),
+                    selected: _accessories,
+                    onChanged: (a, on) => setState(() {
+                      if (on) {
+                        _accessories.add(a.id);
+                      } else {
+                        _accessories.remove(a.id);
+                      }
+                    }),
+                    onAdd:
+                        cta == ProductCta.addToCart &&
+                            product.optionGroups.isEmpty
+                        ? _addWithAccessories
+                        : null,
+                  ),
+                ],
+                // 211 Its specifications.
+                if (product.specs.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  ProductSpecsSection(specs: product.specs),
+                ],
                 if (product.descriptionHtml.trim().isNotEmpty) ...[
                   const SizedBox(height: 24),
                   SectionHeader(title: context.l10n.description),
                   const SizedBox(height: 8),
                   HtmlContent(html: product.descriptionHtml),
+                ],
+                // 209 Its parts in its own words (ingredients, how to use it,
+                // safety, materials, care), then its facts.
+                if (product.info.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  ProductInfoSections(product: product),
+                ],
+                if (product.facts.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  SectionHeader(title: context.l10n.productDetailsTitle),
+                  const SizedBox(height: 4),
+                  ProductFacts(facts: product.facts),
+                ],
+                // 212 Its reviews: the bars, the customers' photos, the first
+                // ones and the customer's own.
+                if (product.reviewsPreview case final preview?) ...[
+                  const SizedBox(height: 24),
+                  ProductReviewsSection(
+                    productId: product.id,
+                    preview: preview,
+                  ),
                 ],
                 // 208 Complete the look: a piece of each of the shop's other
                 // main categories.
@@ -710,10 +878,28 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             label: context.l10n.chooseOptions(_missing(product)),
             onPressed: null,
           ),
+          // 212 Out of stock in the choice made, or altogether: Notify me
+          // when it's back, where the shop offers it.
+          ProductCta.unavailableOption
+              when store?.backInStock == true &&
+                  product.backInStock != null &&
+                  variation != null =>
+            BackInStockButton(
+              productId: product.id,
+              variationId: variation.id,
+              waiting: product.backInStock!.waitsFor(variation.id),
+            ),
           ProductCta.unavailableOption => PrimaryButton(
             label: context.l10n.notAvailableInOptions,
             onPressed: null,
           ),
+          ProductCta.outOfStock
+              when store?.backInStock == true && product.backInStock != null =>
+            BackInStockButton(
+              productId: product.id,
+              variationId: variation?.id,
+              waiting: product.backInStock!.waitsFor(variation?.id),
+            ),
           ProductCta.outOfStock => PrimaryButton(
             label: context.l10n.outOfStock,
             onPressed: null,

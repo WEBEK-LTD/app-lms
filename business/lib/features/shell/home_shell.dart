@@ -7,6 +7,7 @@ import '../../core/routing/paths.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/widgets/l10n.dart';
+import '../../core/theme/theme.dart';
 
 class NavTab {
   const NavTab(this.path, this.icon, this.label);
@@ -115,18 +116,34 @@ class HomeShell extends ConsumerWidget {
     if (index < 0) index = tabs.length - 1;
     return Scaffold(
       body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: index,
-        onDestinationSelected: (i) => context.go(tabs[i].path),
-        destinations: [
-          for (final tab in tabs)
-            NavigationDestination(
-              icon: Icon(tab.icon),
-              selectedIcon: Icon(tab.icon, fill: 1),
-              label: tab.label,
-            ),
-        ],
+      bottomNavigationBar: _navEdge(
+        context,
+        NavigationBar(
+          selectedIndex: index,
+          onDestinationSelected: (i) => context.go(tabs[i].path),
+          destinations: [
+            for (final tab in tabs)
+              NavigationDestination(
+                icon: Icon(tab.icon),
+                selectedIcon: Icon(tab.icon, fill: 1),
+                label: tab.label,
+              ),
+          ],
+        ),
       ),
     );
   }
+}
+
+/// 215 The Pharaonic theme: a metallic gold hairline along the nav's top.
+Widget _navEdge(BuildContext context, Widget nav) {
+  final o = context.ornaments;
+  if (o == null) return nav;
+  return DecoratedBox(
+    position: DecorationPosition.foreground,
+    decoration: BoxDecoration(
+      border: Border(top: BorderSide(color: o.metal[1].withValues(alpha: 0.7))),
+    ),
+    child: nav,
+  );
 }

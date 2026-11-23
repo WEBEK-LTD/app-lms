@@ -1376,5 +1376,1663 @@ export const STORIES_EN: StoryCopy = {
         "clothes-walk": "A woman in white walking over white sand dunes"
       }
     },
+    // 209 Velours, the cosmetics shop: the right foundation before a party, in its look A (VELOURS); look B (NAQA LAB) in its section.
+    beauty: {
+      navName: "Cosmetics shop app",
+      metaTitle: "A cosmetics shop app with shades, a skin quiz, routines and ingredients, designed in Yallapp Studio",
+      metaDescription: "A day with Velours: a foundation that ran out, the shade finder, the skin quiz, a ready-made routine, and every product's ingredients and expiry.",
+      summary: "Shades as swatches with the stock of each, a skin quiz, filters by skin type and brand, ingredients and how to use, genuine products with their expiry and ready-made routines, in two premium looks.",
+      eyebrow: "Yallapp Studio · The cosmetics shop",
+      title: "Friday, in warm beige",
+      intro: "Layla's foundation ran out on Wednesday, and her cousin's engagement party is on Friday. It's Wednesday night in Dubai. This is how a few minutes with her phone become the right shade, and a routine for her skin.",
+      cast: "Layla shops at Velours, a beauty house in Dubai. Velours is the cosmetics shop template's demo: its brands, products and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "22:05",
+          kicker: "Dubai, late evening",
+          title: "An empty compact",
+          text: "Layla opens Velours on her bed. The home is small and quick: the search, the categories as chips, this week's edits in cards that slide, the next one peeking from the edge, and the flash deals with their timer."
+        },
+        {
+          time: "22:08",
+          kicker: "The shade finder",
+          title: "Twelve shades, one tap",
+          text: "Further down, the shade finder shows the cushion foundation's shades as round swatches. Warm beige, 3W, is already chosen: light to medium skin with a warm undertone, the shade most women pick. She taps Shop the foundation."
+        },
+        {
+          time: "22:11",
+          kicker: "The foundation's page",
+          title: "Genuine, until 2027",
+          text: "Its shades are swatches under the price; 6C has none left and is greyed out. Under them, its ingredients, how to use it, and its facts: Rosé Lab, all skin types, 15 g, SPF 25. A badge says genuine, and the batch's expiry is written in the open."
+        },
+        {
+          time: "22:15",
+          kicker: "Know your skin type",
+          title: "Combination, it says",
+          text: "She has never been sure about her skin. The quiz asks four questions, one at a time: how it feels after washing, the pores, a new cream, the end of the day. Combination. One tap opens every product the shop has for combination skin."
+        },
+        {
+          time: "22:19",
+          kicker: "A ready-made routine",
+          title: "Four steps, for less",
+          text: "In the daily routine, the morning routine for combination skin: a cleansing bar, vitamin C, a light gel and SPF 50+, sold together for less than the four on their own. She adds it, with the foundation, and the shop's code VELOURS10 at checkout."
+        },
+        {
+          time: "09:40",
+          kicker: "Thursday, at the shop",
+          title: "3W, and the routine",
+          text: "At Velours, Hind opens the morning's orders. Layla's says the foundation in 3W and the morning routine. The stock of 3W goes down by one, so no one can buy a shade that isn't there, and the parcel leaves before noon.",
+          push: {
+            app: "Velours",
+            title: "Order 3307",
+            body: "Your order is on its way. Unopened products can go back within 14 days."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Wednesday at ten. Friday in warm beige.",
+        text: "Everything in between was the shop's own: its shades and the stock of each, its skin types and brands, every product's ingredients and expiry, its routines and its offers, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one shade",
+      stats: [
+        "main categories in the demo's menu, by skin type and by brand among them",
+        "shades of the foundation, each with its stock and its colour",
+        "skin types in the quiz, each opening its products",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Shades, the skin quiz and the filters, what a product's page tells, routines and offers, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Shades",
+          title: "Every shade, its colour and its stock",
+          text: "A foundation or a lipstick comes in its shades, each drawn in its own colour.",
+          features: [
+            ["Swatches", "Each shade is a round swatch in its colour on the product's page."],
+            ["Chosen when it opens", "The shade the shop picked is ready when the page opens."],
+            ["Gone is gone", "A shade with none left is greyed out and can't be chosen."],
+            ["Stock per shade", "The shop keeps the stock of every shade on its own."],
+            ["The shade finder", "On the home, the shades side by side, the one tapped with its words."]
+          ]
+        },
+        {
+          name: "The skin quiz and the filters",
+          title: "By skin type, and by brand",
+          text: "Customers find what suits their skin without reading every label.",
+          features: [
+            ["Know your skin type", "A few questions, one at a time, and the skin type with the most answers."],
+            ["Results that open", "Each skin type opens the shop's products for it."],
+            ["Brands", "The shop's brands in the menu and on the home, each opening its products."],
+            ["In three languages", "The questions, the answers and the results in English, Arabic and Turkish."],
+            ["In the editor too", "The quiz and the shade finder are elements of Studio's library, for any store."]
+          ]
+        },
+        {
+          name: "What a product's page tells",
+          title: "Ingredients, how to use, expiry",
+          text: "Every product's page answers what a careful customer asks before she buys.",
+          features: [
+            ["Ingredients", "The full list, in the product's own words."],
+            ["How to use", "When and how much, step by step."],
+            ["Genuine", "A badge for products bought from the brands themselves."],
+            ["Expiry", "The batch's month and year, in the open."],
+            ["Cruelty-free", "A badge on the products not tested on animals."],
+            ["Facts", "Brand, skin type, volume and finish, as a small table."]
+          ]
+        },
+        {
+          name: "Routines and offers",
+          title: "The whole routine, not only the cream",
+          text: "The shop sells steps that go together.",
+          features: [
+            ["Ready-made routines", "Products sold together for less, their steps in the description."],
+            ["The daily routine", "Morning and evening steps on the home, with the shop's routines under them."],
+            ["Flash deals", "A sale with its countdown and how many are left."],
+            ["Codes", "The shop's code on a ticket, copied in one tap."],
+            ["Returns in sight", "The shop's return days on every product."]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Velours comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["VELOURS", "Look A: luxury in plum, blush and gold."],
+            ["NAQA LAB", "Look B: a clinic in ink and cobalt on porcelain, with the active ingredients."],
+            ["Light and dark", "Both looks have a designed night."],
+            ["A compact hero", "The edits in cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one a pill with its name."],
+            ["Ready sections", "The shade finder, the skin quiz, the routine, the brands and more, for any store."],
+            ["Three languages", "English, Arabic right to left, and Turkish."]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Velours works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            ["Products in Yallapp", "Everything on this page: shades and their colours, ingredients, expiry and routines."],
+            ["WordPress and other platforms", "Their categories in the menu, their shades and stock on the page."],
+            ["Coming next", "Ingredients and expiry from a connected platform."]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Velours", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, categories, shades and offers"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"]
+      ],
+      bundleFlows: [
+        "A new shade shows as its swatch in the app",
+        "A shade sold out is greyed out",
+        "The ingredients show in the product's words",
+        "An order arrives with its shade"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Friday, at eight",
+        text: "The shade is right; no one can tell where her skin ends and the foundation begins. Hind has already added a new lipstick to the Lips row, and somewhere in Dubai someone else is taking the skin quiz."
+      },
+      photos: {
+        "beauty-hero": "A woman holding a jar of cream against a warm beige wall",
+        "beauty-shades": "A woman with bare, glowing skin touching her face",
+        "beauty-serum": "A woman holding a serum dropper to her cheek",
+        "beauty-routine": "A woman with soft skin and her eyes closed, in warm light",
+        "beauty-bath": "A candle, a bath bomb and a rolled towel on a bath tray",
+        "beauty-candle": "A lit candle in a glass jar beside a small tin"
+      }
+    },
+    // 209 Toota, the kids' clothes shop: a newborn gift and a raincoat on a rainy Wednesday, in its look A (TOOTA); look B (MINIMO) in its section.
+    kids: {
+      navName: "Kids' clothes shop app",
+      metaTitle: "A kids' clothes shop app with sizes by age, newborn gifts and ready sets, designed in Yallapp Studio",
+      metaDescription: "A day with Toota: a new nephew, a gift box wrapped with a card, the size finder by age and a raincoat for a four-year-old.",
+      summary: "Sizes by age from birth to 12, a size finder and chart, boys', girls' and baby categories, newborn gifts with wrapping and a card, and ready-made sets, in two premium looks.",
+      eyebrow: "Yallapp Studio · The kids' clothes shop",
+      title: "A gift for Adam, a raincoat for Youssef",
+      intro: "Salma's sister had a baby boy this morning, and her own son Youssef has grown out of his raincoat just as the rain came. It's a Wednesday evening in Cairo. This is how a few minutes with her phone become both.",
+      cast: "Salma shops at Toota, a children's clothes shop in Cairo. Toota is the kids' clothes template's demo: its clothes, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Cairo, after bath time",
+          title: "Two things to buy tonight",
+          text: "Salma opens Toota on the sofa while Youssef sleeps. The home is soft and quick: the search, the categories in circles, the season's collection in cards that slide, and under them the ages, from 0–6 months to 8–12 years, each a pastel tile."
+        },
+        {
+          time: "20:43",
+          kicker: "The menu",
+          title: "Girls, boys and baby",
+          text: "She taps the menu beside the bell. Every category of the shop is a row of cards with their photos: Baby & newborn first, with Newborn sets, Bodysuits and Sleepwear sliding after it, then Girls, Boys, Shoes, Newborn gifts and Ready sets."
+        },
+        {
+          time: "20:46",
+          kicker: "The size finder",
+          title: "Four years old, 104 cm",
+          text: "Youssef is four. In the size finder on the home she picks 4–5Y, and the card shows the size with its height, weight and chest from the shop's own chart: 104 to 110 cm. One tap, and the shop opens on the pieces in his size."
+        },
+        {
+          time: "20:52",
+          kicker: "Newborn gifts",
+          title: "A box, wrapped, with a card",
+          text: "For baby Adam, the first newborn box: a bodysuit, a hat, a knitted blanket and a soft toy, in organic cotton. In the cart, the shop offers gift wrapping and a greeting card with it. At checkout she taps \"Welcome to the world, little one!\" and adds a line of her own."
+        },
+        {
+          time: "20:58",
+          kicker: "Weekend deals",
+          title: "The hoodie, 30% off",
+          text: "Back on the home, the weekend's deals count down. The grey fleece hoodie is in it in Youssef's size, the old price struck through. She adds it with the raincoat, and the shop's code, TOOTA10, takes ten per cent off the order."
+        },
+        {
+          time: "10:15",
+          kicker: "Thursday, at the shop",
+          title: "4–5Y in yellow, a box wrapped",
+          text: "At Toota, Mona opens the morning's orders. Salma's says the raincoat in yellow, size 4–5Y, the hoodie in grey, and the newborn box wrapped, with the card's message to write by hand. The stock of each size goes down by one.",
+          push: {
+            app: "Toota",
+            title: "Order 3204",
+            body: "Your order is on its way. The gift is wrapped, with your card."
+          }
+        }
+      ],
+      interlude: {
+        quote: "One gift wrapped, one raincoat that fits.",
+        text: "Everything in between was the shop's own: its categories and their rows, its sizes by age and the stock of each, its size chart, its gift wrapping and cards, its offers and its exchanges, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one evening",
+      stats: [
+        "main categories in the demo's menu, each a row of cards",
+        "sizes by age, from 0–3 months to 11–12 years",
+        "days to exchange a size that doesn't fit",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Sizes by age, the category menu, the gifts and the sets, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Sizes by age",
+          title: "The size that fits, by age",
+          text: "Every piece comes in sizes by age, and the shop keeps the stock of each.",
+          features: [
+            [
+              "Ages for sizes",
+              "From 0–3 months to 11–12 years, each piece in the ages it is made for."
+            ],
+            [
+              "The size finder",
+              "Pick the child's age, see the height, weight and chest that size fits."
+            ],
+            [
+              "The size chart",
+              "The shop's own chart, by age, on its size guide page and beside the sizes."
+            ],
+            [
+              "In three languages",
+              "The chart's titles in English, Arabic and Turkish."
+            ],
+            [
+              "Shop their size",
+              "The finder's button opens the shop."
+            ],
+            [
+              "Gone is gone",
+              "A size with none left is greyed out and can't be chosen."
+            ]
+          ]
+        },
+        {
+          name: "The category menu",
+          title: "Girls, boys and baby, one row each",
+          text: "The menu beside the bell opens all of the shop's categories at once, each a row of cards with their photos.",
+          features: [
+            [
+              "A row per category",
+              "Each main category is a row of cards that slides sideways."
+            ],
+            [
+              "All of it first",
+              "The first card is the category itself, with how many pieces it has."
+            ],
+            [
+              "Girls, boys and baby",
+              "Each with its own sub-categories, and a piece in two when it belongs there."
+            ],
+            [
+              "Search on top",
+              "One field searches every category."
+            ],
+            [
+              "The account at the foot",
+              "My account, my orders, the language and how to reach the shop."
+            ],
+            [
+              "In the editor too",
+              "The category menu is an element of Studio's library, for any store."
+            ]
+          ]
+        },
+        {
+          name: "Gifts and sets",
+          title: "Wrapped, with a card",
+          text: "Newborn gift boxes, little gifts under a price and whole outfits sold as one.",
+          features: [
+            [
+              "Gift wrapping and a card",
+              "Offered with the newborn gifts in the cart, each priced by the shop."
+            ],
+            [
+              "The card's message",
+              "Written at checkout, or started from a line to tap."
+            ],
+            [
+              "Little gifts under a price",
+              "A list of the shop's pieces at a price or under."
+            ],
+            [
+              "Ready-made sets",
+              "Whole outfits sold as one, with every piece in them named."
+            ],
+            [
+              "What it's made of",
+              "The fabric, the fit and how to wash it on every piece's page."
+            ],
+            [
+              "Badges",
+              "Organic cotton, gift wrapping on offer, tested for children's safety."
+            ]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Toota comes in two premium looks, built only from Studio's elements.",
+          features: [
+            [
+              "TOOTA and MINIMO",
+              "Look A in soft pastels, terracotta and cream; look B in playful navy, its sections numbered."
+            ],
+            [
+              "Light and dark",
+              "Both looks have a designed night."
+            ],
+            [
+              "A compact hero",
+              "The collections in cards about 210 points tall, the next one peeking."
+            ],
+            [
+              "A floating bar",
+              "Home, Shop, Cart, Orders and Account, the open one with its name."
+            ],
+            [
+              "Ready sections",
+              "Shopping by age, the size finder, the gift sets and more, for any store."
+            ],
+            [
+              "Three languages",
+              "English, Arabic right to left, and Turkish."
+            ]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Toota works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            [
+              "Products in Yallapp",
+              "Everything on this page: categories inside categories, sizes by age, the gifts and their add-ons."
+            ],
+            [
+              "WordPress and other platforms",
+              "Their categories and sub-categories in the menu, their sizes and stock on the page."
+            ],
+            [
+              "Coming next",
+              "The size chart from a connected platform."
+            ]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        [
+          "Toota",
+          "Parents, on Android and iPhone"
+        ],
+        [
+          "Yallapp Studio",
+          "The shop: its look, categories, sizes and gifts"
+        ],
+        [
+          "The shop's website",
+          "WooCommerce, Shopify or another, if it has one"
+        ]
+      ],
+      bundleFlows: [
+        "A new sub-category shows in its row of the menu",
+        "A size sold out is greyed out in the app",
+        "The size chart shows in the parent's language",
+        "An order arrives with its sizes, its wrapping and its card"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Saturday, in the rain",
+        text: "Youssef jumps in every puddle in his yellow raincoat. Across town, Adam sleeps under the knitted blanket, the card propped on the shelf. Mona has already added the new winter sets to their row."
+      },
+      photos: {
+        "kids-hero": "Two girls in white dresses playing in a sunlit field",
+        "kids-newborn": "A newborn baby asleep in a striped knit hat",
+        "kids-gift": "A gift box in kraft paper tied with a pink ribbon",
+        "kids-school": "A girl drawing at her desk by a window",
+        "kids-party": "Pastel balloons against a pink wall",
+        "kids-walk": "A little boy in a denim jacket, seen from behind"
+      }
+    },
+    // 209 Toys
+    // 209 Toot, the toy shop: a fourth birthday on Saturday, in its look A (Toot); look B (Mukaab) in its section.
+    toys: {
+      navName: "Toy shop app",
+      metaTitle: "A toy shop app with shopping by age, safety and materials and birthday gifts with a card, designed in Yallapp Studio",
+      metaDescription: "A day with Toot: a fourth birthday on Saturday, the toys for 3 to 5 years, a bear's safety and materials, the gift finder, the wrapping and the card in her words.",
+      summary: "Shopping by age and by type of toy, each toy's age, safety and materials, a gift finder, gift wrapping and a birthday card, gifts under a price, in two premium looks.",
+      eyebrow: "Yallapp Studio · The toy shop",
+      title: "Four candles and a bear",
+      intro: "Huda's nephew Adam turns four on Saturday, and she is at work until Friday night. It's Wednesday evening in Dubai. This is how a few minutes with her phone become a wrapped present, with a card in her words.",
+      cast: "Huda shops at Toot, a toy shop in Dubai. Toot is the toy shop template's demo: its toys, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Dubai, after dinner",
+          title: "A birthday on Saturday",
+          text: "Huda opens Toot on the balcony. The home is small and quick: the search, the categories in circles, the collections in cards that slide, the next one peeking from the edge. Under them, the ages in tall photos: 0–12 months, 1–2 years, 3–5 years."
+        },
+        {
+          time: "20:42",
+          kicker: "By age",
+          title: "3–5 years",
+          text: "She taps 3–5 years and the shop opens on the toys for that age only. From the menu beside the bell, every category is a row of cards: Wooden toys, Building, Plush, Puzzles & games, then By age and Birthday gifts, each with its own sub-categories sliding after it."
+        },
+        {
+          time: "20:46",
+          kicker: "The toy's page",
+          title: "From birth, tested, washable",
+          text: "A golden bear in a hand-knitted jumper. Under the price: From birth, tested to EN 71, gift wrapping on offer. Its safety says why: embroidered eyes, no buttons or small parts. Its materials and its care follow, and a table of its age, size and batteries: none needed."
+        },
+        {
+          time: "20:50",
+          kicker: "The gift finder",
+          title: "Three questions",
+          text: "Not sure, she goes back to the home and answers the perfect gift in 3 steps: four years old, loves building, up to 300. The finder says 3–5 years and opens it. She adds the little architect tower to the bear."
+        },
+        {
+          time: "20:54",
+          kicker: "The cart",
+          title: "Kraft, blush and a card",
+          text: "In the cart, the shop offers a little more: the kraft and blush wrap, the black and gold one, and the birthday card in your words. She picks kraft and the card, taps Happy birthday, little one! at checkout and finishes the message herself, with the shop's code, TOOT10."
+        },
+        {
+          time: "10:15",
+          kicker: "Thursday, at the shop",
+          title: "Wrapped, with her words",
+          text: "At Toot, Salma opens the morning's orders. Huda's says the bear and the tower, kraft and blush, and the card's message to write by hand. The order goes to Adam's address, with Huda's name on the card.",
+          push: {
+            app: "Toot",
+            title: "Order 3107",
+            body: "Your gift is wrapped and on its way. Returns are free within 30 days."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Wednesday at nine. Saturday, four candles and a bear.",
+        text: "Everything in between was the shop's own: its ages and its types of toy, each toy's safety and materials, its wraps and its card, its offers and its returns, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one present",
+      stats: [
+        "main categories in the demo's menu, each a row of cards",
+        "ages, each a category a tap away",
+        "days to return a toy, free",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Shopping by age, safety and materials, the birthday gifts and the offers, the two looks, and where the toys come from.",
+      systems: [
+        {
+          name: "Shopping by age",
+          title: "Every toy in the ages it is for",
+          text: "The ages are categories of the shop, and every toy is in its type and in its ages.",
+          features: [
+            [
+              "The ages on the home",
+              "Tall photos or chips, each opening the toys for that age."
+            ],
+            [
+              "The category menu",
+              "Every category a row of cards, its sub-categories sliding after it."
+            ],
+            [
+              "By type too",
+              "Wooden toys, Building, Plush, Puzzles, Science, Arts, Outdoor and Baby."
+            ],
+            [
+              "Search on top",
+              "One field searches every category."
+            ],
+            [
+              "The gift finder",
+              "Three questions; the answer is an age that opens."
+            ],
+            [
+              "In the editor too",
+              "The category menu and the ages are elements of Studio's library, for any store."
+            ]
+          ]
+        },
+        {
+          name: "Safety and materials",
+          title: "What a parent reads before buying",
+          text: "Each toy's page tells its age, its safety, its materials and its care, in the shop's own words.",
+          features: [
+            [
+              "Tested",
+              "A badge for toys tested for children's safety."
+            ],
+            [
+              "Its materials",
+              "Wood, paint, fabric and filling, in a few lines."
+            ],
+            [
+              "Its facts",
+              "Age, material, pieces, size and batteries, as a table."
+            ],
+            [
+              "The age",
+              "From birth, 18+ months, 3+ years: on the page and in the categories."
+            ],
+            [
+              "In three languages",
+              "The page's titles in English, Arabic and Turkish."
+            ]
+          ]
+        },
+        {
+          name: "Birthday gifts, and the offers",
+          title: "Wrapped, with a card",
+          text: "The shop sells the present, not only the toy.",
+          features: [
+            [
+              "The gift finder",
+              "The child's age, what they love and the budget, one at a time."
+            ],
+            [
+              "Gift wrapping",
+              "Wraps offered in the cart with every toy."
+            ],
+            [
+              "The card's message",
+              "Written at checkout, with beginnings to tap in each language."
+            ],
+            [
+              "Gifts under a price",
+              "Rows of toys under 100 and under 200, from the shop's own prices."
+            ],
+            [
+              "Toy of the day",
+              "A flash sale with its countdown and how many are left."
+            ],
+            [
+              "Codes",
+              "The shop's code on a ticket, copied in one tap."
+            ]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Toot comes in two premium looks, built only from Studio's elements.",
+          features: [
+            [
+              "Toot",
+              "Look A: playful and colourful, plum and gold on cream, round photos."
+            ],
+            [
+              "Mukaab",
+              "Look B: calm and educational, one clear blue on grey, tiles and a lab."
+            ],
+            [
+              "Light and dark",
+              "Both looks have a designed night."
+            ],
+            [
+              "A compact hero",
+              "The collections in cards about 210 points tall, the next one peeking."
+            ],
+            [
+              "A floating bar",
+              "Home, Shop, Cart, Orders and Account, the open one a pill with its name."
+            ],
+            [
+              "Ready sections",
+              "The ages, safety first, the gift finder, gifts under a price and more, for any store."
+            ],
+            [
+              "Three languages",
+              "English, Arabic right to left, and Turkish."
+            ]
+          ]
+        },
+        {
+          name: "Where the toys come from",
+          title: "Your toys, or your shop's platform",
+          text: "Toot works with toys kept in Yallapp, or with the online shop you already have.",
+          features: [
+            [
+              "Toys in Yallapp",
+              "Everything on this page: the ages, each toy's safety and materials, the wraps and the card."
+            ],
+            [
+              "WordPress and other platforms",
+              "Their categories and sub-categories in the menu, their toys and prices in the app."
+            ],
+            [
+              "Coming next",
+              "A toy's safety and materials from a connected platform."
+            ]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The parents' app is built and published under the shop's name from one Studio project. Its toys come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        [
+          "Toot",
+          "Parents, on Android and iPhone"
+        ],
+        [
+          "Yallapp Studio",
+          "The shop: its look, ages, toys and offers"
+        ],
+        [
+          "The shop's website",
+          "WooCommerce, Shopify or another, if it has one"
+        ]
+      ],
+      bundleFlows: [
+        "A new toy shows in its type and its ages",
+        "A toy's safety shows on its page",
+        "The card's message arrives with the order",
+        "A wrap is added to the order"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Saturday, at four",
+        text: "Adam builds the tower twice before the cake and puts the bear on top of it. Huda reads her own words aloud from the card. At Toot, Salma is already adding the winter's play tents to their row."
+      },
+      photos: {
+        "toys-hero": "A small child reading in a grey play tent in a sitting room",
+        "toys-blocks": "Wooden blocks in bright colours, close up",
+        "toys-bear": "A golden teddy bear in a blue knitted jumper",
+        "toys-gift": "A gift box tied with a pink ribbon among confetti",
+        "toys-play": "A father and two children in a blanket fort with fairy lights",
+        "toys-finale": "A family playing together on a living-room rug"
+      }
+    },
+    // 210 Ghurza, the crochet shop: a blanket ordered in her mother's colours, the days it takes, the maker, yarn and a workshop, in its look A (GHURZA) by day and by night; look B (HABKA) in its section.
+    crochet: {
+      navName: "Crochet shop app",
+      metaTitle: "A crochet and handmade shop app with custom orders, days to make, yarn and workshops, designed in Yallapp Studio",
+      metaDescription: "A day with Ghurza: a blanket ordered in her mother's colours, the days it takes to make, the maker behind it, a starter kit and a seat at Saturday's workshop.",
+      summary: "Custom orders with their own request page, the days each piece takes to make, the maker's story, yarn and tools, workshops and gift wrapping by hand, in two premium looks.",
+      eyebrow: "Yallapp Studio · The crochet shop",
+      title: "Olive and cream, in twelve days",
+      intro: "Laila's mother turns sixty in two weeks, and Laila wants to give her something nobody else could. It's Wednesday evening in Maadi. This is how a few minutes with her phone become a blanket made by hand in her mother's colours, and a seat at a workshop for herself.",
+      cast: "Laila orders from Ghurza, a crochet workshop in Cairo. Ghurza is the crochet and handmade template's demo: its pieces, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "21:30",
+          kicker: "Maadi, late evening",
+          title: "Something nobody else could give",
+          text: "Laila opens Ghurza on the balcony. The home is warm and quick: the search, the categories in circles, the winter collection in cards that slide, the next one peeking from the edge. Under them, a card says a piece to your taste is made just for you, ready in 7 to 14 days."
+        },
+        {
+          time: "21:34",
+          kicker: "The custom order",
+          title: "A blanket, in her mother's colours",
+          text: "She taps Start your order. The page says how it works in four steps, then asks: the piece, the size, the yarn's colour and the details. She chooses Blanket, writes 120 by 150 cm, olive and cream like her mother's sofa, and asks for her mother's name stitched in one corner. Her name, her phone, and she sends it."
+        },
+        {
+          time: "21:41",
+          kicker: "Days to make",
+          title: "Made in 3 to 4 days",
+          text: "While she waits, she opens the ribbed scarf from New from the workshop. Every card says how long its piece takes to make, and so does the page: 3 to 4 days in cinnamon, olive or sand. Under the price, the shop offers its gift wrap with a card written by the maker."
+        },
+        {
+          time: "22:05",
+          kicker: "The maker",
+          title: "Twenty-two years of stitches",
+          text: "The phone has gone dark for the night, and so has Ghurza, in coffee brown. Further down the home, Umm Youssef, who runs the workshop, says every piece takes days of her time and more of her heart. Twelve makers, 4,800 pieces, all of them by hand."
+        },
+        {
+          time: "22:10",
+          kicker: "Yarn and a workshop",
+          title: "Her own first stitch",
+          text: "Laila has always wanted to learn. She adds the scarf starter kit, yarn, needles and a pattern in Arabic and English, and books a seat at Crochet basics for beginners, on the first Saturday of the month in Zamalek. Four seats were left; now there are three."
+        },
+        {
+          time: "10:15",
+          kicker: "Thursday, at the workshop",
+          title: "Olive, cream, and a name",
+          text: "At Ghurza, Umm Youssef opens the morning's requests. Laila's says a blanket, 120 by 150 cm, olive and cream, her mother's name in a corner. She calls her with the price and the time, 12 days, and chooses the yarn from the shelf herself.",
+          push: {
+            app: "Ghurza",
+            title: "Your custom order",
+            body: "Umm Youssef has started your blanket. It will be ready in 12 days."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Olive and cream, the colours of her mother's sofa.",
+        text: "Everything in between was the shop's own: its pieces and the days each takes, its custom order and its questions, its yarn and tools, its workshops and their seats, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one blanket",
+      stats: [
+        "main categories in the demo's menu, workshops among them",
+        "pieces, yarn, tools and seats in the demo",
+        "days at most to make a blanket by hand",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "The custom order, the days to make, yarn, tools and workshops, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "The custom order",
+          title: "Made just for her",
+          text: "A card on the home opens the shop's own request page: how it works, then the questions.",
+          features: [
+            ["The piece", "A blanket, a cardigan, a scarf, a bag, a toy or something else."],
+            ["The size", "In centimetres, or her own measurements."],
+            ["The colour", "The yarn's colour in her own words."],
+            ["Sent to the shop", "The request arrives with every answer, her name and her phone."],
+            ["On the owner's phone", "The shop sees it in the dashboard and in Yallapp Business."]
+          ]
+        },
+        {
+          name: "Days to make",
+          title: "How long, on every card",
+          text: "A piece made to order says how many days it takes, on its card and its page.",
+          features: [
+            ["From and to", "3 to 4 days for a scarf, 10 to 14 for a blanket."],
+            ["Colours and sizes", "Each colour and size with its own stock of yarn."],
+            ["Ready to ship", "Yarn and tools say nothing: they leave the same day."],
+            ["Set once", "The shop writes the days on the product in the dashboard."]
+          ]
+        },
+        {
+          name: "Yarn, tools and workshops",
+          title: "Everything to make your own",
+          text: "The shop sells what it makes with, and teaches how.",
+          features: [
+            ["Shop by yarn", "Cotton, merino and raffia, each card opening its category."],
+            ["Hooks and kits", "Starter kits with the yarn, the hook and a pattern."],
+            ["Workshops", "Each workshop a seat in the shop, in the studio or online."],
+            ["Seats left", "A seat booked is one fewer, so no workshop is overbooked."],
+            ["Wrapped by hand", "A gift wrap and a card written by the maker, with any piece."]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Ghurza comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["GHURZA", "Look A: warm handmade, terracotta on beige paper, soft round corners."],
+            ["Light and dark", "Both looks have a designed night: coffee brown, and plum black."],
+            ["A compact hero", "The collections in cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one lit."],
+            ["HABKA", "Look B: colourful and playful, plum and berry, design your own piece."],
+            ["Three languages", "English, Arabic right to left, and Turkish."]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Ghurza works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            ["Products in Yallapp", "Everything on this page: categories inside categories, days to make and custom orders."],
+            ["WordPress and other platforms", "Their categories and products in the app."],
+            ["Coming next", "Days to make from a connected platform."]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Ghurza", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, pieces, custom orders and workshops"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"]
+      ],
+      bundleFlows: [
+        "A custom order arrives with every answer",
+        "Days to make show on every card",
+        "A workshop seat booked is one fewer",
+        "A gift wrap goes with any piece"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Twelve days later",
+        text: "The blanket arrives wrapped in cotton paper and tied with yarn, a card in Umm Youssef's hand on top. Her mother finds her name in the corner before anything else. On Saturday, in Zamalek, Laila makes her first stitch, and undoes it, and makes it again."
+      },
+      photos: {
+        "crochet-cozy-sweater": "A woman in a soft grey knitted sweater, holding its collar to her face",
+        "crochet-fluffy-blanket": "A cup of coffee and an open book on a fluffy white blanket",
+        "crochet-knit-flatlay": "A crochet piece in taupe yarn with a hook, beside a notebook and balls of yarn",
+        "crochet-knit-coffee": "A knitted piece on its needles beside a cup of coffee and a pattern",
+        "crochet-mittens-coffee": "Hands in grey knitted mittens around a steaming cup",
+        "crochet-scarves-stack": "Crocheted throws in olive, grey and cream, folded in a stack"
+      }
+    },
+    // 210 Sakan, the home decor shop.
+    decor: {
+      navName: "Home decor shop app",
+      metaTitle: "A home decor shop app with shop the look, rooms, styles and gifts with a card, designed in Yallapp Studio",
+      metaDescription: "A day with Sakan: a new flat, a styled dining corner bought piece by piece, a vase sent as a gift with a card, and the lanterns for Ramadan.",
+      summary: "Shop the look on a styled room, shop by room and by style, sizes in cm, gifts wrapped with a card and the seasons' banners, in two premium looks.",
+      eyebrow: "Yallapp Studio · The home decor shop",
+      title: "A corner for two, by Friday",
+      intro: "Hessa and her husband moved into a small flat in Riyadh last week. The dining corner is a table they borrowed and two boxes. It's Tuesday evening. This is how a few minutes with her phone become a corner they eat in, and a gift for her sister.",
+      cast: "Hessa shops at Sakan, a home decor house in Riyadh. Sakan is the home decor template's demo: its pieces, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Riyadh, after dinner",
+          title: "Two boxes and a borrowed table",
+          text: "Hessa opens Sakan on the sofa. The home is small and quick: the search, the categories, and the season's collections in wide photo cards that slide, the next one peeking from the edge. Under them, four rooms: the bedroom, the living room, the dining room and the reading corner."
+        },
+        {
+          time: "20:44",
+          kicker: "Complete the room",
+          title: "A tap on the orchid",
+          text: "Further down, a styled dining corner fills the screen: a white table, two white chairs, an orchid in a white pot. Each piece has a numbered label on the photo. She taps the orchid, and its page opens. Under the photo, the three pieces in a row, with their prices."
+        },
+        {
+          time: "20:47",
+          kicker: "The table's page",
+          title: "80 by 80, it fits",
+          text: "The table says its size in centimetres: 80 wide, 80 deep, 75 high. She measures the corner with the tape from a drawer: 85 centimetres. The chair comes in white, black and sage; black is almost gone, so she keeps white."
+        },
+        {
+          time: "20:52",
+          kicker: "The menu",
+          title: "Every room, a row",
+          text: "She taps the menu beside the bell. Every room of the shop is a row of cards with their photos: the living room with its vases, cushions and chairs, the bedroom with its linen and lamps, then the plants, the seasons and the gifts. She slides the living room row and taps Vases & bowls."
+        },
+        {
+          time: "20:58",
+          kicker: "A gift",
+          title: "Twin vases for Noura",
+          text: "Her sister Noura has a new home too. Hessa adds the twin vases on their oak tray, then gift wrapping with a card. At checkout she writes the card herself: \"For your first spring in the new flat.\" She copies the shop's code, SAKAN10, and pays."
+        },
+        {
+          time: "09:15",
+          kicker: "Wednesday, at the shop",
+          title: "Wrapped in olive paper",
+          text: "At Sakan, the morning's orders are open. Hessa's says a table, two chairs, an orchid, and the twin vases wrapped as a gift with a card. The card's words print on the packing slip. On the app's home, the Ramadan banner is already up, with the brass lanterns.",
+          push: {
+            app: "Sakan",
+            title: "Order 3124",
+            body: "Your pieces are on their way. Returns are free within 14 days."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Tuesday at nine. Friday's dinner at a real table.",
+        text: "Everything in between was the shop's own: its rooms and their rows, the styled corner and its pieces, the sizes in centimetres, the gift wrapping and the card, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one dining corner",
+      stats: [
+        "main categories in the demo's menu, its rooms first",
+        "sub-categories sliding in their rows",
+        "days to return a piece, picked up from the door",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Shop the look, rooms and styles, gifts and seasons, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Shop the look",
+          title: "A styled room, each piece a tap away",
+          text: "A room photo with a label on each piece, and the pieces under it.",
+          features: [
+            [
+              "Spots on the photo",
+              "Each piece has a numbered label; a tap opens its page."
+            ],
+            [
+              "The pieces in a row",
+              "Under the photo, every piece in the look with its price."
+            ],
+            [
+              "Shop the look",
+              "One button to the pieces, to buy them together or one by one."
+            ],
+            [
+              "In the editor too",
+              "Shop the look is an element of Studio's library, for any store."
+            ]
+          ]
+        },
+        {
+          name: "Rooms and styles",
+          title: "Shop the way people think of a home",
+          text: "The shop's categories are its rooms, and the menu shows every one of them.",
+          features: [
+            [
+              "By room",
+              "Photo tiles for the living room, the bedroom, the dining room and the reading corner, each opening its room."
+            ],
+            [
+              "By style",
+              "Natural, minimal, warm earth, classic: a row of chips under the photos."
+            ],
+            [
+              "A row per room",
+              "The menu beside the bell: each room a row of cards, its sub-categories after it."
+            ],
+            [
+              "Search on top",
+              "One field searches every room."
+            ]
+          ]
+        },
+        {
+          name: "Gifts and seasons",
+          title: "Wrapped by hand, with a card",
+          text: "Any piece can leave the shop as a gift.",
+          features: [
+            [
+              "Gift wrapping",
+              "An add-on in the cart, offered with every piece."
+            ],
+            [
+              "The card message",
+              "Written at checkout, with ready beginnings to tap, in three languages."
+            ],
+            [
+              "The seasons",
+              "Ramadan and the new year as banners, each opening its own category."
+            ],
+            [
+              "Weekend offers",
+              "A flash sale with its countdown and how many are left."
+            ]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Sakan comes in two premium looks, built only from Studio's elements.",
+          features: [
+            [
+              "Teen",
+              "Look B: warm and calm, near-black ink on white and sand, oak and clay."
+            ],
+            [
+              "Light and dark",
+              "Both looks have a designed night."
+            ],
+            [
+              "A compact hero",
+              "The collections in cards about 210 points tall, the next one peeking."
+            ],
+            [
+              "A floating bar",
+              "Home, Shop, Cart, Orders and Account, the open one a pill with its name."
+            ],
+            [
+              "Ready sections",
+              "Complete the room, shop by style, the seasons, the collections and more, for any store."
+            ],
+            [
+              "Three languages",
+              "English, Arabic right to left, and Turkish."
+            ]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Sakan works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            [
+              "Products in Yallapp",
+              "Everything on this page: rooms inside rooms, colours with their stock, sizes in cm and the gift add-on."
+            ],
+            [
+              "WordPress and other platforms",
+              "Their categories and sub-categories in the menu, their stock on the page."
+            ],
+            [
+              "Sizes in centimetres",
+              "Width, depth and height on the card and the page."
+            ]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        [
+          "Sakan",
+          "Customers, on Android and iPhone"
+        ],
+        [
+          "Yallapp Studio",
+          "The shop: its look, rooms, styled corners and offers"
+        ],
+        [
+          "The shop's website",
+          "WooCommerce, Shopify or another, if it has one"
+        ]
+      ],
+      bundleFlows: [
+        "A new piece shows in its room's row of the menu",
+        "A colour sold out can't be chosen in the app",
+        "The gift card's words arrive with the order",
+        "The season's banner opens its category"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Friday, at eight",
+        text: "The table fits the corner with five centimetres to spare. The orchid has opened two more flowers. Noura sends a photo of the twin vases on her windowsill, the card propped against them."
+      },
+      photos: {
+        "decor-hero": "Dried wheat in a small clay vase beside a white pumpkin on a linen cloth",
+        "decor-room": "A white dining table with two white chairs and an orchid",
+        "decor-vases": "Two white vases with pink blossoms on an oak tray",
+        "decor-lantern": "A brass and glass lantern with a candle on a table",
+        "decor-pottery": "Shelves of handmade ceramic bowls and cups",
+        "decor-reading": "A reading corner with a bentwood armchair and a black side table"
+      }
+    },
+    furniture: {
+      navName: "Furniture shop app",
+      metaTitle: "A furniture shop app with rooms, sizes in cm, delivery and assembly on your day, designed in Yallapp Studio",
+      metaDescription: "A week with Rukn: a first living room, a sofa in the right fabric, 220 cm on a 240 cm wall, delivery and assembly on Saturday, and a unit made to measure.",
+      summary: "Rooms and their pieces, fabrics and colours with the stock of each, sizes in cm, delivery and assembly on the customer's day, made-to-measure requests, in two premium looks.",
+      eyebrow: "Yallapp Studio · The furniture shop",
+      title: "A sofa that fits the wall",
+      intro: "Sara has the keys to her first flat in Riyadh and a living room with nothing in it but a rug. It's Wednesday evening. This is how a week with her phone becomes a sofa in the right fabric, delivered and assembled on the day she chose.",
+      cast: "Sara shops at Rukn, a furniture house in Riyadh. Rukn is the furniture shop template's demo: its furniture, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Riyadh, an empty room",
+          title: "A living room with nothing in it",
+          text: "Sara opens Rukn sitting on the floor. The home is quiet and quick: the search, the rooms in circles, the season's collection in cards that slide. Under them, four promises side by side: free delivery and assembly, the warranty, a delivery day of her choosing, and a small tag that says installments are coming soon."
+        },
+        {
+          time: "20:44",
+          kicker: "The menu",
+          title: "Every room, a row",
+          text: "The menu beside the bell opens the whole house: Living room first, with Sofas, Armchairs, Coffee tables and TV units sliding after it, then Bedroom, Dining room, Office and Outdoor. She taps Sofas."
+        },
+        {
+          time: "20:52",
+          kicker: "The sofa's page",
+          title: "Bouclé or velvet",
+          text: "The Sadeer sofa comes in bouclé, velvet or linen, in ivory, olive or sand. Olive velvet is down to the last two. She can't decide from a screen, so she asks for the free fabric samples on the home: five swatches, at her door in three days."
+        },
+        {
+          time: "21:05",
+          kicker: "With a tape measure",
+          title: "220 cm on a 240 cm wall",
+          text: "Under the name, every card says its size: W 220 × D 95 × H 82 cm. She measures the wall between the window and the door: 240. Ten centimetres on each side. The Najd coffee table goes on the photo of the complete set, its spot one tap away."
+        },
+        {
+          time: "Saturday",
+          kicker: "Her day, her time",
+          title: "Saturday, nine to twelve",
+          text: "The samples came on Sunday; olive velvet it is. At checkout she picks Saturday, nine to twelve, before the afternoon's one place goes. Assembly is free over 1,500 SAR, and she adds the removal of the old armchair for 199."
+        },
+        {
+          time: "09:20",
+          kicker: "At Rukn's workshop",
+          title: "A unit to the centimetre",
+          text: "The TV wall is 186 cm, and no unit fits it. Sara sends a made-to-measure request with the piece, its size W × D × H, oak and a few words. At Rukn, Faisal finds it in the requests beside the morning's orders and calls her with a price before noon.",
+          push: {
+            app: "Rukn",
+            title: "Order 3104",
+            body: "Your sofa arrives Saturday between 9 and 12. The team will assemble it."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Measured on Wednesday. Sitting on it on Saturday.",
+        text: "Everything in between was the shop's own: its rooms and their pieces, the fabrics and colours and the stock of each, the sizes in cm, the delivery days and times, the assembly and the requests, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one sofa",
+      stats: [
+        "rooms in the demo's menu, each a row of cards",
+        "kinds of piece sliding in their rows",
+        "days ahead a customer can pick for delivery",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Rooms and the menu, fabrics and sizes, delivery and assembly, made to measure, and the two looks.",
+      systems: [
+        {
+          name: "Shop by room",
+          title: "Every room, one row each",
+          text: "The shop's rooms are its main categories: the circles, the tiles and the menu open them.",
+          features: [
+            ["Rooms as categories", "Living room, Bedroom, Dining room, Office and Outdoor, each with its kinds of piece."],
+            ["A row per room", "The menu shows each room as a row of cards that slides."],
+            ["Tiles that open", "A room's tile opens that room in the shop."],
+            ["Search on top", "One field searches every room."]
+          ]
+        },
+        {
+          name: "Fabrics, colours and sizes",
+          title: "The stock of every fabric",
+          text: "A piece comes in its fabrics or materials and its colours, and the shop keeps the stock of each.",
+          features: [
+            ["Fabric and material", "Bouclé, velvet, linen, oak or walnut: each a choice on the page."],
+            ["Colour by colour", "Every fabric in every colour is its own piece of stock."],
+            ["Sizes in cm", "Width, depth and height on every card and on the page."],
+            ["Gone is gone", "A combination with none left is greyed out."],
+            ["Made to order", "A piece made in the workshop says how many days it takes."]
+          ]
+        },
+        {
+          name: "Delivery and assembly",
+          title: "On the customer's day",
+          text: "The customer picks the day and the time; the shop's team brings the piece and assembles it.",
+          features: [
+            ["Days and times", "The shop's next days and its slots, a full one shown as full."],
+            ["Free over an amount", "Delivery and assembly free over the shop's amount."],
+            ["Services as add-ons", "Assembly and the old furniture's removal, offered with the pieces they fit."],
+            ["Warranty and returns", "The warranty in the promises, returns within the shop's days."]
+          ]
+        },
+        {
+          name: "Made to measure",
+          title: "A request, not a guess",
+          text: "A made-to-measure page with its steps and a form the shop keeps as a request.",
+          features: [
+            ["The request form", "The piece, its size W × D × H, the material or fabric, the colour and the details."],
+            ["Sizes that fit", "The customer writes the wall's size; the workshop makes to it."],
+            ["In the dashboard", "Each request arrives in the dashboard and in Yallapp Business."],
+            ["Installments coming soon", "A tag in the promises; the app takes no installments yet."]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Rukn comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["RUKN", "Look A: modern white and walnut, round corners and warm photos."],
+            ["Light and dark", "Both looks have a designed night."],
+            ["A compact hero", "The collections in cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one marked."],
+            ["KANAF", "Look B: quiet luxury in deep green, build your sofa piece by piece and the showroom on a map."],
+            ["Three languages", "English, Arabic right to left, and Turkish."]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Rukn", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, rooms, fabrics and delivery days"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"]
+      ],
+      bundleFlows: [
+        "A new piece shows in its room's row",
+        "A fabric sold out is greyed out in the app",
+        "A delivery slot that fills up shows as full",
+        "A made-to-measure request arrives in the dashboard"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Saturday, at eleven",
+        text: "The team leaves with the boxes and the old armchair. The olive velvet looks warmer than on the screen. Faisal has already added a new armchair to the Living room row, and somewhere in Riyadh someone is measuring a wall."
+      },
+      photos: {
+        "furniture-hero": "A pale blue loveseat with patterned cushions by a bright window",
+        "furniture-fabric": "A mid-century armchair in an orange floral fabric",
+        "furniture-measure": "A long white TV unit on a wall in a bright living room",
+        "furniture-custom": "A long wooden dining table with grey upholstered chairs under a chandelier",
+        "furniture-terrace": "A covered terrace with wooden chairs looking out to the sea",
+        "furniture-home": "A white leather sofa with checked cushions under a painting"
+      }
+    },
+    // 211 Madar, the electronics shop: a laptop for a new job and an old phone traded in, in its look A (MADAR); look B (NABD) in its section.
+    electronics: {
+      navName: "Electronics shop app",
+      metaTitle: "An electronics shop app with specs, compare, warranty and trade-in, designed in Yallapp Studio",
+      metaDescription: "A week with Madar: a new job, a laptop chosen by its specs, two phones compared side by side, a year more of warranty and an old phone traded in.",
+      summary: "Every product's specifications as a table, two or three compared side by side, colours and storages each with its price, the warranty and more cover, trade-in and installments coming soon, in two premium looks.",
+      eyebrow: "Yallapp Studio · The electronics shop",
+      title: "Sunday, with the right laptop",
+      intro: "Faisal starts a new job on Sunday and his old laptop won't make it. It's Wednesday evening in Riyadh. This is how a few evenings with his phone become the right laptop, a new phone, and the old one traded in.",
+      cast: "Faisal shops at Madar, an all-in-one electronics store in Riyadh. Madar is the electronics shop template's demo: its brands, products and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Riyadh, after work",
+          title: "A laptop by Sunday",
+          text: "Faisal opens Madar on the sofa. The home is small and quick: the search, the categories, the week's launches in cards that slide, the next one peeking. Under them, one line of promises: delivery in 24 hours, free installation, a certified warranty, and installments, coming soon."
+        },
+        {
+          time: "20:44",
+          kicker: "The menu",
+          title: "Every category, a row",
+          text: "He taps the menu beside the bell. Phones, Laptops, Tablets & watches, TVs: each category is a row of cards, its sub-categories sliding after it. He slides Laptops and taps Thin & light."
+        },
+        {
+          time: "20:51",
+          kicker: "The laptop's page",
+          title: "Read the specs, not the ads",
+          text: "The ARCLINE Air 14. Its specifications are a clean table, in Arabic when the app is: the screen, the processor, the memory, the storage, the battery, the weight. He chooses 16 GB with 1 TB, and the price changes with it. Under the price, a quiet tag: installments, coming soon."
+        },
+        {
+          time: "21:05",
+          kicker: "Compare",
+          title: "Two phones, side by side",
+          text: "His phone is three years old too. He adds the ZENRA X1 and the X1 Pro to compare. The two sit side by side, spec by spec: 6.3 or 6.7 inches, 4,400 or 5,000 mAh, the cameras, the price. He picks the Pro, in titanium, 256 GB, and adds a year more of Madar Care."
+        },
+        {
+          time: "21:12",
+          kicker: "Trade-in",
+          title: "What the old phone is worth",
+          text: "On the trade-in page he chooses his old phone's model, its storage and its condition: good. The app says what it's worth, and he sends the request with his number. It lands in the shop's dashboard, where the team calls him back."
+        },
+        {
+          time: "10:15",
+          kicker: "Thursday, at the shop",
+          title: "Checked, packed, on its way",
+          text: "At Madar, Khalid opens the morning's orders and the trade-in requests. Faisal's says the laptop with 1 TB and the phone with its warranty. Khalid calls about the old phone: it will be checked at the door, and its value taken off.",
+          push: {
+            app: "Madar",
+            title: "Order 4127",
+            body: "Your order is on its way. Have your old phone ready for the trade-in."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Wednesday evening. Sunday, at a new desk.",
+        text: "Everything in between was the shop's own: its categories and their rows, its specifications, its colours and storages with their prices, its warranty and cover, its trade-in prices, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one laptop",
+      stats: [
+        "main categories in the demo's menu, each a row of cards",
+        "products compared side by side, at most",
+        "days to return, shown under every price",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "The specifications and the compare sheet, colours, storages and the warranty, trade-in, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Specifications and compare",
+          title: "Read them, then put them side by side",
+          text: "Every product has its specifications, and any two or three can be compared.",
+          features: [
+            ["A clean table", "The screen, the processor, the memory, the storage and the rest, label and value."],
+            ["Side by side", "Two or three products in columns, spec by spec, the ones they share first."],
+            ["In the app's language", "The labels Yallapp knows are named in English, Arabic or Turkish."],
+            ["Filters by spec", "The shop filtered by a spec's value, such as 16 GB."],
+            ["In the editor too", "The table, the compare sheet and the filter are elements of Studio's library, for any store."]
+          ]
+        },
+        {
+          name: "Colours, storages and the warranty",
+          title: "Each choice with its price",
+          text: "A phone comes in its colours and storages, each storage with its own price and stock.",
+          features: [
+            ["Colour and storage", "Every combination is its own piece of stock, its own price."],
+            ["Gone is gone", "A storage with none left in the colour chosen can't be chosen."],
+            ["The warranty", "The maker's warranty in the specifications, and the returns under the price."],
+            ["More cover", "A year more, or a screen and liquid cover, added before the cart."],
+            ["Installments, coming soon", "Only a tag: no way to pay in instalments is offered yet."]
+          ]
+        },
+        {
+          name: "Trade-in",
+          title: "The old phone, worth something",
+          text: "The shop sets the devices it takes and what it pays; the app estimates.",
+          features: [
+            ["The shop's prices", "Each model and storage with its top price, and a share for each condition."],
+            ["An estimate in seconds", "The model, the storage and the condition, then what it's worth."],
+            ["A request the shop sees", "The customer's number and the estimate land in the dashboard."],
+            ["Checked at the door", "The shop checks the device when it delivers the new one."]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Madar comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["MADAR", "Look A: clean white and one deep blue, the services in one card."],
+            ["NABD", "Look B: lime on near-black cards over warm stone, the top five and a bundle."],
+            ["Light and dark", "Both looks have a designed night."],
+            ["A compact hero", "The launches in cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one lit."],
+            ["Ready sections", "Trade-in, compare, the specs, the services, the star of the season and more, for any store."],
+            ["Three languages", "English, Arabic right to left, and Turkish."]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Madar works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            ["Products in Yallapp", "Everything on this page: specifications, colours and storages, cover, trade-in."],
+            ["WordPress and other platforms", "Their categories, variations and stock in the app."],
+            ["Coming next", "Specifications and trade-in from a connected platform."]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Madar", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, specs, prices and trade-in"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"]
+      ],
+      bundleFlows: [
+        "A new laptop shows with its specifications",
+        "A storage sold out can't be chosen in the app",
+        "A trade-in request lands in the dashboard",
+        "An order arrives with its colour, storage and cover"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Sunday, at nine",
+        text: "The laptop is fast and quiet, as its specifications said. The new phone is in his pocket; the old one went back at the door. At Madar, Khalid adds next month's phones, each with its table, and somewhere in Riyadh someone is comparing two of them."
+      },
+      photos: {
+        "electronics-hero": "A laptop, a mug and a small plant on a wooden desk",
+        "electronics-phone": "A phone with three cameras beside a camera lens",
+        "electronics-compare": "A tablet and a phone side by side on white marble",
+        "electronics-desk": "A laptop open on a wooden table beside a plant",
+        "electronics-glow": "A laptop's lit keyboard in the dark",
+        "electronics-buds": "A phone and white earbuds on a white table"
+      }
+    },
+    // 211 Nova, the mobiles shop: an old phone traded in for a new one, in its look A (NOVA); look B (emerald) in its section.
+    mobiles: {
+      navName: "Phone shop app",
+      metaTitle: "A phone shop app with trade-in, certified used, specs and compare, designed in Yallapp Studio",
+      metaDescription: "A day with Nova: an old phone valued in a minute, a new one in its storage, colour and warranty, two phones compared, and the trade-in landing with the shop.",
+      summary: "Storage and colour with a price for each, a local or an international warranty, specs in a table, two phones compared, certified used with grades and trade-in, in two premium looks.",
+      eyebrow: "Yallapp Studio · The phone shop",
+      title: "The old phone pays for part of the new one",
+      intro: "Karim's phone has a cracked back and a camera that blurs at night. It's Wednesday evening in Cairo. This is how ten minutes with that same phone become a new one, with the old one taken off the price.",
+      cast: "Karim shops at Nova, a phone shop in Cairo. Nova is the phone shop template's demo: its devices, brands, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Nasr City, after work",
+          title: "A camera that blurs at night",
+          text: "Karim opens Nova on the balcony. The home is small and quick: the search, the categories in circles, and this season's phones in cards that slide, the next one peeking from the edge. Under them, three promises: trade-in, certified repair and a warranty on every device."
+        },
+        {
+          time: "20:43",
+          kicker: "What it's worth",
+          title: "His old phone, in under a minute",
+          text: "Halfway down the home, a card asks what his old phone is worth. He picks his model, its 256 GB and Good, not Like new, for the cracked back. The estimate appears at once, under the shop's own prices. He taps Start trade-in and leaves his name and number."
+        },
+        {
+          time: "20:47",
+          kicker: "The new phone's page",
+          title: "256 GB, titanium, a local warranty",
+          text: "The phone he wanted for months. Each storage has its own price; titanium is chosen, and the international warranty is cheaper but he keeps the local one. Under the price, a quiet tag says installments are coming soon. Below it, the specs in a table: the screen, the processor, the cameras, the battery."
+        },
+        {
+          time: "20:52",
+          kicker: "Compare",
+          title: "Two phones, side by side",
+          text: "He isn't sure, so he adds a second phone to Compare. The two sit side by side, spec by spec: 200 MP against 108, 5,000 mAh against 5,500, the price at the foot of each. The camera wins. He adds the first one to his cart with the leather case the page offers with it."
+        },
+        {
+          time: "21:05",
+          kicker: "For his sister",
+          title: "Certified used, grade A",
+          text: "Back on the home, at night now, the app has turned dark. His sister needs a phone for university: the certified used ones show their grade, their storage and their battery health. A Lumen 11, grade A, battery at 91%, with a 12-month warranty. He sends her the link."
+        },
+        {
+          time: "10:15",
+          kicker: "Thursday, at the shop",
+          title: "A trade-in waiting",
+          text: "At Nova, Hany opens the dashboard. Karim's trade-in is there with his model, its storage, its grade and the estimate the app showed him, beside his order. He calls, books a courier for the new phone and the old one in the same trip, and marks the request done.",
+          push: {
+            app: "Nova",
+            title: "Order 3117",
+            body: "Your new phone is on its way. Have the old one ready: the courier takes it."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Wednesday at nine. The old phone, gone with the courier.",
+        text: "Everything in between was the shop's own: its categories and their rows, its storages and colours with a price for each, its warranties, its specs, its trade-in prices and grades, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one phone",
+      stats: [
+        "main categories in the demo's menu, each a row of cards",
+        "grades of a certified used device, A+ to B",
+        "days to return a device, shown under every price",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Trade-in, the phone's page with its specs and compare, certified used, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Trade-in",
+          title: "What the old phone is worth",
+          text: "The shop says which devices it takes and what each is worth; the app works out the estimate and sends the request.",
+          features: [
+            ["The device", "The customer picks a model from the shop's own list."],
+            ["Its storage", "Each storage has its own top price."],
+            ["Its condition", "Like new, good, fair or broken, each a share of that price."],
+            ["The estimate", "Shown at once, before anything is sent."],
+            ["A request for the shop", "The name, the number and the estimate land in the dashboard."],
+            ["In the editor too", "The estimator is an element of Studio's library, inline or as a card."]
+          ]
+        },
+        {
+          name: "The phone's page",
+          title: "Storage, colour, warranty and specs",
+          text: "A phone comes in its storages and colours, each with its own price and stock.",
+          features: [
+            ["Storage and colour", "Every combination is its own piece of stock, with its own price."],
+            ["Local or international", "A warranty to choose where the shop offers both."],
+            ["Specs in a table", "The screen, the processor, the cameras, the battery, in the customer's language."],
+            ["Compare", "Two or three devices side by side, spec by spec."],
+            ["In three languages", "The specs' names in English, Arabic and Turkish."],
+            ["Installments", "Only a tag that says they are coming soon; nothing to pay with yet."]
+          ]
+        },
+        {
+          name: "Certified used",
+          title: "A grade you can trust",
+          text: "Used devices are sold with what a buyer needs to know.",
+          features: [
+            ["The grade", "A+ like new, A excellent, B very good."],
+            ["The battery", "Its health in percent, on the card and the page."],
+            ["The warranty", "How long the shop stands behind it."],
+            ["The saving", "The price new struck through beside it."],
+            ["The deal of the day", "A flash sale with its countdown and how many are left."]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Nova comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["NOVA", "Look A: white, ink and one cobalt accent, the estimator on the home."],
+            ["Emerald", "Look B: deep green on warm stone, trade-in in three steps and a ready bundle."],
+            ["Light and dark", "Both looks have a designed night."],
+            ["A compact hero", "This season's phones in cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one a pill with its name."],
+            ["Ready sections", "Trade-in, compare, by storage, certified used and more, for any store."],
+            ["Three languages", "English, Arabic right to left, and Turkish."]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Nova works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            ["Products in Yallapp", "Everything on this page: specs, storages and colours, trade-in and the accessories."],
+            ["WordPress and other platforms", "Their categories in the menu, their variations and stock on the page."],
+            ["Coming next", "Specs and trade-in from a connected platform."]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Nova", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, categories, specs, trade-in and offers"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"]
+      ],
+      bundleFlows: [
+        "A trade-in request arrives with its estimate",
+        "A storage sold out is greyed out in the app",
+        "The specs show in the customer's language",
+        "An order arrives with its storage, colour and warranty"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Friday, at the river",
+        text: "The new camera sees in the dark. The old phone is on a shelf at Nova, checked at 72 points, waiting for its grade. Hany has already added this week's phones to their row, and somewhere in Cairo someone is working out what their own old phone is worth."
+      },
+      photos: {
+        "mobiles-hero": "A hand holding a phone up to a grey sea and sky",
+        "mobiles-box": "A new phone in its open black box with its charger and earphones",
+        "mobiles-camera": "The back of a phone with three cameras beside an old film camera",
+        "mobiles-hand": "A hand holding a phone against a pale grey wall",
+        "mobiles-food": "Two hands taking a photo of a table of food with a phone",
+        "mobiles-earbuds": "A phone lying on a white desk beside a pair of earbuds"
+      }
+    },
+    // 211 Nawah, computers and gaming: a gaming PC built part by part in Jeddah, in its look A (NAWAH); look B (SILICA) in its section.
+    computers: {
+      navName: "Computers shop app",
+      metaTitle: "A computers and gaming shop app with Build your PC, filters by spec and compare, designed in Yallapp Studio",
+      metaDescription: "A week with Nawah: a gaming PC built part by part, every part checked, a laptop found by its specs, and two laptops compared side by side.",
+      summary: "Build your PC with its compatibility checks, filters by processor, memory, storage and graphics, specifications as a table, compare and configure, in two premium looks.",
+      eyebrow: "Yallapp Studio · The computers shop",
+      title: "Part by part, and it fits",
+      intro: "Faisal has saved for a gaming PC all year, and his sister Reem starts university next month without a laptop. It's Thursday night in Jeddah. This is how one app built the first and found the second.",
+      cast: "Faisal and Reem shop at Nawah, a computers and gaming shop in Jeddah. Nawah is the computers shop template's demo: its products, brands and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "22:05",
+          kicker: "Jeddah, Thursday night",
+          title: "A PC, part by part",
+          text: "Faisal opens Nawah. The home is small and quick: the search, the categories, a hero card with the next one peeking, and under it a card that says Build your PC, its parts in a row: processor, motherboard, memory, graphics, storage, power, case.",
+        },
+        {
+          time: "22:09",
+          kicker: "The processor first",
+          title: "Twelve cores on AM-X",
+          text: "He taps Start your build and chooses the N7, twelve cores on the AM-X socket. Every motherboard that takes another socket is still listed, but marked: it doesn't take this processor's socket. He chooses the full-size X-Arc board.",
+        },
+        {
+          time: "22:14",
+          kicker: "What doesn't fit says why",
+          title: "DDR4 on a DDR5 board",
+          text: "He has a DDR4 kit in his cart from last year. The builder marks it: the board takes DDR5. He takes the Swift 32 GB DDR5 kit instead, then the GX 470. The summary says the build needs 550 W with room to spare; he takes the 750 W supply, for a bigger card one day. The running total and the watts follow every choice.",
+        },
+        {
+          time: "22:31",
+          kicker: "The menu, for Reem",
+          title: "Filter by what matters",
+          text: "Reem takes the phone. From the menu, Find by spec shows the shop's laptops by processor, memory, storage and graphics card, each value with how many have it. She taps 16 GB, then opens the Ofuq 14 Air and reads its specifications in a table: the screen, the battery, the weight.",
+        },
+        {
+          time: "22:40",
+          kicker: "Side by side",
+          title: "Two laptops, one table",
+          text: "She adds the Ofuq 14 Air and the Lumen Slate 13 to Compare. One table, spec by spec: the Ofuq is lighter with a longer battery. She configures it with 32 GB of memory, the price changing as she chooses, and sees, under the price, Installments coming soon. She pays the whole of it with the shop's code, NAWAH10.",
+        },
+        {
+          time: "11:00",
+          kicker: "Saturday, at the workshop",
+          title: "Built and tested",
+          text: "At Nawah, Majed opens Faisal's order: eight parts, one build. He assembles it, tidies the cables and runs it under load for a day. Faisal's order moves to Built and tested, then On its way.",
+          push: {
+            app: "Nawah",
+            title: "Order 3107",
+            body: "Your build is assembled and tested. It's on its way.",
+          },
+        },
+      ],
+      interlude: {
+        quote: "Eight parts. Not one that didn't fit.",
+        text: "Everything in between was the shop's own: its categories and their rows, each product's specifications, the parts Build your PC asks for, the options and their prices, its warranty and returns, set once in the dashboard.",
+      },
+      statsTitle: "Small facts behind one build",
+      stats: ["parts in the demo's Build your PC, in their order", "checks between the parts: the socket, the memory, the power and the size", "days to return, shown with every order", "languages, Arabic right to left"],
+      systemsTitle: "Every part, explained",
+      systemsText: "Build your PC, the filters by spec, the specifications and compare, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Build your PC",
+          title: "Every part checked against the others",
+          text: "The customer chooses a part at a time from the shop's own categories, and the app checks it against the parts already chosen.",
+          features: [
+            ["Part by part", "Processor, motherboard, memory, graphics card, storage, cooler, power supply and case, in the shop's order."],
+            ["From the shop's categories", "Each part is a category the owner chooses; the cooler and the case can be left out."],
+            ["The power it needs", "The processor's and graphics card's draw, and a quarter more to spare."],
+            ["What fits", "The socket, the memory type, the power and the case's size, from each product's specifications."],
+            ["Why not", "A part that doesn't fit stays in the list, marked with the reason."],
+            ["One tap to the cart", "The whole build goes in the cart, its running total in sight."],
+          ],
+        },
+        {
+          name: "Filters by spec",
+          title: "The shop by what's inside",
+          text: "The values the shop's products take, as chips, each opening the shop filtered by it.",
+          features: [
+            ["Processor and graphics", "Every processor and graphics card the shop sells, as chips."],
+            ["Memory and storage", "16 GB, 32 GB, 1 TB: tap one to see every product that has it."],
+            ["How many", "Each value shows how many products have it."],
+            ["From the specifications", "The owner writes each product's specifications once; the filters follow."],
+            ["In the shop and the menu", "The filters on the home, over the shop and on a page of their own."],
+            ["In the editor too", "The spec filter is an element of Studio's library, for any store."],
+          ],
+        },
+        {
+          name: "Specifications and compare",
+          title: "One table, spec by spec",
+          text: "Every product's specifications as a clean table, and up to three products side by side.",
+          features: [
+            ["A table on every page", "The specifications under the price, the first rows at once and the rest a tap away."],
+            ["Compare", "Two or three products side by side, the specs they share first."],
+            ["Configure", "Memory and storage as options, each with its own price."],
+            ["Warranty in sight", "The warranty and the returns on the product's page."],
+            ["Installments: coming soon", "Shown as coming soon only, never a way to pay."],
+          ],
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Nawah comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["NAWAH", "Look A: cool white and one strong blue, deep cards for the deals and the gamer zone."],
+            ["SILICA", "Look B: deep green on warm stone, its sections numbered."],
+            ["Light and dark", "Both looks have a designed night."],
+            ["A compact hero", "Cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account."],
+            ["Ready sections", "Build your PC, the spec filters, ready builds compared and the device of the week, for any store."],
+            ["Three languages", "English, Arabic right to left, and Turkish."],
+          ],
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Nawah works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            ["Products in Yallapp", "Everything on this page: the specifications, Build your PC and the filters."],
+            ["WordPress and other platforms", "Their categories in the menu, their options and stock on the page."],
+            ["Coming next", "The specifications and Build your PC from a connected platform."],
+          ],
+        },
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Nawah", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, categories, specifications and builder"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"],
+      ],
+      bundleFlows: ["A new graphics card shows in its filter", "A part that doesn't fit says why", "The specifications show in the customer's language", "A build arrives as one order"],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Sunday, after ten",
+        text: "The PC hums under Faisal's desk, quieter than he thought. Reem's laptop is in her bag for the first lecture. At Nawah, Majed has added a new graphics card, and it is already in its filter.",
+      },
+      photos: {
+        "computers-hero": "A desk lit purple, a wide monitor showing a galaxy",
+        "computers-parts": "A motherboard with a processor in its socket",
+        "computers-socket": "A processor's gold pins in a motherboard's socket",
+        "computers-laptop": "A laptop on a desk in a dark room, a lamp on",
+        "computers-play": "Two hands on a blue-lit game controller",
+        "computers-desk": "A man at a desk working on a monitor, speakers on each side",
+      },
+    },
   },
 };

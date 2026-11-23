@@ -25,6 +25,7 @@ import { templatesFor } from "../studio/sections";
 import { startLayout } from "../studio/start";
 import { seededUuid } from "./assets";
 import { designerSlug } from "./designers";
+import { HOUSE_DESIGNER_ID } from "./house-photo";
 import { MAX_TEMPLATE_KINDS } from "./kinds";
 import { coverOf, elementCount, layoutDesign } from "./snapshot";
 import { TEMPLATE_LANGS } from "./templates";
@@ -60,7 +61,7 @@ import { TEMPLATE_LANGS } from "./templates";
 /** A fixed date: the house designs are made from code, the same each time. */
 const MADE_AT = new Date("2026-11-18T00:00:00Z");
 
-export const HOUSE_DESIGNER_ID = seededUuid("yallapp:studio-market:designer");
+export { HOUSE_DESIGNER_ID };
 
 /** Shown on the market; the first free address of these. */
 export const HOUSE_DESIGNER = { name: "Yallapp", slugs: ["yallapp", "yallapp-studio", "yallapp-demos"], country: "EG" } as const;

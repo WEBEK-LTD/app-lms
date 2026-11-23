@@ -13,6 +13,7 @@ import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { appPlan } from "@/lib/entitlements";
 import { hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
 import { driverFormValues, shareText } from "@/lib/rides/forms";
+import { sampleWords } from "@/lib/rides/sample";
 import { DRIVER_ACTIVE, ratingOf } from "@/lib/rides/service";
 import { driverOf, ridesSettingsOf } from "@/lib/rides/settings";
 import { ConfirmButton } from "../chat/forms";
@@ -27,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /** 105.2 The company's drivers: who they are, their car, whether they're online, approved or suspended. */
 export default async function DriversPage() {
   const { app, license } = await requireClient("orders");
-  const { t, lang } = await dashboardText();
+  const { t, k, lang } = await dashboardText();
   if (!isRides(app)) return <NotRides title={t("rides.drivers")} t={t} />;
   const store = await getStore();
   const methods = hostedSignInMethods(app);
@@ -96,7 +97,7 @@ export default async function DriversPage() {
             items={drivers.map((c, i) => {
               const d = driverOf(c);
               const rating = ratingOf(c);
-              const car = [d.carColor, d.carModel, d.plate].filter(Boolean).join(" · ");
+              const car = [d.carColor, sampleWords(d.carModel, k), d.plate].filter(Boolean).join(" · ");
               return {
                 id: c.id,
                 text: [c.name, c.phone, c.email, d.plate, d.carModel, typeName(d.vehicleTypeId)].filter(Boolean).join(" "),

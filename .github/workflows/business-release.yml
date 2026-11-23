@@ -467,7 +467,7 @@ jobs:
     name: App Store
     needs: [prepare, screenshots]
     if: ${{ !cancelled() && needs.prepare.result == 'success' && needs.prepare.outputs.ios == 'yes' }}
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 120
     env:
       # A slow Mac runner can take longer than fastlane's default 3 seconds to
@@ -480,13 +480,17 @@ jobs:
       BUILD: ${{ needs.prepare.outputs.build }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      # Apple takes uploads built with the iOS 26 SDK, and packages such as
-      # device_info_plus 13 need it: use the newest Xcode 26 on the runner.
-      - name: Use Xcode 26
+      # From April 2027 Apple takes only uploads built with the iOS 27 SDK
+      # (ITMS-90725): use the newest released Xcode, 27 or later, on GitHub's
+      # xcode-27 runner.
+      - name: Use the newest Xcode (27 or later)
         run: |
-          xcode=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | grep -Eiv 'beta|release_candidate' | sort -V | tail -n 1)
-          if [ -z "$xcode" ]; then
-            echo "::error::This runner has no Xcode 26."
+          # The newest released Xcode on the runner (a beta or release candidate
+          # never counts), and never older than 27.
+          xcode=$(ls -d /Applications/Xcode_[0-9]*.app 2>/dev/null | grep -Eiv 'beta|release_candidate' | sort -V | tail -n 1)
+          major=$(basename "$xcode" .app | sed -E 's/^Xcode_([0-9]+).*/\1/')
+          if [ -z "$xcode" ] || [ "${major:-0}" -lt 27 ]; then
+            echo "::error::This runner has no released Xcode 27 or later (a beta does not count)."
             ls -d /Applications/Xcode*.app
             exit 1
           fi
@@ -554,9 +558,10 @@ jobs:
           YB_IOS_DISTRIBUTION_P12: ${{ secrets.YB_IOS_DISTRIBUTION_P12 }}
           YB_IOS_DISTRIBUTION_PASSWORD: ${{ secrets.YB_IOS_DISTRIBUTION_PASSWORD }}
           HAS_SECRETS_TOKEN: ${{ secrets.YB_SECRETS_TOKEN != '' }}
-          # 214 Time Sensitive Notifications: set the repository variable to 1 only once the Yallapp
-          # Business App ID has the capability in Apple Developer (Identifiers); off until then.
-          BUSINESS_TIME_SENSITIVE: ${{ vars.BUSINESS_TIME_SENSITIVE || '0' }}
+          # 214 Time Sensitive Notifications: on. The owner ticked the capability for the Yallapp
+          # Business App ID in Apple Developer (Identifiers) on 23 Nov; the repository variable set
+          # to 0 turns it off again.
+          BUSINESS_TIME_SENSITIVE: ${{ vars.BUSINESS_TIME_SENSITIVE || '1' }}
         run: |
           mkdir -p "$RUNNER_TEMP/ipa"
           # 125.13 With a token that can save secrets, the certificate made here is kept for every run.

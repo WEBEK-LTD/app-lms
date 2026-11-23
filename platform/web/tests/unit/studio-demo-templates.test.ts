@@ -495,8 +495,8 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
       const written = allNodes(page).filter((n) => (n.text || n.title) && n.type !== "items" && n.text !== "Nour" && n.bind !== "rating");
       expect(written.length, id).toBeGreaterThan(0);
       for (const n of written) {
-        // Arabic on the Arabic page, with English and Turkish kept.
-        for (const value of [n.text, n.title].filter(Boolean)) expect(value, `${id}: ${value}`).toMatch(/[؀-ۿ]|^[\dA-Z :·.,%+–-]+$/);
+        // Arabic on the Arabic page, with English and Turkish kept; 209 a range kept left to right by its marks ("0\u200e–\u200e6").
+        for (const value of [n.text, n.title].filter(Boolean)) expect(value, `${id}: ${value}`).toMatch(/[؀-ۿ]|^[\dA-Z :·.,%+–\u200e-]+$/);
         // 130.12 Numbers, and the codes and times the same in every language (CAI, SFR 251, 06:30).
         if (/^[\dA-Z :·.,%+–-]+$/.test(n.text ?? "")) continue;
         expect(Object.keys(n.translations ?? {}).sort(), `${id}: ${n.text ?? n.title}`).toEqual(["en", "tr"]);

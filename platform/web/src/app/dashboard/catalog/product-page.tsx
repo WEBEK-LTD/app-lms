@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { specsText } from "@/lib/selling/specs";
 import { deleteProductAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
@@ -6,6 +7,7 @@ import { PageHeader, btn } from "@/components/ui";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { centsToDecimal } from "@/lib/catalog/money";
+import { detailsFormText, productDetails } from "@/lib/catalog/details";
 import { optionGroupsOf } from "@/lib/catalog/options";
 import { catalogSettings } from "@/lib/catalog/settings";
 import { appUrl } from "@/lib/env";
@@ -67,6 +69,14 @@ export async function ProductPage({ id }: { id: number | null }) {
         sku: product.sku ?? "",
         // 131 Its weight in kg.
         weight: product.weightGrams ? String(product.weightGrams / 1000) : "",
+        // 210 Its size in cm and the days it takes to make.
+        width: product.dimensions?.width != null ? String(product.dimensions.width) : "",
+        depth: product.dimensions?.depth != null ? String(product.dimensions.depth) : "",
+        height: product.dimensions?.height != null ? String(product.dimensions.height) : "",
+        makeMin: product.makeDays ? String(product.makeDays.min) : "",
+        makeMax: product.makeDays && product.makeDays.max !== product.makeDays.min ? String(product.makeDays.max) : "",
+        // 211 Its specifications, one per line.
+        specs: specsText(product.specs ?? null),
         // 131 A gift add-on, and what it goes with.
         addon: Boolean(product.addon),
         addonOfferWith: product.addonFor?.offerWith ?? "all",
@@ -79,6 +89,11 @@ export async function ProductPage({ id }: { id: number | null }) {
         active: product.active,
         optionGroups,
         variants,
+        // 209 More about it.
+        details: detailsFormText(productDetails(product)),
+        // 212 Its other languages and brand.
+        translations: product.translations ?? null,
+        brand: product.brand ?? "",
       }
     : { id: null, name: "", description: "", price: "", salePrice: "", stock: "", sku: "", categoryIds: [], images: [], digital: false, featured: false, active: true, optionGroups, variants };
   // Its own page, while it's shown in the app.

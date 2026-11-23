@@ -170,6 +170,14 @@ class ProfileScreen extends ConsumerWidget {
           AppIcons.favorite,
           context.l10n.wishlist,
           () => openLocation(context, Paths.myCoursesTab('wishlist')),
+        )
+      // 212 A store's wishlist (a guest's hearts are the phone's).
+      else if (store && config.store != null)
+        'wishlist': _MenuEntry(
+          AppIcons.favorite,
+          context.l10n.wishlist,
+          () => context.push(Paths.wishlist),
+          tileKey: 'account-wishlist',
         ),
       if (downloads)
         'downloads': _MenuEntry(
@@ -450,15 +458,26 @@ class ProfileScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 18),
             ],
-            if (design == null && store && showOrders) ...[
+            if (design == null &&
+                store &&
+                (showOrders || config.store != null)) ...[
               SettingsGroup(
                 title: context.l10n.shopping,
                 children: [
-                  SettingsTile(
-                    icon: AppIcons.orders,
-                    title: context.l10n.myOrders,
-                    onTap: () => context.push(Paths.orders),
-                  ),
+                  if (showOrders)
+                    SettingsTile(
+                      icon: AppIcons.orders,
+                      title: context.l10n.myOrders,
+                      onTap: () => context.push(Paths.orders),
+                    ),
+                  // 212 The products saved with a heart.
+                  if (config.store != null)
+                    SettingsTile(
+                      key: const ValueKey('account-wishlist'),
+                      icon: AppIcons.favorite,
+                      title: context.l10n.wishlist,
+                      onTap: () => context.push(Paths.wishlist),
+                    ),
                   // 91.4 The customer's loyalty points.
                   if (config.store?.loyalty != null && user != null)
                     SettingsTile(

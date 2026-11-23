@@ -19,6 +19,31 @@ waiting on Yallapp and end-to-end checks that never call yallapp.com.tr
 were already done in 206.1. Not yet released; the store end-to-end checks
 run in CI.
 
+Roadmap 220 (the code items earlier phases left open): every amount on the
+dashboard's pages (courses, school fees and salaries, rides, deliveries,
+food orders, events, donations, bookings, travel, Analytics) is written in
+the dashboard's language, as the shop's pages were since 175; the
+marketplace's checkout says "Cash at pickup" with Pick up chosen, in
+English, Arabic and Turkish (app release 16); `POST /food/quote`'s 503 is in
+the contract; the store review driver's sample ride has a real fare (the
+company's fares, else 50), stays out of the drivers' statements and reads in
+the dashboard's language, and Masar's driver card shows a neutral icon for a
+driver without a photo, not the template's stock face (app release 16).
+The phones by the app's country were already 206.2's. Zad's department
+tiles still open the search: the marketplace has no departments of its own
+to open (220.6).
+
+Roadmap 215 (Yallapp Business 1.0.7, after 1.0.6; in the code, not
+released): the Pharaonic theme beside the default look, chosen in Settings ›
+Appearance and kept on the phone, light and dark following the same setting.
+Its own colours (AA throughout), El Messiri and Cinzel for headings, tabular
+figures for every number, the ground and ornaments painted in the app, the
+welcome, lock and opening screens, Today, an order, the ringtones, the nav
+and buttons, empty states, and the New order card in its skin (with a
+shimmer that stops with the answer and with less motion). The default look
+is unchanged: goldens of its screens match pixel for pixel. No migration,
+no server change.
+
 Roadmap 214 (Yallapp Business 1.0.6; in the code, not released: the
 release waits for the owner): ring by order value (2 or 3 bands with their
 own sounds), the end-of-day summary at the phone's time in the shop's time
@@ -34,6 +59,82 @@ New order card on Today with Accept and Reject. New
 iPhone extension: `tr.com.yallapp.business.ShopWidget`, its App ID and
 profile made by fastlane on the first release. Time Sensitive is ready
 but off (open item below).
+
+Roadmap 212 (a store's wishlist, reviews with photos, back in stock,
+filters and product languages; in the code, not released): every store,
+wherever its products are (Yallapp's own shop, Shopify, the connected
+platforms; `lib/selling/shop-features.ts`), gets the wishlist (a heart on
+every card and product page, the Wishlist screen, a guest's hearts on the
+phone merged at sign-in), reviews from customers who bought the product
+(one each, editable, up to 4 photos into the shop's Media library, a short
+name such as "Ahmed K." and never an email or phone, the rating on the
+cards and the bars, photos row and first reviews on the product page; the
+shop replies once and hides abusive ones in the dashboard's Delivery &
+offers › Reviews and in Yallapp Business), "Notify me when it's back" for a
+product or the size and colour chosen (the frequent job pushes, adds to the
+inbox and emails once it's back; the owner sees who waits for what), and
+filters by size, colour, price and brand on the shop's screen and as a
+Studio element (`listing_filters`) for every shop type. Yallapp's own
+products can be written in Arabic, English and Turkish (name, description,
+choices), served in the customer's language. Migration 0152. WordPress
+(plugin 0.4.53) has the wishlist, buyers' reviews, back in stock and the
+attribute filters; photos with reviews are hosted shops' only. The size
+chart and Complete the look now reach shops on connected platforms
+(208.19). No `CLIENT_APP_RELEASE` change: older apps see none of it.
+
+Roadmap 211 (Studio's shop types, Shopping & stores: electronics,
+mobiles, computers & gaming): three more types ready, each a Studio demo of
+the store kind with its two looks, light and dark, its CC0 photos and its
+story page: Madar (electronics, Riyadh; A MADAR, B NABD), Nova (mobiles,
+Cairo; A NOVA, B emerald) and Nawah (computers & gaming, Jeddah; A NAWAH,
+B SILICA), all of fictional brands. New for every store that keeps its
+products in Yallapp: a product's specifications (migration 0151), named in
+the app's language, on its page and compared side by side; the shop by a
+spec; Store › Delivery & offers › Electronics (matching accessories,
+trade-in's devices and prices, Build your PC's parts); trade-in requests
+that land in Store › Trade-in (migration 0151); Build your PC with its
+checks (socket, memory, cooler, power, size); five new Studio elements
+(specs table, compare, shop by spec, trade-in, Build your PC) and two flows;
+"Installments coming soon" on a product's page, never a way to pay. The
+app's preview is rebuilt; no `CLIENT_APP_RELEASE` change (older apps skip
+the new elements and open the shop for the new flows).
+
+Roadmap 210 (Studio's shop types, stage 2: home decor, crochet and
+handmade, furniture): Sakan (decor: A SAKAN the decor magazine, B TEEN
+earth tones), Ghurza (crochet: A GHURZA warm handmade, B HABKA colourful)
+and Rukn (furniture: A RUKN white and wood, B KANAF quiet luxury) are ready
+on /start?for=studio and Studio's new project, each a kit of real CC0
+photos and products with its demo, two looks light and dark, story page and
+screenshots. New for every store, each a reusable element: shop the look
+(a room photo with tappable products), shop by room or style, a custom-order
+request form whose answers land in Store › Custom orders and Yallapp
+Business (migration 0150), a product's size in cm and days to make (cards
+and product page), the delivery and assembly booking (`delivery_slots`,
+kept for the checkout), the maker's story, gifts with a card, the seasons'
+banners, and "Installments coming soon" on a furniture product (a tag only).
+The app's preview is rebuilt; no `CLIENT_APP_RELEASE` change. Not yet: the
+academy's courses served to a store (Ghurza's workshops are products with
+seats for now) and turning an accepted request into a paid order.
+
+Roadmap 209 (Studio's shop types, stage 2 A: kids' clothes, cosmetics and
+toys): three more types are ready, each a Studio demo of the store kind with
+its two approved looks, light and dark, CC0 StockSnap photos, its live demo
+and its story page: Toota (kids' clothes, EGP: sizes by age from 0–3 months
+to 12 years, girls, boys and baby, newborn gift boxes with wrapping and a
+card, ready-made sets; looks TOOTA and MINIMO), Velours (cosmetics, AED:
+shades with swatch colours, skin types and brands, ingredients and how to
+use, routine bundles, the skin quiz, genuine and expiry; looks VELOURS and
+NAQA LAB) and Toot (toys, AED: by age and by type, safety and materials,
+birthday gifts with wraps and a card, the gift finder, gifts under 100 and
+200; looks TOOT and MUKAAB). New for every app: a product's details
+(migration 0149: facts, ingredients, how to use, safety, materials, care,
+badges, expiry, ages and swatches; Products › More about it, the product's
+page in the app), the size finder, swatches and quiz elements, a product
+list's highest price (also in the WordPress plugin), and elements named
+like a sub-category opening it. The app's preview is rebuilt; no
+`CLIENT_APP_RELEASE` change (older apps skip what is new). Not yet: product
+names in the app's other languages, an age filter on the shop's screen, and
+the designs' loyalty club, skin scan and children's profiles.
 
 Roadmap 206 (the follow-ups of 157, 158 and 160): plugin 0.4.52 never
 makes WordPress wait on Yallapp when an account is deleted (the chat's
@@ -220,7 +321,6 @@ owner's own translation, Yallapp's or the owner's main text, as the page
 inspector does. No migration; the app's part comes with the next app build
 (no `CLIENT_APP_RELEASE` change here); not yet tried on a phone (ROADMAP
 181.5, 181.6).
-
 Roadmap 208 (Studio's shop types, stage 1: the foundation and Clothes):
 the planning doc's shop types are in one registry (`lib/studio/shop-types.ts`)
 by section (Fashion; Beauty & care; Home & living; Kids & toys; Shopping &
@@ -1580,11 +1680,6 @@ test environment:
 
 ## Known gaps
 
-- 214.7 Time Sensitive: waiting on the owner to tick Time Sensitive
-  Notifications for the Yallapp Business App ID in Apple Developer
-  (Identifiers), then turn the switch on (repository variable
-  `BUSINESS_TIME_SENSITIVE` = 1). Until then new-order pushes are
-  time-sensitive in the payload only, which iOS treats as active.
 - 155 Apple Pay inside the iPhone app's web view and Google Pay inside the
   Android app's aren't expected: WebKit allows Apple Pay only in a
   WKWebView without injected scripts (the app's web view adds its

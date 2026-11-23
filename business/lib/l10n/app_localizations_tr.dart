@@ -4374,6 +4374,139 @@ class AppLocalizationsTr extends AppLocalizations {
       'Her türün sesini seçin, yeni siparişler açılana kadar çalsın';
 
   @override
+  String get customOrders => 'Özel siparişler';
+
+  @override
+  String get customOrdersText =>
+      'Uygulamanızın özel sipariş formundan gelen talepler';
+
+  @override
+  String get requestStatusNew => 'Yeni';
+
+  @override
+  String get requestStatusQuoted => 'Fiyat verildi';
+
+  @override
+  String get requestStatusAccepted => 'Kabul edildi';
+
+  @override
+  String get requestStatusDeclined => 'Reddedildi';
+
+  @override
+  String get requestStatusDone => 'Tamamlandı';
+
+  @override
+  String get requestsOpen => 'Açık';
+
+  @override
+  String get requestsAll => 'Tümü';
+
+  @override
+  String get noRequests => 'Henüz özel sipariş yok';
+
+  @override
+  String get noRequestsText =>
+      'Studio\'da uygulamanıza özel sipariş sayfasını ya da formunu ekleyin; müşterilerinizin gönderdiği talepler burada görünür.';
+
+  @override
+  String get noOpenRequests => 'Sizi bekleyen talep yok';
+
+  @override
+  String get requestSomeone => 'Bir müşteri';
+
+  @override
+  String requestQuote(String price) {
+    return 'Fiyat $price';
+  }
+
+  @override
+  String get requestAsked => 'İstenenler';
+
+  @override
+  String get requestCustomer => 'Müşteri';
+
+  @override
+  String get requestAnswerTitle => 'Yanıtınız';
+
+  @override
+  String get requestStatusLabel => 'Durumu';
+
+  @override
+  String requestPrice(String currency) {
+    return 'Fiyat ($currency)';
+  }
+
+  @override
+  String get requestPriceHint => 'Örneğin 450 veya 450.50';
+
+  @override
+  String get requestReply => 'Yanıtınız';
+
+  @override
+  String get requestReplyHint => 'Fiyat, süre, bir soru';
+
+  @override
+  String get requestSave => 'Yanıtı kaydet';
+
+  @override
+  String get requestSaved => 'Yanıt kaydedildi.';
+
+  @override
+  String requestSentOn(String title, String date) {
+    return '$title · $date';
+  }
+
+  @override
+  String get inboxProductReviews => 'Ürün değerlendirmeleri';
+
+  @override
+  String onProduct(String product) {
+    return '$product için';
+  }
+
+  @override
+  String get reviewsWithPhotos => 'Fotoğraflı';
+
+  @override
+  String get reviewPhotos => 'Değerlendirmenin fotoğrafları';
+
+  @override
+  String photoNumber(int n) {
+    return 'Fotoğraf $n';
+  }
+
+  @override
+  String get noProductReviewsText =>
+      'Bir ürünü satın alan müşteriler onu uygulamanızda fotoğraflarla değerlendirebilir.';
+
+  @override
+  String get shopWishes => 'Bekleyenler ve kaydedilenler';
+
+  @override
+  String get shopWaiting => 'Stok bekleyenler';
+
+  @override
+  String get shopWaitingHint =>
+      'Geri geldiğinde her biri bir kez bildirim alır.';
+
+  @override
+  String get shopWaitingNone => 'Şu anda bir ürünü bekleyen yok.';
+
+  @override
+  String get shopSaved => 'İstek listelerinde';
+
+  @override
+  String get shopSavedNone => 'Henüz hiçbir müşteri ürün kaydetmedi.';
+
+  @override
+  String variationNumber(int id) {
+    return 'Seçenek #$id';
+  }
+
+  @override
+  String get productNoLongerSold => 'Artık satılmayan bir ürün';
+
+  @override
   String get ringtonesMoney => 'Para ve satış';
 
   @override
@@ -4595,6 +4728,28 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get ringFocusOpen => 'Bildirim ayarlarını aç';
+
+  @override
+  String get themeTitle => 'Tema';
+
+  @override
+  String get themeDefaultBadge => 'Varsayılan';
+
+  @override
+  String get themeDefaultHelp => 'Uygulamanın bugünkü görünümü';
+
+  @override
+  String get themePharaonic => 'Firavun';
+
+  @override
+  String get themePharaonicHelp => 'Gece ve altın, Eski Mısır süslemeleriyle';
+
+  @override
+  String get themeModeTitle => 'Açık veya koyu';
+
+  @override
+  String get themeModeHelp =>
+      'Her temanın kendi açık ve koyu hâli var; ikisi de bu ayarı izler.';
 
   @override
   String minutesAgo(int count) {
@@ -5052,5 +5207,37 @@ class AppLocalizationsTr extends AppLocalizations {
       other: '$stems dal',
     );
     return 'Buket · $_temp0';
+  }
+
+  @override
+  String requestsNewCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yeni talep',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String shopWaitingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi bekliyor',
+      one: '1 kişi bekliyor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String shopSavedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi kaydetti',
+      one: '1 kişi kaydetti',
+    );
+    return '$_temp0';
   }
 }

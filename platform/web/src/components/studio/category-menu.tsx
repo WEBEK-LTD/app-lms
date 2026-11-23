@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { StudioNode } from "@/lib/pages/types";
 import { APP_WORDS, type AppWordsLang } from "@/lib/studio/app-words";
@@ -103,6 +104,84 @@ export function SizeChartCanvas({ node, pickable, dark, title, color }: { node: 
             </span>
           )),
         )}
+      </span>
+    </span>
+  );
+}
+
+/**
+ * 210 The `delivery_slots` element as the app draws it
+ * (mobile/lib/modules/shared/pages/studio_delivery_slots.dart): the shop's
+ * next delivery days as chips (the first open one chosen), then the chosen
+ * day's times (a full one struck out), and with `assembly` a line that the
+ * team assembles it on the day. Without the shop's days set, samples, quieter.
+ */
+export function DeliverySlotsCanvas({ node, pickable, dark, lang, color }: { node: StudioNode; pickable: Pickable; dark: boolean; lang: string; color?: string }) {
+  const own = pickable.commerce?.deliverySlots ?? null;
+  const sample = own === null;
+  const shop = own ?? { closedWeekdays: [5], sameDay: false, slots: [{ start: "09:00", end: "12:00", full: false }, { start: "13:00", end: "16:00", full: true }, { start: "17:00", end: "21:00", full: false }] };
+  const count = node.delivery_slots?.days ?? 5;
+  const ink = color ?? (dark ? "#F3F0EA" : "#1F241C");
+  const fill = `color-mix(in srgb, ${ink} 7%, transparent)`;
+  const lit = node.border_color ?? ink;
+  const locale = lang === "ar" ? "ar-u-nu-latn" : lang;
+  const days: Date[] = [];
+  const day = new Date();
+  day.setHours(12, 0, 0, 0);
+  if (!shop.sameDay) day.setDate(day.getDate() + 1);
+  for (let i = 0; days.length < count && i < 60; i++, day.setDate(day.getDate() + 1)) if (!shop.closedWeekdays.includes(day.getDay())) days.push(new Date(day));
+  const chip = (on: boolean): CSSProperties => ({ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, minWidth: 56, padding: "8px 10px", borderRadius: 14, background: on ? lit : fill, color: on ? (dark ? "#141613" : "#FFFFFF") : ink, border: `1px solid ${on ? lit : "transparent"}` });
+  const words = APP_WORDS[(lang in APP_WORDS ? lang : "en") as AppWordsLang];
+  return (
+    <span data-studio-delivery-slots={sample ? "sample" : "shop"} style={{ display: "flex", flexDirection: "column", gap: 10, color: ink, opacity: sample ? 0.6 : 1 }}>
+      <span style={{ display: "flex", gap: 8, overflow: "hidden" }}>
+        {days.map((d, i) => (
+          <span key={d.toISOString()} style={chip(i === 0)}>
+            <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>{d.toLocaleDateString(locale, { weekday: "short" })}</span>
+            <span style={{ fontSize: 17, fontWeight: 800 }}>{d.getDate()}</span>
+          </span>
+        ))}
+      </span>
+      <span style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {shop.slots.map((s, i) => (
+          <span key={`${s.start}${i}`} dir="ltr" style={{ padding: "8px 12px", borderRadius: 12, fontSize: 12.5, fontWeight: 700, border: `1px solid ${i === 0 ? lit : "transparent"}`, background: fill, opacity: s.full ? 0.45 : 1, textDecoration: s.full ? "line-through" : undefined }}>
+            {s.start}–{s.end}
+          </span>
+        ))}
+      </span>
+      {node.delivery_slots?.assembly ? (
+        <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.8 }}>{words.skSlotsAssembly}</span>
+      ) : null}
+    </span>
+  );
+}
+
+/** 212 The sample sizes the listing filters show before the shop has its own. */
+const SAMPLE_FILTER = { name: "Size", values: ["XS", "S", "M", "L", "XL"].map((label) => ({ label, swatch: null as string | null })) };
+
+/** 212 The listing filters as the app draws them: Filters, then the shop's first choice (sizes, else colours) as chips. */
+export function ListingFiltersCanvas({ pickable, dark, lang, title, color }: { pickable: Pickable; dark: boolean; lang: string; title: string | null; color?: string }) {
+  const own = pickable.commerce?.listingFilter ?? null;
+  const choice = own ?? SAMPLE_FILTER;
+  const ink = color ?? (dark ? "#F3F0EA" : "#121212");
+  const line = dark ? "#2E2C28" : "#E4DFD6";
+  const chip = { display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0, padding: "7px 12px", borderRadius: 999, border: `1px solid ${line}`, fontSize: 13, fontWeight: 600 } as const;
+  return (
+    <span data-studio-listing-filters={own ? "shop" : "sample"} style={{ display: "flex", flexDirection: "column", gap: 8, color: ink, opacity: own ? 1 : 0.6 }}>
+      <span style={{ fontWeight: 800, fontSize: 15 }}>{title || choice.name}</span>
+      <span style={{ display: "flex", gap: 8, overflow: "hidden" }}>
+        <span style={chip}>
+          <span aria-hidden="true" className="material-symbols-rounded" style={{ fontSize: 16 }}>
+            tune
+          </span>
+          {APP_WORDS[(lang in APP_WORDS ? lang : "en") as AppWordsLang].filters}
+        </span>
+        {choice.values.map((v, i) => (
+          <span key={i} style={chip}>
+            {v.swatch ? <span aria-hidden="true" style={{ width: 14, height: 14, borderRadius: 999, background: v.swatch, border: `1px solid ${line}` }} /> : null}
+            {v.label}
+          </span>
+        ))}
       </span>
     </span>
   );

@@ -2830,6 +2830,90 @@
   "pushCancelledHelp": "When a customer cancels a food or marketplace order",
   "pushRingtonesLink": "Ringtones",
   "pushRingtonesLinkHelp": "Choose the sound of each kind, and let new orders ring until opened",
+  "customOrders": "Custom orders",
+  "customOrdersText": "Requests sent from your app's custom-order form",
+  "requestStatusNew": "New",
+  "requestStatusQuoted": "Quoted",
+  "requestStatusAccepted": "Accepted",
+  "requestStatusDeclined": "Declined",
+  "requestStatusDone": "Done",
+  "requestsOpen": "Open",
+  "requestsAll": "All",
+  "noRequests": "No custom orders yet",
+  "noRequestsText": "Add the custom-order page or form to your app in Studio, and the requests your customers send show here.",
+  "noOpenRequests": "No requests waiting for you",
+  "requestSomeone": "A customer",
+  "requestQuote": "Quoted {price}",
+  "@requestQuote": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "requestAsked": "What they asked for",
+  "requestCustomer": "Customer",
+  "requestAnswerTitle": "Your answer",
+  "requestStatusLabel": "Where it is",
+  "requestPrice": "Price ({currency})",
+  "@requestPrice": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "requestPriceHint": "Like 450 or 450.50",
+  "requestReply": "Your reply",
+  "requestReplyHint": "The price, the time, a question",
+  "requestSave": "Save the answer",
+  "requestSaved": "Saved the answer.",
+  "requestSentOn": "{title} · {date}",
+  "@requestSentOn": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "inboxProductReviews": "Product reviews",
+  "onProduct": "on {product}",
+  "@onProduct": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewsWithPhotos": "With photos",
+  "reviewPhotos": "Photos with the review",
+  "photoNumber": "Photo {n}",
+  "@photoNumber": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "noProductReviewsText": "Customers who bought a product can review it in your app, with photos.",
+  "shopWishes": "Waiting & saved",
+  "shopWaiting": "Waiting for stock",
+  "shopWaitingHint": "When it's back, each of them gets a notification once.",
+  "shopWaitingNone": "Nobody is waiting for a product right now.",
+  "shopSaved": "Saved to wishlists",
+  "shopSavedNone": "No customer saved a product yet.",
+  "variationNumber": "Choice #{id}",
+  "@variationNumber": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "productNoLongerSold": "A product no longer sold",
   "ringtonesMoney": "Money and sales",
   "soundChaChing": "Cha-ching",
   "soundCoinDrop": "Coins dropping",
@@ -3006,6 +3090,13 @@
   "ringFocusTitle": "Order alerts through Focus",
   "ringFocusHelp": "On iPhone, new order alerts are Time Sensitive. To hear them during Focus or Do Not Disturb, turn on Time Sensitive Notifications for Yallapp Business in its notification settings, and allow it in your Focus.",
   "ringFocusOpen": "Open notification settings",
+  "themeTitle": "Theme",
+  "themeDefaultBadge": "Default",
+  "themeDefaultHelp": "The app's current look",
+  "themePharaonic": "Pharaonic",
+  "themePharaonicHelp": "Night and gold, with ancient Egyptian ornaments",
+  "themeModeTitle": "Light or dark",
+  "themeModeHelp": "Each theme has its own light and dark; both follow this setting.",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {
@@ -3408,6 +3499,30 @@
   "@bouquetGroup": {
     "placeholders": {
       "stems": {
+        "type": "int"
+      }
+    }
+  },
+  "requestsNewCount": "{count, plural, =1{1 new request} other{{count} new requests}}",
+  "@requestsNewCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shopWaitingCount": "{count, plural, =1{1 waits} other{{count} wait}}",
+  "@shopWaitingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shopSavedCount": "{count, plural, =1{Saved by 1} other{Saved by {count}}}",
+  "@shopSavedCount": {
+    "placeholders": {
+      "count": {
         "type": "int"
       }
     }

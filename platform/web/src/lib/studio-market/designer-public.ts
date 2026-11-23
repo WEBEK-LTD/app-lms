@@ -1,13 +1,12 @@
 import type { MetadataRoute } from "next";
 import { LANGS, type Lang } from "@/i18n/config";
 import { languageAlternates, localePath } from "@/i18n/paths";
-import { assetUrl } from "../assets";
 import type { DataStore } from "../data/store";
 import type { MarketRating, TemplateDesigner } from "../data/types";
 import { designerChip, marketCatalog, type DesignerChip, type TemplateCard } from "./catalog";
 import { designerPath, linkLabel, pageOpen, publicProfile, ratingStats, type RatingStats } from "./designer-page";
 import { templatePath } from "./public";
-import { safePhotoUrl } from "./photo-url";
+import { designerPhotoUrl } from "./house-photo";
 
 /**
  * 106.14 What a designer's public page shows (site/designers.tsx), for
@@ -79,7 +78,7 @@ export async function publicDesigner(store: DataStore, slug: string, lang: strin
   return {
     designer,
     chip: designerChip(designer),
-    photoUrl: profile.photoAssetId ? safePhotoUrl(assetUrl(profile.photoAssetId)) : null,
+    photoUrl: designerPhotoUrl(designer),
     bio: profile.bio,
     country: designer.showCountry ? designer.country : null,
     links: designer.showLinks ? designer.links.map((url) => ({ url, label: linkLabel(url) })) : [],

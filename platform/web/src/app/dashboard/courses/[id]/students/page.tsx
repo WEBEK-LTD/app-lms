@@ -84,7 +84,7 @@ export default async function CourseStudentsPage({ params, searchParams }: PageP
           <Stat icon="task_alt" tone="success" label={t("lms.completionRate")} value={<bdi dir="ltr">{insights.completionRate}%</bdi>} />
           <Stat icon="monitoring" label={t("lms.averageProgress")} value={<bdi dir="ltr">{insights.averageProgress}%</bdi>} />
           <Stat icon="warning" tone="warn" label={t("lms.atRiskCount")} value={insights.atRisk} href={`${base}?filter=at_risk`} />
-          {course.priceCents > 0 ? <Stat icon="sell" label={t("lms.sales")} value={insights.sales} hint={`${t("lms.netSales")}: ${formatCents(insights.netCents, currency)}`} /> : null}
+          {course.priceCents > 0 ? <Stat icon="sell" label={t("lms.sales")} value={insights.sales} hint={`${t("lms.netSales")}: ${formatCents(insights.netCents, currency, lang)}`} /> : null}
         </StatRow>
       ) : null}
 
