@@ -791,7 +791,7 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     corners: "round",
     cards: "outlined",
     languages: ["en", "ar", "tr"],
-    icon: "icon-store",
+    icon: "icon-clothes",
     banner: { picture: "banner-store", heading: "A house of women's fashion", subheading: "Dresses, abayas, coats and shoes in every size, delivered across Riyadh." },
     androidPackage: "com.yallapp.demo.clothes",
     storeTitle: "Lujain Fashion",

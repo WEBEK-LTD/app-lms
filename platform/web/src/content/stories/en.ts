@@ -1128,5 +1128,253 @@ export const STORIES_EN: StoryCopy = {
         "flowers-vase": "Tulips and roses in a white vase",
       },
     },
+    // 206 Lujain, the clothes shop: a wedding dress bought on a Monday evening, in its look A (LUJAIN); look B (NOUN) in its section.
+    clothes: {
+      navName: "Clothes shop app",
+      metaTitle: "A clothes shop app with sizes, a category menu and complete the look, designed in Yallapp Studio",
+      metaDescription: "A day with Lujain: a wedding on Thursday, the category menu, a dress in her size and colour, the size guide and the heels that complete the look.",
+      summary: "Sizes and colours with the stock of each, a category menu of every row, a size chart, complete the look and exchanges, in two premium looks.",
+      eyebrow: "Yallapp Studio · The clothes shop",
+      title: "Thursday, in rust satin",
+      intro: "Noura has a wedding on Thursday and nothing she wants to wear. It's Monday evening in Riyadh. This is how a few minutes with her phone become a dress in her size, and the heels to go with it.",
+      cast: "Noura shops at Lujain, a women's fashion house in Riyadh. Lujain is the clothes shop template's demo: its clothes, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "21:10",
+          kicker: "Riyadh, after dinner",
+          title: "A wedding on Thursday",
+          text: "Noura opens Lujain on the sofa. The home is small and quick: the search, the categories in circles, and the season's collections in cards that slide, the next one peeking from the edge. Under them, what came in this week."
+        },
+        {
+          time: "21:13",
+          kicker: "The menu",
+          title: "Every category, a row",
+          text: "She taps the menu beside the bell. Every category of the shop is a row of cards with their photos: Dresses first, with Midi, Maxi and Mini sliding after it, then Abayas, Coats & jackets, Shoes, Bags. She slides the Dresses row and taps Midi."
+        },
+        {
+          time: "21:17",
+          kicker: "The dress's page",
+          title: "M is gone in black",
+          text: "A rust satin midi dress, on sale. Black is chosen when the page opens, and M is greyed out: none left in black. She taps Rust, and M comes back. Beside the sizes, Size guide opens the shop's chart: bust, waist, hips and length, in centimetres."
+        },
+        {
+          time: "21:20",
+          kicker: "Complete the look",
+          title: "Heels, a clutch, the sunglasses",
+          text: "Under the dress, the shop has put a piece from each of its other categories: black strappy heels, a patent clutch, round sunglasses. Under the price, one line says exchanges and returns are free within 14 days."
+        },
+        {
+          time: "21:24",
+          kicker: "Deal of the day",
+          title: "The heels, 30% off",
+          text: "Back on the home, a dark card says Deal of the day, its timer counting down. The strappy heels are in it, the old price struck through. She adds them in her size, 38, and copies the shop's code, LUJAIN10, at checkout."
+        },
+        {
+          time: "09:30",
+          kicker: "Tuesday, at the shop",
+          title: "M in rust, 38 in black",
+          text: "At Lujain, Reem opens the morning's orders. Noura's says the dress in rust, size M, and the heels in black, size 38. The stock of each goes down by one, size by size and colour by colour, so no one can buy a dress that isn't there.",
+          push: {
+            app: "Lujain",
+            title: "Order 2108",
+            body: "Your order is on its way. Exchanges are free within 14 days."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Monday at nine. Thursday in rust satin.",
+        text: "Everything in between was the shop's own: its categories and their rows, its sizes and colours and the stock of each, its size chart, its offers and its exchanges, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one dress",
+      stats: [
+        "main categories in the demo's menu, each a row of cards",
+        "sub-categories sliding in their rows",
+        "days to exchange or return, shown under every price",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "The category menu, sizes and colours, complete the look and the offers, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "The category menu",
+          title: "Every category, one row each",
+          text: "The menu beside the bell opens all of the shop's categories at once, each a row of cards with their photos.",
+          features: [
+            [
+              "A row per category",
+              "Each main category is a row of cards that slides sideways."
+            ],
+            [
+              "All of it first",
+              "The first card is the category itself, with how many pieces it has."
+            ],
+            [
+              "Sub-categories in the row",
+              "Midi, Maxi and Mini slide after Dresses, each with its own photo."
+            ],
+            [
+              "Search on top",
+              "One field searches every category."
+            ],
+            [
+              "The account at the foot",
+              "My account, my orders, the language and how to reach the shop."
+            ],
+            [
+              "In the editor too",
+              "The category menu is an element of Studio's library, for any store."
+            ]
+          ]
+        },
+        {
+          name: "Sizes and colours",
+          title: "The stock of every size",
+          text: "A piece comes in its sizes and colours, and the shop keeps the stock of each one.",
+          features: [
+            [
+              "Size by colour",
+              "Every size in every colour is its own piece of stock."
+            ],
+            [
+              "Gone is gone",
+              "A size with none left in the colour chosen is greyed out and can't be chosen."
+            ],
+            [
+              "The size guide",
+              "Beside the sizes, the shop's own chart opens in a sheet."
+            ],
+            [
+              "In three languages",
+              "The chart's titles in English, Arabic and Turkish, in centimetres or inches."
+            ],
+            [
+              "Chosen when it opens",
+              "The size and colour the shop chose are ready when the page opens."
+            ],
+            [
+              "Shoes too",
+              "Shoes in their sizes, bags and accessories in one size."
+            ]
+          ]
+        },
+        {
+          name: "Complete the look, and the offers",
+          title: "What goes with it",
+          text: "The shop sells the whole look, not only the dress.",
+          features: [
+            [
+              "Complete the look",
+              "Under every piece, one from each of the shop's other main categories."
+            ],
+            [
+              "Shop the look",
+              "A photo with numbered spots, each opening its piece."
+            ],
+            [
+              "Exchanges in sight",
+              "The shop's exchange and return days under the price."
+            ],
+            [
+              "Deal of the day",
+              "A flash sale with its countdown and how many are left."
+            ],
+            [
+              "Codes",
+              "The shop's code on a ticket, copied in one tap."
+            ]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Lujain comes in two premium looks, built only from Studio's elements.",
+          features: [
+            [
+              "LUJAIN",
+              "Look A: a boutique in black and white, big photos and a quiet type."
+            ],
+            [
+              "NOUN",
+              "Look B: streetwear, electric blue on concrete grey, drops and a ticker."
+            ],
+            [
+              "Light and dark",
+              "Both looks have a designed night."
+            ],
+            [
+              "A compact hero",
+              "The collections in cards about 210 points tall, the next one peeking."
+            ],
+            [
+              "A floating bar",
+              "Home, Shop, Cart, Orders and Account, the open one a pill with its name."
+            ],
+            [
+              "Ready sections",
+              "The category menu, the deal, shop the look, the size card and more, for any store."
+            ],
+            [
+              "Three languages",
+              "English, Arabic right to left, and Turkish."
+            ]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Lujain works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            [
+              "Products in Yallapp",
+              "Everything on this page: categories inside categories, the size chart and complete the look."
+            ],
+            [
+              "WordPress and other platforms",
+              "Their categories and sub-categories in the menu, their sizes and stock on the page."
+            ],
+            [
+              "Coming next",
+              "The size chart and complete the look from a connected platform."
+            ]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        [
+          "Lujain",
+          "Customers, on Android and iPhone"
+        ],
+        [
+          "Yallapp Studio",
+          "The shop: its look, categories, sizes and offers"
+        ],
+        [
+          "The shop's website",
+          "WooCommerce, Shopify or another, if it has one"
+        ]
+      ],
+      bundleFlows: [
+        "A new sub-category shows in its row of the menu",
+        "A size sold out is greyed out in the app",
+        "The size chart shows in the customer's language",
+        "An order arrives with its size and colour"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Thursday, at nine",
+        text: "The dress fits. The heels hurt a little after midnight, as heels do. Reem has already added the new season's abayas to their row, and somewhere in Riyadh someone else is sliding through it."
+      },
+      photos: {
+        "clothes-hero": "A woman in a long green dress in a narrow sunlit passage",
+        "clothes-dress": "A woman in a rust satin dress on a porch",
+        "clothes-heels": "Black strappy heels beside a small flower",
+        "clothes-rack": "White dresses on hangers",
+        "clothes-street": "A woman in a black hat and a yellow coat on a city street",
+        "clothes-walk": "A woman in white walking over white sand dunes"
+      }
+    },
   },
 };

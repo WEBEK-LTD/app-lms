@@ -52,6 +52,8 @@ export const en = {
     storyAcademyText: "Courses, live classes and certificates",
     storyFlowers: "Flower shop app",
     storyFlowersText: "Delivery slots, card messages and flash sales",
+    storyClothes: "Clothes shop app",
+    storyClothesText: "Sizes and colours, a category menu and complete the look",
     studioDemo: "Studio demo",
     studioDemoText: "Try Studio's apps on your phone",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.

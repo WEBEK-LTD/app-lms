@@ -47,6 +47,8 @@ export const ar: Messages = {
     storyAcademyText: "الدورات والحصص المباشرة والشهادات",
     storyFlowers: "تطبيق محل الزهور",
     storyFlowersText: "مواعيد التوصيل ورسائل البطاقات والتخفيضات السريعة",
+    storyClothes: "تطبيق متجر الملابس",
+    storyClothesText: "المقاسات والألوان وقائمة الأقسام وأكمل الإطلالة",
     studioDemo: "عرض Studio",
     studioDemoText: "جرّب تطبيقات Studio على هاتفك",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.

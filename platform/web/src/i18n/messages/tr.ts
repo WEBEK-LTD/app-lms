@@ -47,6 +47,8 @@ export const tr: Messages = {
     storyAcademyText: "Kurslar, canlı dersler ve sertifikalar",
     storyFlowers: "Çiçekçi uygulaması",
     storyFlowersText: "Teslimat saatleri, kart mesajları ve flaş indirimler",
+    storyClothes: "Giyim mağazası uygulaması",
+    storyClothesText: "Beden ve renkler, kategori menüsü ve görünümü tamamla",
     studioDemo: "Studio demosu",
     studioDemoText: "Studio uygulamalarını telefonunda dene",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.

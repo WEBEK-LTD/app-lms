@@ -760,6 +760,16 @@ export const PICTURES = {
       p([[42, 46], [45.5, 51], [50, 45], [54.5, 51], [58, 46], [58, 54], [50, 60], [42, 54]], "#B03A5B"),
     ],
   },
+  // 206 Lujain, the clothes shop: a white hanger on black, its hook in its sale red.
+  "icon-clothes": {
+    from: "#2A2724",
+    to: "#0F0F0E",
+    shapes: [
+      ...stroke([[50, 36], [50, 31], [54, 28], [54, 23], [50, 20], [46, 22]], 3.6, "#E58C84"),
+      ...stroke([[50, 36], [22, 62], [78, 62], [50, 36]], 4.2, WHITE),
+      r(30, 68, 40, 4, 2, "#F3F0EA", 0.55),
+    ],
+  },
   "icon-bookings": {
     from: "#3A8072",
     to: "#235449",

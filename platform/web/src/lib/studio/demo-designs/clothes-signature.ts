@@ -85,7 +85,6 @@ const CHANGA = "Changa";
 const P = (name: string) => `/clothes-photos/${name}.jpg`;
 
 const shop: Action = screen("search");
-const toCart: Action = screen("cart");
 const pageOf = (slug: string): Action => ({ type: "page", page_slug: slug });
 /** The category menu's page and the size guide's (both looks have them). */
 export const MENU_PAGE = "menu";
