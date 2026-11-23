@@ -87,9 +87,13 @@ export const FLOWER_SHOP_TEMPLATE = "flowers_signature_a";
 export const SHOP_TYPE_DEMOS = {
   // 208 Lujain (لجين), the clothes shop: A a black and white boutique, B streetwear (NOUN).
   clothes: "clothes_signature_a",
+  // 209 Kids' clothes: Toota (توتة), A soft pastel, B playful bright (Minimo).
+  kids: "kids_signature_a",
 } as const;
 export type ShopTypeDemo = keyof typeof SHOP_TYPE_DEMOS;
 export const CLOTHES_DEMO = "clothes" as const satisfies ShopTypeDemo;
+// 209 Kids' clothes
+export const KIDS_DEMO = "kids" as const satisfies ShopTypeDemo;
 
 export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school" | "travel"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace"> | typeof PREMIUM_ACADEMY_DEMO | typeof FLOWER_SHOP_DEMO | ShopTypeDemo;
 

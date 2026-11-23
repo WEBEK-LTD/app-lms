@@ -770,6 +770,16 @@ export const PICTURES = {
       r(30, 68, 40, 4, 2, "#F3F0EA", 0.55),
     ],
   },
+  // 209 Kids' clothes: Toota, a little white bodysuit on its terracotta, a mulberry leaf over it.
+  "icon-kids": {
+    from: "#C46A57",
+    to: "#9E4C3C",
+    shapes: [
+      p([[38, 28], [44, 26], [50, 31], [56, 26], [62, 28], [74, 38], [68, 46], [64, 42], [64, 66], [56, 74], [44, 74], [36, 66], [36, 42], [32, 46], [26, 38]], WHITE),
+      r(44, 70, 12, 6, 3, "#F5E2DA"),
+      p([[50, 20], [54, 13], [61, 12], [58, 18]], "#F4EACB"),
+    ],
+  },
   "icon-bookings": {
     from: "#3A8072",
     to: "#235449",

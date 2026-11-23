@@ -50,6 +50,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   flowers: "flowers_signature_a",
   // 208 Lujain, the clothes shop, is its Signature look A, the boutique (lib/studio/demo-designs/clothes-signature.ts).
   clothes: "clothes_signature_a",
+  // 209 Kids' clothes: Toota is its Signature look A, soft pastels (lib/studio/demo-designs/kids-signature.ts).
+  kids: "kids_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -112,6 +114,8 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   flowers: { surface: "#FFFFFF", nightSurface: "#21121A", line: "#F0DDD9", nightLine: "#3A2530", muted: "#7B5E67", nightMuted: "#C9AEB6" },
   // 208 Lujain's, its look A's (lib/studio/demo-designs/clothes-signature.ts LUJAIN_INK).
   clothes: { surface: "#FFFFFF", nightSurface: "#191917", line: "#E4DFD6", nightLine: "#2E2C28", muted: "#5F5B55", nightMuted: "#B6B0A6" },
+  // 209 Kids' clothes: Toota's, its look A's (lib/studio/demo-designs/kids-signature.ts TOOTA_INK).
+  kids: { surface: "#FFFDF9", nightSurface: "#1F1916", line: "#EADFD3", nightLine: "#30271F", muted: "#6B5D55", nightMuted: "#C7B9AF" },
 };
 
 /**
@@ -315,6 +319,15 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     clEditTitle: { en: "Day dresses, the new season", ar: "فساتين النهار للموسم الجديد", tr: "Yeni sezonun gündüz elbiseleri" },
     clExchangeNote: { en: "Free exchange within 14 days, picked up from your door.", ar: "استبدال مجاني خلال 14 يومًا، نستلم القطعة من باب منزلكِ.", tr: "14 gün içinde ücretsiz değişim, kapınızdan alınır." },
   },
+  // 209 Kids' clothes: Toota's own words where its looks leave the owner brackets: its look of the week, its promises, its exchanges, its gift wrapping and its hours (lib/demo/kids.ts).
+  kids: {
+    kdLookName: { en: "Weekend in the fields: check, wool and denim", ar: "عطلة في الحقول: كاروه وصوف ودنيم", tr: "Tarlada hafta sonu: ekose, yün ve denim" },
+    kdPromise3Line: { en: "Within 30 days if the size isn't right", ar: "خلال 30 يومًا إن لم يناسب المقاس", tr: "Beden uymazsa 30 gün içinde" },
+    kdContactLine: { en: "Every day, 9 am to 11 pm", ar: "يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Her gün 09.00–23.00" },
+    kdEditTitle: { en: "Whole outfits, sold as one", ar: "إطلالات كاملة تُباع معًا", tr: "Tek parça satılan komple kombinler" },
+    kdExchangeNote: { en: "Free exchange within 30 days if the size isn't right.", ar: "استبدال مجاني خلال 30 يومًا إن لم يناسب المقاس.", tr: "Beden uymazsa 30 gün içinde ücretsiz değişim." },
+    kdGiftNote: { en: "A newborn gift? Add gift wrapping and a card, and write its message at checkout.", ar: "هدية لمولود؟ أضيفي التغليف وبطاقة، واكتبي رسالتها عند الدفع.", tr: "Yenidoğan hediyesi mi? Hediye paketi ve kart ekleyin, mesajını ödemede yazın." },
+  },
   // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
   travel: {
     sigStayOne: { en: "Safra Caldera Suites", ar: "Safra Caldera Suites", tr: "Safra Caldera Suites" },
@@ -372,4 +385,5 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
 }
 
 /** 131.20 The demos whose words carry the app's name, by that name (the demo app's). */
-const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain" };
+// 209 Kids' clothes: Toota's too.
+const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", kids: "Toota" };

@@ -1,0 +1,43 @@
+# Photo credits
+
+209 Toota's (the kids' clothes shop demo's) photos, for its looks A and B. All come from StockSnap (found through Openverse, `source=stocksnap`) and are dedicated to the public domain (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/); each file's StockSnap page has the terms. They were given a light colour grade so the grids look alike, cut to 4:5 around the part the approved designs show and resized to 720 × 900; the wide ones used as banners (baby-flatlay.jpg, balloons.jpg, birthday-cake.jpg, cupcake.jpg, girl-desk.jpg, white-dresses.jpg) were only resized to 900 wide. The shop, its clothes and its prices they illustrate in the demo are fictional.
+
+- **baby-flatlay.jpg**: "Baby Clothes" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/baby-clothes-Q2NLOOVQBU
+- **baby-legs.jpg**: "Child Baby" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/child-baby-CVWOE7B8EK
+- **baby-shoes.jpg**: "Baby Shoes" by Drew Hays, CC0 1.0. https://stocksnap.io/photo/baby-shoes-AM0TUTSZ4U (a small label on the insole retouched out)
+- **balloons.jpg**: "Happy Birthday" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/happy-birthday-ICAFQZXX7W
+- **birthday-cake.jpg**: "Birthday Cake" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/birthday-cake-W7T1J6B7DM
+- **cream-knit.jpg**: "Bokehblur Clothing" by Victoria Bilsborough, CC0 1.0. https://stocksnap.io/photo/bokehblur-clothing-HFT8VKVAGR
+- **cupcake.jpg**: "Happy Birthday" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/happy-birthday-ITDXH9PPW6
+- **denim-jacket.jpg**: "Boy Child" by Leeroy, CC0 1.0. https://stocksnap.io/photo/boy-child-R0C7A5M4WB
+- **foot-muslin.jpg**: "Baby Foot" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/baby-foot-0LMXQSCJNY
+- **gift-kraft.jpg**: "Gift Box" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/gift-box-PIHUS3UFDJ
+- **gift-pink.jpg**: "Pink Party" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/pink-party-SQLBG32Q8C
+- **girl-desk.jpg**: "Child Homework" by Direct Media, CC0 1.0. https://stocksnap.io/photo/child-homework-GV5GIEXDBA
+- **girls-coats.jpg**: "Sunlight Sunshine" by Ben White, CC0 1.0. https://stocksnap.io/photo/sunlight-sunshine-XDNPCSL1U2
+- **grey-hoodie.jpg**: "Small Boy" by Studio 7042, CC0 1.0. https://stocksnap.io/photo/small-boy-QIJ4BAZL2D
+- **knit-blanket.jpg**: "Baby Foot" by Candace McDaniel, CC0 1.0. https://stocksnap.io/photo/baby-foot-HGYH8W8HNI
+- **knit-feet.jpg**: "Newborn Baby" by Studio 7042, CC0 1.0. https://stocksnap.io/photo/newborn-baby-AMIDUENVBC
+- **knit-hat-green.jpg**: "Grass Green" by Janko Ferlic, CC0 1.0. https://stocksnap.io/photo/grass-green-KH6062ABRR
+- **knit-socks.jpg**: "Socks Footwear" by Snufkin, CC0 1.0. https://stocksnap.io/photo/socks-footwear-TFRHSVS7NL
+- **mittens.jpg**: "Crystal Lens" by Tricia Gray, CC0 1.0. https://stocksnap.io/photo/crystal-lens-SK7NCGRP8B
+- **newborn-knit.jpg**: "Baby Newborn" by Candace McDaniel, CC0 1.0. https://stocksnap.io/photo/baby-newborn-ILUIZBPPTT
+- **newborn-mint.jpg**: "People Girl" by Sean Roy, CC0 1.0. https://stocksnap.io/photo/people-girl-WEVW54ATOC
+- **overalls.jpg**: "People Father" by Matthew Henry, CC0 1.0. https://stocksnap.io/photo/people-father-TWJG72KNKS
+- **pink-pajamas.jpg**: "Little Girl" by Family First, CC0 1.0. https://stocksnap.io/photo/little-girl-QH6TQHR7WI
+- **plaid-jacket.jpg**: "Kid Child" by AJ Montpetit, CC0 1.0. https://stocksnap.io/photo/kid-child-UCXE2KJQMS
+- **plaid-shirt.jpg**: "Young Child" by Studio 7042, CC0 1.0. https://stocksnap.io/photo/young-child-XUXXTEDQZM
+- **pom-beanie.jpg**: "Hat Toque" by Cole Patrick, CC0 1.0. https://stocksnap.io/photo/hat-toque-6C71A222A1
+- **robe-b.jpg**: "Child Bathroom" by Bath Time, CC0 1.0. https://stocksnap.io/photo/child-bathroom-HQJUPCRMDX
+- **romper-hat.jpg**: "Walking Baby" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/walking-baby-KSQVL7C0U7
+- **rust-sweater.jpg**: "Child Toddler" by Direct Media, CC0 1.0. https://stocksnap.io/photo/child-toddler-D5VVUIQNDL
+- **sleep-striped.jpg**: "Happy Baby" by Studio 7042, CC0 1.0. https://stocksnap.io/photo/happy-baby-6UCQGZ6Q0W
+- **slippers.jpg**: "Girl Child" by Andrew Branch, CC0 1.0. https://stocksnap.io/photo/girl-child-6D8141O2SP
+- **sparkle-sneakers.jpg**: "Sneakers Shoes" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/sneakers-shoes-U20YIXFQBC
+- **straw-hat.jpg**: "Straw Hat" by Alex Blăjan, CC0 1.0. https://stocksnap.io/photo/straw-hat-R27ZN6PJ4S
+- **striped-tights.jpg**: "Child Playing" by Samantha Sophia, CC0 1.0. https://stocksnap.io/photo/child-playing-XK8DG4CAGA
+- **summer-outfit.jpg**: "Child Grass" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/child-grass-SYBQWBQRSH
+- **teddy-sweater.jpg**: "Teddybear Toy" by Daria Nepriakhina, CC0 1.0. https://stocksnap.io/photo/teddybear-toy-AAPS1PYWT4
+- **tiered-dress.jpg**: "Toddler Standing" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/toddler-standing-H5DGO1ELXN
+- **white-dresses.jpg**: "People Girls" by Ariel Lustre, CC0 1.0. https://stocksnap.io/photo/people-girls-LI39BZMA3U
+- **yellow-raincoat.jpg**: "Yellow Jacket" by Justin Luebke, CC0 1.0. https://stocksnap.io/photo/yellow-jacket-C6J16TFD75

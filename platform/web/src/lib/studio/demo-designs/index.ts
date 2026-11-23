@@ -28,6 +28,8 @@ import { ZAD_A, ZAD_B } from "./zad-signature";
 import { LEQAA_A, LEQAA_B } from "./leqaa-signature";
 // 208 Lujain, the clothes shop: A LUJAIN the boutique, B NOUN streetwear.
 import { LUJAIN_A, NOUN_B } from "./clothes-signature";
+// 209 Kids' clothes: Toota, A TOOTA soft pastels, B MINIMO playful navy.
+import { MINIMO_B, TOOTA_A } from "./kids-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -165,6 +167,8 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   flowers: { a: LEQAA_A, b: LEQAA_B },
   // 208 Lujain, the clothes shop (a store): A the black and white boutique, B NOUN's streetwear.
   clothes: { a: LUJAIN_A, b: NOUN_B },
+  // 209 Kids' clothes: Toota (a store): A TOOTA's soft pastels, B MINIMO's playful navy.
+  kids: { a: TOOTA_A, b: MINIMO_B },
 };
 
 /** A look with its demo's own tabs when it has none of its own. */
