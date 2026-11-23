@@ -463,6 +463,7 @@ class PageAction {
     this.pageSlug,
     this.screen,
     this.categoryId,
+    this.teacherId,
     this.courseId,
     this.item,
     this.url,
@@ -482,6 +483,7 @@ class PageAction {
       pageSlug: optString(json, 'page_slug'),
       screen: _screenFrom(json['screen']),
       categoryId: _categoryIdFrom(json['category_id']),
+      teacherId: _categoryIdFrom(json['teacher_id']),
       courseId: optInt(json, 'course_id'),
       item: ItemRef.tryParse(json['item']),
       url: optString(json, 'url'),
@@ -506,6 +508,10 @@ class PageAction {
   /// whole screen. 165 With the shop's screen (`courses`) too: the shop
   /// opened on this category (a story's button in Dashboard › Stories).
   final int? categoryId;
+
+  /// 179.6 For [screen] (the academy's Teachers): the teacher whose page it
+  /// opens (Rawaq's faculty); null for the list.
+  final int? teacherId;
   final int? courseId;
   final ItemRef? item;
   final String? url;

@@ -171,6 +171,8 @@ export class CatalogConnector implements Connector {
         // 26 A restaurant's customers sign in to order, so they can follow it.
         guest_checkout: this.fulfilment === null,
         checkout_opens_in: "in_app",
+        // 176.11 Whether the shop can be paid in the app yet: a café with no gateway nor own method isn't open for orders.
+        ordering_open: this.canSell,
         reviews: false,
         // 131 The delivery day and slot, the gifts and the gift checkout, where it delivers (charged here).
         ...storeExtrasConfig(this.deps.app, this.settings.currency, { fees: true, map: await storeMap(this.deps.store, this.deps.app) }),

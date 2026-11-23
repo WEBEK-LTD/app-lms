@@ -311,7 +311,7 @@ export function JoinForm({ profile, countries, joined, host }: { profile: JoinPr
               <div className="flex flex-col gap-2 rounded-xl border border-line bg-sand px-4 py-3.5 text-sm leading-relaxed text-ink-3">
                 <b className="text-[15px] text-midnight">{t("studioMarket.fullTermsTitle")}</b>
                 <ol className="m-0 flex flex-col gap-1.5 ps-5">
-                  {(["fullTerms1", "fullTerms2", "fullTerms3", "fullTerms4", "fullTerms5", "fullTerms6", "fullTerms7"] as const).map((key) => (
+                  {(["fullTerms1", "fullTerms2", "fullTerms3", "fullTerms4", "fullTerms5", "fullTerms6", "fullTerms7", "fullTerms8"] as const).map((key) => (
                     <li key={key}>{t(`studioMarket.${key}`)}</li>
                   ))}
                 </ol>

@@ -33,6 +33,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // 106.11 Designers' payouts to prepare or send this month, and their checks to review.
   const payoutsToSend = await payoutsToDo(store, payoutNow());
   const checksWaiting = (await store.listDesignerPayoutDetails(["submitted"])).length;
+  // 106.14 Designers' photos and lines waiting for the team's first look.
+  const profilesWaiting = (await store.listTemplateDesigners()).filter((d) => d.profileReview === "pending").length;
   // 133 Add-on services the team hasn't finished.
   const addonTasks = (await store.listAppAddons({ taskStatus: ["new", "in_progress"], limit: 200 })).length;
   return (
@@ -62,6 +64,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               items: [
                 { href: "/admin/market", label: "Review queue", icon: "fact_check", exact: true, badge: { count: marketWaiting, label: marketWaiting === 1 ? "template waiting" : "templates waiting" } },
                 // 106.2 Template sales and the buyers' licences.
+                // 106.14 Designers' public pages: their photos and lines, ratings, locks.
+                { href: "/admin/market/designers", label: "Designers", icon: "palette", badge: { count: profilesWaiting, label: profilesWaiting === 1 ? "designer's photo and line to review" : "designers' photos and lines to review" } },
                 { href: "/admin/market/sales", label: "Sales", icon: "payments" },
                 // 106.11 The designers' monthly payouts by SWIFT, and the checks before the first one.
                 { href: "/admin/market/payouts", label: "Payouts", icon: "send", exact: true, badge: { count: payoutsToSend, label: payoutsToSend === 1 ? "payout to prepare or send" : "payouts to prepare or send" } },

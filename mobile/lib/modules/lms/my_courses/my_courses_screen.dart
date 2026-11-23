@@ -195,7 +195,8 @@ class _EnrolledList extends ConsumerWidget {
           return false;
         },
         child: ListView.separated(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          // 179 Above a tab bar floating over the list (roadmap 158).
+          padding: EdgeInsets.fromLTRB(20, 0, 20, endRoom(context, 24)),
           itemCount: state.items.length,
           separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, i) {
@@ -434,7 +435,7 @@ class _WishlistList extends ConsumerWidget {
       AsyncData(:final value) => RefreshIndicator(
         onRefresh: () => ref.refresh(wishlistProvider.future),
         child: ListView.separated(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          padding: EdgeInsets.fromLTRB(20, 0, 20, endRoom(context, 24)),
           itemCount: value.length,
           separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, i) => DesignedCourseCard(

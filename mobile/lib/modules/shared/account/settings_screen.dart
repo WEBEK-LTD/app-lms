@@ -59,29 +59,40 @@ class SettingsScreen extends ConsumerWidget {
               current: current,
               label: label,
             )
+          // 181 (158.8) Its last choices scroll into reach on a short phone
+          // or with a large font (the sheet is at most 9/16 of the screen),
+          // its end above the phone's bar (158's end room).
           : SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                    child: Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium,
+              bottom: false,
+              child: SingleChildScrollView(
+                key: const ValueKey('settings-choice-sheet'),
+                padding: EdgeInsets.only(bottom: endRoom(context)),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                      child: Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                     ),
-                  ),
-                  for (final v in values)
-                    ListTile(
-                      minTileHeight: 52,
-                      title: Text(label(v)),
-                      trailing: v == current
-                          ? AppIcon(AppIcons.check, color: context.palette.text)
-                          : null,
-                      selected: v == current,
-                      onTap: () => Navigator.of(context).pop(v),
-                    ),
-                ],
+                    for (final v in values)
+                      ListTile(
+                        minTileHeight: 52,
+                        title: Text(label(v)),
+                        trailing: v == current
+                            ? AppIcon(
+                                AppIcons.check,
+                                color: context.palette.text,
+                              )
+                            : null,
+                        selected: v == current,
+                        onTap: () => Navigator.of(context).pop(v),
+                      ),
+                  ],
+                ),
               ),
             ),
     );

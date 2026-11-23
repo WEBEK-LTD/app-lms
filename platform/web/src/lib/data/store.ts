@@ -1,5 +1,7 @@
 // 106 Studio Market
 import type {
+  MarketRating,
+  MarketRatingSummary,
   MarketTemplate,
   MarketTemplatePatch,
   MarketTemplateReview,
@@ -2543,6 +2545,26 @@ export interface DataStore {
   updateTemplateDesigner(id: string, patch: TemplateDesignerPatch, now: Date): Promise<boolean>;
   /** The designers with these ids (all when none given), oldest first. */
   listTemplateDesigners(ids?: readonly string[]): Promise<TemplateDesigner[]>;
+  // 106.14 Buyers' ratings of templates, the designer's answer, the team's hiding
+  getMarketRating(id: string): Promise<MarketRating | null>;
+  /** The buyer's own rating of the template, or null. */
+  getMarketRatingByBuyer(templateId: string, clientId: string): Promise<MarketRating | null>;
+  /**
+   * Adds the buyer's rating, or changes the one they have of this template
+   * (its stars, comment and name; its answer and the team's hiding stay):
+   * one per template and account, also when two of their requests meet.
+   */
+  saveMarketRating(rating: MarketRating): Promise<{ rating: MarketRating; created: boolean }>;
+  /** Newest first; by templates or designer; hidden ones only with `withHidden`. */
+  listMarketRatings(filter: { templateIds?: readonly string[]; designerId?: string; withHidden?: boolean; limit?: number }): Promise<MarketRating[]>;
+  /** The designer's one answer under a rating of their template (null takes it away). False when it isn't their template's. */
+  replyToMarketRating(id: string, designerId: string, reply: string | null, now: Date): Promise<boolean>;
+  /** The team hides an abusive rating (null shows it again). */
+  hideMarketRating(id: string, hidden: { at: Date; by: string; reason: string | null } | null): Promise<boolean>;
+  /** The visible ratings' count and stars' sum, by template (only those with one). */
+  marketRatingSummaries(templateIds?: readonly string[]): Promise<Record<string, MarketRatingSummary>>;
+  /** 106.14 How many accounts got one of the designer's templates (free or bought). */
+  countDesignerBuyers(designerId: string): Promise<number>;
   /** Null when another template has the address (`slug`) already. */
   createMarketTemplate(template: MarketTemplate): Promise<MarketTemplate | null>;
   getMarketTemplate(id: string): Promise<MarketTemplate | null>;

@@ -3,7 +3,7 @@ import { expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
 import type { DataStore } from "@/lib/data/store";
-import type { App, DesignerLedgerEntry, DesignerPayout, DesignerPayoutDetails, MarketDiscount, MarketTemplate, MarketTemplateVersion, TemplateApplication, TemplateDesigner, TemplateLicence, TemplateOrder } from "@/lib/data/types";
+import { designerPageDefaults, type App, type MarketRating, type DesignerLedgerEntry, type DesignerPayout, type DesignerPayoutDetails, type MarketDiscount, type MarketTemplate, type MarketTemplateVersion, type TemplateApplication, type TemplateDesigner, type TemplateLicence, type TemplateOrder } from "@/lib/data/types";
 import { days, NOW } from "./helpers";
 
 /**
@@ -19,7 +19,7 @@ export function studioMarketStoreSuite(store: () => DataStore, elsewhere: (s: Da
     await s.createApp(app);
     return { client, app, suffix };
   }
-  const designerOf = (clientId: string, slug: string): TemplateDesigner => ({ id: randomUUID(), clientId, name: "Studio Nūr", slug, country: "TR", bio: null, status: "active", termsAcceptedAt: NOW, createdAt: NOW, updatedAt: NOW });
+  const designerOf = (clientId: string, slug: string): TemplateDesigner => ({ id: randomUUID(), clientId, name: "Studio Nūr", slug, country: "TR", bio: null, status: "active", termsAcceptedAt: NOW, createdAt: NOW, updatedAt: NOW, ...designerPageDefaults() });
   const templateOf = (designer: TemplateDesigner, appId: string, slug: string): MarketTemplate => ({
     id: randomUUID(),
     designerId: designer.id,
@@ -612,5 +612,67 @@ export function studioMarketStoreSuite(store: () => DataStore, elsewhere: (s: Da
     expect(await s.getDesignerPayoutDetails(nur.id)).toBeNull();
     expect((await s.listDesignerLedger({ designerId: nur.id })).map((e) => e.id)).toEqual([sale.id]);
     expect((await s.listDesignerPayouts({ designerId: nur.id })).map((p) => [p.id, p.amountCents])).toEqual([[payout.id, 30_000]]);
+  });
+
+  it("106.14 keeps a designer's page settings, one rating per template and buyer, the designer's answer and the team's hiding", async () => {
+    const s = store();
+    const seller = await account(s, "Nur");
+    const buyer = await account(s, "Tulip");
+    const other = await account(s, "Lale");
+    const designer = (await s.createTemplateDesigner(designerOf(seller.client.id, `nur-${seller.suffix}`)))!;
+    expect(designer).toMatchObject({ photoAssetId: null, profileReview: "none", showCountry: false, links: [], showLinks: false, pageLockedAt: null });
+    const links = ["https://behance.net/nur", "https://nur.design/"];
+    expect(await s.updateTemplateDesigner(designer.id, { photoAssetId: randomUUID(), profileReview: "pending", showCountry: true, links, showLinks: true }, days(1))).toBe(true);
+    expect(await s.getTemplateDesigner(designer.id)).toMatchObject({ profileReview: "pending", showCountry: true, links, showLinks: true });
+    expect(await s.updateTemplateDesigner(designer.id, { profileReview: "declined", profileNote: "Use a photo of you or your logo.", profileReviewedAt: days(2), pageLockedAt: days(2), pageLockedReason: "Spam links" }, days(2))).toBe(true);
+    expect(await s.getTemplateDesignerBySlug(designer.slug)).toMatchObject({ profileReview: "declined", profileNote: "Use a photo of you or your logo.", pageLockedAt: days(2), pageLockedReason: "Spam links" });
+
+    const template = (await s.createMarketTemplate(templateOf(designer, seller.app.id, `rose-${seller.suffix}`)))!;
+    const second = (await s.createMarketTemplate(templateOf(designer, seller.app.id, `tulip-${seller.suffix}`)))!;
+    for (const [client, t] of [[buyer.client.id, template.id], [other.client.id, template.id], [buyer.client.id, second.id]] as const)
+      await s.createTemplateLicence({ id: randomUUID(), templateId: t, clientId: client, plan: "free", status: "active", appId: null, versionId: null, startsAt: NOW, endsAt: null, movedAt: null, afterEnd: null, remindedEarlyFor: null, remindedLastFor: null, endedAt: null, createdAt: NOW, updatedAt: NOW });
+    expect(await s.countDesignerBuyers(designer.id)).toBe(2);
+
+    const rating = (clientId: string, templateId: string, stars: number, at: Date, comment: string | null = null): MarketRating => ({ id: randomUUID(), templateId, designerId: designer.id, clientId, stars, comment, authorName: "Tulip G.", createdAt: at, updatedAt: at, reply: null, repliedAt: null, hiddenAt: null, hiddenBy: null, hiddenReason: null });
+    const first = await s.saveMarketRating(rating(buyer.client.id, template.id, 4, days(1), "Lovely."));
+    expect(first.created).toBe(true);
+    // Rated again: the same rating, changed (one per template and account).
+    const again = await s.saveMarketRating(rating(buyer.client.id, template.id, 5, days(2), "Even better."));
+    expect(again).toMatchObject({ created: false, rating: { id: first.rating.id, stars: 5, comment: "Even better.", createdAt: days(1), updatedAt: days(2) } });
+    // Two requests at once (from another server on MySQL): still one.
+    await Promise.all([elsewhere(s).saveMarketRating(rating(other.client.id, template.id, 2, days(3))), s.saveMarketRating(rating(other.client.id, template.id, 3, days(3)))]);
+    expect((await s.listMarketRatings({ templateIds: [template.id] })).filter((r) => r.clientId === other.client.id)).toHaveLength(1);
+    await s.saveMarketRating(rating(buyer.client.id, second.id, 1, days(4)));
+    expect((await s.getMarketRatingByBuyer(template.id, buyer.client.id))?.id).toBe(first.rating.id);
+    expect(await s.getMarketRatingByBuyer(second.id, other.client.id)).toBeNull();
+
+    // The designer's one answer: only on their template's rating.
+    expect(await s.replyToMarketRating(first.rating.id, randomUUID(), "Not mine", days(5))).toBe(false);
+    expect(await s.replyToMarketRating(first.rating.id, designer.id, "Thank you!", days(5))).toBe(true);
+    expect(await s.getMarketRating(first.rating.id)).toMatchObject({ reply: "Thank you!", repliedAt: days(5) });
+    // Rated again after the answer: the answer stays.
+    await s.saveMarketRating(rating(buyer.client.id, template.id, 5, days(6), "Still great."));
+    expect(await s.getMarketRating(first.rating.id)).toMatchObject({ comment: "Still great.", reply: "Thank you!" });
+
+    const otherRating = (await s.getMarketRatingByBuyer(template.id, other.client.id))!;
+    const summary = await s.marketRatingSummaries([template.id, second.id]);
+    expect(summary[template.id]).toEqual({ count: 2, sum: 5 + otherRating.stars });
+    expect(summary[second.id]).toEqual({ count: 1, sum: 1 });
+    // Hidden by the team: out of the lists and the sums, unless asked for.
+    expect(await s.hideMarketRating(otherRating.id, { at: days(7), by: "deniz@yallapp.test", reason: "Abusive" })).toBe(true);
+    expect((await s.marketRatingSummaries([template.id]))[template.id]).toEqual({ count: 1, sum: 5 });
+    expect((await s.listMarketRatings({ designerId: designer.id })).map((r) => r.id)).not.toContain(otherRating.id);
+    expect((await s.listMarketRatings({ designerId: designer.id, withHidden: true })).map((r) => r.id)).toContain(otherRating.id);
+    expect(await s.getMarketRating(otherRating.id)).toMatchObject({ hiddenAt: days(7), hiddenBy: "deniz@yallapp.test", hiddenReason: "Abusive" });
+    expect(await s.hideMarketRating(otherRating.id, null)).toBe(true);
+    expect((await s.marketRatingSummaries([template.id]))[template.id]?.count).toBe(2);
+    // Newest first, limited.
+    expect((await s.listMarketRatings({ designerId: designer.id, limit: 1 })).map((r) => r.templateId)).toEqual([second.id]);
+    expect(await s.listMarketRatings({ templateIds: [] })).toEqual([]);
+    expect(await s.marketRatingSummaries([])).toEqual({});
+
+    // The buyer's account deleted: their ratings go with it.
+    await s.deleteUserAccount(other.client.userId);
+    expect(await s.getMarketRating(otherRating.id)).toBeNull();
   });
 }

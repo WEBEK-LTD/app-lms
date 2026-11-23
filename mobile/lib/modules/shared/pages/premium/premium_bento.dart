@@ -9,6 +9,7 @@ import '../../../../core/api/models/models.dart';
 import '../../../../core/theme/symbol_names.dart';
 import '../../../../core/widgets/common.dart';
 import '../page_actions.dart';
+import '../studio_covers.dart' show StudioFitsHeld;
 import 'premium_shared.dart';
 
 /// 129.17 Where each tile of a bento grid goes: its column and row, and how
@@ -212,71 +213,80 @@ class _Tile extends ConsumerWidget {
                   ),
                 ),
               ),
-            // At the tile's foot, cut off rather than squeezed in a short row.
+            // At the tile's foot; 176.10 drawn smaller when its words at a
+            // larger text size would run past the tile's top (Sofra B's
+            // Egyptian table in Arabic at 1.3), never cut off.
             PositionedDirectional(
               start: 0,
               end: 0,
+              top: 0,
               bottom: 0,
-              child: Padding(
-                // 130 A small tile's frosted label closer to its corner.
-                padding: EdgeInsets.all(
-                  glass && e.size == StudioTileSize.small ? 8 : 14,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (glass)
-                      _glassCaption(e)
-                    else ...[
-                      Text(
-                        e.title ?? '',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: large ? 20 : 15,
-                          height: 1.2,
-                          fontWeight: FontWeight.w800,
-                          color: ink,
-                        ),
-                      ),
-                      if ((e.text ?? '').isNotEmpty)
-                        Text(
-                          e.text!,
-                          maxLines: large ? 3 : 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: filled
-                                ? Colors.white.withValues(alpha: 0.88)
-                                : tones.muted,
+              child: StudioFitsHeld(
+                align: StudioAlign.end,
+                child: Align(
+                  alignment: AlignmentDirectional.bottomStart,
+                  child: Padding(
+                    // 130 A small tile's frosted label closer to its corner.
+                    padding: EdgeInsets.all(
+                      glass && e.size == StudioTileSize.small ? 8 : 14,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (glass)
+                          _glassCaption(e)
+                        else ...[
+                          Text(
+                            e.title ?? '',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: large ? 20 : 15,
+                              height: 1.2,
+                              fontWeight: FontWeight.w800,
+                              color: ink,
+                            ),
                           ),
-                        ),
-                      if ((e.label ?? '').isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
+                          if ((e.text ?? '').isNotEmpty)
                             Text(
-                              e.label!,
+                              e.text!,
+                              maxLines: large ? 3 : 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                                color: filled ? Colors.white : tones.brand,
+                                color: filled
+                                    ? Colors.white.withValues(alpha: 0.88)
+                                    : tones.muted,
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            // Pointing the other way right to left, of itself.
-                            Icon(
-                              Symbols.arrow_forward_rounded,
-                              size: 15,
-                              color: filled ? Colors.white : tones.brand,
+                          if ((e.label ?? '').isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  e.label!,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    color: filled ? Colors.white : tones.brand,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                // Pointing the other way right to left, of itself.
+                                Icon(
+                                  Symbols.arrow_forward_rounded,
+                                  size: 15,
+                                  color: filled ? Colors.white : tones.brand,
+                                ),
+                              ],
                             ),
                           ],
-                        ),
+                        ],
                       ],
-                    ],
-                  ],
+                    ),
+                  ),
                 ),
               ),
             ),
