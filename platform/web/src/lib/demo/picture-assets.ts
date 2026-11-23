@@ -7,6 +7,7 @@ import { PICTURES, type PictureName } from "./pictures";
 import { isAcademyPhoto, saveAcademyPhoto, type AcademyPhoto } from "./academy-photos";
 import { isZadPhoto, saveZadPhoto, type ZadPhoto } from "./zad-photos";
 import { isFlowerPhoto, saveFlowerPhoto, type FlowerPhoto } from "./flower-photos";
+import { isShopPhoto, saveShopPhoto, type ShopPhoto } from "./shop-photos";
 
 /**
  * The drawn pictures (lib/demo/pictures.ts) saved as an account's files:
@@ -51,6 +52,8 @@ export async function savePicture(deps: PictureDeps, owner: { clientId: string; 
   if (isZadPhoto(name)) return saveZadPhoto(deps, owner, name, kind);
   // 131.20 Leqaa's flower photos (public/flower-photos).
   if (isFlowerPhoto(name)) return saveFlowerPhoto(deps, owner, name, kind);
+  // 208 The shop types' photos (public/clothes-photos and the next types').
+  if (isShopPhoto(name)) return saveShopPhoto(deps, owner, name, kind);
   return saveArt(deps, owner, demoArt(name), size, kind);
 }
 
@@ -58,10 +61,10 @@ export async function savePicture(deps: PictureDeps, owner: { clientId: string; 
 export type DesignDrawing = "car-teal" | "car-dark" | "car-yellow";
 
 /** A demo's picture: its own drawing (lib/demo/pictures.ts), or one of the designs'; 128 or one of the demos' real photos (lib/demo/zad-photos.ts, academy-photos.ts). */
-export type DemoPicture = PictureName | DesignDrawing | AcademyPhoto | ZadPhoto | FlowerPhoto;
+export type DemoPicture = PictureName | DesignDrawing | AcademyPhoto | ZadPhoto | FlowerPhoto | ShopPhoto;
 
 /** The drawing of a demo's picture. */
-export function demoArt(name: Exclude<DemoPicture, AcademyPhoto | ZadPhoto | FlowerPhoto>): Art {
+export function demoArt(name: Exclude<DemoPicture, AcademyPhoto | ZadPhoto | FlowerPhoto | ShopPhoto>): Art {
   return (PICTURES as Record<string, Art>)[name] ?? DESIGN_ART[`art-${name}.png`]!.art;
 }
 

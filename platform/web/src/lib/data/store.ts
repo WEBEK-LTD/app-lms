@@ -824,7 +824,9 @@ export interface DataStore {
   // Catalog (apps without a website)
   listCatalogCategories(appId: string): Promise<CatalogCategory[]>;
   /** 110.2 `sample`: a category made with the sample products. */
-  createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null }): Promise<CatalogCategory>;
+  createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null; /** 208 */ parentId?: number | null }): Promise<CatalogCategory>;
+  /** 208 The main category it sits inside; null: a main category. Never itself, nor inside a sub-category (the caller checks). */
+  setCatalogCategoryParent(appId: string, id: number, parentId: number | null): Promise<void>;
   /** 157 Also makes a demo's (`sample`) category the owner's. */
   renameCatalogCategory(appId: string, id: number, name: string): Promise<void>;
   /** 175 Its names in the app's other languages; null: none. */

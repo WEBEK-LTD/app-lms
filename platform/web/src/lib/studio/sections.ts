@@ -15,6 +15,9 @@ import { peopleRow, photoHero, photoOf, photoTiles } from "./photo-sections";
 import { LANDING_SECTIONS } from "./premium-landings";
 // 131.26 Leqaa's sections.
 import { LEQAA_SECTIONS } from "./demo-designs/leqaa-signature";
+// 208 Lujain's sections, and the installments tag.
+import { CLOTHES_SECTIONS } from "./demo-designs/clothes-signature";
+import { INSTALLMENTS_SECTION } from "./installments";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -250,6 +253,7 @@ export type SectionWord =
   | "mpNear"
   | "mpShopsTitle"
   | "tabShops"
+  | "tabShop"
   | "tabCart"
   // 128 The premium delivery, ride and taxi demos' words (lib/studio/demo-designs).
   | "brandName"
@@ -309,7 +313,10 @@ export type SectionWord =
   // 130 The Signature looks (lib/studio/demo-designs/signature-words.ts).
   | SignatureWord
   // 131.20 Leqaa's looks, pages and sections (lib/studio/demo-designs/leqaa-signature.ts).
-  | Extract<AppWord, `lq${string}`>;
+  | Extract<AppWord, `lq${string}`>
+  // 208 Lujain's looks, pages and sections (lib/studio/demo-designs/clothes-signature.ts), and the installments tag.
+  | Extract<AppWord, `cl${string}`>
+  | "installmentsSoon";
 
 export interface SectionContext {
   brand: string;
@@ -337,6 +344,8 @@ export interface SectionContext {
   kind?: ProjectKind | null;
   /** 183 The project's main screen (lib/app/kinds.ts `mainScreenOf`): what `brand`'s "Start now" opens; missing, nothing until the app is served. */
   main?: Action;
+  /** 208 False when a look's home is made alone (another project's template, a ready section): its taps then open none of the look's own pages (the category menu, the size guide), which that project hasn't; missing, they are made with it. */
+  ownPages?: boolean;
 }
 
 /** 103R.7 The project types a section or template is made for; none: every type. */
@@ -1096,6 +1105,9 @@ export const SECTIONS: readonly SectionInfo[] = [
   },
   // 131.26 Every slider and section of Leqaa's two looks, for every store (lib/studio/demo-designs/leqaa-signature.ts).
   ...LEQAA_SECTIONS,
+  // 208 The clothes type's parts (the category menu, the peeking hero, the deal, shop the look, the size card and chart) and the installments tag.
+  ...CLOTHES_SECTIONS,
+  INSTALLMENTS_SECTION,
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,
 ];

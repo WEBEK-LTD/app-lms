@@ -23,6 +23,7 @@ class StoreConfig {
     this.titles = const SectionTitles(),
     this.payInApp = false,
     this.bouquet,
+    this.sizeChart,
     this.orderingOpen,
   });
 
@@ -49,10 +50,15 @@ class StoreConfig {
     titles: SectionTitles.fromStore(json['titles']),
     payInApp: json['checkout_payment'] == 'in_app',
     bouquet: BouquetRules.tryParse(json['bouquet']),
+    sizeChart: SizeChart.tryParse(json['size_chart']),
     orderingOpen: json['ordering_open'] is bool
         ? json['ordering_open'] as bool
         : null,
   );
+
+  /// 208 The shop's size chart, under a product's sizes ("Size guide") and
+  /// on a Studio page (`size_chart`); null: none.
+  final SizeChart? sizeChart;
 
   /// 176.11 False while the shop can't be paid in the app yet (no card
   /// gateway of its own nor its own method): its products say ordering
@@ -614,6 +620,7 @@ class ProductDetail {
     this.optionGroups = const [],
     this.defaultAttributes = const {},
     this.addons = const [],
+    this.completeLook = const [],
   });
 
   factory ProductDetail.fromJson(Json json) => ProductDetail(
@@ -637,7 +644,12 @@ class ProductDetail {
             '${e.key}': e.value as String,
     },
     addons: listOf(json, 'addons', ProductSummary.fromJson),
+    completeLook: listOf(json, 'complete_look', ProductSummary.fromJson),
   );
+
+  /// 208 "Complete the look": a product of each of the shop's other main
+  /// categories; empty when the shop has it off.
+  final List<ProductSummary> completeLook;
 
   /// 131 "Add a little more": the gift add-ons offered with it.
   final List<ProductSummary> addons;
@@ -970,4 +982,48 @@ class CartQuoteLine {
 
   /// 26 The chosen options, as priced.
   final List<CartLineOption> options;
+}
+
+/// 208 A clothes shop's size chart (`StoreConfig.size_chart`): its titles
+/// (the first the size's), then a row per size, in [unit] (cm or in).
+class SizeChart {
+  const SizeChart({
+    required this.headers,
+    required this.rows,
+    required this.unit,
+  });
+
+  /// Null for none, or a chart without titles or rows.
+  static SizeChart? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final headers = [
+      for (final h
+          in value['headers'] is List ? value['headers'] as List : const [])
+        if (h is String) h,
+    ];
+    final rows = [
+      for (final r in value['rows'] is List ? value['rows'] as List : const [])
+        if (r is List &&
+            r.length == headers.length &&
+            r.every((c) => c is String))
+          [for (final c in r) c as String],
+    ];
+    if (headers.length < 2 || rows.isEmpty) return null;
+    return SizeChart(
+      headers: headers,
+      rows: rows,
+      unit: value['unit'] == 'in' ? 'in' : 'cm',
+    );
+  }
+
+  final List<String> headers;
+  final List<List<String>> rows;
+  final String unit;
+
+  /// Whether a choice's options are the chart's sizes (one of them in its
+  /// first column): the choice the size guide goes with.
+  bool fits(Iterable<String> options) {
+    final sizes = {for (final r in rows) r.first.trim().toLowerCase()};
+    return options.any((o) => sizes.contains(o.trim().toLowerCase()));
+  }
 }

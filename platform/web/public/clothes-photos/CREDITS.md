@@ -1,0 +1,66 @@
+# Photo credits
+
+206 Lujain's (the clothes shop demo's) photos, for its looks A and B. All come from StockSnap (found through Openverse, `source=stocksnap`) and are dedicated to the public domain (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/); each file's StockSnap page has the terms. They were cut to 4:5 around the part the approved designs show and resized to 720 × 900; the wide ones used as banners were only resized to 900 wide. The shop, its clothes and its prices they illustrate in the demo are fictional.
+
+- **abaya-desert.jpg**: "Woman Throwing" by The Lazy Artist Gallery, CC0 1.0. https://stocksnap.io/photo/woman-throwing-CKCXLX7LWS
+- **abaya-road.jpg**: "Woman Black" by Eneida Nieves, CC0 1.0. https://stocksnap.io/photo/woman-black-Y1TZOX3ZU6
+- **abaya-sil.jpg**: "Beautiful Woman" by Anggoro Sakti, CC0 1.0. https://stocksnap.io/photo/beautiful-woman-KERFDBVJWW
+- **abaya-white.jpg**: "White Sand" by Evan Phillip, CC0 1.0. https://stocksnap.io/photo/white-sand-G87AL8KRMW
+- **accessories.jpg**: "Sunglasses Fashion" by Candace McDaniel, CC0 1.0. https://stocksnap.io/photo/sunglasses-fashion-YPGOEJM7JO
+- **beige-dress.jpg**: "Black Fashion" by Candace McDaniel, CC0 1.0. https://stocksnap.io/photo/black-fashion-C5UG23ZNTC
+- **black-bag.jpg**: "Leather Bag" by Pawel Kadysz, CC0 1.0. https://stocksnap.io/photo/leather-bag-TWZY88E7YH
+- **black-dress.jpg**: "Fashion Model" by Afta Putta Gunawan, CC0 1.0. https://stocksnap.io/photo/fashion-model-AKOSRTQSHH
+- **black-heels.jpg**: "Heels Flower" by Beauty and Fashion, CC0 1.0. https://stocksnap.io/photo/heels-flower-OYB0IZTBTV
+- **black-top.jpg**: "Woman Fashion" by Christian Mackie, CC0 1.0. https://stocksnap.io/photo/woman-fashion-CGR7I2PUXK
+- **blue-dot.jpg**: "Woman Blue" by The Lazy Artist Gallery, CC0 1.0. https://stocksnap.io/photo/woman-blue-0FMO7ARXDL
+- **bracelets.jpg**: "Woman Adult" by Christian Mackie, CC0 1.0. https://stocksnap.io/photo/woman-adult-UIOVMDUXOM
+- **braids.jpg**: "Urban Fashion" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/urban-fashion-3SSVDFKER2
+- **brick-jacket.jpg**: "Fashion Woman" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/fashion-woman-FZXCFSBZ2W
+- **bridal-rack.jpg**: "Dress White" by Charisse Kenion, CC0 1.0. https://stocksnap.io/photo/dress-white-0TGREM1T78
+- **brown-bag.jpg**: "Bag Leather" by Álvaro Serrano, CC0 1.0. https://stocksnap.io/photo/bag-leather-DQCQ6W96UC
+- **c-black-coat.jpg**: "Woman Urban" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/woman-urban-RINKTXXV3I
+- **camel-dress.jpg**: "Woman Jumping" by Daria Shevtsova, CC0 1.0. https://stocksnap.io/photo/woman-jumping-2NQCKGAMDR
+- **camel-jacket.jpg**: "Urban Fashion" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/urban-fashion-EIZQNPK7VM
+- **cream-maxi.jpg**: "Model Woman" by Philip Meurisse, CC0 1.0. https://stocksnap.io/photo/model-woman-VQIULCZOYZ
+- **dark-coat.jpg**: "People Woman" by Ariel Lustre, CC0 1.0. https://stocksnap.io/photo/people-woman-QY9VQ2O3OX
+- **denim.jpg**: "Blue Denim" by it's me neosiam, CC0 1.0. https://stocksnap.io/photo/blue-denim-QBSVGRFT2Y
+- **fence-jeans.jpg**: "City Woman" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/city-woman-NBGPDH7RS9
+- **flannel.jpg**: "Girl Woman" by Benjamin Combs, CC0 1.0. https://stocksnap.io/photo/girl-woman-4B5U95JDWJ
+- **flatlay-black.jpg**: "Sunglasses Hat" by Travel Adventures, CC0 1.0. https://stocksnap.io/photo/sunglasses-hat-PFBQDTSBVE
+- **flatlay-sneak.jpg**: "White Sneakers" by Ylanite Koppens, CC0 1.0. https://stocksnap.io/photo/white-sneakers-EA7TDORJBT
+- **fleece.jpg**: "Urban Fashion" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/urban-fashion-7IOQMO7JTF
+- **floral-bag.jpg**: "Purse Bag" by Beauty and Fashion, CC0 1.0. https://stocksnap.io/photo/purse-bag-ZUHVDUIUWN
+- **floral-romper.jpg**: "Female Model" by Candace McDaniel, CC0 1.0. https://stocksnap.io/photo/female-model-H8RNQTFIOU
+- **graffiti.jpg**: "Woman Model" by Candace McDaniel, CC0 1.0. https://stocksnap.io/photo/woman-model-YIRJON82L8
+- **hand-jewel.jpg**: "Hand Jewelry" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/hand-jewelry-VHIX76K7EH
+- **hero-green.jpg**: "Fashion Woman" by The Lazy Artist Gallery, CC0 1.0. https://stocksnap.io/photo/fashion-woman-1CXI0CSPE5
+- **hero-trench.jpg**: "Model Pose" by Daria Shevtsova, CC0 1.0. https://stocksnap.io/photo/model-pose-Q8FQMQWYKB
+- **knit-dress.jpg**: "Woman Model" by Joseph L. Etchingham, CC0 1.0. https://stocksnap.io/photo/woman-model-BTRP7HMB8G
+- **lace-top.jpg**: "Woman Model" by Candace McDaniel, CC0 1.0. https://stocksnap.io/photo/woman-model-CRHFNXOZMG
+- **leopard.jpg**: "Female Model" by Candace McDaniel, CC0 1.0. https://stocksnap.io/photo/female-model-5S5XDLOHGR
+- **long-floral.jpg**: "People Female" by Suhyeon Choi, CC0 1.0. https://stocksnap.io/photo/people-female-JJ4YYCPZ1Y
+- **look.jpg**: "People Girl" by Ilya Yakover, CC0 1.0. https://stocksnap.io/photo/people-girl-Q2WJXI3CSE
+- **necklace.jpg**: "Necklace Chain" by Snufkin, CC0 1.0. https://stocksnap.io/photo/necklace-chain-B3FWPBJURM
+- **nude-heels.jpg**: "Heel White" by Freestocks.org, CC0 1.0. https://stocksnap.io/photo/heel-white-VW2UQE3XYO
+- **olive-jacket.jpg**: "Fashion Model" by Kris Kemp, CC0 1.0. https://stocksnap.io/photo/fashion-model-ZI3P3U28P8
+- **orange-coat.jpg**: "Beautiful Beauty" by Jonas Svidras, CC0 1.0. https://stocksnap.io/photo/beautiful-beauty-OGBFDCHPEZ
+- **patent-clutch.jpg**: "Woman Holding" by Beauty and Fashion, CC0 1.0. https://stocksnap.io/photo/woman-holding-QABLFADAEJ
+- **pink-trench.jpg**: "Urban Heels" by Kiki Zhang, CC0 1.0. https://stocksnap.io/photo/urban-heels-WMA6XJ29UW
+- **purple-tiles.jpg**: "Woman Model" by Candace McDaniel, CC0 1.0. https://stocksnap.io/photo/woman-model-AFTD5SKTT9
+- **red-dress.jpg**: "Woman Red" by The Lazy Artist Gallery, CC0 1.0. https://stocksnap.io/photo/woman-red-BXQV774BOY
+- **red-pumps.jpg**: "Heels Woman" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/heels-woman-UCS1ZWYFFH
+- **red-skirt.jpg**: "People Woman" by Zeny Rosalina, CC0 1.0. https://stocksnap.io/photo/people-woman-D85KN9KIDN
+- **ring.jpg**: "Diamond Ring" by Anne Edgar, CC0 1.0. https://stocksnap.io/photo/diamond-ring-V6XSRDWN2G
+- **rust-1.jpg**: "Beautiful Woman" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/beautiful-woman-MCQZDECWU5
+- **rust-2.jpg**: "Beautiful Woman" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/beautiful-woman-ZCO0M9U2HR
+- **rust-3.jpg**: "Beautiful Woman" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/beautiful-woman-43MD4UHSRP
+- **rust-4.jpg**: "Urban Female" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/urban-female-COOWAKH2W5
+- **sneak-feet.jpg**: "White Sneakers" by Dhyamis Kleber, CC0 1.0. https://stocksnap.io/photo/white-sneakers-SLQUL1BR5B
+- **sneak-white.jpg**: "Sneakers Shoes" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/sneakers-shoes-U20YIXFQBC
+- **street-walk.jpg**: "Stylish Street" by Dana Tentis, CC0 1.0. https://stocksnap.io/photo/stylish-street-VCGZBOCSLN
+- **sunglasses.jpg**: "Sunglasses Watch" by Design by Matt, CC0 1.0. https://stocksnap.io/photo/sunglasses-watch-MCT2ZQMPVF
+- **turtleneck.jpg**: "Woman Fashion" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/woman-fashion-PT99RR9DAE
+- **velvet.jpg**: "Elegant Woman" by Bruce Mars, CC0 1.0. https://stocksnap.io/photo/elegant-woman-AZOZVX9EEH
+- **walk-white.jpg**: "Woman Walking" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/woman-walking-RIUG2ATBWT
+- **white-backpack.jpg**: "Woman White" by Studio 7042, CC0 1.0. https://stocksnap.io/photo/woman-white-BKSLYECRJN
+- **yellow-coat.jpg**: "Person Woman" by donterase, CC0 1.0. https://stocksnap.io/photo/person-woman-5GB7LPF8SD
