@@ -4817,3 +4817,11 @@ The owner approved (23 November): a home-screen widget, a Live Activity and an o
 | [x] | 214.8 Yallapp Business 1.0.6+5 in `pubspec.yaml`, its store notes in English, Arabic and Turkish (not released: the release waits for the owner). CI compiles Business's iPhone code with the extension, unsigned (`mobile.yml`, Yallapp Business iOS compile) | `flutter test` |
 | [x] | 214.9 The New order card on Today (the owner's decision, as in the Pharaonic mockups, in the default look): the newest order waiting (a restaurant's new kitchen order, a new food order, a shop order in progress from the last day) with its number, how long ago, the customer's first name, delivery or pickup, the total and its items on one line; Accept and Reject as the Orders screens (a food order's time to prepare, a kitchen order to preparing, another shop order opens), "+N more" to the orders; gone when nothing waits, loaded again with Today on a push. `NewOrderCard` draws from `NewOrderCardTheme` (a theme extension another look sets) | `phase214_business_test.dart` |
 
+## Phase 219: iPhone builds with Xcode 27
+
+Apple's upload notice ITMS-90725 (23 November, on Yallapp Business 1.0.5): apps built with the iOS 26.2 SDK are still taken, but from April 2027 App Store Connect takes only apps built with the iOS 27 SDK (Xcode 27 or later). The owner asked that the clients' apps the platform builds follow too.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 219.1 Every job that builds for iPhone runs on GitHub's `xcode-27` runner and picks the newest released Xcode on it, never older than 27 (a beta or release candidate never counts; with none, the job stops and lists the Xcodes it found): the clients' builds (`build-apps.yml`), Yallapp Business and Yallapp Courier releases, and CI's iOS compiles (`mobile.yml`) | CI's iOS compile jobs on this change |
+| [ ] | 219.2 The first signed builds on Xcode 27: the next Yallapp Business release, then a client's build, reach TestFlight without the ITMS-90725 notice | — |
