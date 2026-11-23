@@ -55,8 +55,8 @@ async function go(page: Page, route: string): Promise<void> {
 }
 
 /** The app open as a guest on a project's draft, in a language and a theme. */
-async function openApp(browser: Browser, appId: string, lang: "en" | "ar", dark: boolean, phone: { width: number; height: number }, scale: number): Promise<Page> {
-  const context = await browser.newContext({ viewport: phone, deviceScaleFactor: scale, colorScheme: dark ? "dark" : "light", locale: lang === "ar" ? "ar-EG" : "en-US", hasTouch: true, isMobile: true, extraHTTPHeaders: headers });
+async function openApp(browser: Browser, appId: string, lang: "en" | "ar" | "tr", dark: boolean, phone: { width: number; height: number }, scale: number): Promise<Page> {
+  const context = await browser.newContext({ viewport: phone, deviceScaleFactor: scale, colorScheme: dark ? "dark" : "light", locale: lang === "ar" ? "ar-EG" : lang === "tr" ? "tr-TR" : "en-US", hasTouch: true, isMobile: true, extraHTTPHeaders: headers });
   await context.addInitScript((app) => localStorage.setItem(`yallapp.preview.${app}.settings.guest_mode`, "true"), appId);
   const page = await context.newPage();
   const address = `${previewAppPath(createPreviewToken({ appId, draft: true }, previewKey(E2E.signingSecret)))}&lang=${lang}&theme=${dark ? "dark" : "light"}&os=android`;
@@ -109,6 +109,24 @@ async function projectOf(browser: Browser, l: (typeof LOOKS)[number]): Promise<s
   await own.getByRole("radio", { name: new RegExp(l.name) }).first().click();
   if (!/\/studio\/project$/.test(own.url())) await own.getByRole("button", { name: /^(Next|Create)/ }).last().click();
   await expect(own).toHaveURL(/\/studio\/project$/, { timeout: 60_000 });
+  // The app in English, Arabic and Turkish (a new project is in its owner's language only).
+  await own.goto("/studio/project/languages");
+  // The shop type's warranty notice, accepted once.
+  const accept = own.locator("[data-liability-accept]");
+  if (await accept.isVisible().catch(() => false)) {
+    await accept.click();
+    await expect(accept).toBeHidden();
+  }
+  const list = own.getByRole("list", { name: "Languages in the app" }).getByRole("listitem");
+  for (const [code, name] of [
+    ["ar", "Arabic"],
+    ["tr", "Turkish"],
+  ] as const) {
+    if (await list.filter({ hasText: name }).count()) continue;
+    await own.getByLabel("Add a language").selectOption(code);
+    await own.getByRole("button", { name: "Add", exact: true }).click();
+    await expect(list.filter({ hasText: name })).toHaveCount(1);
+  }
   await own.goto("/studio/project/preview?pages=published");
   const src = (await own.locator("iframe[data-testid=app-preview]").getAttribute("src"))!;
   const token = new URL(src, E2E.baseURL).searchParams.get("token")!;
@@ -160,5 +178,8 @@ for (const l of LOOKS) {
         await page.context().close();
       }
     }
+    const tr = await openApp(browser, appId, "tr", false, REVIEW_PHONE, 2);
+    await tr.screenshot({ path: path.join(REVIEW, `${base}-home-tr.png`) });
+    await tr.context().close();
   });
 }

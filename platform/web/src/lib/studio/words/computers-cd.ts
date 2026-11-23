@@ -9,6 +9,10 @@ import { typeWords } from "./words";
  */
 export const COMPUTERS_CD_WORDS = typeWords({
   en: {
+    pbCart: "Cart",
+    pwCart: "Cart",
+    pwMenuButton: "Catalogue",
+    pwSearchShort: "Search the catalogue",
     // ——— C · the battle station ———
     pbWordmark: "{app}",
     pbTabGaming: "Gaming",
@@ -100,6 +104,10 @@ export const COMPUTERS_CD_WORDS = typeWords({
     pwSignIn: "Sign in for your orders, invoices and quotes.",
   },
   ar: {
+    pbCart: "السلة",
+    pwCart: "السلة",
+    pwMenuButton: "الكتالوج",
+    pwSearchShort: "ابحث في الكتالوج",
     pbWordmark: "{app}",
     pbTabGaming: "ألعاب",
     pbTabStream: "بثّ",
@@ -189,6 +197,10 @@ export const COMPUTERS_CD_WORDS = typeWords({
     pwSignIn: "سجّل الدخول لطلباتك وفواتيرك وعروض الأسعار.",
   },
   tr: {
+    pbCart: "Sepet",
+    pwCart: "Sepet",
+    pwMenuButton: "Katalog",
+    pwSearchShort: "Katalogda ara",
     pbWordmark: "{app}",
     pbTabGaming: "Oyun",
     pbTabStream: "Yayın",

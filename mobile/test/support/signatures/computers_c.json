@@ -182,28 +182,6 @@
     "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
-     "header": {
-      "type": "logo_center",
-      "title": "Nawah",
-      "translations": {
-       "ar": {
-        "title": "Nawah"
-       },
-       "tr": {
-        "title": "Nawah"
-       }
-      },
-      "buttons": [
-       "menu",
-       "cart"
-      ],
-      "menu_page": "menu",
-      "background": "#E6E8EE",
-      "dark_background": "#040507",
-      "color": "#0B0C12",
-      "dark_color": "#F1F3FA",
-      "style": "glass"
-     },
      "background": "#E6E8EE",
      "dark_background": "#040507",
      "body": {
@@ -219,18 +197,127 @@
        {
         "id": "sig-2",
         "type": "row",
+        "name": "Nawah",
+        "gap": 10,
+        "cross": "center",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "background": "#0B0C12",
+        "dark_background": "#0B0C12",
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "icon",
+          "name": "All categories",
+          "icon": "apps",
+          "icon_size": 22,
+          "color": "#22E6FF",
+          "dark_color": "#22E6FF",
+          "background": "#151824",
+          "dark_background": "#151824",
+          "border_color": "#2A2F45",
+          "dark_border_color": "#2A2F45",
+          "border_width": 1,
+          "corners": {
+           "top_start": 0,
+           "top_end": 10,
+           "bottom_end": 0,
+           "bottom_start": 10
+          },
+          "padding": {
+           "top": 9,
+           "end": 9,
+           "bottom": 9,
+           "start": 9
+          },
+          "action": {
+           "type": "page",
+           "page_slug": "menu"
+          }
+         },
+         {
+          "id": "sig-4",
+          "type": "icon",
+          "icon": "bolt",
+          "icon_size": 22,
+          "color": "#FF2BD6",
+          "dark_color": "#FF2BD6"
+         },
+         {
+          "id": "sig-5",
+          "type": "text",
+          "text": "Nawah",
+          "font": {
+           "family": "Changa",
+           "size": 20,
+           "weight": 800,
+           "line_height": 1.12,
+           "letter_spacing": 3
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "Nawah"
+           },
+           "tr": {
+            "text": "Nawah"
+           }
+          }
+         },
+         {
+          "id": "sig-6",
+          "type": "icon",
+          "name": "Cart",
+          "icon": "shopping_cart",
+          "icon_size": 22,
+          "color": "#22E6FF",
+          "dark_color": "#22E6FF",
+          "background": "#151824",
+          "dark_background": "#151824",
+          "border_color": "#2A2F45",
+          "dark_border_color": "#2A2F45",
+          "border_width": 1,
+          "corners": {
+           "top_start": 0,
+           "top_end": 10,
+           "bottom_end": 0,
+           "bottom_start": 10
+          },
+          "padding": {
+           "top": 9,
+           "end": 9,
+           "bottom": 9,
+           "start": 9
+          },
+          "action": {
+           "type": "screen",
+           "screen": "cart"
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-7",
+        "type": "row",
         "name": "Gaming",
         "gap": 6,
         "scroll": true,
         "padding": {
-         "top": 6,
+         "top": 10,
          "end": 16,
          "bottom": 6,
          "start": 16
         },
         "children": [
          {
-          "id": "sig-3",
+          "id": "sig-8",
           "type": "text",
           "name": "Gaming",
           "text": "Gaming",
@@ -270,7 +357,7 @@
           }
          },
          {
-          "id": "sig-4",
+          "id": "sig-9",
           "type": "text",
           "name": "Streaming",
           "text": "Streaming",
@@ -311,7 +398,7 @@
           }
          },
          {
-          "id": "sig-5",
+          "id": "sig-10",
           "type": "text",
           "name": "Parts",
           "text": "Parts",
@@ -352,7 +439,7 @@
           }
          },
          {
-          "id": "sig-6",
+          "id": "sig-11",
           "type": "text",
           "name": "Gear",
           "text": "Gear",
@@ -395,7 +482,7 @@
         ]
        },
        {
-        "id": "sig-7",
+        "id": "sig-12",
         "type": "column",
         "name": "Build the PC of your dreams",
         "gap": 10,
@@ -429,7 +516,7 @@
         },
         "children": [
          {
-          "id": "sig-8",
+          "id": "sig-13",
           "type": "text",
           "text": "BUILD // 01",
           "font": {
@@ -451,7 +538,7 @@
           }
          },
          {
-          "id": "sig-9",
+          "id": "sig-14",
           "type": "text",
           "text": "Build the PC of your dreams",
           "font": {
@@ -479,7 +566,7 @@
           }
          },
          {
-          "id": "sig-10",
+          "id": "sig-15",
           "type": "row",
           "name": "Processor",
           "gap": 12,
@@ -502,7 +589,7 @@
           },
           "children": [
            {
-            "id": "sig-11",
+            "id": "sig-16",
             "type": "text",
             "text": "1",
             "width": 32,
@@ -526,13 +613,13 @@
             "dark_background": "#FF2BD6"
            },
            {
-            "id": "sig-12",
+            "id": "sig-17",
             "type": "column",
             "width": "fill",
             "gap": 1,
             "children": [
              {
-              "id": "sig-13",
+              "id": "sig-18",
               "type": "text",
               "text": "Processor",
               "font": {
@@ -553,7 +640,7 @@
               }
              },
              {
-              "id": "sig-14",
+              "id": "sig-19",
               "type": "text",
               "text": "The heart of the build",
               "font": {
@@ -576,7 +663,7 @@
             ]
            },
            {
-            "id": "sig-15",
+            "id": "sig-20",
             "type": "icon",
             "icon": "bolt",
             "icon_size": 18,
@@ -586,7 +673,7 @@
           ]
          },
          {
-          "id": "sig-16",
+          "id": "sig-21",
           "type": "row",
           "name": "Graphics card",
           "gap": 12,
@@ -609,7 +696,7 @@
           },
           "children": [
            {
-            "id": "sig-17",
+            "id": "sig-22",
             "type": "text",
             "text": "2",
             "width": 32,
@@ -633,13 +720,13 @@
             "dark_background": "#232636"
            },
            {
-            "id": "sig-18",
+            "id": "sig-23",
             "type": "column",
             "width": "fill",
             "gap": 1,
             "children": [
              {
-              "id": "sig-19",
+              "id": "sig-24",
               "type": "text",
               "text": "Graphics card",
               "font": {
@@ -660,7 +747,7 @@
               }
              },
              {
-              "id": "sig-20",
+              "id": "sig-25",
               "type": "text",
               "text": "Chosen to match the processor",
               "font": {
@@ -683,7 +770,7 @@
             ]
            },
            {
-            "id": "sig-21",
+            "id": "sig-26",
             "type": "icon",
             "icon": "lock",
             "icon_size": 18,
@@ -693,7 +780,7 @@
           ]
          },
          {
-          "id": "sig-22",
+          "id": "sig-27",
           "type": "row",
           "name": "Memory",
           "gap": 12,
@@ -716,7 +803,7 @@
           },
           "children": [
            {
-            "id": "sig-23",
+            "id": "sig-28",
             "type": "text",
             "text": "3",
             "width": 32,
@@ -740,13 +827,13 @@
             "dark_background": "#232636"
            },
            {
-            "id": "sig-24",
+            "id": "sig-29",
             "type": "column",
             "width": "fill",
             "gap": 1,
             "children": [
              {
-              "id": "sig-25",
+              "id": "sig-30",
               "type": "text",
               "text": "Memory",
               "font": {
@@ -767,7 +854,7 @@
               }
              },
              {
-              "id": "sig-26",
+              "id": "sig-31",
               "type": "text",
               "text": "Fast, and fitted to the board",
               "font": {
@@ -790,7 +877,7 @@
             ]
            },
            {
-            "id": "sig-27",
+            "id": "sig-32",
             "type": "icon",
             "icon": "lock",
             "icon_size": 18,
@@ -800,7 +887,7 @@
           ]
          },
          {
-          "id": "sig-28",
+          "id": "sig-33",
           "type": "row",
           "name": "Start the build",
           "height": 50,
@@ -833,7 +920,7 @@
           },
           "children": [
            {
-            "id": "sig-29",
+            "id": "sig-34",
             "type": "text",
             "text": "Start the build",
             "font": {
@@ -854,7 +941,7 @@
             }
            },
            {
-            "id": "sig-30",
+            "id": "sig-35",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 20,
@@ -866,7 +953,7 @@
         ]
        },
        {
-        "id": "sig-31",
+        "id": "sig-36",
         "type": "row",
         "name": "Top of the arsenal",
         "cross": "end",
@@ -879,7 +966,7 @@
         },
         "children": [
          {
-          "id": "sig-32",
+          "id": "sig-37",
           "type": "text",
           "text": "Top of the arsenal",
           "font": {
@@ -901,7 +988,7 @@
           }
          },
          {
-          "id": "sig-33",
+          "id": "sig-38",
           "type": "text",
           "text": "// TOP",
           "font": {
@@ -929,14 +1016,14 @@
           }
          },
          {
-          "id": "sig-34",
+          "id": "sig-39",
           "type": "row",
           "width": "fill",
           "height": 1,
           "children": []
          },
          {
-          "id": "sig-35",
+          "id": "sig-40",
           "type": "text",
           "text": "All",
           "font": {
@@ -963,7 +1050,7 @@
         ]
        },
        {
-        "id": "sig-36",
+        "id": "sig-41",
         "type": "items",
         "name": "Top of the arsenal",
         "source": "products",
@@ -983,7 +1070,7 @@
          "ids": []
         },
         "card": {
-         "id": "sig-37",
+         "id": "sig-42",
          "type": "column",
          "width": 196,
          "gap": 5,
@@ -1006,13 +1093,13 @@
          "border_width": 1,
          "children": [
           {
-           "id": "sig-38",
+           "id": "sig-43",
            "type": "stack",
            "width": "fill",
            "height": 128,
            "children": [
             {
-             "id": "sig-39",
+             "id": "sig-44",
              "type": "image",
              "bind": "image",
              "width": "fill",
@@ -1028,7 +1115,7 @@
              "dark_background": "#171A24"
             },
             {
-             "id": "sig-40",
+             "id": "sig-45",
              "type": "text",
              "bind": "sale",
              "font": {
@@ -1060,7 +1147,7 @@
            ]
           },
           {
-           "id": "sig-41",
+           "id": "sig-46",
            "type": "text",
            "bind": "subtitle",
            "max_lines": 1,
@@ -1094,7 +1181,7 @@
            }
           },
           {
-           "id": "sig-42",
+           "id": "sig-47",
            "type": "text",
            "bind": "title",
            "max_lines": 2,
@@ -1108,16 +1195,16 @@
            }
           },
           {
-           "id": "sig-43",
+           "id": "sig-48",
            "type": "row",
            "gap": 6,
            "cross": "center",
            "children": [
             {
-             "id": "sig-44",
+             "id": "sig-49",
              "type": "text",
              "bind": "price",
-             "max_lines": 1,
+             "max_lines": 2,
              "color": "#0B0C12",
              "dark_color": "#F1F3FA",
              "font": {
@@ -1127,7 +1214,7 @@
              }
             },
             {
-             "id": "sig-45",
+             "id": "sig-50",
              "type": "text",
              "bind": "was_price",
              "max_lines": 1,
@@ -1144,7 +1231,7 @@
         }
        },
        {
-        "id": "sig-46",
+        "id": "sig-51",
         "type": "spec_filter",
         "name": "Shop by graphics",
         "text": "Shop by graphics",
@@ -1171,7 +1258,7 @@
         }
        },
        {
-        "id": "sig-47",
+        "id": "sig-52",
         "type": "row",
         "name": "Ready builds",
         "cross": "end",
@@ -1184,7 +1271,7 @@
         },
         "children": [
          {
-          "id": "sig-48",
+          "id": "sig-53",
           "type": "text",
           "text": "Ready builds",
           "font": {
@@ -1206,7 +1293,7 @@
           }
          },
          {
-          "id": "sig-49",
+          "id": "sig-54",
           "type": "text",
           "text": "// RIGS",
           "font": {
@@ -1234,14 +1321,14 @@
           }
          },
          {
-          "id": "sig-50",
+          "id": "sig-55",
           "type": "row",
           "width": "fill",
           "height": 1,
           "children": []
          },
          {
-          "id": "sig-51",
+          "id": "sig-56",
           "type": "text",
           "text": "All",
           "font": {
@@ -1268,7 +1355,7 @@
         ]
        },
        {
-        "id": "sig-52",
+        "id": "sig-57",
         "type": "row",
         "gap": 10,
         "padding": {
@@ -1279,7 +1366,7 @@
         },
         "children": [
          {
-          "id": "sig-53",
+          "id": "sig-58",
           "type": "photo_hero",
           "name": "4K ultra",
           "image_url": "http://localhost:3000/computers-photos/setup-purple.jpg",
@@ -1312,7 +1399,7 @@
           },
           "children": [
            {
-            "id": "sig-54",
+            "id": "sig-59",
             "type": "text",
             "name": "4K · 120+ FPS",
             "text": "4K · 120+ FPS",
@@ -1355,12 +1442,12 @@
             }
            },
            {
-            "id": "sig-55",
+            "id": "sig-60",
             "type": "column",
             "gap": 1,
             "children": [
              {
-              "id": "sig-56",
+              "id": "sig-61",
               "type": "text",
               "text": "4K ultra",
               "font": {
@@ -1382,7 +1469,7 @@
               }
              },
              {
-              "id": "sig-57",
+              "id": "sig-62",
               "type": "text",
               "text": "Built for 4K at high frame rates",
               "font": {
@@ -1407,7 +1494,7 @@
           ]
          },
          {
-          "id": "sig-58",
+          "id": "sig-63",
           "type": "photo_hero",
           "name": "Play and stream",
           "image_url": "http://localhost:3000/computers-photos/kb-rgb.jpg",
@@ -1440,7 +1527,7 @@
           },
           "children": [
            {
-            "id": "sig-59",
+            "id": "sig-64",
             "type": "text",
             "name": "1440p · 165+ FPS",
             "text": "1440p · 165+ FPS",
@@ -1483,12 +1570,12 @@
             }
            },
            {
-            "id": "sig-60",
+            "id": "sig-65",
             "type": "column",
             "gap": 1,
             "children": [
              {
-              "id": "sig-61",
+              "id": "sig-66",
               "type": "text",
               "text": "Play and stream",
               "font": {
@@ -1510,7 +1597,7 @@
               }
              },
              {
-              "id": "sig-62",
+              "id": "sig-67",
               "type": "text",
               "text": "Two jobs, one machine",
               "font": {
@@ -1537,7 +1624,7 @@
         ]
        },
        {
-        "id": "sig-63",
+        "id": "sig-68",
         "type": "photo_hero",
         "name": "Esports",
         "image_url": "http://localhost:3000/computers-photos/pad-blue.jpg",
@@ -1570,7 +1657,7 @@
         },
         "children": [
          {
-          "id": "sig-64",
+          "id": "sig-69",
           "type": "text",
           "name": "1080p · 240+ FPS",
           "text": "1080p · 240+ FPS",
@@ -1613,12 +1700,12 @@
           }
          },
          {
-          "id": "sig-65",
+          "id": "sig-70",
           "type": "column",
           "gap": 1,
           "children": [
            {
-            "id": "sig-66",
+            "id": "sig-71",
             "type": "text",
             "text": "Esports",
             "font": {
@@ -1640,7 +1727,7 @@
             }
            },
            {
-            "id": "sig-67",
+            "id": "sig-72",
             "type": "text",
             "text": "Every frame, every time",
             "font": {
@@ -1671,7 +1758,7 @@
         }
        },
        {
-        "id": "sig-68",
+        "id": "sig-73",
         "type": "flash_sale",
         "name": "Parts on sale",
         "text": "Parts on sale",
@@ -1704,7 +1791,7 @@
         }
        },
        {
-        "id": "sig-69",
+        "id": "sig-74",
         "type": "row",
         "name": "Gear up",
         "cross": "end",
@@ -1717,7 +1804,7 @@
         },
         "children": [
          {
-          "id": "sig-70",
+          "id": "sig-75",
           "type": "text",
           "text": "Gear up",
           "font": {
@@ -1739,7 +1826,7 @@
           }
          },
          {
-          "id": "sig-71",
+          "id": "sig-76",
           "type": "text",
           "text": "// GEAR",
           "font": {
@@ -1767,14 +1854,14 @@
           }
          },
          {
-          "id": "sig-72",
+          "id": "sig-77",
           "type": "row",
           "width": "fill",
           "height": 1,
           "children": []
          },
          {
-          "id": "sig-73",
+          "id": "sig-78",
           "type": "text",
           "text": "All",
           "font": {
@@ -1801,7 +1888,7 @@
         ]
        },
        {
-        "id": "sig-74",
+        "id": "sig-79",
         "type": "items",
         "name": "Gear up",
         "source": "products",
@@ -1818,11 +1905,11 @@
          "limit": 4,
          "category_id": null,
          "featured": false,
-         "sort": "newest",
+         "sort": "price_asc",
          "ids": []
         },
         "card": {
-         "id": "sig-75",
+         "id": "sig-80",
          "type": "column",
          "width": "fill",
          "gap": 5,
@@ -1845,13 +1932,13 @@
          "border_width": 1,
          "children": [
           {
-           "id": "sig-76",
+           "id": "sig-81",
            "type": "stack",
            "width": "fill",
            "height": 112,
            "children": [
             {
-             "id": "sig-77",
+             "id": "sig-82",
              "type": "image",
              "bind": "image",
              "width": "fill",
@@ -1867,7 +1954,7 @@
              "dark_background": "#171A24"
             },
             {
-             "id": "sig-78",
+             "id": "sig-83",
              "type": "text",
              "bind": "sale",
              "font": {
@@ -1899,7 +1986,7 @@
            ]
           },
           {
-           "id": "sig-79",
+           "id": "sig-84",
            "type": "text",
            "bind": "subtitle",
            "max_lines": 1,
@@ -1933,7 +2020,7 @@
            }
           },
           {
-           "id": "sig-80",
+           "id": "sig-85",
            "type": "text",
            "bind": "title",
            "max_lines": 2,
@@ -1947,16 +2034,16 @@
            }
           },
           {
-           "id": "sig-81",
+           "id": "sig-86",
            "type": "row",
            "gap": 6,
            "cross": "center",
            "children": [
             {
-             "id": "sig-82",
+             "id": "sig-87",
              "type": "text",
              "bind": "price",
-             "max_lines": 1,
+             "max_lines": 2,
              "color": "#0B0C12",
              "dark_color": "#F1F3FA",
              "font": {
@@ -1966,7 +2053,7 @@
              }
             },
             {
-             "id": "sig-83",
+             "id": "sig-88",
              "type": "text",
              "bind": "was_price",
              "max_lines": 1,
@@ -1983,7 +2070,7 @@
         }
        },
        {
-        "id": "sig-84",
+        "id": "sig-89",
         "type": "row",
         "name": "Rig against rig",
         "cross": "end",
@@ -1996,7 +2083,7 @@
         },
         "children": [
          {
-          "id": "sig-85",
+          "id": "sig-90",
           "type": "text",
           "text": "Rig against rig",
           "font": {
@@ -2018,7 +2105,7 @@
           }
          },
          {
-          "id": "sig-86",
+          "id": "sig-91",
           "type": "row",
           "width": "fill",
           "height": 1,
@@ -2027,7 +2114,7 @@
         ]
        },
        {
-        "id": "sig-87",
+        "id": "sig-92",
         "type": "compare",
         "name": "Rig against rig",
         "tech": {
@@ -2077,11 +2164,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-124",
+      "id": "sig-123",
       "type": "column",
       "children": [
        {
-        "id": "sig-125",
+        "id": "sig-124",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -2096,7 +2183,7 @@
         }
        },
        {
-        "id": "sig-126",
+        "id": "sig-125",
         "type": "row",
         "name": "Gear for every game",
         "gap": 12,
@@ -2130,13 +2217,13 @@
         },
         "children": [
          {
-          "id": "sig-127",
+          "id": "sig-126",
           "type": "column",
           "width": "fill",
           "gap": 1,
           "children": [
            {
-            "id": "sig-128",
+            "id": "sig-127",
             "type": "text",
             "text": "LOADOUT",
             "font": {
@@ -2158,7 +2245,7 @@
             }
            },
            {
-            "id": "sig-129",
+            "id": "sig-128",
             "type": "text",
             "text": "Gear for every game",
             "font": {
@@ -2182,7 +2269,7 @@
           ]
          },
          {
-          "id": "sig-130",
+          "id": "sig-129",
           "type": "icon",
           "icon": "memory",
           "icon_size": 26,
@@ -2192,7 +2279,7 @@
         ]
        },
        {
-        "id": "sig-131",
+        "id": "sig-130",
         "type": "listing_filters",
         "name": "Gear for every game",
         "color": "#0B0C12",
@@ -2247,11 +2334,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-132",
+      "id": "sig-131",
       "type": "column",
       "children": [
        {
-        "id": "sig-133",
+        "id": "sig-132",
         "type": "coupon",
         "name": "Your first order's code",
         "code": "NAWAH10",
@@ -2269,7 +2356,7 @@
         }
        },
        {
-        "id": "sig-134",
+        "id": "sig-133",
         "type": "column",
         "gap": 10,
         "padding": {
@@ -2297,7 +2384,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "sig-135",
+          "id": "sig-134",
           "type": "row",
           "name": "Installments coming soon",
           "width": "hug",
@@ -2315,7 +2402,7 @@
           "dark_background": "#040507",
           "children": [
            {
-            "id": "sig-136",
+            "id": "sig-135",
             "type": "icon",
             "icon": "schedule",
             "icon_size": 16,
@@ -2323,7 +2410,7 @@
             "dark_color": "#A0A6B8"
            },
            {
-            "id": "sig-137",
+            "id": "sig-136",
             "type": "text",
             "text": "Installments coming soon",
             "max_lines": 2,
@@ -2390,11 +2477,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-138",
+      "id": "sig-137",
       "type": "column",
       "children": [
        {
-        "id": "sig-139",
+        "id": "sig-138",
         "type": "row",
         "name": "Your order's journey",
         "cross": "end",
@@ -2407,7 +2494,7 @@
         },
         "children": [
          {
-          "id": "sig-140",
+          "id": "sig-139",
           "type": "text",
           "text": "Your order's journey",
           "font": {
@@ -2429,7 +2516,7 @@
           }
          },
          {
-          "id": "sig-141",
+          "id": "sig-140",
           "type": "row",
           "width": "fill",
           "height": 1,
@@ -2438,7 +2525,7 @@
         ]
        },
        {
-        "id": "sig-142",
+        "id": "sig-141",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -2573,11 +2660,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-144",
+      "id": "sig-143",
       "type": "column",
       "children": [
        {
-        "id": "sig-143",
+        "id": "sig-142",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -2638,7 +2725,7 @@
      "background": "#E6E8EE",
      "dark_background": "#040507",
      "body": {
-      "id": "sig-88",
+      "id": "sig-93",
       "type": "column",
       "padding": {
        "top": 0,
@@ -2648,7 +2735,7 @@
       },
       "children": [
        {
-        "id": "sig-89",
+        "id": "sig-94",
         "type": "search",
         "name": "Search parts, builds and gear…",
         "text": "Search parts, builds and gear…",
@@ -2683,7 +2770,7 @@
         }
        },
        {
-        "id": "sig-90",
+        "id": "sig-95",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -2703,7 +2790,7 @@
         }
        },
        {
-        "id": "sig-91",
+        "id": "sig-96",
         "type": "column",
         "gap": 8,
         "margin": {
@@ -2714,7 +2801,7 @@
         },
         "children": [
          {
-          "id": "sig-92",
+          "id": "sig-97",
           "type": "row",
           "name": "My account",
           "gap": 12,
@@ -2742,7 +2829,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-93",
+            "id": "sig-98",
             "type": "icon",
             "icon": "person",
             "icon_size": 20,
@@ -2764,7 +2851,7 @@
             }
            },
            {
-            "id": "sig-94",
+            "id": "sig-99",
             "type": "text",
             "text": "My account",
             "font": {
@@ -2786,7 +2873,7 @@
             }
            },
            {
-            "id": "sig-95",
+            "id": "sig-100",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 20,
@@ -2796,7 +2883,7 @@
           ]
          },
          {
-          "id": "sig-96",
+          "id": "sig-101",
           "type": "row",
           "name": "My orders",
           "gap": 12,
@@ -2824,7 +2911,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-97",
+            "id": "sig-102",
             "type": "icon",
             "icon": "inventory_2",
             "icon_size": 20,
@@ -2846,7 +2933,7 @@
             }
            },
            {
-            "id": "sig-98",
+            "id": "sig-103",
             "type": "text",
             "text": "My orders",
             "font": {
@@ -2868,7 +2955,7 @@
             }
            },
            {
-            "id": "sig-99",
+            "id": "sig-104",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 20,
@@ -2878,7 +2965,7 @@
           ]
          },
          {
-          "id": "sig-100",
+          "id": "sig-105",
           "type": "row",
           "name": "Wishlist",
           "gap": 12,
@@ -2906,7 +2993,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-101",
+            "id": "sig-106",
             "type": "icon",
             "icon": "favorite",
             "icon_size": 20,
@@ -2928,7 +3015,7 @@
             }
            },
            {
-            "id": "sig-102",
+            "id": "sig-107",
             "type": "text",
             "text": "Wishlist",
             "font": {
@@ -2950,7 +3037,7 @@
             }
            },
            {
-            "id": "sig-103",
+            "id": "sig-108",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 20,
@@ -2960,7 +3047,7 @@
           ]
          },
          {
-          "id": "sig-104",
+          "id": "sig-109",
           "type": "row",
           "name": "Language",
           "gap": 12,
@@ -2988,7 +3075,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-105",
+            "id": "sig-110",
             "type": "icon",
             "icon": "language",
             "icon_size": 20,
@@ -3010,7 +3097,7 @@
             }
            },
            {
-            "id": "sig-106",
+            "id": "sig-111",
             "type": "text",
             "text": "Language",
             "font": {
@@ -3032,7 +3119,7 @@
             }
            },
            {
-            "id": "sig-107",
+            "id": "sig-112",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 20,
@@ -3042,7 +3129,7 @@
           ]
          },
          {
-          "id": "sig-108",
+          "id": "sig-113",
           "type": "row",
           "name": "Contact us",
           "gap": 12,
@@ -3070,7 +3157,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-109",
+            "id": "sig-114",
             "type": "icon",
             "icon": "support_agent",
             "icon_size": 20,
@@ -3092,7 +3179,7 @@
             }
            },
            {
-            "id": "sig-110",
+            "id": "sig-115",
             "type": "text",
             "text": "Contact us",
             "font": {
@@ -3114,7 +3201,7 @@
             }
            },
            {
-            "id": "sig-111",
+            "id": "sig-116",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 20,
@@ -3126,7 +3213,7 @@
         ]
        },
        {
-        "id": "sig-112",
+        "id": "sig-117",
         "type": "text",
         "text": "Tech support every day, 10 am to midnight",
         "font": {
@@ -3193,7 +3280,7 @@
      "background": "#E6E8EE",
      "dark_background": "#040507",
      "body": {
-      "id": "sig-113",
+      "id": "sig-118",
       "type": "column",
       "padding": {
        "top": 0,
@@ -3203,7 +3290,7 @@
       },
       "children": [
        {
-        "id": "sig-114",
+        "id": "sig-119",
         "type": "text",
         "text": "Pick each part in turn; we check that they fit together.",
         "font": {
@@ -3230,7 +3317,7 @@
         }
        },
        {
-        "id": "sig-115",
+        "id": "sig-120",
         "type": "pc_builder",
         "name": "Build your PC",
         "text": "Every part checked against the others: socket, memory, power and size.",
@@ -3275,51 +3362,7 @@
         }
        },
        {
-        "id": "sig-116",
-        "type": "row",
-        "name": "Shop by graphics",
-        "cross": "end",
-        "gap": 8,
-        "padding": {
-         "top": 24,
-         "end": 16,
-         "bottom": 10,
-         "start": 16
-        },
-        "children": [
-         {
-          "id": "sig-117",
-          "type": "text",
-          "text": "Shop by graphics",
-          "font": {
-           "family": "Changa",
-           "size": 21,
-           "weight": 800,
-           "line_height": 1.12
-          },
-          "color": "#0B0C12",
-          "dark_color": "#F1F3FA",
-          "max_lines": 1,
-          "translations": {
-           "ar": {
-            "text": "تسوّق حسب الرسوميات"
-           },
-           "tr": {
-            "text": "Ekran kartına göre"
-           }
-          }
-         },
-         {
-          "id": "sig-118",
-          "type": "row",
-          "width": "fill",
-          "height": 1,
-          "children": []
-         }
-        ]
-       },
-       {
-        "id": "sig-119",
+        "id": "sig-121",
         "type": "spec_filter",
         "name": "Shop by graphics",
         "text": "Shop by graphics",
@@ -3339,58 +3382,14 @@
         "color": "#0B0C12",
         "dark_color": "#F1F3FA",
         "margin": {
-         "top": 0,
+         "top": 20,
          "end": 16,
          "bottom": 0,
          "start": 16
         }
        },
        {
-        "id": "sig-120",
-        "type": "row",
-        "name": "Shop by memory",
-        "cross": "end",
-        "gap": 8,
-        "padding": {
-         "top": 24,
-         "end": 16,
-         "bottom": 10,
-         "start": 16
-        },
-        "children": [
-         {
-          "id": "sig-121",
-          "type": "text",
-          "text": "Shop by memory",
-          "font": {
-           "family": "Changa",
-           "size": 21,
-           "weight": 800,
-           "line_height": 1.12
-          },
-          "color": "#0B0C12",
-          "dark_color": "#F1F3FA",
-          "max_lines": 1,
-          "translations": {
-           "ar": {
-            "text": "تسوّق حسب الذاكرة"
-           },
-           "tr": {
-            "text": "Belleğe göre"
-           }
-          }
-         },
-         {
-          "id": "sig-122",
-          "type": "row",
-          "width": "fill",
-          "height": 1,
-          "children": []
-         }
-        ]
-       },
-       {
-        "id": "sig-123",
+        "id": "sig-122",
         "type": "spec_filter",
         "name": "Shop by memory",
         "text": "Shop by memory",
@@ -3410,7 +3409,7 @@
         "color": "#0B0C12",
         "dark_color": "#F1F3FA",
         "margin": {
-         "top": 0,
+         "top": 16,
          "end": 16,
          "bottom": 0,
          "start": 16
@@ -3456,7 +3455,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-145",
+      "id": "sig-144",
       "type": "column",
       "children": []
      },
@@ -3498,7 +3497,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-146",
+      "id": "sig-145",
       "type": "column",
       "children": []
      },
@@ -3540,7 +3539,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-147",
+      "id": "sig-146",
       "type": "column",
       "children": []
      },
@@ -3582,7 +3581,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-148",
+      "id": "sig-147",
       "type": "column",
       "children": []
      },
@@ -3624,7 +3623,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-149",
+      "id": "sig-148",
       "type": "column",
       "children": []
      },
@@ -3658,7 +3657,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-150",
+      "id": "sig-149",
       "type": "column",
       "children": []
      },
@@ -3675,7 +3674,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-151",
+      "id": "sig-150",
       "type": "column",
       "children": []
      },

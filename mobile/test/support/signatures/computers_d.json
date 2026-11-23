@@ -180,28 +180,6 @@
     "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
-     "header": {
-      "type": "title_search",
-      "title": "Nawah",
-      "translations": {
-       "ar": {
-        "title": "Nawah"
-       },
-       "tr": {
-        "title": "Nawah"
-       }
-      },
-      "buttons": [
-       "menu",
-       "cart"
-      ],
-      "menu_page": "menu",
-      "background": "#FFFFFF",
-      "dark_background": "#131B26",
-      "color": "#0F1E33",
-      "dark_color": "#E6ECF4",
-      "style": "search"
-     },
      "background": "#E8EDF3",
      "dark_background": "#0B1119",
      "body": {
@@ -216,6 +194,122 @@
       "children": [
        {
         "id": "sig-2",
+        "type": "column",
+        "name": "Nawah",
+        "gap": 0,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "padding": {
+           "top": 8,
+           "end": 14,
+           "bottom": 8,
+           "start": 14
+          },
+          "children": [
+           {
+            "id": "sig-4",
+            "type": "text",
+            "text": "Nawah",
+            "font": {
+             "family": "Alexandria",
+             "size": 16,
+             "weight": 700,
+             "line_height": 1.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "Nawah"
+             },
+             "tr": {
+              "text": "Nawah"
+             }
+            }
+           },
+           {
+            "id": "sig-5",
+            "type": "search",
+            "name": "Search the catalogue",
+            "text": "Search the catalogue",
+            "source": "products",
+            "width": "fill",
+            "height": 38,
+            "radius": 7,
+            "background": "#F2F5F9",
+            "dark_background": "#172130",
+            "color": "#52627A",
+            "dark_color": "#97A6BA",
+            "border_color": "#D3DBE6",
+            "dark_border_color": "#243244",
+            "border_width": 1,
+            "translations": {
+             "ar": {
+              "text": "ابحث في الكتالوج"
+             },
+             "tr": {
+              "text": "Katalogda ara"
+             }
+            }
+           },
+           {
+            "id": "sig-6",
+            "type": "icon",
+            "name": "Catalogue",
+            "icon": "category",
+            "icon_size": 21,
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "padding": {
+             "top": 6,
+             "end": 4,
+             "bottom": 6,
+             "start": 4
+            },
+            "action": {
+             "type": "page",
+             "page_slug": "menu"
+            }
+           },
+           {
+            "id": "sig-7",
+            "type": "icon",
+            "name": "Cart",
+            "icon": "shopping_cart",
+            "icon_size": 21,
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "padding": {
+             "top": 6,
+             "end": 4,
+             "bottom": 6,
+             "start": 4
+            },
+            "action": {
+             "type": "screen",
+             "screen": "cart"
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-8",
+          "type": "divider",
+          "height": 1,
+          "background": "#D3DBE6",
+          "dark_background": "#243244"
+         }
+        ]
+       },
+       {
+        "id": "sig-9",
         "type": "row",
         "name": "Delivery for companies",
         "gap": 1,
@@ -236,7 +330,7 @@
         "dark_background": "#243244",
         "children": [
          {
-          "id": "sig-3",
+          "id": "sig-10",
           "type": "column",
           "name": "Delivery for companies",
           "width": "fill",
@@ -251,7 +345,7 @@
           "dark_background": "#131B26",
           "children": [
            {
-            "id": "sig-4",
+            "id": "sig-11",
             "type": "icon",
             "icon": "local_shipping",
             "icon_size": 20,
@@ -259,7 +353,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-5",
+            "id": "sig-12",
             "type": "text",
             "text": "Delivery for companies",
             "font": {
@@ -283,7 +377,7 @@
           ]
          },
          {
-          "id": "sig-6",
+          "id": "sig-13",
           "type": "column",
           "name": "On-site warranty",
           "width": "fill",
@@ -298,7 +392,7 @@
           "dark_background": "#131B26",
           "children": [
            {
-            "id": "sig-7",
+            "id": "sig-14",
             "type": "icon",
             "icon": "build",
             "icon_size": 20,
@@ -306,7 +400,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-8",
+            "id": "sig-15",
             "type": "text",
             "text": "On-site warranty",
             "font": {
@@ -330,7 +424,7 @@
           ]
          },
          {
-          "id": "sig-9",
+          "id": "sig-16",
           "type": "column",
           "name": "Prices for quantities",
           "width": "fill",
@@ -345,7 +439,7 @@
           "dark_background": "#131B26",
           "children": [
            {
-            "id": "sig-10",
+            "id": "sig-17",
             "type": "icon",
             "icon": "inventory_2",
             "icon_size": 20,
@@ -353,7 +447,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-11",
+            "id": "sig-18",
             "type": "text",
             "text": "Prices for quantities",
             "font": {
@@ -379,7 +473,7 @@
         ]
        },
        {
-        "id": "sig-12",
+        "id": "sig-19",
         "type": "row",
         "name": "Workstations",
         "cross": "end",
@@ -392,13 +486,13 @@
         },
         "children": [
          {
-          "id": "sig-13",
+          "id": "sig-20",
           "type": "column",
           "width": "fill",
           "gap": 1,
           "children": [
            {
-            "id": "sig-14",
+            "id": "sig-21",
             "type": "text",
             "text": "Workstations",
             "font": {
@@ -421,7 +515,7 @@
             }
            },
            {
-            "id": "sig-15",
+            "id": "sig-22",
             "type": "text",
             "text": "Full specifications in each row",
             "font": {
@@ -444,7 +538,7 @@
           ]
          },
          {
-          "id": "sig-16",
+          "id": "sig-23",
           "type": "text",
           "text": "Full specs",
           "font": {
@@ -471,7 +565,7 @@
         ]
        },
        {
-        "id": "sig-17",
+        "id": "sig-24",
         "type": "items",
         "name": "Workstations",
         "source": "products",
@@ -496,11 +590,11 @@
          "limit": 5,
          "category_id": null,
          "featured": false,
-         "sort": "popular",
+         "sort": "price_desc",
          "ids": []
         },
         "card": {
-         "id": "sig-18",
+         "id": "sig-25",
          "type": "row",
          "gap": 12,
          "cross": "center",
@@ -514,7 +608,7 @@
          "dark_background": "#131B26",
          "children": [
           {
-           "id": "sig-19",
+           "id": "sig-26",
            "type": "image",
            "bind": "image",
            "width": 64,
@@ -525,13 +619,13 @@
            "dark_background": "#172130"
           },
           {
-           "id": "sig-20",
+           "id": "sig-27",
            "type": "column",
            "width": "fill",
            "gap": 2,
            "children": [
             {
-             "id": "sig-21",
+             "id": "sig-28",
              "type": "text",
              "bind": "title",
              "max_lines": 1,
@@ -544,7 +638,7 @@
              }
             },
             {
-             "id": "sig-22",
+             "id": "sig-29",
              "type": "text",
              "bind": "subtitle",
              "max_lines": 1,
@@ -557,16 +651,16 @@
              }
             },
             {
-             "id": "sig-23",
+             "id": "sig-30",
              "type": "row",
              "gap": 6,
              "cross": "center",
              "children": [
               {
-               "id": "sig-24",
+               "id": "sig-31",
                "type": "text",
                "bind": "price",
-               "max_lines": 1,
+               "max_lines": 2,
                "color": "#2A5885",
                "dark_color": "#8CBBEA",
                "font": {
@@ -576,7 +670,7 @@
                }
               },
               {
-               "id": "sig-25",
+               "id": "sig-32",
                "type": "text",
                "bind": "was_price",
                "max_lines": 1,
@@ -592,7 +686,7 @@
            ]
           },
           {
-           "id": "sig-26",
+           "id": "sig-33",
            "type": "icon",
            "icon": "chevron_right",
            "icon_size": 18,
@@ -603,53 +697,7 @@
         }
        },
        {
-        "id": "sig-27",
-        "type": "row",
-        "name": "By processor",
-        "cross": "end",
-        "gap": 12,
-        "padding": {
-         "top": 18,
-         "end": 16,
-         "bottom": 8,
-         "start": 16
-        },
-        "children": [
-         {
-          "id": "sig-28",
-          "type": "column",
-          "width": "fill",
-          "gap": 1,
-          "children": [
-           {
-            "id": "sig-29",
-            "type": "text",
-            "text": "By processor",
-            "font": {
-             "family": "Alexandria",
-             "size": 14.5,
-             "weight": 600,
-             "line_height": 1.3,
-             "letter_spacing": 0.3
-            },
-            "color": "#0F1E33",
-            "dark_color": "#E6ECF4",
-            "max_lines": 1,
-            "translations": {
-             "ar": {
-              "text": "حسب المعالج"
-             },
-             "tr": {
-              "text": "İşlemciye göre"
-             }
-            }
-           }
-          ]
-         }
-        ]
-       },
-       {
-        "id": "sig-30",
+        "id": "sig-34",
         "type": "spec_filter",
         "name": "By processor",
         "text": "By processor",
@@ -681,14 +729,14 @@
          "start": 12
         },
         "margin": {
-         "top": 0,
+         "top": 16,
          "end": 16,
          "bottom": 0,
          "start": 16
         }
        },
        {
-        "id": "sig-31",
+        "id": "sig-35",
         "type": "spec_filter",
         "name": "By memory",
         "text": "By memory",
@@ -727,7 +775,7 @@
         }
        },
        {
-        "id": "sig-32",
+        "id": "sig-36",
         "type": "spec_filter",
         "name": "By storage",
         "text": "By storage",
@@ -766,7 +814,7 @@
         }
        },
        {
-        "id": "sig-33",
+        "id": "sig-37",
         "type": "row",
         "name": "Compare",
         "cross": "end",
@@ -779,13 +827,13 @@
         },
         "children": [
          {
-          "id": "sig-34",
+          "id": "sig-38",
           "type": "column",
           "width": "fill",
           "gap": 1,
           "children": [
            {
-            "id": "sig-35",
+            "id": "sig-39",
             "type": "text",
             "text": "Compare",
             "font": {
@@ -808,7 +856,7 @@
             }
            },
            {
-            "id": "sig-36",
+            "id": "sig-40",
             "type": "text",
             "text": "Two machines, spec by spec",
             "font": {
@@ -831,7 +879,7 @@
           ]
          },
          {
-          "id": "sig-37",
+          "id": "sig-41",
           "type": "text",
           "text": "Change",
           "font": {
@@ -858,7 +906,7 @@
         ]
        },
        {
-        "id": "sig-38",
+        "id": "sig-42",
         "type": "compare",
         "name": "Compare",
         "tech": {
@@ -887,7 +935,7 @@
         }
        },
        {
-        "id": "sig-39",
+        "id": "sig-43",
         "type": "column",
         "name": "Request a business quote",
         "gap": 4,
@@ -917,13 +965,13 @@
         },
         "children": [
          {
-          "id": "sig-40",
+          "id": "sig-44",
           "type": "row",
           "gap": 8,
           "cross": "center",
           "children": [
            {
-            "id": "sig-41",
+            "id": "sig-45",
             "type": "icon",
             "icon": "description",
             "icon_size": 22,
@@ -931,7 +979,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-42",
+            "id": "sig-46",
             "type": "text",
             "text": "Request a business quote",
             "font": {
@@ -956,7 +1004,7 @@
           ]
          },
          {
-          "id": "sig-43",
+          "id": "sig-47",
           "type": "text",
           "text": "Ten devices or more? Tell us what you need and we answer with a quote within one working day.",
           "font": {
@@ -978,7 +1026,7 @@
           }
          },
          {
-          "id": "sig-44",
+          "id": "sig-48",
           "type": "form",
           "name": "Request a business quote",
           "form": {
@@ -1042,7 +1090,7 @@
         ]
        },
        {
-        "id": "sig-45",
+        "id": "sig-49",
         "type": "row",
         "name": "New in the catalogue",
         "cross": "end",
@@ -1055,13 +1103,13 @@
         },
         "children": [
          {
-          "id": "sig-46",
+          "id": "sig-50",
           "type": "column",
           "width": "fill",
           "gap": 1,
           "children": [
            {
-            "id": "sig-47",
+            "id": "sig-51",
             "type": "text",
             "text": "New in the catalogue",
             "font": {
@@ -1086,7 +1134,7 @@
           ]
          },
          {
-          "id": "sig-48",
+          "id": "sig-52",
           "type": "text",
           "text": "Full specs",
           "font": {
@@ -1113,7 +1161,7 @@
         ]
        },
        {
-        "id": "sig-49",
+        "id": "sig-53",
         "type": "items",
         "name": "New in the catalogue",
         "source": "products",
@@ -1142,7 +1190,7 @@
          "ids": []
         },
         "card": {
-         "id": "sig-50",
+         "id": "sig-54",
          "type": "row",
          "gap": 12,
          "cross": "center",
@@ -1156,7 +1204,7 @@
          "dark_background": "#131B26",
          "children": [
           {
-           "id": "sig-51",
+           "id": "sig-55",
            "type": "image",
            "bind": "image",
            "width": 64,
@@ -1167,13 +1215,13 @@
            "dark_background": "#172130"
           },
           {
-           "id": "sig-52",
+           "id": "sig-56",
            "type": "column",
            "width": "fill",
            "gap": 2,
            "children": [
             {
-             "id": "sig-53",
+             "id": "sig-57",
              "type": "text",
              "bind": "title",
              "max_lines": 1,
@@ -1186,7 +1234,7 @@
              }
             },
             {
-             "id": "sig-54",
+             "id": "sig-58",
              "type": "text",
              "bind": "subtitle",
              "max_lines": 1,
@@ -1199,16 +1247,16 @@
              }
             },
             {
-             "id": "sig-55",
+             "id": "sig-59",
              "type": "row",
              "gap": 6,
              "cross": "center",
              "children": [
               {
-               "id": "sig-56",
+               "id": "sig-60",
                "type": "text",
                "bind": "price",
-               "max_lines": 1,
+               "max_lines": 2,
                "color": "#2A5885",
                "dark_color": "#8CBBEA",
                "font": {
@@ -1218,7 +1266,7 @@
                }
               },
               {
-               "id": "sig-57",
+               "id": "sig-61",
                "type": "text",
                "bind": "was_price",
                "max_lines": 1,
@@ -1234,7 +1282,7 @@
            ]
           },
           {
-           "id": "sig-58",
+           "id": "sig-62",
            "type": "icon",
            "icon": "chevron_right",
            "icon_size": 18,
@@ -1261,11 +1309,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-107",
+      "id": "sig-111",
       "type": "column",
       "children": [
        {
-        "id": "sig-108",
+        "id": "sig-112",
         "type": "column",
         "gap": 1,
         "padding": {
@@ -1276,7 +1324,7 @@
         },
         "children": [
          {
-          "id": "sig-109",
+          "id": "sig-113",
           "type": "text",
           "text": "Catalogue",
           "font": {
@@ -1298,7 +1346,7 @@
           }
          },
          {
-          "id": "sig-110",
+          "id": "sig-114",
           "type": "text",
           "text": "Filter by what the work needs",
           "font": {
@@ -1322,7 +1370,7 @@
         ]
        },
        {
-        "id": "sig-111",
+        "id": "sig-115",
         "type": "categories",
         "name": "Catalogue",
         "source": "products",
@@ -1337,7 +1385,7 @@
         }
        },
        {
-        "id": "sig-112",
+        "id": "sig-116",
         "type": "listing_filters",
         "name": "Filter by what the work needs",
         "color": "#0F1E33",
@@ -1350,7 +1398,7 @@
         }
        },
        {
-        "id": "sig-113",
+        "id": "sig-117",
         "type": "spec_filter",
         "name": "By processor",
         "text": "By processor",
@@ -1431,11 +1479,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-114",
+      "id": "sig-118",
       "type": "column",
       "children": [
        {
-        "id": "sig-115",
+        "id": "sig-119",
         "type": "coupon",
         "name": "Your first order's code",
         "code": "NAWAH10",
@@ -1453,7 +1501,7 @@
         }
        },
        {
-        "id": "sig-116",
+        "id": "sig-120",
         "type": "row",
         "name": "Business quote",
         "gap": 10,
@@ -1482,7 +1530,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "sig-117",
+          "id": "sig-121",
           "type": "icon",
           "icon": "description",
           "icon_size": 20,
@@ -1490,7 +1538,7 @@
           "dark_color": "#8CBBEA"
          },
          {
-          "id": "sig-118",
+          "id": "sig-122",
           "type": "text",
           "text": "Request a business quote",
           "font": {
@@ -1512,7 +1560,7 @@
           }
          },
          {
-          "id": "sig-119",
+          "id": "sig-123",
           "type": "icon",
           "icon": "chevron_right",
           "icon_size": 18,
@@ -1522,7 +1570,7 @@
         ]
        },
        {
-        "id": "sig-120",
+        "id": "sig-124",
         "type": "column",
         "padding": {
          "top": 4,
@@ -1532,7 +1580,7 @@
         },
         "children": [
          {
-          "id": "sig-121",
+          "id": "sig-125",
           "type": "row",
           "name": "Installments coming soon",
           "width": "hug",
@@ -1550,7 +1598,7 @@
           "dark_background": "#131B26",
           "children": [
            {
-            "id": "sig-122",
+            "id": "sig-126",
             "type": "icon",
             "icon": "schedule",
             "icon_size": 16,
@@ -1558,7 +1606,7 @@
             "dark_color": "#97A6BA"
            },
            {
-            "id": "sig-123",
+            "id": "sig-127",
             "type": "text",
             "text": "Installments coming soon",
             "max_lines": 2,
@@ -1625,11 +1673,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-124",
+      "id": "sig-128",
       "type": "column",
       "children": [
        {
-        "id": "sig-125",
+        "id": "sig-129",
         "type": "row",
         "name": "Your order's journey",
         "cross": "end",
@@ -1642,13 +1690,13 @@
         },
         "children": [
          {
-          "id": "sig-126",
+          "id": "sig-130",
           "type": "column",
           "width": "fill",
           "gap": 1,
           "children": [
            {
-            "id": "sig-127",
+            "id": "sig-131",
             "type": "text",
             "text": "Your order's journey",
             "font": {
@@ -1675,7 +1723,7 @@
         ]
        },
        {
-        "id": "sig-128",
+        "id": "sig-132",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -1805,11 +1853,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-130",
+      "id": "sig-134",
       "type": "column",
       "children": [
        {
-        "id": "sig-129",
+        "id": "sig-133",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -1870,7 +1918,7 @@
      "background": "#E8EDF3",
      "dark_background": "#0B1119",
      "body": {
-      "id": "sig-59",
+      "id": "sig-63",
       "type": "column",
       "padding": {
        "top": 0,
@@ -1880,7 +1928,7 @@
       },
       "children": [
        {
-        "id": "sig-60",
+        "id": "sig-64",
         "type": "categories",
         "name": "Catalogue",
         "source": "products",
@@ -1900,7 +1948,7 @@
         }
        },
        {
-        "id": "sig-61",
+        "id": "sig-65",
         "type": "column",
         "gap": 1,
         "radius": 10,
@@ -1920,7 +1968,7 @@
         "dark_background": "#243244",
         "children": [
          {
-          "id": "sig-62",
+          "id": "sig-66",
           "type": "row",
           "name": "Account",
           "gap": 12,
@@ -1939,7 +1987,7 @@
           },
           "children": [
            {
-            "id": "sig-63",
+            "id": "sig-67",
             "type": "icon",
             "icon": "person",
             "icon_size": 20,
@@ -1947,7 +1995,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-64",
+            "id": "sig-68",
             "type": "text",
             "text": "Account",
             "font": {
@@ -1969,7 +2017,7 @@
             }
            },
            {
-            "id": "sig-65",
+            "id": "sig-69",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 18,
@@ -1979,7 +2027,7 @@
           ]
          },
          {
-          "id": "sig-66",
+          "id": "sig-70",
           "type": "row",
           "name": "Orders and invoices",
           "gap": 12,
@@ -1998,7 +2046,7 @@
           },
           "children": [
            {
-            "id": "sig-67",
+            "id": "sig-71",
             "type": "icon",
             "icon": "receipt_long",
             "icon_size": 20,
@@ -2006,7 +2054,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-68",
+            "id": "sig-72",
             "type": "text",
             "text": "Orders and invoices",
             "font": {
@@ -2028,7 +2076,7 @@
             }
            },
            {
-            "id": "sig-69",
+            "id": "sig-73",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 18,
@@ -2038,7 +2086,7 @@
           ]
          },
          {
-          "id": "sig-70",
+          "id": "sig-74",
           "type": "row",
           "name": "Saved items",
           "gap": 12,
@@ -2057,7 +2105,7 @@
           },
           "children": [
            {
-            "id": "sig-71",
+            "id": "sig-75",
             "type": "icon",
             "icon": "bookmark",
             "icon_size": 20,
@@ -2065,7 +2113,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-72",
+            "id": "sig-76",
             "type": "text",
             "text": "Saved items",
             "font": {
@@ -2087,7 +2135,7 @@
             }
            },
            {
-            "id": "sig-73",
+            "id": "sig-77",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 18,
@@ -2097,7 +2145,7 @@
           ]
          },
          {
-          "id": "sig-74",
+          "id": "sig-78",
           "type": "row",
           "name": "Language",
           "gap": 12,
@@ -2116,7 +2164,7 @@
           },
           "children": [
            {
-            "id": "sig-75",
+            "id": "sig-79",
             "type": "icon",
             "icon": "language",
             "icon_size": 20,
@@ -2124,7 +2172,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-76",
+            "id": "sig-80",
             "type": "text",
             "text": "Language",
             "font": {
@@ -2146,7 +2194,7 @@
             }
            },
            {
-            "id": "sig-77",
+            "id": "sig-81",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 18,
@@ -2156,7 +2204,7 @@
           ]
          },
          {
-          "id": "sig-78",
+          "id": "sig-82",
           "type": "row",
           "name": "Account manager",
           "gap": 12,
@@ -2175,7 +2223,7 @@
           },
           "children": [
            {
-            "id": "sig-79",
+            "id": "sig-83",
             "type": "icon",
             "icon": "support_agent",
             "icon_size": 20,
@@ -2183,7 +2231,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-80",
+            "id": "sig-84",
             "type": "text",
             "text": "Account manager",
             "font": {
@@ -2205,7 +2253,7 @@
             }
            },
            {
-            "id": "sig-81",
+            "id": "sig-85",
             "type": "icon",
             "icon": "chevron_right",
             "icon_size": 18,
@@ -2217,7 +2265,7 @@
         ]
        },
        {
-        "id": "sig-82",
+        "id": "sig-86",
         "type": "text",
         "text": "Business desk every day, 10 am to midnight",
         "font": {
@@ -2286,7 +2334,7 @@
      "background": "#E8EDF3",
      "dark_background": "#0B1119",
      "body": {
-      "id": "sig-83",
+      "id": "sig-87",
       "type": "column",
       "padding": {
        "top": 0,
@@ -2296,7 +2344,7 @@
       },
       "children": [
        {
-        "id": "sig-84",
+        "id": "sig-88",
         "type": "row",
         "name": "Delivery for companies",
         "gap": 1,
@@ -2317,7 +2365,7 @@
         "dark_background": "#243244",
         "children": [
          {
-          "id": "sig-85",
+          "id": "sig-89",
           "type": "column",
           "name": "Delivery for companies",
           "width": "fill",
@@ -2332,7 +2380,7 @@
           "dark_background": "#131B26",
           "children": [
            {
-            "id": "sig-86",
+            "id": "sig-90",
             "type": "icon",
             "icon": "local_shipping",
             "icon_size": 20,
@@ -2340,7 +2388,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-87",
+            "id": "sig-91",
             "type": "text",
             "text": "Delivery for companies",
             "font": {
@@ -2364,7 +2412,7 @@
           ]
          },
          {
-          "id": "sig-88",
+          "id": "sig-92",
           "type": "column",
           "name": "On-site warranty",
           "width": "fill",
@@ -2379,7 +2427,7 @@
           "dark_background": "#131B26",
           "children": [
            {
-            "id": "sig-89",
+            "id": "sig-93",
             "type": "icon",
             "icon": "build",
             "icon_size": 20,
@@ -2387,7 +2435,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-90",
+            "id": "sig-94",
             "type": "text",
             "text": "On-site warranty",
             "font": {
@@ -2411,7 +2459,7 @@
           ]
          },
          {
-          "id": "sig-91",
+          "id": "sig-95",
           "type": "column",
           "name": "Prices for quantities",
           "width": "fill",
@@ -2426,7 +2474,7 @@
           "dark_background": "#131B26",
           "children": [
            {
-            "id": "sig-92",
+            "id": "sig-96",
             "type": "icon",
             "icon": "inventory_2",
             "icon_size": 20,
@@ -2434,7 +2482,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-93",
+            "id": "sig-97",
             "type": "text",
             "text": "Prices for quantities",
             "font": {
@@ -2460,7 +2508,7 @@
         ]
        },
        {
-        "id": "sig-94",
+        "id": "sig-98",
         "type": "column",
         "name": "Request a business quote",
         "gap": 4,
@@ -2490,13 +2538,13 @@
         },
         "children": [
          {
-          "id": "sig-95",
+          "id": "sig-99",
           "type": "row",
           "gap": 8,
           "cross": "center",
           "children": [
            {
-            "id": "sig-96",
+            "id": "sig-100",
             "type": "icon",
             "icon": "description",
             "icon_size": 22,
@@ -2504,7 +2552,7 @@
             "dark_color": "#8CBBEA"
            },
            {
-            "id": "sig-97",
+            "id": "sig-101",
             "type": "text",
             "text": "Request a business quote",
             "font": {
@@ -2529,7 +2577,7 @@
           ]
          },
          {
-          "id": "sig-98",
+          "id": "sig-102",
           "type": "text",
           "text": "Ten devices or more? Tell us what you need and we answer with a quote within one working day.",
           "font": {
@@ -2551,7 +2599,7 @@
           }
          },
          {
-          "id": "sig-99",
+          "id": "sig-103",
           "type": "form",
           "name": "Request a business quote",
           "form": {
@@ -2656,7 +2704,7 @@
      "background": "#E8EDF3",
      "dark_background": "#0B1119",
      "body": {
-      "id": "sig-100",
+      "id": "sig-104",
       "type": "column",
       "padding": {
        "top": 0,
@@ -2666,7 +2714,7 @@
       },
       "children": [
        {
-        "id": "sig-101",
+        "id": "sig-105",
         "type": "text",
         "text": "Two machines, spec by spec",
         "font": {
@@ -2692,7 +2740,7 @@
         }
        },
        {
-        "id": "sig-102",
+        "id": "sig-106",
         "type": "compare",
         "name": "Compare",
         "tech": {
@@ -2721,7 +2769,7 @@
         }
        },
        {
-        "id": "sig-103",
+        "id": "sig-107",
         "type": "row",
         "name": "Full specs",
         "cross": "end",
@@ -2734,13 +2782,13 @@
         },
         "children": [
          {
-          "id": "sig-104",
+          "id": "sig-108",
           "type": "column",
           "width": "fill",
           "gap": 1,
           "children": [
            {
-            "id": "sig-105",
+            "id": "sig-109",
             "type": "text",
             "text": "Full specs",
             "font": {
@@ -2767,7 +2815,7 @@
         ]
        },
        {
-        "id": "sig-106",
+        "id": "sig-110",
         "type": "spec_table",
         "name": "Full specs",
         "text": "Full specs",
@@ -2843,7 +2891,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-131",
+      "id": "sig-135",
       "type": "column",
       "children": []
      },
@@ -2885,7 +2933,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-132",
+      "id": "sig-136",
       "type": "column",
       "children": []
      },
@@ -2927,7 +2975,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-133",
+      "id": "sig-137",
       "type": "column",
       "children": []
      },
@@ -2969,7 +3017,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-134",
+      "id": "sig-138",
       "type": "column",
       "children": []
      },
@@ -3011,7 +3059,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-135",
+      "id": "sig-139",
       "type": "column",
       "children": []
      },
@@ -3045,7 +3093,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-136",
+      "id": "sig-140",
       "type": "column",
       "children": []
      },
@@ -3062,7 +3110,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-137",
+      "id": "sig-141",
       "type": "column",
       "children": []
      },

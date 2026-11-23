@@ -223,7 +223,7 @@ function partCard(ctx: SectionContext, width: StudioNode["width"], height: numbe
         gap: 6,
         cross: "center",
         children: [
-          { id: id(), type: "text", bind: "price", max_lines: 1, color: K.ink, dark_color: K.darkInk, font: { family: CHANGA, size: 17, weight: 800 } },
+          { id: id(), type: "text", bind: "price", max_lines: 2, color: K.ink, dark_color: K.darkInk, font: { family: CHANGA, size: 17, weight: 800 } },
           { id: id(), type: "text", bind: "was_price", max_lines: 1, color: K.muted, dark_color: K.darkMuted, font: { family: CHANGA, size: 12 } },
         ],
       },
@@ -264,15 +264,35 @@ function specFilter(ctx: SectionContext, spec: "cpu" | "ram" | "storage" | "gpu"
   return { id: idOf(ctx)(), type: "spec_filter", name: ctx.w(title), text: t.text, translations: t.translations, tech: { spec, accent: NEON.magenta, rows: 6 }, color: K.ink, dark_color: K.darkInk, margin };
 }
 
-function homeHeader(ctx: SectionContext): StudioPage["header"] {
-  const t = sigTexts(ctx, { title: "pbWordmark" });
-  return { type: "logo_center", title: t.title, translations: t.translations, buttons: ["menu", "cart"], menu_page: BATTLE_MENU_PAGE, background: K.page, dark_background: K.darkPage, color: K.ink, dark_color: K.darkInk };
+/** A cut-corner button of the station's header: its icon in cyan on black, a fine edge. */
+function hudButton(ctx: SectionContext, icon: string, name: SectionWord, action: Action): StudioNode {
+  return { id: idOf(ctx)(), type: "icon", name: ctx.w(name), icon, icon_size: 22, ...on(NEON.cyan), background: "#151824", dark_background: "#151824", border_color: "#2A2F45", dark_border_color: "#2A2F45", border_width: 1, corners: CUT(10), padding: sides(9, 9, 9, 9), action };
+}
+
+/** The station's header, black by day and by night: the category menu, the bolt glyph and the wordmark spaced wide, the cart. */
+function hudHeader(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  return {
+    id: id(),
+    type: "row",
+    name: ctx.w("pbWordmark"),
+    gap: 10,
+    cross: "center",
+    padding: sides(10, 16, 10, 16),
+    background: BLACK,
+    dark_background: BLACK,
+    children: [
+      hudButton(ctx, "apps", "pbMenu", ownPage(ctx, BATTLE_MENU_PAGE)),
+      { id: id(), type: "icon", icon: "bolt", icon_size: 22, ...on(NEON.magenta) },
+      say(ctx, "pbWordmark", face(20, { letter_spacing: 3 }), { ...on("#FFFFFF"), width: "fill", max_lines: 1 }),
+      hudButton(ctx, "shopping_cart", "pbCart", screen("cart")),
+    ],
+  };
 }
 
 export function battleHome(ctx: SectionContext): StudioPage {
   const id = idOf(ctx);
   return {
-    header: homeHeader(ctx),
     background: K.page,
     dark_background: K.darkPage,
     body: {
@@ -280,7 +300,8 @@ export function battleHome(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 108, 0),
       children: [
-        playTabs(ctx),
+        hudHeader(ctx),
+        { ...playTabs(ctx), padding: sides(10, 16, 6, 16) },
         configurator(ctx),
         head(ctx, "pbGpus", "pbGpusAccent", { word: "pbAll", action: shop }),
         { id: id(), type: "items", name: ctx.w("pbGpus"), source: "products", layout: "carousel", gap: 12, padding: sides(0, 16, 0, 16), query: { limit: 8, category_id: null, featured: true, sort: "popular", ids: [] }, card: partCard(ctx, 196, 128) },
@@ -290,7 +311,7 @@ export function battleHome(ctx: SectionContext): StudioPage {
         { ...rigTile(ctx, "pad-blue", "pbFps1080", "pbRigEsports", "pbRigEsportsLine"), height: 150, margin: sides(10, 16, 0, 16) },
         { id: id(), type: "flash_sale", name: ctx.w("pbDeals"), ...sigTexts(ctx, { text: "pbDeals" }), flash_sale: { look: "carousel", limit: 6, countdown: true, stock_bar: true, accent: NEON.magenta }, corners: CUT(22), margin: sides(24, 16, 4, 16) },
         head(ctx, "pbGear", "pbGearAccent", { word: "pbAll", action: shop }),
-        { id: id(), type: "items", name: ctx.w("pbGear"), source: "products", layout: "grid", columns: 2, gap: 10, padding: sides(0, 16, 0, 16), query: { limit: 4, category_id: null, featured: false, sort: "newest", ids: [] }, card: partCard(ctx, "fill", 112) },
+        { id: id(), type: "items", name: ctx.w("pbGear"), source: "products", layout: "grid", columns: 2, gap: 10, padding: sides(0, 16, 0, 16), query: { limit: 4, category_id: null, featured: false, sort: "price_asc", ids: [] }, card: partCard(ctx, "fill", 112) },
         head(ctx, "pbCompare", null, null),
         { id: id(), type: "compare", name: ctx.w("pbCompare"), tech: { accent: NEON.magenta, rows: 5 }, color: K.ink, dark_color: K.darkInk, ...card({ corners: CUT(22) }), padding: sides(14, 14, 14, 14), margin: sides(0, 16, 0, 16) },
       ],
@@ -358,10 +379,8 @@ export function battleBuildPage(ctx: SectionContext): StudioPage {
       children: [
         { ...say(ctx, "pbBuildLine", { family: CHANGA, size: 14, weight: 400, line_height: 1.5 }, { muted: true }), padding: sides(8, 16, 6, 16) },
         { id: id(), type: "pc_builder", name: ctx.w("pbBuildPage"), text: s.text, translations: s.translations, tech: { accent: NEON.magenta }, ...on("#F1F3FA"), background: BLACK, dark_background: BLACK, border_color: NEON.magenta, dark_border_color: NEON.magenta, border_width: 1.5, corners: CUT(24), surface: { glow: "#FF2BD6" }, padding: sides(16, 16, 16, 16), margin: sides(8, 16, 0, 16) },
-        head(ctx, "pbByGpu", null, null),
-        specFilter(ctx, "gpu", "pbByGpu"),
-        head(ctx, "pbByRam", null, null),
-        specFilter(ctx, "ram", "pbByRam"),
+        { ...specFilter(ctx, "gpu", "pbByGpu"), margin: sides(20, 16, 0, 16) },
+        { ...specFilter(ctx, "ram", "pbByRam"), margin: sides(16, 16, 0, 16) },
       ],
     },
   };

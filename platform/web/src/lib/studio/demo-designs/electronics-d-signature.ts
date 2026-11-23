@@ -83,7 +83,7 @@ function head(ctx: SectionContext, title: SectionWord, link: { word: SectionWord
 function storyCircles(ctx: SectionContext): StudioNode {
   const stories: readonly [string, SectionWord, StageColour][] = [
     ["phone-hand", "esPhones", "blue"],
-    ["laptop-glow", "esLaptops", "violet"],
+    ["laptop-silver", "esLaptops", "violet"],
     ["hp-leather", "esAudio", "coral"],
     ["watch-blush", "esWatches", "emerald"],
     ["lens-gold", "esCameras", "gold"],
@@ -155,10 +155,10 @@ function stage(ctx: SectionContext): StudioNode {
     padding: sides(10, 16, 4, 16),
     children: [
       stageCard(ctx, "coral", "watch-blush", "esStage1Kicker", "esStage1"),
-      stageCard(ctx, "blue", "hp-leather", "esStage2Kicker", "esStage2"),
+      stageCard(ctx, "blue", "hp-white", "esStage2Kicker", "esStage2"),
       stageCard(ctx, "gold", "lens-gold", "esStage3Kicker", "esStage3"),
-      stageCard(ctx, "emerald", "buds-plant", "esStage4Kicker", "esStage4"),
-      stageCard(ctx, "violet", "drone-sky", "esStage5Kicker", "esStage5"),
+      stageCard(ctx, "emerald", "phone-unbox", "esStage4Kicker", "esStage4"),
+      stageCard(ctx, "violet", "drone-mini", "esStage5Kicker", "esStage5"),
     ],
   };
 }
@@ -192,7 +192,7 @@ function colourCard(ctx: SectionContext, colour: StageColour, width: StudioNode[
         cross: "center",
         padding: sides(0, 2, 0, 2),
         children: [
-          { id: id(), type: "text", bind: "price", max_lines: 1, color: K.ink, dark_color: K.darkInk, font: { family: MESSIRI, size: 16, weight: 700 } },
+          { id: id(), type: "text", bind: "price", max_lines: 2, color: K.ink, dark_color: K.darkInk, font: { family: MESSIRI, size: 16, weight: 700 } },
           { id: id(), type: "text", bind: "sale", max_lines: 1, ...onColour(colour), ...colourBg(colour), radius: 8, padding: sides(2, 7, 2, 7), font: { size: 11, weight: 800 } },
         ],
       },
@@ -211,15 +211,31 @@ function compareBlock(ctx: SectionContext, margin = sides(0, 16, 0, 16)): Studio
   return { id: idOf(ctx)(), type: "compare", name: ctx.w("esCompare"), tech: { accent: STAGE.emerald.day, rows: 5 }, color: K.ink, dark_color: K.darkInk, background: K.surface, dark_background: K.darkSurface, border_color: STAGE.emerald.day, dark_border_color: STAGE.emerald.night, border_width: 2, radius: 28, padding: sides(16, 14, 16, 14), margin };
 }
 
-function homeHeader(ctx: SectionContext): StudioPage["header"] {
-  const t = sigTexts(ctx, { title: "esWordmark" });
-  return { type: "logo_center", title: t.title, translations: t.translations, buttons: ["menu", "cart"], menu_page: STAGE_MENU_PAGE, background: K.page, dark_background: K.darkPage, color: K.ink, dark_color: K.darkInk };
+/** A round button on a stage colour (the title's menu and bag). */
+function stageDot(ctx: SectionContext, colour: StageColour, icon: string, name: SectionWord, action: Action): StudioNode {
+  return { id: idOf(ctx)(), type: "icon", name: ctx.w(name), icon, icon_size: 21, ...onColour(colour), ...colourBg(colour), radius: 24, padding: sides(11, 11, 11, 11), action };
+}
+
+/** The home's title instead of a bar: the wordmark large in El Messiri, the categories and the bag as two colour dots beside it. */
+function stageTitle(ctx: SectionContext): StudioNode {
+  return {
+    id: idOf(ctx)(),
+    type: "row",
+    name: ctx.w("esWordmark"),
+    gap: 8,
+    cross: "center",
+    padding: sides(10, 16, 2, 16),
+    children: [
+      say(ctx, "esWordmark", face(40, { line_height: 1.1 }), { width: "fill", max_lines: 1 }),
+      stageDot(ctx, "coral", "grid_view", "esMenuButton", ownPage(ctx, STAGE_MENU_PAGE)),
+      stageDot(ctx, "blue", "shopping_bag", "esBag", screen("cart")),
+    ],
+  };
 }
 
 export function stageHome(ctx: SectionContext): StudioPage {
   const id = idOf(ctx);
   return {
-    header: homeHeader(ctx),
     background: K.page,
     dark_background: K.darkPage,
     body: {
@@ -227,10 +243,11 @@ export function stageHome(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 104, 0),
       children: [
+        stageTitle(ctx),
         storyCircles(ctx),
         stage(ctx),
         head(ctx, "esMostWanted", { word: "esSeeAll", action: shop }, "esMostWantedLine"),
-        { id: id(), type: "items", name: ctx.w("esMostWanted"), source: "products", layout: "grid", columns: 2, gap: 12, padding: sides(0, 16, 0, 16), query: { limit: 2, category_id: null, featured: false, sort: "popular", ids: [] }, card: colourCard(ctx, "coral", "fill", 196) },
+        { id: id(), type: "items", name: ctx.w("esMostWanted"), source: "products", layout: "grid", columns: 2, gap: 12, padding: sides(0, 16, 0, 16), query: { limit: 2, category_id: null, featured: false, sort: "price_desc", ids: [] }, card: colourCard(ctx, "coral", "fill", 196) },
         { id: id(), type: "items", name: ctx.w("esMostWanted"), source: "products", layout: "grid", columns: 2, gap: 12, padding: sides(14, 16, 0, 16), query: { limit: 2, category_id: null, featured: false, sort: "popular", ids: [], on_sale: true }, card: colourCard(ctx, "emerald", "fill", 196) },
         head(ctx, "esNewIn", { word: "esSeeAll", action: shop }),
         { id: id(), type: "items", name: ctx.w("esNewIn"), source: "products", layout: "carousel", gap: 12, padding: sides(0, 16, 0, 16), query: { limit: 8, category_id: null, featured: false, sort: "newest", ids: [] }, card: colourCard(ctx, "blue", 220, 240) },
@@ -435,7 +452,7 @@ export const STAGE_D: SignatureDesign = {
   ],
   bar: STAGE_BAR,
   look: { header: signatureHeader(K, "large"), background: K.page, dark_background: K.darkPage },
-  chrome: { header: "large", home: "large", system: "large" },
+  chrome: { header: "large", system: "large" },
   isNew: true,
   project: {
     primary: STAGE.blue.day,

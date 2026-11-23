@@ -180,28 +180,6 @@
     "updated_at": "2026-11-13T18:00:00.000Z",
     "blocks": [],
     "studio": {
-     "header": {
-      "type": "logo_center",
-      "title": "Madar",
-      "translations": {
-       "ar": {
-        "title": "Madar"
-       },
-       "tr": {
-        "title": "Madar"
-       }
-      },
-      "buttons": [
-       "menu",
-       "cart"
-      ],
-      "menu_page": "menu",
-      "background": "#FBF8F3",
-      "dark_background": "#110F13",
-      "color": "#141218",
-      "dark_color": "#F7F3EE",
-      "style": "large"
-     },
      "background": "#FBF8F3",
      "dark_background": "#110F13",
      "body": {
@@ -216,6 +194,88 @@
       "children": [
        {
         "id": "sig-2",
+        "type": "row",
+        "name": "Madar",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 2,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "text",
+          "text": "Madar",
+          "font": {
+           "family": "El Messiri",
+           "size": 40,
+           "weight": 700,
+           "line_height": 1.1
+          },
+          "color": "#141218",
+          "dark_color": "#F7F3EE",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "Madar"
+           },
+           "tr": {
+            "text": "Madar"
+           }
+          }
+         },
+         {
+          "id": "sig-4",
+          "type": "icon",
+          "name": "Categories",
+          "icon": "grid_view",
+          "icon_size": 21,
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "background": "#FF5A36",
+          "dark_background": "#E4482A",
+          "radius": 24,
+          "padding": {
+           "top": 11,
+           "end": 11,
+           "bottom": 11,
+           "start": 11
+          },
+          "action": {
+           "type": "page",
+           "page_slug": "menu"
+          }
+         },
+         {
+          "id": "sig-5",
+          "type": "icon",
+          "name": "Bag",
+          "icon": "shopping_bag",
+          "icon_size": 21,
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "background": "#3B5BFF",
+          "dark_background": "#3350E8",
+          "radius": 24,
+          "padding": {
+           "top": 11,
+           "end": 11,
+           "bottom": 11,
+           "start": 11
+          },
+          "action": {
+           "type": "screen",
+           "screen": "cart"
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-6",
         "type": "stories",
         "name": "Categories",
         "stories_source": "dashboard",
@@ -252,7 +312,7 @@
           "ring_color": "#3B5BFF"
          },
          {
-          "image_url": "http://localhost:3000/electronics-photos/laptop-glow.jpg",
+          "image_url": "http://localhost:3000/electronics-photos/laptop-silver.jpg",
           "heading": "Laptops",
           "translations": {
            "ar": {
@@ -349,7 +409,7 @@
         ]
        },
        {
-        "id": "sig-3",
+        "id": "sig-7",
         "type": "slider",
         "name": "On stage",
         "height": 452,
@@ -369,7 +429,7 @@
         },
         "children": [
          {
-          "id": "sig-4",
+          "id": "sig-8",
           "type": "column",
           "name": "A watch that knows your rhythm",
           "gap": 0,
@@ -388,7 +448,7 @@
           "dark_background": "#E4482A",
           "children": [
            {
-            "id": "sig-5",
+            "id": "sig-9",
             "type": "text",
             "text": "Watches",
             "font": {
@@ -410,7 +470,7 @@
             }
            },
            {
-            "id": "sig-6",
+            "id": "sig-10",
             "type": "text",
             "text": "A watch that knows your rhythm",
             "font": {
@@ -438,7 +498,7 @@
             }
            },
            {
-            "id": "sig-7",
+            "id": "sig-11",
             "type": "image",
             "image_url": "http://localhost:3000/electronics-photos/watch-blush.jpg",
             "width": "fill",
@@ -448,14 +508,14 @@
             "shadow": "strong"
            },
            {
-            "id": "sig-8",
+            "id": "sig-12",
             "type": "row",
             "width": "fill",
             "height": 1,
             "children": []
            },
            {
-            "id": "sig-9",
+            "id": "sig-13",
             "type": "row",
             "gap": 10,
             "cross": "center",
@@ -467,7 +527,7 @@
             },
             "children": [
              {
-              "id": "sig-10",
+              "id": "sig-14",
               "type": "text",
               "text": "Shop now",
               "font": {
@@ -489,7 +549,7 @@
               }
              },
              {
-              "id": "sig-11",
+              "id": "sig-15",
               "type": "icon",
               "icon": "arrow_forward",
               "icon_size": 22,
@@ -510,7 +570,7 @@
           ]
          },
          {
-          "id": "sig-12",
+          "id": "sig-16",
           "type": "column",
           "name": "Silence, when you choose it",
           "gap": 0,
@@ -529,7 +589,7 @@
           "dark_background": "#3350E8",
           "children": [
            {
-            "id": "sig-13",
+            "id": "sig-17",
             "type": "text",
             "text": "Audio",
             "font": {
@@ -551,7 +611,7 @@
             }
            },
            {
-            "id": "sig-14",
+            "id": "sig-18",
             "type": "text",
             "text": "Silence, when you choose it",
             "font": {
@@ -579,9 +639,9 @@
             }
            },
            {
-            "id": "sig-15",
+            "id": "sig-19",
             "type": "image",
-            "image_url": "http://localhost:3000/electronics-photos/hp-leather.jpg",
+            "image_url": "http://localhost:3000/electronics-photos/hp-white.jpg",
             "width": "fill",
             "height": 236,
             "radius": 26,
@@ -589,14 +649,14 @@
             "shadow": "strong"
            },
            {
-            "id": "sig-16",
+            "id": "sig-20",
             "type": "row",
             "width": "fill",
             "height": 1,
             "children": []
            },
            {
-            "id": "sig-17",
+            "id": "sig-21",
             "type": "row",
             "gap": 10,
             "cross": "center",
@@ -608,7 +668,7 @@
             },
             "children": [
              {
-              "id": "sig-18",
+              "id": "sig-22",
               "type": "text",
               "text": "Shop now",
               "font": {
@@ -630,7 +690,7 @@
               }
              },
              {
-              "id": "sig-19",
+              "id": "sig-23",
               "type": "icon",
               "icon": "arrow_forward",
               "icon_size": 22,
@@ -651,7 +711,7 @@
           ]
          },
          {
-          "id": "sig-20",
+          "id": "sig-24",
           "type": "column",
           "name": "Light, caught sharp",
           "gap": 0,
@@ -670,7 +730,7 @@
           "dark_background": "#F0B51D",
           "children": [
            {
-            "id": "sig-21",
+            "id": "sig-25",
             "type": "text",
             "text": "Cameras",
             "font": {
@@ -692,7 +752,7 @@
             }
            },
            {
-            "id": "sig-22",
+            "id": "sig-26",
             "type": "text",
             "text": "Light, caught sharp",
             "font": {
@@ -720,7 +780,7 @@
             }
            },
            {
-            "id": "sig-23",
+            "id": "sig-27",
             "type": "image",
             "image_url": "http://localhost:3000/electronics-photos/lens-gold.jpg",
             "width": "fill",
@@ -730,14 +790,14 @@
             "shadow": "strong"
            },
            {
-            "id": "sig-24",
+            "id": "sig-28",
             "type": "row",
             "width": "fill",
             "height": 1,
             "children": []
            },
            {
-            "id": "sig-25",
+            "id": "sig-29",
             "type": "row",
             "gap": 10,
             "cross": "center",
@@ -749,7 +809,7 @@
             },
             "children": [
              {
-              "id": "sig-26",
+              "id": "sig-30",
               "type": "text",
               "text": "Shop now",
               "font": {
@@ -771,7 +831,7 @@
               }
              },
              {
-              "id": "sig-27",
+              "id": "sig-31",
               "type": "icon",
               "icon": "arrow_forward",
               "icon_size": 22,
@@ -792,9 +852,9 @@
           ]
          },
          {
-          "id": "sig-28",
+          "id": "sig-32",
           "type": "column",
-          "name": "Small, and all you hear",
+          "name": "Unboxed, and yours today",
           "gap": 0,
           "radius": 34,
           "padding": {
@@ -811,9 +871,9 @@
           "dark_background": "#0C8C63",
           "children": [
            {
-            "id": "sig-29",
+            "id": "sig-33",
             "type": "text",
-            "text": "Earbuds",
+            "text": "Phones",
             "font": {
              "family": "El Messiri",
              "size": 13.5,
@@ -825,17 +885,17 @@
             "max_lines": 1,
             "translations": {
              "ar": {
-              "text": "سماعات أذن"
+              "text": "جوالات"
              },
              "tr": {
-              "text": "Kulaklıklar"
+              "text": "Telefonlar"
              }
             }
            },
            {
-            "id": "sig-30",
+            "id": "sig-34",
             "type": "text",
-            "text": "Small, and all you hear",
+            "text": "Unboxed, and yours today",
             "font": {
              "family": "El Messiri",
              "size": 25,
@@ -853,17 +913,17 @@
             },
             "translations": {
              "ar": {
-              "text": "صغيرة، وتسمع بها كل شيء"
+              "text": "افتحه اليوم، فهو لك"
              },
              "tr": {
-              "text": "Küçük, ama her şeyi duyarsınız"
+              "text": "Kutusundan bugün çıksın"
              }
             }
            },
            {
-            "id": "sig-31",
+            "id": "sig-35",
             "type": "image",
-            "image_url": "http://localhost:3000/electronics-photos/buds-plant.jpg",
+            "image_url": "http://localhost:3000/electronics-photos/phone-unbox.jpg",
             "width": "fill",
             "height": 236,
             "radius": 26,
@@ -871,14 +931,14 @@
             "shadow": "strong"
            },
            {
-            "id": "sig-32",
+            "id": "sig-36",
             "type": "row",
             "width": "fill",
             "height": 1,
             "children": []
            },
            {
-            "id": "sig-33",
+            "id": "sig-37",
             "type": "row",
             "gap": 10,
             "cross": "center",
@@ -890,7 +950,7 @@
             },
             "children": [
              {
-              "id": "sig-34",
+              "id": "sig-38",
               "type": "text",
               "text": "Shop now",
               "font": {
@@ -912,7 +972,7 @@
               }
              },
              {
-              "id": "sig-35",
+              "id": "sig-39",
               "type": "icon",
               "icon": "arrow_forward",
               "icon_size": 22,
@@ -933,7 +993,7 @@
           ]
          },
          {
-          "id": "sig-36",
+          "id": "sig-40",
           "type": "column",
           "name": "The city from above",
           "gap": 0,
@@ -952,7 +1012,7 @@
           "dark_background": "#8A2FE6",
           "children": [
            {
-            "id": "sig-37",
+            "id": "sig-41",
             "type": "text",
             "text": "Drones",
             "font": {
@@ -974,7 +1034,7 @@
             }
            },
            {
-            "id": "sig-38",
+            "id": "sig-42",
             "type": "text",
             "text": "The city from above",
             "font": {
@@ -1002,9 +1062,9 @@
             }
            },
            {
-            "id": "sig-39",
+            "id": "sig-43",
             "type": "image",
-            "image_url": "http://localhost:3000/electronics-photos/drone-sky.jpg",
+            "image_url": "http://localhost:3000/electronics-photos/drone-mini.jpg",
             "width": "fill",
             "height": 236,
             "radius": 26,
@@ -1012,14 +1072,14 @@
             "shadow": "strong"
            },
            {
-            "id": "sig-40",
+            "id": "sig-44",
             "type": "row",
             "width": "fill",
             "height": 1,
             "children": []
            },
            {
-            "id": "sig-41",
+            "id": "sig-45",
             "type": "row",
             "gap": 10,
             "cross": "center",
@@ -1031,7 +1091,7 @@
             },
             "children": [
              {
-              "id": "sig-42",
+              "id": "sig-46",
               "type": "text",
               "text": "Shop now",
               "font": {
@@ -1053,7 +1113,7 @@
               }
              },
              {
-              "id": "sig-43",
+              "id": "sig-47",
               "type": "icon",
               "icon": "arrow_forward",
               "icon_size": 22,
@@ -1076,9 +1136,9 @@
         ]
        },
        {
-        "id": "sig-44",
+        "id": "sig-48",
         "type": "row",
-        "name": "Most wanted",
+        "name": "The headliners",
         "cross": "end",
         "gap": 12,
         "padding": {
@@ -1089,15 +1149,15 @@
         },
         "children": [
          {
-          "id": "sig-45",
+          "id": "sig-49",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-46",
+            "id": "sig-50",
             "type": "text",
-            "text": "Most wanted",
+            "text": "The headliners",
             "font": {
              "family": "El Messiri",
              "size": 25,
@@ -1109,17 +1169,17 @@
             "max_lines": 2,
             "translations": {
              "ar": {
-              "text": "الأكثر طلبًا"
+              "text": "نجوم المسرح"
              },
              "tr": {
-              "text": "En çok istenenler"
+              "text": "Sahnenin yıldızları"
              }
             }
            },
            {
-            "id": "sig-47",
+            "id": "sig-51",
             "type": "text",
-            "text": "On everyone's list this week",
+            "text": "The finest on stage",
             "font": {
              "family": "El Messiri",
              "size": 13,
@@ -1130,17 +1190,17 @@
             "max_lines": 1,
             "translations": {
              "ar": {
-              "text": "على قائمة الجميع هذا الأسبوع"
+              "text": "الأرقى على المسرح"
              },
              "tr": {
-              "text": "Bu hafta herkesin listesinde"
+              "text": "Sahnedeki en seçkinler"
              }
             }
            }
           ]
          },
          {
-          "id": "sig-48",
+          "id": "sig-52",
           "type": "text",
           "text": "See all",
           "font": {
@@ -1167,9 +1227,9 @@
         ]
        },
        {
-        "id": "sig-49",
+        "id": "sig-53",
         "type": "items",
-        "name": "Most wanted",
+        "name": "The headliners",
         "source": "products",
         "layout": "grid",
         "columns": 2,
@@ -1184,17 +1244,17 @@
          "limit": 2,
          "category_id": null,
          "featured": false,
-         "sort": "popular",
+         "sort": "price_desc",
          "ids": []
         },
         "card": {
-         "id": "sig-50",
+         "id": "sig-54",
          "type": "column",
          "width": "fill",
          "gap": 4,
          "children": [
           {
-           "id": "sig-51",
+           "id": "sig-55",
            "type": "column",
            "width": "fill",
            "height": 196,
@@ -1211,7 +1271,7 @@
            "dark_background": "#E4482A",
            "children": [
             {
-             "id": "sig-52",
+             "id": "sig-56",
              "type": "image",
              "bind": "image",
              "width": "fill",
@@ -1223,7 +1283,7 @@
            ]
           },
           {
-           "id": "sig-53",
+           "id": "sig-57",
            "type": "text",
            "bind": "title",
            "max_lines": 1,
@@ -1242,7 +1302,7 @@
            }
           },
           {
-           "id": "sig-54",
+           "id": "sig-58",
            "type": "row",
            "gap": 6,
            "cross": "center",
@@ -1254,10 +1314,10 @@
            },
            "children": [
             {
-             "id": "sig-55",
+             "id": "sig-59",
              "type": "text",
              "bind": "price",
-             "max_lines": 1,
+             "max_lines": 2,
              "color": "#141218",
              "dark_color": "#F7F3EE",
              "font": {
@@ -1267,7 +1327,7 @@
              }
             },
             {
-             "id": "sig-56",
+             "id": "sig-60",
              "type": "text",
              "bind": "sale",
              "max_lines": 1,
@@ -1293,9 +1353,9 @@
         }
        },
        {
-        "id": "sig-57",
+        "id": "sig-61",
         "type": "items",
-        "name": "Most wanted",
+        "name": "The headliners",
         "source": "products",
         "layout": "grid",
         "columns": 2,
@@ -1315,13 +1375,13 @@
          "on_sale": true
         },
         "card": {
-         "id": "sig-58",
+         "id": "sig-62",
          "type": "column",
          "width": "fill",
          "gap": 4,
          "children": [
           {
-           "id": "sig-59",
+           "id": "sig-63",
            "type": "column",
            "width": "fill",
            "height": 196,
@@ -1338,7 +1398,7 @@
            "dark_background": "#0C8C63",
            "children": [
             {
-             "id": "sig-60",
+             "id": "sig-64",
              "type": "image",
              "bind": "image",
              "width": "fill",
@@ -1350,7 +1410,7 @@
            ]
           },
           {
-           "id": "sig-61",
+           "id": "sig-65",
            "type": "text",
            "bind": "title",
            "max_lines": 1,
@@ -1369,7 +1429,7 @@
            }
           },
           {
-           "id": "sig-62",
+           "id": "sig-66",
            "type": "row",
            "gap": 6,
            "cross": "center",
@@ -1381,10 +1441,10 @@
            },
            "children": [
             {
-             "id": "sig-63",
+             "id": "sig-67",
              "type": "text",
              "bind": "price",
-             "max_lines": 1,
+             "max_lines": 2,
              "color": "#141218",
              "dark_color": "#F7F3EE",
              "font": {
@@ -1394,7 +1454,7 @@
              }
             },
             {
-             "id": "sig-64",
+             "id": "sig-68",
              "type": "text",
              "bind": "sale",
              "max_lines": 1,
@@ -1420,7 +1480,7 @@
         }
        },
        {
-        "id": "sig-65",
+        "id": "sig-69",
         "type": "row",
         "name": "New colours, new arrivals",
         "cross": "end",
@@ -1433,13 +1493,13 @@
         },
         "children": [
          {
-          "id": "sig-66",
+          "id": "sig-70",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-67",
+            "id": "sig-71",
             "type": "text",
             "text": "New colours, new arrivals",
             "font": {
@@ -1463,7 +1523,7 @@
           ]
          },
          {
-          "id": "sig-68",
+          "id": "sig-72",
           "type": "text",
           "text": "See all",
           "font": {
@@ -1490,7 +1550,7 @@
         ]
        },
        {
-        "id": "sig-69",
+        "id": "sig-73",
         "type": "items",
         "name": "New colours, new arrivals",
         "source": "products",
@@ -1510,13 +1570,13 @@
          "ids": []
         },
         "card": {
-         "id": "sig-70",
+         "id": "sig-74",
          "type": "column",
          "width": 220,
          "gap": 4,
          "children": [
           {
-           "id": "sig-71",
+           "id": "sig-75",
            "type": "column",
            "width": "fill",
            "height": 240,
@@ -1533,7 +1593,7 @@
            "dark_background": "#3350E8",
            "children": [
             {
-             "id": "sig-72",
+             "id": "sig-76",
              "type": "image",
              "bind": "image",
              "width": "fill",
@@ -1545,7 +1605,7 @@
            ]
           },
           {
-           "id": "sig-73",
+           "id": "sig-77",
            "type": "text",
            "bind": "title",
            "max_lines": 1,
@@ -1564,7 +1624,7 @@
            }
           },
           {
-           "id": "sig-74",
+           "id": "sig-78",
            "type": "row",
            "gap": 6,
            "cross": "center",
@@ -1576,10 +1636,10 @@
            },
            "children": [
             {
-             "id": "sig-75",
+             "id": "sig-79",
              "type": "text",
              "bind": "price",
-             "max_lines": 1,
+             "max_lines": 2,
              "color": "#141218",
              "dark_color": "#F7F3EE",
              "font": {
@@ -1589,7 +1649,7 @@
              }
             },
             {
-             "id": "sig-76",
+             "id": "sig-80",
              "type": "text",
              "bind": "sale",
              "max_lines": 1,
@@ -1615,7 +1675,7 @@
         }
        },
        {
-        "id": "sig-77",
+        "id": "sig-81",
         "type": "trade_in",
         "name": "Your old device is worth something",
         "text": "Your old device is worth something",
@@ -1655,7 +1715,7 @@
         }
        },
        {
-        "id": "sig-78",
+        "id": "sig-82",
         "type": "flash_sale",
         "name": "Deals on stage",
         "text": "Deals on stage",
@@ -1683,7 +1743,7 @@
         }
        },
        {
-        "id": "sig-79",
+        "id": "sig-83",
         "type": "row",
         "name": "Side by side",
         "cross": "end",
@@ -1696,13 +1756,13 @@
         },
         "children": [
          {
-          "id": "sig-80",
+          "id": "sig-84",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-81",
+            "id": "sig-85",
             "type": "text",
             "text": "Side by side",
             "font": {
@@ -1724,7 +1784,7 @@
             }
            },
            {
-            "id": "sig-82",
+            "id": "sig-86",
             "type": "text",
             "text": "Two devices, every spec",
             "font": {
@@ -1747,7 +1807,7 @@
           ]
          },
          {
-          "id": "sig-83",
+          "id": "sig-87",
           "type": "text",
           "text": "See all",
           "font": {
@@ -1774,7 +1834,7 @@
         ]
        },
        {
-        "id": "sig-84",
+        "id": "sig-88",
         "type": "compare",
         "name": "Side by side",
         "tech": {
@@ -1819,11 +1879,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-111",
+      "id": "sig-115",
       "type": "column",
       "children": [
        {
-        "id": "sig-112",
+        "id": "sig-116",
         "type": "categories",
         "name": "Categories",
         "source": "products",
@@ -1838,7 +1898,7 @@
         }
        },
        {
-        "id": "sig-113",
+        "id": "sig-117",
         "type": "row",
         "name": "Find your colour",
         "gap": 12,
@@ -1864,13 +1924,13 @@
         },
         "children": [
          {
-          "id": "sig-114",
+          "id": "sig-118",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-115",
+            "id": "sig-119",
             "type": "text",
             "text": "Fresh in",
             "font": {
@@ -1891,7 +1951,7 @@
             }
            },
            {
-            "id": "sig-116",
+            "id": "sig-120",
             "type": "text",
             "text": "Find your colour",
             "font": {
@@ -1915,7 +1975,7 @@
           ]
          },
          {
-          "id": "sig-117",
+          "id": "sig-121",
           "type": "icon",
           "icon": "sell",
           "icon_size": 26,
@@ -1934,7 +1994,7 @@
         ]
        },
        {
-        "id": "sig-118",
+        "id": "sig-122",
         "type": "listing_filters",
         "name": "Find your colour",
         "color": "#141218",
@@ -1989,11 +2049,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-119",
+      "id": "sig-123",
       "type": "column",
       "children": [
        {
-        "id": "sig-120",
+        "id": "sig-124",
         "type": "coupon",
         "name": "Your code",
         "code": "MADAR10",
@@ -2011,7 +2071,7 @@
         }
        },
        {
-        "id": "sig-121",
+        "id": "sig-125",
         "type": "column",
         "name": "[Your returns and warranty in a line]",
         "gap": 10,
@@ -2032,13 +2092,13 @@
         "dark_background": "#0C8C63",
         "children": [
          {
-          "id": "sig-122",
+          "id": "sig-126",
           "type": "row",
           "gap": 12,
           "cross": "center",
           "children": [
            {
-            "id": "sig-123",
+            "id": "sig-127",
             "type": "icon",
             "icon": "verified",
             "icon_size": 22,
@@ -2046,7 +2106,7 @@
             "dark_color": "#FFFFFF"
            },
            {
-            "id": "sig-124",
+            "id": "sig-128",
             "type": "text",
             "text": "Returns within 14 days in the original box; the maker's warranty through us.",
             "font": {
@@ -2070,7 +2130,7 @@
           ]
          },
          {
-          "id": "sig-125",
+          "id": "sig-129",
           "type": "row",
           "name": "Installments coming soon",
           "width": "hug",
@@ -2088,7 +2148,7 @@
           "dark_background": "#096B4C",
           "children": [
            {
-            "id": "sig-126",
+            "id": "sig-130",
             "type": "icon",
             "icon": "schedule",
             "icon_size": 16,
@@ -2096,7 +2156,7 @@
             "dark_color": "#FFFFFF"
            },
            {
-            "id": "sig-127",
+            "id": "sig-131",
             "type": "text",
             "text": "Installments coming soon",
             "max_lines": 2,
@@ -2163,11 +2223,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-128",
+      "id": "sig-132",
       "type": "column",
       "children": [
        {
-        "id": "sig-129",
+        "id": "sig-133",
         "type": "row",
         "name": "Your order's journey",
         "cross": "end",
@@ -2180,13 +2240,13 @@
         },
         "children": [
          {
-          "id": "sig-130",
+          "id": "sig-134",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-131",
+            "id": "sig-135",
             "type": "text",
             "text": "Your order's journey",
             "font": {
@@ -2212,7 +2272,7 @@
         ]
        },
        {
-        "id": "sig-132",
+        "id": "sig-136",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -2342,11 +2402,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-134",
+      "id": "sig-138",
       "type": "column",
       "children": [
        {
-        "id": "sig-133",
+        "id": "sig-137",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -2407,7 +2467,7 @@
      "background": "#FBF8F3",
      "dark_background": "#110F13",
      "body": {
-      "id": "sig-85",
+      "id": "sig-89",
       "type": "column",
       "padding": {
        "top": 0,
@@ -2417,7 +2477,7 @@
       },
       "children": [
        {
-        "id": "sig-86",
+        "id": "sig-90",
         "type": "search",
         "name": "What are you looking for?",
         "text": "What are you looking for?",
@@ -2447,7 +2507,7 @@
         }
        },
        {
-        "id": "sig-87",
+        "id": "sig-91",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -2467,7 +2527,7 @@
         }
        },
        {
-        "id": "sig-88",
+        "id": "sig-92",
         "type": "row",
         "gap": 10,
         "margin": {
@@ -2478,7 +2538,7 @@
         },
         "children": [
          {
-          "id": "sig-89",
+          "id": "sig-93",
           "type": "row",
           "name": "My account",
           "width": "fill",
@@ -2500,7 +2560,7 @@
           "dark_background": "#E4482A",
           "children": [
            {
-            "id": "sig-90",
+            "id": "sig-94",
             "type": "icon",
             "icon": "person",
             "icon_size": 20,
@@ -2508,7 +2568,7 @@
             "dark_color": "#FFFFFF"
            },
            {
-            "id": "sig-91",
+            "id": "sig-95",
             "type": "text",
             "text": "My account",
             "font": {
@@ -2531,7 +2591,7 @@
           ]
          },
          {
-          "id": "sig-92",
+          "id": "sig-96",
           "type": "row",
           "name": "My orders",
           "width": "fill",
@@ -2553,7 +2613,7 @@
           "dark_background": "#3350E8",
           "children": [
            {
-            "id": "sig-93",
+            "id": "sig-97",
             "type": "icon",
             "icon": "package_2",
             "icon_size": 20,
@@ -2561,7 +2621,7 @@
             "dark_color": "#FFFFFF"
            },
            {
-            "id": "sig-94",
+            "id": "sig-98",
             "type": "text",
             "text": "My orders",
             "font": {
@@ -2586,7 +2646,7 @@
         ]
        },
        {
-        "id": "sig-95",
+        "id": "sig-99",
         "type": "row",
         "gap": 10,
         "margin": {
@@ -2597,7 +2657,7 @@
         },
         "children": [
          {
-          "id": "sig-96",
+          "id": "sig-100",
           "type": "row",
           "name": "Wishlist",
           "width": "fill",
@@ -2619,7 +2679,7 @@
           "dark_background": "#0C8C63",
           "children": [
            {
-            "id": "sig-97",
+            "id": "sig-101",
             "type": "icon",
             "icon": "favorite",
             "icon_size": 20,
@@ -2627,7 +2687,7 @@
             "dark_color": "#FFFFFF"
            },
            {
-            "id": "sig-98",
+            "id": "sig-102",
             "type": "text",
             "text": "Wishlist",
             "font": {
@@ -2650,7 +2710,7 @@
           ]
          },
          {
-          "id": "sig-99",
+          "id": "sig-103",
           "type": "row",
           "name": "Language",
           "width": "fill",
@@ -2672,7 +2732,7 @@
           "dark_background": "#F0B51D",
           "children": [
            {
-            "id": "sig-100",
+            "id": "sig-104",
             "type": "icon",
             "icon": "language",
             "icon_size": 20,
@@ -2680,7 +2740,7 @@
             "dark_color": "#141218"
            },
            {
-            "id": "sig-101",
+            "id": "sig-105",
             "type": "text",
             "text": "Language",
             "font": {
@@ -2705,7 +2765,7 @@
         ]
        },
        {
-        "id": "sig-102",
+        "id": "sig-106",
         "type": "row",
         "name": "Talk to us",
         "gap": 12,
@@ -2731,7 +2791,7 @@
         },
         "children": [
          {
-          "id": "sig-103",
+          "id": "sig-107",
           "type": "icon",
           "icon": "support_agent",
           "icon_size": 22,
@@ -2739,13 +2799,13 @@
           "dark_color": "#FFFFFF"
          },
          {
-          "id": "sig-104",
+          "id": "sig-108",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-105",
+            "id": "sig-109",
             "type": "text",
             "text": "Talk to us",
             "font": {
@@ -2765,7 +2825,7 @@
             }
            },
            {
-            "id": "sig-106",
+            "id": "sig-110",
             "type": "text",
             "text": "Every day, 9 am to 11 pm",
             "font": {
@@ -2830,7 +2890,7 @@
      "background": "#FBF8F3",
      "dark_background": "#110F13",
      "body": {
-      "id": "sig-107",
+      "id": "sig-111",
       "type": "column",
       "padding": {
        "top": 0,
@@ -2840,7 +2900,7 @@
       },
       "children": [
        {
-        "id": "sig-108",
+        "id": "sig-112",
         "type": "text",
         "text": "Two devices, every spec",
         "font": {
@@ -2865,7 +2925,7 @@
         }
        },
        {
-        "id": "sig-109",
+        "id": "sig-113",
         "type": "compare",
         "name": "Side by side",
         "tech": {
@@ -2894,7 +2954,7 @@
         }
        },
        {
-        "id": "sig-110",
+        "id": "sig-114",
         "type": "spec_table",
         "name": "Side by side",
         "text": "Side by side",
@@ -2967,7 +3027,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-135",
+      "id": "sig-139",
       "type": "column",
       "children": []
      },
@@ -3009,7 +3069,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-136",
+      "id": "sig-140",
       "type": "column",
       "children": []
      },
@@ -3051,7 +3111,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-137",
+      "id": "sig-141",
       "type": "column",
       "children": []
      },
@@ -3093,7 +3153,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-138",
+      "id": "sig-142",
       "type": "column",
       "children": []
      },
@@ -3135,7 +3195,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-139",
+      "id": "sig-143",
       "type": "column",
       "children": []
      },
@@ -3169,7 +3229,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-140",
+      "id": "sig-144",
       "type": "column",
       "children": []
      },
@@ -3186,7 +3246,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-141",
+      "id": "sig-145",
       "type": "column",
       "children": []
      },

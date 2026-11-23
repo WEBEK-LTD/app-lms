@@ -19,6 +19,7 @@ import { ACADEMY_COURSES, ACADEMY_TEACHERS } from "@/lib/demo/teachers";
 import { DemoSetupError, setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
 import { DEMO_SCREENS, DEMO_TAB_BARS } from "@/lib/demo/screens";
 import type { StudioScreens } from "@/lib/studio/screens";
+import { mainTemplateOf } from "@/lib/studio/demo-designs";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { connectorFor } from "@/lib/hosted/connectors";
@@ -123,8 +124,8 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
     expect(apps.at(-8)?.design).toBe("kids_signature_a");
     // 209 Toot, the toy shop: a shop that keeps its look A (Toot).
     expect(apps.at(-7)?.design).toBe("toys_signature_a");
-    // 210 Sakan, Ghurza and Rukn, 211 Madar, Nova and Nawah: each its main look (227 Madar's and Nawah's C).
-    expect(apps.slice(-6).map((a) => a.design)).toEqual(["decor_signature_a", "crochet_signature_a", "furniture_signature_a", "electronics_signature_c", "mobiles_signature_a", "computers_signature_c"]);
+    // 210 Sakan, Ghurza and Rukn, 211 Madar, Nova and Nawah: each its main look (223: C where the type has one).
+    expect(apps.slice(-6).map((a) => a.design)).toEqual((["decor", "crochet", "furniture", "electronics", "mobiles", "computers"] as const).map((demo) => mainTemplateOf(demo)));
     expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(30);
     expect(new Set(apps.map((a) => a.template))).toEqual(new Set(["classic", "bold", "minimal"]));
     for (const app of apps) {
@@ -637,8 +638,9 @@ describe("signing in to a demo app", () => {
       bars.add(bar!.design!);
     }
     // 130 Each demo's look A's premium bar: glass, a floating pill or a dock, never the classic one; 131.22 Leqaa's the petal.
-    // 227 Nawah's main look C's glowing bar.
-    expect([...bars].sort()).toEqual(["dock", "float", "glass", "glow", "petal"]);
+    // 223 Each main look's own premium bar (the types' looks C bring theirs), never the classic one.
+    expect(bars.has("classic")).toBe(false);
+    for (const design of ["dock", "float", "glass", "petal"]) expect(bars.has(design), design).toBe(true);
     expect(await config("store")).toBeUndefined();
     for (const d of Object.values(DEMO_SCREENS)) if (d.photo) expect(existsSync(join(process.cwd(), "public", d.photo)), d.photo).toBe(true);
   });

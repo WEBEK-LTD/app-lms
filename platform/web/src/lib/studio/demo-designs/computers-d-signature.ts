@@ -104,7 +104,7 @@ function factStrip(ctx: SectionContext): StudioNode {
 }
 
 /** The spec sheet: products as hairline rows (photo, name, full specs, price), in one sheet. */
-function specSheet(ctx: SectionContext, name: SectionWord, sort: "newest" | "popular", limit = 5): StudioNode {
+function specSheet(ctx: SectionContext, name: SectionWord, sort: "newest" | "popular" | "price_desc", limit = 5): StudioNode {
   const id = idOf(ctx);
   return {
     id: id(),
@@ -143,7 +143,7 @@ function specSheet(ctx: SectionContext, name: SectionWord, sort: "newest" | "pop
               gap: 6,
               cross: "center",
               children: [
-                { id: id(), type: "text", bind: "price", max_lines: 1, color: K.accent, dark_color: K.darkAccent, font: { family: ALEX, size: 12.5, weight: 600 } },
+                { id: id(), type: "text", bind: "price", max_lines: 2, color: K.accent, dark_color: K.darkAccent, font: { family: ALEX, size: 12.5, weight: 600 } },
                 { id: id(), type: "text", bind: "was_price", max_lines: 1, color: K.muted, dark_color: K.darkMuted, font: { family: ALEX, size: 10.5 } },
               ],
             },
@@ -228,16 +228,39 @@ function quoteCard(ctx: SectionContext, withForm: boolean): StudioNode {
   };
 }
 
-/** The home's header: the title with its search under it (the look's `search` chrome), the menu and the cart. */
-function homeHeader(ctx: SectionContext): StudioPage["header"] {
-  const t = sigTexts(ctx, { title: "pwWordmark" });
-  return { type: "title_search", title: t.title, translations: t.translations, buttons: ["menu", "cart"], menu_page: DESK_MENU_PAGE, background: K.surface, dark_background: K.darkSurface, color: K.ink, dark_color: K.darkInk };
+/** The home's header, compact: the title at its start, the search beside it, the catalogue and the cart; a hairline under it. */
+function deskHeader(ctx: SectionContext): StudioNode {
+  const id = idOf(ctx);
+  const button = (icon: string, name: SectionWord, action: Action): StudioNode => ({ id: id(), type: "icon", name: ctx.w(name), icon, icon_size: 21, color: K.ink, dark_color: K.darkInk, padding: sides(6, 4, 6, 4), action });
+  return {
+    id: id(),
+    type: "column",
+    name: ctx.w("pwWordmark"),
+    gap: 0,
+    background: K.surface,
+    dark_background: K.darkSurface,
+    children: [
+      {
+        id: id(),
+        type: "row",
+        gap: 10,
+        cross: "center",
+        padding: sides(8, 14, 8, 14),
+        children: [
+          say(ctx, "pwWordmark", face(16, { weight: 700 }), { max_lines: 1 }),
+          { id: id(), type: "search", name: ctx.w("pwSearchShort"), text: ctx.w("pwSearchShort"), source: "products", width: "fill", height: 38, radius: 7, background: SOFT.day, dark_background: SOFT.night, color: K.muted, dark_color: K.darkMuted, border_color: K.line, dark_border_color: K.darkLine, border_width: 1 },
+          button("category", "pwMenuButton", ownPage(ctx, DESK_MENU_PAGE)),
+          button("shopping_cart", "pwCart", screen("cart")),
+        ],
+      },
+      { id: id(), type: "divider", height: 1, background: K.line, dark_background: K.darkLine },
+    ],
+  };
 }
 
 export function deskHome(ctx: SectionContext): StudioPage {
   const id = idOf(ctx);
   return {
-    header: homeHeader(ctx),
     background: K.page,
     dark_background: K.darkPage,
     body: {
@@ -245,11 +268,11 @@ export function deskHome(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 96, 0),
       children: [
+        deskHeader(ctx),
         factStrip(ctx),
         head(ctx, "pwStations", { word: "pwSpecs", action: shop }, "pwStationsLine"),
-        specSheet(ctx, "pwStations", "popular"),
-        head(ctx, "pwByCpu", null),
-        { ...specFilter(ctx, "cpu", "pwByCpu"), margin: sides(0, 16, 0, 16) },
+        specSheet(ctx, "pwStations", "price_desc"),
+        { ...specFilter(ctx, "cpu", "pwByCpu"), margin: sides(16, 16, 0, 16) },
         specFilter(ctx, "ram", "pwByRam"),
         specFilter(ctx, "storage", "pwByStorage"),
         head(ctx, "pwCompare", { word: "pwChange", action: ownPage(ctx, DESK_COMPARE_PAGE) }, "pwCompareLine"),
@@ -453,7 +476,7 @@ export const DESK_D: SignatureDesign = {
   ],
   bar: DESK_BAR,
   look: { header: signatureHeader(K, "search"), background: K.page, dark_background: K.darkPage },
-  chrome: { header: "search", home: "search", system: "large" },
+  chrome: { header: "search", system: "large" },
   isNew: true,
   project: {
     primary: K.fill,
