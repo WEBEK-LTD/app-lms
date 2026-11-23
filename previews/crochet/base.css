@@ -1,0 +1,9 @@
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:390px}
+body{direction:rtl;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;object-fit:cover}
+.status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font:600 14px system-ui;direction:ltr}
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:22px;line-height:1;display:inline-block;-webkit-font-feature-settings:'liga';font-feature-settings:'liga'}
+.row{display:flex;align-items:center}
+.scroll{display:flex;overflow:hidden;gap:10px}
+.sticky{position:relative}

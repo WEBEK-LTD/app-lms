@@ -1,0 +1,75 @@
+<!doctype html><html lang="ar"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Mada:wght@300;400;600;800;900&family=Material+Symbols+Rounded:opsz,wght,FILL@24,400,1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+:root{--page:#F6ECEA;--surf:#FFFFFF;--ink:#3B2A2C;--mut:#86706F;--rose:#C98F8C;--roseSoft:#EBD3D0;--deep:#7E4B4D;--onr:#fff}
+.dark{--page:#1A1314;--surf:#251B1D;--ink:#F5E6E5;--mut:#BFA5A4;--rose:#E0A9A5;--roseSoft:#33252A;--deep:#E8B9B5;--onr:#1A1314}
+body{background:var(--page);color:var(--ink);font-family:'Mada',sans-serif}
+.hero{height:470px;position:relative;overflow:hidden;border-radius:0 0 40px 40px;margin-top:-44px}
+.hero img{width:100%;height:100%}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(40,20,22,.35),transparent 30%,transparent 50%,rgba(40,20,22,.75))}
+.hero .tb{position:absolute;top:52px;left:16px;right:16px;display:flex;justify-content:space-between;z-index:2;color:#fff;align-items:center}
+.hero .tb .wm{font-weight:900;font-size:22px}
+.hero .tb .ms{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center}
+.hero .c{position:absolute;bottom:26px;right:20px;left:20px;z-index:2;color:#fff}
+.hero h1{font-size:34px;font-weight:900;line-height:1.1}
+.hero p{font-size:14px;opacity:.9;margin-top:6px}
+.tog{margin:-26px 26px 0;position:relative;z-index:3;background:var(--surf);border-radius:999px;padding:5px;display:flex;box-shadow:0 10px 30px rgba(80,40,40,.15)}
+.tog div{flex:1;text-align:center;padding:11px 0;border-radius:999px;font-weight:600;font-size:14.5px;display:flex;justify-content:center;gap:6px;align-items:center}
+.tog .on{background:var(--rose);color:var(--onr)}
+.sec{padding:28px 20px 12px;display:flex;justify-content:space-between;align-items:baseline}
+.sec h2{font-size:23px;font-weight:800}.sec a{font-size:13px;color:var(--deep);font-weight:600}
+.big2{display:grid;grid-template-columns:1.25fr 1fr;gap:10px;padding:0 20px}
+.big2 .a{grid-row:span 2}
+.pc img{width:100%;border-radius:26px}
+.pc b{display:block;font-size:15px;font-weight:600;margin-top:7px}.pc span{font-size:14px;color:var(--deep);font-weight:800}
+.ws{display:flex;gap:12px;padding:0 20px;overflow:hidden}
+.w{flex:none;width:270px;background:var(--surf);border-radius:28px;overflow:hidden}
+.w .im{height:140px;position:relative}.w .im img{width:100%;height:100%}
+.w .date{position:absolute;top:12px;right:12px;background:var(--surf);border-radius:16px;width:54px;text-align:center;padding:6px 0;line-height:1}
+.w .date b{font-size:22px;font-weight:900;display:block}.w .date span{font-size:11px;color:var(--mut)}
+.w .b{padding:12px 14px 14px}.w .b b{font-size:16px;font-weight:800}
+.w .meta{display:flex;gap:12px;font-size:12.5px;color:var(--mut);margin:4px 0 10px}
+.w .row{justify-content:space-between}
+.seat{background:var(--roseSoft);color:var(--deep);border-radius:999px;padding:7px 14px;font-weight:700;font-size:13px}
+.pw{margin:0 20px;border-radius:30px;background:var(--roseSoft);overflow:hidden;display:flex}
+.pw img{width:150px;height:220px}
+.pw .t{padding:18px 16px;flex:1;display:flex;flex-direction:column;gap:6px}
+.pw .k{font-size:12px;font-weight:700;color:var(--deep);letter-spacing:.5px}
+.pw h3{font-size:22px;font-weight:900;line-height:1.15}
+.pw .lv{display:flex;gap:6px;font-size:12px}.pw .lv span{background:var(--surf);border-radius:999px;padding:4px 10px}
+.pw .dl{margin-top:auto;background:var(--ink);color:var(--page);border-radius:999px;padding:10px 0;text-align:center;font-weight:700;font-size:14px}
+.kits{display:flex;gap:10px;padding:0 20px;overflow:hidden}
+.kit{flex:none;width:150px}.kit img{width:150px;height:150px;border-radius:50%}
+.kit b{display:block;text-align:center;font-size:14.5px;font-weight:600;margin-top:8px}.kit span{display:block;text-align:center;font-size:12.5px;color:var(--mut)}
+.tabbar{margin:26px 20px 14px;background:var(--surf);border-radius:30px;padding:8px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 8px 24px rgba(80,40,40,.12)}
+.tabbar span{color:var(--mut);display:flex;align-items:center;gap:6px;padding:10px 12px;border-radius:999px;font-size:13px;font-weight:600}
+.tabbar .on{background:var(--roseSoft);color:var(--deep)}
+</style></head><body>
+<div class="status" style="position:relative;z-index:5;color:#fff"><span>9:41</span><span class="ms" style="font-size:18px">signal_cellular_alt wifi battery_full</span></div>
+<div id="home">
+<div class="hero"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/cozy-sweater.jpg"><div class="tb"><span class="ms">menu</span><span class="wm">غُرزة ستوديو</span><span class="ms">shopping_bag</span></div><div class="c"><h1>دفء تصنعينه<br>بيديكِ</h1><p>قطع جاهزة، أو علبة فيها كل ما تحتاجينه لتصنعيها.</p></div></div>
+<div class="tog"><div class="on"><span class="ms" style="font-size:18px">checkroom</span>قطع جاهزة</div><div><span class="ms" style="font-size:18px">inventory_2</span>علب لتصنعيها</div></div>
+<div class="sec"><h2>جاهزة للشحن</h2><a>الكل</a></div>
+<div class="big2"><div class="pc a"><img style="height:300px" src="file:///home/user/app-lms/platform/web/public/crochet-photos/green-sweater.jpg"><b>كنزة الغابة</b><span>1,350 ج.م</span></div><div class="pc"><img style="height:110px" src="file:///home/user/app-lms/platform/web/public/crochet-photos/mittens-snow.jpg"><b>قفازات الثلج</b><span>320 ج.م</span></div><div class="pc"><img style="height:110px" src="file:///home/user/app-lms/platform/web/public/crochet-photos/socks.jpg"><b>جوارب مخططة</b><span>210 ج.م</span></div></div>
+<div class="sec"><h2>نمط الأسبوع</h2></div>
+<div class="pw"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/knit-coffee.jpg"><div class="t"><div class="k">الأسبوع 47 · مجانًا مع كل علبة</div><h3>قبعة النقاط الإسكندنافية</h3><div class="lv"><span>مبتدئة</span><span>3 ساعات</span></div><div class="dl">حمّلي النمط</div></div></div>
+<div class="sec"><h2>ورش هذا الشهر</h2><a>التقويم</a></div>
+<div class="ws">
+<div class="w"><div class="im"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/wide-hoop-yarn.jpg"><div class="date"><b>06</b><span>ديسمبر</span></div></div><div class="b"><b>أول غرزة: الكروشيه للمبتدئات</b><div class="meta"><span>السبت · 11 ص</span><span>المعادي</span></div><div class="row"><span style="font-weight:800">450 ج.م</span><span class="seat">احجزي مقعدًا · 4 باقية</span></div></div></div>
+<div class="w"><div class="im"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/wide-knit-coffee.jpg"><div class="date"><b>13</b><span>ديسمبر</span></div></div><div class="b"><b>بطانية المربعات الجدّية</b><div class="meta"><span>3 لقاءات</span><span>أونلاين</span></div><div class="row"><span style="font-weight:800">900 ج.م</span><span class="seat">احجزي</span></div></div></div>
+</div>
+<div class="sec"><h2>علب لتصنعيها</h2><a>الكل</a></div>
+<div class="kits"><div class="kit"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/hoop-yarn.jpg"><b>علبة الوشاح</b><span>390 ج.م</span></div><div class="kit"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/yarn-balls.jpg"><b>علبة القبعة</b><span>280 ج.م</span></div><div class="kit"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/blue-yarn.jpg"><b>علبة الجوارب</b><span>240 ج.م</span></div></div>
+<div class="tabbar"><span class="on"><span class="ms">home</span>الرئيسية</span><span class="ms">inventory_2</span><span class="ms">event</span><span class="ms">shopping_bag</span><span class="ms">person</span></div>
+</div>
+<div id="product" style="display:none">
+<div class="hero" style="height:500px"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/green-sweater.jpg"><div class="tb"><span class="ms">favorite</span><span></span><span class="ms">arrow_forward</span></div></div>
+<div class="tog"><div class="on">القطعة جاهزة</div><div>العلبة لتصنعيها</div></div>
+<div style="padding:22px 20px 0"><div style="font-size:30px;font-weight:900">كنزة الغابة</div><div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:22px;font-weight:800;color:var(--deep)">1,350 ج.م</span><span style="color:var(--mut);font-size:14px">تُشحن خلال يومين</span></div><p style="color:var(--mut);margin-top:8px;font-size:14.5px;line-height:1.6">صوف ميرينو ناعم بغرز الضفيرة، دافئة وخفيفة. أو اطلبي علبتها: الخيط والإبرة والنمط خطوة بخطوة.</p></div>
+<div class="sec" style="padding-top:18px"><h2 style="font-size:19px">تعلّميها في ورشة</h2></div>
+<div class="ws"><div class="w" style="width:100%;display:flex"><div class="im" style="width:110px;height:110px;flex:none"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/knit-flatlay.jpg"></div><div class="b"><b>ورشة الضفائر</b><div class="meta" style="margin-bottom:0"><span>20 ديسمبر</span><span>3 مقاعد</span></div></div></div></div>
+<div style="padding:20px"><div class="dl" style="background:var(--ink);color:var(--page);border-radius:999px;padding:16px;text-align:center;font-weight:800">أضيفي إلى السلة</div></div>
+</div>
+<script>const q=new URLSearchParams(location.search);if(q.get('mode')==='dark')document.body.classList.add('dark');if(q.get('screen')==='product'){home.style.display='none';product.style.display='block'}</script>
+</body></html>

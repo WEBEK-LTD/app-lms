@@ -1,0 +1,93 @@
+<!doctype html><html lang="ar"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Noto+Naskh+Arabic:wght@400;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL@24,400,0&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+:root{--page:#F1E8D8;--surf:#FBF6EC;--ink:#3A2A1E;--mut:#7A6656;--line:#CDB89B;--acc:#9A3B26;--soft:#E7D9C2}
+.dark{--page:#1C1611;--surf:#27201A;--ink:#F1E6D6;--mut:#BCA993;--line:#5A4A3A;--acc:#E39B7C;--soft:#2F2720}
+body{background:var(--page);color:var(--ink);font-family:'Noto Naskh Arabic',serif;background-image:radial-gradient(rgba(120,90,60,.07) 1px,transparent 1px);background-size:5px 5px}
+.d{font-family:'Aref Ruqaa',serif}
+.hdr{text-align:center;padding:4px 18px 14px;position:relative}
+.hdr .wm{font-size:40px;line-height:1.1}.hdr small{display:block;font-size:12.5px;color:var(--mut);letter-spacing:.5px}
+.hdr .l,.hdr .r{position:absolute;top:14px;width:40px;height:40px;display:flex;align-items:center;justify-content:center}
+.hdr .l{left:14px}.hdr .r{right:14px}
+.stitch{border:1.6px dashed var(--line)}
+.lead{margin:0 16px;padding:7px;background:var(--surf);border-radius:6px;position:relative}
+.lead .in{border:1.6px dashed var(--line);border-radius:4px;overflow:hidden}
+.lead img{width:100%;height:230px}
+.lead .cap{padding:12px 14px}
+.lead h1{font-family:'Aref Ruqaa';font-size:28px;line-height:1.2}
+.lead p{font-size:14px;color:var(--mut)}
+.sec{padding:26px 18px 10px;display:flex;justify-content:space-between;align-items:baseline}
+.sec h2{font-family:'Aref Ruqaa';font-size:26px;font-weight:700}
+.sec a{font-size:13px;color:var(--acc);text-decoration:underline;text-underline-offset:3px}
+.yarn{display:flex;gap:14px;padding:0 18px;overflow:hidden}
+.y{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:12px;color:var(--mut)}
+.y i{width:46px;height:46px;border-radius:50%;display:block;background-image:repeating-linear-gradient(35deg,rgba(255,255,255,.18) 0 2px,transparent 2px 5px);box-shadow:inset -4px -5px 8px rgba(0,0,0,.25)}
+.y.on i{outline:2px dashed var(--ink);outline-offset:3px}
+.makers{display:flex;gap:12px;padding:0 18px;overflow:hidden}
+.mk{flex:none;width:232px;background:var(--surf);border-radius:6px;padding:6px}
+.mk .in{border:1.6px dashed var(--line);border-radius:4px;padding:12px}
+.mk .top{display:flex;gap:10px;align-items:center}
+.mk .top img{width:52px;height:52px;border-radius:50%;border:2px solid var(--line)}
+.mk b{font-family:'Aref Ruqaa';font-size:20px;display:block;line-height:1.1}.mk span{font-size:12px;color:var(--mut)}
+.mk .ph{display:flex;gap:6px;margin-top:10px}.mk .ph img{flex:1;height:74px;border-radius:3px;width:0}
+.mk .ft{display:flex;justify-content:space-between;font-size:12px;margin-top:8px;color:var(--mut)}
+.mto{margin:0 16px;background:var(--surf);border-radius:6px;padding:6px}
+.mto .in{border:1.6px dashed var(--line);border-radius:4px;padding:14px 12px}
+.steps{display:flex;align-items:flex-start;margin-top:10px}
+.sp{flex:1;text-align:center;font-size:12.5px;position:relative}
+.sp .c{width:44px;height:44px;border-radius:50%;margin:0 auto 6px;background:var(--soft);display:flex;align-items:center;justify-content:center;color:var(--acc);position:relative;z-index:2}
+.sp.on .c{background:var(--acc);color:#fff}
+.sp b{display:block;font-size:14px}
+.sp:not(:last-child)::after{content:"";position:absolute;top:22px;left:-50%;width:100%;border-top:1.6px dashed var(--line);z-index:1}
+.tags{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px;padding:0 18px}
+.tg img{width:100%;height:200px;border-radius:4px}
+.tg{position:relative}
+.tg .ht{position:absolute;top:10px;left:-4px;background:var(--surf);border:1.4px dashed var(--line);padding:3px 10px 3px 8px;border-radius:0 12px 12px 0;font-weight:700;font-size:13px;transform:rotate(-4deg)}
+.tg b{font-family:'Aref Ruqaa';font-size:18px;display:block;margin-top:6px;line-height:1.2}.tg span{font-size:12px;color:var(--mut)}
+.quote{margin:0 16px;padding:18px;border-top:1.6px dashed var(--line);border-bottom:1.6px dashed var(--line);text-align:center}
+.quote p{font-family:'Aref Ruqaa';font-size:22px;line-height:1.5}
+.tabbar{margin:24px 16px 12px;display:flex;align-items:flex-end}
+.tabbar div{flex:1;text-align:center;padding:8px 0 10px;font-size:11.5px;color:var(--mut);border-bottom:1.6px dashed var(--line)}
+.tabbar .on{background:var(--surf);border:1.6px dashed var(--line);border-bottom:none;border-radius:12px 12px 0 0;color:var(--acc);font-weight:700}
+.btn{background:var(--acc);color:#fff;border-radius:4px;height:50px;display:flex;align-items:center;justify-content:center;font-weight:700;gap:6px}
+</style></head><body>
+<div class="status"><span>9:41</span><span class="ms" style="font-size:18px">signal_cellular_alt wifi battery_full</span></div>
+<div id="home">
+<div class="hdr"><span class="r ms">menu</span><div class="wm d">غُرزة</div><small>سوق الصنّاع · صُنع باليد</small><span class="l ms">shopping_bag</span></div>
+<div class="lead"><div class="in"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/wide-knit-flatlay.jpg"><div class="cap"><h1>كل قطعة تبدأ بخيط<br>ويد تعرف اسمك</h1><p>اطلبي قطعتك، واختاري لونها، ونصنعها لكِ في 10 أيام.</p></div></div></div>
+<div class="sec"><h2>اختاري لون الخيط</h2><a>كل الألوان</a></div>
+<div class="yarn"><div class="y"><i style="background-color:#C9A27E"></i>جملي</div><div class="y on"><i style="background-color:#9A3B26"></i>طوبي</div><div class="y"><i style="background-color:#7D8B6A"></i>زيتي</div><div class="y"><i style="background-color:#EFE6D6"></i>كريمي</div><div class="y"><i style="background-color:#2F3E55"></i>كحلي</div><div class="y"><i style="background-color:#D9A1A0"></i>وردي</div></div>
+<div class="sec"><h2>من صنعها؟</h2><a>كل الصانعات</a></div>
+<div class="makers">
+<div class="mk"><div class="in"><div class="top"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/cozy-sweater.jpg"><div><b>أم يوسف</b><span>المنصورة · بطانيات وشالات</span></div></div><div class="ph"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/scarves-stack.jpg"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/red-scarf.jpg"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/fluffy-blanket.jpg"></div><div class="ft"><span>★ 4.9 · 212 قطعة</span><span>تصنع في 8 أيام</span></div></div></div>
+<div class="mk"><div class="in"><div class="top"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/beanie-girl.jpg"><div><b>سلمى</b><span>الإسكندرية · ألعاب أميغورومي</span></div></div><div class="ph"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/teddy-sweater.jpg"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/snowman-plush.jpg"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/bunny-knit.jpg"></div><div class="ft"><span>★ 5.0 · 96 قطعة</span><span>تصنع في 6 أيام</span></div></div></div>
+</div>
+<div class="sec"><h2>كيف تُصنع قطعتك</h2></div>
+<div class="mto"><div class="in"><div style="font-size:14px;color:var(--mut)">صُنعت لكِ وحدكِ، غرزة بعد غرزة</div>
+<div class="steps"><div class="sp on"><div class="c ms">edit_note</div><b>تطلبين</b>اليوم</div><div class="sp"><div class="c ms">gesture</div><b>نصنعها</b>7–10 أيام</div><div class="sp"><div class="c ms">local_shipping</div><b>نشحنها</b>يومان</div></div>
+<div class="btn" style="margin-top:14px">اطلبي قطعة على ذوقك <span class="ms" style="font-size:18px">arrow_back</span></div></div></div>
+<div class="sec"><h2>من المشغل</h2><a>كل القطع</a></div>
+<div class="tags">
+<div class="tg"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/slippers.jpg"><span class="ht">450 ج.م</span><b>خف شتوي مزخرف</b><span>أم يوسف · 6 أيام</span></div>
+<div class="tg"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/pom-beanie.jpg"><span class="ht">280 ج.م</span><b>قبعة بكرة صوف</b><span>سلمى · 3 أيام</span></div>
+<div class="tg"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/sweater-wood.jpg"><span class="ht">1,200 ج.م</span><b>كنزة الكابل</b><span>أم يوسف · 14 يومًا</span></div>
+<div class="tg"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/straw-hat.jpg"><span class="ht">390 ج.م</span><b>قبعة الرافيا</b><span>سلمى · 5 أيام</span></div>
+</div>
+<div class="sec"></div>
+<div class="quote"><p>«أحب أن أعرف لمن أصنع القطعة؛ أكتب اسمها على البطاقة قبل أن أبدأ.»</p><div style="font-size:13px;color:var(--mut);margin-top:6px">— أم يوسف، صانعة منذ 1998</div></div>
+<div class="tabbar"><div class="on"><span class="ms">storefront</span><br>السوق</div><div><span class="ms">groups</span><br>الصانعات</div><div><span class="ms">shopping_bag</span><br>السلة</div><div><span class="ms">receipt_long</span><br>طلباتي</div><div><span class="ms">person</span><br>حسابي</div></div>
+</div>
+<div id="product" style="display:none">
+<div class="hdr" style="padding-bottom:8px"><span class="r ms">arrow_forward</span><div class="d" style="font-size:22px">من المشغل</div><span class="l ms">favorite</span></div>
+<div class="lead"><div class="in"><img style="height:360px" src="file:///home/user/app-lms/platform/web/public/crochet-photos/slippers.jpg"></div></div>
+<div style="padding:16px 18px 0"><div class="d" style="font-size:32px;line-height:1.2">خف شتوي مزخرف</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><span style="font-weight:700;font-size:22px">450 ج.م</span><span style="font-size:13px;color:var(--mut)">★ 4.9 · 38 تقييمًا</span></div></div>
+<div class="sec" style="padding-top:16px"><h2 style="font-size:20px">لون الخيط</h2></div>
+<div class="yarn"><div class="y on"><i style="background-color:#9A3B26"></i>طوبي</div><div class="y"><i style="background-color:#2F3E55"></i>كحلي</div><div class="y"><i style="background-color:#EFE6D6"></i>كريمي</div><div class="y"><i style="background-color:#7D8B6A"></i>زيتي</div></div>
+<div class="sec" style="padding-top:16px"><h2 style="font-size:20px">صنعتها</h2></div>
+<div class="mk" style="margin:0 16px;width:auto"><div class="in"><div class="top"><img src="file:///home/user/app-lms/platform/web/public/crochet-photos/cozy-sweater.jpg"><div><b>أم يوسف</b><span>المنصورة · تصنع منذ 1998</span></div></div></div></div>
+<div class="mto" style="margin-top:14px"><div class="in"><div class="steps" style="margin:0"><div class="sp on"><div class="c ms">edit_note</div><b>تطلبين</b>اليوم</div><div class="sp"><div class="c ms">gesture</div><b>نصنعها</b>6 أيام</div><div class="sp"><div class="c ms">local_shipping</div><b>تصلك</b>8 ديسمبر</div></div></div></div>
+<div style="padding:18px 16px"><div class="btn">اطلبيها الآن · 450 ج.م</div></div>
+</div>
+<script>const q=new URLSearchParams(location.search);if(q.get('mode')==='dark')document.body.classList.add('dark');if(q.get('screen')==='product'){home.style.display='none';product.style.display='block'}</script>
+</body></html>
