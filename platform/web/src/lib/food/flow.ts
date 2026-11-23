@@ -4,6 +4,7 @@ import { stage } from "../delivery/service";
 import { tellFoodCustomer, tellRestaurant } from "./notify";
 import { pushNewFoodOrder, pushOrderCancelled } from "../owner/push";
 import { pushOwnerSafely } from "../owner/push-env";
+import { endOrderActivities } from "../owner/live-activity";
 import { DEFAULT_FOOD_TIMEZONE, foodOrderReference, foodStage } from "./service";
 
 /**
@@ -27,6 +28,11 @@ export async function announceOrder(deps: FlowDeps, order: FoodOrder): Promise<v
   await tellRestaurant(n, order);
   // 125 And the company's phones on Yallapp Business.
   await (deps.pushOwner ?? pushOwnerSafely)((d) => pushNewFoodOrder(d, deps.app, order), deps.store).catch(() => undefined);
+}
+
+/** 214 Answered: the new order's Live Activity leaves the owners' iPhones. */
+async function endLive(deps: FlowDeps, order: FoodOrder): Promise<void> {
+  await pushOwnerSafely((d) => endOrderActivities(d, deps.app, "new_food_order", String(order.id)), deps.store).catch(() => undefined);
 }
 
 async function move(deps: FlowDeps, order: FoodOrder, patch: Partial<FoodOrder> & { status: FoodOrder["status"] }, by: FoodOrderStage["by"], note: string | null = null): Promise<FoodMoveResult> {
@@ -83,6 +89,7 @@ export async function acceptOrder(deps: FlowDeps, order: FoodOrder, prepMinutes:
   if (order.status !== "placed") return { ok: false, reason: "changed" };
   const moved = await move(deps, order, { status: "accepted", readyAt: new Date(deps.now.getTime() + prepMinutes * 60_000) }, by);
   if (!moved.ok) return moved;
+  await endLive(deps, moved.order);
   await tellFoodCustomer(notifyDeps(deps), moved.order, await timezoneOf(deps));
   if (((await settingsOf(deps)).foodCourierJob ?? "accepted") === "accepted") {
     const job = await makeCourierJob(deps, moved.order);
@@ -95,6 +102,7 @@ export async function acceptOrder(deps: FlowDeps, order: FoodOrder, prepMinutes:
 export async function rejectOrder(deps: FlowDeps, order: FoodOrder, reason: FoodRejection, note: string | null, by: FoodOrderStage["by"]): Promise<FoodMoveResult> {
   if (order.status !== "placed") return { ok: false, reason: "changed" };
   const moved = await move(deps, order, { status: "rejected", rejection: { reason, note } }, by, note);
+  if (moved.ok) await endLive(deps, moved.order);
   if (moved.ok) await tellFoodCustomer(notifyDeps(deps), moved.order, await timezoneOf(deps));
   return moved;
 }
@@ -116,6 +124,7 @@ export async function cancelOrder(deps: FlowDeps, order: FoodOrder, by: FoodOrde
   if (!["awaiting_payment", "placed", "accepted", "ready", "failed"].includes(order.status)) return { ok: false, reason: "changed" };
   const moved = await move(deps, order, { status: "cancelled" }, by, note);
   if (!moved.ok) return moved;
+  await endLive(deps, moved.order);
   if (order.shipmentId !== null) {
     const job = await deps.store.getShipment(deps.app.id, order.shipmentId);
     if (job && ["pending", "assigned", "failed"].includes(job.status)) await moveShipment(deps, job, "cancelled", "company", "The food order was cancelled.");

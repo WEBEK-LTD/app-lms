@@ -92,7 +92,7 @@ enum WidgetShared {
   @available(iOS 16.0, *)
   static func locale(_ lang: String) -> Locale {
     var c = Locale.Components(languageCode: Locale.LanguageCode(lang))
-    c.numberingSystem = "latn"
+    c.numberingSystem = Locale.NumberingSystem("latn")
     return Locale(components: c)
   }
 

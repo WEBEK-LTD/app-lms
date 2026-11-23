@@ -15,6 +15,7 @@ import 'package:yallapp_business/core/providers.dart';
 import 'package:yallapp_business/core/services/biometrics.dart';
 import 'package:yallapp_business/core/services/chime.dart';
 import 'package:yallapp_business/core/services/home_widget.dart';
+import 'package:yallapp_business/core/services/live_activity.dart';
 import 'package:yallapp_business/core/services/media_picker.dart';
 import 'package:yallapp_business/core/services/privacy.dart';
 import 'package:yallapp_business/core/services/push.dart';
@@ -61,6 +62,7 @@ class TestApp {
   final ringer = FakeRinger();
   final ringNative = FakeRingNative();
   final homeWidget = FakeHomeWidget();
+  final live = FakeLiveActivities();
   final wake = FakeWake();
   final picker = FakePicker();
   final scanner = FakeScanner();
@@ -100,6 +102,7 @@ class TestApp {
     ringerProvider.overrideWithValue(ringer),
     ringNativeProvider.overrideWithValue(ringNative),
     homeWidgetProvider.overrideWithValue(homeWidget),
+    liveActivitiesProvider.overrideWithValue(live),
     screenWakeProvider.overrideWithValue(wake),
     mediaPickerProvider.overrideWithValue(picker),
     cameraScannerProvider.overrideWithValue(() => scanner),
@@ -301,6 +304,32 @@ class FakeHomeWidget implements HomeWidget {
   Future<void> refresh() async => refreshes += 1;
 }
 
+/// 214 The iPhone's Live Activities: what it was told, and its tokens.
+class FakeLiveActivities implements LiveActivities {
+  LiveTokens? tokensNow = const LiveTokens(
+    start: 'a1a1a1a1a1a1a1a1',
+    orders: [
+      LiveOrderToken(
+        appId: 'app',
+        kind: 'new_order',
+        orderId: '1040',
+        token: 'b2b2b2b2b2b2b2b2',
+      ),
+    ],
+  );
+  final started = <Map<String, Object?>>[];
+  final changes = StreamController<void>.broadcast();
+
+  @override
+  Future<LiveTokens?> tokens() async => tokensNow;
+
+  @override
+  Future<void> start(Map<String, Object?> data) async => started.add(data);
+
+  @override
+  Stream<void> get changed => changes.stream;
+}
+
 /// 207 Android's side: what it was told.
 class FakeRingNative implements RingNative {
   RingSettings? configured;
@@ -342,6 +371,11 @@ class FakeRingNative implements RingNative {
 
   @override
   Future<void> orderDone(Map<String, String> data) async => done.add(data);
+
+  int settingsOpened = 0;
+
+  @override
+  Future<void> openNotificationSettings() async => settingsOpened += 1;
 
   @override
   Future<Map<String, dynamic>?> initial() async {

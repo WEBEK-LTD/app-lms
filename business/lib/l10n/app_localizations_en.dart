@@ -4573,6 +4573,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reopenedNow => 'Taking orders again';
 
   @override
+  String get ringFocusTitle => 'Order alerts through Focus';
+
+  @override
+  String get ringFocusHelp =>
+      'On iPhone, new order alerts are Time Sensitive. To hear them during Focus or Do Not Disturb, turn on Time Sensitive Notifications for Yallapp Business in its notification settings, and allow it in your Focus.';
+
+  @override
+  String get ringFocusOpen => 'Open notification settings';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

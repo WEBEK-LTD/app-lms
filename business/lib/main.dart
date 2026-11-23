@@ -12,6 +12,7 @@ import 'core/config.dart';
 import 'core/providers.dart';
 import 'core/services/biometrics.dart';
 import 'core/services/home_widget.dart';
+import 'core/services/live_activity.dart';
 import 'core/services/push.dart';
 import 'core/services/ringtones.dart';
 
@@ -43,8 +44,10 @@ Future<void> main() async {
         // 207 Android shows its pushes itself, with the chosen ringtones.
         ringNativeProvider.overrideWithValue(PlatformRingNative()),
         // 214 The home-screen widget; the demo's figures stay in the app.
-        if (!config.demo)
+        if (!config.demo) ...[
           homeWidgetProvider.overrideWithValue(const PlatformHomeWidget()),
+          liveActivitiesProvider.overrideWithValue(PlatformLiveActivities()),
+        ],
         if (config.demo) ...[
           tokenStoreProvider.overrideWithValue(MemoryTokenStore()),
           biometricsProvider.overrideWithValue(NoBiometrics()),

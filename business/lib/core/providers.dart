@@ -21,6 +21,7 @@ import 'services/chime.dart';
 import 'services/device.dart';
 import 'services/home_widget.dart';
 import 'services/links.dart';
+import 'services/live_activity.dart';
 import 'services/media_picker.dart';
 import 'services/privacy.dart';
 import 'services/push.dart';
@@ -74,6 +75,11 @@ final ringerProvider = Provider<Ringer>((ref) => AssetRinger());
 
 /// 214 The home-screen widget (Android's AppWidget, iOS's WidgetKit).
 final homeWidgetProvider = Provider<HomeWidget>((ref) => const NoHomeWidget());
+
+/// 214 A new order's Live Activity (iPhones).
+final liveActivitiesProvider = Provider<LiveActivities>(
+  (ref) => const NoLiveActivities(),
+);
 
 /// 214 A new order was accepted (or moved on, or refused) in the app: its
 /// ongoing notification goes and the home-screen widget reads again.

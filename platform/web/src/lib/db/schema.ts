@@ -55,6 +55,7 @@ import type {
   HostedAppRole,
   StaffAppPlace,
   OwnerPushPreferences,
+  OwnerLiveActivity,
   OwnerPushSounds,
   ShopPauses,
   ScheduledNotificationStatus,
@@ -3182,6 +3183,8 @@ export const ownerDevices = mysqlTable(
     pushPreferences: jsonText<OwnerPushPreferences>("push_preferences"),
     // 207 Its ringtones (lib/owner/push-sounds.ts).
     pushSounds: jsonText<OwnerPushSounds>("push_sounds"),
+    // 214 Its Live Activity push tokens (lib/owner/live-activity.ts).
+    liveActivity: jsonText<OwnerLiveActivity>("live_activity"),
     createdAt: time("created_at").notNull(),
     lastSeenAt: time("last_seen_at").notNull(),
   },

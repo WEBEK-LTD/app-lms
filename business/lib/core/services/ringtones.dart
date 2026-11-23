@@ -363,6 +363,9 @@ abstract class RingNative {
   /// The data of the notification that opened the app, once.
   Future<Map<String, dynamic>?> initial();
 
+  /// 214 iPhone: the app's notification settings (Time Sensitive).
+  Future<void> openNotificationSettings();
+
   /// 214 An order was opened or accepted in the app: Android's ongoing
   /// notification for it goes (by the push's [data]: its kind and id).
   Future<void> orderDone(Map<String, String> data);
@@ -432,6 +435,10 @@ class PlatformRingNative implements RingNative {
       _call<void>('orderDone', {'data': data});
 
   @override
+  Future<void> openNotificationSettings() =>
+      _call<void>('notificationSettings');
+
+  @override
   Stream<Map<String, dynamic>> get opened => _opened.stream;
 }
 
@@ -452,6 +459,8 @@ class NoRingNative implements RingNative {
   Future<Map<String, dynamic>?> initial() => Future.value();
   @override
   Future<void> orderDone(Map<String, String> data) => Future.value();
+  @override
+  Future<void> openNotificationSettings() => Future.value();
   @override
   Stream<Map<String, dynamic>> get opened => const Stream.empty();
 }

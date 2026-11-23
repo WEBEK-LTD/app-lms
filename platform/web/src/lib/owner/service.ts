@@ -24,6 +24,7 @@ import { teamCan } from "../team/permissions";
 import { getPlans } from "../settings/platform";
 import * as pause from "./pause";
 import { getDaySummary } from "./daily-summary";
+import { setLiveActivity } from "./live-activity";
 import { widgetBody, widgetToken } from "./widget";
 
 /**
@@ -52,6 +53,8 @@ export const ROUTES: Route[] = [
   route("PUT", "me/push-sounds", account.setPushSounds, { anyState: true }),
   // 214 The home-screen widget's token.
   route("POST", "me/widget-token", widgetToken),
+  // 214 A new order's Live Activity on an iPhone: its push tokens.
+  route("PUT", "me/live-activity", setLiveActivity, { anyState: true }),
   // 125 VIP: a call with the account manager.
   route("GET", "me/account-manager/slots", vip.listSlots),
   route("POST", "me/account-manager/calls", vip.requestCall),

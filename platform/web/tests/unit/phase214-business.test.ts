@@ -3,10 +3,12 @@ import { newApp } from "@/lib/app/setup";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import type { DataStore } from "@/lib/data/store";
 import type { App, CatalogOrder, OwnerDevice, OwnerPushSounds, RestaurantInput } from "@/lib/data/types";
+import { formatCents } from "@/lib/catalog/money";
 import { EMPTY_MENU } from "@/lib/food/menu";
 import { restaurantState } from "@/lib/food/service";
 import { CatalogConnector } from "@/lib/hosted/connectors/catalog";
 import { apsOf, fcmMessage, type sendPush, type ServiceAccount } from "@/lib/hosted/push";
+import { endOrderActivities, firstName, readLiveActivity } from "@/lib/owner/live-activity";
 import { daySummary, runDailySummaries, summaryWords } from "@/lib/owner/daily-summary";
 import { WIDGET_KINDS, orderValue, pushNewOrder, type OwnerPushDeps, type OwnerPushMessage } from "@/lib/owner/push";
 import { defaultPushSounds, pushDelivery, pushSoundsJson, readPushSounds, soundByValue } from "@/lib/owner/push-sounds";
@@ -295,5 +297,78 @@ describe("214 the home-screen widget's pushes", () => {
     expect(message.apns?.payload.aps).toMatchObject({ "content-available": 1 });
     expect(WIDGET_KINDS.has("new_order")).toBe(true);
     expect(WIDGET_KINDS.has("new_message")).toBe(false);
+  });
+});
+
+describe("214 a new order's Live Activity", () => {
+  const START = "a1".repeat(32);
+  const ORDER = "b2".repeat(32);
+
+  it("reads the phone's push-to-start token and its orders' activity tokens", () => {
+    const read = readLiveActivity({ start_token: START.toUpperCase(), orders: [{ app_id: "app", kind: "new_order", order_id: "42", token: ORDER }] }, null, NOW);
+    expect(read).toEqual({ ok: true, value: { start: START, orders: [{ appId: "app", kind: "new_order", orderId: "42", token: ORDER, at: NOW.toISOString() }] } });
+    if (!read.ok) return;
+    // An ended activity's token goes; the start token stays when not sent.
+    expect(readLiveActivity({ orders: [{ app_id: "app", kind: "new_order", order_id: "42", token: null }] }, read.value, NOW)).toEqual({ ok: true, value: { start: START, orders: [] } });
+    expect(readLiveActivity({ start_token: "not hex" }, null, NOW)).toEqual({ ok: false, field: "start_token" });
+    expect(readLiveActivity({ orders: [{ app_id: "app", kind: "new_booking", order_id: "1", token: ORDER }] }, null, NOW)).toEqual({ ok: false, field: "orders.0.kind" });
+    expect(firstName("  Selin Aydın ")).toBe("Selin");
+  });
+
+  it("starts on the iPhones that hear of the order, and ends everywhere once it is answered", async () => {
+    const { store, client, user } = await setupClient({ plan: "pro" });
+    const app: App = { ...newApp(client.id, null, NOW, "store", "restaurant"), backend: "hosted", appName: "Moda Café", connector: { kind: "catalog" } };
+    await store.createApp(app);
+    const base = { userId: user.id, clientId: client.id, appVersion: null, language: "ar", refreshHash: "", refreshExpiresAt: days(60), sessionVersion: user.sessionVersion, pushProvider: "fcm" as const, pushPreferences: null, createdAt: NOW, lastSeenAt: NOW };
+    const iphone = "33333333-3333-4333-8333-333333333333";
+    await store.createOwnerDevice({ ...base, id: iphone, name: "iPhone", platform: "ios", refreshHash: sha256Hex("i"), pushToken: "fcm-i", liveActivity: { start: START, orders: [] } });
+    await store.createOwnerDevice({ ...base, id: "44444444-4444-4444-8444-444444444444", name: "Pixel", platform: "android", refreshHash: sha256Hex("p"), pushToken: "fcm-p" });
+    const sent: { targets: unknown[]; message: Parameters<typeof sendPush>[2] }[] = [];
+    const send = (async (_a, targets, message) => {
+      sent.push({ targets, message });
+      return { sent: targets.length, invalidTokens: [] };
+    }) as typeof sendPush;
+    const deps: OwnerPushDeps = { store, now: NOW, account: ACCOUNT, send };
+    const order = { id: 42, totalCents: 25000, currency: "TRY", customer: { name: "Selin Aydın", phone: "", email: "", city: "", address: "" }, createdAt: NOW } as CatalogOrder;
+    await pushNewOrder(deps, app, order);
+    const live = sent.filter((s) => s.message.liveActivity);
+    expect(live).toHaveLength(1);
+    expect(live[0]!.targets).toEqual(["fcm-i"]);
+    const start = live[0]!.message.liveActivity!;
+    expect(start).toMatchObject({ token: START, event: "start", attributesType: "OrderActivityAttributes", contentState: { waiting: true } });
+    expect(start.attributes).toMatchObject({ appId: app.id, kind: "new_order", orderId: "42", number: "1042", customer: "Selin", lang: "ar", placedAt: Math.floor(NOW.getTime() / 1000) });
+    expect(fcmMessage("fcm-i", live[0]!.message)).toMatchObject({ apns: { live_activity_token: START, payload: { aps: { event: "start", "attributes-type": "OrderActivityAttributes" } } } });
+    // The ringing push carries what the app needs to show it itself.
+    const ring = sent.find((s) => !s.message.liveActivity)!;
+    expect(ring.message.data).toMatchObject({ order_number: "1042", order_customer: "Selin", order_currency: "TRY", order_total: formatCents(25000, "TRY", "ar") });
+
+    // The phone's activity gives its token; accepted from the dashboard, it ends.
+    const device = (await store.listOwnerDevices(user.id)).find((d) => d.id === iphone)!;
+    await store.updateOwnerDevice(iphone, { liveActivity: { start: START, orders: [{ appId: app.id, kind: "new_order", orderId: "42", token: ORDER, at: NOW.toISOString() }] } });
+    expect(device.platform).toBe("ios");
+    sent.length = 0;
+    expect(await endOrderActivities(deps, app, "new_order", "42")).toBe(1);
+    expect(sent[0]!.message.liveActivity).toMatchObject({ token: ORDER, event: "end", dismissalDate: Math.floor(NOW.getTime() / 1000) });
+    expect((await store.listOwnerDevices(user.id)).find((d) => d.id === iphone)!.liveActivity!.orders).toEqual([]);
+    // Once only.
+    expect(await endOrderActivities(deps, app, "new_order", "42")).toBe(0);
+  });
+});
+
+describe("214 Time Sensitive (iPhone)", () => {
+  it("a new order goes through Focus first, also to an iPhone that never chose its ringtones; the day's summary doesn't", async () => {
+    expect(apsOf({ apnsSound: "default", timeSensitive: true })).toEqual({ sound: "default", "interruption-level": "time-sensitive", "relevance-score": 1 });
+    const { store, client, user } = await setupClient({ plan: "pro" });
+    const app: App = { ...newApp(client.id, null, NOW, "store", "restaurant"), backend: "hosted", appName: "Moda Café", connector: { kind: "catalog" } };
+    await store.createApp(app);
+    await store.createOwnerDevice({ id: "55555555-5555-4555-8555-555555555555", userId: user.id, clientId: client.id, name: "iPhone", platform: "ios", appVersion: null, language: "en", refreshHash: sha256Hex("ts"), refreshExpiresAt: days(60), sessionVersion: user.sessionVersion, pushToken: "fcm-ts", pushProvider: "fcm", pushPreferences: null, createdAt: NOW, lastSeenAt: NOW });
+    const sent: OwnerPushMessage[] = [];
+    const send = (async (_a, targets, message) => {
+      sent.push(message as OwnerPushMessage);
+      return { sent: targets.length, invalidTokens: [] };
+    }) as typeof sendPush;
+    await pushNewOrder({ store, now: NOW, account: ACCOUNT, send }, app, { id: 7, totalCents: 1000, currency: "TRY", createdAt: NOW } as CatalogOrder);
+    expect(sent[0]).toMatchObject({ timeSensitive: true });
+    expect(pushDelivery({ platform: "ios", pushProvider: "fcm", pushSounds: defaultPushSounds() }, "daily_summary", NOW)).toMatchObject({ timeSensitive: false });
   });
 });

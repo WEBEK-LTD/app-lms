@@ -8,6 +8,7 @@ import 'core/api/models.dart' show Me;
 import 'core/providers.dart';
 import 'core/routing/paths.dart';
 import 'core/routing/router.dart';
+import 'core/services/live_activity.dart';
 import 'core/services/push.dart';
 import 'core/services/ringtones.dart';
 import 'core/session.dart';
@@ -129,6 +130,10 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
     if (widgetKinds.contains(notice.data['kind'])) {
       unawaited(ref.read(homeWidgetProvider).refresh());
     }
+    // 214 A new order shows on the lock screen too (iPhones; the server's
+    // push starts it when the app isn't open).
+    final live = liveStartArgs(notice.data, ref.read(languageCodeProvider));
+    if (live != null) unawaited(ref.read(liveActivitiesProvider).start(live));
     // 125 The morning brief also shows on Today.
     final appId = '${notice.data['app_id'] ?? ''}';
     if (notice.data['kind'] == 'morning_brief' &&

@@ -423,6 +423,7 @@ platform :ios do
   #     (business_old_certificate), so every update just runs.
   #
   # options: asc, business (path to business/; 104.8.6 or project: the Flutter project), out, status,
+  #          time_sensitive (214: "1" adds Time Sensitive Notifications; off by default),
   #          cert_out, cert_save (125.13: where to write the certificate made here, to be saved as
   #          the secrets), app (as business_play), push (Yallapp Courier: "false" without Firebase)
   lane :business_ipa do |options|
@@ -490,6 +491,19 @@ platform :ios do
     profile_name = lane_context[SharedValues::SIGH_NAME]
     profile = FastlaneCore::ProvisioningProfile.parse(File.join(options[:out], "distribution.mobileprovision"))
     team_id = profile["TeamIdentifier"].first
+
+    # 214 Time Sensitive Notifications (new orders through Focus): only with options[:time_sensitive]
+    # "1" (the release workflow's BUSINESS_TIME_SENSITIVE variable, off by default), once the App ID
+    # has the capability in Apple Developer (Identifiers): signing fails with the entitlement before.
+    time_sensitive = (options[:time_sensitive] || ENV["BUSINESS_TIME_SENSITIVE"]).to_s == "1"
+    if time_sensitive && !app[:entitlements]
+      runner_entitlements = File.join(options[:project] || options[:business], "ios", "Runner", "Runner.entitlements")
+      text = File.read(runner_entitlements)
+      unless text.include?("com.apple.developer.usernotifications.time-sensitive")
+        File.write(runner_entitlements, text.sub("</dict>", "\t<key>com.apple.developer.usernotifications.time-sensitive</key>\n\t<true/>\n</dict>"))
+      end
+      UI.message("Time Sensitive Notifications: on (the App ID must have the capability).")
+    end
 
     # Yallapp Business: the push entitlement is in the project (Runner/Runner.entitlements for
     # Release). 104.8.6 Yallapp Courier: written here, as build_ipa does for the clients' apps,
