@@ -137,31 +137,36 @@ const COLOURS = [
   ["mjOlive", "#7D7A45"],
 ] as const satisfies readonly [SectionWord, string][];
 
-/** Shop by colour: a circle of each colour with a paper ring, its name under it, opening the shop. */
+/** Shop by colour: big paint circles three by two, each colour's name written inside it, each a little tilted, opening the shop. */
 function byColour(ctx: SectionContext): StudioNode {
   const id = idOf(ctx);
+  const tilts = [-4, 3, -2, 4, -3, 2];
   return {
     id: id(),
-    type: "row",
+    type: "grid",
     name: ctx.w("mjByColour"),
-    gap: 14,
-    scroll: true,
+    columns: 3,
+    gap: 12,
     padding: sides(0, 16, 0, 16),
-    children: COLOURS.map(([word, colour]) => ({
+    children: COLOURS.map(([word, colour], i) => ({
       id: id(),
       type: "column" as const,
       name: ctx.w(word),
-      width: 64,
-      gap: 6,
+      height: 96,
+      radius: 48,
+      align: "center" as const,
       cross: "center" as const,
+      background: colour,
+      dark_background: colour,
+      rotation: tilts[i],
       action: shop,
-      children: [
-        { id: id(), type: "row" as const, width: 60, height: 60, radius: 30, background: colour, dark_background: colour, border_color: K.surface, dark_border_color: K.darkSurface, border_width: 3, shadow: "light" as const, children: [] },
-        say(ctx, L, word, font(11.5, 500), { max_lines: 1, text_align: "center" }),
-      ],
+      children: [say(ctx, L, word, font(13, 600), { color: LIGHT_ON.has(word) ? PRINT_INK : "#FFFFFF", dark_color: LIGHT_ON.has(word) ? PRINT_INK : "#FFFFFF", max_lines: 1, text_align: "center" })],
     })),
   };
 }
+
+/** The pale colours carry dark words. */
+const LIGHT_ON = new Set<SectionWord>(["mjSand", "mjBlush", "mjSage"]);
 
 const PALETTES = [
   { word: "mjSeasonAutumn", line: "mjSeasonAutumnLine", photo: "hero-autumn", colours: ["#C4623F", "#D99A6C", "#EBCFA8", "#6B4A3A"] },
@@ -306,7 +311,27 @@ function over(screenName: string, ctx: SectionContext): StudioNode[] | null {
   const id = idOf(ctx);
   switch (screenName) {
     case "search":
-      return [{ ...byColour(ctx), padding: sides(8, 16, 10, 16) }];
+      return [
+        {
+          id: id(),
+          type: "row",
+          name: ctx.w("mjByColour"),
+          gap: 8,
+          scroll: true,
+          padding: sides(8, 16, 10, 16),
+          children: COLOURS.map(([word, colour]) => ({
+            id: id(),
+            type: "row" as const,
+            name: ctx.w(word),
+            radius: 20,
+            padding: sides(8, 16, 8, 16),
+            background: colour,
+            dark_background: colour,
+            action: shop,
+            children: [say(ctx, L, word, font(12.5, 600), { color: LIGHT_ON.has(word) ? PRINT_INK : "#FFFFFF", dark_color: LIGHT_ON.has(word) ? PRINT_INK : "#FFFFFF", max_lines: 1 })],
+          })),
+        },
+      ];
     case "cart":
       return [
         { id: id(), type: "coupon", name: ctx.w("skCoupon"), code: DECOR_D_CODE, coupon: { look: "ticket", bind: "public" }, radius: 24, color: K.fill, margin: sides(10, 16, 4, 16) },
