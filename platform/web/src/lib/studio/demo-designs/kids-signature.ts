@@ -214,7 +214,7 @@ function heroCard(ctx: SectionContext, l: Look, photo: string, kicker: SectionWo
         padding: sides(0, 16, 0, 16),
         self_align: "start",
         margin: sides(10, 0, 0, 0),
-        ...(soft ? { background: "#A4503F", dark_background: "#A4503F", color: "#FFFFFF", dark_color: "#FFFFFF" } : { background: "#FFFFFF", dark_background: "#FFFFFF", color: "#161D2E", dark_color: "#161D2E", border_width: 0 }),
+        ...(soft ? { background: "#A4503F", dark_background: "#A4503F", color: "#FFFFFF", dark_color: "#FFFFFF" } : { background: "#161D2E", dark_background: "#161D2E", color: "#FFFFFF", dark_color: "#FFFFFF", border_color: "#FFFFFF", dark_border_color: "#FFFFFF", border_width: 1 }),
         font: { family: l.family, size: 13.5, weight: 700 },
         motion: { press: "shrink" },
         action: shop,
@@ -1263,7 +1263,7 @@ function kidsTabs(l: Look) {
 const TOOTA_SCREENS = signatureScreens({
   style: "photo",
   photo: P("baby-flatlay"),
-  title: { en: "Welcome to Toota", ar: "أهلًا بكِ في توتة", tr: "Toota'ya hoş geldiniz" },
+  title: { en: "Hello again", ar: "أهلًا بكِ من جديد", tr: "Yeniden hoş geldiniz" },
   subtitle: { en: "Sign in to follow your orders and your children's sizes.", ar: "سجّلي الدخول لتتابعي طلباتكِ ومقاسات أطفالكِ.", tr: "Siparişlerinizi ve çocuklarınızın bedenlerini takip etmek için giriş yapın." },
   menu: "cover",
   first: ["orders", "notifications", "settings", "help", "privacy", "terms"],
@@ -1281,8 +1281,8 @@ const MINIMO_SCREENS = signatureScreens({
 
 /** A's floating bar: warm white by day, cocoa by night, the open tab in terracotta with its name. */
 export const TOOTA_BAR = signatureBar(A, { design: "float", background: "#FFFDF9", dark_background: "#261F1C", active: "#A4503F", dark_active: "#EFA08C", inactive: "#6B5D55", dark_inactive: "#A09086", labels: "active", radius: 32, margin: 12 });
-/** B's floating bar: deep navy by day and by night, the open tab in white. */
-export const MINIMO_BAR = signatureBar(B, { design: "float", background: "#16213A", dark_background: "#1B2130", active: "#FFFFFF", dark_active: "#FFFFFF", inactive: "#9AA6BF", dark_inactive: "#8D94A3", labels: "active", radius: 24, margin: 12 });
+/** B's floating bar: deep navy by day and by night, the open tab in a soft periwinkle. */
+export const MINIMO_BAR = signatureBar(B, { design: "float", background: "#16213A", dark_background: "#1B2130", active: "#A9C0EE", dark_active: "#A9C0EE", inactive: "#9AA6BF", dark_inactive: "#8D94A3", labels: "active", radius: 24, margin: 12 });
 
 export const TOOTA_A: SignatureDesign = {
   demo: "kids",

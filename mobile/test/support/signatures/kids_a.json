@@ -4,9 +4,9 @@
    "style": "photo",
    "image_url": "http://localhost:3000/kids-photos/baby-flatlay.jpg",
    "title": {
-    "en": "Welcome to Toota",
-    "ar": "أهلًا بكِ في توتة",
-    "tr": "Toota'ya hoş geldiniz"
+    "en": "Hello again",
+    "ar": "أهلًا بكِ من جديد",
+    "tr": "Yeniden hoş geldiniz"
    },
    "subtitle": {
     "en": "Sign in to follow your orders and your children's sizes.",
