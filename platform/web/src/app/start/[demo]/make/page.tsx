@@ -34,8 +34,8 @@ export default async function MakePage({ params, searchParams }: PageProps<"/sta
   const facts = demoFacts(demo);
   const product = productOf(demo);
   const error = ERRORS.find((e) => e === query.error) ?? null;
-  // 130 A Studio demo's chosen look (A unless B was chosen), its picture in the preview.
-  const look = startLooks(demo).length ? (lookOf(demo, query.look) ?? "a") : null;
+  // 130 A Studio demo's chosen look (223 its main look unless another was chosen), its picture in the preview.
+  const look = startLooks(demo).length ? (lookOf(demo, query.look) ?? startLooks(demo)[0]!) : null;
   const lookShot = look ? lookShots(text, demo).find((s) => s.look === look)! : null;
   const list = new Intl.ListFormat(lang === "ar" ? "ar" : lang, { style: "long", type: "conjunction" });
   const swatches = swatchesFor(brand.primaryColor);

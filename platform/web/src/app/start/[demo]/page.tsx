@@ -149,7 +149,8 @@ function Shot({ src, alt, className }: { src: string; alt: string; className: st
 /** 130 The look a Studio demo starts from: the one asked for, else A (the demo itself); none for an App editor demo. */
 function studioLook(demo: DemoId, asked: string | string[] | undefined): SignatureLook | null {
   if (!startLooks(demo).length) return null;
-  return lookOf(demo, asked) ?? "a";
+  // 223 The demo's main look (C where it has one) unless another is asked for.
+  return lookOf(demo, asked) ?? startLooks(demo)[0]!;
 }
 
 /**
