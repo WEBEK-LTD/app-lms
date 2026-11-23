@@ -10,7 +10,7 @@ import { discountCents, exactKm, fareCents, located, meterStep, minutesFor, prom
 import { acceptRide, advanceRide, arriveRide, cancelByDriver, cancelByRider, candidatesFor, completeRide, declineRide, offerNext, startRide } from "../../rides/flow";
 import { ridePayLink } from "../../rides/payment";
 import { isReviewCourier } from "../../delivery/review";
-import { createSampleRide, reviewDriverFor } from "../../rides/review";
+import { createSampleRide, reviewDriverFor, SAMPLE_RIDER_NAME } from "../../rides/review";
 import {
   DRIVER_ACTIVE,
   DRIVER_STEPS,
@@ -246,7 +246,8 @@ export class RidesConnector implements Connector {
     if (input.payment === "cash" && !settings.cash) return error(400, "invalid_request", "Cash isn't taken. Pay by card.");
     if (input.payment === "card" && !settings.card) return error(400, "invalid_request", "Cards aren't taken. Pay the driver in cash.");
     if (input.payment === "card" && !this.canTakeCards) return error(503, "payments_unavailable", "Card payments aren't available right now. Please try again later.");
-    const going = await store.listRides({ appId: app.id, userId: request.user.id, statuses: ["searching", ...DRIVER_ACTIVE], order: "newest", offset: 0, limit: 1 });
+    // 178 The review driver's sample rides aren't the rider's own (lib/rides/review.ts).
+    const going = await store.listRides({ appId: app.id, userId: request.user.id, notRiderName: SAMPLE_RIDER_NAME, statuses: ["searching", ...DRIVER_ACTIVE], order: "newest", offset: 0, limit: 1 });
     if (!input.scheduledAt && going.total > 0) return error(409, "ride_in_progress", "You already have a ride on the way.");
     const status = input.scheduledAt ? "scheduled" : "searching";
     const type = option.type;
@@ -327,13 +328,20 @@ export class RidesConnector implements Connector {
     const { items, total } = await this.deps.store.listRides({
       appId: this.deps.app.id,
       userId: request.user.id,
+      // 178 Without the review driver's sample rides.
+      notRiderName: SAMPLE_RIDER_NAME,
       ...(active ? { statuses: RIDE_ACTIVE } : {}),
       order: "newest",
       offset: (page - 1) * perPage,
       limit: perPage,
     });
-    const json = await Promise.all(items.map(async (r) => this.riderJson(await advanceRide(this.flow(request.now), r), request.now)));
-    return { status: 200, body: { page, per_page: perPage, total, total_pages: Math.max(1, Math.ceil(total / perPage)), items: json } };
+    const advanced = await Promise.all(items.map((r) => advanceRide(this.flow(request.now), r)));
+    // 178 The rides on their way only: one that ended while it was read (nobody took it in time, `no_driver`) is over,
+    // not on its way (the home's card said "Your driver is coming" over the ride's own "No driver found").
+    const shown = active ? advanced.filter((r) => RIDE_ACTIVE.includes(r.status)) : advanced;
+    const json = await Promise.all(shown.map((r) => this.riderJson(r, request.now)));
+    const left = total - (advanced.length - shown.length);
+    return { status: 200, body: { page, per_page: perPage, total: left, total_pages: Math.max(1, Math.ceil(left / perPage)), items: json } };
   }
 
   private async myRide(request: ConnectorRequest, id: number): Promise<ConnectorResult> {

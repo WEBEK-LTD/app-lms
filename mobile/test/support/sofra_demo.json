@@ -172,7 +172,7 @@
        {
         "id": "demo-2",
         "type": "stack",
-        "name": "Tonight at Sahara Grill",
+        "name": "Tonight on the grill",
         "cross": "end",
         "children": [
          {
@@ -614,7 +614,7 @@
               "gap": 8,
               "cross": "center",
               "self_align": "start",
-              "height": 66,
+              "min_height": 66,
               "padding": {
                "top": 18,
                "end": 16,
@@ -1268,7 +1268,7 @@
        {
         "id": "demo-71",
         "type": "photo_hero",
-        "name": "Tonight at Sahara Grill",
+        "name": "Tonight on the grill",
         "image_url": "http://localhost:3000/demo-photos/cover-grill.jpg",
         "height": 168,
         "radius": 24,

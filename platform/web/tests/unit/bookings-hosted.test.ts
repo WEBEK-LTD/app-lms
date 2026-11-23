@@ -135,7 +135,7 @@ describe("bookings on the hosted API", () => {
   async function call(
     method: string,
     route: string,
-    options: { body?: unknown; token?: string | null; query?: Record<string, string>; params?: string[] } = {},
+    options: { body?: unknown; token?: string | null; query?: Record<string, string>; params?: string[]; lang?: string } = {},
   ): Promise<HostedResult> {
     let concrete = route;
     for (const param of options.params ?? []) concrete = concrete.replace(/\{[^}]+\}/, param);
@@ -145,6 +145,7 @@ describe("bookings on the hosted API", () => {
       query: new URLSearchParams(options.query ?? {}),
       body: options.body,
       token: options.token ?? null,
+      ...(options.lang ? { headers: new Headers({ "accept-language": options.lang }) } : {}),
     });
     expectContract(method, route, result);
     return result;
@@ -246,6 +247,22 @@ describe("bookings on the hosted API", () => {
       days: { slots: { local_time: string }[] }[];
     };
     expect(free.days[0]!.slots.map((s) => s.local_time)).toContain("10:00");
+  });
+
+  it("180.5 writes the home's titles and an appointment's state in the app's language", async () => {
+    const token = await signUp();
+    const booked = await call("POST", "/bookings/appointments", { token, lang: "ar", query: { platform: "android" }, body: { service_id: 10, staff_id: 20, start: localToUtc(MONDAY, "10:00", "Europe/Istanbul").toISOString() } });
+    expect(booked.body).toMatchObject({ status: "approved", status_label: "تمت الموافقة" });
+    const titles = async (lang?: string) => ((await call("GET", "/bookings/home", { token, lang })).body as { sections: { title: string }[] }).sections.map((s) => s.title);
+    expect(await titles("ar")).toEqual(["موعدك القادم", "الفئات", "الخدمات", "فريقنا"]);
+    expect(await titles("tr-TR")).toEqual(["Sıradaki randevunuz", "Kategoriler", "Hizmetler", "Ekibimiz"]);
+    // English, and any other language, as before.
+    expect(await titles()).toEqual(["Your next appointment", "Categories", "Services", "Our team"]);
+    expect(await titles("de")).toEqual(["Your next appointment", "Categories", "Services", "Our team"]);
+    const list = (await call("GET", "/me/appointments", { token, lang: "tr" })).body as { items: { status_label: string }[] };
+    expect(list.items[0]!.status_label).toBe("Onaylandı");
+    const cancelled = await call("POST", "/me/appointments/{appointment_id}/cancel", { token, lang: "ar", params: [String((booked.body as { id: number }).id)] });
+    expect(cancelled.body).toMatchObject({ status: "cancelled", status_label: "ملغى" });
   });
 
   it("waits for approval when the business wants to approve, and tells it", async () => {

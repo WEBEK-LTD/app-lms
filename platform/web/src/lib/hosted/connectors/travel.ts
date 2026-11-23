@@ -85,7 +85,8 @@ export class TravelConnector implements Connector {
 
   async config() {
     const ctx = await this.context(new Date());
-    return { travel: await travelConfig(ctx), features: { orders: false } };
+    // 180.17 Paying now only when the company can take cards, as the quote says: the app offered it and the booking was refused.
+    return { travel: await travelConfig({ ...ctx, settings: { ...ctx.settings, payNow: ctx.settings.payNow && this.canTakeCards } }), features: { orders: false } };
   }
 
   async handle(request: ConnectorRequest): Promise<ConnectorResult | null> {

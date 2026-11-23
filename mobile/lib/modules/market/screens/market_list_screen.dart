@@ -58,7 +58,7 @@ class MarketListScreen extends ConsumerWidget {
       body: list.when(
         loading: () => const SkeletonList(),
         error: (e, _) => MessageView(
-          icon: Symbols.error,
+          icon: Symbols.error_rounded,
           title: title ?? '',
           message: '$e',
           actionLabel: l10n.marketBrowse,
@@ -66,7 +66,7 @@ class MarketListScreen extends ConsumerWidget {
         ),
         data: (vendors) => vendors.isEmpty
             ? MessageView(
-                icon: Symbols.storefront,
+                icon: Symbols.storefront_rounded,
                 title: l10n.marketListEmptyTitle,
                 message: l10n.marketListEmptyMessage,
                 actionLabel: l10n.marketBrowse,

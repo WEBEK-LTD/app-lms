@@ -67,6 +67,18 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
       list = SkeletonList(label: context.l10n.loadingServices);
     } else if (state.error != null && state.items.isEmpty) {
       list = ErrorView(error: state.error!, onRetry: notifier.retry);
+    } else if (state.items.isEmpty &&
+        _query.search.isEmpty &&
+        _query.category != null) {
+      // 180.14 A category with nothing in it yet: said so, and the way to
+      // all of them (it said "No services yet").
+      list = MessageView(
+        icon: AppIcons.book,
+        title: context.l10n.servicesNoneInCategory,
+        message: context.l10n.servicesNoneInCategoryText,
+        actionLabel: context.l10n.servicesSeeAll,
+        onAction: () => _category(null),
+      );
     } else if (state.items.isEmpty) {
       list = MessageView(
         icon: AppIcons.book,

@@ -2141,6 +2141,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notSoldInApp => 'لا يُباع هذا المنتج في التطبيق.';
 
   @override
+  String get orderingNotOpen => 'الطلب من التطبيق غير متاح بعد.';
+
+  @override
   String get optionsLower => 'الخيارات';
 
   @override
@@ -12809,4 +12812,90 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get paySheetOpenAgain => 'افتح صفحة الدفع';
+
+  @override
+  String get appointmentStatusApproved => 'تمت الموافقة';
+
+  @override
+  String get appointmentStatusPending => 'قيد الانتظار';
+
+  @override
+  String get appointmentStatusCancelled => 'ملغى';
+
+  @override
+  String get appointmentStatusRejected => 'مرفوض';
+
+  @override
+  String get appointmentStatusNoShow => 'لم يحضر';
+
+  @override
+  String get appointmentStatusCompleted => 'مكتمل';
+
+  @override
+  String get propertyTypeApartment => 'شقة';
+
+  @override
+  String get propertyTypeVilla => 'فيلا';
+
+  @override
+  String get propertyTypeHouse => 'منزل';
+
+  @override
+  String get propertyTypeTownhouse => 'منزل متلاصق';
+
+  @override
+  String get propertyTypeDuplex => 'دوبلكس';
+
+  @override
+  String get propertyTypePenthouse => 'بنتهاوس';
+
+  @override
+  String get propertyTypeStudio => 'استوديو';
+
+  @override
+  String get propertyTypeChalet => 'شاليه';
+
+  @override
+  String get propertyTypeLand => 'أرض';
+
+  @override
+  String get propertyTypeOffice => 'مكتب';
+
+  @override
+  String get propertyTypeShop => 'محل تجاري';
+
+  @override
+  String get propertyTypeWarehouse => 'مستودع';
+
+  @override
+  String get propertyTypeBuilding => 'مبنى';
+
+  @override
+  String get travelPower => 'مقبس كهرباء';
+
+  @override
+  String get travelEntertainment => 'وسائل ترفيه';
+
+  @override
+  String get travelLounge => 'صالة انتظار';
+
+  @override
+  String get travelSeatsNotLoaded => 'تعذّر تحميل المقاعد.';
+
+  @override
+  String get travelSeatsCantChange =>
+      'لا يمكن تغيير مقاعد هذه الرحلة من التطبيق.';
+
+  @override
+  String get servicesNoneInCategory => 'لا توجد خدمات في هذه الفئة بعد';
+
+  @override
+  String get servicesNoneInCategoryText => 'اختر فئة أخرى، أو اعرض كل الخدمات.';
+
+  @override
+  String get servicesSeeAll => 'عرض كل الخدمات';
+
+  @override
+  String get travelNoPaymentYet =>
+      'لا يمكن الدفع في التطبيق بعد. اختر إقامة تدفع ثمنها في الفندق، أو تواصل معنا.';
 }

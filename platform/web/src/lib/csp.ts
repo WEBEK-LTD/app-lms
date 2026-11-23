@@ -24,3 +24,12 @@ export const PERMISSIONS_POLICY = "camera=(), microphone=(), geolocation=(), pay
  * needs it, Stripe says.
  */
 export const PAY_PERMISSIONS_POLICY = `camera=(), microphone=(), geolocation=(), payment=(self ${STRIPE_PAYMENT_ORIGINS.map((o) => `"${o}"`).join(" ")})`;
+
+/**
+ * 178 The app preview (/preview-app/…) and the dashboard's Preview page
+ * around it: the same, but the location allowed for the preview itself
+ * (the platform's own origin, and so the preview's frame on the Preview
+ * page), so a ride or taxi app's "My location" and its map find the person
+ * in the preview as on a phone. Nothing else may ask for it.
+ */
+export const PREVIEW_PERMISSIONS_POLICY = "camera=(), microphone=(), geolocation=(self), payment=()";

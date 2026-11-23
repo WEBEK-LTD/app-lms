@@ -109,7 +109,8 @@ class WeekView extends StatelessWidget {
     ];
     return ListView(
       key: const ValueKey('school-week'),
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+      // 179 Above a tab bar floating over the list (roadmap 158).
+      padding: EdgeInsets.fromLTRB(20, 8, 20, endRoom(context, 24)),
       children: [
         for (final day in days) ...[
           SectionHeader(

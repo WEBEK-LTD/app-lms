@@ -8,6 +8,8 @@ import { studioScreensOn } from "@/lib/studio/screens";
 import { appLanguageName } from "@/lib/i18n/language-names";
 import { assetUrl } from "@/lib/assets";
 import { ScreensEditor } from "./editor";
+import { screenTextForms } from "@/lib/demo/screen-text-forms";
+import { screenWordsIn } from "@/lib/pages/template-translations";
 // 130.52 The courses the course screens' drawings show.
 import { sampleEntries } from "@/lib/studio/sample-entries";
 
@@ -42,6 +44,9 @@ export default async function ScreensPage() {
         color={app.primaryColor ?? "#0E1424"}
         courses={app.appType === "lms"}
         store={app.appType === "store"}
+        // 181 What each language shows: the owner's own translation, or the template's.
+        mainLanguage={layout.languages.default}
+        templateWords={screenWordsIn(app.hostedSettings?.studioScreens ?? null, screenTextForms(), app.appName)}
         sampleCourses={app.appType === "lms" ? Object.fromEntries(Object.entries(sampleEntries(new Date())).map(([l, e]) => [l, e?.courses ?? []])) : undefined}
         brand={{
           main: layout.appearance.primary_color ?? app.primaryColor ?? "#0E1424",

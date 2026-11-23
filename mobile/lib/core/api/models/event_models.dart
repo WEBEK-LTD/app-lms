@@ -1,4 +1,7 @@
 import 'catalog_models.dart';
+import '../../format/bidi.dart';
+import '../../l10n/l10n.dart';
+import 'money_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
 
@@ -152,7 +155,8 @@ class EventSummary {
       timeZone: optString(json, 'time_zone') ?? 'UTC',
       venue: optObject(json, 'venue', EventVenue.fromJson),
       online: boolOr(json, 'online', false),
-      priceLabel: optString(json, 'price_label'),
+      // 180.13 With the cheapest ticket in the customer's currency ("From E£150 · ≈ \$3.00").
+      priceLabel: eventPriceLabel(json),
       status: enumFrom(
         EventStatus.values,
         json['status'],
@@ -417,4 +421,17 @@ class Ticket {
     'refunded': refunded,
     'created_at': createdAt.toUtc().toIso8601String(),
   };
+}
+
+/// 180.13 An event's `price_label` as the organiser wrote it, with its
+/// cheapest paid ticket in the customer's currency when the server sent it
+/// (`price_from.display`); as it is from older servers.
+String? eventPriceLabel(Json json) {
+  final label = optString(json, 'price_label');
+  final from = json['price_from'];
+  final shown = from is Map<String, dynamic>
+      ? DisplayMoney.tryParse(from['display'])?.formatted
+      : null;
+  if (label == null || shown == null) return label;
+  return '${isolate(label)} · ${isolate(currentL10n.approxPrice(shown))}';
 }

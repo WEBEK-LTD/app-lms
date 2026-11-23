@@ -699,7 +699,9 @@ class _NearbyMore extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                l.studioTaxiNearestFree,
+                // 178 None free near the person: says so ("Nearest free
+                // taxi · 0 taxis around you" before).
+                taxis.isEmpty ? l.taxiNearby(0) : l.studioTaxiNearestFree,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -708,17 +710,19 @@ class _NearbyMore extends ConsumerWidget {
                   color: ink,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                l.studioTaxisAroundLive(taxis.length),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: ink.withValues(alpha: 0.72),
+              if (taxis.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  l.studioTaxisAroundLive(taxis.length),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: ink.withValues(alpha: 0.72),
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

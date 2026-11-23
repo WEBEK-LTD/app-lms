@@ -503,7 +503,12 @@ class _HotelResultsScreenState extends ConsumerState<HotelResultsScreen> {
                         message: l.travelNoStaysText,
                       )
                     : ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                        padding: EdgeInsets.fromLTRB(
+                          16,
+                          12,
+                          16,
+                          endRoom(context, 24),
+                        ),
                         itemCount: data.items.length,
                         separatorBuilder: (_, _) => const SizedBox(height: 14),
                         itemBuilder: (context, i) => HotelCard(
@@ -1307,14 +1312,25 @@ class _RoomSelectScreenState extends ConsumerState<RoomSelectScreen> {
                 label: l.travelReserve,
                 onPressed: () {
                   final choice = ref.read(tripChoiceProvider);
+                  // 180.1 With the flight only when the trip opened these stays: a
+                  // flight looked at earlier and left isn't booked with the room.
+                  final trip =
+                      choice.flight != null && travelTripBelow(context);
                   ref
                       .read(tripChoiceProvider.notifier)
-                      .set(choice.copyWith(hotel: h, room: room, rate: rate));
-                  context.push(
-                    choice.flight != null
-                        ? TravelPaths.bundle
-                        : TravelPaths.checkout,
-                  );
+                      .set(
+                        choice.copyWith(
+                          hotel: h,
+                          room: room,
+                          rate: rate,
+                          clearFlight: !trip,
+                        ),
+                      );
+                  if (trip) {
+                    travelBackToTrip(context);
+                  } else {
+                    context.push(TravelPaths.checkout);
+                  }
                 },
               ),
             ),

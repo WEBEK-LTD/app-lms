@@ -26,6 +26,7 @@ import {
   type CourseScreens,
   type CourseTexts,
 } from "@/lib/studio/course-screens";
+import { ScreenTextState } from "./screen-text-state";
 
 /**
  * 130.52 Studio › Screens: the academy's course screens in one premium
@@ -210,7 +211,7 @@ export function CourseScreensSection({
                         const field = key === "page" ? "cta" : "headline";
                         const texts = (saved[field] ?? {}) as CourseTexts;
                         return (
-                          <label key={l.code} className="flex items-center gap-2 text-sm">
+                          <label key={l.code} className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                             <span className="w-24 shrink-0 text-muted">{l.name}</span>
                             <input
                               className={`${FIELD} min-w-0 flex-1`}
@@ -221,6 +222,8 @@ export function CourseScreensSection({
                               onChange={(e) => words(key, field, l.code, e.target.value)}
                               data-course-words={`${field}.${l.code}`}
                             />
+                            {/* 181 What the app shows in this language. */}
+                            <ScreenTextState texts={texts} lang={l.code} className="basis-full ps-[6.5rem]" />
                           </label>
                         );
                       })}
