@@ -96,6 +96,9 @@ export function formatDuration(from: Date | null, to: Date | null): string | nul
   return rest ? `${hours} h ${rest} min` : `${hours} h`;
 }
 
+/** 202 A file whose build's folder left the files host. */
+export const FILES_REMOVED = "This build's files were removed from our server. Start a new build to get them again.";
+
 /** Why a file of the latest successful build can't be downloaded; null when it can. */
 /** 187 The files that are the app itself (and its store files): downloaded only while the app has a paid plan. The upload key is the owner's either way. */
 export function planNeededFor(kind: string): boolean {
@@ -114,12 +117,15 @@ export function fileUnavailableReason(input: {
   linkProblem: string | null;
   /** 187 The app has a paid plan running now (lib/license/status.ts appPlanActive); left out: as before. */
   planActive?: boolean;
+  /** 202 The build's folder was removed from the files host (lib/builds/retention.ts). */
+  filesRemoved?: boolean;
 }): string | null {
   const { kind, build } = input;
   // 187 No plan, no app to download: the app's files wait for its plan (the upload key stays the owner's).
   if (input.planActive === false && planNeededFor(kind)) return "Choose a plan for this app to download it";
   if (!build) return "Available after your first successful build";
   if (!build.artifacts.some((a) => a.kind === kind)) {
+    if (input.filesRemoved) return FILES_REMOVED;
     if (kind === "ipa") {
       if (input.iosOnPlan === false) return "Your plan builds the Android app. Upgrade to get the iOS app";
       return input.hasAppStoreKey

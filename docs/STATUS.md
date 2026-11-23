@@ -8,6 +8,15 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 202 (old build files leave the files host): the daily job keeps
+only each app's latest ready build's files (per app and variant, Android
+and iPhone) and removes every older build's folder from
+files.yallapp.com.tr; once the latest build is uploaded to Google Play or
+the App Store and the app is live there, the Builds page shows the store's
+link in place of its files, and the folder goes when nothing in it is
+needed (the upload key keeps it). A new build's files stay until it's on
+the store; nothing still building or uploading is touched.
+
 Roadmap 200.3: the app asks for a forgotten password's email code as one,
 so its email is worded for a new password (in the next app release).
 

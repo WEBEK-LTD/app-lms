@@ -56,6 +56,7 @@ import { twoAppsOf } from "@/lib/delivery/two-apps";
 import { hasVendorApp, vendorAppNameOf, vendorBundleIdOf, vendorPackageOf } from "@/lib/market/vendor-app";
 import { hasStaffApp, staffAppKindOf, staffAppNameOf, staffAppOnPlan, staffBundleIdOf, staffPackageOf } from "@/lib/school/staff-app";
 import { isStudioProject, studioPathFor } from "@/lib/studio/section";
+import { liveStoreLinks, storeLinkFor } from "@/lib/builds/retention";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("builds.title") };
@@ -112,6 +113,26 @@ function DownloadRow({
           </span>
         </span>
       )}
+    </li>
+  );
+}
+
+/** 202 The store's page in place of a build's files: the app is live there and this build was uploaded to it. */
+function StoreRow({ platform, href, t }: { platform: "android" | "ios"; href: string; t: DashboardText["t"] }) {
+  const store = platform === "android" ? "Google Play" : "App Store";
+  return (
+    <li className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-(--sp-line-soft) px-3 py-3 first:border-t-0 sm:px-4" data-file={`store-${platform}`} data-store-link={platform}>
+      <span className="flex min-w-0 flex-[1_1_280px] items-center gap-4">
+        <KitThumb icon="storefront" size={40} />
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className="text-[15px] font-semibold text-(--sp-ink)">{store}</span>
+          <span className="text-[13px] text-(--sp-muted)">{t(platform === "android" ? "builds.onGooglePlay" : "builds.onAppStore")}</span>
+        </span>
+      </span>
+      <a href={href} target="_blank" rel="noopener noreferrer" className={kit.row}>
+        <Icon name="open_in_new" size={16} />
+        {t("builds.openStore", { store })}
+      </a>
     </li>
   );
 }
@@ -271,9 +292,12 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
     const source = readyFor(kind);
     const url = source?.artifacts.find((a) => a.kind === kind)?.url;
     const link = url ? fileLink(url, now) : null;
-    const unavailable = fileUnavailableReason({ kind, build: source, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null, planActive: state === "active" });
+    const unavailable = fileUnavailableReason({ kind, build: source, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null, planActive: state === "active", filesRemoved: Boolean(source?.release?.filesRemovedAt) });
     return { href: unavailable === null && source ? dashboardFileHref(source.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
+  // 202 The app live on Google Play or the App Store with the latest build there: the store's link in place of its files.
+  const storeLinks = liveStoreLinks(await store.getPublishingRequest(app.id));
+  const onStore = { android: storeLinkFor(readyFor("apk"), "android", storeLinks), ios: storeLinkFor(readyFor("ipa"), "ios", storeLinks) };
 
   // 87.1 What the next build would trip over.
   const checks = currentPlan ? await preflightChecks(preflightDeps(store), app, { ios: hasFeature(currentPlan, "ios"), autoPublish: hasFeature(currentPlan, "auto_publish") }) : [];
@@ -330,7 +354,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const vendorFileRow = (kind: ArtifactKind) => {
     const url = vendorReady?.artifacts.find((a) => a.kind === kind)?.url;
     const link = url ? fileLink(url, now) : null;
-    const unavailable = fileUnavailableReason({ kind, build: vendorReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null, planActive: state === "active" });
+    const unavailable = fileUnavailableReason({ kind, build: vendorReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null, planActive: state === "active", filesRemoved: Boolean(vendorReady?.release?.filesRemovedAt) });
     return { href: unavailable === null && vendorReady ? dashboardFileHref(vendorReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
   // 116 A school's or academy's staff app, when the owner put the staff in an app of their own.
@@ -351,7 +375,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const staffFileRow = (kind: ArtifactKind) => {
     const url = staffReady?.artifacts.find((a) => a.kind === kind)?.url;
     const link = url ? fileLink(url, now) : null;
-    const unavailable = fileUnavailableReason({ kind, build: staffReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null, planActive: state === "active" });
+    const unavailable = fileUnavailableReason({ kind, build: staffReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null, planActive: state === "active", filesRemoved: Boolean(staffReady?.release?.filesRemovedAt) });
     return { href: unavailable === null && staffReady ? dashboardFileHref(staffReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
   const courierCurrent = courier?.builds[0] ?? null;
@@ -362,7 +386,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const courierFileRow = (kind: ArtifactKind) => {
     const url = courierReady?.artifacts.find((a) => a.kind === kind)?.url;
     const link = url ? fileLink(url, now) : null;
-    const unavailable = fileUnavailableReason({ kind, build: courierReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null, planActive: state === "active" });
+    const unavailable = fileUnavailableReason({ kind, build: courierReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null, planActive: state === "active", filesRemoved: Boolean(courierReady?.release?.filesRemovedAt) });
     return { href: unavailable === null && courierReady ? dashboardFileHref(courierReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
 
@@ -384,9 +408,13 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const stagedOn = Boolean(app.stagedRelease?.androidPercent != null || app.stagedRelease?.androidInternal || app.stagedRelease?.iosPhased);
   const fileRows = (
     <>
-      {FILES.map((file) => (
-        <DownloadRow key={file.kind} id={file.kind} icon={FILE_ICON[file.kind]} t={t} title={k(ARTIFACT_LABEL[file.kind])} text={k(fileDescription(file.kind, autoPublish))} highlight={file.highlight} {...fileRow(file.kind)} />
-      ))}
+      {FILES.map((file) => {
+        // 202 One store row for the platform's files; the upload key stays a download.
+        const platform = file.kind === "ipa" ? "ios" : "android";
+        const storeHref = file.kind === "keystore" ? null : onStore[platform];
+        if (storeHref) return file.kind === "aab" ? null : <StoreRow key={file.kind} platform={platform} href={storeHref} t={t} />;
+        return <DownloadRow key={file.kind} id={file.kind} icon={FILE_ICON[file.kind]} t={t} title={k(ARTIFACT_LABEL[file.kind])} text={k(fileDescription(file.kind, autoPublish))} highlight={file.highlight} {...fileRow(file.kind)} />;
+      })}
       {plugin ? (
         <DownloadRow
           id="plugin"
@@ -398,7 +426,9 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           unavailable={!release ? t("builds.noRelease") : t("builds.pluginActive")}
         />
       ) : null}
-      <DownloadRow id="store_assets" icon={FILE_ICON.store_assets} t={t} title={k(ARTIFACT_LABEL.store_assets)} text={k(fileDescription("store_assets", autoPublish))} {...fileRow("store_assets")} />
+      {onStore.android ? null : (
+        <DownloadRow id="store_assets" icon={FILE_ICON.store_assets} t={t} title={k(ARTIFACT_LABEL.store_assets)} text={k(fileDescription("store_assets", autoPublish))} {...fileRow("store_assets")} />
+      )}
     </>
   );
   return (
@@ -524,6 +554,20 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
             (failed || stalled) && !licenseProblem && setupDone ? (
               <KitNext icon="refresh" tone="warn" action={<RetryBuildForm versionName={current.versionName} only={buildOnly(current)} />}>
                 {t("builds.retryLine")}
+              </KitNext>
+            ) : current.status === "ready" && onStore.android && readyFor("apk")?.id === current.id ? (
+              // 202 On Google Play, where the app is live: its page in place of the APK.
+              <KitNext
+                icon="storefront"
+                tone="success"
+                action={
+                  <a href={onStore.android} target="_blank" rel="noopener noreferrer" className={kit.quiet}>
+                    <Icon name="open_in_new" size={18} />
+                    {t("builds.openStore", { store: "Google Play" })}
+                  </a>
+                }
+              >
+                {t("builds.onGooglePlay")}
               </KitNext>
             ) : apkHref ? (
               <KitNext
@@ -714,6 +758,13 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
                       </KitCallout>
                     ) : null}
                     {build.rebuildOf ? <p className="m-0 text-[13px] text-(--sp-muted)">{t("builds.rebuildOf", { number: build.rebuildOf })}</p> : null}
+                    {/* 202 Its folder left the files host. */}
+                    {build.release?.filesRemovedAt ? (
+                      <p className="m-0 flex items-center gap-1.5 text-[13px] text-(--sp-muted)" data-files-removed="">
+                        <Icon name="cloud_off" size={16} />
+                        {t("builds.filesRemoved", { date: formatDateTime(new Date(build.release.filesRemovedAt), lang) })}
+                      </p>
+                    ) : null}
                     {clientSeesFailureLog(build) && build.failure?.log ? (
                       <KitFold summary={t("builds.failureLog")} icon="code">
                         <p className="m-0 text-xs text-(--sp-muted)">{t("builds.failureLogText")}</p>

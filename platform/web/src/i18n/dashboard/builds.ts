@@ -208,7 +208,14 @@ export const en = {
   inUseUnknown: "Unknown",
   inUseBelow: "Below the minimum",
   inUseNone: "No statistics yet: versions in use show here once people open your app.",
+  // 202 Old build files leave our server; the store's page once the app is live there.
+  filesRemoved: "Files removed from our server on {date}.",
+  onGooglePlay: "This build is on Google Play, where your app is live: get the app from its store page.",
+  onAppStore: "This build went to the App Store, where your app is live: get the app from its store page.",
+  openStore: "Open on {store}",
   known: {
+    // 202 lib/builds/view.ts FILES_REMOVED
+    filesRemovedReason: "This build's files were removed from our server. Start a new build to get them again.",
     // 89.3
     cantGoBack: "This build can't be gone back to.",
     backBuildRunning: "Settings are back as they were. A build is already in progress: start the new one when it finishes.",
@@ -529,7 +536,12 @@ export const ar: Messages = {
   inUseUnknown: "مش معروف",
   inUseBelow: "أقل من الحد الأدنى",
   inUseNone: "لسه مفيش إحصائيات: الإصدارات اللي بتتستخدم هتظهر هنا لما الناس تفتح تطبيقك.",
+  filesRemoved: "الملفات اتمسحت من السيرفر بتاعنا يوم {date}.",
+  onGooglePlay: "الإصدار ده اترفع على Google Play، وتطبيقك منشور هناك: نزّل التطبيق من صفحته على المتجر.",
+  onAppStore: "الإصدار ده اتبعت لـ App Store، وتطبيقك منشور هناك: نزّل التطبيق من صفحته على المتجر.",
+  openStore: "افتحه على {store}",
   known: {
+    filesRemovedReason: "ملفات الإصدار ده اتمسحت من السيرفر بتاعنا. ابدأ إصدار جديد عشان تاخدها تاني.",
     cantGoBack: "مينفعش ترجع للإصدار ده.",
     backBuildRunning: "الإعدادات رجعت زي ما كانت. فيه إصدار بيتبني: ابدأ الجديد لما يخلص.",
     backStartLater: "الإعدادات رجعت زي ما كانت. ابدأ إصدار جديد لما تكون جاهز.",
@@ -838,7 +850,12 @@ export const tr: Messages = {
   inUseUnknown: "Bilinmiyor",
   inUseBelow: "En düşük sürümün altında",
   inUseNone: "Henüz istatistik yok: kullanıcılar uygulamanızı açtığında kullanılan sürümler burada görünür.",
+  filesRemoved: "Dosyalar {date} tarihinde sunucumuzdan kaldırıldı.",
+  onGooglePlay: "Bu derleme, uygulamanızın yayında olduğu Google Play'de: uygulamayı mağaza sayfasından alın.",
+  onAppStore: "Bu derleme, uygulamanızın yayında olduğu App Store'a gönderildi: uygulamayı mağaza sayfasından alın.",
+  openStore: "{store} sayfasını açın",
   known: {
+    filesRemovedReason: "Bu derlemenin dosyaları sunucumuzdan kaldırıldı. Tekrar almak için yeni bir derleme başlatın.",
     cantGoBack: "Bu derlemeye geri dönülemez.",
     backBuildRunning: "Ayarlar eski haline döndü. Devam eden bir derleme var: bitince yenisini başlatın.",
     backStartLater: "Ayarlar eski haline döndü. Hazır olduğunuzda yeni bir derleme başlatın.",

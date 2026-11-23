@@ -17,7 +17,8 @@ import { sweepMediaFolders } from "@/lib/media/sweep";
 import { noticeEndedPacks } from "@/lib/media/usage";
 import { runAccountDeletions } from "@/lib/account/purge";
 import { runAppPurges } from "@/lib/apps/deletion";
-import { accountPurgeDeps, purgeDeps } from "@/lib/apps/purge-env";
+import { accountPurgeDeps, filesRemover, purgeDeps } from "@/lib/apps/purge-env";
+import { runBuildRetention } from "@/lib/builds/retention";
 import { runChatRetention } from "@/lib/chat/retention";
 import { recordAllMilestones } from "@/lib/milestones/record";
 import { recordProductDay } from "@/lib/admin/product-days";
@@ -57,7 +58,8 @@ import { appPlan } from "@/lib/entitlements";
  * (to Wednesday), each active app's weekly summary goes to its owner. 78.3 Each run is
  * recorded; job runs older than 30 days go, and the watch checks that the
  * frequent job runs (lib/watch). Demo sign-ins kept for the website's live
- * activity card go after 7 days (lib/live-activity/demo.ts). 135.6 First, the
+ * activity card go after 7 days (lib/live-activity/demo.ts). 202 Old builds'
+ * folders leave the files host (lib/builds/retention.ts). 135.6 First, the
  * day's exchange rates are read (lib/money/rates.ts). Safe to call again.
  */
 export async function POST(request: Request): Promise<Response> {
@@ -127,6 +129,11 @@ async function runDaily(store: DataStore, now: Date) {
   // 73 Deleted apps past their 7 days, then accounts whose deletion is due.
   const apps = await runAppPurges(purgeDeps(store, now));
   const accounts = await runAccountDeletions(accountPurgeDeps(store, now));
+  // 202 Old build files leave the files host: each app keeps its latest build's, until the store has it and the app is live there.
+  const buildFiles = await runBuildRetention({ store, now, removeBuildFolder: filesRemover() }).catch((e: unknown) => {
+    console.error(`[daily] build files: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
+  });
   // 78.3 Job runs kept 30 days; the frequent job checked (it checks the others).
   const jobRunsPurged = await store.deleteJobRunsBefore(new Date(now.getTime() - 30 * 86_400_000));
   // 78.4 Apps' errors not seen for 90 days.
@@ -169,5 +176,5 @@ async function runDaily(store: DataStore, now: Date) {
     return null;
   });
   const watch = await runWatch({ store, now, mail: teamMail, jobs: ["frequent"], dispatch: dispatchSet() });
-  return { ...report, rates, mailHistory, marketplace, studioMarket, analytics: { ...analytics, history: analyticsHistory, weekly }, media, addonReminders, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, demoVisitsPurged, watch };
+  return { ...report, rates, mailHistory, marketplace, studioMarket, analytics: { ...analytics, history: analyticsHistory, weekly }, media, addonReminders, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, buildFiles, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, demoVisitsPurged, watch };
 }
