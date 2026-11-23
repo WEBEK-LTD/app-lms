@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Marhey:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0" rel="stylesheet">
+<style>
+:root{--page:#F7EEE2;--surface:#FFFBF5;--ink:#3A2418;--muted:#7A5E4E;--line:#EBDCCB;--fill:#C4623F;--on:#FFFFFF;--tint:#F0E0CF}
+.dark{--page:#1C130F;--surface:#2A1E18;--ink:#F7E9DC;--muted:#C9AE9C;--line:#3A2A22;--fill:#E98A63;--on:#2A140A;--tint:#33251E}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:390px;font-family:Marhey,sans-serif;background:var(--page);color:var(--ink)}
+.ic{font-family:'Material Symbols Rounded';font-size:22px;line-height:1}
+.status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:14px;font-weight:600;direction:ltr}
+.hdr{display:flex;align-items:center;gap:10px;padding:2px 16px 0}
+.hdr .g{flex:1}
+.hdr .g small{display:block;font-size:12px;color:var(--muted)}
+.hdr .g b{font-size:22px;font-weight:700}
+.rb{width:44px;height:44px;border-radius:22px;background:var(--surface);display:flex;align-items:center;justify-content:center}
+.collage{position:relative;height:400px;margin-top:8px}
+.pol{position:absolute;background:#FFFDF8;padding:9px 9px 34px;box-shadow:0 12px 24px rgba(58,36,24,.18)}
+.pol img{display:block;object-fit:cover}
+.pol span{position:absolute;bottom:8px;right:12px;left:12px;font-size:13px;color:#3A2418;text-align:center}
+.tape{position:absolute;width:70px;height:22px;background:rgba(233,138,99,.55);top:-10px;left:50%;margin-left:-35px;transform:rotate(-4deg)}
+.stamp{position:absolute;bottom:18px;right:22px;background:var(--fill);color:var(--on);border-radius:30px;padding:10px 18px;font-size:15px;font-weight:700;transform:rotate(-3deg);box-shadow:0 8px 16px rgba(196,98,63,.35)}
+.title{padding:6px 16px 0;font-size:30px;font-weight:700;line-height:1.25}
+.title em{font-style:normal;color:var(--fill)}
+.h{display:flex;justify-content:space-between;align-items:flex-end;padding:28px 16px 12px}
+.h b{font-size:20px;font-weight:700}
+.h a{font-size:13px;color:var(--fill)}
+.dots{display:flex;gap:12px;padding:0 16px;overflow:hidden}
+.dot{text-align:center;font-size:11.5px;flex:0 0 auto}
+.dot i{display:block;width:58px;height:58px;border-radius:29px;margin-bottom:6px;border:3px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.pals{display:flex;gap:12px;padding:0 16px;overflow:hidden}
+.pal{flex:0 0 220px;background:var(--surface);border-radius:26px;padding:10px;transform:rotate(0deg)}
+.pal .st{display:flex;height:62px;border-radius:18px;overflow:hidden}
+.pal .st i{flex:1}
+.pal .r{display:flex;gap:10px;align-items:center;margin-top:10px}
+.pal .r img{width:54px;height:54px;border-radius:14px;object-fit:cover}
+.pal b{font-size:15px;display:block}
+.pal small{font-size:11.5px;color:var(--muted)}
+.prods{display:flex;gap:14px;padding:6px 16px 10px;overflow:hidden}
+.pc{flex:0 0 150px;background:#FFFDF8;padding:8px 8px 10px;box-shadow:0 8px 18px rgba(58,36,24,.12)}
+.pc:nth-child(odd){transform:rotate(-2deg)}.pc:nth-child(even){transform:rotate(2deg);margin-top:10px}
+.pc img{width:100%;height:150px;object-fit:cover;display:block}
+.pc b{display:block;font-size:13px;color:#3A2418;margin-top:8px}
+.pc span{font-size:13px;color:#C4623F;font-weight:700}
+.board{margin:0 16px;background:var(--fill);color:var(--on);border-radius:30px;padding:18px;display:flex;gap:14px;align-items:center}
+.board b{font-size:18px;display:block}
+.board small{font-size:12px;opacity:.9}
+.board .rb{background:var(--on);color:var(--fill);flex:0 0 auto}
+.bar{margin:22px 0 0;background:var(--surface);display:flex;justify-content:space-around;padding:12px 6px 22px;border-radius:28px 28px 0 0}
+.bar div{text-align:center;font-size:10.5px;color:var(--muted)}
+.bar div .ic{display:block;font-size:23px}
+.bar div.on{color:var(--fill)}
+.bar div.on .ic{background:var(--fill);color:var(--on);width:46px;height:46px;border-radius:23px 23px 23px 4px;display:flex;align-items:center;justify-content:center;margin:-26px auto 4px;box-shadow:0 6px 14px rgba(196,98,63,.4)}
+.pimg{position:relative;padding:20px 30px 10px}
+.pimg .pol{position:relative;transform:rotate(-2deg)}
+.pnav{display:flex;justify-content:space-between;padding:0 16px}
+.pt{padding:16px 16px 0;font-size:24px;font-weight:700}
+.pp{padding:2px 16px;font-size:20px;color:var(--fill);font-weight:700}
+.sw{display:flex;gap:10px;padding:12px 16px}
+.sw i{width:40px;height:40px;border-radius:20px;border:3px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.sw i.on{box-shadow:0 0 0 2px var(--fill)}
+.cta{margin:16px;height:54px;border-radius:27px;background:var(--fill);color:var(--on);display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:600}
+</style>
+</head>
+<body class="THEME">
+<div id="home">
+<div class="status"><span>9:41</span><span>●●● ▮</span></div>
+<div class="hdr"><div class="rb"><span class="ic">menu</span></div><div class="g"><small>مساء الخير يا سارة</small><b>مزاج</b></div><div class="rb"><span class="ic">search</span></div><div class="rb"><span class="ic">shopping_bag</span></div></div>
+<div class="collage">
+  <div class="pol" style="top:24px;right:18px;transform:rotate(5deg)"><div class="tape"></div><img src="dp/hero-autumn.jpg" style="width:180px;height:190px"><span>ركن الخريف</span></div>
+  <div class="pol" style="top:70px;left:22px;transform:rotate(-6deg)"><div class="tape"></div><img src="dp/pink-vase.jpg" style="width:150px;height:170px"><span>وردي ترابي</span></div>
+  <div class="pol" style="top:210px;right:120px;transform:rotate(-2deg)"><img src="dp/brass-lantern.jpg" style="width:130px;height:120px"><span>ليالي رمضان</span></div>
+  <div class="stamp">لوحة هذا الأسبوع</div>
+</div>
+<div class="title">بيتك بلون <em>مزاجك</em>.</div>
+<div class="h"><b>تسوّق باللون</b><a>كل الألوان</a></div>
+<div class="dots">
+  <div class="dot"><i style="background:#C4623F"></i>تيراكوتا</div><div class="dot"><i style="background:#A3B18A"></i>مريمية</div><div class="dot"><i style="background:#E9D8BE"></i>رملي</div><div class="dot"><i style="background:#E8B4A6"></i>وردي</div><div class="dot"><i style="background:#3D4A5C"></i>نيلي</div>
+</div>
+<div class="h"><b>لوحات الموسم</b><a>الكل</a></div>
+<div class="pals">
+  <div class="pal"><div class="st"><i style="background:#C4623F"></i><i style="background:#D99A6C"></i><i style="background:#EBCFA8"></i><i style="background:#6B4A3A"></i></div><div class="r"><img src="dp/hero-autumn.jpg"><div><b>حصاد الخريف</b><small>12 قطعة دافئة</small></div></div></div>
+  <div class="pal"><div class="st"><i style="background:#2F3B57"></i><i style="background:#C9A45C"></i><i style="background:#F2E6CF"></i><i style="background:#7C4B3A"></i></div><div class="r"><img src="dp/brass-lantern.jpg"><div><b>ليالي رمضان</b><small>9 قطع</small></div></div></div>
+</div>
+<div class="h"><b>على اللوحة</b><a>الكل</a></div>
+<div class="prods">
+  <div class="pc"><img src="dp/ribbed-vase.jpg"><b>مزهرية مضلّعة</b><span>165 ر.س</span></div>
+  <div class="pc"><img src="dp/bowls.jpg"><b>أوعية مرسومة باليد</b><span>350 ر.س</span></div>
+  <div class="pc"><img src="dp/terrarium.jpg"><b>حديقة زجاجية</b><span>150 ر.س</span></div>
+</div>
+<div class="h"></div>
+<div class="board"><div style="flex:1"><b>اصنع لوحتك</b><small>اختر ثلاثة ألوان، نقترح عليك القطع</small></div><div class="rb"><span class="ic">palette</span></div></div>
+<div class="bar"><div class="on"><span class="ic">home</span>الرئيسية</div><div><span class="ic">palette</span>الألوان</div><div><span class="ic">shopping_bag</span>السلة</div><div><span class="ic">package_2</span>طلباتي</div><div><span class="ic">person</span>حسابي</div></div>
+</div>
+<div id="product">
+<div class="status"><span>9:41</span><span>●●● ▮</span></div>
+<div class="pnav"><div class="rb"><span class="ic">arrow_forward</span></div><div class="rb"><span class="ic">favorite</span></div></div>
+<div class="pimg"><div class="pol"><div class="tape"></div><img src="dp/pink-vase.jpg" style="width:100%;height:300px"><span>وردي ترابي</span></div></div>
+<div class="pt">مزهرية وردية مع عشب البامباس</div>
+<div class="pp">185 ر.س</div>
+<div style="padding:10px 16px 0;font-size:13px;color:var(--muted)">في لوحة: حصاد الخريف</div>
+<div class="sw"><i class="on" style="background:#E8B4A6"></i><i style="background:#E9D8BE"></i><i style="background:#C4623F"></i></div>
+<div style="padding:0 16px;font-size:13.5px;line-height:1.8;color:var(--muted)">مزهرية مضلّعة من الطين المطفأ، تصلك مع باقة من عشب البامباس المجفف يحتفظ بلونه شهورًا.</div>
+<div class="cta"><span class="ic">add</span>أضف إلى السلة</div>
+</div>
+</body></html>

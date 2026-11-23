@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet">
+<style>
+:root{--page:#FFFFFF;--wall:#FAFAF8;--ink:#0B0B0B;--muted:#6B6B66;--line:#E6E6E1;--mat:#FFFFFF;--frame:#0B0B0B}
+.dark{--page:#0B0B0B;--wall:#111111;--ink:#F2F2EF;--muted:#9C9C96;--line:#262624;--mat:#1A1A19;--frame:#E9E5DC}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:390px;font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--page);color:var(--ink)}
+.ic{font-family:'Material Symbols Rounded';font-size:22px;line-height:1}
+.amiri{font-family:Amiri,serif}
+.status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:14px;font-weight:600;direction:ltr}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:4px 18px 14px}
+.hdr .wm{text-align:center;font-family:Amiri,serif;font-size:20px;line-height:1}
+.hdr .wm small{display:block;font-family:'IBM Plex Sans Arabic';font-size:9px;letter-spacing:3px;color:var(--muted);margin-top:4px}
+.now{padding:30px 28px 6px;font-size:11px;letter-spacing:2px;color:var(--muted)}
+.ex{padding:0 28px;font-family:Amiri,serif;font-size:44px;line-height:1.1}
+.dates{padding:8px 28px 0;font-size:12.5px;color:var(--muted)}
+.wall{background:var(--wall);margin-top:28px;padding:34px 0 30px}
+.frame{margin:0 auto;width:250px;border:3px solid var(--frame);background:var(--mat);padding:24px;box-shadow:0 18px 30px rgba(0,0,0,.12)}
+.frame img{width:100%;height:250px;object-fit:cover;display:block}
+.label{margin:22px auto 0;width:250px;border-inline-start:2px solid var(--ink);padding-inline-start:12px}
+.label b{font-family:Amiri,serif;font-size:19px;font-weight:700;display:block}
+.label span{display:block;font-size:11.5px;color:var(--muted);line-height:1.7}
+.label .pr{color:var(--ink);font-weight:600;margin-top:4px}
+.h{padding:44px 28px 18px}
+.h small{font-size:10.5px;letter-spacing:2px;color:var(--muted)}
+.h b{display:block;font-family:Amiri,serif;font-size:28px;font-weight:400;margin-top:2px}
+.mason{display:flex;gap:18px;padding:0 22px}
+.col{flex:1;display:flex;flex-direction:column;gap:30px}
+.col.off{margin-top:56px}
+.fc .fr{border:1.5px solid var(--frame);background:var(--mat);padding:10px}
+.fc img{width:100%;object-fit:cover;display:block}
+.fc .l{margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6}
+.fc .l b{font-family:Amiri,serif;font-size:15.5px;color:var(--ink);font-weight:700;display:block}
+.fc .l .p{color:var(--ink);font-weight:600}
+.rooms{margin:0 28px;border-top:1px solid var(--ink)}
+.rooms div{display:flex;align-items:baseline;gap:18px;padding:16px 0;border-bottom:1px solid var(--line)}
+.rooms i{font-style:normal;font-family:Amiri,serif;font-size:15px;color:var(--muted);width:26px}
+.rooms b{flex:1;font-family:Amiri,serif;font-size:22px;font-weight:400}
+.rooms span{font-size:11px;color:var(--muted)}
+.note{margin:46px 28px 0;padding:26px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.note q{font-family:Amiri,serif;font-size:22px;line-height:1.55;display:block;quotes:none}
+.note span{display:block;margin-top:12px;font-size:12px;color:var(--muted)}
+.bar{margin-top:34px;display:flex;justify-content:space-around;padding:14px 10px 22px;border-top:1px solid var(--line);background:var(--page)}
+.bar div{font-size:12.5px;color:var(--muted)}
+.bar div.on{color:var(--ink);font-weight:600}
+.bar div.on:after{content:"";display:block;height:1px;background:var(--ink);margin-top:4px}
+.pw{background:var(--wall);padding:30px 0 26px}
+.pw .frame{width:280px}
+.pw .frame img{height:300px}
+.plabel{margin:22px 28px 0}
+.plabel b{font-family:Amiri,serif;font-size:30px;font-weight:400;display:block;line-height:1.2}
+.plabel table{width:100%;margin-top:14px;border-top:1px solid var(--ink);font-size:12.5px;border-collapse:collapse}
+.plabel td{padding:9px 0;border-bottom:1px solid var(--line)}
+.plabel td:first-child{color:var(--muted);width:90px}
+.pp{display:flex;justify-content:space-between;align-items:center;margin:18px 28px 0}
+.pp b{font-size:20px;font-weight:600}
+.cta{margin:18px 28px 26px;height:52px;background:var(--ink);color:var(--page);display:flex;align-items:center;justify-content:center;font-size:14px;letter-spacing:1px}
+</style>
+</head>
+<body class="THEME">
+<div id="home">
+<div class="status"><span>9:41</span><span>●●● ▮</span></div>
+<div class="hdr"><span class="ic">menu</span><div class="wm">أثـر<small>ATHAR · GALLERY</small></div><span class="ic">shopping_bag</span></div>
+<div class="now">يُعرض الآن — القاعة الأولى</div>
+<div class="ex">أشكالٌ هادئة</div>
+<div class="dates">معرض الخريف · حتى 30 ديسمبر · 24 قطعة</div>
+<div class="wall"><div class="frame"><img src="dp/sage-jars.jpg"></div>
+<div class="label"><b>قوارير خضراء مزجّجة</b><span>الصانع: مشغل سكن للخزف</span><span>المادة: خزف حجري، زجاج تفاعلي</span><span>المقاس: 15 × 15 × 30 سم</span><span class="pr">260 ر.س</span></div></div>
+<div class="h"><small>المجموعة</small><b>على الجدار</b></div>
+<div class="mason">
+  <div class="col">
+    <div class="fc"><div class="fr"><img src="dp/ribbed-vase.jpg" style="height:210px"></div><div class="l"><b>مزهرية مضلّعة</b>خزف حجري · 14 × 28 سم<br><span class="p">165 ر.س</span></div></div>
+    <div class="fc"><div class="fr"><img src="dp/gold-mirror.jpg" style="height:150px"></div><div class="l"><b>مرآة باروك ذهبية</b>خشب منحوت · 52 × 80 سم<br><span class="p">1,480 ر.س</span></div></div>
+  </div>
+  <div class="col off">
+    <div class="fc"><div class="fr"><img src="dp/pendant-macrame.jpg" style="height:140px"></div><div class="l"><b>مصباح قمر</b>ألمنيوم وقطن · 40 سم<br><span class="p">890 ر.س</span></div></div>
+    <div class="fc"><div class="fr"><img src="dp/orchid-planter.jpg" style="height:220px"></div><div class="l"><b>أوركيد في أصيص</b>خزف أبيض · 14 × 55 سم<br><span class="p">165 ر.س</span></div></div>
+  </div>
+</div>
+<div class="h"><small>دليل القاعات</small><b>القاعات</b></div>
+<div class="rooms"><div><i>I</i><b>غرفة المعيشة</b><span>9 قطع</span></div><div><i>II</i><b>غرفة النوم</b><span>6 قطع</span></div><div><i>III</i><b>غرفة الطعام</b><span>7 قطع</span></div><div><i>IV</i><b>ركن القراءة</b><span>5 قطع</span></div></div>
+<div class="note"><q>نختار كل قطعة كما يُختار عمل لجدار متحف: أن تبقى، لا أن تملأ المكان.</q><span>— كلمة القيّمة على المعرض</span></div>
+<div class="bar"><div class="on">المعرض</div><div>المجموعة</div><div>السلة</div><div>طلباتي</div><div>حسابي</div></div>
+</div>
+<div id="product">
+<div class="status"><span>9:41</span><span>●●● ▮</span></div>
+<div class="hdr"><span class="ic">arrow_forward</span><div class="wm" style="font-size:16px">القاعة الأولى</div><span class="ic">favorite</span></div>
+<div class="pw"><div class="frame"><img src="dp/ribbed-vase.jpg"></div></div>
+<div class="plabel"><b>مزهرية خزفية مضلّعة</b>
+<table><tr><td>الصانع</td><td>مشغل سكن للخزف</td></tr><tr><td>المادة</td><td>خزف حجري مطفأ، مزجّج من الداخل</td></tr><tr><td>المقاس</td><td>14 × 14 × 28 سم</td></tr><tr><td>الحجم</td><td>صغير · كبير</td></tr></table></div>
+<div class="pp"><b>165 ر.س</b><span style="font-size:12px;color:var(--muted)">يصل خلال 3 أيام</span></div>
+<div class="cta">أضف إلى المجموعة</div>
+</div>
+</body></html>
