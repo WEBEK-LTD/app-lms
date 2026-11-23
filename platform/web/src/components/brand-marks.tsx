@@ -35,6 +35,19 @@ export function MarkSvg({ mark, height }: { mark: BrandMark; height: number }) {
 }
 
 /**
+ * 203 A store's mark (Apple's logo, Google Play's) in the text color, on a
+ * button that opens that store. Decorative: the button's words name the store.
+ */
+export function StoreMark({ store, size = 20, className = "" }: { store: AppStore; size?: number; className?: string }) {
+  const mark = STORES[store].mark!;
+  return (
+    <svg aria-hidden="true" focusable="false" viewBox={mark.viewBox} width={size} height={size} fill="currentColor" className={`flex-none ${className}`} data-store-mark={store}>
+      <path d={mark.path} />
+    </svg>
+  );
+}
+
+/**
  * WhatsApp's mark in the text color, on a button or link that opens a chat
  * with Yallapp on WhatsApp. Decorative: the button's text says "WhatsApp".
  */

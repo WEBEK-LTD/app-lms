@@ -30,6 +30,7 @@ import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { StoryEffects } from "./story/effects";
 import { HeroStage, RotatingWord, type HeroNotice } from "./home-motion";
+import { BusinessAppSection } from "./business-app";
 
 /**
  * The hero's fan of real screens, from the start side to the end side: where
@@ -326,6 +327,9 @@ export async function HomePage({ lang }: { lang: Lang }) {
             </div>
           </div>
         </Section>
+
+        {/* 203 Yallapp Business, the dashboard on the owner's phone, with its two store buttons. */}
+        <BusinessAppSection lang={lang} />
 
         <Section tinted>
           <SectionTitle title={text.compareTitle!} text={text.compareText} />

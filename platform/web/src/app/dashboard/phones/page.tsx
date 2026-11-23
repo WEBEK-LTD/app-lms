@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { signOutAllPhonesAction, signOutPhoneAction } from "@/app/actions/owner-devices";
+import { BusinessAppButtons } from "@/components/business-app";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { KitCallout, KitEmpty, KitHeader, KitHero, KitMore, KitNext, KitPage, KitStat, KitStatus, KitThumb, kit } from "@/components/studio-page";
@@ -26,6 +27,13 @@ export default async function PhonesPage({ searchParams }: PageProps<"/dashboard
   const done = typeof signedOut === "string" ? (signedOut === "all" ? t("owner.signedOutAll") : t("owner.signedOut", { name: signedOut })) : null;
   const withNotifications = devices.filter((device) => device.pushToken).length;
   const iphones = devices.filter((device) => device.platform === "ios").length;
+  const storeLabels = {
+    appStoreLine: t("owner.appStoreLine"),
+    appStore: t("owner.appStore"),
+    googlePlayLine: t("owner.googlePlayLine"),
+    googlePlay: t("owner.googlePlay"),
+    newTab: t("owner.newTab"),
+  };
   const system = (device: (typeof devices)[number]) => (
     <bdi>
       {device.platform === "ios" ? t("owner.ios") : t("owner.android")}
@@ -60,6 +68,16 @@ export default async function PhonesPage({ searchParams }: PageProps<"/dashboard
           {done}
         </KitCallout>
       ) : null}
+      {/* 203 Yallapp Business on the App Store and Google Play, to install it on a phone. */}
+      <div data-phones-get-app="">
+        <KitCallout
+          icon="download"
+          title={t("owner.getApp")}
+          action={<BusinessAppButtons labels={storeLabels} label={t("owner.getApp")} tone="kit" size="sm" className="gap-2" />}
+        >
+          {t("owner.getAppText")}
+        </KitCallout>
+      </div>
       {devices.length ? (
         <>
           <KitHero

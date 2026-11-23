@@ -10,6 +10,7 @@ import type { IconName } from "@/components/icon-names";
 import { JsonLdScript } from "@/components/json-ld";
 import { InlineNodes, MarkdownBlocks } from "@/components/markdown";
 import { WhatsAppMark } from "@/components/brand-marks";
+import { BusinessAppButtons } from "@/components/business-app";
 import { DOCS, docBySlug, type DocSection } from "@/content/docs";
 import type { ApiEndpoint, ApiReference } from "@/lib/api-reference";
 import { getContact } from "@/lib/contact";
@@ -212,6 +213,17 @@ function DocFigures({ screens, lang }: { screens: (AppScreen | DashboardScreen)[
   );
 }
 
+/** 203 "Get the app": Yallapp Business on the App Store and Google Play (lib/business-app.ts). */
+function BusinessAppDownload({ lang }: { lang: Lang }) {
+  const b = messagesFor(lang).businessApp;
+  return (
+    <div className="flex flex-col gap-3 rounded-[14px] border border-line bg-sand px-5 py-[18px]" data-doc-business-app="">
+      <span className="font-bold text-midnight">{b.docsTitle}</span>
+      <BusinessAppButtons labels={b} label={b.storesLabel} size="sm" />
+    </div>
+  );
+}
+
 export async function DocPage({ lang, slug }: { lang: Lang; slug: string }) {
   const article = docBySlug(slug);
   if (!article) notFound();
@@ -247,6 +259,8 @@ export async function DocPage({ lang, slug }: { lang: Lang; slug: string }) {
         <h1 className="m-0 text-[30px] leading-[1.15] font-extrabold tracking-[-0.5px] text-midnight sm:text-4xl">{text.title}</h1>
         <MarkdownBlocks blocks={doc.intro} anchors lang={lang} />
         {article.figures?.length ? <DocFigures screens={article.figures} lang={lang} /> : null}
+        {/* 203 The article about Yallapp Business: its two store buttons under the introduction. */}
+        {article.slug === "yallapp-business" ? <BusinessAppDownload lang={lang} /> : null}
 
         {doc.steps.length >= 3 ? (
           <nav aria-label={m.onThisPage} className="flex flex-col gap-1.5 rounded-[14px] border border-line-soft px-5 py-4 text-[15px]">
